@@ -20,11 +20,7 @@ package com.wire.android.ui
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.lifecycle.repeatOnLifecycle
 import com.ramcosta.composedestinations.utils.destination
 import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
@@ -33,6 +29,7 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.getBaseRoute
 import com.wire.android.ui.authentication.login.PreFilledUserIdentifierType
+import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.ImportMediaScreenDestination
@@ -45,25 +42,20 @@ import kotlinx.coroutines.flow.Flow
 internal fun HandleViewActions(actions: Flow<WireActivityViewAction>, navigator: Navigator, loginTypeSelector: LoginTypeSelector) {
 
     val context = LocalContext.current
-    val lifecycle = LocalLifecycleOwner.current
-
-    LaunchedEffect(Unit) {
-        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            actions.collect { action ->
-                when (action) {
-                    is OnAuthorizationNeeded -> onAuthorizationNeeded(context, navigator)
-                    is OnMigrationLogin -> onMigration(navigator, loginTypeSelector, action)
-                    is OnOpenUserProfile -> openUserProfile(action, navigator)
-                    is OnSSOLogin -> openSsoLogin(navigator, action)
-                    is OnShowImportMediaScreen -> openImportMediaScreen(navigator)
-                    is OpenConversation -> openConversation(action, navigator)
-                    is OnUnknownDeepLink -> if (navigator.isEmptyWelcomeStartDestination()) {
-                        // log in needed so if "welcome empty start" screen then switch "start" screen to login by navigating to it
-                        navigator.navigate(NavigationCommand(NewLoginScreenDestination(), BackStackMode.CLEAR_WHOLE))
-                    }
-                    is ShowToast -> showToast(context, action.messageResId)
-                }
+    HandleActions(actions) { action ->
+        when (action) {
+            is OnAuthorizationNeeded -> onAuthorizationNeeded(context, navigator)
+            is OnMigrationLogin -> onMigration(navigator, loginTypeSelector, action)
+            is OnOpenUserProfile -> openUserProfile(action, navigator)
+            is OnSSOLogin -> openSsoLogin(navigator, action)
+            is OnShowImportMediaScreen -> openImportMediaScreen(navigator)
+            is OpenConversation -> openConversation(action, navigator)
+            is OnUnknownDeepLink -> if (navigator.isEmptyWelcomeStartDestination()) {
+                // log in needed so if "welcome empty start" screen then switch "start" screen to login by navigating to it
+                navigator.navigate(NavigationCommand(NewLoginScreenDestination(), BackStackMode.CLEAR_WHOLE))
             }
+
+            is ShowToast -> showToast(context, action.messageResId)
         }
     }
 }

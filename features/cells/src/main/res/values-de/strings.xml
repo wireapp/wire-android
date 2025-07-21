@@ -16,4 +16,43 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
-<resources></resources>
+<resources>
+    <string name="retry">Wiederholen</string>
+    <string name="share_label">Teilen</string>
+    <string name="delete_label">Löschen</string>
+    <string name="delete_permanently">Endgültig löschen</string>
+    <string name="restore_label">Wiederherstellen</string>
+    <string name="download_label">Herunterladen</string>
+    <string name="copy_link">Link kopieren</string>
+    <string name="share_link">Link teilen</string>
+    <string name="copied_to_clipboard_message">Link in Zwischenablage kopiert</string>
+    <string name="create_public_link">Öffentlichen Link erstellen</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="confirm_delete_file_text">Die Datei %1$s wird in den Papierkorb dieser Unterhaltung verschoben.</string>
+    <string name="confirm_delete_folder_text">Der Ordner %1$s wird in den Papierkorb dieser Unterhaltung verschoben.</string>
+    <string name="download">Herunterladen</string>
+    <string name="conversation_files_title">Dateien</string>
+    <string name="creating_link">Öffentlicher Link wird erstellt…</string>
+    <string name="cells_new_label">Neu</string>
+    <string name="cells_new_label_content_description">Neu</string>
+    <string name="cells_create_folder">Ordner erstellen</string>
+    <string name="cells_folder_name">Ordnername</string>
+    <string name="loading_files">Dateien werden geladen…</string>
+    <string name="open_recycle_bin">Papierkorb öffnen</string>
+    <string name="dialog_restore_button_label">Wiederherstellen</string>
+    <string name="rename_file_label">Datei umbenennen</string>
+    <string name="rename_folder_label">Ordner umbenennen</string>
+    <string name="rename_label">Umbenennen</string>
+    <string name="rename_file_name_label">Dateiname</string>
+    <string name="rename_folder_name_label">Ordnername</string>
+    <string name="rename_long_file_name_error">Verwenden Sie einen kürzeren Namen (max. 64 Zeichen)</string>
+    <string name="rename_long_folder_name_error">Verwenden Sie einen kürzeren Namen (max. 64 Zeichen)</string>
+    <string name="rename_enter_file_name">Dateinamen eingeben</string>
+    <string name="rename_enter_folder_name">Ordnernamen eingeben</string>
+    <string name="rename_file_renamed">Datei wurde umbenannt</string>
+    <string name="rename_folder_renamed">Ordner wurde umbenannt</string>
+    <string name="filter_label">Filter</string>
+    <string name="tags_label">Tags</string>
+    <string name="clear_all_label">Alle löschen</string>
+    <string name="apply_label">Anwenden</string>
+</resources>

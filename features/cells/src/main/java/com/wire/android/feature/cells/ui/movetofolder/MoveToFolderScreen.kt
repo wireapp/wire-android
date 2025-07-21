@@ -52,16 +52,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.lifecycle.repeatOnLifecycle
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.FileIconPreview
 import com.wire.android.feature.cells.ui.FolderIconPreview
-import com.wire.android.feature.cells.ui.FullScreenLoading
-import com.wire.android.feature.cells.ui.LoadingScreen
+import com.wire.android.feature.cells.ui.common.Breadcrumbs
+import com.wire.android.feature.cells.ui.common.FullScreenLoading
+import com.wire.android.feature.cells.ui.common.LoadingScreen
 import com.wire.android.feature.cells.ui.destinations.CreateFolderScreenDestination
 import com.wire.android.feature.cells.ui.destinations.MoveToFolderScreenDestination
 import com.wire.android.feature.cells.ui.model.CellNodeUi
@@ -71,6 +69,7 @@ import com.wire.android.navigation.PreviewNavigator
 import com.wire.android.navigation.PreviewResultRecipient
 import com.wire.android.navigation.WireNavigator
 import com.wire.android.navigation.annotation.features.cells.WireDestination
+import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
@@ -91,7 +90,6 @@ import com.wire.android.ui.theme.wireTypography
 @Composable
 fun MoveToFolderScreen(
     navigator: WireNavigator,
-    moveToFolderNavArgs: MoveToFolderNavArgs,
     createFolderResultRecipient: ResultRecipient<CreateFolderScreenDestination, Boolean>,
     modifier: Modifier = Modifier,
     moveToFolderViewModel: MoveToFolderViewModel = hiltViewModel()
@@ -101,23 +99,31 @@ fun MoveToFolderScreen(
         mutableStateOf(false)
     }
 
-    val lifecycle = LocalLifecycleOwner.current
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         moveToFolderViewModel.loadFolders()
     }
     Box(modifier = Modifier.fillMaxSize()) {
-
         WireScaffold(
             modifier = modifier,
             topBar = {
-                WireCenterAlignedTopAppBar(
-                    onNavigationPressed = { navigator.navigateBack() },
-                    title = moveToFolderNavArgs.screenName ?: stringResource(R.string.move_to_folder),
-                    navigationIconType = NavigationIconType.Back(),
-                    elevation = dimensions().spacing0x
-                )
+                Column {
+                    WireCenterAlignedTopAppBar(
+                        onNavigationPressed = { navigator.navigateBack() },
+                        title = stringResource(R.string.move_to_folder),
+                        navigationIconType = NavigationIconType.Back(),
+                        elevation = dimensions().spacing0x
+                    )
+                    if (moveToFolderViewModel.breadcrumbs().isNotEmpty()) {
+                        Breadcrumbs(
+                            pathSegments = moveToFolderViewModel.breadcrumbs(),
+                            modifier = Modifier
+                                .height(dimensions().spacing40x)
+                                .fillMaxWidth(),
+                        )
+                    }
+                }
             },
             bottomBar = {
                 AnimatedVisibility(
@@ -176,7 +182,7 @@ fun MoveToFolderScreen(
                                 currentPath = "${moveToFolderViewModel.currentPath()}/${folder.name}",
                                 nodeToMovePath = moveToFolderViewModel.nodeToMovePath(),
                                 uuid = moveToFolderViewModel.nodeUuid(),
-                                screenName = folder.name
+                                breadcrumbs = folder.name?.let { moveToFolderViewModel.breadcrumbs() + it } ?: emptyArray()
                             ),
                             launchSingleTop = false
                         )
@@ -190,22 +196,15 @@ fun MoveToFolderScreen(
         }
     }
 
-    LaunchedEffect(Unit) {
-        context.resources.getString(R.string.item_move_success)
-        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            moveToFolderViewModel.actions.collect { action ->
-                when (action) {
-                    is ActionUiEvent.MoveItemUiEvent -> {
-                        if (action is ActionUiEvent.MoveItemUiEvent.Success) {
-                            Toast.makeText(context, context.resources.getString(R.string.item_move_success), Toast.LENGTH_SHORT).show()
-                        } else {
-                            Toast.makeText(context, context.resources.getString(R.string.item_move_failure), Toast.LENGTH_SHORT).show()
-                        }
-                        navigator.navigateBackAndRemoveAllConsecutive(MoveToFolderScreenDestination.route)
-                    }
-                }
-            }
+    HandleActions(moveToFolderViewModel.actions) { action ->
+        when (action) {
+            is MoveToFolderViewAction.Success ->
+                Toast.makeText(context, context.resources.getString(R.string.item_move_success), Toast.LENGTH_SHORT).show()
+
+            is MoveToFolderViewAction.Failure ->
+                Toast.makeText(context, context.resources.getString(R.string.item_move_failure), Toast.LENGTH_SHORT).show()
         }
+        navigator.navigateBackAndRemoveAllConsecutive(MoveToFolderScreenDestination.route)
     }
 
     createFolderResultRecipient.onNavResult { result ->
@@ -319,12 +318,6 @@ fun PreviewMoveToFolderScreen() {
     WireTheme {
         MoveToFolderScreen(
             navigator = PreviewNavigator,
-            moveToFolderNavArgs = MoveToFolderNavArgs(
-                currentPath = "some path",
-                nodeToMovePath = "some path",
-                uuid = "243567990900989897",
-                screenName = "some folder.pdf"
-            ),
             createFolderResultRecipient = PreviewResultRecipient as ResultRecipient<CreateFolderScreenDestination, Boolean>
         )
     }

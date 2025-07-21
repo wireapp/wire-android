@@ -23,7 +23,6 @@ import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.WorkManager
 import com.wire.android.BuildConfig
@@ -40,6 +39,7 @@ import com.wire.android.feature.SwitchAccountParam
 import com.wire.android.feature.SwitchAccountResult
 import com.wire.android.services.ServicesManager
 import com.wire.android.ui.authentication.devices.model.displayName
+import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.common.dialogs.CustomServerDetailsDialogState
 import com.wire.android.ui.common.dialogs.CustomServerDialogState
 import com.wire.android.ui.common.dialogs.CustomServerNoNetworkDialogState
@@ -82,8 +82,6 @@ import com.wire.kalium.util.DateTimeUtil.toIsoDateTimeString
 import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -94,7 +92,6 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -107,7 +104,7 @@ import javax.inject.Inject
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class WireActivityViewModel @Inject constructor(
-    @KaliumCoreLogic private val coreLogic: CoreLogic,
+    @KaliumCoreLogic private val coreLogic: Lazy<CoreLogic>,
     private val dispatchers: DispatcherProvider,
     currentSessionFlow: Lazy<CurrentSessionFlowUseCase>,
     private val doesValidSessionExist: Lazy<DoesValidSessionExistUseCase>,
@@ -125,7 +122,7 @@ class WireActivityViewModel @Inject constructor(
     private val globalDataStore: Lazy<GlobalDataStore>,
     private val observeIfE2EIRequiredDuringLoginUseCaseProviderFactory: ObserveIfE2EIRequiredDuringLoginUseCaseProvider.Factory,
     private val workManager: Lazy<WorkManager>
-) : ViewModel() {
+) : ActionsViewModel<WireActivityViewAction>() {
 
     var globalAppState: GlobalAppState by mutableStateOf(GlobalAppState())
         private set
@@ -149,12 +146,6 @@ class WireActivityViewModel @Inject constructor(
 
     private lateinit var validSessions: StateFlow<List<AccountInfo>>
 
-    private val _actions = Channel<WireActivityViewAction>(
-        capacity = Channel.BUFFERED,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST
-    )
-    internal val actions = _actions.receiveAsFlow()
-
     init {
         observeSyncState()
         observeUpdateAppState()
@@ -162,6 +153,7 @@ class WireActivityViewModel @Inject constructor(
         observeScreenshotCensoringConfigState()
         observeAppThemeState()
         observeLogoutState()
+        resetNewRegistrationAnalyticsState()
     }
 
     private suspend fun shouldEnrollToE2ei(): Boolean = observeCurrentValidUserId.first()?.let {
@@ -257,7 +249,7 @@ class WireActivityViewModel @Inject constructor(
     @VisibleForTesting
     internal suspend fun initValidSessionsFlowIfNeeded() {
         if (::validSessions.isInitialized.not()) { // initialise valid sessions flow if not already initialised
-                validSessions = validSessionsFlow().stateIn(viewModelScope, SharingStarted.Eagerly, validSessionsFlow().first())
+            validSessions = validSessionsFlow().stateIn(viewModelScope, SharingStarted.Eagerly, validSessionsFlow().first())
         }
     }
 
@@ -296,11 +288,11 @@ class WireActivityViewModel @Inject constructor(
         data: InputStream
     ) {
         viewModelScope.launch(dispatchers.io()) {
-            when (val currentSession = coreLogic.getGlobalScope().session.currentSession()) {
+            when (val currentSession = coreLogic.get().getGlobalScope().session.currentSession()) {
                 is CurrentSessionResult.Failure.Generic -> null
                 CurrentSessionResult.Failure.SessionNotFound -> null
                 is CurrentSessionResult.Success -> {
-                    coreLogic.sessionScope(currentSession.accountInfo.userId) {
+                    coreLogic.get().sessionScope(currentSession.accountInfo.userId) {
                         when (val result = debug.synchronizeExternalData(InputStreamReader(data).readText())) {
                             is SynchronizeExternalDataResult.Success -> {
                                 appLogger.d("Synchronized external data")
@@ -366,11 +358,11 @@ class WireActivityViewModel @Inject constructor(
         switchAccountActions: SwitchAccountActions
     ) {
         viewModelScope.launch {
-            coreLogic.getGlobalScope().session.currentSession().takeIf {
+            coreLogic.get().getGlobalScope().session.currentSession().takeIf {
                 it is CurrentSessionResult.Success
             }?.let {
                 val currentUserId = (it as CurrentSessionResult.Success).accountInfo.userId
-                coreLogic.getSessionScope(currentUserId).logout(LogoutReason.SELF_HARD_LOGOUT)
+                coreLogic.get().getSessionScope(currentUserId).logout(LogoutReason.SELF_HARD_LOGOUT)
                 clearUserData(currentUserId)
             }
             accountSwitch.get().invoke(SwitchAccountParam.TryToSwitchToNextAccount).also {
@@ -447,11 +439,11 @@ class WireActivityViewModel @Inject constructor(
         key: String,
         domain: String?,
         onSuccess: (ConversationId) -> Unit
-    ) = when (val currentSession = coreLogic.getGlobalScope().session.currentSession()) {
+    ) = when (val currentSession = coreLogic.get().getGlobalScope().session.currentSession()) {
         is CurrentSessionResult.Failure.Generic -> null
         CurrentSessionResult.Failure.SessionNotFound -> null
         is CurrentSessionResult.Success -> {
-            coreLogic.sessionScope(currentSession.accountInfo.userId) {
+            coreLogic.get().sessionScope(currentSession.accountInfo.userId) {
                 when (val result = conversations.checkIConversationInviteCode(code, key, domain)) {
                     is CheckConversationInviteCodeUseCase.Result.Success -> {
                         if (result.isSelfMember) {
@@ -493,7 +485,7 @@ class WireActivityViewModel @Inject constructor(
 
     fun observePersistentConnectionStatus() {
         viewModelScope.launch {
-            coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus()
+            coreLogic.get().getGlobalScope().observePersistentWebSocketConnectionStatus()
                 .let { result ->
                     when (result) {
                         is ObservePersistentWebSocketConnectionStatusUseCase.Result.Failure -> {
@@ -522,6 +514,13 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Reset any unfinished registration process analytics where the user aborted and enabled the registration analytics.
+     */
+    private fun resetNewRegistrationAnalyticsState() = viewModelScope.launch {
+        globalDataStore.get().setAnonymousRegistrationEnabled(false)
+    }
+
     private fun CurrentScreen.isGlobalDialogAllowed(): Boolean = when (this) {
         is CurrentScreen.ImportMedia,
         is CurrentScreen.DeviceManager -> false
@@ -532,10 +531,6 @@ class WireActivityViewModel @Inject constructor(
         is CurrentScreen.OtherUserProfile,
         is CurrentScreen.AuthRelated,
         is CurrentScreen.SomeOther -> true
-    }
-
-    private fun sendAction(action: WireActivityViewAction) = viewModelScope.launch {
-        _actions.send(action)
     }
 }
 
@@ -606,7 +601,7 @@ enum class InitialAppState {
     NOT_LOGGED_IN, LOGGED_IN, ENROLL_E2EI
 }
 
-internal sealed interface WireActivityViewAction
+sealed interface WireActivityViewAction
 internal data class OpenConversation(val result: DeepLinkResult.OpenConversation) : WireActivityViewAction
 internal data object OnShowImportMediaScreen : WireActivityViewAction
 internal data object OnAuthorizationNeeded : WireActivityViewAction

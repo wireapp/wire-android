@@ -106,7 +106,7 @@ class MoveToFolderViewModelTest {
         advanceUntilIdle()
         viewModel.actions.test {
             with(expectMostRecentItem()) {
-                assertTrue(this is ActionUiEvent.MoveItemUiEvent.Success)
+                assertTrue(this is MoveToFolderViewAction.Success)
             }
         }
     }
@@ -123,7 +123,7 @@ class MoveToFolderViewModelTest {
         advanceUntilIdle()
         viewModel.actions.test {
             with(expectMostRecentItem()) {
-                assertTrue(this is ActionUiEvent.MoveItemUiEvent.Failure)
+                assertTrue(this is MoveToFolderViewAction.Failure)
             }
         }
     }

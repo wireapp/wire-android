@@ -223,12 +223,25 @@
     <string name="content_description_close_dropdown">açılır listeyi kapat</string>
     <string name="content_description_open_notification_settings_label">bildirim ayarlarını aç</string>
     <string name="content_description_new_conversation_close_btn">Yeni konuşma görünümünü kapat</string>
+    <string name="content_description_new_group_name_field">Grup adını yazın</string>
+    <string name="content_description_new_channel_name_field">Kanal adını yazın</string>
+    <string name="content_description_new_conversation_options_heading">Sohbet ayarları</string>
+    <string name="content_description_self_profile_close">Profili kapat</string>
+    <string name="content_description_self_profile_heading">Profil</string>
+    <string name="content_description_self_profile_avatar">Profil resmi</string>
+    <string name="content_description_self_profile_profile_name">Profil adı, %s</string>
+    <string name="content_description_self_profile_username">Kullanıcı adı, %s</string>
+    <string name="content_description_self_profile_team">Ekip adı, %s</string>
+    <string name="content_description_self_profile_manage_team_btn">Ekibi yönet</string>
+    <string name="content_description_login_user_identifier_field">e-posta adresinizi ya da kullanıcı adınızı girin</string>
+    <string name="content_description_login_email_field">e-posta adresi girin</string>
     <string name="content_description_login_password_field">parolanızı girin</string>
     <string name="content_description_empty"></string>
     <!-- Non translatable strings-->
     <!-- Wire Urls - Non translatable -->
     <!-- Navigation -->
     <string name="vault_screen_title">Kasa</string>
+    <string name="channels_screen_title">Kanallar</string>
     <string name="archive_screen_title">Arşiv</string>
     <string name="archive_screen_empty_state_title">Henüz arşivlenmiş bir şey yok 👻</string>
     <string name="archive_screen_empty_state_description">Konuşma listenizi düzenli tutmak için kullanılmayan konuşmaları buraya taşıyın. Bunları daha sonra istediğiniz zaman arşivden çıkarabilirsiniz.</string>
@@ -238,6 +251,7 @@
     <string name="give_feedback_screen_title">Geri Bildirim Ver</string>
     <string name="report_bug_screen_title">Hata Bildir</string>
     <string name="about_app_screen_title">Bu uygulama hakkında</string>
+    <string name="settings_privacy_policy_label">Gizlilik Politikası</string>
     <string name="settings_terms_of_use_label">Yasal</string>
     <string name="settings_wire_website_label">Wire Web Sitesi</string>
     <string name="label_copyright">Telif Hakkı</string>
@@ -268,8 +282,10 @@ Yedek dosyayı korumak için güçlü bir şifre seçin.</string>
     <string name="welcome_screen_carousel_item_message_1">En güvenli işbirliği platformu Wire\'a hoş geldiniz!</string>
     <string name="welcome_screen_carousel_item_message_5">Wire bağımsız olarak denetlenir ve ISO, CCPA, GDPR, SOX ile uyumludur</string>
     <string name="welcome_button_create_team">Bir ekip oluşturun</string>
+    <string name="welcome_migration_dialog_title">👋 Wire\'ın Yeni Android Uygulamasına Hoşgeldin!</string>
     <string name="welcome_migration_dialog_continue">Wire\'ı kullanmaya başlayın</string>
     <!-- API Versioning Dialogs -->
+    <string name="api_versioning_client_update_required_title">Güncelleme gerekli</string>
     <string name="api_versioning_server_version_not_supported_title">Sunucu versiyonu desteklenmiyor</string>
     <string name="api_versioning_server_version_not_supported_message">Wire sunucunuzun güncellenmesi gerekiyor. Lütfen sistem yöneticinizi bilgilendirin.</string>
     <!-- Migration -->
@@ -297,8 +313,9 @@ Yedek dosyayı korumak için güçlü bir şifre seçin.</string>
     <string name="conversation_details_title">Konuşma Detayları</string>
     <string name="conversation_details_options_tab">SEÇENEKLER</string>
     <string name="conversation_details_participants_tab">KATILIMCILAR</string>
-    <string name="conversation_details_participants_count">katılımcılar %s</string>
+    <string name="conversation_details_participants_count">%s Katılımcı</string>
     <string name="conversation_options_guests_label">Misafirler</string>
+    <string name="conversation_details_guest_description">Eğer bu seçenek açık ise, ekibiniz dışındaki kişiler bu sohbete katılabilir.</string>
     <string name="conversation_options_services_label">Servisler</string>
     <string name="conversation_options_services_description">Bu görüşmeyi hizmetlere açmak için bu seçeneği AÇIK konumuna getirin.</string>
     <!-- Import/Export External Media -->
@@ -374,6 +391,7 @@ Yedek dosyayı korumak için güçlü bir şifre seçin.</string>
     <!-- Analytics Usage dialog -->
     <!-- session reset -->
     <!-- join conversation dialog -->
+    <string name="join_conversation_dialog_title">Konuşmaya katıl?</string>
     <!-- edit self-deleting messages -->
     <string name="self_deleting_messages_title">Kendini yok eden iletiler</string>
     <!-- visit link -->

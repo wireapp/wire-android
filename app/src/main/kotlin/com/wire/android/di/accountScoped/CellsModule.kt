@@ -25,18 +25,22 @@ import com.wire.kalium.cells.domain.usecase.AddAttachmentDraftUseCase
 import com.wire.kalium.cells.domain.usecase.CreateFolderUseCase
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
 import com.wire.kalium.cells.domain.usecase.DownloadCellFileUseCase
+import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
 import com.wire.kalium.cells.domain.usecase.GetFoldersUseCase
-import com.wire.kalium.cells.domain.usecase.GetPaginatedNodesUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
+import com.wire.kalium.cells.domain.usecase.GetPaginatedNodesUseCase
 import com.wire.kalium.cells.domain.usecase.MoveNodeUseCase
 import com.wire.kalium.cells.domain.usecase.ObserveAttachmentDraftsUseCase
 import com.wire.kalium.cells.domain.usecase.PublishAttachmentsUseCase
 import com.wire.kalium.cells.domain.usecase.RefreshCellAssetStateUseCase
 import com.wire.kalium.cells.domain.usecase.RemoveAttachmentDraftUseCase
 import com.wire.kalium.cells.domain.usecase.RemoveAttachmentDraftsUseCase
+import com.wire.kalium.cells.domain.usecase.RemoveNodeTagsUseCase
+import com.wire.kalium.cells.domain.usecase.RenameNodeUseCase
 import com.wire.kalium.cells.domain.usecase.RestoreNodeFromRecycleBinUseCase
 import com.wire.kalium.cells.domain.usecase.RetryAttachmentUploadUseCase
 import com.wire.kalium.cells.domain.usecase.SetWireCellForConversationUseCase
+import com.wire.kalium.cells.domain.usecase.UpdateNodeTagsUseCase
 import com.wire.kalium.cells.domain.usecase.publiclink.CreatePublicLinkUseCase
 import com.wire.kalium.cells.domain.usecase.publiclink.DeletePublicLinkUseCase
 import com.wire.kalium.cells.domain.usecase.publiclink.GetPublicLinkUseCase
@@ -141,4 +145,21 @@ class CellsModule {
     @Provides
     fun provideRestoreNodeFromRecycleBinUseCase(cellsScope: CellsScope): RestoreNodeFromRecycleBinUseCase =
         cellsScope.restoreNodeFromRecycleBin
+
+    @ViewModelScoped
+    @Provides
+    fun provideRenameNodeUseCase(cellsScope: CellsScope): RenameNodeUseCase =
+        cellsScope.renameNodeUseCase
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetAllTagsUseCase(cellsScope: CellsScope): GetAllTagsUseCase = cellsScope.getAllTags
+
+    @ViewModelScoped
+    @Provides
+    fun provideUpdateNodeTagsUseCase(cellsScope: CellsScope): UpdateNodeTagsUseCase = cellsScope.updateNodeTagsUseCase
+
+    @ViewModelScoped
+    @Provides
+    fun provideRemoveNodeTagsUseCase(cellsScope: CellsScope): RemoveNodeTagsUseCase = cellsScope.removeNodeTagsUseCase
 }

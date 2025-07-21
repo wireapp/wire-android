@@ -69,9 +69,9 @@ import kotlinx.datetime.Instant
 import okio.IOException
 import okio.Path.Companion.toPath
 import okio.buffer
-import org.amshove.kluent.internal.assertEquals
-import org.amshove.kluent.internal.assertFalse
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertInstanceOf
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
@@ -111,7 +111,7 @@ class BackupAndRestoreViewModelTest {
         // Then
         assert(backupAndRestoreViewModel.state.backupCreationProgress is BackupCreationProgress.Finished)
         assertFalse(backupAndRestoreViewModel.latestCreatedBackup?.isEncrypted!!)
-        coVerify(exactly = 1) { arrangement.createMpBackupFile(password = emptyPassword) }
+        coVerify(exactly = 1) { arrangement.createMpBackupFile(password = emptyPassword, any()) }
     }
 
     @Test
@@ -131,7 +131,7 @@ class BackupAndRestoreViewModelTest {
         // Then
         assertInstanceOf(BackupCreationProgress.Finished::class.java, backupAndRestoreViewModel.state.backupCreationProgress)
         assertTrue(backupAndRestoreViewModel.latestCreatedBackup?.isEncrypted!!)
-        coVerify(exactly = 1) { arrangement.createMpBackupFile(password = password) }
+        coVerify(exactly = 1) { arrangement.createMpBackupFile(password = password, any()) }
     }
 
     @Test
@@ -198,9 +198,9 @@ class BackupAndRestoreViewModelTest {
         advanceUntilIdle()
 
         // Then
-        assertEquals(backupAndRestoreViewModel.state.backupCreationProgress, BackupCreationProgress.Failed)
+        assertEquals(BackupCreationProgress.Failed, backupAndRestoreViewModel.state.backupCreationProgress)
         assert(backupAndRestoreViewModel.latestCreatedBackup == null)
-        coVerify(exactly = 1) { arrangement.createMpBackupFile(password = password) }
+        coVerify(exactly = 1) { arrangement.createMpBackupFile(password = password, any()) }
     }
 
     @Test
@@ -504,7 +504,7 @@ class BackupAndRestoreViewModelTest {
             withGetLastBackupDateSeconds()
             every { Uri.parse("some-backup") } returns mockUri
             coEvery { importBackup(any(), any()) } returns RestoreBackupResult.Success
-            coEvery { createMpBackupFile(any()) } returns CreateBackupResult.Success("".toPath(), "")
+            coEvery { createMpBackupFile(any(), any()) } returns CreateBackupResult.Success("".toPath(), "")
             coEvery { verifyBackup(any()) } returns VerifyBackupResult.Success(BackupFileFormat.ANDROID, true)
         }
 
@@ -551,12 +551,12 @@ class BackupAndRestoreViewModelTest {
         fun withSuccessfulCreation(password: String) = apply {
             val backupFilePath = "some-file-path".toPath()
             val backupName = "some-backup.zip"
-            coEvery { createMpBackupFile(eq(password)) } returns CreateBackupResult.Success(backupFilePath, backupName)
+            coEvery { createMpBackupFile(eq(password)) {} } returns CreateBackupResult.Success(backupFilePath, backupName)
         }
 
         fun withFailedCreation(password: String) = apply {
             coEvery {
-                createMpBackupFile(eq(password))
+                createMpBackupFile(eq(password), any())
             } returns CreateBackupResult.Failure(CoreFailure.Unknown(IOException("Some db error")))
         }
 

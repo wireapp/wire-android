@@ -19,7 +19,10 @@
 package com.wire.android.ui.authentication.devices.remove
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -29,16 +32,11 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.lifecycle.repeatOnLifecycle
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.feature.NavigationSwitchAccountActions
 import com.wire.android.navigation.BackStackMode
@@ -47,10 +45,12 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
+import com.wire.android.navigation.style.TransitionAnimationType
 import com.wire.android.ui.authentication.devices.DeviceItem
 import com.wire.android.ui.authentication.devices.common.ClearSessionState
 import com.wire.android.ui.authentication.devices.common.ClearSessionViewModel
 import com.wire.android.ui.authentication.devices.model.Device
+import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.SurfaceBackgroundWrapper
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
@@ -71,7 +71,6 @@ import com.wire.android.util.dialogErrorStrings
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.conversation.ClientId
 
-@RootNavGraph
 @WireDestination(
     style = PopUpNavigationAnimation::class,
 )
@@ -82,8 +81,6 @@ fun RemoveDeviceScreen(
     viewModel: RemoveDeviceViewModel = hiltViewModel(),
     clearSessionViewModel: ClearSessionViewModel = hiltViewModel(),
 ) {
-    val lifecycle = LocalLifecycleOwner.current
-
     fun navigateAfterSuccess(initialSyncCompleted: Boolean, isE2EIRequired: Boolean) = navigator.navigate(
         NavigationCommand(
             destination = if (isE2EIRequired) E2EIEnrollmentScreenDestination
@@ -94,22 +91,35 @@ fun RemoveDeviceScreen(
     )
 
     clearAutofillTree()
-    RemoveDeviceContent(
-        state = viewModel.state,
-        passwordTextState = viewModel.passwordTextState,
-        clearSessionState = clearSessionViewModel.state,
-        onItemClicked = { viewModel.onItemClicked(it) },
-        onRemoveConfirm = { viewModel.onRemoveConfirmed() },
-        onDialogDismiss = viewModel::onDialogDismissed,
-        onErrorDialogDismiss = viewModel::clearDeleteClientError,
-        onBackButtonClicked = clearSessionViewModel::onBackButtonClicked,
-        onCancelLoginClicked = {
-            clearSessionViewModel.onCancelLoginClicked(
-                NavigationSwitchAccountActions(navigator::navigate, loginTypeSelector::canUseNewLogin)
-            )
+
+    AnimatedContent(
+        targetState = viewModel.secondFactorVerificationCodeState.isCodeInputNecessary,
+        transitionSpec = {
+            TransitionAnimationType.SLIDE.enterTransition.togetherWith(TransitionAnimationType.SLIDE.exitTransition)
         },
-        onProceedLoginClicked = clearSessionViewModel::onProceedLoginClicked
-    )
+        modifier = Modifier.fillMaxSize()
+    ) { isCodeNecessary ->
+        if (isCodeNecessary) {
+            RemoveDeviceVerificationCodeScreen(viewModel)
+        } else {
+            RemoveDeviceContent(
+                state = viewModel.state,
+                passwordTextState = viewModel.passwordTextState,
+                clearSessionState = clearSessionViewModel.state,
+                onItemClicked = { viewModel.onItemClicked(it) },
+                onRemoveConfirm = { viewModel.onRemoveConfirmed() },
+                onDialogDismiss = viewModel::onDialogDismissed,
+                onErrorDialogDismiss = viewModel::clearDeleteClientError,
+                onBackButtonClicked = clearSessionViewModel::onBackButtonClicked,
+                onCancelLoginClicked = {
+                    clearSessionViewModel.onCancelLoginClicked(
+                        NavigationSwitchAccountActions(navigator::navigate, loginTypeSelector::canUseNewLogin)
+                    )
+                },
+                onProceedLoginClicked = clearSessionViewModel::onProceedLoginClicked
+            )
+        }
+    }
 
     if (viewModel.state.error is RemoveDeviceError.InitError) {
         WireDialog(
@@ -130,13 +140,9 @@ fun RemoveDeviceScreen(
         )
     }
 
-    LaunchedEffect(Unit) {
-        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            viewModel.actions.collect { action ->
-                when (action) {
-                    is OnComplete -> navigateAfterSuccess(action.initialSyncCompleted, action.isE2EIRequired)
-                }
-            }
+    HandleActions(viewModel.actions) { action ->
+        when (action) {
+            is OnComplete -> navigateAfterSuccess(action.initialSyncCompleted, action.isE2EIRequired)
         }
     }
 }

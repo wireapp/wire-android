@@ -18,19 +18,29 @@
 
 package com.wire.android.ui.home.settings.backup.dialog.restore
 
+import android.os.Parcelable
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import com.wire.android.R
+import kotlinx.parcelize.Parcelize
 
 @Stable
 class RestoreDialogStateHolder {
     companion object {
         val INITIAL_STEP = RestoreDialogStep.ChooseBackupFile
+
+        fun saver(): Saver<RestoreDialogStateHolder, *> {
+            return Saver(
+                save = { it.currentRestoreDialogStep },
+                restore = { RestoreDialogStateHolder().apply { currentRestoreDialogStep = it } }
+            )
+        }
     }
 
     var currentRestoreDialogStep: RestoreDialogStep by mutableStateOf(INITIAL_STEP)
@@ -59,14 +69,17 @@ class RestoreDialogStateHolder {
 
 @Composable
 fun rememberRestoreDialogState(): RestoreDialogStateHolder {
-    return remember { RestoreDialogStateHolder() }
+    return rememberSaveable(saver = RestoreDialogStateHolder.saver()) { RestoreDialogStateHolder() }
 }
 
-sealed interface RestoreDialogStep {
-    object ChooseBackupFile : RestoreDialogStep
-    object EnterPassword : RestoreDialogStep
-    object RestoreBackup : RestoreDialogStep
-    data class Failure(val restoreFailure: RestoreFailure) : RestoreDialogStep
+sealed interface RestoreDialogStep : Parcelable {
+    @Parcelize data object ChooseBackupFile : RestoreDialogStep
+
+    @Parcelize data object EnterPassword : RestoreDialogStep
+
+    @Parcelize data object RestoreBackup : RestoreDialogStep
+
+    @Parcelize data class Failure(val restoreFailure: RestoreFailure) : RestoreDialogStep
 }
 
 enum class RestoreFailure(@StringRes val title: Int, @StringRes val message: Int) {

@@ -23,10 +23,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.di.CurrentAccount
-import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceDialogState
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceError
@@ -76,7 +76,7 @@ class DeviceDetailsViewModel @Inject constructor(
     private val mlsClientIdentity: GetMLSClientIdentityUseCase,
     private val breakSession: BreakSessionUseCase,
     private val isE2EIEnabledUseCase: IsE2EIEnabledUseCase
-) : SavedStateViewModel(savedStateHandle) {
+) : ViewModel() {
 
     private val deviceDetailsNavArgs: DeviceDetailsNavArgs = savedStateHandle.navArgs()
     private val deviceId: ClientId = deviceDetailsNavArgs.clientId

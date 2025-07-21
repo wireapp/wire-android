@@ -22,29 +22,24 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.toUiModel
 import com.wire.android.feature.cells.ui.navArgs
-import com.wire.android.navigation.SavedStateViewModel
+import com.wire.android.ui.common.ActionsViewModel
 import com.wire.kalium.cells.domain.usecase.GetFoldersUseCase
 import com.wire.kalium.cells.domain.usecase.MoveNodeUseCase
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class MoveToFolderViewModel @Inject constructor(
-    override val savedStateHandle: SavedStateHandle,
+    val savedStateHandle: SavedStateHandle,
     private val getFoldersUseCase: GetFoldersUseCase,
     private val moveNodeUseCase: MoveNodeUseCase
-) : SavedStateViewModel(savedStateHandle) {
+) : ActionsViewModel<MoveToFolderViewAction>() {
 
     private val navArgs: MoveToFolderNavArgs = savedStateHandle.navArgs()
 
@@ -55,22 +50,10 @@ class MoveToFolderViewModel @Inject constructor(
     private val _folders: MutableStateFlow<List<CellNodeUi.Folder>> = MutableStateFlow(listOf())
     internal val folders = _folders.asStateFlow()
 
-    private val _actions = Channel<ActionUiEvent>(
-        capacity = Channel.BUFFERED,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST
-    )
-
-    internal val actions = _actions
-        .receiveAsFlow()
-        .flowOn(Dispatchers.Main.immediate)
-
     fun currentPath(): String = navArgs.currentPath
     fun nodeToMovePath(): String = navArgs.nodeToMovePath
     fun nodeUuid(): String = navArgs.uuid
-
-    private fun sendAction(action: ActionUiEvent) {
-        viewModelScope.launch { _actions.send(action) }
-    }
+    fun breadcrumbs(): Array<String> = navArgs.breadcrumbs
 
     init {
         loadFolders()
@@ -95,11 +78,11 @@ class MoveToFolderViewModel @Inject constructor(
             moveNodeUseCase(nodeUuid(), nodeToMovePath(), currentPath())
                 .onSuccess {
                     _state.update { MoveToFolderScreenState.SUCCESS }
-                    sendAction(ActionUiEvent.MoveItemUiEvent.Success)
+                    sendAction(MoveToFolderViewAction.Success)
                 }
                 .onFailure {
                     _state.update { MoveToFolderScreenState.ERROR }
-                    sendAction(ActionUiEvent.MoveItemUiEvent.Failure)
+                    sendAction(MoveToFolderViewAction.Failure)
                 }
         }
     }
@@ -109,9 +92,7 @@ class MoveToFolderViewModel @Inject constructor(
     }
 }
 
-sealed interface ActionUiEvent {
-    sealed interface MoveItemUiEvent : ActionUiEvent {
-        data object Success : MoveItemUiEvent
-        data object Failure : MoveItemUiEvent
-    }
+sealed interface MoveToFolderViewAction {
+    data object Success : MoveToFolderViewAction
+    data object Failure : MoveToFolderViewAction
 }

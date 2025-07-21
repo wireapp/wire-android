@@ -195,6 +195,10 @@
     <string name="content_description_new_group_name_field">Gruppen-Name eingeben</string>
     <string name="content_description_new_channel_name_field">Gruppen-Name eingeben</string>
     <string name="content_description_new_conversation_options_heading">Unterhaltungsoptionen</string>
+    <string name="content_description_new_conversation_history_heading">Optionen für den Gesprächsverlauf</string>
+    <string name="content_description_new_conversation_history_custom_heading">Benutzerdefinierter Gesprächsverlauf</string>
+    <string name="content_description_new_conversation_history_back_btn">Zurück zu Optionen für den Gesprächsverlauf</string>
+    <string name="content_description_new_conversation_history_custom_change_time">Zeitoption ändern</string>
     <string name="content_description_new_group_options_back_btn">Zurück zur neuen Gruppenerstellung</string>
     <string name="content_description_new_channel_options_back_btn">Zurück zur neuen Channel-Erstellung</string>
     <string name="content_description_pending_connection_badge">Ausstehende Genehmigung der Kontaktanfrage</string>
@@ -300,7 +304,7 @@
     <string name="enterprise_login_user_identifier_label_placeholder">E-Mail-Adresse oder SSO-Code eingeben</string>
     <string name="enterprise_login_error_invalid_user_identifier">Bitte eine gültige E-Mail-Adresse oder den SSO-Code eingeben</string>
     <string name="enterprise_login_create_account_label">Sie haben kein Benutzerkonto?</string>
-    <string name="enterprise_login_create_account_text_button">Konto erstellen</string>
+    <string name="enterprise_login_create_account_text_button">Konto oder Team erstellen</string>
     <string name="enterprise_login_on_prem_welcome_title">Willkommen bei Wire Enterprise für %s!</string>
     <string name="enterprise_login_verification_code_title">Du hast eine Mail bekommen</string>
     <!-- Login -->
@@ -392,6 +396,15 @@
     <string name="label_quote_original_message_is_a_picture">Bild</string>
     <string name="label_quote_original_message_date">Ursprüngliche Nachricht vom %s</string>
     <!-- Create Account -->
+    <string name="create_account_selector_title">Wie werden Sie Wire verwenden?</string>
+    <string name="create_account_selector_team_title">Für die Zusammenarbeit</string>
+    <string name="create_account_selector_team_subtitle">Arbeiten Sie sicher mit Ihrem Team.</string>
+    <string name="create_account_selector_team_highlight_one">Kommunizieren Sie mit Ihren Kollegen und teilen Sie Dokumente über eine einzige App</string>
+    <string name="create_account_selector_team_highlight_two">Kostenlos starten, jederzeit upgraden</string>
+    <string name="create_account_selector_personal_title">Für den privaten Gebrauch</string>
+    <string name="create_account_selector_personal_subtitle">Chatten Sie mit Freunden und Ihrer Familie.</string>
+    <string name="create_account_selector_personal_highlight_one">Senden Sie Nachrichten und teilen Sie Bilder</string>
+    <string name="create_account_selector_personal_highlight_two">Immer kostenlos</string>
     <string name="create_personal_account_title">Privates Benutzerkonto erstellen</string>
     <string name="create_personal_account_summary_title">Privates Benutzerkonto erstellt</string>
     <string name="create_personal_account_text">Chatten Sie sicher mit Freunden und Ihrer Familie.</string>
@@ -411,12 +424,20 @@
     <string name="create_account_email_footer_text">Haben Sie bereits ein Benutzerkonto? </string>
     <string name="create_account_email_terms_dialog_title">Nutzungsbedingungen</string>
     <string name="create_account_email_terms_dialog_text">Indem Sie \"Weiter\" auswählen, erklären Sie sich mit unseren Nutzungsbedingungen und unserer Datenschutzerklärung einverstanden.</string>
+    <string name="create_account_email_share_anonymous_data_label">Ich bin mit dem Teilen anonymer Nutzungsdaten einverstanden. Alle Details finden Sie in unserer</string>
+    <string name="create_account_email_share_anonymous_data_link_label">Datenschutzerklärung</string>
+    <string name="create_account_email_share_anonymous_data_optional_label">(Optional)</string>
+    <string name="create_account_email_backlink_to_team_label">Wollen Sie eher im Team zusammenarbeiten?</string>
     <string name="create_account_email_terms_dialog_view_policy">Nutzungsbedingungen und Datenschutzerklärung anzeigen</string>
     <string name="create_account_email_already_in_use_error">Die E-Mail-Adresse wird bereits verwendet.</string>
     <string name="create_account_email_blacklisted_error">Ihre E-Mail-Adresse wurde als nicht vertrauenswürdig identifiziert, zum Beispiel aufgrund einer Ablehnung durch einen Spam-Filter.</string>
     <string name="create_account_email_invalid_error">Bitte geben Sie ein gültiges Format für Ihre E-Mail-Adresse ein.</string>
     <string name="create_account_email_domain_blocked_error">Sie können dieses Benutzerkonto nicht einrichten, da Ihre E-Mail-Domain absichtlich blockiert ist.</string>
     <string name="create_account_details_first_name_placeholder">Max</string>
+    <string name="create_account_details_name_placeholder">Name eingeben</string>
+    <string name="create_account_details_password_placeholder">Passwort eingeben</string>
+    <string name="create_account_details_password_confirm_placeholder">Passwort bestätigen</string>
+    <string name="create_account_details_name_label">NAME</string>
     <string name="create_account_details_first_name_label">VORNAME</string>
     <string name="create_account_details_last_name_placeholder">Müller</string>
     <string name="create_account_details_last_name_label">NACHNAME</string>
@@ -436,6 +457,7 @@
     <string name="create_account_username_title">Ihr Benutzername</string>
     <string name="create_account_username_placeholder">max.müller</string>
     <string name="create_account_username_label">BENUTZERNAME</string>
+    <string name="create_account_set_username_title">Benutzernamen festlegen</string>
     <string name="create_account_username_text">Geben Sie Ihren Benutzernamen ein. Andere können Sie so leichter in Wire finden und sich mit Ihnen verbinden.</string>
     <string name="create_account_username_taken_error">Dieser Benutzername ist bereits vergeben. Bitte wählen Sie einen anderen.</string>
     <string name="create_account_username_description">Mindestens 2 Zeichen, a-z, 0-9, “_”, “-” und “.”</string>
@@ -465,6 +487,19 @@
     <string name="channel_add_permission_description">Wählen Sie, wer Teilnehmer zu einem privaten Channel hinzufügen kann</string>
     <string name="channel_add_permission_admin_label">Admins</string>
     <string name="channel_add_permission_admin_members_label">Admins und Mitglieder</string>
+    <string name="channel_history_label">Gesprächsverlauf</string>
+    <string name="channel_history_description">Wählen Sie einen Zeitraum. Wenn Teilnehmer diesem Channel beitreten, können sie den Verlauf für diese Zeitspanne verfolgen.</string>
+    <string name="channel_history_freemium_upgrade_title">Ältere Nachrichten anzeigen?</string>
+    <string name="channel_history_freemium_upgrade_description">Upgraden Sie auf eine kostenpflichtige Version, um Channel-Mitgliedern den gesamten Gesprächsverlauf zu bieten.</string>
+    <string name="channel_history_freemium_upgrade_now">Jetzt upgraden</string>
+    <string name="channel_history_off">Aus</string>
+    <string name="channel_history_unlimited">Unbegrenzt</string>
+    <string name="channel_history_custom">Benutzerdefiniert</string>
+    <string name="channel_history_days">Tage</string>
+    <string name="channel_history_weeks">Wochen</string>
+    <string name="channel_history_months">Monate</string>
+    <string name="channel_history_custom_amount_label">ANZAHL</string>
+    <string name="channel_history_custom_time_label">ZEITRAUM</string>
     <string name="create_regular_group_button_label">Gruppe erstellen</string>
     <string name="create_channel_button_label">Channel erstellen</string>
     <string name="new_group_description">Bis zu 500 Personen können an einer Gruppenunterhaltung teilnehmen.</string>
@@ -685,6 +720,8 @@
     <string name="conversation_banner_guests_present">Gäste anwesend</string>
     <string name="conversation_banner_externals_present">Externe anwesend</string>
     <string name="conversation_banner_services_active">Dienste aktiv</string>
+    <string name="conversation_history_loading">Gesprächsverlauf wird geladen…</string>
+    <string name="conversation_history_loaded">🥳 Sie können jetzt alle verfügbaren Nachrichten lesen.</string>
     <!-- System messages -->
     <string name="label_system_message_added_by_self">%1$s haben %2$s zu der Unterhaltung hinzugefügt</string>
     <string name="label_system_message_removed_by_self">%1$s haben %2$s aus der Unterhaltung entfernt</string>
@@ -712,6 +749,9 @@
         <item quantity="other">%1$s wurden aus dem Team entfernt</item>
     </plurals>
     <string name="label_system_message_user_not_available">Dieser Benutzer ist nicht mehr verfügbar</string>
+    <string name="label_system_message_unsupported_protocol">Die Unterhaltung verwendet ein Verschlüsselungsprotokoll, das
+        von diesem Gerät nicht unterstützt wird. Einige Teilnehmer müssen eventuell Ihre Geräte aktualisieren.
+    </string>
     <string name="label_system_message_new_conversation_receipt_mode">Lesebestätigungen sind %1$s</string>
     <string name="label_system_message_read_receipt_changed_by_self">%1$s haben Lesebestätigungen für alle %2$sgeschaltet</string>
     <string name="label_system_message_read_receipt_changed_by_other">%1$s hat Lesebestätigungen für alle %2$sgeschaltet</string>
@@ -943,6 +983,7 @@
     <string name="notification_action_reply">Antworten</string>
     <string name="notification_receiver_name">Sie</string>
     <string name="label_type_a_message">Eine Nachricht schreiben</string>
+    <string name="notification_action_decline_call">Ablehnen</string>
     <string name="notification_incoming_call_content">Ruft an…</string>
     <string name="notification_ongoing_call_content">Aktiver Anruf…</string>
     <string name="notification_group_channel_call_content">%s ruft an...</string>
@@ -1400,6 +1441,10 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
         <item quantity="one">1 Woche</item>
         <item quantity="other">%1$d Wochen</item>
     </plurals>
+    <plurals name="months_long_label">
+        <item quantity="one">1 Monat</item>
+        <item quantity="other">%1$d Monate</item>
+    </plurals>
     <plurals name="days_long_label">
         <item quantity="one">1 Tag</item>
         <item quantity="other">%1$d Tage</item>
@@ -1415,6 +1460,18 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <plurals name="seconds_long_label">
         <item quantity="one">1 Sekunde</item>
         <item quantity="other">%1$d Sekunden</item>
+    </plurals>
+    <plurals name="days_label">
+        <item quantity="one">Tag</item>
+        <item quantity="other">Tage</item>
+    </plurals>
+    <plurals name="weeks_label">
+        <item quantity="one">Woche</item>
+        <item quantity="other">Wochen</item>
+    </plurals>
+    <plurals name="months_label">
+        <item quantity="one">Monat</item>
+        <item quantity="other">Monate</item>
     </plurals>
     <string name="four_weeks_short_label">4 Wo</string>
     <string name="one_week_short_label">1 Wo</string>
@@ -1563,6 +1620,7 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="location_could_not_be_shared">Standort konnte nicht geteilt werden</string>
     <!-- Asset Preview -->
     <!-- No Activity Errors -->
+    <string name="restricted_asset_error_toast_message">Das Versenden von Dateien ist aufgrund von Firmenbeschränkungen verboten</string>
     <!--    Ping dialog-->
     <string name="ping_confirm_sending_title_dialog">Ping senden</string>
     <string name="ping_confirm_sending_description_dialog">Sind Sie sicher, dass Sie %1$s Personen anpingen möchten?</string>
@@ -1649,4 +1707,6 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="cells_screen_search_hint">Dateien suchen</string>
     <string name="failed_attachment_retry_upload">Upload wiederholen</string>
     <string name="failed_attachment_remove">Entfernen</string>
+    <string name="content_description_apply_filter">Filter anwenden</string>
+    <string name="content_description_filter_files">Dateien filtern</string>
 </resources>

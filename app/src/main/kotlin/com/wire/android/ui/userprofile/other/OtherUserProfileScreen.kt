@@ -39,49 +39,38 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import com.wire.android.R
-import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.common.CollapsingTopBarScaffold
+import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.MoreOptionIcon
 import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.VisibilityState
 import com.wire.android.ui.common.WireTabRow
-import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
-import com.wire.android.ui.common.bottomsheet.folder.ChangeConversationFavoriteStateArgs
-import com.wire.android.ui.common.bottomsheet.folder.ChangeConversationFavoriteVM
-import com.wire.android.ui.common.bottomsheet.folder.ChangeConversationFavoriteVMImpl
+import com.wire.android.ui.common.bottomsheet.conversation.ConversationOptionsModalSheetLayout
+import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetState
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
-import com.wire.android.ui.common.bottomsheet.show
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.calculateCurrentTab
-import com.wire.android.ui.common.dialogs.ArchiveConversationDialog
-import com.wire.android.ui.common.dialogs.BlockUserDialogContent
-import com.wire.android.ui.common.dialogs.BlockUserDialogState
-import com.wire.android.ui.common.dialogs.UnblockUserDialogContent
-import com.wire.android.ui.common.dialogs.UnblockUserDialogState
 import com.wire.android.ui.common.dialogs.UserNotFoundDialog
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
@@ -89,6 +78,7 @@ import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.WireTopAppBarTitle
+import com.wire.android.ui.common.visbility.VisibilityState
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.connection.ConnectionActionButton
 import com.wire.android.ui.destinations.ConversationFoldersScreenDestination
@@ -97,13 +87,8 @@ import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.DeviceDetailsScreenDestination
 import com.wire.android.ui.destinations.SearchConversationMessagesScreenDestination
 import com.wire.android.ui.home.conversations.details.SearchAndMediaRow
-import com.wire.android.ui.home.conversations.details.dialog.ClearConversationContentDialog
 import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavArgs
 import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavBackArgs
-import com.wire.android.ui.home.conversations.folder.RemoveConversationFromFolderArgs
-import com.wire.android.ui.home.conversations.folder.RemoveConversationFromFolderVM
-import com.wire.android.ui.home.conversations.folder.RemoveConversationFromFolderVMImpl
-import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.legalhold.banner.LegalHoldSubjectBanner
 import com.wire.android.ui.legalhold.dialog.subject.LegalHoldSubjectProfileDialog
@@ -113,20 +98,17 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.ui.userprofile.common.EditableState
 import com.wire.android.ui.userprofile.common.UserProfileInfo
 import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
-import com.wire.android.ui.userprofile.other.bottomsheet.OtherUserBottomSheetState
-import com.wire.android.ui.userprofile.other.bottomsheet.OtherUserProfileBottomSheetContent
+import com.wire.android.ui.userprofile.other.bottomsheet.EditGroupRoleBottomSheet
 import com.wire.android.util.ui.PreviewMultipleThemes
-import com.wire.android.util.ui.SnackBarMessageHandler
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.ConnectionState
 import io.github.esentsov.PackagePrivate
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 
-@RootNavGraph
 @WireDestination(
     navArgsDelegate = OtherUserProfileNavArgs::class,
     style = DestinationStyle.Runtime::class, // default should be PopUpNavigationAnimation
@@ -142,13 +124,8 @@ fun OtherUserProfileScreen(
 ) {
     val snackbarHostState = LocalSnackbarHostState.current
     val context = LocalContext.current
-
     val scope = rememberCoroutineScope()
-
-    val sheetState = rememberWireModalSheetState<Unit>()
-
     val conversationId = viewModel.state.conversationId
-        ?: viewModel.state.conversationSheetContent?.conversationId
     val onSearchConversationMessagesClick: () -> Unit = {
         conversationId?.let {
             navigator.navigate(
@@ -174,16 +151,17 @@ fun OtherUserProfileScreen(
     }
 
     val legalHoldSubjectDialogState = rememberVisibilityState<Unit>()
+    val conversationOptionsSheetState = rememberWireModalSheetState<ConversationSheetState>()
+    val changeRoleSheetState = rememberWireModalSheetState<OtherUserProfileGroupState>()
 
     OtherProfileScreenContent(
         scope = scope,
         state = viewModel.state,
-        requestInProgress = viewModel.requestInProgress,
-        sheetState = sheetState,
-        openBottomSheet = sheetState::show,
-        closeBottomSheet = sheetState::hide,
+        conversationOptionsSheetState = conversationOptionsSheetState,
+        changeRoleSheetState = changeRoleSheetState,
+        removeMemberDialogState = viewModel.removeConversationMemberDialogState,
         eventsHandler = viewModel as OtherUserProfileEventsHandler,
-        bottomSheetEventsHandler = viewModel as OtherUserProfileBottomSheetEventsHandler,
+        onChangeMemberRole = viewModel::onChangeMemberRole,
         onIgnoreConnectionRequest = {
             resultNavigator.setResult(it)
             resultNavigator.navigateBack()
@@ -215,15 +193,14 @@ fun OtherUserProfileScreen(
         }
     )
 
-    LaunchedEffect(Unit) {
-        viewModel.infoMessage.collect {
-            snackbarHostState.showSnackbar(it.asString(context.resources))
+    HandleActions(viewModel.actions) { action ->
+        fun hideSheets(onSuccess: suspend () -> Unit) {
+            conversationOptionsSheetState.hide { changeRoleSheetState.hide { onSuccess() } }
         }
-    }
-
-    LaunchedEffect(Unit) {
-        viewModel.closeBottomSheet.collect {
-            sheetState.hide()
+        when (action) {
+            is OtherUserProfileViewAction.Message -> hideSheets {
+                snackbarHostState.showSnackbar(action.message.uiText.asString(context.resources))
+            }
         }
     }
 
@@ -255,66 +232,21 @@ fun OtherUserProfileScreen(
 fun OtherProfileScreenContent(
     scope: CoroutineScope,
     state: OtherUserProfileState,
-    requestInProgress: Boolean,
-    sheetState: WireModalSheetState<Unit>,
-    openBottomSheet: () -> Unit,
-    closeBottomSheet: () -> Unit,
     eventsHandler: OtherUserProfileEventsHandler,
-    bottomSheetEventsHandler: OtherUserProfileBottomSheetEventsHandler,
-    onSearchConversationMessagesClick: () -> Unit,
-    onIgnoreConnectionRequest: (String) -> Unit = { },
+    conversationOptionsSheetState: WireModalSheetState<ConversationSheetState> = rememberWireModalSheetState(),
+    changeRoleSheetState: WireModalSheetState<OtherUserProfileGroupState> = rememberWireModalSheetState(),
+    removeMemberDialogState: VisibilityState<RemoveConversationMemberState> = rememberVisibilityState(),
+    onChangeMemberRole: (role: Conversation.Member.Role) -> Unit = {},
+    onSearchConversationMessagesClick: () -> Unit = {},
+    onIgnoreConnectionRequest: (String) -> Unit = {},
     onOpenConversation: (ConversationId) -> Unit = {},
     onOpenDeviceDetails: (Device) -> Unit = {},
     onConversationMediaClick: () -> Unit = {},
     navigateBack: () -> Unit = {},
     onLegalHoldLearnMoreClick: () -> Unit = {},
     onMoveToFolder: (ConversationFoldersNavArgs) -> Unit = {},
-    changeConversationFavoriteViewModel: ChangeConversationFavoriteVM =
-        hiltViewModelScoped<ChangeConversationFavoriteVMImpl, ChangeConversationFavoriteVM, ChangeConversationFavoriteStateArgs>(
-            ChangeConversationFavoriteStateArgs
-        ),
-    removeConversationFromFolderViewModel: RemoveConversationFromFolderVM =
-        hiltViewModelScoped<RemoveConversationFromFolderVMImpl, RemoveConversationFromFolderVM, RemoveConversationFromFolderArgs>(
-            RemoveConversationFromFolderArgs
-        )
 ) {
     val otherUserProfileScreenState = rememberOtherUserProfileScreenState()
-    val blockUserDialogState = rememberVisibilityState<BlockUserDialogState>()
-    val unblockUserDialogState = rememberVisibilityState<UnblockUserDialogState>()
-    val removeMemberDialogState = rememberVisibilityState<RemoveConversationMemberState>()
-    val clearConversationDialogState = rememberVisibilityState<DialogState>()
-    val archivingConversationDialogState = rememberVisibilityState<DialogState>()
-    val getBottomSheetVisibility: () -> Boolean = remember(sheetState) { { sheetState.isVisible } }
-    val bottomSheetState = remember { OtherUserBottomSheetState() }
-    bottomSheetState.setContents(state.conversationSheetContent, state.groupState)
-    val openConversationBottomSheet: () -> Unit = remember(bottomSheetState) {
-        {
-            bottomSheetState.toConversation()
-            openBottomSheet()
-        }
-    }
-    val openChangeRoleBottomSheet: () -> Unit = remember(bottomSheetState) {
-        {
-            bottomSheetState.toChangeRole()
-            openBottomSheet()
-        }
-    }
-
-    LaunchedEffect(bottomSheetState) {
-        snapshotFlow { sheetState.isVisible }.collect(FlowCollector { isVisible ->
-            // without clearing BottomSheet after every closing there could be strange UI behaviour.
-            // Example: open some big BottomSheet (ConversationBS), close it, then open small BS (ChangeRoleBS) ->
-            // in that case user will see ChangeRoleBS at the center of the screen (just for few milliseconds)
-            // and then it moves to the bottom.
-            // It happens cause when `sheetState.show()` is called, it calculates animation offset by the old BS height (which was big)
-            // To avoid such case we clear BS content on every closing
-            if (!isVisible) bottomSheetState.clearBottomSheetState()
-        })
-    }
-
-    SnackBarMessageHandler(removeConversationFromFolderViewModel.infoMessage, onEmitted = closeBottomSheet)
-    SnackBarMessageHandler(changeConversationFavoriteViewModel.infoMessage, onEmitted = closeBottomSheet)
-
     val tabItems by remember(state) {
         derivedStateOf {
             listOfNotNull(
@@ -331,21 +263,13 @@ fun OtherProfileScreenContent(
         derivedStateOf { if (state.isDataLoading) 0 else pagerState.calculateCurrentTab() }
     }
 
-    if (!requestInProgress) {
-        blockUserDialogState.dismiss()
-        unblockUserDialogState.dismiss()
-        removeMemberDialogState.dismiss()
-        clearConversationDialogState.dismiss()
-        archivingConversationDialogState.dismiss()
-    }
-
     CollapsingTopBarScaffold(
         topBarHeader = {
             TopBarHeader(
                 state = state,
                 elevation = dimensions().spacing0x, // CollapsingTopBarScaffold already manages elevation
                 onNavigateBack = navigateBack,
-                openConversationBottomSheet = openConversationBottomSheet
+                openConversationBottomSheet = { conversationOptionsSheetState.show(ConversationSheetState(it)) }
             )
         },
         topBarCollapsing = {
@@ -373,7 +297,7 @@ fun OtherProfileScreenContent(
                 tabItems = tabItems,
                 otherUserProfileScreenState = otherUserProfileScreenState,
                 lazyListStates = lazyListStates,
-                openChangeRoleBottomSheet = openChangeRoleBottomSheet,
+                openChangeRoleBottomSheet = { changeRoleSheetState.show(it) },
                 openRemoveConversationMemberDialog = removeMemberDialogState::show,
                 getOtherUserClients = eventsHandler::observeClientList,
                 onDeviceClick = onOpenDeviceDetails
@@ -389,50 +313,17 @@ fun OtherProfileScreenContent(
         collapsingEnabled = state.connectionState != ConnectionState.BLOCKED
     )
 
-    WireModalSheetLayout(
-        sheetState = sheetState,
-        sheetContent = {
-            OtherUserProfileBottomSheetContent(
-                getBottomSheetVisibility = getBottomSheetVisibility,
-                bottomSheetState = bottomSheetState,
-                eventsHandler = bottomSheetEventsHandler,
-                blockUser = blockUserDialogState::show,
-                unblockUser = unblockUserDialogState::show,
-                clearContent = clearConversationDialogState::show,
-                archivingStatusState = archivingConversationDialogState::show,
-                changeFavoriteState = changeConversationFavoriteViewModel::changeFavoriteState,
-                closeBottomSheet = closeBottomSheet,
-                onMoveToFolder = onMoveToFolder,
-                removeFromFolder = removeConversationFromFolderViewModel::removeFromFolder
-            )
-        }
+    ConversationOptionsModalSheetLayout(
+        sheetState = conversationOptionsSheetState,
+        openConversationFolders = onMoveToFolder,
     )
-
-    BlockUserDialogContent(
-        dialogState = blockUserDialogState,
-        onBlock = eventsHandler::onBlockUser,
-        isLoading = requestInProgress,
-    )
-    UnblockUserDialogContent(
-        dialogState = unblockUserDialogState,
-        onUnblock = eventsHandler::onUnblockUser,
-        isLoading = requestInProgress,
+    EditGroupRoleBottomSheet(
+        sheetState = changeRoleSheetState,
+        changeMemberRole = onChangeMemberRole,
     )
     RemoveConversationMemberDialog(
         dialogState = removeMemberDialogState,
         onRemoveConversationMember = eventsHandler::onRemoveConversationMember,
-        isLoading = requestInProgress,
-    )
-    ClearConversationContentDialog(
-        dialogState = clearConversationDialogState,
-        isLoading = requestInProgress,
-        onClearConversationContent = {
-            bottomSheetEventsHandler.onClearConversationContent(it)
-        }
-    )
-    ArchiveConversationDialog(
-        dialogState = archivingConversationDialogState,
-        onArchiveButtonClicked = bottomSheetEventsHandler::onMoveConversationToArchive
     )
 }
 
@@ -441,7 +332,7 @@ private fun TopBarHeader(
     state: OtherUserProfileState,
     elevation: Dp,
     onNavigateBack: () -> Unit,
-    openConversationBottomSheet: () -> Unit
+    openConversationBottomSheet: (ConversationId) -> Unit
 ) {
     val navigationIconType = if (state.groupState != null) {
         NavigationIconType.Close(R.string.content_description_user_profile_close_btn)
@@ -463,10 +354,10 @@ private fun TopBarHeader(
         },
         elevation = elevation,
         actions = {
-            if (state.conversationSheetContent != null) {
+            if (state.conversationId != null) {
                 MoreOptionIcon(
                     contentDescription = R.string.content_description_user_profile_more_btn,
-                    onButtonClicked = openConversationBottomSheet,
+                    onButtonClicked = { openConversationBottomSheet(state.conversationId) },
                     state = if (state.isMetadataEmpty()) WireButtonState.Disabled else WireButtonState.Default
                 )
             }
@@ -553,7 +444,7 @@ private fun Content(
     tabItems: List<OtherUserProfileTabItem>,
     otherUserProfileScreenState: OtherUserProfileScreenState,
     lazyListStates: Map<OtherUserProfileTabItem, LazyListState>,
-    openChangeRoleBottomSheet: () -> Unit,
+    openChangeRoleBottomSheet: (OtherUserProfileGroupState) -> Unit,
     openRemoveConversationMemberDialog: (RemoveConversationMemberState) -> Unit,
     getOtherUserClients: () -> Unit,
     onDeviceClick: (Device) -> Unit
@@ -583,8 +474,13 @@ private fun Content(
 
                                 OtherUserProfileTabItem.GROUP ->
                                     OtherUserProfileGroup(
-                                        state = state,
-                                        onRemoveFromConversation = openRemoveConversationMemberDialog,
+                                        state = state.groupState!!, // groupState is guaranteed to be non-null here
+                                        isRoleEditable = state.isRoleEditable(),
+                                        onRemoveFromConversation = {
+                                            openRemoveConversationMemberDialog(
+                                                RemoveConversationMemberState(it, state.fullName, state.userName, state.userId)
+                                            )
+                                        },
                                         openChangeRoleBottomSheet = openChangeRoleBottomSheet,
                                         lazyListState = lazyListStates[tabItem]!!,
                                     )
@@ -604,8 +500,13 @@ private fun Content(
 
                 state.groupState != null -> {
                     OtherUserProfileGroup(
-                        state = state,
-                        onRemoveFromConversation = openRemoveConversationMemberDialog,
+                        state = state.groupState,
+                        isRoleEditable = state.isRoleEditable(),
+                        onRemoveFromConversation = {
+                            openRemoveConversationMemberDialog(
+                                RemoveConversationMemberState(it, state.fullName, state.userName, state.userId)
+                            )
+                        },
                         openChangeRoleBottomSheet = openChangeRoleBottomSheet,
                         lazyListState = lazyListStates[OtherUserProfileTabItem.DETAILS]!!,
                     )
@@ -671,13 +572,7 @@ fun PreviewOtherProfileScreenGroupMemberContent() {
                 connectionState = ConnectionState.ACCEPTED,
                 isUnderLegalHold = true,
             ),
-            requestInProgress = false,
-            sheetState = rememberWireModalSheetState(),
-            openBottomSheet = {},
-            closeBottomSheet = {},
             eventsHandler = OtherUserProfileEventsHandler.PREVIEW,
-            bottomSheetEventsHandler = OtherUserProfileBottomSheetEventsHandler.PREVIEW,
-            onSearchConversationMessagesClick = {}
         )
     }
 }
@@ -693,13 +588,7 @@ fun PreviewOtherProfileScreenContent() {
                 isUnderLegalHold = true,
                 groupState = null
             ),
-            requestInProgress = false,
-            sheetState = rememberWireModalSheetState(),
-            openBottomSheet = {},
-            closeBottomSheet = {},
             eventsHandler = OtherUserProfileEventsHandler.PREVIEW,
-            bottomSheetEventsHandler = OtherUserProfileBottomSheetEventsHandler.PREVIEW,
-            onSearchConversationMessagesClick = {}
         )
     }
 }
@@ -714,13 +603,7 @@ fun PreviewOtherProfileScreenContentNotConnected() {
                 connectionState = ConnectionState.CANCELLED,
                 isUnderLegalHold = true,
             ),
-            requestInProgress = false,
-            sheetState = rememberWireModalSheetState(),
-            openBottomSheet = {},
-            closeBottomSheet = {},
             eventsHandler = OtherUserProfileEventsHandler.PREVIEW,
-            bottomSheetEventsHandler = OtherUserProfileBottomSheetEventsHandler.PREVIEW,
-            onSearchConversationMessagesClick = {}
         )
     }
 }
@@ -737,13 +620,7 @@ fun PreviewOtherProfileScreenTempUser() {
                 isUnderLegalHold = true,
                 expiresAt = Instant.DISTANT_FUTURE
             ),
-            requestInProgress = false,
-            sheetState = rememberWireModalSheetState(),
-            openBottomSheet = {},
-            closeBottomSheet = {},
             eventsHandler = OtherUserProfileEventsHandler.PREVIEW,
-            bottomSheetEventsHandler = OtherUserProfileBottomSheetEventsHandler.PREVIEW,
-            onSearchConversationMessagesClick = {},
         )
     }
 }

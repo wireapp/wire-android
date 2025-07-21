@@ -73,15 +73,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.lifecycle.repeatOnLifecycle
+import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.result.NavResult.Canceled
 import com.ramcosta.composedestinations.result.NavResult.Value
 import com.ramcosta.composedestinations.result.OpenResultRecipient
@@ -103,6 +100,8 @@ import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.calling.getOutgoingCallIntent
 import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
+import com.wire.android.ui.common.HandleActions
+import com.wire.android.ui.common.PageLoadingIndicator
 import com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.colorsScheme
@@ -140,10 +139,11 @@ import com.wire.android.ui.home.conversations.attachment.MessageAttachmentsViewM
 import com.wire.android.ui.home.conversations.banner.ConversationBanner
 import com.wire.android.ui.home.conversations.banner.ConversationBannerViewModel
 import com.wire.android.ui.home.conversations.call.ConversationCallViewActions
-import com.wire.android.ui.home.conversations.call.ConversationCallViewState
 import com.wire.android.ui.home.conversations.call.ConversationCallViewModel
+import com.wire.android.ui.home.conversations.call.ConversationCallViewState
 import com.wire.android.ui.home.conversations.composer.MessageComposerViewModel
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
+import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogState
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsNavBackArgs
 import com.wire.android.ui.home.conversations.edit.MessageOptionsModalSheetLayout
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
@@ -224,7 +224,6 @@ private const val MAX_GROUP_SIZE_FOR_PING = 3
 
 // TODO: !! this screen definitely needs a refactor and some cleanup !!
 @Suppress("ComplexMethod")
-@RootNavGraph
 @WireDestination(
     navArgsDelegate = ConversationNavArgs::class
 )
@@ -261,17 +260,21 @@ fun ConversationScreen(
         onClearMentionSearchResult = messageComposerViewModel::clearMentionSearchResult
     )
     val conversationScreenState = rememberConversationScreenState(
-        selfDeletingSheetState = rememberWireModalSheetState(onDismissAction = {
-            messageComposerStateHolder.messageCompositionInputStateHolder.setFocused()
-        }),
+        selfDeletingSheetState = rememberWireModalSheetState(
+            onDismissAction = {
+                messageComposerStateHolder.messageCompositionInputStateHolder.setFocused()
+            }
+        ),
         locationSheetState = rememberWireModalSheetState(
             onDismissAction = {
                 messageComposerStateHolder.messageCompositionInputStateHolder.setFocused()
             }
         ),
-        editSheetState = rememberWireModalSheetState(onDismissAction = {
-            messageComposerStateHolder.messageCompositionInputStateHolder.setFocused()
-        }),
+        editSheetState = rememberWireModalSheetState(
+            onDismissAction = {
+                messageComposerStateHolder.messageCompositionInputStateHolder.setFocused()
+            },
+        ),
     )
 
     val permissionPermanentlyDeniedDialogState =
@@ -282,7 +285,6 @@ fun ConversationScreen(
     var alreadyDeletedByUser by rememberSaveable { mutableStateOf(false) }
 
     val context = LocalContext.current
-    val lifecycle = LocalLifecycleOwner.current
 
     LaunchedEffect(conversationScreenState.isAnySheetVisible) {
         with(messageComposerStateHolder) {
@@ -328,20 +330,16 @@ fun ConversationScreen(
         }
     }
 
-    LaunchedEffect(Unit) {
-        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            conversationCallViewModel.actions.collect { action ->
-                when (action) {
-                    is ConversationCallViewActions.InitiatedCall -> {
-                        context.startActivity(getOutgoingCallIntent(context, action.conversationId.toString()))
-                        AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallInitiated)
-                    }
+    HandleActions(conversationCallViewModel.actions) { action ->
+        when (action) {
+            is ConversationCallViewActions.InitiatedCall -> {
+                context.startActivity(getOutgoingCallIntent(context, action.conversationId.toString()))
+                AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallInitiated)
+            }
 
-                    is ConversationCallViewActions.JoinedCall -> {
-                        context.startActivity(getOngoingCallIntent(context, action.conversationId.toString()))
-                        AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallJoined)
-                    }
-                }
+            is ConversationCallViewActions.JoinedCall -> {
+                context.startActivity(getOngoingCallIntent(context, action.conversationId.toString()))
+                AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallJoined)
             }
         }
     }
@@ -533,7 +531,10 @@ fun ConversationScreen(
                 sendMessageViewModel.trySendMessage(bundle)
             }
         },
-        onDeleteMessage = conversationMessagesViewModel::showDeleteMessageDialog,
+        onDeleteMessage = { messageId, deleteForEveryone ->
+            conversationMessagesViewModel.deleteMessageDialogState
+                .show(DeleteMessageDialogState(deleteForEveryone, messageId, conversationMessagesViewModel.conversationId))
+        },
         onAssetItemClicked = conversationMessagesViewModel::openOrFetchAsset,
         onImageFullScreenMode = { message, isSelfMessage ->
             with(conversationMessagesViewModel) {
@@ -648,8 +649,8 @@ fun ConversationScreen(
     )
     BackHandler { conversationScreenOnBackButtonClick(messageComposerViewModel, messageComposerStateHolder, navigator) }
     DeleteMessageDialog(
-        state = conversationMessagesViewModel.deleteMessageDialogState,
-        actions = conversationMessagesViewModel.deleteMessageHelper
+        dialogState = conversationMessagesViewModel.deleteMessageDialogState,
+        deleteMessage = conversationMessagesViewModel::deleteMessage,
     )
     DownloadedAssetDialog(
         downloadedAssetDialogState = conversationMessagesViewModel.conversationViewState.downloadedAssetDialogState,
@@ -992,12 +993,14 @@ private fun ConversationScreen(
                         openDrawingCanvas = openDrawingCanvas,
                         onAttachmentClick = onAttachmentClick,
                         onAttachmentMenuClick = onAttachmentMenuClick,
+                        showHistoryLoadingIndicator = conversationInfoViewState.showHistoryLoadingIndicator,
                     )
                 }
             }
         )
 
         MessageOptionsModalSheetLayout(
+            conversationId = conversationInfoViewState.conversationId,
             sheetState = conversationScreenState.editSheetState,
             onCopyClick = conversationScreenState::copyMessage,
             onDeleteClick = onDeleteMessage,
@@ -1073,6 +1076,7 @@ private fun ConversationScreenContent(
     onAttachmentClick: (AttachmentDraftUi) -> Unit,
     onAttachmentMenuClick: (AttachmentDraftUi) -> Unit,
     currentTimeInMillisFlow: Flow<Long> = flow {},
+    showHistoryLoadingIndicator: Boolean = false,
 ) {
     val lazyPagingMessages = messages.collectAsLazyPagingItems()
 
@@ -1080,7 +1084,7 @@ private fun ConversationScreenContent(
         LazyListState(unreadEventCount)
     }
 
-    var showEmojiPickerForMessage by remember { mutableStateOf<String?>(null) }
+    val emojiPickerState = rememberWireModalSheetState<String>(skipPartiallyExpanded = false)
 
     MessageComposer(
         conversationId = conversationId,
@@ -1110,12 +1114,13 @@ private fun ConversationScreenContent(
                 onSelfDeletingMessageRead = onSelfDeletingMessageRead,
                 onSwipedToReply = onSwipedToReply,
                 onSwipedToReact = { message ->
-                    showEmojiPickerForMessage = message.header.messageId
+                    emojiPickerState.show(message.header.messageId)
                 },
                 conversationDetailsData = conversationDetailsData,
                 selectedMessageId = selectedMessageId,
                 interactionAvailability = messageComposerStateHolder.messageComposerViewState.value.interactionAvailability,
-                currentTimeInMillisFlow = currentTimeInMillisFlow
+                currentTimeInMillisFlow = currentTimeInMillisFlow,
+                showHistoryLoadingIndicator = showHistoryLoadingIndicator,
             )
         },
         onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
@@ -1134,18 +1139,13 @@ private fun ConversationScreenContent(
         onAudioRecorded = onAudioRecorded,
     )
 
-    showEmojiPickerForMessage?.let { messageId ->
-        EmojiPickerBottomSheet(
-            isVisible = true,
-            onEmojiSelected = { emoji ->
-                onReactionClicked(messageId, emoji)
-                showEmojiPickerForMessage = null
-            },
-            onDismiss = {
-                showEmojiPickerForMessage = null
-            },
-        )
-    }
+    EmojiPickerBottomSheet(
+        sheetState = emojiPickerState,
+        onEmojiSelected = { emoji, messageId ->
+            emojiPickerState.hide()
+            onReactionClicked(messageId, emoji)
+        },
+    )
 }
 
 @Composable
@@ -1199,7 +1199,8 @@ fun MessageList(
     interactionAvailability: InteractionAvailability,
     clickActions: MessageClickActions.Content,
     modifier: Modifier = Modifier,
-    currentTimeInMillisFlow: Flow<Long> = flow { }
+    currentTimeInMillisFlow: Flow<Long> = flow { },
+    showHistoryLoadingIndicator: Boolean = false,
 ) {
     val prevItemCount = remember { mutableStateOf(lazyPagingMessages.itemCount) }
     val readLastMessageAtStartTriggered = remember { mutableStateOf(false) }
@@ -1329,6 +1330,41 @@ fun MessageList(
                             )
                         }
                     }
+                }
+                // reverse layout, so prepend needs to be added after all messages to be displayed at the top of the list
+                if (showHistoryLoadingIndicator && lazyPagingMessages.itemCount > 0) {
+                    item(
+                        key = "prepend_loading_indicator",
+                        contentType = "prepend_loading_indicator",
+                        content = {
+                            Box(
+                                contentAlignment = Alignment.Center,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(dimensions().spacing16x),
+                            ) {
+                                var allMessagesPrepended by remember { mutableStateOf(false) }
+                                LaunchedEffect(lazyPagingMessages.loadState) {
+                                    // When the list is being refreshed, the load state for prepend is cleared so the app doesn't know if
+                                    // the end of pagination is reached or not for prepend until the refresh is done, so we don't want to
+                                    // update the allMessagesPrepended state while refreshing and in that case keep the last updated state,
+                                    // otherwise the indicator will flicker while refreshing.
+                                    if (lazyPagingMessages.loadState.refresh is LoadState.NotLoading) {
+                                        allMessagesPrepended = lazyPagingMessages.loadState.prepend.endOfPaginationReached
+                                    }
+                                }
+
+                                val (text, prefixIconResId) = when (allMessagesPrepended) {
+                                    true -> stringResource(R.string.conversation_history_loaded) to null
+                                    false -> stringResource(R.string.conversation_history_loading) to R.drawable.ic_undo
+                                }
+                                PageLoadingIndicator(
+                                    text = text,
+                                    prefixIconResId = prefixIconResId,
+                                )
+                            }
+                        }
+                    )
                 }
             }
             JumpToPlayingAudioButton(

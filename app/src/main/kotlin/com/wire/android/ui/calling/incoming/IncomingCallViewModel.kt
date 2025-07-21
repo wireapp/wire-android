@@ -21,9 +21,9 @@ package com.wire.android.ui.calling.incoming
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.ui.calling.incoming.IncomingCallState.WaitingUnlockState
+import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.home.appLock.LockCodeTimeManager
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.call.usecase.AnswerCallUseCase
@@ -37,13 +37,10 @@ import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
 @Suppress("LongParameterList")
@@ -57,19 +54,13 @@ class IncomingCallViewModel @AssistedInject constructor(
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val endCall: EndCallUseCase,
     private val lockCodeTimeManager: LockCodeTimeManager
-) : ViewModel() {
+) : ActionsViewModel<IncomingCallViewActions>() {
 
     private lateinit var observeIncomingCallJob: Job
     private var establishedCallConversationId: ConversationId? = null
 
     var incomingCallState by mutableStateOf(IncomingCallState())
         private set
-
-    private val _actions = Channel<IncomingCallViewActions>(
-        capacity = Channel.BUFFERED,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST
-    )
-    val actions = _actions.receiveAsFlow()
 
     init {
         viewModelScope.launch {
@@ -193,10 +184,6 @@ class IncomingCallViewModel @AssistedInject constructor(
                 }
             }
         }
-    }
-
-    private fun sendAction(action: IncomingCallViewActions) {
-        viewModelScope.launch { _actions.send(action) }
     }
 
     companion object {

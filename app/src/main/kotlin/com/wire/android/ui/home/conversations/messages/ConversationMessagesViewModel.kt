@@ -23,19 +23,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
 import com.wire.android.model.SnackBarMessage
-import com.wire.android.navigation.SavedStateViewModel
+import com.wire.android.ui.common.visbility.VisibilityState
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnResetSession
-import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogHelper
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogState
-import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogType
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
@@ -92,7 +91,7 @@ import kotlin.time.Duration.Companion.seconds
 @HiltViewModel
 @Suppress("LongParameterList", "TooManyFunctions")
 class ConversationMessagesViewModel @Inject constructor(
-    override val savedStateHandle: SavedStateHandle,
+    val savedStateHandle: SavedStateHandle,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val getMessageAsset: GetMessageAssetUseCase,
     private val getMessageByIdUseCase: GetMessageByIdUseCase,
@@ -109,7 +108,7 @@ class ConversationMessagesViewModel @Inject constructor(
     private val getSearchedConversationMessagePosition: GetSearchedConversationMessagePositionUseCase,
     private val deleteMessage: DeleteMessageUseCase,
     private val globalDataStore: GlobalDataStore,
-) : SavedStateViewModel(savedStateHandle) {
+) : ViewModel() {
 
     private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
     val conversationId: QualifiedID = conversationNavArgs.conversationId
@@ -124,21 +123,7 @@ class ConversationMessagesViewModel @Inject constructor(
     )
         private set
 
-    var deleteMessageDialogState: DeleteMessageDialogState by mutableStateOf(DeleteMessageDialogState.Hidden)
-        private set
-
-    val deleteMessageHelper = DeleteMessageDialogHelper(
-        viewModelScope,
-        conversationId,
-        ::updateDeleteDialogState
-    ) { messageId, deleteForEveryone ->
-        deleteMessage(
-            conversationId = conversationId,
-            messageId = messageId,
-            deleteForEveryone = deleteForEveryone,
-        )
-            .onFailure { onSnackbarMessage(ConversationSnackbarMessages.ErrorDeletingMessage) }
-    }
+    val deleteMessageDialogState: VisibilityState<DeleteMessageDialogState> by mutableStateOf(VisibilityState())
 
     private var lastImageMessageShownOnGallery: UIMessage.Regular? = null
     private val _infoMessage = MutableSharedFlow<SnackBarMessage>()
@@ -393,12 +378,6 @@ class ConversationMessagesViewModel @Inject constructor(
         onSnackbarMessage(ConversationSnackbarMessages.OnFileDownloaded(assetName))
     }
 
-    private fun updateDeleteDialogState(newValue: (DeleteMessageDialogState) -> DeleteMessageDialogState) {
-        newValue(deleteMessageDialogState).also {
-            deleteMessageDialogState = it
-        }
-    }
-
     fun updateImageOnFullscreenMode(message: UIMessage.Regular?) {
         lastImageMessageShownOnGallery = message
     }
@@ -416,14 +395,14 @@ class ConversationMessagesViewModel @Inject constructor(
         return null
     }
 
-    fun showDeleteMessageDialog(messageId: String, deleteForEveryone: Boolean) =
-        updateDeleteDialogState {
-            DeleteMessageDialogState.Visible(
-                type = if (deleteForEveryone) DeleteMessageDialogType.ForEveryone else DeleteMessageDialogType.ForYourself,
-                messageId = messageId,
-                conversationId = conversationId
-            )
+    fun deleteMessage(messageId: String, deleteForEveryone: Boolean) {
+        viewModelScope.launch {
+            deleteMessageDialogState.update { it.copy(loading = true) }
+            deleteMessage(conversationId = conversationId, messageId = messageId, deleteForEveryone = deleteForEveryone)
+                .onFailure { onSnackbarMessage(ConversationSnackbarMessages.ErrorDeletingMessage) }
+            deleteMessageDialogState.dismiss()
         }
+    }
 
     private suspend fun isWireCellFeatureEnabled() = globalDataStore.wireCellsEnabled().firstOrNull() ?: false
 

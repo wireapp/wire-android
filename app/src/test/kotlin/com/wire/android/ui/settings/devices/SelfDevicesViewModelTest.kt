@@ -29,7 +29,7 @@ import com.wire.kalium.logic.feature.client.FetchSelfClientsFromRemoteUseCase
 import com.wire.kalium.logic.feature.client.ObserveClientsByUserIdUseCase
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import com.wire.kalium.logic.feature.client.SelfClientsResult
-import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificatesUseCase
+import com.wire.kalium.logic.feature.e2ei.usecase.GetUserMlsClientIdentitiesUseCase
 import com.wire.kalium.logic.feature.user.IsE2EIEnabledUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -38,7 +38,7 @@ import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.internal.assertEquals
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -80,7 +80,7 @@ class SelfDevicesViewModelTest {
             viewModel.loadCertificates()
 
             // then
-            coVerify(exactly = 2) { arragne.getUserE2eiCertificates(any()) }
+            coVerify(exactly = 2) { arragne.getUserMlsClientIdentities(any()) }
         }
 
     private class Arrangement {
@@ -95,7 +95,7 @@ class SelfDevicesViewModelTest {
         lateinit var fetchSelfClientsFromRemote: FetchSelfClientsFromRemoteUseCase
 
         @MockK
-        lateinit var getUserE2eiCertificates: GetUserE2eiCertificatesUseCase
+        lateinit var getUserMlsClientIdentities: GetUserMlsClientIdentitiesUseCase
 
         @MockK
         lateinit var isE2EIEnabledUseCase: IsE2EIEnabledUseCase
@@ -108,7 +108,7 @@ class SelfDevicesViewModelTest {
                 currentAccountId = selfId,
                 currentClientIdUseCase = currentClientId,
                 fetchSelfClientsFromRemote = fetchSelfClientsFromRemote,
-                getUserE2eiCertificates = getUserE2eiCertificates,
+                getUserMlsClientIdentities = getUserMlsClientIdentities,
                 isE2EIEnabledUseCase = isE2EIEnabledUseCase
             )
         }
@@ -119,7 +119,7 @@ class SelfDevicesViewModelTest {
             coEvery { currentClientId.invoke() } returns flowOf(TestClient.CLIENT_ID)
             coEvery { fetchSelfClientsFromRemote.invoke() } returns SelfClientsResult.Success(listOf(), null)
             coEvery { observeClientsByUserId(any()) } returns flowOf(ObserveClientsByUserIdUseCase.Result.Success(listOf()))
-            coEvery { getUserE2eiCertificates.invoke(any()) } returns mapOf()
+            coEvery { getUserMlsClientIdentities.invoke(any()) } returns mapOf()
             coEvery { isE2EIEnabledUseCase() } returns true
         }
 

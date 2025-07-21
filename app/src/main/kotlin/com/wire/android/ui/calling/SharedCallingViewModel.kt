@@ -23,9 +23,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
+import com.wire.android.di.CurrentAccount
 import com.wire.android.mapper.UICallParticipantMapper
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.model.ImageAsset
@@ -34,6 +34,7 @@ import com.wire.android.ui.calling.model.ReactionSender
 import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.calling.ongoing.incallreactions.InCallReactions
 import com.wire.android.ui.calling.usecase.HangUpCallUseCase
+import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.util.ExpiringMap
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.extension.withDelayAfterFirst
@@ -51,6 +52,7 @@ import com.wire.kalium.logic.feature.call.usecase.FlipToFrontCameraUseCase
 import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallWithSortedParticipantsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveInCallReactionsUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveSpeakerUseCase
 import com.wire.kalium.logic.feature.call.usecase.SetVideoPreviewUseCase
 import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOffUseCase
 import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOnUseCase
@@ -59,7 +61,6 @@ import com.wire.kalium.logic.feature.call.usecase.video.UpdateVideoStateUseCase
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.incallreaction.SendInCallReactionUseCase
-import com.wire.kalium.logic.feature.call.usecase.ObserveSpeakerUseCase
 import com.wire.kalium.logic.util.PlatformView
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -88,6 +89,7 @@ import kotlinx.coroutines.launch
 @HiltViewModel(assistedFactory = SharedCallingViewModel.Factory::class)
 class SharedCallingViewModel @AssistedInject constructor(
     @Assisted val conversationId: ConversationId,
+    @CurrentAccount private val selfUserId: UserId,
     private val conversationDetails: ObserveConversationDetailsUseCase,
     private val observeEstablishedCallWithSortedParticipants: ObserveEstablishedCallWithSortedParticipantsUseCase,
     private val hangUpCall: HangUpCallUseCase,
@@ -106,17 +108,11 @@ class SharedCallingViewModel @AssistedInject constructor(
     private val uiCallParticipantMapper: UICallParticipantMapper,
     private val userTypeMapper: UserTypeMapper,
     private val dispatchers: DispatcherProvider
-) : ViewModel() {
+) : ActionsViewModel<SharedCallingViewActions>() {
 
     var callState by mutableStateOf(CallState(conversationId))
 
     var participantsState by mutableStateOf(persistentListOf<UICallParticipant>())
-
-    private val _actions = Channel<SharedCallingViewActions>(
-        capacity = Channel.BUFFERED,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST
-    )
-    val actions = _actions.receiveAsFlow()
 
     private val _inCallReactions = Channel<InCallReaction>(
         capacity = 300, // Max reactions to keep in queue
@@ -325,6 +321,7 @@ class SharedCallingViewModel @AssistedInject constructor(
         viewModelScope.launch {
             sendInCallReactionUseCase(conversationId, emoji).onSuccess {
                 _inCallReactions.send(InCallReaction(emoji, ReactionSender.You))
+                recentReactions[selfUserId] = emoji
             }
         }
     }
@@ -335,10 +332,6 @@ class SharedCallingViewModel @AssistedInject constructor(
             expiration = InCallReactions.recentReactionShowDurationMs,
             delegate = mutableStateMapOf<UserId, String>()
         )
-
-    private fun sendAction(action: SharedCallingViewActions) {
-        viewModelScope.launch { _actions.send(action) }
-    }
 
     @AssistedFactory
     interface Factory {

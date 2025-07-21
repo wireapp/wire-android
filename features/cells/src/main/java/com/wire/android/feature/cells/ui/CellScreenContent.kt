@@ -42,11 +42,13 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import com.wire.android.feature.cells.R
+import com.wire.android.feature.cells.ui.common.LoadingScreen
 import com.wire.android.feature.cells.ui.dialog.DeleteConfirmationDialog
 import com.wire.android.feature.cells.ui.dialog.NodeActionsBottomSheet
 import com.wire.android.feature.cells.ui.dialog.RestoreConfirmationDialog
 import com.wire.android.feature.cells.ui.download.DownloadFileBottomSheet
 import com.wire.android.feature.cells.ui.model.CellNodeUi
+import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -63,7 +65,9 @@ internal fun CellScreenContent(
     downloadFileState: StateFlow<CellNodeUi.File?>,
     menuState: Flow<MenuOptions?>,
     showPublicLinkScreen: (PublicLinkScreenData) -> Unit,
+    showRenameScreen: (CellNodeUi) -> Unit,
     showMoveToFolderScreen: (String, String, String) -> Unit,
+    showAddRemoveTagsScreen: (CellNodeUi) -> Unit,
     isAllFiles: Boolean,
     isSearchResult: Boolean = false,
 ) {
@@ -150,26 +154,23 @@ internal fun CellScreenContent(
         )
     }
 
-    LaunchedEffect(Unit) {
-        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            actionsFlow.collect { action ->
-                when (action) {
-                    is ShowError -> Toast.makeText(context, action.error.message, Toast.LENGTH_SHORT).show()
-                    is ShowDeleteConfirmation -> deleteConfirmation = action.node to action.isPermanentDelete
-                    is ShowRestoreConfirmation -> restoreConfirmation = action.node
-                    is ShowPublicLinkScreen -> showPublicLinkScreen(
-                        PublicLinkScreenData(
-                            assetId = action.cellNode.uuid,
-                            fileName = action.cellNode.name ?: action.cellNode.uuid,
-                            linkId = action.cellNode.publicLinkId,
-                            isFolder = action.cellNode is CellNodeUi.Folder
-                        )
-                    )
-
-                    is ShowMoveToFolderScreen -> showMoveToFolderScreen(action.currentPath, action.nodeToMovePath, action.uuid)
-                    is RefreshData -> pagingListItems.refresh()
-                }
-            }
+    HandleActions(actionsFlow) { action ->
+        when (action) {
+            is ShowError -> Toast.makeText(context, action.error.message, Toast.LENGTH_SHORT).show()
+            is ShowDeleteConfirmation -> deleteConfirmation = action.node to action.isPermanentDelete
+            is ShowRestoreConfirmation -> restoreConfirmation = action.node
+            is ShowPublicLinkScreen -> showPublicLinkScreen(
+                PublicLinkScreenData(
+                    assetId = action.cellNode.uuid,
+                    fileName = action.cellNode.name ?: action.cellNode.uuid,
+                    linkId = action.cellNode.publicLinkId,
+                    isFolder = action.cellNode is CellNodeUi.Folder
+                )
+            )
+            is ShowRenameScreen -> showRenameScreen(action.cellNode)
+            is ShowMoveToFolderScreen -> showMoveToFolderScreen(action.currentPath, action.nodeToMovePath, action.uuid)
+            is ShowAddRemoveTagsScreen -> showAddRemoveTagsScreen(action.cellNode)
+            is RefreshData -> pagingListItems.refresh()
         }
     }
 

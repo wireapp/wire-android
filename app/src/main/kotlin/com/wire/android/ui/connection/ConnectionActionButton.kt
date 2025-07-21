@@ -32,12 +32,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.lifecycle.repeatOnLifecycle
 import com.wire.android.R
 import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.model.ClickBlockParams
+import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.VisibilityState
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
@@ -79,16 +77,16 @@ fun ConnectionActionButton(
             ConnectionActionButtonArgs(userId, userName)
         ),
 ) {
-    val lifecycle = LocalLifecycleOwner.current
-
     LocalSnackbarHostState.current.collectAndShowSnackbar(snackbarFlow = viewModel.infoMessage)
     val unblockUserDialogState = rememberVisibilityState<UnblockUserDialogState>()
     val unableStartConversationDialogState = rememberVisibilityState<UnableStartConversationDialogState>()
 
+    LaunchedEffect(viewModel.actionableState().isPerformingAction) {
+        unblockUserDialogState.update { it.copy(loading = viewModel.actionableState().isPerformingAction) }
+    }
     UnblockUserDialogContent(
         dialogState = unblockUserDialogState,
         onUnblock = { viewModel.onUnblockUser() },
-        isLoading = viewModel.actionableState().isPerformingAction,
     )
 
     UnableStartConversationDialogContent(dialogState = unableStartConversationDialogState)
@@ -203,15 +201,11 @@ fun ConnectionActionButton(
             )
         }
     }
-    LaunchedEffect(Unit) {
-        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            viewModel.actions.collect { action ->
-                when (action) {
-                    is OpenConversation -> onOpenConversation(action.conversationId)
-                    is ConnectionRequestIgnored -> onConnectionRequestIgnored(action.userName)
-                    is MissingKeyPackages -> unableStartConversationDialogState.show(UnableStartConversationDialogState(fullName))
-                }
-            }
+    HandleActions(viewModel.actions) { action ->
+        when (action) {
+            is OpenConversation -> onOpenConversation(action.conversationId)
+            is ConnectionRequestIgnored -> onConnectionRequestIgnored(action.userName)
+            is MissingKeyPackages -> unableStartConversationDialogState.show(UnableStartConversationDialogState(fullName))
         }
     }
 }

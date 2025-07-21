@@ -242,13 +242,11 @@ Usuni&#281;ta wiadomo&#347;&#263; nie mo&#380;e zosta&#263; przywr&#243;cona.</s
     <string name="label_quote_original_message_is_a_picture">Zdj&#281;cie</string>
     <string name="label_quote_original_message_date">Oryginalna wiadomo&#347;&#263; z %s</string>
     <!-- Create Account -->
-    <string name="create_personal_account_title">Utw&#243;rz Konto Osobiste</string>
     <string name="create_personal_account_summary_title">Utworzono Konto Osobiste</string>
     <string name="create_personal_account_text">Bezpieczne rozmowy z przyjaci&#243;&#322;mi i rodzin&#261; przy u&#380;yciu publicznej chmury Wire.</string>
     <string name="create_personal_account_email_text">Wpisz sw&#243;j adres e-mail, aby zacz&#261;&#263; korzysta&#263; z najbezpieczniejszej platformy do wsp&#243;&#322;pracy.</string>
     <string name="create_personal_account_details_text">Wprowad&#378; swoje dane osobowe:</string>
     <string name="create_personal_account_summary_text">Utworzy&#322;e&#347; swoje konto osobiste. Zacznij komunikowa&#263; si&#281; bezpiecznie - gdziekolwiek jeste&#347;!</string>
-    <string name="create_team_title">Utw&#243;rz Zesp&#243;&#322;</string>
     <string name="create_team_summary_title">Utworzono Zesp&#243;&#322;</string>
     <string name="create_team_content_title">Wire za darmo</string>
     <string name="create_team_text">Wymiana wiadomo&#347;ci dla ma&#322;ych organizacji lub firm konsultingowych jednoosobowych.</string>

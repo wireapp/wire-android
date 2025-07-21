@@ -19,6 +19,7 @@ package com.wire.android.analytics
 
 import app.cash.turbine.test
 import com.wire.android.assertIs
+import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.feature.analytics.model.AnalyticsProfileProperties
@@ -41,7 +42,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.internal.assertEquals
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.Test
 
 class ObserveCurrentSessionAnalyticsUseCaseTest {
@@ -217,6 +218,25 @@ class ObserveCurrentSessionAnalyticsUseCaseTest {
         }
     }
 
+    @Test
+    fun givenRegistrationIdIsEnabled_whenObservingCurrentSessionAnalytics_thenEnableAnalyticsResultForRegistrationIsReturned() = runTest {
+        // given
+        val (_, useCase) = Arrangement().apply {
+            setCurrentSession(CurrentSessionResult.Failure.SessionNotFound)
+            withIsAnonymousRegistrationEnabledResult(true)
+            withAnonymousRegistrationTrackingId("trackId")
+        }.arrange()
+
+        // when
+        useCase.invoke().test {
+            // then
+            val item = awaitItem()
+            assertIs<AnalyticsIdentifierResult.RegistrationIdentifier>(item.identifierResult)
+            assertEquals(false, item.profileProperties().isTeamMember)
+            assertEquals(null, item.manager)
+        }
+    }
+
     private fun assertAnalyticsProfileProperties(expected: AnalyticsContactsData, actual: AnalyticsProfileProperties) {
         assertEquals(expected.teamId, actual.teamId)
         assertEquals(expected.isTeamMember, actual.isTeamMember)
@@ -236,6 +256,9 @@ class ObserveCurrentSessionAnalyticsUseCaseTest {
         @MockK
         private lateinit var analyticsIdentifierManager: AnalyticsIdentifierManager
 
+        @MockK
+        lateinit var globalDataStore: GlobalDataStore
+
         private val currentSessionChannel = Channel<CurrentSessionResult>(Channel.UNLIMITED)
 
         private val analyticsTrackingIdentifierStatusChannel = Channel<AnalyticsIdentifierResult>(Channel.UNLIMITED)
@@ -251,10 +274,19 @@ class ObserveCurrentSessionAnalyticsUseCaseTest {
         init {
             // Tests setup
             MockKAnnotations.init(this, relaxUnitFun = true)
+            withIsAnonymousRegistrationEnabledResult(false)
         }
 
         suspend fun setCurrentSession(result: CurrentSessionResult) {
             currentSessionChannel.send(result)
+        }
+
+        fun withAnonymousRegistrationTrackingId(trackId: String) = apply {
+            coEvery { globalDataStore.getOrCreateAnonymousRegistrationTrackId() } returns trackId
+        }
+
+        fun withIsAnonymousRegistrationEnabledResult(result: Boolean) = apply {
+            every { globalDataStore.isAnonymousRegistrationEnabled() } returns flowOf(result)
         }
 
         fun setAnalyticsContactsData(userId: UserId, data: AnalyticsContactsData) {
@@ -286,7 +318,8 @@ class ObserveCurrentSessionAnalyticsUseCaseTest {
             userDataStoreProvider = userDataStoreProvider,
             currentBackend = {
                 selfServerConfigChannel.receive()
-            }
+            },
+            globalDataStore = globalDataStore
         )
 
         fun arrange() = this to useCase

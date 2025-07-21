@@ -21,11 +21,14 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.SnapshotExtension
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.framework.TestClient.CLIENT
+import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.kalium.common.error.NetworkFailure
+import com.wire.kalium.logic.feature.auth.verification.RequestSecondFactorVerificationCodeUseCase
 import com.wire.kalium.logic.feature.client.DeleteClientUseCase
 import com.wire.kalium.logic.feature.client.FetchSelfClientsFromRemoteUseCase
 import com.wire.kalium.logic.feature.client.GetOrRegisterClientUseCase
 import com.wire.kalium.logic.feature.client.SelfClientsResult
+import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -34,7 +37,7 @@ import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.internal.assertEquals
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -64,7 +67,7 @@ class RemoveDeviceViewModelTest {
 
         assertEquals(false, viewModel.state.isLoadingClientsList)
         assertEquals(RemoveDeviceError.InitError, viewModel.state.error)
-        assertEquals(emptyList(), viewModel.state.deviceList)
+        assertEquals(emptyList<Device>(), viewModel.state.deviceList)
     }
 
     @Test
@@ -98,6 +101,12 @@ class RemoveDeviceViewModelTest {
         @MockK
         lateinit var userDataStore: UserDataStore
 
+        @MockK
+        lateinit var getSelfUser: GetSelfUserUseCase
+
+        @MockK
+        lateinit var requestSecondFactorVerificationCodeUseCase: RequestSecondFactorVerificationCodeUseCase
+
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
         }
@@ -111,7 +120,9 @@ class RemoveDeviceViewModelTest {
             deleteClientUseCase = deleteClientUseCase,
             registerClientUseCase = registerClientUseCase,
             isPasswordRequired = isPasswordRequired,
-            userDataStore = userDataStore
+            userDataStore = userDataStore,
+            getSelfUser = getSelfUser,
+            requestSecondFactorVerificationCodeUseCase = requestSecondFactorVerificationCodeUseCase,
         )
     }
 }

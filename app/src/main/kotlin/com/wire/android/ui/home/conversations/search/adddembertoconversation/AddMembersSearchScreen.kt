@@ -20,7 +20,6 @@ package com.wire.android.ui.home.conversations.search.adddembertoconversation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
@@ -34,7 +33,6 @@ import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.BotService
 
-@RootNavGraph
 @WireDestination(
     navArgsDelegate = AddMembersSearchNavArgs::class
 )

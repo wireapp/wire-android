@@ -26,8 +26,6 @@ jobs:
   build:
     name: "Build ${{ matrix.flavor }}-${{ matrix.variant }}"
     runs-on: buildjet-4vcpu-ubuntu-2204
-    env:
-      GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx8g -XX:+UseParallelGC -XX:MaxMetaspaceSize=1024m -XX:-UseGCOverheadLimit"'
     strategy:
       fail-fast: false  # Continue building other flavors even if one fails
       matrix:

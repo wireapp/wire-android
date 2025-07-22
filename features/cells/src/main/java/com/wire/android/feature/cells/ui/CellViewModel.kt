@@ -168,6 +168,23 @@ class CellViewModel @Inject constructor(
             is CellViewIntent.OnNodeDeleteConfirmed -> deleteFile(intent.node)
             is CellViewIntent.OnNodeRestoreConfirmed -> restoreNodeFromRecycleBin(intent.node)
             is CellViewIntent.OnDownloadMenuClosed -> onDownloadMenuClosed()
+            is CellViewIntent.OnParentFolderRestoreConfirmed -> restoreNodeFromRecycleBin(
+                intent.folder.copy(
+                    remotePath = recycleBinTopFolderPath(intent.folder.remotePath ?: "")
+                )
+            )
+        }
+    }
+
+    private fun recycleBinTopFolderPath(path: String): String? {
+        val parts = path.trimStart('/').split("/")
+        val index = parts.indexOf("recycle_bin")
+
+        return if (index != -1 && index + 1 < parts.size) {
+            // Keep everything up to and including folder1
+            parts.subList(0, index + 2).joinToString("/")
+        } else {
+            null // Not enough parts to extract recycle_bin/folder1
         }
     }
 
@@ -351,7 +368,15 @@ class CellViewModel @Inject constructor(
 
             NodeBottomSheetAction.RENAME -> sendAction(ShowRenameScreen(node))
             NodeBottomSheetAction.DOWNLOAD -> downloadNode(node)
-            NodeBottomSheetAction.RESTORE -> sendAction(ShowRestoreConfirmation(node = node))
+            NodeBottomSheetAction.RESTORE -> {
+                node.remotePath?.let {
+                    if (!isExactlyOneLevelUnderRecycleBin(it) && node is CellNodeUi.Folder) {
+                        sendAction(ShowRestoreParentFolderDialog(node))
+                    } else {
+                        sendAction(ShowRestoreConfirmation(node = node))
+                    }
+                }
+            }
             NodeBottomSheetAction.DELETE -> sendAction(ShowDeleteConfirmation(node = node, isPermanentDelete = false))
             NodeBottomSheetAction.DELETE_PERMANENTLY -> sendAction(ShowDeleteConfirmation(node = node, isPermanentDelete = true))
         }
@@ -410,6 +435,17 @@ class CellViewModel @Inject constructor(
         }
     }
 
+    private fun isExactlyOneLevelUnderRecycleBin(path: String): Boolean {
+        val normalized = path.trimEnd('/')
+        val parts = normalized.split("/")
+
+        val recycleBinIndex = parts.indexOf("recycle_bin")
+
+        // Must have exactly one segment after "recycle_bin"
+        return recycleBinIndex != -1 && parts.size - recycleBinIndex == 2
+    }
+
+
     private fun onDownloadMenuClosed() {
         _downloadFileSheet.update { null }
     }
@@ -434,6 +470,7 @@ sealed interface CellViewIntent {
     data class OnFileDownloadConfirmed(val file: CellNodeUi.File) : CellViewIntent
     data class OnNodeDeleteConfirmed(val node: CellNodeUi) : CellViewIntent
     data class OnNodeRestoreConfirmed(val node: CellNodeUi) : CellViewIntent
+    data class OnParentFolderRestoreConfirmed(val folder: CellNodeUi.Folder) : CellViewIntent
     data object OnDownloadMenuClosed : CellViewIntent
 }
 
@@ -445,6 +482,8 @@ internal data class ShowPublicLinkScreen(val cellNode: CellNodeUi) : CellViewAct
 internal data class ShowRenameScreen(val cellNode: CellNodeUi) : CellViewAction
 internal data class ShowAddRemoveTagsScreen(val cellNode: CellNodeUi) : CellViewAction
 internal data class ShowMoveToFolderScreen(val currentPath: String, val nodeToMovePath: String, val uuid: String) : CellViewAction
+internal data object ShowUnableToRestoreDialog : CellViewAction
+internal data class ShowRestoreParentFolderDialog(val cellNode: CellNodeUi) : CellViewAction
 internal data object RefreshData : CellViewAction
 
 internal enum class CellError(val message: Int) {

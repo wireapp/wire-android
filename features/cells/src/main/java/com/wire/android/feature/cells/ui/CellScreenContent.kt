@@ -45,9 +45,11 @@ import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.common.LoadingScreen
 import com.wire.android.feature.cells.ui.dialog.DeleteConfirmationDialog
 import com.wire.android.feature.cells.ui.dialog.NodeActionsBottomSheet
-import com.wire.android.feature.cells.ui.dialog.RestoreConfirmationDialog
 import com.wire.android.feature.cells.ui.download.DownloadFileBottomSheet
 import com.wire.android.feature.cells.ui.model.CellNodeUi
+import com.wire.android.feature.cells.ui.recyclebin.RestoreConfirmationDialog
+import com.wire.android.feature.cells.ui.recyclebin.RestoreParentFolderConfirmationDialog
+import com.wire.android.feature.cells.ui.recyclebin.UnableToRestoreDialog
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.colorsScheme
@@ -77,6 +79,8 @@ internal fun CellScreenContent(
 
     var deleteConfirmation by remember { mutableStateOf<Pair<CellNodeUi, Boolean>?>((null)) }
     var restoreConfirmation by remember { mutableStateOf<CellNodeUi?>(null) }
+    var unableToRestore by remember { mutableStateOf(false) }
+    var restoreParentFolderConfirmation by remember { mutableStateOf<CellNodeUi?>(null) }
     var menu by remember { mutableStateOf<MenuOptions?>(null) }
 
     val downloadFile by downloadFileState.collectAsState()
@@ -154,6 +158,31 @@ internal fun CellScreenContent(
         )
     }
 
+    if (unableToRestore) {
+        UnableToRestoreDialog(
+            isFolder = restoreConfirmation is CellNodeUi.Folder,
+            onConfirm = {
+                unableToRestore = false
+            },
+            onDismiss = {
+                unableToRestore = false
+            }
+        )
+    }
+
+    restoreParentFolderConfirmation?.let {
+        RestoreParentFolderConfirmationDialog(
+            itemName = it.name ?: "",
+            onConfirm = {
+                sendIntent(CellViewIntent.OnParentFolderRestoreConfirmed(it as CellNodeUi.Folder))
+                restoreParentFolderConfirmation = null
+            },
+            onDismiss = {
+                restoreParentFolderConfirmation = null
+            }
+        )
+    }
+
     HandleActions(actionsFlow) { action ->
         when (action) {
             is ShowError -> Toast.makeText(context, action.error.message, Toast.LENGTH_SHORT).show()
@@ -171,6 +200,8 @@ internal fun CellScreenContent(
             is ShowMoveToFolderScreen -> showMoveToFolderScreen(action.currentPath, action.nodeToMovePath, action.uuid)
             is ShowAddRemoveTagsScreen -> showAddRemoveTagsScreen(action.cellNode)
             is RefreshData -> pagingListItems.refresh()
+            is ShowUnableToRestoreDialog -> unableToRestore = true
+            is ShowRestoreParentFolderDialog -> restoreParentFolderConfirmation = action.cellNode
         }
     }
 

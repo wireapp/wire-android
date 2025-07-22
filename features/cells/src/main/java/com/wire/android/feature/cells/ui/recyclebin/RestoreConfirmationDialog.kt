@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.feature.cells.ui.dialog
+package com.wire.android.feature.cells.ui.recyclebin
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
@@ -28,6 +28,7 @@ import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.preview.MultipleThemePreviews
+import com.wire.android.ui.theme.WireTheme
 
 @Composable
 fun RestoreConfirmationDialog(
@@ -86,10 +87,12 @@ fun RestoreConfirmationDialog(
 @MultipleThemePreviews
 @Composable
 fun PreviewRestoreConfirmationDialog() {
-    RestoreConfirmationDialog(
-        itemName = "Test",
-        isFolder = false,
-        onConfirm = {},
-        onDismiss = {}
-    )
+    WireTheme {
+        RestoreConfirmationDialog(
+            itemName = "Test",
+            isFolder = false,
+            onConfirm = {},
+            onDismiss = {}
+        )
+    }
 }

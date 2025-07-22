@@ -26,6 +26,9 @@ import com.wire.android.ui.home.HomeSnackBarMessage
 import com.wire.android.workmanager.worker.ConversationDeletionLocallyStatus
 import com.wire.android.workmanager.worker.enqueueConversationDeletionLocally
 import com.wire.kalium.common.error.CoreFailure
+import com.wire.kalium.common.functional.Either
+import com.wire.kalium.common.functional.left
+import com.wire.kalium.common.functional.right
 import com.wire.kalium.logic.data.conversation.ConversationFolder
 import com.wire.kalium.logic.data.conversation.FolderType
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
@@ -334,7 +337,7 @@ class ConversationOptionsMenuViewModelTest {
     fun `given success, when leaving group with deleting, then call proper action`() = runTest(dispatcherProvider.main()) {
         val (arrangement, viewModel) = Arrangement()
             .withLeaveConversation(RemoveMemberFromConversationUseCase.Result.Success)
-            .withMarkConversationAsDeletedLocally(MarkConversationAsDeletedLocallyUseCase.Result.Success)
+            .withMarkConversationAsDeletedLocally(Unit.right())
             .withEnqueueConversationDeletionLocally(ConversationDeletionLocallyStatus.SUCCEEDED)
             .arrange()
 
@@ -356,7 +359,7 @@ class ConversationOptionsMenuViewModelTest {
     fun `given failure, when leaving group with deleting, then call proper action`() = runTest(dispatcherProvider.main()) {
         val (arrangement, viewModel) = Arrangement()
             .withLeaveConversation(RemoveMemberFromConversationUseCase.Result.Success)
-            .withMarkConversationAsDeletedLocally(MarkConversationAsDeletedLocallyUseCase.Result.Failure(CoreFailure.Unknown(null)))
+            .withMarkConversationAsDeletedLocally(CoreFailure.Unknown(null).left())
             .withEnqueueConversationDeletionLocally(ConversationDeletionLocallyStatus.FAILED)
             .arrange()
 
@@ -376,7 +379,7 @@ class ConversationOptionsMenuViewModelTest {
     @Test
     fun `given success, when deleting group locally, then call proper action`() = runTest(dispatcherProvider.main()) {
         val (arrangement, viewModel) = Arrangement()
-            .withMarkConversationAsDeletedLocally(MarkConversationAsDeletedLocallyUseCase.Result.Success)
+            .withMarkConversationAsDeletedLocally(Unit.right())
             .withEnqueueConversationDeletionLocally(ConversationDeletionLocallyStatus.SUCCEEDED)
             .arrange()
 
@@ -396,7 +399,7 @@ class ConversationOptionsMenuViewModelTest {
     @Test
     fun `given failure, when deleting group locally, then call proper action`() = runTest(dispatcherProvider.main()) {
         val (arrangement, viewModel) = Arrangement()
-            .withMarkConversationAsDeletedLocally(MarkConversationAsDeletedLocallyUseCase.Result.Failure(CoreFailure.Unknown(null)))
+            .withMarkConversationAsDeletedLocally(CoreFailure.Unknown(null).left())
             .withEnqueueConversationDeletionLocally(ConversationDeletionLocallyStatus.FAILED)
             .arrange()
 
@@ -640,7 +643,7 @@ class ConversationOptionsMenuViewModelTest {
         fun withLeaveConversation(result: RemoveMemberFromConversationUseCase.Result) = apply {
             coEvery { leaveConversation(any()) } returns result
         }
-        fun withMarkConversationAsDeletedLocally(result: MarkConversationAsDeletedLocallyUseCase.Result) = apply {
+        fun withMarkConversationAsDeletedLocally(result: Either<CoreFailure, Unit>) = apply {
             coEvery { markConversationAsDeletedLocally(any()) } returns result
         }
         fun withEnqueueConversationDeletionLocally(result: ConversationDeletionLocallyStatus) = apply {

@@ -20,9 +20,11 @@ package com.wire.android.workmanager.worker
 import android.content.Context
 import androidx.core.app.NotificationCompat
 import androidx.hilt.work.HiltWorker
+import androidx.work.Constraints
 import androidx.work.CoroutineWorker
 import androidx.work.ExistingWorkPolicy
 import androidx.work.ForegroundInfo
+import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkInfo
@@ -82,7 +84,7 @@ class DeleteConversationLocallyWorker @AssistedInject constructor(
         }
 
         coreLogic.getSessionScope(userId).conversations.deleteConversationLocallyUseCase(conversationId)
-            .fold({ Result.failure() }, { Result.success() })
+            .fold({ Result.retry() }, { Result.success() })
     }
 
     override suspend fun getForegroundInfo(): ForegroundInfo {
@@ -144,6 +146,7 @@ fun WorkManager.enqueueConversationDeletionLocally(
                 DeleteConversationLocallyWorker.USER_ID to userId.toString(),
             )
         )
+        .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
         .build()
     val isAlreadyRunning = getWorkInfosForUniqueWorkLiveData(workName)
         .value

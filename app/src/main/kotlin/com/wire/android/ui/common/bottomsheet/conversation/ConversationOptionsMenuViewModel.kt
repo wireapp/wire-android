@@ -36,6 +36,7 @@ import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.LeaveGroupDialogState
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.workmanager.worker.enqueueConversationDeletionLocally
+import com.wire.kalium.common.functional.fold
 import com.wire.kalium.logic.data.conversation.ConversationFolder
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
@@ -61,6 +62,7 @@ import com.wire.kalium.logic.feature.team.Result
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.util.DateTimeUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -120,6 +122,7 @@ class ConversationOptionsMenuViewModelImpl @Inject constructor(
     private val workManager: WorkManager,
     private val dispatchers: DispatcherProvider,
 ) : ConversationOptionsMenuViewModel, ActionsViewModel<ConversationOptionsMenuViewAction>() {
+    private val nonCancellableIOContext = NonCancellable + dispatchers.io()
     private val conversationStateFlow: ConcurrentHashMap<ConversationId, StateFlow<ConversationOptionsMenuState>> = ConcurrentHashMap()
     override val leaveGroupDialogState: VisibilityState<LeaveGroupDialogState> by mutableStateOf(VisibilityState())
     override val deleteGroupDialogState: VisibilityState<DeleteGroupDialogState> by mutableStateOf(VisibilityState())
@@ -142,6 +145,7 @@ class ConversationOptionsMenuViewModelImpl @Inject constructor(
                                 conversationDetailResult.conversationDetails
                                     .toConversationOptionsData(selfUser)
                                     ?.let { ConversationOptionsMenuState.Conversation(it) } ?: ConversationOptionsMenuState.NotAvailable
+
                             is ObserveConversationDetailsUseCase.Result.Failure -> ConversationOptionsMenuState.NotAvailable
                         }
                     }
@@ -158,23 +162,25 @@ class ConversationOptionsMenuViewModelImpl @Inject constructor(
     override fun changeFavoriteState(conversationId: ConversationId, conversationName: String, addToFavorite: Boolean) {
         viewModelScope.launch {
             if (addToFavorite) {
-                withContext(dispatchers.io()) {
+                withContext(nonCancellableIOContext) {
                     addConversationToFavorites(conversationId)
                 }.let { result ->
                     when (result) {
                         is AddConversationToFavoritesUseCase.Result.Failure ->
                             onMessage(HomeSnackBarMessage.UpdateFavoriteStatusError(conversationName, true))
+
                         AddConversationToFavoritesUseCase.Result.Success ->
                             onMessage(HomeSnackBarMessage.UpdateFavoriteStatusSuccess(conversationName, true))
                     }
                 }
             } else {
-                withContext(dispatchers.io()) {
+                withContext(nonCancellableIOContext) {
                     removeConversationFromFavorites(conversationId)
                 }.let { result ->
                     when (result) {
                         is RemoveConversationFromFavoritesUseCase.Result.Failure ->
                             onMessage(HomeSnackBarMessage.UpdateFavoriteStatusError(conversationName, false))
+
                         RemoveConversationFromFavoritesUseCase.Result.Success ->
                             onMessage(HomeSnackBarMessage.UpdateFavoriteStatusSuccess(conversationName, false))
                     }
@@ -185,12 +191,13 @@ class ConversationOptionsMenuViewModelImpl @Inject constructor(
 
     override fun removeFromFolder(conversationId: ConversationId, conversationName: String, folder: ConversationFolder) {
         viewModelScope.launch {
-            withContext(dispatchers.io()) {
+            withContext(nonCancellableIOContext) {
                 removeConversationFromFolder.invoke(conversationId, folder.id)
             }.let { result ->
                 when (result) {
                     is RemoveConversationFromFolderUseCase.Result.Failure ->
                         onMessage(HomeSnackBarMessage.RemoveFromFolderError(conversationName))
+
                     RemoveConversationFromFolderUseCase.Result.Success ->
                         onMessage(HomeSnackBarMessage.RemoveFromFolderSuccess(conversationName, folder.name))
                 }
@@ -201,7 +208,7 @@ class ConversationOptionsMenuViewModelImpl @Inject constructor(
     override fun moveToArchive(conversationId: ConversationId, shouldArchive: Boolean, isSelfAMember: Boolean) {
         viewModelScope.launch {
             archiveConversationDialogState.update { it.copy(loading = true) }
-            withContext(dispatchers.io()) {
+            withContext(nonCancellableIOContext) {
                 updateConversationArchivedStatus(
                     conversationId = conversationId,
                     shouldArchiveConversation = shouldArchive,
@@ -220,7 +227,7 @@ class ConversationOptionsMenuViewModelImpl @Inject constructor(
 
     override fun changeMutedState(conversationId: ConversationId, mutedConversationStatus: MutedConversationStatus) {
         viewModelScope.launch {
-            withContext(dispatchers.io()) {
+            withContext(nonCancellableIOContext) {
                 updateConversationMutedStatus(
                     conversationId = conversationId,
                     mutedConversationStatus = mutedConversationStatus,
@@ -239,7 +246,7 @@ class ConversationOptionsMenuViewModelImpl @Inject constructor(
     override fun leaveGroup(conversationId: ConversationId, conversationName: String, shouldDelete: Boolean) {
         viewModelScope.launch {
             leaveGroupDialogState.update { it.copy(loading = true) }
-            withContext(dispatchers.io()) {
+            withContext(nonCancellableIOContext) {
                 leaveConversation(conversationId)
             }.let { result ->
                 when (result) {
@@ -272,6 +279,7 @@ class ConversationOptionsMenuViewModelImpl @Inject constructor(
                     sendAction(ConversationOptionsMenuViewAction.DeletedLocally(conversationId, conversationName))
                     onMessage(HomeSnackBarMessage.DeleteConversationGroupLocallySuccess(conversationName))
                 }
+
                 false -> onMessage(HomeSnackBarMessage.DeleteConversationGroupError)
             }
             deleteGroupLocallyDialogState.dismiss()
@@ -279,24 +287,23 @@ class ConversationOptionsMenuViewModelImpl @Inject constructor(
     }
 
     private suspend fun markAsDeletedLocallyAndEnqueueWorkerToDeleteCompletely(conversationId: ConversationId): Boolean {
-        return when (markConversationAsDeletedLocally(conversationId)) {
-            is MarkConversationAsDeletedLocallyUseCase.Result.Failure -> {
+        return markConversationAsDeletedLocally(conversationId).fold(
+            {
                 appLogger.e("Failed to mark conversation $conversationId as deleted locally")
                 false
-            }
-
-            MarkConversationAsDeletedLocallyUseCase.Result.Success -> {
+            },
+            {
                 appLogger.d("Conversation $conversationId marked as deleted locally, starting worker to complete deletion")
                 workManager.enqueueConversationDeletionLocally(conversationId, currentAccount)
                 true
             }
-        }
+        )
     }
 
     override fun deleteGroup(conversationId: ConversationId, conversationName: String) {
         viewModelScope.launch {
             deleteGroupDialogState.update { it.copy(loading = true) }
-            withContext(dispatchers.io()) {
+            withContext(nonCancellableIOContext) {
                 deleteTeamConversation(conversationId)
             }.let { result ->
                 when (result) {
@@ -315,7 +322,7 @@ class ConversationOptionsMenuViewModelImpl @Inject constructor(
     override fun blockUser(userId: UserId, userName: String) {
         viewModelScope.launch {
             blockUserDialogState.update { it.copy(loading = true) }
-            withContext(dispatchers.io()) {
+            withContext(nonCancellableIOContext) {
                 blockUser(userId)
             }.let { result ->
                 when (result) {
@@ -337,7 +344,7 @@ class ConversationOptionsMenuViewModelImpl @Inject constructor(
     override fun unblockUser(userId: UserId, userName: String) {
         viewModelScope.launch {
             unblockUserDialogState.update { it.copy(loading = true) }
-            withContext(dispatchers.io()) {
+            withContext(nonCancellableIOContext) {
                 unblockUser(userId)
             }.let { result ->
                 when (result) {
@@ -359,7 +366,7 @@ class ConversationOptionsMenuViewModelImpl @Inject constructor(
     override fun clearConversationContent(conversationId: ConversationId, conversationTypeDetail: ConversationTypeDetail) {
         viewModelScope.launch {
             clearContentDialogState.update { it.copy(loading = true) }
-            withContext(dispatchers.io()) {
+            withContext(nonCancellableIOContext) {
                 clearConversationContent(conversationId)
             }.let { result ->
                 if (conversationTypeDetail is ConversationTypeDetail.Connection) {

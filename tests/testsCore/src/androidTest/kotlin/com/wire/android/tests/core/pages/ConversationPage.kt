@@ -19,7 +19,9 @@ package com.wire.android.tests.core.pages
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
+import androidx.test.uiautomator.Direction
 import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.UiScrollable
 import androidx.test.uiautomator.UiSelector
 import androidx.test.uiautomator.Until
 import org.junit.Assert
@@ -39,28 +41,14 @@ data class ConversationPage(private val device: UiDevice) {
     private val playAudioButton = UiSelectorParams(description = "Play audio")
 
     private val pauseAudioButton = UiSelectorParams(description = "Pause audio")
-
-    private val reactionsLabel = UiSelectorParams(text = "REACTIONS")
-
-    private val messageDetailsButton = UiSelectorParams(text = "Message Details")
-
-    private val replyButton = UiSelectorParams(text = "Reply")
-
     private val downloadButton = UiSelectorParams(text = "Download")
-
-    private val shareButton = UiSelectorParams(text = "Share")
-
-    private val openButton = UiSelectorParams(text = "Open")
-
-    private val deleteButton = UiSelectorParams(text = "Delete")
 
     private val modalTextLocator = UiSelectorParams(textContains = "save it to your device")
 
     private val saveButtonLocator = UiSelectorParams(text = "Save")
 
     private val saveButton = UiSelectorParams(text = "Save")
-
-    private val cancelButton = UiSelectorParams(text = "Cancel")
+    private val downloadButtonOnVideoFile = UiSelectorParams(text = "Tap to download")
 
 
     private fun fileWithName(name: String): UiSelectorParams {
@@ -95,6 +83,7 @@ data class ConversationPage(private val device: UiDevice) {
         assertTrue("Team member name '$userName' is not visible", !teamMemberName.visibleBounds.isEmpty)
         return this
     }
+
     fun assertConversationIsVisibleWithTeamMember(userName: String): ConversationPage {
         val teamMemberName = UiWaitUtils.waitElement(displayedUserName(userName))
         assertTrue("Team member name '$userName' is not visible in conversation view", !teamMemberName.visibleBounds.isEmpty)
@@ -170,7 +159,7 @@ data class ConversationPage(private val device: UiDevice) {
         return this
     }
 
-        fun tapDownloadButton(): ConversationPage {
+    fun tapDownloadButton(): ConversationPage {
         UiWaitUtils.waitElement(downloadButton).click()
         return this
     }
@@ -244,7 +233,24 @@ data class ConversationPage(private val device: UiDevice) {
         return this
     }
 
+    fun scrollToBottomOfConversationScreen() {
+        try {
+            val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
+            // Create a scrollable container (finds first scrollable layout on screen)
+            val scrollable = UiScrollable(UiSelector().scrollable(true))
+            scrollable.setAsVerticalList()
 
+            // Perform fling (fast scroll) to the bottom
+            val success = scrollable.flingToEnd(10)
+            println("✅ Scrolled to bottom: $success")
+        } catch (e: Exception) {
+            println("❌ Failed to scroll: ${e.message}")
+        }
+    }
 
+    fun tapDownloadButtonOnVideoFile(): ConversationPage {
+        UiWaitUtils.waitElement(downloadButtonOnVideoFile).click()
+        return this
+    }
 }

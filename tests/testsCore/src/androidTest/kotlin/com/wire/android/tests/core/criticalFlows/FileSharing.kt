@@ -171,7 +171,7 @@ class FileSharing : KoinTest {
                 pages.conversationPage.apply {
                     assertConversationIsVisibleWithTeamMember(connectionSenderFromSendTeam.name ?: "")
 
-                    //send Audio
+                    //send Audio File
                     testServiceHelper.contactSendsLocalAudioPersonalMLSConversation(
                         context,
                         "FileName",
@@ -184,7 +184,7 @@ class FileSharing : KoinTest {
                     assertAudioMessageIsVisible()
                     assertAudioTimeStartsAtZero()
                     clickPlayButtonOnAudioMessage()
-                    Thread.sleep(16000)
+                    Thread.sleep(16_000)
                     clickPauseButtonOnAudioMessage()
 
                     assertAudioTimeIsNotZeroAnymore()
@@ -197,11 +197,9 @@ class FileSharing : KoinTest {
                     tapSaveButtonOnModal()
                     assertFileSavedToastContain("The file FileName.mp3 was saved successfully to the Downloads folder")
 
-
                     pages.conversationPage.apply {
 
-
-                        //send image
+                        //send image File
                         testServiceHelper.contactSendsLocalImagePersonalMLSConversation(
                             context,
                             "FileName2",
@@ -216,10 +214,7 @@ class FileSharing : KoinTest {
                         assertDownloadModalButtonsAreVisible_Open_Save_Cancel()
                         clickSaveButtonOnDownloadModal()
                         assertFileSavedToastContain("The file FileName2.jpg was saved successfully to the Downloads folder")
-
-
-                        // testServiceHelper.deleteFile(context, "FileName2")
-                        //send text
+                        //send text File
                         testServiceHelper.contactSendsLocalTextPersonalMLSConversation(
                             context,
                             "FileName3",
@@ -227,41 +222,41 @@ class FileSharing : KoinTest {
                             "Device1",
                             "user4Name"
                         )
-
-                        assertTextFileWithNameIsVisible("FileName3")
-                        clickTextFileWithName("FileName3")
-                        assertFileActionModalIsVisible()
-                        assertDownloadModalButtonsAreVisible_Open_Save_Cancel()
-                        clickSaveButtonOnDownloadModal()
-                        assertFileSavedToastContain("The file FileName3.txt was saved successfully to the Downloads folder")
-
-
-
-
-
-                        pages.connectedUserProfilePage.apply {
-
-
-                            //send video
-                            testServiceHelper.contactSendsLocalVideoPersonalMLSConversation(
-                                context,
-                                "FileName4",
-                                "user2Name",
-                                "Device1",
-                                "user4Name"
-                            )
-                            //      testServiceHelper.deleteFile(context, "FileName4")
-
-
-                            pages.unconnectedUserProfilePage.apply {
-
-                                clickAcceptButton()
-
-                            }
-                        }
                     }
+                    assertTextFileWithNameIsVisible("FileName3")
+                    clickTextFileWithName("FileName3")
+                    assertFileActionModalIsVisible()
+                    assertDownloadModalButtonsAreVisible_Open_Save_Cancel()
+                    clickSaveButtonOnDownloadModal()
+                    assertFileSavedToastContain("The file FileName3.txt was saved successfully to the Downloads folder")
+
+                    pages.connectedUserProfilePage.apply {
+
+                        //send video File
+                        testServiceHelper.contactSendsLocalVideoPersonalMLSConversation(
+                            context,
+                            "FileName4",
+                            "user2Name",
+                            "Device1",
+                            "user4Name"
+                        )
+                    }
+                    scrollToBottomOfConversationScreen()
+                    assertTextFileWithNameIsVisible("FileName4")
+                    tapDownloadButtonOnVideoFile()
+                   // clickTextFileWithName("Tap to download")
+
+                  //  Thread.sleep(7_000)
+
+                    assertFileActionModalIsVisible()
+                    assertDownloadModalButtonsAreVisible_Open_Save_Cancel()
+                    clickSaveButtonOnDownloadModal()
+                    assertFileSavedToastContain("The file FileName4.mp4 was saved successfully to the Downloads folder")
+
                 }
             }
         }
     }
 }
+
+

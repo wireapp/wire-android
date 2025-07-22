@@ -15,12 +15,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package backendconnections.team
+package backendUtils.team
 
 import android.content.Context
-import com.wire.android.testSupport.backendConnections.BackendClient
-import com.wire.android.testSupport.backendConnections.team.TeamRoles
-import com.wire.android.testSupport.backendConnections.team.getTeamByName
+import backendUtils.BackendClient
 import kotlinx.coroutines.runBlocking
 import user.usermanager.ClientUserManager
 import user.utils.ClientUser

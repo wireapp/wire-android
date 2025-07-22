@@ -17,10 +17,10 @@
  */
 package service
 
-import com.wire.android.testSupport.backendConnections.BackendClient
+import backendUtils.BackendClient
+import backendUtils.team.defaultheaders
+import backendUtils.team.getAuthToken
 import com.wire.android.testSupport.backendConnections.team.Team
-import com.wire.android.testSupport.backendConnections.team.defaultheaders
-import com.wire.android.testSupport.backendConnections.team.getAuthToken
 import network.NetworkBackendClient
 import org.json.JSONArray
 import org.json.JSONObject

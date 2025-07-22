@@ -20,7 +20,7 @@ package com.wire.android.testSupport.service
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import com.wire.android.testSupport.backendConnections.BackendClient
+import backendUtils.BackendClient
 import logger.WireTestLogger
 import network.HttpRequestException
 import org.json.JSONArray

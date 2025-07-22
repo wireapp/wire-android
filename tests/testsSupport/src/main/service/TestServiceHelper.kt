@@ -17,8 +17,8 @@
  */
 package service
 
-import com.wire.android.testSupport.backendConnections.BackendClient
-import com.wire.android.testSupport.backendConnections.team.getTeamByName
+import backendUtils.BackendClient
+import backendUtils.team.getTeamByName
 import kotlinx.coroutines.runBlocking
 import user.usermanager.ClientUserManager
 import user.utils.ClientUser

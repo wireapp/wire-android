@@ -18,10 +18,10 @@
 package user.usermanager
 
 import android.content.Context
-import com.wire.android.testSupport.backendConnections.BackendClient
-import com.wire.android.testSupport.backendConnections.team.TeamRoles
-import com.wire.android.testSupport.backendConnections.team.createTeamOwnerViaBackend
-import com.wire.android.testSupport.backendConnections.team.createTeamUserViaBackend
+import backendUtils.BackendClient
+import backendUtils.team.TeamRoles
+import backendUtils.team.createTeamOwnerViaBackend
+import backendUtils.team.createTeamUserViaBackend
 import kotlinx.coroutines.runBlocking
 import logger.WireTestLogger
 import user.usermanager.exceptions.NoSuchUserException

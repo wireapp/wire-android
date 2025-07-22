@@ -17,13 +17,13 @@
  */
 @file:Suppress("TooGenericExceptionCaught")
 
-package com.wire.android.testSupport.backendConnections
+package backendUtils
 
 import CredentialsManager
 import android.net.Uri
+import backendUtils.team.defaultheaders
+import backendUtils.team.getAuthToken
 import com.wire.android.testSupport.BuildConfig
-import com.wire.android.testSupport.backendConnections.team.defaultheaders
-import com.wire.android.testSupport.backendConnections.team.getAuthToken
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import logger.WireTestLogger

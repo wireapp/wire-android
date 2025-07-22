@@ -22,10 +22,10 @@ import android.content.Context
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
-import backendconnections.team.TeamHelper
-import com.wire.android.testSupport.backendConnections.BackendClient
-import com.wire.android.testSupport.backendConnections.team.TeamRoles
-import com.wire.android.testSupport.backendConnections.team.deleteTeam
+import backendUtils.BackendClient
+import backendUtils.team.TeamHelper
+import backendUtils.team.TeamRoles
+import backendUtils.team.deleteTeam
 import com.wire.android.testSupport.uiautomatorutils.UiAutomatorSetup
 import com.wire.android.tests.core.di.testModule
 import com.wire.android.tests.core.pages.AllPages

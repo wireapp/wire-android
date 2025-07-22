@@ -15,11 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.testSupport.backendConnections.user
+package backendUtils.user
 
-import com.wire.android.testSupport.backendConnections.BackendClient
-import com.wire.android.testSupport.backendConnections.team.defaultheaders
-import com.wire.android.testSupport.backendConnections.team.getAuthToken
+import backendUtils.BackendClient
+import backendUtils.team.defaultheaders
+import backendUtils.team.getAuthToken
 import kotlinx.coroutines.runBlocking
 import logger.WireTestLogger
 import network.NetworkBackendClient
@@ -32,7 +32,7 @@ suspend fun ClientUser.deleteUser(backend: BackendClient) {
     val token = runBlocking {
         backend.getAuthToken(this@deleteUser)
     }
-    val connection = NetworkBackendClient.sendJsonRequest(
+    NetworkBackendClient.sendJsonRequest(
         url = with(backend) { URL("self".composeCompleteUrl()) },
         method = "DELETE",
         body = JSONObject().apply {

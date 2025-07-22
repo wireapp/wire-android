@@ -16,7 +16,7 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 import android.util.Base64
-import com.wire.android.testSupport.backendConnections.BackendClient
+import backendUtils.BackendClient
 import kotlinx.coroutines.delay
 import logger.WireTestLogger
 import network.NetworkBackendClient.sendJsonRequest

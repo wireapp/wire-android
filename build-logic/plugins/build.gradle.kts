@@ -39,7 +39,7 @@ dependencies {
     compileOnly(libs.kover.gradlePlugin)
 
     testImplementation(libs.junit4)
-    testImplementation(libs.kluent.core)
+    testImplementation(kotlin("test"))
     implementation(libs.ksp.symbol.processing.plugin)
 }
 

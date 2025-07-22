@@ -1,4 +1,4 @@
-name: "Run UI Tests"
+name: "UI Tests"
 
 
 on: [ workflow_call ]

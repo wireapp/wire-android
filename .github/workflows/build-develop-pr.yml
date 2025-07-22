@@ -1,0 +1,41 @@
+name: "Develop"
+
+on:
+  merge_group:
+    types: [ checks_requested ]
+    branches: [ develop ]
+  pull_request:
+    branches:
+      - develop
+    types: [ opened, synchronize ]
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.event.merge_group.head_sha }}
+  cancel-in-progress: true
+
+jobs:
+  # Build for PR and merge group validation (no store deployment)
+  build-validation:
+    uses: ./.github/workflows/build-unified.yml
+    with:
+      build-config: |
+        [
+          {
+            "flavor": "Dev",
+            "variant": "Debug",
+            "keystore-type": "debug",
+            "build-type": "apk",
+            "generate-version-file": false,
+            "deployment-targets": [
+              {
+                "type": "s3"
+              }
+            ]
+          }
+        ]
+      enable-deployment: true
+    secrets: inherit

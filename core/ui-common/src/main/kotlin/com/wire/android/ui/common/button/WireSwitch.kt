@@ -31,6 +31,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
@@ -97,7 +98,7 @@ fun wireSwitchColors(
     disabledUncheckedIconColor = disabledUncheckedIconColor
 )
 
-@PreviewMultipleThemes
+@PreviewLightDark
 @Composable
 fun PreviewWireSwitchOn() = WireTheme {
     WireSwitch(checked = true, onCheckedChange = {})

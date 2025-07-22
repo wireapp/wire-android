@@ -17,13 +17,13 @@
  */
 package customization
 
-import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import java.io.File
+import kotlin.test.assertEquals
 
 @RunWith(JUnit4::class)
 class CustomizationTest {
@@ -62,7 +62,7 @@ class CustomizationTest {
             Customization.CustomizationOption.DefaultOnly
         )
 
-        result.flavorSettings.flavorMap["dev"]!!["foo"] shouldBeEqualTo "default"
+        assertEquals("default", result.flavorSettings.flavorMap["dev"]!!["foo"])
     }
 
     @Test
@@ -93,6 +93,6 @@ class CustomizationTest {
             Customization.CustomizationOption.FromFile(customFile)
         )
 
-        result.flavorSettings.flavorMap["dev"]!!["foo"] shouldBeEqualTo "custom"
+        assertEquals("custom", result.flavorSettings.flavorMap["dev"]!!["foo"])
     }
 }

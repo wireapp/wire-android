@@ -19,7 +19,7 @@
 package com.wire.android.util.extension
 
 import com.wire.kalium.logic.data.conversation.ClientId
-import org.amshove.kluent.internal.assertEquals
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
 class ClientIdTest {

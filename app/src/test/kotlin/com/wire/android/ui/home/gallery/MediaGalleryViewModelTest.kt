@@ -58,7 +58,7 @@ import kotlinx.datetime.Instant
 import okio.Path
 import okio.Path.Companion.toPath
 import okio.buffer
-import org.amshove.kluent.internal.assertEquals
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith

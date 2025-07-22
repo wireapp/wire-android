@@ -123,8 +123,7 @@ class ConversationMessagesViewModel @Inject constructor(
     )
         private set
 
-    var deleteMessageDialogState: VisibilityState<DeleteMessageDialogState> by mutableStateOf(VisibilityState())
-        private set
+    val deleteMessageDialogState: VisibilityState<DeleteMessageDialogState> by mutableStateOf(VisibilityState())
 
     private var lastImageMessageShownOnGallery: UIMessage.Regular? = null
     private val _infoMessage = MutableSharedFlow<SnackBarMessage>()

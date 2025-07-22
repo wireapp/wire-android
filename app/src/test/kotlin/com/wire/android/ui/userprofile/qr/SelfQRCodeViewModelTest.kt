@@ -19,7 +19,7 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.internal.assertEquals
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -34,13 +34,13 @@ class SelfQRCodeViewModelTest {
 
         // when - then
         assertEquals(
-            expected = "wire://user/${TestUser.SELF_USER.id.domain}/${TestUser.SELF_USER.id.value}",
-            actual = viewModel.selfQRCodeState.userProfileLink,
+            "wire://user/${TestUser.SELF_USER.id.domain}/${TestUser.SELF_USER.id.value}",
+            viewModel.selfQRCodeState.userProfileLink,
         )
 
         assertEquals(
-            expected = "${ServerConfig.STAGING.accounts}/user-profile/?id=${TestUser.SELF_USER.id}",
-            actual = viewModel.selfQRCodeState.userAccountProfileLink,
+            "${ServerConfig.STAGING.accounts}/user-profile/?id=${TestUser.SELF_USER.id}",
+            viewModel.selfQRCodeState.userAccountProfileLink,
         )
     }
 

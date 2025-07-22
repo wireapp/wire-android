@@ -62,6 +62,7 @@ import kotlin.math.roundToInt
 fun SwipeableSnackbar(
     hostState: SnackbarHostState,
     data: SnackbarData,
+    modifier: Modifier = Modifier,
     onDismiss: () -> Unit = { hostState.currentSnackbarData?.dismiss() },
 ) {
     val density = LocalDensity.current
@@ -105,7 +106,7 @@ fun SwipeableSnackbar(
     Snackbar(
         snackbarData = data,
         shape = RoundedCornerShape(MaterialTheme.wireDimensions.buttonSmallCornerSize),
-        modifier = Modifier
+        modifier = modifier
             .anchoredDraggable(
                 state = state,
                 orientation = Orientation.Horizontal

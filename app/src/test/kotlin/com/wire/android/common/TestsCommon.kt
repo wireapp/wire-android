@@ -23,7 +23,6 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.internal.platformClassName
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
@@ -45,7 +44,7 @@ fun runTestWithCancellation(
         }
     } catch (e: Exception) {
         // we can't just catch only JobCancellationException as it's internal
-        if (e.platformClassName() == "kotlinx.coroutines.JobCancellationException") {
+        if (e::class.qualifiedName == "kotlinx.coroutines.JobCancellationException") {
             // ignore
         } else {
             throw e

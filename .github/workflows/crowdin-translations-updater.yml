@@ -24,6 +24,10 @@ env:
   GITHUB_USER: "AndroidBob"
   GITHUB_TOKEN: ${{ secrets.ANDROID_BOB_GH_TOKEN }}
 
+permissions:
+  contents: write
+  pull-requests: write
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true

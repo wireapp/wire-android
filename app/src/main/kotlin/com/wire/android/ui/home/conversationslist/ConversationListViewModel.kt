@@ -27,18 +27,15 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.insertSeparators
 import androidx.paging.map
-import androidx.work.WorkManager
 import com.wire.android.BuildConfig
-import com.wire.android.appLogger
 import com.wire.android.di.CurrentAccount
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.mapper.toConversationItem
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
 import com.wire.android.model.SnackBarMessage
-import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
-import com.wire.android.ui.common.dialogs.BlockUserDialogState
-import com.wire.android.ui.home.HomeSnackBarMessage
 import com.wire.android.ui.common.DEFAULT_SEARCH_QUERY_DEBOUNCE
+import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
+import com.wire.android.ui.home.HomeSnackBarMessage
 import com.wire.android.ui.home.conversations.usecase.GetConversationsFromSearchUseCase
 import com.wire.android.ui.home.conversationslist.common.previewConversationFoldersFlow
 import com.wire.android.ui.home.conversationslist.model.BadgeEventType
@@ -46,38 +43,18 @@ import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationFolderItem
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationsSource
-import com.wire.android.ui.home.conversationslist.model.DialogState
-import com.wire.android.ui.home.conversationslist.model.GroupDialogState
-import com.wire.android.ui.home.conversationslist.model.LeaveGroupDialogState
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.android.workmanager.worker.ConversationDeletionLocallyStatus
-import com.wire.android.workmanager.worker.enqueueConversationDeletionLocally
-import com.wire.android.workmanager.worker.observeConversationDeletionStatusLocally
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationFilter
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
-import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.connection.BlockUserResult
-import com.wire.kalium.logic.feature.connection.BlockUserUseCase
-import com.wire.kalium.logic.feature.connection.UnblockUserResult
-import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
-import com.wire.kalium.logic.feature.conversation.ArchiveStatusUpdateResult
 import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
-import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
-import com.wire.kalium.logic.feature.conversation.LeaveConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsWithEventsUseCase
 import com.wire.kalium.logic.feature.conversation.RefreshConversationsWithoutMetadataUseCase
-import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
-import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStatusUseCase
-import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.legalhold.LegalHoldStateForSelfUser
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserUseCase
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
-import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
-import com.wire.kalium.logic.feature.team.Result
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
-import com.wire.kalium.util.DateTimeUtil
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -93,12 +70,10 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
-import java.util.Date
 
 @Suppress("TooManyFunctions")
 interface ConversationListViewModel {
@@ -106,21 +81,6 @@ interface ConversationListViewModel {
     val requestInProgress: Boolean get() = false
     val conversationListState: ConversationListState get() = ConversationListState.Paginated(emptyFlow())
     suspend fun refreshMissingMetadata() {}
-    fun moveConversationToArchive(
-        dialogState: DialogState,
-        timestamp: Long = DateTimeUtil.currentInstant().toEpochMilliseconds()
-    ) {
-    }
-
-    fun blockUser(blockUserState: BlockUserDialogState) {}
-    fun unblockUser(userId: UserId) {}
-    fun deleteGroup(groupDialogState: GroupDialogState) {}
-    fun deleteGroupLocally(groupDialogState: GroupDialogState) {}
-    fun observeIsDeletingConversationLocally(conversationId: ConversationId): Flow<Boolean>
-    fun leaveGroup(leaveGroupState: LeaveGroupDialogState) {}
-    fun clearConversationContent(dialogState: DialogState) {}
-    fun muteConversation(conversationId: ConversationId?, mutedConversationStatus: MutedConversationStatus) {}
-    fun moveConversationToFolder() {}
     fun searchQueryChanged(searchQuery: String) {}
     fun playPauseCurrentAudio() {}
     fun stopCurrentAudio() {}
@@ -131,7 +91,6 @@ class ConversationListViewModelPreview(
     foldersWithConversations: Flow<PagingData<ConversationFolderItem>> = previewConversationFoldersFlow(),
 ) : ConversationListViewModel {
     override val conversationListState = ConversationListState.Paginated(foldersWithConversations)
-    override fun observeIsDeletingConversationLocally(conversationId: ConversationId): Flow<Boolean> = flowOf(false)
 }
 
 @Suppress("MagicNumber", "TooManyFunctions", "LongParameterList")
@@ -140,23 +99,15 @@ class ConversationListViewModelImpl @AssistedInject constructor(
     @Assisted val conversationsSource: ConversationsSource,
     @Assisted private val usePagination: Boolean = BuildConfig.PAGINATED_CONVERSATION_LIST_ENABLED,
     private val dispatcher: DispatcherProvider,
-    private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase,
     private val getConversationsPaginated: GetConversationsFromSearchUseCase,
     private val observeConversationListDetailsWithEvents: ObserveConversationListDetailsWithEventsUseCase,
-    private val leaveConversation: LeaveConversationUseCase,
-    private val deleteTeamConversation: DeleteTeamConversationUseCase,
-    private val blockUserUseCase: BlockUserUseCase,
-    private val unblockUserUseCase: UnblockUserUseCase,
-    private val clearConversationContentUseCase: ClearConversationContentUseCase,
     private val refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase,
     private val refreshConversationsWithoutMetadata: RefreshConversationsWithoutMetadataUseCase,
-    private val updateConversationArchivedStatus: UpdateConversationArchivedStatusUseCase,
     private val observeLegalHoldStateForSelfUser: ObserveLegalHoldStateForSelfUserUseCase,
     private val audioMessagePlayer: ConversationAudioMessagePlayer,
     @CurrentAccount val currentAccount: UserId,
     private val userTypeMapper: UserTypeMapper,
     private val getSelfUser: GetSelfUserUseCase,
-    private val workManager: WorkManager
 ) : ConversationListViewModel, ViewModel() {
 
     @AssistedFactory
@@ -311,176 +262,6 @@ class ConversationListViewModelImpl @AssistedInject constructor(
         viewModelScope.launch {
             refreshUsersWithoutMetadata()
             refreshConversationsWithoutMetadata()
-        }
-    }
-
-    override fun muteConversation(
-        conversationId: ConversationId?,
-        mutedConversationStatus: MutedConversationStatus
-    ) {
-        conversationId?.let {
-            viewModelScope.launch {
-                when (updateConversationMutedStatus(conversationId, mutedConversationStatus, Date().time)) {
-                    ConversationUpdateStatusResult.Failure -> _infoMessage.emit(HomeSnackBarMessage.MutingOperationError)
-
-                    ConversationUpdateStatusResult.Success ->
-                        appLogger.d("MutedStatus changed for conversation: $conversationId to $mutedConversationStatus")
-                }
-            }
-        }
-    }
-
-    override fun blockUser(blockUserState: BlockUserDialogState) {
-        viewModelScope.launch {
-            _requestInProgress = true
-            val state = when (val result = blockUserUseCase(blockUserState.userId)) {
-                BlockUserResult.Success -> {
-                    appLogger.d("User ${blockUserState.userId} was blocked")
-                    HomeSnackBarMessage.BlockingUserOperationSuccess(blockUserState.userName)
-                }
-
-                is BlockUserResult.Failure -> {
-                    appLogger.d(
-                        "Error while blocking user ${blockUserState.userId} ;" +
-                                " Error ${result.coreFailure}"
-                    )
-                    HomeSnackBarMessage.BlockingUserOperationError
-                }
-            }
-            _infoMessage.emit(state)
-            _requestInProgress = false
-        }
-    }
-
-    override fun unblockUser(userId: UserId) {
-        viewModelScope.launch {
-            _requestInProgress = true
-            when (val result = unblockUserUseCase(userId)) {
-                UnblockUserResult.Success -> {
-                    appLogger.i("User $userId was unblocked")
-                }
-
-                is UnblockUserResult.Failure -> {
-                    appLogger.e(
-                        "Error while unblocking user $userId ;" +
-                                " Error ${result.coreFailure}"
-                    )
-                    _infoMessage.emit(HomeSnackBarMessage.UnblockingUserOperationError)
-                }
-            }
-            _requestInProgress = false
-        }
-    }
-
-    override fun leaveGroup(leaveGroupState: LeaveGroupDialogState) {
-        viewModelScope.launch {
-            _requestInProgress = true
-            val response = leaveConversation(leaveGroupState.conversationId)
-            when (response) {
-                is RemoveMemberFromConversationUseCase.Result.Failure ->
-                    _infoMessage.emit(HomeSnackBarMessage.LeaveConversationError)
-
-                RemoveMemberFromConversationUseCase.Result.Success -> {
-                    if (leaveGroupState.shouldDelete) {
-                        deleteGroupLocally(leaveGroupState)
-                    } else {
-                        _infoMessage.emit(HomeSnackBarMessage.LeftConversationSuccess)
-                    }
-                }
-            }
-            _requestInProgress = false
-        }
-    }
-
-    override fun deleteGroup(groupDialogState: GroupDialogState) {
-        viewModelScope.launch {
-            _requestInProgress = true
-            when (deleteTeamConversation(groupDialogState.conversationId)) {
-                is Result.Failure.GenericFailure -> _infoMessage.emit(HomeSnackBarMessage.DeleteConversationGroupError)
-                Result.Failure.NoTeamFailure -> _infoMessage.emit(HomeSnackBarMessage.DeleteConversationGroupError)
-                Result.Success -> _infoMessage.emit(
-                    HomeSnackBarMessage.DeletedConversationGroupSuccess(groupDialogState.conversationName)
-                )
-            }
-            _requestInProgress = false
-        }
-    }
-
-    override fun deleteGroupLocally(groupDialogState: GroupDialogState) {
-        viewModelScope.launch {
-            workManager.enqueueConversationDeletionLocally(groupDialogState.conversationId)
-                .collect { status ->
-                    when (status) {
-                        ConversationDeletionLocallyStatus.SUCCEEDED -> {
-                            _infoMessage.emit(HomeSnackBarMessage.DeleteConversationGroupLocallySuccess(groupDialogState.conversationName))
-                        }
-
-                        ConversationDeletionLocallyStatus.FAILED -> {
-                            _infoMessage.emit(HomeSnackBarMessage.DeleteConversationGroupError)
-                        }
-
-                        ConversationDeletionLocallyStatus.RUNNING,
-                        ConversationDeletionLocallyStatus.IDLE -> {
-                            // nop
-                        }
-                    }
-                }
-        }
-    }
-
-    override fun observeIsDeletingConversationLocally(conversationId: ConversationId): Flow<Boolean> {
-        return workManager.observeConversationDeletionStatusLocally(conversationId)
-            .map { status -> status == ConversationDeletionLocallyStatus.RUNNING }
-            .distinctUntilChanged()
-    }
-
-    // TODO: needs to be implemented
-    @Suppress("EmptyFunctionBlock")
-    override fun moveConversationToFolder() {
-    }
-
-    override fun moveConversationToArchive(dialogState: DialogState, timestamp: Long) {
-        with(dialogState) {
-            viewModelScope.launch {
-                val isArchiving = !isArchived
-
-                _requestInProgress = true
-                val result = updateConversationArchivedStatus(
-                    conversationId = conversationId,
-                    shouldArchiveConversation = isArchiving,
-                    onlyLocally = !dialogState.isMember,
-                    archivedStatusTimestamp = timestamp
-                )
-                _requestInProgress = false
-                when (result) {
-                    is ArchiveStatusUpdateResult.Failure -> {
-                        _infoMessage.emit(
-                            HomeSnackBarMessage.UpdateArchivingStatusError(
-                                isArchiving
-                            )
-                        )
-                    }
-
-                    is ArchiveStatusUpdateResult.Success -> {
-                        _infoMessage.emit(
-                            HomeSnackBarMessage.UpdateArchivingStatusSuccess(
-                                isArchiving
-                            )
-                        )
-                    }
-                }
-            }
-        }
-    }
-
-    override fun clearConversationContent(dialogState: DialogState) {
-        viewModelScope.launch {
-            _requestInProgress = true
-            with(dialogState) {
-                val result = clearConversationContentUseCase(conversationId)
-                _requestInProgress = false
-                clearContentSnackbarResult(result, conversationTypeDetail)
-            }
         }
     }
 

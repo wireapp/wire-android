@@ -18,27 +18,17 @@
 
 package com.wire.android.ui.userprofile.other
 
-import com.wire.android.ui.common.dialogs.BlockUserDialogState
-import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
-import com.wire.kalium.logic.data.conversation.Conversation
-import com.wire.kalium.logic.data.conversation.MutedConversationStatus
-import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.user.UserId
 
 @Suppress("TooManyFunctions")
 interface OtherUserProfileEventsHandler {
-    fun onBlockUser(blockUserState: BlockUserDialogState)
     fun onRemoveConversationMember(state: RemoveConversationMemberState)
-    fun onUnblockUser(userId: UserId)
     fun observeClientList()
 
     companion object {
         @Suppress("TooManyFunctions")
         val PREVIEW = object : OtherUserProfileEventsHandler {
-            override fun onBlockUser(blockUserState: BlockUserDialogState) {}
             override fun onRemoveConversationMember(state: RemoveConversationMemberState) {}
-            override fun onUnblockUser(userId: UserId) {}
             override fun observeClientList() {}
         }
     }
@@ -59,26 +49,6 @@ interface OtherUserProfileFooterEventsHandler {
             override fun onCancelConnectionRequest() {}
             override fun onAcceptConnectionRequest() {}
             override fun onIgnoreConnectionRequest() {}
-        }
-    }
-}
-
-@Suppress("TooManyFunctions")
-interface OtherUserProfileBottomSheetEventsHandler {
-    fun onChangeMemberRole(role: Conversation.Member.Role)
-    fun onMutingConversationStatusChange(conversationId: ConversationId?, status: MutedConversationStatus)
-    fun onMoveConversationToFolder(conversationId: ConversationId? = null)
-    fun onMoveConversationToArchive(dialogState: DialogState)
-    fun onClearConversationContent(dialogState: DialogState)
-
-    companion object {
-        @Suppress("TooManyFunctions")
-        val PREVIEW = object : OtherUserProfileBottomSheetEventsHandler {
-            override fun onChangeMemberRole(role: Conversation.Member.Role) {}
-            override fun onMutingConversationStatusChange(conversationId: ConversationId?, status: MutedConversationStatus) {}
-            override fun onMoveConversationToFolder(conversationId: ConversationId?) {}
-            override fun onMoveConversationToArchive(dialogState: DialogState) {}
-            override fun onClearConversationContent(dialogState: DialogState) {}
         }
     }
 }

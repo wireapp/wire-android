@@ -32,13 +32,11 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.visbility.VisibilityState
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.stringWithStyledArgs
-import com.wire.kalium.logic.data.user.UserId
 
 @Composable
 fun UnblockUserDialogContent(
     dialogState: VisibilityState<UnblockUserDialogState>,
-    isLoading: Boolean,
-    onUnblock: (UserId) -> Unit = { }
+    onUnblock: (UnblockUserDialogState) -> Unit = { }
 ) {
     VisibilityState(dialogState) { state ->
         WireDialog(
@@ -53,13 +51,11 @@ fun UnblockUserDialogContent(
             ),
             onDismiss = dialogState::dismiss,
             optionButton1Properties = WireDialogButtonProperties(
-                onClick = { onUnblock(state.userId) },
+                onClick = { onUnblock(state) },
                 text = stringResource(id = R.string.unblock_user_dialog_confirm_button),
                 type = WireDialogButtonType.Primary,
-                state = if (isLoading)
-                    WireButtonState.Disabled
-                else
-                    WireButtonState.Default,
+                state = if (state.loading) WireButtonState.Disabled else WireButtonState.Default,
+                loading = state.loading
             ),
             dismissButtonProperties = WireDialogButtonProperties(
                 onClick = dialogState::dismiss,

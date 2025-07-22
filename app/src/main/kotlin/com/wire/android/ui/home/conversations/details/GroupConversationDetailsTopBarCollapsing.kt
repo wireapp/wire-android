@@ -50,7 +50,6 @@ import com.wire.kalium.logic.data.id.ConversationId
 fun GroupConversationDetailsTopBarCollapsing(
     title: String,
     totalParticipants: Int,
-    isLoading: Boolean,
     isUnderLegalHold: Boolean,
     conversationAvatar: ConversationAvatar.Group,
     isWireCellEnabled: Boolean,
@@ -93,13 +92,7 @@ fun GroupConversationDetailsTopBarCollapsing(
                     }
             ) {
                 Text(
-                    text = title.ifBlank {
-                        if (isLoading) {
-                            ""
-                        } else {
-                            UIText.StringResource(R.string.conversation_unavailable_label).asString()
-                        }
-                    },
+                    text = title.ifBlank { UIText.StringResource(R.string.conversation_unavailable_label).asString() },
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 1,
                     style = MaterialTheme.wireTypography.body02,
@@ -146,7 +139,6 @@ fun PreviewGroupConversationDetailsTopBarCollapsing() {
             title = "Conversation Title",
             totalParticipants = 10,
             isUnderLegalHold = true,
-            isLoading = false,
             conversationAvatar = ConversationAvatar.Group.Regular(ConversationId("ConversationId", "domain")),
             isWireCellEnabled = false,
             onSearchConversationMessagesClick = {},
@@ -164,7 +156,6 @@ fun PreviewChannelConversationDetailsTopBarCollapsing() {
             title = "Conversation Title",
             totalParticipants = 10,
             isUnderLegalHold = true,
-            isLoading = false,
             conversationAvatar = ConversationAvatar.Group.Channel(ConversationId("ConversationId", "domain"), false),
             isWireCellEnabled = false,
             onSearchConversationMessagesClick = {},
@@ -182,7 +173,6 @@ fun PreviewPrivateChannelConversationDetailsTopBarCollapsing() {
             title = "Conversation Title",
             totalParticipants = 10,
             isUnderLegalHold = true,
-            isLoading = false,
             conversationAvatar = ConversationAvatar.Group.Channel(ConversationId("ConversationId", "domain"), true),
             isWireCellEnabled = false,
             onSearchConversationMessagesClick = {},

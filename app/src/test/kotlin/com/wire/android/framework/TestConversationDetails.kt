@@ -44,7 +44,7 @@ object TestConversationDetails {
     )
 
     val GROUP = ConversationDetails.Group.Regular(
-        TestConversation.ONE_ON_ONE,
+        TestConversation.GROUP(),
         isSelfUserMember = true,
         selfRole = Conversation.Member.Role.Member,
         wireCell = null,

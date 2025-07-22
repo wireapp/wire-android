@@ -27,17 +27,16 @@ import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.visbility.VisibilityState
-import com.wire.android.ui.home.conversationslist.model.GroupDialogState
+import com.wire.android.ui.home.conversationslist.model.DeleteGroupDialogState
 
 @Composable
 internal fun DeleteConversationGroupDialog(
-    dialogState: VisibilityState<GroupDialogState>,
-    isLoading: Boolean,
-    onDeleteGroup: (GroupDialogState) -> Unit,
+    dialogState: VisibilityState<DeleteGroupDialogState>,
+    onDeleteGroup: (DeleteGroupDialogState) -> Unit,
 ) {
-    VisibilityState(dialogState) {
+    VisibilityState(dialogState) { state ->
         WireDialog(
-            title = stringResource(id = R.string.delete_conversation_conversation_dialog_title, it.conversationName),
+            title = stringResource(id = R.string.delete_conversation_conversation_dialog_title, state.conversationName),
             text = stringResource(id = R.string.delete_conversation_conversation_dialog_description),
             buttonsHorizontalAlignment = true,
             onDismiss = dialogState::dismiss,
@@ -47,15 +46,11 @@ internal fun DeleteConversationGroupDialog(
                 state = WireButtonState.Default
             ),
             optionButton1Properties = WireDialogButtonProperties(
-                onClick = { onDeleteGroup(it) },
+                onClick = { onDeleteGroup(state) },
                 text = stringResource(id = R.string.label_remove),
                 type = WireDialogButtonType.Primary,
-                state =
-                if (isLoading)
-                    WireButtonState.Disabled
-                else
-                    WireButtonState.Error,
-                loading = isLoading
+                state = if (state.loading) WireButtonState.Disabled else WireButtonState.Error,
+                loading = state.loading
             )
         )
     }

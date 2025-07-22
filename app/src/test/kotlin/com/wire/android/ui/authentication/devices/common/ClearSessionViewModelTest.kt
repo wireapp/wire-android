@@ -36,7 +36,7 @@ import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.shouldBe
+import com.wire.android.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -47,11 +47,11 @@ class ClearSessionViewModelTest {
     fun `given cancel login dialog not shown, when back button clicked, then show cancel login dialog`() = runTest {
         // given
         val (_, viewModel) = Arrangement().arrange()
-        viewModel.state.showCancelLoginDialog shouldBe false
+        viewModel.state.showCancelLoginDialog shouldBeEqualTo false
         // when
         viewModel.onBackButtonClicked()
         // then
-        viewModel.state.showCancelLoginDialog shouldBe true
+        viewModel.state.showCancelLoginDialog shouldBeEqualTo true
     }
 
     @Test
@@ -59,11 +59,11 @@ class ClearSessionViewModelTest {
         // given
         val (_, viewModel) = Arrangement().arrange()
         viewModel.onBackButtonClicked() // to show dialog
-        viewModel.state.showCancelLoginDialog shouldBe true
+        viewModel.state.showCancelLoginDialog shouldBeEqualTo true
         // when
         viewModel.onProceedLoginClicked()
         // then
-        viewModel.state.showCancelLoginDialog shouldBe false
+        viewModel.state.showCancelLoginDialog shouldBeEqualTo false
     }
 
     @Test
@@ -74,12 +74,12 @@ class ClearSessionViewModelTest {
             .withCurrentSessionReturning(CurrentSessionResult.Success(currentSession))
             .arrange()
         viewModel.onBackButtonClicked() // to show dialog
-        viewModel.state.showCancelLoginDialog shouldBe true
+        viewModel.state.showCancelLoginDialog shouldBeEqualTo true
         // when
         viewModel.onCancelLoginClicked(arrangement.switchAccountActions)
         advanceUntilIdle()
         // then
-        viewModel.state.showCancelLoginDialog shouldBe false
+        viewModel.state.showCancelLoginDialog shouldBeEqualTo false
     }
 
     @Test
@@ -133,7 +133,7 @@ class ClearSessionViewModelTest {
             .withSwitchAccountReturning(SwitchAccountResult.SwitchedToAnotherAccount)
             .arrange()
         viewModel.onBackButtonClicked() // to show dialog
-        viewModel.state.showCancelLoginDialog shouldBe true
+        viewModel.state.showCancelLoginDialog shouldBeEqualTo true
         // when
         viewModel.onCancelLoginClicked(arrangement.switchAccountActions)
         advanceUntilIdle()

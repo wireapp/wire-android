@@ -1,0 +1,43 @@
+name: "Develop Push"
+
+on:
+  push:
+    branches:
+      - develop
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Build for direct pushes to develop (includes internal store deployment)
+  build-develop:
+    uses: ./.github/workflows/build-unified.yml
+    with:
+      build-config: |
+        [
+          {
+            "flavor": "Internal",
+            "variant": "Compat",
+            "keystore-type": "internal",
+            "build-type": "both",
+            "generate-version-file": false,
+            "deployment-targets": [
+              {
+                "type": "s3"
+              },
+              {
+                "type": "google-play",
+                "package-name": "com.wire.internal",
+                "track": "internal",
+                "status": "completed"
+              }
+            ]
+          }
+        ]
+      enable-deployment: true
+    secrets: inherit

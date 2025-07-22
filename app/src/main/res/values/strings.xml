@@ -470,6 +470,7 @@
     <string name="delete_message_for_yourself_dialog_message">If you delete the message for yourself, it will only be visible to other participants.\n\nA deleted message can not be restored.</string>
     <string name="deleted_message_text">Deleted message</string>
     <string name="deleted_message_options_closed">The options have been closed as this message is no longer available.</string>
+    <string name="deleted_conversation_options_closed">The options have been closed as this conversation is no longer available.</string>
     <!-- Replies/Quotes to other messages -->
     <string name="label_quote_invalid_or_not_found">You can not see this message</string>
     <string name="label_quote_original_message_is_a_picture">Picture</string>
@@ -1036,6 +1037,7 @@
     <string name="conversation_on_file_downloaded">The file %s was saved successfully to the Downloads folder</string>
     <string name="error_blocking_user">User could not be blocked</string>
     <string name="blocking_user_success">%s blocked</string>
+    <string name="unblocking_user_success">%s unblocked</string>
     <string name="conversation_removed_success">“%s” removed</string>
     <string name="conversation_removed_locally_success">“%s” deleted for me</string>
     <string name="leave_conversation_error">There was an error while leaving conversation</string>

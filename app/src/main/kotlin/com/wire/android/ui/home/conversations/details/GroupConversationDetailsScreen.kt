@@ -49,7 +49,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -64,7 +63,6 @@ import com.ramcosta.composedestinations.result.ResultRecipient
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import com.wire.android.R
 import com.wire.android.appLogger
-import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.feature.cells.ui.destinations.ConversationFilesScreenDestination
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
@@ -77,19 +75,12 @@ import com.wire.android.ui.common.ProteusVerifiedIcon
 import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.VisibilityState
 import com.wire.android.ui.common.WireTabRow
-import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
-import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
-import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
-import com.wire.android.ui.common.bottomsheet.conversation.rememberConversationSheetState
-import com.wire.android.ui.common.bottomsheet.folder.ChangeConversationFavoriteStateArgs
-import com.wire.android.ui.common.bottomsheet.folder.ChangeConversationFavoriteVM
-import com.wire.android.ui.common.bottomsheet.folder.ChangeConversationFavoriteVMImpl
+import com.wire.android.ui.common.bottomsheet.conversation.ConversationOptionsModalSheetLayout
+import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetState
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
-import com.wire.android.ui.common.bottomsheet.show
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.calculateCurrentTab
-import com.wire.android.ui.common.dialogs.ArchiveConversationDialog
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topappbar.NavigationIconType
@@ -107,41 +98,28 @@ import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.destinations.SearchConversationMessagesScreenDestination
 import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
 import com.wire.android.ui.destinations.ServiceDetailsScreenDestination
-import com.wire.android.ui.home.conversations.details.dialog.ClearConversationContentDialog
 import com.wire.android.ui.home.conversations.details.editguestaccess.EditGuestAccessParams
-import com.wire.android.ui.home.conversations.details.menu.DeleteConversationGroupDialog
-import com.wire.android.ui.home.conversations.details.menu.GroupConversationDetailsBottomSheetEventsHandler
-import com.wire.android.ui.home.conversations.details.menu.LeaveConversationGroupDialog
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptions
+import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsState
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipants
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipantsState
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.home.conversations.details.updatechannelaccess.UpdateChannelAccessArgs
 import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavArgs
 import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavBackArgs
-import com.wire.android.ui.home.conversations.folder.RemoveConversationFromFolderArgs
-import com.wire.android.ui.home.conversations.folder.RemoveConversationFromFolderVM
-import com.wire.android.ui.home.conversations.folder.RemoveConversationFromFolderVMImpl
 import com.wire.android.ui.home.conversations.info.ConversationAvatar
-import com.wire.android.ui.home.conversationslist.model.DialogState
-import com.wire.android.ui.home.conversationslist.model.GroupDialogState
-import com.wire.android.ui.home.conversationslist.model.LeaveGroupDialogState
+import com.wire.android.ui.home.conversationslist.showLegalHoldIndicator
+import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType
 import com.wire.android.ui.legalhold.dialog.subject.LegalHoldSubjectConversationDialog
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
-import com.wire.android.util.ui.SnackBarMessageHandler
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.Conversation
-import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.id.GroupID
-import com.wire.kalium.logic.data.mls.CipherSuite
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Instant
 
 @Suppress("CyclomaticComplexMethod")
 @WireDestination(
@@ -161,15 +139,7 @@ fun GroupConversationDetailsScreen(
     val scope = rememberCoroutineScope()
     val resources = LocalContext.current.resources
     val snackbarHostState = LocalSnackbarHostState.current
-    val sheetState = rememberWireModalSheetState<Unit>()
-    val closeBottomSheetAndShowSnackbarMessage: (UIText) -> Unit = remember {
-        {
-            sheetState.hide {
-                snackbarHostState.showSnackbar(it.asString(resources))
-            }
-        }
-    }
-
+    val sheetState = rememberWireModalSheetState<ConversationSheetState>()
     val groupOptions by viewModel.groupOptionsState.collectAsState()
 
     val onSearchConversationMessagesClick: () -> Unit = {
@@ -190,12 +160,17 @@ fun GroupConversationDetailsScreen(
         }
     }
 
-    HandleViewActions(viewModel.actions, resultNavigator::navigateBack, closeBottomSheetAndShowSnackbarMessage)
+    HandleActions(viewModel.actions) { action ->
+        when (action) {
+            is GroupConversationDetailsViewAction.Message -> sheetState.hide {
+                snackbarHostState.showSnackbar(action.text.asString(resources))
+            }
+        }
+    }
 
     GroupConversationDetailsContent(
         sheetState = sheetState,
-        conversationSheetContent = viewModel.conversationSheetContent,
-        bottomSheetEventsHandler = viewModel as GroupConversationDetailsBottomSheetEventsHandler,
+        groupConversationOptionsState = groupOptions,
         onBackPressed = navigator::navigateBack,
         onProfilePressed = { participant ->
             when {
@@ -212,23 +187,21 @@ fun GroupConversationDetailsScreen(
                 NavigationCommand(
                     AddMembersSearchScreenDestination(
                         viewModel.conversationId,
-                        viewModel.groupOptionsState.value.isServicesAllowed
+                        groupOptions.isServicesAllowed
                     )
                 )
             )
         },
         groupParticipantsState = viewModel.groupParticipantsState,
-        onLeaveGroup = viewModel::leaveGroup,
-        onDeleteGroup = viewModel::deleteGroup,
         onEditGuestAccess = {
             navigator.navigate(
                 NavigationCommand(
                     EditGuestAccessScreenDestination(
                         viewModel.conversationId,
                         EditGuestAccessParams(
-                            viewModel.groupOptionsState.value.isGuestAllowed,
-                            viewModel.groupOptionsState.value.isServicesAllowed,
-                            viewModel.groupOptionsState.value.isUpdatingGuestAllowed
+                            groupOptions.isGuestAllowed,
+                            groupOptions.isServicesAllowed,
+                            groupOptions.isUpdatingGuestAllowed
                         )
                     )
                 )
@@ -239,8 +212,8 @@ fun GroupConversationDetailsScreen(
                 NavigationCommand(
                     ChannelAccessOnUpdateScreenDestination(
                         viewModel.conversationId.toString(),
-                        viewModel.groupOptionsState.value.channelAccessType!!,
-                        viewModel.groupOptionsState.value.channelAddPermissionType!!
+                        groupOptions.channelAccessType!!,
+                        groupOptions.channelAddPermissionType!!
                     )
                 )
             )
@@ -251,16 +224,31 @@ fun GroupConversationDetailsScreen(
         onEditGroupName = {
             navigator.navigate(NavigationCommand(EditConversationNameScreenDestination(viewModel.conversationId)))
         },
-        isLoading = viewModel.requestInProgress,
         isWireCellEnabled = groupOptions.isWireCellEnabled,
         onSearchConversationMessagesClick = onSearchConversationMessagesClick,
         onConversationMediaClick = onConversationMediaClick,
-        isAbandonedOneOnOneConversation = viewModel.conversationSheetContent?.isAbandonedOneOnOneConversation(
-            viewModel.groupParticipantsState.data.allCount
-        ) ?: false,
+        isAbandonedOneOnOneConversation = groupOptions.isAbandonedOneOnOneConversation(viewModel.groupParticipantsState.data.allCount),
         onMoveToFolder = {
             navigator.navigate(NavigationCommand(ConversationFoldersScreenDestination(it)))
         },
+        onLeftConversation = {
+            resultNavigator.navigateBack(
+                GroupConversationDetailsNavBackArgs(
+                    groupConversationActionType = GroupConversationActionType.DELETE_GROUP,
+                    isGroupDeleted = true,
+                    conversationName = groupOptions.groupName
+                )
+            )
+        },
+        onDeletedConversation = {
+            resultNavigator.navigateBack(
+                GroupConversationDetailsNavBackArgs(
+                    groupConversationActionType = GroupConversationActionType.LEAVE_GROUP,
+                    hasLeftGroup = true,
+                    conversationName = groupOptions.groupName
+                )
+            )
+        }
     )
 
     val tryAgainSnackBarMessage = stringResource(id = R.string.error_unknown_message)
@@ -310,9 +298,8 @@ fun GroupConversationDetailsScreen(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun GroupConversationDetailsContent(
-    sheetState: WireModalSheetState<Unit>,
-    conversationSheetContent: ConversationSheetContent?,
-    bottomSheetEventsHandler: GroupConversationDetailsBottomSheetEventsHandler,
+    groupConversationOptionsState: GroupConversationOptionsState,
+    sheetState: WireModalSheetState<ConversationSheetState>,
     onBackPressed: () -> Unit,
     onProfilePressed: (UIParticipant) -> Unit,
     onAddParticipantsPressed: () -> Unit,
@@ -320,25 +307,16 @@ private fun GroupConversationDetailsContent(
     onChannelAccessItemClicked: () -> Unit,
     onEditSelfDeletingMessages: () -> Unit,
     onEditGroupName: () -> Unit,
-    onLeaveGroup: (LeaveGroupDialogState) -> Unit,
-    onDeleteGroup: (GroupDialogState) -> Unit,
     groupParticipantsState: GroupConversationParticipantsState,
     showAllowUserToAddParticipants: () -> (Boolean),
-    isLoading: Boolean,
     isAbandonedOneOnOneConversation: Boolean,
     isWireCellEnabled: Boolean,
     onSearchConversationMessagesClick: () -> Unit,
     onConversationMediaClick: () -> Unit,
     onMoveToFolder: (ConversationFoldersNavArgs) -> Unit = {},
+    onLeftConversation: () -> Unit = {},
+    onDeletedConversation: () -> Unit = {},
     initialPageIndex: GroupConversationDetailsTabItem = GroupConversationDetailsTabItem.OPTIONS,
-    changeConversationFavoriteStateViewModel: ChangeConversationFavoriteVM =
-        hiltViewModelScoped<ChangeConversationFavoriteVMImpl, ChangeConversationFavoriteVM, ChangeConversationFavoriteStateArgs>(
-            ChangeConversationFavoriteStateArgs
-        ),
-    removeConversationFromFolderVM: RemoveConversationFromFolderVM =
-        hiltViewModelScoped<RemoveConversationFromFolderVMImpl, RemoveConversationFromFolderVM, RemoveConversationFromFolderArgs>(
-            RemoveConversationFromFolderArgs
-        ),
 ) {
     val scope = rememberCoroutineScope()
     val lazyListStates: List<LazyListState> = GroupConversationDetailsTabItem.entries.map { rememberLazyListState() }
@@ -347,32 +325,8 @@ private fun GroupConversationDetailsContent(
         pageCount = { GroupConversationDetailsTabItem.entries.size }
     )
     val currentTabState by remember { derivedStateOf { pagerState.calculateCurrentTab() } }
-
-    val conversationSheetState = rememberConversationSheetState(conversationSheetContent)
-    val getBottomSheetVisibility: () -> Boolean = remember(sheetState) { { sheetState.isVisible } }
-
-    val deleteGroupDialogState = rememberVisibilityState<GroupDialogState>()
-    val leaveGroupDialogState = rememberVisibilityState<LeaveGroupDialogState>()
-    val clearConversationDialogState = rememberVisibilityState<DialogState>()
-    val archiveConversationDialogState = rememberVisibilityState<DialogState>()
     val legalHoldSubjectDialogState = rememberVisibilityState<Unit>()
 
-    LaunchedEffect(conversationSheetState.conversationSheetContent) {
-        // on each closing BottomSheet we revert BSContent to Home.
-        // So in case if user opened BS, went to MuteStatus BS and closed it by clicking outside of BS,
-        // then opens BS again - Home BS suppose to be opened, not MuteStatus BS
-        snapshotFlow { sheetState.isVisible }.collect { isVisible ->
-            if (!isVisible) conversationSheetState.toHome()
-        }
-    }
-
-    if (!isLoading) {
-        deleteGroupDialogState.dismiss()
-        leaveGroupDialogState.dismiss()
-        clearConversationDialogState.dismiss()
-        archiveConversationDialogState.dismiss()
-        legalHoldSubjectDialogState.dismiss()
-    }
     CollapsingTopBarScaffold(
         topBarHeader = {
             WireCenterAlignedTopAppBar(
@@ -383,39 +337,40 @@ private fun GroupConversationDetailsContent(
                         style = MaterialTheme.wireTypography.title01,
                         maxLines = 2
                     )
-                    VerificationInfo(conversationSheetContent)
+                    VerificationInfo(groupConversationOptionsState)
                 },
                 navigationIconType = NavigationIconType.Close(R.string.content_description_conversation_details_close_btn),
                 onNavigationPressed = onBackPressed,
                 actions = {
                     MoreOptionIcon(
                         contentDescription = R.string.content_description_conversation_details_more_btn,
-                        onButtonClicked = sheetState::show
+                        onButtonClicked = {
+                            sheetState.show(ConversationSheetState(groupConversationOptionsState.conversationId))
+                        }
                     )
                 }
             )
         },
         topBarCollapsing = {
-            conversationSheetState.conversationSheetContent?.let {
-                val conversationTypeDetail = it.conversationTypeDetail
-                val avatarData = if (conversationTypeDetail is ConversationTypeDetail.Group.Channel) {
-                    ConversationAvatar.Group.Channel(it.conversationId, conversationTypeDetail.isPrivate)
-                } else {
-                    ConversationAvatar.Group.Regular(it.conversationId)
-                }
-                GroupConversationDetailsTopBarCollapsing(
-                    title = it.title,
-                    totalParticipants = groupParticipantsState.data.allCount,
-                    isLoading = isLoading,
-                    conversationAvatar = avatarData,
-                    onSearchConversationMessagesClick = onSearchConversationMessagesClick,
-                    onConversationMediaClick = onConversationMediaClick,
-                    isUnderLegalHold = it.isUnderLegalHold,
-                    isWireCellEnabled = isWireCellEnabled,
-                    onLegalHoldLearnMoreClick = remember { { legalHoldSubjectDialogState.show(Unit) } },
-                    modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.spacing16x)
+            val avatarData = if (groupConversationOptionsState.isChannel) {
+                ConversationAvatar.Group.Channel(
+                    conversationId = groupConversationOptionsState.conversationId,
+                    isPrivate = groupConversationOptionsState.channelAccessType == ChannelAccessType.PRIVATE,
                 )
+            } else {
+                ConversationAvatar.Group.Regular(conversationId = groupConversationOptionsState.conversationId)
             }
+            GroupConversationDetailsTopBarCollapsing(
+                title = groupConversationOptionsState.groupName,
+                totalParticipants = groupParticipantsState.data.allCount,
+                conversationAvatar = avatarData,
+                onSearchConversationMessagesClick = onSearchConversationMessagesClick,
+                onConversationMediaClick = onConversationMediaClick,
+                isUnderLegalHold = groupConversationOptionsState.legalHoldStatus.showLegalHoldIndicator(),
+                isWireCellEnabled = isWireCellEnabled,
+                onLegalHoldLearnMoreClick = remember { { legalHoldSubjectDialogState.show(Unit) } },
+                modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.spacing16x)
+            )
         },
         topBarFooter = {
             WireTabRow(
@@ -499,88 +454,25 @@ private fun GroupConversationDetailsContent(
         }
     }
 
-    WireModalSheetLayout(
+    ConversationOptionsModalSheetLayout(
         sheetState = sheetState,
-        sheetContent = {
-            ConversationSheetContent(
-                isBottomSheetVisible = getBottomSheetVisibility,
-                conversationSheetState = conversationSheetState,
-                onMutingConversationStatusChange = {
-                    conversationSheetContent?.let {
-                        bottomSheetEventsHandler.onMutingConversationStatusChange(
-                            conversationSheetState.conversationId,
-                            conversationSheetState.conversationSheetContent!!.mutingConversationState,
-                        )
-                    }
-                },
-                changeFavoriteState = changeConversationFavoriteStateViewModel::changeFavoriteState,
-                moveConversationToFolder = onMoveToFolder,
-                removeFromFolder = removeConversationFromFolderVM::removeFromFolder,
-                updateConversationArchiveStatus = {
-                    // Only show the confirmation dialog if the conversation is not archived
-                    if (!it.isArchived) {
-                        archiveConversationDialogState.show(it)
-                    } else {
-                        bottomSheetEventsHandler.updateConversationArchiveStatus(dialogState = it)
-                    }
-                },
-                clearConversationContent = clearConversationDialogState::show,
-                blockUser = {},
-                unblockUser = {},
-                leaveGroup = leaveGroupDialogState::show,
-                deleteGroup = deleteGroupDialogState::show,
-                deleteGroupLocally = {}
-            )
-        }
-    )
-
-    DeleteConversationGroupDialog(
-        isLoading = isLoading,
-        dialogState = deleteGroupDialogState,
-        onDeleteGroup = onDeleteGroup
-    )
-
-    LeaveConversationGroupDialog(
-        dialogState = leaveGroupDialogState,
-        isLoading = isLoading,
-        onLeaveGroup = onLeaveGroup
-    )
-
-    ClearConversationContentDialog(
-        dialogState = clearConversationDialogState,
-        isLoading = isLoading,
-        onClearConversationContent = {
-            bottomSheetEventsHandler.onClearConversationContent(dialogState = it)
-        }
-    )
-
-    ArchiveConversationDialog(
-        dialogState = archiveConversationDialogState,
-        onArchiveButtonClicked = {
-            bottomSheetEventsHandler.updateConversationArchiveStatus(dialogState = it)
-        }
+        openConversationFolders = onMoveToFolder,
+        onLeftConversation = onLeftConversation,
+        onDeletedConversation = onDeletedConversation,
     )
 
     VisibilityState(legalHoldSubjectDialogState) {
         LegalHoldSubjectConversationDialog(legalHoldSubjectDialogState::dismiss)
     }
-
-    SnackBarMessageHandler(infoMessages = changeConversationFavoriteStateViewModel.infoMessage, onEmitted = {
-        sheetState.hide()
-    })
-
-    SnackBarMessageHandler(infoMessages = removeConversationFromFolderVM.infoMessage, onEmitted = {
-        sheetState.hide()
-    })
 }
 
 @Composable
-private fun VerificationInfo(conversationSheetContent: ConversationSheetContent?) {
-    if (conversationSheetContent == null) return
-
-    val isProteusVerified = conversationSheetContent.proteusVerificationStatus == Conversation.VerificationStatus.VERIFIED
-    val isMlsVerified = conversationSheetContent.mlsVerificationStatus == Conversation.VerificationStatus.VERIFIED
-    val isProteusProtocol = conversationSheetContent.protocol == Conversation.ProtocolInfo.Proteus
+private fun VerificationInfo(
+    groupConversationOptionsState: GroupConversationOptionsState
+) {
+    val isProteusVerified = groupConversationOptionsState.proteusVerificationStatus == Conversation.VerificationStatus.VERIFIED
+    val isMlsVerified = groupConversationOptionsState.mlsVerificationStatus == Conversation.VerificationStatus.VERIFIED
+    val isProteusProtocol = groupConversationOptionsState.protocolInfo == Conversation.ProtocolInfo.Proteus
 
     if (isProteusVerified && (isProteusProtocol || !isMlsVerified)) {
         ProteusVerifiedLabel()
@@ -627,35 +519,6 @@ private fun VerifiedLabel(text: String, color: Color, icon: @Composable RowScope
     }
 }
 
-@Composable
-private fun HandleViewActions(
-    actions: Flow<GroupConversationDetailsViewAction>,
-    setResultAndNavigateBack: (GroupConversationDetailsNavBackArgs) -> Unit,
-    showSnackbarMessage: (UIText) -> Unit,
-) {
-    HandleActions(actions) { action ->
-        when (action) {
-            is GroupConversationDetailsViewAction.Deleted -> setResultAndNavigateBack(
-                GroupConversationDetailsNavBackArgs(
-                    groupConversationActionType = GroupConversationActionType.DELETE_GROUP,
-                    isGroupDeleted = true,
-                    conversationName = action.groupDialogState.conversationName
-                )
-            )
-
-            is GroupConversationDetailsViewAction.Left -> setResultAndNavigateBack(
-                GroupConversationDetailsNavBackArgs(
-                    groupConversationActionType = GroupConversationActionType.LEAVE_GROUP,
-                    hasLeftGroup = true,
-                    conversationName = action.groupDialogState.conversationName
-                )
-            )
-
-            is GroupConversationDetailsViewAction.Message -> showSnackbarMessage(action.text)
-        }
-    }
-}
-
 enum class GroupConversationDetailsTabItem(@StringRes val titleResId: Int) : TabItem {
     OPTIONS(R.string.conversation_details_options_tab),
     PARTICIPANTS(R.string.conversation_details_participants_tab);
@@ -669,37 +532,13 @@ fun PreviewGroupConversationDetails() {
     WireTheme {
         GroupConversationDetailsContent(
             sheetState = rememberWireModalSheetState(),
-            conversationSheetContent = ConversationSheetContent(
-                title = "title",
-                conversationId = ConversationId("value", "domain"),
-                mutingConversationState = MutedConversationStatus.AllAllowed,
-                conversationTypeDetail = ConversationTypeDetail.Group.Regular(ConversationId("value", "domain"), false),
-                selfRole = null,
-                isTeamConversation = true,
-                isArchived = false,
-                protocol = Conversation.ProtocolInfo.MLS(
-                    groupId = GroupID("groupId"),
-                    groupState = Conversation.ProtocolInfo.MLSCapable.GroupState.ESTABLISHED,
-                    epoch = ULong.MIN_VALUE,
-                    keyingMaterialLastUpdate = Instant.fromEpochMilliseconds(1648654560000),
-                    cipherSuite = CipherSuite.MLS_128_DHKEMX25519_AES128GCM_SHA256_Ed25519
-                ),
-                mlsVerificationStatus = Conversation.VerificationStatus.VERIFIED,
-                isUnderLegalHold = false,
-                proteusVerificationStatus = Conversation.VerificationStatus.VERIFIED,
-                isFavorite = false,
-                folder = null,
-                isDeletingConversationLocallyRunning = false
-            ),
+            initialPageIndex = GroupConversationDetailsTabItem.PARTICIPANTS,
+            groupConversationOptionsState = GroupConversationOptionsState(ConversationId("v", "d")),
             showAllowUserToAddParticipants = { true },
-            bottomSheetEventsHandler = GroupConversationDetailsBottomSheetEventsHandler.PREVIEW,
             onBackPressed = {},
             onProfilePressed = {},
             onAddParticipantsPressed = {},
-            onLeaveGroup = {},
-            onDeleteGroup = {},
             groupParticipantsState = GroupConversationParticipantsState.PREVIEW,
-            isLoading = false,
             onEditGroupName = {},
             onEditSelfDeletingMessages = {},
             onEditGuestAccess = {},
@@ -708,7 +547,9 @@ fun PreviewGroupConversationDetails() {
             onConversationMediaClick = {},
             isAbandonedOneOnOneConversation = false,
             isWireCellEnabled = false,
-            initialPageIndex = GroupConversationDetailsTabItem.PARTICIPANTS
+            onMoveToFolder = {},
+            onLeftConversation = {},
+            onDeletedConversation = {},
         )
     }
 }

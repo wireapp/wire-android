@@ -45,8 +45,8 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import okio.Path.Companion.toPath
-import org.amshove.kluent.internal.assertEquals
-import org.amshove.kluent.shouldBeEqualTo
+import org.junit.jupiter.api.Assertions.assertEquals
+import com.wire.android.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -246,11 +246,12 @@ class ConversationMessagesViewModelTest {
                 .arrange()
 
             // When
-            viewModel.showDeleteMessageDialog("", true)
+            viewModel.deleteMessageDialogState.show(DeleteMessageDialogState(true, "messageId", viewModel.conversationId))
 
             // Then
-            viewModel.deleteMessageDialogState shouldBeEqualTo DeleteMessageDialogState.Visible(
-                DeleteMessageDialogType.ForEveryone, "", viewModel.conversationId
+            viewModel.deleteMessageDialogState.isVisible shouldBeEqualTo true
+            viewModel.deleteMessageDialogState.savedState shouldBeEqualTo DeleteMessageDialogState(
+                DeleteMessageDialogType.ForEveryone, "messageId", viewModel.conversationId
             )
         }
 
@@ -263,28 +264,12 @@ class ConversationMessagesViewModelTest {
                 .arrange()
 
             // When
-            viewModel.showDeleteMessageDialog("", false)
+            viewModel.deleteMessageDialogState.show(DeleteMessageDialogState(false, "messageId", viewModel.conversationId))
 
             // Then
-            viewModel.deleteMessageDialogState shouldBeEqualTo DeleteMessageDialogState.Visible(
-                DeleteMessageDialogType.ForYourself, "", viewModel.conversationId
-            )
-        }
-
-    @Test
-    fun `validate deleteMessageDialogsState states when deleteMessageForYourselfDialog is visible`() =
-        runTest {
-            // Given
-            val (_, viewModel) = ConversationMessagesViewModelArrangement()
-                .withSuccessfulViewModelInit()
-                .arrange()
-
-            // When
-            viewModel.deleteMessageHelper.showDeleteMessageForYourselfDialog("")
-
-            // Then
-            viewModel.deleteMessageDialogState shouldBeEqualTo DeleteMessageDialogState.Visible(
-                DeleteMessageDialogType.ForYourself, "", viewModel.conversationId
+            viewModel.deleteMessageDialogState.isVisible shouldBeEqualTo true
+            viewModel.deleteMessageDialogState.savedState shouldBeEqualTo DeleteMessageDialogState(
+                DeleteMessageDialogType.ForYourself, "messageId", viewModel.conversationId
             )
         }
 
@@ -296,10 +281,10 @@ class ConversationMessagesViewModelTest {
             .arrange()
 
         // When
-        viewModel.deleteMessageHelper.onDeleteDialogDismissed()
+        viewModel.deleteMessageDialogState.dismiss()
 
         // Then
-        viewModel.deleteMessageDialogState shouldBeEqualTo DeleteMessageDialogState.Hidden
+        viewModel.deleteMessageDialogState.isVisible shouldBeEqualTo false
     }
 
     @Test
@@ -307,13 +292,14 @@ class ConversationMessagesViewModelTest {
         // Given
         val (_, viewModel) = ConversationMessagesViewModelArrangement()
             .withSuccessfulViewModelInit()
-            .withFailureOnDeletingMessages().arrange()
+            .withFailureOnDeletingMessages()
+            .arrange()
 
         viewModel.infoMessage.test {
 
             // when
             expectNoEvents()
-            viewModel.deleteMessageHelper.onDeleteMessage("messageId", true)
+            viewModel.deleteMessage("messageId", true)
 
             // Then
             assertEquals(ConversationSnackbarMessages.ErrorDeletingMessage, awaitItem())
@@ -330,10 +316,10 @@ class ConversationMessagesViewModelTest {
                 .arrange()
 
             // When
-            viewModel.deleteMessageHelper.onDeleteMessage("messageId", true)
+            viewModel.deleteMessage("messageId", true)
 
             // Then
-            viewModel.deleteMessageDialogState shouldBeEqualTo DeleteMessageDialogState.Hidden
+            viewModel.deleteMessageDialogState.isVisible shouldBeEqualTo false
         }
 
     @Test

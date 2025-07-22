@@ -22,8 +22,8 @@ import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.kalium.logic.data.client.ClientCapability
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.client.RegisterClientParam
 import com.wire.kalium.logic.feature.client.RegisterClientResult
-import com.wire.kalium.logic.feature.client.RegisterClientUseCase
 import kotlinx.coroutines.flow.first
 
 class LoginViewModelExtension(
@@ -39,7 +39,7 @@ class LoginViewModelExtension(
     ): RegisterClientResult {
         val clientScope = clientScopeProviderFactory.create(userId).clientScope
         return clientScope.getOrRegister(
-            RegisterClientUseCase.RegisterClientParam(
+            RegisterClientParam(
                 password = password,
                 capabilities = capabilities,
                 secondFactorVerificationCode = secondFactorVerificationCode,

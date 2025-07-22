@@ -33,15 +33,12 @@ import com.wire.kalium.logic.feature.analytics.GetCurrentAnalyticsTrackingIdenti
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.auth.sso.ValidateSSOCodeUseCase
-import com.wire.kalium.logic.feature.client.MLSClientManager
 import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveOtherUserSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveSecurityClassificationLabelUseCase
-import com.wire.kalium.logic.feature.conversation.keyingmaterials.KeyingMaterialsManager
 import com.wire.kalium.logic.feature.e2ei.usecase.FetchConversationMLSVerificationStatusUseCase
 import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppLockEditableUseCase
-import com.wire.kalium.logic.feature.mlsmigration.MLSMigrationManager
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveTeamSettingsSelfDeletingStatusUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletionTimerUseCase
@@ -207,30 +204,6 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun provideMLSMigrationManager(
-        @KaliumCoreLogic coreLogic: CoreLogic,
-        @CurrentAccount currentAccount: UserId
-    ): MLSMigrationManager =
-        coreLogic.getSessionScope(currentAccount).mlsMigrationManager
-
-    @ViewModelScoped
-    @Provides
-    fun provideMLSClientManager(
-        @KaliumCoreLogic coreLogic: CoreLogic,
-        @CurrentAccount currentAccount: UserId
-    ): MLSClientManager =
-        coreLogic.getSessionScope(currentAccount).mlsClientManager
-
-    @ViewModelScoped
-    @Provides
-    fun provideKeyingMaterialsManager(
-        @KaliumCoreLogic coreLogic: CoreLogic,
-        @CurrentAccount currentAccount: UserId
-    ): KeyingMaterialsManager =
-        coreLogic.getSessionScope(currentAccount).keyingMaterialsManager
-
-    @ViewModelScoped
-    @Provides
     fun provideValidatePasswordUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
         coreLogic.getGlobalScope().validatePasswordUseCase
 
@@ -243,11 +216,6 @@ class UseCaseModule {
     @Provides
     fun provideGetServerConfigUserCase(@KaliumCoreLogic coreLogic: CoreLogic) =
         coreLogic.getGlobalScope().fetchServerConfigFromDeepLink
-
-    @ViewModelScoped
-    @Provides
-    fun provideUpdateApiVersionsUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.getGlobalScope().updateApiVersions
 
     @ViewModelScoped
     @Provides
@@ -375,7 +343,7 @@ class UseCaseModule {
     @ViewModelScoped
     @Provides
     fun provideUpdateApiVersionsScheduler(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.updateApiVersionsScheduler
+        coreLogic.getGlobalScope().updateApiVersionsScheduler
 
     @ViewModelScoped
     @Provides

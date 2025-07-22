@@ -46,7 +46,8 @@ fun <R : ScopedArgs> scopedArgs(argsClass: KClass<R>, argsContainer: SavedStateH
     Bundlizer.unbundle(argsClass.serializer(), argsContainer.toBundle())
 
 /**
- * Custom implementation of [hiltViewModelScoped] that takes proper scoped serializable arguments that implement [ScopedArgs]
+ * Custom implementation of [hiltViewModelScoped] that uses our generated previews for scoped ViewModels
+ * and takes proper scoped serializable arguments that implement [ScopedArgs]
  * and provides them into scoped [ViewModel] converting it automatically to [Bundle] using [Bundlizer].
  *
  * [ViewModel] needs to implement an interface annotated with [ViewModelScopedPreview] and with default
@@ -61,14 +62,33 @@ fun <R : ScopedArgs> scopedArgs(argsClass: KClass<R>, argsContainer: SavedStateH
 @Composable
 inline fun <reified T, reified S, reified R : ScopedArgs> hiltViewModelScoped(arguments: R): S where T : ViewModel, T : S = when {
     LocalInspectionMode.current -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
-    try {
+    espresso -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
+    else -> hiltViewModelScoped<T>(key = arguments.key, defaultArguments = Bundlizer.bundle(R::class.serializer(), arguments))
+}
+
+/**
+ * Custom implementation of [hiltViewModelScoped] that uses our generated previews for scoped ViewModels.
+ * This is version that does not take and pass any arguments, it does not use any key to generate a new version when it changes,
+ * so it basically keeps the same instance.
+ *
+ * [ViewModel] needs to implement an interface annotated with [ViewModelScopedPreview] and with default
+ * implementations.
+ */
+@Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER")
+@Composable
+inline fun <reified T, reified S> hiltViewModelScoped(): S where T : ViewModel, T : S = when {
+    LocalInspectionMode.current -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
+    espresso -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
+    else -> hiltViewModelScoped<T>()
+}
+
+val espresso
+    get() = try {
         Class.forName("androidx.test.espresso.Espresso")
         true
     } catch (e: ClassNotFoundException) {
         false
-    } -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
-    else -> hiltViewModelScoped<T>(key = arguments.key, defaultArguments = Bundlizer.bundle(R::class.serializer(), arguments))
-}
+    }
 
 /**
  * Creates a [Bundle] with all key-values from the given [SavedStateHandle].
@@ -87,7 +107,3 @@ interface ScopedArgs {
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.SOURCE)
 annotation class ViewModelScopedPreview
-
-interface AssistedViewModelFactory<VM : ViewModel, R : ScopedArgs> {
-    fun create(args: R): VM
-}

@@ -17,7 +17,7 @@
  */
 package com.wire.android.util
 
-import org.amshove.kluent.internal.assertEquals
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
 class StringUtilTest {
@@ -53,7 +53,7 @@ class StringUtilTest {
         fun testIsNotMarkdownBlank(currentInput: String, expected: Boolean) {
             val result = currentInput.isNotMarkdownBlank()
             val errorMessage = "Expected $expected for input \"${currentInput}\".isNotMarkdownBlank() but got $result"
-            assertEquals(errorMessage, expected, result)
+            assertEquals(expected, result, errorMessage)
         }
 
         testIsNotMarkdownBlank(" ", false)

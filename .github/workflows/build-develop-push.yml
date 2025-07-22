@@ -33,7 +33,7 @@ jobs:
               {
                 "type": "google-play",
                 "package-name": "com.wire.internal",
-                "track": "internal",
+                "track": "production",
                 "status": "completed"
               }
             ]

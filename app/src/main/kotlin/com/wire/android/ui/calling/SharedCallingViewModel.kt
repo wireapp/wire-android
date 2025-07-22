@@ -25,6 +25,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
+import com.wire.android.di.CurrentAccount
 import com.wire.android.mapper.UICallParticipantMapper
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.model.ImageAsset
@@ -88,6 +89,7 @@ import kotlinx.coroutines.launch
 @HiltViewModel(assistedFactory = SharedCallingViewModel.Factory::class)
 class SharedCallingViewModel @AssistedInject constructor(
     @Assisted val conversationId: ConversationId,
+    @CurrentAccount private val selfUserId: UserId,
     private val conversationDetails: ObserveConversationDetailsUseCase,
     private val observeEstablishedCallWithSortedParticipants: ObserveEstablishedCallWithSortedParticipantsUseCase,
     private val hangUpCall: HangUpCallUseCase,
@@ -319,6 +321,7 @@ class SharedCallingViewModel @AssistedInject constructor(
         viewModelScope.launch {
             sendInCallReactionUseCase(conversationId, emoji).onSuccess {
                 _inCallReactions.send(InCallReaction(emoji, ReactionSender.You))
+                recentReactions[selfUserId] = emoji
             }
         }
     }

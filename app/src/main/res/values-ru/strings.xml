@@ -281,7 +281,7 @@
     <string name="backup_and_restore_screen_title">Резервное копирование и восстановление бесед</string>
     <string name="search_bar_conversations_hint">Поиск бесед</string>
     <string name="search_no_results">Совпадений не найдено</string>
-    <string name="team_management_screen_title">Управление командой</string>
+    <string name="team_management_screen_title">Управлять командой</string>
     <!--Whats New -->
     <string name="whats_new_screen_title">Что нового</string>
     <string name="whats_new_welcome_to_new_android_app_label">👋 Добро пожаловать в новое приложение Wire для Android!</string>
@@ -428,6 +428,8 @@
     <string name="delete_message_for_yourself_dialog_title">Удалить это сообщение у себя?</string>
     <string name="delete_message_for_yourself_dialog_message">После удаления сообщения у себя, оно останется видимым только у других участников.\n\nУдаленное сообщение не может быть восстановлено.</string>
     <string name="deleted_message_text">Удаленное сообщение</string>
+    <string name="deleted_message_options_closed">Опции были закрыты, поскольку это сообщение больше не доступно.</string>
+    <string name="deleted_conversation_options_closed">Опции были закрыты, поскольку эта беседа больше не доступна.</string>
     <!-- Replies/Quotes to other messages -->
     <string name="label_quote_invalid_or_not_found">Вы не можете видеть это сообщение</string>
     <string name="label_quote_original_message_is_a_picture">Изображение</string>
@@ -1035,6 +1037,7 @@
     <string name="conversation_on_file_downloaded">Файл %s был успешно сохранен в папку Загрузки</string>
     <string name="error_blocking_user">Пользователь не может быть заблокирован</string>
     <string name="blocking_user_success">%s заблокирован</string>
+    <string name="unblocking_user_success">%s разблокирован</string>
     <string name="conversation_removed_success">“%s” удален</string>
     <string name="conversation_removed_locally_success">“%s” у меня удален</string>
     <string name="leave_conversation_error">При выходе из беседы произошла ошибка</string>
@@ -1856,4 +1859,6 @@
     <string name="enable_wire_cell_switch_description">Все файлы в этой беседе будут загружены в хранилище Wire Cell.</string>
     <string name="failed_attachment_retry_upload">Повторить загрузку</string>
     <string name="failed_attachment_remove">Удалить</string>
+    <string name="content_description_apply_filter">Применить фильтр</string>
+    <string name="content_description_filter_files">Фильтр файлов</string>
 </resources>

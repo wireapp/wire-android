@@ -32,13 +32,12 @@ import com.wire.android.ui.home.conversationslist.model.DialogState
 @Composable
 fun ClearConversationContentDialog(
     dialogState: VisibilityState<DialogState>,
-    isLoading: Boolean,
     onClearConversationContent: (DialogState) -> Unit
 ) {
-    VisibilityState(dialogState) {
+    VisibilityState(dialogState) { state ->
         WireDialog(
             title = stringResource(R.string.dialog_clear_content_title),
-            text = stringResource(R.string.dialog_clear_content_text, stringResource(it.conversationTypeDetail.labelResource)),
+            text = stringResource(R.string.dialog_clear_content_text, stringResource(state.conversationTypeDetail.labelResource)),
             buttonsHorizontalAlignment = true,
             onDismiss = dialogState::dismiss,
             dismissButtonProperties = WireDialogButtonProperties(
@@ -47,15 +46,11 @@ fun ClearConversationContentDialog(
                 state = WireButtonState.Default
             ),
             optionButton1Properties = WireDialogButtonProperties(
-                onClick = { onClearConversationContent(it) },
+                onClick = { onClearConversationContent(state) },
                 text = stringResource(R.string.dialog_clear_content_option),
                 type = WireDialogButtonType.Primary,
-                state =
-                if (isLoading)
-                    WireButtonState.Disabled
-                else
-                    WireButtonState.Error,
-                loading = isLoading
+                state = if (state.loading) WireButtonState.Disabled else WireButtonState.Error,
+                loading = state.loading
             )
         )
     }

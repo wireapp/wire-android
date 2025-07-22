@@ -245,7 +245,6 @@
     <string name="backup_and_restore_screen_title">Unterhaltungen sichern &amp; wiederherstellen</string>
     <string name="search_bar_conversations_hint">Unterhaltungen suchen</string>
     <string name="search_no_results">Keine Ergebnisse gefunden</string>
-    <string name="team_management_screen_title">Team-Management</string>
     <!--Whats New -->
     <string name="whats_new_screen_title">Neue Funktionen</string>
     <string name="whats_new_welcome_to_new_android_app_label">👋 Willkommen bei Wires neuer Android App!</string>
@@ -944,6 +943,7 @@
     <string name="conversation_on_file_downloaded">Die Datei %s wurde im Download-Ordner gespeichert</string>
     <string name="error_blocking_user">Benutzer konnte nicht blockiert werden</string>
     <string name="blocking_user_success">%s blockiert</string>
+    <string name="unblocking_user_success">%s freigegeben</string>
     <string name="conversation_removed_success">“%s” entfernt</string>
     <string name="conversation_removed_locally_success">“%s” für mich gelöscht</string>
     <string name="leave_conversation_error">Beim Verlassen der Unterhaltung ist ein Fehler aufgetreten</string>
@@ -1708,4 +1708,6 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="cells_screen_search_hint">Dateien suchen</string>
     <string name="failed_attachment_retry_upload">Upload wiederholen</string>
     <string name="failed_attachment_remove">Entfernen</string>
+    <string name="content_description_apply_filter">Filter anwenden</string>
+    <string name="content_description_filter_files">Dateien filtern</string>
 </resources>

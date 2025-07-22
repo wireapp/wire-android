@@ -29,9 +29,12 @@ import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import versionCatalog
 import findLibrary
+import org.gradle.jvm.toolchain.JavaLanguageVersion
+import org.jetbrains.kotlin.gradle.dsl.KotlinBaseExtension
 
 internal fun Project.configureKotlinAndroid(
     commonExtension: CommonExtension<*, *, *, *, *, *>,
+    kotlinAndroidExtension: KotlinBaseExtension
 ): Unit = with(commonExtension) {
     compileSdk = AndroidSdk.compile
 
@@ -40,7 +43,6 @@ internal fun Project.configureKotlinAndroid(
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
         isCoreLibraryDesugaringEnabled = true
     }
@@ -52,6 +54,12 @@ internal fun Project.configureKotlinAndroid(
         add("coreLibraryDesugaring", versionCatalog.findLibrary("android.desugarJdkLibs").get())
     }
     configureLint(project)
+
+    with(kotlinAndroidExtension) {
+        jvmToolchain {
+            languageVersion.set(JavaLanguageVersion.of(JavaVersion.VERSION_17.majorVersion))
+        }
+    }
 }
 
 /**

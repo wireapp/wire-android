@@ -25,6 +25,7 @@ import androidx.work.WorkManager
 import androidx.work.impl.OperationImpl
 import app.cash.turbine.test
 import com.wire.android.BuildConfig
+import com.wire.android.assertions.shouldBeEqualTo
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
@@ -93,8 +94,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.internal.assertEquals
-import org.amshove.kluent.`should be equal to`
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertInstanceOf
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -372,6 +372,16 @@ class WireActivityViewModelTest {
     }
 
     @Test
+    fun `given app started, then should  clean any unfinished analytics state`() = runTest {
+        val (arrangement, _) = Arrangement()
+            .withSomeCurrentSession()
+            .withAppUpdateRequired(false)
+            .arrange()
+
+        coEvery { arrangement.globalDataStore.setAnonymousRegistrationEnabled(eq(false)) }
+    }
+
+    @Test
     fun `given appUpdate is required, then should show the appUpdate dialog`() = runTest {
         val (_, viewModel) = Arrangement()
             .withNoCurrentSession()
@@ -404,7 +414,7 @@ class WireActivityViewModelTest {
 
         viewModel.actions.test {
             viewModel.handleDeepLink(mockedIntent())
-            viewModel.globalAppState.conversationJoinedDialog `should be equal to` JoinConversationViaCodeState.Show(
+            viewModel.globalAppState.conversationJoinedDialog shouldBeEqualTo JoinConversationViaCodeState.Show(
                 conversationName,
                 code,
                 key,
@@ -438,7 +448,7 @@ class WireActivityViewModelTest {
 
         viewModel.actions.test {
             viewModel.handleDeepLink(mockedIntent())
-            viewModel.globalAppState.conversationJoinedDialog `should be equal to` null
+            viewModel.globalAppState.conversationJoinedDialog shouldBeEqualTo null
             assertEquals(OpenConversation(DeepLinkResult.OpenConversation(conversationId, false)), expectMostRecentItem())
             expectNoEvents()
         }
@@ -698,7 +708,7 @@ class WireActivityViewModelTest {
 
             advanceUntilIdle()
 
-            viewModel.globalAppState.blockUserUI `should be equal to` CurrentSessionErrorState.RemovedClient
+            viewModel.globalAppState.blockUserUI shouldBeEqualTo CurrentSessionErrorState.RemovedClient
         }
 
     @Test
@@ -712,8 +722,8 @@ class WireActivityViewModelTest {
         // when
         val result = viewModel.checkNumberOfSessions()
         // then
-        result `should be equal to` true
-        viewModel.globalAppState.maxAccountDialog `should be equal to` false
+        result shouldBeEqualTo true
+        viewModel.globalAppState.maxAccountDialog shouldBeEqualTo false
     }
 
     @Test
@@ -727,8 +737,8 @@ class WireActivityViewModelTest {
         // when
         val result = viewModel.checkNumberOfSessions()
         // then
-        result `should be equal to` true
-        viewModel.globalAppState.maxAccountDialog `should be equal to` false
+        result shouldBeEqualTo true
+        viewModel.globalAppState.maxAccountDialog shouldBeEqualTo false
     }
 
     @Test
@@ -742,8 +752,8 @@ class WireActivityViewModelTest {
         // when
         val result = viewModel.checkNumberOfSessions()
         // then
-        result `should be equal to` false
-        viewModel.globalAppState.maxAccountDialog `should be equal to` true
+        result shouldBeEqualTo false
+        viewModel.globalAppState.maxAccountDialog shouldBeEqualTo true
     }
 
     private class Arrangement {
@@ -835,7 +845,7 @@ class WireActivityViewModelTest {
 
         private val viewModel by lazy {
             WireActivityViewModel(
-                coreLogic = coreLogic,
+                coreLogic = { coreLogic },
                 dispatchers = TestDispatcherProvider(),
                 currentSessionFlow = { currentSessionFlow },
                 doesValidSessionExist = { doesValidSessionExist },

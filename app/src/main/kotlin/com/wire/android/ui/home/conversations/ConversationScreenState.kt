@@ -39,7 +39,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun rememberConversationScreenState(
-    editSheetState: WireModalSheetState<UIMessage.Regular> = rememberWireModalSheetState<UIMessage.Regular>(),
+    editSheetState: WireModalSheetState<String> = rememberWireModalSheetState<String>(),
     selfDeletingSheetState: WireModalSheetState<SelfDeletionTimer> = rememberWireModalSheetState<SelfDeletionTimer>(),
     locationSheetState: WireModalSheetState<Unit> = rememberWireModalSheetState(),
     coroutineScope: CoroutineScope = rememberCoroutineScope()
@@ -65,13 +65,13 @@ class ConversationScreenState(
     val context: Context,
     val clipboardManager: ClipboardManager,
     val snackBarHostState: SnackbarHostState,
-    val editSheetState: WireModalSheetState<UIMessage.Regular>,
+    val editSheetState: WireModalSheetState<String>,
     val selfDeletingSheetState: WireModalSheetState<SelfDeletionTimer>,
     val locationSheetState: WireModalSheetState<Unit>,
     val coroutineScope: CoroutineScope
 ) {
     fun showEditContextMenu(message: UIMessage.Regular) {
-        editSheetState.show(message, hideKeyboard = true)
+        editSheetState.show(message.header.messageId, hideKeyboard = true)
     }
 
     fun copyMessage(text: String) {

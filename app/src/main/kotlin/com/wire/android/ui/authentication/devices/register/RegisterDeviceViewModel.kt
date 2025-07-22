@@ -32,8 +32,8 @@ import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.kalium.logic.data.auth.verification.VerifiableAction
 import com.wire.kalium.logic.feature.auth.verification.RequestSecondFactorVerificationCodeUseCase
 import com.wire.kalium.logic.feature.client.GetOrRegisterClientUseCase
+import com.wire.kalium.logic.feature.client.RegisterClientParam
 import com.wire.kalium.logic.feature.client.RegisterClientResult
-import com.wire.kalium.logic.feature.client.RegisterClientUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -99,7 +99,7 @@ class RegisterDeviceViewModel @Inject constructor(
     private suspend fun registerClient(password: String?, secondFactorVerificationCode: String? = null) {
         state = state.copy(flowState = RegisterDeviceFlowState.Loading, continueEnabled = false)
         registerClientUseCase(
-            RegisterClientUseCase.RegisterClientParam(
+            RegisterClientParam(
                 password = password,
                 secondFactorVerificationCode = secondFactorVerificationCode,
                 capabilities = null,

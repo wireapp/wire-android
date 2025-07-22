@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -80,10 +81,12 @@ fun ConnectionActionButton(
     val unblockUserDialogState = rememberVisibilityState<UnblockUserDialogState>()
     val unableStartConversationDialogState = rememberVisibilityState<UnableStartConversationDialogState>()
 
+    LaunchedEffect(viewModel.actionableState().isPerformingAction) {
+        unblockUserDialogState.update { it.copy(loading = viewModel.actionableState().isPerformingAction) }
+    }
     UnblockUserDialogContent(
         dialogState = unblockUserDialogState,
         onUnblock = { viewModel.onUnblockUser() },
-        isLoading = viewModel.actionableState().isPerformingAction,
     )
 
     UnableStartConversationDialogContent(dialogState = unableStartConversationDialogState)

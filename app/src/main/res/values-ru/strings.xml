@@ -429,6 +429,7 @@
     <string name="delete_message_for_yourself_dialog_message">После удаления сообщения у себя, оно останется видимым только у других участников.\n\nУдаленное сообщение не может быть восстановлено.</string>
     <string name="deleted_message_text">Удаленное сообщение</string>
     <string name="deleted_message_options_closed">Опции были закрыты, поскольку это сообщение больше не доступно.</string>
+    <string name="deleted_conversation_options_closed">Опции были закрыты, поскольку эта беседа больше не доступна.</string>
     <!-- Replies/Quotes to other messages -->
     <string name="label_quote_invalid_or_not_found">Вы не можете видеть это сообщение</string>
     <string name="label_quote_original_message_is_a_picture">Изображение</string>
@@ -1036,6 +1037,7 @@
     <string name="conversation_on_file_downloaded">Файл %s был успешно сохранен в папку Загрузки</string>
     <string name="error_blocking_user">Пользователь не может быть заблокирован</string>
     <string name="blocking_user_success">%s заблокирован</string>
+    <string name="unblocking_user_success">%s разблокирован</string>
     <string name="conversation_removed_success">“%s” удален</string>
     <string name="conversation_removed_locally_success">“%s” у меня удален</string>
     <string name="leave_conversation_error">При выходе из беседы произошла ошибка</string>

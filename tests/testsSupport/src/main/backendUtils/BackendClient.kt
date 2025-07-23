@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-@file:Suppress("TooGenericExceptionCaught")
+@file:Suppress("TooGenericExceptionCaught", "PackageNaming", "TooGenericExceptionThrown")
 
 package backendUtils
 
@@ -36,14 +36,16 @@ import user.utils.AccessCookie
 import user.utils.AccessCredentials
 import user.utils.BasicAuth
 import user.utils.ClientUser
-import java.net.*
-import java.util.logging.Logger
-import javax.net.ssl.HttpsURLConnection
-import javax.net.ssl.SSLContext
-import javax.net.ssl.TrustManager
-import javax.net.ssl.X509TrustManager
+import java.net.Authenticator
+import java.net.HttpCookie
+import java.net.HttpURLConnection
+import java.net.InetSocketAddress
+import java.net.PasswordAuthentication
+import java.net.Proxy
+import java.net.URL
+import java.net.URLEncoder
 
-@Suppress("LongParameterList", "MagicNumber")
+@Suppress("LongParameterList", "MagicNumber", "TooManyFunctions")
 class BackendClient(
     val name: String,
     val backendUrl: String,
@@ -79,10 +81,8 @@ class BackendClient(
     fun hasInbucketSetup() = inbucketUrl.isNotEmpty()
 
     companion object {
-        private val log: Logger = Logger.getLogger(NetworkBackendClient::class.simpleName)
-
-        const val PROFILE_PICTURE_JSON_ATTRIBUTE = "complete"
-        const val PROFILE_PREVIEW_PICTURE_JSON_ATTRIBUTE = "preview"
+        const val contentType = "Content-Type"
+        const val applicationJson = "application/json"
 
         data class BackendSecrets(
             val backendUrl: String,
@@ -174,35 +174,17 @@ class BackendClient(
     }
 
     init {
-        val trustAllCerts = arrayOf<TrustManager>(
-            object : X509TrustManager, TrustManager {
-                override fun getAcceptedIssuers(): Array<java.security.cert.X509Certificate>? = null
-                override fun checkClientTrusted(certs: Array<java.security.cert.X509Certificate>, authType: String) {
-                    true
-                }
 
-                override fun checkServerTrusted(certs: Array<java.security.cert.X509Certificate>, authType: String) {
-                    true
-                }
-            }
-        )
-        if (!socksProxy.isNullOrEmpty()) {
+        if (socksProxy.isNotEmpty()) {
             Authenticator.setDefault(object : Authenticator() {
                 override fun getPasswordAuthentication(): PasswordAuthentication {
                     return PasswordAuthentication(
                         "qa",
-                        BuildConfig.SOCKS_PROXY_PASSWORD_PASSWORD?.toCharArray()
+                        BuildConfig.SOCKS_PROXY_PASSWORD_PASSWORD.toCharArray()
                     )
                 }
             })
             this.proxy = Proxy(Proxy.Type.SOCKS, InetSocketAddress("socks.wire.link", 1080))
-        }
-        try {
-            val sslContext = SSLContext.getInstance("SSL")
-            sslContext.init(null, trustAllCerts, java.security.SecureRandom())
-            HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.socketFactory)
-        } catch (e: Exception) {
-            log.severe("Could not install all-trusting trust manager: ${e.message}")
         }
     }
 
@@ -216,7 +198,7 @@ class BackendClient(
             put("password", user.password)
         }
 
-        val headers = mapOf("Content-Type" to "application/json")
+        val headers = mapOf(contentType to applicationJson)
 
         val response = NetworkBackendClient.sendJsonRequestWithCookies(
             url = url,
@@ -254,7 +236,7 @@ class BackendClient(
             requestBody.put("expires_in", user.expiresIn!!.seconds)
         }
 
-        val headers = mapOf("Content-Type" to "application/json")
+        val headers = mapOf(contentType to applicationJson)
 
         val response = NetworkBackendClient.sendJsonRequest(
             url = url,
@@ -265,7 +247,7 @@ class BackendClient(
 
         val connection = url.openConnection() as HttpURLConnection
         val cookiesHeader = connection.getHeaderField("Set-Cookie")
-        val cookies = HttpCookie.parse(cookiesHeader)
+        val cookies = HttpCookie.parse(cookiesHeader).toList()
 
         val json = JSONObject(response)
         user.id = json.getString("id")
@@ -285,7 +267,7 @@ class BackendClient(
         val url = URL("${backendUrl}i/users/activation-code?email=$encodedEmail")
         val headers = mapOf(
             "Authorization" to basicAuth.getEncoded(),
-            "Accept" to "application/json"
+            "Accept" to applicationJson
         )
         val response = NetworkBackendClient.sendJsonRequest(
             url = url,
@@ -307,8 +289,8 @@ class BackendClient(
 
         val headers = mapOf(
             "Authorization" to basicAuth.getEncoded(),
-            "Content-Type" to "application/json",
-            "Accept" to "application/json"
+            applicationJson to applicationJson,
+            "Accept" to applicationJson
         )
 
         try {
@@ -332,7 +314,7 @@ class BackendClient(
 
         val headers = mapOf(
             "Authorization" to basicAuth.getEncoded(),
-            "Accept" to "application/json"
+            "Accept" to applicationJson
         )
 
         return try {
@@ -363,11 +345,11 @@ class BackendClient(
         WireTestLogger.getLog(NetworkBackendClient::class.simpleName ?: "Null").info("JsonBody is $requestBody")
 
         val headers = mapOf(
-            "Content-Type" to "application/json",
-            "Accept" to "application/json"
+            contentType to applicationJson,
+            "Accept" to applicationJson
         )
 
-        val response = NetworkBackendClient.sendJsonRequest(
+        NetworkBackendClient.sendJsonRequest(
             url = url,
             method = "POST",
             body = requestBody.toString(),
@@ -441,7 +423,7 @@ class BackendClient(
                 // Retry after delay for other errors
                 delay(1500)
                 try {
-                   NetworkBackendClient.sendJsonRequestWithCookies(
+                    NetworkBackendClient.sendJsonRequestWithCookies(
                         url = url,
                         method = "POST",
                         headers = headers,
@@ -449,16 +431,15 @@ class BackendClient(
                     )
                 } catch (e: Exception) {
                     throw RuntimeException("Connection request failed with status code ${e.message}")
-
                 }
             }
         }
-network.WireTestLogger.getLog("Backend").info("Response of send connection request is ${response}")
+        network.WireTestLogger.getLog("Backend").info("Response of send connection request is $response")
     }
 
     suspend fun updateUniqueUsername(user: ClientUser, newUniqueUsername: String) {
-        val USERNAME_ALREADY_REGISTERED_ERROR = 409
-        val tryAvoidDuplicates = newUniqueUsername.equals(user.uniqueUsername, ignoreCase = true)
+        val userNameAlreadRegisteredError = 409
+        val tryAvoidDuplicates = newUniqueUsername == user.uniqueUsername
         var currentUsername = newUniqueUsername
         var attempts = 0
 
@@ -468,7 +449,7 @@ network.WireTestLogger.getLog("Backend").info("Response of send connection reque
                 user.uniqueUsername = currentUsername
                 return
             } catch (e: HttpRequestException) {
-                if (tryAvoidDuplicates && e.returnCode == USERNAME_ALREADY_REGISTERED_ERROR && attempts < 5) {
+                if (tryAvoidDuplicates && e.returnCode == userNameAlreadRegisteredError && attempts < 5) {
                     currentUsername = ClientUser.sanitizedRandomizedHandle(user.firstName)
                 } else {
                     throw e
@@ -477,24 +458,6 @@ network.WireTestLogger.getLog("Backend").info("Response of send connection reque
             attempts++
         }
     }
-
-//    fun getSelfDeletingMessagesSettings(teamMember: ClientUser): JSONObject {
-//        val teamId = Uri.encode(getTeamId(teamMember))
-//        val url = "i/teams/$teamId/features/selfDeletingMessages".composeCompleteUrl()
-//
-//        val headers = defaultheaders.toMutableMap().apply {
-//            put("Authorization", "${basicAuth.getEncoded()}")
-//        }
-//
-//        val response = NetworkBackendClient.sendJsonRequestWithCookies(
-//            url = URL(url),
-//            method = "GET",
-//            headers = headers,
-//            options = RequestOptions()
-//        )
-//
-//        return JSONObject(response.body)
-//    }
 
     fun getUserNameByID(domain: String, id: String, user: ClientUser): String {
         val token = runBlocking { getAuthToken(user) }
@@ -510,10 +473,8 @@ network.WireTestLogger.getLog("Backend").info("Response of send connection reque
             headers = headers,
             options = RequestOptions(accessToken = token)
         )
-
         return JSONObject(response.body).getString("name")
     }
-
 
     private suspend fun updateSelfHandle(user: ClientUser, handle: String) {
         val token = getAuthToken(user)

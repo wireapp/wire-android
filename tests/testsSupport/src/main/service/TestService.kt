@@ -20,6 +20,7 @@ package com.wire.android.testSupport.service
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.util.Base64
 import backendUtils.BackendClient
 import logger.WireTestLogger
 import network.HttpRequestException
@@ -28,6 +29,10 @@ import org.json.JSONObject
 import service.HttpStatus
 import service.enums.TypingStatus
 import service.models.Mentions
+import service.models.SendFileParams
+import service.models.SendLocationParams
+import service.models.SendTextParams
+import service.models.SendTextWithLinkParams
 import user.utils.ClientUser
 import java.io.BufferedReader
 import java.io.BufferedWriter
@@ -52,12 +57,13 @@ class TestService(private val baseUri: String, private val testName: String) {
 
     companion object {
         private val log = WireTestLogger.getLog(TestService::class.java.simpleName)
-        private const val CONNECT_TIMEOUT = 120000 // Duration.ofSeconds(120).toMillis()
-        private const val STATUS_204 = 204 // Duration.ofSeconds(120).toMillis()
-        private const val STATUS_OK = 200 // Duration.ofSeconds(120).toMillis()
-        private const val READ_TIMEOUT = 120000 // Duration.ofSeconds(120).toMillis()
-        private const val LARGE_TEXT = 5000 // Duration.ofSeconds(120).toMillis()
-        private const val SHORT_TEXT = 100 // Duration.ofSeconds(120).toMillis()
+        private const val CONNECT_TIMEOUT = 120000
+        private const val STATUS_204 = 204
+        private const val ZINFRA = "staging.zinfra.io"
+        private const val STATUS_OK = 200
+        private const val READ_TIMEOUT = 120000
+        private const val LARGE_TEXT = 5000
+        private const val SHORT_TEXT = 100
     }
 
     // userAliases => deviceName => instanceId
@@ -82,11 +88,7 @@ class TestService(private val baseUri: String, private val testName: String) {
         try {
             log.info("${c.requestMethod}: ${c.url}")
             request?.let {
-                if (log.isLoggable(Level.FINE)) {
-                    log.info(" >>> Request: ${truncateOnlyOnBig(it.toString())}")
-                } else {
-                    log.info(" >>> Request: ${truncateOnlyOnBig(it.toString())}")
-                }
+                log.info(" >>> Request: ${truncateOnlyOnBig(it.toString())}")
                 writeStream(it.toString(), c.outputStream)
             }
             status = c.responseCode
@@ -224,78 +226,31 @@ class TestService(private val baseUri: String, private val testName: String) {
     }
 
     @Suppress("LongParameterList")
-    fun sendText(
-        owner: ClientUser,
-        deviceName: String?,
-        convoDomain: String,
-        convoId: String,
-        timeout: Duration,
-        expectsReadConfirmation: Boolean,
-        text: String,
-        legalHoldStatus: Int
-    ) = sendTextBase(
-        owner,
-        deviceName,
-        convoDomain,
-        convoId,
-        timeout,
-        expectsReadConfirmation,
-        text,
-        null,
-        legalHoldStatus
-    )
+    fun sendText(params: SendTextParams) = sendTextBase(params)
 
     @Suppress("LongParameterList")
-    fun sendCompositeText(
-        owner: ClientUser,
-        deviceName: String?,
-        convoDomain: String,
-        convoId: String,
-        timeout: Duration,
-        expectsReadConfirmation: Boolean,
-        text: String,
-        buttons: JSONArray,
-        legalHoldStatus: Int
-    ) = sendTextBase(
-        owner,
-        deviceName,
-        convoDomain,
-        convoId,
-        timeout,
-        expectsReadConfirmation,
-        text,
-        buttons,
-        legalHoldStatus
-    )
+    fun sendCompositeText(params: SendTextParams) = sendTextBase(params)
 
     @Suppress("LongParameterList")
     private fun sendTextBase(
-        owner: ClientUser,
-        deviceName: String?,
-        convoDomain: String,
-        convoId: String,
-        timeout: Duration,
-        expectsReadConfirmation: Boolean,
-        text: String,
-        buttons: JSONArray?,
-        legalHoldStatus: Int
+        params: SendTextParams
     ): String {
-        val instanceId = getInstanceId(owner, deviceName)
+        val instanceId = getInstanceId(params.owner, params.deviceName)
         val connection = buildRequest("api/v1/instance/$instanceId/sendText", "POST")
         val requestBody = JSONObject().apply {
-            if (convoDomain != "staging.zinfra.io") {
-                put("conversationDomain", convoDomain)
+            if (params.convoDomain != ZINFRA) {
+                put("conversationDomain", params.convoDomain)
             }
-            put("conversationId", convoId)
-            if (timeout.toMillis() > 0) {
-                put("messageTimer", timeout.toMillis())
+            put("conversationId", params.convoId)
+            if (params.timeout.toMillis() > 0) {
+                put("messageTimer", params.timeout.toMillis())
             }
-            if (expectsReadConfirmation) {
-                put("expectsReadConfirmation", expectsReadConfirmation)
+            if (params.expectsReadConfirmation) {
+                put("expectsReadConfirmation", true)
             }
-            put("text", text)
-            buttons?.let { put("buttons", it) }
-            put("legalHoldStatus", legalHoldStatus)
+            put("text", params.text)
+            put("buttons", params.buttons)
+            put("legalHoldStatus", params.legalHoldStatus)
         }
         val result = sendHttpRequest(connection, requestBody)
         val response = JSONObject(result)
@@ -315,7 +270,7 @@ class TestService(private val baseUri: String, private val testName: String) {
         val connection = buildRequest("api/v1/instance/$instanceId/updateText", "POST")
         val requestBody = JSONObject().apply {
             put("conversationId", convoId)
-            if (convoDomain != "staging.zinfra.io") {
+            if (convoDomain != ZINFRA) {
                 put("conversationDomain", convoDomain)
             }
             put("firstMessageId", messageId)
@@ -326,55 +281,44 @@ class TestService(private val baseUri: String, private val testName: String) {
 
     @Suppress("TooGenericExceptionCaught, LongParameterList", "NestedBlockDepth")
     fun updateTextWithLinkPreview(
-        owner: ClientUser,
-        deviceName: String?,
-        convoId: String,
-        convoDomain: String,
-        messageId: String,
-        text: String,
-        summary: String,
-        title: String,
-        url: String,
-        urlOffset: Int,
-        permUrl: String,
-        filePath: String
+        params: SendTextWithLinkParams
     ) {
-        val instanceId = getInstanceId(owner, deviceName)
+        val instanceId = getInstanceId(params.owner, params.deviceName)
         val connection = buildRequest("api/v1/instance/$instanceId/updateText", "POST")
 
         val requestBody = JSONObject().apply {
-            put("conversationId", convoId)
-            if (convoDomain != "staging.zinfra.io") {
-                put("conversationDomain", convoDomain)
+            put("conversationId", params.convoId)
+            if (params.convoDomain != ZINFRA) {
+                put("conversationDomain", params.convoDomain)
             }
-            put("firstMessageId", messageId)
-            put("text", text)
+            put("firstMessageId", params.messageId)
+            put("text", params.text)
 
             val linkPreview = JSONObject().apply {
-                if (filePath.isNotBlank()) {
-                    val imageFile = File(filePath)
-                    if (imageFile.exists()) {
+                if (params.filePath.isNotBlank()) {
+                    val imageFile = File(params.filePath)
+                    if (params.imageFile.exists()) {
                         val imageBytes = imageFile.readBytes()
-                        val encodedBase64 = android.util.Base64.encodeToString(imageBytes, android.util.Base64.NO_WRAP)
+                        val encodedBase64 = Base64.encodeToString(imageBytes, Base64.NO_WRAP)
 
-                        val bitmap = BitmapFactory.decodeFile(filePath)
+                        val bitmap = BitmapFactory.decodeFile(params.filePath)
 
                         val requestImage = JSONObject().apply {
                             put("data", encodedBase64)
                             put("width", bitmap?.width ?: 0)
                             put("height", bitmap?.height ?: 0)
-                            put("type", "image/${filePath.substringAfterLast('.', "png")}")
+                            put("type", "image/${params.filePath.substringAfterLast('.', "png")}")
                         }
 
                         put("image", requestImage)
                     }
                 }
 
-                put("summary", summary)
-                put("title", title)
-                put("url", url)
-                put("urlOffset", urlOffset)
-                put("permanentUrl", permUrl)
+                put("summary", params.summary)
+                put("title", params.title)
+                put("url", params.url)
+                put("urlOffset", params.urlOffset)
+                put("permanentUrl", params.permUrl)
             }
 
             put("linkPreview", linkPreview)
@@ -408,7 +352,7 @@ class TestService(private val baseUri: String, private val testName: String) {
         val connection = buildRequest("api/v1/instance/$instanceId/clear", "POST")
         val requestBody = JSONObject().apply {
             put("conversationId", convoId)
-            if (convoDomain != "staging.zinfra.io") {
+            if (convoDomain != ZINFRA) {
                 put("conversationDomain", convoDomain)
             }
         }
@@ -454,7 +398,7 @@ class TestService(private val baseUri: String, private val testName: String) {
         val connection = buildRequest("api/v1/instance/$instanceId/delete", "POST")
         val requestBody = JSONObject().apply {
             put("conversationId", convoId)
-            if (convoDomain != "staging.zinfra.io") {
+            if (convoDomain != ZINFRA) {
                 put("conversationDomain", convoDomain)
             }
             put("messageId", messageId)
@@ -473,7 +417,7 @@ class TestService(private val baseUri: String, private val testName: String) {
         val connection = buildRequest("api/v1/instance/$instanceId/deleteEverywhere", "POST")
         val requestBody = JSONObject().apply {
             put("conversationId", convoId)
-            if (convoDomain != "staging.zinfra.io") {
+            if (convoDomain != ZINFRA) {
                 put("conversationDomain", convoDomain)
             }
             put("messageId", messageId)
@@ -490,140 +434,123 @@ class TestService(private val baseUri: String, private val testName: String) {
         timeout: Duration,
         filePath: String,
         type: String
-    ) = sendFile(owner, deviceName, convoId, convoDomain, timeout, filePath, type, false, false, false)
+    ) = sendFile(
+        SendFileParams(
+            owner = owner,
+            deviceName = deviceName,
+            convoDomain = convoDomain,
+            convoId = convoId,
+            timeout = timeout,
+            filePath = filePath,
+            type = type,
+            otherHash = false,
+            otherAlgorithm = false,
+            invalidHash = false
+        )
+    )
 
     @Suppress("LongParameterList")
     fun sendFile(
-        owner: ClientUser,
-        deviceName: String?,
-        convoId: String,
-        convoDomain: String,
-        timeout: Duration,
-        filePath: String,
-        type: String,
-        otherAlgorithm: Boolean,
-        otherHash: Boolean,
-        invalidHash: Boolean
+        params: SendFileParams
     ) {
-        val file = File(filePath)
-        val instanceId = getInstanceId(owner, deviceName)
+        val file = File(params.filePath)
+        val instanceId = getInstanceId(params.owner, params.deviceName)
         val connection = buildRequest("api/v1/instance/$instanceId/sendFile", "POST")
         val requestBody = JSONObject().apply {
-            put("conversationId", convoId)
-            if (convoDomain != "staging.zinfra.io") {
-                put("conversationDomain", convoDomain)
+            put("conversationId", params.convoId)
+            if (params.convoDomain != ZINFRA) {
+                put("conversationDomain", params.convoDomain)
             }
             put("data", fileToBase64String(file))
             put("fileName", file.name)
-            if (timeout.toMillis() > 0) {
-                put("messageTimer", timeout.toMillis())
+            if (params.timeout.toMillis() > 0) {
+                put("messageTimer", params.timeout.toMillis())
             }
-            put("type", type)
-            put("otherAlgorithm", otherAlgorithm)
-            put("otherHash", otherHash)
-            put("invalidHash", invalidHash)
+            put("type", params.type)
+            put("otherAlgorithm", params.otherAlgorithm)
+            put("otherHash", params.otherHash)
+            put("invalidHash", params.invalidHash)
         }
         sendHttpRequest(connection, requestBody)
     }
 
     @Suppress("LongParameterList")
     fun sendAudioFile(
-        owner: ClientUser,
-        deviceName: String?,
-        convoId: String,
-        convoDomain: String,
-        timeout: Duration,
-        duration: Duration,
-        normalizedLoudness: IntArray,
-        filePath: String,
-        type: String
+        params: SendFileParams
     ) {
-        val file = File(filePath)
-        val instanceId = getInstanceId(owner, deviceName)
+        val file = File(params.filePath)
+        val instanceId = getInstanceId(params.owner, params.deviceName)
         val connection = buildRequest("api/v1/instance/$instanceId/sendFile", "POST")
         val metadata = JSONObject().apply {
-            put("durationInMillis", duration.toMillis().toInt())
-            put("normalizedLoudness", normalizedLoudness)
+            put("durationInMillis", params.duration.toMillis().toInt())
+            put("normalizedLoudness", params.normalizedLoudness)
         }
         val requestBody = JSONObject().apply {
             put("audio", metadata)
-            put("conversationId", convoId)
-            if (convoDomain != "staging.zinfra.io") {
-                put("conversationDomain", convoDomain)
+            put("conversationId", params.convoId)
+            if (params.convoDomain != ZINFRA) {
+                put("conversationDomain", params.convoDomain)
             }
             put("data", fileToBase64String(file))
             put("fileName", file.name)
-            if (timeout.toMillis() > 0) {
-                put("messageTimer", timeout.toMillis())
+            if (params.timeout.toMillis() > 0) {
+                put("messageTimer", params.timeout.toMillis())
             }
-            put("type", type)
+            put("type", params.type)
         }
         sendHttpRequest(connection, requestBody)
     }
 
     @Suppress("LongParameterList")
     fun sendVideoFile(
-        owner: ClientUser,
-        deviceName: String?,
-        convoId: String,
-        convoDomain: String,
-        timeout: Duration,
-        duration: Duration,
-        dimensions: IntArray,
-        filePath: String,
-        type: String
+        params: SendFileParams
     ) {
-        val file = File(filePath)
-        val instanceId = getInstanceId(owner, deviceName)
+        val file = File(params.filePath)
+        val instanceId = getInstanceId(params.owner, params.deviceName)
         val connection = buildRequest("api/v1/instance/$instanceId/sendFile", "POST")
         val metadata = JSONObject().apply {
-            put("durationInMillis", duration.toMillis().toInt())
-            put("height", dimensions[0])
-            put("width", dimensions[1])
+            put("durationInMillis", params.duration.toMillis().toInt())
+            put("height", params.dimensions[0])
+            put("width", params.dimensions[1])
         }
         val requestBody = JSONObject().apply {
             put("video", metadata)
-            put("conversationId", convoId)
-            if (convoDomain != "staging.zinfra.io") {
-                put("conversationDomain", convoDomain)
+            put("conversationId", params.convoId)
+            if (params.convoDomain != ZINFRA) {
+                put("conversationDomain", params.convoDomain)
             }
             put("data", fileToBase64String(file))
             put("fileName", file.name)
-            if (timeout.toMillis() > 0) {
-                put("messageTimer", timeout.toMillis())
+            if (params.timeout.toMillis() > 0) {
+                put("messageTimer", params.timeout.toMillis())
             }
-            put("type", type)
+            put("type", params.type)
         }
         sendHttpRequest(connection, requestBody)
     }
 
     @Suppress("LongParameterList")
     fun sendImage(
-        owner: ClientUser,
-        deviceName: String?,
-        convoId: String,
-        convoDomain: String,
-        timeout: Duration,
-        filePath: String
+        params: SendFileParams
     ) {
-        val inputStream = File(filePath).inputStream()
+        val inputStream = File(params.filePath).inputStream()
         val bitmap = BitmapFactory.decodeStream(inputStream)
         inputStream.close()
 
-        val instanceId = getInstanceId(owner, deviceName)
+        val instanceId = getInstanceId(params.owner, params.deviceName)
         val connection = buildRequest("api/v1/instance/$instanceId/sendImage", "POST")
         val requestBody = JSONObject().apply {
-            put("conversationId", convoId)
-            if (convoDomain != "staging.zinfra.io") {
-                put("conversationDomain", convoDomain)
+            put("conversationId", params.convoId)
+            if (params.convoDomain != ZINFRA) {
+                put("conversationDomain", params.convoDomain)
             }
-            put("data", fileToBase64String(File(filePath)))
+            put("data", fileToBase64String(File(params.filePath)))
             put("width", bitmap.width)
             put("height", bitmap.height)
-            if (timeout.toMillis() > 0) {
-                put("messageTimer", timeout.toMillis())
+            if (params.timeout.toMillis() > 0) {
+                put("messageTimer", params.timeout.toMillis())
             }
-            put("type", "image/${filePath.substringAfterLast('.')}")
+            put("type", "image/${params.filePath.substringAfterLast('.')}")
         }
         sendHttpRequest(connection, requestBody)
     }
@@ -650,10 +577,10 @@ class TestService(private val baseUri: String, private val testName: String) {
         val connection = buildRequest("api/v1/instance/$instanceId/sendImage", "POST")
         val requestBody = JSONObject().apply {
             put("conversationId", convoId)
-            if (convoDomain != "staging.zinfra.io") {
+            if (convoDomain != ZINFRA) {
                 put("conversationDomain", convoDomain)
             }
-            put("data", android.util.Base64.encodeToString(imageBytes, android.util.Base64.DEFAULT))
+            put("data", Base64.encodeToString(imageBytes, Base64.DEFAULT))
             put("width", bitmap.width)
             put("height", bitmap.height)
             if (timeout.toMillis() > 0) {
@@ -665,57 +592,44 @@ class TestService(private val baseUri: String, private val testName: String) {
     }
 
     private fun fileToBase64String(srcFile: File): String {
-        if (!srcFile.exists()) {
-            throw IllegalArgumentException(
-                "The file at path '${srcFile.absolutePath}' is not accessible or does not exist"
-            )
+        require(srcFile.exists()) {
+            "The file at path '${srcFile.absolutePath}' is not accessible or does not exist"
         }
         val inputStream = FileInputStream(srcFile)
         val bytes = inputStream.readBytes()
         inputStream.close()
-        return android.util.Base64.encodeToString(bytes, android.util.Base64.DEFAULT)
+        return Base64.encodeToString(bytes, Base64.DEFAULT)
     }
 
     @Suppress("TooGenericExceptionCaught, LongParameterList", "NestedBlockDepth")
     fun sendLinkPreview(
-        owner: ClientUser,
-        deviceName: String?,
-        convoId: String,
-        convoDomain: String,
-        messageTimer: Duration,
-        text: String,
-        summary: String,
-        title: String,
-        url: String,
-        urlOffset: Int,
-        permUrl: String,
-        imagePath: String?
+        params: SendTextWithLinkParams
     ) {
-        val instanceId = getInstanceId(owner, deviceName)
+        val instanceId = getInstanceId(params.owner, params.deviceName)
         val connection = buildRequest("api/v1/instance/$instanceId/sendText", "POST")
 
         val requestBody = JSONObject().apply {
-            put("conversationId", convoId)
+            put("conversationId", params.convoId)
 
-            if (convoDomain != "staging.zinfra.io") {
-                put("conversationDomain", convoDomain)
+            if (params.convoDomain != ZINFRA) {
+                put("conversationDomain", params.convoDomain)
             }
 
-            put("text", text)
+            put("text", params.text)
 
-            if (messageTimer.toMillis() > 0) {
-                put("messageTimer", messageTimer.toMillis())
+            if (params.messageTimer.toMillis() > 0) {
+                put("messageTimer", params.messageTimer.toMillis())
             }
 
             val linkPreview = JSONObject().apply {
-                imagePath?.let {
+                params.imagePath?.let {
                     val imageFile = File(it)
                     if (imageFile.exists()) {
                         val imageBytes = imageFile.readBytes()
                         val bitmap = BitmapFactory.decodeFile(it)
 
                         val requestImage = JSONObject().apply {
-                            put("data", android.util.Base64.encodeToString(imageBytes, android.util.Base64.NO_WRAP))
+                            put("data", Base64.encodeToString(imageBytes, Base64.NO_WRAP))
                             put("width", bitmap?.width ?: 0)
                             put("height", bitmap?.height ?: 0)
                             put("type", "image/${it.substringAfterLast('.', "png")}")
@@ -725,11 +639,11 @@ class TestService(private val baseUri: String, private val testName: String) {
                     }
                 }
 
-                put("summary", summary)
-                put("title", title)
-                put("url", url)
-                put("urlOffset", urlOffset)
-                put("permanentUrl", permUrl)
+                put("summary", params.summary)
+                put("title", params.title)
+                put("url", params.url)
+                put("urlOffset", params.urlOffset)
+                put("permanentUrl", params.permUrl)
             }
 
             put("linkPreview", linkPreview)
@@ -739,39 +653,26 @@ class TestService(private val baseUri: String, private val testName: String) {
     }
 
     fun sendTextWithMentions(
-        owner: ClientUser,
-        deviceName: String?,
-        convoId: String,
-        convoDomain: String,
-        messageTimer: Duration,
-        text: String,
-        listOfMentions: List<Mentions>
-    ) = sendTextWithMentionsBase(owner, deviceName, convoId, convoDomain, messageTimer, text, listOfMentions, null)
+        params: SendTextParams
+    ) = sendTextWithMentionsBase(params)
 
     fun sendCompositeTextWithMentions(
-        owner: ClientUser,
-        deviceName: String?,
-        convoId: String,
-        convoDomain: String,
-        messageTimer: Duration,
-        text: String,
-        listOfMentions: List<Mentions>,
-        buttons: JSONArray
-    ) = sendTextWithMentionsBase(owner, deviceName, convoId, convoDomain, messageTimer, text, listOfMentions, buttons)
+        params: SendTextParams
+    ) = sendTextWithMentionsBase(params)
 
     private fun sendTextWithMentionsBase(
-        owner: ClientUser,
-        deviceName: String?,
-        convoId: String,
-        convoDomain: String,
-        messageTimer: Duration,
-        text: String,
-        listOfMentions: List<Mentions>,
-        buttons: JSONArray?
+        params: SendTextParams
     ) {
-        val instanceId = getInstanceId(owner, deviceName)
+        val instanceId = getInstanceId(params.owner, params.deviceName)
         val connection = buildRequest("api/v1/instance/$instanceId/sendText", "POST")
-        val requestBody = buildRequestBody(convoId, convoDomain, text, buttons, messageTimer, listOfMentions)
+        val requestBody = buildRequestBody(
+            params.convoId,
+            params.convoDomain,
+            params.text,
+            params.buttons,
+            params.messageTimer,
+            params.listOfMentions
+        )
         sendHttpRequest(connection, requestBody)
     }
 
@@ -794,7 +695,7 @@ class TestService(private val baseUri: String, private val testName: String) {
     }
 
     private fun JSONObject.addConversationDomainIfNotStaging(convoDomain: String) {
-        if (convoDomain != "staging.zinfra.io") {
+        if (convoDomain != ZINFRA) {
             put("conversationDomain", convoDomain)
         }
     }
@@ -822,38 +723,32 @@ class TestService(private val baseUri: String, private val testName: String) {
             put("length", mention.length)
             put("start", mention.start)
             put("userId", mention.userId)
-            if (convoDomain != "staging.zinfra.io") {
+            if (convoDomain != ZINFRA) {
                 put("userDomain", mention.userDomain)
             }
         }
     }
 
     fun sendReply(
-        owner: ClientUser,
-        deviceName: String?,
-        convoId: String,
-        convoDomain: String,
-        messageTimer: Duration,
-        text: String,
-        messageId: String,
+        params: SendTextParams,
         hash: String
     ) {
-        val instanceId = getInstanceId(owner, deviceName)
+        val instanceId = getInstanceId(params.owner, params.deviceName)
         val connection = buildRequest("api/v1/instance/$instanceId/sendText", "POST")
         val requestBody = JSONObject().apply {
             put(
                 "conversationId",
-                convoId
+                params.convoId
             )
-            if (convoDomain != "staging.zinfra.io") {
-                put("conversationDomain", convoDomain)
+            if (params.convoDomain != ZINFRA) {
+                put("conversationDomain", params.convoDomain)
             }
-            put("text", text)
-            if (messageTimer.toMillis() > 0) {
-                put("messageTimer", messageTimer.toMillis())
+            put("text", params.text)
+            if (params.messageTimer.toMillis() > 0) {
+                put("messageTimer", params.messageTimer.toMillis())
             }
             val quote = JSONObject().apply {
-                put("quotedMessageId", messageId)
+                put("quotedMessageId", params.messageId)
                 put("quotedMessageSha256", hash)
             }
             put("quote", quote)
@@ -862,30 +757,22 @@ class TestService(private val baseUri: String, private val testName: String) {
     }
 
     fun sendLocation(
-        owner: ClientUser,
-        deviceName: String?,
-        convoId: String,
-        convoDomain: String,
-        timeout: Duration,
-        longitude: Float,
-        latitude: Float,
-        locationName: String,
-        zoom: Int
+        params: SendLocationParams
     ) {
-        val instanceId = getInstanceId(owner, deviceName)
+        val instanceId = getInstanceId(params.owner, params.deviceName)
         val connection = buildRequest("api/v1/instance/$instanceId/sendLocation", "POST")
         val requestBody = JSONObject().apply {
-            put("conversationId", convoId)
-            if (convoDomain != "staging.zinfra.io") {
-                put("conversationDomain", convoDomain)
+            put("conversationId", params.convoId)
+            if (params.convoDomain != ZINFRA) {
+                put("conversationDomain", params.convoDomain)
             }
-            put("latitude", latitude)
-            put("locationName", locationName)
-            put("longitude", longitude)
-            if (timeout.toMillis() > 0) {
-                put("messageTimer", timeout.toMillis())
+            put("latitude", params.latitude)
+            put("locationName", params.locationName)
+            put("longitude", params.longitude)
+            if (params.timeout.toMillis() > 0) {
+                put("messageTimer", params.timeout.toMillis())
             }
-            put("zoom", zoom)
+            put("zoom", params.zoom)
         }
         sendHttpRequest(connection, requestBody)
     }
@@ -901,7 +788,7 @@ class TestService(private val baseUri: String, private val testName: String) {
         val connection = buildRequest("api/v1/instance/$instanceId/sendPing", "POST")
         val requestBody = JSONObject().apply {
             put("conversationId", convoId)
-            if (convoDomain != "staging.zinfra.io") {
+            if (convoDomain != ZINFRA) {
                 put("conversationDomain", convoDomain)
             }
             if (timeout.toMillis() > 0L) {
@@ -938,7 +825,7 @@ class TestService(private val baseUri: String, private val testName: String) {
         val connection = buildRequest("api/v1/instance/$instanceId/getMessages", "POST")
         val requestBody = JSONObject().apply {
             put("conversationId", convoId)
-            if (convoDomain != "staging.zinfra.io") {
+            if (convoDomain != ZINFRA) {
                 put("conversationDomain", convoDomain)
             }
         }
@@ -957,7 +844,7 @@ class TestService(private val baseUri: String, private val testName: String) {
         val connection = buildRequest("api/v1/instance/$instanceId/getMessageReadReceipts", "POST")
         val requestBody = JSONObject().apply {
             put("conversationId", convoId)
-            if (convoDomain != "staging.zinfra.io") {
+            if (convoDomain != ZINFRA) {
                 put("conversationDomain", convoDomain)
             }
             put("messageId", messageId)
@@ -1027,7 +914,7 @@ class TestService(private val baseUri: String, private val testName: String) {
         val connection = buildRequest("api/v1/instance/$instanceId/sendConfirmationDelivered", "POST")
         val requestBody = JSONObject().apply {
             put("conversationId", convoId)
-            if (convoDomain != "staging.zinfra.io") {
+            if (convoDomain != ZINFRA) {
                 put("conversationDomain", convoDomain)
             }
             put("firstMessageId", messageId)
@@ -1046,7 +933,7 @@ class TestService(private val baseUri: String, private val testName: String) {
         val connection = buildRequest("api/v1/instance/$instanceId/sendConfirmationRead", "POST")
         val requestBody = JSONObject().apply {
             put("conversationId", convoId)
-            if (convoDomain != "staging.zinfra.io") {
+            if (convoDomain != ZINFRA) {
                 put("conversationDomain", convoDomain)
             }
             put("firstMessageId", messageId)
@@ -1104,7 +991,7 @@ class TestService(private val baseUri: String, private val testName: String) {
         val connection = buildRequest("api/v1/instance/$instanceId/sendReaction", "POST")
         val requestBody = JSONObject().apply {
             put("conversationId", convoId)
-            if (convoDomain != "staging.zinfra.io") {
+            if (convoDomain != ZINFRA) {
                 put("conversationDomain", convoDomain)
             }
             put("originalMessageId", originalMessageId)
@@ -1124,7 +1011,7 @@ class TestService(private val baseUri: String, private val testName: String) {
         val connection = buildRequest("api/v1/instance/$instanceId/sendEphemeralConfirmationDelivered", "POST")
         val requestBody = JSONObject().apply {
             put("conversationId", convoId)
-            if (convoDomain != "staging.zinfra.io") {
+            if (convoDomain != ZINFRA) {
                 put("conversationDomain", convoDomain)
             }
             put("firstMessageId", messageId)
@@ -1143,7 +1030,7 @@ class TestService(private val baseUri: String, private val testName: String) {
         val connection = buildRequest("api/v1/instance/$instanceId/breakSession", "POST")
         val requestBody = JSONObject().apply {
             put("userId", user.id)
-            if (userDomain != "staging.zinfra.io") {
+            if (userDomain != ZINFRA) {
                 put("userDomain", userDomain)
             }
             put("clientId", deviceId)
@@ -1249,8 +1136,7 @@ class TestService(private val baseUri: String, private val testName: String) {
         }
 
         val instanceId = userAliases
-            .computeIfAbsent(user.name.orEmpty()) { ConcurrentHashMap() }
-            .get(finalDeviceName)
+            .computeIfAbsent(user.name.orEmpty()) { ConcurrentHashMap() }[finalDeviceName]
 
         if (instanceId == null) {
             throw RuntimeException(
@@ -1258,15 +1144,6 @@ class TestService(private val baseUri: String, private val testName: String) {
                         "Maybe you forgot to add the step to explicitly add this device?"
             )
         }
-
         return instanceId
-    }
-
-    private fun printAll() {
-        userAliases.forEach { (userAlias, devices) ->
-            devices.forEach { (deviceName, instanceId) ->
-                log.info("$userAlias: $deviceName -> $instanceId")
-            }
-        }
     }
 }

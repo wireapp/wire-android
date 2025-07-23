@@ -26,7 +26,7 @@ import user.utils.ClientUser
 class TestServiceHelper {
 
     val usersManager by lazy {
-        ClientUserManager.getInstance()!!
+        ClientUserManager.getInstance()
     }
 
     fun userHasGroupConversationInTeam(

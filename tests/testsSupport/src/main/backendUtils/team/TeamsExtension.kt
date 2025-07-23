@@ -15,10 +15,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-@file:Suppress("TooManyFunctions")
+@file:Suppress("TooManyFunctions", "LongParameterList", "MagicNumber", "PackageNaming")
+
 package backendUtils.team
-
-
 import ImageUtil
 import InbucketClient.getInbucketVerificationCode
 import android.content.Context
@@ -85,7 +84,7 @@ private suspend fun BackendClient.registerUser(
     return user
 }
 
-private  fun BackendClient.sendTeamRequest(
+private fun BackendClient.sendTeamRequest(
     route: String,
     method: String,
     user: ClientUser? = null,
@@ -95,9 +94,10 @@ private  fun BackendClient.sendTeamRequest(
     val headers = defaultheaders.toMutableMap().apply {
         putAll(additionalHeaders)
         user?.let {
-            runBlocking {  getAuthToken(it)?.let { token ->
-                put("Authorization", "Bearer ${token.value}")
-            }
+            runBlocking {
+                getAuthToken(it)?.let { token ->
+                    put("Authorization", "Bearer ${token.value}")
+                }
             }
         }
     }
@@ -172,8 +172,6 @@ suspend fun BackendClient.createTeamOwnerViaBackend(
     )
     return registerUser(user, registrationBody, updatePicture = true, updateHandle = updateHandle, context = context)
 }
-
-
 
 fun getImageInputStream(context: Context) = context.resources.openRawResource(R.drawable.default_team_avatar)
 
@@ -294,7 +292,6 @@ private suspend fun BackendClient.updateUserPicture(user: ClientUser, image: Bit
     val token = getAuthToken(user)
     val square = ImageUtil.cropToSquare(image)
     val preview = ImageUtil.scaleTo(square, 200, 200)
-
     val previewKey = uploadImageAsset(token, ImageUtil.asByteArray(preview))
     val completeKey = uploadImageAsset(token, ImageUtil.asByteArray(image))
 
@@ -353,7 +350,7 @@ private fun BackendClient.updateSelfAssets(token: AccessToken?, assets: Set<Asse
 @Suppress("MagicNumber")
 private suspend fun BackendClient.updateUniqueUsername(user: ClientUser, newUniqueUsername: String) {
     var username = newUniqueUsername
-    val tryAvoidDuplicates = username.equals(user.uniqueUsername, true)
+    val tryAvoidDuplicates = username == user.uniqueUsername
     var ntry = 0
     while (true) {
         try {
@@ -391,10 +388,12 @@ private suspend fun BackendClient.getAuthCredentials(user: ClientUser): AccessCr
         credentials == null -> login(user).also {
             user.accessCredentials = it
         }
+
         credentials.accessToken == null || credentials.accessToken.isInvalid() || credentials.accessToken.isExpired() ->
             access(credentials).also {
                 user.accessCredentials = it
             }
+
         else -> credentials
     }
 }
@@ -433,6 +432,7 @@ private suspend fun BackendClient.login(user: ClientUser): AccessCredentials {
             )
             connection2fa.accessCredentials(connection2fa.response())
         }
+
         else -> connection.accessCredentials(connection.response())
     }
 }
@@ -455,10 +455,12 @@ fun ClientUser.deleteTeamMember(
         route = "teams/$teamId/members/$userIdOfMemberToDelete",
         method = "DELETE",
         body = jsonOf("password" to password).toString(),
-        expectedResponseCodes = NumberSequence.Array(intArrayOf(
-            HttpURLConnection.HTTP_OK,
-            HttpURLConnection.HTTP_ACCEPTED
-        ))
+        expectedResponseCodes = NumberSequence.Array(
+            intArrayOf(
+                HttpURLConnection.HTTP_OK,
+                HttpURLConnection.HTTP_ACCEPTED
+            )
+        )
     )
 }
 
@@ -469,11 +471,10 @@ fun ClientUser.suspendTeam(backend: BackendClient) {
         route = "i/teams/$encodedTeamId/suspend",
         method = "POST",
         body = "",
-        additionalHeaders = mapOf("Content-Type" to "application/json"),
+        additionalHeaders = mapOf(BackendClient.contentType to BackendClient.applicationJson),
         expectedResponseCodes = NumberSequence.Array(intArrayOf(HttpURLConnection.HTTP_OK))
     )
 }
-
 
 private fun BackendClient.access(credentials: AccessCredentials): AccessCredentials {
     val connection = NetworkBackendClient.makeRequest(
@@ -486,7 +487,7 @@ private fun BackendClient.access(credentials: AccessCredentials): AccessCredenti
             cookie = credentials.accessCookie
         ),
     )
-    return  connection.accessCredentials(connection.response())
+    return connection.accessCredentials(connection.response())
 }
 
 @Suppress("TooGenericExceptionCaught", "MagicNumber")
@@ -514,8 +515,8 @@ enum class TeamRoutes(val route: String) {
 }
 
 val defaultheaders = mapOf(
-    "Accept" to "application/json",
-    "Content-Type" to "application/json"
+    "Accept" to BackendClient.applicationJson,
+    BackendClient.contentType to BackendClient.applicationJson
 )
 
 enum class TeamRoles(val role: String) {

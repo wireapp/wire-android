@@ -210,7 +210,7 @@ class NewConversationViewModel @Inject constructor(
                 userIdList = newGroupState.selectedUsers.map { UserId(it.id, it.domain) },
                 options = ConversationOptions().copy(
                     protocol = newGroupState.groupProtocol,
-                    readReceiptsEnabled = groupOptionsState.isReadReceiptEnabled,
+                    readReceiptsEnabled = if (newGroupState.groupProtocol == ConversationOptions.Protocol.MLS) false else groupOptionsState.isReadReceiptEnabled,
                     accessRole = Conversation.accessRolesFor(
                         guestAllowed = groupOptionsState.isAllowGuestEnabled,
                         servicesAllowed = groupOptionsState.isAllowServicesEnabled,

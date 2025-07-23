@@ -27,9 +27,14 @@ import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.ui.home.conversations.messagedetails.usecase.ObserveReactionsForMessageUseCase
 import com.wire.android.ui.home.conversations.messagedetails.usecase.ObserveReceiptsForMessageUseCase
 import com.wire.android.ui.navArgs
+import com.wire.kalium.logic.data.conversation.Conversation
+import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.receipt.ReceiptType
+import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -37,7 +42,8 @@ import javax.inject.Inject
 class MessageDetailsViewModel @Inject constructor(
     override val savedStateHandle: SavedStateHandle,
     private val observeReactionsForMessage: ObserveReactionsForMessageUseCase,
-    private val observeReceiptsForMessage: ObserveReceiptsForMessageUseCase
+    private val observeReceiptsForMessage: ObserveReceiptsForMessageUseCase,
+    private val observeConversationDetails: ObserveConversationDetailsUseCase
 ) : SavedStateViewModel(savedStateHandle) {
 
     private val messageDetailsNavArgs: MessageDetailsNavArgs = savedStateHandle.navArgs()
@@ -53,6 +59,24 @@ class MessageDetailsViewModel @Inject constructor(
                 isSelfMessage = isSelfMessage
             )
         }
+        
+        // Observe conversation details to check if it's MLS
+        viewModelScope.launch {
+            observeConversationDetails(conversationId)
+                .filterIsInstance<ObserveConversationDetailsUseCase.Result.Success>()
+                .map { it.conversationDetails }
+                .collect { conversationDetails ->
+                    val protocolInfo = when (conversationDetails) {
+                        is ConversationDetails.Group -> conversationDetails.conversation.protocol
+                        is ConversationDetails.OneOne -> conversationDetails.conversation.protocol
+                        else -> Conversation.ProtocolInfo.Proteus
+                    }
+                    messageDetailsState = messageDetailsState.copy(
+                        protocolInfo = protocolInfo
+                    )
+                }
+        }
+        
         viewModelScope.launch {
             observeReactionsForMessage(
                 conversationId = conversationId,

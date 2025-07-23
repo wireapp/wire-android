@@ -64,6 +64,7 @@ import com.wire.android.ui.home.newconversation.common.NewConversationNavGraph
 import com.wire.android.ui.home.settings.SwitchState
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
+import com.wire.kalium.logic.data.conversation.ConversationOptions
 import com.wire.kalium.logic.data.id.ConversationId
 
 @NewConversationNavGraph
@@ -79,6 +80,7 @@ fun GroupOptionScreen(
     GroupOptionScreenContent(
         groupOptionState = newConversationViewModel.groupOptionsState,
         createGroupState = newConversationViewModel.createGroupState,
+        isMlsGroup = newConversationViewModel.newGroupState.groupProtocol == ConversationOptions.Protocol.MLS,
         onAllowGuestChanged = newConversationViewModel::onAllowGuestStatusChanged,
         onAllowServicesChanged = newConversationViewModel::onAllowServicesStatusChanged,
         onReadReceiptChanged = newConversationViewModel::onReadReceiptStatusChanged,
@@ -103,6 +105,7 @@ fun GroupOptionScreen(
 fun GroupOptionScreenContent(
     groupOptionState: GroupOptionState,
     createGroupState: CreateGroupState,
+    isMlsGroup: Boolean,
     onAllowGuestChanged: ((Boolean) -> Unit),
     onAllowServicesChanged: ((Boolean) -> Unit),
     onReadReceiptChanged: ((Boolean) -> Unit),
@@ -127,6 +130,7 @@ fun GroupOptionScreenContent(
         }) { internalPadding ->
             GroupOptionsScreenMainContent(
                 internalPadding,
+                isMlsGroup,
                 onAllowGuestChanged,
                 onAllowServicesChanged,
                 onReadReceiptChanged,
@@ -146,6 +150,7 @@ fun GroupOptionScreenContent(
 @Composable
 private fun GroupOptionState.GroupOptionsScreenMainContent(
     internalPadding: PaddingValues,
+    isMlsGroup: Boolean,
     onAllowGuestChanged: (Boolean) -> Unit,
     onAllowServicesChanged: (Boolean) -> Unit,
     onReadReceiptChanged: (Boolean) -> Unit,
@@ -161,7 +166,9 @@ private fun GroupOptionState.GroupOptionsScreenMainContent(
         Column() {
             AllowGuestsOptions(onAllowGuestChanged)
             AllowServicesOptions(onAllowServicesChanged)
-            ReadReceiptsOptions(onReadReceiptChanged)
+            if (!isMlsGroup) {
+                ReadReceiptsOptions(onReadReceiptChanged)
+            }
         }
         ContinueButton(onContinuePressed)
     }
@@ -288,6 +295,7 @@ fun PreviewGroupOptionScreen() {
     GroupOptionScreenContent(
         GroupOptionState(),
         CreateGroupState(),
+        false,
         {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
     )
 }

@@ -47,12 +47,9 @@ import java.security.SecureRandom
 class OAuthUseCase(
     context: Context,
     private val authUrl: String,
-    private val claims: JsonObject,
-    oAuthState: String?
+    private val claims: JsonObject
 ) {
-    private var authState: AuthState = oAuthState?.let {
-        AuthState.jsonDeserialize(it)
-    } ?: AuthState()
+    private var authState: AuthState = AuthState()
 
     private var authorizationService: AuthorizationService
     private lateinit var authServiceConfig: AuthorizationServiceConfiguration

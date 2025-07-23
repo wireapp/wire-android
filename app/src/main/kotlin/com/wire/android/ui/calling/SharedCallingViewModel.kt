@@ -25,6 +25,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.mapper.UICallParticipantMapper
 import com.wire.android.mapper.UserTypeMapper
@@ -318,21 +319,25 @@ class SharedCallingViewModel @AssistedInject constructor(
     private suspend fun observeInCallReactions() {
         observeInCallReactionsUseCase(conversationId).collect { message ->
 
-            val sender = participantsState.senderName(message.senderUserId)?.let { name ->
-                ReactionSender.Other(name)
-            } ?: ReactionSender.Unknown
+            if (BuildConfig.IN_CALL_REACTIONS_ENABLED) {
+                val sender = participantsState.senderName(message.senderUserId)?.let { name ->
+                    ReactionSender.Other(name)
+                } ?: ReactionSender.Unknown
 
-            message.emojis.forEach { emoji ->
-                _inCallReactions.send(InCallReaction(emoji, sender))
-            }
+                message.emojis.forEach { emoji ->
+                    _inCallReactions.send(InCallReaction(emoji, sender))
+                }
 
-            if (message.emojis.isNotEmpty()) {
-                recentReactions.put(message.senderUserId, message.emojis.last())
+                if (message.emojis.isNotEmpty()) {
+                    recentReactions.put(message.senderUserId, message.emojis.last())
+                }
             }
         }
     }
 
     fun onReactionClick(emoji: String) {
+        if (!BuildConfig.IN_CALL_REACTIONS_ENABLED) return
+        
         viewModelScope.launch {
             sendInCallReactionUseCase(conversationId, emoji).onSuccess {
                 _inCallReactions.send(InCallReaction(emoji, ReactionSender.You))

@@ -25,14 +25,20 @@ jobs:
       build-config: |
         [
           {
-            "flavor": "Dev",
-            "variant": "Debug",
-            "keystore-type": "debug",
-            "build-type": "apk",
+            "flavor": "Internal",
+            "variant": "Compat",
+            "keystore-type": "internal",
+            "build-type": "both",
             "generate-version-file": false,
             "deployment-targets": [
               {
                 "type": "s3"
+              },
+              {
+                "type": "google-play",
+                "package-name": "com.wire.internal",
+                "track": "production",
+                "status": "completed"
               }
             ]
           }

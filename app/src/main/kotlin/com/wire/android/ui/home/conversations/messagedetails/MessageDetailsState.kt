@@ -20,9 +20,11 @@ package com.wire.android.ui.home.conversations.messagedetails
 
 import com.wire.android.ui.home.conversations.messagedetails.model.MessageDetailsReactionsData
 import com.wire.android.ui.home.conversations.messagedetails.model.MessageDetailsReadReceiptsData
+import com.wire.kalium.logic.data.conversation.Conversation
 
 data class MessageDetailsState(
     val isSelfMessage: Boolean = false,
     val reactionsData: MessageDetailsReactionsData = MessageDetailsReactionsData(),
-    val readReceiptsData: MessageDetailsReadReceiptsData = MessageDetailsReadReceiptsData()
+    val readReceiptsData: MessageDetailsReadReceiptsData = MessageDetailsReadReceiptsData(),
+    val protocolInfo: Conversation.ProtocolInfo? = null
 )

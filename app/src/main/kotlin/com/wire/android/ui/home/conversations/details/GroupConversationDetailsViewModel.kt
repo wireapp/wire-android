@@ -141,12 +141,20 @@ class GroupConversationDetailsViewModel @Inject constructor(
                         areAccessOptionsAvailable = groupDetails.conversation.isTeamGroup(),
                         isGuestAllowed = groupDetails.conversation.isGuestAllowed() || groupDetails.conversation.isNonTeamMemberAllowed(),
                         isServicesAllowed = groupDetails.conversation.isServicesAllowed() && !isMLSTeam && !isMLSConversation,
+<<<<<<< HEAD
                         isUpdatingNameAllowed = canSelfPerformAdminTasks && !isSelfExternalMember,
                         isUpdatingGuestAllowed = canSelfPerformAdminTasks && isSelfInTeamThatOwnsConversation,
                         isUpdatingChannelAccessAllowed = canSelfPerformAdminTasks && isSelfInTeamThatOwnsConversation,
                         isUpdatingServicesAllowed = canSelfPerformAdminTasks && !isMLSTeam && !isMLSConversation,
                         isUpdatingReadReceiptAllowed = canSelfPerformAdminTasks && groupDetails.conversation.isTeamGroup(),
                         isUpdatingSelfDeletingAllowed = canSelfPerformAdminTasks,
+=======
+                        isUpdatingNameAllowed = isSelfAnAdmin && !isSelfExternalMember,
+                        isUpdatingGuestAllowed = isSelfAnAdmin && isSelfInOwnerTeam,
+                        isUpdatingServicesAllowed = isSelfAnAdmin && !isMLSTeam && !isMLSConversation,
+                        isUpdatingReadReceiptAllowed = isSelfAnAdmin && groupDetails.conversation.isTeamGroup() && !isMLSConversation,
+                        isUpdatingSelfDeletingAllowed = isSelfAnAdmin,
+>>>>>>> ce005cb54 (feat: disable read recipt for mls [WPB-18896] (#4139))
                         mlsEnabled = isMLSEnabled(),
                         isReadReceiptAllowed = groupDetails.conversation.receiptMode == Conversation.ReceiptMode.ENABLED,
                         selfDeletionTimer = selfDeletionTimer,
@@ -210,6 +218,11 @@ class GroupConversationDetailsViewModel @Inject constructor(
 
     fun onReadReceiptUpdate(enableReadReceipt: Boolean) {
         appLogger.i("[$TAG][onReadReceiptUpdate] - enableReadReceipt: $enableReadReceipt")
+        // Do not allow read receipt updates for MLS conversations
+        if (groupOptionsState.value.protocolInfo is Conversation.ProtocolInfo.MLS) {
+            appLogger.i("[$TAG][onReadReceiptUpdate] - Ignoring update for MLS conversation")
+            return
+        }
         updateState(groupOptionsState.value.copy(loadingReadReceiptOption = true, isReadReceiptAllowed = enableReadReceipt))
         updateReadReceiptRemoteRequest(enableReadReceipt)
     }

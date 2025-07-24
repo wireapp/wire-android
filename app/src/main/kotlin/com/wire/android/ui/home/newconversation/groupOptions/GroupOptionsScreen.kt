@@ -68,8 +68,12 @@ import com.wire.android.ui.home.settings.SwitchState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
+<<<<<<< HEAD
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.conversation.CreateConversationParam
+=======
+import com.wire.kalium.logic.data.conversation.ConversationOptions
+>>>>>>> ce005cb54 (feat: disable read recipt for mls [WPB-18896] (#4139))
 import com.wire.kalium.logic.data.id.ConversationId
 
 @NewConversationNavGraph
@@ -91,6 +95,7 @@ fun GroupOptionScreen(
     GroupOptionScreenContent(
         groupOptionState = newConversationViewModel.groupOptionsState,
         createGroupState = newConversationViewModel.createGroupState,
+<<<<<<< HEAD
         groupMetadataState = newConversationViewModel.newGroupState,
         onAccessClicked = {
             navigator.navigate(NavigationCommand(ChannelAccessOnCreateScreenDestination))
@@ -98,6 +103,9 @@ fun GroupOptionScreen(
         onHistoryClicked = {
             navigator.navigate(NavigationCommand(ChannelHistoryScreenDestination))
         },
+=======
+        isMlsGroup = newConversationViewModel.newGroupState.groupProtocol == ConversationOptions.Protocol.MLS,
+>>>>>>> ce005cb54 (feat: disable read recipt for mls [WPB-18896] (#4139))
         onAllowGuestChanged = newConversationViewModel::onAllowGuestStatusChanged,
         onAllowServicesChanged = newConversationViewModel::onAllowServicesStatusChanged,
         onReadReceiptChanged = newConversationViewModel::onReadReceiptStatusChanged,
@@ -128,9 +136,13 @@ fun GroupOptionScreen(
 private fun GroupOptionScreenContent(
     groupOptionState: GroupOptionState,
     createGroupState: CreateGroupState,
+<<<<<<< HEAD
     groupMetadataState: GroupMetadataState,
     onAccessClicked: () -> Unit,
     onHistoryClicked: () -> Unit,
+=======
+    isMlsGroup: Boolean,
+>>>>>>> ce005cb54 (feat: disable read recipt for mls [WPB-18896] (#4139))
     onAllowGuestChanged: ((Boolean) -> Unit),
     onAllowServicesChanged: ((Boolean) -> Unit),
     onReadReceiptChanged: ((Boolean) -> Unit),
@@ -167,6 +179,7 @@ private fun GroupOptionScreenContent(
             )
         }) { internalPadding ->
             GroupOptionsScreenMainContent(
+<<<<<<< HEAD
                 groupMetadataState = groupMetadataState,
                 channelsHistoryOptionsEnabled = channelsHistoryOptionsEnabled,
                 mlsReadReceiptsEnabled = mlsReadReceiptsEnabled,
@@ -181,6 +194,14 @@ private fun GroupOptionScreenContent(
                     .fillMaxSize()
                     .padding(internalPadding)
                     .background(MaterialTheme.colorScheme.background)
+=======
+                internalPadding,
+                isMlsGroup,
+                onAllowGuestChanged,
+                onAllowServicesChanged,
+                onReadReceiptChanged,
+                onContinuePressed
+>>>>>>> ce005cb54 (feat: disable read recipt for mls [WPB-18896] (#4139))
             )
         }
 
@@ -195,11 +216,16 @@ private fun GroupOptionScreenContent(
 
 @Composable
 private fun GroupOptionState.GroupOptionsScreenMainContent(
+<<<<<<< HEAD
     groupMetadataState: GroupMetadataState,
     channelsHistoryOptionsEnabled: Boolean,
     mlsReadReceiptsEnabled: Boolean,
     onAccessClicked: () -> Unit,
     onHistoryClicked: () -> Unit,
+=======
+    internalPadding: PaddingValues,
+    isMlsGroup: Boolean,
+>>>>>>> ce005cb54 (feat: disable read recipt for mls [WPB-18896] (#4139))
     onAllowGuestChanged: (Boolean) -> Unit,
     onAllowServicesChanged: (Boolean) -> Unit,
     onReadReceiptChanged: (Boolean) -> Unit,
@@ -211,6 +237,7 @@ private fun GroupOptionState.GroupOptionsScreenMainContent(
         modifier = modifier,
         verticalArrangement = Arrangement.SpaceBetween
     ) {
+<<<<<<< HEAD
         Column {
             if (groupMetadataState.isChannel) {
                 AccessOptions(groupMetadataState.channelAccessType, onAccessClicked)
@@ -225,6 +252,13 @@ private fun GroupOptionState.GroupOptionsScreenMainContent(
             }
             isWireCellsEnabled?.let {
                 EnableWireCellOptions(onEnableWireCellChanged)
+=======
+        Column() {
+            AllowGuestsOptions(onAllowGuestChanged)
+            AllowServicesOptions(onAllowServicesChanged)
+            if (!isMlsGroup) {
+                ReadReceiptsOptions(onReadReceiptChanged)
+>>>>>>> ce005cb54 (feat: disable read recipt for mls [WPB-18896] (#4139))
             }
         }
         CreateGroupButton(groupMetadataState.isChannel, onContinuePressed)
@@ -421,6 +455,7 @@ private fun PreviewGroupOptionScreen(
     mlsReadReceiptsEnabled: Boolean = BuildConfig.MLS_READ_RECEIPTS_ENABLED,
 ) = WireTheme {
     GroupOptionScreenContent(
+<<<<<<< HEAD
         groupOptionState = GroupOptionState(),
         createGroupState = CreateGroupState.Default,
         groupMetadataState = groupMetadataState,
@@ -440,6 +475,12 @@ private fun PreviewGroupOptionScreen(
         onBackPressed = {},
         channelsHistoryOptionsEnabled = channelsHistoryOptionsEnabled,
         mlsReadReceiptsEnabled = mlsReadReceiptsEnabled,
+=======
+        GroupOptionState(),
+        CreateGroupState(),
+        false,
+        {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
+>>>>>>> ce005cb54 (feat: disable read recipt for mls [WPB-18896] (#4139))
     )
 }
 

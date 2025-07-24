@@ -123,6 +123,7 @@ fun GroupConversationSettings(
             )
         }
         if (state.areAccessOptionsAvailable) {
+<<<<<<< HEAD
             folderWithItems(
                 folderTitleResId = R.string.folder_label_access,
                 showFolder = !state.isChannel,
@@ -163,6 +164,71 @@ fun GroupConversationSettings(
                     }
                 }
             )
+=======
+            item { FolderHeader(name = stringResource(R.string.folder_label_access)) }
+
+            item {
+                GroupConversationOptionsItem(
+                    title = stringResource(id = R.string.conversation_options_guests_label),
+                    subtitle = stringResource(id = R.string.conversation_details_guest_description),
+                    switchState = SwitchState.TextOnly(value = state.isGuestAllowed),
+                    arrowType = if (state.isUpdatingGuestAllowed) ArrowType.TITLE_ALIGNED else ArrowType.NONE,
+                    clickable = Clickable(
+                        enabled = state.isUpdatingGuestAllowed,
+                        onClick = onGuestItemClicked,
+                        onClickDescription = stringResource(id = R.string.content_description_conversation_details_guests_action)
+                    ),
+                )
+            }
+
+            item { WireDivider(color = colorsScheme().divider) }
+
+            item {
+                ServicesOption(
+                    isSwitchEnabledAndVisible = state.isUpdatingServicesAllowed,
+                    switchState = state.isServicesAllowed,
+                    isLoading = state.loadingServicesOption,
+                    onCheckedChange = onServiceSwitchClicked
+                )
+            }
+        }
+        item { FolderHeader(name = stringResource(id = R.string.folder_label_messaging)) }
+
+        if (!state.selfDeletionTimer.isDisabled) {
+            item {
+                GroupConversationOptionsItem(
+                    title = stringResource(id = R.string.conversation_options_self_deleting_messages_label),
+                    subtitle = stringResource(id = R.string.conversation_options_self_deleting_messages_description),
+                    trailingOnText = if (state.selfDeletionTimer.isEnforced) {
+                        "(${state.selfDeletionTimer.duration.toSelfDeletionDuration().shortLabel.asString()})"
+                    } else {
+                        null
+                    },
+                    switchState = SwitchState.TextOnly(value = state.selfDeletionTimer.isEnforced),
+                    arrowType = if (state.isUpdatingSelfDeletingAllowed && !state.selfDeletionTimer.isEnforcedByTeam) {
+                        ArrowType.TITLE_ALIGNED
+                    } else {
+                        ArrowType.NONE
+                    },
+                    clickable = Clickable(
+                        enabled = state.isUpdatingSelfDeletingAllowed && !state.selfDeletionTimer.isEnforcedByTeam,
+                        onClick = onSelfDeletingClicked,
+                        onClickDescription = stringResource(id = R.string.content_description_conversation_details_self_deleting_action)
+                    )
+                )
+            }
+        }
+        item { WireDivider(color = colorsScheme().divider) }
+        if (state.protocolInfo !is Conversation.ProtocolInfo.MLS) {
+            item {
+                ReadReceiptOption(
+                    isSwitchEnabled = state.isUpdatingReadReceiptAllowed,
+                    switchState = state.isReadReceiptAllowed,
+                    isLoading = state.loadingReadReceiptOption,
+                    onCheckedChange = onReadReceiptSwitchClicked
+                )
+            }
+>>>>>>> ce005cb54 (feat: disable read recipt for mls [WPB-18896] (#4139))
         }
 
         folderWithItems(

@@ -59,7 +59,7 @@ class MessageDetailsViewModel @Inject constructor(
                 isSelfMessage = isSelfMessage
             )
         }
-        
+
         // Observe conversation details to check if it's MLS
         viewModelScope.launch {
             observeConversationDetails(conversationId)
@@ -76,7 +76,7 @@ class MessageDetailsViewModel @Inject constructor(
                     )
                 }
         }
-        
+
         viewModelScope.launch {
             observeReactionsForMessage(
                 conversationId = conversationId,

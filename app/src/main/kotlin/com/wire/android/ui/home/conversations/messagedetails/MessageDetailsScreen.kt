@@ -114,10 +114,10 @@ private fun MessageDetailsScreenContent(
         derivedStateOf {
             val reactions = MessageDetailsTabItem.Reactions(messageDetailsState.reactionsData.reactions.map { it.value.size }.sum())
             val readReceipts = MessageDetailsTabItem.ReadReceipts(messageDetailsState.readReceiptsData.readReceipts.size)
-            
+
             // Hide read receipts tab for MLS conversations
             val isMLSConversation = messageDetailsState.protocolInfo is Conversation.ProtocolInfo.MLS
-            
+
             if (messageDetailsState.isSelfMessage && !isMLSConversation) {
                 listOf(reactions, readReceipts)
             } else {

@@ -354,7 +354,10 @@ class SharedCallingViewModel @AssistedInject constructor(
 
     @AssistedFactory
     interface Factory {
-        fun create(conversationId: ConversationId, inCallReactionsEnabled: Boolean = BuildConfig.IN_CALL_REACTIONS_ENABLED): SharedCallingViewModel
+        fun create(
+            conversationId: ConversationId,
+            inCallReactionsEnabled: Boolean = BuildConfig.IN_CALL_REACTIONS_ENABLED
+        ): SharedCallingViewModel
     }
 }
 

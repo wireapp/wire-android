@@ -90,6 +90,7 @@ import kotlinx.coroutines.launch
 @HiltViewModel(assistedFactory = SharedCallingViewModel.Factory::class)
 class SharedCallingViewModel @AssistedInject constructor(
     @Assisted val conversationId: ConversationId,
+    @Assisted val inCallReactionsEnabled: Boolean,
     private val conversationDetails: ObserveConversationDetailsUseCase,
     private val observeEstablishedCallWithSortedParticipants: ObserveEstablishedCallWithSortedParticipantsUseCase,
     private val endCall: EndCallUseCase,
@@ -317,7 +318,7 @@ class SharedCallingViewModel @AssistedInject constructor(
     }
 
     private suspend fun observeInCallReactions() {
-        if (!BuildConfig.IN_CALL_REACTIONS_ENABLED) return
+        if (!inCallReactionsEnabled) return
 
         observeInCallReactionsUseCase(conversationId).collect { message ->
             val sender = participantsState.senderName(message.senderUserId)?.let { name ->
@@ -335,7 +336,7 @@ class SharedCallingViewModel @AssistedInject constructor(
     }
 
     fun onReactionClick(emoji: String) {
-        if (!BuildConfig.IN_CALL_REACTIONS_ENABLED) return
+        if (!inCallReactionsEnabled) return
 
         viewModelScope.launch {
             sendInCallReactionUseCase(conversationId, emoji).onSuccess {
@@ -353,7 +354,7 @@ class SharedCallingViewModel @AssistedInject constructor(
 
     @AssistedFactory
     interface Factory {
-        fun create(conversationId: ConversationId): SharedCallingViewModel
+        fun create(conversationId: ConversationId, inCallReactionsEnabled: Boolean = BuildConfig.IN_CALL_REACTIONS_ENABLED): SharedCallingViewModel
     }
 }
 

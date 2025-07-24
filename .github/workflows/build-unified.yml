@@ -56,7 +56,7 @@ jobs:
           rm -f ~/.gradle/caches/modules-2/gc.properties
 
   style:
-    runs-on: buildjet-2vcpu-ubuntu-2204
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -96,8 +96,6 @@ jobs:
     name: "Build ${{ matrix.flavor }}-${{ matrix.variant }}"
     needs: [lint, style, ui-tests, unit-tests]
     runs-on: ubuntu-latest
-    env:
-      GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx5g -XX:+UseParallelGC -XX:MaxMetaspaceSize=512m -XX:-UseGCOverheadLimit"'
     strategy:
       fail-fast: false  # Continue building other flavors even if one fails
       matrix:

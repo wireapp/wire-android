@@ -426,7 +426,7 @@ private fun OngoingCallContent(
                             .fillMaxSize()
                             .drawInCallReactions(
                                 state = inCallReactionsState,
-                                enabled = !inPictureInPictureMode,
+                                enabled = BuildConfig.IN_CALL_REACTIONS_ENABLED && !inPictureInPictureMode,
                             )
                     ) {
 
@@ -504,7 +504,7 @@ private fun OngoingCallContent(
                 }
             }
 
-            if (showInCallReactionsPanel && !inPictureInPictureMode) {
+            if (BuildConfig.IN_CALL_REACTIONS_ENABLED && showInCallReactionsPanel && !inPictureInPictureMode) {
                 InCallReactionsPanel(
                     onReactionClick = onReactionClick,
                     onMoreClick = { emojiPickerState.show(Unit) },
@@ -513,10 +513,20 @@ private fun OngoingCallContent(
             }
 
             EmojiPickerBottomSheet(
+<<<<<<< HEAD
                 sheetState = emojiPickerState,
                 onEmojiSelected = { emoji, _ ->
                     emojiPickerState.hide()
                     onReactionClick(emoji)
+=======
+                isVisible = BuildConfig.IN_CALL_REACTIONS_ENABLED && showEmojiPicker,
+                onEmojiSelected = {
+                    showEmojiPicker = false
+                    onReactionClick(it)
+                },
+                onDismiss = {
+                    showEmojiPicker = false
+>>>>>>> 0f12ced1a (feat: add compile time flag to enable/disable in call reactions [WPB-18894] (#4138))
                 },
             )
         }
@@ -616,11 +626,13 @@ private fun CallingControls(
                 onSpeakerButtonClicked = toggleSpeaker
             )
 
-            InCallReactionsButton(
-                isSelected = isShowingCallReactions,
-                isEnabled = !isConnecting,
-                onInCallReactionsClick = onCallReactionsClick
-            )
+            if (BuildConfig.IN_CALL_REACTIONS_ENABLED) {
+                InCallReactionsButton(
+                    isSelected = isShowingCallReactions,
+                    isEnabled = !isConnecting,
+                    onInCallReactionsClick = onCallReactionsClick
+                )
+            }
 
             HangUpOngoingButton(
                 onHangUpButtonClicked = onHangUpCall

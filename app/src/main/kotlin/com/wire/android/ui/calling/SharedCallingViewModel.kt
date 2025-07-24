@@ -24,6 +24,7 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
+import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.di.CurrentAccount
 import com.wire.android.mapper.UICallParticipantMapper
@@ -89,7 +90,11 @@ import kotlinx.coroutines.launch
 @HiltViewModel(assistedFactory = SharedCallingViewModel.Factory::class)
 class SharedCallingViewModel @AssistedInject constructor(
     @Assisted val conversationId: ConversationId,
+<<<<<<< HEAD
     @CurrentAccount private val selfUserId: UserId,
+=======
+    @Assisted val inCallReactionsEnabled: Boolean,
+>>>>>>> 0f12ced1a (feat: add compile time flag to enable/disable in call reactions [WPB-18894] (#4138))
     private val conversationDetails: ObserveConversationDetailsUseCase,
     private val observeEstablishedCallWithSortedParticipants: ObserveEstablishedCallWithSortedParticipantsUseCase,
     private val hangUpCall: HangUpCallUseCase,
@@ -301,8 +306,9 @@ class SharedCallingViewModel @AssistedInject constructor(
     }
 
     private suspend fun observeInCallReactions() {
-        observeInCallReactionsUseCase(conversationId).collect { message ->
+        if (!inCallReactionsEnabled) return
 
+        observeInCallReactionsUseCase(conversationId).collect { message ->
             val sender = participantsState.senderName(message.senderUserId)?.let { name ->
                 ReactionSender.Other(name)
             } ?: ReactionSender.Unknown
@@ -318,6 +324,8 @@ class SharedCallingViewModel @AssistedInject constructor(
     }
 
     fun onReactionClick(emoji: String) {
+        if (!inCallReactionsEnabled) return
+
         viewModelScope.launch {
             sendInCallReactionUseCase(conversationId, emoji).onSuccess {
                 _inCallReactions.send(InCallReaction(emoji, ReactionSender.You))
@@ -335,7 +343,10 @@ class SharedCallingViewModel @AssistedInject constructor(
 
     @AssistedFactory
     interface Factory {
-        fun create(conversationId: ConversationId): SharedCallingViewModel
+        fun create(
+            conversationId: ConversationId,
+            inCallReactionsEnabled: Boolean = BuildConfig.IN_CALL_REACTIONS_ENABLED
+        ): SharedCallingViewModel
     }
 }
 

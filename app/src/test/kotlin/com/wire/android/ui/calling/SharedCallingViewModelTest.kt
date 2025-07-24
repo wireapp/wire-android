@@ -143,7 +143,11 @@ class SharedCallingViewModelTest {
 
         sharedCallingViewModel = SharedCallingViewModel(
             conversationId = conversationId,
+<<<<<<< HEAD
             selfUserId = TestUser.SELF_USER_ID,
+=======
+            inCallReactionsEnabled = true,
+>>>>>>> 0f12ced1a (feat: add compile time flag to enable/disable in call reactions [WPB-18894] (#4138))
             conversationDetails = observeConversationDetails,
             observeEstablishedCallWithSortedParticipants = observeEstablishedCall,
             hangUpCall = hangUpCall,
@@ -417,6 +421,76 @@ class SharedCallingViewModelTest {
             // then
             expectNoEvents()
         }
+    }
+
+    @Test
+    fun givenInCallReactionsDisabled_WhenInCallReactionIsReceived_ThenNoEmojiIsEmitted() = runTest(dispatcherProvider.main()) {
+        // given
+        val viewModel = SharedCallingViewModel(
+            conversationId = conversationId,
+            inCallReactionsEnabled = false,
+            conversationDetails = observeConversationDetails,
+            observeEstablishedCallWithSortedParticipants = observeEstablishedCall,
+            endCall = endCall,
+            muteCall = muteCall,
+            flipToFrontCamera = flipToFrontCamera,
+            flipToBackCamera = flipToBackCamera,
+            unMuteCall = unMuteCall,
+            setVideoPreview = setVideoPreview,
+            updateVideoState = updateVideoState,
+            turnLoudSpeakerOff = turnLoudSpeakerOff,
+            turnLoudSpeakerOn = turnLoudSpeakerOn,
+            observeSpeaker = observeSpeaker,
+            callRinger = callRinger,
+            uiCallParticipantMapper = uiCallParticipantMapper,
+            userTypeMapper = userTypeMapper,
+            observeInCallReactionsUseCase = observeInCallReactionsUseCase,
+            sendInCallReactionUseCase = sendInCallReactionUseCase,
+            getCurrentClientId = getCurrentClientId,
+            dispatchers = dispatcherProvider
+        )
+
+        viewModel.inCallReactions.test {
+            // when
+            reactionsFlow.emit(InCallReactionMessage(conversationId, TestUser.USER_ID, setOf("👍")))
+
+            // then
+            expectNoEvents()
+        }
+    }
+
+    @Test
+    fun givenInCallReactionsDisabled_WhenReactionIsClicked_ThenNoReactionIsSent() = runTest(dispatcherProvider.main()) {
+        // given
+        val viewModel = SharedCallingViewModel(
+            conversationId = conversationId,
+            inCallReactionsEnabled = false,
+            conversationDetails = observeConversationDetails,
+            observeEstablishedCallWithSortedParticipants = observeEstablishedCall,
+            endCall = endCall,
+            muteCall = muteCall,
+            flipToFrontCamera = flipToFrontCamera,
+            flipToBackCamera = flipToBackCamera,
+            unMuteCall = unMuteCall,
+            setVideoPreview = setVideoPreview,
+            updateVideoState = updateVideoState,
+            turnLoudSpeakerOff = turnLoudSpeakerOff,
+            turnLoudSpeakerOn = turnLoudSpeakerOn,
+            observeSpeaker = observeSpeaker,
+            callRinger = callRinger,
+            uiCallParticipantMapper = uiCallParticipantMapper,
+            userTypeMapper = userTypeMapper,
+            observeInCallReactionsUseCase = observeInCallReactionsUseCase,
+            sendInCallReactionUseCase = sendInCallReactionUseCase,
+            getCurrentClientId = getCurrentClientId,
+            dispatchers = dispatcherProvider
+        )
+
+        // when
+        viewModel.onReactionClick("👍")
+
+        // then
+        coVerify(exactly = 0) { sendInCallReactionUseCase(any(), any()) }
     }
 
     companion object {

@@ -54,7 +54,7 @@ import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination
-import com.wire.android.ui.destinations.NewConversationSearchPeopleScreenDestination
+import com.wire.android.ui.destinations.NewGroupConversationSearchPeopleScreenDestination
 import com.wire.android.ui.home.conversations.details.options.ArrowType
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsItem
 import com.wire.android.ui.home.newconversation.common.CreateGroupErrorDialog
@@ -91,7 +91,7 @@ fun GroupOptionScreen(
         onAllowGuestsClicked = { newConversationViewModel.onAllowGuestsClicked(::navigateToGroup) },
         onEditParticipantsClick = {
             newConversationViewModel.onCreateGroupErrorDismiss()
-            navigator.navigate(NavigationCommand(NewConversationSearchPeopleScreenDestination, BackStackMode.UPDATE_EXISTED))
+            navigator.navigate(NavigationCommand(NewGroupConversationSearchPeopleScreenDestination, BackStackMode.UPDATE_EXISTED))
         },
         onDiscardGroupCreationClick = {
             newConversationViewModel.onCreateGroupErrorDismiss()

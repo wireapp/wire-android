@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.authentication.login.email
 
+import android.text.format.DateUtils.formatElapsedTime
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
@@ -52,13 +53,17 @@ import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScop
 import com.wire.kalium.logic.feature.auth.verification.RequestSecondFactorVerificationCodeUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.seconds
 
 @Suppress("LongParameterList", "ComplexMethod")
 @HiltViewModel
@@ -89,6 +94,8 @@ class LoginEmailViewModel @Inject constructor(
 
     val secondFactorVerificationCodeTextState: TextFieldState = TextFieldState()
     var secondFactorVerificationCodeState by mutableStateOf(VerificationCodeState())
+
+    private var resendCodeTimer: Job? = null
 
     init {
         userIdentifierTextState.setTextAndPlaceCursorAtEnd(
@@ -281,12 +288,32 @@ class LoginEmailViewModel @Inject constructor(
                     emailUsed = email,
                 )
                 updateEmailFlowState(LoginState.Default)
+                startResendCodeTimer()
             }
 
             is RequestSecondFactorVerificationCodeUseCase.Result.Failure.Generic -> {
                 updateEmailFlowState(LoginState.Error.DialogError.GenericError(result.cause))
             }
         }
+    }
+
+    private fun startResendCodeTimer() {
+        resendCodeTimer?.cancel()
+        resendCodeTimer = viewModelScope.launch {
+            var elapsed = RESEND_TIMER_DELAY
+            while (elapsed > 0 && isActive) {
+                updateResendTimer(elapsed)
+                delay(1.seconds)
+                elapsed--
+            }
+            updateResendTimer(null)
+        }
+    }
+
+    private fun updateResendTimer(elapsed: Long?) {
+        secondFactorVerificationCodeState = secondFactorVerificationCodeState.copy(
+            elapsedTimerText = elapsed?.let { formatElapsedTime(elapsed) }
+        )
     }
 
     fun onCodeVerificationBackPress() {
@@ -307,5 +334,6 @@ class LoginEmailViewModel @Inject constructor(
 
     companion object {
         const val USER_IDENTIFIER_SAVED_STATE_KEY = "user_identifier"
+        const val RESEND_TIMER_DELAY = 300L
     }
 }

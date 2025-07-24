@@ -30,23 +30,39 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import com.wire.android.R
+import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
-fun ResendCodeText(onResendCodePressed: () -> Unit, clickEnabled: Boolean, modifier: Modifier = Modifier) {
+fun ResendCodeText(
+    onResendCodePressed: () -> Unit,
+    clickEnabled: Boolean,
+    modifier: Modifier = Modifier,
+    elapsedTimerText: String? = null,
+) {
+    val enabled = elapsedTimerText == null && clickEnabled
+    val label = stringResource(R.string.create_account_code_resend)
     Text(
-        text = stringResource(R.string.create_account_code_resend),
+        text = elapsedTimerText?.let { "$label ($it)" } ?: label,
         style = MaterialTheme.wireTypography.body02.copy(
-            textDecoration = TextDecoration.Underline,
-            color = MaterialTheme.colorScheme.primary
+            textDecoration = if (enabled) {
+                TextDecoration.Underline
+            } else {
+                TextDecoration.None
+            },
+            color = if (enabled) {
+                MaterialTheme.wireColorScheme.primary
+            } else {
+                MaterialTheme.wireColorScheme.onSurface
+            }
         ),
         textAlign = TextAlign.Center,
         modifier = modifier
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
-                enabled = clickEnabled,
+                enabled = enabled,
                 onClick = onResendCodePressed
             )
             .padding(

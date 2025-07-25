@@ -82,7 +82,8 @@ class OAuthUseCase(
                 } else {
                     resultHandler(
                         OAuthResult.Success(
-                            idToken.toString(), _authState.jsonSerializeString()
+                            idToken.toString(),
+                            _authState.jsonSerializeString()
                         )
                     )
                 }

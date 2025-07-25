@@ -16,8 +16,9 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 import android.util.Base64
-import com.wire.android.testSupport.backendConnections.BackendClient
+import backendUtils.BackendClient
 import kotlinx.coroutines.delay
+import logger.WireTestLogger
 import network.NetworkBackendClient.sendJsonRequest
 import org.json.JSONObject
 import java.io.IOException
@@ -31,6 +32,7 @@ object InbucketClient {
     suspend fun getVerificationCode(email: String, inbucketUrl: String, password: String, username: String): String {
 
         val url = URL("$inbucketUrl/api/v1/mailbox/$email/latest")
+        WireTestLogger.getLog("Inbucket").info("Url is :  " + url.toString())
         val loginString = "$username:$password"
         val base64Login = Base64.encodeToString(loginString.toByteArray(), Base64.NO_WRAP)
 
@@ -63,6 +65,52 @@ object InbucketClient {
 
         println("Verification Code Found: $verificationCode for $email")
         return verificationCode
+    }
+
+    @Suppress("TooGenericExceptionCaught", "MagicNumber")
+    suspend fun getVerificationLink(
+        email: String,
+        inbucketUrl: String,
+        password: String,
+        username: String
+    ): String {
+        val url = URL("$inbucketUrl/api/v1/mailbox/$email/latest")
+        WireTestLogger.getLog("Inbucket").info("Url is :  $url")
+        val loginString = "$username:$password"
+        val base64Login = Base64.encodeToString(loginString.toByteArray(), Base64.NO_WRAP)
+
+        val headers = mapOf(
+            "Authorization" to "Basic $base64Login"
+        )
+
+        var response: String
+        var timeout = 0
+
+        while (true) {
+            try {
+                response = sendJsonRequest(
+                    url = url,
+                    method = "GET",
+                    headers = headers
+                )
+                break
+            } catch (e: Exception) {
+                if (++timeout >= 100) throw e
+                delay(300)
+            }
+        }
+
+        val json = JSONObject(response)
+        val body = json.getJSONObject("body").getString("text")
+
+        // Match any https URL containing key= and code=
+        val regex = Regex("""https://[^\s\]]*key=[^&\s]+&code=\d+""")
+        val match = regex.find(body)
+            ?: throw IllegalStateException("Verification link not found in email body")
+
+        val verificationLink = match.value
+        println("Verification Link Found: $verificationLink for $email")
+        return verificationLink
     }
 
     suspend fun BackendClient.getInbucketVerificationCode(email: String): String {

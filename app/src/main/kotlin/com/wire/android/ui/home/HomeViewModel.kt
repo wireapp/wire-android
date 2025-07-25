@@ -122,6 +122,7 @@ class HomeViewModel @Inject constructor(
     fun checkRequirements(onRequirement: (HomeRequirement) -> Unit) {
         viewModelScope.launch {
             val selfUser = selfUserFlow.firstOrNull() ?: return@launch
+            if (isLoggedOut()) return@launch
             when {
                 shouldTriggerMigrationForUser(selfUser.id) -> // check if the user needs to be migrated from scala app
                     onRequirement(HomeRequirement.Migration(selfUser.id))
@@ -129,7 +130,7 @@ class HomeViewModel @Inject constructor(
                 needsToRegisterClient() -> // check if the client needs to be registered
                     onRequirement(HomeRequirement.RegisterDevice)
 
-                !dataStore.initialSyncCompleted.first() && isLoggedIn() -> // check if the initial sync needs to be completed
+                !dataStore.initialSyncCompleted.first() -> // check if the initial sync needs to be completed
                     onRequirement(HomeRequirement.InitialSync)
 
                 selfUser.handle.isNullOrEmpty() -> // check if the user handle needs to be set
@@ -152,8 +153,8 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private suspend fun isLoggedIn(): Boolean {
+    private suspend fun isLoggedOut(): Boolean {
         val accountInfo = (currentSessionFlow.get().invoke().firstOrNull() as? CurrentSessionResult.Success)?.accountInfo
-        return accountInfo is AccountInfo.Valid
+        return accountInfo !is AccountInfo.Valid
     }
 }

@@ -20,7 +20,7 @@ import java.io.File
 
 object AndroidSdk {
     const val min = 26
-    const val compile = 34
+    const val compile = 35
     const val target = compile
 }
 

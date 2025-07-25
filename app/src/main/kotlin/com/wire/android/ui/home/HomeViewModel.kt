@@ -31,12 +31,16 @@ import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
 import com.wire.android.navigation.SavedStateViewModel
+import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
 import com.wire.kalium.logic.feature.legalhold.LegalHoldStateForSelfUser
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserUseCase
 import com.wire.kalium.logic.feature.personaltoteamaccount.CanMigrateFromPersonalToTeamUseCase
+import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
+import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
+import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -55,7 +59,8 @@ class HomeViewModel @Inject constructor(
     private val needsToRegisterClient: NeedsToRegisterClientUseCase,
     private val canMigrateFromPersonalToTeam: CanMigrateFromPersonalToTeamUseCase,
     private val observeLegalHoldStatusForSelfUser: ObserveLegalHoldStateForSelfUserUseCase,
-    private val shouldTriggerMigrationForUser: ShouldTriggerMigrationForUserUserCase
+    private val shouldTriggerMigrationForUser: ShouldTriggerMigrationForUserUserCase,
+    private val currentSessionFlow: Lazy<CurrentSessionFlowUseCase>,
 ) : SavedStateViewModel(savedStateHandle) {
 
     @VisibleForTesting
@@ -117,6 +122,7 @@ class HomeViewModel @Inject constructor(
     fun checkRequirements(onRequirement: (HomeRequirement) -> Unit) {
         viewModelScope.launch {
             val selfUser = selfUserFlow.firstOrNull() ?: return@launch
+            if (isLoggedOut()) return@launch
             when {
                 shouldTriggerMigrationForUser(selfUser.id) -> // check if the user needs to be migrated from scala app
                     onRequirement(HomeRequirement.Migration(selfUser.id))
@@ -145,5 +151,10 @@ class HomeViewModel @Inject constructor(
             globalDataStore.setWelcomeScreenPresented()
             homeState = homeState.copy(shouldDisplayWelcomeMessage = false)
         }
+    }
+
+    private suspend fun isLoggedOut(): Boolean {
+        val accountInfo = (currentSessionFlow.get().invoke().firstOrNull() as? CurrentSessionResult.Success)?.accountInfo
+        return accountInfo !is AccountInfo.Valid
     }
 }

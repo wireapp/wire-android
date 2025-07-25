@@ -37,7 +37,6 @@ import com.wire.android.ui.home.conversationslist.model.LeaveGroupDialogState
 @Composable
 internal fun LeaveConversationGroupDialog(
     dialogState: VisibilityState<LeaveGroupDialogState>,
-    isLoading: Boolean,
     onLeaveGroup: (LeaveGroupDialogState) -> Unit,
 ) {
     VisibilityState(dialogState) { state ->
@@ -56,11 +55,11 @@ internal fun LeaveConversationGroupDialog(
                 text = stringResource(id = R.string.label_leave),
                 type = WireDialogButtonType.Primary,
                 state =
-                if (isLoading)
+                if (state.loading)
                     WireButtonState.Disabled
                 else
                     WireButtonState.Error,
-                loading = isLoading
+                loading = state.loading,
             )
         ) {
             WireLabelledCheckbox(

@@ -52,7 +52,7 @@ import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Instant
-import org.amshove.kluent.internal.assertEquals
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -331,7 +331,7 @@ class SearchUserViewModelTest {
         advanceUntilIdle()
 
         assertEquals(persistentListOf(selectedContact), viewModel.state.selectedResult)
-        assertEquals(persistentListOf(), viewModel.state.contactsResult)
+        assertEquals(persistentListOf<Contact>(), viewModel.state.contactsResult)
     }
 
     private class Arrangement {

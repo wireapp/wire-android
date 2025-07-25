@@ -27,6 +27,7 @@ data class CreateAccountCodeViewState(
     val email: String = "",
     val loading: Boolean = false,
     val result: Result = Result.None,
+    val remainingTimerText: String? = null,
 ) {
     sealed interface Result {
         data object None : Result

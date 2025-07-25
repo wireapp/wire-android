@@ -39,12 +39,12 @@ fun ResendCodeText(
     onResendCodePressed: () -> Unit,
     clickEnabled: Boolean,
     modifier: Modifier = Modifier,
-    elapsedTimerText: String? = null,
+    timerText: String? = null,
 ) {
-    val enabled = elapsedTimerText == null && clickEnabled
+    val enabled = timerText == null && clickEnabled
     val label = stringResource(R.string.create_account_code_resend)
     Text(
-        text = elapsedTimerText?.let { "$label ($it)" } ?: label,
+        text = timerText?.let { "$label ($it)" } ?: label,
         style = MaterialTheme.wireTypography.body02.copy(
             textDecoration = if (enabled) {
                 TextDecoration.Underline

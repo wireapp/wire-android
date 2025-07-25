@@ -27,8 +27,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig
 import com.wire.android.datastore.UserDataStore
+import com.wire.android.ui.authentication.login.email.LoginEmailViewModel.Companion.RESEND_TIMER_DELAY
 import com.wire.android.ui.authentication.verificationcode.VerificationCodeState
 import com.wire.android.ui.common.textfield.textAsFlow
+import com.wire.android.util.ui.CountdownTimer
 import com.wire.kalium.logic.data.auth.verification.VerifiableAction
 import com.wire.kalium.logic.feature.auth.verification.RequestSecondFactorVerificationCodeUseCase
 import com.wire.kalium.logic.feature.client.GetOrRegisterClientUseCase
@@ -60,6 +62,8 @@ class RegisterDeviceViewModel @Inject constructor(
     val secondFactorVerificationCodeTextState: TextFieldState = TextFieldState()
     var secondFactorVerificationCodeState: VerificationCodeState by mutableStateOf(VerificationCodeState())
         private set
+
+    private var resendCodeTimer = CountdownTimer()
 
     init {
         runBlocking {
@@ -198,6 +202,7 @@ class RegisterDeviceViewModel @Inject constructor(
                             emailUsed = email,
                         )
                         updateFlowState(RegisterDeviceFlowState.Default)
+                        startResendCodeTimer()
                     }
 
                     is RequestSecondFactorVerificationCodeUseCase.Result.Failure.Generic -> {
@@ -210,5 +215,25 @@ class RegisterDeviceViewModel @Inject constructor(
 
     private fun updateFlowState(flowState: RegisterDeviceFlowState) {
         state = state.copy(flowState = flowState)
+    }
+
+    private fun startResendCodeTimer() {
+        viewModelScope.launch {
+            resendCodeTimer.start(
+                seconds = RESEND_TIMER_DELAY,
+                onUpdate = { timerText ->
+                    updateResendTimer(timerText)
+                },
+                onFinish = {
+                    updateResendTimer(null)
+                }
+            )
+        }
+    }
+
+    private fun updateResendTimer(timerText: String?) {
+        secondFactorVerificationCodeState = secondFactorVerificationCodeState.copy(
+            remainingTimerText = timerText?.let { timerText }
+        )
     }
 }

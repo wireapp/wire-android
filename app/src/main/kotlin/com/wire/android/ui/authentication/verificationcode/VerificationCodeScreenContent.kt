@@ -106,7 +106,7 @@ private fun MainContent(
         isLoading = isLoading,
         isCurrentCodeInvalid = codeState.isCurrentCodeInvalid,
         onResendCode = onResendCode,
-        elapsedTimerText = codeState.elapsedTimerText,
+        timerText = codeState.remainingTimerText,
     )
     Spacer(
         modifier = Modifier
@@ -140,7 +140,7 @@ internal fun VerificationCodeScreenPreviewTimer() = WireTheme {
             codeLength = 6,
             isCurrentCodeInvalid = false,
             emailUsed = "",
-            elapsedTimerText = "04:30"
+            remainingTimerText = "04:30"
         ),
         isLoading = false,
         onCodeResend = {},

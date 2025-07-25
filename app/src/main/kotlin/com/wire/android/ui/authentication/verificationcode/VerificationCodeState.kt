@@ -23,7 +23,7 @@ data class VerificationCodeState(
     val emailUsed: String = "",
     val isCodeInputNecessary: Boolean = false,
     val isCurrentCodeInvalid: Boolean = false,
-    val elapsedTimerText: String? = null,
+    val remainingTimerText: String? = null,
 ) {
     companion object {
         const val DEFAULT_VERIFICATION_CODE_LENGTH = 6

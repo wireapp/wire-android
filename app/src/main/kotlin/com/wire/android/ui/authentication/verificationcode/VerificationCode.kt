@@ -48,7 +48,7 @@ fun VerificationCode(
     isCurrentCodeInvalid: Boolean,
     onResendCode: () -> Unit,
     modifier: Modifier = Modifier,
-    elapsedTimerText: String? = null,
+    timerText: String? = null,
 ) {
     val focusRequester = remember { FocusRequester() }
     Column(
@@ -79,7 +79,7 @@ fun VerificationCode(
         ResendCodeText(
             onResendCodePressed = onResendCode,
             clickEnabled = !isLoading,
-            elapsedTimerText = elapsedTimerText,
+            timerText = timerText,
         )
     }
 }
@@ -105,6 +105,6 @@ fun PreviewVerificationCodeTimer() = WireTheme {
         isLoading = false,
         isCurrentCodeInvalid = false,
         onResendCode = {},
-        elapsedTimerText = "00:30",
+        timerText = "00:30",
     )
 }

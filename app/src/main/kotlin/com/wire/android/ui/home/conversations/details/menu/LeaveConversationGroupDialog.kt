@@ -32,6 +32,7 @@ import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.WireLabelledCheckbox
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.visbility.VisibilityState
+import com.wire.android.ui.common.wireDialogPropertiesBuilder
 import com.wire.android.ui.home.conversationslist.model.LeaveGroupDialogState
 
 @Composable
@@ -41,6 +42,7 @@ internal fun LeaveConversationGroupDialog(
 ) {
     VisibilityState(dialogState) { state ->
         WireDialog(
+            properties = wireDialogPropertiesBuilder(dismissOnBackPress = !state.loading, dismissOnClickOutside = !state.loading),
             title = stringResource(id = R.string.leave_conversation_dialog_title, state.conversationName),
             text = stringResource(id = R.string.leave_conversation_dialog_description),
             buttonsHorizontalAlignment = true,
@@ -48,17 +50,14 @@ internal fun LeaveConversationGroupDialog(
             dismissButtonProperties = WireDialogButtonProperties(
                 onClick = dialogState::dismiss,
                 text = stringResource(id = R.string.label_cancel),
-                state = WireButtonState.Default
+                state = if (state.loading) WireButtonState.Disabled else WireButtonState.Default,
             ),
             optionButton1Properties = WireDialogButtonProperties(
                 onClick = { onLeaveGroup(state) },
                 text = stringResource(id = R.string.label_leave),
                 type = WireDialogButtonType.Primary,
                 state =
-                if (state.loading)
-                    WireButtonState.Disabled
-                else
-                    WireButtonState.Error,
+                if (state.loading) WireButtonState.Disabled else WireButtonState.Error,
                 loading = state.loading,
             )
         ) {

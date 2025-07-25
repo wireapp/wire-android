@@ -32,6 +32,7 @@ data class DisplayNameState(
         sealed interface TextFieldError : NameError {
             data object NameEmptyError : TextFieldError
             data object NameExceedLimitError : TextFieldError
+            data object InvalidNameError : TextFieldError
         }
     }
 }

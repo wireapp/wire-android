@@ -48,11 +48,9 @@ class OAuthUseCase(
     context: Context,
     private val authUrl: String,
     private val claims: JsonObject,
-    oAuthState: String?
+    authState: AuthState = AuthState()
 ) {
-    private var authState: AuthState = oAuthState?.let {
-        AuthState.jsonDeserialize(it)
-    } ?: AuthState()
+    private var _authState: AuthState = authState
 
     private var authorizationService: AuthorizationService
     private lateinit var authServiceConfig: AuthorizationServiceConfiguration
@@ -75,7 +73,7 @@ class OAuthUseCase(
         if (forceLoginFlow) {
             launchLoginFlow(activityResultRegistry, resultHandler)
         } else {
-            authState.performActionWithFreshTokens(authorizationService) { _, idToken, exception ->
+            _authState.performActionWithFreshTokens(authorizationService) { _, idToken, exception ->
                 if (exception != null) {
                     appLogger.e(
                         message = "OAuthTokenRefreshManager: Error refreshing tokens, continue with login!", throwable = exception
@@ -84,7 +82,8 @@ class OAuthUseCase(
                 } else {
                     resultHandler(
                         OAuthResult.Success(
-                            idToken.toString(), authState.jsonSerializeString()
+                            idToken.toString(),
+                            _authState.jsonSerializeString()
                         )
                     )
                 }
@@ -131,23 +130,23 @@ class OAuthUseCase(
 
         val error = AuthorizationException.fromIntent(intent)
 
-        authState = AuthState(authorizationResponse, error)
+        _authState = AuthState(authorizationResponse, error)
 
         val tokenExchangeRequest = authorizationResponse?.createTokenExchangeRequest()
 
         tokenExchangeRequest?.let { request ->
             authorizationService.performTokenRequest(request, clientAuth) { response, exception ->
                 if (exception != null) {
-                    authState = AuthState()
+                    _authState = AuthState()
                     resultHandler(OAuthResult.Failed(exception.toString()))
                 } else {
                     if (response != null) {
-                        authState.update(response, exception)
+                        _authState.update(response, exception)
                         appLogger.i("OAuth idToken: ${response.idToken}")
                         resultHandler(
                             OAuthResult.Success(
                                 response.idToken.toString(),
-                                authState.jsonSerializeString()
+                                _authState.jsonSerializeString()
                             )
                         )
                     } else {

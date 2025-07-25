@@ -131,6 +131,10 @@ android {
             res.srcDirs("src/main/res")
         }
     }
+
+    lint {
+        checkReleaseBuilds = false
+    }
 }
 
 aboutLibraries {

@@ -53,6 +53,7 @@ class RegisterDeviceViewModel @Inject constructor(
     private val userDataStore: UserDataStore,
     private val getSelfUser: GetSelfUserUseCase,
     private val requestSecondFactorVerificationCodeUseCase: RequestSecondFactorVerificationCodeUseCase,
+    private val resendCodeTimer: CountdownTimer,
 ) : ViewModel() {
 
     val passwordTextState: TextFieldState = TextFieldState()
@@ -62,8 +63,6 @@ class RegisterDeviceViewModel @Inject constructor(
     val secondFactorVerificationCodeTextState: TextFieldState = TextFieldState()
     var secondFactorVerificationCodeState: VerificationCodeState by mutableStateOf(VerificationCodeState())
         private set
-
-    private var resendCodeTimer = CountdownTimer()
 
     init {
         runBlocking {

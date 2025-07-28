@@ -70,6 +70,7 @@ class LoginEmailViewModel @Inject constructor(
     authServerConfigProvider: AuthServerConfigProvider,
     userDataStoreProvider: UserDataStoreProvider,
     @KaliumCoreLogic coreLogic: CoreLogic,
+    private val resendCodeTimer: CountdownTimer,
     private val dispatchers: DispatcherProvider
 ) : LoginViewModel(
     clientScopeProviderFactory,
@@ -90,8 +91,6 @@ class LoginEmailViewModel @Inject constructor(
 
     val secondFactorVerificationCodeTextState: TextFieldState = TextFieldState()
     var secondFactorVerificationCodeState by mutableStateOf(VerificationCodeState())
-
-    private var resendCodeTimer = CountdownTimer()
 
     init {
         userIdentifierTextState.setTextAndPlaceCursorAtEnd(

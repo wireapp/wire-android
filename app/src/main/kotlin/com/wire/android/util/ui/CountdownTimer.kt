@@ -23,9 +23,10 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 import kotlin.time.Duration.Companion.seconds
 
-class CountdownTimer {
+class CountdownTimer @Inject constructor() {
     private var timerJob: Job? = null
 
     suspend fun start(seconds: Long, onUpdate: (String) -> Unit, onFinish: () -> Unit) {

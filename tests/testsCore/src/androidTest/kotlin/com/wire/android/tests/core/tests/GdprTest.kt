@@ -96,7 +96,7 @@ class GdprTest : KoinTest {
             assertConversationPageVisible()
         }
         pages.conversationPage.apply {
-            clickMainMenuButtonOnConversationViewPage()
+            clickMainMenuButtonOnConversationPage()
             clickSettingsButtonOnMenuEntry()
         }
         pages.settingsPage.apply {

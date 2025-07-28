@@ -17,6 +17,7 @@
  */
 package com.wire.android.tests.core.criticalFlows
 
+
 import InbucketClient
 import android.content.Context
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -44,7 +45,7 @@ import user.usermanager.ClientUserManager
 import user.utils.ClientUser
 
 @RunWith(AndroidJUnit4::class)
-class AccountManagement : KoinTest {
+class GroupMessaging : KoinTest {
 
     @get:Rule
     val koinTestRule = KoinTestRule.Companion.create {
@@ -72,37 +73,42 @@ class AccountManagement : KoinTest {
         // To delete team member
         // registeredUser?.deleteTeamMember(backendClient!!, teamMember?.getUserId().orEmpty())
         // To delete team
-        registeredUser?.deleteTeam(backendClient!!)
+        //  registeredUser?.deleteTeam(backendClient!!)
     }
 
     @Suppress("LongMethod")
     @Test
-    fun accountManagementFeature() {
-        val userInfo = UserClient.generateUniqueUserInfo()
-        teamHelper?.usersManager!!.createTeamOwnerByAlias("user1Name", "AccountManagement", "en_US", true, backendClient!!, context)
+    fun groupMessagingFeature() {
+        teamHelper?.usersManager!!.createTeamOwnerByAlias("user1Name", "GroupMessaging", "en_US", true, backendClient!!, context)
         registeredUser = teamHelper?.usersManager!!.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
         teamHelper?.userXAddsUsersToTeam(
             "user1Name",
-            "user2Name,user3Name",
-            "AccountManagement",
+            "user2Name,user3Name,user4Name,user5Name,user6Name",
+            "GroupMessaging",
             TeamRoles.Member,
             backendClient!!,
             context,
             true
         )
-        val teamMember = teamHelper?.usersManager!!.findUserBy("user2Name", ClientUserManager.FindBy.NAME_ALIAS)
-        val newEmail = teamHelper?.usersManager!!.findUserBy("user4Name", ClientUserManager.FindBy.NAME_ALIAS)
+        //val teamMember = teamHelper?.usersManager!!.findUserBy("user2Name", ClientUserManager.FindBy.NAME_ALIAS)
+        //val newEmail = teamHelper?.usersManager!!.findUserBy("user4Name", ClientUserManager.FindBy.NAME_ALIAS)
 
-        TestServiceHelper().userHasGroupConversationInTeam("user1Name", "MyTeam", "user2Name", "AccountManagement")
+        TestServiceHelper().userHasGroupConversationInTeam(
+            "user1Name",
+            "MyTeam",
+            "user2Name,user3Name,user4Name,user5Name,user6Name",
+            "GroupMessaging"
+        )
 
         pages.registrationPage.apply {
             assertEmailWelcomePage()
         }
         pages.loginPage.apply {
-            enterPersonalUserLoggingEmail(teamMember.email ?: "")
+            enterPersonalUserLoggingEmail(registeredUser?.email ?: "")
             clickLoginButton()
-            enterPersonalUserLoginPassword(teamMember.password ?: "")
+            enterPersonalUserLoginPassword(registeredUser?.password ?: "")
             clickLoginButton()
+
         }
         pages.registrationPage.apply {
             waitUntilLoginFlowIsComplete()
@@ -111,49 +117,23 @@ class AccountManagement : KoinTest {
         }
         pages.conversationPage.apply {
             assertGroupConversationVisible("MyTeam")
-            clickMainMenuButtonOnConversationPage()
-            clickSettingsButtonOnMenuEntry()
-            pages.settingsPage.apply {
-                clickDebugSettingsButton()
-                tapEnableLoggingToggle()
-                assertLoggingToggleIsOff()
-                tapEnableLoggingToggle()
-                assertLoggingToggleIsOn()
-                clickBackButtonOnSettingsPage()
-                assertLockWithPasswordToggleIsOff()
-                turnOnLockWithPasscodeToggle()
-                assertAppLockDescriptionText()
-                enterPasscode(userInfo.password)
-                tapSetPasscodeButton()
-                assertLockWithPasswordToggleIsOn()
-                tapAccountDetailsButton()
-                verifyDisplayedEmailAddress(teamMember.email ?: "")
-                verifyDisplayedDomain("staging.zinfra.io")
-                clickDisplayedEmailAddress()
-                // Sleep will be removed after finding a way around stale exception I'm facing
-                Thread.sleep(2000)
-                changeToNewEmailAddress(newEmail.email ?: "")
-                clickSaveButton()
-                assertNotificationWithNewEmail(newEmail.email ?: "")
-                val activationLink = runBlocking {
-                    InbucketClient.getVerificationLink(
-                        newEmail.email.orEmpty(),
-                        backendClient!!.inbucketUrl,
-                        backendClient!!.inbucketPassword,
-                        backendClient!!.inbucketUsername
-                    )
-                }
-                clickEmailVerificationLink(activationLink)
-                assertEmailVerifiedMessageVisibleOnChrome()
-                // Brings the Wire staging app to the foreground using the monkey tool
-                device.executeShellCommand("monkey -p ${UiAutomatorSetup.APP_STAGING} -c android.intent.category.LAUNCHER 1")
-                clickBackButtonOnSettingsPage()
-                waitUntilNewEmailIsVisible(newEmail.email ?: "")
-                assertDisplayedEmailAddressIsNewEmail(newEmail.email ?: "")
-                assertResetPasswordButtonIsDisplayed()
-                tapResetPasswordButton()
-                assertChromeUrlIsDisplayed("wire-account-staging.zinfra.io")
-            }
+        }
+
+        pages.conversationListPage.apply {
+            tapSearchConversationField()
+            typeFirstNCharsInSearchField("MyTestGroup", 3) // types "MyT"
+        }
+        pages.conversationPage.apply {
+            assertGroupConversationVisible("MyTeam")
+        }
+        pages.conversationListPage.apply {
+            clickGroupConversation("MyTeam")
+        }
+        pages.conversationViewPage.apply {
+            typeMessageInInputField("Hello Team Members")
+            clickSendButton()
+            assertMessageSentIsVisible("Hello Team Members")
+
         }
     }
 }

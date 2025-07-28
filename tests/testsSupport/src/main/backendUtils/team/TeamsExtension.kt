@@ -242,6 +242,24 @@ fun BackendClient.acceptInvite(teamId: String, member: ClientUser): ClientUser {
     }
 }
 
+fun BackendClient.getTeamId(user: ClientUser): String {
+    val token = runBlocking {  getAuthToken(user)}
+    val url = "self".composeCompleteUrl()
+
+    val headers = defaultheaders.toMutableMap().apply {
+        put("Authorization", "${token?.type} ${token?.value}")
+    }
+
+    val response = NetworkBackendClient.sendJsonRequestWithCookies(
+        url = URL(url),
+        method = "GET",
+        headers = headers,
+        options = RequestOptions(accessToken = token)
+    )
+
+    return JSONObject(response.body).getString("team")
+}
+
 fun BackendClient.getTeamCode(teamId: String, invitationId: String): String {
     val encodedTeamId = URLEncoder.encode(teamId, "UTF-8")
     val encodedInvitationId = URLEncoder.encode(invitationId, "UTF-8")

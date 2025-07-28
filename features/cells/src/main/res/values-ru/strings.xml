@@ -23,9 +23,9 @@
     <string name="conversation_file_list_empty_message">В этой беседе нет файлов.</string>
     <string name="file_list_search_empty_message">Файлы не найдены.</string>
     <string name="save_label">Сохранить</string>
-    <string name="share_label">Поделится</string>
-    <string name="delete_label">Удалить</string>
+    <string name="share_label">Поделиться</string>
     <string name="public_link">Скопировать публичную ссылку</string>
+    <string name="delete_label">Удалить</string>
     <string name="delete_permanently">Удалить навсегда</string>
     <string name="restore_label">Восстановить</string>
     <string name="add_remove_tags_label">Добавить или удалить теги</string>

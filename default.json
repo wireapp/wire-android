@@ -133,5 +133,6 @@
     "limit_team_members_fetch_during_slow_sync": 2000,
     "picture_in_picture_enabled": false,
     "paginated_conversation_list_enabled": false,
-    "should_display_release_notes": true
+    "should_display_release_notes": true,
+    "in_call_reactions_enabled": false
 }

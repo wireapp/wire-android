@@ -76,6 +76,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import com.waz.avs.CameraPreviewBuilder
 import com.waz.avs.VideoRenderer
+import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
@@ -184,27 +185,29 @@ fun ParticipantTile(
                 )
             }
 
-            AnimatedVisibility(
-                modifier = Modifier
-                    .padding(dimensions().spacing12x),
-                visible = recentReaction != null,
-                enter = fadeIn(),
-                exit = fadeOut(),
-            ) {
-                Box(
+            if (BuildConfig.IN_CALL_REACTIONS_ENABLED) {
+                AnimatedVisibility(
                     modifier = Modifier
-                        .size(dimensions().inCallReactionRecentReactionSize)
-                        .background(
-                            color = colorsScheme().emojiBackgroundColor,
-                            shape = RoundedCornerShape(dimensions().corner6x)
-                        ),
-                    contentAlignment = Alignment.Center,
+                        .padding(dimensions().spacing12x),
+                    visible = recentReaction != null,
+                    enter = fadeIn(),
+                    exit = fadeOut(),
                 ) {
-                    Text(
-                        text = recentReaction ?: "",
-                        textAlign = TextAlign.Center,
-                        style = typography().inCallReactionRecentEmoji,
-                    )
+                    Box(
+                        modifier = Modifier
+                            .size(dimensions().inCallReactionRecentReactionSize)
+                            .background(
+                                color = colorsScheme().emojiBackgroundColor,
+                                shape = RoundedCornerShape(dimensions().corner6x)
+                            ),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(
+                            text = recentReaction ?: "",
+                            textAlign = TextAlign.Center,
+                            style = typography().inCallReactionRecentEmoji,
+                        )
+                    }
                 }
             }
 

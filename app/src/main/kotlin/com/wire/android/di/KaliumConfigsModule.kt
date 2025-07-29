@@ -60,8 +60,7 @@ class KaliumConfigsModule {
             isWebSocketEnabledByDefault = isWebsocketEnabledByDefault(context),
             certPinningConfig = BuildConfig.CERTIFICATE_PINNING_CONFIG,
             maxRemoteSearchResultCount = BuildConfig.MAX_REMOTE_SEARCH_RESULT_COUNT,
-            limitTeamMembersFetchDuringSlowSync = BuildConfig.LIMIT_TEAM_MEMBERS_FETCH_DURING_SLOW_SYNC,
-            enableAsyncNotifications = BuildConfig.ENABLE_ASYNC_NOTIFICATIONS
+            limitTeamMembersFetchDuringSlowSync = BuildConfig.LIMIT_TEAM_MEMBERS_FETCH_DURING_SLOW_SYNC
         )
     }
 }

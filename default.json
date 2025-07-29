@@ -34,8 +34,7 @@
             "analytics_app_key": "8ffae535f1836ed5f58fd5c8a11c00eca07c5438",
             "analytics_server_url": "https://wire.count.ly/",
             "enable_new_registration": true,
-            "channels_history_options_enabled": true,
-            "enable_async_notifications": true
+            "channels_history_options_enabled": true
         },
         "staging": {
             "application_id": "com.waz.zclient.dev",
@@ -57,8 +56,7 @@
             "analytics_enabled": true,
             "analytics_app_key": "8ffae535f1836ed5f58fd5c8a11c00eca07c5438",
             "analytics_server_url": "https://wire.count.ly/",
-            "enable_new_registration": true,
-            "enable_async_notifications": true
+            "enable_new_registration": true
         },
         "beta": {
             "application_id": "com.wire.android.internal",
@@ -69,8 +67,7 @@
             "analytics_enabled": true,
             "analytics_app_key": "8ffae535f1836ed5f58fd5c8a11c00eca07c5438",
             "analytics_server_url": "https://wire.count.ly/",
-            "enable_new_registration": true,
-            "enable_async_notifications": true
+            "enable_new_registration": true
         },
         "internal": {
             "application_id": "com.wire.internal",
@@ -82,8 +79,7 @@
             "analytics_app_key": "8ffae535f1836ed5f58fd5c8a11c00eca07c5438",
             "analytics_server_url": "https://wire.count.ly/",
             "paginated_conversation_list_enabled": true,
-            "enable_new_registration": true,
-            "enable_async_notifications": true
+            "enable_new_registration": true
         },
         "fdroid": {
             "application_id": "com.wire",
@@ -149,6 +145,5 @@
     "channels_history_options_enabled": false,
     "use_new_login_for_default_backend": true,
     "enable_crossplatform_backup": true,
-    "mls_read_receipts_enabled": false,
-    "enable_async_notifications": false
+    "mls_read_receipts_enabled": false
 }

@@ -21,6 +21,7 @@ import android.os.SystemClock
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.BySelector
+import androidx.test.uiautomator.StaleObjectException
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiObject2
 import androidx.test.uiautomator.UiSelector
@@ -64,17 +65,32 @@ object UiWaitUtils {
     }
 
     @Suppress("MagicNumber")
-    fun waitElement(params: UiSelectorParams): UiObject2 {
+    fun waitElement(
+        params: UiSelectorParams,
+        timeoutMillis: Long = 10_000,
+        pollingInterval: Long = 250
+    ): UiObject2 {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         val selector = buildSelector(params)
+        val deadline = SystemClock.uptimeMillis() + timeoutMillis
 
-        val startTime = System.currentTimeMillis()
-        while (System.currentTimeMillis() - startTime < params.timeout) {
-            println("Waiting for element: $selector")
-            val obj = device.findObject(selector)
-            if (obj != null && !obj.visibleBounds.isEmpty) return obj
-            Thread.sleep(250)
+        while (SystemClock.uptimeMillis() < deadline) {
+            try {
+                val obj = device.findObject(selector)
+                if (obj != null) {
+                    try {
+                        if (!obj.visibleBounds.isEmpty) return obj
+                    } catch (e: StaleObjectException) {
+                        // Ignore and retry
+                    }
+                }
+            } catch (e: StaleObjectException) {
+                // Ignore and retry
+            }
+
+            SystemClock.sleep(pollingInterval)
         }
+
         throw AssertionError(
             "Element not found or not visible with selector: " +
                     listOfNotNull(
@@ -86,6 +102,7 @@ object UiWaitUtils {
                     ).joinToString(", ")
         )
     }
+
 
     fun waitUntilElementGone(
         device: UiDevice,

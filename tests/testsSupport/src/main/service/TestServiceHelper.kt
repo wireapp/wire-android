@@ -25,7 +25,9 @@ import com.wire.android.testSupport.R
 import com.wire.android.testSupport.service.TestService
 import kotlinx.coroutines.runBlocking
 import network.HttpRequestException
+import service.enums.LegalHoldStatus
 import service.models.Conversation
+import service.models.SendTextParams
 import user.usermanager.ClientUserManager
 import user.utils.ClientUser
 import java.io.File
@@ -36,8 +38,9 @@ import java.util.concurrent.TimeUnit
 
 class TestServiceHelper {
 
+    val WIRE_RECEIPT_MODE = "WIRE_RECEIPT_MODE"
     val usersManager by lazy {
-        ClientUserManager.getInstance()!!
+        ClientUserManager.getInstance()
     }
 
     val testServiceClient by lazy {
@@ -195,7 +198,7 @@ class TestServiceHelper {
         val convoDomain = conversation.qualifiedID.domain
 
         testServiceClient.sendFile(toClientUser(senderAlias), deviceName, convoId, convoDomain,
-            getSelfDeletingMessageTimeout(senderAlias,dstConvoName), imageFile?.absolutePath.orEmpty(),
+            getSelfDeletingMessageTimeout(senderAlias,dstConvoName), imageFile.absolutePath.orEmpty(),
             "image/jpeg")
 
     }
@@ -210,6 +213,12 @@ class TestServiceHelper {
         val convoName = usersManager.replaceAliasesOccurrences(convoName, ClientUserManager.FindBy.NAME_ALIAS);
         val backend = BackendClient.loadBackend(owner.backendName.orEmpty())
         return backend.getPersonalConversationByName(owner, convoName)
+    }
+
+    private fun toConvoObj(owner:ClientUser,  convoName:String):Conversation {
+        val convoName = usersManager.replaceAliasesOccurrences(convoName, ClientUserManager.FindBy.NAME_ALIAS);
+        val backend = BackendClient.loadBackend(owner.backendName.orEmpty())
+        return backend.getConversationByName(owner, convoName)
     }
 
     suspend fun usersSetUniqueUsername(userNameAliases: String) {
@@ -284,6 +293,52 @@ class TestServiceHelper {
             val dstTeam = backend?.getTeamByName(chatOwner, teamName)
             backend?.createTeamConversation(chatOwner, participants, chatName, dstTeam!!)
         }
+    }
+
+    fun isSendReadReceiptEnabled(userNameAlias: String): Boolean {
+        val user = toClientUser(userNameAlias)
+        val backend = BackendClient.loadBackend(user.backendName.orEmpty())
+        val json = runBlocking {
+            backend.getPropertyValues(user) }
+
+        return if (json.has(WIRE_RECEIPT_MODE)) {
+            json.getInt(WIRE_RECEIPT_MODE).toBoolean()
+        } else {
+            false
+        }
+    }
+   private fun Int.toBoolean() : Boolean{
+        return this != 0
+    }
+
+    fun userSendMessageToConversation(senderAlias:String, msg:String,
+                                        deviceName:String,
+                                      dstConvoName:String,
+                                      isSelfDeleting:Boolean){
+        val clientUser = toClientUser(senderAlias)
+        val conversation = toConvoObj(clientUser, dstConvoName)
+        val convoId = conversation.qualifiedID.id
+        val convoDomain = conversation.qualifiedID.domain
+
+        val expReadConfirm = conversation.type.let { type ->
+            when (type) {
+                0 -> conversation.isReceiptModeEnabled
+                2 -> isSendReadReceiptEnabled(senderAlias)
+                else -> false
+            }
+        }
+
+         testServiceClient.sendText(
+            SendTextParams(
+                owner = clientUser,
+            deviceName =  deviceName,
+            convoDomain= convoDomain,
+            convoId= convoId,
+            timeout = if(isSelfDeleting) Duration.ofSeconds(1000) else Duration.ofSeconds(0),
+            expReadConfirm,
+            text = msg,
+            legalHoldStatus = LegalHoldStatus.DISABLED.code,
+        ))
     }
 
     fun toClientUser(nameAlias: String): ClientUser {

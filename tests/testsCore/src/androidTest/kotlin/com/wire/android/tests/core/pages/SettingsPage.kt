@@ -87,7 +87,6 @@ data class SettingsPage(private val device: UiDevice) {
     fun clickBackButtonOnSettingsPage() {
         device.pressBack()
     }
-
     fun assertAnalyticsInitializedIsSetToTrue(): SettingsPage {
         val label = UiWaitUtils.waitElement(analyticsInitializedLabel)
         val parent = label.parent

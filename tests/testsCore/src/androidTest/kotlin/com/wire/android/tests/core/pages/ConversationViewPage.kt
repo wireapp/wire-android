@@ -57,7 +57,7 @@ data class ConversationViewPage(private val device: UiDevice) {
 
     private val sendButton = UiSelectorParams(description = "Send")
 
-
+    private val backButton = UiSelectorParams(description = "Go back to conversation list")
 
     private fun fileWithName(name: String): UiSelectorParams {
         return UiSelectorParams(text = name)
@@ -294,6 +294,10 @@ data class ConversationViewPage(private val device: UiDevice) {
         return this
     }
 
+    fun tapBackButtonOnConversationViewPage(): ConversationViewPage {
+        UiWaitUtils.waitElement(backButton).click()
+        return this
+    }
 
 
 }

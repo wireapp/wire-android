@@ -19,6 +19,8 @@ package com.wire.android.tests.core.pages
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.UiSelector
+import org.junit.Assert
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 
@@ -51,7 +53,15 @@ data class ConversationListPage(private val device: UiDevice) {
         return this
     }
 
+    private fun unreadCountSelector(count: String): UiSelectorParams {
+        return UiSelectorParams(text = count)
+    }
 
+    fun assertUnreadMessagesCount(expectedCount: String): ConversationListPage {
+        val unreadCount = UiWaitUtils.waitElement(unreadCountSelector(expectedCount))
+        Assert.assertTrue("Unread message count '$expectedCount' not visible", !unreadCount.visibleBounds.isEmpty)
+        return this
+    }
 
 
 }

@@ -522,6 +522,33 @@ class BackendClient(
         return getFeatureConfig("mls", user).get("status").equals("enabled")
     }
 
+    suspend fun getPropertyValues(user: ClientUser): JSONObject {
+        val token = getAuthToken(user)
+        val url = URL("properties-values".composeCompleteUrl())
+
+        val headers = defaultheaders.toMutableMap().apply {
+            put("Authorization", "${token?.type} ${token?.value}")
+        }
+
+        val response = NetworkBackendClient.sendJsonRequestWithCookies(
+            url = url,
+            method = "GET",
+            headers = headers,
+            body = null,
+            options = RequestOptions(
+                accessToken = token,
+                expectedResponseCodes = NumberSequence.Array(intArrayOf(HttpURLConnection.HTTP_OK, HttpURLConnection.HTTP_NOT_FOUND))
+            )
+        )
+
+        return if (response.body.isNotEmpty()) {
+            JSONObject(response.body)
+        } else {
+            JSONObject()
+        }
+    }
+
+
     fun String.composeCompleteUrl(): String {
         return "${backendUrl}$this"
     }

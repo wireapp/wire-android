@@ -57,6 +57,9 @@ class GroupMessaging : KoinTest {
     var registeredUser: ClientUser? = null
     var backendClient: BackendClient? = null
     var teamHelper: TeamHelper? = null
+    val testServiceHelper by lazy {
+        TestServiceHelper()
+    }
 
     @Before
     fun setUp() {
@@ -79,7 +82,14 @@ class GroupMessaging : KoinTest {
     @Suppress("LongMethod")
     @Test
     fun groupMessagingFeature() {
-        teamHelper?.usersManager!!.createTeamOwnerByAlias("user1Name", "GroupMessaging", "en_US", true, backendClient!!, context)
+        teamHelper?.usersManager!!.createTeamOwnerByAlias(
+            "user1Name",
+            "GroupMessaging",
+            "en_US",
+            true,
+            backendClient!!,
+            context
+        )
         registeredUser = teamHelper?.usersManager!!.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
         teamHelper?.userXAddsUsersToTeam(
             "user1Name",
@@ -93,7 +103,7 @@ class GroupMessaging : KoinTest {
         //val teamMember = teamHelper?.usersManager!!.findUserBy("user2Name", ClientUserManager.FindBy.NAME_ALIAS)
         //val newEmail = teamHelper?.usersManager!!.findUserBy("user4Name", ClientUserManager.FindBy.NAME_ALIAS)
 
-        TestServiceHelper().userHasGroupConversationInTeam(
+        testServiceHelper.userHasGroupConversationInTeam(
             "user1Name",
             "MyTeam",
             "user2Name,user3Name,user4Name,user5Name,user6Name",
@@ -132,8 +142,23 @@ class GroupMessaging : KoinTest {
         pages.conversationViewPage.apply {
             typeMessageInInputField("Hello Team Members")
             clickSendButton()
+
             assertMessageSentIsVisible("Hello Team Members")
 
+            tapBackButtonOnConversationViewPage()
+            testServiceHelper.apply {
+                addDevice("user2Name", null, "Device1")
+                userSendMessageToConversation("user2Name", "Hello Friends", "Device1", "MyTeam", false)
+
+                pages.conversationListPage.apply {
+
+                    assertUnreadMessagesCount("1")
+                    Thread.sleep(6000)
+
+                    clickGroupConversation("MyTeam")
+
+                }
+            }
         }
     }
 }

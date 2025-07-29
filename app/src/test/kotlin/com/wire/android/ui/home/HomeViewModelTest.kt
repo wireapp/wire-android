@@ -23,12 +23,19 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.framework.TestUser
+<<<<<<< HEAD
+=======
+import com.wire.android.migration.userDatabase.ShouldTriggerMigrationForUserUserCase
+import com.wire.android.ui.WireActivityViewModelTest.Companion.TEST_ACCOUNT_INFO
+>>>>>>> 8cdb1f721 (fix: crash on logout [WPB-18706] (#4147))
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
 import com.wire.kalium.logic.feature.legalhold.LegalHoldStateForSelfUser
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserUseCase
 import com.wire.kalium.logic.feature.personaltoteamaccount.CanMigrateFromPersonalToTeamUseCase
+import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
+import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -161,6 +168,15 @@ class HomeViewModelTest {
         @MockK
         lateinit var canMigrateFromPersonalToTeam: CanMigrateFromPersonalToTeamUseCase
 
+<<<<<<< HEAD
+=======
+        @MockK
+        lateinit var currentSessionFlow: CurrentSessionFlowUseCase
+
+        @RelaxedMockK
+        lateinit var onRequirement: (HomeRequirement) -> Unit
+
+>>>>>>> 8cdb1f721 (fix: crash on logout [WPB-18706] (#4147))
         private val viewModel by lazy {
             HomeViewModel(
                 savedStateHandle = savedStateHandle,
@@ -169,6 +185,7 @@ class HomeViewModelTest {
                 needsToRegisterClient = needsToRegisterClient,
                 observeLegalHoldStatusForSelfUser = observeLegalHoldStatusForSelfUser,
                 canMigrateFromPersonalToTeam = canMigrateFromPersonalToTeam,
+                currentSessionFlow = { currentSessionFlow },
             )
         }
 
@@ -177,6 +194,7 @@ class HomeViewModelTest {
             withSelfUser(flowOf(TestUser.SELF_USER))
             withCanMigrateFromPersonalToTeamReturning(true)
             withLegalHoldStatus(flowOf(LegalHoldStateForSelfUser.Disabled))
+            coEvery { currentSessionFlow() } returns flowOf(CurrentSessionResult.Success(TEST_ACCOUNT_INFO))
         }
 
         fun withSelfUser(result: Flow<SelfUser>) = apply {

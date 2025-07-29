@@ -41,7 +41,7 @@ fun GetE2EICertificateUI(
 
     LaunchedEffect(Unit) {
         viewModel.requestOAuthFlow.onEach {
-            OAuthUseCase(context, it.target, it.oAuthClaims, it.oAuthState).launch(
+            OAuthUseCase(context, it.target, it.oAuthClaims).launch(
                 context.getActivity()!!.activityResultRegistry, forceLoginFlow = true
             ) { result -> viewModel.handleOAuthResult(result, it) }
         }.launchIn(coroutineScope)

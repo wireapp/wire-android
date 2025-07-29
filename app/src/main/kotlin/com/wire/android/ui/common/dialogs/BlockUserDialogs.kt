@@ -30,6 +30,7 @@ import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.visbility.VisibilityState
+import com.wire.android.ui.common.wireDialogPropertiesBuilder
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.stringWithStyledArgs
 
@@ -40,6 +41,7 @@ fun BlockUserDialogContent(
 ) {
     VisibilityState(dialogState) { state ->
         WireDialog(
+            properties = wireDialogPropertiesBuilder(dismissOnBackPress = !state.loading, dismissOnClickOutside = !state.loading),
             title = stringResource(id = R.string.block_user_dialog_title),
             text = LocalContext.current.resources.stringWithStyledArgs(
                 R.string.block_user_dialog_body,
@@ -61,6 +63,7 @@ fun BlockUserDialogContent(
                 onClick = dialogState::dismiss,
                 text = stringResource(id = android.R.string.cancel),
                 type = WireDialogButtonType.Secondary,
+                state = if (state.loading) WireButtonState.Disabled else WireButtonState.Default,
             )
         )
     }

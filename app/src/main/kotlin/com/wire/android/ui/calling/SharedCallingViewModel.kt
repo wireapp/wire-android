@@ -73,12 +73,10 @@ import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -107,15 +105,12 @@ class SharedCallingViewModel @AssistedInject constructor(
     private val getCurrentClientId: ObserveCurrentClientIdUseCase,
     private val uiCallParticipantMapper: UICallParticipantMapper,
     private val userTypeMapper: UserTypeMapper,
-    private val dispatchers: DispatcherProvider,
-    initialCallState: CallState = CallState(conversationId), // for testing purposes
+    private val dispatchers: DispatcherProvider
 ) : ActionsViewModel<SharedCallingViewActions>() {
 
-    var callState by mutableStateOf(initialCallState)
-        private set
+    var callState by mutableStateOf(CallState(conversationId))
 
     var participantsState by mutableStateOf(persistentListOf<UICallParticipant>())
-        private set
 
     private val _inCallReactions = Channel<InCallReaction>(
         capacity = 300, // Max reactions to keep in queue

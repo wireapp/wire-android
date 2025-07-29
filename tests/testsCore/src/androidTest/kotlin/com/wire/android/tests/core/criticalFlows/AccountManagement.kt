@@ -68,7 +68,7 @@ class AccountManagement : KoinTest {
 
     @After
     fun tearDown() {
-        registeredUser?.deleteTeam(backendClient!!)  // To delete team
+        registeredUser?.deleteTeam(backendClient!!) // To delete team
     }
 
     @Suppress("LongMethod")

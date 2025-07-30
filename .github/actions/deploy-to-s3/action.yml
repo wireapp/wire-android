@@ -34,10 +34,10 @@ runs:
       id: upload
       uses: hkusu/s3-upload-action@v2.1.0
       with:
-        aws-access-key-id: ${{ inputs.aws-access-key-id }}
-        aws-secret-access-key: ${{ inputs.aws-secret-access-key }}
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: 'eu-central-1'
-        aws-bucket: ${{ inputs.aws-bucket }}
+        aws-bucket: ${{ secrets.AWS_S3_BUCKET }}
         destination-dir: "megazord/android/reloaded/${{ inputs.build-flavour }}/${{ inputs.build-variant }}/PR-${{ github.event.pull_request.number }}/"
         file-path: ${{ steps.path.outputs.apk_full_path }}
         output-file-url: 'false'
@@ -47,10 +47,10 @@ runs:
       id: upload-from-branch
       uses: hkusu/s3-upload-action@v2.1.0
       with:
-        aws-access-key-id: ${{ inputs.aws-access-key-id }}
-        aws-secret-access-key: ${{ inputs.aws-secret-access-key }}
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: 'eu-central-1'
-        aws-bucket: ${{ inputs.aws-bucket }}
+        aws-bucket: ${{ secrets.AWS_S3_BUCKET }}
         destination-dir: "megazord/android/reloaded/${{ inputs.build-flavour }}/${{ inputs.build-variant }}/"
         file-path: ${{ steps.path.outputs.apk_full_path }}
         output-file-url: 'false'

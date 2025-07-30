@@ -80,24 +80,6 @@ data class ConversationPage(private val device: UiDevice) {
         return this
     }
 
-//    fun assertGroupConversationVisible(conversationName: String): ConversationPage {
-//        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-//
-//        // Wait for the element to appear
-//        UiWaitUtils.waitElement(UiSelectorParams(text = conversationName))
-//
-//        // Re-fetch the element to avoid stale reference
-//        val conversation = device.findObject(UiSelector().text(conversationName))
-//
-//        assertTrue(
-//            "Conversation '$conversationName' is not visible",
-//            !conversation.visibleBounds.isEmpty
-//        )
-//
-//        return this
-//    }
-
-
     fun clickConnectionRequestOfUser(userName: String): ConversationPage {
         val teamMemberName = UiWaitUtils.waitElement(displayedUserName(userName))
         teamMemberName.click()
@@ -109,7 +91,9 @@ data class ConversationPage(private val device: UiDevice) {
         assertTrue("Team member name '$userName' is not visible", !teamMemberName.visibleBounds.isEmpty)
         return this
     }
-//
+
+
+
 //    fun assertConversationIsVisibleWithTeamMember(userName: String): ConversationPage {
 //        val teamMemberName = UiWaitUtils.waitElement(displayedUserName(userName))
 //        assertTrue("Team member name '$userName' is not visible in conversation view", !teamMemberName.visibleBounds.isEmpty)

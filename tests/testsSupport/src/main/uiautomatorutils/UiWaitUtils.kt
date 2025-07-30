@@ -64,6 +64,19 @@ object UiWaitUtils {
         return requireNotNull(selector) { "At least one selector must be provided" }
     }
 
+    fun UiSelectorParams.toBySelector(): BySelector {
+        return UiWaitUtils.buildSelector(this)
+    }
+
+    fun findElementOrNull(selector: UiSelectorParams): UiObject2? {
+        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        return try {
+            device.findObject(selector.toBySelector())
+        } catch (e: Exception) {
+            null
+        }
+    }
+
     @Suppress("MagicNumber")
     fun waitElement(
         params: UiSelectorParams,
@@ -122,5 +135,18 @@ object UiWaitUtils {
         }
 
         throw AssertionError("Element matching selector [$selector] did not disappear within timeout.")
+    }
+
+    object WaitUtils {
+        fun waitFor(seconds: Int, startPinging: () -> Unit = {}, stopPinging: () -> Unit = {}) {
+            if (seconds > 20) {
+                startPinging()
+            }
+            Thread.sleep(seconds * 1000L)
+
+            if (seconds > 20) {
+                stopPinging()
+            }
+        }
     }
 }

@@ -27,6 +27,7 @@ import junit.framework.TestCase.assertFalse
 import org.junit.Assert
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
+import uiautomatorutils.UiWaitUtils.findElementOrNull
 import kotlin.test.DefaultAsserter.assertTrue
 import kotlin.test.assertEquals
 
@@ -53,34 +54,23 @@ data class ConversationViewPage(private val device: UiDevice) {
     private val downloadButtonOnVideoFile = UiSelectorParams(text = "Tap to download")
     private val videoDurationLocator = UiSelectorParams(text = "00:03")
 
-    private val messageInputField = UiSelectorParams(description = " Type a message") // ← leading space
+    private val messageInputField = UiSelectorParams(className = "android.widget.EditText")
 
     private val sendButton = UiSelectorParams(description = "Send")
 
     private val backButton = UiSelectorParams(description = "Go back to conversation list")
 
+    private val selfDestructTimerButton = UiSelectorParams(description = "Set timer for self-deleting messages")
+
+    private val selfDeletingMessageLabel = UiSelectorParams(description = " Self-deleting message")
+
+    private fun selfDestructOption(label: String): UiSelectorParams {
+        return UiSelectorParams(text = label, className = "android.widget.TextView")
+    }
+
     private fun fileWithName(name: String): UiSelectorParams {
         return UiSelectorParams(text = name)
     }
-
-//
-//        fun assertGroupConversationVisible(conversationName: String): ConversationViewPage {
-//            val conversation = UiWaitUtils.waitElement(UiSelectorParams(text = conversationName))
-//            assertTrue("Conversation '$conversationName' is not visible", !conversation.visibleBounds.isEmpty)
-//            return this
-//        }
-//
-//        fun clickConnectionRequestOfUser(userName: String): ConversationViewPage {
-//            val teamMemberName = UiWaitUtils.waitElement(displayedUserName(userName))
-//            teamMemberName.click()
-//            return this
-//        }
-
-//        fun assertConnectionRequestNameIs(userName: String): ConversationViewPage {
-//            val teamMemberName = UiWaitUtils.waitElement(displayedUserName(userName))
-//            assertTrue("Team member name '$userName' is not visible", !teamMemberName.visibleBounds.isEmpty)
-//            return this
-//        }
 
     fun assertConversationIsVisibleWithTeamMember(userName: String): ConversationViewPage {
         val teamMemberName = UiWaitUtils.waitElement(displayedUserName(userName))
@@ -293,11 +283,61 @@ data class ConversationViewPage(private val device: UiDevice) {
         Assert.assertTrue("❌ Message '$message' is not visible in the conversation", !messageElement.visibleBounds.isEmpty)
         return this
     }
+    fun assertMessageNotVisible(text: String) {
+        val element = findElementOrNull(UiSelectorParams(text = text))
+
+        Assert.assertTrue(
+            "❌ Message '$text' is still visible on the screen.",
+            element == null || element.visibleBounds.isEmpty
+        )
+    }
+
+    fun assertMessageReceivedIsVisible(message: String): ConversationViewPage {
+        val messageSelector = UiSelectorParams(text = message)
+        val messageElement = UiWaitUtils.waitElement(messageSelector)
+
+        Assert.assertTrue("❌ Message '$message' is not visible in the conversation", !messageElement.visibleBounds.isEmpty)
+        return this
+    }
 
     fun tapBackButtonOnConversationViewPage(): ConversationViewPage {
         UiWaitUtils.waitElement(backButton).click()
         return this
     }
+
+    fun tapMessageInInputField(): ConversationViewPage {
+        val inputField = UiWaitUtils.waitElement(messageInputField)
+        inputField.click()
+        return this
+    }
+
+    fun tapSelfDestructTimerButton(): ConversationViewPage {
+        val button = UiWaitUtils.waitElement(selfDestructTimerButton)
+        button.click()
+        return this
+    }
+
+    fun assertSelfDestructOptionVisible(label: String) {
+        val option = UiWaitUtils.waitElement(selfDestructOption(label))
+        Assert.assertTrue("Self-destruct option '$label' is not visible", !option.visibleBounds.isEmpty)
+    }
+
+    fun tapSelfDestructOption(label: String) {
+        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        val element = device.findObject(
+            UiSelector().text(label).className("android.widget.TextView")
+        )
+        element.click()
+    }
+
+    fun assertSelfDeletingMessageLabelVisible() {
+        val element = UiWaitUtils.waitElement(selfDeletingMessageLabel)
+        Assert.assertTrue(
+            "'Self-deleting message' label is not visible",
+            !element.visibleBounds.isEmpty
+        )
+    }
+
 
 
 }

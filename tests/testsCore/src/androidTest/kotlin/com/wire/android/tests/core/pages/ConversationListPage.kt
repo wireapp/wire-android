@@ -23,10 +23,15 @@ import androidx.test.uiautomator.UiSelector
 import org.junit.Assert
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
+import uiautomatorutils.UiWaitUtils.findElementOrNull
 
 data class ConversationListPage(private val device: UiDevice) {
 
     private val searchField = UiSelectorParams(description = "Search conversations")
+
+    private val conversationNameSelector: (String) -> UiSelectorParams = { conversationName ->
+        UiSelectorParams(text = conversationName)
+    }
 
     fun tapSearchConversationField(): ConversationListPage {
         val element = UiWaitUtils.waitElement(searchField)
@@ -63,5 +68,12 @@ data class ConversationListPage(private val device: UiDevice) {
         return this
     }
 
-
+    fun assertConversationNotVisible(conversationName: String): ConversationListPage {
+        val conversation = findElementOrNull(conversationNameSelector(conversationName))
+        Assert.assertTrue(
+            "❌ Conversation '$conversationName' is still visible.",
+            conversation == null || conversation.visibleBounds.isEmpty
+        )
+        return this
+    }
 }

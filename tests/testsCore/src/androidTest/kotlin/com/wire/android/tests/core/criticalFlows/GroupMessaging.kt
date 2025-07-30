@@ -40,6 +40,7 @@ import org.koin.test.KoinTest
 import org.koin.test.KoinTestRule
 import org.koin.test.inject
 import service.TestServiceHelper
+import uiautomatorutils.UiWaitUtils
 import user.UserClient
 import user.usermanager.ClientUserManager
 import user.utils.ClientUser
@@ -72,9 +73,6 @@ class GroupMessaging : KoinTest {
 
     @After
     fun tearDown() {
-        //  UiAutomatorSetup.stopApp()
-        // To delete team member
-        // registeredUser?.deleteTeamMember(backendClient!!, teamMember?.getUserId().orEmpty())
         // To delete team
         //  registeredUser?.deleteTeam(backendClient!!)
     }
@@ -100,8 +98,6 @@ class GroupMessaging : KoinTest {
             context,
             true
         )
-        //val teamMember = teamHelper?.usersManager!!.findUserBy("user2Name", ClientUserManager.FindBy.NAME_ALIAS)
-        //val newEmail = teamHelper?.usersManager!!.findUserBy("user4Name", ClientUserManager.FindBy.NAME_ALIAS)
 
         testServiceHelper.userHasGroupConversationInTeam(
             "user1Name",
@@ -146,19 +142,54 @@ class GroupMessaging : KoinTest {
             assertMessageSentIsVisible("Hello Team Members")
 
             tapBackButtonOnConversationViewPage()
-            testServiceHelper.apply {
-                addDevice("user2Name", null, "Device1")
-                userSendMessageToConversation("user2Name", "Hello Friends", "Device1", "MyTeam", false)
+        }
+        testServiceHelper.apply {
+            addDevice("user2Name", null, "Device1")
+            userSendMessageToConversation("user2Name", "Hello Friends", "Device1", "MyTeam", false)
+        }
+        // Thread.sleep(1000)
+        pages.notificationsPage.apply {
 
+            waitUntilNotificationPopUpGone()
+        }
+        pages.conversationListPage.apply {
+            assertUnreadMessagesCount("1")
+        }
+        pages.conversationListPage.apply {
+            clickGroupConversation("MyTeam")
+        }
+        pages.conversationViewPage.apply {
+            assertMessageReceivedIsVisible("Hello Friends")
+            tapMessageInInputField()
+            tapSelfDestructTimerButton()
+            assertSelfDestructOptionVisible("OFF")
+            assertSelfDestructOptionVisible("10 seconds")
+            assertSelfDestructOptionVisible("1 minute")
+            assertSelfDestructOptionVisible("5 minutes")
+            assertSelfDestructOptionVisible("1 hour")
+            assertSelfDestructOptionVisible("1 day")
+            assertSelfDestructOptionVisible("7 days")
+            assertSelfDestructOptionVisible("4 weeks")
+            tapSelfDestructOption("10 seconds")
+            assertSelfDeletingMessageLabelVisible()
+            typeMessageInInputField("This is a Self deleting Message")
+            clickSendButton()
+            assertMessageSentIsVisible("This is a Self deleting Message")
+            UiWaitUtils.WaitUtils.waitFor(14)  // Simple wait
+            assertMessageNotVisible("This is a Self deleting Message")
+            assertMessageSentIsVisible("After one participant has seen your message and the timer has expired on their side, this note disappears.")
+            pages.conversationListPage.apply {
+                clickGroupConversation("MyTeam")
+            }
+            pages.groupConversationDetailsPage.apply {
+                tapShowMoreOptionsButton()
+                tapDeleteConversationButton()
+                tapRemoveGroupButton()
                 pages.conversationListPage.apply {
-
-                    assertUnreadMessagesCount("1")
-                    Thread.sleep(6000)
-
-                    clickGroupConversation("MyTeam")
-
+                    assertConversationNotVisible("MyTeam")
                 }
             }
         }
     }
 }
+

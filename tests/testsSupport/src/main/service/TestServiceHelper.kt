@@ -1,3 +1,4 @@
+@file:Suppress("TooManyFunctions", "TooGenericExceptionCaught", "TooGenericExceptionThrown", "ReturnCount", "MagicNumber")
 /*
  * Wire
  * Copyright (C) 2025 Wire Swiss GmbH
@@ -38,7 +39,7 @@ import java.util.concurrent.TimeUnit
 
 class TestServiceHelper {
 
-    val WIRE_RECEIPT_MODE = "WIRE_RECEIPT_MODE"
+    val wireReceiptMode = "WIRE_RECEIPT_MODE"
     val usersManager by lazy {
         ClientUserManager.getInstance()
     }
@@ -122,8 +123,10 @@ class TestServiceHelper {
         val convoDomain = conversation.qualifiedID.domain
 
         testServiceClient.sendFile(
-            toClientUser(senderAlias), deviceName,
-            convoId, convoDomain,
+            toClientUser(senderAlias),
+            deviceName,
+            convoId,
+            convoDomain,
             getSelfDeletingMessageTimeout(senderAlias, dstConvoName),
             audio.absolutePath.orEmpty(),
             "audio/mp4"
@@ -150,8 +153,13 @@ class TestServiceHelper {
         val convoDomain = conversation.qualifiedID.domain
 
         testServiceClient.sendFile(
-            toClientUser(senderAlias), deviceName, convoId, convoDomain,
-            getSelfDeletingMessageTimeout(senderAlias, dstConvoName), textFile.absolutePath.orEmpty(), "text/plain"
+            toClientUser(senderAlias),
+            deviceName,
+            convoId,
+            convoDomain,
+            getSelfDeletingMessageTimeout(senderAlias, dstConvoName),
+            textFile.absolutePath.orEmpty(),
+            "text/plain"
         )
     }
 
@@ -175,8 +183,12 @@ class TestServiceHelper {
         val convoDomain = conversation.qualifiedID.domain
 
         testServiceClient.sendFile(
-            toClientUser(senderAlias), deviceName, convoId, convoDomain,
-            getSelfDeletingMessageTimeout(senderAlias, dstConvoName), videoFile?.absolutePath.orEmpty(),
+            toClientUser(senderAlias),
+            deviceName,
+            convoId,
+            convoDomain,
+            getSelfDeletingMessageTimeout(senderAlias, dstConvoName),
+            videoFile.absolutePath.orEmpty(),
             "video/mp4"
         )
     }
@@ -201,8 +213,12 @@ class TestServiceHelper {
         val convoDomain = conversation.qualifiedID.domain
 
         testServiceClient.sendFile(
-            toClientUser(senderAlias), deviceName, convoId, convoDomain,
-            getSelfDeletingMessageTimeout(senderAlias, dstConvoName), imageFile.absolutePath.orEmpty(),
+            toClientUser(senderAlias),
+            deviceName,
+            convoId,
+            convoDomain,
+            getSelfDeletingMessageTimeout(senderAlias, dstConvoName),
+            imageFile.absolutePath.orEmpty(),
             "image/jpeg"
         )
     }
@@ -212,7 +228,7 @@ class TestServiceHelper {
     }
 
     private fun toConvoObjPersonal(owner: ClientUser, convoName: String): Conversation {
-        val convoName = usersManager.replaceAliasesOccurrences(convoName, ClientUserManager.FindBy.NAME_ALIAS);
+        val convoName = usersManager.replaceAliasesOccurrences(convoName, ClientUserManager.FindBy.NAME_ALIAS)
         val backend = BackendClient.loadBackend(owner.backendName.orEmpty())
         return backend.getPersonalConversationByName(owner, convoName)
     }
@@ -227,12 +243,15 @@ class TestServiceHelper {
         usersManager.splitAliases(userNameAliases).forEach { userNameAlias ->
             val user = toClientUser(userNameAlias)
             val backend = BackendClient.loadBackend(user.backendName.orEmpty())
-            backend.updateUniqueUsername(user, user.uniqueUsername.orEmpty())
+            backend.updateUniqueUsername(
+                user,
+                user.uniqueUsername.orEmpty()
+            )
         }
     }
 
     fun connectionRequestIsSentTo(userFromNameAlias: String, usersToNameAliases: String) {
-        val userFrom = toClientUser(userFromNameAlias);
+        val userFrom = toClientUser(userFromNameAlias)
         val backend = BackendClient.loadBackend(userFrom.backendName.orEmpty())
         val usersTo = usersManager
             .splitAliases(usersToNameAliases)
@@ -258,7 +277,7 @@ class TestServiceHelper {
                 deviceName,
                 developmentApiEnabled
             )
-        } catch (e: HttpRequestException) {
+        } catch (_: HttpRequestException) {
             try {
                 TimeUnit.SECONDS.sleep(300)
                 testServiceClient.login(
@@ -267,7 +286,7 @@ class TestServiceHelper {
                     deviceName,
                     developmentApiEnabled
                 )
-            } catch (ei: Exception) {
+            } catch (_: Exception) {
                 throw RuntimeException("Wait and retry failed")
             }
         }
@@ -306,8 +325,8 @@ class TestServiceHelper {
             backend.getPropertyValues(user)
         }
 
-        return if (json.has(WIRE_RECEIPT_MODE)) {
-            json.getInt(WIRE_RECEIPT_MODE).toBoolean()
+        return if (json.has(wireReceiptMode)) {
+            json.getInt(wireReceiptMode).toBoolean()
         } else {
             false
         }
@@ -318,7 +337,8 @@ class TestServiceHelper {
     }
 
     fun userSendMessageToConversation(
-        senderAlias: String, msg: String,
+        senderAlias: String,
+        msg: String,
         deviceName: String,
         dstConvoName: String,
         isSelfDeleting: Boolean

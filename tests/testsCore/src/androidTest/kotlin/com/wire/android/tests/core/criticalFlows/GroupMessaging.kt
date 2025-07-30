@@ -24,6 +24,7 @@ import androidx.test.uiautomator.UiDevice
 import backendUtils.BackendClient
 import backendUtils.team.TeamHelper
 import backendUtils.team.TeamRoles
+import backendUtils.team.deleteTeam
 import com.wire.android.tests.support.UiAutomatorSetup
 import com.wire.android.tests.core.di.testModule
 import com.wire.android.tests.core.pages.AllPages
@@ -69,7 +70,7 @@ class GroupMessaging : KoinTest {
     @After
     fun tearDown() {
         // To delete team
-        //  registeredUser?.deleteTeam(backendClient!!)
+          registeredUser?.deleteTeam(backendClient!!)
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")

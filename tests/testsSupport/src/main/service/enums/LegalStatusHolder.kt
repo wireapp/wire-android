@@ -1,3 +1,4 @@
+@file:Suppress("Filename", "MatchingDeclarationName")
 /*
  * Wire
  * Copyright (C) 2025 Wire Swiss GmbH
@@ -33,4 +34,3 @@ enum class LegalHoldStatus(val code: Int) {
         }
     }
 }
-

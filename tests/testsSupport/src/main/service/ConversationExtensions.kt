@@ -1,3 +1,4 @@
+@file:Suppress("TooGenericExceptionCaught", "TooGenericExceptionThrown", "MagicNumber")
 /*
  * Wire
  * Copyright (C) 2025 Wire Swiss GmbH
@@ -119,7 +120,7 @@ fun BackendClient.getConversationIDs(user: ClientUser): List<QualifiedID> {
     var pagingState: String? = null
     do {
         val token = runBlocking { getAuthToken(user) }
-        if(token==null) return emptyList()
+        if (token == null) return emptyList()
         val response = getConversationIDs(token, pagingState)
         pagingState = response.getString("paging_state")
         val qualifiedConversations = response.getJSONArray("qualified_conversations")
@@ -137,7 +138,7 @@ fun BackendClient.getConversations(user: ClientUser): List<Conversation> {
         val batch = ids.subList(i, minOf(i + 1000, ids.size))
         val jsonArray = JSONArray(batch.map { it.toJSON() })
         val token = runBlocking { getAuthToken(user) }
-        if(token==null) return emptyList()
+        if (token == null) return emptyList()
         val response = getConversationObjects(token, jsonArray)
         val found = response.getJSONArray("found")
         for (j in 0 until found.length()) {
@@ -153,8 +154,7 @@ fun BackendClient.getConversationByName(user: ClientUser, name: String): Convers
             conv.name == null && conv.otherIds.size == 1 && conv.protocol == "mls" -> {
                 try {
                     getUserNameByID(conv.otherIds[0].domain, conv.otherIds[0].id, user) == name
-                } catch (e: IOException)
-                {
+                } catch (e: IOException) {
                     false
                 }
             }
@@ -171,7 +171,6 @@ fun BackendClient.getConversationByName(user: ClientUser, name: String): Convers
         }
     } ?: throw NoSuchElementException("Conversation '$name' does not exist for user '${user.name}'")
 }
-
 
 fun BackendClient.getConversationIDs(token: AccessToken, pagingState: String? = null): JSONObject {
     val url = "conversations/list-ids".composeCompleteUrl()
@@ -220,9 +219,14 @@ fun BackendClient.getConversationByName(ownerUser: ClientUser, otherUser: Client
 
 fun BackendClient.getConversationsByName(user: ClientUser, name: String): List<Conversation> =
     getConversations(user).filter { conv ->
-        conv.name == name || (conv.otherIds.size == 1 && try {
-            getUserNameByID(conv.qualifiedID.domain, conv.otherIds[0].id, user) == name
+        conv.name == name || (
+                conv.otherIds.size == 1 && try {
+            getUserNameByID(
+                conv.qualifiedID.domain,
+                conv.otherIds[0].id, user
+            ) == name
         } catch (e: Exception) {
             false
-        })
+        }
+                )
     }

@@ -18,6 +18,7 @@
 @file:Suppress("TooManyFunctions", "LongParameterList", "MagicNumber", "PackageNaming")
 
 package backendUtils.team
+
 import ImageUtil
 import InbucketClient.getInbucketVerificationCode
 import android.content.Context
@@ -243,7 +244,7 @@ fun BackendClient.acceptInvite(teamId: String, member: ClientUser): ClientUser {
 }
 
 fun BackendClient.getTeamId(user: ClientUser): String {
-    val token = runBlocking {  getAuthToken(user)}
+    val token = runBlocking { getAuthToken(user) }
     val url = "self".composeCompleteUrl()
 
     val headers = defaultheaders.toMutableMap().apply {

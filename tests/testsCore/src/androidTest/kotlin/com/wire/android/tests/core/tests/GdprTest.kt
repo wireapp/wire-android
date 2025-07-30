@@ -21,7 +21,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.uiautomator.UiDevice
 import backendUtils.BackendClient
 import backendUtils.user.deleteUser
-import com.wire.android.testSupport.uiautomatorutils.UiAutomatorSetup
+import com.wire.android.tests.support.UiAutomatorSetup
 import com.wire.android.tests.core.di.testModule
 import com.wire.android.tests.core.pages.AllPages
 import com.wire.android.tests.support.suite.RC

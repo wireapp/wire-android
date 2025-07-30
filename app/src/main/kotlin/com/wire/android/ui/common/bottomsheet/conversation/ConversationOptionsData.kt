@@ -45,7 +45,6 @@ data class ConversationOptionsData(
     val isUnderLegalHold: Boolean,
     val isFavorite: Boolean?,
     val folder: ConversationFolder?,
-    val isDeletingConversationLocallyRunning: Boolean
 ) {
 
     private val isSelfUserMember: Boolean get() = selfRole != null
@@ -77,7 +76,7 @@ data class ConversationOptionsData(
 
     fun canLeaveTheGroup(): Boolean = conversationTypeDetail is ConversationTypeDetail.Group && isSelfUserMember
 
-    fun canDeleteGroupLocally(): Boolean = !isSelfUserMember && !isDeletingConversationLocallyRunning
+    fun canDeleteGroupLocally(): Boolean = !isSelfUserMember
 
     fun canBlockUser(): Boolean {
         return conversationTypeDetail is ConversationTypeDetail.Private
@@ -92,10 +91,7 @@ data class ConversationOptionsData(
 }
 
 @Suppress("LongMethod")
-fun ConversationDetails.toConversationOptionsData(
-    selfUser: SelfUser,
-    isDeletingConversationLocallyRunning: Boolean
-): ConversationOptionsData? =
+fun ConversationDetails.toConversationOptionsData(selfUser: SelfUser): ConversationOptionsData? =
     when (this) {
         is ConversationDetails.Group -> ConversationOptionsData(
             conversationId = conversation.id,
@@ -127,7 +123,6 @@ fun ConversationDetails.toConversationOptionsData(
             isUnderLegalHold = conversation.legalHoldStatus.showLegalHoldIndicator(),
             isFavorite = isFavorite,
             folder = folder,
-            isDeletingConversationLocallyRunning = isDeletingConversationLocallyRunning
         )
 
         is ConversationDetails.OneOne -> ConversationOptionsData(
@@ -153,7 +148,6 @@ fun ConversationDetails.toConversationOptionsData(
             isUnderLegalHold = conversation.legalHoldStatus.showLegalHoldIndicator(),
             isFavorite = isFavorite,
             folder = folder,
-            isDeletingConversationLocallyRunning = isDeletingConversationLocallyRunning,
         )
 
         is ConversationDetails.Connection -> ConversationOptionsData(
@@ -172,7 +166,6 @@ fun ConversationDetails.toConversationOptionsData(
             isUnderLegalHold = conversation.legalHoldStatus.showLegalHoldIndicator(),
             isFavorite = null,
             folder = null,
-            isDeletingConversationLocallyRunning = isDeletingConversationLocallyRunning,
         )
 
         is ConversationDetails.Self -> null

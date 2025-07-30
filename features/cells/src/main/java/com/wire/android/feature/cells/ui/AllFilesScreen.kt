@@ -22,6 +22,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.wire.android.feature.cells.ui.destinations.AddRemoveTagsScreenDestination
+import com.wire.android.feature.cells.ui.destinations.ConversationFilesScreenDestination
+import com.wire.android.feature.cells.ui.destinations.ConversationFilesScreenDestination.invoke
 import com.wire.android.feature.cells.ui.destinations.PublicLinkScreenDestination
 import com.wire.android.feature.cells.ui.filter.FilterBottomSheet
 import com.wire.android.navigation.NavigationCommand
@@ -61,13 +63,12 @@ fun AllFilesScreen(
     }
 
     searchBarState.searchVisibleChanged(isSearchVisible)
-
     CellScreenContent(
         actionsFlow = viewModel.actions,
         pagingListItems = pagingListItems,
         sendIntent = { viewModel.sendIntent(it) },
         onFolderClick = {
-            // TODO: Handle folder click later
+            navigator.navigate(NavigationCommand(ConversationFilesScreenDestination(it.remotePath)))
         },
         downloadFileState = viewModel.downloadFileSheet,
         menuState = viewModel.menu,

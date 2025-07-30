@@ -21,11 +21,6 @@ import android.os.SystemClock
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiSelector
-import org.junit.Assert
-import uiautomatorutils.UiSelectorParams
-import uiautomatorutils.UiWaitUtils
-
-
 data class ConnectedUserProfilePage(private val device: UiDevice) {
 
     private val startConversationButton = UiSelector().text("Start Conversation")
@@ -33,17 +28,11 @@ data class ConnectedUserProfilePage(private val device: UiDevice) {
     fun clickStartConversationButton(): ConnectedUserProfilePage {
         device.findObject(startConversationButton).click()
         return this
-
     }
-
-
-    fun assertToastMessageIsDisplayed(expectedMessage: String): ConnectedUserProfilePage {
-        val toast = UiWaitUtils.waitElement(UiSelectorParams(text = expectedMessage))
-        Assert.assertTrue("Toast message '$expectedMessage' is not displayed.", !toast.visibleBounds.isEmpty)
-        return this
-    }
-
-    fun assertToastMessageIsDisplayedWithWait(expectedMessage: String, timeoutMillis: Long = 5_000): ConnectedUserProfilePage {
+    fun assertToastMessageIsDisplayedWithWait(
+        expectedMessage: String,
+        timeoutMillis: Long = 5_000
+    ): ConnectedUserProfilePage {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         val deadline = SystemClock.uptimeMillis() + timeoutMillis
         val selector = UiSelector().text(expectedMessage)
@@ -58,34 +47,4 @@ data class ConnectedUserProfilePage(private val device: UiDevice) {
 
         throw AssertionError("❌ Toast message '$expectedMessage' was not displayed within ${timeoutMillis}ms.")
     }
-
-
-
-    fun assertToastMessageIsDisplayedAndGone(
-        expectedMessage: String,
-        timeoutMillis: Long = 5_000
-    ): ConnectedUserProfilePage {
-        val selector = UiSelector().text(expectedMessage)
-        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-
-        val toast = UiWaitUtils.waitElement(UiSelectorParams(text = expectedMessage))
-        Assert.assertTrue("Toast message '$expectedMessage' is not displayed.", !toast.visibleBounds.isEmpty)
-
-        UiWaitUtils.waitUntilElementGone(device, selector, timeoutMillis = timeoutMillis)
-
-        return this
-    }
-
-
-
 }
-
-
-
-
-
-
-
-
-
-

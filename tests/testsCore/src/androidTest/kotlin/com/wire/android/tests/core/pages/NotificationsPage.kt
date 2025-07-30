@@ -21,9 +21,7 @@ import android.os.SystemClock
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
-import androidx.test.uiautomator.UiSelector
 import androidx.test.uiautomator.Until
-import uiautomatorutils.UiWaitUtils.waitUntilElementGone
 
 class NotificationsPage(private val device: UiDevice) {
     fun waitUntilNotificationPopUpGone(timeoutMillis: Long = 10_000L) {
@@ -39,5 +37,4 @@ class NotificationsPage(private val device: UiDevice) {
             }
         }
     }
-
 }

@@ -15,8 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.tests.core.criticalFlows
 
+package com.wire.android.tests.core.criticalFlows
 
 import android.content.Context
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -41,7 +41,6 @@ import org.koin.test.inject
 import service.TestServiceHelper
 import user.usermanager.ClientUserManager
 import user.utils.ClientUser
-
 
 @RunWith(AndroidJUnit4::class)
 class FileSharing : KoinTest {
@@ -79,7 +78,7 @@ class FileSharing : KoinTest {
         deleteDownloadedFilesContainingFileWord()
     }
 
-    @Suppress("LongMethod")
+    @Suppress("CyclomaticComplexMethod", "LongMethod")
     @Test
     fun fileSharingFeature() {
 
@@ -168,7 +167,7 @@ class FileSharing : KoinTest {
             pages.conversationViewPage.apply {
                 assertConversationIsVisibleWithTeamMember(connectionSenderFromSendTeam.name ?: "")
 
-                //send Audio File
+                // send Audio File
                 testServiceHelper.contactSendsLocalAudioPersonalMLSConversation(
                     context,
                     "AudioFile",
@@ -191,7 +190,7 @@ class FileSharing : KoinTest {
                 assertFileSavedToastContain("The file AudioFile.mp3 was saved successfully to the Downloads folder")
             }
             pages.conversationViewPage.apply {
-                //send image File
+                // send image File
                 testServiceHelper.contactSendsLocalImagePersonalMLSConversation(
                     context,
                     "ImageFile",
@@ -206,7 +205,8 @@ class FileSharing : KoinTest {
                 assertDownloadModalButtonsAreVisible_Open_Save_Cancel()
                 clickSaveButtonOnDownloadModal()
                 assertFileSavedToastContain("The file ImageFile.jpg was saved successfully to the Downloads folder")
-                //send text File
+
+                // send text File
                 testServiceHelper.contactSendsLocalTextPersonalMLSConversation(
                     context,
                     "TextFile",
@@ -222,7 +222,7 @@ class FileSharing : KoinTest {
                 clickSaveButtonOnDownloadModal()
                 assertFileSavedToastContain("The file TextFile.txt was saved successfully to the Downloads folder")
 
-                //send video File
+                // send video File
                 testServiceHelper.contactSendsLocalVideoPersonalMLSConversation(
                     context,
                     "VideoFile",
@@ -245,7 +245,3 @@ class FileSharing : KoinTest {
         }
     }
 }
-
-
-
-

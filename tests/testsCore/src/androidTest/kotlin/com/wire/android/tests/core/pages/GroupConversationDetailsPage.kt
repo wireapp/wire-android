@@ -29,7 +29,6 @@ data class GroupConversationDetailsPage(private val device: UiDevice) {
 
     private val removeGroupButton = UiSelectorParams(text = "Remove")
 
-
     fun tapShowMoreOptionsButton() {
         UiWaitUtils.waitElement(showMoreOptionsButton).click()
     }
@@ -41,6 +40,4 @@ data class GroupConversationDetailsPage(private val device: UiDevice) {
     fun tapRemoveGroupButton() {
         UiWaitUtils.waitElement(removeGroupButton).click()
     }
-
-
 }

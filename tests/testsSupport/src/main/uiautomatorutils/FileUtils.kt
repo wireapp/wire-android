@@ -1,5 +1,7 @@
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
+import java.io.IOException
+
 fun deleteDownloadedFilesContainingFileWord() {
     try {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
@@ -21,8 +23,7 @@ fun deleteDownloadedFilesContainingFileWord() {
             val result = device.executeShellCommand(deleteCommand)
             println("✅ Deleted: $file. Output: $result")
         }
-
-    } catch (e: Exception) {
+    } catch (e: IOException) {
         println("❌ Error while deleting files: ${e.message}")
     }
 }

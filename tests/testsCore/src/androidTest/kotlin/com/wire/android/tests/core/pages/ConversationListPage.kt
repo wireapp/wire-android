@@ -19,7 +19,6 @@ package com.wire.android.tests.core.pages
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
-import androidx.test.uiautomator.UiSelector
 import org.junit.Assert
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
@@ -50,7 +49,6 @@ data class ConversationListPage(private val device: UiDevice) {
 
         return this
     }
-
 
     fun clickGroupConversation(conversationName: String): ConversationListPage {
         val conversation = UiWaitUtils.waitElement(UiSelectorParams(text = conversationName))

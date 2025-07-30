@@ -36,5 +36,4 @@ class AllPages(val device: UiDevice) {
     val notificationsPage = NotificationsPage(device)
 
     val groupConversationDetailsPage = GroupConversationDetailsPage(device)
-
 }

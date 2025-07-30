@@ -31,9 +31,7 @@ import uiautomatorutils.UiWaitUtils.findElementOrNull
 import kotlin.test.DefaultAsserter.assertTrue
 import kotlin.test.assertEquals
 
-
 data class ConversationViewPage(private val device: UiDevice) {
-
     private fun displayedUserName(userName: String) = UiSelectorParams(text = userName)
     private val audioSeekBar = UiSelectorParams(className = "android.widget.SeekBar")
     private val audioInitialTime = UiSelectorParams(text = "00:00")
@@ -74,7 +72,10 @@ data class ConversationViewPage(private val device: UiDevice) {
 
     fun assertConversationIsVisibleWithTeamMember(userName: String): ConversationViewPage {
         val teamMemberName = UiWaitUtils.waitElement(displayedUserName(userName))
-        assertTrue("Team member name '$userName' is not visible in conversation view", !teamMemberName.visibleBounds.isEmpty)
+        assertTrue(
+            "Team member name '$userName' is not visible in conversation view",
+            !teamMemberName.visibleBounds.isEmpty
+        )
         return this
     }
 
@@ -175,7 +176,6 @@ data class ConversationViewPage(private val device: UiDevice) {
         return this
     }
 
-
     fun clickFileWithName(fileName: String): ConversationViewPage {
         val fileNameElement = UiWaitUtils.waitElement(fileWithName(fileName))
         fileNameElement.click()
@@ -204,7 +204,6 @@ data class ConversationViewPage(private val device: UiDevice) {
         return this
     }
 
-
     fun clickSaveButtonOnDownloadModal(): ConversationViewPage {
         UiWaitUtils.waitElement(saveButton).click()
         return this
@@ -214,7 +213,6 @@ data class ConversationViewPage(private val device: UiDevice) {
         UiWaitUtils.waitElement(openButton).click()
         return this
     }
-
 
     fun assertFileSavedToastContain(partialText: String): ConversationViewPage {
         val toast = UiWaitUtils.waitElement(UiSelectorParams(textContains = partialText))
@@ -280,9 +278,13 @@ data class ConversationViewPage(private val device: UiDevice) {
         val messageSelector = UiSelectorParams(text = message)
         val messageElement = UiWaitUtils.waitElement(messageSelector)
 
-        Assert.assertTrue("❌ Message '$message' is not visible in the conversation", !messageElement.visibleBounds.isEmpty)
+        Assert.assertTrue(
+            "❌ Message '$message' is not visible in the conversation",
+            !messageElement.visibleBounds.isEmpty
+        )
         return this
     }
+
     fun assertMessageNotVisible(text: String) {
         val element = findElementOrNull(UiSelectorParams(text = text))
 
@@ -296,7 +298,10 @@ data class ConversationViewPage(private val device: UiDevice) {
         val messageSelector = UiSelectorParams(text = message)
         val messageElement = UiWaitUtils.waitElement(messageSelector)
 
-        Assert.assertTrue("❌ Message '$message' is not visible in the conversation", !messageElement.visibleBounds.isEmpty)
+        Assert.assertTrue(
+            "❌ Message '$message' is not visible in the conversation",
+            !messageElement.visibleBounds.isEmpty
+        )
         return this
     }
 
@@ -337,8 +342,4 @@ data class ConversationViewPage(private val device: UiDevice) {
             !element.visibleBounds.isEmpty
         )
     }
-
-
-
 }
-

@@ -548,7 +548,6 @@ class BackendClient(
         }
     }
 
-
     fun String.composeCompleteUrl(): String {
         return "${backendUrl}$this"
     }

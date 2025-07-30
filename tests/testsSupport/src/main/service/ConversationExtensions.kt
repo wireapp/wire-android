@@ -30,6 +30,7 @@ import service.models.Conversation
 import service.models.QualifiedID
 import user.utils.AccessToken
 import user.utils.ClientUser
+import java.io.IOException
 import java.net.URL
 
 suspend fun BackendClient.createTeamConversation(
@@ -152,7 +153,8 @@ fun BackendClient.getConversationByName(user: ClientUser, name: String): Convers
             conv.name == null && conv.otherIds.size == 1 && conv.protocol == "mls" -> {
                 try {
                     getUserNameByID(conv.otherIds[0].domain, conv.otherIds[0].id, user) == name
-                } catch (e: Exception) {
+                } catch (e: IOException)
+                {
                     false
                 }
             }

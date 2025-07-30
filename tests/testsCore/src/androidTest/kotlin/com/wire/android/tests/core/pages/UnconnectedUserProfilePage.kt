@@ -22,7 +22,6 @@ import org.junit.Assert
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 
-
 data class UnconnectedUserProfilePage(private val device: UiDevice) {
 
     private val acceptButton = UiSelectorParams(text = "Accept")
@@ -32,7 +31,6 @@ data class UnconnectedUserProfilePage(private val device: UiDevice) {
     private val connectionNotificationText = UiSelectorParams(
         textContains = "This user wants to connect with you."
     )
-
 
     fun assertAcceptButtonIsDisplayed(): UnconnectedUserProfilePage {
         val acceptButtonElement = UiWaitUtils.waitElement(acceptButton)
@@ -53,7 +51,10 @@ data class UnconnectedUserProfilePage(private val device: UiDevice) {
 
     fun assertConnectionRequestNotificationTextIsDisplayed(): UnconnectedUserProfilePage {
         val connectionRequestNotificationText = UiWaitUtils.waitElement(connectionNotificationText)
-        Assert.assertTrue("This user wants to connect with you text is not visible.", !connectionRequestNotificationText.visibleBounds.isEmpty)
+        Assert.assertTrue(
+            "This user wants to connect with you text is not visible.",
+            !connectionRequestNotificationText.visibleBounds.isEmpty
+        )
         return this
     }
 }

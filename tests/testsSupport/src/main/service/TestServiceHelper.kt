@@ -44,11 +44,10 @@ class TestServiceHelper {
     }
 
     val testServiceClient by lazy {
-        TestService("http://192.168.2.18:8080","TestService")
+        TestService("http://192.168.2.18:8080", "TestService")
     }
 
-
-    private  fun getRawResourceAsFile(context: Context, @RawRes rawResId: Int, fileName: String): File? {
+    private fun getRawResourceAsFile(context: Context, @RawRes rawResId: Int, fileName: String): File? {
         val cacheDir = context.cacheDir
         val outputFile = File(cacheDir, fileName)
 
@@ -94,7 +93,7 @@ class TestServiceHelper {
             ClientUserManager.FindBy.NAME_ALIAS
         )
 
-        val messageTimerMillis =toConvoObjPersonal(user,resolvedConversationName).messageTimerInMilliseconds
+        val messageTimerMillis = toConvoObjPersonal(user, resolvedConversationName).messageTimerInMilliseconds
         if (messageTimerMillis > 0) {
             return Duration.ofMillis(messageTimerMillis.toLong())
         }
@@ -104,17 +103,17 @@ class TestServiceHelper {
     }
 
     fun contactSendsLocalAudioPersonalMLSConversation(
-        context:Context,
+        context: Context,
         fileName: String,
         senderAlias: String,
         deviceName: String,
         dstConvoName: String
     ) {
 
-        val audio = getRawResourceAsFile(context,R.raw.test, fileName)
-        val  conversation = toConvoObjPersonal(senderAlias, dstConvoName)
+        val audio = getRawResourceAsFile(context, R.raw.test, fileName)
+        val conversation = toConvoObjPersonal(senderAlias, dstConvoName)
 
-        if(audio?.exists()!=true){
+        if (audio?.exists() != true) {
             throw Exception("Audio file not found")
         }
 
@@ -122,25 +121,27 @@ class TestServiceHelper {
 
         val convoDomain = conversation.qualifiedID.domain
 
-        testServiceClient.sendFile(toClientUser(senderAlias), deviceName,
+        testServiceClient.sendFile(
+            toClientUser(senderAlias), deviceName,
             convoId, convoDomain,
-            getSelfDeletingMessageTimeout(senderAlias,dstConvoName),
+            getSelfDeletingMessageTimeout(senderAlias, dstConvoName),
             audio.absolutePath.orEmpty(),
-            "audio/mp4")
+            "audio/mp4"
+        )
     }
 
     fun contactSendsLocalTextPersonalMLSConversation(
-        context:Context,
+        context: Context,
         fileName: String,
         senderAlias: String,
         deviceName: String,
         dstConvoName: String
     ) {
 
-        val textFile = getRawResourceAsFile(context,R.raw.gistfile1, fileName)
-        val  conversation = toConvoObjPersonal(senderAlias, dstConvoName)
+        val textFile = getRawResourceAsFile(context, R.raw.gistfile1, fileName)
+        val conversation = toConvoObjPersonal(senderAlias, dstConvoName)
 
-        if(textFile?.exists()!=true){
+        if (textFile?.exists() != true) {
             throw Exception("Text file not found")
         }
 
@@ -148,23 +149,24 @@ class TestServiceHelper {
 
         val convoDomain = conversation.qualifiedID.domain
 
-        testServiceClient.sendFile(toClientUser(senderAlias), deviceName, convoId, convoDomain,
-            getSelfDeletingMessageTimeout(senderAlias,dstConvoName), textFile.absolutePath.orEmpty(), "text/plain")
-
+        testServiceClient.sendFile(
+            toClientUser(senderAlias), deviceName, convoId, convoDomain,
+            getSelfDeletingMessageTimeout(senderAlias, dstConvoName), textFile.absolutePath.orEmpty(), "text/plain"
+        )
     }
 
     fun contactSendsLocalVideoPersonalMLSConversation(
-        context:Context,
+        context: Context,
         fileName: String,
         senderAlias: String,
         deviceName: String,
         dstConvoName: String
     ) {
 
-        val videoFile = getRawResourceAsFile(context,R.raw.testing, fileName)
-        val  conversation = toConvoObjPersonal(senderAlias, dstConvoName)
+        val videoFile = getRawResourceAsFile(context, R.raw.testing, fileName)
+        val conversation = toConvoObjPersonal(senderAlias, dstConvoName)
 
-        if(videoFile?.exists()!=true){
+        if (videoFile?.exists() != true) {
             throw Exception("Video file not found")
         }
 
@@ -172,24 +174,25 @@ class TestServiceHelper {
 
         val convoDomain = conversation.qualifiedID.domain
 
-        testServiceClient.sendFile(toClientUser(senderAlias), deviceName, convoId, convoDomain,
-            getSelfDeletingMessageTimeout(senderAlias,dstConvoName), videoFile?.absolutePath.orEmpty(),
-            "video/mp4")
-
+        testServiceClient.sendFile(
+            toClientUser(senderAlias), deviceName, convoId, convoDomain,
+            getSelfDeletingMessageTimeout(senderAlias, dstConvoName), videoFile?.absolutePath.orEmpty(),
+            "video/mp4"
+        )
     }
 
     fun contactSendsLocalImagePersonalMLSConversation(
-        context:Context,
+        context: Context,
         fileName: String,
         senderAlias: String,
         deviceName: String,
         dstConvoName: String
     ) {
 
-        val imageFile = getRawResourceAsFile(context,R.raw.testing, fileName)
-        val  conversation = toConvoObjPersonal(senderAlias, dstConvoName)
+        val imageFile = getRawResourceAsFile(context, R.raw.testing, fileName)
+        val conversation = toConvoObjPersonal(senderAlias, dstConvoName)
 
-        if(imageFile?.exists()!=true){
+        if (imageFile?.exists() != true) {
             throw Exception("Video file not found")
         }
 
@@ -197,26 +200,25 @@ class TestServiceHelper {
 
         val convoDomain = conversation.qualifiedID.domain
 
-        testServiceClient.sendFile(toClientUser(senderAlias), deviceName, convoId, convoDomain,
-            getSelfDeletingMessageTimeout(senderAlias,dstConvoName), imageFile.absolutePath.orEmpty(),
-            "image/jpeg")
-
+        testServiceClient.sendFile(
+            toClientUser(senderAlias), deviceName, convoId, convoDomain,
+            getSelfDeletingMessageTimeout(senderAlias, dstConvoName), imageFile.absolutePath.orEmpty(),
+            "image/jpeg"
+        )
     }
 
-
-
-    private fun toConvoObjPersonal( ownerAlias:String,  convoName:String) : Conversation{
+    private fun toConvoObjPersonal(ownerAlias: String, convoName: String): Conversation {
         return toConvoObjPersonal(toClientUser(ownerAlias), convoName)
     }
 
-    private fun toConvoObjPersonal( owner:ClientUser,  convoName:String):Conversation {
+    private fun toConvoObjPersonal(owner: ClientUser, convoName: String): Conversation {
         val convoName = usersManager.replaceAliasesOccurrences(convoName, ClientUserManager.FindBy.NAME_ALIAS);
         val backend = BackendClient.loadBackend(owner.backendName.orEmpty())
         return backend.getPersonalConversationByName(owner, convoName)
     }
 
-    private fun toConvoObj(owner:ClientUser,  convoName:String):Conversation {
-        val convoName = usersManager.replaceAliasesOccurrences(convoName, ClientUserManager.FindBy.NAME_ALIAS);
+    private fun toConvoObj(owner: ClientUser, convoName: String): Conversation {
+        val convoName = usersManager.replaceAliasesOccurrences(convoName, ClientUserManager.FindBy.NAME_ALIAS)
         val backend = BackendClient.loadBackend(owner.backendName.orEmpty())
         return backend.getConversationByName(owner, convoName)
     }
@@ -231,7 +233,7 @@ class TestServiceHelper {
 
     fun connectionRequestIsSentTo(userFromNameAlias: String, usersToNameAliases: String) {
         val userFrom = toClientUser(userFromNameAlias);
-        val backend = BackendClient.loadBackend(userFrom.backendName.orEmpty());
+        val backend = BackendClient.loadBackend(userFrom.backendName.orEmpty())
         val usersTo = usersManager
             .splitAliases(usersToNameAliases)
             .map(this::toClientUser)
@@ -241,12 +243,14 @@ class TestServiceHelper {
             }
         }
     }
+
     fun addDevice(
         ownerAlias: String,
         verificationCode: String? = null,
         deviceName: String? = null,
     ) {
-        val developmentApiEnabled = BackendClient.loadBackend(toClientUser(ownerAlias).backendName.orEmpty()).isDevelopmentApiEnabled(toClientUser(ownerAlias))
+        val developmentApiEnabled =
+            BackendClient.loadBackend(toClientUser(ownerAlias).backendName.orEmpty()).isDevelopmentApiEnabled(toClientUser(ownerAlias))
         try {
             testServiceClient.login(
                 toClientUser(ownerAlias),
@@ -299,7 +303,8 @@ class TestServiceHelper {
         val user = toClientUser(userNameAlias)
         val backend = BackendClient.loadBackend(user.backendName.orEmpty())
         val json = runBlocking {
-            backend.getPropertyValues(user) }
+            backend.getPropertyValues(user)
+        }
 
         return if (json.has(WIRE_RECEIPT_MODE)) {
             json.getInt(WIRE_RECEIPT_MODE).toBoolean()
@@ -307,14 +312,17 @@ class TestServiceHelper {
             false
         }
     }
-   private fun Int.toBoolean() : Boolean{
+
+    private fun Int.toBoolean(): Boolean {
         return this != 0
     }
 
-    fun userSendMessageToConversation(senderAlias:String, msg:String,
-                                        deviceName:String,
-                                      dstConvoName:String,
-                                      isSelfDeleting:Boolean){
+    fun userSendMessageToConversation(
+        senderAlias: String, msg: String,
+        deviceName: String,
+        dstConvoName: String,
+        isSelfDeleting: Boolean
+    ) {
         val clientUser = toClientUser(senderAlias)
         val conversation = toConvoObj(clientUser, dstConvoName)
         val convoId = conversation.qualifiedID.id
@@ -328,17 +336,19 @@ class TestServiceHelper {
             }
         }
 
-         testServiceClient.sendText(
+        testServiceClient.sendText(
             SendTextParams(
                 owner = clientUser,
-            deviceName =  deviceName,
-            convoDomain= convoDomain,
-            convoId= convoId,
-            timeout = if(isSelfDeleting) Duration.ofSeconds(1000) else Duration.ofSeconds(0),
-            expReadConfirm,
-            text = msg,
-            legalHoldStatus = LegalHoldStatus.DISABLED.code,
-        ))
+                deviceName = deviceName,
+                convoDomain = convoDomain,
+                convoId = convoId,
+                timeout = if (isSelfDeleting) Duration.ofSeconds(1000) else Duration.ofSeconds(0),
+                expReadConfirm,
+                text = msg,
+                legalHoldStatus = LegalHoldStatus.DISABLED.code,
+
+                )
+        )
     }
 
     fun toClientUser(nameAlias: String): ClientUser {

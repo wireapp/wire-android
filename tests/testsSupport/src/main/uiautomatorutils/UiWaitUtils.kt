@@ -25,6 +25,7 @@ import androidx.test.uiautomator.StaleObjectException
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiObject2
 import androidx.test.uiautomator.UiSelector
+import java.io.IOException
 
 private const val TIMEOUT_IN_MILLISECONDS = 10000L
 
@@ -72,12 +73,12 @@ object UiWaitUtils {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         return try {
             device.findObject(selector.toBySelector())
-        } catch (e: Exception) {
+        } catch (e: IOException) {
             null
         }
     }
 
-    @Suppress("MagicNumber")
+    @Suppress("MagicNumber", "NestedBlockDepth")
     fun waitElement(
         params: UiSelectorParams,
         timeoutMillis: Long = 10_000,
@@ -116,7 +117,6 @@ object UiWaitUtils {
         )
     }
 
-
     fun waitUntilElementGone(
         device: UiDevice,
         selector: UiSelector,
@@ -137,6 +137,7 @@ object UiWaitUtils {
         throw AssertionError("Element matching selector [$selector] did not disappear within timeout.")
     }
 
+    @Suppress("MagicNumber")
     object WaitUtils {
         fun waitFor(seconds: Int, startPinging: () -> Unit = {}, stopPinging: () -> Unit = {}) {
             if (seconds > 20) {

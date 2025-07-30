@@ -17,8 +17,6 @@
  */
 package com.wire.android.tests.core.criticalFlows
 
-
-import InbucketClient
 import android.content.Context
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
@@ -26,11 +24,9 @@ import androidx.test.uiautomator.UiDevice
 import backendUtils.BackendClient
 import backendUtils.team.TeamHelper
 import backendUtils.team.TeamRoles
-import backendUtils.team.deleteTeam
 import com.wire.android.testSupport.uiautomatorutils.UiAutomatorSetup
 import com.wire.android.tests.core.di.testModule
 import com.wire.android.tests.core.pages.AllPages
-import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -41,7 +37,6 @@ import org.koin.test.KoinTestRule
 import org.koin.test.inject
 import service.TestServiceHelper
 import uiautomatorutils.UiWaitUtils
-import user.UserClient
 import user.usermanager.ClientUserManager
 import user.utils.ClientUser
 
@@ -77,7 +72,7 @@ class GroupMessaging : KoinTest {
         //  registeredUser?.deleteTeam(backendClient!!)
     }
 
-    @Suppress("LongMethod")
+    @Suppress("CyclomaticComplexMethod", "LongMethod")
     @Test
     fun groupMessagingFeature() {
         teamHelper?.usersManager!!.createTeamOwnerByAlias(
@@ -114,7 +109,6 @@ class GroupMessaging : KoinTest {
             clickLoginButton()
             enterPersonalUserLoginPassword(registeredUser?.password ?: "")
             clickLoginButton()
-
         }
         pages.registrationPage.apply {
             waitUntilLoginFlowIsComplete()
@@ -124,7 +118,6 @@ class GroupMessaging : KoinTest {
         pages.conversationPage.apply {
             assertGroupConversationVisible("MyTeam")
         }
-
         pages.conversationListPage.apply {
             tapSearchConversationField()
             typeFirstNCharsInSearchField("MyTestGroup", 3) // types "MyT"
@@ -138,9 +131,7 @@ class GroupMessaging : KoinTest {
         pages.conversationViewPage.apply {
             typeMessageInInputField("Hello Team Members")
             clickSendButton()
-
             assertMessageSentIsVisible("Hello Team Members")
-
             tapBackButtonOnConversationViewPage()
         }
         testServiceHelper.apply {
@@ -149,13 +140,10 @@ class GroupMessaging : KoinTest {
         }
         // Thread.sleep(1000)
         pages.notificationsPage.apply {
-
             waitUntilNotificationPopUpGone()
         }
         pages.conversationListPage.apply {
             assertUnreadMessagesCount("1")
-        }
-        pages.conversationListPage.apply {
             clickGroupConversation("MyTeam")
         }
         pages.conversationViewPage.apply {
@@ -175,21 +163,22 @@ class GroupMessaging : KoinTest {
             typeMessageInInputField("This is a Self deleting Message")
             clickSendButton()
             assertMessageSentIsVisible("This is a Self deleting Message")
-            UiWaitUtils.WaitUtils.waitFor(14)  // Simple wait
+            UiWaitUtils.WaitUtils.waitFor(14) // Simple wait
             assertMessageNotVisible("This is a Self deleting Message")
-            assertMessageSentIsVisible("After one participant has seen your message and the timer has expired on their side, this note disappears.")
-            pages.conversationListPage.apply {
-                clickGroupConversation("MyTeam")
-            }
-            pages.groupConversationDetailsPage.apply {
-                tapShowMoreOptionsButton()
-                tapDeleteConversationButton()
-                tapRemoveGroupButton()
-                pages.conversationListPage.apply {
-                    assertConversationNotVisible("MyTeam")
-                }
-            }
+            assertMessageSentIsVisible(
+                "After one participant has seen your message and the timer has expired on their side, this note disappears."
+            )
+        }
+        pages.conversationListPage.apply {
+            clickGroupConversation("MyTeam")
+        }
+        pages.groupConversationDetailsPage.apply {
+            tapShowMoreOptionsButton()
+            tapDeleteConversationButton()
+            tapRemoveGroupButton()
+        }
+        pages.conversationListPage.apply {
+            assertConversationNotVisible("MyTeam")
         }
     }
 }
-

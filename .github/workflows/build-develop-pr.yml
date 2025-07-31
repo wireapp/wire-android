@@ -12,6 +12,7 @@ on:
 permissions:
   contents: read
   actions: read
+  pull-requests: write
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.event.merge_group.head_sha }}

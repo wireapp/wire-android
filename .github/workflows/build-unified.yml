@@ -14,9 +14,9 @@ on:
         default: true
 
 permissions:
+  pull-requests: write
   contents: read
   actions: read
-  pull-requests: write
 
 concurrency:
   group: build-unified-${{ github.ref }}

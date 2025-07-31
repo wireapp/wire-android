@@ -106,4 +106,5 @@
     <string name="no_tags_message">No tags has been added this file.</string>
     <string name="tags_edited">Tags were edited</string>
     <string name="failed_edit_tags">Failed to edit tags</string>
+    <string name="create_folder_invalid_name">Name cannot contain "/" or "." characters</string>
 </resources>

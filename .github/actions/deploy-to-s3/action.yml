@@ -55,15 +55,15 @@ runs:
         file-path: ${{ steps.path.outputs.apk_full_path }}
         output-file-url: 'false'
         public: false
-    - name: Show URL
-      if: github.event.pull_request.number != ''
-      shell: bash
-      env:
-        EVENT_FILE_PATH: artifacts/Event File/event.json
-        GITHUB_USER: ${{ github.actor }}
-        GITHUB_TOKEN: ${{ inputs.github-token }}
-      run: |
-        gh pr comment "${{ github.event.pull_request.number }}" --body "Built [wire-android-${{ inputs.build-flavour }}-${{ inputs.build-variant }}-pr-${{ github.event.pull_request.number }}.apk](${{ steps.upload.outputs.file-url }}) is available for download"
+#    - name: Show URL
+#      if: github.event.pull_request.number != ''
+#      shell: bash
+#      env:
+#        EVENT_FILE_PATH: artifacts/Event File/event.json
+#        GITHUB_USER: ${{ github.actor }}
+#        GITHUB_TOKEN: ${{ inputs.github-token }}
+#      run: |
+#        gh pr comment "${{ github.event.pull_request.number }}" --body "Built [wire-android-${{ inputs.build-flavour }}-${{ inputs.build-variant }}-pr-${{ github.event.pull_request.number }}.apk](${{ steps.upload.outputs.file-url }}) is available for download"
     - name: Extract version and version code from APK filename
       shell: bash
       run: |

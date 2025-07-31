@@ -16,7 +16,6 @@ on:
 permissions:
   contents: read
   actions: read
-  pull-requests: write
 
 concurrency:
   group: build-unified-${{ github.ref }}

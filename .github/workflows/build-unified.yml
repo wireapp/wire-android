@@ -82,14 +82,14 @@ jobs:
           rm -f ~/.gradle/caches/modules-2/gc.properties
 
   # Keep complex workflows as reusable but call them directly
-#  ui-tests:
-#    name: "UI Tests"
-#    uses: ./.github/workflows/gradle-run-ui-tests.yml
-#
-#  unit-tests:
-#    name: "Unit Tests"
-#    uses: ./.github/workflows/gradle-run-unit-tests.yml
-#    secrets: inherit
+  ui-tests:
+    name: "UI Tests"
+    uses: ./.github/workflows/gradle-run-ui-tests.yml
+
+  unit-tests:
+    name: "Unit Tests"
+    uses: ./.github/workflows/gradle-run-unit-tests.yml
+    secrets: inherit
 
   # Build matrix job - only runs if all quality checks pass
   build:

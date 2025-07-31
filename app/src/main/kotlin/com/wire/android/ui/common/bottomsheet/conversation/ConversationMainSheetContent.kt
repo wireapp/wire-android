@@ -28,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.model.NameBasedAvatar
@@ -38,6 +39,7 @@ import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
 import com.wire.android.ui.common.bottomsheet.WireMenuModalSheetContent
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.common.dialogs.UnblockUserDialogState
 import com.wire.android.ui.common.dimensions
@@ -72,6 +74,7 @@ internal fun ConversationMainSheetContent(
     deleteGroup: (DeleteGroupDialogState) -> Unit,
     deleteGroupLocally: (DeleteGroupDialogState) -> Unit,
     openMutingOptions: () -> Unit,
+    openDebugMenu: () -> Unit,
 ) {
     val conversationTitle = data.title.asString()
     WireMenuModalSheetContent(
@@ -81,6 +84,23 @@ internal fun ConversationMainSheetContent(
             customVerticalPadding = dimensions().spacing8x
         ),
         menuItems = buildList<@Composable () -> Unit> {
+
+            if (BuildConfig.DEBUG_SCREEN_ENABLED && BuildConfig.PRIVATE_BUILD) {
+                add {
+                    MenuBottomSheetItem(
+                        title = "Inspect conversation",
+                        leading = {
+                            MenuItemIcon(
+                                id = R.drawable.ic_message_read,
+                                tint = colorsScheme().onSurface,
+                                contentDescription = null,
+                            )
+                        },
+                        onItemClick = openDebugMenu,
+                    )
+                }
+            }
+
             if (data.canEditNotifications() && !data.isArchived) {
                 add {
                     MenuBottomSheetItem(

@@ -26,6 +26,7 @@ import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.visbility.VisibilityState
+import com.wire.android.ui.common.wireDialogPropertiesBuilder
 import com.wire.android.ui.home.conversationslist.model.DialogState
 
 @Composable
@@ -35,6 +36,7 @@ fun ArchiveConversationDialog(
 ) {
     VisibilityState(dialogState) { state ->
         WireDialog(
+            properties = wireDialogPropertiesBuilder(dismissOnBackPress = !state.loading, dismissOnClickOutside = !state.loading),
             title = stringResource(R.string.dialog_archive_conversation_title),
             text = stringResource(R.string.dialog_archive_conversation_description),
             onDismiss = dialogState::dismiss,
@@ -49,6 +51,7 @@ fun ArchiveConversationDialog(
                 onClick = dialogState::dismiss,
                 text = stringResource(R.string.label_cancel),
                 type = WireDialogButtonType.Secondary,
+                state = if (state.loading) WireButtonState.Disabled else WireButtonState.Default,
             ),
             buttonsHorizontalAlignment = true
         )

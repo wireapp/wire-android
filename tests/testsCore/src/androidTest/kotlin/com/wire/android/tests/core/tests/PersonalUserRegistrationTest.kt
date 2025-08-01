@@ -76,7 +76,7 @@ class PersonalUserRegistrationTest : KoinTest {
             clickShowPasswordEyeIcon()
             verifyConfirmPasswordIsCorrect(userInfo.password)
             clickHidePasswordEyeIcon()
-            checkIagreeToShareAnonymousUsageData()
+            checkIAgreeToShareAnonymousUsageData()
             clickContinueButton()
             assertTermsOfUseModalVisible() // Asserts all elements
             clickContinueButton()

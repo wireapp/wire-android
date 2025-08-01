@@ -15,24 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+package service.enums
 
-package com.wire.android.model
-
-data class DisplayNameState(
-    val loading: Boolean = false,
-    val saveEnabled: Boolean = false,
-    val error: NameError = NameError.None,
-    val completed: Completed = Completed.None,
-) {
-    enum class Completed {
-        None, Success, Failure
-    }
-    sealed interface NameError {
-        data object None : NameError
-        sealed interface TextFieldError : NameError {
-            data object NameEmptyError : TextFieldError
-            data object NameExceedLimitError : TextFieldError
-            data object InvalidNameError : TextFieldError
-        }
-    }
+enum class TypingStatus {
+    STARTED, STOPPED
 }

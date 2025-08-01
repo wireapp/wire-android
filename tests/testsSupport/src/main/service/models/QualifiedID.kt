@@ -15,24 +15,27 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+package service.models
 
-package com.wire.android.model
+import org.json.JSONObject
 
-data class DisplayNameState(
-    val loading: Boolean = false,
-    val saveEnabled: Boolean = false,
-    val error: NameError = NameError.None,
-    val completed: Completed = Completed.None,
+data class QualifiedID(
+    var id: String = "",
+    var domain: String = ""
 ) {
-    enum class Completed {
-        None, Success, Failure
+    companion object {
+        fun fromJSON(qualifiedIDObject: JSONObject): QualifiedID {
+            return QualifiedID(
+                id = qualifiedIDObject.getString("id"),
+                domain = qualifiedIDObject.getString("domain")
+            )
+        }
     }
-    sealed interface NameError {
-        data object None : NameError
-        sealed interface TextFieldError : NameError {
-            data object NameEmptyError : TextFieldError
-            data object NameExceedLimitError : TextFieldError
-            data object InvalidNameError : TextFieldError
+
+    fun toJSON(): JSONObject {
+        return JSONObject().apply {
+            put("id", this@QualifiedID.id)
+            put("domain", this@QualifiedID.domain)
         }
     }
 }

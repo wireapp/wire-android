@@ -18,10 +18,10 @@
 package user.usermanager
 
 import android.content.Context
-import com.wire.android.testSupport.backendConnections.BackendClient
-import com.wire.android.testSupport.backendConnections.team.TeamRoles
-import com.wire.android.testSupport.backendConnections.team.createTeamOwnerViaBackend
-import com.wire.android.testSupport.backendConnections.team.createTeamUserViaBackend
+import backendUtils.BackendClient
+import backendUtils.team.TeamRoles
+import backendUtils.team.createTeamOwnerViaBackend
+import backendUtils.team.createTeamUserViaBackend
 import kotlinx.coroutines.runBlocking
 import logger.WireTestLogger
 import user.usermanager.exceptions.NoSuchUserException
@@ -75,6 +75,17 @@ class ClientUserManager {
         private val SELF_USER_PASSWORD_ALIASES = arrayOf("myPassword")
         private val SELF_USER_EMAIL_ALIASES = arrayOf("myEmail")
         private val SELF_USER_UNIQUE_USERNAME_ALIASES = arrayOf("myUniqueUsername")
+
+        @Volatile
+        private var INSTANCE: ClientUserManager? = null
+
+        @Synchronized
+        fun getInstance(): ClientUserManager {
+            if (INSTANCE == null) {
+                INSTANCE = ClientUserManager(true)
+            }
+            return INSTANCE!!
+        }
 
         @Suppress("LongParameterList")
         private fun setClientUserAliases(
@@ -136,7 +147,7 @@ class ClientUserManager {
      * @return The generated email address
      */
     private fun generateIndexedEmail(uniqueUserName: String, userNumber: Int): String {
-        return "$uniqueUserName+$userNumber@wire.com"
+        return "$uniqueUserName+$userNumber@wire.engineering"
     }
 
     /**
@@ -464,6 +475,13 @@ class ClientUserManager {
 
     val createdUsers: List<ClientUser>
         get() = fetchCreatedUsers()
+
+    private fun fetchUnCreatedUsers(): List<ClientUser> {
+        return Collections.unmodifiableList(this.usersMap[UserState.NotCreated])
+    }
+
+    val uncreatedUsers: List<ClientUser>
+        get() = fetchUnCreatedUsers()
 
     private fun verifyUsersCountSatisfiesConstraints(countOfUsersToBeCreated: Int) {
         if (countOfUsersToBeCreated + createdUsers.size > MAX_USERS_IN_TEAM) {

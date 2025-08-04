@@ -51,7 +51,7 @@ import com.wire.kalium.logic.feature.call.usecase.FlipToBackCameraUseCase
 import com.wire.kalium.logic.feature.call.usecase.FlipToFrontCameraUseCase
 import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveInCallReactionsUseCase
-import com.wire.kalium.logic.feature.call.usecase.ObserveLastCallIfActiveWithSortedParticipantsUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveLastActiveCallWithSortedParticipantsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveSpeakerUseCase
 import com.wire.kalium.logic.feature.call.usecase.SetVideoPreviewUseCase
 import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOffUseCase
@@ -89,7 +89,7 @@ class SharedCallingViewModel @AssistedInject constructor(
     @Assisted val conversationId: ConversationId,
     @CurrentAccount private val selfUserId: UserId,
     private val conversationDetails: ObserveConversationDetailsUseCase,
-    private val observeLastCallIfActiveWithSortedParticipants: ObserveLastCallIfActiveWithSortedParticipantsUseCase,
+    private val observeLastActiveCallWithSortedParticipants: ObserveLastActiveCallWithSortedParticipantsUseCase,
     private val hangUpCall: HangUpCallUseCase,
     private val muteCall: MuteCallUseCase,
     private val unMuteCall: UnMuteCallUseCase,
@@ -123,7 +123,7 @@ class SharedCallingViewModel @AssistedInject constructor(
 
     init {
         viewModelScope.launch {
-            val callSharedFlow = observeLastCallIfActiveWithSortedParticipants(conversationId)
+            val callSharedFlow = observeLastActiveCallWithSortedParticipants(conversationId)
                 .flowOn(dispatchers.default()).shareIn(this, started = SharingStarted.Lazily)
 
             launch {

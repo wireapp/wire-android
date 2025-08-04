@@ -45,7 +45,7 @@ import com.wire.kalium.logic.feature.call.usecase.FlipToBackCameraUseCase
 import com.wire.kalium.logic.feature.call.usecase.FlipToFrontCameraUseCase
 import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveInCallReactionsUseCase
-import com.wire.kalium.logic.feature.call.usecase.ObserveLastCallIfActiveWithSortedParticipantsUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveLastActiveCallWithSortedParticipantsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveSpeakerUseCase
 import com.wire.kalium.logic.feature.call.usecase.SetVideoPreviewUseCase
 import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOffUseCase
@@ -353,7 +353,7 @@ class SharedCallingViewModelTest {
 
     inner class Arrangement {
         @MockK
-        lateinit var observeLastCallIfActive: ObserveLastCallIfActiveWithSortedParticipantsUseCase
+        lateinit var observeLastActiveCall: ObserveLastActiveCallWithSortedParticipantsUseCase
 
         @MockK
         lateinit var hangUpCall: HangUpCallUseCase
@@ -412,7 +412,7 @@ class SharedCallingViewModelTest {
 
         init {
             MockKAnnotations.init(this, relaxed = true)
-            coEvery { observeLastCallIfActive.invoke(any()) } returns callFlow
+            coEvery { observeLastActiveCall.invoke(any()) } returns callFlow
             coEvery { observeConversationDetails.invoke(any()) } returns emptyFlow()
             coEvery { observeSpeaker.invoke() } returns emptyFlow()
             coEvery { observeInCallReactionsUseCase(any()) } returns reactionsFlow
@@ -423,7 +423,7 @@ class SharedCallingViewModelTest {
             conversationId = conversationId,
             selfUserId = TestUser.SELF_USER_ID,
             conversationDetails = observeConversationDetails,
-            observeLastCallIfActiveWithSortedParticipants = observeLastCallIfActive,
+            observeLastActiveCallWithSortedParticipants = observeLastActiveCall,
             hangUpCall = hangUpCall,
             muteCall = muteCall,
             flipToFrontCamera = flipToFrontCamera,

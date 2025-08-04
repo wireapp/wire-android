@@ -83,8 +83,8 @@ class CallsModule {
 
     @ViewModelScoped
     @Provides
-    fun provideObserveLastCallIfActiveWithSortedParticipantsUseCase(callsScope: CallsScope) =
-        callsScope.observeLastCallIfActiveWithSortedParticipants
+    fun provideObserveLastActiveCallWithSortedParticipantsUseCase(callsScope: CallsScope) =
+        callsScope.observeLastActiveCallWithSortedParticipants
 
     @ViewModelScoped
     @Provides

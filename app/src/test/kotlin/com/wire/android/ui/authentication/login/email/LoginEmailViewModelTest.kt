@@ -41,6 +41,7 @@ import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.navArgs
 import com.wire.android.util.EMPTY
 import com.wire.android.util.newServerConfig
+import com.wire.android.util.ui.CountdownTimer
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.CoreLogic
@@ -814,6 +815,7 @@ class LoginEmailViewModelTest {
         internal lateinit var authenticationScope: AuthenticationScope
 
         @MockK
+<<<<<<< HEAD
         internal lateinit var currentSessionUseCase: CurrentSessionUseCase
 
         @MockK
@@ -824,6 +826,9 @@ class LoginEmailViewModelTest {
 
         @MockK
         internal lateinit var updateCurrentSessionUseCase: UpdateCurrentSessionUseCase
+=======
+        internal lateinit var countdownTimer: CountdownTimer
+>>>>>>> 37030776a (fix: resend code timer [WPB-18364] (#4145))
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
@@ -843,11 +848,15 @@ class LoginEmailViewModelTest {
             every { authenticationScope.login } returns loginUseCase
             every { authenticationScope.requestSecondFactorVerificationCode } returns requestSecondFactorCodeUseCase
             every { coreLogic.versionedAuthenticationScope(any()) } returns autoVersionAuthScopeUseCase
+<<<<<<< HEAD
             every { coreLogic.getSessionScope(any()).logout } returns logoutUseCase
             every { coreLogic.getGlobalScope().deleteSession } returns deleteSessionUseCase
             every { coreLogic.getGlobalScope().session.updateCurrentSession } returns updateCurrentSessionUseCase
             every { coreLogic.getGlobalScope().session.currentSession } returns currentSessionUseCase
             coEvery { currentSessionUseCase() } returns CurrentSessionResult.Success(AccountInfo.Valid(USER_ID))
+=======
+            coEvery { countdownTimer.start(any(), any(), any()) } returns Unit
+>>>>>>> 37030776a (fix: resend code timer [WPB-18364] (#4145))
         }
 
         fun arrange() = this to LoginEmailViewModel(
@@ -856,6 +865,7 @@ class LoginEmailViewModelTest {
             savedStateHandle,
             userDataStoreProvider,
             coreLogic,
+            countdownTimer,
             dispatcherProvider
         ).also { it.autoLoginWhenFullCodeEntered = true }
 

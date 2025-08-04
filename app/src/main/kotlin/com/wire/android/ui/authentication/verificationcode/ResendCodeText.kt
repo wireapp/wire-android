@@ -29,21 +29,49 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import com.wire.android.R
+<<<<<<< HEAD
 import com.wire.android.ui.theme.WireTheme
+=======
+import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.theme.wireDimensions
+>>>>>>> 37030776a (fix: resend code timer [WPB-18364] (#4145))
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
-fun ResendCodeText(onResendCodePressed: () -> Unit, clickEnabled: Boolean, modifier: Modifier = Modifier) {
+fun ResendCodeText(
+    onResendCodePressed: () -> Unit,
+    clickEnabled: Boolean,
+    modifier: Modifier = Modifier,
+    timerText: String? = null,
+) {
+    val enabled = timerText == null && clickEnabled
+    val label = stringResource(R.string.create_account_code_resend)
     Text(
+<<<<<<< HEAD
         text = stringResource(R.string.create_account_code_resend),
         style = MaterialTheme.wireTypography.body02.copy(textDecoration = TextDecoration.Underline),
+=======
+        text = timerText?.let { "$label ($it)" } ?: label,
+        style = MaterialTheme.wireTypography.body02.copy(
+            textDecoration = if (enabled) {
+                TextDecoration.Underline
+            } else {
+                TextDecoration.None
+            },
+            color = if (enabled) {
+                MaterialTheme.wireColorScheme.primary
+            } else {
+                MaterialTheme.wireColorScheme.onSurface
+            }
+        ),
+>>>>>>> 37030776a (fix: resend code timer [WPB-18364] (#4145))
         textAlign = TextAlign.Center,
         modifier = modifier
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
-                enabled = clickEnabled,
+                enabled = enabled,
                 onClick = onResendCodePressed
             )
     )

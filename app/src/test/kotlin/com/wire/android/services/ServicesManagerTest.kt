@@ -19,6 +19,7 @@ package com.wire.android.services
 
 import android.content.Context
 import android.content.Intent
+import app.cash.turbine.test
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
@@ -30,9 +31,11 @@ import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -165,7 +168,7 @@ class ServicesManagerTest {
             // given
             val userId = UserId("userId", "domain")
             val conversationId = ConversationId("conversationId", "domain")
-            val action = CallService.Action.AnswerCall(userId, conversationId)
+            val action = CallService.Action.Start.AnswerCall(userId, conversationId)
             val intentForAction = mockk<Intent>()
             val (arrangement, servicesManager) = Arrangement()
                 .withServiceState(CallService.ServiceState.NOT_STARTED)
@@ -187,7 +190,7 @@ class ServicesManagerTest {
             // given
             val userId = UserId("userId", "domain")
             val conversationId = ConversationId("conversationId", "domain")
-            val action = CallService.Action.AnswerCall(userId, conversationId)
+            val action = CallService.Action.Start.AnswerCall(userId, conversationId)
             val intentForAction = mockk<Intent>()
             val (arrangement, servicesManager) = Arrangement()
                 .withServiceState(CallService.ServiceState.NOT_STARTED)
@@ -211,7 +214,7 @@ class ServicesManagerTest {
             // given
             val userId = UserId("userId", "domain")
             val conversationId = ConversationId("conversationId", "domain")
-            val action = CallService.Action.AnswerCall(userId, conversationId)
+            val action = CallService.Action.Start.AnswerCall(userId, conversationId)
             val intentForAction = mockk<Intent>()
             val (arrangement, servicesManager) = Arrangement()
                 .withServiceState(CallService.ServiceState.NOT_STARTED)
@@ -229,12 +232,30 @@ class ServicesManagerTest {
             verify(exactly = 0) { arrangement.context.stopService(arrangement.callServiceIntent) }
         }
 
+    @Test
+    fun `given call service running, when call service is stopped by itself, then reset state by emitting stop`() =
+        runTest(dispatcherProvider.main()) {
+            // given
+            val (arrangement, servicesManager) = Arrangement().arrange()
+            servicesManager.callServiceEvents.emit(CallService.Action.Start.Default)
+            arrangement.withServiceState(CallService.ServiceState.FOREGROUND)
+            advanceUntilIdle()
+            servicesManager.callServiceEvents.test {
+                // when
+                arrangement.withServiceState(CallService.ServiceState.NOT_STARTED)
+                advanceUntilIdle()
+                // then
+                assertEquals(CallService.Action.Stop, awaitItem())
+            }
+        }
+
     private inner class Arrangement {
 
         @MockK(relaxed = true)
         lateinit var context: Context
 
         private val servicesManager: ServicesManager by lazy { ServicesManager(context, dispatcherProvider) }
+        private val serviceStateFlow = MutableStateFlow(CallService.ServiceState.NOT_STARTED)
 
         @MockK
         lateinit var callServiceIntent: Intent
@@ -245,7 +266,8 @@ class ServicesManagerTest {
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             mockkObject(CallService.Companion)
-            callServiceIntentForAction(CallService.Action.Default, callServiceIntent)
+            every { CallService.Companion.serviceState } returns serviceStateFlow
+            callServiceIntentForAction(CallService.Action.Start.Default, callServiceIntent)
             callServiceIntentForAction(CallService.Action.Stop, ongoingCallServiceIntentWithStopArgument)
         }
 
@@ -260,9 +282,8 @@ class ServicesManagerTest {
             )
         }
 
-        fun withServiceState(state: CallService.ServiceState) = apply {
-            every { CallService.Companion.serviceState.get() } returns state
-            every { CallService.serviceState.get() } returns state
+        suspend fun withServiceState(state: CallService.ServiceState) = apply {
+            serviceStateFlow.emit(state)
         }
 
         fun callServiceIntentForAction(action: CallService.Action, intent: Intent) = apply {

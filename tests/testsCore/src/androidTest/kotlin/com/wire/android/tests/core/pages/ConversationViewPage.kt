@@ -58,11 +58,11 @@ data class ConversationViewPage(private val device: UiDevice) {
 
     private val backButton = UiSelectorParams(description = "Go back to conversation list")
 
-    private val selfDestructTimerButton = UiSelectorParams(description = "Set timer for self-deleting messages")
+    private val selfDeleteTimerButton = UiSelectorParams(description = "Set timer for self-deleting messages")
 
     private val selfDeletingMessageLabel = UiSelectorParams(description = " Self-deleting message")
 
-    private fun selfDestructOption(label: String): UiSelectorParams {
+    private fun selfDeleteOption(label: String): UiSelectorParams {
         return UiSelectorParams(text = label, className = "android.widget.TextView")
     }
 
@@ -107,7 +107,7 @@ data class ConversationViewPage(private val device: UiDevice) {
 
     fun clickPauseButtonOnAudioMessage(): ConversationViewPage {
         val button = UiWaitUtils.waitElement(pauseAudioButton)
-        requireNotNull(button) { "❌ Pause button with description 'Play audio' not found" }
+        requireNotNull(button) { "❌ Pause button with description 'Pause audio' not found" }
         button.click()
         return this
     }
@@ -316,18 +316,18 @@ data class ConversationViewPage(private val device: UiDevice) {
         return this
     }
 
-    fun tapSelfDestructTimerButton(): ConversationViewPage {
-        val button = UiWaitUtils.waitElement(selfDestructTimerButton)
+    fun tapSelfDeleteTimerButton(): ConversationViewPage {
+        val button = UiWaitUtils.waitElement(selfDeleteTimerButton)
         button.click()
         return this
     }
 
-    fun assertSelfDestructOptionVisible(label: String) {
-        val option = UiWaitUtils.waitElement(selfDestructOption(label))
+    fun assertSelfDeleteOptionVisible(label: String) {
+        val option = UiWaitUtils.waitElement(selfDeleteOption(label))
         Assert.assertTrue("Self-destruct option '$label' is not visible", !option.visibleBounds.isEmpty)
     }
 
-    fun tapSelfDestructOption(label: String) {
+    fun tapSelfDeleteOption(label: String) {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         val element = device.findObject(
             UiSelector().text(label).className("android.widget.TextView")

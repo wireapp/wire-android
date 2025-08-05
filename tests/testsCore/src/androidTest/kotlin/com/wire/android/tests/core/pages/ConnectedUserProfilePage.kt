@@ -19,8 +19,11 @@ package com.wire.android.tests.core.pages
 
 import android.os.SystemClock
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiSelector
+import androidx.test.uiautomator.Until
+
 data class ConnectedUserProfilePage(private val device: UiDevice) {
 
     private val startConversationButton = UiSelector().text("Start Conversation")
@@ -29,22 +32,20 @@ data class ConnectedUserProfilePage(private val device: UiDevice) {
         device.findObject(startConversationButton).click()
         return this
     }
-    fun assertToastMessageIsDisplayedWithWait(
+
+    fun assertToastMessageIsDisplayed(
         expectedMessage: String,
         timeoutMillis: Long = 5_000
     ): ConnectedUserProfilePage {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        val deadline = SystemClock.uptimeMillis() + timeoutMillis
-        val selector = UiSelector().text(expectedMessage)
+        val selector = By.text(expectedMessage)
+        val toast = device.wait(Until.findObject(selector), timeoutMillis)
 
-        while (SystemClock.uptimeMillis() < deadline) {
-            val toast = device.findObject(selector)
-            if (toast.exists() && !toast.visibleBounds.isEmpty) {
-                return this
-            }
-            SystemClock.sleep(250) // poll every 250ms
+        if (toast == null || toast.visibleBounds.isEmpty) {
+            throw AssertionError("❌ Toast message '$expectedMessage' was not displayed within ${timeoutMillis}ms.")
         }
 
-        throw AssertionError("❌ Toast message '$expectedMessage' was not displayed within ${timeoutMillis}ms.")
+        return this
     }
+
 }

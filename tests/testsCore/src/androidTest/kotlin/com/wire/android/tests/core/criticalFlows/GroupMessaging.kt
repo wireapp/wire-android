@@ -50,8 +50,9 @@ class GroupMessaging : KoinTest {
     }
     private val pages: AllPages by inject()
     private lateinit var device: UiDevice
+
     lateinit var context: Context
-    var registeredUser: ClientUser? = null
+    var teamOwner: ClientUser? = null
     var backendClient: BackendClient? = null
     var teamHelper: TeamHelper? = null
     val testServiceHelper by lazy {
@@ -70,12 +71,12 @@ class GroupMessaging : KoinTest {
     @After
     fun tearDown() {
         // To delete team
-          registeredUser?.deleteTeam(backendClient!!)
+        teamOwner?.deleteTeam(backendClient!!)
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @Test
-    fun groupMessagingFeature() {
+    fun givenGroupConversation_whenMessagesAreExchangedAndSelfDeletingMessageIsSent_thenMessageIsVisibleAndExpires() {
         teamHelper?.usersManager!!.createTeamOwnerByAlias(
             "user1Name",
             "GroupMessaging",
@@ -84,7 +85,7 @@ class GroupMessaging : KoinTest {
             backendClient!!,
             context
         )
-        registeredUser = teamHelper?.usersManager!!.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
+        teamOwner = teamHelper?.usersManager!!.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
         teamHelper?.userXAddsUsersToTeam(
             "user1Name",
             "user2Name,user3Name,user4Name,user5Name,user6Name",
@@ -106,9 +107,9 @@ class GroupMessaging : KoinTest {
             assertEmailWelcomePage()
         }
         pages.loginPage.apply {
-            enterPersonalUserLoggingEmail(registeredUser?.email ?: "")
+            enterTeamOwnerLoggingEmail(teamOwner?.email ?: "")
             clickLoginButton()
-            enterPersonalUserLoginPassword(registeredUser?.password ?: "")
+            enterTeamOwnerLoggingPassword(teamOwner?.password ?: "")
             clickLoginButton()
         }
         pages.registrationPage.apply {
@@ -150,16 +151,15 @@ class GroupMessaging : KoinTest {
         pages.conversationViewPage.apply {
             assertMessageReceivedIsVisible("Hello Friends")
             tapMessageInInputField()
-            tapSelfDestructTimerButton()
-            assertSelfDestructOptionVisible("OFF")
-            assertSelfDestructOptionVisible("10 seconds")
-            assertSelfDestructOptionVisible("1 minute")
-            assertSelfDestructOptionVisible("5 minutes")
-            assertSelfDestructOptionVisible("1 hour")
-            assertSelfDestructOptionVisible("1 day")
-            assertSelfDestructOptionVisible("7 days")
-            assertSelfDestructOptionVisible("4 weeks")
-            tapSelfDestructOption("10 seconds")
+            tapSelfDeleteTimerButton()
+            assertSelfDeleteOptionVisible("OFF")
+            assertSelfDeleteOptionVisible("10 seconds")
+            assertSelfDeleteOptionVisible("5 minutes")
+            assertSelfDeleteOptionVisible("1 hour")
+            assertSelfDeleteOptionVisible("1 day")
+            assertSelfDeleteOptionVisible("7 days")
+            assertSelfDeleteOptionVisible("4 weeks")
+            tapSelfDeleteOption("10 seconds")
             assertSelfDeletingMessageLabelVisible()
             typeMessageInInputField("This is a Self deleting Message")
             clickSendButton()

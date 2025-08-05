@@ -141,7 +141,7 @@ class TestServiceHelper {
         dstConvoName: String
     ) {
 
-        val textFile = getRawResourceAsFile(context, R.raw.gistfile1, fileName)
+        val textFile = getRawResourceAsFile(context, R.raw.testing_text, fileName)
         val conversation = toConvoObjPersonal(senderAlias, dstConvoName)
 
         if (textFile?.exists() != true) {

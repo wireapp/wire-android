@@ -77,7 +77,7 @@ class AccountManagement : KoinTest {
 
     @Suppress("LongMethod")
     @Test
-    fun accountManagementFeature() {
+    fun givenMember_whenEnablingLoggingAndAppLockAndChangingEmailAndResettingPassword_thenAllSettingsUpdateSuccessfully() {
         val userInfo = UserClient.generateUniqueUserInfo()
         teamHelper?.usersManager!!.createTeamOwnerByAlias("user1Name", "AccountManagement", "en_US", true, backendClient!!, context)
         registeredUser = teamHelper?.usersManager!!.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)

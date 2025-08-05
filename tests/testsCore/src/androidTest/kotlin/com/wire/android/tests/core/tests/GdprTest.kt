@@ -69,7 +69,7 @@ class GdprTest : KoinTest {
     }
 
     @Test
-    fun personalUsersendAnonymousDataAndSeeAnalyticsIdentifierInDebugSettings() {
+    fun givenTeamUserAcceptsAnonymousDataSharing_whenConsentIsGiven_thenAnalyticsIdentifierIsVisibleInDebugSettings() {
         val clientUser = ClientUser()
         registeredUser = backendClient?.createPersonalUserViaBackend(clientUser)
         pages.registrationPage.assertEmailWelcomePage()

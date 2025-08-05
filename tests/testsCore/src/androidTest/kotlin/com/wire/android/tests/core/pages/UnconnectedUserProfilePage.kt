@@ -52,7 +52,7 @@ data class UnconnectedUserProfilePage(private val device: UiDevice) {
     fun assertConnectionRequestNotificationTextIsDisplayed(): UnconnectedUserProfilePage {
         val connectionRequestNotificationText = UiWaitUtils.waitElement(connectionNotificationText)
         Assert.assertTrue(
-            "This user wants to connect with you text is not visible.",
+            "'This user wants to connect with you' text is not visible.",
             !connectionRequestNotificationText.visibleBounds.isEmpty
         )
         return this

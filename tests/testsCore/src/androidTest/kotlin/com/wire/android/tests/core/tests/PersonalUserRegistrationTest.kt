@@ -62,7 +62,7 @@ class PersonalUserRegistrationTest : KoinTest {
     }
 
     @Test
-    fun personalUserRegistrationFlow() {
+    fun givenUserWantsToRegister_whenTheyProvideValidDetails_thenAccountIsCreatedSuccessfully() {
         val userInfo = UserClient.generateUniqueUserInfo()
         pages.registrationPage.apply {
             assertEmailWelcomePage()

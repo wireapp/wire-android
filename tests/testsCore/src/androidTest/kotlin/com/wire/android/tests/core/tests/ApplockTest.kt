@@ -72,7 +72,7 @@ class ApplockTest : KoinTest {
     }
 
     @Test
-    fun setAppLockForAppAndVerifyAppIsLockedAfter1MinuteInTheBackground() {
+    fun givenUserEnablesAppLock_whenAppIsBackgroundedForOneMinute_thenAppRequiresUnlockOnReturn() {
 
         teamHelper?.usersManager!!.createTeamOwnerByAlias("user1Name", "AppLock", "en_US", true, backendClient!!, context)
         registeredUser = teamHelper?.usersManager!!.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)

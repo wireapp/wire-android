@@ -16,7 +16,6 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 package com.wire.android.tests.core.pages
-
 import android.content.Intent
 import android.net.Uri
 import androidx.test.espresso.matcher.ViewMatchers.assertThat

@@ -25,6 +25,7 @@ import androidx.test.uiautomator.UiDevice
 import backendUtils.BackendClient
 import backendUtils.team.TeamHelper
 import backendUtils.team.TeamRoles
+import backendUtils.team.deleteTeam
 import com.wire.android.tests.support.UiAutomatorSetup
 import com.wire.android.tests.core.di.testModule
 import com.wire.android.tests.core.pages.AllPages
@@ -73,23 +74,14 @@ class FileSharing : KoinTest {
     fun tearDown() {
         //  UiAutomatorSetup.stopApp()
         // To delete team
-        // teamOwner2?.deleteTeam(backendClient!!)
-        // teamOwner1?.deleteTeam(backendClient!!)
+         teamOwner2?.deleteTeam(backendClient!!)
+         teamOwner1?.deleteTeam(backendClient!!)
         deleteDownloadedFilesContainingFileWord()
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @Test
-    fun fileSharingFeature() {
-
-        teamHelper?.usersManager!!.createTeamOwnerByAlias(
-            "user3Name",
-            "receiveTeam",
-            "en_US",
-            true,
-            backendClient!!,
-            context
-        )
+    fun givenUserInAnotherTeam_whenFileIsSent_thenRecipientCanReceivePlayAndDownloadIt() {
 
         teamHelper?.usersManager!!.createTeamOwnerByAlias(
             "user1Name",
@@ -100,7 +92,14 @@ class FileSharing : KoinTest {
             context
         )
 
-        teamOwner2 = teamHelper?.usersManager!!.findUserBy("user3Name", ClientUserManager.FindBy.NAME_ALIAS)
+        teamHelper?.usersManager!!.createTeamOwnerByAlias(
+            "user3Name",
+            "receiveTeam",
+            "en_US",
+            true,
+            backendClient!!,
+            context
+        )
 
         teamHelper?.userXAddsUsersToTeam(
             "user3Name",
@@ -112,8 +111,6 @@ class FileSharing : KoinTest {
             true
         )
 
-        teamOwner1 = teamHelper?.usersManager!!.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
-
         teamHelper?.userXAddsUsersToTeam(
             "user1Name",
             "user2Name",
@@ -123,6 +120,9 @@ class FileSharing : KoinTest {
             context,
             true
         )
+
+        teamOwner1 = teamHelper?.usersManager!!.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
+        teamOwner2 = teamHelper?.usersManager!!.findUserBy("user3Name", ClientUserManager.FindBy.NAME_ALIAS)
 
         val connectionSenderFromSendTeam =
             teamHelper?.usersManager!!.findUserBy("user2Name", ClientUserManager.FindBy.NAME_ALIAS)
@@ -162,7 +162,7 @@ class FileSharing : KoinTest {
         }
 
         pages.connectedUserProfilePage.apply {
-            assertToastMessageIsDisplayedWithWait("Connection request accepted")
+            assertToastMessageIsDisplayed("Connection request accepted")
             clickStartConversationButton()
             pages.conversationViewPage.apply {
                 assertConversationIsVisibleWithTeamMember(connectionSenderFromSendTeam.name ?: "")

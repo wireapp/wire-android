@@ -26,7 +26,7 @@ import backendUtils.BackendClient
 import backendUtils.team.TeamHelper
 import backendUtils.team.TeamRoles
 import backendUtils.team.deleteTeam
-import com.wire.android.testSupport.uiautomatorutils.UiAutomatorSetup
+import com.wire.android.tests.support.UiAutomatorSetup
 import com.wire.android.tests.core.di.testModule
 import com.wire.android.tests.core.pages.AllPages
 import kotlinx.coroutines.runBlocking
@@ -68,12 +68,16 @@ class AccountManagement : KoinTest {
 
     @After
     fun tearDown() {
-        registeredUser?.deleteTeam(backendClient!!) // To delete team
+        //  UiAutomatorSetup.stopApp()
+        // To delete team member
+        // registeredUser?.deleteTeamMember(backendClient!!, teamMember?.getUserId().orEmpty())
+        // To delete team
+        registeredUser?.deleteTeam(backendClient!!)
     }
 
     @Suppress("LongMethod")
     @Test
-    fun accountManagementFeature() {
+    fun givenMember_whenEnablingLoggingAndAppLockAndChangingEmailAndResettingPassword_thenAllSettingsUpdateSuccessfully() {
         val userInfo = UserClient.generateUniqueUserInfo()
         teamHelper?.usersManager!!.createTeamOwnerByAlias("user1Name", "AccountManagement", "en_US", true, backendClient!!, context)
         registeredUser = teamHelper?.usersManager!!.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
@@ -107,7 +111,7 @@ class AccountManagement : KoinTest {
         }
         pages.conversationPage.apply {
             assertGroupConversationVisible("MyTeam")
-            clickMainMenuButtonOnConversationViewPage()
+            clickMainMenuButtonOnConversationPage()
             clickSettingsButtonOnMenuEntry()
             pages.settingsPage.apply {
                 clickDebugSettingsButton()

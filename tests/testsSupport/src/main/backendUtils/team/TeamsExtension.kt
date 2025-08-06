@@ -18,6 +18,7 @@
 @file:Suppress("TooManyFunctions", "LongParameterList", "MagicNumber", "PackageNaming")
 
 package backendUtils.team
+
 import ImageUtil
 import InbucketClient.getInbucketVerificationCode
 import android.content.Context
@@ -240,6 +241,24 @@ fun BackendClient.acceptInvite(teamId: String, member: ClientUser): ClientUser {
             context = null
         )
     }
+}
+
+fun BackendClient.getTeamId(user: ClientUser): String {
+    val token = runBlocking { getAuthToken(user) }
+    val url = "self".composeCompleteUrl()
+
+    val headers = defaultheaders.toMutableMap().apply {
+        put("Authorization", "${token?.type} ${token?.value}")
+    }
+
+    val response = NetworkBackendClient.sendJsonRequestWithCookies(
+        url = URL(url),
+        method = "GET",
+        headers = headers,
+        options = RequestOptions(accessToken = token)
+    )
+
+    return JSONObject(response.body).getString("team")
 }
 
 fun BackendClient.getTeamCode(teamId: String, invitationId: String): String {

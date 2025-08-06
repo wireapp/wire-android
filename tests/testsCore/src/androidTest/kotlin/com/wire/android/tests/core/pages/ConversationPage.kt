@@ -17,17 +17,17 @@
  */
 package com.wire.android.tests.core.pages
 
+import kotlin.test.DefaultAsserter.assertTrue
 import androidx.test.uiautomator.UiDevice
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
-import kotlin.test.DefaultAsserter.assertTrue
 
 data class ConversationPage(private val device: UiDevice) {
-
     private val mainMenuButton = UiSelectorParams(description = "Main navigation")
     private val settingsButton = UiSelectorParams(text = "Settings")
+    private fun displayedUserName(userName: String) = UiSelectorParams(text = userName)
 
-    fun clickMainMenuButtonOnConversationViewPage(): ConversationPage {
+    fun clickMainMenuButtonOnConversationPage(): ConversationPage {
         UiWaitUtils.waitElement(mainMenuButton).click()
         return this
     }
@@ -40,6 +40,18 @@ data class ConversationPage(private val device: UiDevice) {
     fun assertGroupConversationVisible(conversationName: String): ConversationPage {
         val conversation = UiWaitUtils.waitElement(UiSelectorParams(text = conversationName))
         assertTrue("Conversation '$conversationName' is not visible", !conversation.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun clickConnectionRequestOfUser(userName: String): ConversationPage {
+        val teamMemberName = UiWaitUtils.waitElement(displayedUserName(userName))
+        teamMemberName.click()
+        return this
+    }
+
+    fun assertConnectionRequestNameIs(userName: String): ConversationPage {
+        val teamMemberName = UiWaitUtils.waitElement(displayedUserName(userName))
+        assertTrue("Team member name '$userName' is not visible", !teamMemberName.visibleBounds.isEmpty)
         return this
     }
 }

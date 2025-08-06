@@ -100,7 +100,7 @@ suspend fun BackendClient.createTeamConversation(
 }
 
 fun BackendClient.getConversationObjects(token: AccessToken, conversationIDs: JSONArray): JSONObject {
-    val url = "v4/conversations/list".composeCompleteUrl()
+    val url = "v10/conversations/list".composeCompleteUrl()
     val headers = defaultheaders.toMutableMap().apply {
         put("Authorization", "${token.type} ${token.value}")
     }

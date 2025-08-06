@@ -17,7 +17,6 @@
  */
 package com.wire.android.tests.core.pages
 
-import android.os.SystemClock
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
@@ -47,5 +46,4 @@ data class ConnectedUserProfilePage(private val device: UiDevice) {
 
         return this
     }
-
 }

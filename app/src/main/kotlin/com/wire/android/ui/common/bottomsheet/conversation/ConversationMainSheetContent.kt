@@ -85,7 +85,7 @@ internal fun ConversationMainSheetContent(
         ),
         menuItems = buildList<@Composable () -> Unit> {
 
-            if (BuildConfig.DEBUG_SCREEN_ENABLED && BuildConfig.PRIVATE_BUILD) {
+            if (BuildConfig.PRIVATE_BUILD) {
                 add {
                     MenuBottomSheetItem(
                         title = "Inspect conversation",

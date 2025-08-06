@@ -38,7 +38,6 @@
     <string name="label_logging_in">Přihlašování…</string>
     <string name="label_membership_guest">Host</string>
     <string name="label_membership_external">Externí</string>
-    <string name="label_membership_service">Služba</string>
     <string name="label_user_deleted">Odstranit</string>
     <string name="label_message_sent_failure">Message could not be sent.</string>
     <string name="label_message_edit_sent_failure">Upravená zpráva nemohla být odeslána z důvodu problémů s připojením.</string>

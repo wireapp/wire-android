@@ -38,7 +38,6 @@
     <string name="label_logging_in">Oturum açılıyor…</string>
     <string name="label_membership_guest">Misafir</string>
     <string name="label_membership_external">Harici</string>
-    <string name="label_membership_service">Hizmet</string>
     <string name="label_user_deleted">Silinmiş</string>
     <string name="label_try_again">Yeniden Dene</string>
     <string name="label_done">Tamamlandı</string>
@@ -215,7 +214,6 @@
     <string name="content_description_accept_or_ignore_connection_label">isteği kabul et veya yok say</string>
     <string name="content_description_open_user_profile_label">profili aç</string>
     <string name="content_description_open_conversation_label">açık konuşma</string>
-    <string name="content_description_open_service_label">açık servis</string>
     <string name="content_description_change_it_label">değiştir</string>
     <string name="content_description_open_link_label">bağlantıyı aç</string>
     <string name="content_description_alert">Uyarı</string>
@@ -367,8 +365,6 @@ Yedek dosyayı korumak için güçlü bir şifre seçin.</string>
     <string name="conversation_details_participants_count">%s Katılımcı</string>
     <string name="conversation_options_guests_label">Misafirler</string>
     <string name="conversation_details_guest_description">Eğer bu seçenek açık ise, ekibiniz dışındaki kişiler bu sohbete katılabilir.</string>
-    <string name="conversation_options_services_label">Servisler</string>
-    <string name="conversation_options_services_description">Bu görüşmeyi hizmetlere açmak için bu seçeneği AÇIK konumuna getirin.</string>
     <!-- Import/Export External Media -->
     <!--Read receipts -->
     <string name="conversation_options_read_receipt_label">Okundu bilgisi</string>

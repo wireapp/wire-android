@@ -10,8 +10,6 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
-    reviewers:
-      - "wireapp/android"
     commit-message:
       prefix: "chore(deps): [WPB-9777] "
 
@@ -20,7 +18,5 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
-    reviewers:
-      - "wireapp/android"
     commit-message:
       prefix: "chore(deps): [WPB-9777] "

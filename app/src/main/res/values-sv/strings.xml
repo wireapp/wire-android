@@ -37,7 +37,6 @@
     <string name="label_logging_in">Loggar in…</string>
     <string name="label_membership_guest">Gäst</string>
     <string name="label_membership_external">Extern</string>
-    <string name="label_membership_service">Tjänst</string>
     <string name="label_user_deleted">Togs bort</string>
     <string name="label_message_sent_failure">Message could not be sent.</string>
     <string name="label_message_edit_sent_failure">Det redigerade meddelandet kunde inte skickas till följd av problem med anslutningen.</string>
@@ -282,7 +281,6 @@
     <string name="conversation_details_show_all_participants">Visa alla deltagare (%d)</string>
     <string name="conversation_participant_you_label">(Du)</string>
     <string name="conversation_options_guests_label">Gäster</string>
-    <string name="conversation_options_services_label">Tjänster</string>
     <!-- Import/Export External Media -->
     <string name="import_media_content_title">Dela med Wire</string>
     <string name="import_media_searchbar_title">Sök efter konversation</string>
@@ -358,7 +356,6 @@
     <string name="label_edit">Redigera</string>
     <string name="label_delete">Radera</string>
     <string name="conversation_banner_guests">gäster</string>
-    <string name="conversation_banner_services">tjänster</string>
     <!-- System messages -->
     <string name="label_system_message_left_the_conversation_by_self">%1$s lämnade konversationen</string>
     <string name="label_system_message_left_the_conversation_by_other">%1$s lämnade konversationen</string>
@@ -413,7 +410,6 @@
     <string name="label_new_conversation">Ny konversation</string>
     <string name="label_learn_more_searching_user">Läs mer</string>
     <string name="label_no_results_found">Inga resultat kunde hittas. Försök igen.</string>
-    <string name="label_add_member_services">Tjänster</string>
     <!-- Snackbar messages -->
     <string name="error_unknown_message">Försök igen</string>
     <string name="error_server_miscommunication_title">Serverfel</string>
@@ -459,7 +455,6 @@
     <!--wire dropdown-->
     <string name="change">Ändra</string>
     <string name="allow_guests">Tillåt gäster</string>
-    <string name="service_details_label">Tjänst</string>
     <string name="read_receipts">Läskvitton</string>
     <!--block user dialog -->
     <string name="block_user_dialog_body">%1$s kommer inte att kunna kontakta dig eller lägga till dig i gruppkonversationer. De kommer inte att meddelas om detta.</string>

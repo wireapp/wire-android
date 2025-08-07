@@ -39,14 +39,15 @@ import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.calling.CallActivity
-import com.wire.android.ui.calling.CallState
-import com.wire.android.ui.calling.ConversationName
-import com.wire.android.ui.calling.SharedCallingViewModel
 import com.wire.android.ui.calling.common.CallVideoPreview
 import com.wire.android.ui.calling.common.CallerDetails
+import com.wire.android.ui.calling.common.ObserveRotation
+import com.wire.android.ui.calling.common.SharedCallingViewModel
 import com.wire.android.ui.calling.controlbuttons.AcceptButton
 import com.wire.android.ui.calling.controlbuttons.CallOptionsControls
 import com.wire.android.ui.calling.controlbuttons.HangUpButton
+import com.wire.android.ui.calling.model.CallState
+import com.wire.android.ui.calling.model.ConversationName
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.bottomsheet.WireBottomSheetScaffold
 import com.wire.android.ui.common.colorsScheme
@@ -141,6 +142,7 @@ fun IncomingCallScreen(
                 activity.moveTaskToBack(true)
             }
         )
+        ObserveRotation(::setUIRotation)
     }
 
     PermissionPermanentlyDeniedDialog(

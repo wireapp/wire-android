@@ -18,7 +18,6 @@
 
 package com.wire.android.ui
 
-import android.app.Activity
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -739,6 +738,6 @@ internal fun Navigator.isEmptyWelcomeStartDestination(): Boolean {
     return firstDestinationBaseRoute == NewWelcomeEmptyStartScreenDestination.route.getBaseRoute()
 }
 
-val LocalActivity = staticCompositionLocalOf<Activity> {
+val LocalActivity = staticCompositionLocalOf<AppCompatActivity> {
     error("No Activity provided")
 }

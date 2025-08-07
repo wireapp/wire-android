@@ -22,7 +22,6 @@ package com.wire.android.ui.calling.ongoing
 import android.content.pm.PackageManager
 import android.view.View
 import androidx.activity.compose.BackHandler
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -55,8 +54,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.core.app.PictureInPictureModeChangedInfo
-import androidx.core.util.Consumer
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -65,15 +62,17 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.ui.LocalActivity
-import com.wire.android.ui.calling.CallState
-import com.wire.android.ui.calling.ConversationName
-import com.wire.android.ui.calling.SharedCallingViewActions
-import com.wire.android.ui.calling.SharedCallingViewModel
+import com.wire.android.ui.calling.common.ObservePictureInPictureMode
+import com.wire.android.ui.calling.common.ObserveRotation
+import com.wire.android.ui.calling.common.SharedCallingViewActions
+import com.wire.android.ui.calling.common.SharedCallingViewModel
 import com.wire.android.ui.calling.controlbuttons.CameraButton
 import com.wire.android.ui.calling.controlbuttons.HangUpOngoingButton
 import com.wire.android.ui.calling.controlbuttons.InCallReactionsButton
 import com.wire.android.ui.calling.controlbuttons.MicrophoneButton
 import com.wire.android.ui.calling.controlbuttons.SpeakerButton
+import com.wire.android.ui.calling.model.CallState
+import com.wire.android.ui.calling.model.ConversationName
 import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.calling.ongoing.fullscreen.DoubleTapToast
 import com.wire.android.ui.calling.ongoing.fullscreen.FullScreenTile
@@ -136,13 +135,13 @@ fun OngoingCallScreen(
 
     val inCallReactionsState = rememberInCallReactionsState()
 
-    val activity = LocalActivity.current as AppCompatActivity
+    val activity = LocalActivity.current
     val isPiPAvailableOnThisDevice = activity.packageManager.hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE)
     val shouldUsePiPMode = BuildConfig.PICTURE_IN_PICTURE_ENABLED && isPiPAvailableOnThisDevice
     var inPictureInPictureMode by remember { mutableStateOf(shouldUsePiPMode && activity.isInPictureInPictureMode) }
 
     if (shouldUsePiPMode) {
-        activity.observePictureInPictureMode { inPictureInPictureMode = it }
+        ObservePictureInPictureMode { inPictureInPictureMode = it }
     }
 
     LaunchedEffect(ongoingCallViewModel.state.flowState) {
@@ -214,6 +213,7 @@ fun OngoingCallScreen(
         inPictureInPictureMode = inPictureInPictureMode,
         recentReactions = sharedCallingViewModel.recentReactions,
     )
+    ObserveRotation(sharedCallingViewModel::setUIRotation)
 
     BackHandler {
         if (shouldUsePiPMode) {
@@ -628,23 +628,6 @@ private fun CallingControls(
         }
         Spacer(modifier = Modifier.weight(1F))
         SecurityClassificationBannerForConversation(conversationId)
-    }
-}
-
-@Composable
-private fun AppCompatActivity.observePictureInPictureMode(onChanged: (Boolean) -> Unit) {
-    DisposableEffect(Unit) {
-        val consumer = object : Consumer<PictureInPictureModeChangedInfo> {
-            override fun accept(info: PictureInPictureModeChangedInfo) {
-                onChanged(info.isInPictureInPictureMode)
-            }
-        }
-
-        addOnPictureInPictureModeChangedListener(consumer)
-
-        onDispose {
-            removeOnPictureInPictureModeChangedListener(consumer)
-        }
     }
 }
 

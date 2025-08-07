@@ -48,7 +48,7 @@ import com.wire.android.services.ServicesManager
 import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.calling.CallActivity
 import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_CONVERSATION_ID
-import com.wire.android.ui.calling.ProximitySensorManager
+import com.wire.android.ui.calling.common.ProximitySensorManager
 import com.wire.android.ui.calling.ongoing.OngoingCallActivity.Companion.TAG
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.theme.WireTheme

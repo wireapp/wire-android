@@ -16,7 +16,6 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 package com.wire.android.tests.core.pages
-
 import android.content.Intent
 import android.net.Uri
 import androidx.test.espresso.matcher.ViewMatchers.assertThat
@@ -87,7 +86,6 @@ data class SettingsPage(private val device: UiDevice) {
     fun clickBackButtonOnSettingsPage() {
         device.pressBack()
     }
-
     fun assertAnalyticsInitializedIsSetToTrue(): SettingsPage {
         val label = UiWaitUtils.waitElement(analyticsInitializedLabel)
         val parent = label.parent

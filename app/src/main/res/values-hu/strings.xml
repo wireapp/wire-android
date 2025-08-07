@@ -38,7 +38,6 @@
     <string name="label_logging_in">Bejelentkezés…</string>
     <string name="label_membership_guest">Vendég</string>
     <string name="label_membership_external">Külső</string>
-    <string name="label_membership_service">Szolgáltatás</string>
     <string name="label_user_deleted">Törölve</string>
     <string name="label_try_again">Próbálja újra</string>
     <string name="label_done">Kész</string>
@@ -215,7 +214,6 @@
     <string name="content_description_accept_or_ignore_connection_label">a kérelem elfogadása vagy elutasítása</string>
     <string name="content_description_open_user_profile_label">profil megnyitása</string>
     <string name="content_description_open_conversation_label">beszélgetés megnyitása</string>
-    <string name="content_description_open_service_label">szolgáltatás megnyitása</string>
     <string name="content_description_change_it_label">megváltoztatás</string>
     <string name="content_description_open_link_label">hivatkozás megnyitása</string>
     <string name="content_description_alert">Riasztás</string>
@@ -556,13 +554,9 @@
     <string name="conversation_details_guest_description">Ha ez aktív, csapatodon kívüli emberek is csatlakozhatnak ehhez a beszélgetéshez</string>
     <string name="conversation_options_guest_description">Aktiválja ezt az opciót, hogy csapatán kívüli személyek is csatlakozhassanak a beszélgetéshez, még ha nincs is Wire-ük.</string>
     <string name="conversation_options_guest_not_editable_description">Nem tudja letiltani a vendég opciót e beszélgetésben, mivel ezt valaki egy másik csapatból hozta létre.</string>
-    <string name="conversation_options_services_label">Szolgáltatások</string>
-    <string name="conversation_options_services_description">Aktiválja ezt az opciót, hogy megnyissa a beszélgetést szolgáltatások számára.</string>
     <string name="conversation_options_renamed">Beszélgetés átnevezve</string>
     <string name="disable_guest_dialog_title">Kikapcsolja a vendég hozzáférést?</string>
     <string name="disable_guest_dialog_text">A jelenlegi vendégek el lesznek távolítva a beszélgetésből. Új vendégek sem csatlakozhatnak.</string>
-    <string name="disable_services_dialog_title">Kikapcsolja a szolgáltatások hozzáférését?</string>
-    <string name="disable_services_dialog_text">A jelenlegi szolgáltatások el lesznek távolítva a beszélgetésből. Új szolgáltatások sem lesznek engedélyezve.</string>
     <string name="leave_conversation_menu_item">Kilépés a beszélgetésből…</string>
     <string name="leave_conversation_dialog_title">Kilép “%s” beszélgetésből?</string>
     <string name="leave_conversation_dialog_description">A továbbiakban nem tud üzeneteket küldeni vagy fogadni ebben a beszélgetésben egyik eszközön sem.</string>
@@ -707,22 +701,13 @@
     <string name="conversation_banner_federated">szövetséges felhasználók</string>
     <string name="conversation_banner_externals">külsősök</string>
     <string name="conversation_banner_guests">vendégek</string>
-    <string name="conversation_banner_services">szolgáltatások</string>
-    <string name="conversation_banner_federated_externals_guests_services_present">Szövetségesek, külsősök, vendégek és szolgáltatások is vannak itt</string>
     <string name="conversation_banner_federated_externals_guests_present">Szövetségesek, külsősök és vendégek is vannak itt</string>
-    <string name="conversation_banner_federated_externals_services_present">Szövetségesek, külsősök és szolgáltatások is vannak itt</string>
-    <string name="conversation_banner_federated_guests_services_present">Szövetségesek, vendégek és szolgáltatások is vannak itt</string>
-    <string name="conversation_banner_federated_services_present">Szövetségesek és szolgáltatások is vannak itt</string>
     <string name="conversation_banner_federated_guests_present">Szövetségesek és vendégek is vannak itt</string>
     <string name="conversation_banner_federated_externals_present">Szövetségesek és külsősök is vannak itt</string>
-    <string name="conversation_banner_externals_guests_services_present">Külsősök, vendégek és szolgáltatások is vannak itt</string>
-    <string name="conversation_banner_externals_services_present">Külsősök és szolgáltatások is vannak itt</string>
     <string name="conversation_banner_externals_guests_present">Külsősök és vendégek is vannak itt</string>
-    <string name="conversation_banner_guests_services_present">Vendégek és szolgáltatások is vannak itt</string>
     <string name="conversation_banner_federated_present">Szövetségesek is vannak itt</string>
     <string name="conversation_banner_guests_present">Vendégek is vannak itt</string>
     <string name="conversation_banner_externals_present">Külsősök is vannak itt</string>
-    <string name="conversation_banner_services_active">Szolgáltatások aktívak</string>
     <!-- System messages -->
     <string name="label_system_message_added_by_self">%1$s hozzáadta %2$s személyt a beszélgetéshez</string>
     <string name="label_system_message_removed_by_self">%1$s eltávolította %2$s személyt a beszélgetésből</string>
@@ -898,7 +883,6 @@
     <string name="label_no_results_found">Nincs találat. Kérjük, próbálja újra.</string>
     <string name="label_general_error">Valami hiba történt</string>
     <string name="label_add_member_people">Partner</string>
-    <string name="label_add_member_services">Szolgáltatások</string>
     <string name="label_empty_contacts_list">Keressen személyeket nevük vagy felhasználónevük alapján beszélgetés indításához 🔍</string>
     <!-- Snackbar messages -->
     <string name="error_unknown_title">Valami hiba történt</string>
@@ -1075,16 +1059,8 @@
     <string name="change">Módosítás</string>
     <string name="allow_guests">Vendégek engedélyezése</string>
     <string name="allow_guest_switch_description">Megnyitja a beszélgetést a csapatán kívüli személyek számára is. Ezt később bármikor megváltoztathatja.</string>
-    <string name="allow_services">Szolgáltatások engedélyezése</string>
-    <string name="allow_services_regular_group_description">Megnyitja a beszélgetést a szolgáltatások számára is. Ezt később bármikor megváltoztathatja.</string>
-    <string name="allow_services_channel_description">Megnyitja a beszélgetést a csapatán kívüli személyek vagy szolgáltatások számára is. Ezt később bármikor megváltoztathatja.</string>
-    <string name="service_details_label">Szolgáltatás</string>
     <string name="service_details_add_service_label">Hozzáadás a beszélgetéshez</string>
     <string name="service_details_remove_service_label">Eltávolítás a beszélgetésből</string>
-    <string name="service_remove_success">Szolgáltatás eltávolítva a beszélgetésből</string>
-    <string name="service_remove_error">A szolgáltatást nem sikerült eltávolítani a beszélgetésből</string>
-    <string name="service_add_success">Szolgáltatás hozzáadva a beszélgetéshez</string>
-    <string name="service_add_error">A szolgáltatást nem sikerült hozzáadni a beszélgetéshez</string>
     <string name="service_no_information_available_title">Nincs elérhető információ</string>
     <string name="service_no_information_available_subtitle">Próbálja újra, vagy forduljon a csapatadminisztrátorhoz</string>
     <string name="read_receipts">Olvasási visszaigazolások</string>

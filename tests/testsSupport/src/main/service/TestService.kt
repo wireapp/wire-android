@@ -463,9 +463,7 @@ class TestService(private val baseUri: String, private val testName: String) {
             }
             put("data", fileToBase64String(file))
             put("fileName", file.name)
-            if (params.timeout.toMillis() > 0) {
-                put("messageTimer", params.timeout.toMillis())
-            }
+            put("messageTimer", 0)
             put("type", params.type)
             put("otherAlgorithm", params.otherAlgorithm)
             put("otherHash", params.otherHash)
@@ -598,7 +596,7 @@ class TestService(private val baseUri: String, private val testName: String) {
         val inputStream = FileInputStream(srcFile)
         val bytes = inputStream.readBytes()
         inputStream.close()
-        return Base64.encodeToString(bytes, Base64.DEFAULT)
+        return Base64.encodeToString(bytes, Base64.NO_WRAP)
     }
 
     @Suppress("TooGenericExceptionCaught, LongParameterList", "NestedBlockDepth")

@@ -1,3 +1,4 @@
+@file:Suppress("TooGenericExceptionCaught", "TooGenericExceptionThrown", "MagicNumber")
 /*
  * Wire
  * Copyright (C) 2025 Wire Swiss GmbH
@@ -21,11 +22,16 @@ import backendUtils.BackendClient
 import backendUtils.team.defaultheaders
 import backendUtils.team.getAuthToken
 import com.wire.android.testSupport.backendConnections.team.Team
+import kotlinx.coroutines.runBlocking
 import network.NetworkBackendClient
+import network.RequestOptions
 import org.json.JSONArray
 import org.json.JSONObject
+import service.models.Conversation
 import service.models.QualifiedID
+import user.utils.AccessToken
 import user.utils.ClientUser
+import java.io.IOException
 import java.net.URL
 
 suspend fun BackendClient.createTeamConversation(
@@ -92,3 +98,135 @@ suspend fun BackendClient.createTeamConversation(
     )
     return JSONObject(response).getString("id")
 }
+
+fun BackendClient.getConversationObjects(token: AccessToken, conversationIDs: JSONArray): JSONObject {
+    val url = "v10/conversations/list".composeCompleteUrl()
+    val headers = defaultheaders.toMutableMap().apply {
+        put("Authorization", "${token.type} ${token.value}")
+    }
+    val requestBody = JSONObject().put("qualified_ids", conversationIDs)
+    val response = NetworkBackendClient.sendJsonRequestWithCookies(
+        url = URL(url),
+        method = "POST",
+        headers = headers,
+        body = requestBody.toString(),
+        options = RequestOptions(accessToken = token)
+    )
+    return JSONObject(response.body)
+}
+
+fun BackendClient.getConversationIDs(user: ClientUser): List<QualifiedID> {
+    val result = mutableListOf<QualifiedID>()
+    var pagingState: String? = null
+    do {
+        val token = runBlocking { getAuthToken(user) }
+        if (token == null) return emptyList()
+        val response = getConversationIDs(token, pagingState)
+        pagingState = response.getString("paging_state")
+        val qualifiedConversations = response.getJSONArray("qualified_conversations")
+        for (i in 0 until qualifiedConversations.length()) {
+            result.add(QualifiedID.fromJSON(qualifiedConversations.getJSONObject(i)))
+        }
+    } while (response.getBoolean("has_more"))
+    return result
+}
+
+fun BackendClient.getConversations(user: ClientUser): List<Conversation> {
+    val result = mutableListOf<Conversation>()
+    val ids = getConversationIDs(user)
+    for (i in ids.indices step 1000) {
+        val batch = ids.subList(i, minOf(i + 1000, ids.size))
+        val jsonArray = JSONArray(batch.map { it.toJSON() })
+        val token = runBlocking { getAuthToken(user) }
+        if (token == null) return emptyList()
+        val response = getConversationObjects(token, jsonArray)
+        val found = response.getJSONArray("found")
+        for (j in 0 until found.length()) {
+            result.add(Conversation.fromJSON(found.getJSONObject(j)))
+        }
+    }
+    return result
+}
+
+fun BackendClient.getConversationByName(user: ClientUser, name: String): Conversation {
+    return getConversations(user).firstOrNull { conv ->
+        when {
+            conv.name == null && conv.otherIds.size == 1 && conv.protocol == "mls" -> {
+                try {
+                    getUserNameByID(conv.otherIds[0].domain, conv.otherIds[0].id, user) == name
+                } catch (e: IOException) {
+                    false
+                }
+            }
+
+            conv.type == 2 -> {
+                try {
+                    getUserNameByID(conv.otherIds[0].domain, conv.otherIds[0].id, user) == name
+                } catch (e: Exception) {
+                    false
+                }
+            }
+
+            else -> conv.name == name
+        }
+    } ?: throw NoSuchElementException("Conversation '$name' does not exist for user '${user.name}'")
+}
+
+fun BackendClient.getConversationIDs(token: AccessToken, pagingState: String? = null): JSONObject {
+    val url = "conversations/list-ids".composeCompleteUrl()
+
+    val requestBody = JSONObject().apply {
+        put("paging_state", pagingState)
+    }
+
+    val headers = defaultheaders.toMutableMap().apply {
+        put("Authorization", "${token.type} ${token.value}")
+    }
+
+    val response = NetworkBackendClient.sendJsonRequestWithCookies(
+        url = URL(url),
+        method = "POST",
+        body = requestBody.toString(),
+        headers = headers,
+        options = RequestOptions(accessToken = token)
+    )
+
+    return JSONObject(response.body)
+}
+
+fun BackendClient.getPersonalConversationByName(user: ClientUser, name: String): Conversation =
+    getConversations(user).firstOrNull { conv ->
+        conv.protocol == "mls" &&
+                when (conv.type) {
+                    2 -> try {
+                        getUserNameByID(conv.otherIds[0].domain, conv.otherIds[0].id, user) == name
+                    } catch (e: Exception) {
+                        false
+                    }
+
+                    else -> conv.name == name
+                }
+    } ?: throw NoSuchElementException("Conversation '$name' does not exist for user '${user.name}'")
+
+fun BackendClient.getConversationByName(ownerUser: ClientUser, otherUser: ClientUser): Conversation =
+    getConversations(ownerUser).firstOrNull { conv ->
+        conv.type == 2 && try {
+            getUserNameByID(conv.otherIds[0].domain, conv.otherIds[0].id, ownerUser) == otherUser.name
+        } catch (e: Exception) {
+            false
+        }
+    } ?: throw NoSuchElementException("1:1 conversation with '${otherUser.name}' does not exist for user '${ownerUser.name}'")
+
+fun BackendClient.getConversationsByName(user: ClientUser, name: String): List<Conversation> =
+    getConversations(user).filter { conv ->
+        conv.name == name || (
+                conv.otherIds.size == 1 && try {
+            getUserNameByID(
+                conv.qualifiedID.domain,
+                conv.otherIds[0].id, user
+            ) == name
+        } catch (e: Exception) {
+            false
+        }
+                )
+    }

@@ -56,6 +56,25 @@ data class LoginPage(private val device: UiDevice) {
         return this
     }
 
+    fun enterTeamOwnerLoggingEmail(email: String): LoginPage {
+        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        // Click the input field (waits until visible)
+        device.findObject(emailInputField).click()
+        // Wait again to avoid stale object
+        device.findObject(emailInputField)
+        // Set text via UiObject (more reliable than UiObject2.text=)
+        device.findObject(emailInputField).setText(email)
+
+        return this
+    }
+
+    fun enterTeamOwnerLoggingPassword(password: String): LoginPage {
+        val passwordInputField = UiWaitUtils.waitElement(passwordInputFieldSelector)
+        passwordInputField.click()
+        passwordInputField.text = password
+        return this
+    }
+
     fun clickStagingDeepLink(): LoginPage {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val deepLinkUrl = "wire://access/?config=${backendClient?.deeplink}"

@@ -23,6 +23,7 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.debug.BreakSessionUseCase
 import com.wire.kalium.logic.feature.debug.DebugScope
+import com.wire.kalium.logic.feature.debug.GetFeatureConfigUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -72,4 +73,8 @@ class DebugModule {
     @ViewModelScoped
     @Provides
     fun provideStartUsingAsyncNotifications(debugScope: DebugScope) = debugScope.startUsingAsyncNotifications
+
+    @ViewModelScoped
+    @Provides
+    fun provideFeatureConfigUseCase(debugScope: DebugScope): GetFeatureConfigUseCase = debugScope.getFeatureConfig
 }

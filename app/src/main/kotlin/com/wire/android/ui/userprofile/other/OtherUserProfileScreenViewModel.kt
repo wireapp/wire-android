@@ -208,6 +208,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
 
     override fun onRemoveConversationMember(state: RemoveConversationMemberState) {
         viewModelScope.launch {
+            removeConversationMemberDialogState.update { it.copy(loading = true) }
             val response = withContext(dispatchers.io()) {
                 removeMemberFromConversation(
                     state.conversationId,
@@ -218,6 +219,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             if (response is RemoveMemberFromConversationUseCase.Result.Failure) {
                 onMessage(RemoveConversationMemberError)
             }
+            removeConversationMemberDialogState.dismiss()
         }
     }
 

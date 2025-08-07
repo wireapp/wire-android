@@ -66,6 +66,7 @@ import com.wire.kalium.logic.feature.user.UserScope
 import com.wire.kalium.logic.sync.SyncManager
 import io.mockk.MockKAnnotations
 import io.mockk.MockKMatcherScope
+import io.mockk.clearMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -443,6 +444,42 @@ class WireNotificationManagerTest {
     }
 
     @Test
+    fun givenAppInBackground_withNoUsers_whenObserving_thenStopCallService() = runTestWithCancellation(dispatcherProvider.main()) {
+        val (arrangement, manager) = Arrangement()
+            .withIncomingCalls(listOf())
+            .withOutgoingCalls(listOf())
+            .withMessageNotifications(listOf())
+            .withCurrentScreen(CurrentScreen.InBackground)
+            .withEstablishedCall(listOf())
+            .withCurrentUserSession(CurrentSessionResult.Failure.SessionNotFound)
+            .arrange()
+
+        manager.observeNotificationsAndCallsWhileRunning(listOf(), this)
+        advanceUntilIdle()
+
+        verify(exactly = 0) { arrangement.servicesManager.startCallService() }
+        verify(exactly = 1) { arrangement.servicesManager.stopCallService() }
+    }
+
+    @Test
+    fun givenAppInForeground_withNoUsers_whenObserving_thenStopCallService() = runTestWithCancellation(dispatcherProvider.main()) {
+        val (arrangement, manager) = Arrangement()
+            .withIncomingCalls(listOf())
+            .withOutgoingCalls(listOf())
+            .withMessageNotifications(listOf())
+            .withCurrentScreen(CurrentScreen.Home)
+            .withEstablishedCall(listOf())
+            .withCurrentUserSession(CurrentSessionResult.Failure.SessionNotFound)
+            .arrange()
+
+        manager.observeNotificationsAndCallsWhileRunning(listOf(), this)
+        advanceUntilIdle()
+
+        verify(exactly = 0) { arrangement.servicesManager.startCallService() }
+        verify(exactly = 1) { arrangement.servicesManager.stopCallService() }
+    }
+
+    @Test
     fun givenAppInBackground_withValidCurrentAccountAndOngoingCall_whenObserving_thenStartCallService() =
         runTestWithCancellation(dispatcherProvider.main()) {
             val userId = provideUserId()
@@ -485,7 +522,7 @@ class WireNotificationManagerTest {
         }
 
     @Test
-    fun givenAppInBackground_withValidCurrentAccountAndNoOngoingOrOutgoingCall_whenObserving_thenStopCallService() =
+    fun givenAppInBackground_withValidCurrentAccountAndNoOngoingOrOutgoingCall_whenObserving_thenDoNotStartOrStopCallService() =
         runTestWithCancellation(dispatcherProvider.main()) {
             val userId = provideUserId()
             val (arrangement, manager) = Arrangement()
@@ -501,11 +538,11 @@ class WireNotificationManagerTest {
             runCurrent()
 
             verify(exactly = 0) { arrangement.servicesManager.startCallService() }
-            verify(exactly = 1) { arrangement.servicesManager.stopCallService() }
+            verify(exactly = 0) { arrangement.servicesManager.stopCallService() } // call service handles stopping by itself
         }
 
     @Test
-    fun givenAppInBackground_withInvalidCurrentAccountAndOngoingCall_whenObserving_thenStopCallService() =
+    fun givenAppInBackground_withInvalidCurrentAccountAndOngoingCall_whenObserving_thenDoNotStartOrStopCallService() =
         runTestWithCancellation(dispatcherProvider.main()) {
             val userId = provideUserId()
             val call = provideCall().copy(status = CallStatus.ESTABLISHED)
@@ -522,11 +559,11 @@ class WireNotificationManagerTest {
             runCurrent()
 
             verify(exactly = 0) { arrangement.servicesManager.startCallService() }
-            verify(exactly = 1) { arrangement.servicesManager.stopCallService() }
+            verify(exactly = 0) { arrangement.servicesManager.stopCallService() } // call service handles stopping by itself
         }
 
     @Test
-    fun givenAppInBackground_withInvalidCurrentAccountAndOutgoingCall_whenObserving_thenStopCallService() =
+    fun givenAppInBackground_withInvalidCurrentAccountAndOutgoingCall_whenObserving_thenDoNotStartOrStopCallService() =
         runTestWithCancellation(dispatcherProvider.main()) {
             val userId = provideUserId()
             val call = provideCall().copy(status = CallStatus.STARTED)
@@ -543,11 +580,11 @@ class WireNotificationManagerTest {
             runCurrent()
 
             verify(exactly = 0) { arrangement.servicesManager.startCallService() }
-            verify(exactly = 1) { arrangement.servicesManager.stopCallService() }
+            verify(exactly = 0) { arrangement.servicesManager.stopCallService() } // call service handles stopping by itself
         }
 
     @Test
-    fun givenAppInBackground_withInvalidCurrentAccountAndNoOngoingCall_whenObserving_thenStopCallService() =
+    fun givenAppInBackground_withInvalidCurrentAccountAndNoOngoingCall_whenObserving_thenDoNotStartOrStopCallService() =
         runTestWithCancellation(dispatcherProvider.main()) {
             val userId = provideUserId()
             val (arrangement, manager) = Arrangement()
@@ -563,11 +600,11 @@ class WireNotificationManagerTest {
             runCurrent()
 
             verify(exactly = 0) { arrangement.servicesManager.startCallService() }
-            verify(exactly = 1) { arrangement.servicesManager.stopCallService() }
+            verify(exactly = 0) { arrangement.servicesManager.stopCallService() } // call service handles stopping by itself
         }
 
     @Test
-    fun givenAppInBackground_withTwoValidAccountsAndOngoingCallForNotCurrentOne_whenObserving_thenStopCallService() =
+    fun givenAppInBackground_withTwoValidAccountsAndOngoingCallForNotCurrentOne_whenObserving_thenDoNotStartOrStopCallService() =
         runTestWithCancellation(dispatcherProvider.main()) {
             val userId1 = UserId("value1", "domain")
             val userId2 = UserId("value2", "domain")
@@ -582,7 +619,8 @@ class WireNotificationManagerTest {
             manager.observeNotificationsAndCallsWhileRunning(listOf(userId1, userId2), this)
             advanceUntilIdle()
 
-            verify(exactly = 1) { arrangement.servicesManager.stopCallService() }
+            verify(exactly = 0) { arrangement.servicesManager.startCallService() }
+            verify(exactly = 0) { arrangement.servicesManager.stopCallService() } // call service handles stopping by itself
         }
 
     @Test
@@ -608,7 +646,7 @@ class WireNotificationManagerTest {
         }
 
     @Test
-    fun givenAppInBackground_withTwoValidAccountsAndOngoingCallForCurrentOne_whenCurrentAccountChanges_thenStopCallService() =
+    fun givenAppInBackground_withTwoValidAccountsAndOngoingCallForCurrentOne_whenCurrentAccountChanges_thenDoNotStartOrStopCallService() =
         runTestWithCancellation(dispatcherProvider.main()) {
             val userId1 = UserId("value1", "domain")
             val userId2 = UserId("value2", "domain")
@@ -622,15 +660,17 @@ class WireNotificationManagerTest {
 
             manager.observeNotificationsAndCallsWhileRunning(listOf(userId1, userId2), this)
             advanceUntilIdle()
+            arrangement.clearRecordedCallsForServicesManager()
 
             arrangement.withCurrentUserSession(CurrentSessionResult.Success(provideAccountInfo(userId2.value)))
             advanceUntilIdle()
 
-            verify(exactly = 1) { arrangement.servicesManager.stopCallService() }
+            verify(exactly = 0) { arrangement.servicesManager.startCallService() }
+            verify(exactly = 0) { arrangement.servicesManager.stopCallService() } // call service handles stopping by itself
         }
 
     @Test
-    fun givenAppInBackground_withValidCurrentAccountAndOngoingCall_whenAccountBecomesInvalid_thenStopCallService() =
+    fun givenAppInBackground_withValidCurrentAccountAndOngoingCall_whenAccountBecomesInvalid_thenDoNotStartOrStopCallService() =
         runTestWithCancellation(dispatcherProvider.main()) {
             val userId = provideUserId()
             val call = provideCall().copy(status = CallStatus.ESTABLISHED)
@@ -645,11 +685,13 @@ class WireNotificationManagerTest {
 
             manager.observeNotificationsAndCallsWhileRunning(listOf(userId), this)
             advanceUntilIdle()
+            arrangement.clearRecordedCallsForServicesManager()
 
             arrangement.withCurrentUserSession(CurrentSessionResult.Success(provideInvalidAccountInfo(userId.value)))
             advanceUntilIdle()
 
-            verify(exactly = 1) { arrangement.servicesManager.stopCallService() }
+            verify(exactly = 0) { arrangement.servicesManager.startCallService() }
+            verify(exactly = 0) { arrangement.servicesManager.stopCallService() } // call service handles stopping by itself
         }
 
     @Test
@@ -722,7 +764,7 @@ class WireNotificationManagerTest {
         }
 
     @Test
-    fun givenAppInForeground_withValidCurrentAccountAndNoOngoingCall_whenObserving_thenStopCallService() =
+    fun givenAppInForeground_withValidCurrentAccountAndNoOngoingCall_whenObserving_thenDoNotStartOrStopCallService() =
         runTestWithCancellation(dispatcherProvider.main()) {
             val userId = provideUserId()
             val (arrangement, manager) = Arrangement()
@@ -738,11 +780,11 @@ class WireNotificationManagerTest {
             runCurrent()
 
             verify(exactly = 0) { arrangement.servicesManager.startCallService() }
-            verify(exactly = 1) { arrangement.servicesManager.stopCallService() }
+            verify(exactly = 0) { arrangement.servicesManager.stopCallService() } // call service handles stopping by itself
         }
 
     @Test
-    fun givenAppInForeground_withInvalidCurrentAccountAndOngoingCall_whenObserving_thenStopCallService() =
+    fun givenAppInForeground_withInvalidCurrentAccountAndOngoingCall_whenObserving_thenDoNotStartOrStopCallService() =
         runTestWithCancellation(dispatcherProvider.main()) {
             val userId = provideUserId()
             val call = provideCall().copy(status = CallStatus.ESTABLISHED)
@@ -759,11 +801,11 @@ class WireNotificationManagerTest {
             runCurrent()
 
             verify(exactly = 0) { arrangement.servicesManager.startCallService() }
-            verify(exactly = 1) { arrangement.servicesManager.stopCallService() }
+            verify(exactly = 0) { arrangement.servicesManager.stopCallService() } // call service handles stopping by itself
         }
 
     @Test
-    fun givenAppInForeground_withInvalidCurrentAccountAndNoOngoingCall_whenObserving_thenStopCallService() =
+    fun givenAppInForeground_withInvalidCurrentAccountAndNoOngoingCall_whenObserving_thenDoNotStartOrStopCallService() =
         runTestWithCancellation(dispatcherProvider.main()) {
             val userId = provideUserId()
             val (arrangement, manager) = Arrangement()
@@ -779,11 +821,11 @@ class WireNotificationManagerTest {
             runCurrent()
 
             verify(exactly = 0) { arrangement.servicesManager.startCallService() }
-            verify(exactly = 1) { arrangement.servicesManager.stopCallService() }
+            verify(exactly = 0) { arrangement.servicesManager.stopCallService() } // call service handles stopping by itself
         }
 
     @Test
-    fun givenAppInForeground_withTwoValidAccountsAndOngoingCallForNotCurrentOne_whenObserving_thenStopCallService() =
+    fun givenAppInForeground_withTwoValidAccountsAndOngoingCallForNotCurrentOne_whenObserving_thenDoNotStartOrStopCallService() =
         runTestWithCancellation(dispatcherProvider.main()) {
             val userId1 = UserId("value1", "domain")
             val userId2 = UserId("value2", "domain")
@@ -798,7 +840,8 @@ class WireNotificationManagerTest {
             manager.observeNotificationsAndCallsWhileRunning(listOf(userId1, userId2), this)
             advanceUntilIdle()
 
-            verify(exactly = 1) { arrangement.servicesManager.stopCallService() }
+            verify(exactly = 0) { arrangement.servicesManager.startCallService() }
+            verify(exactly = 0) { arrangement.servicesManager.stopCallService() } // call service handles stopping by itself
         }
 
     @Test
@@ -816,6 +859,7 @@ class WireNotificationManagerTest {
 
             manager.observeNotificationsAndCallsWhileRunning(listOf(userId1, userId2), this)
             advanceUntilIdle()
+            arrangement.clearRecordedCallsForServicesManager()
 
             arrangement.withCurrentUserSession(CurrentSessionResult.Success(provideAccountInfo(userId2.value)))
             advanceUntilIdle()
@@ -824,7 +868,7 @@ class WireNotificationManagerTest {
         }
 
     @Test
-    fun givenAppInForeground_withTwoValidAccountsAndOngoingCallForCurrentOne_whenCurrentAccountChanges_thenStopCallService() =
+    fun givenAppInForeground_withTwoValidAccountsAndOngoingCallForCurrentOne_whenCurrentAccountChanges_thenDoNotStartOrStopCallService() =
         runTestWithCancellation(dispatcherProvider.main()) {
             val userId1 = UserId("value1", "domain")
             val userId2 = UserId("value2", "domain")
@@ -838,15 +882,17 @@ class WireNotificationManagerTest {
 
             manager.observeNotificationsAndCallsWhileRunning(listOf(userId1, userId2), this)
             advanceUntilIdle()
+            arrangement.clearRecordedCallsForServicesManager()
 
             arrangement.withCurrentUserSession(CurrentSessionResult.Success(provideAccountInfo(userId2.value)))
             advanceUntilIdle()
 
-            verify(exactly = 1) { arrangement.servicesManager.stopCallService() }
+            verify(exactly = 0) { arrangement.servicesManager.startCallService() }
+            verify(exactly = 0) { arrangement.servicesManager.stopCallService() } // call service handles stopping by itself
         }
 
     @Test
-    fun givenAppInForeground_withValidCurrentAccountAndOngoingCall_whenAccountBecomesInvalid_thenStopCallService() =
+    fun givenAppInForeground_withValidCurrentAccountAndOngoingCall_whenAccountBecomesInvalid_thenDoNotStartOrStopCallService() =
         runTestWithCancellation(dispatcherProvider.main()) {
             val userId = provideUserId()
             val call = provideCall().copy(status = CallStatus.ESTABLISHED)
@@ -861,11 +907,13 @@ class WireNotificationManagerTest {
 
             manager.observeNotificationsAndCallsWhileRunning(listOf(userId), this)
             advanceUntilIdle()
+            arrangement.clearRecordedCallsForServicesManager()
 
             arrangement.withCurrentUserSession(CurrentSessionResult.Success(provideInvalidAccountInfo(userId.value)))
             advanceUntilIdle()
 
-            verify(exactly = 1) { arrangement.servicesManager.stopCallService() }
+            verify(exactly = 0) { arrangement.servicesManager.startCallService() }
+            verify(exactly = 0) { arrangement.servicesManager.stopCallService() } // call service handles stopping by itself
         }
 
     @Test
@@ -1241,6 +1289,15 @@ class WireNotificationManagerTest {
         fun withDoesValidSessionExistResult(userId: UserId, result: DoesValidSessionExistResult) = apply {
             coEvery { globalKaliumScope.doesValidSessionExist.invoke(userId) } returns result
         }
+
+        fun clearRecordedCallsForServicesManager() = clearMocks(
+            servicesManager,
+            answers = false,
+            recordedCalls = true,
+            childMocks = false,
+            verificationMarks = false,
+            exclusionRules = false
+        )
 
         fun arrange() = this to wireNotificationManager
     }

@@ -91,6 +91,7 @@ import com.wire.android.ui.destinations.AddMembersSearchScreenDestination
 import com.wire.android.ui.destinations.ChannelAccessOnUpdateScreenDestination
 import com.wire.android.ui.destinations.ConversationFoldersScreenDestination
 import com.wire.android.ui.destinations.ConversationMediaScreenDestination
+import com.wire.android.ui.destinations.DebugConversationScreenDestination
 import com.wire.android.ui.destinations.EditConversationNameScreenDestination
 import com.wire.android.ui.destinations.EditGuestAccessScreenDestination
 import com.wire.android.ui.destinations.EditSelfDeletingMessagesScreenDestination
@@ -248,6 +249,13 @@ fun GroupConversationDetailsScreen(
                     conversationName = groupOptions.groupName
                 )
             )
+        },
+        openConversationDebugMenu = {
+            navigator.navigate(
+                NavigationCommand(
+                    DebugConversationScreenDestination(conversationId = it)
+                )
+            )
         }
     )
 
@@ -316,6 +324,7 @@ private fun GroupConversationDetailsContent(
     onMoveToFolder: (ConversationFoldersNavArgs) -> Unit = {},
     onLeftConversation: () -> Unit = {},
     onDeletedConversation: () -> Unit = {},
+    openConversationDebugMenu: (ConversationId) -> Unit = {},
     initialPageIndex: GroupConversationDetailsTabItem = GroupConversationDetailsTabItem.OPTIONS,
 ) {
     val scope = rememberCoroutineScope()
@@ -459,6 +468,7 @@ private fun GroupConversationDetailsContent(
         openConversationFolders = onMoveToFolder,
         onLeftConversation = onLeftConversation,
         onDeletedConversation = onDeletedConversation,
+        openConversationDebugMenu = openConversationDebugMenu,
     )
 
     VisibilityState(legalHoldSubjectDialogState) {

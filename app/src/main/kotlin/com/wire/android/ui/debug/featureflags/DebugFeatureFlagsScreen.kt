@@ -31,6 +31,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireDestination
+import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
@@ -44,11 +45,13 @@ fun DebugFeatureFlagsScreen(
     modifier: Modifier = Modifier,
     viewModel: DebugFeatureFlagsViewModel = hiltViewModel(),
 ) {
+    val scrollState = rememberScrollState()
 
     WireScaffold(
         modifier = modifier,
         topBar = {
             WireCenterAlignedTopAppBar(
+                elevation = scrollState.rememberTopBarElevationState().value,
                 titleContent = {
                     WireTopAppBarTitle(
                         title = stringResource(R.string.debug_settings_feature_flags),
@@ -70,7 +73,7 @@ fun DebugFeatureFlagsScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
-                    .verticalScroll(rememberScrollState())
+                    .verticalScroll(scrollState)
             ) {
                 state.features?.forEach { feature ->
                     FeatureListItem(feature)

@@ -37,9 +37,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.home.conversationslist.common.RowItem
 
@@ -59,8 +59,8 @@ fun FeatureListItem(
         RowItem(
             modifier = Modifier
                 .fillMaxWidth()
-                .defaultMinSize(minHeight = 48.dp)
-                .padding(16.dp),
+                .defaultMinSize(minHeight = dimensions().spacing48x)
+                .padding(dimensions().spacing16x),
             clickable = Clickable {
                 if (feature.configJson != null) {
                     expanded = !expanded
@@ -104,7 +104,7 @@ fun FeatureListItem(
                     text = config,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp),
+                        .padding(dimensions().spacing16x),
                     style = typography().label01,
                     color = colorsScheme().secondaryText,
                 )

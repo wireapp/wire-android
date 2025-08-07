@@ -23,7 +23,7 @@ plugins {
 android {
     defaultConfig {
         minSdk = 23
-        compileSdk = 34
+        compileSdk = 35
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 

@@ -96,7 +96,10 @@ class ServicesManager @Inject constructor(
     }
 
     fun startCallServiceToAnswer(userId: UserId, conversationId: ConversationId) {
-        appLogger.i("ServicesManager: start CallService event")
+        appLogger.i(
+            "ServicesManager: start CallService event to answer call, " +
+                    "userId: ${userId.toLogString()}, conversationId: ${conversationId.toLogString()}"
+        )
         scope.launch {
             callServiceEvents.emit(CallService.Action.AnswerCall(userId, conversationId))
         }

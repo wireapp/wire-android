@@ -45,7 +45,7 @@ androidx-biometric = "1.1.0"
 androidx-startup = "1.2.0"
 androidx-compose-runtime = "1.7.2"
 compose-qr = "1.0.1"
-amplituda = "2.2.2"
+amplituda = "2.3.0"
 
 # Compose
 composeBom = "2024.12.01"

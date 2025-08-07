@@ -18,10 +18,10 @@
 package com.wire.android.media.audiomessage
 
 import android.content.Context
+import com.linc.amplituda.Amplituda
+import com.linc.amplituda.Cache
 import dagger.Reusable
 import dagger.hilt.android.qualifiers.ApplicationContext
-import linc.com.amplituda.Amplituda
-import linc.com.amplituda.Cache
 import okio.Path
 import java.io.File
 import javax.inject.Inject

@@ -21,8 +21,6 @@
 #-renamesourcefileattribute SourceFile
 
 # For E2EE
--keep class com.wire.cryptobox.** { *; }
-
 -keepclasseswithmembernames,includedescriptorclasses class * {
     native <methods>;
 }

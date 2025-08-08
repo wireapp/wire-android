@@ -186,7 +186,11 @@ private fun CodeContent(
                         modifier = Modifier.padding(vertical = MaterialTheme.wireDimensions.spacing16x)
                     )
                 }
-                ResendCodeText(onResendCodePressed = onResendCodePressed, clickEnabled = !state.loading)
+                ResendCodeText(
+                    onResendCodePressed = onResendCodePressed,
+                    clickEnabled = !state.loading,
+                    timerText = state.remainingTimerText,
+                )
             }
             Spacer(modifier = Modifier.weight(1f))
         }

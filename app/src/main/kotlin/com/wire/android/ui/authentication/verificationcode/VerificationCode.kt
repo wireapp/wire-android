@@ -54,7 +54,11 @@ fun VerificationCode(
     isCurrentCodeInvalid: Boolean,
     onResendCode: () -> Unit,
     modifier: Modifier = Modifier,
+<<<<<<< HEAD
     showLoadingProgress: Boolean = true,
+=======
+    timerText: String? = null,
+>>>>>>> 37030776a (fix: resend code timer [WPB-18364] (#4145))
 ) {
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -97,12 +101,20 @@ fun VerificationCode(
             }
         }
 
+<<<<<<< HEAD
         LaunchedEffect(Unit) {
             coroutineContext.job.invokeOnCompletion {
                 focusRequester.requestFocus()
                 keyboardController?.show()
             }
         }
+=======
+        ResendCodeText(
+            onResendCodePressed = onResendCode,
+            clickEnabled = !isLoading,
+            timerText = timerText,
+        )
+>>>>>>> 37030776a (fix: resend code timer [WPB-18364] (#4145))
     }
 }
 
@@ -115,5 +127,18 @@ fun PreviewVerificationCode() = WireTheme {
         isLoading = false,
         isCurrentCodeInvalid = false,
         onResendCode = {}
+    )
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewVerificationCodeTimer() = WireTheme {
+    VerificationCode(
+        codeLength = 6,
+        codeState = TextFieldState(),
+        isLoading = false,
+        isCurrentCodeInvalid = false,
+        onResendCode = {},
+        timerText = "00:30",
     )
 }

@@ -27,8 +27,12 @@ import com.wire.android.datastore.UserDataStore
 import com.wire.android.framework.TestClient
 import com.wire.android.framework.TestUser
 import com.wire.android.util.EMPTY
+<<<<<<< HEAD
 import com.wire.android.assertions.shouldBeEqualTo
 import com.wire.android.assertions.shouldBeInstanceOf
+=======
+import com.wire.android.util.ui.CountdownTimer
+>>>>>>> 37030776a (fix: resend code timer [WPB-18364] (#4145))
 import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.data.auth.verification.VerifiableAction
 import com.wire.kalium.logic.data.user.SelfUser
@@ -295,12 +299,16 @@ class RegisterDeviceViewModelTest {
         @MockK
         internal lateinit var userDataStore: UserDataStore
 
+        @MockK
+        internal lateinit var countdownTimer: CountdownTimer
+
         init {
             MockKAnnotations.init(this)
             mockUri()
             coEvery { isPasswordRequiredUseCase() } returns IsPasswordRequiredUseCase.Result.Success(true)
             every { userDataStore.initialSyncCompleted } returns flowOf(true)
             coEvery { getSelfUserUseCase() } returns SELF_USER
+            coEvery { countdownTimer.start(any(), any(), any()) } returns Unit
         }
 
         fun arrange() = this to RegisterDeviceViewModel(
@@ -309,6 +317,7 @@ class RegisterDeviceViewModelTest {
             userDataStore,
             getSelfUserUseCase,
             requestSecondFactorVerificationCodeUseCase,
+            countdownTimer,
         )
 
         fun withRegisterClientReturning(result: RegisterClientResult) = apply {

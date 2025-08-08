@@ -1,12 +1,7 @@
 name: Auto assign author to PR
 on:
   pull_request:
-    types: [ opened ]
-
-permissions:
-  contents: read
-  pull-requests: write
-  checks: write
+    types: [ opened, edited, synchronize ]
 
 jobs:
   assign-author:

@@ -18,7 +18,6 @@
 package com.wire.android.feature.cells.ui
 
 import android.content.Context
-import android.os.Environment
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
@@ -59,9 +58,7 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import okio.Path
-import okio.Path.Companion.toOkioPath
 import okio.Path.Companion.toPath
-import java.io.File
 import javax.inject.Inject
 
 @Suppress("TooManyFunctions")
@@ -186,38 +183,32 @@ class CellViewModel @Inject constructor(
 
     private fun downloadNode(node: CellNodeUi) = viewModelScope.launch {
 
-        if (node.name.isNullOrBlank()) {
-            sendAction(ShowError(CellError.OTHER_ERROR))
-            return@launch
+        val path = kaliumFileSystem.providePersistentAssetPath(
+            node.name ?: run {
+                sendAction(ShowError(CellError.OTHER_ERROR))
+                return@launch
+            }
+        )
+
+        val nodeRemotePath = when (node) {
+            is CellNodeUi.File -> node.remotePath
+            is CellNodeUi.Folder -> node.remotePath + ZIP_EXTENSION
         }
-
-        val (nodeName, nodeRemotePath) = when (node) {
-            is CellNodeUi.File -> Pair(node.name, node.remotePath)
-            is CellNodeUi.Folder -> Pair(node.name + ZIP_EXTENSION, node.remotePath + ZIP_EXTENSION)
-        }
-
-        val publicDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-        val filePath = File(publicDir, nodeName).toPath().toOkioPath()
-
-        if (kaliumFileSystem.exists(filePath)) {
-            kaliumFileSystem.delete(filePath)
+        if (kaliumFileSystem.exists(path)) {
+            kaliumFileSystem.delete(path)
         }
 
         download(
             assetId = node.uuid,
-            outFilePath = filePath,
+            outFilePath = path,
             remoteFilePath = nodeRemotePath,
             assetSize = node.size ?: 0,
         ) { progress ->
             node.size?.let {
-                updateDownloadProgress(progress, it, node, filePath)
+                updateDownloadProgress(progress, it, node, path)
             }
         }.onSuccess {
-            updateDownloadData(node.uuid) {
-                DownloadData(
-                    localPath = filePath
-                )
-            }
+            updateDownloadData(node.uuid) { DownloadData(localPath = path) }
         }.onFailure {
             _downloadFileSheet.update { null }
             sendAction(ShowError(CellError.DOWNLOAD_FAILED))

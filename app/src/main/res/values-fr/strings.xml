@@ -37,7 +37,6 @@
     <string name="label_logging_in">Connexion en cours…</string>
     <string name="label_membership_guest">Invité.e</string>
     <string name="label_membership_external">Externe</string>
-    <string name="label_membership_service">Service</string>
     <string name="label_user_deleted">Supprimé.e</string>
     <string name="label_message_sent_failure">Le message n\'a pas pu être envoyé en raison de problèmes de connexion.</string>
     <string name="label_message_edit_sent_failure">Le message modifié n\'a pas pu être envoyé en raison de problèmes de connexion.</string>
@@ -402,13 +401,9 @@
     <string name="conversation_details_guest_description">Lorsque cela est activé, des personnes extérieures à votre équipe peuvent rejoindre cette conversation</string>
     <string name="conversation_options_guest_description">Activez cette option pour ouvrir cette conversation à des personnes en dehors de votre équipe, même si elles n\'ont pas de Wire.</string>
     <string name="conversation_options_guest_not_editable_description">Vous ne pouvez pas désactiver l\'option Invité dans cette conversation, car elle a été créée par quelqu\'un d\'une autre équipe.</string>
-    <string name="conversation_options_services_label">Services</string>
-    <string name="conversation_options_services_description">Activez cette option pour ouvrir cette conversation aux services.</string>
     <string name="conversation_options_renamed">Conversation renommée</string>
     <string name="disable_guest_dialog_title">Désactiver l\'accès invité ?</string>
     <string name="disable_guest_dialog_text">Tous les invités seront retirés de la conversation. Il ne sera plus possible d\'ajouter de nouveaux invités.</string>
-    <string name="disable_services_dialog_title">Désactiver l\'accès aux services ?</string>
-    <string name="disable_services_dialog_text">Tous les services seront retirés de la conversation. Il ne sera plus possible d\'ajouter de nouveaux services.</string>
     <!-- Import/Export External Media -->
     <string name="import_media_content_title">Partager avec Wire</string>
     <string name="import_media_searchbar_title">Rechercher des conversations</string>

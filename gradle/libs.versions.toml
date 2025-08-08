@@ -11,7 +11,7 @@ coroutines = "1.9.0"
 ktx-dateTime = "0.5.0"
 ktx-immutableCollections = "0.3.8"
 ktx-serialization = "1.8.1"
-koin = "3.5.3"
+koin = "4.1.0"
 datafaker = "2.4.2"
 
 # Android Core / Architecture

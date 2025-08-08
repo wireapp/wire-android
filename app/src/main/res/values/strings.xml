@@ -728,7 +728,7 @@
     <!-- Remove Conversation Member Dialog -->
     <string name="dialog_remove_conversation_member_title">Remove from conversation?</string>
     <string name="dialog_remove_conversation_member_description">%1$s (@%2$s) will not be able to send or receive messages in this conversation.</string>
-    <string name="dialog_remove_conversation_member_error">There was an error while removing the participant from the conversatrion</string>
+    <string name="dialog_remove_conversation_member_error">There was an error while removing the participant from the conversation</string>
     <string name="conversation_role_admin">Admin</string>
     <string name="conversation_role_member">Member</string>
     <!-- Logout Wipe Data Dialog -->

@@ -41,6 +41,8 @@ sealed class OtherUserProfileInfoMessageType(override val uiText: UIText) : Snac
     // remove conversation member
     object RemoveConversationMemberError :
         OtherUserProfileInfoMessageType(UIText.StringResource(R.string.dialog_remove_conversation_member_error))
+    data class RemoveConversationMemberSuccess(val userName: String) :
+        OtherUserProfileInfoMessageType(UIText.PluralResource(R.plurals.label_system_message_federation_member_removed, 1, userName))
 
     // Conversation BottomSheet
     object BlockingUserOperationError : OtherUserProfileInfoMessageType(UIText.StringResource(R.string.error_blocking_user))

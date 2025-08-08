@@ -28,13 +28,21 @@ import com.wire.android.datastore.UserDataStore
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
+<<<<<<< HEAD
 import com.wire.android.ui.common.ActionsViewModel
+=======
+import com.wire.android.navigation.SavedStateViewModel
+import com.wire.kalium.logic.data.auth.AccountInfo
+>>>>>>> 8cdb1f721 (fix: crash on logout [WPB-18706] (#4147))
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
 import com.wire.kalium.logic.feature.legalhold.LegalHoldStateForSelfUser
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserUseCase
 import com.wire.kalium.logic.feature.personaltoteamaccount.CanMigrateFromPersonalToTeamUseCase
+import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
+import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
+import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -52,7 +60,13 @@ class HomeViewModel @Inject constructor(
     private val needsToRegisterClient: NeedsToRegisterClientUseCase,
     private val canMigrateFromPersonalToTeam: CanMigrateFromPersonalToTeamUseCase,
     private val observeLegalHoldStatusForSelfUser: ObserveLegalHoldStateForSelfUserUseCase,
+<<<<<<< HEAD
 ) : ActionsViewModel<HomeRequirement>() {
+=======
+    private val shouldTriggerMigrationForUser: ShouldTriggerMigrationForUserUserCase,
+    private val currentSessionFlow: Lazy<CurrentSessionFlowUseCase>,
+) : SavedStateViewModel(savedStateHandle) {
+>>>>>>> 8cdb1f721 (fix: crash on logout [WPB-18706] (#4147))
 
     @VisibleForTesting
     var homeState by mutableStateOf(HomeState())
@@ -113,6 +127,7 @@ class HomeViewModel @Inject constructor(
     fun checkRequirements() {
         viewModelScope.launch {
             val selfUser = selfUserFlow.firstOrNull() ?: return@launch
+            if (isLoggedOut()) return@launch
             when {
                 needsToRegisterClient() -> // check if the client needs to be registered
                     sendAction(HomeRequirement.RegisterDevice)
@@ -125,4 +140,22 @@ class HomeViewModel @Inject constructor(
             }
         }
     }
+<<<<<<< HEAD
+=======
+
+    private suspend fun shouldDisplayWelcomeToARScreen() =
+        globalDataStore.isMigrationCompleted() && !globalDataStore.isWelcomeScreenPresented()
+
+    fun dismissWelcomeMessage() {
+        viewModelScope.launch {
+            globalDataStore.setWelcomeScreenPresented()
+            homeState = homeState.copy(shouldDisplayWelcomeMessage = false)
+        }
+    }
+
+    private suspend fun isLoggedOut(): Boolean {
+        val accountInfo = (currentSessionFlow.get().invoke().firstOrNull() as? CurrentSessionResult.Success)?.accountInfo
+        return accountInfo !is AccountInfo.Valid
+    }
+>>>>>>> 8cdb1f721 (fix: crash on logout [WPB-18706] (#4147))
 }

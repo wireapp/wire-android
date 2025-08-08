@@ -5,7 +5,7 @@ on:
     types: [ opened, edited, synchronize ]
 
 permissions:
-  contents: write
+  contents: read
   pull-requests: write
 
 jobs:
@@ -57,11 +57,15 @@ jobs:
           fetch-depth: 0
 
       - name: Add Failure Label
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         if: failure()
         run: |
           gh api repos/{owner}/{repo}/labels -f name="${CUSTOM_PR_LABEL}" -f color="FF0000" || true
           gh pr edit '${{ github.event.pull_request.number }}' --add-label "${CUSTOM_PR_LABEL}"
       - name: Remove Failure Label
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         if: success()
         run: |
           gh pr edit '${{ github.event.pull_request.number }}' --remove-label "${CUSTOM_PR_LABEL}"

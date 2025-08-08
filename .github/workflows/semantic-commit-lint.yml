@@ -4,14 +4,13 @@ on:
   pull_request:
     types: [ opened, edited, synchronize ]
 
-permissions:
-  contents: read
-  pull-requests: write
-  checks: write
-  actions: read
-
 jobs:
   semantic-commit-pr-title-lint:
+    permissions:
+      contents: read
+      pull-requests: write
+      checks: write
+      actions: read
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

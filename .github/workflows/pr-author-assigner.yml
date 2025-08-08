@@ -6,11 +6,12 @@ on:
 permissions:
   contents: read
   pull-requests: write
+  checks: write
 
 jobs:
-    assign-author:
-        runs-on: ubuntu-latest
-        steps:
-            -   uses: samspills/assign-pr-to-author@v1.0.2
-                with:
-                    repo-token: '${{ secrets.GITHUB_TOKEN }}'
+  assign-author:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: samspills/assign-pr-to-author@v1.0.2
+        with:
+          repo-token: '${{ secrets.GITHUB_TOKEN }}'

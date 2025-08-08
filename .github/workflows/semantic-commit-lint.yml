@@ -12,7 +12,7 @@ jobs:
   semantic-commit-pr-title-lint:
     runs-on: ubuntu-latest
     env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       CUSTOM_PR_LABEL: "Fix PR Title or Commit message️"
       HEAD: ${{github.head_ref}}
     steps:

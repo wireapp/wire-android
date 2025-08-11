@@ -32,7 +32,6 @@ import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
 @Composable
 internal fun RemoveConversationMemberDialog(
     dialogState: VisibilityState<RemoveConversationMemberState>,
-    isLoading: Boolean,
     onRemoveConversationMember: (RemoveConversationMemberState) -> Unit,
 ) {
 
@@ -55,11 +54,8 @@ internal fun RemoveConversationMemberDialog(
                 onClick = { onRemoveConversationMember(state) },
                 text = stringResource(id = R.string.label_remove),
                 type = WireDialogButtonType.Primary,
-                state = if (isLoading)
-                    WireButtonState.Disabled
-                else
-                    WireButtonState.Error,
-                loading = (isLoading)
+                state = if (state.loading) WireButtonState.Disabled else WireButtonState.Error,
+                loading = state.loading
             )
         )
     }

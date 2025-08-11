@@ -33,7 +33,6 @@
     <string name="label_logging_in">Logowanie...</string>
     <string name="label_membership_guest">Go&#347;&#263;</string>
     <string name="label_membership_external">Zewn&#281;trzny</string>
-    <string name="label_membership_service">Us&#322;uga</string>
     <string name="label_user_deleted">Usuni&#281;te</string>
     <string name="label_message_sent_failure">Wiadomo&#347;&#263; nie mog&#322;a zosta&#263; wys&#322;ana ze wzgl&#281;du na problemy z po&#322;&#261;czeniem.</string>
     <string name="label_message_edit_sent_failure">Edytowana wiadomo&#347;&#263; nie mog&#322;a zosta&#263; wys&#322;ana ze wzgl&#281;du na problemy z po&#322;&#261;czeniem.</string>
@@ -333,13 +332,9 @@ Usuni&#281;ta wiadomo&#347;&#263; nie mo&#380;e zosta&#263; przywr&#243;cona.</s
     <string name="conversation_details_guest_description">Kiedy ta opcja jest w&#322;&#261;czona, osoby spoza Twojego zespo&#322;u mog&#261; do&#322;&#261;czy&#263; do tej konwersacji</string>
     <string name="conversation_options_guest_description">W&#322;&#261;cz t&#281; opcj&#281;, aby otworzy&#263; t&#281; konwersacj&#281; dla os&#243;b spoza Twojego zespo&#322;u, nawet je&#347;li nie maj&#261; Wire.</string>
     <string name="conversation_options_guest_not_editable_description">Nie mo&#380;esz wy&#322;&#261;czy&#263; opcji go&#347;ci w tej konwersacji, poniewa&#380; zosta&#322;a utworzona przez kogo&#347; z innego zespo&#322;u.</string>
-    <string name="conversation_options_services_label">Us&#322;ugi</string>
-    <string name="conversation_options_services_description">W&#322;&#261;cz t&#281; opcj&#281;, aby otworzy&#263; t&#281; konwersacj&#281; dla us&#322;ug.</string>
     <string name="conversation_options_renamed">Nazwa konwersacji zmieniona</string>
     <string name="disable_guest_dialog_title">Wy&#322;&#261;czy&#263; dost&#281;p go&#347;ci?</string>
     <string name="disable_guest_dialog_text">Obecni go&#347;cie zostan&#261; usuni&#281;ci z konwersacji. Nowi go&#347;cie nie zostan&#261; dopuszczeni.</string>
-    <string name="disable_services_dialog_title">Wy&#322;&#261;czy&#263; dost&#281;p us&#322;ug?</string>
-    <string name="disable_services_dialog_text">Obecne us&#322;ugi zostan&#261; usuni&#281;te z konwersacji. Nowe us&#322;ugi nie zostan&#261; dopuszczone.</string>
     <!-- Import/Export External Media -->
     <string name="import_media_content_title">Udost&#281;pnij w Wire</string>
     <string name="import_media_searchbar_title">Wyszukaj konwersacj&#281;</string>
@@ -418,21 +413,13 @@ Usuni&#281;ta wiadomo&#347;&#263; nie mo&#380;e zosta&#263; przywr&#243;cona.</s
     <string name="label_edit">Edytuj</string>
     <string name="label_delete">Usu&#324;</string>
     <string name="info_message_copied">Wiadomo&#347;&#263; skopiowana</string>
-    <string name="conversation_banner_federated_externals_guests_services_present">Obecni s&#261; u&#380;ytkownicy federowani, zewn&#281;trzni, go&#347;cie oraz us&#322;ugi.</string>
     <string name="conversation_banner_federated_externals_guests_present">Obecni s&#261; u&#380;ytkownicy federowani, zewn&#281;trzni oraz go&#347;cie.</string>
-    <string name="conversation_banner_federated_externals_services_present">Obecni s&#261; u&#380;ytkownicy federowani, zewn&#281;trzni oraz us&#322;ugi.</string>
-    <string name="conversation_banner_federated_guests_services_present">Obecni s&#261; u&#380;ytkownicy federowani, go&#347;cie oraz us&#322;ugi.</string>
-    <string name="conversation_banner_federated_services_present">Obecni s&#261; u&#380;ytkownicy federowani oraz us&#322;ugi.</string>
     <string name="conversation_banner_federated_guests_present">Obecni s&#261; u&#380;ytkownicy federowani oraz go&#347;cie.</string>
     <string name="conversation_banner_federated_externals_present">Obecni s&#261; u&#380;ytkownicy federowani oraz zewn&#281;trzni.</string>
-    <string name="conversation_banner_externals_guests_services_present">Obecni s&#261; zewn&#281;trzni, go&#347;cie oraz us&#322;ugi.</string>
-    <string name="conversation_banner_externals_services_present">Obecni s&#261; zewn&#281;trzni oraz us&#322;ugi.</string>
     <string name="conversation_banner_externals_guests_present">Obecni s&#261; zewn&#281;trzni oraz go&#347;cie.</string>
-    <string name="conversation_banner_guests_services_present">Obecni s&#261; go&#347;cie oraz us&#322;ugi.</string>
     <string name="conversation_banner_federated_present">Obecni s&#261; u&#380;ytkownicy federowani.</string>
     <string name="conversation_banner_guests_present">Obecni s&#261; go&#347;cie.</string>
     <string name="conversation_banner_externals_present">Obecni s&#261; zewn&#281;trzni.</string>
-    <string name="conversation_banner_services_active">Us&#322;ugi s&#261; aktywne.</string>
     <!-- System messages -->
     <string name="label_system_message_added_by_self">%1$s doda&#322;(a) %2$s do konwersacji.</string>
     <string name="label_system_message_removed_by_self">%1$s usun&#261;&#322;(a) %2$s z konwersacji.</string>
@@ -675,7 +662,6 @@ Do&#322;&#261;czenie do tego po&#322;&#261;czenia spowoduje zako&#324;czenie tam
     <string name="change">Zmie&#324;</string>
     <string name="allow_guests">Zezw&#243;l na go&#347;ci</string>
     <string name="allow_guest_switch_description">Otw&#243;rz t&#281; rozmow&#281; dla os&#243;b spoza twojego zespo&#322;u. Zawsze mo&#380;esz to zmieni&#263; p&#243;&#378;niej.</string>
-    <string name="allow_services">Zezw&#243;l na serwisy</string>
     <string name="read_receipts">Potwierdzenia odczytu</string>
     <string name="disable_guests_dialog_title">Nie zezwalaj na go&#347;ci?</string>
     <string name="disable_guests_dialog_button">Nie zezwalaj na go&#347;ci</string>

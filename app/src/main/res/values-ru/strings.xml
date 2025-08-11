@@ -38,7 +38,7 @@
     <string name="label_logging_in">Авторизация…</string>
     <string name="label_membership_guest">Гость</string>
     <string name="label_membership_external">Внешний</string>
-    <string name="label_membership_service">Сервис</string>
+    <string name="label_membership_service">Приложение</string>
     <string name="label_user_deleted">Удалено</string>
     <string name="label_try_again">Повторить</string>
     <string name="label_done">Готово</string>
@@ -217,7 +217,7 @@
     <string name="content_description_accept_or_ignore_connection_label">принять или игнорировать запрос</string>
     <string name="content_description_open_user_profile_label">открыть профиль</string>
     <string name="content_description_open_conversation_label">открыть беседу</string>
-    <string name="content_description_open_service_label">открыть сервис</string>
+    <string name="content_description_open_service_label">открыть приложение</string>
     <string name="content_description_change_it_label">изменить</string>
     <string name="content_description_open_link_label">открыть ссылку</string>
     <string name="content_description_alert">Оповещение</string>
@@ -281,7 +281,7 @@
     <string name="backup_and_restore_screen_title">Резервное копирование и восстановление бесед</string>
     <string name="search_bar_conversations_hint">Поиск бесед</string>
     <string name="search_no_results">Совпадений не найдено</string>
-    <string name="team_management_screen_title">Управление командой</string>
+    <string name="team_management_screen_title">Управлять командой</string>
     <!--Whats New -->
     <string name="whats_new_screen_title">Что нового</string>
     <string name="whats_new_welcome_to_new_android_app_label">👋 Добро пожаловать в новое приложение Wire для Android!</string>
@@ -428,6 +428,8 @@
     <string name="delete_message_for_yourself_dialog_title">Удалить это сообщение у себя?</string>
     <string name="delete_message_for_yourself_dialog_message">После удаления сообщения у себя, оно останется видимым только у других участников.\n\nУдаленное сообщение не может быть восстановлено.</string>
     <string name="deleted_message_text">Удаленное сообщение</string>
+    <string name="deleted_message_options_closed">Опции были закрыты, поскольку это сообщение больше не доступно.</string>
+    <string name="deleted_conversation_options_closed">Опции были закрыты, поскольку эта беседа больше не доступна.</string>
     <!-- Replies/Quotes to other messages -->
     <string name="label_quote_invalid_or_not_found">Вы не можете видеть это сообщение</string>
     <string name="label_quote_original_message_is_a_picture">Изображение</string>
@@ -597,13 +599,13 @@
     <string name="conversation_details_guest_description">Когда эта опция включена, к беседе могут присоединиться пользователи, не входящие в вашу команду</string>
     <string name="conversation_options_guest_description">Включите эту опцию, чтобы открыть эту беседу для пользователей не из вашей команды, даже если у них нет Wire.</string>
     <string name="conversation_options_guest_not_editable_description">Вы не можете отключить опцию гостя в этой беседе, поскольку она была создана кем-то из другой команды.</string>
-    <string name="conversation_options_services_label">Сервисы</string>
-    <string name="conversation_options_services_description">Включите эту опцию, чтобы открыть эту беседу для сервисов.</string>
+    <string name="conversation_options_services_label">Приложения</string>
+    <string name="conversation_options_services_description">Включите эту опцию, чтобы открыть эту беседу для приложений.</string>
     <string name="conversation_options_renamed">Беседа переименована</string>
     <string name="disable_guest_dialog_title">Отключить доступ гостей?</string>
     <string name="disable_guest_dialog_text">Текущие гости будут удалены из беседы. Новые гости допущены не будут.</string>
-    <string name="disable_services_dialog_title">Отключить доступ сервисов?</string>
-    <string name="disable_services_dialog_text">Текущие сервисы будут удалены из беседы. Новые сервисы допущены не будут.</string>
+    <string name="disable_services_dialog_title">Отключить доступ приложениям?</string>
+    <string name="disable_services_dialog_text">Все приложения будут удалены из разговора. Новые приложения допущены не будут.</string>
     <string name="leave_conversation_menu_item">Покинуть беседу…</string>
     <string name="leave_conversation_dialog_title">Покинуть “%s”?</string>
     <string name="leave_conversation_dialog_description">Вы больше не сможете отправлять и читать сообщения в этой беседе ни на одном устройстве.</string>
@@ -750,22 +752,22 @@
     <string name="conversation_banner_federated">федеративные пользователи</string>
     <string name="conversation_banner_externals">внешние</string>
     <string name="conversation_banner_guests">гости</string>
-    <string name="conversation_banner_services">сервисы</string>
-    <string name="conversation_banner_federated_externals_guests_services_present">Присутствуют федеративные пользователи, внешние пользователи, гости и сервисы</string>
+    <string name="conversation_banner_services">приложения</string>
+    <string name="conversation_banner_federated_externals_guests_services_present">Присутствуют федеративные пользователи, внешние пользователи, гости и приложения</string>
     <string name="conversation_banner_federated_externals_guests_present">Присутствуют федеративные пользователи, внешние пользователи и гости</string>
-    <string name="conversation_banner_federated_externals_services_present">Присутствуют федеративные пользователи, внешние пользователи и сервисы</string>
-    <string name="conversation_banner_federated_guests_services_present">Присутствуют федеративные пользователи, гости и сервисы</string>
-    <string name="conversation_banner_federated_services_present">Присутствуют федеративные пользователи и сервисы</string>
+    <string name="conversation_banner_federated_externals_services_present">Присутствуют федеративные пользователи, внешние пользователи и приложения</string>
+    <string name="conversation_banner_federated_guests_services_present">Присутствуют федеративные пользователи, гости и приложения</string>
+    <string name="conversation_banner_federated_services_present">Присутствуют федеративные пользователи и приложения</string>
     <string name="conversation_banner_federated_guests_present">Присутствуют федеративные пользователи и гости</string>
     <string name="conversation_banner_federated_externals_present">Присутствуют федеративные и внешние пользователи</string>
-    <string name="conversation_banner_externals_guests_services_present">Присутствуют внешние участники, гости и сервисы</string>
-    <string name="conversation_banner_externals_services_present">Присутствуют внешние участники и сервисы</string>
+    <string name="conversation_banner_externals_guests_services_present">Присутствуют внешние участники, гости и приложения</string>
+    <string name="conversation_banner_externals_services_present">Присутствуют внешние участники и приложения</string>
     <string name="conversation_banner_externals_guests_present">Присутствуют внешние участники и гости</string>
-    <string name="conversation_banner_guests_services_present">Присутствуют гости и сервисы</string>
+    <string name="conversation_banner_guests_services_present">Присутствуют гости и приложения</string>
     <string name="conversation_banner_federated_present">Присутствуют федеративные пользователи</string>
     <string name="conversation_banner_guests_present">Присутствуют гости</string>
     <string name="conversation_banner_externals_present">Присутствуют внешние участники</string>
-    <string name="conversation_banner_services_active">Сервисы активны</string>
+    <string name="conversation_banner_services_active">Приложения активны</string>
     <string name="conversation_history_loading">Загрузка истории бесед...</string>
     <string name="conversation_history_loaded">Вы попали в топ 🥳\nВы видите все доступные сообщения.</string>
     <!-- System messages -->
@@ -1007,7 +1009,7 @@
     <string name="label_no_results_found">Результатов не найдено. Пожалуйста, попробуйте еще раз.</string>
     <string name="label_general_error">Что-то пошло не так</string>
     <string name="label_add_member_people">Контакты</string>
-    <string name="label_add_member_services">Сервисы</string>
+    <string name="label_add_member_services">Приложения</string>
     <string name="label_empty_contacts_list">Ищите контакты по имени или псевдониму для начала беседы 🔍</string>
     <!-- Snackbar messages -->
     <string name="error_unknown_title">Что-то пошло не так</string>
@@ -1035,6 +1037,7 @@
     <string name="conversation_on_file_downloaded">Файл %s был успешно сохранен в папку Загрузки</string>
     <string name="error_blocking_user">Пользователь не может быть заблокирован</string>
     <string name="blocking_user_success">%s заблокирован</string>
+    <string name="unblocking_user_success">%s разблокирован</string>
     <string name="conversation_removed_success">“%s” удален</string>
     <string name="conversation_removed_locally_success">“%s” у меня удален</string>
     <string name="leave_conversation_error">При выходе из беседы произошла ошибка</string>
@@ -1184,16 +1187,16 @@
     <string name="change">Изменить</string>
     <string name="allow_guests">Разрешить гостей</string>
     <string name="allow_guest_switch_description">Открыть эту беседу для пользователей не из вашей команды. Вы всегда сможете изменить это позже.</string>
-    <string name="allow_services">Разрешить сервисы</string>
-    <string name="allow_services_regular_group_description">Открыть эту беседу для сервисов. Вы всегда сможете изменить это позже.</string>
-    <string name="allow_services_channel_description">Откройте эту беседу для людей, не из вашей команды или сервисов. Вы всегда сможете изменить это позже.</string>
-    <string name="service_details_label">Сервис</string>
+    <string name="allow_services">Разрешить приложения</string>
+    <string name="allow_services_regular_group_description">Открыть эту беседу для приложений. Вы всегда сможете изменить это позже.</string>
+    <string name="allow_services_channel_description">Откройте эту беседу для людей, не из вашей команды или приложений. Вы всегда сможете изменить это позже.</string>
+    <string name="service_details_label">Приложение</string>
     <string name="service_details_add_service_label">Добавить в беседу</string>
     <string name="service_details_remove_service_label">Удалить из беседы</string>
-    <string name="service_remove_success">Сервис удален из беседы</string>
-    <string name="service_remove_error">Не удалось удалить сервис из беседы</string>
-    <string name="service_add_success">Сервис не был добавлен в беседу</string>
-    <string name="service_add_error">Не удалось добавить сервис в беседу</string>
+    <string name="service_remove_success">Приложение удалено из беседы</string>
+    <string name="service_remove_error">Не удалось удалить приложение из беседы</string>
+    <string name="service_add_success">Приложение добавлено в беседу</string>
+    <string name="service_add_error">Не удалось добавить приложение в беседу</string>
     <string name="service_no_information_available_title">Информация недоступна</string>
     <string name="service_no_information_available_subtitle">Попробуйте еще раз или свяжитесь с администратором группы</string>
     <string name="read_receipts">Отчеты о прочтении</string>
@@ -1856,4 +1859,6 @@
     <string name="enable_wire_cell_switch_description">Все файлы в этой беседе будут загружены в хранилище Wire Cell.</string>
     <string name="failed_attachment_retry_upload">Повторить загрузку</string>
     <string name="failed_attachment_remove">Удалить</string>
+    <string name="content_description_apply_filter">Применить фильтр</string>
+    <string name="content_description_filter_files">Фильтр файлов</string>
 </resources>

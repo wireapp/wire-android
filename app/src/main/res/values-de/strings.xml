@@ -38,7 +38,7 @@
     <string name="label_logging_in">Anmelden…</string>
     <string name="label_membership_guest">Gast</string>
     <string name="label_membership_external">Extern</string>
-    <string name="label_membership_service">Dienst</string>
+    <string name="label_membership_service">App</string>
     <string name="label_user_deleted">Gelöscht</string>
     <string name="label_try_again">Erneut versuchen</string>
     <string name="label_done">Fertig</string>
@@ -183,7 +183,7 @@
     <string name="content_description_accept_or_ignore_connection_label">Anfrage akzeptieren oder ignorieren</string>
     <string name="content_description_open_user_profile_label">Profil öffnen</string>
     <string name="content_description_open_conversation_label">Unterhaltung öffnen</string>
-    <string name="content_description_open_service_label">Dienst öffnen</string>
+    <string name="content_description_open_service_label">App öffnen</string>
     <string name="content_description_open_link_label">Link öffnen</string>
     <string name="content_description_alert">Hinweis</string>
     <string name="content_description_drop_down">Auswahlliste</string>
@@ -245,7 +245,6 @@
     <string name="backup_and_restore_screen_title">Unterhaltungen sichern &amp; wiederherstellen</string>
     <string name="search_bar_conversations_hint">Unterhaltungen suchen</string>
     <string name="search_no_results">Keine Ergebnisse gefunden</string>
-    <string name="team_management_screen_title">Team-Management</string>
     <!--Whats New -->
     <string name="whats_new_screen_title">Neue Funktionen</string>
     <string name="whats_new_welcome_to_new_android_app_label">👋 Willkommen bei Wires neuer Android App!</string>
@@ -559,13 +558,13 @@
     <string name="conversation_details_guest_description">Wenn diese Option aktiviert ist, können Personen außerhalb des Teams an dieser Unterhaltung teilnehmen</string>
     <string name="conversation_options_guest_description">Aktivieren Sie diese Option, um die Unterhaltung für Personen außerhalb Ihres Teams zu öffnen – auch wenn diese Wire nicht nutzen.</string>
     <string name="conversation_options_guest_not_editable_description">Sie können die Gast-Option in dieser Unterhaltung nicht deaktivieren, da sie von jemandem aus einem anderen Team erstellt wurde.</string>
-    <string name="conversation_options_services_label">Dienste</string>
-    <string name="conversation_options_services_description">Aktivieren Sie diese Option, um die Unterhaltung für Dienste zu öffnen.</string>
+    <string name="conversation_options_services_label">Apps</string>
+    <string name="conversation_options_services_description">Aktivieren Sie diese Option, um die Unterhaltung für Apps zu öffnen.</string>
     <string name="conversation_options_renamed">Unterhaltung umbenannt</string>
     <string name="disable_guest_dialog_title">Gastzugang deaktivieren?</string>
     <string name="disable_guest_dialog_text">Aktuelle Gäste werden aus der Unterhaltung entfernt. Neue Gäste können nicht hinzugefügt werden.</string>
-    <string name="disable_services_dialog_title">Zugang zu Diensten deaktivieren?</string>
-    <string name="disable_services_dialog_text">Aktuelle Dienste werden aus der Unterhaltung entfernt. Neue Dienste können nicht hinzugefügt werden.</string>
+    <string name="disable_services_dialog_title">Zugang zu Apps deaktivieren?</string>
+    <string name="disable_services_dialog_text">Aktuelle Apps werden aus der Unterhaltung entfernt. Neue Apps können nicht hinzugefügt werden.</string>
     <string name="leave_conversation_menu_item">Unterhaltung verlassen…</string>
     <string name="leave_conversation_dialog_title">\"%s\" verlassen?</string>
     <string name="leave_conversation_dialog_description">Sie können dann auf keinem Gerät mehr Nachrichten in dieser Gruppe senden oder lesen.</string>
@@ -705,22 +704,22 @@
     <string name="conversation_banner_federated">Föderierte Benutzer</string>
     <string name="conversation_banner_externals">Externe</string>
     <string name="conversation_banner_guests">Gäste</string>
-    <string name="conversation_banner_services">Dienste</string>
-    <string name="conversation_banner_federated_externals_guests_services_present">Föderierte Benutzer, Externe und Gäste anwesend, Dienste aktiv</string>
+    <string name="conversation_banner_services">Apps</string>
+    <string name="conversation_banner_federated_externals_guests_services_present">Föderierte Benutzer, Externe und Gäste anwesend, Apps aktiv</string>
     <string name="conversation_banner_federated_externals_guests_present">Föderierte Benutzer, Externe und Gäste anwesend</string>
-    <string name="conversation_banner_federated_externals_services_present">Föderierte Benutzer und Externe anwesend, Dienste aktiv</string>
-    <string name="conversation_banner_federated_guests_services_present">Föderierte Benutzer und Gäste anwesend, Dienste aktiv</string>
-    <string name="conversation_banner_federated_services_present">Föderierte Benutzer anwesend, Dienste aktiv</string>
+    <string name="conversation_banner_federated_externals_services_present">Föderierte Benutzer und Externe anwesend, Apps aktiv</string>
+    <string name="conversation_banner_federated_guests_services_present">Föderierte Benutzer und Gäste anwesend, Apps aktiv</string>
+    <string name="conversation_banner_federated_services_present">Föderierte Benutzer anwesend, Apps aktiv</string>
     <string name="conversation_banner_federated_guests_present">Föderierte Benutzer und Gäste anwesend</string>
     <string name="conversation_banner_federated_externals_present">Föderierte Benutzer und Externe anwesend</string>
-    <string name="conversation_banner_externals_guests_services_present">Externe und Gäste anwesend, Dienste aktiv</string>
-    <string name="conversation_banner_externals_services_present">Externe anwesend, Dienste aktiv</string>
+    <string name="conversation_banner_externals_guests_services_present">Externe und Gäste anwesend, Apps aktiv</string>
+    <string name="conversation_banner_externals_services_present">Externe anwesend, Apps aktiv</string>
     <string name="conversation_banner_externals_guests_present">Externe und Gäste anwesend</string>
-    <string name="conversation_banner_guests_services_present">Gäste anwesend, Dienste aktiv</string>
+    <string name="conversation_banner_guests_services_present">Gäste anwesend, Apps aktiv</string>
     <string name="conversation_banner_federated_present">Föderierte Benutzer anwesend</string>
     <string name="conversation_banner_guests_present">Gäste anwesend</string>
     <string name="conversation_banner_externals_present">Externe anwesend</string>
-    <string name="conversation_banner_services_active">Dienste aktiv</string>
+    <string name="conversation_banner_services_active">Apps sind aktiv</string>
     <string name="conversation_history_loading">Gesprächsverlauf wird geladen…</string>
     <string name="conversation_history_loaded">🥳 Sie können jetzt alle verfügbaren Nachrichten lesen.</string>
     <!-- System messages -->
@@ -917,7 +916,7 @@
     <string name="label_no_results_found">Keine Ergebnisse, bitte erneut versuchen.</string>
     <string name="label_general_error">Ein Fehler ist aufgetreten</string>
     <string name="label_add_member_people">Personen</string>
-    <string name="label_add_member_services">Dienste</string>
+    <string name="label_add_member_services">Apps</string>
     <string name="label_empty_contacts_list">Suchen Sie nach Personen anhand ihres Namens oder Benutzernamens, um eine Unterhaltung zu beginnen 🔍</string>
     <!-- Snackbar messages -->
     <string name="error_unknown_title">Ein Fehler ist aufgetreten</string>
@@ -944,6 +943,7 @@
     <string name="conversation_on_file_downloaded">Die Datei %s wurde im Download-Ordner gespeichert</string>
     <string name="error_blocking_user">Benutzer konnte nicht blockiert werden</string>
     <string name="blocking_user_success">%s blockiert</string>
+    <string name="unblocking_user_success">%s freigegeben</string>
     <string name="conversation_removed_success">“%s” entfernt</string>
     <string name="conversation_removed_locally_success">“%s” für mich gelöscht</string>
     <string name="leave_conversation_error">Beim Verlassen der Unterhaltung ist ein Fehler aufgetreten</string>
@@ -1091,16 +1091,16 @@
     <string name="change">Ändern</string>
     <string name="allow_guests">Gäste zulassen</string>
     <string name="allow_guest_switch_description">Öffnen Sie diese Unterhaltung für Personen außerhalb Ihres Teams. Diese Einstellung kann später jederzeit geändert werden.</string>
-    <string name="allow_services">Dienste zulassen</string>
-    <string name="allow_services_regular_group_description">Öffnen Sie diese Unterhaltung für Dienste. Diese Einstellung kann später jederzeit geändert werden.</string>
-    <string name="allow_services_channel_description">Öffnen Sie diese Unterhaltung für Personen außerhalb Ihres Teams oder für Dienste. Diese Einstellung kann später jederzeit geändert werden.</string>
-    <string name="service_details_label">Dienst</string>
+    <string name="allow_services">Apps zulassen</string>
+    <string name="allow_services_regular_group_description">Öffnen Sie diese Unterhaltung für Apps. Diese Einstellung kann später jederzeit geändert werden.</string>
+    <string name="allow_services_channel_description">Öffnen Sie diese Unterhaltung für Personen außerhalb Ihres Teams oder für Apps. Diese Einstellung kann später jederzeit geändert werden.</string>
+    <string name="service_details_label">App</string>
     <string name="service_details_add_service_label">Zur Unterhaltung hinzufügen</string>
     <string name="service_details_remove_service_label">Aus Unterhaltung entfernen</string>
-    <string name="service_remove_success">Dienst aus der Unterhaltung entfernt</string>
-    <string name="service_remove_error">Dienst kann nicht aus Unterhaltung entfernt werden</string>
-    <string name="service_add_success">Dienst zur Unterhaltung hinzugefügt</string>
-    <string name="service_add_error">Dienst kann nicht zur Unterhaltung hinzugefügt werden</string>
+    <string name="service_remove_success">App aus der Unterhaltung entfernt</string>
+    <string name="service_remove_error">App kann nicht aus Unterhaltung entfernt werden</string>
+    <string name="service_add_success">App zur Unterhaltung hinzugefügt</string>
+    <string name="service_add_error">App kann nicht zur Unterhaltung hinzugefügt werden</string>
     <string name="service_no_information_available_title">Keine Informationen verfügbar</string>
     <string name="service_no_information_available_subtitle">Versuchen Sie es erneut oder wenden Sie sich an Ihren Team-Admin</string>
     <string name="read_receipts">Lesebestätigungen</string>
@@ -1708,4 +1708,6 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="cells_screen_search_hint">Dateien suchen</string>
     <string name="failed_attachment_retry_upload">Upload wiederholen</string>
     <string name="failed_attachment_remove">Entfernen</string>
+    <string name="content_description_apply_filter">Filter anwenden</string>
+    <string name="content_description_filter_files">Dateien filtern</string>
 </resources>

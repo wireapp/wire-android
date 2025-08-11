@@ -1,0 +1,270 @@
+name: "Build"
+
+on:
+  workflow_call:
+    inputs:
+      build-config:
+        description: "JSON build configuration matrix"
+        required: true
+        type: string
+      enable-deployment:
+        description: "Enable deployment after successful build"
+        required: false
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: build-unified-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Inline simple quality check jobs for better check names
+  lint:
+    runs-on: buildjet-4vcpu-ubuntu-2204
+    # Add a bit more Metaspace size as it tends to fail on GH runner when running linter,
+    # Reduce a bit the memory allocation pool, as the 8GB set in gradle.properties is too much for CI
+    # AboutLibraries seems to go crazy when running lint checks. So we explicitly don't run it.
+    env:
+      GRADLE_OPTS: '-Dorg.gradle.jvmargs="-XX:MaxMetaspaceSize=1g -Xmx4G"'
+      DISABLE_ABOUT_LIBRARIES: TRUE
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive # Needed in order to fetch Kalium sources for building
+          fetch-depth: 0
+      - name: Set up JDK 17
+        uses: buildjet/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+      - name: Validate Gradle wrapper
+        uses: gradle/actions/wrapper-validation@v4
+      - name: Run Linter
+        run: |
+          ./gradlew lint
+      - name: Cleanup Gradle Cache
+        # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.
+        # Restoring these files from a GitHub Actions cache might cause problems for future builds.
+        run: |
+          rm -f ~/.gradle/caches/modules-2/modules-2.lock
+          rm -f ~/.gradle/caches/modules-2/gc.properties
+
+  style:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive # Needed in order to fetch Kalium sources for building
+          fetch-depth: 0
+      - name: Set up JDK 17
+        uses: buildjet/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+      - name: Validate Gradle wrapper
+        uses: gradle/actions/wrapper-validation@v4
+      - name: Run Detekt
+        run: |
+          ./gradlew detektAll
+      - name: Cleanup Gradle Cache
+        # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.
+        # Restoring these files from a GitHub Actions cache might cause problems for future builds.
+        run: |
+          rm -f ~/.gradle/caches/modules-2/modules-2.lock
+          rm -f ~/.gradle/caches/modules-2/gc.properties
+
+  # Keep complex workflows as reusable but call them directly
+  ui-tests:
+    name: "UI Tests"
+    uses: ./.github/workflows/gradle-run-ui-tests.yml
+
+  unit-tests:
+    name: "Unit Tests"
+    uses: ./.github/workflows/gradle-run-unit-tests.yml
+    secrets: inherit
+
+  # Build matrix job - only runs if all quality checks pass
+  build:
+    name: "Build ${{ matrix.flavor }}-${{ matrix.variant }}"
+    needs: [lint, style, ui-tests, unit-tests]
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false  # Continue building other flavors even if one fails
+      matrix:
+        include: ${{ fromJson(inputs.build-config) }}
+    
+    steps:
+      - name: Quality gates passed - starting build
+        run: |
+          echo "## Build Starting" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Quality gates passed successfully" >> $GITHUB_STEP_SUMMARY
+          echo "🚀 Building ${{ matrix.flavor }}${{ matrix.variant }}..." >> $GITHUB_STEP_SUMMARY
+          
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Set up JDK 17
+        uses: buildjet/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Setup Keystore
+        uses: ./.github/actions/setup-keystore
+        with:
+          keystore-type: ${{ matrix.keystore-type }}
+        env:
+          ENCODED_KEYSTORE_DEBUG: ${{ secrets.ENCODED_KEYSTORE_DEBUG }}
+          ENCODED_KEYSTORE_PRE_RELEASE: ${{ secrets.ENCODED_KEYSTORE_PRE_RELEASE }}
+          ENCODED_KEYSTORE_INTERNAL_RELEASE: ${{ secrets.ENCODED_KEYSTORE_INTERNAL_RELEASE }}
+          ENCODED_KEYSTORE_PUBLIC_RELEASE: ${{ secrets.ENCODED_KEYSTORE_PUBLIC_RELEASE }}
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
+      - name: Set build environment variables
+        run: |
+          echo "Building ${{ matrix.flavor }}${{ matrix.variant }}"
+          
+          # Load only the required secrets for this keystore type
+          case "${{ matrix.keystore-type }}" in
+            debug)
+              SIGNING_KEY_ALIAS="${{ secrets.SIGNING_KEY_ALIAS_DEBUG }}"
+              SIGNING_KEY_PASSWORD="${{ secrets.SIGNING_KEY_PASSWORD_DEBUG }}"
+              SIGNING_STORE_PASSWORD="${{ secrets.SIGNING_STORE_PASSWORD_DEBUG }}"
+              
+              # Mask sensitive values immediately
+              echo "::add-mask::${SIGNING_KEY_PASSWORD}"
+              echo "::add-mask::${SIGNING_STORE_PASSWORD}"
+              
+              # Set environment variables for this keystore type only
+              echo "KEYSTORE_KEY_NAME_DEBUG=${SIGNING_KEY_ALIAS}" >> $GITHUB_ENV
+              echo "KEYPWD_DEBUG=${SIGNING_KEY_PASSWORD}" >> $GITHUB_ENV
+              echo "KEYSTOREPWD_DEBUG=${SIGNING_STORE_PASSWORD}" >> $GITHUB_ENV
+              ;;
+            prerelease)
+              SIGNING_KEY_ALIAS="${{ secrets.SIGNING_KEY_ALIAS_PRE_RELEASE }}"
+              SIGNING_KEY_PASSWORD="${{ secrets.SIGNING_KEY_PASSWORD_PRE_RELEASE }}"
+              SIGNING_STORE_PASSWORD="${{ secrets.SIGNING_STORE_PASSWORD_PRE_RELEASE }}"
+              
+              # Mask sensitive values immediately
+              echo "::add-mask::${SIGNING_KEY_PASSWORD}"
+              echo "::add-mask::${SIGNING_STORE_PASSWORD}"
+              
+              # Set environment variables for this keystore type only
+              echo "KEYSTORE_KEY_NAME_RELEASE=${SIGNING_KEY_ALIAS}" >> $GITHUB_ENV
+              echo "KEYPWD_RELEASE=${SIGNING_KEY_PASSWORD}" >> $GITHUB_ENV
+              echo "KEYSTOREPWD_RELEASE=${SIGNING_STORE_PASSWORD}" >> $GITHUB_ENV
+              ;;
+            internal)
+              SIGNING_KEY_ALIAS="${{ secrets.SIGNING_KEY_ALIAS_INTERNAL_RELEASE }}"
+              SIGNING_KEY_PASSWORD="${{ secrets.SIGNING_KEY_PASSWORD_INTERNAL_RELEASE }}"
+              SIGNING_STORE_PASSWORD="${{ secrets.SIGNING_STORE_PASSWORD_INTERNAL_RELEASE }}"
+              
+              # Mask sensitive values immediately
+              echo "::add-mask::${SIGNING_KEY_PASSWORD}"
+              echo "::add-mask::${SIGNING_STORE_PASSWORD}"
+              
+              # Set environment variables for this keystore type only
+              echo "KEYSTORE_KEY_NAME_COMPAT=${SIGNING_KEY_ALIAS}" >> $GITHUB_ENV
+              echo "KEYPWD_COMPAT=${SIGNING_KEY_PASSWORD}" >> $GITHUB_ENV
+              echo "KEYSTOREPWD_COMPAT=${SIGNING_STORE_PASSWORD}" >> $GITHUB_ENV
+              echo "KEYSTORE_KEY_NAME_COMPAT_RELEASE=${SIGNING_KEY_ALIAS}" >> $GITHUB_ENV
+              echo "KEYPWD_COMPAT_RELEASE=${SIGNING_KEY_PASSWORD}" >> $GITHUB_ENV
+              echo "KEYSTOREPWD_COMPAT_RELEASE=${SIGNING_STORE_PASSWORD}" >> $GITHUB_ENV
+              ;;
+            public)
+              SIGNING_KEY_ALIAS="${{ secrets.SIGNING_KEY_ALIAS_PUBLIC_RELEASE }}"
+              SIGNING_KEY_PASSWORD="${{ secrets.SIGNING_KEY_PASSWORD_PUBLIC_RELEASE }}"
+              SIGNING_STORE_PASSWORD="${{ secrets.SIGNING_STORE_PASSWORD_PUBLIC_RELEASE }}"
+              
+              # Mask sensitive values immediately
+              echo "::add-mask::${SIGNING_KEY_PASSWORD}"
+              echo "::add-mask::${SIGNING_STORE_PASSWORD}"
+              
+              # Set environment variables for this keystore type only
+              echo "KEYSTORE_KEY_NAME_COMPAT_RELEASE=${SIGNING_KEY_ALIAS}" >> $GITHUB_ENV
+              echo "KEYPWD_COMPAT_RELEASE=${SIGNING_KEY_PASSWORD}" >> $GITHUB_ENV
+              echo "KEYSTOREPWD_COMPAT_RELEASE=${SIGNING_STORE_PASSWORD}" >> $GITHUB_ENV
+              ;;
+            *)
+              echo "Error: Invalid keystore type '${{ matrix.keystore-type }}'"
+              exit 1
+              ;;
+          esac
+
+      - name: Build APK
+        if: matrix.build-type == 'apk' || matrix.build-type == 'both'
+        run: |
+          ./gradlew app:assemble${{ matrix.flavor }}${{ matrix.variant }}
+        env:
+          DATADOG_APP_ID: ${{ secrets.DATADOG_APP_ID }}
+          DATADOG_CLIENT_TOKEN: ${{ secrets.DATADOG_CLIENT_TOKEN }}
+          ENABLE_SIGNING: ${{ secrets.ENABLE_SIGNING }}
+
+      - name: Build AAB
+        if: matrix.build-type == 'bundle' || matrix.build-type == 'both'
+        run: |
+          ./gradlew app:bundle${{ matrix.flavor }}${{ matrix.variant }}
+        env:
+          DATADOG_APP_ID: ${{ secrets.DATADOG_APP_ID }}
+          DATADOG_CLIENT_TOKEN: ${{ secrets.DATADOG_CLIENT_TOKEN }}
+          ENABLE_SIGNING: ${{ secrets.ENABLE_SIGNING }}
+
+      - name: Generate version file
+        if: matrix.generate-version-file == true
+        run: ./gradlew generateVersionFile
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.flavor }}-${{ matrix.variant }}-artifacts
+          path: |
+            app/build/outputs/
+            ${{ matrix.generate-version-file == true && 'app/version.txt' || '' }}
+          retention-days: 7
+
+      - name: Build summary
+        run: |
+          echo "## Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "**Flavor**: ${{ matrix.flavor }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Variant**: ${{ matrix.variant }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Keystore**: ${{ matrix.keystore-type }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Build Type**: ${{ matrix.build-type }}" >> $GITHUB_STEP_SUMMARY
+          
+          # List generated artifacts
+          echo "**Generated Artifacts**:" >> $GITHUB_STEP_SUMMARY
+          find app/build/outputs/ -name "*.apk" -o -name "*.aab" | head -10 | while read file; do
+            echo "- \`$(basename "$file")\`" >> $GITHUB_STEP_SUMMARY
+          done
+
+  # Deploy job (conditional)
+  deploy:
+    needs: build
+    if: inputs.enable-deployment == true
+    strategy:
+      matrix:
+        include: ${{ fromJson(inputs.build-config) }}
+    uses: ./.github/workflows/deploy.yml
+    with:
+      artifacts-path: app/build/outputs/
+      deployment-targets: ${{ toJSON(matrix.deployment-targets) }}
+      build-flavor: ${{ matrix.flavor }}
+      build-variant: ${{ matrix.variant }}
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+      SERVICE_ACCOUNT_JSON: ${{ secrets.SERVICE_ACCOUNT_JSON }}

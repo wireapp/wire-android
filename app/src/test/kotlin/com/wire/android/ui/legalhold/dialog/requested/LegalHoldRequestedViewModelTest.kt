@@ -42,8 +42,8 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeInstanceOf
+import com.wire.android.assertions.shouldBeEqualTo
+import com.wire.android.assertions.shouldBeInstanceOf
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -307,7 +307,7 @@ class LegalHoldRequestedViewModelTest {
         val viewModel by lazy {
             LegalHoldRequestedViewModel(
                 validatePassword = validatePassword,
-                coreLogic = coreLogic
+                coreLogic = { coreLogic },
             )
         }
 

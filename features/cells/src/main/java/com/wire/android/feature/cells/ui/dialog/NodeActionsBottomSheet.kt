@@ -76,15 +76,12 @@ private fun SheetContent(
     onAction: (NodeBottomSheetAction) -> Unit
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = dimensions().spacing24x)
+        modifier = Modifier.fillMaxWidth()
     ) {
 
         Row(
             modifier = Modifier
                 .height(dimensions().spacing64x)
-                .padding(horizontal = dimensions().spacing8x)
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -95,8 +92,8 @@ private fun SheetContent(
                 Image(
                     modifier = Modifier
                         .padding(
-                            start = dimensions().spacing8x,
-                            end = dimensions().spacing8x
+                            start = dimensions().spacing16x,
+                            end = dimensions().spacing16x
                         )
                         .size(dimensions().spacing32x),
                     painter = painterResource(R.drawable.ic_folder_item),

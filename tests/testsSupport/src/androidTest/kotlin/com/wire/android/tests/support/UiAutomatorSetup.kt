@@ -33,6 +33,7 @@ const val TIMEOUT_IN_MILLISECONDS = 20_000L
 object UiAutomatorSetup {
 
     const val APP_DEV: String = "com.waz.zclient.dev.debug"
+    const val APP_STAGING: String = "com.waz.zclient.dev"
     const val APP_BETA: String = "com.wire.android.internal"
     const val APP_PROD: String = "com.wire"
     lateinit var appPackage: String
@@ -92,5 +93,10 @@ object UiAutomatorSetup {
         val packageManager = context.packageManager
         val resolveInfo = packageManager.resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY)
         return resolveInfo!!.activityInfo.packageName
+    }
+
+    fun stopApp() {
+        val device = getDevice()
+        device.executeShellCommand("am force-stop $appPackage")
     }
 }

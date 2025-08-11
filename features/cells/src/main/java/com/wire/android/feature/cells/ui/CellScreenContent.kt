@@ -52,6 +52,8 @@ import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.preview.MultipleThemePreviews
+import com.wire.android.ui.theme.WireTheme
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -67,6 +69,7 @@ internal fun CellScreenContent(
     showPublicLinkScreen: (PublicLinkScreenData) -> Unit,
     showRenameScreen: (CellNodeUi) -> Unit,
     showMoveToFolderScreen: (String, String, String) -> Unit,
+    showAddRemoveTagsScreen: (CellNodeUi) -> Unit,
     isAllFiles: Boolean,
     isSearchResult: Boolean = false,
 ) {
@@ -168,6 +171,7 @@ internal fun CellScreenContent(
             )
             is ShowRenameScreen -> showRenameScreen(action.cellNode)
             is ShowMoveToFolderScreen -> showMoveToFolderScreen(action.currentPath, action.nodeToMovePath, action.uuid)
+            is ShowAddRemoveTagsScreen -> showAddRemoveTagsScreen(action.cellNode)
             is RefreshData -> pagingListItems.refresh()
         }
     }
@@ -259,6 +263,28 @@ private fun EmptyScreen(
                 onClick = onRetry
             )
         }
+    }
+}
+
+@MultipleThemePreviews
+@Composable
+fun PreviewErrorScreen() {
+    WireTheme {
+        ErrorScreen(
+            onRetry = {}
+        )
+    }
+}
+
+@MultipleThemePreviews
+@Composable
+fun PreviewEmptyScreen() {
+    WireTheme {
+        EmptyScreen(
+            isSearchResult = false,
+            isAllFiles = true,
+            onRetry = {}
+        )
     }
 }
 

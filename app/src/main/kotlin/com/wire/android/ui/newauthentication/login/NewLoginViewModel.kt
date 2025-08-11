@@ -138,7 +138,7 @@ class NewLoginViewModel(
                     },
                     onSuccess = { defaultSSOCode ->
                         if (defaultSSOCode != null && userIdentifierTextState.text.isEmpty()) {
-                            appLogger.d("NewLoginViewModel: Successfully fetched default SSO code $defaultSSOCode")
+                            appLogger.d("NewLoginViewModel: Successfully fetched default SSO code")
                             withContext(dispatchers.main()) {
                                 userIdentifierTextState.setTextAndPlaceCursorAtEnd(defaultSSOCode)
                                 savedStateHandle[USER_IDENTIFIER_SAVED_STATE_KEY] = defaultSSOCode
@@ -249,7 +249,7 @@ class NewLoginViewModel(
                 onAuthScopeFailure = { updateLoginFlowState(it.toLoginError()) },
                 onFetchSSOSettingsFailure = { updateLoginFlowState(it.toLoginError()) },
                 onSuccess = { defaultSSOCode ->
-                    appLogger.d("NewLoginViewModel: Successfully fetched default SSO code $defaultSSOCode")
+                    appLogger.d("NewLoginViewModel: Successfully fetched default SSO code")
 
                     when {
                         defaultSSOCode != null -> {

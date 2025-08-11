@@ -67,12 +67,12 @@ fun LoadingWireSecondaryButton(
                         .height(dimensions().spacing16x)
                         .background(
                             color = colorsScheme().secondaryButtonEnabledOutline,
-                            shape = RoundedCornerShape(size = dimensions().corner100x)
+                            shape = RoundedCornerShape(size = dimensions().buttonCornerSize)
                         )
                         .shimmerPlaceholder(
                             visible = true,
                             color = colorsScheme().surfaceContainerHighest,
-                            shape = RoundedCornerShape(size = dimensions().corner100x)
+                            shape = RoundedCornerShape(size = dimensions().buttonCornerSize)
                         )
                 )
             }
@@ -83,12 +83,12 @@ fun LoadingWireSecondaryButton(
                     .height(dimensions().spacing16x)
                     .background(
                         color = colorsScheme().secondaryButtonEnabledOutline,
-                        shape = RoundedCornerShape(size = dimensions().corner100x)
+                        shape = RoundedCornerShape(size = dimensions().buttonCornerSize)
                     )
                     .shimmerPlaceholder(
                         visible = true,
                         color = colorsScheme().surfaceContainerHighest,
-                        shape = RoundedCornerShape(size = dimensions().corner100x)
+                        shape = RoundedCornerShape(size = dimensions().buttonCornerSize)
                     )
             )
             if (withTrailingIcon) {
@@ -98,12 +98,12 @@ fun LoadingWireSecondaryButton(
                         .height(dimensions().spacing16x)
                         .background(
                             color = colorsScheme().secondaryButtonEnabledOutline,
-                            shape = RoundedCornerShape(size = dimensions().corner100x)
+                            shape = RoundedCornerShape(size = dimensions().buttonCornerSize)
                         )
                         .shimmerPlaceholder(
                             visible = true,
                             color = colorsScheme().surfaceContainerHighest,
-                            shape = RoundedCornerShape(size = dimensions().corner100x)
+                            shape = RoundedCornerShape(size = dimensions().buttonCornerSize)
                         ),
                 )
             }

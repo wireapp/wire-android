@@ -53,8 +53,8 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.FlipToBackCameraUseCase
 import com.wire.kalium.logic.feature.call.usecase.FlipToFrontCameraUseCase
 import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
-import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallWithSortedParticipantsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveInCallReactionsUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveLastActiveCallWithSortedParticipantsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveSpeakerUseCase
 import com.wire.kalium.logic.feature.call.usecase.SetUIRotationUseCase
 import com.wire.kalium.logic.feature.call.usecase.SetVideoPreviewUseCase
@@ -78,12 +78,10 @@ import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -96,7 +94,7 @@ class SharedCallingViewModel @AssistedInject constructor(
     @Assisted val conversationId: ConversationId,
     @CurrentAccount private val selfUserId: UserId,
     private val conversationDetails: ObserveConversationDetailsUseCase,
-    private val observeEstablishedCallWithSortedParticipants: ObserveEstablishedCallWithSortedParticipantsUseCase,
+    private val observeLastActiveCallWithSortedParticipants: ObserveLastActiveCallWithSortedParticipantsUseCase,
     private val hangUpCall: HangUpCallUseCase,
     private val muteCall: MuteCallUseCase,
     private val unMuteCall: UnMuteCallUseCase,
@@ -131,17 +129,17 @@ class SharedCallingViewModel @AssistedInject constructor(
 
     init {
         viewModelScope.launch {
-            val allCallsSharedFlow = observeEstablishedCallWithSortedParticipants()
+            val callSharedFlow = observeLastActiveCallWithSortedParticipants(conversationId)
                 .flowOn(dispatchers.default()).shareIn(this, started = SharingStarted.Lazily)
 
             launch {
                 observeConversationDetails(this)
             }
             launch {
-                initCallState(allCallsSharedFlow)
+                observeCallState(callSharedFlow)
             }
             launch {
-                observeParticipants(allCallsSharedFlow)
+                observeParticipants(callSharedFlow)
             }
             launch {
                 observeOnSpeaker(this)
@@ -199,15 +197,18 @@ class SharedCallingViewModel @AssistedInject constructor(
             }
     }
 
-    private suspend fun initCallState(sharedFlow: SharedFlow<Call?>) {
-        sharedFlow.first()?.let { call ->
-            callState = callState.copy(
-                callStatus = call.status,
-                callerName = call.callerName,
-                isCameraOn = call.isCameraOn,
-                isCbrEnabled = call.isCbrEnabled && call.conversationType == Conversation.Type.OneOnOne
-            )
-        }
+    private suspend fun observeCallState(sharedFlow: SharedFlow<Call?>) {
+        sharedFlow
+            .filterNotNull()
+            .collectLatest { call ->
+                callState = callState.copy(
+                    callStatus = call.status,
+                    callerName = call.callerName,
+                    isMuted = call.isMuted,
+                    isCameraOn = call.isCameraOn,
+                    isCbrEnabled = call.isCbrEnabled && call.conversationType == Conversation.Type.OneOnOne
+                )
+            }
     }
 
     private suspend fun observeParticipants(sharedFlow: SharedFlow<Call?>) {
@@ -215,17 +216,12 @@ class SharedCallingViewModel @AssistedInject constructor(
             getCurrentClientId().filterNotNull(),
             sharedFlow.filterNotNull(),
         ) { clientId, call ->
-            callState = callState.copy(
-                isMuted = call.isMuted,
-                callStatus = call.status,
-                isCameraOn = call.isCameraOn,
-                isCbrEnabled = call.isCbrEnabled && call.conversationType == Conversation.Type.OneOnOne,
-                callerName = call.callerName,
-            )
-            participantsState = call.participants.map {
+            call.participants.map {
                 uiCallParticipantMapper.toUICallParticipant(it, clientId)
             }.toPersistentList()
-        }.collect()
+        }.collectLatest {
+            participantsState = it
+        }
     }
 
     fun hangUpCall() {

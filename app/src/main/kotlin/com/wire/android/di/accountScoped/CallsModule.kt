@@ -84,6 +84,11 @@ class CallsModule {
 
     @ViewModelScoped
     @Provides
+    fun provideObserveLastActiveCallWithSortedParticipantsUseCase(callsScope: CallsScope) =
+        callsScope.observeLastActiveCallWithSortedParticipants
+
+    @ViewModelScoped
+    @Provides
     fun provideRejectCallUseCase(callsScope: CallsScope) =
         callsScope.rejectCall
 

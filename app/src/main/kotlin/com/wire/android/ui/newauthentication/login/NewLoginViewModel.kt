@@ -19,6 +19,7 @@
 package com.wire.android.ui.newauthentication.login
 
 import androidx.annotation.VisibleForTesting
+import com.wire.android.appLogger
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.runtime.getValue
@@ -122,6 +123,33 @@ class NewLoginViewModel(
                 }
             }
         }
+
+        // Fetch default SSO code for the server configuration
+        if (userIdentifierTextState.text.isEmpty() && preFilledUserIdentifier is PreFilledUserIdentifierType.None) {
+            viewModelScope.launch(dispatchers.io()) {
+                appLogger.d("NewLoginViewModel: Fetching default SSO code for server")
+                ssoExtension.fetchDefaultSSOCode(
+                    serverConfig = serverConfig,
+                    onAuthScopeFailure = { error ->
+                        appLogger.e("NewLoginViewModel: Failed to create auth scope for SSO settings: $error")
+                    },
+                    onFetchSSOSettingsFailure = { error ->
+                        appLogger.e("NewLoginViewModel: Failed to fetch SSO settings: $error")
+                    },
+                    onSuccess = { defaultSSOCode ->
+                        if (defaultSSOCode != null && userIdentifierTextState.text.isEmpty()) {
+                            appLogger.d("NewLoginViewModel: Successfully fetched default SSO code $defaultSSOCode")
+                            withContext(dispatchers.main()) {
+                                userIdentifierTextState.setTextAndPlaceCursorAtEnd(defaultSSOCode)
+                                savedStateHandle[USER_IDENTIFIER_SAVED_STATE_KEY] = defaultSSOCode
+                            }
+                        } else {
+                            appLogger.d("NewLoginViewModel: No default SSO code configured for this server")
+                        }
+                    }
+                )
+            }
+        }
     }
 
     /**
@@ -221,6 +249,8 @@ class NewLoginViewModel(
                 onAuthScopeFailure = { updateLoginFlowState(it.toLoginError()) },
                 onFetchSSOSettingsFailure = { updateLoginFlowState(it.toLoginError()) },
                 onSuccess = { defaultSSOCode ->
+                    appLogger.d("NewLoginViewModel: Successfully fetched default SSO code $defaultSSOCode")
+
                     when {
                         defaultSSOCode != null -> {
                             initiateSSO(customServerConfig, defaultSSOCode)

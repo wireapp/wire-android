@@ -23,6 +23,7 @@ import CredentialsManager
 import android.net.Uri
 import backendUtils.team.defaultheaders
 import backendUtils.team.getAuthToken
+import backendUtils.team.getTeamId
 import com.wire.android.testSupport.BuildConfig
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
@@ -83,6 +84,7 @@ class BackendClient(
     companion object {
         const val contentType = "Content-Type"
         const val applicationJson = "application/json"
+        const val AUTHORIZATION = "Authorization"
 
         data class BackendSecrets(
             val backendUrl: String,
@@ -266,7 +268,7 @@ class BackendClient(
         val encodedEmail = URLEncoder.encode(email, "UTF-8")
         val url = URL("${backendUrl}i/users/activation-code?email=$encodedEmail")
         val headers = mapOf(
-            "Authorization" to basicAuth.getEncoded(),
+            AUTHORIZATION to basicAuth.getEncoded(),
             "Accept" to applicationJson
         )
         val response = NetworkBackendClient.sendJsonRequest(
@@ -288,7 +290,7 @@ class BackendClient(
         }
 
         val headers = mapOf(
-            "Authorization" to basicAuth.getEncoded(),
+            AUTHORIZATION to basicAuth.getEncoded(),
             applicationJson to applicationJson,
             "Accept" to applicationJson
         )
@@ -313,7 +315,7 @@ class BackendClient(
         val url = URL("${backendUrl}i/users/$encodedUserId/verification-code/login")
 
         val headers = mapOf(
-            "Authorization" to basicAuth.getEncoded(),
+            AUTHORIZATION to basicAuth.getEncoded(),
             "Accept" to applicationJson
         )
 
@@ -391,7 +393,7 @@ class BackendClient(
             URL("connections/${BackendClient.loadBackend(toUser.backendName.orEmpty()).domain}/${toUser.id}".composeCompleteUrl())
 
         val headers = defaultheaders.toMutableMap().apply {
-            put("Authorization", "${token?.type} ${token?.value}")
+            put(AUTHORIZATION, "${token?.type} ${token?.value}")
         }
 
         // First try the new endpoint
@@ -459,12 +461,30 @@ class BackendClient(
         }
     }
 
+    fun getSelfDeletingMessagesSettings(teamMember: ClientUser): JSONObject {
+        val teamId = Uri.encode(getTeamId(teamMember))
+        val url = "i/teams/$teamId/features/selfDeletingMessages".composeCompleteUrl()
+
+        val headers = defaultheaders.toMutableMap().apply {
+            put(AUTHORIZATION, "${basicAuth.getEncoded()}")
+        }
+
+        val response = NetworkBackendClient.sendJsonRequestWithCookies(
+            url = URL(url),
+            method = "GET",
+            headers = headers,
+            options = RequestOptions()
+        )
+
+        return JSONObject(response.body)
+    }
+
     fun getUserNameByID(domain: String, id: String, user: ClientUser): String {
         val token = runBlocking { getAuthToken(user) }
 
         val url = "users/$domain/$id/".composeCompleteUrl()
         val headers = defaultheaders.toMutableMap().apply {
-            put("Authorization", "${token?.type} ${token?.value}")
+            put(AUTHORIZATION, "${token?.type} ${token?.value}")
         }
 
         val response = NetworkBackendClient.sendJsonRequestWithCookies(
@@ -500,6 +520,32 @@ class BackendClient(
     fun isDevelopmentApiEnabled(user: ClientUser): Boolean {
 
         return getFeatureConfig("mls", user).get("status").equals("enabled")
+    }
+
+    suspend fun getPropertyValues(user: ClientUser): JSONObject {
+        val token = getAuthToken(user)
+        val url = URL("properties-values".composeCompleteUrl())
+
+        val headers = defaultheaders.toMutableMap().apply {
+            put("Authorization", "${token?.type} ${token?.value}")
+        }
+
+        val response = NetworkBackendClient.sendJsonRequestWithCookies(
+            url = url,
+            method = "GET",
+            headers = headers,
+            body = null,
+            options = RequestOptions(
+                accessToken = token,
+                expectedResponseCodes = NumberSequence.Array(intArrayOf(HttpURLConnection.HTTP_OK, HttpURLConnection.HTTP_NOT_FOUND))
+            )
+        )
+
+        return if (response.body.isNotEmpty()) {
+            JSONObject(response.body)
+        } else {
+            JSONObject()
+        }
     }
 
     fun String.composeCompleteUrl(): String {

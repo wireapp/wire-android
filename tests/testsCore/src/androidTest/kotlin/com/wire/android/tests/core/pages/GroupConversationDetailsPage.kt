@@ -18,22 +18,26 @@
 package com.wire.android.tests.core.pages
 
 import androidx.test.uiautomator.UiDevice
+import uiautomatorutils.UiSelectorParams
+import uiautomatorutils.UiWaitUtils
 
-class AllPages(val device: UiDevice) {
-    val registrationPage = RegistrationPage(device)
-    val loginPage = LoginPage(device)
-    val settingsPage = SettingsPage(device)
-    val conversationPage = ConversationPage(device)
+data class GroupConversationDetailsPage(private val device: UiDevice) {
 
-    val unconnectedUserProfilePage = UnconnectedUserProfilePage(device)
+    private val showMoreOptionsButton = UiSelectorParams(description = "Open conversation options")
 
-    val connectedUserProfilePage = ConnectedUserProfilePage(device)
+    private val deleteConversationButton = UiSelectorParams(text = "Delete Conversation")
 
-    val conversationListPage = ConversationListPage(device)
+    private val removeGroupButton = UiSelectorParams(text = "Remove")
 
-    val conversationViewPage = ConversationViewPage(device)
+    fun tapShowMoreOptionsButton() {
+        UiWaitUtils.waitElement(showMoreOptionsButton).click()
+    }
 
-    val notificationsPage = NotificationsPage(device)
+    fun tapDeleteConversationButton() {
+        UiWaitUtils.waitElement(deleteConversationButton).click()
+    }
 
-    val groupConversationDetailsPage = GroupConversationDetailsPage(device)
+    fun tapRemoveGroupButton() {
+        UiWaitUtils.waitElement(removeGroupButton).click()
+    }
 }

@@ -371,7 +371,6 @@ class SharedCallingViewModelTest {
         }
     }
 
-
     inner class Arrangement {
         @MockK
         lateinit var observeLastActiveCall: ObserveLastActiveCallWithSortedParticipantsUseCase

@@ -30,6 +30,7 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
@@ -37,6 +38,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -93,6 +95,54 @@ class RenameNodeViewModelTest {
         }
     }
 
+    @Test
+    fun `given invalid name with slash, when text is emitted, then InvalidNameError is set`() = runTest {
+        val invalidName = "invalid/name"
+        val (_, viewModel) = Arrangement()
+            .withNodeNameReturning(invalidName)
+            .arrange()
+
+        advanceUntilIdle()
+
+        assertFalse(viewModel.displayNameState.saveEnabled)
+        assertEquals(
+            DisplayNameState.NameError.TextFieldError.InvalidNameError,
+            viewModel.displayNameState.error
+        )
+    }
+
+    @Test
+    fun `given empty name, when text is emitted, then NameEmptyError is set`() = runTest {
+        val emptyName = ""
+        val (_, viewModel) = Arrangement()
+            .withNodeNameReturning(emptyName)
+            .arrange()
+
+        advanceUntilIdle()
+
+        assertFalse(viewModel.displayNameState.saveEnabled)
+        assertEquals(
+            DisplayNameState.NameError.TextFieldError.NameEmptyError,
+            viewModel.displayNameState.error
+        )
+    }
+    @Test
+    fun `given long name, when text is emitted, then NameExceedLimitError is set`() = runTest {
+        val longName = "Long name that exceeds the limit of sixty four characters" +
+                " which is the maximum allowed for a file name in this application"
+        val (_, viewModel) = Arrangement()
+            .withNodeNameReturning(longName)
+            .arrange()
+
+        advanceUntilIdle()
+
+        assertFalse(viewModel.displayNameState.saveEnabled)
+        assertEquals(
+            DisplayNameState.NameError.TextFieldError.NameExceedLimitError,
+            viewModel.displayNameState.error
+        )
+    }
+
     private class Arrangement {
 
         @MockK
@@ -126,6 +176,9 @@ class RenameNodeViewModelTest {
 
         fun withRenameNodeUseCaseReturning(result: Either<CoreFailure, Unit>) = apply {
             coEvery { renameNodeUseCase(any(), any(), any()) } returns result
+        }
+        fun withNodeNameReturning(name: String) = apply {
+            every { savedStateHandle.get<String>("nodeName") } returns name
         }
 
         fun arrange() = this to viewModel

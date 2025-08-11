@@ -69,10 +69,10 @@ class RenameNodeViewModel @Inject constructor(
         }
     }
 
-    fun renameNode(name: String) {
+    fun renameNode(newName: String) {
         displayNameState = displayNameState.copy(loading = true)
         viewModelScope.launch {
-            val newNameWithExtension = name + fileExtension.takeIf { it.isNotEmpty() }?.let { ".$it" }.orEmpty()
+            val newNameWithExtension = newName + fileExtension.takeIf { it.isNotEmpty() }?.let { ".$it" }.orEmpty()
             renameNodeUseCase.invoke(
                 uuid = navArgs.uuid!!,
                 path = navArgs.currentPath!!,

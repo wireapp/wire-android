@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2025 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,9 +16,10 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
-package com.wire.android.ui.calling
+package com.wire.android.ui.calling.common
 
 import android.view.View
+import androidx.camera.core.impl.ImageOutputConfig.RotationValue
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
@@ -29,9 +30,11 @@ import com.wire.android.di.CurrentAccount
 import com.wire.android.mapper.UICallParticipantMapper
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.model.ImageAsset
+import com.wire.android.ui.calling.model.CallState
 import com.wire.android.ui.calling.model.InCallReaction
 import com.wire.android.ui.calling.model.ReactionSender
 import com.wire.android.ui.calling.model.UICallParticipant
+import com.wire.android.ui.calling.model.getConversationName
 import com.wire.android.ui.calling.ongoing.incallreactions.InCallReactions
 import com.wire.android.ui.calling.usecase.HangUpCallUseCase
 import com.wire.android.ui.common.ActionsViewModel
@@ -53,6 +56,7 @@ import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallWithSortedParticipantsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveInCallReactionsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveSpeakerUseCase
+import com.wire.kalium.logic.feature.call.usecase.SetUIRotationUseCase
 import com.wire.kalium.logic.feature.call.usecase.SetVideoPreviewUseCase
 import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOffUseCase
 import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOnUseCase
@@ -61,6 +65,7 @@ import com.wire.kalium.logic.feature.call.usecase.video.UpdateVideoStateUseCase
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.incallreaction.SendInCallReactionUseCase
+import com.wire.kalium.logic.util.PlatformRotation
 import com.wire.kalium.logic.util.PlatformView
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -97,6 +102,7 @@ class SharedCallingViewModel @AssistedInject constructor(
     private val unMuteCall: UnMuteCallUseCase,
     private val updateVideoState: UpdateVideoStateUseCase,
     private val setVideoPreview: SetVideoPreviewUseCase,
+    private val setUIRotationUseCase: SetUIRotationUseCase,
     private val turnLoudSpeakerOff: TurnLoudSpeakerOffUseCase,
     private val turnLoudSpeakerOn: TurnLoudSpeakerOnUseCase,
     private val flipToFrontCamera: FlipToFrontCameraUseCase,
@@ -297,6 +303,13 @@ class SharedCallingViewModel @AssistedInject constructor(
             appLogger.i("SharedCallingViewModel: setting video preview..")
             setVideoPreview(conversationId, PlatformView(null))
             setVideoPreview(conversationId, PlatformView(view))
+        }
+    }
+
+    fun setUIRotation(@RotationValue rotation: Int) {
+        appLogger.i("SharedCallingViewModel: setting UI rotation to $rotation..")
+        viewModelScope.launch {
+            setUIRotationUseCase(PlatformRotation(rotation))
         }
     }
 

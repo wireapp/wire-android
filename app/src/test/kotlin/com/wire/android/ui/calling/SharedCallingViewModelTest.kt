@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.calling
 
+import android.view.Surface
 import android.view.View
 import app.cash.turbine.test
 import com.wire.android.assertIs
@@ -28,6 +29,8 @@ import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.framework.TestUser
 import com.wire.android.mapper.UICallParticipantMapper
 import com.wire.android.mapper.UserTypeMapper
+import com.wire.android.ui.calling.common.SharedCallingViewActions
+import com.wire.android.ui.calling.common.SharedCallingViewModel
 import com.wire.android.ui.calling.model.ReactionSender
 import com.wire.android.ui.calling.usecase.HangUpCallUseCase
 import com.wire.kalium.common.error.NetworkFailure
@@ -43,6 +46,7 @@ import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallWithSortedParticipantsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveInCallReactionsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveSpeakerUseCase
+import com.wire.kalium.logic.feature.call.usecase.SetUIRotationUseCase
 import com.wire.kalium.logic.feature.call.usecase.SetVideoPreviewUseCase
 import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOffUseCase
 import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOnUseCase
@@ -51,6 +55,7 @@ import com.wire.kalium.logic.feature.call.usecase.video.UpdateVideoStateUseCase
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.incallreaction.SendInCallReactionUseCase
+import com.wire.kalium.logic.util.PlatformRotation
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -116,6 +121,9 @@ class SharedCallingViewModelTest {
     lateinit var getCurrentClientId: ObserveCurrentClientIdUseCase
 
     @MockK
+    lateinit var setUIRotationUseCase: SetUIRotationUseCase
+
+    @MockK
     private lateinit var view: View
 
     @MockK
@@ -152,6 +160,7 @@ class SharedCallingViewModelTest {
             flipToBackCamera = flipToBackCamera,
             unMuteCall = unMuteCall,
             setVideoPreview = setVideoPreview,
+            setUIRotationUseCase = setUIRotationUseCase,
             updateVideoState = updateVideoState,
             turnLoudSpeakerOff = turnLoudSpeakerOff,
             turnLoudSpeakerOn = turnLoudSpeakerOn,
@@ -416,6 +425,21 @@ class SharedCallingViewModelTest {
 
             // then
             expectNoEvents()
+        }
+    }
+
+    @Test
+    fun `given a call, when rotation changes, then set the new UI rotation`() = runTest(dispatcherProvider.main()) {
+        // given
+        coEvery { setUIRotationUseCase(any()) } returns Unit
+
+        // when
+        sharedCallingViewModel.setUIRotation(Surface.ROTATION_90)
+        advanceUntilIdle()
+
+        // then
+        coVerify(exactly = 1) {
+            setUIRotationUseCase(eq(PlatformRotation(Surface.ROTATION_90)))
         }
     }
 

@@ -141,7 +141,7 @@ fun SearchUsersAndServicesScreen(
             )
         },
         topBarFooter = {
-            if (screenType == SearchPeopleScreenType.CONVERSATION_DETAILS && isServicesAllowed) {
+            if (isServicesAllowed) {
                 WireTabRow(
                     tabs = SearchPeopleTabItem.entries,
                     selectedTabIndex = currentTabState,

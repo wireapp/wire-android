@@ -38,7 +38,6 @@
     <string name="label_logging_in">පිවිසෙමින්…</string>
     <string name="label_membership_guest">අමුත්තා</string>
     <string name="label_membership_external">බාහිර</string>
-    <string name="label_membership_service">සේවාව</string>
     <string name="label_user_deleted">මකා ඇත</string>
     <string name="label_try_again">නැවත උත්සාහ කරන්න</string>
     <string name="label_done">කළා</string>
@@ -215,7 +214,6 @@
     <string name="content_description_accept_or_ignore_connection_label">ඉල්ලීම පිළිගන්න හෝ නොසලකා හරින්න</string>
     <string name="content_description_open_user_profile_label">පැතිකඩ විවෘත කරන්න</string>
     <string name="content_description_open_conversation_label">විවෘත සංවාදය</string>
-    <string name="content_description_open_service_label">විවෘත සේවාව</string>
     <string name="content_description_change_it_label">එය වෙනස් කරන්න</string>
     <string name="content_description_open_link_label">සබැඳිය විවෘත කරන්න</string>
     <string name="content_description_alert">අනතුරු ඇඟවීම</string>
@@ -549,13 +547,9 @@
     <string name="conversation_details_guest_description">මෙය සක්‍රිය නම්, මෙම සංවාදයට කණ්ඩායමෙන් පිටත අයට එක් වීමට හැකිය</string>
     <string name="conversation_options_guest_description">ඔබගේ කණ්ඩායමෙන් පිටත පුද්ගලයින්ට මෙම සංවාදය විවෘත කිරීමට මෙම විකල්පය සක්‍රිය කරන්න. වයර් නැති අයට ද උපකාරී වේ.</string>
     <string name="conversation_options_guest_not_editable_description">මෙම සංවාදයේ ආගන්තුක විකල්පය වෙනත් කණ්ඩායමක කෙනෙක් සාදා තිබෙන බැවින් එය ඔබට අබල කිරීමට නොහැකිය.</string>
-    <string name="conversation_options_services_label">සේවා</string>
-    <string name="conversation_options_services_description">මෙම සංවාදය සේවා වෙත විවෘත කිරීමට මෙම විකල්පය සක්‍රිය කරන්න.</string>
     <string name="conversation_options_renamed">සංවාදය නැවත නම් කළා</string>
     <string name="disable_guest_dialog_title">අමුත්තන්ට ප්‍රවේශය අබල කරන්නද?</string>
     <string name="disable_guest_dialog_text">වත්මන් අමුත්තන් සංවාදයෙන් ඉවත් කරනු ලැබේ. නව අමුත්තන්ට ඉඩ නොදෙනු ඇත.</string>
-    <string name="disable_services_dialog_title">සේවා ප්‍රවේශය අබල කරන්නද?</string>
-    <string name="disable_services_dialog_text">වත්මන් සේවා සංවාදයෙන් ඉවත් කෙරේ. නව සේවා සඳහා ඉඩ නොදෙනු ඇත.</string>
     <string name="leave_conversation_menu_item">සංවාදයෙන් ඉවත් වන්න…</string>
     <string name="leave_conversation_dialog_title">“%s” දාලා යන්නද?</string>
     <string name="leave_conversation_dialog_description">එවිට ඔබට තවදුරටත් කිසිදු උපාංගයකින් මෙම සංවාදයේ පණිවිඩ යැවීමට හෝ කියවීමට නොහැකි වනු ඇත.</string>
@@ -700,22 +694,13 @@
     <string name="conversation_banner_federated">ඒකාබද්ධ පරිශීලකයින්</string>
     <string name="conversation_banner_externals">බාහිර</string>
     <string name="conversation_banner_guests">අමුත්තන්</string>
-    <string name="conversation_banner_services">සේවා</string>
-    <string name="conversation_banner_federated_externals_guests_services_present">ඒකාබද්ධ පරිශ්‍රීලකයින්, පිටස්තරයින්, අමුත්තන් සහ සේවා ඇත</string>
     <string name="conversation_banner_federated_externals_guests_present">ඒකාබද්ධ පරිශ්‍රීලකයින්, පිටස්තරයින් සහ අමුත්තන් සිටියි</string>
-    <string name="conversation_banner_federated_externals_services_present">ඒකාබද්ධ පරිශ්‍රීලකයින්, පිටස්තරයින් සහ සේවා ඇත</string>
-    <string name="conversation_banner_federated_guests_services_present">ඒකාබද්ධ පරිශ්‍රීලකයින්, අමුත්තන් සහ සේවා ඇත</string>
-    <string name="conversation_banner_federated_services_present">ඒකාබද්ධ පරිශ්‍රීලකයින් සහ සේවා ඇත</string>
     <string name="conversation_banner_federated_guests_present">ඒකාබද්ධ පරිශ්‍රීලකයින් සහ අමුත්තන් සිටියි</string>
     <string name="conversation_banner_federated_externals_present">ඒකාබද්ධ පරිශ්‍රීලකයින් සහ පිටස්තරයින් සිටියි</string>
-    <string name="conversation_banner_externals_guests_services_present">පිටස්තරයින්, අමුත්තන් සහ සේවා ඇත</string>
-    <string name="conversation_banner_externals_services_present">පිටස්තරයින් සහ සේවා ඇත</string>
     <string name="conversation_banner_externals_guests_present">පිටස්තරයින් සහ අමුත්තන් සිටියි</string>
-    <string name="conversation_banner_guests_services_present">අමුත්තන් සහ සේවා ඇත</string>
     <string name="conversation_banner_federated_present">ඒකාබද්ධ පරිශ්‍රීලකයින් සිටියි</string>
     <string name="conversation_banner_guests_present">අමුත්තන් සිටියි</string>
     <string name="conversation_banner_externals_present">පිටස්තරයින් සිටියි</string>
-    <string name="conversation_banner_services_active">සේවා ක්‍රියාත්මකයි</string>
     <!-- System messages -->
     <string name="label_system_message_added_by_self">%1$s සංවාදයට %2$s එක් කර ඇත</string>
     <string name="label_system_message_removed_by_self">%1$s සංවාදයෙන් %2$s ඉවත් කළා</string>
@@ -914,7 +899,6 @@
     <string name="label_no_results_found">ප්‍රතිඵල හමු නොවිණි. නැවත උත්සාහ කරන්න.</string>
     <string name="label_general_error">යමක් වැරදී ඇත</string>
     <string name="label_add_member_people">පුද්ගලයින්</string>
-    <string name="label_add_member_services">සේවා</string>
     <string name="label_empty_contacts_list">සංවාදයක් ඇරඹීමට නමින් හෝ පරිශ්‍රීලක නාමයෙන් සොයන්න 🔍</string>
     <!-- Snackbar messages -->
     <string name="error_unknown_title">යමක් වැරදී ඇත</string>
@@ -1089,16 +1073,8 @@
     <string name="change">සංශෝධනය</string>
     <string name="allow_guests">අමුත්තන්ට ඉඩදෙන්න</string>
     <string name="allow_guest_switch_description">ඔබගේ කණ්ඩායමෙන් පිටත පුද්ගලයින්ට මෙම සංවාදය විවෘත කරන්න. මෙය පසුව වෙනස් කිරීමට හැකිය.</string>
-    <string name="allow_services">සේවාවලට ඉඩදෙන්න</string>
-    <string name="allow_services_regular_group_description">මෙම සංවාදය සේවාවන් සඳහා විවෘත කරන්න. ඔබට එය පසුව සැමවිටම වෙනස් කළ හැක.</string>
-    <string name="allow_services_channel_description">මෙම සංවාදය ඔබේ කණ්ඩායමෙන් හෝ සේවාවන්ගෙන් පිටත සිටින පුද්ගලයින්ට විවෘත කරන්න. ඔබට එය පසුව සැමවිටම වෙනස් කළ හැක.</string>
-    <string name="service_details_label">සේවාව</string>
     <string name="service_details_add_service_label">සංවාදයට එක් කරන්න</string>
     <string name="service_details_remove_service_label">සංවාදයෙන් ඉවත් කරන්න</string>
-    <string name="service_remove_success">සේවාව සංවාදයෙන් ඉවත් කරන ලදී</string>
-    <string name="service_remove_error">සංවාදයෙන් සේවාව ඉවත් කිරීමට නොහැකි විය.</string>
-    <string name="service_add_success">සේවාව සංවාදයට එක් කරන ලදී</string>
-    <string name="service_add_error">සංවාදයට සේවාව එක් කිරීමට නොහැකිය.</string>
     <string name="service_no_information_available_title">තොරතුරු නොතිබේ</string>
     <string name="service_no_information_available_subtitle">නැවත උත්සාහ කරන්න හෝ කණ්ඩායමේ පරිපාලකයා අමතන්න</string>
     <string name="read_receipts">කියවූ බවට ලදුපත්</string>

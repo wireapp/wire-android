@@ -30,7 +30,7 @@ data class SendTextParams(
     val timeout: Duration,
     val expectsReadConfirmation: Boolean,
     val text: String,
-    val buttons: JSONArray,
+    val buttons: JSONArray = JSONArray(),
     val legalHoldStatus: Int,
     val messageId: String? = null,
     val messageTimer: Duration = Duration.ZERO,

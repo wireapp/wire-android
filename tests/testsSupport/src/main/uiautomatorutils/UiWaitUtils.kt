@@ -21,9 +21,11 @@ import android.os.SystemClock
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.BySelector
+import androidx.test.uiautomator.StaleObjectException
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiObject2
 import androidx.test.uiautomator.UiSelector
+import java.io.IOException
 
 private const val TIMEOUT_IN_MILLISECONDS = 10000L
 
@@ -63,18 +65,46 @@ object UiWaitUtils {
         return requireNotNull(selector) { "At least one selector must be provided" }
     }
 
-    @Suppress("MagicNumber")
-    fun waitElement(params: UiSelectorParams): UiObject2 {
+    fun UiSelectorParams.toBySelector(): BySelector {
+        return UiWaitUtils.buildSelector(this)
+    }
+
+    fun findElementOrNull(selector: UiSelectorParams): UiObject2? {
+        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        return try {
+            device.findObject(selector.toBySelector())
+        } catch (e: IOException) {
+            null
+        }
+    }
+
+    @Suppress("MagicNumber", "NestedBlockDepth")
+    fun waitElement(
+        params: UiSelectorParams,
+        timeoutMillis: Long = 10_000,
+        pollingInterval: Long = 250
+    ): UiObject2 {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         val selector = buildSelector(params)
+        val deadline = SystemClock.uptimeMillis() + timeoutMillis
 
-        val startTime = System.currentTimeMillis()
-        while (System.currentTimeMillis() - startTime < params.timeout) {
-            println("Waiting for element: $selector")
-            val obj = device.findObject(selector)
-            if (obj != null && !obj.visibleBounds.isEmpty) return obj
-            Thread.sleep(250)
+        while (SystemClock.uptimeMillis() < deadline) {
+            try {
+                val obj = device.findObject(selector)
+                if (obj != null) {
+                    try {
+                        if (!obj.visibleBounds.isEmpty) return obj
+                    } catch (e: StaleObjectException) {
+                        // Ignore and retry
+                    }
+                }
+            } catch (e: StaleObjectException) {
+                // Ignore and retry
+            }
+
+            SystemClock.sleep(pollingInterval)
         }
+
         throw AssertionError(
             "Element not found or not visible with selector: " +
                     listOfNotNull(
@@ -105,5 +135,19 @@ object UiWaitUtils {
         }
 
         throw AssertionError("Element matching selector [$selector] did not disappear within timeout.")
+    }
+
+    @Suppress("MagicNumber")
+    object WaitUtils {
+        fun waitFor(seconds: Int, startPinging: () -> Unit = {}, stopPinging: () -> Unit = {}) {
+            if (seconds > 20) {
+                startPinging()
+            }
+            Thread.sleep(seconds * 1000L)
+
+            if (seconds > 20) {
+                stopPinging()
+            }
+        }
     }
 }

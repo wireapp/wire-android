@@ -33,7 +33,6 @@
     <string name="label_logging_in">Sisselogimine…</string>
     <string name="label_membership_guest">Külaline</string>
     <string name="label_membership_external">Väline</string>
-    <string name="label_membership_service">Teenus</string>
     <string name="label_user_deleted">Kustutatud</string>
     <string name="label_message_receive_failure">Allalaadimise viga</string>
     <string name="label_message_decryption_failure_message">Sõnumi dekrüpteerimine ebaõnnestus.</string>

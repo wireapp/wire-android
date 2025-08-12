@@ -119,11 +119,11 @@ internal fun UserDebugContent(
                     buildVariant = "${BuildConfig.FLAVOR}${BuildConfig.BUILD_TYPE.replaceFirstChar { it.uppercase() }}",
                     onCopyText = debugContentState::copyToClipboard,
                 )
-                DebugWireCellOptions(
-                    isCellFeatureEnabled = isWireCellFeatureEnabled,
-                    onCheckedChange = onEnableWireCellsFeature,
-                )
                 if (BuildConfig.PRIVATE_BUILD) {
+                    DebugWireCellOptions(
+                        isCellFeatureEnabled = isWireCellFeatureEnabled,
+                        onCheckedChange = onEnableWireCellsFeature,
+                    )
                     DangerOptions()
                 }
             }

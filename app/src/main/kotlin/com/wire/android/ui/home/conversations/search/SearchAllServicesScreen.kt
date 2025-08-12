@@ -17,10 +17,12 @@
  */
 package com.wire.android.ui.home.conversations.search
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -33,6 +35,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.model.Clickable
+import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.UserBadge
 import com.wire.android.ui.common.avatar.UserProfileAvatar
@@ -136,7 +139,15 @@ private fun SuccessServicesList(
                             )
                         }
                     },
-                    actions = {},
+                    actions = {
+                        Box(
+                            modifier = Modifier
+                                .wrapContentWidth()
+                                .padding(end = dimensions().spacing4x)
+                        ) {
+                            ArrowRightIcon(Modifier.align(Alignment.TopEnd), R.string.content_description_empty)
+                        }
+                    },
                     clickable = remember(it) { Clickable(onClickDescription = clickDescription) { onServiceClicked(it) } },
                     modifier = Modifier.padding(start = dimensions().spacing8x)
                 )

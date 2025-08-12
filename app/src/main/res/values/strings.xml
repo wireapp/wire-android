@@ -1003,9 +1003,12 @@
     <string name="label_learn_more_about_channels">Learn more about channels</string>
     <string name="label_new_conversation">New Conversation</string>
     <string name="label_search_people">Search people</string>
+    <string name="label_search_people_or_apps">Search people or apps</string>
     <string name="label_public_wire">Public Wire</string>
     <string name="label_search_people_instruction">Search for people by their profile name or @username</string>
+    <string name="label_search_apps_instruction">Improve productivity with apps.</string>
     <string name="label_learn_more_searching_user">Learn more</string>
+    <string name="label_learn_more_searching_app">How to add apps to your team</string>
     <string name="label_no_results_found">No results could be found. Please try again.</string>
     <string name="label_general_error">Something went wrong</string>
     <string name="label_add_member_people">People</string>

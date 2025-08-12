@@ -53,9 +53,9 @@ import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
 import com.wire.android.ui.common.calculateCurrentTab
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.search.rememberSearchbarState
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.wire.android.ui.common.search.rememberSearchbarState
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import com.wire.android.ui.home.newconversation.common.ContinueButton
 import com.wire.android.ui.home.newconversation.common.CreateRegularGroupOrChannelButtons
@@ -104,6 +104,12 @@ fun SearchUsersAndServicesScreen(
         rememberLazyListState()
     }
 
+    val searchBarTitle = if (isServicesAllowed) {
+        stringResource(R.string.label_search_people_or_apps)
+    } else {
+        stringResource(R.string.label_search_people)
+    }
+
     CollapsingTopBarScaffold(
         modifier = modifier,
         topBarHeader = {
@@ -134,7 +140,7 @@ fun SearchUsersAndServicesScreen(
         topBarCollapsing = {
             SearchTopBar(
                 isSearchActive = searchBarState.isSearchActive,
-                searchBarHint = stringResource(R.string.label_search_people),
+                searchBarHint = searchBarTitle,
                 searchBarDescription = stringResource(R.string.content_description_add_participants_search_field),
                 searchQueryTextState = searchBarState.searchQueryTextState,
                 onActiveChanged = searchBarState::searchActiveChanged,

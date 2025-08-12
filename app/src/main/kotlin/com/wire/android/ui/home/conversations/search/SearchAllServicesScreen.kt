@@ -41,8 +41,8 @@ import com.wire.android.ui.common.progress.CenteredCircularProgressBarIndicator
 import com.wire.android.ui.home.conversations.search.widget.SearchFailureBox
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.model.Contact
-import com.wire.android.util.extension.folderWithElements
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.util.extension.folderWithElements
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.user.ConnectionState
 import kotlinx.collections.immutable.ImmutableList
@@ -80,8 +80,10 @@ private fun SearchAllServicesContent(
     when {
         isLoading -> CenteredCircularProgressBarIndicator()
 
-        // TODO(user experience): what to do when user team has no services?
-        searchQuery.isBlank() && result.isEmpty() -> EmptySearchQueryScreen()
+        searchQuery.isBlank() && result.isEmpty() -> EmptySearchQueryScreen(
+            text = stringResource(R.string.label_search_apps_instruction),
+            learnMoreTextToLink = stringResource(R.string.label_learn_more_searching_app) to stringResource(R.string.url_wire_plans)
+        )
 
         searchQuery.isNotBlank() && result.isEmpty() -> SearchFailureBox(R.string.label_no_results_found)
 

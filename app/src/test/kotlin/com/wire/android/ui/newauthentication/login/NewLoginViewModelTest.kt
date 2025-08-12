@@ -14,6 +14,7 @@ import com.wire.android.ui.authentication.login.DomainClaimedByOrg
 import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.LoginPasswordPath
 import com.wire.android.ui.authentication.login.LoginViewModelExtension
+import com.wire.android.ui.authentication.login.PreFilledUserIdentifierType
 import com.wire.android.ui.authentication.login.sso.LoginSSOViewModelExtension
 import com.wire.android.ui.authentication.login.sso.SSOUrlConfig
 import com.wire.android.ui.navArgs
@@ -742,7 +743,7 @@ class NewLoginViewModelTest {
         fun withPreFilledUserIdentifier(userIdentifier: String) = apply {
             every {
                 savedStateHandle.navArgs<LoginNavArgs>()
-            } returns LoginNavArgs(userHandle = com.wire.android.ui.authentication.login.PreFilledUserIdentifierType.PreFilled(userIdentifier))
+            } returns LoginNavArgs(userHandle = PreFilledUserIdentifierType.PreFilled(userIdentifier))
         }
 
         fun withFetchDefaultSSOCodeSuccessAfterDelay(defaultSSOCode: String?) = apply {

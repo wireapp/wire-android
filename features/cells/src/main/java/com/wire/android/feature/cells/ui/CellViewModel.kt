@@ -39,7 +39,6 @@ import com.wire.kalium.cells.domain.usecase.DownloadCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
 import com.wire.kalium.cells.domain.usecase.RestoreNodeFromRecycleBinUseCase
-import com.wire.kalium.common.functional.getOrElse
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
@@ -96,16 +95,14 @@ class CellViewModel @Inject constructor(
 
     private val removedItemsFlow: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
 
-    private val _selectedTags = MutableStateFlow<List<String>>(emptyList())
-    val selectedTags: StateFlow<List<String>> = _selectedTags.asStateFlow()
+    private val _selectedTags = MutableStateFlow<Set<String>>(emptySet())
+    val selectedTags: StateFlow<Set<String>> = _selectedTags.asStateFlow()
 
-    private val _tags = MutableStateFlow<List<String>>(emptyList())
-    val tags: StateFlow<List<String>> = _tags.asStateFlow()
+    private val _tags = MutableStateFlow<Set<String>>(emptySet())
+    val tags: StateFlow<Set<String>> = _tags.asStateFlow()
 
     init {
-        viewModelScope.launch {
-            _tags.value = getAllTagsUseCase().getOrElse(emptyList())
-        }
+        loadTags()
     }
 
     internal val nodesFlow = combine(
@@ -121,7 +118,7 @@ class CellViewModel @Inject constructor(
                     conversationId = navArgs.conversationId,
                     query = query,
                     onlyDeleted = navArgs.isRecycleBin ?: false,
-                    tags = currentTags
+                    tags = currentTags.toList(),
                 ).cachedIn(viewModelScope),
                 removedItemsFlow,
                 downloadDataFlow
@@ -147,7 +144,7 @@ class CellViewModel @Inject constructor(
             }
         }
 
-    fun updateSelectedTags(tags: List<String>) {
+    fun updateSelectedTags(tags: Set<String>) {
         _selectedTags.value = tags
     }
 
@@ -422,6 +419,10 @@ class CellViewModel @Inject constructor(
             progressMap[uuid] = block()
             progressMap.toImmutableMap()
         }
+    }
+
+    fun loadTags() = viewModelScope.launch {
+        getAllTagsUseCase().onSuccess { updated -> _tags.update { updated } }
     }
 
     companion object {

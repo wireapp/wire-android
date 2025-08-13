@@ -629,7 +629,6 @@
     <!-- Remove Conversation Member Dialog -->
     <string name="dialog_remove_conversation_member_title">සංවාදයෙන් ඉවත් කරන්නද?</string>
     <string name="dialog_remove_conversation_member_description">%1$s (@%2$s) හට මෙම සංවාදයට පණිවිඩ යැවීමට හෝ ලැබීමට නොහැකි වනු ඇත.</string>
-    <string name="dialog_remove_conversation_member_error">සහභාගිවන්නා සංවාදයෙන් ඉවත් කිරීමේදී දෝෂයක් ඇති විය.</string>
     <string name="conversation_role_admin">පරිපාලක</string>
     <string name="conversation_role_member">සාමාජික</string>
     <!-- Logout Wipe Data Dialog -->

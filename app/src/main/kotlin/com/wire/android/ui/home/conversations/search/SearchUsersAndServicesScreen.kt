@@ -80,7 +80,7 @@ fun SearchUsersAndServicesScreen(
     isUserAllowedToCreateChannels: Boolean,
     modifier: Modifier = Modifier,
     isGroupSubmitVisible: Boolean = true,
-    isServicesAllowed: Boolean = false,
+    isServicesDiscoveryAllowed: Boolean = false,
     initialPage: SearchPeopleTabItem = SearchPeopleTabItem.PEOPLE,
     onContinue: () -> Unit = {},
     onCreateNewGroup: () -> Unit = {},
@@ -88,8 +88,8 @@ fun SearchUsersAndServicesScreen(
 ) {
     val searchBarState = rememberSearchbarState()
     val scope = rememberCoroutineScope()
-    val tabs = remember(isServicesAllowed) {
-        if (isServicesAllowed) SearchPeopleTabItem.entries else listOf(SearchPeopleTabItem.PEOPLE)
+    val tabs = remember(isServicesDiscoveryAllowed) {
+        if (isServicesDiscoveryAllowed) SearchPeopleTabItem.entries else listOf(SearchPeopleTabItem.PEOPLE)
     }
     val pagerState = rememberPagerState(
         initialPage = tabs.indexOf(initialPage),
@@ -104,7 +104,7 @@ fun SearchUsersAndServicesScreen(
         rememberLazyListState()
     }
 
-    val searchBarTitle = if (isServicesAllowed) {
+    val searchBarTitle = if (isServicesDiscoveryAllowed) {
         stringResource(R.string.label_search_people_or_apps)
     } else {
         stringResource(R.string.label_search_people)
@@ -147,7 +147,7 @@ fun SearchUsersAndServicesScreen(
             )
         },
         topBarFooter = {
-            if (isServicesAllowed) {
+            if (isServicesDiscoveryAllowed) {
                 WireTabRow(
                     tabs = SearchPeopleTabItem.entries,
                     selectedTabIndex = currentTabState,

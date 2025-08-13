@@ -73,7 +73,7 @@ fun NewConversationSearchPeopleScreen(
         onServiceClicked = { },
         screenType = SearchPeopleScreenType.NEW_CONVERSATION,
         selectedContacts = newConversationViewModel.newGroupState.selectedUsers,
-        isServicesAllowed = true
+        isServicesDiscoveryAllowed = true
     )
 
     if (showCreateTeamDialog.value) {

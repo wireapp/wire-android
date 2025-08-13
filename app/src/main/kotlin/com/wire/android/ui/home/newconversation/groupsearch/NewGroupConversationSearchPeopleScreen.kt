@@ -70,6 +70,6 @@ fun NewGroupConversationSearchPeopleScreen(
         onServiceClicked = { },
         screenType = SearchPeopleScreenType.NEW_GROUP_CONVERSATION,
         selectedContacts = newConversationViewModel.newGroupState.selectedUsers,
-        isServicesAllowed = false
+        isServicesDiscoveryAllowed = false
     )
 }

@@ -18,7 +18,7 @@
 package com.wire.android.feature.cells.ui.tags
 
 import androidx.compose.foundation.text.input.TextFieldState
-import androidx.compose.foundation.text.input.delete
+import androidx.compose.foundation.text.input.clearText
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.feature.cells.ui.navArgs
@@ -26,12 +26,15 @@ import com.wire.android.ui.common.ActionsViewModel
 import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
 import com.wire.kalium.cells.domain.usecase.RemoveNodeTagsUseCase
 import com.wire.kalium.cells.domain.usecase.UpdateNodeTagsUseCase
-import com.wire.kalium.common.functional.getOrElse
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -49,31 +52,35 @@ class AddRemoveTagsViewModel @Inject constructor(
 
     val tagsTextState = TextFieldState()
 
-    private val _addedTags: MutableStateFlow<List<String>> = MutableStateFlow(navArgs.tags)
+    private val allTags: MutableStateFlow<Set<String>> = MutableStateFlow(emptySet())
+
+    private val _addedTags: MutableStateFlow<Set<String>> = MutableStateFlow(navArgs.tags.toSet())
     internal val addedTags = _addedTags.asStateFlow()
 
-    private val _suggestedTags: MutableStateFlow<List<String>> = MutableStateFlow(listOf())
-    internal val suggestedTags = _suggestedTags.asStateFlow()
+    internal val suggestedTags =
+        allTags.combine(addedTags) { all, added ->
+            all.filter { it !in added }.toSet()
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptySet())
 
     init {
         viewModelScope.launch {
-            val allTags = getAllTagsUseCase().getOrElse(emptyList())
-            _suggestedTags.value = allTags.filterNot { it in _addedTags.value }
+            getAllTagsUseCase().onSuccess { tags ->
+                allTags.update { tags }
+            }
         }
     }
 
     fun addTag(tag: String) {
-        if (tag.isNotBlank() && tag !in _addedTags.value) {
-            _addedTags.value += tag
-            _suggestedTags.value = _suggestedTags.value.filter { it != tag }
-            tagsTextState.edit {
-                delete(0, length)
+        tag.trim().let { newTag ->
+            if (newTag.isNotBlank() && newTag !in _addedTags.value) {
+                _addedTags.update { it + newTag }
+                tagsTextState.clearText()
             }
         }
     }
 
     fun removeTag(tag: String) {
-        _addedTags.value = _addedTags.value.filter { it != tag }
+        _addedTags.update { it - tag }
     }
 
     fun updateTags() {

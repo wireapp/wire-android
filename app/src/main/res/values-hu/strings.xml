@@ -636,7 +636,6 @@
     <!-- Remove Conversation Member Dialog -->
     <string name="dialog_remove_conversation_member_title">Eltávolítja a beszélgetésből?</string>
     <string name="dialog_remove_conversation_member_description">%1$s (@%2$s) ezután nem fog tudni üzenetet küldeni és fogadni ebben a beszélgetésben.</string>
-    <string name="dialog_remove_conversation_member_error">Hiba történt a résztvevő beszélgetésből történő eltávolítása során</string>
     <string name="conversation_role_admin">Admin</string>
     <string name="conversation_role_member">Tag</string>
     <!-- Logout Wipe Data Dialog -->

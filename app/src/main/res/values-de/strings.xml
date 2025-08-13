@@ -150,6 +150,7 @@
     <string name="content_description_record_audio_button_start">Audio aufnehmen</string>
     <string name="content_description_record_audio_button_stop">Aufnahme stoppen</string>
     <string name="content_description_record_audio_button_send">Audionachricht senden</string>
+    <string name="content_description_mls_certificate_valid">Alle Geräte aller Teilnehmer haben ein gültiges MLS-Zertifikat</string>
     <string name="content_description_jump_to_last_message">Zum Ende der Unterhaltung scrollen</string>
     <string name="content_description_conversation_details_more_btn">Unterhaltungsoptionen öffnen</string>
     <string name="content_description_conversation_details_options_tab_header">Optionen</string>
@@ -245,6 +246,7 @@
     <string name="backup_and_restore_screen_title">Unterhaltungen sichern &amp; wiederherstellen</string>
     <string name="search_bar_conversations_hint">Unterhaltungen suchen</string>
     <string name="search_no_results">Keine Ergebnisse gefunden</string>
+    <string name="team_management_screen_title">Team verwalten</string>
     <!--Whats New -->
     <string name="whats_new_screen_title">Neue Funktionen</string>
     <string name="whats_new_welcome_to_new_android_app_label">👋 Willkommen bei Wires neuer Android App!</string>
@@ -391,6 +393,8 @@
     <string name="delete_message_for_yourself_dialog_title">Diese Nachricht für Sie löschen?</string>
     <string name="delete_message_for_yourself_dialog_message">Wenn Sie die Nachricht für sich selbst löschen, ist sie noch für andere Teilnehmer sichtbar.\n\nEine gelöschte Nachricht kann nicht wiederhergestellt werden.</string>
     <string name="deleted_message_text">Gelöschte Nachricht</string>
+    <string name="deleted_message_options_closed">Die Optionen wurden geschlossen, da diese Nachricht nicht mehr verfügbar ist.</string>
+    <string name="deleted_conversation_options_closed">Die Optionen wurden geschlossen, da diese Unterhaltung nicht mehr verfügbar ist.</string>
     <!-- Replies/Quotes to other messages -->
     <string name="label_quote_invalid_or_not_found">Diese Nachricht ist nicht sichtbar</string>
     <string name="label_quote_original_message_is_a_picture">Bild</string>
@@ -521,6 +525,7 @@
     <string name="create_channel_error_forbidden_message">Funktion ist nicht verfügbar, bitte fragen Sie Ihren Team-Admin.</string>
     <string name="conversation_can_not_be_created_federation_conflict_description">Personen der Backends %1$s und %2$s können nicht derselben Unterhaltung beitreten.\n\nUm die Unterhaltung zu erstellen, entfernen Sie die betroffenen Teilnehmer.</string>
     <string name="conversation_can_not_be_created_edit_participant_list">Teilnehmerliste bearbeiten</string>
+    <string name="conversation_can_not_be_created_discard_creation">Erstellung der Unterhaltung verwerfen</string>
     <string name="asset_message_tap_to_download_text">Zum Herunterladen tippen</string>
     <string name="asset_message_upload_in_progress_text">Hochladen…</string>
     <string name="asset_message_download_in_progress_text">Herunterladen…</string>
@@ -544,6 +549,8 @@
     <string name="conversation_details_options_tab">OPTIONEN</string>
     <string name="conversation_details_participants_tab">TEILNEHMER</string>
     <string name="conversation_details_options_group_name">GRUPPENNAME</string>
+    <string name="conversation_details_conversation_admins">ADMINS (%d)</string>
+    <string name="conversation_details_conversation_members">MITGLIEDER (%d)</string>
     <string name="conversation_details_participants_info">Diese Unterhaltung hat %s Teilnehmer.\nBis zu 500 Personen können an einer Unterhaltung teilnehmen.</string>
     <string name="conversation_details_participants_count">%s Teilnehmer</string>
     <string name="conversation_details_show_all_participants">Alle Teilnehmer anzeigen (%d)</string>
@@ -623,6 +630,7 @@
     <string name="user_profile_details_tab">Details</string>
     <string name="user_profile_devices_tab">Geräte</string>
     <string name="user_profile_conversation_tab">Unterhaltung</string>
+    <string name="user_profile_conversation_member">Mitglied der Unterhaltung “%s”</string>
     <string name="user_profile_conversation_role">ROLLE</string>
     <string name="user_profile_role_in_conversation">Benutzerrolle in ”%s”</string>
     <string name="user_profile_role_change_error">Beim Ändern der Rolle ist ein Fehler aufgetreten. Bitte überprüfen Sie Ihre Internetverbindung und versuchen Sie es erneut</string>
@@ -1107,6 +1115,7 @@
     <string name="read_receipts_regular_group_description">Wenn diese Option aktiviert ist, können Sender sehen, wenn ihre Nachrichten gelesen werden.</string>
     <string name="read_receipts_channel_description">Wenn diese Option aktiviert ist, können Sender sehen, wenn ihre Nachrichten in diesem Channel gelesen werden.</string>
     <string name="disable_guests_dialog_title">Gäste nicht zulassen?</string>
+    <string name="disable_guests_dialog_description">Gäste, die Sie im vorherigen Schritt ausgewählt haben, sind nicht Teil der Unterhaltung, wenn Sie den Gastzugang nicht erlauben.</string>
     <string name="disable_guests_dialog_button">Keine Gäste zulassen</string>
     <!--block user dialog -->
     <string name="block_user_dialog_title">Benutzer blockieren?</string>
@@ -1339,7 +1348,9 @@ Bei Gruppenunterhaltungen kann der Gruppen-Admin diese Einstellung überschreibe
     <string name="join_conversation_dialog_message">Sie wurden zu dieser Unterhaltung eingeladen.\n\n%1$s</string>
     <string name="join_conversation_dialog_button">Beitreten</string>
     <string name="join_conversation_via_deeplink_error_title">Sie konnten der Unterhaltung nicht beitreten</string>
+    <string name="join_conversation_via_deeplink_error_link_expired">Der Link zu dieser Unterhaltung ist abgelaufen oder nicht mehr gültig.</string>
     <string name="join_conversation_via_deeplink_error_max_number_of_participent">Die maximale Teilnehmeranzahl in dieser Unterhaltung wurde erreicht.</string>
+    <string name="join_conversation_via_deeplink_error_general">Aufgrund eines Fehlers konnten Sie nicht zur Unterhaltung hinzugefügt werden.</string>
     <!-- edit self-deleting messages -->
     <string name="self_deleting_messages_title">Selbstlöschende Nachrichten</string>
     <string name="self_deleting_messages_option">Löschen von Nachrichten erzwingen</string>
@@ -1642,6 +1653,7 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="personal_to_team_migration_back_button_label">Zurück</string>
     <string name="personal_to_team_migration_back_button_team_name_content_description">Zurück zur Team-Konto-Übersicht</string>
     <string name="personal_to_team_migration_back_button_confirmation_content_description">Zurück zur Ansicht Team-Name</string>
+    <string name="personal_to_team_migration_close_icon_content_description">Prozess zur Umstellung auf ein Team schließen</string>
     <string name="personal_to_team_migration_close_team_account_content_description">Team-Konto-Übersicht schließen</string>
     <string name="personal_to_team_migration_close_team_name_content_description">Ansicht Teamname schließen</string>
     <string name="personal_to_team_migration_close_confirmation_content_description">Bestätigungsansicht schließen</string>

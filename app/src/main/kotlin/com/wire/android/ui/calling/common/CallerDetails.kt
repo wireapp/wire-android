@@ -41,7 +41,7 @@ import com.wire.android.R
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
-import com.wire.android.ui.calling.ConversationName
+import com.wire.android.ui.calling.model.ConversationName
 import com.wire.android.ui.common.ConversationVerificationIcons
 import com.wire.android.ui.common.MembershipQualifierLabel
 import com.wire.android.ui.common.avatar.UserProfileAvatar

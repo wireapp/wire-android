@@ -63,7 +63,8 @@ class GroupMessaging : KoinTest {
     fun setUp() {
         context = InstrumentationRegistry.getInstrumentation().context
         // device = UiAutomatorSetup.start(UiAutomatorSetup.APP_DEV)
-        device = UiAutomatorSetup.start(UiAutomatorSetup.APP_STAGING)
+        //device = UiAutomatorSetup.start(UiAutomatorSetup.APP_STAGING)
+        device = UiAutomatorSetup.start(UiAutomatorSetup.APP_INTERNAL)
         backendClient = BackendClient.loadBackend("STAGING")
         teamHelper = TeamHelper()
     }
@@ -107,6 +108,10 @@ class GroupMessaging : KoinTest {
             assertEmailWelcomePage()
         }
         pages.loginPage.apply {
+            clickStagingDeepLink()
+            clickProceedButtonOnDeeplinkOverlay()
+        }
+        pages.loginPage.apply {
             enterTeamOwnerLoggingEmail(teamOwner?.email ?: "")
             clickLoginButton()
             enterTeamOwnerLoggingPassword(teamOwner?.password ?: "")
@@ -117,14 +122,14 @@ class GroupMessaging : KoinTest {
             clickAllowNotificationButton()
             clickDeclineShareDataAlert()
         }
-        pages.conversationPage.apply {
+        pages.conversationListPage.apply {
             assertGroupConversationVisible("MyTeam")
         }
         pages.conversationListPage.apply {
             tapSearchConversationField()
             typeFirstNCharsInSearchField("MyTestGroup", 3) // types "MyT"
         }
-        pages.conversationPage.apply {
+        pages.conversationListPage.apply {
             assertGroupConversationVisible("MyTeam")
         }
         pages.conversationListPage.apply {
@@ -140,7 +145,6 @@ class GroupMessaging : KoinTest {
             addDevice("user2Name", null, "Device1")
             userSendMessageToConversation("user2Name", "Hello Friends", "Device1", "MyTeam", false)
         }
-        // Thread.sleep(1000)
         pages.notificationsPage.apply {
             waitUntilNotificationPopUpGone()
         }

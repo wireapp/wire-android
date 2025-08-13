@@ -109,7 +109,7 @@ class AccountManagement : KoinTest {
             clickAllowNotificationButton()
             clickDeclineShareDataAlert()
         }
-        pages.conversationPage.apply {
+        pages.conversationListPage.apply {
             assertGroupConversationVisible("MyTeam")
             clickMainMenuButtonOnConversationPage()
             clickSettingsButtonOnMenuEntry()

@@ -24,7 +24,6 @@ import androidx.test.uiautomator.UiDevice
 import backendUtils.BackendClient
 import backendUtils.team.TeamHelper
 import backendUtils.team.TeamRoles
-import backendUtils.team.deleteTeam
 import com.wire.android.tests.core.di.testModule
 import com.wire.android.tests.core.pages.AllPages
 import com.wire.android.tests.support.UiAutomatorSetup
@@ -37,6 +36,7 @@ import org.koin.test.KoinTest
 import org.koin.test.KoinTestRule
 import org.koin.test.inject
 import service.TestServiceHelper
+import service.userSendsGenericMessageToConversation
 import user.usermanager.ClientUserManager
 import user.utils.ClientUser
 import kotlin.getValue
@@ -53,11 +53,12 @@ class NewMemberMessaging : KoinTest {
 
     lateinit var context: Context
     var teamOwner: ClientUser? = null
-
     var member1: ClientUser? = null
 
     var backendClient: BackendClient? = null
-    var teamHelper: TeamHelper? = null
+    val teamHelper by lazy {
+        TeamHelper()
+    }
     val testServiceHelper by lazy {
         TestServiceHelper()
     }
@@ -65,10 +66,10 @@ class NewMemberMessaging : KoinTest {
     @Before
     fun setUp() {
         context = InstrumentationRegistry.getInstrumentation().context
-        // device = UiAutomatorSetup.start(UiAutomatorSetup.APP_DEV)
-        device = UiAutomatorSetup.start(UiAutomatorSetup.APP_STAGING)
+        //  device = UiAutomatorSetup.start(UiAutomatorSetup.APP_DEV)
+        // device = UiAutomatorSetup.start(UiAutomatorSetup.APP_STAGING)
+        device = UiAutomatorSetup.start(UiAutomatorSetup.APP_INTERNAL)
         backendClient = BackendClient.loadBackend("STAGING")
-        teamHelper = TeamHelper()
     }
 
     @After
@@ -80,7 +81,7 @@ class NewMemberMessaging : KoinTest {
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @Test
     fun givenUserJoinsNewTeam_whenMessagingAndMentionedInGroup_thenReceivesMessagesAndMentions() {
-        teamHelper?.usersManager!!.createTeamOwnerByAlias(
+        teamHelper.usersManager!!.createTeamOwnerByAlias(
             "user1Name",
             "Messaging",
             "en_US",
@@ -88,7 +89,7 @@ class NewMemberMessaging : KoinTest {
             backendClient!!,
             context
         )
-        teamHelper?.userXAddsUsersToTeam(
+        teamHelper.userXAddsUsersToTeam(
             "user1Name",
             "user2Name,user3Name",
             "Messaging",
@@ -101,7 +102,6 @@ class NewMemberMessaging : KoinTest {
         teamOwner = teamHelper?.usersManager!!.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
         member1 = teamHelper?.usersManager!!.findUserBy("user2Name", ClientUserManager.FindBy.NAME_ALIAS)
 
-
         testServiceHelper.apply {
             userHasGroupConversationInTeam(
                 "user1Name",
@@ -110,10 +110,15 @@ class NewMemberMessaging : KoinTest {
                 "Messaging"
             )
             addDevice("user1Name", null, "Device1")
+            userXAddedContactsToGroupChat("user1Name", "user2Name", "MyTeam")
         }
 
         pages.registrationPage.apply {
             assertEmailWelcomePage()
+        }
+        pages.loginPage.apply {
+            clickStagingDeepLink()
+            clickProceedButtonOnDeeplinkOverlay()
         }
         pages.loginPage.apply {
             enterTeamOwnerLoggingEmail(member1?.email ?: "")
@@ -126,8 +131,80 @@ class NewMemberMessaging : KoinTest {
             clickAllowNotificationButton()
             clickDeclineShareDataAlert()
         }
-        pages.conversationPage.apply {
+        pages.conversationListPage.apply {
             assertGroupConversationVisible("MyTeam")
+            tapStartNewConversationButton()
+        }
+        pages.searchPage.apply {
+            tapSearchPeopleField()
+            typeUniqueUserNameInSearchField("user1Name")
+            assertUsernameInSearchResultIs(teamOwner?.name ?: "")
+            tapUsernameInSearchResult(teamOwner?.name ?: "")
+        }
+        pages.connectedUserProfilePage.apply {
+            assertStartConversationButtonVisible()
+            clickStartConversationButton()
+        }
+
+        pages.conversationViewPage.apply {
+            typeMessageInInputField("Hello Team Owner")
+            clickSendButton()
+            assertMessageSentIsVisible("Hello Team Owner")
+            tapBackButtonOnConversationViewPage()
+        }
+        pages.connectedUserProfilePage.apply {
+            tapCloseButtonOnConnectedUserProfilePage()
+        }
+        pages.conversationListPage.apply {
+            tapBackArrowButtonInsideSearchField()
+            clickCloseButtonOnNewConversationScreen()
+            assertConversationListVisible()
+        }
+        testServiceHelper.apply {
+            userSendsGenericMessageToConversation(
+                "user1Name",
+                "user2Name",
+                "Device1",
+                "Hello new member"
+            )
+        }
+        pages.notificationsPage.apply {
+            waitUntilNotificationPopUpGone()
+        }
+        pages.conversationListPage.apply {
+            assertUnreadMessagesCount("1")
+            tapUnreadConversationNameInConversationList(teamOwner?.name ?: "")
+        }
+        pages.conversationViewPage.apply {
+            assertReceivedMessageIsVisible("Hello new member")
+        }
+
+        pages.conversationViewPage.apply {
+            tapBackButtonOnConversationViewPage()
+        }
+
+        pages.conversationListPage.apply {
+            clickGroupConversation("MyTeam")
+        }
+
+        testServiceHelper.apply {
+            val mentionReplacedWithUniqueUserName = teamHelper.usersManager.replaceAliasesOccurrences(
+                "@user2Name",
+                ClientUserManager.FindBy.NAME_ALIAS
+            )
+            userSendsGenericMessageToConversation(
+                "user1Name",
+                "MyTeam",
+                "Device1",
+                mentionReplacedWithUniqueUserName
+            )
+        }
+        pages.conversationViewPage.apply {
+            val mentionedUser = teamHelper.usersManager.replaceAliasesOccurrences(
+                "@user2Name",
+                ClientUserManager.FindBy.NAME_ALIAS
+            )
+            assertVisibleMentionedNameIs(mentionedUser)
         }
     }
 }

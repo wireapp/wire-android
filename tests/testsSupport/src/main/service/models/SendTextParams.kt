@@ -46,9 +46,9 @@ data class SendTextWithLinkParams(
     val messageTimer: Duration = Duration.ZERO,
     val expectsReadConfirmation: Boolean,
     val text: String,
-    val buttons: JSONArray,
+    val buttons: JSONArray = JSONArray(),
     val legalHoldStatus: Int,
-    val messageId: String,
+    val messageId: String ?= null,
     val summary: String,
     val imageFile: File,
     val title: String,
@@ -56,7 +56,7 @@ data class SendTextWithLinkParams(
     val urlOffset: String,
     val permUrl: String,
     val filePath: String,
-    val imagePath: String? = null,
+    val imagePath: String? = null
 )
 
 data class SendFileParams(

@@ -302,6 +302,7 @@ data class ConversationViewPage(private val device: UiDevice) {
             "❌ Message '$message' is not visible in the conversation",
             !messageElement.visibleBounds.isEmpty
         )
+
         return this
     }
 
@@ -342,4 +343,38 @@ data class ConversationViewPage(private val device: UiDevice) {
             !element.visibleBounds.isEmpty
         )
     }
+
+    fun assertReceivedMessageIsVisible(message: String): ConversationViewPage {
+        val messageSelector = UiSelectorParams(text = message)
+
+        val messageElement = try {
+            UiWaitUtils.waitElement(messageSelector)
+        } catch (e: AssertionError) {
+            throw AssertionError("Message '$message' was not found in the conversation.", e)
+        }
+
+        Assert.assertTrue(
+            "Message '$message' is not visible in the conversation",
+            !messageElement.visibleBounds.isEmpty
+        )
+
+        return this
+    }
+
+    fun assertVisibleMentionedNameIs(mentionedName: String): ConversationViewPage {
+        try {
+            val mentionedName = UiWaitUtils.waitElement(UiSelectorParams(text = mentionedName))
+
+            Assert.assertTrue(
+                " Mention '$mentionedName' is not visible in the conversation",
+                !mentionedName.visibleBounds.isEmpty
+            )
+
+        } catch (e: AssertionError) {
+            throw AssertionError(" Mention '$mentionedName' is not visible in the conversation", e)
+        }
+
+        return this
+    }
+
 }

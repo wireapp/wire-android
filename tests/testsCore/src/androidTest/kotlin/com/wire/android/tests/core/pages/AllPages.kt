@@ -23,8 +23,6 @@ class AllPages(val device: UiDevice) {
     val registrationPage = RegistrationPage(device)
     val loginPage = LoginPage(device)
     val settingsPage = SettingsPage(device)
-    val conversationPage = ConversationPage(device)
-
     val unconnectedUserProfilePage = UnconnectedUserProfilePage(device)
 
     val connectedUserProfilePage = ConnectedUserProfilePage(device)
@@ -36,4 +34,7 @@ class AllPages(val device: UiDevice) {
     val notificationsPage = NotificationsPage(device)
 
     val groupConversationDetailsPage = GroupConversationDetailsPage(device)
+
+    val searchPage = SearchPage(device)
+
 }

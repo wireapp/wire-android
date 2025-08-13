@@ -85,7 +85,7 @@ private fun SearchAllServicesContent(
 
         searchQuery.isBlank() && result.isEmpty() -> EmptySearchQueryScreen(
             text = stringResource(R.string.label_search_apps_instruction),
-            learnMoreTextToLink = stringResource(R.string.label_learn_more_searching_app) to stringResource(R.string.url_wire_plans)
+            learnMoreTextToLink = stringResource(R.string.label_learn_more_searching_app) to stringResource(R.string.url_how_to_add_apps)
         )
 
         searchQuery.isNotBlank() && result.isEmpty() -> SearchFailureBox(R.string.label_no_results_found)

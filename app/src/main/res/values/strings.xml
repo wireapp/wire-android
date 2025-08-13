@@ -300,6 +300,7 @@
     <string name="url_delete_personal_account" translatable="false">https://support.wire.com/hc/articles/207555795</string>
     <string name="url_system_message_learn_more_about_e2ee" translatable="false">https://support.wire.com/hc/articles/10898523878173</string>
     <string name="url_e2ee_id_shield" translatable="false">https://support.wire.com/hc/articles/9211300150685</string>
+    <string name="url_how_to_add_apps" translatable="false">https://support.wire.com/hc/articles/360000296158</string>
     <!-- Navigation -->
     <string name="vault_screen_title">Vault</string>
     <string name="channels_screen_title">Channels</string>

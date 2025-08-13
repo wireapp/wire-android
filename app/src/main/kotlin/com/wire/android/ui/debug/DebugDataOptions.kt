@@ -58,6 +58,7 @@ fun DebugDataOptions(
     appVersion: String,
     buildVariant: String,
     onCopyText: (String) -> Unit,
+    onShowFeatureFlags: () -> Unit,
     viewModel: DebugDataOptionsViewModel =
         hiltViewModelScoped<DebugDataOptionsViewModelImpl, DebugDataOptionsViewModel, DebugDataOptions>(DebugDataOptions),
 ) {
@@ -75,7 +76,8 @@ fun DebugDataOptions(
         dismissCertificateDialog = viewModel::dismissCertificateDialog,
         checkCrlRevocationList = viewModel::checkCrlRevocationList,
         onResendFCMToken = viewModel::forceSendFCMToken,
-        onEnableAsyncNotificationsChange = viewModel::enableAsyncNotifications
+        onEnableAsyncNotificationsChange = viewModel::enableAsyncNotifications,
+        onShowFeatureFlags = onShowFeatureFlags,
     )
 }
 
@@ -95,6 +97,7 @@ fun DebugDataOptionsContent(
     dismissCertificateDialog: () -> Unit,
     checkCrlRevocationList: () -> Unit,
     onResendFCMToken: () -> Unit,
+    onShowFeatureFlags: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier) {
@@ -171,6 +174,15 @@ fun DebugDataOptionsContent(
                     text = state.currentApiVersion,
                 )
             }
+
+            SettingsItem(
+                text = stringResource(R.string.debug_settings_feature_flags),
+                onRowPressed = Clickable(
+                    enabled = true,
+                    onClick = onShowFeatureFlags
+                ),
+                trailingIcon = R.drawable.ic_arrow_right,
+            )
 
             if (BuildConfig.DEBUG) {
                 GetE2EICertificateSwitch(
@@ -531,6 +543,7 @@ fun PreviewOtherDebugOptions() = WireTheme {
         dismissCertificateDialog = {},
         checkCrlRevocationList = {},
         onResendFCMToken = {},
-        onEnableAsyncNotificationsChange = {}
+        onEnableAsyncNotificationsChange = {},
+        onShowFeatureFlags = {},
     )
 }

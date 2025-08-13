@@ -19,16 +19,13 @@ package com.wire.android.tests.core.pages
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
-import androidx.test.uiautomator.UiSelector
 import backendUtils.team.TeamHelper
 import org.junit.Assert
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 import user.usermanager.ClientUserManager
-import kotlin.test.DefaultAsserter.assertTrue
-import kotlin.test.assertEquals
 
-class SearchPage(private val device: UiDevice) {
+class SearchPage {
     private val searchFieldSearchPage = UiSelectorParams(className = "android.widget.EditText")
     private val searchFieldSearchPeople = UiSelectorParams(description = "Search people by name or username")
 
@@ -61,7 +58,8 @@ class SearchPage(private val device: UiDevice) {
         }
         // Resolve the alias to the (unique) username
         val uniqueUserName = teamHelper.usersManager.replaceAliasesOccurrences(
-            alias, ClientUserManager.FindBy.NAME_ALIAS
+            alias,
+            ClientUserManager.FindBy.NAME_ALIAS
         )
         val field = UiWaitUtils.waitElement(searchFieldSearchPeople)
         field.click()

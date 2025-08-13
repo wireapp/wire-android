@@ -138,6 +138,7 @@ class NewMemberMessaging : KoinTest {
         pages.searchPage.apply {
             tapSearchPeopleField()
             typeUniqueUserNameInSearchField("user1Name")
+            // Thread.sleep(1000)
             assertUsernameInSearchResultIs(teamOwner?.name ?: "")
             tapUsernameInSearchResult(teamOwner?.name ?: "")
         }

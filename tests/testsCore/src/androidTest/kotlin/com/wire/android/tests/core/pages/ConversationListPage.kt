@@ -19,13 +19,10 @@ package com.wire.android.tests.core.pages
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
-import backendUtils.team.TeamHelper
 import org.junit.Assert
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 import uiautomatorutils.UiWaitUtils.findElementOrNull
-import user.usermanager.ClientUserManager
-import user.utils.ClientUser
 import kotlin.test.DefaultAsserter.assertTrue
 
 data class ConversationListPage(private val device: UiDevice) {
@@ -124,7 +121,8 @@ data class ConversationListPage(private val device: UiDevice) {
     fun assertConversationNotVisible(conversationName: String): ConversationListPage {
         val conversation = findElementOrNull(conversationNameSelector(conversationName))
         Assert.assertTrue(
-            "❌ Conversation '$conversationName' is still visible.", conversation == null || conversation.visibleBounds.isEmpty
+            "❌ Conversation '$conversationName' is still visible.",
+            conversation == null || conversation.visibleBounds.isEmpty
         )
         return this
     }

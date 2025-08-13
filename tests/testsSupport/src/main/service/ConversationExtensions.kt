@@ -210,45 +210,46 @@ fun TestServiceHelper.userSendsGenericMessageToConversation(
     message: String
 ) {
     matchUrl(message)?.let { matcher ->
-            val title = matcher.group(0)
+        val title = matcher.group(0)
 
-            // Generate QR Code bitmap
-            val bitmap = generateQRCode(title.orEmpty(), 512)
+        // Generate QR Code bitmap
+        val bitmap = generateQRCode(title.orEmpty(), 512)
 
-            // Save bitmap to temporary file
-            val tempFile = File.createTempFile("link_preview_", ".png")
-            FileOutputStream(tempFile).use { fos ->
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos)
-            }
+        // Save bitmap to temporary file
+        val tempFile = File.createTempFile("link_preview_", ".png")
+        FileOutputStream(tempFile).use { fos ->
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos)
+        }
 
-           testServiceClient.userSendsLinkPreview(
-                this,
-                senderAlias,
-                convoName,
-                deviceName,
-                false,
-                message,
-                title,
-                tempFile.absolutePath
-            )
+        testServiceClient.userSendsLinkPreview(
+            this,
+            senderAlias,
+            convoName,
+            deviceName,
+            false,
+            message,
+            title,
+            tempFile.absolutePath
+        )
 
-            tempFile.deleteOnExit() // Optional: cleanup later
-
+        tempFile.deleteOnExit() // Optional: cleanup later
     } ?: run {
-        userSendMessageToConversation(senderAlias,message, deviceName.orEmpty(),convoName,false)
+        userSendMessageToConversation(senderAlias, message, deviceName.orEmpty(), convoName, false)
     }
 }
 
+@Suppress("LongParameterList")
 fun TestService.userSendsLinkPreview(
     helper: TestServiceHelper,
     senderAlias: String,
     convoName: String,
     deviceName: String? = null,
-    isSelfDeleting: Boolean=true,
+    isSelfDeleting: Boolean = true,
     msg: String,
     title: String,
     imagePath: String
 ) {
+    helper.te
     val matcher = matchUrl(msg)
         ?: throw IllegalArgumentException("Text does not contain any URL: $msg")
 
@@ -268,13 +269,13 @@ fun TestService.userSendsLinkPreview(
             deviceName,
             convoId,
             convoDomain,
-            expectsReadConfirmation=false,
-            text =msg,
+            expectsReadConfirmation = false,
+            text = msg,
             legalHoldStatus = LegalHoldStatus.ENABLED.code,
-            summary =title,
-            title =title,
-            url =url,
-            permUrl =url,
+            summary = title,
+            title = title,
+            url = url,
+            permUrl = url,
             urlOffset = urlOffset.toString(),
             filePath = imagePath,
             imagePath = imagePath,
@@ -285,13 +286,11 @@ fun TestService.userSendsLinkPreview(
     )
 }
 
-
 private fun matchUrl(message: String): Matcher? {
     val pattern = Regex("""([a-z]+://)?[a-z0-9\-]+\.[a-z]+[^\s\n]*""", RegexOption.IGNORE_CASE)
     val matcher = pattern.toPattern().matcher(message)
     return if (matcher.find()) matcher else null
 }
-
 
 fun BackendClient.addUsersToGroupConversation(
     asUser: ClientUser,
@@ -323,10 +322,8 @@ fun BackendClient.addUsersToGroupConversation(
         headers = headers,
         options = RequestOptions(accessToken = token)
     )
-
     return JSONObject(response.body)
 }
-
 
 fun BackendClient.getPersonalConversationByName(user: ClientUser, name: String): Conversation =
     getConversations(user).firstOrNull { conv ->

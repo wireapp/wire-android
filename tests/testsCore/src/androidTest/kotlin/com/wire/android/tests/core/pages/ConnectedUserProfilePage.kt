@@ -20,7 +20,6 @@ package com.wire.android.tests.core.pages
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
-import androidx.test.uiautomator.UiSelector
 import androidx.test.uiautomator.Until
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils

@@ -48,7 +48,7 @@ data class SendTextWithLinkParams(
     val text: String,
     val buttons: JSONArray = JSONArray(),
     val legalHoldStatus: Int,
-    val messageId: String ?= null,
+    val messageId: String? = null,
     val summary: String,
     val imageFile: File,
     val title: String,

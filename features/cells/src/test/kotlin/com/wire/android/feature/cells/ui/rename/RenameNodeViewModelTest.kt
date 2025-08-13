@@ -30,7 +30,6 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
@@ -126,6 +125,7 @@ class RenameNodeViewModelTest {
             viewModel.displayNameState.error
         )
     }
+
     @Test
     fun `given long name, when text is emitted, then NameExceedLimitError is set`() = runTest {
         val longName = "Long name that exceeds the limit of sixty four characters" +

@@ -35,6 +35,7 @@ jobs:
       - name: Test with coverage
         run: ./gradlew testCoverage
         env:
+          GRADLE_OPTS: '-Dorg.gradle.jvmargs="-XX:MaxMetaspaceSize=1g -Xmx2G"'
           GITHUB_USER: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

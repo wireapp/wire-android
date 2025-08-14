@@ -728,7 +728,7 @@
     <!-- Remove Conversation Member Dialog -->
     <string name="dialog_remove_conversation_member_title">Remove from conversation?</string>
     <string name="dialog_remove_conversation_member_description">%1$s (@%2$s) will not be able to send or receive messages in this conversation.</string>
-    <string name="dialog_remove_conversation_member_error">There was an error while removing the participant from the conversatrion</string>
+    <string name="dialog_remove_conversation_member_error">There was an error while removing the participant from the conversation</string>
     <string name="conversation_role_admin">Admin</string>
     <string name="conversation_role_member">Member</string>
     <!-- Logout Wipe Data Dialog -->
@@ -1769,6 +1769,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="debug_settings_force_api_versioning_update" translatable="false">Force API versioning update</string>
     <string name="debug_settings_break_session" translatable="false">⚠️ Break Session</string>
     <string name="debug_settings_force_api_versioning_update_button_text" translatable="false">Update</string>
+    <string name="debug_settings_feature_flags" translatable="false">Feature Flags</string>
 
     <!--    Personal to team migration screen-->
     <string name="personal_to_team_migration_step_label">Step %1$d of 4</string>

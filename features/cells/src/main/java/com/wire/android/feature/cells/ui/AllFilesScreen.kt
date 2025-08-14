@@ -19,11 +19,11 @@ package com.wire.android.feature.cells.ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.wire.android.feature.cells.ui.destinations.AddRemoveTagsScreenDestination
 import com.wire.android.feature.cells.ui.destinations.ConversationFilesScreenDestination
-import com.wire.android.feature.cells.ui.destinations.ConversationFilesScreenDestination.invoke
 import com.wire.android.feature.cells.ui.destinations.PublicLinkScreenDestination
 import com.wire.android.feature.cells.ui.filter.FilterBottomSheet
 import com.wire.android.navigation.NavigationCommand
@@ -98,20 +98,21 @@ fun AllFilesScreen(
     )
 
     if (searchBarState.isFilterActive) {
+        viewModel.loadTags()
         sheetState.show()
     } else {
         sheetState.hide()
     }
 
     FilterBottomSheet(
-        selectableTags = viewModel.tags,
-        selectedTags = viewModel.selectedTags,
+        selectableTags = viewModel.tags.collectAsState().value,
+        selectedTags = viewModel.selectedTags.collectAsState().value,
         onApply = {
             searchBarState.onFilterActiveChanged(false)
             viewModel.updateSelectedTags(it)
         },
         onClearAll = {
-            viewModel.updateSelectedTags(emptyList())
+            viewModel.updateSelectedTags(emptySet())
         },
         onDismiss = { searchBarState.onFilterActiveChanged(false) },
         sheetState = sheetState

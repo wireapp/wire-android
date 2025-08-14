@@ -71,8 +71,6 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 
 @WireDestination(
     navArgsDelegate = AddRemoveTagsNavArgs::class,
@@ -126,8 +124,8 @@ fun AddRemoveTagsScreen(
         AddRemoveTagsScreenContent(
             internalPadding = internalPadding,
             textFieldState = addRemoveTagsViewModel.tagsTextState,
-            addedTags = addRemoveTagsViewModel.addedTags,
-            suggestedTags = addRemoveTagsViewModel.suggestedTags,
+            addedTags = addRemoveTagsViewModel.addedTags.collectAsState().value,
+            suggestedTags = addRemoveTagsViewModel.suggestedTags.collectAsState().value,
             onAddTag = { tag ->
                 addRemoveTagsViewModel.addTag(tag)
             },
@@ -160,8 +158,8 @@ fun AddRemoveTagsScreen(
 fun AddRemoveTagsScreenContent(
     internalPadding: PaddingValues,
     textFieldState: TextFieldState,
-    addedTags: StateFlow<List<String>>,
-    suggestedTags: StateFlow<List<String>>,
+    addedTags: Set<String>,
+    suggestedTags: Set<String>,
     onAddTag: (String) -> Unit,
     onRemoveTag: (String) -> Unit,
     modifier: Modifier = Modifier
@@ -214,7 +212,7 @@ fun AddRemoveTagsScreenContent(
                 color = colorsScheme().secondaryText,
             )
         )
-        AnimatedContent(addedTags.collectAsState().value.isEmpty()) { isEmpty ->
+        AnimatedContent(addedTags.isEmpty()) { isEmpty ->
             if (isEmpty) {
                 Text(
                     modifier = Modifier.padding(
@@ -239,7 +237,7 @@ fun AddRemoveTagsScreenContent(
                         )
                         .animateContentSize()
                 ) {
-                    addedTags.collectAsState().value.forEach { tag ->
+                    addedTags.forEach { tag ->
                         WireFilterChip(
                             modifier = Modifier.padding(
                                 end = dimensions().spacing8x,
@@ -269,13 +267,12 @@ fun AddRemoveTagsScreenContent(
 
         HorizontalDivider(color = MaterialTheme.wireColorScheme.outline)
 
-        val items = suggestedTags.collectAsState().value
         LazyRow(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(dimensions().spacing16x)
         ) {
-            items.forEach { tag ->
+            suggestedTags.forEach { tag ->
                 item {
                     WireFilterChip(
                         modifier = Modifier.padding(
@@ -300,8 +297,8 @@ fun PreviewAddRemoveTagsScreen() {
         AddRemoveTagsScreenContent(
             internalPadding = PaddingValues(0.dp),
             textFieldState = TextFieldState(),
-            addedTags = MutableStateFlow(listOf("Android", "Web", "iOS")),
-            suggestedTags = MutableStateFlow(listOf("Marketing", "Finance", "HR")),
+            addedTags = setOf("Android", "Web", "iOS"),
+            suggestedTags = setOf("Marketing", "Finance", "HR"),
             onAddTag = {},
             onRemoveTag = {},
             modifier = Modifier.fillMaxSize()

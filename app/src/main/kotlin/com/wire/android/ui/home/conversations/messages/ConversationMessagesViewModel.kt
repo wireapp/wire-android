@@ -27,7 +27,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.appLogger
-import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.ui.common.visbility.VisibilityState
@@ -57,6 +56,7 @@ import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.feature.asset.ObserveAssetStatusesUseCase
 import com.wire.kalium.logic.feature.asset.UpdateAssetMessageTransferStatusUseCase
+import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.ClearUsersTypingEventsUseCase
 import com.wire.kalium.logic.feature.conversation.GetConversationUnreadEventsCountUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
@@ -76,7 +76,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.shareIn
@@ -107,7 +106,7 @@ class ConversationMessagesViewModel @Inject constructor(
     private val clearUsersTypingEvents: ClearUsersTypingEventsUseCase,
     private val getSearchedConversationMessagePosition: GetSearchedConversationMessagePositionUseCase,
     private val deleteMessage: DeleteMessageUseCase,
-    private val globalDataStore: GlobalDataStore,
+    private val isWireCellFeatureEnabled: IsWireCellsEnabledUseCase,
 ) : ViewModel() {
 
     private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
@@ -403,8 +402,6 @@ class ConversationMessagesViewModel @Inject constructor(
             deleteMessageDialogState.dismiss()
         }
     }
-
-    private suspend fun isWireCellFeatureEnabled() = globalDataStore.wireCellsEnabled().firstOrNull() ?: false
 
     private companion object {
         const val DEFAULT_ASSET_NAME = "Wire File"

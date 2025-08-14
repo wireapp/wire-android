@@ -55,7 +55,6 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
         private val APP_LOCK_PASSCODE = stringPreferencesKey("app_lock_passcode")
         private val APP_LOCK_SOURCE = intPreferencesKey("app_lock_source")
         private val ENTER_TO_SENT = booleanPreferencesKey("enter_to_sent")
-        private val WIRE_CELLS = booleanPreferencesKey("wire_cells")
         private val ANONYMOUS_REGISTRATION_TRACK_ID = stringPreferencesKey("anonymous_registration_track_id")
         private val IS_ANONYMOUS_REGISTRATION_ENABLED = booleanPreferencesKey("is_anonymous_registration_enabled")
 
@@ -212,10 +211,5 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
     fun enterToSendFlow(): Flow<Boolean> = getBooleanPreference(ENTER_TO_SENT, false)
     suspend fun setEnterToSend(enabled: Boolean) {
         context.dataStore.edit { it[ENTER_TO_SENT] = enabled }
-    }
-
-    fun wireCellsEnabled() = getBooleanPreference(WIRE_CELLS, false)
-    suspend fun setWireCellsEnabled(enabled: Boolean) {
-        context.dataStore.edit { it[WIRE_CELLS] = enabled }
     }
 }

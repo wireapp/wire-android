@@ -21,7 +21,6 @@ package com.wire.android.ui.home.conversations.details
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
-import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.ui.common.ActionsManager
 import com.wire.android.ui.common.ActionsManagerImpl
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsState
@@ -41,6 +40,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateReceiptModeResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
@@ -59,7 +59,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
@@ -83,7 +82,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
     private val getDefaultProtocol: GetDefaultProtocolUseCase,
     refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase,
     private val enableCell: SetWireCellForConversationUseCase,
-    private val globalDataStore: GlobalDataStore,
+    private val isWireCellsEnabled: IsWireCellsEnabledUseCase,
 ) : GroupConversationParticipantsViewModel(savedStateHandle, observeConversationMembers, refreshUsersWithoutMetadata),
     ActionsManager<GroupConversationDetailsViewAction> by ActionsManagerImpl() {
     private val groupConversationDetailsNavArgs: GroupConversationDetailsNavArgs = savedStateHandle.navArgs()
@@ -156,7 +155,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
                         channelAccessType = channelAccessType,
                         loadingWireCellState = false,
                         isWireCellEnabled = groupDetails.wireCell != null,
-                        isWireCellFeatureEnabled = globalDataStore.wireCellsEnabled().firstOrNull() ?: false,
+                        isWireCellFeatureEnabled = isWireCellsEnabled(),
                     )
                 )
             }.collect {}

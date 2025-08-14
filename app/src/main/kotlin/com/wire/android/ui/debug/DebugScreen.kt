@@ -75,7 +75,6 @@ fun DebugScreen(
         onLoggingEnabledChange = userDebugViewModel::setLoggingEnabledState,
         onDeleteLogs = userDebugViewModel::deleteLogs,
         onDatabaseLoggerEnabledChanged = userDebugViewModel::setDatabaseLoggerEnabledState,
-        onEnableWireCellsFeature = userDebugViewModel::enableWireCellsFeature,
         onShowFeatureFlags = {
             navigator.navigate(NavigationCommand(DebugFeatureFlagsScreenDestination))
         }
@@ -89,7 +88,6 @@ internal fun UserDebugContent(
     onLoggingEnabledChange: (Boolean) -> Unit,
     onDatabaseLoggerEnabledChanged: (Boolean) -> Unit,
     onDeleteLogs: () -> Unit,
-    onEnableWireCellsFeature: (Boolean) -> Unit,
     onShowFeatureFlags: () -> Unit,
 ) {
     val debugContentState: DebugContentState = rememberDebugContentState(state.logPath)
@@ -127,10 +125,6 @@ internal fun UserDebugContent(
                     onShowFeatureFlags = onShowFeatureFlags,
                 )
                 if (BuildConfig.PRIVATE_BUILD) {
-                    DebugWireCellOptions(
-                        isCellFeatureEnabled = isWireCellFeatureEnabled,
-                        onCheckedChange = onEnableWireCellsFeature,
-                    )
                     DangerOptions()
                 }
             }
@@ -240,7 +234,6 @@ internal fun PreviewUserDebugContent() = WireTheme {
         onLoggingEnabledChange = {},
         onDeleteLogs = {},
         onDatabaseLoggerEnabledChanged = {},
-        onEnableWireCellsFeature = {},
         onShowFeatureFlags = {},
     )
 }

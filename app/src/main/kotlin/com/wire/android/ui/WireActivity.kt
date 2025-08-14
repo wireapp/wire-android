@@ -310,7 +310,7 @@ class WireActivity : AppCompatActivity() {
                 getIncomingCallIntent(
                     this@WireActivity,
                     it.conversationId.toString(),
-                    null
+                    it.userId.toString(),
                 ).run {
                     startActivity(this)
                 }

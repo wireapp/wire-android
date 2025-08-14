@@ -31,6 +31,7 @@ import androidx.core.app.Person
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.di.NoSession
 import com.wire.android.notification.NotificationConstants.INCOMING_CALL_ID_PREFIX
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
@@ -39,6 +40,7 @@ import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import kotlinx.coroutines.CoroutineScope
@@ -62,6 +64,7 @@ class CallNotificationManager @Inject constructor(
     dispatcherProvider: DispatcherProvider,
     val builder: CallNotificationBuilder,
     @KaliumCoreLogic private val coreLogic: CoreLogic,
+    @NoSession private val qualifiedIdMapper: QualifiedIdMapper
 ) {
 
     private val notificationManager = NotificationManagerCompat.from(context)
@@ -90,19 +93,7 @@ class CallNotificationManager @Inject constructor(
                     // show current incoming call notifications
                     appLogger.i("$TAG: showing ${newCalls.size} new incoming calls (all incoming calls: ${allCurrentCalls.size})")
 
-                    val currentSessionId = (coreLogic.getGlobalScope().session.currentSession() as? CurrentSessionResult.Success)?.let {
-                        if (it.accountInfo.isValid()) it.accountInfo.userId else null
-                    }
-                    newCalls.forEach { data ->
-                        /**
-                         * For now only show full screen intent for current session, as if shown for another session it will switch to that
-                         * session and the user won't know that he/she is receiving a call as a different account.
-                         * For calls that are not for the current session it will show the notification as a heads up notification.
-                         * In the future we can implement showing on the incoming call screen as what account the user will answer
-                         * or even give them the option to change it themselves on that screen.
-                         */
-                        showIncomingCallNotification(data = data, asFullScreenIntent = currentSessionId == data.userId)
-                    }
+                    newCalls.forEach(::showIncomingCallNotification)
                 }
         }
     }
@@ -143,6 +134,18 @@ class CallNotificationManager @Inject constructor(
     fun hideIncomingCallNotification(userIdString: String, conversationIdString: String) =
         hideIncomingCallNotifications { _, id -> id == NotificationConstants.getIncomingCallId(userIdString, conversationIdString) }
 
+    fun bringBackIncomingCallNotification(userIdString: String, conversationIdString: String) {
+        scope.launch {
+            val userId = qualifiedIdMapper.fromStringToQualifiedID(userIdString)
+            val conversationId = qualifiedIdMapper.fromStringToQualifiedID(conversationIdString)
+            incomingCallsForUsers.value[userId]?.let { (userId, userName, incomingCalls) ->
+                incomingCalls.find { it.conversationId == conversationId }?.let { call ->
+                    showIncomingCallNotification(CallNotificationData(userId, call, userName))
+                }
+            }
+        }
+    }
+
     private fun StatusBarNotification.hideIncomingCallNotification() {
         appLogger.i("$TAG: hiding incoming call")
         notificationManager.cancel(tag, id)
@@ -150,15 +153,29 @@ class CallNotificationManager @Inject constructor(
 
     @SuppressLint("MissingPermission")
     @VisibleForTesting
-    internal fun showIncomingCallNotification(data: CallNotificationData, asFullScreenIntent: Boolean) {
-        appLogger.i(
-            "$TAG: showing incoming call notification for user ${data.userId.toLogString()}" +
-                    " and conversation ${data.conversationId.toLogString()}"
-        )
-        val tag = NotificationConstants.getIncomingCallTag(data.userId.toString())
-        val id = NotificationConstants.getIncomingCallId(data.userId.toString(), data.conversationId.toString())
-        val notification = builder.getIncomingCallNotification(data, asFullScreenIntent)
-        notificationManager.notify(tag, id, notification)
+    internal fun showIncomingCallNotification(data: CallNotificationData) {
+        scope.launch {
+            appLogger.i(
+                "$TAG: showing incoming call notification for user ${data.userId.toLogString()}" +
+                        " and conversation ${data.conversationId.toLogString()}"
+            )
+            val currentSessionId = (coreLogic.getGlobalScope().session.currentSession() as? CurrentSessionResult.Success)?.let {
+                if (it.accountInfo.isValid()) it.accountInfo.userId else null
+            }
+
+            /**
+             * For now only show full screen intent for current session, as if shown for another session it will switch to that
+             * session and the user won't know that he/she is receiving a call as a different account.
+             * For calls that are not for the current session it will show the notification as a heads up notification.
+             * In the future we can implement showing on the incoming call screen as what account the user will answer
+             * or even give them the option to change it themselves on that screen.
+             */
+            val asFullScreenIntent = currentSessionId == data.userId
+            val tag = NotificationConstants.getIncomingCallTag(data.userId.toString())
+            val id = NotificationConstants.getIncomingCallId(data.userId.toString(), data.conversationId.toString())
+            val notification = builder.getIncomingCallNotification(data, asFullScreenIntent)
+            notificationManager.notify(tag, id, notification)
+        }
     }
 
     fun areServiceNotificationsEnabled(): Boolean {

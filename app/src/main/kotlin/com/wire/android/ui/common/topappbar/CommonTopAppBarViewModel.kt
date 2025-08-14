@@ -111,7 +111,7 @@ class CommonTopAppBarViewModel @Inject constructor(
                                     currentScreenFlow(),
                                     connectivityFlow(userId),
                                 ) { activeCalls, currentScreen, connectivity ->
-                                    mapToConnectivityUIState(currentScreen, connectivity, activeCalls)
+                                    mapToConnectivityUIState(currentScreen, connectivity, userId, activeCalls)
                                 }
                             }
                         }
@@ -144,6 +144,7 @@ class CommonTopAppBarViewModel @Inject constructor(
     private fun mapToConnectivityUIState(
         currentScreen: CurrentScreen,
         connectivity: Connectivity,
+        userId: UserId,
         activeCalls: List<Call>,
     ): ConnectivityUIState {
 
@@ -155,9 +156,9 @@ class CommonTopAppBarViewModel @Inject constructor(
                         // outgoing and established first
                         (outgoingAndEstablished + incoming).map { call ->
                             when (call.status) {
-                                CallStatus.INCOMING -> ConnectivityUIState.Call.Incoming(call.conversationId, call.callerName)
-                                CallStatus.STARTED -> ConnectivityUIState.Call.Outgoing(call.conversationId, call.conversationName)
-                                else -> ConnectivityUIState.Call.Established(call.conversationId, call.isMuted)
+                                CallStatus.INCOMING -> ConnectivityUIState.Call.Incoming(call.conversationId, userId, call.callerName)
+                                CallStatus.STARTED -> ConnectivityUIState.Call.Outgoing(call.conversationId, userId, call.conversationName)
+                                else -> ConnectivityUIState.Call.Established(call.conversationId, userId, call.isMuted)
                             }
                         }
                     }

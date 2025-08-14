@@ -190,12 +190,6 @@ class IncomingCallViewModel @AssistedInject constructor(
         }
     }
 
-    fun hideNotification() {
-        viewModelScope.launch {
-            callNotificationManager.hideIncomingCallNotification(currentAccount.toString(), conversationId.toString())
-        }
-    }
-
     fun bringBackNotificationIfNeeded() {
         viewModelScope.launch {
             // if call is already accepted or waiting with accepting for the unlock, no need to bring back the notification

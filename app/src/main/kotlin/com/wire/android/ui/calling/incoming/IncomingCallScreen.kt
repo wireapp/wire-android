@@ -128,7 +128,6 @@ fun IncomingCallScreen(
     }
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_START) incomingCallViewModel.hideNotification()
             if (event == Lifecycle.Event.ON_STOP) incomingCallViewModel.bringBackNotificationIfNeeded()
         }
         lifecycleOwner.lifecycle.addObserver(observer)

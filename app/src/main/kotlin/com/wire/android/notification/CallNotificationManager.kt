@@ -252,7 +252,7 @@ class CallNotificationBuilder @Inject constructor(
             .setContentTitle(title)
             .setContentText(content)
             .setSubText(data.userName)
-            .setAutoCancel(false)
+            .setAutoCancel(true)
             .setOngoing(true)
             .setVibrate(VIBRATE_PATTERN)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)

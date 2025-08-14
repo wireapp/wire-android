@@ -156,9 +156,9 @@ class CommonTopAppBarViewModel @Inject constructor(
                         // outgoing and established first
                         (outgoingAndEstablished + incoming).map { call ->
                             when (call.status) {
-                                CallStatus.INCOMING -> ConnectivityUIState.Call.Incoming(call.conversationId, userId, call.callerName)
-                                CallStatus.STARTED -> ConnectivityUIState.Call.Outgoing(call.conversationId, userId, call.conversationName)
-                                else -> ConnectivityUIState.Call.Established(call.conversationId, userId, call.isMuted)
+                                CallStatus.INCOMING -> ConnectivityUIState.Call.Incoming(userId, call.conversationId, call.callerName)
+                                CallStatus.STARTED -> ConnectivityUIState.Call.Outgoing(userId, call.conversationId, call.conversationName)
+                                else -> ConnectivityUIState.Call.Established(userId, call.conversationId, call.isMuted)
                             }
                         }
                     }

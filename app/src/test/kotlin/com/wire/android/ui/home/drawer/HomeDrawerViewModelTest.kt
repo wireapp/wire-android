@@ -20,15 +20,14 @@ package com.wire.android.ui.home.drawer
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
-import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.framework.TestUser
 import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveArchivedUnreadConversationsCountUseCase
 import com.wire.kalium.logic.feature.server.GetTeamUrlUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
@@ -101,7 +100,7 @@ class HomeDrawerViewModelTest {
         lateinit var observeArchivedUnreadConversationsCount: ObserveArchivedUnreadConversationsCountUseCase
 
         @MockK
-        lateinit var globalDataStore: GlobalDataStore
+        lateinit var isWireCellsEnabled: IsWireCellsEnabledUseCase
 
         @MockK
         lateinit var observeSelfUserUseCase: ObserveSelfUserUseCase
@@ -114,7 +113,7 @@ class HomeDrawerViewModelTest {
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             coEvery { observeArchivedUnreadConversationsCount() } returns unreadArchivedConversationsCountChannel.consumeAsFlow()
-            every { globalDataStore.wireCellsEnabled() } returns flowOf(false)
+            coEvery { isWireCellsEnabled() } returns false
             withSelfUserType()
             coEvery { getTeamUrlUseCase() } returns TEAM_URL
         }
@@ -126,9 +125,9 @@ class HomeDrawerViewModelTest {
         fun arrange() = this to HomeDrawerViewModel(
             savedStateHandle = savedStateHandle,
             observeArchivedUnreadConversationsCount = { observeArchivedUnreadConversationsCount },
-            globalDataStore = { globalDataStore },
             observeSelfUser = observeSelfUserUseCase,
             getTeamUrl = getTeamUrlUseCase,
+            isWireCellsEnabled = isWireCellsEnabled,
         )
 
         companion object {

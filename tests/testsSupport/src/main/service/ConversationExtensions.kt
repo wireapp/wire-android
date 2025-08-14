@@ -249,7 +249,7 @@ fun TestService.userSendsLinkPreview(
     title: String,
     imagePath: String
 ) {
-    helper.te
+    //helper.te
     val matcher = matchUrl(msg)
         ?: throw IllegalArgumentException("Text does not contain any URL: $msg")
 

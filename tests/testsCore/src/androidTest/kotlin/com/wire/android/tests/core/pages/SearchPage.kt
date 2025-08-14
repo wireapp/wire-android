@@ -25,8 +25,8 @@ import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 import user.usermanager.ClientUserManager
 
-class SearchPage {
-    private val searchFieldSearchPage = UiSelectorParams(className = "android.widget.EditText")
+    data class SearchPage(private val device: UiDevice) {
+        private val searchFieldSearchPage = UiSelectorParams(className = "android.widget.EditText")
     private val searchFieldSearchPeople = UiSelectorParams(description = "Search people by name or username")
 
     fun assertUsernameInSearchResultIs(expectedName: String): SearchPage {

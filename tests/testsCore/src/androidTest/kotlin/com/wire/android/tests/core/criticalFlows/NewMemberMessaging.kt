@@ -24,6 +24,7 @@ import androidx.test.uiautomator.UiDevice
 import backendUtils.BackendClient
 import backendUtils.team.TeamHelper
 import backendUtils.team.TeamRoles
+import backendUtils.team.deleteTeam
 import com.wire.android.tests.core.di.testModule
 import com.wire.android.tests.core.pages.AllPages
 import com.wire.android.tests.support.UiAutomatorSetup
@@ -75,7 +76,7 @@ class NewMemberMessaging : KoinTest {
     @After
     fun tearDown() {
         // To delete team
-        //  teamOwner?.deleteTeam(backendClient!!)
+        teamOwner?.deleteTeam(backendClient!!)
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
@@ -138,7 +139,6 @@ class NewMemberMessaging : KoinTest {
         pages.searchPage.apply {
             tapSearchPeopleField()
             typeUniqueUserNameInSearchField("user1Name")
-            // Thread.sleep(1000)
             assertUsernameInSearchResultIs(teamOwner?.name ?: "")
             tapUsernameInSearchResult(teamOwner?.name ?: "")
         }

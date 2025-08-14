@@ -113,7 +113,7 @@ pipeline {
                         error("Could not find any apk at provided location!")
                     } else {
                         def lastModifiedFileName = files[-1].name
-                        build job: 'android_reloaded_critical_flows', parameters: [string(name: 'AppBuildNumber', value: "artifacts/megazord/android/reloaded/de/debug/$BRANCH_NAME/${lastModifiedFileName}"), string(name: 'TAGS', value: '@CriticalFlows'), string(name: 'Branch', value: 'main')]
+                        build job: 'android_reloaded_critical_flows', parameters: [string(name: 'AppBuildNumber', value: "artifacts/megazord/android/reloaded/dev/debug/$BRANCH_NAME/${lastModifiedFileName}"), string(name: 'TAGS', value: '@CriticalFlows'), string(name: 'Branch', value: 'main')]
                     }
                 }
             }

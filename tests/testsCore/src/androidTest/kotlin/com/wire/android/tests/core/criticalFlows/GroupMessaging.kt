@@ -153,7 +153,7 @@ class GroupMessaging : KoinTest {
             clickGroupConversation("MyTeam")
         }
         pages.conversationViewPage.apply {
-            assertMessageReceivedIsVisible("Hello Friends")
+            assertReceivedMessageIsVisible("Hello Friends")
             tapMessageInInputField()
             tapSelfDeleteTimerButton()
             assertSelfDeleteOptionVisible("OFF")

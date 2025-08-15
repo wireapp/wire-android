@@ -33,6 +33,9 @@ import kotlin.test.assertEquals
 
 data class ConversationViewPage(private val device: UiDevice) {
     private fun displayedUserName(userName: String) = UiSelectorParams(text = userName)
+
+    private val typeMessageField = UiSelectorParams(description = " Type a message")
+
     private val audioSeekBar = UiSelectorParams(className = "android.widget.SeekBar")
     private val audioInitialTime = UiSelectorParams(text = "00:00")
 
@@ -294,18 +297,6 @@ data class ConversationViewPage(private val device: UiDevice) {
         )
     }
 
-    fun assertMessageReceivedIsVisible(message: String): ConversationViewPage {
-        val messageSelector = UiSelectorParams(text = message)
-        val messageElement = UiWaitUtils.waitElement(messageSelector)
-
-        Assert.assertTrue(
-            "Message '$message' is not visible in the conversation",
-            !messageElement.visibleBounds.isEmpty
-        )
-
-        return this
-    }
-
     fun tapBackButtonOnConversationViewPage(): ConversationViewPage {
         UiWaitUtils.waitElement(backButton).click()
         return this
@@ -324,8 +315,11 @@ data class ConversationViewPage(private val device: UiDevice) {
     }
 
     fun assertSelfDeleteOptionVisible(label: String) {
-        val option = UiWaitUtils.waitElement(selfDeleteOption(label))
-        Assert.assertTrue("Self-destruct option '$label' is not visible", !option.visibleBounds.isEmpty)
+        try {
+            UiWaitUtils.waitElement(selfDeleteOption(label))
+        } catch (e: AssertionError) {
+            throw AssertionError("Self-destruct option '$label' is not visible", e)
+        }
     }
 
     fun tapSelfDeleteOption(label: String) {
@@ -337,40 +331,40 @@ data class ConversationViewPage(private val device: UiDevice) {
     }
 
     fun assertSelfDeletingMessageLabelVisible() {
-        val element = UiWaitUtils.waitElement(selfDeletingMessageLabel)
-        Assert.assertTrue(
-            "'Self-deleting message' label is not visible",
-            !element.visibleBounds.isEmpty
-        )
+        try {
+            UiWaitUtils.waitElement(selfDeletingMessageLabel)
+        } catch (e: AssertionError) {
+            throw AssertionError("'Self-deleting message' label is not visible", e)
+        }
     }
 
     fun assertReceivedMessageIsVisible(message: String): ConversationViewPage {
         val messageSelector = UiSelectorParams(text = message)
 
-        val messageElement = try {
+        try {
             UiWaitUtils.waitElement(messageSelector)
         } catch (e: AssertionError) {
-            throw AssertionError("Message '$message' was not found in the conversation.", e)
+            throw AssertionError("Message '$message' was not found or not visible in the conversation.", e)
         }
-
-        Assert.assertTrue(
-            "Message '$message' is not visible in the conversation",
-            !messageElement.visibleBounds.isEmpty
-        )
 
         return this
     }
 
     fun assertVisibleMentionedNameIs(mentionedName: String): ConversationViewPage {
         try {
-            val mentionedName = UiWaitUtils.waitElement(UiSelectorParams(text = mentionedName))
-
-            Assert.assertTrue(
-                " Mention '$mentionedName' is not visible in the conversation",
-                !mentionedName.visibleBounds.isEmpty
-            )
+            UiWaitUtils.waitElement(UiSelectorParams(text = mentionedName))
         } catch (e: AssertionError) {
-            throw AssertionError(" Mention '$mentionedName' is not visible in the conversation", e)
+            throw AssertionError("Mention '$mentionedName' is not visible in the conversation", e)
+        }
+
+        return this
+    }
+
+    fun assertConversationScreenVisible(): ConversationViewPage {
+        try {
+            UiWaitUtils.waitElement(typeMessageField)
+        } catch (e: AssertionError) {
+            throw AssertionError("Conversation screen is not visible: 'Type a message' field not found.", e)
         }
 
         return this

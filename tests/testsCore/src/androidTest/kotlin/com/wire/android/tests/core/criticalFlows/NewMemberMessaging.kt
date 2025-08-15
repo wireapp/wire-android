@@ -148,6 +148,7 @@ class NewMemberMessaging : KoinTest {
         }
 
         pages.conversationViewPage.apply {
+            assertConversationScreenVisible()
             typeMessageInInputField("Hello Team Owner")
             clickSendButton()
             assertMessageSentIsVisible("Hello Team Owner")

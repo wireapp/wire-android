@@ -97,6 +97,7 @@ internal fun Node.Folder.toUiModel() = CellNodeUi.Folder(
     remotePath = remotePath,
     size = size,
     tags = tags,
+    publicLinkId = publicLinkId,
 )
 
 private fun Node.File.formattedModifiedTime() = modifiedTime?.let {

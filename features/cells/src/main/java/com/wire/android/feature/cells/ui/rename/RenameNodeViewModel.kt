@@ -30,6 +30,7 @@ import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.kalium.cells.domain.usecase.RenameNodeUseCase
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
+import com.wire.kalium.logic.util.splitFileExtension
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -45,7 +46,9 @@ class RenameNodeViewModel @Inject constructor(
 
     fun isFolder(): Boolean? = navArgs.isFolder
 
-    val textState: TextFieldState = TextFieldState(navArgs.nodeName ?: "")
+    private val fileExtension: String = navArgs.nodeName?.splitFileExtension()?.second ?: ""
+    val textState: TextFieldState = TextFieldState(navArgs.nodeName?.splitFileExtension()?.first ?: "")
+
     var displayNameState: DisplayNameState by mutableStateOf(DisplayNameState())
         private set
 
@@ -53,10 +56,12 @@ class RenameNodeViewModel @Inject constructor(
         viewModelScope.launch {
             textState.textAsFlow().collectLatest {
                 displayNameState = displayNameState.copy(
-                    saveEnabled = it.trim().isNotEmpty() && it.length <= NAME_MAX_COUNT && it.trim() != navArgs.nodeName,
+                    saveEnabled = it.trim().isNotEmpty() && it.length <= NAME_MAX_COUNT && it.trim() != navArgs.nodeName &&
+                            !it.contains("/") && !it.contains("."),
                     error = when {
                         it.trim().isEmpty() -> DisplayNameState.NameError.TextFieldError.NameEmptyError
                         it.length > NAME_MAX_COUNT -> DisplayNameState.NameError.TextFieldError.NameExceedLimitError
+                        it.contains("/") || it.contains(".") -> DisplayNameState.NameError.TextFieldError.InvalidNameError
                         else -> DisplayNameState.NameError.None
                     }
                 )
@@ -64,10 +69,15 @@ class RenameNodeViewModel @Inject constructor(
         }
     }
 
-    fun renameNode() {
+    fun renameNode(newName: String) {
         displayNameState = displayNameState.copy(loading = true)
         viewModelScope.launch {
-            renameNodeUseCase.invoke(navArgs.uuid!!, navArgs.currentPath!!, textState.text.toString())
+            val newNameWithExtension = newName + fileExtension.takeIf { it.isNotEmpty() }?.let { ".$it" }.orEmpty()
+            renameNodeUseCase.invoke(
+                uuid = navArgs.uuid!!,
+                path = navArgs.currentPath!!,
+                newName = newNameWithExtension
+            )
                 .onSuccess {
                     displayNameState = displayNameState.copy(
                         loading = false,

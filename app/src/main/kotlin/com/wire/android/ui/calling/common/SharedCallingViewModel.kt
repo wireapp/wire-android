@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2025 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,9 +16,10 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
-package com.wire.android.ui.calling
+package com.wire.android.ui.calling.common
 
 import android.view.View
+import androidx.camera.core.impl.ImageOutputConfig.RotationValue
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
@@ -29,9 +30,11 @@ import com.wire.android.di.CurrentAccount
 import com.wire.android.mapper.UICallParticipantMapper
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.model.ImageAsset
+import com.wire.android.ui.calling.model.CallState
 import com.wire.android.ui.calling.model.InCallReaction
 import com.wire.android.ui.calling.model.ReactionSender
 import com.wire.android.ui.calling.model.UICallParticipant
+import com.wire.android.ui.calling.model.getConversationName
 import com.wire.android.ui.calling.ongoing.incallreactions.InCallReactions
 import com.wire.android.ui.calling.usecase.HangUpCallUseCase
 import com.wire.android.ui.common.ActionsViewModel
@@ -50,9 +53,10 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.FlipToBackCameraUseCase
 import com.wire.kalium.logic.feature.call.usecase.FlipToFrontCameraUseCase
 import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
-import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallWithSortedParticipantsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveInCallReactionsUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveLastActiveCallWithSortedParticipantsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveSpeakerUseCase
+import com.wire.kalium.logic.feature.call.usecase.SetUIRotationUseCase
 import com.wire.kalium.logic.feature.call.usecase.SetVideoPreviewUseCase
 import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOffUseCase
 import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOnUseCase
@@ -61,6 +65,7 @@ import com.wire.kalium.logic.feature.call.usecase.video.UpdateVideoStateUseCase
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.incallreaction.SendInCallReactionUseCase
+import com.wire.kalium.logic.util.PlatformRotation
 import com.wire.kalium.logic.util.PlatformView
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -73,12 +78,10 @@ import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -91,12 +94,13 @@ class SharedCallingViewModel @AssistedInject constructor(
     @Assisted val conversationId: ConversationId,
     @CurrentAccount private val selfUserId: UserId,
     private val conversationDetails: ObserveConversationDetailsUseCase,
-    private val observeEstablishedCallWithSortedParticipants: ObserveEstablishedCallWithSortedParticipantsUseCase,
+    private val observeLastActiveCallWithSortedParticipants: ObserveLastActiveCallWithSortedParticipantsUseCase,
     private val hangUpCall: HangUpCallUseCase,
     private val muteCall: MuteCallUseCase,
     private val unMuteCall: UnMuteCallUseCase,
     private val updateVideoState: UpdateVideoStateUseCase,
     private val setVideoPreview: SetVideoPreviewUseCase,
+    private val setUIRotationUseCase: SetUIRotationUseCase,
     private val turnLoudSpeakerOff: TurnLoudSpeakerOffUseCase,
     private val turnLoudSpeakerOn: TurnLoudSpeakerOnUseCase,
     private val flipToFrontCamera: FlipToFrontCameraUseCase,
@@ -125,17 +129,17 @@ class SharedCallingViewModel @AssistedInject constructor(
 
     init {
         viewModelScope.launch {
-            val allCallsSharedFlow = observeEstablishedCallWithSortedParticipants()
+            val callSharedFlow = observeLastActiveCallWithSortedParticipants(conversationId)
                 .flowOn(dispatchers.default()).shareIn(this, started = SharingStarted.Lazily)
 
             launch {
                 observeConversationDetails(this)
             }
             launch {
-                initCallState(allCallsSharedFlow)
+                observeCallState(callSharedFlow)
             }
             launch {
-                observeParticipants(allCallsSharedFlow)
+                observeParticipants(callSharedFlow)
             }
             launch {
                 observeOnSpeaker(this)
@@ -193,15 +197,18 @@ class SharedCallingViewModel @AssistedInject constructor(
             }
     }
 
-    private suspend fun initCallState(sharedFlow: SharedFlow<Call?>) {
-        sharedFlow.first()?.let { call ->
-            callState = callState.copy(
-                callStatus = call.status,
-                callerName = call.callerName,
-                isCameraOn = call.isCameraOn,
-                isCbrEnabled = call.isCbrEnabled && call.conversationType == Conversation.Type.OneOnOne
-            )
-        }
+    private suspend fun observeCallState(sharedFlow: SharedFlow<Call?>) {
+        sharedFlow
+            .filterNotNull()
+            .collectLatest { call ->
+                callState = callState.copy(
+                    callStatus = call.status,
+                    callerName = call.callerName,
+                    isMuted = call.isMuted,
+                    isCameraOn = call.isCameraOn,
+                    isCbrEnabled = call.isCbrEnabled && call.conversationType == Conversation.Type.OneOnOne
+                )
+            }
     }
 
     private suspend fun observeParticipants(sharedFlow: SharedFlow<Call?>) {
@@ -209,17 +216,12 @@ class SharedCallingViewModel @AssistedInject constructor(
             getCurrentClientId().filterNotNull(),
             sharedFlow.filterNotNull(),
         ) { clientId, call ->
-            callState = callState.copy(
-                isMuted = call.isMuted,
-                callStatus = call.status,
-                isCameraOn = call.isCameraOn,
-                isCbrEnabled = call.isCbrEnabled && call.conversationType == Conversation.Type.OneOnOne,
-                callerName = call.callerName,
-            )
-            participantsState = call.participants.map {
+            call.participants.map {
                 uiCallParticipantMapper.toUICallParticipant(it, clientId)
             }.toPersistentList()
-        }.collect()
+        }.collectLatest {
+            participantsState = it
+        }
     }
 
     fun hangUpCall() {
@@ -297,6 +299,13 @@ class SharedCallingViewModel @AssistedInject constructor(
             appLogger.i("SharedCallingViewModel: setting video preview..")
             setVideoPreview(conversationId, PlatformView(null))
             setVideoPreview(conversationId, PlatformView(view))
+        }
+    }
+
+    fun setUIRotation(@RotationValue rotation: Int) {
+        appLogger.i("SharedCallingViewModel: setting UI rotation to $rotation..")
+        viewModelScope.launch {
+            setUIRotationUseCase(PlatformRotation(rotation))
         }
     }
 

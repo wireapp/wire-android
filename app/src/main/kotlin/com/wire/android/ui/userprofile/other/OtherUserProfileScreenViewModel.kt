@@ -37,6 +37,7 @@ import com.wire.android.ui.userprofile.common.UsernameMapper.fromOtherUser
 import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
 import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.ChangeGroupRoleError
 import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.RemoveConversationMemberError
+import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.RemoveConversationMemberSuccess
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.common.functional.getOrNull
 import com.wire.kalium.logic.data.conversation.Conversation
@@ -208,16 +209,18 @@ class OtherUserProfileScreenViewModel @Inject constructor(
 
     override fun onRemoveConversationMember(state: RemoveConversationMemberState) {
         viewModelScope.launch {
+            removeConversationMemberDialogState.update { it.copy(loading = true) }
             val response = withContext(dispatchers.io()) {
                 removeMemberFromConversation(
                     state.conversationId,
                     userId
                 )
             }
-
-            if (response is RemoveMemberFromConversationUseCase.Result.Failure) {
-                onMessage(RemoveConversationMemberError)
+            when (response) {
+                is RemoveMemberFromConversationUseCase.Result.Failure -> onMessage(RemoveConversationMemberError)
+                is RemoveMemberFromConversationUseCase.Result.Success -> onMessage(RemoveConversationMemberSuccess(state.userName))
             }
+            removeConversationMemberDialogState.dismiss()
         }
     }
 
@@ -256,11 +259,13 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             expiresAt = otherUser.expiresAt,
             accentId = otherUser.accentId,
             isDeletedUser = otherUser.deleted,
+            activeOneOnOneConversationId = otherUser.activeOneOnOneConversationId
         )
     }
 
     private fun onMessage(message: SnackBarMessage) = sendAction(OtherUserProfileViewAction.Message(message))
 }
+
 sealed interface OtherUserProfileViewAction {
     data class Message(val message: SnackBarMessage) : OtherUserProfileViewAction
 }

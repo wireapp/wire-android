@@ -259,11 +259,13 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             expiresAt = otherUser.expiresAt,
             accentId = otherUser.accentId,
             isDeletedUser = otherUser.deleted,
+            activeOneOnOneConversationId = otherUser.activeOneOnOneConversationId
         )
     }
 
     private fun onMessage(message: SnackBarMessage) = sendAction(OtherUserProfileViewAction.Message(message))
 }
+
 sealed interface OtherUserProfileViewAction {
     data class Message(val message: SnackBarMessage) : OtherUserProfileViewAction
 }

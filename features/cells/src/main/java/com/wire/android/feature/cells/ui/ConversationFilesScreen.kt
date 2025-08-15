@@ -132,6 +132,7 @@ fun ConversationFilesScreenContent(
             newActionBottomSheetState.hide()
         },
         onCreateFolder = {
+            newActionBottomSheetState.hide()
             navigator.navigate(NavigationCommand(CreateFolderScreenDestination(currentNodeUuid)))
         }
     )

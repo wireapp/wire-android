@@ -73,7 +73,7 @@ data class GroupConversationOptionsState(
 ) {
 
     sealed interface Error {
-        object None : Error
+        data object None : Error
         class UpdateServicesError(val cause: CoreFailure) : Error
         class UpdateReadReceiptError(val cause: CoreFailure) : Error
     }

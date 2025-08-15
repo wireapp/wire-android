@@ -55,6 +55,7 @@ fun VerificationCode(
     onResendCode: () -> Unit,
     modifier: Modifier = Modifier,
     showLoadingProgress: Boolean = true,
+    timerText: String? = null,
 ) {
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -82,13 +83,15 @@ fun VerificationCode(
                 .animateContentSize(),
         ) { (isLoading, showLoadingProgress) ->
             when {
-                !isLoading -> ResendCodeText(
-                    onResendCodePressed = onResendCode,
-                    clickEnabled = true,
-                    modifier = Modifier
-                        .defaultMinSize(minHeight = MaterialTheme.wireDimensions.spacing24x)
-                        .wrapContentHeight(align = Alignment.CenterVertically),
-                )
+                !isLoading ->
+                    ResendCodeText(
+                        onResendCodePressed = onResendCode,
+                        clickEnabled = true,
+                        timerText = timerText,
+                        modifier = Modifier
+                            .defaultMinSize(minHeight = MaterialTheme.wireDimensions.spacing24x)
+                            .wrapContentHeight(align = Alignment.CenterVertically),
+                    )
 
                 isLoading && showLoadingProgress -> WireCircularProgressIndicator(
                     progressColor = MaterialTheme.wireColorScheme.primary,
@@ -115,5 +118,18 @@ fun PreviewVerificationCode() = WireTheme {
         isLoading = false,
         isCurrentCodeInvalid = false,
         onResendCode = {}
+    )
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewVerificationCodeTimer() = WireTheme {
+    VerificationCode(
+        codeLength = 6,
+        codeState = TextFieldState(),
+        isLoading = false,
+        isCurrentCodeInvalid = false,
+        onResendCode = {},
+        timerText = "00:30",
     )
 }

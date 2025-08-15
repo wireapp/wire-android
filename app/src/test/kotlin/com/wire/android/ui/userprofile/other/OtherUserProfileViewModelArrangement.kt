@@ -26,10 +26,8 @@ import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.navArgs
-import com.wire.android.ui.userprofile.other.OtherUserProfileScreenViewModelTest.Companion.CONVERSATION_ID
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreenViewModelTest.Companion.USER_ID
 import com.wire.kalium.common.functional.right
-import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.client.FetchUsersClientsFromRemoteUseCase
 import com.wire.kalium.logic.feature.client.ObserveClientsByUserIdUseCase
 import com.wire.kalium.logic.feature.conversation.GetOneToOneConversationDetailsUseCase
@@ -119,10 +117,7 @@ internal class OtherUserProfileViewModelArrangement {
         MockKAnnotations.init(this, relaxUnitFun = true)
         mockUri()
 
-        every { savedStateHandle.navArgs<OtherUserProfileNavArgs>() } returns OtherUserProfileNavArgs(
-            conversationId = CONVERSATION_ID,
-            userId = USER_ID
-        )
+        every { savedStateHandle.navArgs<OtherUserProfileNavArgs>() } returns OtherUserProfileNavArgs(userId = USER_ID)
 
         coEvery {
             observeConversationRoleForUserUseCase.invoke(any(), any())
@@ -148,11 +143,8 @@ internal class OtherUserProfileViewModelArrangement {
         coEvery { updateConversationMemberRoleUseCase(any(), any(), any()) } returns result
     }
 
-    fun withConversationIdInSavedState(conversationId: ConversationId?) = apply {
-        every { savedStateHandle.navArgs<OtherUserProfileNavArgs>() } returns OtherUserProfileNavArgs(
-            userId = USER_ID,
-            conversationId = conversationId
-        )
+    fun withConversationIdInSavedState() = apply {
+        every { savedStateHandle.navArgs<OtherUserProfileNavArgs>() } returns OtherUserProfileNavArgs(userId = USER_ID)
     }
 
     fun withGetOneToOneConversation(result: GetOneToOneConversationDetailsUseCase.Result) = apply {

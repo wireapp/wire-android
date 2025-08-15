@@ -64,7 +64,8 @@ fun GroupConversationAllParticipantsScreen(
                 participant.isSelf -> navigator.navigate(NavigationCommand(SelfUserProfileScreenDestination))
                 participant.isService && participant.botService != null ->
                     navigator.navigate(NavigationCommand(ServiceDetailsScreenDestination(participant.botService, navArgs.conversationId)))
-                else -> navigator.navigate(NavigationCommand(OtherUserProfileScreenDestination(participant.id, navArgs.conversationId)))
+
+                else -> navigator.navigate(NavigationCommand(OtherUserProfileScreenDestination(participant.id)))
             }
         },
     )
@@ -95,7 +96,9 @@ private fun GroupConversationAllParticipantsContent(
             val context = LocalContext.current
             LazyColumn(
                 state = lazyListState,
-                modifier = Modifier.fillMaxWidth().padding(internalPadding)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(internalPadding)
             ) {
                 participantsFoldersWithElements(context, groupParticipantsState, onProfilePressed)
             }

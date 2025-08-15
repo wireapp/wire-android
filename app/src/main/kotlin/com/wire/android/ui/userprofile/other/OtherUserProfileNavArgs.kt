@@ -17,10 +17,8 @@
  */
 package com.wire.android.ui.userprofile.other
 
-import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 
 data class OtherUserProfileNavArgs(
-    val userId: UserId,
-    val conversationId: ConversationId? = null
+    val userId: UserId
 )

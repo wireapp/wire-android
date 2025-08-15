@@ -478,9 +478,10 @@ fun ConversationScreen(
         onOpenProfile = {
             with(conversationInfoViewModel) {
                 val (mentionUserId: UserId, isSelfUser: Boolean) = mentionedUserData(it)
-                if (isSelfUser) navigator.navigate(NavigationCommand(SelfUserProfileScreenDestination))
-                else (conversationInfoViewState.conversationDetailsData as? ConversationDetailsData.Group)?.conversationId.let {
-                    navigator.navigate(NavigationCommand(OtherUserProfileScreenDestination(mentionUserId, it)))
+                if (isSelfUser) {
+                    navigator.navigate(NavigationCommand(SelfUserProfileScreenDestination))
+                } else {
+                    navigator.navigate(NavigationCommand(OtherUserProfileScreenDestination(mentionUserId)))
                 }
             }
         },

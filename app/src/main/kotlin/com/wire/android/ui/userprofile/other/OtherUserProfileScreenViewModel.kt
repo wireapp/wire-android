@@ -41,6 +41,7 @@ import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.Rem
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.common.functional.getOrNull
 import com.wire.kalium.logic.data.conversation.Conversation
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.feature.client.FetchUsersClientsFromRemoteUseCase
 import com.wire.kalium.logic.feature.client.ObserveClientsByUserIdUseCase
@@ -56,9 +57,6 @@ import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -85,12 +83,12 @@ class OtherUserProfileScreenViewModel @Inject constructor(
 
     private val otherUserProfileNavArgs: OtherUserProfileNavArgs = savedStateHandle.navArgs()
     private val userId: QualifiedID = otherUserProfileNavArgs.userId
-    private val conversationId: QualifiedID? = otherUserProfileNavArgs.conversationId
+    private var conversationId: QualifiedID? = null
 
     var state: OtherUserProfileState by mutableStateOf(
         OtherUserProfileState(
             userId = userId,
-            conversationId = conversationId,
+            conversationId = null,
             isDataLoading = true,
             isAvatarLoading = true
         )
@@ -158,13 +156,9 @@ class OtherUserProfileScreenViewModel @Inject constructor(
 
     private fun observeUserInfoAndUpdateViewState() {
         viewModelScope.launch {
-            combine(
-                observeUserInfo(userId),
-                observeGroupInfo(),
-                ::Pair
-            )
+            observeUserInfo(userId)
                 .flowOn(dispatchers.io())
-                .collect { (userResult, groupInfo) ->
+                .collect { userResult ->
                     when (userResult) {
                         is GetUserInfoResult.Failure -> {
                             appLogger.e("Couldn't not find the user with provided id: ${userId.toLogString()}")
@@ -172,15 +166,17 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                         }
 
                         is GetUserInfoResult.Success -> {
-                            updateUserInfoState(userResult, groupInfo)
+                            conversationId = userResult.otherUser.activeOneOnOneConversationId
+                            updateUserInfoState(userResult)
+                            observeGroupInfoForActiveOneOnOne(conversationId)
                         }
                     }
                 }
         }
     }
 
-    private suspend fun observeGroupInfo(): Flow<OtherUserProfileGroupState?> {
-        return conversationId?.let {
+    private suspend fun observeGroupInfoForActiveOneOnOne(conversationId: ConversationId?) {
+        conversationId?.let {
             observeConversationRoleForUser(it, userId)
                 .map { conversationRoleData ->
                     conversationRoleData.userRole?.let { userRole ->
@@ -192,13 +188,15 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                         )
                     }
                 }
-        } ?: flowOf(null)
+        }?.collect { groupInfo ->
+            state = state.copy(groupState = groupInfo)
+        }
     }
 
     fun onChangeMemberRole(role: Conversation.Member.Role) {
         viewModelScope.launch {
-            if (conversationId != null) {
-                updateMemberRole(conversationId, userId, role).also {
+            conversationId?.let { convoId ->
+                updateMemberRole(convoId, userId, role).also {
                     if (it is UpdateConversationMemberRoleResult.Failure) {
                         onMessage(ChangeGroupRoleError)
                     }
@@ -232,15 +230,13 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         )
     }
 
-    private fun updateUserInfoState(
-        userResult: GetUserInfoResult.Success,
-        groupInfo: OtherUserProfileGroupState?,
-    ) {
+    private fun updateUserInfoState(userResult: GetUserInfoResult.Success) {
         val otherUser = userResult.otherUser
         val userAvatarAsset = otherUser.completePicture
             ?.let { pic -> ImageAsset.UserAvatarAsset(pic) }
 
         state = state.copy(
+            conversationId = otherUser.activeOneOnOneConversationId,
             isDataLoading = false,
             isAvatarLoading = false,
             userAvatarAsset = userAvatarAsset,
@@ -251,7 +247,6 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             phone = otherUser.phone.orEmpty(),
             connectionState = otherUser.connectionStatus,
             membership = userTypeMapper.toMembership(otherUser.userType),
-            groupState = groupInfo,
             botService = otherUser.botService,
             blockingState = otherUser.BlockState,
             isProteusVerified = otherUser.isProteusVerified,
@@ -264,6 +259,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
 
     private fun onMessage(message: SnackBarMessage) = sendAction(OtherUserProfileViewAction.Message(message))
 }
+
 sealed interface OtherUserProfileViewAction {
     data class Message(val message: SnackBarMessage) : OtherUserProfileViewAction
 }

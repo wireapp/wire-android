@@ -179,7 +179,7 @@ fun GroupConversationDetailsScreen(
                 participant.isService && participant.botService != null ->
                     navigator.navigate(NavigationCommand(ServiceDetailsScreenDestination(participant.botService, viewModel.conversationId)))
 
-                else -> navigator.navigate(NavigationCommand(OtherUserProfileScreenDestination(participant.id, viewModel.conversationId)))
+                else -> navigator.navigate(NavigationCommand(OtherUserProfileScreenDestination(participant.id)))
             }
         },
         showAllowUserToAddParticipants = { viewModel.shouldShowAddParticipantButton() },

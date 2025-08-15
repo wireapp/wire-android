@@ -58,7 +58,7 @@ class OtherUserProfileScreenViewModelTest {
             // given
             val expected = OtherUserProfileGroupState("some_name", Member.Role.Member, false, CONVERSATION_ID)
             val (arrangement, viewModel) = OtherUserProfileViewModelArrangement()
-                .withConversationIdInSavedState(CONVERSATION_ID)
+                .withConversationIdInSavedState()
                 .withGetOneToOneConversation(GetOneToOneConversationDetailsUseCase.Result.Success(CONVERSATION_ONE_ONE))
                 .arrange()
 
@@ -67,7 +67,7 @@ class OtherUserProfileScreenViewModelTest {
 
             // then
             coVerify {
-                arrangement.observeConversationRoleForUserUseCase(CONVERSATION_ID, USER_ID)
+                arrangement.observeConversationRoleForUserUseCase(OTHER_USER.activeOneOnOneConversationId!!, USER_ID)
             }
             assertEquals(groupState, expected)
             assertEquals(viewModel.state.conversationId, CONVERSATION_ID)
@@ -77,7 +77,15 @@ class OtherUserProfileScreenViewModelTest {
     fun `given no conversationId, when loading the data, then return null group state`() = runTest {
         // given
         val (arrangement, viewModel) = OtherUserProfileViewModelArrangement()
-            .withConversationIdInSavedState(null)
+            .withUserInfo(
+                GetUserInfoResult.Success(
+                    otherUser = OTHER_USER.copy(
+                        activeOneOnOneConversationId = null,
+                    ),
+                    team = TEAM
+                )
+            )
+            .withConversationIdInSavedState()
             .arrange()
 
         // when
@@ -106,7 +114,7 @@ class OtherUserProfileScreenViewModelTest {
 
                 // then
                 coVerify {
-                    arrangement.updateConversationMemberRoleUseCase(CONVERSATION_ID, USER_ID, newRole)
+                    arrangement.updateConversationMemberRoleUseCase(OTHER_USER.activeOneOnOneConversationId!!, USER_ID, newRole)
                 }
                 expectNoEvents()
             }
@@ -128,7 +136,7 @@ class OtherUserProfileScreenViewModelTest {
 
                 // then
                 coVerify {
-                    arrangement.updateConversationMemberRoleUseCase(CONVERSATION_ID, USER_ID, newRole)
+                    arrangement.updateConversationMemberRoleUseCase(OTHER_USER.activeOneOnOneConversationId!!, USER_ID, newRole)
                 }
                 assertIs<OtherUserProfileViewAction.Message>(awaitItem()).also {
                     assertIs<OtherUserProfileInfoMessageType.ChangeGroupRoleError>(it.message)
@@ -177,6 +185,7 @@ class OtherUserProfileScreenViewModelTest {
         val CONVERSATION_ID = ConversationId("some_value", "some_domain")
         val OTHER_USER = OtherUser(
             USER_ID,
+            activeOneOnOneConversationId = CONVERSATION_ID,
             name = "some_name",
             handle = "some_handle",
             email = "some_email",

@@ -140,9 +140,10 @@ fun answerCallPendingIntent(context: Context, conversationId: String, userId: St
         it.notification.channelId.contains(NotificationConstants.INCOMING_CALL_CHANNEL_ID) ||
                 it.notification.channelId.contains(NotificationConstants.ONGOING_CALL_CHANNEL_ID)
     } != null
-    val shouldAnswerCallFromNotificationButton = !isAlreadyHavingACall &&
+    val canAnswerCallWithoutUserInteraction = !isAlreadyHavingACall &&
             (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED)
-    return if (shouldAnswerCallFromNotificationButton) {
+
+    return if (canAnswerCallWithoutUserInteraction) {
         openOngoingCallPendingIntent(
             context = context,
             conversationId = conversationId,
@@ -150,7 +151,12 @@ fun answerCallPendingIntent(context: Context, conversationId: String, userId: St
             shouldAnswerCall = true
         )
     } else {
-        fullScreenIncomingCallPendingIntent(context, conversationId, userId)
+        fullScreenIncomingCallPendingIntent(
+            context = context,
+            conversationId = conversationId,
+            userId = userId,
+            shouldAnswerCall = true
+        )
     }
 }
 
@@ -165,8 +171,13 @@ fun outgoingCallPendingIntent(context: Context, conversationId: String): Pending
     )
 }
 
-fun fullScreenIncomingCallPendingIntent(context: Context, conversationId: String, userId: String): PendingIntent {
-    val intent = getIncomingCallIntent(context, conversationId, userId)
+fun fullScreenIncomingCallPendingIntent(
+    context: Context,
+    conversationId: String,
+    userId: String,
+    shouldAnswerCall: Boolean = false
+): PendingIntent {
+    val intent = getIncomingCallIntent(context, conversationId, userId, shouldAnswerCall)
 
     return PendingIntent.getActivity(
         context,

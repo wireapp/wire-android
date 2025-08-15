@@ -60,6 +60,7 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.network.NetworkState
 
 @Composable
@@ -405,7 +406,7 @@ private fun PreviewCommonTopAppBar(
 @Composable
 fun PreviewCommonTopAppBar_ConnectivityEstablishedCallNotMuted() =
     PreviewCommonTopAppBar(
-        ConnectivityUIState.Calls(listOf(ConnectivityUIState.Call.Established(ConversationId("what", "ever"), false)))
+        ConnectivityUIState.Calls(listOf(ConnectivityUIState.Call.Established(UserId("v", "d"), ConversationId("what", "ever"), false)))
     )
 
 @PreviewMultipleThemes
@@ -414,9 +415,9 @@ fun PreviewCommonTopAppBar_ConnectivityEstablishedCallAndIncomingCalls() =
     PreviewCommonTopAppBar(
         ConnectivityUIState.Calls(
             listOf(
-                ConnectivityUIState.Call.Established(ConversationId("1", "1"), false),
-                ConnectivityUIState.Call.Incoming(ConversationId("2", "2"), "John Doe"),
-                ConnectivityUIState.Call.Incoming(ConversationId("3", "3"), "Adam Smith"),
+                ConnectivityUIState.Call.Established(UserId("v", "d"), ConversationId("1", "1"), false),
+                ConnectivityUIState.Call.Incoming(UserId("v", "d"), ConversationId("2", "2"), "John Doe"),
+                ConnectivityUIState.Call.Incoming(UserId("v", "d"), ConversationId("3", "3"), "Adam Smith"),
             )
         )
     )
@@ -426,7 +427,7 @@ fun PreviewCommonTopAppBar_ConnectivityEstablishedCallAndIncomingCalls() =
 fun PreviewCommonTopAppBar_ConnectivityIncomingCall() =
     PreviewCommonTopAppBar(
         ConnectivityUIState.Calls(
-            listOf(ConnectivityUIState.Call.Incoming(ConversationId("2", "2"), "John Doe"))
+            listOf(ConnectivityUIState.Call.Incoming(UserId("v", "d"), ConversationId("2", "2"), "John Doe"))
         )
     )
 
@@ -435,7 +436,7 @@ fun PreviewCommonTopAppBar_ConnectivityIncomingCall() =
 fun PreviewCommonTopAppBar_ConnectivityOutgoingCall() =
     PreviewCommonTopAppBar(
         ConnectivityUIState.Calls(
-            listOf(ConnectivityUIState.Call.Outgoing(ConversationId("2", "2"), "John Doe"))
+            listOf(ConnectivityUIState.Call.Outgoing(UserId("v", "d"), ConversationId("2", "2"), "John Doe"))
         )
     )
 

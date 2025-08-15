@@ -10,6 +10,9 @@ env:
 
 jobs:
   coverage:
+    env:
+      GRADLE_OPTS: '-Dorg.gradle.jvmargs="-XX:MaxMetaspaceSize=2g -Xmx4G"'
+      DISABLE_ABOUT_LIBRARIES: TRUE
     runs-on: buildjet-8vcpu-ubuntu-2204
     steps:
       - name: Checkout

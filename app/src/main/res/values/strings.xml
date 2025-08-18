@@ -667,10 +667,6 @@
     <!--Read receipts -->
     <string name="conversation_options_read_receipt_label">Read receipts</string>
     <string name="conversation_options_read_receipt_description">When this is on, people can see when their messages in this conversation are read.</string>
-    <!--Wire Cell -->
-    <string name="conversation_options_wire_cell_label">Wire Cell</string>
-    <string name="conversation_options_wire_cell_description">When this is on, all conversation files are saved in Wire Cell Storage.</string>
-    <string name="folder_label_wire_cell">File Storage</string>
     <!-- Messages -->
     <string name="message_details_title">Message Details</string>
     <string name="message_details_reactions_tab">REACTIONS (%s)</string>

@@ -568,10 +568,6 @@
     <!--Read receipts -->
     <string name="conversation_options_read_receipt_label">කියවූ බවට ලදුපත්</string>
     <string name="conversation_options_read_receipt_description">මෙය සක්‍රිය නම්, පුද්ගලයින්ට මෙම සංවාදය තුළ ඔවුන්ගේ පණිවිඩ කියවූ විට දැකගත හැකිය.</string>
-    <!--Wire Cell -->
-    <string name="conversation_options_wire_cell_label">වයර් කෝෂය</string>
-    <string name="conversation_options_wire_cell_description">මෙය ක්‍රියාත්මක විට, සියලුම සංවාද ගොනු Wire Cell Storage හි සුරකිනු ලැබේ.</string>
-    <string name="folder_label_wire_cell">ගොනු ගබඩාව</string>
     <!-- Messages -->
     <string name="message_details_title">පණිවිඩයේ විස්තර</string>
     <string name="message_details_reactions_tab">ප්‍රතික්‍රියා (%s)</string>

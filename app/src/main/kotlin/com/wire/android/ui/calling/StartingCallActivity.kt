@@ -119,28 +119,30 @@ class StartingCallActivity : CallActivity() {
                             modifier = Modifier.semantics { testTagsAsResourceId = true },
                             label = currentScreenType.name
                         ) { screenType ->
-                            conversationId?.let {
-                                when (screenType) {
-                                    StartingCallScreenType.Outgoing -> {
-                                        OutgoingCallScreen(
-                                            conversationId = qualifiedIdMapper.fromStringToQualifiedID(it)
-                                        ) {
-                                            getOngoingCallIntent(this@StartingCallActivity, it).run {
-                                                this@StartingCallActivity.startActivity(this)
+                            conversationId?.let { conversationId ->
+                                userId?.let { userId ->
+                                    when (screenType) {
+                                        StartingCallScreenType.Outgoing -> {
+                                            OutgoingCallScreen(
+                                                conversationId = qualifiedIdMapper.fromStringToQualifiedID(conversationId)
+                                            ) {
+                                                getOngoingCallIntent(this@StartingCallActivity, conversationId, userId).run {
+                                                    this@StartingCallActivity.startActivity(this)
+                                                }
+                                                this@StartingCallActivity.finishAndRemoveTask()
                                             }
-                                            this@StartingCallActivity.finishAndRemoveTask()
                                         }
-                                    }
 
-                                    StartingCallScreenType.Incoming -> {
-                                        IncomingCallScreen(
-                                            conversationId = qualifiedIdMapper.fromStringToQualifiedID(it),
-                                            shouldTryToAnswerCallAutomatically = shouldAnswerCall,
-                                        ) {
-                                            this@StartingCallActivity.startActivity(
-                                                getOngoingCallIntent(this@StartingCallActivity, it)
-                                            )
-                                            this@StartingCallActivity.finishAndRemoveTask()
+                                        StartingCallScreenType.Incoming -> {
+                                            IncomingCallScreen(
+                                                conversationId = qualifiedIdMapper.fromStringToQualifiedID(conversationId),
+                                                shouldTryToAnswerCallAutomatically = shouldAnswerCall,
+                                            ) {
+                                                this@StartingCallActivity.startActivity(
+                                                    getOngoingCallIntent(this@StartingCallActivity, conversationId, userId)
+                                                )
+                                                this@StartingCallActivity.finishAndRemoveTask()
+                                            }
                                         }
                                     }
                                 }
@@ -174,9 +176,11 @@ class StartingCallActivity : CallActivity() {
 
 fun getOutgoingCallIntent(
     context: Context,
-    conversationId: String
+    conversationId: String,
+    userId: String,
 ) = Intent(context, StartingCallActivity::class.java).apply {
     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    putExtra(EXTRA_USER_ID, userId)
     putExtra(EXTRA_CONVERSATION_ID, conversationId)
     putExtra(EXTRA_SCREEN_TYPE, StartingCallScreenType.Outgoing.name)
 }

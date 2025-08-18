@@ -333,12 +333,12 @@ fun ConversationScreen(
     HandleActions(conversationCallViewModel.actions) { action ->
         when (action) {
             is ConversationCallViewActions.InitiatedCall -> {
-                context.startActivity(getOutgoingCallIntent(context, action.conversationId.toString()))
+                context.startActivity(getOutgoingCallIntent(context, action.conversationId.toString(), action.userId.toString()))
                 AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallInitiated)
             }
 
             is ConversationCallViewActions.JoinedCall -> {
-                context.startActivity(getOngoingCallIntent(context, action.conversationId.toString()))
+                context.startActivity(getOngoingCallIntent(context, action.conversationId.toString(), action.userId.toString()))
                 AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallJoined)
             }
         }
@@ -391,8 +391,8 @@ fun ConversationScreen(
                         showDialog,
                         coroutineScope,
                         conversationInfoViewModel.conversationInfoViewState.conversationType,
-                        onOpenOngoingCallScreen = {
-                            getOngoingCallIntent(context, it.toString()).run {
+                        onOpenOngoingCallScreen = { conversationId, userId ->
+                            getOngoingCallIntent(context, conversationId.toString(), userId.toString()).run {
                                 context.startActivity(this)
                             }
                         }
@@ -453,8 +453,8 @@ fun ConversationScreen(
                         showDialog,
                         coroutineScope,
                         conversationInfoViewModel.conversationInfoViewState.conversationType,
-                        onOpenOngoingCallScreen = {
-                            getOngoingCallIntent(context, it.toString()).run {
+                        onOpenOngoingCallScreen = { conversationId, userId ->
+                            getOngoingCallIntent(context, conversationId.toString(), userId.toString()).run {
                                 context.startActivity(this)
                             }
                         }
@@ -558,8 +558,8 @@ fun ConversationScreen(
                 showDialog,
                 coroutineScope,
                 conversationInfoViewModel.conversationInfoViewState.conversationType,
-                onOpenOngoingCallScreen = {
-                    getOngoingCallIntent(context, it.toString()).run {
+                onOpenOngoingCallScreen = { conversationId, userId ->
+                    getOngoingCallIntent(context, conversationId.toString(), userId.toString()).run {
                         context.startActivity(this)
                     }
                 }
@@ -810,7 +810,7 @@ private fun startCallIfPossible(
     showDialog: MutableState<ConversationScreenDialogType>,
     coroutineScope: CoroutineScope,
     conversationType: Conversation.Type,
-    onOpenOngoingCallScreen: (ConversationId) -> Unit
+    onOpenOngoingCallScreen: (ConversationId, UserId) -> Unit
 ) {
     coroutineScope.launch {
         if (!conversationCallViewModel.hasStableConnectivity()) {
@@ -832,7 +832,7 @@ private fun startCallIfPossible(
                 }
 
                 ConferenceCallingResult.Disabled.Established -> {
-                    onOpenOngoingCallScreen(conversationCallViewModel.conversationId)
+                    onOpenOngoingCallScreen(conversationCallViewModel.conversationId, conversationCallViewModel.currentAccount)
                     AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallJoined)
                     ConversationScreenDialogType.NONE
                 }

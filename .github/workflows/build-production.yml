@@ -5,7 +5,7 @@ on:
     types: [ published ]
 
 permissions:
-  contents: write
+  contents: read
   actions: read
 
 concurrency:

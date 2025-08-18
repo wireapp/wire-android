@@ -25,9 +25,9 @@ import backendUtils.BackendClient
 import backendUtils.team.TeamHelper
 import backendUtils.team.TeamRoles
 import backendUtils.team.deleteTeam
-import com.wire.android.tests.support.UiAutomatorSetup
 import com.wire.android.tests.core.di.testModule
 import com.wire.android.tests.core.pages.AllPages
+import com.wire.android.tests.support.UiAutomatorSetup
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -37,12 +37,13 @@ import org.koin.test.KoinTest
 import org.koin.test.KoinTestRule
 import org.koin.test.inject
 import service.TestServiceHelper
-import uiautomatorutils.UiWaitUtils
+import service.userSendsGenericMessageToConversation
 import user.usermanager.ClientUserManager
 import user.utils.ClientUser
+import kotlin.getValue
 
 @RunWith(AndroidJUnit4::class)
-class GroupMessaging : KoinTest {
+class NewMemberMessaging : KoinTest {
 
     @get:Rule
     val koinTestRule = KoinTestRule.Companion.create {
@@ -53,8 +54,12 @@ class GroupMessaging : KoinTest {
 
     lateinit var context: Context
     var teamOwner: ClientUser? = null
+    var member1: ClientUser? = null
+
     var backendClient: BackendClient? = null
-    var teamHelper: TeamHelper? = null
+    val teamHelper by lazy {
+        TeamHelper()
+    }
     val testServiceHelper by lazy {
         TestServiceHelper()
     }
@@ -62,11 +67,10 @@ class GroupMessaging : KoinTest {
     @Before
     fun setUp() {
         context = InstrumentationRegistry.getInstrumentation().context
-        // device = UiAutomatorSetup.start(UiAutomatorSetup.APP_DEV)
+        //  device = UiAutomatorSetup.start(UiAutomatorSetup.APP_DEV)
         // device = UiAutomatorSetup.start(UiAutomatorSetup.APP_STAGING)
         device = UiAutomatorSetup.start(UiAutomatorSetup.APP_INTERNAL)
         backendClient = BackendClient.loadBackend("STAGING")
-        teamHelper = TeamHelper()
     }
 
     @After
@@ -77,32 +81,38 @@ class GroupMessaging : KoinTest {
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @Test
-    fun givenGroupConversation_whenMessagesAreExchangedAndSelfDeletingMessageIsSent_thenMessageIsVisibleAndExpires() {
-        teamHelper?.usersManager!!.createTeamOwnerByAlias(
+    fun givenUserJoinsNewTeam_whenMessagingAndMentionedInGroup_thenReceivesMessagesAndMentions() {
+        teamHelper.usersManager!!.createTeamOwnerByAlias(
             "user1Name",
-            "GroupMessaging",
+            "Messaging",
             "en_US",
             true,
             backendClient!!,
             context
         )
-        teamOwner = teamHelper?.usersManager!!.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
-        teamHelper?.userXAddsUsersToTeam(
+        teamHelper.userXAddsUsersToTeam(
             "user1Name",
-            "user2Name,user3Name,user4Name,user5Name,user6Name",
-            "GroupMessaging",
+            "user2Name,user3Name",
+            "Messaging",
             TeamRoles.Member,
             backendClient!!,
             context,
             true
         )
 
-        testServiceHelper.userHasGroupConversationInTeam(
-            "user1Name",
-            "MyTeam",
-            "user2Name,user3Name,user4Name,user5Name,user6Name",
-            "GroupMessaging"
-        )
+        teamOwner = teamHelper?.usersManager!!.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
+        member1 = teamHelper?.usersManager!!.findUserBy("user2Name", ClientUserManager.FindBy.NAME_ALIAS)
+
+        testServiceHelper.apply {
+            userHasGroupConversationInTeam(
+                "user1Name",
+                "MyTeam",
+                "user3Name",
+                "Messaging"
+            )
+            addDevice("user1Name", null, "Device1")
+            userXAddedContactsToGroupChat("user1Name", "user2Name", "MyTeam")
+        }
 
         pages.registrationPage.apply {
             assertEmailWelcomePage()
@@ -112,9 +122,9 @@ class GroupMessaging : KoinTest {
             clickProceedButtonOnDeeplinkOverlay()
         }
         pages.loginPage.apply {
-            enterTeamOwnerLoggingEmail(teamOwner?.email ?: "")
+            enterTeamOwnerLoggingEmail(member1?.email ?: "")
             clickLoginButton()
-            enterTeamOwnerLoggingPassword(teamOwner?.password ?: "")
+            enterTeamOwnerLoggingPassword(member1?.password ?: "")
             clickLoginButton()
         }
         pages.registrationPage.apply {
@@ -124,66 +134,79 @@ class GroupMessaging : KoinTest {
         }
         pages.conversationListPage.apply {
             assertGroupConversationVisible("MyTeam")
+            tapStartNewConversationButton()
         }
-        pages.conversationListPage.apply {
-            tapSearchConversationField()
-            typeFirstNCharsInSearchField("MyTestGroup", 3) // types "MyT"
+        pages.searchPage.apply {
+            tapSearchPeopleField()
+            typeUniqueUserNameInSearchField("user1Name")
+            assertUsernameInSearchResultIs(teamOwner?.name ?: "")
+            tapUsernameInSearchResult(teamOwner?.name ?: "")
         }
-        pages.conversationListPage.apply {
-            assertGroupConversationVisible("MyTeam")
+        pages.connectedUserProfilePage.apply {
+            assertStartConversationButtonVisible()
+            clickStartConversationButton()
         }
-        pages.conversationListPage.apply {
-            clickGroupConversation("MyTeam")
-        }
+
         pages.conversationViewPage.apply {
-            typeMessageInInputField("Hello Team Members")
+            assertConversationScreenVisible()
+            typeMessageInInputField("Hello Team Owner")
             clickSendButton()
-            assertMessageSentIsVisible("Hello Team Members")
+            assertMessageSentIsVisible("Hello Team Owner")
             tapBackButtonOnConversationViewPage()
         }
+        pages.connectedUserProfilePage.apply {
+            tapCloseButtonOnConnectedUserProfilePage()
+        }
+        pages.conversationListPage.apply {
+            tapBackArrowButtonInsideSearchField()
+            clickCloseButtonOnNewConversationScreen()
+            assertConversationListVisible()
+        }
         testServiceHelper.apply {
-            addDevice("user2Name", null, "Device1")
-            userSendMessageToConversation("user2Name", "Hello Friends", "Device1", "MyTeam", false)
+            userSendsGenericMessageToConversation(
+                "user1Name",
+                "user2Name",
+                "Device1",
+                "Hello new member"
+            )
         }
         pages.notificationsPage.apply {
             waitUntilNotificationPopUpGone()
         }
         pages.conversationListPage.apply {
             assertUnreadMessagesCount("1")
-            clickGroupConversation("MyTeam")
+            tapUnreadConversationNameInConversationList(teamOwner?.name ?: "")
         }
         pages.conversationViewPage.apply {
-            assertReceivedMessageIsVisible("Hello Friends")
-            tapMessageInInputField()
-            tapSelfDeleteTimerButton()
-            assertSelfDeleteOptionVisible("OFF")
-            assertSelfDeleteOptionVisible("10 seconds")
-            assertSelfDeleteOptionVisible("5 minutes")
-            assertSelfDeleteOptionVisible("1 hour")
-            assertSelfDeleteOptionVisible("1 day")
-            assertSelfDeleteOptionVisible("7 days")
-            assertSelfDeleteOptionVisible("4 weeks")
-            tapSelfDeleteOption("10 seconds")
-            assertSelfDeletingMessageLabelVisible()
-            typeMessageInInputField("This is a Self deleting Message")
-            clickSendButton()
-            assertMessageSentIsVisible("This is a Self deleting Message")
-            UiWaitUtils.WaitUtils.waitFor(14) // Simple wait
-            assertMessageNotVisible("This is a Self deleting Message")
-            assertMessageSentIsVisible(
-                "After one participant has seen your message and the timer has expired on their side, this note disappears."
-            )
+            assertReceivedMessageIsVisible("Hello new member")
         }
+
+        pages.conversationViewPage.apply {
+            tapBackButtonOnConversationViewPage()
+        }
+
         pages.conversationListPage.apply {
             clickGroupConversation("MyTeam")
         }
-        pages.groupConversationDetailsPage.apply {
-            tapShowMoreOptionsButton()
-            tapDeleteConversationButton()
-            tapRemoveGroupButton()
+
+        testServiceHelper.apply {
+            val mentionReplacedWithUniqueUserName = teamHelper.usersManager.replaceAliasesOccurrences(
+                "@user2Name",
+                ClientUserManager.FindBy.NAME_ALIAS
+            )
+            userSendsGenericMessageToConversation(
+                "user1Name",
+                "MyTeam",
+                "Device1",
+                mentionReplacedWithUniqueUserName
+            )
         }
-        pages.conversationListPage.apply {
-            assertConversationNotVisible("MyTeam")
+        pages.conversationViewPage.apply {
+            val mentionedUser = teamHelper.usersManager.replaceAliasesOccurrences(
+                "@user2Name",
+                ClientUserManager.FindBy.NAME_ALIAS
+            )
+            assertVisibleMentionedNameIs(mentionedUser)
         }
     }
 }

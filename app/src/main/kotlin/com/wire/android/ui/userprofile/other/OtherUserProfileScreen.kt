@@ -354,10 +354,10 @@ private fun TopBarHeader(
         },
         elevation = elevation,
         actions = {
-            if (state.conversationId != null) {
+            if (state.activeOneOnOneConversationId != null) {
                 MoreOptionIcon(
                     contentDescription = R.string.content_description_user_profile_more_btn,
-                    onButtonClicked = { openConversationBottomSheet(state.conversationId) },
+                    onButtonClicked = { openConversationBottomSheet(state.activeOneOnOneConversationId) },
                     state = if (state.isMetadataEmpty()) WireButtonState.Disabled else WireButtonState.Default
                 )
             }

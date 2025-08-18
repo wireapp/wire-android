@@ -7,7 +7,7 @@ grgitCore = "5.3.2"
 kotlin = "2.1.0"
 
 # KotlinX
-coroutines = "1.9.0"
+coroutines = "1.10.2"
 ktx-dateTime = "0.5.0"
 ktx-immutableCollections = "0.3.8"
 ktx-serialization = "1.8.1"

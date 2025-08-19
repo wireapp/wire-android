@@ -40,6 +40,7 @@ jobs:
     needs: validate-release
     uses: ./.github/workflows/build-unified.yml
     with:
+      concurrency-group-suffix: prod
       build-config: |
         [
           {
@@ -71,6 +72,7 @@ jobs:
     needs: validate-release
     uses: ./.github/workflows/build-unified.yml
     with:
+      concurrency-group-suffix: fdroid
       build-config: |
         [
           {

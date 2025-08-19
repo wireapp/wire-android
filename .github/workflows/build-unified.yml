@@ -12,13 +12,17 @@ on:
         required: false
         type: boolean
         default: true
+      concurrency-group-suffix:
+        description: "Suffix for the concurrency group"
+        required: true
+        type: string
 
 permissions:
   contents: read
   actions: read
 
 concurrency:
-  group: build-unified-${{ github.ref }}
+  group: build-unified-${{ github.ref }}-${{ inputs.concurrency-group-suffix }}
   cancel-in-progress: true
 
 jobs:

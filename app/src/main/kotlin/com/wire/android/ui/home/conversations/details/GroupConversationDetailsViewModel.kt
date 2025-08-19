@@ -84,10 +84,15 @@ class GroupConversationDetailsViewModel @Inject constructor(
     private val globalDataStore: GlobalDataStore,
 ) : GroupConversationParticipantsViewModel(savedStateHandle, observeConversationMembers, refreshUsersWithoutMetadata),
     ActionsManager<GroupConversationDetailsViewAction> by ActionsManagerImpl() {
+
     private val groupConversationDetailsNavArgs: GroupConversationDetailsNavArgs = savedStateHandle.navArgs()
     val conversationId: QualifiedID = groupConversationDetailsNavArgs.conversationId
+
     private val _groupOptionsState = MutableStateFlow(GroupConversationOptionsState(conversationId))
     val groupOptionsState: StateFlow<GroupConversationOptionsState> = _groupOptionsState
+
+    private val _isFetchingInitialData: MutableStateFlow<Boolean> = MutableStateFlow(true)
+    val isFetchingInitialData: MutableStateFlow<Boolean> = _isFetchingInitialData
 
     init {
         observeConversationDetails()
@@ -128,6 +133,8 @@ class GroupConversationDetailsViewModel @Inject constructor(
                 val isMLSConversation = groupDetails.conversation.protocol is Conversation.ProtocolInfo.MLS
                 val channelPermissionType = groupDetails.getChannelPermissionType()
                 val channelAccessType = groupDetails.getChannelAccessType()
+
+                _isFetchingInitialData.value = false
 
                 updateState(
                     groupOptionsState.value.copy(

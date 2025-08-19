@@ -18,6 +18,7 @@ jobs:
   build-beta:
     uses: ./.github/workflows/build-unified.yml
     with:
+      concurrency-group-suffix: push
       build-config: |
         [
           {

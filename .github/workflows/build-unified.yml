@@ -12,13 +12,17 @@ on:
         required: false
         type: boolean
         default: true
+      concurrency-group-suffix:
+        description: "Suffix for the concurrency group"
+        required: true
+        type: string
 
 permissions:
   contents: read
   actions: read
 
 concurrency:
-  group: build-unified-${{ github.ref }}
+  group: build-unified-${{ github.ref }}-${{ inputs.concurrency-group-suffix }}
   cancel-in-progress: true
 
 jobs:
@@ -85,10 +89,14 @@ jobs:
   ui-tests:
     name: "UI Tests"
     uses: ./.github/workflows/gradle-run-ui-tests.yml
+    with:
+      artifact-suffix: ${{ inputs.concurrency-group-suffix }}
 
   unit-tests:
     name: "Unit Tests"
     uses: ./.github/workflows/gradle-run-unit-tests.yml
+    with:
+      artifact-suffix: ${{ inputs.concurrency-group-suffix }}
     secrets: inherit
 
   # Build matrix job - only runs if all quality checks pass
@@ -227,13 +235,15 @@ jobs:
         if: matrix.generate-version-file == true
         run: ./gradlew generateVersionFile
 
+      - name: Move version file for consistent artifact structure
+        if: matrix.generate-version-file == true
+        run: mv app/version.txt app/build/outputs/
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.flavor }}-${{ matrix.variant }}-artifacts
-          path: |
-            app/build/outputs/
-            ${{ matrix.generate-version-file == true && 'app/version.txt' || '' }}
+          path: app/build/outputs/
           retention-days: 7
 
       - name: Build summary

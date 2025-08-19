@@ -363,4 +363,28 @@ class NewConversationViewModelTest {
 
         assertFalse(viewModel.isChannelCreationPossible)
     }
+
+    @Test
+    fun `given apps are not allowed, when initializing viewModel, then state should reflect that`() = runTest {
+        // Given
+        val (_, viewModel) = NewConversationViewModelArrangement()
+            .withGetSelfUser(isTeamMember = true)
+            .withAppsAllowedResult(false)
+            .arrange()
+
+        assertFalse(viewModel.groupOptionsState.isAppsUsagePossible)
+        assertFalse(viewModel.groupOptionsState.isAllowAppsEnabled)
+    }
+
+    @Test
+    fun `given apps are allowed, when initializing viewModel, then state should reflect that`() = runTest {
+        // Given
+        val (_, viewModel) = NewConversationViewModelArrangement()
+            .withGetSelfUser(isTeamMember = true)
+            .withAppsAllowedResult(true)
+            .arrange()
+
+        assertTrue(viewModel.groupOptionsState.isAppsUsagePossible)
+        assertTrue(viewModel.groupOptionsState.isAllowAppsEnabled)
+    }
 }

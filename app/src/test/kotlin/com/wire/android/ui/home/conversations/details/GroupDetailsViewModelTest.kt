@@ -44,7 +44,6 @@ import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.data.user.SelfUser
-import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.conversation.ArchiveStatusUpdateResult
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateReceiptModeResult
@@ -54,10 +53,10 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUs
 import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReceiptModeUseCase
+import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageUseCase
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.team.GetUpdatedSelfTeamUseCase
-import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
 import io.mockk.MockKAnnotations
@@ -75,8 +74,6 @@ import kotlinx.datetime.Instant
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.EnumSource
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
@@ -157,6 +154,7 @@ class GroupDetailsViewModelTest {
         val selfTeam = Team("team_id", "team_name", "icon")
         val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
             .withConversationDetailUpdate(details)
+            .withAppsAllowedResult(true)
             .withSelfTeamUseCaseReturns(selfTeam)
             .arrange()
 
@@ -400,6 +398,7 @@ class GroupDetailsViewModelTest {
             .withConversationDetailUpdate(details)
             .withConversationMembersUpdate(conversationParticipantsData)
             .withGetSelfUserReturns(self)
+            .withAppsAllowedResult(true)
             .withSelfTeamUseCaseReturns(selfTeamId?.let { Team(it.value, "team_name", "icon") })
             .arrange()
         assertResult(viewModel.groupOptionsState.value)
@@ -674,24 +673,16 @@ class GroupDetailsViewModelTest {
         assertEquals(true, result)
     }
 
-    @ParameterizedTest
-    @EnumSource(IsServiceAllowedTestParams::class)
-    fun `isServicesAllowed test`(params: IsServiceAllowedTestParams) = runTest {
+    @Test
+    fun `given isServicesAllowed for team, then state should reflect this to allow`() = runTest {
         // given
         val conversation =
-            TestConversation
-                .GROUP(if (params.isMLSConversation) TestConversation.MLS_PROTOCOL_INFO else Conversation.ProtocolInfo.Proteus)
-                .copy(
-                    accessRole = listOf(Conversation.AccessRole.EXTERNAL).run {
-                        if (params.isServiceAllowed) {
-                            plus(Conversation.AccessRole.SERVICE)
-                        } else {
-                            this
-                        }
-                    }
-                )
+            TestConversation.GROUP().copy(
+                accessRole = listOf(Conversation.AccessRole.SERVICE)
+            )
+
         val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
-            .withDefaultProtocol(if (params.isMLSTeam) SupportedProtocol.MLS else SupportedProtocol.PROTEUS)
+            .withAppsAllowedResult(true)
             .withConversationDetailUpdate(TestConversationDetails.GROUP.copy(conversation = conversation))
             .arrange()
         advanceUntilIdle()
@@ -699,8 +690,29 @@ class GroupDetailsViewModelTest {
         // when
 
         // then
-        assertEquals(params.expectedResult, viewModel.groupOptionsState.value.isServicesAllowed)
+        assertEquals(true, viewModel.groupOptionsState.value.isServicesAllowed)
     }
+
+    @Test
+    fun `given isServicesAllowed for team, but no role for conversation, then state should reflect this to not allow`() = runTest {
+        // given
+        val conversation =
+            TestConversation.GROUP().copy(
+                accessRole = listOf(Conversation.AccessRole.GUEST)
+            )
+
+        val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
+            .withAppsAllowedResult(true)
+            .withConversationDetailUpdate(TestConversationDetails.GROUP.copy(conversation = conversation))
+            .arrange()
+        advanceUntilIdle()
+
+        // when
+
+        // then
+        assertEquals(false, viewModel.groupOptionsState.value.isServicesAllowed)
+    }
+
 
     companion object {
         val dummyConversationId = ConversationId("some-dummy-value", "some.dummy.domain")
@@ -780,7 +792,7 @@ internal class GroupConversationDetailsViewModelArrangement {
     private lateinit var refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase
 
     @MockK
-    lateinit var getDefaultProtocolUseCase: GetDefaultProtocolUseCase
+    lateinit var observeIsAppsAllowedForUsage: ObserveIsAppsAllowedForUsageUseCase
 
     @MockK
     lateinit var globalDataStore: GlobalDataStore
@@ -798,7 +810,7 @@ internal class GroupConversationDetailsViewModelArrangement {
             isMLSEnabled = isMLSEnabledUseCase,
             observeSelfDeletionTimerSettingsForConversation = observeSelfDeletionTimerSettingsForConversation,
             refreshUsersWithoutMetadata = refreshUsersWithoutMetadata,
-            getDefaultProtocol = getDefaultProtocolUseCase,
+            observeIsAppsAllowedForUsage = observeIsAppsAllowedForUsage,
             globalDataStore = globalDataStore,
         )
     }
@@ -827,8 +839,12 @@ internal class GroupConversationDetailsViewModelArrangement {
         coEvery { updateConversationMutedStatus(any(), any(), any()) } returns ConversationUpdateStatusResult.Success
         coEvery { observeSelfDeletionTimerSettingsForConversation(any(), any()) } returns flowOf(SelfDeletionTimer.Disabled)
         coEvery { updateConversationArchivedStatus(any(), any(), any()) } returns ArchiveStatusUpdateResult.Success
-        every { getDefaultProtocolUseCase() } returns SupportedProtocol.PROTEUS
         every { globalDataStore.wireCellsEnabled() } returns flowOf(false)
+        withAppsAllowedResult(false)
+    }
+
+    fun withAppsAllowedResult(result: Boolean) = apply {
+        coEvery { observeIsAppsAllowedForUsage() } returns flowOf(result)
     }
 
     suspend fun withGetSelfUserReturns(user: SelfUser) = apply {
@@ -858,22 +874,5 @@ internal class GroupConversationDetailsViewModelArrangement {
         coEvery { updateConversationReceiptMode(any(), any()) } returns ConversationUpdateReceiptModeResult.Success
     }
 
-    fun withDefaultProtocol(protocol: SupportedProtocol) = apply {
-        every { getDefaultProtocolUseCase() } returns protocol
-    }
-
     fun arrange() = this to viewModel
-}
-
-enum class IsServiceAllowedTestParams(
-    val isMLSTeam: Boolean,
-    val isMLSConversation: Boolean,
-    val isServiceAllowed: Boolean,
-    val expectedResult: Boolean
-) {
-    MLS_TEAM(true, false, true, false),
-    MLS_CONVERSATION(false, true, true, false),
-    MLS_CONVERSATION_AND_TEAM(true, true, true, false),
-    NO_SERVICES(false, false, false, false),
-    SERVICES(false, false, true, true)
 }

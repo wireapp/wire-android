@@ -21,6 +21,8 @@ package com.wire.android.ui.calling.incoming
 import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
+import com.wire.android.framework.TestUser
+import com.wire.android.notification.CallNotificationManager
 import com.wire.android.ui.home.appLock.LockCodeTimeManager
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallStatus
@@ -78,8 +80,11 @@ class IncomingCallViewModelTest {
         @MockK
         lateinit var lockCodeTimeManager: LockCodeTimeManager
 
+        @MockK
+        lateinit var callNotificationManager: CallNotificationManager
+
         init {
-            MockKAnnotations.init(this)
+            MockKAnnotations.init(this, relaxUnitFun = true)
 
             // Default empty values
             coEvery { rejectCall(any()) } returns Unit
@@ -111,13 +116,15 @@ class IncomingCallViewModelTest {
 
         fun arrange() = this to IncomingCallViewModel(
             conversationId = dummyConversationId,
+            currentAccount = TestUser.SELF_USER_ID,
             incomingCalls = incomingCalls,
             rejectCall = rejectCall,
             acceptCall = acceptCall,
             observeEstablishedCalls = observeEstablishedCalls,
             endCall = endCall,
             muteCall = muteCall,
-            lockCodeTimeManager = lockCodeTimeManager
+            lockCodeTimeManager = lockCodeTimeManager,
+            callNotificationManager = callNotificationManager,
         )
     }
 
@@ -257,6 +264,59 @@ class IncomingCallViewModelTest {
         viewModel.declineCall()
 
         coVerify { arrangement.rejectCall(conversationId = any()) }
+    }
+
+    @Test
+    fun `given call not accepted, when bringing back notification, then bring back notification`() = runTest {
+        // given
+        val (arrangement, viewModel) = Arrangement()
+            .withAppNotLocked()
+            .arrange()
+        // when
+        viewModel.bringBackNotificationIfNeeded()
+        // then
+        coVerify(exactly = 1) {
+            arrangement.callNotificationManager.bringBackIncomingCallNotification(
+                TestUser.SELF_USER_ID.toString(),
+                dummyConversationId.toString(),
+            )
+        }
+    }
+
+    @Test
+    fun `given call being accepted but unlock required, when bringing back notification, then do not bring back notification`() = runTest {
+        // given
+        val (arrangement, viewModel) = Arrangement()
+            .withAppNotLocked()
+            .arrange()
+        // when
+        viewModel.bringBackNotificationIfNeeded()
+        // then
+        coVerify(exactly = 1) {
+            arrangement.callNotificationManager.bringBackIncomingCallNotification(
+                TestUser.SELF_USER_ID.toString(),
+                dummyConversationId.toString(),
+            )
+        }
+    }
+
+    @Test
+    fun `given call accepted, when bringing back notification, then bring back notification`() = runTest {
+        // given
+        val (arrangement, viewModel) = Arrangement()
+            .withAppLocked()
+            .arrange()
+        viewModel.acceptCall()
+        advanceUntilIdle()
+        // when
+        viewModel.bringBackNotificationIfNeeded()
+        // then
+        coVerify(exactly = 0) {
+            arrangement.callNotificationManager.bringBackIncomingCallNotification(
+                dummyConversationId.toString(),
+                TestUser.SELF_USER_ID.toString()
+            )
+        }
     }
 
     companion object {

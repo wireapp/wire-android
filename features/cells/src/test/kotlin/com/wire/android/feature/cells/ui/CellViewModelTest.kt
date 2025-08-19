@@ -227,7 +227,7 @@ class CellViewModelTest {
 
             with(expectMostRecentItem()) {
                 assertEquals(testFile, node)
-                assertEquals(NodeBottomSheetAction.SAVE, actions.first())
+                assertEquals(NodeBottomSheetAction.SAVE, actions[1])
             }
         }
     }
@@ -398,6 +398,8 @@ class CellViewModelTest {
             every { kaliumFileSystem.providePersistentAssetPath(any()) } returns localFilePath
 
             every { kaliumFileSystem.exists(any()) } returns false
+
+            coEvery { getAllTagsUseCase.invoke() } returns emptySet<String>().right()
         }
 
         fun withLoadSuccess() = apply {

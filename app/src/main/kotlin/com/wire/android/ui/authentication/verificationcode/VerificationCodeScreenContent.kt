@@ -48,9 +48,11 @@ fun VerificationCodeScreenContent(
     isLoading: Boolean,
     onCodeResend: () -> Unit,
     onBackPressed: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     BackHandler { onBackPressed() }
     WireScaffold(
+        modifier = modifier,
         topBar = {
             WireCenterAlignedTopAppBar(
                 elevation = dimensions().spacing0x,
@@ -78,7 +80,7 @@ private fun MainContent(
     codeState: VerificationCodeState,
     isLoading: Boolean,
     onResendCode: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) = Column(
     horizontalAlignment = Alignment.CenterHorizontally,
     verticalArrangement = Arrangement.Center,
@@ -104,6 +106,7 @@ private fun MainContent(
         isLoading = isLoading,
         isCurrentCodeInvalid = codeState.isCurrentCodeInvalid,
         onResendCode = onResendCode,
+        timerText = codeState.remainingTimerText,
     )
     Spacer(
         modifier = Modifier
@@ -121,6 +124,23 @@ internal fun VerificationCodeScreenPreview() = WireTheme {
             codeLength = 6,
             isCurrentCodeInvalid = false,
             emailUsed = ""
+        ),
+        isLoading = false,
+        onCodeResend = {},
+        onBackPressed = {},
+    )
+}
+
+@PreviewMultipleThemes
+@Composable
+internal fun VerificationCodeScreenPreviewTimer() = WireTheme {
+    VerificationCodeScreenContent(
+        verificationCodeTextState = TextFieldState(),
+        verificationCodeState = VerificationCodeState(
+            codeLength = 6,
+            isCurrentCodeInvalid = false,
+            emailUsed = "",
+            remainingTimerText = "04:30"
         ),
         isLoading = false,
         onCodeResend = {},

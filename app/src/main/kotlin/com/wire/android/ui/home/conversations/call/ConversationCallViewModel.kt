@@ -23,6 +23,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.wire.android.di.CurrentAccount
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
@@ -32,6 +33,7 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.sync.SyncState
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.call.usecase.AnswerCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ConferenceCallingResult
@@ -59,6 +61,7 @@ import javax.inject.Inject
 @Suppress("LongParameterList", "TooManyFunctions")
 class ConversationCallViewModel @Inject constructor(
     val savedStateHandle: SavedStateHandle,
+    @CurrentAccount val currentAccount: UserId,
     private val observeOngoingCalls: ObserveOngoingCallsUseCase,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val observeParticipantsForConversation: ObserveParticipantsForConversationUseCase,
@@ -175,7 +178,7 @@ class ConversationCallViewModel @Inject constructor(
             } else {
                 dismissJoinCallAnywayDialog()
                 answerCall(conversationId = conversationId)
-                sendAction(ConversationCallViewActions.JoinedCall(conversationId))
+                sendAction(ConversationCallViewActions.JoinedCall(conversationId, currentAccount))
             }
         }
     }
@@ -193,7 +196,7 @@ class ConversationCallViewModel @Inject constructor(
             establishedCallConversationId?.let {
                 endCall(it)
             }
-            sendAction(ConversationCallViewActions.InitiatedCall(conversationId))
+            sendAction(ConversationCallViewActions.InitiatedCall(conversationId, currentAccount))
         }
     }
 
@@ -223,6 +226,6 @@ class ConversationCallViewModel @Inject constructor(
 }
 
 sealed interface ConversationCallViewActions {
-    data class JoinedCall(val conversationId: ConversationId) : ConversationCallViewActions
-    data class InitiatedCall(val conversationId: ConversationId) : ConversationCallViewActions
+    data class JoinedCall(val conversationId: ConversationId, val userId: UserId) : ConversationCallViewActions
+    data class InitiatedCall(val conversationId: ConversationId, val userId: UserId) : ConversationCallViewActions
 }

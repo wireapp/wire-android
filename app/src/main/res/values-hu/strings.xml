@@ -575,10 +575,6 @@
     <!--Read receipts -->
     <string name="conversation_options_read_receipt_label">Olvasási visszaigazolások</string>
     <string name="conversation_options_read_receipt_description">Amikor ez be van kapcsolva, az emberek láthatják, mikor olvasták el a beszélgetés üzeneteit.</string>
-    <!--Wire Cell -->
-    <string name="conversation_options_wire_cell_label">Wire Cell</string>
-    <string name="conversation_options_wire_cell_description">Ha ez aktív, minden beszélgetés fájljai a Wire Cell tárhelyre lesznek mentve.</string>
-    <string name="folder_label_wire_cell">Fájltárhely</string>
     <!-- Messages -->
     <string name="message_details_title">Üzenet részletei</string>
     <string name="message_details_reactions_tab">REAKCIÓK (%s)</string>
@@ -636,7 +632,6 @@
     <!-- Remove Conversation Member Dialog -->
     <string name="dialog_remove_conversation_member_title">Eltávolítja a beszélgetésből?</string>
     <string name="dialog_remove_conversation_member_description">%1$s (@%2$s) ezután nem fog tudni üzenetet küldeni és fogadni ebben a beszélgetésben.</string>
-    <string name="dialog_remove_conversation_member_error">Hiba történt a résztvevő beszélgetésből történő eltávolítása során</string>
     <string name="conversation_role_admin">Admin</string>
     <string name="conversation_role_member">Tag</string>
     <!-- Logout Wipe Data Dialog -->

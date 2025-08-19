@@ -33,7 +33,6 @@ import com.wire.android.ui.home.newconversation.channelaccess.toUiEnum
 import com.wire.android.ui.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
-import com.wire.kalium.cells.domain.usecase.SetWireCellForConversationUseCase
 import com.wire.kalium.common.functional.getOrNull
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
@@ -82,7 +81,6 @@ class GroupConversationDetailsViewModel @Inject constructor(
     private val isMLSEnabled: IsMLSEnabledUseCase,
     private val getDefaultProtocol: GetDefaultProtocolUseCase,
     refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase,
-    private val enableCell: SetWireCellForConversationUseCase,
     private val globalDataStore: GlobalDataStore,
 ) : GroupConversationParticipantsViewModel(savedStateHandle, observeConversationMembers, refreshUsersWithoutMetadata),
     ActionsManager<GroupConversationDetailsViewAction> by ActionsManagerImpl() {
@@ -234,18 +232,6 @@ class GroupConversationDetailsViewModel @Inject constructor(
     fun onServiceDialogConfirm() {
         updateState(groupOptionsState.value.copy(changeServiceOptionConfirmationRequired = false, loadingServicesOption = true))
         updateServicesRemoteRequest(false)
-    }
-
-    fun onWireCellStateChange(enableWireCell: Boolean) {
-        updateState(
-            groupOptionsState.value.copy(
-                loadingWireCellState = true,
-                isWireCellEnabled = enableWireCell,
-            )
-        )
-        viewModelScope.launch {
-            enableCell(conversationId, enableWireCell)
-        }
     }
 
     private fun updateServicesRemoteRequest(enableServices: Boolean) {

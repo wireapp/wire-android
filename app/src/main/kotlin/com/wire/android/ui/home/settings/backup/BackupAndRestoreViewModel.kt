@@ -53,6 +53,7 @@ import com.wire.kalium.logic.feature.backup.VerifyBackupResult
 import com.wire.kalium.logic.feature.backup.VerifyBackupUseCase
 import com.wire.kalium.util.DateTimeUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -86,6 +87,8 @@ class BackupAndRestoreViewModel @Inject constructor(
     @VisibleForTesting
     internal lateinit var latestImportedBackupTempPath: Path
 
+    private var createRestoreJob: Job? = null
+
     init {
         observeLastBackupDate()
         observeCreateBackupPasswordChanges()
@@ -107,33 +110,37 @@ class BackupAndRestoreViewModel @Inject constructor(
         }
     }
 
-    fun createBackup() = viewModelScope.launch {
+    fun createBackup() {
 
-        val password = createBackupPasswordState.text.toString()
+        createRestoreJob?.cancel()
+        createRestoreJob = viewModelScope.launch {
 
-        val result = if (mpBackupSettings is MPBackupSettings.Enabled) {
-            createMpBackupFile(password) { progress ->
-                updateCreationProgress(progress)
-            }
-        } else {
-            createBackupFile(password)
-        }
+            val password = createBackupPasswordState.text.toString()
 
-        when (result) {
-            is CreateBackupResult.Success -> {
-                state = state.copy(backupCreationProgress = BackupCreationProgress.Finished(result.backupFileName))
-                latestCreatedBackup = BackupAndRestoreState.CreatedBackup(
-                    result.backupFilePath,
-                    result.backupFileName,
-                    createBackupPasswordState.text.isNotEmpty()
-                )
-                createBackupPasswordState.clearText()
+            val result = if (mpBackupSettings is MPBackupSettings.Enabled) {
+                createMpBackupFile(password) { progress ->
+                    updateCreationProgress(progress)
+                }
+            } else {
+                createBackupFile(password)
             }
 
-            is CreateBackupResult.Failure -> {
-                state = state.copy(backupCreationProgress = BackupCreationProgress.Failed)
-                appLogger.e("Failed to create backup: ${result.coreFailure}")
-                AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.BackupExportFailed)
+            when (result) {
+                is CreateBackupResult.Success -> {
+                    state = state.copy(backupCreationProgress = BackupCreationProgress.Finished(result.backupFileName))
+                    latestCreatedBackup = BackupAndRestoreState.CreatedBackup(
+                        result.backupFilePath,
+                        result.backupFileName,
+                        createBackupPasswordState.text.isNotEmpty()
+                    )
+                    createBackupPasswordState.clearText()
+                }
+
+                is CreateBackupResult.Failure -> {
+                    state = state.copy(backupCreationProgress = BackupCreationProgress.Failed)
+                    appLogger.e("Failed to create backup: ${result.coreFailure}")
+                    AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.BackupExportFailed)
+                }
             }
         }
     }
@@ -273,11 +280,13 @@ class BackupAndRestoreViewModel @Inject constructor(
     }
 
     fun cancelBackupCreation() = viewModelScope.launch(dispatcher.main()) {
+        createRestoreJob?.cancel()
         createBackupPasswordState.clearText()
         updateCreationProgress(0f)
     }
 
     fun cancelBackupRestore() = viewModelScope.launch {
+        createRestoreJob?.cancel()
         restoreBackupPasswordState.clearText()
         state = state.copy(
             restoreFileValidation = RestoreFileValidation.Initial,
@@ -292,26 +301,29 @@ class BackupAndRestoreViewModel @Inject constructor(
         }
     }
 
-    private fun restoreBackup(backupFilePath: Path, password: String?) = viewModelScope.launch {
-        val result = when (state.backupFileFormat) {
-            BackupFileFormat.ANDROID -> importBackup(backupFilePath, password)
-            BackupFileFormat.MULTIPLATFORM -> importMpBackup(backupFilePath, password) { progress ->
-                updateRestoreProgress(progress)
+    private fun restoreBackup(backupFilePath: Path, password: String?) {
+        createRestoreJob?.cancel()
+        createRestoreJob = viewModelScope.launch {
+            val result = when (state.backupFileFormat) {
+                BackupFileFormat.ANDROID -> importBackup(backupFilePath, password)
+                BackupFileFormat.MULTIPLATFORM -> importMpBackup(backupFilePath, password) { progress ->
+                    updateRestoreProgress(progress)
+                }
             }
-        }
-        when (result) {
-            RestoreBackupResult.Success -> {
-                state = state.copy(
-                    backupRestoreProgress = BackupRestoreProgress.Finished,
-                    restorePasswordValidation = PasswordValidation.Valid
-                )
-                restoreBackupPasswordState.clearText()
-                AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.BackupRestoreSucceeded)
-            }
+            when (result) {
+                RestoreBackupResult.Success -> {
+                    state = state.copy(
+                        backupRestoreProgress = BackupRestoreProgress.Finished,
+                        restorePasswordValidation = PasswordValidation.Valid
+                    )
+                    restoreBackupPasswordState.clearText()
+                    AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.BackupRestoreSucceeded)
+                }
 
-            is RestoreBackupResult.Failure -> {
-                mapBackupRestoreFailure(result.failure)
-                AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.BackupRestoreFailed)
+                is RestoreBackupResult.Failure -> {
+                    mapBackupRestoreFailure(result.failure)
+                    AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.BackupRestoreFailed)
+                }
             }
         }
     }

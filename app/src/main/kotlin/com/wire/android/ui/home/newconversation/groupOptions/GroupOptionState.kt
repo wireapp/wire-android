@@ -22,9 +22,9 @@ data class GroupOptionState(
     val continueEnabled: Boolean = true,
     val isLoading: Boolean = false,
     val isAllowGuestEnabled: Boolean = true,
-    val isAllowServicesEnabled: Boolean = true,
+    val isAllowAppsEnabled: Boolean = false,
     val isReadReceiptEnabled: Boolean = true,
     val showAllowGuestsDialog: Boolean = false,
-    val isAllowServicesPossible: Boolean = true,
+    val isAppsUsagePossible: Boolean = false,
     val isWireCellsEnabled: Boolean? = null,
 )

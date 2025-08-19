@@ -185,8 +185,8 @@ class NewConversationViewModelTest {
 
         // then
         assertEquals(CreateConversationParam.Protocol.MLS, result)
-        assertEquals(false, result2.isAllowServicesEnabled)
-        assertEquals(false, result2.isAllowServicesPossible)
+        assertEquals(false, result2.isAllowAppsEnabled)
+        assertEquals(false, result2.isAppsUsagePossible)
     }
 
     @Test

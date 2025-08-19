@@ -18,6 +18,7 @@ jobs:
   build-develop:
     uses: ./.github/workflows/build-unified.yml
     with:
+      concurrency-group-suffix: push
       build-config: |
         [
           {

@@ -688,7 +688,6 @@ class GroupDetailsViewModelTest {
         advanceUntilIdle()
 
         // when
-
         // then
         assertEquals(true, viewModel.groupOptionsState.value.isServicesAllowed)
     }
@@ -708,11 +707,9 @@ class GroupDetailsViewModelTest {
         advanceUntilIdle()
 
         // when
-
         // then
         assertEquals(false, viewModel.groupOptionsState.value.isServicesAllowed)
     }
-
 
     companion object {
         val dummyConversationId = ConversationId("some-dummy-value", "some.dummy.domain")

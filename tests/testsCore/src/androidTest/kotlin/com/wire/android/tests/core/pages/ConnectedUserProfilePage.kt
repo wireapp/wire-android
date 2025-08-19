@@ -20,15 +20,29 @@ package com.wire.android.tests.core.pages
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
-import androidx.test.uiautomator.UiSelector
 import androidx.test.uiautomator.Until
+import uiautomatorutils.UiSelectorParams
+import uiautomatorutils.UiWaitUtils
+import kotlin.test.DefaultAsserter.assertTrue
 
 data class ConnectedUserProfilePage(private val device: UiDevice) {
-
-    private val startConversationButton = UiSelector().text("Start Conversation")
+    private val startConversationButton = UiSelectorParams(text = "Start Conversation")
+    private val closeButton = UiSelectorParams(
+        className = "android.view.View",
+        description = "Close"
+    )
 
     fun clickStartConversationButton(): ConnectedUserProfilePage {
-        device.findObject(startConversationButton).click()
+        UiWaitUtils.waitElement(startConversationButton).click()
+        return this
+    }
+
+    fun assertStartConversationButtonVisible(): ConnectedUserProfilePage {
+        val button = UiWaitUtils.waitElement(startConversationButton)
+        assertTrue(
+            "❌ Start Conversation button is not visible",
+            !button.visibleBounds.isEmpty
+        )
         return this
     }
 
@@ -44,6 +58,11 @@ data class ConnectedUserProfilePage(private val device: UiDevice) {
             throw AssertionError("❌ Toast message '$expectedMessage' was not displayed within ${timeoutMillis}ms.")
         }
 
+        return this
+    }
+
+    fun tapCloseButtonOnConnectedUserProfilePage(): ConnectedUserProfilePage {
+        UiWaitUtils.waitElement(closeButton).click()
         return this
     }
 }

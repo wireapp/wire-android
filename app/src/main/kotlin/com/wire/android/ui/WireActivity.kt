@@ -299,25 +299,27 @@ class WireActivity : AppCompatActivity() {
             backgroundType = backgroundType,
             onReturnToCallClick = { establishedCall ->
                 getOngoingCallIntent(
-                    this@WireActivity,
-                    establishedCall.conversationId.toString()
+                    context = this@WireActivity,
+                    conversationId = establishedCall.conversationId.toString(),
+                    userId = establishedCall.userId.toString(),
                 ).run {
                     startActivity(this)
                 }
             },
             onReturnToIncomingCallClick = {
                 getIncomingCallIntent(
-                    this@WireActivity,
-                    it.conversationId.toString(),
-                    null
+                    context = this@WireActivity,
+                    conversationId = it.conversationId.toString(),
+                    userId = it.userId.toString(),
                 ).run {
                     startActivity(this)
                 }
             },
             onReturnToOutgoingCallClick = {
                 getOutgoingCallIntent(
-                    this@WireActivity,
-                    it.conversationId.toString()
+                    context = this@WireActivity,
+                    conversationId = it.conversationId.toString(),
+                    userId = it.userId.toString(),
                 ).run {
                     startActivity(this)
                 }

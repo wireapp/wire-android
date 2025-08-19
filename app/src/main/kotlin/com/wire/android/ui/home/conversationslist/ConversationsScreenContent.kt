@@ -110,7 +110,7 @@ fun ConversationsScreenContent(
         when (action) {
             is ConversationListCallViewActions.JoinedCall -> {
                 AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallJoined)
-                getOngoingCallIntent(context, action.conversationId.toString()).run {
+                getOngoingCallIntent(context, action.conversationId.toString(), action.userId.toString()).run {
                     context.startActivity(this)
                 }
             }

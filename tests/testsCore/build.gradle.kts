@@ -27,5 +27,7 @@ android {
         androidTestImplementation(libs.koin.test)
         androidTestImplementation(libs.koin.test.junit4)
         implementation(libs.datafaker)
+        implementation("com.google.zxing:core:3.5.2")
+        implementation("com.journeyapps:zxing-android-embedded:4.3.0")
     }
 

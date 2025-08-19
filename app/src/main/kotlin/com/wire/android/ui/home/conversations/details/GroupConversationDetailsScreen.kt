@@ -380,37 +380,37 @@ private fun GroupConversationDetailsContent(
             } else {
                 ConversationAvatar.Group.Regular(conversationId = groupConversationOptionsState.conversationId)
             }
-            AnimatedVisibility(
-                visible = isScreenLoading.collectAsState().value,
-                enter = fadeIn(),
-                exit = fadeOut()
-            ) {
-                LoadingGroupConversationDetailsTopBarCollapsing(
-                    modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.spacing16x)
-                )
-            }
 
-            AnimatedVisibility(
-                visible = !isScreenLoading.collectAsState().value,
-                enter = fadeIn(
-                    animationSpec = tween(
-                        durationMillis = 500,
-                        delayMillis = 100
+            AnimatedContent(
+                targetState = isScreenLoading.collectAsState().value,
+                transitionSpec = {
+                    val enter = if (this.targetState) {
+                        slideInVertically(initialOffsetY = { it })
+                    } else {
+                        fadeIn(tween(durationMillis = 500, delayMillis = 100)) + slideInVertically(initialOffsetY = { it / 2 })
+                    }
+                    val exit = fadeOut()
+                    enter.togetherWith(exit)
+                },
+                label = "TopBarContent"
+            ) { loading ->
+                if (loading) {
+                    LoadingGroupConversationDetailsTopBarCollapsing(
+                        modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.spacing16x)
                     )
-                ) + slideInVertically(initialOffsetY = { it / 2 }),
-                exit = fadeOut()
-            ) {
-                GroupConversationDetailsTopBarCollapsing(
-                    title = groupConversationOptionsState.groupName,
-                    totalParticipants = groupParticipantsState.data.allCount,
-                    conversationAvatar = avatarData,
-                    onSearchConversationMessagesClick = onSearchConversationMessagesClick,
-                    onConversationMediaClick = onConversationMediaClick,
-                    isUnderLegalHold = groupConversationOptionsState.legalHoldStatus.showLegalHoldIndicator(),
-                    isWireCellEnabled = isWireCellEnabled,
-                    onLegalHoldLearnMoreClick = remember { { legalHoldSubjectDialogState.show(Unit) } },
-                    modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.spacing16x)
-                )
+                } else {
+                    GroupConversationDetailsTopBarCollapsing(
+                        title = groupConversationOptionsState.groupName,
+                        totalParticipants = groupParticipantsState.data.allCount,
+                        conversationAvatar = avatarData,
+                        onSearchConversationMessagesClick = onSearchConversationMessagesClick,
+                        onConversationMediaClick = onConversationMediaClick,
+                        isUnderLegalHold = groupConversationOptionsState.legalHoldStatus.showLegalHoldIndicator(),
+                        isWireCellEnabled = isWireCellEnabled,
+                        onLegalHoldLearnMoreClick = remember { { legalHoldSubjectDialogState.show(Unit) } },
+                        modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.spacing16x)
+                    )
+                }
             }
         },
         topBarFooter = {

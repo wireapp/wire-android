@@ -227,13 +227,15 @@ jobs:
         if: matrix.generate-version-file == true
         run: ./gradlew generateVersionFile
 
+      - name: Move version file for consistent artifact structure
+        if: matrix.generate-version-file == true
+        run: mv app/version.txt app/build/outputs/
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.flavor }}-${{ matrix.variant }}-artifacts
-          path: |
-            app/build/outputs/
-            ${{ matrix.generate-version-file == true && 'app/version.txt' || '' }}
+          path: app/build/outputs/
           retention-days: 7
 
       - name: Build summary

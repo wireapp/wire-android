@@ -59,7 +59,7 @@ jobs:
               },
               {
                 "type": "github-release",
-                "additional-files": "app/version.txt"
+                "additional-files": "app/build/outputs/version.txt"
               }
             ]
           }

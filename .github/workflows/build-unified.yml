@@ -89,10 +89,14 @@ jobs:
   ui-tests:
     name: "UI Tests"
     uses: ./.github/workflows/gradle-run-ui-tests.yml
+    with:
+      artifact-suffix: ${{ inputs.concurrency-group-suffix }}
 
   unit-tests:
     name: "Unit Tests"
     uses: ./.github/workflows/gradle-run-unit-tests.yml
+    with:
+      artifact-suffix: ${{ inputs.concurrency-group-suffix }}
     secrets: inherit
 
   # Build matrix job - only runs if all quality checks pass

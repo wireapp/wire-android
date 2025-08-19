@@ -115,13 +115,7 @@ class NewConversationViewModel @Inject constructor(
                 groupProtocol = defaultProtocol
             )
         }
-        groupOptionsState = GroupOptionState().let {
-            val isMLS = newGroupState.groupProtocol == CreateConversationParam.Protocol.MLS
-            it.copy(
-                isAllowAppsEnabled = !isMLS,
-                isAppsUsagePossible = !isMLS
-            )
-        }
+        observeAllowanceOfAppsUsage()
         createGroupState = CreateGroupState.Default
         setConversationCreationParam()
     }

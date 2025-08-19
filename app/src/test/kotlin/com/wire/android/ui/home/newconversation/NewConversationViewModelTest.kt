@@ -20,6 +20,7 @@
 
 package com.wire.android.ui.home.newconversation
 
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import com.wire.android.assertions.shouldBeEqualTo
@@ -386,5 +387,28 @@ class NewConversationViewModelTest {
 
         assertTrue(viewModel.groupOptionsState.isAppsUsagePossible)
         assertTrue(viewModel.groupOptionsState.isAllowAppsEnabled)
+    }
+
+    @Test
+    fun `given state is reset, when reset called, then state should reflect that`() = runTest {
+        // Given
+        val (_, viewModel) = NewConversationViewModelArrangement()
+            .withGetSelfUser(isTeamMember = true)
+            .withAppsAllowedResult(true)
+            .arrange()
+
+        // dirty state
+        viewModel.newGroupNameTextState = TextFieldState("Test Group")
+        viewModel.groupOptionsState = viewModel.groupOptionsState.copy(
+            isAppsUsagePossible = true,
+            isAllowAppsEnabled = false
+        )
+
+        // When
+        viewModel.resetState()
+
+        assertTrue(viewModel.groupOptionsState.isAppsUsagePossible)
+        assertTrue(viewModel.groupOptionsState.isAllowAppsEnabled)
+        assertEquals("", viewModel.newGroupNameTextState.text)
     }
 }

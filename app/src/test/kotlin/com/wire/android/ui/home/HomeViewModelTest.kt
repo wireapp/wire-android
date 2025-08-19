@@ -23,12 +23,15 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.framework.TestUser
+import com.wire.android.ui.WireActivityViewModelTest.Companion.TEST_ACCOUNT_INFO
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
 import com.wire.kalium.logic.feature.legalhold.LegalHoldStateForSelfUser
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserUseCase
 import com.wire.kalium.logic.feature.personaltoteamaccount.CanMigrateFromPersonalToTeamUseCase
+import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
+import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -161,6 +164,9 @@ class HomeViewModelTest {
         @MockK
         lateinit var canMigrateFromPersonalToTeam: CanMigrateFromPersonalToTeamUseCase
 
+        @MockK
+        lateinit var currentSessionFlow: CurrentSessionFlowUseCase
+
         private val viewModel by lazy {
             HomeViewModel(
                 savedStateHandle = savedStateHandle,
@@ -169,6 +175,7 @@ class HomeViewModelTest {
                 needsToRegisterClient = needsToRegisterClient,
                 observeLegalHoldStatusForSelfUser = observeLegalHoldStatusForSelfUser,
                 canMigrateFromPersonalToTeam = canMigrateFromPersonalToTeam,
+                currentSessionFlow = { currentSessionFlow },
             )
         }
 
@@ -177,6 +184,7 @@ class HomeViewModelTest {
             withSelfUser(flowOf(TestUser.SELF_USER))
             withCanMigrateFromPersonalToTeamReturning(true)
             withLegalHoldStatus(flowOf(LegalHoldStateForSelfUser.Disabled))
+            coEvery { currentSessionFlow() } returns flowOf(CurrentSessionResult.Success(TEST_ACCOUNT_INFO))
         }
 
         fun withSelfUser(result: Flow<SelfUser>) = apply {
@@ -198,10 +206,6 @@ class HomeViewModelTest {
 
         fun withInitialSyncCompletedReturning(result: Flow<Boolean>) = apply {
             coEvery { dataStore.initialSyncCompleted } returns result
-        }
-
-        fun withWelcomeScreenPresentedReturning(result: Boolean) = apply {
-            coEvery { globalDataStore.isWelcomeScreenPresented() } returns result
         }
 
         fun arrange() = this to viewModel

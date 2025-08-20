@@ -22,6 +22,7 @@ jobs:
   build-validation:
     uses: ./.github/workflows/build-unified.yml
     with:
+      concurrency-group-suffix: pr
       build-config: |
         [
           {

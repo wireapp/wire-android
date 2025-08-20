@@ -233,7 +233,7 @@ class CallNotificationBuilder @Inject constructor(
             )
             .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            .setContentIntent(outgoingCallPendingIntent(context, conversationIdString))
+            .setContentIntent(outgoingCallPendingIntent(context, conversationIdString, userIdString))
             .build()
     }
 

@@ -48,6 +48,7 @@ import com.wire.android.services.ServicesManager
 import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.calling.CallActivity
 import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_CONVERSATION_ID
+import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_SHOULD_ANSWER_CALL
 import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_USER_ID
 import com.wire.android.ui.calling.common.ProximitySensorManager
 import com.wire.android.ui.calling.ongoing.OngoingCallActivity.Companion.TAG
@@ -172,10 +173,12 @@ fun getOngoingCallIntent(
     context: Context,
     conversationId: String,
     userId: String,
+    shouldAnswerCall: Boolean = false,
 ) = Intent(context, OngoingCallActivity::class.java).apply {
     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     putExtra(EXTRA_CONVERSATION_ID, conversationId)
     putExtra(EXTRA_USER_ID, userId)
+    putExtra(EXTRA_SHOULD_ANSWER_CALL, shouldAnswerCall)
 }
 
 private const val ASPECT_RATIO_NUMERATOR = 2

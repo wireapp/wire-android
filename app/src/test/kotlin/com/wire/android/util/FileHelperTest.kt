@@ -96,7 +96,7 @@ class FileHelperTest {
     }
 
     @Test
-    fun `given Android greater or equal than 9, when saving file to downloads folder, then use correct order of executions`() = runTest {
+    fun `given Android greater than 9, when saving file to downloads folder, then use correct order of executions`() = runTest {
         // given
         val arrangement = Arrangement()
             .withUriMimeType("text/plain")

@@ -47,6 +47,7 @@ import com.wire.kalium.logic.feature.channels.ObserveChannelsCreationPermissionU
 import com.wire.kalium.logic.feature.conversation.createconversation.ConversationCreationResult
 import com.wire.kalium.logic.feature.conversation.createconversation.CreateChannelUseCase
 import com.wire.kalium.logic.feature.conversation.createconversation.CreateRegularGroupUseCase
+import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageUseCase
 import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -66,6 +67,7 @@ class NewConversationViewModel @Inject constructor(
     private val getSelfUser: GetSelfUserUseCase,
     private val getDefaultProtocol: GetDefaultProtocolUseCase,
     private val globalDataStore: GlobalDataStore,
+    private val observeIsAppsAllowedForUsage: ObserveIsAppsAllowedForUsageUseCase
 ) : ViewModel() {
 
     var newGroupNameTextState: TextFieldState = TextFieldState()
@@ -78,24 +80,29 @@ class NewConversationViewModel @Inject constructor(
         }
     )
 
-    var groupOptionsState: GroupOptionState by mutableStateOf(
-        GroupOptionState().let {
-            val isMLS = newGroupState.groupProtocol == CreateConversationParam.Protocol.MLS
-            it.copy(
-                isAllowServicesEnabled = !isMLS,
-                isAllowServicesPossible = !isMLS,
-            )
-        }
-    )
+    var groupOptionsState: GroupOptionState by mutableStateOf(GroupOptionState())
     var isChannelCreationPossible: Boolean by mutableStateOf(true)
     var isFreemiumAccount: Boolean by mutableStateOf(false) // TODO: implement logic to determine if the account is freemium
 
     var createGroupState: CreateGroupState by mutableStateOf(CreateGroupState.Default)
 
     init {
+        observeAllowanceOfAppsUsage()
         setConversationCreationParam()
         observeChannelCreationPermission()
         getWireCellFeatureState()
+    }
+
+    private fun observeAllowanceOfAppsUsage() {
+        viewModelScope.launch {
+            observeIsAppsAllowedForUsage()
+                .collectLatest { appsAllowed ->
+                    groupOptionsState = groupOptionsState.copy(
+                        isAppsUsagePossible = appsAllowed,
+                        isAllowAppsEnabled = appsAllowed
+                    )
+                }
+        }
     }
 
     fun resetState() {
@@ -108,13 +115,7 @@ class NewConversationViewModel @Inject constructor(
                 groupProtocol = defaultProtocol
             )
         }
-        groupOptionsState = GroupOptionState().let {
-            val isMLS = newGroupState.groupProtocol == CreateConversationParam.Protocol.MLS
-            it.copy(
-                isAllowServicesEnabled = !isMLS,
-                isAllowServicesPossible = !isMLS
-            )
-        }
+        observeAllowanceOfAppsUsage()
         createGroupState = CreateGroupState.Default
         setConversationCreationParam()
     }
@@ -194,7 +195,7 @@ class NewConversationViewModel @Inject constructor(
     }
 
     fun onAllowServicesStatusChanged(status: Boolean) {
-        groupOptionsState = groupOptionsState.copy(isAllowServicesEnabled = status)
+        groupOptionsState = groupOptionsState.copy(isAllowAppsEnabled = status)
     }
 
     fun onReadReceiptStatusChanged(status: Boolean) {
@@ -266,7 +267,7 @@ class NewConversationViewModel @Inject constructor(
                     readReceiptsEnabled = groupOptionsState.isReadReceiptEnabled,
                     accessRole = Conversation.accessRolesFor(
                         guestAllowed = groupOptionsState.isAllowGuestEnabled,
-                        servicesAllowed = groupOptionsState.isAllowServicesEnabled,
+                        servicesAllowed = groupOptionsState.isAllowAppsEnabled,
                         nonTeamMembersAllowed = groupOptionsState.isAllowGuestEnabled
                     ),
                     access = Conversation.accessFor(groupOptionsState.isAllowGuestEnabled),
@@ -309,7 +310,7 @@ class NewConversationViewModel @Inject constructor(
                     wireCellEnabled = groupOptionsState.isWireCellsEnabled ?: false,
                     accessRole = Conversation.accessRolesFor(
                         guestAllowed = groupOptionsState.isAllowGuestEnabled,
-                        servicesAllowed = groupOptionsState.isAllowServicesEnabled,
+                        servicesAllowed = groupOptionsState.isAllowAppsEnabled,
                         nonTeamMembersAllowed = groupOptionsState.isAllowGuestEnabled
                     ),
                     access = Conversation.accessFor(groupOptionsState.isAllowGuestEnabled),

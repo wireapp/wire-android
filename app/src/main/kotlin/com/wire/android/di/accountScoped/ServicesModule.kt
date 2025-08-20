@@ -19,8 +19,6 @@ package com.wire.android.di.accountScoped
 
 import com.wire.android.di.CurrentAccount
 import com.wire.android.di.KaliumCoreLogic
-import dagger.Module
-import dagger.Provides
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.service.GetServiceByIdUseCase
@@ -28,6 +26,8 @@ import com.wire.kalium.logic.feature.service.ObserveAllServicesUseCase
 import com.wire.kalium.logic.feature.service.ObserveIsServiceMemberUseCase
 import com.wire.kalium.logic.feature.service.SearchServicesByNameUseCase
 import com.wire.kalium.logic.feature.service.ServiceScope
+import dagger.Module
+import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.scopes.ViewModelScoped
@@ -62,4 +62,9 @@ class ServicesModule {
     @Provides
     fun provideSearchServicesByNameUseCase(serviceScope: ServiceScope): SearchServicesByNameUseCase =
         serviceScope.searchServicesByName
+
+    @ViewModelScoped
+    @Provides
+    fun provideObserveIsAppsAllowedForUsage(serviceScope: ServiceScope) =
+        serviceScope.observeIsAppsAllowedForUsage
 }

@@ -53,9 +53,9 @@ import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
 import com.wire.android.ui.common.calculateCurrentTab
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.search.rememberSearchbarState
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.wire.android.ui.common.search.rememberSearchbarState
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import com.wire.android.ui.home.newconversation.common.ContinueButton
 import com.wire.android.ui.home.newconversation.common.CreateRegularGroupOrChannelButtons
@@ -80,7 +80,7 @@ fun SearchUsersAndServicesScreen(
     isUserAllowedToCreateChannels: Boolean,
     modifier: Modifier = Modifier,
     isGroupSubmitVisible: Boolean = true,
-    isServicesAllowed: Boolean = false,
+    isAppDiscoveryAllowed: Boolean = false,
     initialPage: SearchPeopleTabItem = SearchPeopleTabItem.PEOPLE,
     onContinue: () -> Unit = {},
     onCreateNewGroup: () -> Unit = {},
@@ -88,8 +88,8 @@ fun SearchUsersAndServicesScreen(
 ) {
     val searchBarState = rememberSearchbarState()
     val scope = rememberCoroutineScope()
-    val tabs = remember(isServicesAllowed) {
-        if (isServicesAllowed) SearchPeopleTabItem.entries else listOf(SearchPeopleTabItem.PEOPLE)
+    val tabs = remember(isAppDiscoveryAllowed) {
+        if (isAppDiscoveryAllowed) SearchPeopleTabItem.entries else listOf(SearchPeopleTabItem.PEOPLE)
     }
     val pagerState = rememberPagerState(
         initialPage = tabs.indexOf(initialPage),
@@ -102,6 +102,12 @@ fun SearchUsersAndServicesScreen(
     }
     val lazyListStates: List<LazyListState> = List(tabs.size) {
         rememberLazyListState()
+    }
+
+    val searchBarTitle = if (isAppDiscoveryAllowed) {
+        stringResource(R.string.label_search_people_or_apps)
+    } else {
+        stringResource(R.string.label_search_people)
     }
 
     CollapsingTopBarScaffold(
@@ -134,14 +140,14 @@ fun SearchUsersAndServicesScreen(
         topBarCollapsing = {
             SearchTopBar(
                 isSearchActive = searchBarState.isSearchActive,
-                searchBarHint = stringResource(R.string.label_search_people),
+                searchBarHint = searchBarTitle,
                 searchBarDescription = stringResource(R.string.content_description_add_participants_search_field),
                 searchQueryTextState = searchBarState.searchQueryTextState,
                 onActiveChanged = searchBarState::searchActiveChanged,
             )
         },
         topBarFooter = {
-            if (screenType == SearchPeopleScreenType.CONVERSATION_DETAILS && isServicesAllowed) {
+            if (isAppDiscoveryAllowed) {
                 WireTabRow(
                     tabs = SearchPeopleTabItem.entries,
                     selectedTabIndex = currentTabState,

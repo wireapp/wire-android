@@ -39,6 +39,7 @@ import com.wire.kalium.logic.feature.channels.ObserveChannelsCreationPermissionU
 import com.wire.kalium.logic.feature.conversation.createconversation.ConversationCreationResult
 import com.wire.kalium.logic.feature.conversation.createconversation.CreateChannelUseCase
 import com.wire.kalium.logic.feature.conversation.createconversation.CreateRegularGroupUseCase
+import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageUseCase
 import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
@@ -61,6 +62,7 @@ internal class NewConversationViewModelArrangement {
         coEvery { observeChannelsCreationPermissionUseCase() } returns flowOf(ChannelCreationPermission.Forbidden)
         every { getDefaultProtocol() } returns SupportedProtocol.PROTEUS
         every { globalDataStore.wireCellsEnabled() } returns flowOf(false)
+        withAppsAllowedResult(false)
     }
 
     @MockK
@@ -80,6 +82,9 @@ internal class NewConversationViewModelArrangement {
 
     @MockK
     lateinit var getDefaultProtocol: GetDefaultProtocolUseCase
+
+    @MockK
+    lateinit var observeIsAppsAllowedForUsage: ObserveIsAppsAllowedForUsageUseCase
 
     @MockK
     lateinit var globalDataStore: GlobalDataStore
@@ -206,12 +211,17 @@ internal class NewConversationViewModelArrangement {
         every { getDefaultProtocol() } returns supportedProtocol
     }
 
+    fun withAppsAllowedResult(result: Boolean) = apply {
+        coEvery { observeIsAppsAllowedForUsage() } returns flowOf(result)
+    }
+
     fun arrange() = this to NewConversationViewModel(
         createRegularGroup = createRegularGroup,
         createChannel = createChannel,
         isUserAllowedToCreateChannels = observeChannelsCreationPermissionUseCase,
         getSelfUser = getSelf,
         getDefaultProtocol = getDefaultProtocol,
+        observeIsAppsAllowedForUsage = observeIsAppsAllowedForUsage,
         globalDataStore = globalDataStore,
     ).also {
         it.createGroupState = createGroupState

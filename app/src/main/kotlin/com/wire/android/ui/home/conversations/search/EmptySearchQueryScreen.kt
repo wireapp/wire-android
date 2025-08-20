@@ -45,8 +45,15 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
 
 @Composable
-fun EmptySearchQueryScreen() {
+fun EmptySearchQueryScreen(
+    text: String = stringResource(R.string.label_search_people_instruction),
+    learnMoreTextToLink: Pair<String, String> = Pair(
+        stringResource(R.string.label_learn_more_searching_user),
+        stringResource(R.string.url_learn_about_search)
+    )
+) {
     val context = LocalContext.current
+    val (learnMoreText, learnMoreUrl) = learnMoreTextToLink
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
@@ -58,19 +65,18 @@ fun EmptySearchQueryScreen() {
             verticalArrangement = Arrangement.Center,
         ) {
             Text(
-                text = stringResource(R.string.label_search_people_instruction),
+                text = text,
                 style = MaterialTheme.wireTypography.body01.copy(color = MaterialTheme.wireColorScheme.secondaryText),
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(dimensions().spacing16x))
-            val aboutSearchUrl = stringResource(id = R.string.url_learn_about_search)
             Text(
-                text = stringResource(R.string.label_learn_more_searching_user),
+                text = learnMoreText,
                 style = MaterialTheme.wireTypography.body02.copy(
                     textDecoration = TextDecoration.Underline,
                     color = MaterialTheme.colorScheme.onBackground
                 ),
-                modifier = Modifier.clickable { CustomTabsHelper.launchUrl(context, aboutSearchUrl) }
+                modifier = Modifier.clickable { CustomTabsHelper.launchUrl(context, learnMoreUrl) }
             )
         }
     }

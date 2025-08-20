@@ -5,7 +5,7 @@ on:
     types: [ published ]
 
 permissions:
-  contents: read
+  contents: write
   actions: read
 
 concurrency:
@@ -40,6 +40,7 @@ jobs:
     needs: validate-release
     uses: ./.github/workflows/build-unified.yml
     with:
+      concurrency-group-suffix: prod
       build-config: |
         [
           {
@@ -59,7 +60,7 @@ jobs:
               },
               {
                 "type": "github-release",
-                "additional-files": "app/version.txt"
+                "additional-files": "app/build/outputs/version.txt"
               }
             ]
           }
@@ -71,6 +72,7 @@ jobs:
     needs: validate-release
     uses: ./.github/workflows/build-unified.yml
     with:
+      concurrency-group-suffix: fdroid
       build-config: |
         [
           {

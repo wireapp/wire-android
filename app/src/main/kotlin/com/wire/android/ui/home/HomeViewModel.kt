@@ -29,12 +29,16 @@ import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.ActionsViewModel
+import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
 import com.wire.kalium.logic.feature.legalhold.LegalHoldStateForSelfUser
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserUseCase
 import com.wire.kalium.logic.feature.personaltoteamaccount.CanMigrateFromPersonalToTeamUseCase
+import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
+import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
+import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -52,6 +56,7 @@ class HomeViewModel @Inject constructor(
     private val needsToRegisterClient: NeedsToRegisterClientUseCase,
     private val canMigrateFromPersonalToTeam: CanMigrateFromPersonalToTeamUseCase,
     private val observeLegalHoldStatusForSelfUser: ObserveLegalHoldStateForSelfUserUseCase,
+    private val currentSessionFlow: Lazy<CurrentSessionFlowUseCase>,
 ) : ActionsViewModel<HomeRequirement>() {
 
     @VisibleForTesting
@@ -113,6 +118,7 @@ class HomeViewModel @Inject constructor(
     fun checkRequirements() {
         viewModelScope.launch {
             val selfUser = selfUserFlow.firstOrNull() ?: return@launch
+            if (isLoggedOut()) return@launch
             when {
                 needsToRegisterClient() -> // check if the client needs to be registered
                     sendAction(HomeRequirement.RegisterDevice)
@@ -124,5 +130,10 @@ class HomeViewModel @Inject constructor(
                     sendAction(HomeRequirement.CreateAccountUsername)
             }
         }
+    }
+
+    private suspend fun isLoggedOut(): Boolean {
+        val accountInfo = (currentSessionFlow.get().invoke().firstOrNull() as? CurrentSessionResult.Success)?.accountInfo
+        return accountInfo !is AccountInfo.Valid
     }
 }

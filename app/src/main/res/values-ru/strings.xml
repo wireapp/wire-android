@@ -624,10 +624,6 @@
     <!--Read receipts -->
     <string name="conversation_options_read_receipt_label">Отчеты о прочтении</string>
     <string name="conversation_options_read_receipt_description">При включении ваши собеседники смогут видеть когда было прочитано их сообщение.</string>
-    <!--Wire Cell -->
-    <string name="conversation_options_wire_cell_label">Wire Cell</string>
-    <string name="conversation_options_wire_cell_description">Если этот параметр включен, все файлы бесед сохраняются в хранилище Wire Cell.</string>
-    <string name="folder_label_wire_cell">Файловое хранилище</string>
     <!-- Messages -->
     <string name="message_details_title">Сведения о сообщении</string>
     <string name="message_details_reactions_tab">РЕАКЦИИ (%s)</string>

@@ -10,7 +10,7 @@ on:
     types: [ opened, synchronize ]
 
 permissions:
-  contents: read
+  contents: write
   actions: read
 
 concurrency:
@@ -23,6 +23,7 @@ jobs:
     if: github.event_name == 'merge_group' || (github.event.pull_request.head.repo.full_name == github.repository && github.event_name == 'pull_request')
     uses: ./.github/workflows/build-unified.yml
     with:
+      concurrency-group-suffix: pr
       build-config: |
         [
           {

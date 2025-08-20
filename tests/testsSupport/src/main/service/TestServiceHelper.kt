@@ -133,6 +133,24 @@ class TestServiceHelper {
         )
     }
 
+    fun userXAddedContactsToGroupChat(
+        userAsNameAlias: String,
+        contactsToAddNameAliases: String,
+        chatName: String
+    ) {
+        val userAs = toClientUser(userAsNameAlias)
+
+        val contactsToAdd = usersManager
+            .splitAliases(contactsToAddNameAliases)
+            .map { toClientUser(it) }
+
+        BackendClient.loadBackend(userAs.backendName.orEmpty()).addUsersToGroupConversation(
+            asUser = userAs,
+            contacts = contactsToAdd,
+            conversation = toConvoObj(userAs, chatName)
+        )
+    }
+
     fun contactSendsLocalTextPersonalMLSConversation(
         context: Context,
         fileName: String,
@@ -223,17 +241,17 @@ class TestServiceHelper {
         )
     }
 
-    private fun toConvoObjPersonal(ownerAlias: String, convoName: String): Conversation {
+    fun toConvoObjPersonal(ownerAlias: String, convoName: String): Conversation {
         return toConvoObjPersonal(toClientUser(ownerAlias), convoName)
     }
 
-    private fun toConvoObjPersonal(owner: ClientUser, convoName: String): Conversation {
+    fun toConvoObjPersonal(owner: ClientUser, convoName: String): Conversation {
         val convoName = usersManager.replaceAliasesOccurrences(convoName, ClientUserManager.FindBy.NAME_ALIAS)
         val backend = BackendClient.loadBackend(owner.backendName.orEmpty())
         return backend.getPersonalConversationByName(owner, convoName)
     }
 
-    private fun toConvoObj(owner: ClientUser, convoName: String): Conversation {
+    fun toConvoObj(owner: ClientUser, convoName: String): Conversation {
         val convoName = usersManager.replaceAliasesOccurrences(convoName, ClientUserManager.FindBy.NAME_ALIAS)
         val backend = BackendClient.loadBackend(owner.backendName.orEmpty())
         return backend.getConversationByName(owner, convoName)

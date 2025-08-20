@@ -19,15 +19,11 @@
 package com.wire.android.ui.common
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.selected
@@ -35,15 +31,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.flowWithLifecycle
-import com.google.accompanist.placeholder.PlaceholderHighlight
-import com.google.accompanist.placeholder.placeholder
-import com.google.accompanist.placeholder.shimmer
 import com.wire.android.R
 import com.wire.android.model.Clickable
-import com.wire.android.ui.home.conversations.model.messagetypes.asset.UIAssetMessage
-import com.wire.android.ui.theme.wireColorScheme
-import com.wire.android.ui.theme.wireDimensions
-import com.wire.kalium.logic.data.message.Message
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.datetime.Instant
@@ -76,19 +65,6 @@ fun Modifier.selectableBackground(
             if (isSelected) selected = true // So TalkBack ignores selection when it's not selected
         }
 }
-
-@Composable
-fun Modifier.shimmerPlaceholder(
-    visible: Boolean,
-    color: Color = MaterialTheme.wireColorScheme.background,
-    shimmerColor: Color = MaterialTheme.wireColorScheme.surface,
-    shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.placeholderShimmerCornerSize)
-) = this.placeholder(
-    visible = visible,
-    highlight = PlaceholderHighlight.shimmer(shimmerColor),
-    color = color,
-    shape = shape,
-)
 
 @Composable
 fun <T> rememberFlow(
@@ -129,14 +105,4 @@ fun monthYearHeader(month: Int, year: Int): String {
         // If it's not the current year, display both the month name and the year
         "$monthName $year"
     }
-}
-
-fun List<UIAssetMessage>.toImageAssetGroupedByMonthAndYear(timeZone: TimeZone) = this.groupBy { asset ->
-    val localDateTime = asset.time.toLocalDateTime(timeZone)
-    monthYearHeader(year = localDateTime.year, month = localDateTime.monthNumber)
-}
-
-fun List<Message.Standalone>.toGenericAssetGroupedByMonthAndYear(timeZone: TimeZone) = this.groupBy { message ->
-    val localDateTime = message.date.toLocalDateTime(timeZone)
-    monthYearHeader(year = localDateTime.year, month = localDateTime.monthNumber)
 }

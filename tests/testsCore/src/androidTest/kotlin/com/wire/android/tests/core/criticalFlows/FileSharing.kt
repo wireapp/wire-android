@@ -65,7 +65,8 @@ class FileSharing : KoinTest {
     fun setUp() {
         context = InstrumentationRegistry.getInstrumentation().context
         // device = UiAutomatorSetup.start(UiAutomatorSetup.APP_DEV)
-        device = UiAutomatorSetup.start(UiAutomatorSetup.APP_STAGING)
+        device = UiAutomatorSetup.start(UiAutomatorSetup.APP_INTERNAL)
+       // device = UiAutomatorSetup.start(UiAutomatorSetup.APP_STAGING)
         backendClient = BackendClient.loadBackend("STAGING")
         teamHelper = TeamHelper()
     }
@@ -75,7 +76,7 @@ class FileSharing : KoinTest {
         //  UiAutomatorSetup.stopApp()
         // To delete team
          teamOwner2?.deleteTeam(backendClient!!)
-         teamOwner1?.deleteTeam(backendClient!!)
+        teamOwner1?.deleteTeam(backendClient!!)
         deleteDownloadedFilesContainingFileWord()
     }
 
@@ -133,6 +134,10 @@ class FileSharing : KoinTest {
             assertEmailWelcomePage()
         }
         pages.loginPage.apply {
+            clickStagingDeepLink()
+            clickProceedButtonOnDeeplinkOverlay()
+        }
+        pages.loginPage.apply {
             enterPersonalUserLoggingEmail(connectionReceiverFromReceiveTeam.email ?: "")
             clickLoginButton()
             enterPersonalUserLoginPassword(connectionReceiverFromReceiveTeam.password ?: "")
@@ -149,7 +154,7 @@ class FileSharing : KoinTest {
                 runBlocking { usersSetUniqueUsername("user4Name") }
             }
 
-            pages.conversationPage.apply {
+            pages.conversationListPage.apply {
                 assertConnectionRequestNameIs(connectionSenderFromSendTeam.name ?: "")
                 clickConnectionRequestOfUser(connectionSenderFromSendTeam.name ?: "")
             }

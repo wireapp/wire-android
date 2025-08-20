@@ -6,7 +6,7 @@ on:
       - release/candidate
 
 permissions:
-  contents: read
+  contents: write
   actions: read
 
 concurrency:

@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.wire.android.ui.common.button.LoadingWireSecondaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.common.spacers.HorizontalSpace
@@ -44,16 +45,41 @@ fun SearchAndMediaRow(
         HorizontalSpace.x8()
         if (isWireCellEnabled) {
             ConversationFilesButton(
-                modifier = Modifier.weight(1F),
+                modifier = Modifier.weight(1f),
                 onClick = onConversationMediaClick
             )
         } else {
             ConversationMediaButton(
-                modifier = Modifier.weight(1F),
+                modifier = Modifier.weight(1f),
                 onClick = onConversationMediaClick
             )
         }
     }
+}
+
+@Composable
+fun LoadingSearchAndMediaRow(
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier.padding(horizontal = dimensions().spacing16x)
+    ) {
+        LoadingWireSecondaryButton(
+            modifier = Modifier.weight(1f),
+            withLeadingIcon = true
+        )
+        HorizontalSpace.x8()
+        LoadingWireSecondaryButton(
+            modifier = Modifier.weight(1f),
+            withLeadingIcon = true
+        )
+    }
+}
+
+@MultipleThemePreviews
+@Composable
+fun PreviewLoadingSearchAndMediaRow() = WireTheme {
+    LoadingSearchAndMediaRow()
 }
 
 @MultipleThemePreviews

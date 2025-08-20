@@ -288,7 +288,6 @@
     <string name="export_media_subject_title">Delar media från Wire</string>
     <!--Read receipts -->
     <string name="conversation_options_read_receipt_label">Läskvitton</string>
-    <!--Wire Cell -->
     <!-- Messages -->
     <string name="message_details_title">Meddelandedetaljer</string>
     <string name="message_details_reactions_tab">REAKTIONER (%s)</string>

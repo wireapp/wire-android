@@ -1,6 +1,11 @@
 name: "Unit Tests"
 
-on: [ workflow_call ]
+on:
+  workflow_call:
+    inputs:
+      artifact-suffix:
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -54,7 +59,7 @@ jobs:
       - name: Upload zipped test results
         uses: actions/upload-artifact@v4
         with:
-          name: unit-tests-android_${{ env.COMMIT_HASH }}
+          name: unit-tests-android_${{ env.COMMIT_HASH }}-${{ inputs.artifact-suffix }}
           path: unit-tests-android_${{ env.COMMIT_HASH }}.zip
 
       # Uploads test results as GitHub artifacts, so publish-test-results can find them later.
@@ -62,7 +67,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: test-results
+          name: test-results-${{ inputs.artifact-suffix }}
           path: |
             **/build/test-results/**/*.xml
             **/build/outputs/androidTest-results/**/*.xml
@@ -70,13 +75,13 @@ jobs:
       - name: Generate report
         uses: actions/upload-artifact@v4
         with:
-          name: report
+          name: report-${{ inputs.artifact-suffix }}
           path: app/build/reports/kover
 
       - name: Download Test Reports Folder
         uses: actions/download-artifact@v4
         with:
-          name: report
+          name: report-${{ inputs.artifact-suffix }}
           path: app/build/reports/kover
           merge-multiple: true
 

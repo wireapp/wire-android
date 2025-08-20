@@ -396,7 +396,6 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <!--Read receipts -->
     <string name="conversation_options_read_receipt_label">Recibos de lectura</string>
     <string name="conversation_options_read_receipt_description">Cuando est&#225; activado, las personas pueden ver cu&#225;ndo se lee su mensaje en esta conversaci&#243;n.</string>
-    <!--Wire Cell -->
     <!-- Messages -->
     <string name="message_details_title">Detalles del mensaje</string>
     <string name="message_details_reactions_tab">REACCIONES (%s)</string>

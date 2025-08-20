@@ -31,8 +31,6 @@ import com.wire.android.notification.CallNotificationManager
 import com.wire.android.notification.NotificationIds
 import com.wire.android.services.CallService.Action
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.android.util.logging.logIfEmptyUserName
-import com.wire.kalium.common.functional.Either
 import com.wire.kalium.common.functional.fold
 import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.id.ConversationId

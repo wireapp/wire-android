@@ -21,17 +21,19 @@ package com.wire.android.ui.common.bottomsheet.conversation
 import MutingOptionsSheetContent
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import com.wire.android.R
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.common.dialogs.UnblockUserDialogState
 import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavArgs
 import com.wire.android.ui.home.conversationslist.model.BlockingState
+import com.wire.android.ui.home.conversationslist.model.DeleteGroupDialogState
 import com.wire.android.ui.home.conversationslist.model.DialogState
-import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.ui.home.conversationslist.model.LeaveGroupDialogState
-import com.wire.kalium.logic.data.conversation.Conversation
-import com.wire.kalium.logic.data.conversation.ConversationFolder
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
@@ -39,27 +41,25 @@ import com.wire.kalium.logic.data.user.UserId
 @Composable
 fun ConversationSheetContent(
     conversationSheetState: ConversationSheetState,
-    onMutingConversationStatusChange: () -> Unit,
-    changeFavoriteState: (GroupDialogState, addToFavorite: Boolean) -> Unit,
+    conversationOptionsData: ConversationOptionsData,
+    changeFavoriteState: (ChangeFavoriteStateData) -> Unit,
     moveConversationToFolder: ((ConversationFoldersNavArgs) -> Unit)?,
-    removeFromFolder: (conversationId: ConversationId, conversationName: String, folder: ConversationFolder) -> Unit,
+    removeFromFolder: (RemoveFromFolderData) -> Unit,
     updateConversationArchiveStatus: (DialogState) -> Unit,
     clearConversationContent: (DialogState) -> Unit,
     blockUser: (BlockUserDialogState) -> Unit,
     unblockUser: (UnblockUserDialogState) -> Unit,
     leaveGroup: (LeaveGroupDialogState) -> Unit,
-    deleteGroup: (GroupDialogState) -> Unit,
-    deleteGroupLocally: (GroupDialogState) -> Unit,
-    isBottomSheetVisible: () -> Boolean = { true },
-    onItemClick: () -> Unit = {},
+    deleteGroup: (DeleteGroupDialogState) -> Unit,
+    deleteGroupLocally: (DeleteGroupDialogState) -> Unit,
+    updateMutedConversationStatus: (ConversationId, MutedConversationStatus) -> Unit,
+    openDebugMenu: (ConversationId) -> Unit,
 ) {
-    // it may be null as initial state
-    if (conversationSheetState.conversationSheetContent == null) return
-
-    when (conversationSheetState.currentOptionNavigation) {
-        ConversationOptionNavigation.Home -> {
+    var currentPage by rememberSaveable { mutableStateOf(conversationSheetState.initialPage) }
+    when (currentPage) {
+        ConversationSheetPage.Main -> {
             ConversationMainSheetContent(
-                conversationSheetContent = conversationSheetState.conversationSheetContent!!,
+                data = conversationOptionsData,
                 changeFavoriteState = changeFavoriteState,
                 moveConversationToFolder = moveConversationToFolder,
                 removeFromFolder = removeFromFolder,
@@ -70,21 +70,21 @@ fun ConversationSheetContent(
                 leaveGroup = leaveGroup,
                 deleteGroup = deleteGroup,
                 deleteGroupLocally = deleteGroupLocally,
-                navigateToNotification = conversationSheetState::toMutingNotificationOption,
-                onItemClick = onItemClick,
+                openMutingOptions = { currentPage = ConversationSheetPage.MutingNotification },
+                openDebugMenu = { openDebugMenu(conversationOptionsData.conversationId) },
             )
         }
 
-        ConversationOptionNavigation.MutingNotificationOption -> {
+        ConversationSheetPage.MutingNotification -> {
             val goBack: () -> Unit = {
-                if (conversationSheetState.startOptionNavigation == ConversationOptionNavigation.Home)
-                    conversationSheetState.toHome()
+                if (conversationSheetState.initialPage == ConversationSheetPage.Main) {
+                    currentPage = ConversationSheetPage.Main
+                }
             }
             MutingOptionsSheetContent(
-                mutingConversationState = conversationSheetState.conversationSheetContent!!.mutingConversationState,
+                mutingConversationState = conversationOptionsData.mutingConversationState,
                 onMuteConversation = { mutedStatus ->
-                    conversationSheetState.muteConversation(mutedStatus)
-                    onMutingConversationStatusChange()
+                    updateMutedConversationStatus(conversationOptionsData.conversationId, mutedStatus)
                     goBack()
                 },
                 onBackClick = goBack
@@ -92,18 +92,9 @@ fun ConversationSheetContent(
         }
     }
 
-    BackHandler(
-        conversationSheetState.currentOptionNavigation == ConversationOptionNavigation.MutingNotificationOption
-                && conversationSheetState.startOptionNavigation != ConversationOptionNavigation.MutingNotificationOption
-                && isBottomSheetVisible()
-    ) {
-        conversationSheetState.toHome()
+    BackHandler(conversationSheetState.initialPage == ConversationSheetPage.Main && currentPage != ConversationSheetPage.Main) {
+        currentPage = ConversationSheetPage.Main
     }
-}
-
-sealed class ConversationOptionNavigation {
-    object Home : ConversationOptionNavigation()
-    object MutingNotificationOption : ConversationOptionNavigation()
 }
 
 sealed interface ConversationTypeDetail {
@@ -135,64 +126,4 @@ sealed interface ConversationTypeDetail {
 
     val labelResource: Int
         get() = if (this is Group) R.string.group_label else R.string.conversation_label
-}
-
-data class ConversationSheetContent(
-    val title: String,
-    val conversationId: ConversationId,
-    val mutingConversationState: MutedConversationStatus,
-    val conversationTypeDetail: ConversationTypeDetail,
-    val selfRole: Conversation.Member.Role?,
-    val isTeamConversation: Boolean,
-    val isArchived: Boolean,
-    val protocol: Conversation.ProtocolInfo,
-    val mlsVerificationStatus: Conversation.VerificationStatus,
-    val proteusVerificationStatus: Conversation.VerificationStatus,
-    val isUnderLegalHold: Boolean,
-    val isFavorite: Boolean?,
-    val folder: ConversationFolder?,
-    val isDeletingConversationLocallyRunning: Boolean
-) {
-
-    private val isSelfUserMember: Boolean get() = selfRole != null
-
-    fun canEditNotifications(): Boolean = isSelfUserMember
-            && ((conversationTypeDetail is ConversationTypeDetail.Private
-            && (conversationTypeDetail.blockingState != BlockingState.BLOCKED)
-            && !conversationTypeDetail.isUserDeleted)
-            || conversationTypeDetail is ConversationTypeDetail.Group)
-
-    /**
-     * TODO(refactor): All of this logic to figure out permissions should live in Kalium/Logic module, instead of in the presentation layer
-     */
-    fun canDeleteGroup(): Boolean = canDeleteChannel || canDeleteRegularGroup
-
-    private val canDeleteRegularGroup: Boolean
-        get() = conversationTypeDetail is ConversationTypeDetail.Group.Regular &&
-                selfRole == Conversation.Member.Role.Admin &&
-                conversationTypeDetail.isFromTheSameTeam && isTeamConversation
-
-    private val canDeleteChannel: Boolean
-        get() = conversationTypeDetail is ConversationTypeDetail.Group.Channel &&
-                conversationTypeDetail.isFromTheSameTeam && isTeamConversation &&
-                (selfRole == Conversation.Member.Role.Admin || conversationTypeDetail.isSelfUserTeamAdmin)
-
-    fun canLeaveTheGroup(): Boolean = conversationTypeDetail is ConversationTypeDetail.Group && isSelfUserMember
-
-    fun canDeleteGroupLocally(): Boolean = !isSelfUserMember && !isDeletingConversationLocallyRunning
-
-    fun canBlockUser(): Boolean {
-       return conversationTypeDetail is ConversationTypeDetail.Private
-               && conversationTypeDetail.blockingState == BlockingState.NOT_BLOCKED
-               && !conversationTypeDetail.isUserDeleted
-    }
-
-    fun canUnblockUser(): Boolean =
-        conversationTypeDetail is ConversationTypeDetail.Private && conversationTypeDetail.blockingState == BlockingState.BLOCKED
-
-    fun canAddToFavourite(): Boolean = isFavorite != null &&
-            ((conversationTypeDetail is ConversationTypeDetail.Private && conversationTypeDetail.blockingState != BlockingState.BLOCKED)
-                    || conversationTypeDetail is ConversationTypeDetail.Group)
-
-    fun isAbandonedOneOnOneConversation(participantsCount: Int): Boolean = title.isEmpty() && participantsCount == 1
 }

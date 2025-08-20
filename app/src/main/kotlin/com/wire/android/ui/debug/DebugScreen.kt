@@ -45,12 +45,14 @@ import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.model.Clickable
+import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.destinations.DebugFeatureFlagsScreenDestination
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.home.settings.SettingsItem
 import com.wire.android.ui.home.settings.backup.BackupAndRestoreDialog
@@ -80,6 +82,9 @@ fun DebugScreen(
         onFlushLogs = userDebugViewModel::flushLogs,
         onDatabaseLoggerEnabledChanged = userDebugViewModel::setDatabaseLoggerEnabledState,
         onEnableWireCellsFeature = userDebugViewModel::enableWireCellsFeature,
+        onShowFeatureFlags = {
+            navigator.navigate(NavigationCommand(DebugFeatureFlagsScreenDestination))
+        }
     )
 }
 
@@ -92,6 +97,7 @@ internal fun UserDebugContent(
     onDeleteLogs: () -> Unit,
     onFlushLogs: () -> Deferred<Unit>,
     onEnableWireCellsFeature: (Boolean) -> Unit,
+    onShowFeatureFlags: () -> Unit,
 ) {
     val debugContentState: DebugContentState = rememberDebugContentState(state.logPath)
 
@@ -125,12 +131,15 @@ internal fun UserDebugContent(
                     appVersion = AppNameUtil.createAppName(),
                     buildVariant = "${BuildConfig.FLAVOR}${BuildConfig.BUILD_TYPE.replaceFirstChar { it.uppercase() }}",
                     onCopyText = debugContentState::copyToClipboard,
+                    onShowFeatureFlags = onShowFeatureFlags,
                 )
-                DebugWireCellOptions(
-                    isCellFeatureEnabled = isWireCellFeatureEnabled,
-                    onCheckedChange = onEnableWireCellsFeature,
-                )
-                DangerOptions()
+                if (BuildConfig.PRIVATE_BUILD) {
+                    DebugWireCellOptions(
+                        isCellFeatureEnabled = isWireCellFeatureEnabled,
+                        onCheckedChange = onEnableWireCellsFeature,
+                    )
+                    DangerOptions()
+                }
             }
         }
     }
@@ -148,36 +157,34 @@ fun DangerOptions(
     Column(modifier = modifier) {
         FolderHeader("Danger Zone DO NOT TOUCH")
         @SuppressLint("ComposeViewModelInjection")
-        if (BuildConfig.PRIVATE_BUILD) {
-            val backupAndRestoreStateHolder = rememberBackUpAndRestoreStateHolder()
+        val backupAndRestoreStateHolder = rememberBackUpAndRestoreStateHolder()
 
-            SettingsItem(
-                text = "Create Obfuscated Database Copy",
-                onRowPressed = Clickable(enabled = true, onClick = backupAndRestoreStateHolder::showBackupDialog),
-                modifier = Modifier.background(Color.Red)
-            )
-            when (backupAndRestoreStateHolder.dialogState) {
-                BackupAndRestoreDialog.CreateBackup -> {
-                    CreateObfuscatedCopyFlow(
-                        backUpAndRestoreState = exportObfuscatedCopyViewModel.state,
-                        backupPasswordTextState = exportObfuscatedCopyViewModel.createBackupPasswordState,
-                        onCreateBackup = exportObfuscatedCopyViewModel::createObfuscatedCopy,
-                        onSaveBackup = exportObfuscatedCopyViewModel::saveCopy,
-                        onShareBackup = exportObfuscatedCopyViewModel::shareCopy,
-                        onCancelCreateBackup = {
-                            backupAndRestoreStateHolder.dismissDialog()
-                            exportObfuscatedCopyViewModel.cancelBackupCreation()
-                        },
-                        onPermissionPermanentlyDenied = {}
-                    )
-                }
-
-                BackupAndRestoreDialog.None -> {
-                    /*no-op*/
-                }
-
-                BackupAndRestoreDialog.RestoreBackup -> TODO("Restore backup not implemented")
+        SettingsItem(
+            text = "Create Obfuscated Database Copy",
+            onRowPressed = Clickable(enabled = true, onClick = backupAndRestoreStateHolder::showBackupDialog),
+            modifier = Modifier.background(Color.Red)
+        )
+        when (backupAndRestoreStateHolder.dialogState) {
+            BackupAndRestoreDialog.CreateBackup -> {
+                CreateObfuscatedCopyFlow(
+                    backUpAndRestoreState = exportObfuscatedCopyViewModel.state,
+                    backupPasswordTextState = exportObfuscatedCopyViewModel.createBackupPasswordState,
+                    onCreateBackup = exportObfuscatedCopyViewModel::createObfuscatedCopy,
+                    onSaveBackup = exportObfuscatedCopyViewModel::saveCopy,
+                    onShareBackup = exportObfuscatedCopyViewModel::shareCopy,
+                    onCancelCreateBackup = {
+                        backupAndRestoreStateHolder.dismissDialog()
+                        exportObfuscatedCopyViewModel.cancelBackupCreation()
+                    },
+                    onPermissionPermanentlyDenied = {}
+                )
             }
+
+            BackupAndRestoreDialog.None -> {
+                /*no-op*/
+            }
+
+            BackupAndRestoreDialog.RestoreBackup -> TODO("Restore backup not implemented")
         }
     }
 }
@@ -249,5 +256,6 @@ internal fun PreviewUserDebugContent() = WireTheme {
         onFlushLogs = { CompletableDeferred(Unit) },
         onDatabaseLoggerEnabledChanged = {},
         onEnableWireCellsFeature = {},
+        onShowFeatureFlags = {},
     )
 }

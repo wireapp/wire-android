@@ -66,6 +66,8 @@ fun SettingsItem(
     text: String,
     modifier: Modifier = Modifier,
     title: String? = null,
+    maxTitleLines: Int = 1,
+    wrapTitleContentWidth: Boolean = true,
     @DrawableRes trailingIcon: Int? = null,
     trailingText: String? = null,
     switchState: SwitchState = SwitchState.None,
@@ -74,14 +76,14 @@ fun SettingsItem(
 ) {
     RowItemTemplate(
         modifier = modifier,
-        wrapTitleContentWidth = true,
+        wrapTitleContentWidth = wrapTitleContentWidth,
         title = {
             if (!title.isNullOrBlank()) {
                 Text(
                     style = MaterialTheme.wireTypography.label01,
                     color = MaterialTheme.wireColorScheme.secondaryText,
                     text = title,
-                    maxLines = 1,
+                    maxLines = maxTitleLines,
                     modifier = Modifier.padding(start = dimensions().spacing8x)
                 )
             }

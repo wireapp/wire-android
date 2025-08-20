@@ -3,11 +3,11 @@
 androidJunit5 = "1.10.0.0"
 
 # Kotlin
-grgitCore = "5.2.2"
+grgitCore = "5.3.2"
 kotlin = "2.1.0"
 
 # KotlinX
-coroutines = "1.9.0"
+coroutines = "1.10.2"
 ktx-dateTime = "0.5.0"
 ktx-immutableCollections = "0.3.8"
 ktx-serialization = "1.8.1"
@@ -31,7 +31,7 @@ kover = "0.7.6"
 # AndroidX
 androidx-appcompat = "1.7.0"
 androidx-core = "1.13.1"
-androidx-dataStore = "1.1.1"
+androidx-dataStore = "1.1.7"
 androidx-exif = "1.3.7"
 androidx-emoji = "1.5.0"
 androidx-jetpack = "1.1.0"
@@ -106,11 +106,10 @@ androidx-test-uiAutomator = "2.3.0"
 androidx-text-archCore = "2.2.0"
 junit4 = "4.13.2"
 junit5 = "5.11.0"
-kluent = "1.73"
 mockk = "1.13.16"
 okio = "3.9.0"
 turbine = "1.2.0"
-robolectric = "4.12.2"
+robolectric = "4.14.1"
 hamcrest = "3.0"
 
 [plugins]
@@ -289,8 +288,6 @@ junit5-core = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "j
 junit5-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit5" }
 junit5-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit5" }
 junit5-vintage-engine = { module = "org.junit.vintage:junit-vintage-engine", version.ref = "junit5" }  # needed for tests that use Robolectric because it doesn't yet support JUnit5
-kluent-android = { module = "org.amshove.kluent:kluent-android", version.ref = "kluent" }
-kluent-core = { module = "org.amshove.kluent:kluent", version.ref = "kluent" }
 mockk-android = { module = "io.mockk:mockk-android", version.ref = "mockk" }
 mockk-core = { module = "io.mockk:mockk", version.ref = "mockk" }
 okio-fakeFileSystem = { module = "com.squareup.okio:okio-fakefilesystem", version.ref = "okio" }

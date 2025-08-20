@@ -42,10 +42,12 @@ dependencies {
 
     implementation(libs.ktx.dateTime)
 
+    // Accompanist
+    implementation(libs.accompanist.placeholder)
+
     testImplementation(libs.junit5.core)
     testImplementation(libs.junit5.params)
     testImplementation(libs.mockk.core)
-    testImplementation(libs.kluent.core)
     testRuntimeOnly(libs.junit5.engine)
     androidTestImplementation(libs.androidx.test.extJunit)
     androidTestImplementation(libs.androidx.espresso.core)

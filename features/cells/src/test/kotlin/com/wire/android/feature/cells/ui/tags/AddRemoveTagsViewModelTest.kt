@@ -32,7 +32,7 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -46,7 +46,7 @@ import org.junit.jupiter.api.Test
 
 class AddRemoveTagsViewModelTest {
 
-    private val dispatcher = StandardTestDispatcher()
+    private val dispatcher = UnconfinedTestDispatcher()
 
     @BeforeEach
     fun beforeEach() {
@@ -61,7 +61,7 @@ class AddRemoveTagsViewModelTest {
     @Test
     fun `given a new valid tag, when addTag is called, then tag is added and suggestions updated`() = runTest {
         val (_, viewModel) = Arrangement()
-            .withGetAllTagsUseCaseReturning(Either.Right(listOf()))
+            .withGetAllTagsUseCaseReturning(Either.Right(setOf()))
             .arrange()
         val newTag = "compose"
 
@@ -79,7 +79,7 @@ class AddRemoveTagsViewModelTest {
     @Test
     fun `given a blank tag, when addTag is called, then tag is not added`() = runTest {
         val (_, viewModel) = Arrangement()
-            .withGetAllTagsUseCaseReturning(Either.Right(listOf()))
+            .withGetAllTagsUseCaseReturning(Either.Right(setOf()))
             .arrange()
         val blankTag = "   "
 
@@ -92,7 +92,7 @@ class AddRemoveTagsViewModelTest {
     @Test
     fun `given a duplicate tag, when addTag is called, then tag is not added again`() = runTest {
         val (_, viewModel) = Arrangement()
-            .withGetAllTagsUseCaseReturning(Either.Right(listOf()))
+            .withGetAllTagsUseCaseReturning(Either.Right(setOf()))
             .arrange()
 
         val tag = "compose"
@@ -109,22 +109,20 @@ class AddRemoveTagsViewModelTest {
         val tagInSuggestions = "kotlin"
 
         val (_, viewModel) = Arrangement()
-            .withGetAllTagsUseCaseReturning(Either.Right(listOf(tagInSuggestions)))
+            .withGetAllTagsUseCaseReturning(Either.Right(setOf(tagInSuggestions)))
             .arrange()
 
-        advanceUntilIdle()
-        assertTrue(viewModel.suggestedTags.first().contains(tagInSuggestions))
-
-        viewModel.addTag(tagInSuggestions)
-
-        val suggestions = viewModel.suggestedTags.first()
-        assertFalse(suggestions.contains(tagInSuggestions))
+        viewModel.suggestedTags.test {
+            assertTrue(expectMostRecentItem().contains(tagInSuggestions))
+            viewModel.addTag(tagInSuggestions)
+            assertFalse(expectMostRecentItem().contains(tagInSuggestions))
+        }
     }
 
     @Test
     fun `given a tag in addedTags, when removeTag is called, then tag is removed`() = runTest {
         val (_, viewModel) = Arrangement()
-            .withGetAllTagsUseCaseReturning(Either.Right(listOf()))
+            .withGetAllTagsUseCaseReturning(Either.Right(setOf()))
             .arrange()
         val tag = "compose"
         viewModel.addTag(tag)
@@ -139,7 +137,7 @@ class AddRemoveTagsViewModelTest {
     @Test
     fun `given a tag not in addedTags, when removeTag is called, then addedTags remains unchanged`() = runTest {
         val (_, viewModel) = Arrangement()
-            .withGetAllTagsUseCaseReturning(Either.Right(listOf()))
+            .withGetAllTagsUseCaseReturning(Either.Right(setOf()))
             .arrange()
         val existingTag = "compose"
         val nonExistentTag = "android"
@@ -158,7 +156,7 @@ class AddRemoveTagsViewModelTest {
     fun `given empty tag list, when updateTags is called, then removeNodeTagsUseCase is invoked and success is sent`() = runTest {
 
         val (arrangement, viewModel) = Arrangement()
-            .withGetAllTagsUseCaseReturning(Either.Right(listOf()))
+            .withGetAllTagsUseCaseReturning(Either.Right(setOf()))
             .withRemoveNodeTagsUseCaseReturning(Either.Right(Unit))
             .arrange()
 
@@ -174,7 +172,7 @@ class AddRemoveTagsViewModelTest {
 
     @Test
     fun `given non-empty tag list, when updateTags is called, then updateNodeTagsUseCase is invoked and success is sent`() = runTest {
-        val tags = listOf("compose", "kotlin")
+        val tags = setOf("compose", "kotlin")
 
         val (arrangement, viewModel) = Arrangement()
             .withGetAllTagsUseCaseReturning(Either.Right(tags))
@@ -197,7 +195,7 @@ class AddRemoveTagsViewModelTest {
     @Test
     fun `given removeNodeTagsUseCase fails, when updateTags is called, then failure is sent`() = runTest {
         val (_, viewModel) = Arrangement()
-            .withGetAllTagsUseCaseReturning(Either.Right(listOf()))
+            .withGetAllTagsUseCaseReturning(Either.Right(setOf()))
             .withRemoveNodeTagsUseCaseReturning(Either.Left(CoreFailure.MissingClientRegistration))
             .arrange()
 
@@ -212,7 +210,7 @@ class AddRemoveTagsViewModelTest {
     @Test
     fun `given updateNodeTagsUseCase fails, when updateTags is called, then failure is sent`() = runTest {
         val (_, viewModel) = Arrangement()
-            .withGetAllTagsUseCaseReturning(Either.Right(listOf()))
+            .withGetAllTagsUseCaseReturning(Either.Right(setOf()))
             .withUpdateNodeTagsUseCaseReturning(Either.Left(CoreFailure.MissingClientRegistration))
             .arrange()
 
@@ -254,7 +252,7 @@ class AddRemoveTagsViewModelTest {
             )
         }
 
-        fun withGetAllTagsUseCaseReturning(result: Either<CoreFailure, List<String>>) = apply {
+        fun withGetAllTagsUseCaseReturning(result: Either<CoreFailure, Set<String>>) = apply {
             coEvery { getAllTagsUseCase() } returns result
         }
 

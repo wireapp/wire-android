@@ -40,8 +40,8 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
+import com.wire.kalium.logic.feature.client.RegisterClientParam
 import com.wire.kalium.logic.feature.client.RegisterClientResult
-import com.wire.kalium.logic.feature.client.RegisterClientUseCase
 import com.wire.kalium.logic.feature.register.RegisterParam
 import com.wire.kalium.logic.feature.register.RegisterResult
 import com.wire.kalium.logic.feature.register.RequestActivationCodeResult
@@ -209,7 +209,7 @@ class CreateAccountVerificationCodeViewModel @Inject constructor(
 
     private suspend fun registerClient(userId: UserId, password: String) =
         clientScopeProviderFactory.create(userId).clientScope.getOrRegister(
-            RegisterClientUseCase.RegisterClientParam(
+            RegisterClientParam(
                 password = password,
                 capabilities = null,
                 modelPostfix = if (BuildConfig.PRIVATE_BUILD) " [${BuildConfig.FLAVOR}_${BuildConfig.BUILD_TYPE}]" else null

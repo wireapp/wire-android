@@ -18,61 +18,35 @@
 
 package com.wire.android.ui.home.conversations.details
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import androidx.work.WorkManager
-import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.ui.common.ActionsManager
 import com.wire.android.ui.common.ActionsManagerImpl
-import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
-import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
-import com.wire.android.ui.home.conversations.details.menu.GroupConversationDetailsBottomSheetEventsHandler
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsState
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipantsViewModel
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
-import com.wire.android.ui.home.conversationslist.model.DialogState
-import com.wire.android.ui.home.conversationslist.model.GroupDialogState
-import com.wire.android.ui.home.conversationslist.model.LeaveGroupDialogState
-import com.wire.android.ui.home.conversationslist.showLegalHoldIndicator
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAddPermissionType
 import com.wire.android.ui.home.newconversation.channelaccess.toUiEnum
 import com.wire.android.ui.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
-import com.wire.android.util.uiText
-import com.wire.android.workmanager.worker.ConversationDeletionLocallyStatus
-import com.wire.android.workmanager.worker.enqueueConversationDeletionLocally
-import com.wire.kalium.cells.domain.usecase.SetWireCellForConversationUseCase
-import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.common.functional.getOrNull
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
-import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.type.UserType
-import com.wire.kalium.logic.feature.conversation.ArchiveStatusUpdateResult
-import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateReceiptModeResult
-import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
-import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
-import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStatusUseCase
-import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReceiptModeUseCase
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
-import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
 import com.wire.kalium.logic.feature.team.GetUpdatedSelfTeamUseCase
-import com.wire.kalium.logic.feature.team.Result
 import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
@@ -90,7 +64,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.Date
 import javax.inject.Inject
 
 @Suppress("TooManyFunctions", "LongParameterList")
@@ -102,34 +75,24 @@ class GroupConversationDetailsViewModel @Inject constructor(
     private val updateConversationAccessRole: UpdateConversationAccessRoleUseCase,
     private val getSelfTeam: GetUpdatedSelfTeamUseCase,
     private val getSelfUser: GetSelfUserUseCase,
-    private val deleteTeamConversation: DeleteTeamConversationUseCase,
-    private val removeMemberFromConversation: RemoveMemberFromConversationUseCase,
-    private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase,
-    private val clearConversationContent: ClearConversationContentUseCase,
     private val updateConversationReceiptMode: UpdateConversationReceiptModeUseCase,
     private val observeSelfDeletionTimerSettingsForConversation: ObserveSelfDeletionTimerSettingsForConversationUseCase,
-    private val updateConversationArchivedStatus: UpdateConversationArchivedStatusUseCase,
     savedStateHandle: SavedStateHandle,
     private val isMLSEnabled: IsMLSEnabledUseCase,
     private val getDefaultProtocol: GetDefaultProtocolUseCase,
-    private val workManager: WorkManager,
     refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase,
-    private val enableCell: SetWireCellForConversationUseCase,
     private val globalDataStore: GlobalDataStore,
 ) : GroupConversationParticipantsViewModel(savedStateHandle, observeConversationMembers, refreshUsersWithoutMetadata),
-    GroupConversationDetailsBottomSheetEventsHandler,
     ActionsManager<GroupConversationDetailsViewAction> by ActionsManagerImpl() {
+
     private val groupConversationDetailsNavArgs: GroupConversationDetailsNavArgs = savedStateHandle.navArgs()
     val conversationId: QualifiedID = groupConversationDetailsNavArgs.conversationId
-
-    var conversationSheetContent: ConversationSheetContent? by mutableStateOf(null)
-        private set
 
     private val _groupOptionsState = MutableStateFlow(GroupConversationOptionsState(conversationId))
     val groupOptionsState: StateFlow<GroupConversationOptionsState> = _groupOptionsState
 
-    var requestInProgress: Boolean by mutableStateOf(false)
-        private set
+    private val _isFetchingInitialData: MutableStateFlow<Boolean> = MutableStateFlow(true)
+    val isFetchingInitialData: MutableStateFlow<Boolean> = _isFetchingInitialData
 
     init {
         observeConversationDetails()
@@ -168,42 +131,18 @@ class GroupConversationDetailsViewModel @Inject constructor(
                 val isRegularGroupAdmin = groupDetails.selfRole == Conversation.Member.Role.Admin
                 val canSelfPerformAdminTasks = (isRegularGroupAdmin) || (canPerformChannelAdminTasks)
                 val isMLSConversation = groupDetails.conversation.protocol is Conversation.ProtocolInfo.MLS
-
-                conversationSheetContent = ConversationSheetContent(
-                    title = groupDetails.conversation.name.orEmpty(),
-                    conversationId = conversationId,
-                    mutingConversationState = groupDetails.conversation.mutedStatus,
-                    conversationTypeDetail = if (groupDetails is ConversationDetails.Group.Channel) {
-                        ConversationTypeDetail.Group.Channel(
-                            conversationId = conversationId,
-                            isFromTheSameTeam = groupDetails.conversation.teamId == getSelfUser()?.teamId,
-                            isPrivate = groupDetails.access == ConversationDetails.Group.Channel.ChannelAccess.PRIVATE,
-                            isSelfUserTeamAdmin = isSelfTeamAdmin,
-                        )
-                    } else {
-                        ConversationTypeDetail.Group.Regular(
-                            conversationId = conversationId,
-                            isFromTheSameTeam = groupDetails.conversation.teamId == getSelfUser()?.teamId
-                        )
-                    },
-                    isTeamConversation = groupDetails.conversation.teamId?.value != null,
-                    selfRole = groupDetails.selfRole,
-                    isArchived = groupDetails.conversation.archived,
-                    protocol = groupDetails.conversation.protocol,
-                    mlsVerificationStatus = groupDetails.conversation.mlsVerificationStatus,
-                    proteusVerificationStatus = groupDetails.conversation.proteusVerificationStatus,
-                    isUnderLegalHold = groupDetails.conversation.legalHoldStatus.showLegalHoldIndicator(),
-                    isFavorite = groupDetails.isFavorite,
-                    folder = groupDetails.folder,
-                    isDeletingConversationLocallyRunning = false
-                )
                 val channelPermissionType = groupDetails.getChannelPermissionType()
                 val channelAccessType = groupDetails.getChannelAccessType()
+
+                _isFetchingInitialData.value = false
 
                 updateState(
                     groupOptionsState.value.copy(
                         groupName = groupDetails.conversation.name.orEmpty(),
                         protocolInfo = groupDetails.conversation.protocol,
+                        proteusVerificationStatus = groupDetails.conversation.proteusVerificationStatus,
+                        mlsVerificationStatus = groupDetails.conversation.mlsVerificationStatus,
+                        legalHoldStatus = groupDetails.conversation.legalHoldStatus,
                         areAccessOptionsAvailable = groupDetails.conversation.isTeamGroup(),
                         isGuestAllowed = groupDetails.conversation.isGuestAllowed() || groupDetails.conversation.isNonTeamMemberAllowed(),
                         isServicesAllowed = groupDetails.conversation.isServicesAllowed() && !isMLSTeam && !isMLSConversation,
@@ -258,62 +197,6 @@ class GroupConversationDetailsViewModel @Inject constructor(
         null
     }
 
-    fun leaveGroup(leaveGroupState: LeaveGroupDialogState) {
-        viewModelScope.launch {
-            requestInProgress = true
-            val response = withContext(dispatcher.io()) {
-                getSelfUser()?.let { selfUser ->
-                    removeMemberFromConversation(leaveGroupState.conversationId, selfUser.id)
-                }
-            }
-            when (response) {
-                is RemoveMemberFromConversationUseCase.Result.Failure -> onMessage(response.cause.uiText())
-                RemoveMemberFromConversationUseCase.Result.Success -> {
-                    if (leaveGroupState.shouldDelete) {
-                        deleteGroupLocally(leaveGroupState)
-                    } else {
-                        sendAction(GroupConversationDetailsViewAction.Left(leaveGroupState))
-                    }
-                }
-
-                null -> {}
-            }
-            requestInProgress = false
-        }
-    }
-
-    fun deleteGroup(groupState: GroupDialogState) {
-        viewModelScope.launch {
-            requestInProgress = true
-            when (val response = withContext(dispatcher.io()) { deleteTeamConversation(groupState.conversationId) }) {
-                is Result.Failure.GenericFailure -> onMessage(response.coreFailure.uiText())
-                Result.Failure.NoTeamFailure -> onMessage(CoreFailure.Unknown(null).uiText())
-                Result.Success -> sendAction(GroupConversationDetailsViewAction.Deleted(groupState))
-            }
-            requestInProgress = false
-        }
-    }
-
-    private fun deleteGroupLocally(groupDialogState: GroupDialogState) {
-        viewModelScope.launch {
-            workManager.enqueueConversationDeletionLocally(groupDialogState.conversationId)
-                .collect { status ->
-                    when (status) {
-                        ConversationDeletionLocallyStatus.SUCCEEDED ->
-                            sendAction(GroupConversationDetailsViewAction.Left(groupDialogState))
-
-                        ConversationDeletionLocallyStatus.FAILED ->
-                            onMessage(UIText.StringResource(R.string.delete_conversation_conversation_error))
-
-                        ConversationDeletionLocallyStatus.RUNNING,
-                        ConversationDeletionLocallyStatus.IDLE -> {
-                            // nop
-                        }
-                    }
-                }
-        }
-    }
-
     fun updateChannelAccess(channelAccessType: ChannelAccessType) {
         updateState(groupOptionsState.value.copy(channelAccessType = channelAccessType))
     }
@@ -349,18 +232,6 @@ class GroupConversationDetailsViewModel @Inject constructor(
     fun onServiceDialogConfirm() {
         updateState(groupOptionsState.value.copy(changeServiceOptionConfirmationRequired = false, loadingServicesOption = true))
         updateServicesRemoteRequest(false)
-    }
-
-    fun onWireCellStateChange(enableWireCell: Boolean) {
-        updateState(
-            groupOptionsState.value.copy(
-                loadingWireCellState = true,
-                isWireCellEnabled = enableWireCell,
-            )
-        )
-        viewModelScope.launch {
-            enableCell(conversationId, enableWireCell)
-        }
     }
 
     private fun updateServicesRemoteRequest(enableServices: Boolean) {
@@ -443,77 +314,6 @@ class GroupConversationDetailsViewModel @Inject constructor(
         _groupOptionsState.value = newState
     }
 
-    override fun onMutingConversationStatusChange(conversationId: ConversationId?, status: MutedConversationStatus) {
-        conversationId?.let {
-            viewModelScope.launch {
-                when (updateConversationMutedStatus(conversationId, status, Date().time)) {
-                    ConversationUpdateStatusResult.Failure -> {
-                        onMessage(UIText.StringResource(R.string.error_updating_muting_setting))
-                    }
-
-                    ConversationUpdateStatusResult.Success -> {
-                        appLogger.i("MutedStatus changed for conversation: $conversationId to $status")
-                    }
-                }
-            }
-        }
-    }
-
-    override fun onClearConversationContent(dialogState: DialogState) {
-        viewModelScope.launch {
-            requestInProgress = true
-            with(dialogState) {
-                val result = withContext(dispatcher.io()) { clearConversationContent(conversationId) }
-                requestInProgress = false
-                handleClearContentResult(result, conversationTypeDetail)
-            }
-        }
-    }
-
-    private fun handleClearContentResult(
-        clearContentResult: ClearConversationContentUseCase.Result,
-        conversationTypeDetail: ConversationTypeDetail,
-    ) {
-        if (conversationTypeDetail is ConversationTypeDetail.Connection) throw IllegalStateException(
-            "Unsupported conversation type to clear content, something went wrong?"
-        )
-
-        if (clearContentResult is ClearConversationContentUseCase.Result.Failure) {
-            onMessage(UIText.StringResource(R.string.conversation_content_delete_failure))
-        } else {
-            onMessage(UIText.StringResource(R.string.conversation_content_deleted))
-        }
-    }
-
-    override fun updateConversationArchiveStatus(dialogState: DialogState, timestamp: Long) {
-        viewModelScope.launch {
-            val shouldArchive = dialogState.isArchived.not()
-            requestInProgress = true
-            val result = withContext(dispatcher.io()) {
-                updateConversationArchivedStatus(
-                    conversationId = conversationId,
-                    shouldArchiveConversation = shouldArchive,
-                    onlyLocally = !dialogState.isMember,
-                    archivedStatusTimestamp = timestamp
-                )
-            }
-            requestInProgress = false
-            when (result) {
-                ArchiveStatusUpdateResult.Failure -> onMessage(
-                    UIText.StringResource(
-                        if (shouldArchive) R.string.error_archiving_conversation else R.string.error_unarchiving_conversation
-                    )
-                )
-
-                ArchiveStatusUpdateResult.Success -> onMessage(
-                    UIText.StringResource(
-                        if (shouldArchive) R.string.success_archiving_conversation else R.string.success_unarchiving_conversation
-                    )
-                )
-            }
-        }
-    }
-
     private fun onMessage(text: UIText) = sendAction(GroupConversationDetailsViewAction.Message(text))
 
     companion object {
@@ -523,6 +323,4 @@ class GroupConversationDetailsViewModel @Inject constructor(
 
 sealed interface GroupConversationDetailsViewAction {
     data class Message(val text: UIText) : GroupConversationDetailsViewAction
-    data class Left(val groupDialogState: GroupDialogState) : GroupConversationDetailsViewAction
-    data class Deleted(val groupDialogState: GroupDialogState) : GroupConversationDetailsViewAction
 }

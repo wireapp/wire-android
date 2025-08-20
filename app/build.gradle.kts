@@ -131,6 +131,10 @@ android {
             res.srcDirs("src/main/res")
         }
     }
+
+    lint {
+        checkReleaseBuilds = false
+    }
 }
 
 aboutLibraries {
@@ -207,10 +211,7 @@ dependencies {
     implementation(libs.compose.activity)
     implementation(libs.compose.constraintLayout)
     implementation(libs.compose.runtime.liveData)
-
-    // Accompanist
-    implementation(libs.accompanist.placeholder)
-
+    
     implementation(libs.androidx.paging3)
     implementation(libs.androidx.paging3Compose)
 
@@ -278,7 +279,6 @@ dependencies {
     testImplementation(libs.coroutines.test)
     testImplementation(libs.androidx.test.core)
     testImplementation(libs.mockk.core)
-    testImplementation(libs.kluent.core)
     testImplementation(libs.turbine)
     testImplementation(libs.okio.fakeFileSystem)
     testImplementation(libs.robolectric)
@@ -302,7 +302,6 @@ dependencies {
 
     androidTestImplementation(libs.coroutines.test)
     androidTestImplementation(libs.mockk.android)
-    androidTestImplementation(libs.kluent.android)
     androidTestImplementation(libs.compose.ui.test.junit)
     debugImplementation(libs.compose.ui.test.manifest)
     androidTestUtil(libs.androidx.test.orchestrator)

@@ -19,9 +19,9 @@ package com.wire.android.tests.core.tests
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.uiautomator.UiDevice
-import com.wire.android.testSupport.backendConnections.BackendClient
-import com.wire.android.testSupport.backendConnections.user.deleteUser
-import com.wire.android.testSupport.uiautomatorutils.UiAutomatorSetup
+import backendUtils.BackendClient
+import backendUtils.user.deleteUser
+import com.wire.android.tests.support.UiAutomatorSetup
 import com.wire.android.tests.core.di.testModule
 import com.wire.android.tests.core.pages.AllPages
 import com.wire.android.tests.support.suite.RC
@@ -69,7 +69,7 @@ class GdprTest : KoinTest {
     }
 
     @Test
-    fun personalUsersendAnonymousDataAndSeeAnalyticsIdentifierInDebugSettings() {
+    fun givenTeamUserAcceptsAnonymousDataSharing_whenConsentIsGiven_thenAnalyticsIdentifierIsVisibleInDebugSettings() {
         val clientUser = ClientUser()
         registeredUser = backendClient?.createPersonalUserViaBackend(clientUser)
         pages.registrationPage.assertEmailWelcomePage()
@@ -95,8 +95,8 @@ class GdprTest : KoinTest {
             clickAgreeShareDataAlert()
             assertConversationPageVisible()
         }
-        pages.conversationPage.apply {
-            clickMainMenuButtonOnConversationViewPage()
+        pages.conversationListPage.apply {
+            clickMainMenuButtonOnConversationPage()
             clickSettingsButtonOnMenuEntry()
         }
         pages.settingsPage.apply {

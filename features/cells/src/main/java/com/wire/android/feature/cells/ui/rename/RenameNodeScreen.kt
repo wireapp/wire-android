@@ -91,7 +91,7 @@ fun RenameNodeScreen(
             ) {
                 WirePrimaryButton(
                     text = stringResource(R.string.rename_label),
-                    onClick = { renameNodeViewModel.renameNode() },
+                    onClick = { renameNodeViewModel.renameNode(renameNodeViewModel.textState.text.toString()) },
                     state = if (renameNodeViewModel.displayNameState.saveEnabled) Default else Disabled,
                     clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
                 )
@@ -163,6 +163,8 @@ private fun computeNameErrorState(
 
                 DisplayNameState.NameError.TextFieldError.NameExceedLimitError ->
                     if (isFolder == true) R.string.rename_long_folder_name_error else R.string.rename_long_file_name_error
+
+                DisplayNameState.NameError.TextFieldError.InvalidNameError -> R.string.rename_invalid_name
             }
             WireTextFieldState.Error(stringResource(id = messageRes))
         }

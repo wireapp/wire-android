@@ -107,4 +107,5 @@
     <string name="no_tags_message">В этот файл не было добавлено никаких тегов.</string>
     <string name="tags_edited">Теги были изменены</string>
     <string name="failed_edit_tags">Не удалось изменить теги</string>
+    <string name="create_folder_invalid_name">Название не может содержать символы \"/\" или \".\" </string>
 </resources>

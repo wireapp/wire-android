@@ -34,9 +34,9 @@ import io.mockk.verify
 import io.mockk.verifyOrder
 import kotlinx.coroutines.test.runTest
 import okio.Path.Companion.toOkioPath
-import org.amshove.kluent.internal.assertEquals
 import org.junit.Rule
 import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -95,9 +95,8 @@ class FileHelperTest {
         assertEquals(expected, result)
     }
 
-    @Config(sdk = [Build.VERSION_CODES.Q])
     @Test
-    fun `given Android 10, when saving file to downloads folder, then use correct order of executions`() = runTest {
+    fun `given Android greater or equal than 9, when saving file to downloads folder, then use correct order of executions`() = runTest {
         // given
         val arrangement = Arrangement()
             .withUriMimeType("text/plain")

@@ -39,7 +39,9 @@ import com.wire.android.navigation.style.TransitionAnimationType
 import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_CONVERSATION_ID
 import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_SCREEN_TYPE
+import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_SHOULD_ANSWER_CALL
 import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_USER_ID
+import com.wire.android.ui.calling.common.ProximitySensorManager
 import com.wire.android.ui.calling.incoming.IncomingCallScreen
 import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
 import com.wire.android.ui.calling.outgoing.OutgoingCallScreen
@@ -63,18 +65,19 @@ class StartingCallActivity : CallActivity() {
     @Inject
     lateinit var proximitySensorManager: ProximitySensorManager
 
-    var conversationId: String? by mutableStateOf(null)
-    var userId: String? by mutableStateOf(null)
-    var screenType: StartingCallScreenType? by mutableStateOf(null)
+    private var conversationId: String? by mutableStateOf(null)
+    private var userId: String? by mutableStateOf(null)
+    private var screenType: StartingCallScreenType? by mutableStateOf(null)
+    private var shouldAnswerCall: Boolean by mutableStateOf(false)
 
     private fun handleNewIntent(intent: Intent) {
         conversationId = intent.extras?.getString(EXTRA_CONVERSATION_ID)
         userId = intent.extras?.getString(EXTRA_USER_ID)
-        intent.extras?.getString(EXTRA_SCREEN_TYPE)?.let { StartingCallScreenType.byName(it) }?.let {
-            screenType = it
-        } ?: run {
-            appLogger.e("$TAG No screen type provided in intent extras")
-        }
+        screenType = intent.extras?.getString(EXTRA_SCREEN_TYPE)?.let { StartingCallScreenType.byName(it) }
+        shouldAnswerCall = intent.extras?.getBoolean(EXTRA_SHOULD_ANSWER_CALL, false) ?: false
+        require(conversationId != null) { "$TAG No conversation ID provided in intent extras" }
+        require(userId != null) { "$TAG No user ID provided in intent extras" }
+        require(screenType != null) { "$TAG No screen type provided in intent extras" }
         switchAccountIfNeeded(userId)
     }
 
@@ -116,27 +119,30 @@ class StartingCallActivity : CallActivity() {
                             modifier = Modifier.semantics { testTagsAsResourceId = true },
                             label = currentScreenType.name
                         ) { screenType ->
-                            conversationId?.let {
-                                when (screenType) {
-                                    StartingCallScreenType.Outgoing -> {
-                                        OutgoingCallScreen(
-                                            conversationId = qualifiedIdMapper.fromStringToQualifiedID(it)
-                                        ) {
-                                            getOngoingCallIntent(this@StartingCallActivity, it).run {
-                                                this@StartingCallActivity.startActivity(this)
+                            conversationId?.let { conversationId ->
+                                userId?.let { userId ->
+                                    when (screenType) {
+                                        StartingCallScreenType.Outgoing -> {
+                                            OutgoingCallScreen(
+                                                conversationId = qualifiedIdMapper.fromStringToQualifiedID(conversationId)
+                                            ) {
+                                                getOngoingCallIntent(this@StartingCallActivity, conversationId, userId).run {
+                                                    this@StartingCallActivity.startActivity(this)
+                                                }
+                                                this@StartingCallActivity.finishAndRemoveTask()
                                             }
-                                            this@StartingCallActivity.finishAndRemoveTask()
                                         }
-                                    }
 
-                                    StartingCallScreenType.Incoming -> {
-                                        IncomingCallScreen(
-                                            conversationId = qualifiedIdMapper.fromStringToQualifiedID(it)
-                                        ) {
-                                            this@StartingCallActivity.startActivity(
-                                                getOngoingCallIntent(this@StartingCallActivity, it)
-                                            )
-                                            this@StartingCallActivity.finishAndRemoveTask()
+                                        StartingCallScreenType.Incoming -> {
+                                            IncomingCallScreen(
+                                                conversationId = qualifiedIdMapper.fromStringToQualifiedID(conversationId),
+                                                shouldTryToAnswerCallAutomatically = shouldAnswerCall,
+                                            ) {
+                                                this@StartingCallActivity.startActivity(
+                                                    getOngoingCallIntent(this@StartingCallActivity, conversationId, userId)
+                                                )
+                                                this@StartingCallActivity.finishAndRemoveTask()
+                                            }
                                         }
                                     }
                                 }
@@ -170,9 +176,11 @@ class StartingCallActivity : CallActivity() {
 
 fun getOutgoingCallIntent(
     context: Context,
-    conversationId: String
+    conversationId: String,
+    userId: String,
 ) = Intent(context, StartingCallActivity::class.java).apply {
     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    putExtra(EXTRA_USER_ID, userId)
     putExtra(EXTRA_CONVERSATION_ID, conversationId)
     putExtra(EXTRA_SCREEN_TYPE, StartingCallScreenType.Outgoing.name)
 }
@@ -180,9 +188,11 @@ fun getOutgoingCallIntent(
 fun getIncomingCallIntent(
     context: Context,
     conversationId: String,
-    userId: String?
+    userId: String,
+    shouldAnswerCall: Boolean = false
 ) = Intent(context.applicationContext, StartingCallActivity::class.java).apply {
     putExtra(EXTRA_USER_ID, userId)
     putExtra(EXTRA_CONVERSATION_ID, conversationId)
     putExtra(EXTRA_SCREEN_TYPE, StartingCallScreenType.Incoming.name)
+    putExtra(EXTRA_SHOULD_ANSWER_CALL, shouldAnswerCall)
 }

@@ -30,7 +30,7 @@ on:
         required: false
 
 permissions:
-  contents: read
+  contents: write
   actions: read
 
 jobs:
@@ -66,22 +66,26 @@ jobs:
           build-flavour: ${{ steps.lowercase.outputs.build-flavour }}
           build-variant: ${{ steps.lowercase.outputs.build-variant }}
 
+      - name: Create service_account.json
+        if: matrix.target.type == 'google-play'
+        run: echo '${{ secrets.SERVICE_ACCOUNT_JSON }}' > service_account.json
+
       - name: Deploy to Google Play
         if: matrix.target.type == 'google-play'
         uses: r0adkll/upload-google-play@v1
         with:
-          serviceAccountJson: ${{ secrets.SERVICE_ACCOUNT_JSON }}
+          serviceAccountJson: service_account.json
           packageName: ${{ matrix.target.package-name }}
-          releaseFiles: ${{ inputs.artifacts-path }}/bundle/${{ steps.lowercase.outputs.build-flavour }}${{ steps.lowercase.outputs.build-variant }}/*.aab
+          releaseFiles: ${{ inputs.artifacts-path }}bundle/${{ steps.lowercase.outputs.build-flavour }}${{ inputs.build-variant }}/*.aab
           track: ${{ matrix.target.track }}
           status: ${{ matrix.target.status || 'completed' }}
 
       - name: Deploy to GitHub Release
         if: matrix.target.type == 'github-release'
-        uses: softprops/action-gh-release@v2.2.2
+        uses: softprops/action-gh-release@v2.3.2
         with:
           files: |
-            ${{ inputs.artifacts-path }}/apk/${{ steps.lowercase.outputs.build-flavour }}/${{ steps.lowercase.outputs.build-variant }}/*.apk
+            ${{ inputs.artifacts-path }}apk/${{ steps.lowercase.outputs.build-flavour }}/${{ steps.lowercase.outputs.build-variant }}/*.apk
             ${{ matrix.target.additional-files || '' }}
           tag_name: ${{ github.event.release.tag_name }}
           name: ${{ github.event.release.name }}

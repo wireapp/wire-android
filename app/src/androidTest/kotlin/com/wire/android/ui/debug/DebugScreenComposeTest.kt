@@ -41,6 +41,7 @@ class DebugScreenComposeTest {
                         onDeleteLogs = {},
                         onDatabaseLoggerEnabledChanged = {},
                         onEnableWireCellsFeature = {},
+                        onShowFeatureFlags = {},
                         onFlushLogs = { CompletableDeferred(Unit) },
                     )
             }

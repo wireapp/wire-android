@@ -26,6 +26,7 @@ import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.call.usecase.AnswerCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
@@ -46,7 +47,7 @@ import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.internal.assertEquals
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -79,7 +80,7 @@ class ConversationCallViewModelTest {
             viewModel.joinOngoingCall()
 
             coVerify(exactly = 1) { arrangement.joinCall(conversationId = arrangement.conversationId) }
-            assertEquals(ConversationCallViewActions.JoinedCall(arrangement.conversationId), awaitItem())
+            assertEquals(ConversationCallViewActions.JoinedCall(arrangement.conversationId, arrangement.currentAccount), awaitItem())
             assertEquals(false, viewModel.conversationCallViewState.shouldShowJoinAnywayDialog)
         }
     }
@@ -192,6 +193,7 @@ class ConversationCallViewModelTest {
         lateinit var observeConferenceCallingEnabled: ObserveConferenceCallingEnabledUseCase
 
         val conversationId = ConversationId("some-dummy-value", "some.dummy.domain")
+        val currentAccount = UserId("current-account-id", "domain.com")
 
         init {
             MockKAnnotations.init(this)
@@ -238,7 +240,8 @@ class ConversationCallViewModelTest {
             setUserInformedAboutVerification = setUserInformedAboutVerificationUseCase,
             observeDegradedConversationNotified = observeDegradedConversationNotifiedUseCase,
             observeConferenceCallingEnabled = observeConferenceCallingEnabled,
-            observeSelf = observeSelfUserUseCase
+            observeSelf = observeSelfUserUseCase,
+            currentAccount = currentAccount,
         )
     }
 }

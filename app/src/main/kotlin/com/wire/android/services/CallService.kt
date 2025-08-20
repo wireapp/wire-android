@@ -26,8 +26,6 @@ import android.content.pm.ServiceInfo
 import android.os.IBinder
 import androidx.core.app.ServiceCompat
 import com.wire.android.appLogger
-import com.wire.android.di.KaliumCoreLogic
-import com.wire.android.di.NoSession
 import com.wire.android.notification.CallNotificationData
 import com.wire.android.notification.CallNotificationManager
 import com.wire.android.notification.NotificationIds
@@ -36,29 +34,19 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.logging.logIfEmptyUserName
 import com.wire.kalium.common.functional.Either
 import com.wire.kalium.common.functional.fold
-import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.call.CallsScope
-import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import dagger.hilt.android.AndroidEntryPoint
 import dev.ahmedmourad.bundlizer.Bundlizer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
-import java.util.concurrent.atomic.AtomicReference
 import javax.inject.Inject
 
 /**
@@ -68,8 +56,7 @@ import javax.inject.Inject
 class CallService : Service() {
 
     @Inject
-    @KaliumCoreLogic
-    lateinit var coreLogic: CoreLogic
+    lateinit var lifecycleManager: CallServiceManager
 
     @Inject
     lateinit var callNotificationManager: CallNotificationManager
@@ -77,18 +64,15 @@ class CallService : Service() {
     @Inject
     lateinit var dispatcherProvider: DispatcherProvider
 
-    @Inject
-    @NoSession
-    lateinit var qualifiedIdMapper: QualifiedIdMapper
-
     private val scope by lazy {
         // There's no UI, no need to run anything using the Main/UI Dispatcher
         CoroutineScope(SupervisorJob() + dispatcherProvider.default())
     }
 
     override fun onCreate() {
-        serviceState.set(ServiceState.STARTED)
+        _serviceState.value = ServiceState.STARTED
         super.onCreate()
+        handleActions()
     }
 
     override fun onBind(intent: Intent?): IBinder? {
@@ -97,68 +81,33 @@ class CallService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         appLogger.i("$TAG: onStartCommand")
-        val action = intent?.getActionTypeExtra(EXTRA_ACTION_TYPE)
+        val action = intent?.getActionTypeExtra(EXTRA_ACTION_TYPE) ?: Action.Start.Default
         generatePlaceholderForegroundNotification()
-        serviceState.set(ServiceState.FOREGROUND)
-        if (action is Action.Stop) {
-            appLogger.i("$TAG: stopSelf. Reason: stopService was called")
-            stopSelf()
-        } else {
-            scope.launch {
-                if (action is Action.AnswerCall) {
-                    coreLogic.getSessionScope(action.userId).calls.answerCall(action.conversationId)
-                }
-                coreLogic.getGlobalScope().session.currentSessionFlow()
-                    .flatMapLatest {
-                        if (it is CurrentSessionResult.Success && it.accountInfo.isValid()) {
-                            val userId = it.accountInfo.userId
-                            val userSessionScope = coreLogic.getSessionScope(userId)
-                            val outgoingCallsFlow = userSessionScope.calls.observeOutgoingCall()
-                            val establishedCallsFlow = userSessionScope.calls.establishedCall()
-                            val callCurrentlyBeingAnsweredFlow = userSessionScope.calls.observeCallCurrentlyBeingAnswered(action)
-
-                            combine(
-                                outgoingCallsFlow,
-                                establishedCallsFlow,
-                                callCurrentlyBeingAnsweredFlow
-                            ) { outgoingCalls, establishedCalls, answeringCall ->
-                                val calls = outgoingCalls + establishedCalls + answeringCall
-                                calls.firstOrNull()?.let { call ->
-                                    val userName = userSessionScope.users.observeSelfUser().first()
-                                        .also { it.logIfEmptyUserName() }
-                                        .let { it.handle ?: it.name ?: "" }
-                                    Either.Right(CallNotificationData(userId, call, userName))
-                                } ?: Either.Left("no calls")
-                            }
-                        } else {
-                            flowOf(Either.Left("no valid current session"))
-                        }
-                    }
-                    .distinctUntilChanged()
-                    .debounce {
-                        if (it is Either.Left) ServicesManager.DEBOUNCE_TIME else 0L
-                    }
-                    .collectLatest {
-                        it.fold(
-                            { reason ->
-                                appLogger.i("$TAG: stopSelf. Reason: $reason")
-                                stopSelf()
-                            },
-                            { data ->
-                                updateForegroundNotification(data)
-                            }
-                        )
-                    }
-            }
+        _serviceState.value = ServiceState.FOREGROUND
+        scope.launch {
+            lifecycleManager.handleAction(action)
         }
         return START_STICKY
     }
 
     override fun onDestroy() {
         appLogger.i("$TAG: onDestroy")
-        serviceState.set(ServiceState.NOT_STARTED)
+        _serviceState.value = ServiceState.NOT_STARTED
         super.onDestroy()
         scope.cancel()
+    }
+
+    private fun handleActions() {
+        scope.launch {
+            lifecycleManager.handleActionsFlow().collectLatest {
+                it.fold({ reason ->
+                    appLogger.i("$TAG: stopSelf. Reason: ${reason.message}")
+                    stopSelf()
+                }, { data ->
+                    updateForegroundNotification(data)
+                })
+            }
+        }
     }
 
     private fun updateForegroundNotification(data: CallNotificationData) {
@@ -190,19 +139,15 @@ class CallService : Service() {
         appLogger.i("$TAG: started foreground with placeholder notification")
     }
 
-    private suspend fun CallsScope.observeCallCurrentlyBeingAnswered(action: Action?) = when (action) {
-        is Action.AnswerCall -> getIncomingCalls().map { it.filter { it.conversationId == action.conversationId } }
-        else -> flowOf(emptyList())
-    }
-
     companion object {
         private const val TAG = "CallService"
         private const val EXTRA_ACTION_TYPE = "action_type"
 
-        fun newIntent(context: Context, actionType: Action = Action.Default): Intent = Intent(context, CallService::class.java)
+        fun newIntent(context: Context, actionType: Action = Action.Start.Default): Intent = Intent(context, CallService::class.java)
             .putExtra(EXTRA_ACTION_TYPE, actionType)
 
-        val serviceState: AtomicReference<ServiceState> = AtomicReference(ServiceState.NOT_STARTED)
+        private val _serviceState: MutableStateFlow<ServiceState> = MutableStateFlow(ServiceState.NOT_STARTED)
+        val serviceState: StateFlow<ServiceState> = _serviceState
     }
 
     enum class ServiceState {
@@ -210,20 +155,24 @@ class CallService : Service() {
     }
 
     @Serializable
-    sealed class Action {
+    sealed interface Action {
         @Serializable
-        data object Default : Action()
+        sealed interface Start : Action {
+
+            @Serializable
+            data object Default : Start
+
+            @Serializable
+            data class AnswerCall(val userId: UserId, val conversationId: ConversationId) : Start
+        }
 
         @Serializable
-        data class AnswerCall(val userId: UserId, val conversationId: ConversationId) : Action()
-
-        @Serializable
-        data object Stop : Action()
+        data object Stop : Action
     }
 }
 
 private fun Intent.putExtra(name: String, actionType: Action): Intent = putExtra(name, Bundlizer.bundle(Action.serializer(), actionType))
 
 private fun Intent.getActionTypeExtra(name: String): Action? = getBundleExtra(name)?.let {
-        Bundlizer.unbundle(Action.serializer(), it)
-    }
+    Bundlizer.unbundle(Action.serializer(), it)
+}

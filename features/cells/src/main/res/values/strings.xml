@@ -92,6 +92,7 @@
     <string name="rename_file_renamed">File was renamed</string>
     <string name="rename_folder_renamed">Folder was renamed</string>
     <string name="rename_failure">Failed to rename</string>
+    <string name="rename_invalid_name">Name cannot contain "/" or "." characters</string>
     <string name="filter_label">Filter</string>
     <string name="tags_label">Tags</string>
     <string name="select_tags_label">select tags</string>
@@ -106,4 +107,5 @@
     <string name="no_tags_message">No tags has been added this file.</string>
     <string name="tags_edited">Tags were edited</string>
     <string name="failed_edit_tags">Failed to edit tags</string>
+    <string name="create_folder_invalid_name">Name cannot contain "/" or "." characters</string>
 </resources>

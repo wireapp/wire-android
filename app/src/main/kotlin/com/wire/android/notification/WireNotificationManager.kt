@@ -52,11 +52,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.cancellable
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -419,8 +419,9 @@ class WireNotificationManager @Inject constructor(
     }
 
     /**
-     * Infinitely listen for outgoing and established calls of a current user and run the call on foreground Service
-     * to show corresponding notification and do not lose a call.
+     * Infinitely listen for outgoing and established calls of a current user and run the call on foreground Service to show corresponding
+     * notification and do not lose a call. The call service handles stopping itself when there are no calls so here only care about
+     * starting the service when there are calls.
      */
     private suspend fun observeOutgoingOngoingCalls() {
         coreLogic.getGlobalScope().session.currentSessionFlow()
@@ -429,29 +430,15 @@ class WireNotificationManager @Inject constructor(
                     combine(
                         coreLogic.getSessionScope(it.accountInfo.userId).calls.establishedCall(),
                         coreLogic.getSessionScope(it.accountInfo.userId).calls.observeOutgoingCall()
-                    ) { establishedCalls, outgoingCalls ->
-                        if (establishedCalls.isNotEmpty()) {
-                            return@combine true
-                        }
-                        if (outgoingCalls.isNotEmpty()) {
-                            return@combine true
-                        }
-                        return@combine false
-                    }
+                    ) { establishedCalls, outgoingCalls -> (establishedCalls + outgoingCalls).isNotEmpty() }
                 } else {
-                    flowOf(false)
+                    flowOf(null)
                 }
             }
             .distinctUntilChanged()
-            .onCompletion {
-                servicesManager.stopCallService()
-            }
-            .collect { isOnCall ->
-                if (isOnCall) {
-                    servicesManager.startCallService()
-                } else {
-                    servicesManager.stopCallService()
-                }
+            .filter { it == true }
+            .collect {
+                servicesManager.startCallService()
             }
     }
 

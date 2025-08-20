@@ -52,6 +52,7 @@ class LocationPickerHelperFlavor @Inject constructor(
      * https://developer.android.com/develop/sensors-and-location/location/retrieve-current#BestEstimate
      */
     @SuppressLint("MissingPermission")
+    @Suppress("TooGenericExceptionCaught")
     private suspend fun getLocationWithGms(onSuccess: (GeoLocatedAddress) -> Unit, onError: () -> Unit) {
         if (locationPickerHelper.isLocationServicesEnabled()) {
             AppJsonStyledLogger.log(
@@ -59,10 +60,22 @@ class LocationPickerHelperFlavor @Inject constructor(
                 leadingMessage = "GetLocation",
                 jsonStringKeyValues = mapOf("isUsingGms" to true)
             )
-            val locationProvider = LocationServices.getFusedLocationProviderClient(context)
-            val currentLocation =
-                locationProvider.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, CancellationTokenSource().token).await()
-            onSuccess(geocoderHelper.getGeoLocatedAddress(currentLocation))
+            try {
+                val locationProvider = LocationServices.getFusedLocationProviderClient(context)
+                val currentLocation =
+                    locationProvider.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, CancellationTokenSource().token).await()
+                onSuccess(geocoderHelper.getGeoLocatedAddress(currentLocation))
+            } catch (e: Exception) {
+                AppJsonStyledLogger.log(
+                    level = KaliumLogLevel.WARN,
+                    leadingMessage = "GetLocation",
+                    jsonStringKeyValues = mapOf(
+                        "isUsingGms" to true,
+                        "error" to "Location services are not available"
+                    )
+                )
+                onError()
+            }
         } else {
             AppJsonStyledLogger.log(
                 level = KaliumLogLevel.WARN,

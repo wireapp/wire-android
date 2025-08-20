@@ -2,9 +2,12 @@ package com.wire.android.ui.registration.details
 
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.lifecycle.SavedStateHandle
+import com.wire.android.analytics.RegistrationAnalyticsManagerUseCase
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.SnapshotExtension
+import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.ui.authentication.create.common.CreateAccountDataNavArgs
 import com.wire.android.ui.authentication.create.common.UserRegistrationInfo
 import com.wire.android.ui.navArgs
@@ -47,7 +50,6 @@ class CreateAccountDataDetailViewModelTest {
         coVerify(exactly = 0) { arrangement.validateEmailUseCase(any()) }
     }
 
-    @Test
     fun `given passwords do not match, when executing, then show error`() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .withValidatePasswordResult(ValidatePasswordResult.Valid)
@@ -63,6 +65,40 @@ class CreateAccountDataDetailViewModelTest {
         )
         assertEquals(false, viewModel.detailsState.success)
         coVerify(exactly = 0) { arrangement.validateEmailUseCase(any()) }
+        coVerify(exactly = 1) {
+            arrangement.anonymousAnalyticsManager.sendEventIfEnabled(eq(AnalyticsEvent.RegistrationPersonalAccount.AccountSetup(true)))
+        }
+    }
+
+    @Test
+    fun `given passwords do not match, when executing and fixed, then track error`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withValidatePasswordResult(ValidatePasswordResult.Valid)
+            .withValidateEmailResult(true)
+            .withActivationCodeResult(RequestActivationCodeResult.Success)
+            .arrange()
+        viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("password")
+        viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd("different-password")
+
+        viewModel.onDetailsContinue()
+        advanceUntilIdle()
+
+        // fix the password then continue
+        viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd("password")
+        viewModel.onDetailsContinue()
+        advanceUntilIdle()
+
+        assertInstanceOf<CreateAccountDataDetailViewState.DetailsError.None>(viewModel.detailsState.error)
+        assertEquals(false, viewModel.detailsState.success)
+        coVerify(exactly = 1) { arrangement.validateEmailUseCase(any()) }
+        coVerify(exactly = 1) {
+            arrangement.anonymousAnalyticsManager.sendEventIfEnabled(eq(AnalyticsEvent.RegistrationPersonalAccount.TermsOfUseDialog))
+        }
+        coVerify(exactly = 1) {
+            arrangement.anonymousAnalyticsManager.sendEventIfEnabled(eq(AnalyticsEvent.RegistrationPersonalAccount.AccountSetup(true)))
+        }
+        assertInstanceOf<CreateAccountDataDetailViewState.DetailsError.None>(viewModel.detailsState.error)
+        assertEquals(true, viewModel.detailsState.termsDialogVisible)
     }
 
     @Test
@@ -81,6 +117,12 @@ class CreateAccountDataDetailViewModelTest {
         assertInstanceOf<CreateAccountDataDetailViewState.DetailsError.None>(viewModel.detailsState.error)
         assertEquals(false, viewModel.detailsState.success)
         coVerify(exactly = 1) { arrangement.validateEmailUseCase(any()) }
+        coVerify(exactly = 1) {
+            arrangement.anonymousAnalyticsManager.sendEventIfEnabled(eq(AnalyticsEvent.RegistrationPersonalAccount.TermsOfUseDialog))
+        }
+        coVerify(exactly = 1) {
+            arrangement.anonymousAnalyticsManager.sendEventIfEnabled(eq(AnalyticsEvent.RegistrationPersonalAccount.AccountSetup(false)))
+        }
         assertInstanceOf<CreateAccountDataDetailViewState.DetailsError.None>(viewModel.detailsState.error)
         assertEquals(true, viewModel.detailsState.termsDialogVisible)
     }
@@ -139,6 +181,12 @@ class CreateAccountDataDetailViewModelTest {
         @MockK
         lateinit var validatePasswordUseCase: ValidatePasswordUseCase
 
+        @MockK
+        lateinit var anonymousAnalyticsManager: RegistrationAnalyticsManagerUseCase
+
+        @MockK
+        lateinit var globalDataStore: GlobalDataStore
+
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             every { savedStateHandle.navArgs<CreateAccountDataNavArgs>() } returns
@@ -153,6 +201,7 @@ class CreateAccountDataDetailViewModelTest {
             coEvery { autoVersionAuthScopeUseCase(any()) } returns
                     AutoVersionAuthScopeUseCase.Result.Success(authenticationScope)
             coEvery { authenticationScope.registerScope.requestActivationCode } returns requestActivationCodeUseCase
+            coEvery { anonymousAnalyticsManager.sendEventIfEnabled(any()) } returns Unit
         }
 
         fun withActivationCodeResult(result: RequestActivationCodeResult) = apply {
@@ -171,7 +220,9 @@ class CreateAccountDataDetailViewModelTest {
             savedStateHandle = savedStateHandle,
             validateEmail = validateEmailUseCase,
             validatePassword = validatePasswordUseCase,
-            coreLogic = coreLogic
+            coreLogic = coreLogic,
+            registrationAnalyticsManager = anonymousAnalyticsManager,
+            globalDataStore = globalDataStore
         )
     }
 }

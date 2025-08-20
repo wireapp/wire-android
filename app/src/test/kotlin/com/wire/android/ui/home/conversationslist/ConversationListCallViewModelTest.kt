@@ -28,6 +28,7 @@ import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.AnswerCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
@@ -39,7 +40,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.internal.assertEquals
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -61,7 +62,7 @@ class ConversationListCallViewModelTest {
 
                 // Then
                 coVerify(exactly = 1) { arrangement.answerCall(conversationId = conversationId) }
-                assertEquals(ConversationListCallViewActions.JoinedCall(conversationId), awaitItem())
+                assertEquals(ConversationListCallViewActions.JoinedCall(conversationId, currentAccount), awaitItem())
             }
     }
 
@@ -94,7 +95,7 @@ class ConversationListCallViewModelTest {
 
                 // Then
                 coVerify(exactly = 1) { arrangement.answerCall(conversationId = any()) }
-                assertEquals(ConversationListCallViewActions.JoinedCall(conversationId), awaitItem())
+                assertEquals(ConversationListCallViewActions.JoinedCall(conversationId, currentAccount), awaitItem())
                 assertEquals(false, conversationListCallViewModel.joinCallDialogState.isVisible)
             }
     }
@@ -154,12 +155,14 @@ class ConversationListCallViewModelTest {
         fun arrange() = this to ConversationListCallViewModelImpl(
             answerCall = answerCall,
             endCall = endCall,
-            observeEstablishedCalls = observeEstablishedCalls
+            observeEstablishedCalls = observeEstablishedCalls,
+            currentAccount = currentAccount,
         )
     }
 
     companion object {
         private val conversationId = ConversationId("some_id", "some_domain")
+        private val currentAccount = UserId("current-account-id", "domain.com")
         private val call = Call(
             conversationId = ConversationId("ongoing_call_id", "some_domain"),
             status = CallStatus.ESTABLISHED,

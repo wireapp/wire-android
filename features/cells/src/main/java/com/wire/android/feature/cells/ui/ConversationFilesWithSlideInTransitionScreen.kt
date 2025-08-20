@@ -45,6 +45,7 @@ fun ConversationFilesWithSlideInTransitionScreen(
         pagingListItems = viewModel.nodesFlow.collectAsLazyPagingItems(),
         downloadFileSheet = viewModel.downloadFileSheet,
         menu = viewModel.menu,
+        breadcrumbs = cellFilesNavArgs.breadcrumbs,
         sendIntent = { viewModel.sendIntent(it) },
         navigationIconType = NavigationIconType.Back()
     )

@@ -38,7 +38,7 @@
     <string name="label_logging_in">Iniciando sesión…</string>
     <string name="label_membership_guest">Invitado</string>
     <string name="label_membership_external">Externo</string>
-    <string name="label_membership_service">Servicio</string>
+    <string name="label_membership_service">Aplicación</string>
     <string name="label_user_deleted">Eliminado</string>
     <string name="label_try_again">Intentar de nuevo</string>
     <string name="label_done">Listo</string>
@@ -172,6 +172,7 @@
     <string name="content_description_message_sent_status">Estado del mensaje enviado</string>
     <string name="content_description_message_error_status">Estado de error del mensaje</string>
     <string name="content_description_location_icon">Compartir ubicación</string>
+    <string name="content_description_open_service_label">abrir aplicación</string>
     <string name="content_description_empty"></string>
     <!-- Non translatable strings-->
     <!-- Wire Urls - Non translatable -->
@@ -380,13 +381,13 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="conversation_details_guest_description">Cuando est&#225; activo, personas fuera de su equipo pueden unirse a esta conversaci&#243;n.</string>
     <string name="conversation_options_guest_description">Active esta opci&#243;n para abrir esta conversaci&#243;n a personas fuera de su equipo, incluso si no tienen Wire.</string>
     <string name="conversation_options_guest_not_editable_description">No se puede desactivar la opci&#243;n de invitados en esta conversaci&#243;n, ya que ha sido creada por alguien de otro equipo.</string>
-    <string name="conversation_options_services_label">Servicios</string>
-    <string name="conversation_options_services_description">Active esta opci&#243;n para abrir esta conversaci&#243;n a servicios.</string>
+    <string name="conversation_options_services_label">Aplicaciones</string>
+    <string name="conversation_options_services_description">Activa esta opción para abrir la conversación a aplicaciones.</string>
     <string name="conversation_options_renamed">Conversaci&#243;n renombrada</string>
     <string name="disable_guest_dialog_title">&#191;Desea desactivar el acceso de invitados?</string>
     <string name="disable_guest_dialog_text">Los invitados actuales ser&#225;n eliminados de la conversaci&#243;n. No se permitir&#225;n nuevos invitados.</string>
-    <string name="disable_services_dialog_title">&#191;Desea desactivar el acceso a servicios?</string>
-    <string name="disable_services_dialog_text">Los servicios actuales ser&#225;n eliminados de la conversaci&#243;n. No se permitir&#225;n nuevos servicios.</string>
+    <string name="disable_services_dialog_title">¿Desactivar el acceso a aplicaciones?</string>
+    <string name="disable_services_dialog_text">Las aplicaciones actuales serán removidas de la conversación. Nuevas aplicaciones no serán permitidas.</string>
     <!-- Import/Export External Media -->
     <string name="import_media_content_title">Compartir con Wire</string>
     <string name="import_media_searchbar_title">Buscar conversaci&#243;n</string>
@@ -395,7 +396,6 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <!--Read receipts -->
     <string name="conversation_options_read_receipt_label">Recibos de lectura</string>
     <string name="conversation_options_read_receipt_description">Cuando est&#225; activado, las personas pueden ver cu&#225;ndo se lee su mensaje en esta conversaci&#243;n.</string>
-    <!--Wire Cell -->
     <!-- Messages -->
     <string name="message_details_title">Detalles del mensaje</string>
     <string name="message_details_reactions_tab">REACCIONES (%s)</string>
@@ -467,21 +467,22 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="label_edit">Editar</string>
     <string name="label_delete">Eliminar</string>
     <string name="info_message_copied">Mensaje copiado</string>
-    <string name="conversation_banner_federated_externals_guests_services_present">Usuarios federados, externos, invitados y servicios est&#225;n presentes</string>
+    <string name="conversation_banner_services">aplicaciones</string>
+    <string name="conversation_banner_federated_externals_guests_services_present">Usuarios Federados, externos, invitados y aplicaciones están presentes</string>
     <string name="conversation_banner_federated_externals_guests_present">Usuarios federados, externos e invitados est&#225;n presentes</string>
-    <string name="conversation_banner_federated_externals_services_present">Usuarios federados, externos y servicios est&#225;n presentes</string>
-    <string name="conversation_banner_federated_guests_services_present">Usuarios federados, invitados y servicios est&#225;n presentes</string>
-    <string name="conversation_banner_federated_services_present">Usuarios federados y servicios est&#225;n presentes</string>
+    <string name="conversation_banner_federated_externals_services_present">Usuarios Federados, externos y aplicaciones están presentes</string>
+    <string name="conversation_banner_federated_guests_services_present">Usuarios Federados, invitados y aplicaciones están presentes</string>
+    <string name="conversation_banner_federated_services_present">Usuarios Federados y aplicaciones están presentes</string>
     <string name="conversation_banner_federated_guests_present">Usuarios federados e invitados est&#225;n presentes</string>
     <string name="conversation_banner_federated_externals_present">Usuarios federados y externos est&#225;n presentes</string>
-    <string name="conversation_banner_externals_guests_services_present">Externos, invitados y servicios est&#225;n presentes</string>
-    <string name="conversation_banner_externals_services_present">Externos y servicios est&#225;n presentes</string>
+    <string name="conversation_banner_externals_guests_services_present">Externos, invitados y aplicaciones están presentes</string>
+    <string name="conversation_banner_externals_services_present">Externos y aplicaciones están presentes</string>
     <string name="conversation_banner_externals_guests_present">Externos e invitados est&#225;n presentes</string>
-    <string name="conversation_banner_guests_services_present">Invitados y servicios est&#225;n presentes</string>
+    <string name="conversation_banner_guests_services_present">Invitados y aplicaciones están presentes</string>
     <string name="conversation_banner_federated_present">Usuarios federados est&#225;n presentes</string>
     <string name="conversation_banner_guests_present">Invitados est&#225;n presentes</string>
     <string name="conversation_banner_externals_present">Externos est&#225;n presentes</string>
-    <string name="conversation_banner_services_active">Servicios est&#225;n activos</string>
+    <string name="conversation_banner_services_active">Aplicaciones están activas</string>
     <!-- System messages -->
     <string name="label_system_message_added_by_self">%1$s agreg&#243; %2$s a la conversaci&#243;n</string>
     <string name="label_system_message_removed_by_self">%1$s elimin&#243; a %2$s de la conversaci&#243;n</string>
@@ -717,8 +718,16 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="change">Cambiar</string>
     <string name="allow_guests">Permitir invitados</string>
     <string name="allow_guest_switch_description">Abra esta conversaci&#243;n a personas fuera de su equipo. Siempre puede cambiarlo m&#225;s tarde.</string>
-    <string name="allow_services">Permitir servicios</string>
-    <string name="service_details_label">Servicio</string>
+    <string name="allow_services">Permitir aplicaciones</string>
+    <string name="allow_services_regular_group_description">Abrir la conversación a aplicaciones. Siempre puedes cambiar esta opción más adelante.</string>
+    <string name="allow_services_channel_description">Abrir la conversación a personas externas a tu equipo o a aplicaciones. Siempre puedes cambiar esta opción más adelante.</string>
+    <string name="service_details_label">Aplicación</string>
+    <string name="service_details_add_service_label">Añadir a la Conversación</string>
+    <string name="service_details_remove_service_label">Remover de la Conversación</string>
+    <string name="service_remove_success">Aplicación removida de la conversación</string>
+    <string name="service_remove_error">No fue posible remover la aplicación de la conversación</string>
+    <string name="service_add_success">Aplicación añadida a la conversación</string>
+    <string name="service_add_error">No fue posible añadir la aplicación a la conversación</string>
     <string name="service_no_information_available_title">Ninguna información disponible</string>
     <string name="service_no_information_available_subtitle">Inténtalo de nuevo o contacta con el administrador de tu equipo</string>
     <string name="read_receipts">Recibos de lectura</string>

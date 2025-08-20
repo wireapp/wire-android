@@ -42,6 +42,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import com.wire.android.feature.cells.R
+import com.wire.android.feature.cells.ui.common.LoadingScreen
 import com.wire.android.feature.cells.ui.dialog.DeleteConfirmationDialog
 import com.wire.android.feature.cells.ui.dialog.NodeActionsBottomSheet
 import com.wire.android.feature.cells.ui.dialog.RestoreConfirmationDialog
@@ -51,6 +52,8 @@ import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.preview.MultipleThemePreviews
+import com.wire.android.ui.theme.WireTheme
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -64,7 +67,9 @@ internal fun CellScreenContent(
     downloadFileState: StateFlow<CellNodeUi.File?>,
     menuState: Flow<MenuOptions?>,
     showPublicLinkScreen: (PublicLinkScreenData) -> Unit,
+    showRenameScreen: (CellNodeUi) -> Unit,
     showMoveToFolderScreen: (String, String, String) -> Unit,
+    showAddRemoveTagsScreen: (CellNodeUi) -> Unit,
     isAllFiles: Boolean,
     isSearchResult: Boolean = false,
 ) {
@@ -164,8 +169,9 @@ internal fun CellScreenContent(
                     isFolder = action.cellNode is CellNodeUi.Folder
                 )
             )
-
+            is ShowRenameScreen -> showRenameScreen(action.cellNode)
             is ShowMoveToFolderScreen -> showMoveToFolderScreen(action.currentPath, action.nodeToMovePath, action.uuid)
+            is ShowAddRemoveTagsScreen -> showAddRemoveTagsScreen(action.cellNode)
             is RefreshData -> pagingListItems.refresh()
         }
     }
@@ -257,6 +263,28 @@ private fun EmptyScreen(
                 onClick = onRetry
             )
         }
+    }
+}
+
+@MultipleThemePreviews
+@Composable
+fun PreviewErrorScreen() {
+    WireTheme {
+        ErrorScreen(
+            onRetry = {}
+        )
+    }
+}
+
+@MultipleThemePreviews
+@Composable
+fun PreviewEmptyScreen() {
+    WireTheme {
+        EmptyScreen(
+            isSearchResult = false,
+            isAllFiles = true,
+            onRetry = {}
+        )
     }
 }
 

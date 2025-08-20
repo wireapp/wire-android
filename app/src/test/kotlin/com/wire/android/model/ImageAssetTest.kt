@@ -27,8 +27,8 @@ import io.mockk.mockk
 import io.mockk.mockkStatic
 import okio.Path
 import okio.Path.Companion.toPath
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldNotBeEqualTo
+import com.wire.android.assertions.shouldBeEqualTo
+import com.wire.android.assertions.shouldNotBeEqualTo
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 

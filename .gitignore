@@ -105,3 +105,4 @@ app/version.txt
 # Editor temporary files
 *~
 \#*#
+/secrets.json

@@ -23,6 +23,8 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.get
+import org.gradle.kotlin.dsl.getByType
+import org.jetbrains.kotlin.gradle.dsl.KotlinBaseExtension
 
 class AndroidTestLibraryConventionPlugin : Plugin<Project> {
     override fun apply(target: Project): Unit = with(target) {
@@ -34,7 +36,7 @@ class AndroidTestLibraryConventionPlugin : Plugin<Project> {
         extensions.configure<LibraryExtension> {
             namespace = "com.wire.android.tests.${target.name.replace("-", "_")}"
 
-            configureKotlinAndroid(this)
+            configureKotlinAndroid(this, extensions.getByType<KotlinBaseExtension>())
             defaultConfig.targetSdk = AndroidSdk.target
             configureCompose(this)
 
@@ -55,13 +57,6 @@ class AndroidTestLibraryConventionPlugin : Plugin<Project> {
                 }
                 sourceSets["test"].includeCommonTestSourceDir()
                 sourceSets["androidTest"].includeCommonTestSourceDir()
-
-                testOptions {
-                    execution = "ANDROIDX_TEST_ORCHESTRATOR"
-                    animationsDisabled = true
-                    unitTests.isReturnDefaultValues = true
-                    unitTests.isIncludeAndroidResources = true
-                }
             }
 
             buildTypes {

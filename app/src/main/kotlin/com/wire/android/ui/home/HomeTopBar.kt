@@ -50,7 +50,8 @@ fun HomeTopBar(
     shouldShowCreateTeamUnreadIndicator: Boolean,
     onHamburgerMenuClick: () -> Unit,
     onNavigateToSelfUserProfile: () -> Unit,
-    onOpenConversationFilter: (filter: ConversationFilter) -> Unit
+    onOpenConversationFilter: (filter: ConversationFilter) -> Unit,
+    onOpenFilesFilter: () -> Unit
 ) {
     WireCenterAlignedTopAppBar(
         title = title,
@@ -59,7 +60,7 @@ fun HomeTopBar(
         actions = {
             if (navigationItem.withNewConversationFab) {
                 WireTertiaryIconButton(
-                    iconResource = R.drawable.ic_filter,
+                    iconResource = com.wire.android.ui.common.R.drawable.ic_filter,
                     contentDescription = R.string.label_filter_conversations,
                     state = if (currentFilter == ConversationFilter.All) {
                         WireButtonState.Default
@@ -67,6 +68,18 @@ fun HomeTopBar(
                         WireButtonState.Selected
                     },
                     onButtonClicked = { onOpenConversationFilter(currentFilter) }
+                )
+            }
+            if (navigationItem.withFilesFilterIcon) {
+                WireTertiaryIconButton(
+                    iconResource = com.wire.android.ui.common.R.drawable.ic_filter,
+                    contentDescription = R.string.content_description_filter_files,
+                    state = if (currentFilter == ConversationFilter.All) {
+                        WireButtonState.Default
+                    } else {
+                        WireButtonState.Selected
+                    },
+                    onButtonClicked = { onOpenFilesFilter() }
                 )
             }
             if (navigationItem.withUserAvatar) {
@@ -110,7 +123,8 @@ fun PreviewTopBar() {
             shouldShowCreateTeamUnreadIndicator = false,
             onHamburgerMenuClick = {},
             onNavigateToSelfUserProfile = {},
-            onOpenConversationFilter = {}
+            onOpenConversationFilter = {},
+            onOpenFilesFilter = {}
         )
     }
 }
@@ -133,7 +147,8 @@ fun PreviewTopBarWithSelectedFilter() {
             shouldShowCreateTeamUnreadIndicator = false,
             onHamburgerMenuClick = {},
             onNavigateToSelfUserProfile = {},
-            onOpenConversationFilter = {}
+            onOpenConversationFilter = {},
+            onOpenFilesFilter = {},
         )
     }
 }
@@ -152,7 +167,8 @@ fun PreviewSettingsTopBarWithoutAvatar() {
             shouldShowCreateTeamUnreadIndicator = false,
             onHamburgerMenuClick = {},
             onNavigateToSelfUserProfile = {},
-            onOpenConversationFilter = {}
+            onOpenConversationFilter = {},
+            onOpenFilesFilter = {},
         )
     }
 }
@@ -175,7 +191,8 @@ fun PreviewTopBarWithNameBasedAvatar() {
             shouldShowCreateTeamUnreadIndicator = false,
             onHamburgerMenuClick = {},
             onNavigateToSelfUserProfile = {},
-            onOpenConversationFilter = {}
+            onOpenConversationFilter = {},
+            onOpenFilesFilter = {},
         )
     }
 }
@@ -194,7 +211,8 @@ fun PreviewTopBarWithLegalHold() {
             shouldShowCreateTeamUnreadIndicator = false,
             onHamburgerMenuClick = {},
             onNavigateToSelfUserProfile = {},
-            onOpenConversationFilter = {}
+            onOpenConversationFilter = {},
+            onOpenFilesFilter = {},
         )
     }
 }

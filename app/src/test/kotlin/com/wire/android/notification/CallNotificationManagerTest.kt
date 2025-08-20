@@ -23,6 +23,7 @@ import android.content.Context
 import android.service.notification.StatusBarNotification
 import androidx.core.app.NotificationManagerCompat
 import com.wire.android.config.TestDispatcherProvider
+import com.wire.android.framework.TestUser
 import com.wire.android.notification.CallNotificationManager.Companion.DEBOUNCE_TIME
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.auth.AccountInfo
@@ -30,6 +31,7 @@ import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import io.mockk.MockKAnnotations
@@ -82,7 +84,7 @@ class CallNotificationManagerTest {
             val (arrangement, callNotificationManager) = Arrangement()
                 .withIncomingNotificationForUserAndCall(notification, callNotificationData)
                 .arrange()
-            arrangement.clearRecordedCallsForNotificationManager() // clear first empty list recorded call
+            arrangement.clearRecordedCalls() // clear first empty list recorded call
             callNotificationManager.handleIncomingCalls(listOf(TEST_CALL1), TEST_USER_ID1, userName)
             advanceUntilIdle()
             // then
@@ -106,7 +108,7 @@ class CallNotificationManagerTest {
                 .arrange()
             callNotificationManager.handleIncomingCalls(listOf(TEST_CALL1), TEST_USER_ID1, userName)
             advanceUntilIdle()
-            arrangement.clearRecordedCallsForNotificationManager() // clear first empty list recorded call
+            arrangement.clearRecordedCalls() // clear first empty list recorded call
             // when
             callNotificationManager.handleIncomingCalls(listOf(updatedCall), TEST_USER_ID1, userName) // updated call
             advanceUntilIdle()
@@ -128,7 +130,7 @@ class CallNotificationManagerTest {
                 .arrange()
             callNotificationManager.handleIncomingCalls(listOf(TEST_CALL1), TEST_USER_ID1, userName)
             advanceUntilIdle()
-            arrangement.clearRecordedCallsForNotificationManager() // clear first empty list recorded call
+            arrangement.clearRecordedCalls() // clear first empty list recorded call
             // when
             callNotificationManager.handleIncomingCalls(listOf(TEST_CALL1), TEST_USER_ID1, userName) // same call
             advanceUntilIdle()
@@ -155,7 +157,7 @@ class CallNotificationManagerTest {
                 .arrange()
             callNotificationManager.handleIncomingCalls(listOf(TEST_CALL1), TEST_USER_ID1, userName1)
             advanceUntilIdle()
-            arrangement.clearRecordedCallsForNotificationManager() // clear first empty list recorded call
+            arrangement.clearRecordedCalls() // clear first empty list recorded call
             // when
             callNotificationManager.handleIncomingCalls(listOf(TEST_CALL1, TEST_CALL2), TEST_USER_ID1, userName1)
             advanceUntilIdle()
@@ -182,7 +184,7 @@ class CallNotificationManagerTest {
                 .withIncomingNotificationForUserAndCall(notification1, callNotificationData1)
                 .withIncomingNotificationForUserAndCall(notification2, callNotificationData2)
                 .arrange()
-            arrangement.clearRecordedCallsForNotificationManager() // clear first empty list recorded call
+            arrangement.clearRecordedCalls() // clear first empty list recorded call
             callNotificationManager.handleIncomingCalls(listOf(TEST_CALL1), TEST_USER_ID1, userName1)
             callNotificationManager.handleIncomingCalls(listOf(TEST_CALL2), TEST_USER_ID2, userName2)
             advanceUntilIdle()
@@ -209,7 +211,7 @@ class CallNotificationManagerTest {
                 .withIncomingNotificationForUserAndCall(notification1, callNotificationData1)
                 .withIncomingNotificationForUserAndCall(notification2, callNotificationData2)
                 .arrange()
-            arrangement.clearRecordedCallsForNotificationManager() // clear first empty list recorded call
+            arrangement.clearRecordedCalls() // clear first empty list recorded call
             callNotificationManager.handleIncomingCalls(listOf(TEST_CALL1, TEST_CALL2), TEST_USER_ID1, userName1)
             advanceUntilIdle()
             // then
@@ -240,7 +242,7 @@ class CallNotificationManagerTest {
             callNotificationManager.handleIncomingCalls(listOf(TEST_CALL2), TEST_USER_ID2, userName2)
             arrangement.withActiveNotifications(listOf(mockStatusBarNotification(id1, tag1), mockStatusBarNotification(id2, tag2)))
             advanceUntilIdle()
-            arrangement.clearRecordedCallsForNotificationManager() // clear calls recorded when initializing the state
+            arrangement.clearRecordedCalls() // clear calls recorded when initializing the state
             // when
             callNotificationManager.handleIncomingCalls(listOf(), TEST_USER_ID1, userName1) // first call is ended
             advanceUntilIdle()
@@ -270,7 +272,7 @@ class CallNotificationManagerTest {
             callNotificationManager.handleIncomingCalls(listOf(TEST_CALL1), TEST_USER_ID1, userName1)
             callNotificationManager.handleIncomingCalls(listOf(TEST_CALL2), TEST_USER_ID2, userName2)
             advanceUntilIdle()
-            arrangement.clearRecordedCallsForNotificationManager() // clear calls recorded when initializing the state
+            arrangement.clearRecordedCalls() // clear calls recorded when initializing the state
             arrangement.withActiveNotifications(
                 listOf(
                     mockStatusBarNotification(id1, tag1),
@@ -320,7 +322,7 @@ class CallNotificationManagerTest {
             val (arrangement, callNotificationManager) = Arrangement()
                 .withIncomingNotificationForUserAndCall(notification, callNotificationData)
                 .arrange()
-            arrangement.clearRecordedCallsForNotificationManager() // clear first empty list recorded call
+            arrangement.clearRecordedCalls() // clear first empty list recorded call
             // when
             callNotificationManager.handleIncomingCalls(listOf(TEST_CALL1), TEST_USER_ID1, userName)
             advanceTimeBy((DEBOUNCE_TIME + 50).milliseconds)
@@ -367,6 +369,71 @@ class CallNotificationManagerTest {
             }
         }
 
+    @Test
+    fun `given incoming call exists, when bringing back notification, then show the notification again`() =
+        runTest(dispatcherProvider.main()) {
+            // given
+            val call = provideCall(ConversationId("convId", "domain"), CallStatus.INCOMING)
+            val data = provideCallNotificationData(TestUser.SELF_USER_ID, call, "user name")
+            val tag = NotificationConstants.getIncomingCallTag(data.userId.toString())
+            val id = NotificationConstants.getIncomingCallId(data.userId.toString(), data.conversationId.toString())
+            val notification = mockk<Notification>()
+            val (arrangement, callNotificationManager) = Arrangement()
+                .withCurrentSession(AccountInfo.Valid(TestUser.SELF_USER_ID))
+                .withIncomingNotificationForUserAndCall(notification, data)
+                .arrange()
+            callNotificationManager.handleIncomingCalls(listOf(call), data.userId, data.userName)
+            callNotificationManager.hideIncomingCallNotification(data.userId.toString(), data.conversationId.toString())
+            advanceUntilIdle()
+            arrangement.clearRecordedCalls()
+            // when
+            callNotificationManager.bringBackIncomingCallNotification(data.userId.toString(), data.conversationId.toString())
+            advanceUntilIdle()
+            // then
+            verify(exactly = 1) {
+                arrangement.callNotificationBuilder.getIncomingCallNotification(
+                    data = match { it.userId == data.userId && it.conversationId == data.conversationId },
+                    asFullScreenIntent = any(),
+                )
+            }
+            verify(exactly = 1) {
+                arrangement.notificationManager.notify(tag, id, notification)
+            }
+        }
+
+    @Test
+    fun `given incoming call does not exist, when bringing back notification, then do not show the notification again`() =
+        runTest(dispatcherProvider.main()) {
+            // given
+            val call = provideCall(ConversationId("convId", "domain"), CallStatus.INCOMING)
+            val data = provideCallNotificationData(TestUser.SELF_USER_ID, call, "user name")
+            val tag = NotificationConstants.getIncomingCallTag(data.userId.toString())
+            val id = NotificationConstants.getIncomingCallId(data.userId.toString(), data.conversationId.toString())
+            val notification = mockk<Notification>()
+            val (arrangement, callNotificationManager) = Arrangement()
+                .withCurrentSession(AccountInfo.Valid(TestUser.SELF_USER_ID))
+                .withIncomingNotificationForUserAndCall(notification, data)
+                .arrange()
+            callNotificationManager.handleIncomingCalls(listOf(call), data.userId, data.userName)
+            callNotificationManager.hideIncomingCallNotification(data.userId.toString(), data.conversationId.toString())
+            callNotificationManager.handleIncomingCalls(emptyList(), data.userId, data.userName) // simulate call not existing anymore
+            advanceUntilIdle()
+            arrangement.clearRecordedCalls()
+            // when
+            callNotificationManager.bringBackIncomingCallNotification(data.userId.toString(), data.conversationId.toString())
+            advanceUntilIdle()
+            // then
+            verify(exactly = 0) {
+                arrangement.callNotificationBuilder.getIncomingCallNotification(
+                    data = match { it.userId == data.userId && it.conversationId == data.conversationId },
+                    asFullScreenIntent = any(),
+                )
+            }
+            verify(exactly = 0) {
+                arrangement.notificationManager.notify(tag, id, notification)
+            }
+        }
+
     private inner class Arrangement {
 
         @MockK
@@ -394,10 +461,11 @@ class CallNotificationManagerTest {
             withCurrentSession(AccountInfo.Valid(UserId("userId", "domain")))
         }
 
-        fun clearRecordedCallsForNotificationManager() {
+        fun clearRecordedCalls() {
             clearMocks(
                 notificationManager,
                 activityManager,
+                callNotificationBuilder,
                 answers = false,
                 recordedCalls = true,
                 childMocks = false,
@@ -418,7 +486,13 @@ class CallNotificationManagerTest {
             coEvery { coreLogic.getGlobalScope().session.currentSession() } returns CurrentSessionResult.Success(accountInfo)
         }
 
-        fun arrange() = this to CallNotificationManager(context, dispatcherProvider, callNotificationBuilder, coreLogic)
+        fun arrange() = this to CallNotificationManager(
+            context = context,
+            dispatcherProvider = dispatcherProvider,
+            builder = callNotificationBuilder,
+            coreLogic = coreLogic,
+            qualifiedIdMapper = QualifiedIdMapperImpl(TestUser.SELF_USER_ID),
+        )
     }
 
     companion object {

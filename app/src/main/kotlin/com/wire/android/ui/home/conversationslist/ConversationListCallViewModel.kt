@@ -19,11 +19,13 @@
 package com.wire.android.ui.home.conversationslist
 
 import androidx.lifecycle.viewModelScope
+import com.wire.android.di.CurrentAccount
 import com.wire.android.ui.common.ActionsManager
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.common.visbility.VisibilityState
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.AnswerCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
@@ -45,6 +47,7 @@ object ConversationListCallViewModelPreview : ConversationListCallViewModel
 @Suppress("MagicNumber", "TooManyFunctions", "LongParameterList")
 @HiltViewModel
 class ConversationListCallViewModelImpl @Inject constructor(
+    @CurrentAccount val currentAccount: UserId,
     private val answerCall: AnswerCallUseCase,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val endCall: EndCallUseCase
@@ -88,7 +91,7 @@ class ConversationListCallViewModelImpl @Inject constructor(
             viewModelScope.launch {
                 answerCall(conversationId = conversationId)
             }
-            sendAction(ConversationListCallViewActions.JoinedCall(conversationId))
+            sendAction(ConversationListCallViewActions.JoinedCall(conversationId, currentAccount))
         }
     }
 
@@ -98,5 +101,5 @@ class ConversationListCallViewModelImpl @Inject constructor(
 }
 
 sealed interface ConversationListCallViewActions {
-    data class JoinedCall(val conversationId: ConversationId) : ConversationListCallViewActions
+    data class JoinedCall(val conversationId: ConversationId, val userId: UserId) : ConversationListCallViewActions
 }

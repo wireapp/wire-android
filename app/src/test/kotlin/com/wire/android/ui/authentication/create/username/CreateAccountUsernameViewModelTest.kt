@@ -20,9 +20,12 @@ package com.wire.android.ui.authentication.create.username
 
 import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
+import com.wire.android.analytics.FinalizeRegistrationAnalyticsMetadataUseCase
+import com.wire.android.analytics.RegistrationAnalyticsManagerUseCase
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.SnapshotExtension
 import com.wire.android.config.mockUri
+import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.ui.authentication.create.common.handle.HandleUpdateErrorState
 import com.wire.android.util.EMPTY
 import com.wire.kalium.common.error.NetworkFailure
@@ -38,10 +41,9 @@ import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.internal.assertEquals
-import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeInstanceOf
+import org.junit.jupiter.api.Assertions.assertEquals
+import com.wire.android.assertions.shouldBeEqualTo
+import com.wire.android.assertions.shouldBeInstanceOf
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -101,6 +103,10 @@ class CreateAccountUsernameViewModelTest {
         advanceUntilIdle()
         verify(exactly = 1) { arrangement.validateUserHandleUseCase.invoke(username) }
         coVerify(exactly = 1) { arrangement.setUserHandleUseCase.invoke(username) }
+        coVerify(exactly = 1) { arrangement.finalizeRegistrationAnalyticsMetadataUseCase.invoke() }
+        coVerify(exactly = 1) {
+            arrangement.anonymousAnalyticsManager.sendEventIfEnabled(eq(AnalyticsEvent.RegistrationPersonalAccount.CreationCompleted))
+        }
         createAccountUsernameViewModel.state.success shouldBeEqualTo true
     }
 
@@ -148,7 +154,7 @@ class CreateAccountUsernameViewModelTest {
         createAccountUsernameViewModel.state.error shouldBeInstanceOf
                 HandleUpdateErrorState.DialogError.GenericError::class
         val error = createAccountUsernameViewModel.state.error as HandleUpdateErrorState.DialogError.GenericError
-        error.coreFailure shouldBe networkFailure
+        error.coreFailure shouldBeEqualTo networkFailure
         createAccountUsernameViewModel.state.success shouldBeEqualTo false
     }
 
@@ -165,7 +171,7 @@ class CreateAccountUsernameViewModelTest {
         createAccountUsernameViewModel.state.error shouldBeInstanceOf
                 HandleUpdateErrorState.DialogError.GenericError::class
         createAccountUsernameViewModel.onErrorDismiss()
-        createAccountUsernameViewModel.state.error shouldBe HandleUpdateErrorState.None
+        createAccountUsernameViewModel.state.error shouldBeEqualTo HandleUpdateErrorState.None
     }
 
     @Test
@@ -195,18 +201,36 @@ class CreateAccountUsernameViewModelTest {
         @MockK
         lateinit var setUserHandleUseCase: SetUserHandleUseCase
 
-        private val viewModel by lazy { CreateAccountUsernameViewModel(validateUserHandleUseCase, setUserHandleUseCase) }
+        @MockK
+        lateinit var anonymousAnalyticsManager: RegistrationAnalyticsManagerUseCase
+
+        @MockK
+        lateinit var finalizeRegistrationAnalyticsMetadataUseCase: FinalizeRegistrationAnalyticsMetadataUseCase
+
+        private val viewModel by lazy {
+            CreateAccountUsernameViewModel(
+                validateUserHandleUseCase,
+                setUserHandleUseCase,
+                finalizeRegistrationAnalyticsMetadataUseCase,
+                anonymousAnalyticsManager
+            )
+        }
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             mockUri()
+            coEvery { finalizeRegistrationAnalyticsMetadataUseCase() } returns Unit
+            coEvery { anonymousAnalyticsManager.sendEventIfEnabled(any()) } returns Unit
         }
+
         fun withValidateHandleResult(result: ValidateUserHandleResult, forSpecificHandle: String? = null) = apply {
             coEvery { validateUserHandleUseCase(forSpecificHandle?.let { eq(it) } ?: any()) } returns result
         }
+
         fun withSetUserHandle(result: SetUserHandleResult) = apply {
             coEvery { setUserHandleUseCase.invoke(any()) } returns result
         }
+
         fun arrange() = this to viewModel
     }
 }

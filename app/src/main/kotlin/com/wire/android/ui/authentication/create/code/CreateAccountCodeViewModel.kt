@@ -31,17 +31,19 @@ import com.wire.android.di.ClientScopeProvider
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
+import com.wire.android.ui.authentication.login.email.LoginEmailViewModel.Companion.RESEND_TIMER_DELAY
 import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.ui.navArgs
 import com.wire.android.ui.registration.code.CreateAccountCodeResult
 import com.wire.android.util.WillNeverOccurError
+import com.wire.android.util.ui.CountdownTimer
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
+import com.wire.kalium.logic.feature.client.RegisterClientParam
 import com.wire.kalium.logic.feature.client.RegisterClientResult
-import com.wire.kalium.logic.feature.client.RegisterClientUseCase
 import com.wire.kalium.logic.feature.register.RegisterParam
 import com.wire.kalium.logic.feature.register.RegisterResult
 import com.wire.kalium.logic.feature.register.RequestActivationCodeResult
@@ -65,6 +67,8 @@ class CreateAccountCodeViewModel @Inject constructor(
 
     val codeTextState: TextFieldState = TextFieldState()
     var codeState: CreateAccountCodeViewState by mutableStateOf(CreateAccountCodeViewState(createAccountNavArgs.flowType))
+
+    private var resendCodeTimer = CountdownTimer()
 
     init {
         viewModelScope.launch {
@@ -98,8 +102,13 @@ class CreateAccountCodeViewModel @Inject constructor(
                 }
             }
 
-            val result = authScope.registerScope.requestActivationCode(createAccountNavArgs.userRegistrationInfo.email).toCodeError()
-            codeState = codeState.copy(loading = false, result = result)
+            val result = authScope.registerScope.requestActivationCode(createAccountNavArgs.userRegistrationInfo.email)
+
+            if (result is RequestActivationCodeResult.Success) {
+                startResendCodeTimer()
+            }
+
+            codeState = codeState.copy(loading = false, result = result.toCodeError())
         }
     }
 
@@ -212,7 +221,7 @@ class CreateAccountCodeViewModel @Inject constructor(
 
     private suspend fun registerClient(userId: UserId, password: String) =
         clientScopeProviderFactory.create(userId).clientScope.getOrRegister(
-            RegisterClientUseCase.RegisterClientParam(
+            RegisterClientParam(
                 password = password,
                 capabilities = null,
                 modelPostfix = if (BuildConfig.PRIVATE_BUILD) " [${BuildConfig.FLAVOR}_${BuildConfig.BUILD_TYPE}]" else null
@@ -255,5 +264,25 @@ class CreateAccountCodeViewModel @Inject constructor(
         RequestActivationCodeResult.Failure.InvalidEmail -> CreateAccountCodeResult.Error.DialogError.InvalidEmailError
         is RequestActivationCodeResult.Failure.Generic -> CreateAccountCodeResult.Error.DialogError.GenericError(this.failure)
         RequestActivationCodeResult.Success -> CreateAccountCodeResult.None
+    }
+
+    private fun startResendCodeTimer() {
+        viewModelScope.launch {
+            resendCodeTimer.start(
+                seconds = RESEND_TIMER_DELAY,
+                onUpdate = { timerText ->
+                    updateResendTimer(timerText)
+                },
+                onFinish = {
+                    updateResendTimer(null)
+                }
+            )
+        }
+    }
+
+    private fun updateResendTimer(timerText: String?) {
+        codeState = codeState.copy(
+            remainingTimerText = timerText?.let { timerText }
+        )
     }
 }

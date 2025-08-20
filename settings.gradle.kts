@@ -20,6 +20,7 @@ pluginManagement {
     repositories {
         mavenCentral()
         google()
+         maven(url = "https://s01.oss.sonatype.org/content/repositories/snapshots")
     }
 }
 
@@ -46,6 +47,11 @@ rootDir
     }
 
 dependencyResolutionManagement {
+ repositories {
+        google()
+        mavenCentral()
+        maven(url = "https://s01.oss.sonatype.org/content/repositories/snapshots")
+    }
     versionCatalogs {
         create("klibs") {
             from(files("kalium/gradle/libs.versions.toml"))

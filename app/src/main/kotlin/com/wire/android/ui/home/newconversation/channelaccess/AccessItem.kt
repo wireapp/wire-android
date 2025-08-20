@@ -34,6 +34,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -71,7 +72,7 @@ fun AccessScreenItem(
             enabled = isEnabled
         )
         Text(
-            text = stringResource(channelAccessType.label),
+            text = stringResource(channelAccessType.labelResId),
             style = MaterialTheme.wireTypography.body01,
             color = if (isEnabled) colorsScheme().onBackground else Color.Gray,
             modifier = Modifier.padding(vertical = dimensions().spacing16x)
@@ -81,7 +82,7 @@ fun AccessScreenItem(
 
 @Composable
 @PreviewMultipleThemes
-fun PreviewAccessScreenItem() {
+fun PreviewAccessScreenItem() = WireTheme {
     AccessScreenItem(
         channelAccessType = ChannelAccessType.PRIVATE,
         selectedAccess = ChannelAccessType.PRIVATE,

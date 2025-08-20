@@ -14,6 +14,7 @@ import com.wire.android.ui.authentication.login.DomainClaimedByOrg
 import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.LoginPasswordPath
 import com.wire.android.ui.authentication.login.LoginViewModelExtension
+import com.wire.android.ui.authentication.login.PreFilledUserIdentifierType
 import com.wire.android.ui.authentication.login.sso.LoginSSOViewModelExtension
 import com.wire.android.ui.authentication.login.sso.SSOUrlConfig
 import com.wire.android.ui.navArgs
@@ -593,6 +594,9 @@ class NewLoginViewModelTest {
             every {
                 savedStateHandle[any()] = any<String>()
             } returns Unit
+            every {
+                savedStateHandle.navArgs<LoginNavArgs>()
+            } returns LoginNavArgs()
         }
 
         fun withNavArgsServerConfig(serverConfig: ServerConfig.Links) = apply {
@@ -721,6 +725,37 @@ class NewLoginViewModelTest {
             }
         }
 
+        fun withEmptyUserIdentifierAndNoPreFilledIdentifier() = apply {
+            every {
+                savedStateHandle.get<String>(any())
+            } returns null
+            every {
+                savedStateHandle.navArgs<LoginNavArgs>()
+            } returns LoginNavArgs()
+        }
+
+        fun withUserIdentifierAlreadySet(userIdentifier: String) = apply {
+            every {
+                savedStateHandle.get<String>(any())
+            } returns userIdentifier
+        }
+
+        fun withPreFilledUserIdentifier(userIdentifier: String) = apply {
+            every {
+                savedStateHandle.navArgs<LoginNavArgs>()
+            } returns LoginNavArgs(userHandle = PreFilledUserIdentifierType.PreFilled(userIdentifier))
+        }
+
+        fun withFetchDefaultSSOCodeSuccessAfterDelay(defaultSSOCode: String?) = apply {
+            coEvery {
+                loginSSOViewModelExtension.fetchDefaultSSOCode(any(), any(), any(), any())
+            } coAnswers {
+                // Simulate delay before calling success callback
+                kotlinx.coroutines.delay(100)
+                arg<suspend (String?) -> Unit>(3)(defaultSSOCode)
+            }
+        }
+
         fun arrange() = this to NewLoginViewModel(
             validateEmailOrSSOCodeUseCase,
             coreLogic,
@@ -732,6 +767,209 @@ class NewLoginViewModelTest {
             dispatchers
         )
     }
+
+    @Test
+    fun `given empty user identifier and no pre-filled identifier, when initializing view model, then fetch default SSO code`() =
+        runTest(dispatchers.main()) {
+            val defaultSSOCode = SSO_CODE_WITH_PREFIX
+            val (arrangement, _) = Arrangement()
+                .withEmptyUserIdentifierAndNoPreFilledIdentifier()
+                .withFetchDefaultSSOCodeSuccess(defaultSSOCode)
+                .arrange()
+
+            advanceUntilIdle()
+
+            coVerify(exactly = 1) {
+                arrangement.loginSSOViewModelExtension.fetchDefaultSSOCode(any(), any(), any(), any())
+            }
+        }
+
+    @Test
+    fun `given user identifier already set, when initializing view model, then do not fetch default SSO code`() =
+        runTest(dispatchers.main()) {
+            val (arrangement, _) = Arrangement()
+                .withUserIdentifierAlreadySet("existing@user.com")
+                .arrange()
+
+            advanceUntilIdle()
+
+            coVerify(exactly = 0) {
+                arrangement.loginSSOViewModelExtension.fetchDefaultSSOCode(any(), any(), any(), any())
+            }
+        }
+
+    @Test
+    fun `given pre-filled identifier exists, when initializing view model, then do not fetch default SSO code`() =
+        runTest(dispatchers.main()) {
+            val (arrangement, _) = Arrangement()
+                .withPreFilledUserIdentifier("prefilled@user.com")
+                .arrange()
+
+            advanceUntilIdle()
+
+            coVerify(exactly = 0) {
+                arrangement.loginSSOViewModelExtension.fetchDefaultSSOCode(any(), any(), any(), any())
+            }
+        }
+
+    @Test
+    fun `given auth scope failure during init, when fetching default SSO code, then handle error gracefully`() =
+        runTest(dispatchers.main()) {
+            val (arrangement, viewModel) = Arrangement()
+                .withEmptyUserIdentifierAndNoPreFilledIdentifier()
+                .withFetchDefaultSSOCodeAuthScopeFailure(AutoVersionAuthScopeUseCase.Result.Failure.UnknownServerVersion)
+                .arrange()
+
+            advanceUntilIdle()
+
+            assertEquals("", viewModel.userIdentifierTextState.text.toString())
+        }
+
+    @Test
+    fun `given fetch SSO settings failure during init, when fetching default SSO code, then handle error gracefully`() =
+        runTest(dispatchers.main()) {
+            val failure = CoreFailure.Unknown(RuntimeException("Network error"))
+            val (arrangement, viewModel) = Arrangement()
+                .withEmptyUserIdentifierAndNoPreFilledIdentifier()
+                .withFetchDefaultSSOCodeFailure(FetchSSOSettingsUseCase.Result.Failure(failure))
+                .arrange()
+
+            advanceUntilIdle()
+
+            assertEquals("", viewModel.userIdentifierTextState.text.toString())
+        }
+
+    @Test
+    fun `given default SSO code available during init, when fetching succeeds and text field is empty, then set SSO code`() =
+        runTest(dispatchers.main()) {
+            val defaultSSOCode = SSO_CODE_WITH_PREFIX
+            val (arrangement, viewModel) = Arrangement()
+                .withEmptyUserIdentifierAndNoPreFilledIdentifier()
+                .withFetchDefaultSSOCodeSuccess(defaultSSOCode)
+                .arrange()
+
+            advanceUntilIdle()
+
+            assertEquals(defaultSSOCode, viewModel.userIdentifierTextState.text.toString())
+        }
+
+    @Test
+    fun `given null default SSO code during init, when fetching succeeds, then do not set text field`() =
+        runTest(dispatchers.main()) {
+            val (arrangement, viewModel) = Arrangement()
+                .withEmptyUserIdentifierAndNoPreFilledIdentifier()
+                .withFetchDefaultSSOCodeSuccess(null)
+                .arrange()
+
+            advanceUntilIdle()
+
+            assertEquals("", viewModel.userIdentifierTextState.text.toString())
+        }
+
+    @Test
+    fun `given user identifier changed during fetch, when default SSO code returns, then do not override user input`() =
+        runTest(dispatchers.main()) {
+            val defaultSSOCode = SSO_CODE_WITH_PREFIX
+            val userInput = "user@typed.com"
+            val (arrangement, viewModel) = Arrangement()
+                .withEmptyUserIdentifierAndNoPreFilledIdentifier()
+                .withFetchDefaultSSOCodeSuccessAfterDelay(defaultSSOCode)
+                .arrange()
+
+            // Simulate user typing during the fetch
+            viewModel.userIdentifierTextState.setTextAndPlaceCursorAtEnd(userInput)
+            advanceUntilIdle()
+
+            assertEquals(userInput, viewModel.userIdentifierTextState.text.toString())
+        }
+
+    @Test
+    fun `when onDismissDialog is called, then reset state to default`() =
+        runTest(dispatchers.main()) {
+            val (arrangement, viewModel) = Arrangement()
+                .arrange()
+
+            // Call onDismissDialog which should reset state to default
+            viewModel.onDismissDialog()
+
+            // Verify the state is reset to default
+            assertEquals(NewLoginFlowState.Default, viewModel.state.flowState)
+        }
+
+    @Test
+    fun `given onCustomServerDialogConfirm called, when fetchDefaultSSOCode onSuccess lambda is triggered, then lambda executes correctly`() =
+        runTest(dispatchers.main()) {
+            val serverConfig = newServerConfig(1).links
+            val defaultSSOCode = SSO_CODE_WITH_PREFIX
+            val (arrangement, viewModel) = Arrangement()
+                .withFetchDefaultSSOCodeSuccess(defaultSSOCode)
+                .arrange()
+
+            viewModel.onCustomServerDialogConfirm(serverConfig)
+            advanceUntilIdle()
+
+            // Verify the fetchDefaultSSOCode method was called
+            coVerify(exactly = 1) {
+                arrangement.loginSSOViewModelExtension.fetchDefaultSSOCode(
+                    serverConfig = serverConfig,
+                    onAuthScopeFailure = any(),
+                    onFetchSSOSettingsFailure = any(),
+                    onSuccess = any()
+                )
+            }
+
+            // Verify that initiateSSO was called (meaning the onSuccess lambda was executed)
+            coVerify(exactly = 1) {
+                arrangement.loginSSOViewModelExtension.initiateSSO(serverConfig, defaultSSOCode, any(), any(), any())
+            }
+        }
+
+    @Test
+    fun `given CustomServerDetailsDialog onConfirm called, when onCustomServerDialogConfirm is executed, then action proceeds and dialog dismisses`() =
+        runTest(dispatchers.main()) {
+            val serverConfig = newServerConfig(1).links
+            val (arrangement, viewModel) = Arrangement()
+                .withFetchDefaultSSOCodeSuccess(null)
+                .arrange()
+
+            viewModel.actions.test {
+                // Call onCustomServerDialogConfirm (simulating the dialog's onConfirm callback)
+                viewModel.onCustomServerDialogConfirm(serverConfig)
+                advanceUntilIdle()
+
+                // Verify the action was sent
+                assertInstanceOf<NewLoginAction.CustomConfig>(expectMostRecentItem()).let {
+                    assertEquals(serverConfig, it.customServerConfig)
+                }
+
+                // Verify the dialog state was reset to default (dialog dismissed)
+                assertEquals(NewLoginFlowState.Default, viewModel.state.flowState)
+            }
+        }
+
+    @Test
+    fun `given enterprise login with CustomBackend path, when executed, then CustomConfigDialog state is set`() =
+        runTest(dispatchers.main()) {
+            val email = "user@custom-domain.com"
+            val customServerConfig = newServerConfig(2).links
+            val (arrangement, viewModel) = Arrangement()
+                .withEmailOrSSOCodeValidatorReturning(ValidEmail)
+                .withAuthenticationScopeSuccess()
+                .withGetLoginFlowForDomainReturning(
+                    EnterpriseLoginResult.Success(LoginRedirectPath.CustomBackend(customServerConfig))
+                )
+                .arrange()
+
+            // Set user input to trigger enterprise login
+            viewModel.userIdentifierTextState.setTextAndPlaceCursorAtEnd(email)
+
+            // Start the login flow
+            viewModel.onLoginStarted()
+            advanceUntilIdle()
+
+            // Verify the CustomConfigDialog state is set (this triggers the dialog to show)
+            assertEquals(NewLoginFlowState.CustomConfigDialog(customServerConfig), viewModel.state.flowState)
+        }
 
     companion object {
         private const val SSO_CODE_WITHOUT_PREFIX: String = "fd994b20-b9af-11ec-ae36-00163e9b33ca"

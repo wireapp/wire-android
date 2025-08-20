@@ -21,6 +21,7 @@ package com.wire.android.services
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import androidx.annotation.VisibleForTesting
 import com.wire.android.appLogger
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.id.ConversationId
@@ -32,7 +33,6 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
-import org.jetbrains.annotations.VisibleForTesting
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -47,7 +47,9 @@ class ServicesManager @Inject constructor(
     dispatcherProvider: DispatcherProvider,
 ) {
     private val scope = CoroutineScope(SupervisorJob() + dispatcherProvider.default())
-    private val callServiceEvents = MutableSharedFlow<CallService.Action>()
+
+    @VisibleForTesting
+    internal val callServiceEvents = MutableSharedFlow<CallService.Action>()
 
     init {
         scope.launch {
@@ -58,8 +60,7 @@ class ServicesManager @Inject constructor(
                 .distinctUntilChanged()
                 .collectLatest { action ->
                     if (action is CallService.Action.Stop) {
-                        appLogger.i("$TAG: stopping CallService because there are no calls")
-                        when (CallService.serviceState.get()) {
+                        when (CallService.serviceState.value) {
                             CallService.ServiceState.STARTED -> {
                                 // Instead of simply calling stopService(CallService::class), which can end up with a crash if it
                                 // happens before the service calls startForeground, we call the startService command with an empty data
@@ -86,19 +87,30 @@ class ServicesManager @Inject constructor(
                     }
                 }
         }
+        scope.launch {
+            CallService.serviceState.collectLatest { state ->
+                    if (state == CallService.ServiceState.NOT_STARTED) {
+                        appLogger.i("$TAG: CallService is not started, resetting callServiceEvents")
+                        callServiceEvents.emit(CallService.Action.Stop)
+                    }
+                }
+        }
     }
 
     fun startCallService() {
         appLogger.i("$TAG: start CallService event")
         scope.launch {
-            callServiceEvents.emit(CallService.Action.Default)
+            callServiceEvents.emit(CallService.Action.Start.Default)
         }
     }
 
     fun startCallServiceToAnswer(userId: UserId, conversationId: ConversationId) {
-        appLogger.i("ServicesManager: start CallService event")
+        appLogger.i(
+            "$TAG:start CallService event to answer call for user ${userId.toLogString()}" +
+                    " and conversation ${conversationId.toLogString()}"
+        )
         scope.launch {
-            callServiceEvents.emit(CallService.Action.AnswerCall(userId, conversationId))
+            callServiceEvents.emit(CallService.Action.Start.AnswerCall(userId, conversationId))
         }
     }
 

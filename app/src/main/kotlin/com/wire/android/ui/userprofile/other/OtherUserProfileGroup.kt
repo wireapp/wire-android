@@ -40,22 +40,22 @@ import com.wire.android.ui.common.SurfaceBackgroundWrapper
 import com.wire.android.ui.common.button.WireButton
 import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.home.conversationslist.model.allowsRoleEdition
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.stringWithStyledArgs
 import com.wire.kalium.logic.data.conversation.Conversation.Member
+import com.wire.kalium.logic.data.id.ConversationId
 
 @Composable
 fun OtherUserProfileGroup(
-    state: OtherUserProfileState,
-    onRemoveFromConversation: (RemoveConversationMemberState) -> Unit,
-    openChangeRoleBottomSheet: () -> Unit,
+    state: OtherUserProfileGroupState,
+    isRoleEditable: Boolean,
+    onRemoveFromConversation: (ConversationId) -> Unit,
+    openChangeRoleBottomSheet: (OtherUserProfileGroupState) -> Unit,
     modifier: Modifier = Modifier,
     lazyListState: LazyListState = rememberLazyListState()
 ) {
@@ -72,28 +72,19 @@ fun OtherUserProfileGroup(
                     MaterialTheme.wireTypography.body02,
                     MaterialTheme.wireColorScheme.onBackground,
                     MaterialTheme.wireColorScheme.onBackground,
-                    state.groupState!!.groupName
+                    state.groupName
                 ),
-                isSelfAdmin = state.groupState.isSelfAdmin,
-                onRemoveFromConversation = {
-                    onRemoveFromConversation(
-                        RemoveConversationMemberState(
-                            conversationId = state.conversationId!!,
-                            fullName = state.fullName,
-                            userName = state.userName,
-                            userId = state.userId
-                        )
-                    )
-                }
+                isSelfAdmin = state.isSelfAdmin,
+                onRemoveFromConversation = { onRemoveFromConversation(state.conversationId) },
             )
         }
         item(key = "user_group_role") {
             UserRoleInformation(
                 label = stringResource(id = R.string.user_profile_conversation_role),
-                value = AnnotatedString(state.groupState!!.role.name.asString()),
-                isSelfAdmin = state.groupState.isSelfAdmin,
-                openChangeRoleBottomSheet = openChangeRoleBottomSheet,
-                isRoleEditable = state.membership.allowsRoleEdition() && !state.isMetadataEmpty() && !state.isTemporaryUser()
+                value = AnnotatedString(state.role.name.asString()),
+                isSelfAdmin = state.isSelfAdmin,
+                openChangeRoleBottomSheet = { openChangeRoleBottomSheet(state) },
+                isRoleEditable = isRoleEditable,
             )
         }
     }
@@ -182,7 +173,12 @@ val Member.Role.name
 @Composable
 @PreviewMultipleThemes
 fun PreviewOtherUserProfileGroup() = WireTheme {
-    OtherUserProfileGroup(OtherUserProfileState.PREVIEW, {}, {})
+    OtherUserProfileGroup(
+        state = OtherUserProfileGroupState.PREVIEW,
+        isRoleEditable = true,
+        onRemoveFromConversation = {},
+        openChangeRoleBottomSheet = {}
+    )
 }
 
 @Composable

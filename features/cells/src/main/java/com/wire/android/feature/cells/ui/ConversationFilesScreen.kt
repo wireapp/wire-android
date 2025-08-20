@@ -22,6 +22,9 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
@@ -32,19 +35,25 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.wire.android.feature.cells.R
+import com.wire.android.feature.cells.domain.model.AttachmentFileType
+import com.wire.android.feature.cells.ui.common.Breadcrumbs
+import com.wire.android.feature.cells.ui.destinations.AddRemoveTagsScreenDestination
 import com.wire.android.feature.cells.ui.destinations.ConversationFilesWithSlideInTransitionScreenDestination
 import com.wire.android.feature.cells.ui.destinations.CreateFolderScreenDestination
 import com.wire.android.feature.cells.ui.destinations.MoveToFolderScreenDestination
 import com.wire.android.feature.cells.ui.destinations.PublicLinkScreenDestination
 import com.wire.android.feature.cells.ui.destinations.RecycleBinScreenDestination
+import com.wire.android.feature.cells.ui.destinations.RenameNodeScreenDestination
 import com.wire.android.feature.cells.ui.dialog.CellsNewActionBottomSheet
 import com.wire.android.feature.cells.ui.dialog.CellsOptionsBottomSheet
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.PreviewNavigator
 import com.wire.android.navigation.WireNavigator
 import com.wire.android.navigation.annotation.features.cells.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
@@ -53,12 +62,17 @@ import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.bottomsheet.show
 import com.wire.android.ui.common.button.FloatingActionButton
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.theme.WireTheme
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flowOf
 
 /**
  * Show files in one conversation.
@@ -82,6 +96,7 @@ fun ConversationFilesScreen(
         pagingListItems = viewModel.nodesFlow.collectAsLazyPagingItems(),
         downloadFileSheet = viewModel.downloadFileSheet,
         menu = viewModel.menu,
+        breadcrumbs = viewModel.breadcrumbs(),
         sendIntent = { viewModel.sendIntent(it) },
     )
 }
@@ -98,6 +113,7 @@ fun ConversationFilesScreenContent(
     modifier: Modifier = Modifier,
     screenTitle: String? = null,
     isRecycleBin: Boolean? = false,
+    breadcrumbs: Array<String>? = emptyArray(),
     navigationIconType: NavigationIconType = NavigationIconType.Close()
 ) {
     val newActionBottomSheetState = rememberWireModalSheetState<Unit>()
@@ -140,19 +156,30 @@ fun ConversationFilesScreenContent(
 
     WireScaffold(
         modifier = modifier,
+        snackbarHost = {},
         topBar = {
-            WireCenterAlignedTopAppBar(
-                onNavigationPressed = { navigator.navigateBack() },
-                title = screenTitle ?: stringResource(R.string.conversation_files_title),
-                navigationIconType = navigationIconType,
-                elevation = dimensions().spacing0x,
-                actions = {
-                    MoreOptionIcon(
-                        contentDescription = R.string.content_description_conversation_files_more_button,
-                        onButtonClicked = { optionsBottomSheetState.show() }
+            Column {
+                WireCenterAlignedTopAppBar(
+                    onNavigationPressed = { navigator.navigateBack() },
+                    title = screenTitle ?: stringResource(R.string.conversation_files_title),
+                    navigationIconType = navigationIconType,
+                    elevation = dimensions().spacing0x,
+                    actions = {
+                        MoreOptionIcon(
+                            contentDescription = R.string.content_description_conversation_files_more_button,
+                            onButtonClicked = { optionsBottomSheetState.show() }
+                        )
+                    }
+                )
+                breadcrumbs?.let {
+                    Breadcrumbs(
+                        modifier = Modifier
+                            .height(dimensions().spacing40x)
+                            .fillMaxWidth(),
+                        pathSegments = it
                     )
                 }
-            )
+            }
         },
         floatingActionButton = {
             if (isFabVisible) {
@@ -197,8 +224,9 @@ fun ConversationFilesScreenContent(
                     navigator.navigate(
                         NavigationCommand(
                             ConversationFilesWithSlideInTransitionScreenDestination(
-                                folderPath,
-                                it.name
+                                conversationId = folderPath,
+                                screenTitle = it.name,
+                                breadcrumbs = it.name?.let { name -> (breadcrumbs ?: emptyArray()) + name }
                             ),
                             BackStackMode.NONE,
                             launchSingleTop = false
@@ -223,12 +251,82 @@ fun ConversationFilesScreenContent(
                             MoveToFolderScreenDestination(
                                 currentPath = currentPath,
                                 nodeToMovePath = nodePath,
-                                uuid = uuid,
+                                uuid = uuid
                             )
+                        )
+                    )
+                },
+                showRenameScreen = { cellNodeUi ->
+                    navigator.navigate(
+                        NavigationCommand(
+                            RenameNodeScreenDestination(
+                                uuid = cellNodeUi.uuid,
+                                currentPath = cellNodeUi.remotePath,
+                                isFolder = cellNodeUi is CellNodeUi.Folder,
+                                nodeName = cellNodeUi.name,
+                            )
+                        )
+                    )
+                },
+                showAddRemoveTagsScreen = { node ->
+                    navigator.navigate(
+                        NavigationCommand(
+                            AddRemoveTagsScreenDestination(node.uuid, node.tags.toCollection(ArrayList()))
                         )
                     )
                 }
             )
         }
+    }
+}
+
+@Composable
+@MultipleThemePreviews
+fun PreviewConversationFilesScreen() {
+    WireTheme {
+        ConversationFilesScreenContent(
+            navigator = PreviewNavigator,
+            currentNodeUuid = "conversationId",
+            actions = flowOf(),
+            pagingListItems = flowOf(
+                PagingData.from(
+                    listOf(
+                        CellNodeUi.File(
+                            uuid = "file1",
+                            name = "File 1",
+                            downloadProgress = 0.5f,
+                            assetType = AttachmentFileType.IMAGE,
+                            size = 123456,
+                            localPath = null,
+                            mimeType = "image/png",
+                            publicLinkId = "link1",
+                            userName = "User A",
+                            conversationName = "Conversation A",
+                            modifiedTime = "2023-10-01T12:00:00Z",
+                            remotePath = "/path/to/file1.png",
+                            contentHash = null,
+                            contentUrl = null,
+                            previewUrl = null
+                        ),
+                        CellNodeUi.Folder(
+                            uuid = "folder1",
+                            name = "Folder 1",
+                            remotePath = "/path/to/folder1",
+                            userName = "User B",
+                            conversationName = "Conversation B",
+                            modifiedTime = "2023-10-01T12:00:00Z",
+                            size = 123456,
+                        )
+                    )
+                )
+            ).collectAsLazyPagingItems(),
+            downloadFileSheet = MutableStateFlow(null),
+            menu = MutableSharedFlow(replay = 0),
+            sendIntent = {},
+            screenTitle = "Android",
+            isRecycleBin = false,
+            breadcrumbs = arrayOf("Engineering", "Android"),
+            navigationIconType = NavigationIconType.Close()
+        )
     }
 }

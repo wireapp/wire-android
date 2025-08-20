@@ -44,10 +44,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import com.wire.android.R
+import com.wire.android.model.DisplayNameState
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.common.Icon
-import com.wire.android.ui.common.ShakeAnimation
+import com.wire.android.ui.common.animation.ShakeAnimation
 import com.wire.android.ui.common.button.WireButtonState.Default
 import com.wire.android.ui.common.button.WireButtonState.Disabled
 import com.wire.android.ui.common.button.WirePrimaryButton
@@ -195,6 +196,7 @@ private fun computeNameErrorState(error: DisplayNameState.NameError) =
             DisplayNameState.NameError.TextFieldError.NameExceedLimitError -> WireTextFieldState.Error(
                 stringResource(id = R.string.settings_myaccount_display_name_exceeded_limit_error)
             )
+            else -> WireTextFieldState.Default
         }
     } else {
         WireTextFieldState.Default

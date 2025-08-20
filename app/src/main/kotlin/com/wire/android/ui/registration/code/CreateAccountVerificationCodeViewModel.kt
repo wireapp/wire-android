@@ -26,9 +26,11 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig
+import com.wire.android.analytics.RegistrationAnalyticsManagerUseCase
 import com.wire.android.config.orDefault
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.ui.authentication.create.common.CreateAccountDataNavArgs
 import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.ui.navArgs
@@ -38,8 +40,8 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
+import com.wire.kalium.logic.feature.client.RegisterClientParam
 import com.wire.kalium.logic.feature.client.RegisterClientResult
-import com.wire.kalium.logic.feature.client.RegisterClientUseCase
 import com.wire.kalium.logic.feature.register.RegisterParam
 import com.wire.kalium.logic.feature.register.RegisterResult
 import com.wire.kalium.logic.feature.register.RequestActivationCodeResult
@@ -53,6 +55,7 @@ class CreateAccountVerificationCodeViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
+    private val registrationAnalyticsManager: RegistrationAnalyticsManagerUseCase,
     private val clientScopeProviderFactory: ClientScopeProvider.Factory,
 ) : ViewModel() {
 
@@ -67,6 +70,7 @@ class CreateAccountVerificationCodeViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
+            registrationAnalyticsManager.sendEventIfEnabled(AnalyticsEvent.RegistrationPersonalAccount.CodeVerification)
             codeTextState.textAsFlow().collectLatest {
                 if (it.length == codeState.codeLength) onCodeContinue()
             }
@@ -147,6 +151,7 @@ class CreateAccountVerificationCodeViewModel @Inject constructor(
             val registerResult = authScope.registerScope.register(registerParam).let {
                 when (it) {
                     is RegisterResult.Failure -> {
+                        registrationAnalyticsManager.sendEventIfEnabled(AnalyticsEvent.RegistrationPersonalAccount.CodeVerificationFailed)
                         updateCodeErrorState(it.toCodeError())
                         return@launch
                     }
@@ -204,7 +209,7 @@ class CreateAccountVerificationCodeViewModel @Inject constructor(
 
     private suspend fun registerClient(userId: UserId, password: String) =
         clientScopeProviderFactory.create(userId).clientScope.getOrRegister(
-            RegisterClientUseCase.RegisterClientParam(
+            RegisterClientParam(
                 password = password,
                 capabilities = null,
                 modelPostfix = if (BuildConfig.PRIVATE_BUILD) " [${BuildConfig.FLAVOR}_${BuildConfig.BUILD_TYPE}]" else null

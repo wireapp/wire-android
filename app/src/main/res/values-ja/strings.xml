@@ -38,7 +38,6 @@
     <string name="label_logging_in">ログイン中…</string>
     <string name="label_membership_guest">ゲスト</string>
     <string name="label_membership_external">外部</string>
-    <string name="label_membership_service">サービス</string>
     <string name="label_user_deleted">削除済み</string>
     <string name="label_message_sent_failure">Message could not be sent.</string>
     <string name="label_message_edit_sent_failure">接続に問題が発生したため編集したメッセージを送信できませんでした。</string>
@@ -308,7 +307,6 @@
     <!-- Conversations -->
     <!-- Import/Export External Media -->
     <!--Read receipts -->
-    <!--Wire Cell -->
     <!-- Messages -->
     <!-- Messages Date and Time -->
     <!-- Attachment options -->

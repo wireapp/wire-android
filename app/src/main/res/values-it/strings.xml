@@ -38,7 +38,6 @@
     <string name="label_logging_in">Accesso in corso...</string>
     <string name="label_membership_guest">Ospite</string>
     <string name="label_membership_external">Esterno</string>
-    <string name="label_membership_service">Servizio</string>
     <string name="label_user_deleted">Cancellato</string>
     <string name="label_message_sent_failure">Il messaggio non pu&#242; essere inviato a causa di problemi di connessione.</string>
     <string name="label_message_edit_sent_failure">Il messaggio modificato non pu&#242; essere inviato a causa di problemi di connessione.</string>
@@ -403,13 +402,9 @@ Un messaggio eliminato non pu&#242; essere ripristinato.</string>
     <string name="conversation_details_guest_description">Con questa opzione ATTIVA, persone al di fuori del tuo team possono unirsi a questa conversazione.</string>
     <string name="conversation_options_guest_description">Attiva questa opzione per aprire questa conversazione a persone al di fuori del tuo team, anche se non hanno Wire.</string>
     <string name="conversation_options_guest_not_editable_description">Non puoi disattivare l\'opzione ospiti in questa conversazione poich&#233; &#232; stata creata da qualcuno di un altro team.</string>
-    <string name="conversation_options_services_label">Servizi</string>
-    <string name="conversation_options_services_description">Attiva questa opzione per aprire questa conversazione a servizi.</string>
     <string name="conversation_options_renamed">Conversazione rinominata.</string>
     <string name="disable_guest_dialog_title">Disattivare l\'accesso ospiti?</string>
     <string name="disable_guest_dialog_text">Gli ospiti attuali verranno rimossi dalla conversazione. Non verranno autorizzati nuovi ospiti.</string>
-    <string name="disable_services_dialog_title">Disattivare l\'accesso ai servizi?</string>
-    <string name="disable_services_dialog_text">I servizi attuali verranno rimossi dalla conversazione. Non verranno autorizzati nuovi servizi.</string>
     <!-- Import/Export External Media -->
     <string name="import_media_content_title">Condividi con Wire</string>
     <string name="import_media_searchbar_title">Ricerca conversazione</string>
@@ -418,7 +413,6 @@ Un messaggio eliminato non pu&#242; essere ripristinato.</string>
     <!--Read receipts -->
     <string name="conversation_options_read_receipt_label">Notifiche di lettura</string>
     <string name="conversation_options_read_receipt_description">Con questa opzione ATTIVA, le persone possono vedere quando i loro messaggi in questa conversazione vengono letti.</string>
-    <!--Wire Cell -->
     <!-- Messages -->
     <string name="message_details_title">Dettagli messaggio</string>
     <string name="message_details_reactions_tab">REAZIONI (%s)</string>
@@ -493,21 +487,13 @@ Un messaggio eliminato non pu&#242; essere ripristinato.</string>
     <string name="label_edit">Modifica</string>
     <string name="label_delete">Elimina</string>
     <string name="info_message_copied">Messaggio copiato</string>
-    <string name="conversation_banner_federated_externals_guests_services_present">Sono presenti utenti federati, esterni, ospiti e servizi</string>
     <string name="conversation_banner_federated_externals_guests_present">Sono presenti utenti federati, esterni e ospiti</string>
-    <string name="conversation_banner_federated_externals_services_present">Sono presenti utenti federati, esterni e servizi</string>
-    <string name="conversation_banner_federated_guests_services_present">Sono presenti utenti federati, ospiti e servizi</string>
-    <string name="conversation_banner_federated_services_present">Sono presenti utenti federati e servizi</string>
     <string name="conversation_banner_federated_guests_present">Sono presenti utenti federati e ospiti</string>
     <string name="conversation_banner_federated_externals_present">Sono presenti utenti federati ed esterni</string>
-    <string name="conversation_banner_externals_guests_services_present">Sono presenti esterni, ospiti e servizi</string>
-    <string name="conversation_banner_externals_services_present">Sono presenti esterni e servizi</string>
     <string name="conversation_banner_externals_guests_present">Sono presenti esterni e ospiti</string>
-    <string name="conversation_banner_guests_services_present">Sono presenti ospiti e servizi</string>
     <string name="conversation_banner_federated_present">Sono presenti utenti federati</string>
     <string name="conversation_banner_guests_present">Sono presenti ospiti</string>
     <string name="conversation_banner_externals_present">Sono presenti utenti esterni</string>
-    <string name="conversation_banner_services_active">I servizi sono attivi</string>
     <!-- System messages -->
     <string name="label_system_message_added_by_self">%1$s ha aggiunto %2$s alla conversazione</string>
     <string name="label_system_message_removed_by_self">%1$s ha rimosso %2$s dalla conversazione</string>
@@ -659,7 +645,6 @@ Un messaggio eliminato non pu&#242; essere ripristinato.</string>
     <string name="label_no_results_found">Nessun risultato trovato. Riprova.</string>
     <string name="label_general_error">C\'&#232; stato un errore.</string>
     <string name="label_add_member_people">Persone</string>
-    <string name="label_add_member_services">Servizi</string>
     <string name="label_empty_contacts_list">Cerca le persone per nome o nome utente, per avviare una conversazione 🔍</string>
     <!-- Snackbar messages -->
     <string name="error_unknown_title">C\'&#232; stato un errore.</string>
@@ -798,8 +783,6 @@ Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
     <string name="change">Cambia</string>
     <string name="allow_guests">Consenti ospiti</string>
     <string name="allow_guest_switch_description">Apri questa conversazione a persone esterne al tuo team. Puoi sempre cambiarla successivamente.</string>
-    <string name="allow_services">Consenti servizi</string>
-    <string name="service_details_label">Servizio</string>
     <string name="service_no_information_available_title">Nessuna informazione disponibile</string>
     <string name="service_no_information_available_subtitle">Riprova o contatta l\'amministratore del tuo team</string>
     <string name="read_receipts">Ricevute di lettura</string>

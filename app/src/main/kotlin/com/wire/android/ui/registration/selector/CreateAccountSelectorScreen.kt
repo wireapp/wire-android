@@ -38,6 +38,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -118,6 +119,11 @@ fun CreateAccountSelectorScreen(
         onTeamAccountCreationClicked = ::navigateToTeamScreen,
         onNavigateBack = navigator::navigateBack,
     )
+
+    LaunchedEffect(Unit) {
+        // reset registration enabled analytics state when coming from navigation from child
+        viewModel.onPageLoaded()
+    }
 }
 
 @SuppressLint("ComposeModifierMissing")

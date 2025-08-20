@@ -36,6 +36,7 @@ import com.wire.android.ui.common.DEFAULT_SEARCH_QUERY_DEBOUNCE
 import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
 import com.wire.kalium.cells.domain.usecase.DownloadCellFileUseCase
+import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
 import com.wire.kalium.cells.domain.usecase.RestoreNodeFromRecycleBinUseCase
 import com.wire.kalium.common.functional.onFailure
@@ -46,6 +47,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
@@ -66,6 +68,7 @@ import javax.inject.Inject
 class CellViewModel @Inject constructor(
     val savedStateHandle: SavedStateHandle,
     private val getCellFilesPaged: GetPaginatedFilesFlowUseCase,
+    private val getAllTagsUseCase: GetAllTagsUseCase,
     private val deleteCellAsset: DeleteCellAssetUseCase,
     private val restoreNodeFromRecycleBinUseCase: RestoreNodeFromRecycleBinUseCase,
     private val download: DownloadCellFileUseCase,
@@ -92,13 +95,31 @@ class CellViewModel @Inject constructor(
 
     private val removedItemsFlow: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
 
-    internal val nodesFlow = searchQueryFlow
-        .debounce { if (it.isEmpty()) 0L else DEFAULT_SEARCH_QUERY_DEBOUNCE }
-        .onStart { emit("") }
-        .distinctUntilChanged()
-        .flatMapLatest { query ->
+    private val _selectedTags = MutableStateFlow<Set<String>>(emptySet())
+    val selectedTags: StateFlow<Set<String>> = _selectedTags.asStateFlow()
+
+    private val _tags = MutableStateFlow<Set<String>>(emptySet())
+    val tags: StateFlow<Set<String>> = _tags.asStateFlow()
+
+    init {
+        loadTags()
+    }
+
+    internal val nodesFlow = combine(
+        searchQueryFlow
+            .debounce { if (it.isEmpty()) 0L else DEFAULT_SEARCH_QUERY_DEBOUNCE }
+            .onStart { emit("") }
+            .distinctUntilChanged(),
+        selectedTags
+    ) { query, currentTags -> query to currentTags }
+        .flatMapLatest { (query, currentTags) ->
             combine(
-                getCellFilesPaged(navArgs.conversationId, query, navArgs.isRecycleBin ?: false).cachedIn(viewModelScope),
+                getCellFilesPaged(
+                    conversationId = navArgs.conversationId,
+                    query = query,
+                    onlyDeleted = navArgs.isRecycleBin ?: false,
+                    tags = currentTags.toList(),
+                ).cachedIn(viewModelScope),
                 removedItemsFlow,
                 downloadDataFlow
             ) { pagingData, removedItems, downloadData ->
@@ -123,6 +144,10 @@ class CellViewModel @Inject constructor(
             }
         }
 
+    fun updateSelectedTags(tags: Set<String>) {
+        _selectedTags.value = tags
+    }
+
     internal fun onSearchQueryUpdated(text: String) = viewModelScope.launch {
         searchQueryFlow.emit(text)
     }
@@ -146,6 +171,7 @@ class CellViewModel @Inject constructor(
     internal fun currentNodeUuid(): String? = navArgs.conversationId
     internal fun isRecycleBin(): Boolean = navArgs.isRecycleBin ?: false
     internal fun screenTitle(): String? = navArgs.screenTitle
+    internal fun breadcrumbs(): Array<String>? = navArgs.breadcrumbs
 
     private fun onFileClick(cellNode: CellNodeUi.File) {
         when {
@@ -161,7 +187,7 @@ class CellViewModel @Inject constructor(
             sendAction(ShowError(CellError.OTHER_ERROR))
             return@launch
         }
-//
+
         val (nodeName, nodeRemotePath) = when (node) {
             is CellNodeUi.File -> Pair(node.name, node.remotePath)
             is CellNodeUi.Folder -> Pair(node.name + ZIP_EXTENSION, node.remotePath + ZIP_EXTENSION)
@@ -254,15 +280,17 @@ class CellViewModel @Inject constructor(
                         add(NodeBottomSheetAction.RESTORE)
                         add(NodeBottomSheetAction.DELETE_PERMANENTLY)
                     } else {
-                        if (!cellNode.localFileAvailable()) {
-                            add(NodeBottomSheetAction.PUBLIC_LINK)
-                            add(NodeBottomSheetAction.SAVE)
-                        } else {
+                        if (cellNode.localFileAvailable()) {
                             add(NodeBottomSheetAction.SHARE)
-                            add(NodeBottomSheetAction.PUBLIC_LINK)
                         }
-                        add(NodeBottomSheetAction.MOVE)
-                        add(NodeBottomSheetAction.DELETE)
+                        add(NodeBottomSheetAction.PUBLIC_LINK)
+                        add(NodeBottomSheetAction.SAVE)
+                        if (searchQueryFlow.value.isEmpty()) {
+                            add(NodeBottomSheetAction.ADD_REMOVE_TAGS)
+                            add(NodeBottomSheetAction.MOVE)
+                            add(NodeBottomSheetAction.RENAME)
+                            add(NodeBottomSheetAction.DELETE)
+                        }
                     }
                 }
                 MenuOptions(
@@ -279,8 +307,12 @@ class CellViewModel @Inject constructor(
                     } else {
                         add(NodeBottomSheetAction.SHARE)
                         add(NodeBottomSheetAction.DOWNLOAD)
-                        add(NodeBottomSheetAction.MOVE)
-                        add(NodeBottomSheetAction.DELETE)
+                        if (searchQueryFlow.value.isEmpty()) {
+                            add(NodeBottomSheetAction.ADD_REMOVE_TAGS)
+                            add(NodeBottomSheetAction.MOVE)
+                            add(NodeBottomSheetAction.RENAME)
+                            add(NodeBottomSheetAction.DELETE)
+                        }
                     }
                 }
                 MenuOptions(
@@ -305,6 +337,7 @@ class CellViewModel @Inject constructor(
             }
 
             NodeBottomSheetAction.PUBLIC_LINK -> sendAction(ShowPublicLinkScreen(node))
+            NodeBottomSheetAction.ADD_REMOVE_TAGS -> sendAction(ShowAddRemoveTagsScreen(node))
             NodeBottomSheetAction.MOVE -> navArgs.conversationId?.let {
                 sendAction(
                     ShowMoveToFolderScreen(
@@ -315,6 +348,7 @@ class CellViewModel @Inject constructor(
                 )
             }
 
+            NodeBottomSheetAction.RENAME -> sendAction(ShowRenameScreen(node))
             NodeBottomSheetAction.DOWNLOAD -> downloadNode(node)
             NodeBottomSheetAction.RESTORE -> sendAction(ShowRestoreConfirmation(node = node))
             NodeBottomSheetAction.DELETE -> sendAction(ShowDeleteConfirmation(node = node, isPermanentDelete = false))
@@ -387,6 +421,10 @@ class CellViewModel @Inject constructor(
         }
     }
 
+    fun loadTags() = viewModelScope.launch {
+        getAllTagsUseCase().onSuccess { updated -> _tags.update { updated } }
+    }
+
     companion object {
         const val ZIP_EXTENSION = ".zip"
     }
@@ -407,6 +445,8 @@ internal data class ShowDeleteConfirmation(val node: CellNodeUi, val isPermanent
 internal data class ShowRestoreConfirmation(val node: CellNodeUi) : CellViewAction
 internal data class ShowError(val error: CellError) : CellViewAction
 internal data class ShowPublicLinkScreen(val cellNode: CellNodeUi) : CellViewAction
+internal data class ShowRenameScreen(val cellNode: CellNodeUi) : CellViewAction
+internal data class ShowAddRemoveTagsScreen(val cellNode: CellNodeUi) : CellViewAction
 internal data class ShowMoveToFolderScreen(val currentPath: String, val nodeToMovePath: String, val uuid: String) : CellViewAction
 internal data object RefreshData : CellViewAction
 

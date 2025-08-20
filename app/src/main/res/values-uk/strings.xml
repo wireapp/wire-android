@@ -37,7 +37,6 @@
     <string name="label_logging_in">Вхід...</string>
     <string name="label_membership_guest">Гість</string>
     <string name="label_membership_external">Партнер</string>
-    <string name="label_membership_service">Сервіс</string>
     <string name="label_message_sent_failure">Не вдалося надіслати повідомлення.</string>
     <string name="label_message_receive_failure">Помилка завантаження</string>
     <string name="label_system_message_self_user_knock">%s надіслали пінг</string>
@@ -120,11 +119,9 @@
     <string name="conversation_details_title">Деталі розмови</string>
     <string name="conversation_details_options_tab">Опції</string>
     <string name="conversation_options_guests_label">Гість</string>
-    <string name="conversation_options_services_label">Сервіси</string>
     <string name="disable_guest_dialog_title">Вимкнути гостьовий доступ?</string>
     <!-- Import/Export External Media -->
     <!--Read receipts -->
-    <!--Wire Cell -->
     <!-- Messages -->
     <!-- Messages Date and Time -->
     <!-- Attachment options -->
@@ -174,7 +171,6 @@
     <string name="change">Змінити</string>
     <string name="allow_guests">Дозволити гостям</string>
     <string name="allow_guest_switch_description">Відкрийте цю бесіду людям, які не належать до вашої команди. Ви завжди можете змінити це пізніше.</string>
-    <string name="allow_services">Дозволити служби</string>
     <string name="read_receipts">Прочитати квитанції</string>
     <!--block user dialog -->
     <!--Settings -->

@@ -32,18 +32,11 @@ import com.wire.kalium.common.functional.right
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.client.FetchUsersClientsFromRemoteUseCase
 import com.wire.kalium.logic.feature.client.ObserveClientsByUserIdUseCase
-import com.wire.kalium.logic.feature.connection.BlockUserResult
-import com.wire.kalium.logic.feature.connection.BlockUserUseCase
-import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
-import com.wire.kalium.logic.feature.conversation.ArchiveStatusUpdateResult
-import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
 import com.wire.kalium.logic.feature.conversation.GetOneToOneConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.IsOneToOneConversationCreatedUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
-import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleResult
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
-import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.e2ei.MLSClientIdentity
 import com.wire.kalium.logic.feature.e2ei.usecase.GetMLSClientIdentityUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.IsOtherUserE2EIVerifiedUseCase
@@ -84,25 +77,10 @@ internal class OtherUserProfileViewModelArrangement {
     lateinit var observeSelfUser: ObserveSelfUserUseCase
 
     @MockK
-    lateinit var blockUser: BlockUserUseCase
-
-    @MockK
-    lateinit var unblockUser: UnblockUserUseCase
-
-    @MockK
-    lateinit var updateConversationMutedStatus: UpdateConversationMutedStatusUseCase
-
-    @MockK
     lateinit var observeClientList: ObserveClientsByUserIdUseCase
 
     @MockK
     lateinit var fetchUsersClientsFromRemote: FetchUsersClientsFromRemoteUseCase
-
-    @MockK
-    lateinit var clearConversationContent: ClearConversationContentUseCase
-
-    @MockK
-    lateinit var updateConversationArchivedStatus: UpdateConversationArchivedStatusUseCase
 
     @MockK
     lateinit var getUserE2eiCertificateStatus: IsOtherUserE2EIVerifiedUseCase
@@ -122,10 +100,6 @@ internal class OtherUserProfileViewModelArrangement {
     private val viewModel by lazy {
         OtherUserProfileScreenViewModel(
             TestDispatcherProvider(),
-            updateConversationMutedStatus,
-            blockUser,
-            unblockUser,
-            getOneToOneConversation,
             observeUserInfo,
             userTypeMapper,
             observeConversationRoleForUserUseCase,
@@ -133,8 +107,6 @@ internal class OtherUserProfileViewModelArrangement {
             updateConversationMemberRoleUseCase,
             observeClientList,
             fetchUsersClientsFromRemote,
-            clearConversationContent,
-            updateConversationArchivedStatus,
             getUserE2eiCertificateStatus,
             isOneToOneConversationCreated,
             mlsClientIdentity,
@@ -162,7 +134,6 @@ internal class OtherUserProfileViewModelArrangement {
             )
         )
         coEvery { observeSelfUser() } returns flowOf(TestUser.SELF_USER)
-        coEvery { updateConversationArchivedStatus(any(), any(), any()) } returns ArchiveStatusUpdateResult.Success
         every { userTypeMapper.toMembership(any()) } returns Membership.None
         coEvery { getOneToOneConversation(USER_ID) } returns flowOf(
             GetOneToOneConversationDetailsUseCase.Result.Success(OtherUserProfileScreenViewModelTest.CONVERSATION_ONE_ONE)
@@ -171,10 +142,6 @@ internal class OtherUserProfileViewModelArrangement {
         coEvery { mlsClientIdentity.invoke(any()) } returns mlsIdentity.right()
         coEvery { isOneToOneConversationCreated.invoke(any()) } returns true
         coEvery { isE2EIEnabled.invoke() } returns true
-    }
-
-    suspend fun withBlockUserResult(result: BlockUserResult) = apply {
-        coEvery { blockUser(any()) } returns result
     }
 
     suspend fun withUpdateConversationMemberRole(result: UpdateConversationMemberRoleResult) = apply {

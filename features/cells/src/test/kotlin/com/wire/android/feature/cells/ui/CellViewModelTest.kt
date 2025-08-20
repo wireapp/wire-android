@@ -31,6 +31,7 @@ import com.wire.android.feature.cells.util.FileHelper
 import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
 import com.wire.kalium.cells.domain.usecase.DownloadCellFileUseCase
+import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
 import com.wire.kalium.cells.domain.usecase.RestoreNodeFromRecycleBinUseCase
 import com.wire.kalium.common.error.CoreFailure
@@ -226,7 +227,7 @@ class CellViewModelTest {
 
             with(expectMostRecentItem()) {
                 assertEquals(testFile, node)
-                assertEquals(NodeBottomSheetAction.SAVE, actions.first())
+                assertEquals(NodeBottomSheetAction.SAVE, actions[1])
             }
         }
     }
@@ -366,6 +367,9 @@ class CellViewModelTest {
         lateinit var getCellFilesPagedUseCase: GetPaginatedFilesFlowUseCase
 
         @MockK
+        lateinit var getAllTagsUseCase: GetAllTagsUseCase
+
+        @MockK
         lateinit var deleteCellAssetUseCase: DeleteCellAssetUseCase
 
         @MockK
@@ -394,6 +398,8 @@ class CellViewModelTest {
             every { kaliumFileSystem.providePersistentAssetPath(any()) } returns localFilePath
 
             every { kaliumFileSystem.exists(any()) } returns false
+
+            coEvery { getAllTagsUseCase.invoke() } returns emptySet<String>().right()
         }
 
         fun withLoadSuccess() = apply {
@@ -427,6 +433,7 @@ class CellViewModelTest {
                 savedStateHandle = savedStateHandle,
                 getCellFilesPaged = getCellFilesPagedUseCase,
                 deleteCellAsset = deleteCellAssetUseCase,
+                getAllTagsUseCase = getAllTagsUseCase,
                 restoreNodeFromRecycleBinUseCase = restoreNodeFromRecycleBinUseCase,
                 download = downloadCellFileUseCase,
                 fileHelper = fileHelper,

@@ -21,6 +21,7 @@ package com.wire.android.ui.common.topappbar
 import androidx.compose.runtime.Stable
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.user.UserId
 import kotlin.time.Duration
 
 @Stable
@@ -37,16 +38,19 @@ sealed interface ConnectivityUIState {
 
     sealed interface Call {
         data class Established(
+            val userId: UserId,
             val conversationId: ConversationId,
             val isMuted: Boolean
         ) : Call
 
         data class Incoming(
+            val userId: UserId,
             val conversationId: ConversationId,
             val callerName: String?
         ) : Call
 
         data class Outgoing(
+            val userId: UserId,
             val conversationId: ConversationId,
             val conversationName: String?
         ) : Call

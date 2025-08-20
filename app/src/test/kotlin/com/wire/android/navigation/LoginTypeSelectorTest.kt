@@ -29,7 +29,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.internal.assertEquals
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
 class LoginTypeSelectorTest {
@@ -102,7 +102,10 @@ class LoginTypeSelectorTest {
             MockKAnnotations.init(this, relaxUnitFun = true)
         }
 
-        fun arrange(useNewLoginForDefaultBackend: Boolean) = this to LoginTypeSelector(coreLogic, useNewLoginForDefaultBackend)
+        fun arrange(useNewLoginForDefaultBackend: Boolean) = this to LoginTypeSelector(
+            coreLogic = { coreLogic },
+            useNewLoginForDefaultBackend = useNewLoginForDefaultBackend
+        )
 
         fun withContextFlowForConfig(config: ServerConfig.Links, contextFlow: Flow<LoginContext>) = apply {
             coEvery { coreLogic.getGlobalScope().observeLoginContext(config) } returns contextFlow

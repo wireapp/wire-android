@@ -20,6 +20,8 @@ package com.wire.android.di.accountScoped
 import com.wire.android.di.CurrentAccount
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.data.conversation.FetchConversationUseCase
+import com.wire.kalium.logic.data.conversation.ResetMLSConversationUseCase
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.AddMemberToConversationUseCase
 import com.wire.kalium.logic.feature.conversation.AddServiceToConversationUseCase
@@ -59,6 +61,7 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseC
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReceiptModeUseCase
 import com.wire.kalium.logic.feature.conversation.createconversation.CreateChannelUseCase
 import com.wire.kalium.logic.feature.conversation.createconversation.CreateRegularGroupUseCase
+import com.wire.kalium.logic.feature.conversation.delete.MarkConversationAsDeletedLocallyUseCase
 import com.wire.kalium.logic.feature.conversation.getPaginatedFlowOfConversationDetailsWithEventsBySearchQuery
 import com.wire.kalium.logic.feature.conversation.guestroomlink.CanCreatePasswordProtectedLinksUseCase
 import com.wire.kalium.logic.feature.conversation.guestroomlink.GenerateGuestRoomLinkUseCase
@@ -113,6 +116,11 @@ class ConversationModule {
     @Provides
     fun provideDeleteTeamConversationUseCase(conversationScope: ConversationScope): DeleteTeamConversationUseCase =
         conversationScope.deleteTeamConversation
+
+    @ViewModelScoped
+    @Provides
+    fun provideMarkConversationAsDeletedLocallyUseCase(conversationScope: ConversationScope): MarkConversationAsDeletedLocallyUseCase =
+        conversationScope.markConversationAsDeletedLocallyUseCase
 
     @ViewModelScoped
     @Provides
@@ -363,4 +371,18 @@ class ConversationModule {
     @Provides
     fun provideCreateConversationFolderUseCase(conversationScope: ConversationScope) =
         conversationScope.createConversationFolder
+
+    @ViewModelScoped
+    @Provides
+    fun provideResetMlsConversationUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): ResetMLSConversationUseCase = coreLogic.getSessionScope(currentAccount).resetMlsConversation
+
+    @ViewModelScoped
+    @Provides
+    fun provideFetchConversationUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): FetchConversationUseCase = coreLogic.getSessionScope(currentAccount).fetchConversationUseCase
 }

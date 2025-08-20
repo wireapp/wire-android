@@ -23,8 +23,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
-import com.wire.android.di.AssistedViewModelFactory
-import com.wire.android.di.ScopedArgs
 import com.wire.android.di.ViewModelScopedPreview
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
@@ -61,8 +59,8 @@ class MoveConversationToFolderVMImpl @AssistedInject constructor(
     private var state: MoveConversationToFolderState by mutableStateOf(MoveConversationToFolderState())
 
     @AssistedFactory
-    interface Factory : AssistedViewModelFactory<MoveConversationToFolderVMImpl, MoveConversationToFolderArgs> {
-        override fun create(args: MoveConversationToFolderArgs): MoveConversationToFolderVMImpl
+    interface Factory {
+        fun create(args: MoveConversationToFolderArgs): MoveConversationToFolderVMImpl
     }
 
     private val _infoMessage = MutableSharedFlow<UIText>()
@@ -109,10 +107,4 @@ data class MoveConversationToFolderArgs(
     val conversationId: ConversationId,
     val conversationName: String,
     val currentFolderId: String?,
-) : ScopedArgs {
-    override val key = "$ARGS_KEY:$conversationId$currentFolderId"
-
-    companion object {
-        const val ARGS_KEY = "MoveConversationToFolderArgsKey"
-    }
-}
+)

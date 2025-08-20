@@ -18,6 +18,9 @@
 
 package com.wire.android.ui.common.topappbar
 
+import com.wire.android.assertions.shouldBeEqualTo
+import com.wire.android.assertions.shouldBeInstanceOf
+import com.wire.android.assertions.shouldHaveSize
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
@@ -48,10 +51,6 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeInstanceOf
-import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -138,7 +137,7 @@ class CommonTopAppBarViewModelTest {
         info.shouldBeInstanceOf<ConnectivityUIState.Calls>().let {
             it.calls.shouldHaveSize(1)
             it.calls[0].shouldBeInstanceOf<ConnectivityUIState.Call.Established>()
-                .isMuted shouldBe true
+                .isMuted shouldBeEqualTo true
         }
     }
 
@@ -161,7 +160,7 @@ class CommonTopAppBarViewModelTest {
             info.shouldBeInstanceOf<ConnectivityUIState.Calls>().let {
                 it.calls.shouldHaveSize(1)
                 it.calls[0].shouldBeInstanceOf<ConnectivityUIState.Call.Established>()
-                    .isMuted shouldBe false
+                    .isMuted shouldBeEqualTo false
             }
         }
 
@@ -334,7 +333,7 @@ class CommonTopAppBarViewModelTest {
         private val commonTopAppBarViewModel by lazy {
             CommonTopAppBarViewModel(
                 currentScreenManager = currentScreenManager,
-                coreLogic = coreLogic
+                coreLogic = { coreLogic },
             )
         }
 

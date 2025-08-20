@@ -38,7 +38,7 @@
     <string name="label_logging_in">Anmelden…</string>
     <string name="label_membership_guest">Gast</string>
     <string name="label_membership_external">Extern</string>
-    <string name="label_membership_service">Dienst</string>
+    <string name="label_membership_service">App</string>
     <string name="label_user_deleted">Gelöscht</string>
     <string name="label_try_again">Erneut versuchen</string>
     <string name="label_done">Fertig</string>
@@ -150,6 +150,7 @@
     <string name="content_description_record_audio_button_start">Audio aufnehmen</string>
     <string name="content_description_record_audio_button_stop">Aufnahme stoppen</string>
     <string name="content_description_record_audio_button_send">Audionachricht senden</string>
+    <string name="content_description_mls_certificate_valid">Alle Geräte aller Teilnehmer haben ein gültiges MLS-Zertifikat</string>
     <string name="content_description_jump_to_last_message">Zum Ende der Unterhaltung scrollen</string>
     <string name="content_description_conversation_details_more_btn">Unterhaltungsoptionen öffnen</string>
     <string name="content_description_conversation_details_options_tab_header">Optionen</string>
@@ -183,7 +184,7 @@
     <string name="content_description_accept_or_ignore_connection_label">Anfrage akzeptieren oder ignorieren</string>
     <string name="content_description_open_user_profile_label">Profil öffnen</string>
     <string name="content_description_open_conversation_label">Unterhaltung öffnen</string>
-    <string name="content_description_open_service_label">Dienst öffnen</string>
+    <string name="content_description_open_service_label">App öffnen</string>
     <string name="content_description_open_link_label">Link öffnen</string>
     <string name="content_description_alert">Hinweis</string>
     <string name="content_description_drop_down">Auswahlliste</string>
@@ -195,6 +196,10 @@
     <string name="content_description_new_group_name_field">Gruppen-Name eingeben</string>
     <string name="content_description_new_channel_name_field">Gruppen-Name eingeben</string>
     <string name="content_description_new_conversation_options_heading">Unterhaltungsoptionen</string>
+    <string name="content_description_new_conversation_history_heading">Optionen für den Gesprächsverlauf</string>
+    <string name="content_description_new_conversation_history_custom_heading">Benutzerdefinierter Gesprächsverlauf</string>
+    <string name="content_description_new_conversation_history_back_btn">Zurück zu Optionen für den Gesprächsverlauf</string>
+    <string name="content_description_new_conversation_history_custom_change_time">Zeitoption ändern</string>
     <string name="content_description_new_group_options_back_btn">Zurück zur neuen Gruppenerstellung</string>
     <string name="content_description_new_channel_options_back_btn">Zurück zur neuen Channel-Erstellung</string>
     <string name="content_description_pending_connection_badge">Ausstehende Genehmigung der Kontaktanfrage</string>
@@ -241,6 +246,7 @@
     <string name="backup_and_restore_screen_title">Unterhaltungen sichern &amp; wiederherstellen</string>
     <string name="search_bar_conversations_hint">Unterhaltungen suchen</string>
     <string name="search_no_results">Keine Ergebnisse gefunden</string>
+    <string name="team_management_screen_title">Team verwalten</string>
     <!--Whats New -->
     <string name="whats_new_screen_title">Neue Funktionen</string>
     <string name="whats_new_welcome_to_new_android_app_label">👋 Willkommen bei Wires neuer Android App!</string>
@@ -387,6 +393,8 @@
     <string name="delete_message_for_yourself_dialog_title">Diese Nachricht für Sie löschen?</string>
     <string name="delete_message_for_yourself_dialog_message">Wenn Sie die Nachricht für sich selbst löschen, ist sie noch für andere Teilnehmer sichtbar.\n\nEine gelöschte Nachricht kann nicht wiederhergestellt werden.</string>
     <string name="deleted_message_text">Gelöschte Nachricht</string>
+    <string name="deleted_message_options_closed">Die Optionen wurden geschlossen, da diese Nachricht nicht mehr verfügbar ist.</string>
+    <string name="deleted_conversation_options_closed">Die Optionen wurden geschlossen, da diese Unterhaltung nicht mehr verfügbar ist.</string>
     <!-- Replies/Quotes to other messages -->
     <string name="label_quote_invalid_or_not_found">Diese Nachricht ist nicht sichtbar</string>
     <string name="label_quote_original_message_is_a_picture">Bild</string>
@@ -483,6 +491,19 @@
     <string name="channel_add_permission_description">Wählen Sie, wer Teilnehmer zu einem privaten Channel hinzufügen kann</string>
     <string name="channel_add_permission_admin_label">Admins</string>
     <string name="channel_add_permission_admin_members_label">Admins und Mitglieder</string>
+    <string name="channel_history_label">Gesprächsverlauf</string>
+    <string name="channel_history_description">Wählen Sie einen Zeitraum. Wenn Teilnehmer diesem Channel beitreten, können sie den Verlauf für diese Zeitspanne verfolgen.</string>
+    <string name="channel_history_freemium_upgrade_title">Ältere Nachrichten anzeigen?</string>
+    <string name="channel_history_freemium_upgrade_description">Upgraden Sie auf eine kostenpflichtige Version, um Channel-Mitgliedern den gesamten Gesprächsverlauf zu bieten.</string>
+    <string name="channel_history_freemium_upgrade_now">Jetzt upgraden</string>
+    <string name="channel_history_off">Aus</string>
+    <string name="channel_history_unlimited">Unbegrenzt</string>
+    <string name="channel_history_custom">Benutzerdefiniert</string>
+    <string name="channel_history_days">Tage</string>
+    <string name="channel_history_weeks">Wochen</string>
+    <string name="channel_history_months">Monate</string>
+    <string name="channel_history_custom_amount_label">ANZAHL</string>
+    <string name="channel_history_custom_time_label">ZEITRAUM</string>
     <string name="create_regular_group_button_label">Gruppe erstellen</string>
     <string name="create_channel_button_label">Channel erstellen</string>
     <string name="new_group_description">Bis zu 500 Personen können an einer Gruppenunterhaltung teilnehmen.</string>
@@ -504,6 +525,7 @@
     <string name="create_channel_error_forbidden_message">Funktion ist nicht verfügbar, bitte fragen Sie Ihren Team-Admin.</string>
     <string name="conversation_can_not_be_created_federation_conflict_description">Personen der Backends %1$s und %2$s können nicht derselben Unterhaltung beitreten.\n\nUm die Unterhaltung zu erstellen, entfernen Sie die betroffenen Teilnehmer.</string>
     <string name="conversation_can_not_be_created_edit_participant_list">Teilnehmerliste bearbeiten</string>
+    <string name="conversation_can_not_be_created_discard_creation">Erstellung der Unterhaltung verwerfen</string>
     <string name="asset_message_tap_to_download_text">Zum Herunterladen tippen</string>
     <string name="asset_message_upload_in_progress_text">Hochladen…</string>
     <string name="asset_message_download_in_progress_text">Herunterladen…</string>
@@ -527,6 +549,8 @@
     <string name="conversation_details_options_tab">OPTIONEN</string>
     <string name="conversation_details_participants_tab">TEILNEHMER</string>
     <string name="conversation_details_options_group_name">GRUPPENNAME</string>
+    <string name="conversation_details_conversation_admins">ADMINS (%d)</string>
+    <string name="conversation_details_conversation_members">MITGLIEDER (%d)</string>
     <string name="conversation_details_participants_info">Diese Unterhaltung hat %s Teilnehmer.\nBis zu 500 Personen können an einer Unterhaltung teilnehmen.</string>
     <string name="conversation_details_participants_count">%s Teilnehmer</string>
     <string name="conversation_details_show_all_participants">Alle Teilnehmer anzeigen (%d)</string>
@@ -541,13 +565,13 @@
     <string name="conversation_details_guest_description">Wenn diese Option aktiviert ist, können Personen außerhalb des Teams an dieser Unterhaltung teilnehmen</string>
     <string name="conversation_options_guest_description">Aktivieren Sie diese Option, um die Unterhaltung für Personen außerhalb Ihres Teams zu öffnen – auch wenn diese Wire nicht nutzen.</string>
     <string name="conversation_options_guest_not_editable_description">Sie können die Gast-Option in dieser Unterhaltung nicht deaktivieren, da sie von jemandem aus einem anderen Team erstellt wurde.</string>
-    <string name="conversation_options_services_label">Dienste</string>
-    <string name="conversation_options_services_description">Aktivieren Sie diese Option, um die Unterhaltung für Dienste zu öffnen.</string>
+    <string name="conversation_options_services_label">Apps</string>
+    <string name="conversation_options_services_description">Aktivieren Sie diese Option, um die Unterhaltung für Apps zu öffnen.</string>
     <string name="conversation_options_renamed">Unterhaltung umbenannt</string>
     <string name="disable_guest_dialog_title">Gastzugang deaktivieren?</string>
     <string name="disable_guest_dialog_text">Aktuelle Gäste werden aus der Unterhaltung entfernt. Neue Gäste können nicht hinzugefügt werden.</string>
-    <string name="disable_services_dialog_title">Zugang zu Diensten deaktivieren?</string>
-    <string name="disable_services_dialog_text">Aktuelle Dienste werden aus der Unterhaltung entfernt. Neue Dienste können nicht hinzugefügt werden.</string>
+    <string name="disable_services_dialog_title">Zugang zu Apps deaktivieren?</string>
+    <string name="disable_services_dialog_text">Aktuelle Apps werden aus der Unterhaltung entfernt. Neue Apps können nicht hinzugefügt werden.</string>
     <string name="leave_conversation_menu_item">Unterhaltung verlassen…</string>
     <string name="leave_conversation_dialog_title">\"%s\" verlassen?</string>
     <string name="leave_conversation_dialog_description">Sie können dann auf keinem Gerät mehr Nachrichten in dieser Gruppe senden oder lesen.</string>
@@ -566,7 +590,6 @@
     <!--Read receipts -->
     <string name="conversation_options_read_receipt_label">Lesebestätigungen</string>
     <string name="conversation_options_read_receipt_description">Wenn diese Option aktiviert ist, können Sender sehen, wenn ihre Nachrichten gelesen werden.</string>
-    <!--Wire Cell -->
     <!-- Messages -->
     <string name="message_details_title">Nachrichtendetails</string>
     <string name="message_details_reactions_tab">REAKTIONEN (%s)</string>
@@ -606,6 +629,7 @@
     <string name="user_profile_details_tab">Details</string>
     <string name="user_profile_devices_tab">Geräte</string>
     <string name="user_profile_conversation_tab">Unterhaltung</string>
+    <string name="user_profile_conversation_member">Mitglied der Unterhaltung “%s”</string>
     <string name="user_profile_conversation_role">ROLLE</string>
     <string name="user_profile_role_in_conversation">Benutzerrolle in ”%s”</string>
     <string name="user_profile_role_change_error">Beim Ändern der Rolle ist ein Fehler aufgetreten. Bitte überprüfen Sie Ihre Internetverbindung und versuchen Sie es erneut</string>
@@ -687,22 +711,22 @@
     <string name="conversation_banner_federated">Föderierte Benutzer</string>
     <string name="conversation_banner_externals">Externe</string>
     <string name="conversation_banner_guests">Gäste</string>
-    <string name="conversation_banner_services">Dienste</string>
-    <string name="conversation_banner_federated_externals_guests_services_present">Föderierte Benutzer, Externe und Gäste anwesend, Dienste aktiv</string>
+    <string name="conversation_banner_services">Apps</string>
+    <string name="conversation_banner_federated_externals_guests_services_present">Föderierte Benutzer, Externe und Gäste anwesend, Apps aktiv</string>
     <string name="conversation_banner_federated_externals_guests_present">Föderierte Benutzer, Externe und Gäste anwesend</string>
-    <string name="conversation_banner_federated_externals_services_present">Föderierte Benutzer und Externe anwesend, Dienste aktiv</string>
-    <string name="conversation_banner_federated_guests_services_present">Föderierte Benutzer und Gäste anwesend, Dienste aktiv</string>
-    <string name="conversation_banner_federated_services_present">Föderierte Benutzer anwesend, Dienste aktiv</string>
+    <string name="conversation_banner_federated_externals_services_present">Föderierte Benutzer und Externe anwesend, Apps aktiv</string>
+    <string name="conversation_banner_federated_guests_services_present">Föderierte Benutzer und Gäste anwesend, Apps aktiv</string>
+    <string name="conversation_banner_federated_services_present">Föderierte Benutzer anwesend, Apps aktiv</string>
     <string name="conversation_banner_federated_guests_present">Föderierte Benutzer und Gäste anwesend</string>
     <string name="conversation_banner_federated_externals_present">Föderierte Benutzer und Externe anwesend</string>
-    <string name="conversation_banner_externals_guests_services_present">Externe und Gäste anwesend, Dienste aktiv</string>
-    <string name="conversation_banner_externals_services_present">Externe anwesend, Dienste aktiv</string>
+    <string name="conversation_banner_externals_guests_services_present">Externe und Gäste anwesend, Apps aktiv</string>
+    <string name="conversation_banner_externals_services_present">Externe anwesend, Apps aktiv</string>
     <string name="conversation_banner_externals_guests_present">Externe und Gäste anwesend</string>
-    <string name="conversation_banner_guests_services_present">Gäste anwesend, Dienste aktiv</string>
+    <string name="conversation_banner_guests_services_present">Gäste anwesend, Apps aktiv</string>
     <string name="conversation_banner_federated_present">Föderierte Benutzer anwesend</string>
     <string name="conversation_banner_guests_present">Gäste anwesend</string>
     <string name="conversation_banner_externals_present">Externe anwesend</string>
-    <string name="conversation_banner_services_active">Dienste aktiv</string>
+    <string name="conversation_banner_services_active">Apps sind aktiv</string>
     <string name="conversation_history_loading">Gesprächsverlauf wird geladen…</string>
     <string name="conversation_history_loaded">🥳 Sie können jetzt alle verfügbaren Nachrichten lesen.</string>
     <!-- System messages -->
@@ -899,7 +923,7 @@
     <string name="label_no_results_found">Keine Ergebnisse, bitte erneut versuchen.</string>
     <string name="label_general_error">Ein Fehler ist aufgetreten</string>
     <string name="label_add_member_people">Personen</string>
-    <string name="label_add_member_services">Dienste</string>
+    <string name="label_add_member_services">Apps</string>
     <string name="label_empty_contacts_list">Suchen Sie nach Personen anhand ihres Namens oder Benutzernamens, um eine Unterhaltung zu beginnen 🔍</string>
     <!-- Snackbar messages -->
     <string name="error_unknown_title">Ein Fehler ist aufgetreten</string>
@@ -926,6 +950,7 @@
     <string name="conversation_on_file_downloaded">Die Datei %s wurde im Download-Ordner gespeichert</string>
     <string name="error_blocking_user">Benutzer konnte nicht blockiert werden</string>
     <string name="blocking_user_success">%s blockiert</string>
+    <string name="unblocking_user_success">%s freigegeben</string>
     <string name="conversation_removed_success">“%s” entfernt</string>
     <string name="conversation_removed_locally_success">“%s” für mich gelöscht</string>
     <string name="leave_conversation_error">Beim Verlassen der Unterhaltung ist ein Fehler aufgetreten</string>
@@ -1073,22 +1098,23 @@
     <string name="change">Ändern</string>
     <string name="allow_guests">Gäste zulassen</string>
     <string name="allow_guest_switch_description">Öffnen Sie diese Unterhaltung für Personen außerhalb Ihres Teams. Diese Einstellung kann später jederzeit geändert werden.</string>
-    <string name="allow_services">Dienste zulassen</string>
-    <string name="allow_services_regular_group_description">Öffnen Sie diese Unterhaltung für Dienste. Diese Einstellung kann später jederzeit geändert werden.</string>
-    <string name="allow_services_channel_description">Öffnen Sie diese Unterhaltung für Personen außerhalb Ihres Teams oder für Dienste. Diese Einstellung kann später jederzeit geändert werden.</string>
-    <string name="service_details_label">Dienst</string>
+    <string name="allow_services">Apps zulassen</string>
+    <string name="allow_services_regular_group_description">Öffnen Sie diese Unterhaltung für Apps. Diese Einstellung kann später jederzeit geändert werden.</string>
+    <string name="allow_services_channel_description">Öffnen Sie diese Unterhaltung für Personen außerhalb Ihres Teams oder für Apps. Diese Einstellung kann später jederzeit geändert werden.</string>
+    <string name="service_details_label">App</string>
     <string name="service_details_add_service_label">Zur Unterhaltung hinzufügen</string>
     <string name="service_details_remove_service_label">Aus Unterhaltung entfernen</string>
-    <string name="service_remove_success">Dienst aus der Unterhaltung entfernt</string>
-    <string name="service_remove_error">Dienst kann nicht aus Unterhaltung entfernt werden</string>
-    <string name="service_add_success">Dienst zur Unterhaltung hinzugefügt</string>
-    <string name="service_add_error">Dienst kann nicht zur Unterhaltung hinzugefügt werden</string>
+    <string name="service_remove_success">App aus der Unterhaltung entfernt</string>
+    <string name="service_remove_error">App kann nicht aus Unterhaltung entfernt werden</string>
+    <string name="service_add_success">App zur Unterhaltung hinzugefügt</string>
+    <string name="service_add_error">App kann nicht zur Unterhaltung hinzugefügt werden</string>
     <string name="service_no_information_available_title">Keine Informationen verfügbar</string>
     <string name="service_no_information_available_subtitle">Versuchen Sie es erneut oder wenden Sie sich an Ihren Team-Admin</string>
     <string name="read_receipts">Lesebestätigungen</string>
     <string name="read_receipts_regular_group_description">Wenn diese Option aktiviert ist, können Sender sehen, wenn ihre Nachrichten gelesen werden.</string>
     <string name="read_receipts_channel_description">Wenn diese Option aktiviert ist, können Sender sehen, wenn ihre Nachrichten in diesem Channel gelesen werden.</string>
     <string name="disable_guests_dialog_title">Gäste nicht zulassen?</string>
+    <string name="disable_guests_dialog_description">Gäste, die Sie im vorherigen Schritt ausgewählt haben, sind nicht Teil der Unterhaltung, wenn Sie den Gastzugang nicht erlauben.</string>
     <string name="disable_guests_dialog_button">Keine Gäste zulassen</string>
     <!--block user dialog -->
     <string name="block_user_dialog_title">Benutzer blockieren?</string>
@@ -1321,7 +1347,9 @@ Bei Gruppenunterhaltungen kann der Gruppen-Admin diese Einstellung überschreibe
     <string name="join_conversation_dialog_message">Sie wurden zu dieser Unterhaltung eingeladen.\n\n%1$s</string>
     <string name="join_conversation_dialog_button">Beitreten</string>
     <string name="join_conversation_via_deeplink_error_title">Sie konnten der Unterhaltung nicht beitreten</string>
+    <string name="join_conversation_via_deeplink_error_link_expired">Der Link zu dieser Unterhaltung ist abgelaufen oder nicht mehr gültig.</string>
     <string name="join_conversation_via_deeplink_error_max_number_of_participent">Die maximale Teilnehmeranzahl in dieser Unterhaltung wurde erreicht.</string>
+    <string name="join_conversation_via_deeplink_error_general">Aufgrund eines Fehlers konnten Sie nicht zur Unterhaltung hinzugefügt werden.</string>
     <!-- edit self-deleting messages -->
     <string name="self_deleting_messages_title">Selbstlöschende Nachrichten</string>
     <string name="self_deleting_messages_option">Löschen von Nachrichten erzwingen</string>
@@ -1424,6 +1452,10 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
         <item quantity="one">1 Woche</item>
         <item quantity="other">%1$d Wochen</item>
     </plurals>
+    <plurals name="months_long_label">
+        <item quantity="one">1 Monat</item>
+        <item quantity="other">%1$d Monate</item>
+    </plurals>
     <plurals name="days_long_label">
         <item quantity="one">1 Tag</item>
         <item quantity="other">%1$d Tage</item>
@@ -1439,6 +1471,18 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <plurals name="seconds_long_label">
         <item quantity="one">1 Sekunde</item>
         <item quantity="other">%1$d Sekunden</item>
+    </plurals>
+    <plurals name="days_label">
+        <item quantity="one">Tag</item>
+        <item quantity="other">Tage</item>
+    </plurals>
+    <plurals name="weeks_label">
+        <item quantity="one">Woche</item>
+        <item quantity="other">Wochen</item>
+    </plurals>
+    <plurals name="months_label">
+        <item quantity="one">Monat</item>
+        <item quantity="other">Monate</item>
     </plurals>
     <string name="four_weeks_short_label">4 Wo</string>
     <string name="one_week_short_label">1 Wo</string>
@@ -1587,6 +1631,7 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="location_could_not_be_shared">Standort konnte nicht geteilt werden</string>
     <!-- Asset Preview -->
     <!-- No Activity Errors -->
+    <string name="restricted_asset_error_toast_message">Das Versenden von Dateien ist aufgrund von Firmenbeschränkungen verboten</string>
     <!--    Ping dialog-->
     <string name="ping_confirm_sending_title_dialog">Ping senden</string>
     <string name="ping_confirm_sending_description_dialog">Sind Sie sicher, dass Sie %1$s Personen anpingen möchten?</string>
@@ -1607,6 +1652,7 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="personal_to_team_migration_back_button_label">Zurück</string>
     <string name="personal_to_team_migration_back_button_team_name_content_description">Zurück zur Team-Konto-Übersicht</string>
     <string name="personal_to_team_migration_back_button_confirmation_content_description">Zurück zur Ansicht Team-Name</string>
+    <string name="personal_to_team_migration_close_icon_content_description">Prozess zur Umstellung auf ein Team schließen</string>
     <string name="personal_to_team_migration_close_team_account_content_description">Team-Konto-Übersicht schließen</string>
     <string name="personal_to_team_migration_close_team_name_content_description">Ansicht Teamname schließen</string>
     <string name="personal_to_team_migration_close_confirmation_content_description">Bestätigungsansicht schließen</string>
@@ -1673,4 +1719,6 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="cells_screen_search_hint">Dateien suchen</string>
     <string name="failed_attachment_retry_upload">Upload wiederholen</string>
     <string name="failed_attachment_remove">Entfernen</string>
+    <string name="content_description_apply_filter">Filter anwenden</string>
+    <string name="content_description_filter_files">Dateien filtern</string>
 </resources>

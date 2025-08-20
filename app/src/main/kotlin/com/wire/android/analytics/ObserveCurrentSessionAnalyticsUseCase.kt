@@ -17,10 +17,11 @@
  */
 package com.wire.android.analytics
 
+import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.feature.analytics.model.AnalyticsProfileProperties
 import com.wire.android.feature.analytics.model.AnalyticsResult
-import com.wire.kalium.logic.configuration.server.ServerConfig
+import com.wire.android.util.isHostValidForAnalytics
 import com.wire.kalium.logic.data.analytics.AnalyticsIdentifierResult
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.analytics.AnalyticsContactsData
@@ -53,18 +54,42 @@ fun ObserveCurrentSessionAnalyticsUseCase(
     observeAnalyticsTrackingIdentifierStatusFlow: suspend (UserId) -> Flow<AnalyticsIdentifierResult>,
     analyticsIdentifierManagerProvider: (UserId) -> AnalyticsIdentifierManager,
     userDataStoreProvider: UserDataStoreProvider,
+    globalDataStore: GlobalDataStore,
     currentBackend: suspend (UserId) -> SelfServerConfigUseCase.Result
 ) = object : ObserveCurrentSessionAnalyticsUseCase {
 
     private var previousAnalyticsResult: AnalyticsIdentifierResult? = null
 
     @Suppress("LongMethod")
-    override fun invoke(): Flow<AnalyticsResult<AnalyticsIdentifierManager>> = currentSessionFlow
-        .flatMapLatest {
-            if (it is CurrentSessionResult.Success && it.accountInfo.isValid()) {
-                val userId = it.accountInfo.userId
-                val analyticsIdentifierManager = analyticsIdentifierManagerProvider(userId)
+    override fun invoke(): Flow<AnalyticsResult<AnalyticsIdentifierManager>> {
+        return combine(
+            currentSessionFlow,
+            globalDataStore.isAnonymousRegistrationEnabled()
+        ) { currentSession, isAnonymousRegistrationEnabled ->
+            currentSession to isAnonymousRegistrationEnabled
+        }.flatMapLatest { (currentSession, isAnonymousRegistrationEnabled) ->
+            if (isAnonymousRegistrationEnabled) {
+                val anonymousRegistrationTrackId = globalDataStore.getOrCreateAnonymousRegistrationTrackId()
+                return@flatMapLatest flowOf(
+                    AnalyticsResult<AnalyticsIdentifierManager>(
+                        identifierResult = AnalyticsIdentifierResult.RegistrationIdentifier(anonymousRegistrationTrackId),
+                        profileProperties = {
+                            AnalyticsProfileProperties(
+                                isTeamMember = false,
+                                teamId = null,
+                                contactsAmount = null,
+                                teamMembersAmount = null,
+                                isEnterprise = null
+                            )
+                        },
+                        manager = null
+                    )
+                )
+            }
 
+            if (currentSession is CurrentSessionResult.Success && currentSession.accountInfo.isValid()) {
+                val userId = currentSession.accountInfo.userId
+                val analyticsIdentifierManager = analyticsIdentifierManagerProvider(userId)
                 combine(
                     observeAnalyticsTrackingIdentifierStatusFlow(userId)
                         .filter { currentIdentifierResult ->
@@ -74,15 +99,12 @@ fun ObserveCurrentSessionAnalyticsUseCase(
                             currentIdentifierResult != previousAnalyticsResult &&
                                     currentResult?.identifier != previousResult?.identifier
                         },
-                    userDataStoreProvider.getOrCreate(userId).isAnonymousUsageDataEnabled()
+                    userDataStoreProvider.getOrCreate(userId).isAnonymousUsageDataEnabled(),
                 ) { analyticsIdentifierResult, enabled ->
                     previousAnalyticsResult = analyticsIdentifierResult
 
                     val isProdBackend = when (val serverConfig = currentBackend(userId)) {
-                        is SelfServerConfigUseCase.Result.Success ->
-                            serverConfig.serverLinks.links.api == ServerConfig.PRODUCTION.api
-                                    || serverConfig.serverLinks.links.api == ServerConfig.STAGING.api
-
+                        is SelfServerConfigUseCase.Result.Success -> serverConfig.serverLinks.isHostValidForAnalytics()
                         is SelfServerConfigUseCase.Result.Failure -> false
                     }
 
@@ -125,6 +147,6 @@ fun ObserveCurrentSessionAnalyticsUseCase(
                     )
                 )
             }
-        }
-        .distinctUntilChanged()
+        }.distinctUntilChanged()
+    }
 }

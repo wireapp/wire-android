@@ -29,9 +29,9 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 @Composable
 fun WireRadioButton(
     checked: Boolean,
-    onButtonChecked: (() -> Unit),
+    modifier: Modifier = Modifier,
+    onButtonChecked: (() -> Unit)? = null,
     enabled: Boolean = true,
-    modifier: Modifier = Modifier
 ) {
     RadioButton(
         modifier = modifier,

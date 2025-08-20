@@ -18,27 +18,26 @@
 
 package com.wire.android.notification.broadcastreceivers
 
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.widget.Toast
 import androidx.core.app.RemoteInput
+import com.wire.android.R
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.di.NoSession
 import com.wire.android.notification.MessageNotificationManager
 import com.wire.android.notification.NotificationConstants
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.kalium.common.functional.fold
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
-import com.wire.kalium.common.functional.fold
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class NotificationReplyReceiver : BroadcastReceiver() { // requires zero argument constructor
+class NotificationReplyReceiver : CoroutineReceiver() { // requires zero argument constructor
 
     @Inject
     @KaliumCoreLogic
@@ -51,7 +50,7 @@ class NotificationReplyReceiver : BroadcastReceiver() { // requires zero argumen
     @NoSession
     lateinit var qualifiedIdMapper: QualifiedIdMapper
 
-    override fun onReceive(context: Context, intent: Intent) {
+    override suspend fun receive(context: Context, intent: Intent) {
         val remoteInput = RemoteInput.getResultsFromIntent(intent)
         val conversationId: String? = intent.getStringExtra(EXTRA_CONVERSATION_ID)
         val userId: String? = intent.getStringExtra(EXTRA_USER_ID)
@@ -62,24 +61,33 @@ class NotificationReplyReceiver : BroadcastReceiver() { // requires zero argumen
             val qualifiedConversationId = qualifiedIdMapper.fromStringToQualifiedID(conversationId)
 
             with(coreLogic.getSessionScope(qualifiedUserId)) {
-                // TODO better to move dispatcher logic into UseCase
-                CoroutineScope(coroutineContext + dispatcherProvider.io()).launch {
-                    launch {
-                        messages.sendTextMessage(qualifiedConversationId, replyText)
-                            .fold(
-                                { updateNotification(context, conversationId, qualifiedUserId, null) },
-                                { updateNotification(context, conversationId, qualifiedUserId, replyText) }
-                            )
-                    }
-                    launch {
-                        conversations.updateConversationReadDateUseCase(
-                            qualifiedConversationId,
-                            Clock.System.now()
+                syncExecutor.request {
+                    messages.sendTextMessage(qualifiedConversationId, replyText)
+                        .fold(
+                            { updateNotification(context, conversationId, qualifiedUserId, null) },
+                            { updateNotification(context, conversationId, qualifiedUserId, replyText) }
                         )
-                    }
+                    conversations.updateConversationReadDateUseCase(
+                        qualifiedConversationId,
+                        Clock.System.now()
+                    )
                 }
             }
         }
+    }
+
+    override fun onTimeout(context: Context, intent: Intent, exception: Exception) {
+        super.onTimeout(context, intent, exception)
+
+        val conversationId: String? = intent.getStringExtra(EXTRA_CONVERSATION_ID)
+        val userId: String? = intent.getStringExtra(EXTRA_USER_ID)
+
+        if (conversationId != null && userId != null) {
+            val qualifiedUserId = qualifiedIdMapper.fromStringToQualifiedID(userId)
+            updateNotification(context, conversationId, qualifiedUserId, null)
+        }
+
+        Toast.makeText(context, R.string.label_general_error, Toast.LENGTH_SHORT).show()
     }
 
     private fun updateNotification(context: Context, conversationId: String, userId: QualifiedID, replyText: String?) =

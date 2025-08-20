@@ -38,8 +38,8 @@ import com.wire.kalium.logic.feature.client.DeleteClientResult
 import com.wire.kalium.logic.feature.client.DeleteClientUseCase
 import com.wire.kalium.logic.feature.client.FetchSelfClientsFromRemoteUseCase
 import com.wire.kalium.logic.feature.client.GetOrRegisterClientUseCase
+import com.wire.kalium.logic.feature.client.RegisterClientParam
 import com.wire.kalium.logic.feature.client.RegisterClientResult
-import com.wire.kalium.logic.feature.client.RegisterClientUseCase
 import com.wire.kalium.logic.feature.client.SelfClientsResult
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
@@ -157,7 +157,7 @@ class RemoveDeviceViewModel @Inject constructor(
 
     private suspend fun registerClient(password: String?, secondFactorVerificationCode: String? = null) {
         registerClientUseCase(
-            RegisterClientUseCase.RegisterClientParam(
+            RegisterClientParam(
                 password = password,
                 secondFactorVerificationCode = secondFactorVerificationCode,
                 capabilities = null,
@@ -178,6 +178,7 @@ class RemoveDeviceViewModel @Inject constructor(
                         isCurrentCodeInvalid = true,
                     )
                 }
+
                 is RegisterClientResult.Failure.InvalidCredentials -> state = state.copy(error = RemoveDeviceError.InvalidCredentialsError)
                 is RegisterClientResult.Failure.TooManyClients -> loadClientsList()
                 is RegisterClientResult.Success -> sendAction(OnComplete(userDataStore.initialSyncCompleted.first(), false))

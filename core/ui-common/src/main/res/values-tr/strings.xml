@@ -16,4 +16,20 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
-<resources></resources>
+<resources>
+    <string name="login_password_placeholder">Parola</string>
+    <string name="login_password_label">Parola</string>
+    <string name="content_description_reveal_password">Parolayı göster</string>
+    <string name="content_description_hide_password">Parolayı gizle</string>
+    <string name="label_wait_until_synchronised">Lütfen uygulama senkronize edilene kadar bekleyin</string>
+    <string name="label_wait_until_connected">Lütfen internet bağlantısı yeniden sağlanana kadar bekleyin</string>
+    <string name="content_description_back_button">Geri düğmesi</string>
+    <string name="content_description_left_arrow">Geri git</string>
+    <string name="content_description_close_button">Kapat düğmesi</string>
+    <string name="content_description_close">Kapat</string>
+    <string name="content_description_menu_button">Ana navigasyon</string>
+    <string name="content_description_drop_down_icon">Aşağı açılan ok</string>
+    <string name="content_description_pending_connection_badge">bağlantı isteğinin onaylanması bekleniyor</string>
+    <string name="content_description_alert">Uyarı</string>
+    <string name="content_description_show_more_options">Daha fazla seçenek göster</string>
+</resources>

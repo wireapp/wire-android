@@ -23,7 +23,7 @@ import com.wire.android.ui.legalhold.banner.LegalHoldUIState
 import com.wire.kalium.logic.feature.legalhold.LegalHoldStateForSelfUser
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.internal.assertEquals
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 

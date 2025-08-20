@@ -17,11 +17,14 @@
  */
 package com.wire.android.ui.home.newconversation.search
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.ui.common.WirePromotionDialog
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.theme.WireTheme
 
@@ -36,15 +39,15 @@ fun ChannelNotAvailableDialog(
         description = stringResource(R.string.channel_not_available_dialog_description),
         buttonLabel = stringResource(R.string.channel_not_available_dialog_create_team_button),
         onDismiss = onDismiss,
-        onCreateTeam = onCreateTeam,
+        onButtonClick = onCreateTeam,
         modifier = modifier,
     )
 }
 
 @Composable
 @MultipleThemePreviews
-fun PreviewWireDialogWithWaves() {
-    WireTheme {
+fun PreviewWireDialogWithWaves() = WireTheme {
+    Box(modifier = Modifier.padding(dimensions().dialogCardMargin)) {
         ChannelNotAvailableDialog(
             onDismiss = {},
             onCreateTeam = {},

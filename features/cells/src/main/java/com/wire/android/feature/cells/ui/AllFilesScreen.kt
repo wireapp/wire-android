@@ -19,9 +19,13 @@ package com.wire.android.feature.cells.ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
+import com.wire.android.feature.cells.ui.destinations.AddRemoveTagsScreenDestination
+import com.wire.android.feature.cells.ui.destinations.ConversationFilesScreenDestination
 import com.wire.android.feature.cells.ui.destinations.PublicLinkScreenDestination
+import com.wire.android.feature.cells.ui.filter.FilterBottomSheet
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.WireNavigator
 import com.wire.android.ui.common.search.SearchBarState
@@ -37,7 +41,6 @@ fun AllFilesScreen(
     searchBarState: SearchBarState,
     viewModel: CellViewModel = hiltViewModel(),
 ) {
-
     val pagingListItems = viewModel.nodesFlow.collectAsLazyPagingItems()
 
     LaunchedEffect(searchBarState.searchQueryTextState.text) {
@@ -55,13 +58,12 @@ fun AllFilesScreen(
     }
 
     searchBarState.searchVisibleChanged(isSearchVisible)
-
     CellScreenContent(
         actionsFlow = viewModel.actions,
         pagingListItems = pagingListItems,
         sendIntent = { viewModel.sendIntent(it) },
         onFolderClick = {
-            // TODO: Handle folder click later
+            navigator.navigate(NavigationCommand(ConversationFilesScreenDestination(it.remotePath)))
         },
         downloadFileState = viewModel.downloadFileSheet,
         menuState = viewModel.menu,
@@ -79,6 +81,33 @@ fun AllFilesScreen(
                 )
             )
         },
-        showMoveToFolderScreen = { _, _, _ -> }
+        showMoveToFolderScreen = { _, _, _ -> },
+        showRenameScreen = {},
+        showAddRemoveTagsScreen = { node ->
+            navigator.navigate(
+                NavigationCommand(
+                    AddRemoveTagsScreenDestination(node.uuid, node.tags.toCollection(ArrayList()))
+                )
+            )
+        },
     )
+
+    if (searchBarState.isFilterActive) {
+
+        viewModel.loadTags()
+
+        FilterBottomSheet(
+            selectableTags = viewModel.tags.collectAsState().value,
+            selectedTags = viewModel.selectedTags.collectAsState().value,
+            onApply = {
+                searchBarState.onFilterActiveChanged(false)
+                viewModel.updateSelectedTags(it)
+            },
+            onClearAll = {
+                searchBarState.onFilterActiveChanged(false)
+                viewModel.updateSelectedTags(emptySet())
+            },
+            onDismiss = { searchBarState.onFilterActiveChanged(false) },
+        )
+    }
 }

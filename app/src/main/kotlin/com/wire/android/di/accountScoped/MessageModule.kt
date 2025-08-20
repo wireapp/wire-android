@@ -38,6 +38,7 @@ import com.wire.kalium.logic.feature.message.GetSearchedConversationMessagePosit
 import com.wire.kalium.logic.feature.message.GetSenderNameByMessageIdUseCase
 import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
 import com.wire.kalium.logic.feature.message.MessageScope
+import com.wire.kalium.logic.feature.message.ObserveMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.ObserveMessageReactionsUseCase
 import com.wire.kalium.logic.feature.message.ObserveMessageReceiptsUseCase
 import com.wire.kalium.logic.feature.message.RetryFailedMessageUseCase
@@ -158,6 +159,11 @@ class MessageModule {
     @Provides
     fun provideGetMessageByIdUseCase(messageScope: MessageScope): GetMessageByIdUseCase =
         messageScope.getMessageById
+
+    @ViewModelScoped
+    @Provides
+    fun provideObserveMessageByIdUseCase(messageScope: MessageScope): ObserveMessageByIdUseCase =
+        messageScope.observeMessageById
 
     @ViewModelScoped
     @Provides

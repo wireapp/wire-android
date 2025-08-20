@@ -17,10 +17,11 @@
  */
 package com.wire.android.ui.home.newconversation.channelaccess
 
+import androidx.annotation.StringRes
 import com.wire.android.R
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Group.Channel.ChannelAddPermission
 
-enum class ChannelAddPermissionType(val label: Int) {
+enum class ChannelAddPermissionType(@StringRes val labelResId: Int) {
     ADMINS(R.string.channel_add_permission_admin_label),
     EVERYONE(R.string.channel_add_permission_admin_members_label)
 }

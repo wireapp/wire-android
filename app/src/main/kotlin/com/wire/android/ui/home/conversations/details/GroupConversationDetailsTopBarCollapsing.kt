@@ -18,13 +18,17 @@
 package com.wire.android.ui.home.conversations.details
 
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,13 +38,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.wire.android.R
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.shimmerPlaceholder
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversations.info.ConversationAvatar
 import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
 import com.wire.android.ui.legalhold.banner.LegalHoldSubjectBanner
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
@@ -50,7 +57,6 @@ import com.wire.kalium.logic.data.id.ConversationId
 fun GroupConversationDetailsTopBarCollapsing(
     title: String,
     totalParticipants: Int,
-    isLoading: Boolean,
     isUnderLegalHold: Boolean,
     conversationAvatar: ConversationAvatar.Group,
     isWireCellEnabled: Boolean,
@@ -93,13 +99,7 @@ fun GroupConversationDetailsTopBarCollapsing(
                     }
             ) {
                 Text(
-                    text = title.ifBlank {
-                        if (isLoading) {
-                            ""
-                        } else {
-                            UIText.StringResource(R.string.conversation_unavailable_label).asString()
-                        }
-                    },
+                    text = title.ifBlank { UIText.StringResource(R.string.conversation_unavailable_label).asString() },
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 1,
                     style = MaterialTheme.wireTypography.body02,
@@ -138,6 +138,83 @@ fun GroupConversationDetailsTopBarCollapsing(
     }
 }
 
+@Composable
+fun LoadingGroupConversationDetailsTopBarCollapsing(
+    modifier: Modifier = Modifier
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+        modifier = modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
+    ) {
+        Box(
+            modifier = Modifier
+                .padding(MaterialTheme.wireDimensions.avatarClickablePadding)
+                .size(dimensions().groupAvatarConversationDetailsTopBarSize)
+                .padding(dimensions().avatarBorderWidth)
+                .background(
+                    color = colorsScheme().primaryButtonDisabled,
+                    shape = RoundedCornerShape(dimensions().groupAvatarConversationDetailsCornerRadius)
+                )
+                .shimmerPlaceholder(
+                    visible = true,
+                    color = colorsScheme().primaryButtonDisabled,
+                    shape = RoundedCornerShape(dimensions().groupAvatarConversationDetailsCornerRadius)
+                )
+        )
+        ConstraintLayout(
+            Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .animateContentSize()
+        ) {
+            val (userDescription) = createRefs()
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .wrapContentSize()
+                    .constrainAs(userDescription) {
+                        top.linkTo(parent.top)
+                        bottom.linkTo(parent.bottom)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                    }
+            ) {
+                Box(
+                    modifier = Modifier
+                        .padding(
+                            horizontal = dimensions().spacing16x,
+                            vertical = dimensions().spacing4x
+                        )
+                        .height(dimensions().spacing20x)
+                        .shimmerPlaceholder(visible = true, color = colorsScheme().primaryButtonDisabled)
+                        .fillMaxWidth(0.5f)
+                )
+                Box(
+                    modifier = Modifier
+                        .height(dimensions().spacing14x)
+                        .padding(horizontal = dimensions().spacing64x)
+                        .shimmerPlaceholder(visible = true, color = colorsScheme().primaryButtonDisabled)
+                        .fillMaxWidth(0.5f)
+                )
+            }
+        }
+
+        VerticalSpace.x24()
+        LoadingSearchAndMediaRow()
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewLoadingGroupConversationDetailsTopBarCollapsing() {
+    WireTheme {
+        LoadingGroupConversationDetailsTopBarCollapsing()
+    }
+}
+
 @PreviewMultipleThemes
 @Composable
 fun PreviewGroupConversationDetailsTopBarCollapsing() {
@@ -146,7 +223,6 @@ fun PreviewGroupConversationDetailsTopBarCollapsing() {
             title = "Conversation Title",
             totalParticipants = 10,
             isUnderLegalHold = true,
-            isLoading = false,
             conversationAvatar = ConversationAvatar.Group.Regular(ConversationId("ConversationId", "domain")),
             isWireCellEnabled = false,
             onSearchConversationMessagesClick = {},
@@ -164,7 +240,6 @@ fun PreviewChannelConversationDetailsTopBarCollapsing() {
             title = "Conversation Title",
             totalParticipants = 10,
             isUnderLegalHold = true,
-            isLoading = false,
             conversationAvatar = ConversationAvatar.Group.Channel(ConversationId("ConversationId", "domain"), false),
             isWireCellEnabled = false,
             onSearchConversationMessagesClick = {},
@@ -182,7 +257,6 @@ fun PreviewPrivateChannelConversationDetailsTopBarCollapsing() {
             title = "Conversation Title",
             totalParticipants = 10,
             isUnderLegalHold = true,
-            isLoading = false,
             conversationAvatar = ConversationAvatar.Group.Channel(ConversationId("ConversationId", "domain"), true),
             isWireCellEnabled = false,
             onSearchConversationMessagesClick = {},

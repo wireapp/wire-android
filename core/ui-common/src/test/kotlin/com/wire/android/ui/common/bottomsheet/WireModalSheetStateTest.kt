@@ -94,7 +94,7 @@ class WireModalSheetStateTest {
             // when
             val saved = SaverScope { true }.save(WireModalSheetState(mockk(), mockk(), mockk(), mockk(), sheetValue))
             // then
-            assertInstanceOf<List<Any>>(saved).let {
+            assertInstanceOf<SavedData>(saved).let {
                 val restored = restore(it)
                 assertInstanceOf<WireSheetValue.Expanded<SerializableTestModel>>(restored?.currentValue).let {
                     assertEquals(sheetValue.value, it.value)

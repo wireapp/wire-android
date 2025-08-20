@@ -17,12 +17,14 @@
  */
 package com.wire.android.navigation
 
+import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisallowComposableCalls
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.ramcosta.composedestinations.spec.DestinationSpec
 
+@SuppressLint("ComposeNamingUppercase")
 object PreviewResultRecipient : ResultRecipient<DestinationSpec<Unit>, String> {
 
     @Composable

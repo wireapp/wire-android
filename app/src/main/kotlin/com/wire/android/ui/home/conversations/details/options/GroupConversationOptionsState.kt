@@ -42,6 +42,9 @@ data class GroupConversationOptionsState(
     val conversationId: ConversationId,
     val groupName: String = "",
     val protocolInfo: Conversation.ProtocolInfo = Conversation.ProtocolInfo.Proteus,
+    val mlsVerificationStatus: Conversation.VerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+    val proteusVerificationStatus: Conversation.VerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+    val legalHoldStatus: Conversation.LegalHoldStatus = Conversation.LegalHoldStatus.DISABLED,
     val areAccessOptionsAvailable: Boolean = false,
     val isGuestAllowed: Boolean = false,
     val isServicesAllowed: Boolean = false,
@@ -70,8 +73,10 @@ data class GroupConversationOptionsState(
 ) {
 
     sealed interface Error {
-        object None : Error
+        data object None : Error
         class UpdateServicesError(val cause: CoreFailure) : Error
         class UpdateReadReceiptError(val cause: CoreFailure) : Error
     }
+
+    fun isAbandonedOneOnOneConversation(participantsCount: Int): Boolean = groupName.isEmpty() && participantsCount == 1
 }

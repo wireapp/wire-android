@@ -1,0 +1,35 @@
+package com.wearezeta.auto.common.usrmgmt
+
+import javax.ws.rs.core.NewCookie
+import java.net.HttpCookie
+import java.util.Date
+
+class AccessCookie(
+    private val name: String,
+    expirationDate: Date,
+    private val value: String
+) {
+    private val expirationDate: Date
+
+    fun getName(): String = name
+
+    fun getValue(): String = value
+
+    fun isExpired(): Boolean = Date().after(expirationDate)
+
+    constructor(cookieName: String, cookies: Map<String, NewCookie>) : this(
+        cookieName,
+        cookies[cookieName]?.expiry ?: throw RuntimeException("No cookie found with name '$cookieName'"),
+        cookies[cookieName]!!.value
+    )
+
+    constructor(cookieName: String, cookies: List<HttpCookie>) : this(
+        cookieName,
+        Date(Date().time + (cookies.first { it.name == cookieName }.maxAge * 1000)),
+        cookies.first { it.name == cookieName }.value
+    )
+
+    init {
+        this.expirationDate = expirationDate
+    }
+}

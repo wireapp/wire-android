@@ -40,6 +40,7 @@ class DebugScreenComposeTest {
                         onDeleteLogs = {},
                         onDatabaseLoggerEnabledChanged = {},
                         onEnableWireCellsFeature = {},
+                        onShowFeatureFlags = {},
                     )
             }
         }

@@ -85,6 +85,7 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.EMPTY
+import com.wire.android.util.isHostValidForAnalytics
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.configuration.server.ServerConfig
 
@@ -275,12 +276,14 @@ private fun AccountDetailsContent(
                     autoFill = false,
                 )
 
-                Row(modifier = Modifier.padding(end = MaterialTheme.wireDimensions.spacing16x)) {
-                    WireCheckbox(
-                        checked = state.privacyPolicyAccepted,
-                        onCheckedChange = onPrivacyPolicyAccepted,
-                    )
-                    WirePrivacyPolicyLink()
+                if (serverConfig.isHostValidForAnalytics()) {
+                    Row(modifier = Modifier.padding(end = MaterialTheme.wireDimensions.spacing16x)) {
+                        WireCheckbox(
+                            checked = state.privacyPolicyAccepted,
+                            onCheckedChange = onPrivacyPolicyAccepted,
+                        )
+                        WirePrivacyPolicyLink()
+                    }
                 }
             }
 

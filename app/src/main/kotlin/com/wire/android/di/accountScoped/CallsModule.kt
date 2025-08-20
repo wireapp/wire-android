@@ -31,6 +31,7 @@ import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveOutgoingCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveSpeakerUseCase
+import com.wire.kalium.logic.feature.call.usecase.SetUIRotationUseCase
 import com.wire.kalium.logic.feature.call.usecase.SetVideoPreviewUseCase
 import com.wire.kalium.logic.feature.call.usecase.StartCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOffUseCase
@@ -80,6 +81,11 @@ class CallsModule {
     @Provides
     fun provideObserveEstablishedCallWithSortedParticipantsUseCase(callsScope: CallsScope) =
         callsScope.observeEstablishedCallWithSortedParticipants
+
+    @ViewModelScoped
+    @Provides
+    fun provideObserveLastActiveCallWithSortedParticipantsUseCase(callsScope: CallsScope) =
+        callsScope.observeLastActiveCallWithSortedParticipants
 
     @ViewModelScoped
     @Provides
@@ -137,6 +143,12 @@ class CallsModule {
     fun provideSetVideoPreviewUseCase(
         callsScope: CallsScope
     ): SetVideoPreviewUseCase = callsScope.setVideoPreview
+
+    @ViewModelScoped
+    @Provides
+    fun provideSetUIRotationUseCase(
+        callsScope: CallsScope
+    ): SetUIRotationUseCase = callsScope.setUIRotation
 
     @ViewModelScoped
     @Provides

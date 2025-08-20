@@ -28,4 +28,5 @@ data class CreateAccountCodeViewState(
     val email: String = "",
     val loading: Boolean = false,
     val result: CreateAccountCodeResult = CreateAccountCodeResult.None,
+    val remainingTimerText: String? = null,
 )

@@ -38,7 +38,6 @@
     <string name="label_logging_in">Iniciando sessão…</string>
     <string name="label_membership_guest">Convidado</string>
     <string name="label_membership_external">Externo</string>
-    <string name="label_membership_service">Serviço</string>
     <string name="label_user_deleted">Excluído</string>
     <string name="label_try_again">Tente novamente</string>
     <string name="label_done">Pronto</string>
@@ -212,7 +211,6 @@
     <string name="content_description_accept_or_ignore_connection_label">aceitar ou ignorar a solicitação</string>
     <string name="content_description_open_user_profile_label">perfil aberto</string>
     <string name="content_description_open_conversation_label">abrir conversa</string>
-    <string name="content_description_open_service_label">serviço aberto</string>
     <string name="content_description_change_it_label">alterar isto</string>
     <string name="content_description_open_link_label">abrir link</string>
     <string name="content_description_alert">Alerta</string>
@@ -535,13 +533,9 @@ Uma mensagem excluída não pode ser restaurada.</string>
     <string name="conversation_details_guest_description">Quando isso está LIGADO, pessoas de fora do seu time podem se juntar a essa conversa</string>
     <string name="conversation_options_guest_description">Ative essa opção para abrir essa conversa para pessoas fora do seu time, mesmo que elas não tenham o Wire.</string>
     <string name="conversation_options_guest_not_editable_description">Você não pode desativar a opção de convidado nesta conversa, pois ela foi criada por alguém de outro time.</string>
-    <string name="conversation_options_services_label">Serviços</string>
-    <string name="conversation_options_services_description">Ative essa opção para abrir essa conversa para serviços.</string>
     <string name="conversation_options_renamed">Conversa renomeada</string>
     <string name="disable_guest_dialog_title">Desativar acesso de convidado?</string>
     <string name="disable_guest_dialog_text">Os convidados atuais serão removidos da conversa. Novos convidados não serão permitidos.</string>
-    <string name="disable_services_dialog_title">Desativar acesso de serviços?</string>
-    <string name="disable_services_dialog_text">Os serviços atuais serão removidos da conversa. Novos serviços não serão permitidos.</string>
     <!-- Import/Export External Media -->
     <string name="import_media_content_title">Compartilhar com o Wire</string>
     <string name="import_media_searchbar_title">Buscar conversa</string>
@@ -550,7 +544,6 @@ Uma mensagem excluída não pode ser restaurada.</string>
     <!--Read receipts -->
     <string name="conversation_options_read_receipt_label">Confirmações de leitura</string>
     <string name="conversation_options_read_receipt_description">Quando isso está ativado, as pessoas podem ver quando suas mensagens nesta conversa são lidas.</string>
-    <!--Wire Cell -->
     <!-- Messages -->
     <string name="message_details_title">Detalhes da mensagem</string>
     <string name="message_details_reactions_tab">REAÇÕES (%s)</string>
@@ -661,22 +654,13 @@ Uma mensagem excluída não pode ser restaurada.</string>
     <string name="conversation_banner_federated">usuários federados</string>
     <string name="conversation_banner_externals">externos</string>
     <string name="conversation_banner_guests">convidados</string>
-    <string name="conversation_banner_services">serviços</string>
-    <string name="conversation_banner_federated_externals_guests_services_present">Usuários federados, externos, convidados e serviços estão presentes</string>
     <string name="conversation_banner_federated_externals_guests_present">Usuários federados, externos e convidados estão presentes</string>
-    <string name="conversation_banner_federated_externals_services_present">Usuários federados, externos e serviços estão presentes</string>
-    <string name="conversation_banner_federated_guests_services_present">Usuários federados, convidados e serviços estão presentes</string>
-    <string name="conversation_banner_federated_services_present">Usuários federados e serviços estão presentes</string>
     <string name="conversation_banner_federated_guests_present">Usuários federados e convidados estão presentes</string>
     <string name="conversation_banner_federated_externals_present">Usuários federados e externos estão presentes</string>
-    <string name="conversation_banner_externals_guests_services_present">Externos, convidados e serviços estão presentes</string>
-    <string name="conversation_banner_externals_services_present">Externos e serviços estão presentes</string>
     <string name="conversation_banner_externals_guests_present">Externos e convidados estão presentes</string>
-    <string name="conversation_banner_guests_services_present">Convidados e serviços estão presentes</string>
     <string name="conversation_banner_federated_present">Usuários federados estão presentes</string>
     <string name="conversation_banner_guests_present">Convidados estão presentes</string>
     <string name="conversation_banner_externals_present">Externos estão presentes</string>
-    <string name="conversation_banner_services_active">Serviços estão ativos</string>
     <!-- System messages -->
     <string name="label_system_message_added_by_self">%1$s adicionou %2$s à conversa</string>
     <string name="label_system_message_removed_by_self">%1$s removeu %2$s da conversa</string>
@@ -851,7 +835,6 @@ Uma mensagem excluída não pode ser restaurada.</string>
     <string name="label_no_results_found">Não foi possível encontrar nenhum resultado. Por favor, tente novamente.</string>
     <string name="label_general_error">Algo deu errado</string>
     <string name="label_add_member_people">Pessoas</string>
-    <string name="label_add_member_services">Serviços</string>
     <string name="label_empty_contacts_list">Procure por pessoas pelo nome ou nome de usuário para iniciar uma conversa 🔍</string>
     <!-- Snackbar messages -->
     <string name="error_unknown_title">Algo deu errado</string>
@@ -1015,10 +998,6 @@ Uma mensagem excluída não pode ser restaurada.</string>
     <string name="change">Trocar</string>
     <string name="allow_guests">Permitir convidados</string>
     <string name="allow_guest_switch_description">Abrir esta conversa para pessoas fora do seu time. Você pode sempre alterar isso depois.</string>
-    <string name="allow_services">Permitir serviços</string>
-    <string name="allow_services_regular_group_description">Abrir esta conversa para serviços. Voce pode sempre alterar isso depois.</string>
-    <string name="allow_services_channel_description">Abra esta conversa para pessoas fora da sua equipe ou serviços. Você sempre pode mudar isso mais tarde.</string>
-    <string name="service_details_label">Serviço</string>
     <string name="service_no_information_available_title">Nenhuma informação disponível</string>
     <string name="service_no_information_available_subtitle">Tente novamente ou entre em contato com o administrador da sua equipe</string>
     <string name="read_receipts">Confirmações de leitura</string>

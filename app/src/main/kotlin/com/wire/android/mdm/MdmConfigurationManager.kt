@@ -21,13 +21,12 @@ package com.wire.android.mdm
 import android.content.Context
 import android.content.RestrictionsManager
 import android.os.Bundle
-import com.wire.android.mdm.model.MdmCertificatePinningConfig
 import com.wire.android.mdm.model.MdmServerConfig
+import com.wire.android.mdm.model.MdmTrustConfiguration
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.decodeFromString
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -205,6 +204,32 @@ class MdmConfigurationManager @Inject constructor(
         }
     }
     
+    fun getTrustConfiguration(): MdmTrustConfiguration {
+        val restrictions = restrictionsManager.applicationRestrictions
+        
+        if (restrictions == null || restrictions.isEmpty) {
+            return MdmTrustConfiguration()
+        }
+        
+        val rootCAPem = restrictions.getString(KEY_EXTRA_CA_PEM)
+        val allowedHostsJson = restrictions.getString(KEY_ALLOWED_HOSTS)
+        
+        val allowedHosts = if (!allowedHostsJson.isNullOrEmpty()) {
+            try {
+                json.decodeFromString<List<String>>(allowedHostsJson)
+            } catch (e: Exception) {
+                emptyList()
+            }
+        } else {
+            emptyList()
+        }
+        
+        return MdmTrustConfiguration(
+            rootCAPem = rootCAPem,
+            allowedHosts = allowedHosts
+        )
+    }
+    
     companion object {
         private const val KEY_CERTIFICATE_PINNING_CONFIG = "certificate_pinning_config"
         private const val KEY_SERVER_CONFIG = "server_config"
@@ -217,5 +242,7 @@ class MdmConfigurationManager @Inject constructor(
         private const val KEY_ACCOUNTS_URL = "accounts_url"
         private const val KEY_WEBSITE_URL = "website_url"
         private const val KEY_IS_ON_PREMISES = "is_on_premises"
+        private const val KEY_EXTRA_CA_PEM = "extra_ca_pem"
+        private const val KEY_ALLOWED_HOSTS = "allowed_hosts"
     }
 }

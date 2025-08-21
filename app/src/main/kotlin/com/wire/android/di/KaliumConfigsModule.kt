@@ -53,6 +53,8 @@ class KaliumConfigsModule {
             defaultConfig = BuildConfig.CERTIFICATE_PINNING_CONFIG,
             mdmConfig = mdmCertPinningConfig
         )
+        
+        val mdmTrustConfiguration = mdmConfigurationManager.getTrustConfiguration()
 
         return KaliumConfigs(
             fileRestrictionState = fileRestriction,
@@ -70,6 +72,8 @@ class KaliumConfigsModule {
             wipeOnRootedDevice = BuildConfig.WIPE_ON_ROOTED_DEVICE,
             isWebSocketEnabledByDefault = isWebsocketEnabledByDefault(context),
             certPinningConfig = finalCertPinningConfig,
+            mdmRootCAPem = mdmTrustConfiguration.rootCAPem,
+            mdmAllowedHosts = mdmTrustConfiguration.allowedHosts,
             maxRemoteSearchResultCount = BuildConfig.MAX_REMOTE_SEARCH_RESULT_COUNT,
             limitTeamMembersFetchDuringSlowSync = BuildConfig.LIMIT_TEAM_MEMBERS_FETCH_DURING_SLOW_SYNC
         )

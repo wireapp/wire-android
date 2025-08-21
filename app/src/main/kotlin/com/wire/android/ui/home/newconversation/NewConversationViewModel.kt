@@ -87,18 +87,18 @@ class NewConversationViewModel @Inject constructor(
     var createGroupState: CreateGroupState by mutableStateOf(CreateGroupState.Default)
 
     init {
-        observeAllowanceOfAppsUsage()
+        observeAllowanceOfAppsUsageInitialState()
         setConversationCreationParam()
         observeChannelCreationPermission()
         getWireCellFeatureState()
     }
 
-    private fun observeAllowanceOfAppsUsage() {
+    private fun observeAllowanceOfAppsUsageInitialState() {
         viewModelScope.launch {
             observeIsAppsAllowedForUsage()
                 .collectLatest { appsAllowed ->
                     groupOptionsState = groupOptionsState.copy(
-                        isAppsUsagePossible = appsAllowed,
+                        isTeamAllowedToUseApps = appsAllowed,
                         isAllowAppsEnabled = appsAllowed
                     )
                 }
@@ -115,7 +115,7 @@ class NewConversationViewModel @Inject constructor(
                 groupProtocol = defaultProtocol
             )
         }
-        observeAllowanceOfAppsUsage()
+        observeAllowanceOfAppsUsageInitialState()
         createGroupState = CreateGroupState.Default
         setConversationCreationParam()
     }

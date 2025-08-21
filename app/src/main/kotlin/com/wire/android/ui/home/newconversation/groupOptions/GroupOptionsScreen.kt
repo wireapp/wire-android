@@ -262,7 +262,7 @@ private fun GroupOptionState.ReadReceiptsOptions(isChannel: Boolean, onReadRecei
 
 @Composable
 private fun GroupOptionState.AllowServicesOptions(isChannel: Boolean, onAllowServicesChanged: (Boolean) -> Unit) {
-    if (!isAppsUsagePossible) return
+    if (!isTeamAllowedToUseApps) return
 
     GroupConversationOptionsItem(
         title = stringResource(R.string.allow_services),

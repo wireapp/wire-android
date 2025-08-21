@@ -25,6 +25,7 @@ data class GroupOptionState(
     val isAllowAppsEnabled: Boolean = false,
     val isReadReceiptEnabled: Boolean = true,
     val showAllowGuestsDialog: Boolean = false,
-    val isAppsUsagePossible: Boolean = false,
+    // feature flag for allowing apps usage for the team
+    val isTeamAllowedToUseApps: Boolean = false,
     val isWireCellsEnabled: Boolean? = null,
 )

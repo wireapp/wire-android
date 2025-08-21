@@ -187,7 +187,7 @@ class NewConversationViewModelTest {
         // then
         assertEquals(CreateConversationParam.Protocol.MLS, result)
         assertEquals(false, result2.isAllowAppsEnabled)
-        assertEquals(false, result2.isAppsUsagePossible)
+        assertEquals(false, result2.isTeamAllowedToUseApps)
     }
 
     @Test
@@ -373,7 +373,7 @@ class NewConversationViewModelTest {
             .withAppsAllowedResult(false)
             .arrange()
 
-        assertFalse(viewModel.groupOptionsState.isAppsUsagePossible)
+        assertFalse(viewModel.groupOptionsState.isTeamAllowedToUseApps)
         assertFalse(viewModel.groupOptionsState.isAllowAppsEnabled)
     }
 
@@ -385,7 +385,7 @@ class NewConversationViewModelTest {
             .withAppsAllowedResult(true)
             .arrange()
 
-        assertTrue(viewModel.groupOptionsState.isAppsUsagePossible)
+        assertTrue(viewModel.groupOptionsState.isTeamAllowedToUseApps)
         assertTrue(viewModel.groupOptionsState.isAllowAppsEnabled)
     }
 
@@ -400,14 +400,14 @@ class NewConversationViewModelTest {
         // dirty state
         viewModel.newGroupNameTextState = TextFieldState("Test Group")
         viewModel.groupOptionsState = viewModel.groupOptionsState.copy(
-            isAppsUsagePossible = true,
+            isTeamAllowedToUseApps = true,
             isAllowAppsEnabled = false
         )
 
         // When
         viewModel.resetState()
 
-        assertTrue(viewModel.groupOptionsState.isAppsUsagePossible)
+        assertTrue(viewModel.groupOptionsState.isTeamAllowedToUseApps)
         assertTrue(viewModel.groupOptionsState.isAllowAppsEnabled)
         assertEquals("", viewModel.newGroupNameTextState.text)
     }

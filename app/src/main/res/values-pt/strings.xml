@@ -544,7 +544,6 @@ Uma mensagem excluída não pode ser restaurada.</string>
     <!--Read receipts -->
     <string name="conversation_options_read_receipt_label">Confirmações de leitura</string>
     <string name="conversation_options_read_receipt_description">Quando isso está ativado, as pessoas podem ver quando suas mensagens nesta conversa são lidas.</string>
-    <!--Wire Cell -->
     <!-- Messages -->
     <string name="message_details_title">Detalhes da mensagem</string>
     <string name="message_details_reactions_tab">REAÇÕES (%s)</string>

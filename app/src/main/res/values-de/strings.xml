@@ -590,7 +590,6 @@
     <!--Read receipts -->
     <string name="conversation_options_read_receipt_label">Lesebestätigungen</string>
     <string name="conversation_options_read_receipt_description">Wenn diese Option aktiviert ist, können Sender sehen, wenn ihre Nachrichten gelesen werden.</string>
-    <!--Wire Cell -->
     <!-- Messages -->
     <string name="message_details_title">Nachrichtendetails</string>
     <string name="message_details_reactions_tab">REAKTIONEN (%s)</string>

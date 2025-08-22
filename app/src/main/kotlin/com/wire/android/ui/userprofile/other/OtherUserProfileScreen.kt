@@ -81,9 +81,11 @@ import com.wire.android.ui.common.topappbar.WireTopAppBarTitle
 import com.wire.android.ui.common.visbility.VisibilityState
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.connection.ConnectionActionButton
+import com.wire.android.ui.debug.conversation.DebugConversationScreenNavArgs
 import com.wire.android.ui.destinations.ConversationFoldersScreenDestination
 import com.wire.android.ui.destinations.ConversationMediaScreenDestination
 import com.wire.android.ui.destinations.ConversationScreenDestination
+import com.wire.android.ui.destinations.DebugConversationScreenDestination
 import com.wire.android.ui.destinations.DeviceDetailsScreenDestination
 import com.wire.android.ui.destinations.SearchConversationMessagesScreenDestination
 import com.wire.android.ui.home.conversations.details.SearchAndMediaRow
@@ -190,7 +192,16 @@ fun OtherUserProfileScreen(
         onLegalHoldLearnMoreClick = remember { { legalHoldSubjectDialogState.show(Unit) } },
         onMoveToFolder = {
             navigator.navigate(NavigationCommand(ConversationFoldersScreenDestination(it)))
-        }
+        },
+        openConversationDebugMenu = { conversationId ->
+            navigator.navigate(
+                NavigationCommand(
+                    DebugConversationScreenDestination(
+                        navArgs = DebugConversationScreenNavArgs(conversationId)
+                    )
+                )
+            )
+        },
     )
 
     HandleActions(viewModel.actions) { action ->
@@ -245,6 +256,7 @@ fun OtherProfileScreenContent(
     navigateBack: () -> Unit = {},
     onLegalHoldLearnMoreClick: () -> Unit = {},
     onMoveToFolder: (ConversationFoldersNavArgs) -> Unit = {},
+    openConversationDebugMenu: (ConversationId) -> Unit = {},
 ) {
     val otherUserProfileScreenState = rememberOtherUserProfileScreenState()
     val tabItems by remember(state) {
@@ -316,6 +328,7 @@ fun OtherProfileScreenContent(
     ConversationOptionsModalSheetLayout(
         sheetState = conversationOptionsSheetState,
         openConversationFolders = onMoveToFolder,
+        openConversationDebugMenu = openConversationDebugMenu
     )
     EditGroupRoleBottomSheet(
         sheetState = changeRoleSheetState,

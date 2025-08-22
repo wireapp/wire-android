@@ -25,6 +25,7 @@ import androidx.paging.cachedIn
 import androidx.paging.filter
 import androidx.paging.map
 import com.wire.android.feature.cells.R
+import com.wire.android.feature.cells.ui.model.BottomSheetActionsContext
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.NodeBottomSheetAction
 import com.wire.android.feature.cells.ui.model.canOpenWithUrl
@@ -101,6 +102,9 @@ class CellViewModel @Inject constructor(
     private val _tags = MutableStateFlow<Set<String>>(emptySet())
     val tags: StateFlow<Set<String>> = _tags.asStateFlow()
 
+    private val _bottomSheetActionsContext = MutableStateFlow<BottomSheetActionsContext?>(null)
+    private val bottomSheetActionsContext: StateFlow<BottomSheetActionsContext?> = _bottomSheetActionsContext
+
     init {
         loadTags()
     }
@@ -149,7 +153,20 @@ class CellViewModel @Inject constructor(
     }
 
     internal fun onSearchQueryUpdated(text: String) = viewModelScope.launch {
+        updateScreenContext(text)
         searchQueryFlow.emit(text)
+    }
+
+    private fun updateScreenContext(text: String) {
+        val newContext = if (text.isNotEmpty()) {
+            BottomSheetActionsContext.Search
+        } else {
+            BottomSheetActionsContext.AllFiles
+        }
+
+        if (!bottomSheetActionsContext.equals(newContext)) {
+            _bottomSheetActionsContext.update { newContext }
+        }
     }
 
     internal fun hasSearchQuery(): Boolean {
@@ -169,7 +186,7 @@ class CellViewModel @Inject constructor(
     }
 
     internal fun currentNodeUuid(): String? = navArgs.conversationId
-    internal fun isRecycleBin(): Boolean = navArgs.isRecycleBin ?: false
+    internal fun isRecycleBin(): Boolean = navArgs.isRecycleBin ?: true
     internal fun screenTitle(): String? = navArgs.screenTitle
     internal fun breadcrumbs(): Array<String>? = navArgs.breadcrumbs
 
@@ -273,61 +290,53 @@ class CellViewModel @Inject constructor(
     }
 
     private fun onItemMenuClick(cellNode: CellNodeUi) = viewModelScope.launch {
-        val menuOption = when (cellNode) {
-            is CellNodeUi.File -> {
-                val list = buildList {
-                    if (isRecycleBin()) {
-                        add(NodeBottomSheetAction.RESTORE)
-                        add(NodeBottomSheetAction.DELETE_PERMANENTLY)
-                    } else {
-                        if (cellNode.localFileAvailable()) {
-                            add(NodeBottomSheetAction.SHARE)
-                        }
-                        add(NodeBottomSheetAction.PUBLIC_LINK)
-                        add(NodeBottomSheetAction.SAVE)
-                        if (searchQueryFlow.value.isEmpty()) {
-                            add(NodeBottomSheetAction.ADD_REMOVE_TAGS)
-                            add(NodeBottomSheetAction.MOVE)
-                            add(NodeBottomSheetAction.RENAME)
-                            add(NodeBottomSheetAction.DELETE)
-                        }
+        val list = when (bottomSheetActionsContext.value) {
+            BottomSheetActionsContext.AllFiles, BottomSheetActionsContext.Search -> {
+                buildList {
+                    if (cellNode is CellNodeUi.File && cellNode.localFileAvailable()) {
+                        add(NodeBottomSheetAction.SHARE)
                     }
+                    add(NodeBottomSheetAction.PUBLIC_LINK)
+                    add(NodeBottomSheetAction.DOWNLOAD)
                 }
-                MenuOptions(
-                    node = cellNode,
-                    actions = list,
-                )
             }
 
-            is CellNodeUi.Folder -> {
-                val list = buildList {
-                    if (isRecycleBin()) {
-                        add(NodeBottomSheetAction.RESTORE)
-                        add(NodeBottomSheetAction.DELETE_PERMANENTLY)
-                    } else {
-                        add(NodeBottomSheetAction.SHARE)
-                        add(NodeBottomSheetAction.DOWNLOAD)
-                        if (searchQueryFlow.value.isEmpty()) {
-                            add(NodeBottomSheetAction.ADD_REMOVE_TAGS)
-                            add(NodeBottomSheetAction.MOVE)
-                            add(NodeBottomSheetAction.RENAME)
-                            add(NodeBottomSheetAction.DELETE)
-                        }
-                    }
+            BottomSheetActionsContext.RecycleBin -> {
+                buildList {
+                    add(NodeBottomSheetAction.RESTORE)
+                    add(NodeBottomSheetAction.DELETE_PERMANENTLY)
                 }
-                MenuOptions(
-                    node = cellNode,
-                    actions = list,
-                )
+            }
+
+            BottomSheetActionsContext.Conversation -> {
+                buildList {
+                    if (cellNode is CellNodeUi.File && cellNode.localFileAvailable()) {
+                        add(NodeBottomSheetAction.SHARE)
+                    }
+                    add(NodeBottomSheetAction.PUBLIC_LINK)
+                    add(NodeBottomSheetAction.DOWNLOAD)
+                    add(NodeBottomSheetAction.ADD_REMOVE_TAGS)
+                    add(NodeBottomSheetAction.MOVE)
+                    add(NodeBottomSheetAction.RENAME)
+                    add(NodeBottomSheetAction.DELETE)
+
+                }
+            }
+
+            null -> {
+                listOf()
             }
         }
+        val menuOption = MenuOptions(
+            node = cellNode,
+            actions = list,
+        )
 
         _menu.emit(menuOption)
     }
 
     private fun onMenuItemAction(node: CellNodeUi, action: NodeBottomSheetAction) {
         when (action) {
-            NodeBottomSheetAction.SAVE -> downloadNode(node)
             NodeBottomSheetAction.SHARE -> {
                 if (node is CellNodeUi.File) {
                     shareFile(node)
@@ -423,6 +432,10 @@ class CellViewModel @Inject constructor(
 
     fun loadTags() = viewModelScope.launch {
         getAllTagsUseCase().onSuccess { updated -> _tags.update { updated } }
+    }
+
+    fun setBottomSheetActionsContext(context: BottomSheetActionsContext) {
+        _bottomSheetActionsContext.value = context
     }
 
     companion object {

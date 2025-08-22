@@ -26,6 +26,7 @@ import com.wire.android.feature.cells.ui.destinations.AddRemoveTagsScreenDestina
 import com.wire.android.feature.cells.ui.destinations.ConversationFilesScreenDestination
 import com.wire.android.feature.cells.ui.destinations.PublicLinkScreenDestination
 import com.wire.android.feature.cells.ui.filter.FilterBottomSheet
+import com.wire.android.feature.cells.ui.model.BottomSheetActionsContext
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.WireNavigator
 import com.wire.android.ui.common.search.SearchBarState
@@ -42,6 +43,10 @@ fun AllFilesScreen(
     viewModel: CellViewModel = hiltViewModel(),
 ) {
     val pagingListItems = viewModel.nodesFlow.collectAsLazyPagingItems()
+
+    LaunchedEffect(Unit) {
+        viewModel.setBottomSheetActionsContext(BottomSheetActionsContext.AllFiles)
+    }
 
     LaunchedEffect(searchBarState.searchQueryTextState.text) {
         if (searchBarState.searchQueryTextState.text.isNotEmpty()) {
@@ -68,6 +73,7 @@ fun AllFilesScreen(
         downloadFileState = viewModel.downloadFileSheet,
         menuState = viewModel.menu,
         isAllFiles = true,
+        isRecycleBin = viewModel.isRecycleBin(),
         isSearchResult = viewModel.hasSearchQuery(),
         showPublicLinkScreen = { publicLinkScreenData ->
             navigator.navigate(

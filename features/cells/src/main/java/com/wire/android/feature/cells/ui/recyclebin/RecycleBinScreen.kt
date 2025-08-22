@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -34,6 +35,7 @@ import com.wire.android.feature.cells.ui.common.FullScreenLoading
 import com.wire.android.feature.cells.ui.destinations.ConversationFilesWithSlideInTransitionScreenDestination
 import com.wire.android.feature.cells.ui.destinations.MoveToFolderScreenDestination
 import com.wire.android.feature.cells.ui.destinations.PublicLinkScreenDestination
+import com.wire.android.feature.cells.ui.model.BottomSheetActionsContext
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.WireNavigator
@@ -54,6 +56,11 @@ fun RecycleBinScreen(
     modifier: Modifier = Modifier,
     cellViewModel: CellViewModel = hiltViewModel()
 ) {
+
+    LaunchedEffect(Unit) {
+        cellViewModel.setBottomSheetActionsContext(BottomSheetActionsContext.RecycleBin)
+    }
+
     Box(modifier = modifier) {
         WireScaffold(
             topBar = {
@@ -81,6 +88,7 @@ fun RecycleBinScreen(
                     downloadFileState = cellViewModel.downloadFileSheet,
                     menuState = cellViewModel.menu,
                     isAllFiles = false,
+                    isRecycleBin = true,
                     onFolderClick = {
                         val folderPath = "${cellViewModel.currentNodeUuid()}/recycle_bin/${it.name}"
 

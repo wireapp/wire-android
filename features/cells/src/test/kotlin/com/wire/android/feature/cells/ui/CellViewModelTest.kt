@@ -227,7 +227,7 @@ class CellViewModelTest {
 
             with(expectMostRecentItem()) {
                 assertEquals(testFile, node)
-                assertEquals(NodeBottomSheetAction.SAVE, actions[1])
+                assertEquals(NodeBottomSheetAction.DOWNLOAD, actions[1])
             }
         }
     }
@@ -243,7 +243,7 @@ class CellViewModelTest {
             .toUiModel()
             .copy(localPath = null)
 
-        viewModel.sendIntent(CellViewIntent.OnMenuItemActionSelected(testFile, NodeBottomSheetAction.SAVE))
+        viewModel.sendIntent(CellViewIntent.OnMenuItemActionSelected(testFile, NodeBottomSheetAction.DOWNLOAD))
 
         coVerify(exactly = 1) {
             arrangement.downloadCellFileUseCase(any(), any(), any(), any(), any())

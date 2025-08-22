@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
@@ -50,6 +51,7 @@ import com.wire.android.feature.cells.ui.destinations.RecycleBinScreenDestinatio
 import com.wire.android.feature.cells.ui.destinations.RenameNodeScreenDestination
 import com.wire.android.feature.cells.ui.dialog.CellsNewActionBottomSheet
 import com.wire.android.feature.cells.ui.dialog.CellsOptionsBottomSheet
+import com.wire.android.feature.cells.ui.model.BottomSheetActionsContext
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
@@ -88,6 +90,14 @@ fun ConversationFilesScreen(
     viewModel: CellViewModel = hiltViewModel(),
 ) {
 
+    LaunchedEffect(viewModel.isRecycleBin()) {
+        if (viewModel.isRecycleBin()) {
+            viewModel.setBottomSheetActionsContext(BottomSheetActionsContext.RecycleBin)
+        } else {
+            viewModel.setBottomSheetActionsContext(BottomSheetActionsContext.Conversation)
+        }
+    }
+
     ConversationFilesScreenContent(
         navigator = navigator,
         currentNodeUuid = viewModel.currentNodeUuid(),
@@ -112,7 +122,7 @@ fun ConversationFilesScreenContent(
     sendIntent: (CellViewIntent) -> Unit,
     modifier: Modifier = Modifier,
     screenTitle: String? = null,
-    isRecycleBin: Boolean? = false,
+    isRecycleBin: Boolean = false,
     breadcrumbs: Array<String>? = emptyArray(),
     navigationIconType: NavigationIconType = NavigationIconType.Close()
 ) {
@@ -165,10 +175,12 @@ fun ConversationFilesScreenContent(
                     navigationIconType = navigationIconType,
                     elevation = dimensions().spacing0x,
                     actions = {
-                        MoreOptionIcon(
-                            contentDescription = R.string.content_description_conversation_files_more_button,
-                            onButtonClicked = { optionsBottomSheetState.show() }
-                        )
+                        if (isRecycleBin == false) {
+                            MoreOptionIcon(
+                                contentDescription = R.string.content_description_conversation_files_more_button,
+                                onButtonClicked = { optionsBottomSheetState.show() }
+                            )
+                        }
                     }
                 )
                 breadcrumbs?.let {
@@ -218,6 +230,7 @@ fun ConversationFilesScreenContent(
                 downloadFileState = downloadFileSheet,
                 menuState = menu,
                 isAllFiles = false,
+                isRecycleBin = isRecycleBin,
                 onFolderClick = {
                     val folderPath = "$currentNodeUuid/${it.name}"
 
@@ -226,6 +239,7 @@ fun ConversationFilesScreenContent(
                             ConversationFilesWithSlideInTransitionScreenDestination(
                                 conversationId = folderPath,
                                 screenTitle = it.name,
+                                isRecycleBin = isRecycleBin,
                                 breadcrumbs = it.name?.let { name -> (breadcrumbs ?: emptyArray()) + name }
                             ),
                             BackStackMode.NONE,

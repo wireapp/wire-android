@@ -84,9 +84,6 @@ jobs:
             "deployment-targets": [
               {
                 "type": "s3"
-              },
-              {
-                "type": "github-release"
               }
             ]
           }

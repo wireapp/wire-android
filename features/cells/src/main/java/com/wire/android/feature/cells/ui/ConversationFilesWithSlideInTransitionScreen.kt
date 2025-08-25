@@ -18,10 +18,8 @@
 package com.wire.android.feature.cells.ui
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.wire.android.feature.cells.ui.model.BottomSheetActionsContext
 import com.wire.android.navigation.WireNavigator
 import com.wire.android.navigation.annotation.features.cells.WireDestination
 import com.wire.android.navigation.style.SlideNavigationAnimation
@@ -37,13 +35,6 @@ fun ConversationFilesWithSlideInTransitionScreen(
     cellFilesNavArgs: CellFilesNavArgs,
     viewModel: CellViewModel = hiltViewModel(),
 ) {
-    LaunchedEffect(viewModel.isRecycleBin()) {
-        if (viewModel.isRecycleBin()) {
-            viewModel.setBottomSheetActionsContext(BottomSheetActionsContext.RecycleBin)
-        } else {
-            viewModel.setBottomSheetActionsContext(BottomSheetActionsContext.Conversation)
-        }
-    }
 
     ConversationFilesScreenContent(
         navigator = navigator,

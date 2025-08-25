@@ -241,7 +241,6 @@ private fun EmptyScreen(
                 .weight(1f)
         )
 
-
         Text(
             text = when {
                 isSearchResult -> stringResource(R.string.file_list_search_empty_message)

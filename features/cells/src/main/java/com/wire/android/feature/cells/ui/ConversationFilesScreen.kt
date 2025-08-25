@@ -29,7 +29,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
@@ -51,7 +50,6 @@ import com.wire.android.feature.cells.ui.destinations.RecycleBinScreenDestinatio
 import com.wire.android.feature.cells.ui.destinations.RenameNodeScreenDestination
 import com.wire.android.feature.cells.ui.dialog.CellsNewActionBottomSheet
 import com.wire.android.feature.cells.ui.dialog.CellsOptionsBottomSheet
-import com.wire.android.feature.cells.ui.model.BottomSheetActionsContext
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
@@ -89,14 +87,6 @@ fun ConversationFilesScreen(
     navigator: WireNavigator,
     viewModel: CellViewModel = hiltViewModel(),
 ) {
-
-    LaunchedEffect(viewModel.isRecycleBin()) {
-        if (viewModel.isRecycleBin()) {
-            viewModel.setBottomSheetActionsContext(BottomSheetActionsContext.RecycleBin)
-        } else {
-            viewModel.setBottomSheetActionsContext(BottomSheetActionsContext.Conversation)
-        }
-    }
 
     ConversationFilesScreenContent(
         navigator = navigator,

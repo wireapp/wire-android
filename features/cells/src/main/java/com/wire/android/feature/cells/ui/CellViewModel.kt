@@ -153,20 +153,7 @@ class CellViewModel @Inject constructor(
     }
 
     internal fun onSearchQueryUpdated(text: String) = viewModelScope.launch {
-        updateScreenContext(text)
         searchQueryFlow.emit(text)
-    }
-
-    private fun updateScreenContext(text: String) {
-        val newContext = if (text.isNotEmpty()) {
-            BottomSheetActionsContext.Search
-        } else {
-            BottomSheetActionsContext.AllFiles
-        }
-
-        if (!bottomSheetActionsContext.equals(newContext)) {
-            _bottomSheetActionsContext.update { newContext }
-        }
     }
 
     internal fun hasSearchQuery(): Boolean {
@@ -186,7 +173,11 @@ class CellViewModel @Inject constructor(
     }
 
     internal fun currentNodeUuid(): String? = navArgs.conversationId
-    internal fun isRecycleBin(): Boolean = navArgs.isRecycleBin ?: true
+    internal fun isRecycleBin(): Boolean = navArgs.isRecycleBin ?: false
+    private fun isSearching(): Boolean = searchQueryFlow.value.isNotEmpty()
+    private fun isConversationFiles(): Boolean = navArgs.conversationId != null && !isRecycleBin()
+    private fun isAllFiles(): Boolean = navArgs.conversationId == null && !isRecycleBin()
+
     internal fun screenTitle(): String? = navArgs.screenTitle
     internal fun breadcrumbs(): Array<String>? = navArgs.breadcrumbs
 
@@ -290,25 +281,15 @@ class CellViewModel @Inject constructor(
     }
 
     private fun onItemMenuClick(cellNode: CellNodeUi) = viewModelScope.launch {
-        val list = when (bottomSheetActionsContext.value) {
-            BottomSheetActionsContext.AllFiles, BottomSheetActionsContext.Search -> {
-                buildList {
-                    if (cellNode is CellNodeUi.File && cellNode.localFileAvailable()) {
-                        add(NodeBottomSheetAction.SHARE)
-                    }
-                    add(NodeBottomSheetAction.PUBLIC_LINK)
-                    add(NodeBottomSheetAction.DOWNLOAD)
-                }
-            }
-
-            BottomSheetActionsContext.RecycleBin -> {
+        val list = when {
+            isRecycleBin() -> {
                 buildList {
                     add(NodeBottomSheetAction.RESTORE)
                     add(NodeBottomSheetAction.DELETE_PERMANENTLY)
                 }
             }
 
-            BottomSheetActionsContext.Conversation -> {
+            isConversationFiles() -> {
                 buildList {
                     if (cellNode is CellNodeUi.File && cellNode.localFileAvailable()) {
                         add(NodeBottomSheetAction.SHARE)
@@ -323,15 +304,22 @@ class CellViewModel @Inject constructor(
                 }
             }
 
-            null -> {
-                listOf()
+            isAllFiles() || isSearching() -> {
+                buildList {
+                    if (cellNode is CellNodeUi.File && cellNode.localFileAvailable()) {
+                        add(NodeBottomSheetAction.SHARE)
+                    }
+                    add(NodeBottomSheetAction.PUBLIC_LINK)
+                    add(NodeBottomSheetAction.DOWNLOAD)
+                }
             }
+            else -> { emptyList() }
+
         }
         val menuOption = MenuOptions(
             node = cellNode,
             actions = list,
         )
-
         _menu.emit(menuOption)
     }
 
@@ -432,10 +420,6 @@ class CellViewModel @Inject constructor(
 
     fun loadTags() = viewModelScope.launch {
         getAllTagsUseCase().onSuccess { updated -> _tags.update { updated } }
-    }
-
-    fun setBottomSheetActionsContext(context: BottomSheetActionsContext?) {
-        _bottomSheetActionsContext.value = context
     }
 
     companion object {

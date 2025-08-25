@@ -26,7 +26,6 @@ import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
-import com.wire.android.feature.cells.ui.model.BottomSheetActionsContext
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.NodeBottomSheetAction
 import com.wire.android.feature.cells.ui.model.toUiModel
@@ -339,38 +338,11 @@ class CellViewModelTest {
         }
 
     @Test
-    fun `GIVEN AllFiles context AND File node with local file available WHEN onItemMenuClick called THEN emits SHARE PUBLIC_LINK DOWNLOAD actions`() =
-        runTest(dispatcher) {
-            // GIVEN
-            val (_, viewModel) = Arrangement().arrange()
-            viewModel.setBottomSheetActionsContext(BottomSheetActionsContext.AllFiles)
-
-            viewModel.menu.test {
-                // WHEN
-                viewModel.sendIntent(CellViewIntent.OnItemMenuClick(fileNode))
-
-                // THEN
-                val emitted = awaitItem()
-                assertEquals(fileNode, emitted.node)
-                assertEquals(
-                    listOf(
-                        NodeBottomSheetAction.SHARE,
-                        NodeBottomSheetAction.PUBLIC_LINK,
-                        NodeBottomSheetAction.DOWNLOAD
-                    ),
-                    emitted.actions
-                )
-                cancelAndIgnoreRemainingEvents()
-            }
-        }
-
-
-    @Test
     fun `GIVEN Search context AND File node with local file available WHEN onItemMenuClick called THEN emits SHARE PUBLIC_LINK DOWNLOAD actions`() =
         runTest(dispatcher) {
             // GIVEN
             val (_, viewModel) = Arrangement().arrange()
-            viewModel.setBottomSheetActionsContext(BottomSheetActionsContext.Search)
+            viewModel.onSearchQueryUpdated("test")
 
             viewModel.menu.test {
                 // WHEN
@@ -394,8 +366,9 @@ class CellViewModelTest {
     @Test
     fun `GIVEN RecycleBin context WHEN onItemMenuClick called THEN emits RESTORE DELETE_PERMANENTLY actions`() = runTest {
         // GIVEN
-        val (_, viewModel) = Arrangement().arrange()
-        viewModel.setBottomSheetActionsContext(BottomSheetActionsContext.RecycleBin)
+        val (_, viewModel) = Arrangement()
+            .withRecycleBinArg(true)
+            .arrange()
 
         viewModel.menu.test {
             // WHEN
@@ -419,8 +392,9 @@ class CellViewModelTest {
     fun `GIVEN Conversation context AND File node with local file available WHEN onItemMenuClick called THEN emits all conversation actions`() =
         runTest {
             // GIVEN
-            val (_, viewModel) = Arrangement().arrange()
-            viewModel.setBottomSheetActionsContext(BottomSheetActionsContext.Conversation)
+            val (_, viewModel) = Arrangement()
+                .withConversationIdArg("conversationId")
+                .arrange()
             val fileWithNullLocalPath = fileNode.copy(localPath = null)
 
             viewModel.menu.test {
@@ -446,22 +420,32 @@ class CellViewModelTest {
         }
 
     @Test
-    fun `GIVEN null context WHEN onItemMenuClick called THEN emits empty action list`() = runTest {
-        // GIVEN
-        val (_, viewModel) = Arrangement().arrange()
-        viewModel.setBottomSheetActionsContext(null)
+    fun `GIVEN AllFiles context AND File node with local file available WHEN onItemMenuClick called THEN emits SHARE PUBLIC_LINK DOWNLOAD actions`() =
+        runTest(dispatcher) {
+            // GIVEN
+            val (_, viewModel) = Arrangement()
+                .withRecycleBinArg(false)
+                .withConversationIdArg(null)
+                .arrange()
 
-        viewModel.menu.test {
-            // WHEN
-            viewModel.sendIntent(CellViewIntent.OnItemMenuClick(fileNode))
+            viewModel.menu.test {
+                // WHEN
+                viewModel.sendIntent(CellViewIntent.OnItemMenuClick(fileNode))
 
-            // THEN
-            val emitted = awaitItem()
-            assertEquals(fileNode, emitted.node)
-            assertEquals(listOf<NodeBottomSheetAction>(), emitted.actions)
-            cancelAndIgnoreRemainingEvents()
+                // THEN
+                val emitted = awaitItem()
+                assertEquals(fileNode, emitted.node)
+                assertEquals(
+                    listOf(
+                        NodeBottomSheetAction.SHARE,
+                        NodeBottomSheetAction.PUBLIC_LINK,
+                        NodeBottomSheetAction.DOWNLOAD
+                    ),
+                    emitted.actions
+                )
+                cancelAndIgnoreRemainingEvents()
+            }
         }
-    }
 
     private class Arrangement(conversationId: String? = null) {
 
@@ -531,6 +515,18 @@ class CellViewModelTest {
 
         fun withDeleteSuccess() = apply {
             coEvery { deleteCellAssetUseCase(any(), any()) } returns Unit.right()
+        }
+
+        fun withRecycleBinArg(isRecycleBin: Boolean) = apply {
+            every { savedStateHandle.navArgs<CellFilesNavArgs>() } returns CellFilesNavArgs(
+                isRecycleBin = isRecycleBin
+            )
+        }
+
+        fun withConversationIdArg(conversationId: String?) = apply {
+            every { savedStateHandle.navArgs<CellFilesNavArgs>() } returns CellFilesNavArgs(
+                conversationId = conversationId
+            )
         }
 
         fun arrange(): Pair<Arrangement, CellViewModel> {

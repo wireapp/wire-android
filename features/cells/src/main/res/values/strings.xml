@@ -24,7 +24,7 @@
     <string name="save_label">Save</string>
     <string name="share_label">Share</string>
     <string name="delete_label">Delete</string>
-    <string name="public_link">Copy public link</string>
+    <string name="public_link">Share via Link</string>
     <string name="delete_permanently">Delete permanently</string>
     <string name="restore_label">Restore</string>
     <string name="add_remove_tags_label">Add or remove tags</string>

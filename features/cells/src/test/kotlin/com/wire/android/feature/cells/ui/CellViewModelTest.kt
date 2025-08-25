@@ -25,6 +25,9 @@ import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
 import com.wire.android.config.NavigationTestExtension
+import com.wire.android.feature.cells.domain.model.AttachmentFileType
+import com.wire.android.feature.cells.ui.model.BottomSheetActionsContext
+import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.NodeBottomSheetAction
 import com.wire.android.feature.cells.ui.model.toUiModel
 import com.wire.android.feature.cells.util.FileHelper
@@ -44,7 +47,6 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceTimeBy
@@ -64,6 +66,23 @@ import org.junit.jupiter.api.extension.ExtendWith
 class CellViewModelTest {
 
     private companion object {
+        val fileNode = CellNodeUi.File(
+            name = "file.txt",
+            conversationName = "Conversation",
+            downloadProgress = null,
+            uuid = "fileUuid",
+            mimeType = "video/mp4",
+            assetType = AttachmentFileType.VIDEO,
+            size = 23432532532,
+            localPath = "localPath",
+            userName = null,
+            modifiedTime = null,
+            remotePath = null,
+            contentHash = null,
+            contentUrl = null,
+            previewUrl = null,
+            publicLinkId = null
+        )
         val testFiles = listOf(
             Node.File(
                 uuid = "fileUuid",
@@ -194,45 +213,6 @@ class CellViewModelTest {
     }
 
     @Test
-    fun `given view model when file menu clicked and local file available then file menu is opened`() = runTest {
-        val (_, viewModel) = Arrangement()
-            .withLoadSuccess()
-            .arrange()
-
-        viewModel.menu.filterIsInstance(MenuOptions::class).test {
-            val testFile = testFiles[0].toUiModel()
-
-            viewModel.sendIntent(CellViewIntent.OnItemMenuClick(testFile))
-
-            with(expectMostRecentItem()) {
-                assertEquals(testFile, node)
-                assertEquals(NodeBottomSheetAction.SHARE, actions.first())
-            }
-        }
-    }
-
-    @Test
-    fun `given view model when file menu clicked and local file not available then file menu is opened`() = runTest {
-        val (_, viewModel) = Arrangement()
-            .withLoadSuccess()
-            .arrange()
-
-        viewModel.menu.filterIsInstance(MenuOptions::class).test {
-
-            val testFile = testFiles[0]
-                .toUiModel()
-                .copy(localPath = null)
-
-            viewModel.sendIntent(CellViewIntent.OnItemMenuClick(testFile))
-
-            with(expectMostRecentItem()) {
-                assertEquals(testFile, node)
-                assertEquals(NodeBottomSheetAction.DOWNLOAD, actions[1])
-            }
-        }
-    }
-
-    @Test
     fun `given view model when save menu action selected then download starts`() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .withLoadSuccess()
@@ -357,6 +337,131 @@ class CellViewModelTest {
                 cancelAndIgnoreRemainingEvents()
             }
         }
+
+    @Test
+    fun `GIVEN AllFiles context AND File node with local file available WHEN onItemMenuClick called THEN emits SHARE PUBLIC_LINK DOWNLOAD actions`() =
+        runTest(dispatcher) {
+            // GIVEN
+            val (_, viewModel) = Arrangement().arrange()
+            viewModel.setBottomSheetActionsContext(BottomSheetActionsContext.AllFiles)
+
+            viewModel.menu.test {
+                // WHEN
+                viewModel.sendIntent(CellViewIntent.OnItemMenuClick(fileNode))
+
+                // THEN
+                val emitted = awaitItem()
+                assertEquals(fileNode, emitted.node)
+                assertEquals(
+                    listOf(
+                        NodeBottomSheetAction.SHARE,
+                        NodeBottomSheetAction.PUBLIC_LINK,
+                        NodeBottomSheetAction.DOWNLOAD
+                    ),
+                    emitted.actions
+                )
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
+
+    @Test
+    fun `GIVEN Search context AND File node with local file available WHEN onItemMenuClick called THEN emits SHARE PUBLIC_LINK DOWNLOAD actions`() =
+        runTest(dispatcher) {
+            // GIVEN
+            val (_, viewModel) = Arrangement().arrange()
+            viewModel.setBottomSheetActionsContext(BottomSheetActionsContext.Search)
+
+            viewModel.menu.test {
+                // WHEN
+                viewModel.sendIntent(CellViewIntent.OnItemMenuClick(fileNode))
+
+                // THEN
+                val emitted = awaitItem()
+                assertEquals(fileNode, emitted.node)
+                assertEquals(
+                    listOf(
+                        NodeBottomSheetAction.SHARE,
+                        NodeBottomSheetAction.PUBLIC_LINK,
+                        NodeBottomSheetAction.DOWNLOAD
+                    ),
+                    emitted.actions
+                )
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
+    @Test
+    fun `GIVEN RecycleBin context WHEN onItemMenuClick called THEN emits RESTORE DELETE_PERMANENTLY actions`() = runTest {
+        // GIVEN
+        val (_, viewModel) = Arrangement().arrange()
+        viewModel.setBottomSheetActionsContext(BottomSheetActionsContext.RecycleBin)
+
+        viewModel.menu.test {
+            // WHEN
+            viewModel.sendIntent(CellViewIntent.OnItemMenuClick(fileNode))
+
+            // THEN
+            val emitted = awaitItem()
+            assertEquals(fileNode, emitted.node)
+            assertEquals(
+                listOf(
+                    NodeBottomSheetAction.RESTORE,
+                    NodeBottomSheetAction.DELETE_PERMANENTLY,
+                ),
+                emitted.actions
+            )
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun `GIVEN Conversation context AND File node with local file available WHEN onItemMenuClick called THEN emits all conversation actions`() =
+        runTest {
+            // GIVEN
+            val (_, viewModel) = Arrangement().arrange()
+            viewModel.setBottomSheetActionsContext(BottomSheetActionsContext.Conversation)
+            val fileWithNullLocalPath = fileNode.copy(localPath = null)
+
+            viewModel.menu.test {
+                // WHEN
+                viewModel.sendIntent(CellViewIntent.OnItemMenuClick(fileWithNullLocalPath))
+
+                // THEN
+                val emitted = awaitItem()
+                assertEquals(fileWithNullLocalPath, emitted.node)
+                assertEquals(
+                    listOf(
+                        NodeBottomSheetAction.PUBLIC_LINK,
+                        NodeBottomSheetAction.DOWNLOAD,
+                        NodeBottomSheetAction.ADD_REMOVE_TAGS,
+                        NodeBottomSheetAction.MOVE,
+                        NodeBottomSheetAction.RENAME,
+                        NodeBottomSheetAction.DELETE,
+                    ),
+                    emitted.actions
+                )
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
+    @Test
+    fun `GIVEN null context WHEN onItemMenuClick called THEN emits empty action list`() = runTest {
+        // GIVEN
+        val (_, viewModel) = Arrangement().arrange()
+        viewModel.setBottomSheetActionsContext(null)
+
+        viewModel.menu.test {
+            // WHEN
+            viewModel.sendIntent(CellViewIntent.OnItemMenuClick(fileNode))
+
+            // THEN
+            val emitted = awaitItem()
+            assertEquals(fileNode, emitted.node)
+            assertEquals(listOf<NodeBottomSheetAction>(), emitted.actions)
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
 
     private class Arrangement(conversationId: String? = null) {
 

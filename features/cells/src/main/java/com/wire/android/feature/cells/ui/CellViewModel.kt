@@ -434,7 +434,7 @@ class CellViewModel @Inject constructor(
         getAllTagsUseCase().onSuccess { updated -> _tags.update { updated } }
     }
 
-    fun setBottomSheetActionsContext(context: BottomSheetActionsContext) {
+    fun setBottomSheetActionsContext(context: BottomSheetActionsContext?) {
         _bottomSheetActionsContext.value = context
     }
 

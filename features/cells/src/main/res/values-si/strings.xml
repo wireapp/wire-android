@@ -22,7 +22,6 @@
     <string name="file_list_empty_message">තවම ගොනු නොමැත. ඔබගේ සංවාද හරහා බෙදාගෙන ඇති සියලුම ගොනු ඔබට මෙහි සොයාගත හැකිය.</string>
     <string name="conversation_file_list_empty_message">මෙම සංවාදයේ ගොනු නොමැත.</string>
     <string name="file_list_search_empty_message">ගොනු කිසිවක් හමු නොවීය.</string>
-    <string name="public_link">පොදු සබැඳිය පිටපත් කරන්න</string>
     <string name="copied_to_clipboard_message">සබැඳිය පසුරු පුවරුවට පිටපත් කරන ලදී</string>
     <string name="file_subtitle">%2$sකින් %1$s</string>
     <string name="file_subtitle_modified">%1$s %2$sවිසින්</string>

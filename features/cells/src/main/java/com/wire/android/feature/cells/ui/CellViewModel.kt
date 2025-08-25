@@ -25,7 +25,6 @@ import androidx.paging.cachedIn
 import androidx.paging.filter
 import androidx.paging.map
 import com.wire.android.feature.cells.R
-import com.wire.android.feature.cells.ui.model.BottomSheetActionsContext
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.NodeBottomSheetAction
 import com.wire.android.feature.cells.ui.model.canOpenWithUrl
@@ -101,9 +100,6 @@ class CellViewModel @Inject constructor(
 
     private val _tags = MutableStateFlow<Set<String>>(emptySet())
     val tags: StateFlow<Set<String>> = _tags.asStateFlow()
-
-    private val _bottomSheetActionsContext = MutableStateFlow<BottomSheetActionsContext?>(null)
-    private val bottomSheetActionsContext: StateFlow<BottomSheetActionsContext?> = _bottomSheetActionsContext
 
     init {
         loadTags()
@@ -300,7 +296,6 @@ class CellViewModel @Inject constructor(
                     add(NodeBottomSheetAction.MOVE)
                     add(NodeBottomSheetAction.RENAME)
                     add(NodeBottomSheetAction.DELETE)
-
                 }
             }
 
@@ -313,9 +308,12 @@ class CellViewModel @Inject constructor(
                     add(NodeBottomSheetAction.DOWNLOAD)
                 }
             }
-            else -> { emptyList() }
 
+            else -> {
+                emptyList()
+            }
         }
+
         val menuOption = MenuOptions(
             node = cellNode,
             actions = list,

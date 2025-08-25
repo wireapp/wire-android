@@ -171,6 +171,7 @@ internal fun CellScreenContent(
                     isFolder = action.cellNode is CellNodeUi.Folder
                 )
             )
+
             is ShowRenameScreen -> showRenameScreen(action.cellNode)
             is ShowMoveToFolderScreen -> showMoveToFolderScreen(action.currentPath, action.nodeToMovePath, action.uuid)
             is ShowAddRemoveTagsScreen -> showAddRemoveTagsScreen(action.cellNode)
@@ -240,7 +241,6 @@ private fun EmptyScreen(
                 .fillMaxHeight()
                 .weight(1f)
         )
-
         Text(
             text = when {
                 isSearchResult -> stringResource(R.string.file_list_search_empty_message)

@@ -518,6 +518,7 @@ fun ConversationScreen(
         onAttachmentPicked = {
             if (conversationInfoViewModel.conversationInfoViewState.isWireCellEnabled) {
                 messageAttachmentsViewModel.onFilesSelected(listOf(it.uri))
+                messageComposerStateHolder.messageCompositionInputStateHolder.showAttachments(false)
             } else {
                 val bundle = ComposableMessageBundle.UriPickedBundle(conversationInfoViewModel.conversationId, it)
                 sendMessageViewModel.trySendMessage(bundle)
@@ -526,6 +527,7 @@ fun ConversationScreen(
         onAudioRecorded = {
             if (conversationInfoViewModel.conversationInfoViewState.isWireCellEnabled) {
                 messageAttachmentsViewModel.onFilesSelected(listOf(it.uri))
+                messageComposerStateHolder.messageCompositionInputStateHolder.showAttachments(false)
             } else {
                 val bundle = ComposableMessageBundle.AudioMessageBundle(conversationInfoViewModel.conversationId, it)
                 sendMessageViewModel.trySendMessage(bundle)

@@ -59,6 +59,7 @@ import com.wire.android.ui.destinations.WelcomeChooserScreenDestination
 import com.wire.android.ui.destinations.WelcomeScreenDestination
 import com.wire.kalium.logger.obfuscateId
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -198,8 +199,8 @@ sealed class CurrentScreen {
     }
 
     // Another User Profile Screen is opened
-    data class OtherUserProfile(val id: ConversationId) : CurrentScreen() {
-        override fun toString(): String = "OtherUserProfile(${id.toString().obfuscateId()})"
+    data class OtherUserProfile(val userId: UserId, val groupConversationId: ConversationId?) : CurrentScreen() {
+        override fun toString(): String = "OtherUserProfile(${userId.toLogString()}, ${groupConversationId?.toLogString()})"
         override fun toScreenName() = "OtherUserProfileScreen"
     }
 
@@ -237,7 +238,7 @@ sealed class CurrentScreen {
                     Conversation(destination.argsFrom(arguments).conversationId)
 
                 is OtherUserProfileScreenDestination ->
-                    destination.argsFrom(arguments).conversationId?.let { OtherUserProfile(it) } ?: SomeOther(destination.baseRoute)
+                    OtherUserProfile(destination.argsFrom(arguments).userId, destination.argsFrom(arguments).groupConversationId)
 
                 is ImportMediaScreenDestination -> ImportMedia
 

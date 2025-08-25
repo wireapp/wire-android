@@ -20,7 +20,6 @@ package com.wire.android.ui.home.conversations.info
 
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.mockUri
-import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.navArgs
@@ -30,6 +29,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.FetchConversationMLSVerificationStatusUseCase
 import io.mockk.MockKAnnotations
@@ -60,7 +60,7 @@ class ConversationInfoViewModelArrangement {
     lateinit var fetchConversationMLSVerificationStatus: FetchConversationMLSVerificationStatusUseCase
 
     @MockK
-    lateinit var globalDataStore: GlobalDataStore
+    lateinit var isCellsEnabled: IsWireCellsEnabledUseCase
 
     private val viewModel: ConversationInfoViewModel by lazy {
         ConversationInfoViewModel(
@@ -69,7 +69,7 @@ class ConversationInfoViewModelArrangement {
             observeConversationDetails = observeConversationDetails,
             fetchConversationMLSVerificationStatus = fetchConversationMLSVerificationStatus,
             selfUserId = TestUser.SELF_USER_ID,
-            globalDataStore = globalDataStore,
+            isWireCellFeatureEnabled = isCellsEnabled,
         )
     }
 
@@ -85,7 +85,7 @@ class ConversationInfoViewModelArrangement {
             ObserveConversationDetailsUseCase.Result.Success(it)
         }
         coEvery { fetchConversationMLSVerificationStatus.invoke(any()) } returns Unit
-        every { globalDataStore.wireCellsEnabled() } returns flowOf(false)
+        coEvery { isCellsEnabled() } returns false
     }
 
     suspend fun withConversationDetailUpdate(conversationDetails: ConversationDetails) = apply {

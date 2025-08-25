@@ -313,14 +313,16 @@ class WireNotificationManager @Inject constructor(
             .collect { screens ->
                 when (screens) {
                     is CurrentScreen.Conversation -> messagesNotificationManager.hideNotification(
-                        screens.id,
-                        userId
+                        conversationsId = screens.id,
+                        userId = userId
                     )
 
-                    is CurrentScreen.OtherUserProfile -> messagesNotificationManager.hideNotification(
-                        screens.id,
-                        userId
-                    )
+                    is CurrentScreen.OtherUserProfile -> screens.groupConversationId?.let {
+                        messagesNotificationManager.hideNotification(
+                            conversationsId = screens.groupConversationId,
+                            userId = userId
+                        )
+                    }
 
                     else -> {}
                 }

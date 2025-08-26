@@ -83,6 +83,12 @@ sealed interface UIMessage {
                 || messageContent is UIMessageContent.ImageMessage
                 || messageContent is UIMessageContent.AudioAssetMessage
 
+        val hasMediaWidth: Boolean = when (messageContent) {
+            is UIMessageContent.ImageMessage -> true
+            is UIMessageContent.VideoMessage -> messageContent.width != null
+            else -> false
+        }
+
         private val isReplyableContent: Boolean
             get() = messageContent is UIMessageContent.TextMessage ||
                     messageContent is UIMessageContent.AssetMessage ||

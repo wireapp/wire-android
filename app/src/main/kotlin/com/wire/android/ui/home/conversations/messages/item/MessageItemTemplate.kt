@@ -18,6 +18,7 @@
 package com.wire.android.ui.home.conversations.messages.item
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -34,8 +35,8 @@ fun MessageItemTemplate(
     fullAvatarOuterPadding: Dp,
     leading: @Composable () -> Unit,
     modifier: Modifier = Modifier,
-    showAuthor: Boolean = true,
     useSmallBottomPadding: Boolean = false,
+    header: (@Composable () -> Unit)? = null,
     content: @Composable () -> Unit
 ) {
     Row(
@@ -43,7 +44,7 @@ fun MessageItemTemplate(
             .fillMaxWidth()
             .padding(
                 end = dimensions().messageItemHorizontalPadding,
-                top = if (showAuthor) dimensions().spacing0x else dimensions().spacing4x,
+                top = if (header != null) dimensions().spacing0x else dimensions().spacing4x,
                 bottom = if (useSmallBottomPadding) dimensions().spacing2x else dimensions().messageItemBottomPadding
             )
     ) {
@@ -51,7 +52,10 @@ fun MessageItemTemplate(
             leading()
         }
         Spacer(Modifier.width(dimensions().messageItemHorizontalPadding - fullAvatarOuterPadding))
-        Box(Modifier.weight(1F)) {
+        Column(Modifier.weight(1F)) {
+            if (header != null) {
+                header()
+            }
             content()
         }
     }

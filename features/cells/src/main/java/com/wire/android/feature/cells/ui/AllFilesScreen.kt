@@ -104,7 +104,6 @@ fun AllFilesScreen(
                 viewModel.updateSelectedTags(it)
             },
             onClearAll = {
-                searchBarState.onFilterActiveChanged(false)
                 viewModel.updateSelectedTags(emptySet())
             },
             onDismiss = { searchBarState.onFilterActiveChanged(false) },

@@ -54,6 +54,7 @@ fun RecycleBinScreen(
     modifier: Modifier = Modifier,
     cellViewModel: CellViewModel = hiltViewModel()
 ) {
+
     Box(modifier = modifier) {
         WireScaffold(
             topBar = {
@@ -81,6 +82,7 @@ fun RecycleBinScreen(
                     downloadFileState = cellViewModel.downloadFileSheet,
                     menuState = cellViewModel.menu,
                     isAllFiles = false,
+                    isRecycleBin = true,
                     onFolderClick = {
                         val folderPath = "${cellViewModel.currentNodeUuid()}/recycle_bin/${it.name}"
 

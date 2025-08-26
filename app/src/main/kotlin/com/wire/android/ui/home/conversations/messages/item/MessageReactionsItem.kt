@@ -36,11 +36,13 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 @Composable
 fun MessageReactionsItem(
     messageFooter: MessageFooter,
-    onReactionClicked: (String, String) -> Unit
+    onReactionClicked: (String, String) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     // to eliminate adding unnecessary paddings when the list is empty
     if (messageFooter.reactions.entries.isNotEmpty()) {
         FlowRow(
+            modifier = modifier,
             horizontalArrangement = Arrangement.spacedBy(dimensions().spacing4x, Alignment.Start),
             verticalArrangement = Arrangement.spacedBy(dimensions().spacing6x, Alignment.Top),
         ) {

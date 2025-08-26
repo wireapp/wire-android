@@ -91,6 +91,7 @@ class ConversationInfoViewModelArrangement {
         }
         coEvery { fetchConversationMLSVerificationStatus.invoke(any()) } returns Unit
         coEvery { isCellsEnabled() } returns false
+        coEvery { globalDataStore.observeIsBubbleUI() } returns flowOf(false)
     }
 
     suspend fun withConversationDetailUpdate(conversationDetails: ConversationDetails) = apply {

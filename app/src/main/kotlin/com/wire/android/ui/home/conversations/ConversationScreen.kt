@@ -994,6 +994,7 @@ private fun ConversationScreen(
                         onAttachmentClick = onAttachmentClick,
                         onAttachmentMenuClick = onAttachmentMenuClick,
                         showHistoryLoadingIndicator = conversationInfoViewState.showHistoryLoadingIndicator,
+                        isBubble = conversationInfoViewState.isBubble
                     )
                 }
             }
@@ -1077,6 +1078,7 @@ private fun ConversationScreenContent(
     onAttachmentMenuClick: (AttachmentDraftUi) -> Unit,
     currentTimeInMillisFlow: Flow<Long> = flow {},
     showHistoryLoadingIndicator: Boolean = false,
+    isBubble: Boolean = false
 ) {
     val lazyPagingMessages = messages.collectAsLazyPagingItems()
 
@@ -1121,6 +1123,7 @@ private fun ConversationScreenContent(
                 interactionAvailability = messageComposerStateHolder.messageComposerViewState.value.interactionAvailability,
                 currentTimeInMillisFlow = currentTimeInMillisFlow,
                 showHistoryLoadingIndicator = showHistoryLoadingIndicator,
+                isBubble = isBubble
             )
         },
         onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
@@ -1201,6 +1204,7 @@ fun MessageList(
     modifier: Modifier = Modifier,
     currentTimeInMillisFlow: Flow<Long> = flow { },
     showHistoryLoadingIndicator: Boolean = false,
+    isBubble: Boolean = false
 ) {
     val prevItemCount = remember { mutableStateOf(lazyPagingMessages.itemCount) }
     val readLastMessageAtStartTriggered = remember { mutableStateOf(false) }
@@ -1315,7 +1319,8 @@ fun MessageList(
                         swipeableMessageConfiguration = swipeableConfiguration,
                         onSelfDeletingMessageRead = onSelfDeletingMessageRead,
                         isSelectedMessage = (message.header.messageId == selectedMessageId),
-                        failureInteractionAvailable = interactionAvailability == InteractionAvailability.ENABLED
+                        failureInteractionAvailable = interactionAvailability == InteractionAvailability.ENABLED,
+                        isBubble = isBubble
                     )
 
                     val isTheOnlyItem = index == 0 && lazyPagingMessages.itemCount == 1

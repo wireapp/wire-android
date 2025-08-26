@@ -39,6 +39,7 @@ class CustomizationViewModel @Inject constructor(
     init {
         observeThemeState()
         observePressEnterToSendState()
+        observeMessageBubble()
     }
 
     private fun observePressEnterToSendState() {
@@ -53,6 +54,12 @@ class CustomizationViewModel @Inject constructor(
         }
     }
 
+    private fun observeMessageBubble() {
+        viewModelScope.launch {
+            globalDataStore.messageBubbleEnabled().collect { option -> state = state.copy(messageBubbleEnabled = option) }
+        }
+    }
+
     fun selectPressEnterToSendOption(option: Boolean) {
         viewModelScope.launch {
             globalDataStore.setEnterToSend(option)
@@ -62,6 +69,12 @@ class CustomizationViewModel @Inject constructor(
     fun selectThemeOption(option: ThemeOption) {
         viewModelScope.launch {
             globalDataStore.setThemeOption(option)
+        }
+    }
+
+    fun selectMessageBubble(option: Boolean) {
+        viewModelScope.launch {
+            globalDataStore.setMessageBubbleEnabled(option)
         }
     }
 }

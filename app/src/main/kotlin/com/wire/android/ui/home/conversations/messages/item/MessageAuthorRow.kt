@@ -34,9 +34,12 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
-fun MessageAuthorRow(messageHeader: MessageHeader) {
+fun MessageAuthorRow(messageHeader: MessageHeader, modifier: Modifier = Modifier) {
     with(messageHeader) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            modifier = modifier,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Row(
                 modifier = Modifier.weight(weight = 1f, fill = true),
                 verticalAlignment = Alignment.CenterVertically

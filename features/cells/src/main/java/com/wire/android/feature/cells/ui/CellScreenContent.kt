@@ -71,6 +71,7 @@ internal fun CellScreenContent(
     showMoveToFolderScreen: (String, String, String) -> Unit,
     showAddRemoveTagsScreen: (CellNodeUi) -> Unit,
     isAllFiles: Boolean,
+    isRecycleBin: Boolean,
     isSearchResult: Boolean = false,
 ) {
 
@@ -89,6 +90,7 @@ internal fun CellScreenContent(
         pagingListItems.itemCount == 0 -> EmptyScreen(
             isSearchResult = isSearchResult,
             isAllFiles = isAllFiles,
+            isRecycleBin = isRecycleBin,
             onRetry = { pagingListItems.retry() }
         )
 
@@ -169,6 +171,7 @@ internal fun CellScreenContent(
                     isFolder = action.cellNode is CellNodeUi.Folder
                 )
             )
+
             is ShowRenameScreen -> showRenameScreen(action.cellNode)
             is ShowMoveToFolderScreen -> showMoveToFolderScreen(action.currentPath, action.nodeToMovePath, action.uuid)
             is ShowAddRemoveTagsScreen -> showAddRemoveTagsScreen(action.cellNode)
@@ -223,6 +226,7 @@ private fun ErrorScreen(onRetry: () -> Unit) {
 private fun EmptyScreen(
     isSearchResult: Boolean = false,
     isAllFiles: Boolean = true,
+    isRecycleBin: Boolean = false,
     onRetry: () -> Unit = {},
 ) {
     Column(
@@ -237,16 +241,12 @@ private fun EmptyScreen(
                 .fillMaxHeight()
                 .weight(1f)
         )
-
         Text(
-            text = if (isSearchResult) {
-                stringResource(R.string.file_list_search_empty_message)
-            } else {
-                if (isAllFiles) {
-                    stringResource(R.string.file_list_empty_message)
-                } else {
-                    stringResource(R.string.conversation_file_list_empty_message)
-                }
+            text = when {
+                isSearchResult -> stringResource(R.string.file_list_search_empty_message)
+                isAllFiles -> stringResource(R.string.file_list_empty_message)
+                isRecycleBin -> stringResource(R.string.empty_recycle_bin)
+                else -> stringResource(R.string.conversation_file_list_empty_message)
             },
             textAlign = TextAlign.Center,
         )

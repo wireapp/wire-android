@@ -187,22 +187,20 @@ class CellViewModel @Inject constructor(
 
     private fun downloadNode(node: CellNodeUi) = viewModelScope.launch {
 
-        if (node.name.isNullOrBlank()) {
-            sendAction(ShowError(CellError.OTHER_ERROR))
-            return@launch
-        }
-
         val (nodeName, nodeRemotePath) = when (node) {
             is CellNodeUi.File -> Pair(node.name, node.remotePath)
             is CellNodeUi.Folder -> Pair(node.name + ZIP_EXTENSION, node.remotePath + ZIP_EXTENSION)
         }
 
+        if (nodeName.isNullOrBlank()) {
+            sendAction(ShowError(CellError.OTHER_ERROR))
+            return@launch
+        }
+
         val publicDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
         val filePath = File(publicDir, nodeName).toPath().toOkioPath()
 
-        if (kaliumFileSystem.exists(filePath)) {
-            kaliumFileSystem.delete(filePath)
-        }
+        deleteIfExists(filePath)
 
         download(
             assetId = node.uuid,
@@ -222,6 +220,12 @@ class CellViewModel @Inject constructor(
         }.onFailure {
             _downloadFileSheet.update { null }
             sendAction(ShowError(CellError.DOWNLOAD_FAILED))
+        }
+    }
+
+    private fun deleteIfExists(filePath: Path) = runCatching {
+        if (kaliumFileSystem.exists(filePath)) {
+            kaliumFileSystem.delete(filePath)
         }
     }
 

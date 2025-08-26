@@ -90,6 +90,7 @@ fun RenameNodeScreen(
                 shadowElevation = MaterialTheme.wireDimensions.bottomNavigationShadowElevation
             ) {
                 WirePrimaryButton(
+                    modifier = Modifier.padding(dimensions().spacing16x),
                     text = stringResource(R.string.rename_label),
                     onClick = { renameNodeViewModel.renameNode(renameNodeViewModel.textState.text.toString()) },
                     state = if (renameNodeViewModel.displayNameState.saveEnabled) Default else Disabled,

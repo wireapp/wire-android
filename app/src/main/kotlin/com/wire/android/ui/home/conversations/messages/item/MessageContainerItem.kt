@@ -46,7 +46,7 @@ fun MessageContainerItem(
     isSelectedMessage: Boolean = false,
     failureInteractionAvailable: Boolean = true,
     defaultBackgroundColor: Color = colorsScheme().surfaceContainerLow,
-    isBubble: Boolean = false
+    isBubbleUiEnabled: Boolean = false
 ) {
     val selfDeletionTimerState = rememberSelfDeletionTimer(message.header.messageStatus.expirationStatus)
     if (
@@ -91,7 +91,7 @@ fun MessageContainerItem(
                 shouldDisplayFooter = shouldDisplayFooter,
                 selfDeletionTimerState = selfDeletionTimerState,
                 useSmallBottomPadding = useSmallBottomPadding,
-                isBubble = isBubble
+                isBubbleUiEnabled = isBubbleUiEnabled
             )
         }
     }

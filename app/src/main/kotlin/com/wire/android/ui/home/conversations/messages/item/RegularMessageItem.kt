@@ -54,12 +54,12 @@ fun RegularMessageItem(
     failureInteractionAvailable: Boolean = true,
     useSmallBottomPadding: Boolean = false,
     selfDeletionTimerState: SelfDeletionTimerHelper.SelfDeletionTimerState = SelfDeletionTimerHelper.SelfDeletionTimerState.NotExpirable,
-    isBubble: Boolean = false
+    isBubbleUiEnabled: Boolean = false
 ): Unit = with(message) {
     @Composable
     fun messageContent() {
 
-        if (isBubble) {
+        if (isBubbleUiEnabled) {
             // TODO MessageBubbleItem will be introduced in next PR
         }
         MessageItemTemplate(

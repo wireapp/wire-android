@@ -26,7 +26,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
-import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.ui.common.groupname.GroupMetadataState
 import com.wire.android.ui.common.groupname.GroupNameValidator
 import com.wire.android.ui.common.textfield.textAsFlow
@@ -44,6 +43,7 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.channels.ChannelCreationPermission
 import com.wire.kalium.logic.feature.channels.ObserveChannelsCreationPermissionUseCase
+import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.createconversation.ConversationCreationResult
 import com.wire.kalium.logic.feature.conversation.createconversation.CreateChannelUseCase
 import com.wire.kalium.logic.feature.conversation.createconversation.CreateRegularGroupUseCase
@@ -53,7 +53,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableSet
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.dropWhile
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -65,7 +64,7 @@ class NewConversationViewModel @Inject constructor(
     private val isUserAllowedToCreateChannels: ObserveChannelsCreationPermissionUseCase,
     private val getSelfUser: GetSelfUserUseCase,
     private val getDefaultProtocol: GetDefaultProtocolUseCase,
-    private val globalDataStore: GlobalDataStore,
+    private val isWireCellsFeatureEnabled: IsWireCellsEnabledUseCase,
 ) : ViewModel() {
 
     var newGroupNameTextState: TextFieldState = TextFieldState()
@@ -120,9 +119,7 @@ class NewConversationViewModel @Inject constructor(
     }
 
     private fun getWireCellFeatureState() = viewModelScope.launch {
-        val isWireCellsFeatureEnabled = globalDataStore.wireCellsEnabled().firstOrNull() ?: false
-
-        if (isWireCellsFeatureEnabled) {
+        if (isWireCellsFeatureEnabled()) {
             groupOptionsState = groupOptionsState.copy(
                 isWireCellsEnabled = true
             )

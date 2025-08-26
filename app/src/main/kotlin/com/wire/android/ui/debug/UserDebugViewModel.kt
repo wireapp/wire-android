@@ -67,13 +67,6 @@ class UserDebugViewModel
         observeLoggingState()
         observeCurrentClientId()
         observeDBLoggingState()
-        observeWireCellsState()
-    }
-
-    private fun observeWireCellsState() = viewModelScope.launch {
-        globalDataStore.wireCellsEnabled().collect {
-            state = state.copy(isWireCellFeatureEnabled = it)
-        }
     }
 
     fun setDatabaseLoggerEnabledState(isEnabled: Boolean) {
@@ -106,14 +99,6 @@ class UserDebugViewModel
             }
         }
     }
-
-    fun enableWireCellsFeature(enabled: Boolean) {
-        viewModelScope.launch {
-            globalDataStore.setWireCellsEnabled(enabled)
-        }
-    }
-
-    //region Private
 
     private fun observeLoggingState() {
         viewModelScope.launch {

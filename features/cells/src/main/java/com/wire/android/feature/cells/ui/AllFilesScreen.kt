@@ -28,9 +28,6 @@ import com.wire.android.feature.cells.ui.destinations.PublicLinkScreenDestinatio
 import com.wire.android.feature.cells.ui.filter.FilterBottomSheet
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.WireNavigator
-import com.wire.android.ui.common.bottomsheet.WireSheetValue
-import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
-import com.wire.android.ui.common.bottomsheet.show
 import com.wire.android.ui.common.search.SearchBarState
 import kotlinx.coroutines.delay
 
@@ -44,8 +41,6 @@ fun AllFilesScreen(
     searchBarState: SearchBarState,
     viewModel: CellViewModel = hiltViewModel(),
 ) {
-    val sheetState = rememberWireModalSheetState<Unit>(WireSheetValue.Hidden)
-
     val pagingListItems = viewModel.nodesFlow.collectAsLazyPagingItems()
 
     LaunchedEffect(searchBarState.searchQueryTextState.text) {
@@ -73,6 +68,7 @@ fun AllFilesScreen(
         downloadFileState = viewModel.downloadFileSheet,
         menuState = viewModel.menu,
         isAllFiles = true,
+        isRecycleBin = viewModel.isRecycleBin(),
         isSearchResult = viewModel.hasSearchQuery(),
         showPublicLinkScreen = { publicLinkScreenData ->
             navigator.navigate(
@@ -98,23 +94,20 @@ fun AllFilesScreen(
     )
 
     if (searchBarState.isFilterActive) {
-        viewModel.loadTags()
-        sheetState.show()
-    } else {
-        sheetState.hide()
-    }
 
-    FilterBottomSheet(
-        selectableTags = viewModel.tags.collectAsState().value,
-        selectedTags = viewModel.selectedTags.collectAsState().value,
-        onApply = {
-            searchBarState.onFilterActiveChanged(false)
-            viewModel.updateSelectedTags(it)
-        },
-        onClearAll = {
-            viewModel.updateSelectedTags(emptySet())
-        },
-        onDismiss = { searchBarState.onFilterActiveChanged(false) },
-        sheetState = sheetState
-    )
+        viewModel.loadTags()
+
+        FilterBottomSheet(
+            selectableTags = viewModel.tags.collectAsState().value,
+            selectedTags = viewModel.selectedTags.collectAsState().value,
+            onApply = {
+                searchBarState.onFilterActiveChanged(false)
+                viewModel.updateSelectedTags(it)
+            },
+            onClearAll = {
+                viewModel.updateSelectedTags(emptySet())
+            },
+            onDismiss = { searchBarState.onFilterActiveChanged(false) },
+        )
+    }
 }

@@ -412,7 +412,6 @@
     <!--Read receipts -->
     <string name="conversation_options_read_receipt_label">Accusés de lecture</string>
     <string name="conversation_options_read_receipt_description">Quand cette option est activée, les participants peuvent voir quand leurs messages ont été lus dans cette conversation.</string>
-    <!--Wire Cell -->
     <!-- Messages -->
     <string name="message_details_title">Détails du Message</string>
     <string name="message_details_reactions_tab">REACTIONS (%s)</string>

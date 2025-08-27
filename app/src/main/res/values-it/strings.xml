@@ -413,7 +413,6 @@ Un messaggio eliminato non pu&#242; essere ripristinato.</string>
     <!--Read receipts -->
     <string name="conversation_options_read_receipt_label">Notifiche di lettura</string>
     <string name="conversation_options_read_receipt_description">Con questa opzione ATTIVA, le persone possono vedere quando i loro messaggi in questa conversazione vengono letti.</string>
-    <!--Wire Cell -->
     <!-- Messages -->
     <string name="message_details_title">Dettagli messaggio</string>
     <string name="message_details_reactions_tab">REAZIONI (%s)</string>

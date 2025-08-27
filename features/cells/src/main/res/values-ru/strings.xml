@@ -25,7 +25,7 @@
     <string name="save_label">Сохранить</string>
     <string name="share_label">Поделится</string>
     <string name="delete_label">Удалить</string>
-    <string name="public_link">Скопировать публичную ссылку</string>
+    <string name="public_link">Поделиться по ссылке</string>
     <string name="delete_permanently">Удалить навсегда</string>
     <string name="restore_label">Восстановить</string>
     <string name="add_remove_tags_label">Добавить или удалить теги</string>
@@ -93,6 +93,7 @@
     <string name="rename_file_renamed">Файл переименован</string>
     <string name="rename_folder_renamed">Папка переименована</string>
     <string name="rename_failure">Не удалось переименовать</string>
+    <string name="rename_invalid_name">Название не может содержать символы \"/\" или \".\" </string>
     <string name="filter_label">Фильтр</string>
     <string name="tags_label">Теги</string>
     <string name="select_tags_label">выбрать теги</string>

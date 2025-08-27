@@ -73,7 +73,7 @@ fun CustomizationScreen(
         onThemeOptionChanged = viewModel::selectThemeOption,
         onBackPressed = navigator::navigateBack,
         onEnterToSendClicked = viewModel::selectPressEnterToSendOption,
-        onMessageBubbleClicked = viewModel::selectMessageBubble
+        onMessageBubbleClicked = viewModel::selectBubbleUI
     )
 }
 
@@ -116,7 +116,7 @@ fun CustomizationScreenContent(
             item {
                 CustomizationOptionsContent(
                     enterToSendState = state.pressEnterToSentState,
-                    messageBubbleEnabled = state.messageBubbleEnabled,
+                    isBubbleUiEnabled = state.isBubbleUiEnabled,
                     enterToSendClicked = onEnterToSendClicked,
                     onMessageBubbleClicked = onMessageBubbleClicked
                 )
@@ -128,7 +128,7 @@ fun CustomizationScreenContent(
 @Composable
 fun CustomizationOptionsContent(
     enterToSendState: Boolean,
-    messageBubbleEnabled: Boolean,
+    isBubbleUiEnabled: Boolean,
     enterToSendClicked: (Boolean) -> Unit,
     onMessageBubbleClicked: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
@@ -147,7 +147,7 @@ fun CustomizationOptionsContent(
         if (BuildConfig.PRIVATE_BUILD) {
             GroupConversationOptionsItem(
                 title = "Message bubbles",
-                switchState = SwitchState.Enabled(value = messageBubbleEnabled, onCheckedChange = onMessageBubbleClicked),
+                switchState = SwitchState.Enabled(value = isBubbleUiEnabled, onCheckedChange = onMessageBubbleClicked),
                 arrowType = ArrowType.NONE,
             )
         }

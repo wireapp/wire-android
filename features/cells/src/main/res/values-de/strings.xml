@@ -28,6 +28,8 @@
     <string name="copy_link">Link kopieren</string>
     <string name="share_link">Link teilen</string>
     <string name="copied_to_clipboard_message">Link in Zwischenablage kopiert</string>
+    <string name="file_subtitle">%1$s in %2$s</string>
+    <string name="file_subtitle_modified">%1$s von %2$s</string>
     <string name="public_link_message_file">Laden Sie Ihre Datei hoch und teilen Sie sie über einen öffentlichen Link. Alle Empfänger können sie ansehen und herunterladen.</string>
     <string name="create_public_link">Öffentlichen Link erstellen</string>
     <string name="share_file_via_link">Datei über Link teilen</string>
@@ -62,8 +64,11 @@
     <string name="rename_folder_renamed">Ordner wurde umbenannt</string>
     <string name="filter_label">Filter</string>
     <string name="tags_label">Tags</string>
+    <string name="select_tags_label">Tags auswählen</string>
     <string name="clear_all_label">Alle löschen</string>
     <string name="apply_label">Anwenden</string>
     <string name="add_or_remove_tags_title">Tags hinzufügen oder entfernen</string>
+    <string name="suggested_tags_label">Vorgeschlagene Tags</string>
     <string name="add_tag_label">Tag hinzufügen</string>
+    <string name="tags_edited">Tags wurden bearbeitet</string>
 </resources>

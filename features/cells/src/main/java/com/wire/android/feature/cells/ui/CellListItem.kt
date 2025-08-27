@@ -78,10 +78,9 @@ internal fun CellListItem(
             verticalAlignment = Alignment.CenterVertically,
         ) {
 
-            if (cell is CellNodeUi.File) {
-                FileIconPreview(cell)
-            } else {
-                FolderIconPreview()
+            when (cell) {
+                is CellNodeUi.File -> FileIconPreview(cell)
+                is CellNodeUi.Folder -> FolderIconPreview(cell)
             }
 
             Column(
@@ -148,7 +147,7 @@ internal fun CellListItem(
 }
 
 @Composable
-internal fun FolderIconPreview() {
+internal fun FolderIconPreview(cell: CellNodeUi.Folder) {
     Box(
         modifier = Modifier
             .size(dimensions().spacing56x),
@@ -159,6 +158,12 @@ internal fun FolderIconPreview() {
             painter = painterResource(R.drawable.ic_folder_item),
             contentDescription = null,
         )
+        cell.publicLinkId?.let {
+            PublicLinkIcon(
+                offsetX = dimensions().spacing12x,
+                offsetY = dimensions().spacing12x
+            )
+        }
     }
 }
 

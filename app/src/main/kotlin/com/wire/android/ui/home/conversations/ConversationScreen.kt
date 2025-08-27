@@ -333,12 +333,12 @@ fun ConversationScreen(
     HandleActions(conversationCallViewModel.actions) { action ->
         when (action) {
             is ConversationCallViewActions.InitiatedCall -> {
-                context.startActivity(getOutgoingCallIntent(context, action.conversationId.toString()))
+                context.startActivity(getOutgoingCallIntent(context, action.conversationId.toString(), action.userId.toString()))
                 AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallInitiated)
             }
 
             is ConversationCallViewActions.JoinedCall -> {
-                context.startActivity(getOngoingCallIntent(context, action.conversationId.toString()))
+                context.startActivity(getOngoingCallIntent(context, action.conversationId.toString(), action.userId.toString()))
                 AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallJoined)
             }
         }
@@ -391,8 +391,8 @@ fun ConversationScreen(
                         showDialog,
                         coroutineScope,
                         conversationInfoViewModel.conversationInfoViewState.conversationType,
-                        onOpenOngoingCallScreen = {
-                            getOngoingCallIntent(context, it.toString()).run {
+                        onOpenOngoingCallScreen = { conversationId, userId ->
+                            getOngoingCallIntent(context, conversationId.toString(), userId.toString()).run {
                                 context.startActivity(this)
                             }
                         }
@@ -453,8 +453,8 @@ fun ConversationScreen(
                         showDialog,
                         coroutineScope,
                         conversationInfoViewModel.conversationInfoViewState.conversationType,
-                        onOpenOngoingCallScreen = {
-                            getOngoingCallIntent(context, it.toString()).run {
+                        onOpenOngoingCallScreen = { conversationId, userId ->
+                            getOngoingCallIntent(context, conversationId.toString(), userId.toString()).run {
                                 context.startActivity(this)
                             }
                         }
@@ -518,6 +518,7 @@ fun ConversationScreen(
         onAttachmentPicked = {
             if (conversationInfoViewModel.conversationInfoViewState.isWireCellEnabled) {
                 messageAttachmentsViewModel.onFilesSelected(listOf(it.uri))
+                messageComposerStateHolder.messageCompositionInputStateHolder.showAttachments(false)
             } else {
                 val bundle = ComposableMessageBundle.UriPickedBundle(conversationInfoViewModel.conversationId, it)
                 sendMessageViewModel.trySendMessage(bundle)
@@ -526,6 +527,7 @@ fun ConversationScreen(
         onAudioRecorded = {
             if (conversationInfoViewModel.conversationInfoViewState.isWireCellEnabled) {
                 messageAttachmentsViewModel.onFilesSelected(listOf(it.uri))
+                messageComposerStateHolder.messageCompositionInputStateHolder.showAttachments(false)
             } else {
                 val bundle = ComposableMessageBundle.AudioMessageBundle(conversationInfoViewModel.conversationId, it)
                 sendMessageViewModel.trySendMessage(bundle)
@@ -558,8 +560,8 @@ fun ConversationScreen(
                 showDialog,
                 coroutineScope,
                 conversationInfoViewModel.conversationInfoViewState.conversationType,
-                onOpenOngoingCallScreen = {
-                    getOngoingCallIntent(context, it.toString()).run {
+                onOpenOngoingCallScreen = { conversationId, userId ->
+                    getOngoingCallIntent(context, conversationId.toString(), userId.toString()).run {
                         context.startActivity(this)
                     }
                 }
@@ -810,7 +812,7 @@ private fun startCallIfPossible(
     showDialog: MutableState<ConversationScreenDialogType>,
     coroutineScope: CoroutineScope,
     conversationType: Conversation.Type,
-    onOpenOngoingCallScreen: (ConversationId) -> Unit
+    onOpenOngoingCallScreen: (ConversationId, UserId) -> Unit
 ) {
     coroutineScope.launch {
         if (!conversationCallViewModel.hasStableConnectivity()) {
@@ -832,7 +834,7 @@ private fun startCallIfPossible(
                 }
 
                 ConferenceCallingResult.Disabled.Established -> {
-                    onOpenOngoingCallScreen(conversationCallViewModel.conversationId)
+                    onOpenOngoingCallScreen(conversationCallViewModel.conversationId, conversationCallViewModel.currentAccount)
                     AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallJoined)
                     ConversationScreenDialogType.NONE
                 }
@@ -994,7 +996,7 @@ private fun ConversationScreen(
                         onAttachmentClick = onAttachmentClick,
                         onAttachmentMenuClick = onAttachmentMenuClick,
                         showHistoryLoadingIndicator = conversationInfoViewState.showHistoryLoadingIndicator,
-                        isBubble = conversationInfoViewState.isBubble
+                        isBubbleUiEnabled = conversationInfoViewState.isBubbleUiEnabled
                     )
                 }
             }
@@ -1078,7 +1080,7 @@ private fun ConversationScreenContent(
     onAttachmentMenuClick: (AttachmentDraftUi) -> Unit,
     currentTimeInMillisFlow: Flow<Long> = flow {},
     showHistoryLoadingIndicator: Boolean = false,
-    isBubble: Boolean = false
+    isBubbleUiEnabled: Boolean = false
 ) {
     val lazyPagingMessages = messages.collectAsLazyPagingItems()
 
@@ -1123,7 +1125,7 @@ private fun ConversationScreenContent(
                 interactionAvailability = messageComposerStateHolder.messageComposerViewState.value.interactionAvailability,
                 currentTimeInMillisFlow = currentTimeInMillisFlow,
                 showHistoryLoadingIndicator = showHistoryLoadingIndicator,
-                isBubble = isBubble
+                isBubbleUiEnabled = isBubbleUiEnabled
             )
         },
         onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
@@ -1204,7 +1206,7 @@ fun MessageList(
     modifier: Modifier = Modifier,
     currentTimeInMillisFlow: Flow<Long> = flow { },
     showHistoryLoadingIndicator: Boolean = false,
-    isBubble: Boolean = false
+    isBubbleUiEnabled: Boolean = false
 ) {
     val prevItemCount = remember { mutableStateOf(lazyPagingMessages.itemCount) }
     val readLastMessageAtStartTriggered = remember { mutableStateOf(false) }
@@ -1320,7 +1322,7 @@ fun MessageList(
                         onSelfDeletingMessageRead = onSelfDeletingMessageRead,
                         isSelectedMessage = (message.header.messageId == selectedMessageId),
                         failureInteractionAvailable = interactionAvailability == InteractionAvailability.ENABLED,
-                        isBubble = isBubble
+                        isBubbleUiEnabled = isBubbleUiEnabled
                     )
 
                     val isTheOnlyItem = index == 0 && lazyPagingMessages.itemCount == 1

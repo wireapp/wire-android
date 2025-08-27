@@ -22,7 +22,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.paging.PagingData
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
-import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.media.audiomessage.AudioSpeed
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
@@ -35,14 +34,20 @@ import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversation
 import com.wire.android.ui.navArgs
 import com.wire.android.util.FileManager
 import com.wire.kalium.common.error.CoreFailure
+import com.wire.kalium.common.functional.Either
 import com.wire.kalium.logic.data.asset.AttachmentType
+import com.wire.kalium.logic.data.conversation.Conversation
+import com.wire.kalium.logic.data.conversation.ConversationDetails
+import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.feature.asset.ObserveAssetStatusesUseCase
 import com.wire.kalium.logic.feature.asset.UpdateAssetMessageTransferStatusUseCase
 import com.wire.kalium.logic.feature.asset.UpdateTransferStatusResult
+import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.ClearUsersTypingEventsUseCase
 import com.wire.kalium.logic.feature.conversation.GetConversationUnreadEventsCountUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
@@ -52,11 +57,6 @@ import com.wire.kalium.logic.feature.message.GetSearchedConversationMessagePosit
 import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionResult
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
-import com.wire.kalium.common.functional.Either
-import com.wire.kalium.logic.data.conversation.Conversation
-import com.wire.kalium.logic.data.conversation.ConversationDetails
-import com.wire.kalium.logic.data.conversation.MutedConversationStatus
-import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.util.time.UNIX_FIRST_DATE
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -122,7 +122,7 @@ class ConversationMessagesViewModelArrangement {
     lateinit var deleteMessage: DeleteMessageUseCase
 
     @MockK
-    lateinit var globalDataStore: GlobalDataStore
+    lateinit var isWireCellFeatureEnabled: IsWireCellsEnabledUseCase
 
     private val viewModel: ConversationMessagesViewModel by lazy {
         ConversationMessagesViewModel(
@@ -142,7 +142,7 @@ class ConversationMessagesViewModelArrangement {
             clearUsersTypingEvents,
             getSearchedConversationMessagePosition,
             deleteMessage,
-            globalDataStore,
+            isWireCellFeatureEnabled,
         )
     }
 
@@ -166,6 +166,7 @@ class ConversationMessagesViewModelArrangement {
         coEvery { conversationAudioMessagePlayer.audioSpeed } returns flowOf(AudioSpeed.NORMAL)
         coEvery { conversationAudioMessagePlayer.fetchWavesMask(any(), any()) } returns Unit
         coEvery { conversationAudioMessagePlayer.playingAudioMessageFlow } returns flowOf(PlayingAudioMessage.None)
+        coEvery { isWireCellFeatureEnabled() } returns false
     }
 
     fun withSuccessfulViewModelInit() = apply {
@@ -244,7 +245,7 @@ class ConversationMessagesViewModelArrangement {
     }
 
     fun withWireCellEnabled() = apply {
-        coEvery { globalDataStore.wireCellsEnabled() } returns flowOf(true)
+        coEvery { isWireCellFeatureEnabled() } returns true
         coEvery { observeConversationDetails(any()) } returns flowOf(
             ObserveConversationDetailsUseCase.Result.Success(
                 ConversationDetails.Group.Regular(

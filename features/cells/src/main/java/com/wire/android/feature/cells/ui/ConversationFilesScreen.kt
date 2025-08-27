@@ -112,7 +112,7 @@ fun ConversationFilesScreenContent(
     sendIntent: (CellViewIntent) -> Unit,
     modifier: Modifier = Modifier,
     screenTitle: String? = null,
-    isRecycleBin: Boolean? = false,
+    isRecycleBin: Boolean = false,
     breadcrumbs: Array<String>? = emptyArray(),
     navigationIconType: NavigationIconType = NavigationIconType.Close()
 ) {
@@ -132,6 +132,7 @@ fun ConversationFilesScreenContent(
             newActionBottomSheetState.hide()
         },
         onCreateFolder = {
+            newActionBottomSheetState.hide()
             navigator.navigate(NavigationCommand(CreateFolderScreenDestination(currentNodeUuid)))
         }
     )
@@ -165,10 +166,12 @@ fun ConversationFilesScreenContent(
                     navigationIconType = navigationIconType,
                     elevation = dimensions().spacing0x,
                     actions = {
-                        MoreOptionIcon(
-                            contentDescription = R.string.content_description_conversation_files_more_button,
-                            onButtonClicked = { optionsBottomSheetState.show() }
-                        )
+                        if (isRecycleBin == false) {
+                            MoreOptionIcon(
+                                contentDescription = R.string.content_description_conversation_files_more_button,
+                                onButtonClicked = { optionsBottomSheetState.show() }
+                            )
+                        }
                     }
                 )
                 breadcrumbs?.let {
@@ -218,6 +221,7 @@ fun ConversationFilesScreenContent(
                 downloadFileState = downloadFileSheet,
                 menuState = menu,
                 isAllFiles = false,
+                isRecycleBin = isRecycleBin,
                 onFolderClick = {
                     val folderPath = "$currentNodeUuid/${it.name}"
 
@@ -226,6 +230,7 @@ fun ConversationFilesScreenContent(
                             ConversationFilesWithSlideInTransitionScreenDestination(
                                 conversationId = folderPath,
                                 screenTitle = it.name,
+                                isRecycleBin = isRecycleBin,
                                 breadcrumbs = it.name?.let { name -> (breadcrumbs ?: emptyArray()) + name }
                             ),
                             BackStackMode.NONE,

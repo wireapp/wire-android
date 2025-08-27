@@ -24,7 +24,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.UserBadge
@@ -35,21 +34,14 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
-fun MessageAuthorRow(
-    messageHeader: MessageHeader,
-    modifier: Modifier = Modifier,
-    isBubbleUiEnabled: Boolean = false
-) {
-
+fun MessageAuthorRow(messageHeader: MessageHeader, modifier: Modifier = Modifier) {
     with(messageHeader) {
         Row(
             modifier = modifier,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Row(
-                modifier = Modifier.let {
-                    if (isBubbleUiEnabled) it else it.weight(weight = 1f)
-                },
+                modifier = Modifier.weight(weight = 1f, fill = true),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Username(
@@ -67,13 +59,10 @@ fun MessageAuthorRow(
                     LegalHoldIndicator(modifier = Modifier.padding(start = dimensions().spacing6x))
                 }
             }
-            if (!isBubbleUiEnabled) {
-                MessageTimeLabel(
-                    messageTime = messageHeader.messageTime.formattedDate,
-                    color = MaterialTheme.wireColorScheme.secondaryText,
-                    modifier = Modifier.padding(start = dimensions().spacing6x)
-                )
-            }
+            MessageTimeLabel(
+                messageTime = messageHeader.messageTime.formattedDate,
+                modifier = Modifier.padding(start = dimensions().spacing6x)
+            )
         }
     }
 }
@@ -94,14 +83,13 @@ private fun Username(username: String, accent: Accent, modifier: Modifier = Modi
 }
 
 @Composable
-fun MessageTimeLabel(
+private fun MessageTimeLabel(
     messageTime: String,
-    color: Color,
     modifier: Modifier = Modifier
 ) {
     Text(
         text = messageTime,
-        style = MaterialTheme.typography.labelSmall.copy(color = color),
+        style = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.wireColorScheme.secondaryText),
         maxLines = 1,
         modifier = modifier
     )

@@ -85,12 +85,12 @@ class OtherUserProfileScreenViewModel @Inject constructor(
 
     private val otherUserProfileNavArgs: OtherUserProfileNavArgs = savedStateHandle.navArgs()
     private val userId: QualifiedID = otherUserProfileNavArgs.userId
-    private val conversationId: QualifiedID? = otherUserProfileNavArgs.conversationId
+    private val groupConversationId: QualifiedID? = otherUserProfileNavArgs.groupConversationId
 
     var state: OtherUserProfileState by mutableStateOf(
         OtherUserProfileState(
             userId = userId,
-            conversationId = conversationId,
+            groupConversationId = groupConversationId,
             isDataLoading = true,
             isAvatarLoading = true
         )
@@ -180,7 +180,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     }
 
     private suspend fun observeGroupInfo(): Flow<OtherUserProfileGroupState?> {
-        return conversationId?.let {
+        return groupConversationId?.let {
             observeConversationRoleForUser(it, userId)
                 .map { conversationRoleData ->
                     conversationRoleData.userRole?.let { userRole ->
@@ -197,8 +197,8 @@ class OtherUserProfileScreenViewModel @Inject constructor(
 
     fun onChangeMemberRole(role: Conversation.Member.Role) {
         viewModelScope.launch {
-            if (conversationId != null) {
-                updateMemberRole(conversationId, userId, role).also {
+            if (groupConversationId != null) {
+                updateMemberRole(groupConversationId, userId, role).also {
                     if (it is UpdateConversationMemberRoleResult.Failure) {
                         onMessage(ChangeGroupRoleError)
                     }
@@ -259,11 +259,13 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             expiresAt = otherUser.expiresAt,
             accentId = otherUser.accentId,
             isDeletedUser = otherUser.deleted,
+            activeOneOnOneConversationId = otherUser.activeOneOnOneConversationId
         )
     }
 
     private fun onMessage(message: SnackBarMessage) = sendAction(OtherUserProfileViewAction.Message(message))
 }
+
 sealed interface OtherUserProfileViewAction {
     data class Message(val message: SnackBarMessage) : OtherUserProfileViewAction
 }

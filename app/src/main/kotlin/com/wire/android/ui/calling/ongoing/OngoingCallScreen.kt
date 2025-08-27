@@ -35,10 +35,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberBottomSheetScaffoldState
-import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -87,12 +84,12 @@ import com.wire.android.ui.calling.ongoing.participantsview.VerticalCallingPager
 import com.wire.android.ui.common.ConversationVerificationIcons
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversation
-import com.wire.android.ui.common.bottomsheet.WireBottomSheetScaffold
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
+import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
@@ -327,27 +324,15 @@ private fun OngoingCallContent(
     inPictureInPictureMode: Boolean,
     initialShowInCallReactionsPanel: Boolean = false, // for preview purposes
 ) {
-    val sheetInitialValue = SheetValue.PartiallyExpanded
-    val sheetState = rememberStandardBottomSheetState(
-        initialValue = sheetInitialValue
-    )
-
-    val scaffoldState = rememberBottomSheetScaffoldState(
-        bottomSheetState = sheetState
-    )
-
     var shouldOpenFullScreen by remember { mutableStateOf(false) }
 
     var showInCallReactionsPanel by remember { mutableStateOf(initialShowInCallReactionsPanel) }
     val emojiPickerState = rememberWireModalSheetState<Unit>(skipPartiallyExpanded = false)
     val isConnecting = participants.isEmpty()
 
-    WireBottomSheetScaffold(
-        sheetDragHandle = null,
-        topBar = if (inPictureInPictureMode) {
-            null
-        } else {
-            {
+    WireScaffold(
+        topBar = {
+            if (!inPictureInPictureMode) {
                 OngoingCallTopBar(
                     conversationName = when (callState.conversationName) {
                         is ConversationName.Known -> callState.conversationName.name
@@ -361,38 +346,10 @@ private fun OngoingCallContent(
                     proteusVerificationStatus = callState.proteusVerificationStatus
                 )
             }
-        },
-        sheetPeekHeight = if (inPictureInPictureMode) 0.dp else dimensions().defaultSheetPeekHeight,
-        scaffoldState = scaffoldState,
-        sheetShadowElevation = dimensions().spacing0x,
-        sheetContent = {
-            if (!inPictureInPictureMode) {
-                CallingControls(
-                    conversationId = callState.conversationId,
-                    isMuted = callState.isMuted ?: true,
-                    isCameraOn = callState.isCameraOn,
-                    isSpeakerOn = callState.isSpeakerOn,
-                    isShowingCallReactions = showInCallReactionsPanel,
-                    isConnecting = isConnecting,
-                    toggleSpeaker = toggleSpeaker,
-                    toggleMute = toggleMute,
-                    onHangUpCall = hangUpCall,
-                    onToggleVideo = toggleVideo,
-                    onCallReactionsClick = {
-                        showInCallReactionsPanel = !showInCallReactionsPanel
-                    },
-                    onCameraPermissionPermanentlyDenied = onCameraPermissionPermanentlyDenied
-                )
-            }
-        },
-        sheetContainerColor = colorsScheme().background,
+        }
     ) {
         Column(
-            modifier = Modifier
-                .padding(
-                    top = it.calculateTopPadding(),
-                    bottom = if (inPictureInPictureMode) 0.dp else dimensions().defaultSheetPeekHeight
-                )
+            modifier = Modifier.padding(it)
         ) {
 
             BoxWithConstraints(
@@ -504,11 +461,29 @@ private fun OngoingCallContent(
                 }
             }
 
-            if (showInCallReactionsPanel && !inPictureInPictureMode) {
-                InCallReactionsPanel(
-                    onReactionClick = onReactionClick,
-                    onMoreClick = { emojiPickerState.show(Unit) },
-                    modifier = Modifier.align(Alignment.CenterHorizontally),
+            if (!inPictureInPictureMode) {
+                if (showInCallReactionsPanel) {
+                    InCallReactionsPanel(
+                        onReactionClick = onReactionClick,
+                        onMoreClick = { emojiPickerState.show(Unit) },
+                        modifier = Modifier.align(Alignment.CenterHorizontally),
+                    )
+                }
+                CallingControls(
+                    conversationId = callState.conversationId,
+                    isMuted = callState.isMuted ?: true,
+                    isCameraOn = callState.isCameraOn,
+                    isSpeakerOn = callState.isSpeakerOn,
+                    isShowingCallReactions = showInCallReactionsPanel,
+                    isConnecting = isConnecting,
+                    toggleSpeaker = toggleSpeaker,
+                    toggleMute = toggleMute,
+                    onHangUpCall = hangUpCall,
+                    onToggleVideo = toggleVideo,
+                    onCallReactionsClick = {
+                        showInCallReactionsPanel = !showInCallReactionsPanel
+                    },
+                    onCameraPermissionPermanentlyDenied = onCameraPermissionPermanentlyDenied
                 )
             }
 

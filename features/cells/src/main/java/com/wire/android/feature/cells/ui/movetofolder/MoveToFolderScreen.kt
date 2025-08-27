@@ -284,7 +284,7 @@ private fun RowItem(
     ) {
         when (cell) {
             is CellNodeUi.File -> FileIconPreview(cell)
-            is CellNodeUi.Folder -> FolderIconPreview()
+            is CellNodeUi.Folder -> FolderIconPreview(cell)
         }
         Text(
             cell.name ?: "",
@@ -307,6 +307,7 @@ fun PreviewMoveToFolderItem() {
                 conversationName = "Conversation",
                 modifiedTime = null,
                 size = 1234,
+                publicLinkId = "public"
             )
         )
     }

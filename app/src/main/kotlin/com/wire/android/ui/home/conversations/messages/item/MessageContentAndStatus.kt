@@ -14,6 +14,7 @@ import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.media.audiomessage.AudioMessageArgs
 import com.wire.android.model.Clickable
+import com.wire.android.ui.common.applyIf
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.common.spacers.VerticalSpace
@@ -44,6 +45,7 @@ internal fun UIMessage.Regular.MessageContentAndStatus(
     message: UIMessage.Regular,
     assetStatus: AssetTransferStatus?,
     searchQuery: String,
+    messageStyle: MessageStyle,
     onAssetClicked: (String) -> Unit,
     onImageClicked: (UIMessage.Regular, Boolean) -> Unit,
     onProfileClicked: (String) -> Unit,
@@ -68,7 +70,10 @@ internal fun UIMessage.Regular.MessageContentAndStatus(
         }
     }
     Row {
-        Box(modifier = Modifier.weight(1F)) {
+        Box(
+            Modifier
+                .applyIf(!messageStyle.isBubble()) { weight(1F) }
+        ) {
             MessageContent(
                 message = message,
                 messageContent = messageContent,
@@ -81,17 +86,26 @@ internal fun UIMessage.Regular.MessageContentAndStatus(
                 onReplyClick = onReplyClickable,
             )
         }
-        if (isMyMessage && shouldDisplayMessageStatus) {
-            MessageStatusIndicator(
-                status = message.header.messageStatus.flowStatus,
-                isGroupConversation = conversationDetailsData is ConversationDetailsData.Group,
-                modifier = Modifier.padding(
-                    top = if (message.isTextContentWithoutQuote) dimensions().spacing2x else dimensions().spacing4x,
-                    start = dimensions().spacing8x
+        if (!messageStyle.isBubble()) {
+            if (isMyMessage && shouldDisplayMessageStatus) {
+                MessageStatusIndicator(
+                    status = message.header.messageStatus.flowStatus,
+                    isGroupConversation = conversationDetailsData is ConversationDetailsData.Group,
+                    messageStyle = messageStyle,
+                    modifier = Modifier.padding(
+                        top = if (message.isTextContentWithoutQuote) dimensions().spacing2x else dimensions().spacing4x,
+                        start = dimensions().spacing8x
+                    )
                 )
-            )
+            } else {
+                HorizontalSpace.x24()
+            }
         } else {
-            HorizontalSpace.x24()
+            if (message.isTextContentWithoutQuote) {
+                VerticalSpace.x2()
+            } else {
+                VerticalSpace.x4()
+            }
         }
     }
 }

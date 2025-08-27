@@ -68,6 +68,7 @@ fun AllFilesScreen(
         downloadFileState = viewModel.downloadFileSheet,
         menuState = viewModel.menu,
         isAllFiles = true,
+        isRecycleBin = viewModel.isRecycleBin(),
         isSearchResult = viewModel.hasSearchQuery(),
         showPublicLinkScreen = { publicLinkScreenData ->
             navigator.navigate(
@@ -104,7 +105,6 @@ fun AllFilesScreen(
                 viewModel.updateSelectedTags(it)
             },
             onClearAll = {
-                searchBarState.onFilterActiveChanged(false)
                 viewModel.updateSelectedTags(emptySet())
             },
             onDismiss = { searchBarState.onFilterActiveChanged(false) },

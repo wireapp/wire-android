@@ -70,7 +70,7 @@ class OtherUserProfileScreenViewModelTest {
                 arrangement.observeConversationRoleForUserUseCase(CONVERSATION_ID, USER_ID)
             }
             assertEquals(groupState, expected)
-            assertEquals(viewModel.state.conversationId, CONVERSATION_ID)
+            assertEquals(viewModel.state.groupConversationId, CONVERSATION_ID)
         }
 
     @Test

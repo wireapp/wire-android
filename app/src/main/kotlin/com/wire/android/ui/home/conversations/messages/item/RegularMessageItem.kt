@@ -20,48 +20,25 @@ package com.wire.android.ui.home.conversations.messages.item
 
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import com.wire.android.R
-import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.StatusBox
-import com.wire.android.ui.common.UserBadge
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.home.conversations.SelfDeletionTimerHelper
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
-import com.wire.android.ui.home.conversations.messages.ReactionPill
 import com.wire.android.ui.home.conversations.model.DeliveryStatusContent
-import com.wire.android.ui.home.conversations.model.MessageFlowStatus
-import com.wire.android.ui.home.conversations.model.MessageFooter
-import com.wire.android.ui.home.conversations.model.MessageHeader
-import com.wire.android.ui.home.conversations.model.MessageStatus
+import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
-import com.wire.android.ui.theme.Accent
-import com.wire.android.ui.theme.WireTheme
-import com.wire.android.ui.theme.wireColorScheme
-import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 
 // TODO: a definite candidate for a refactor and cleanup WPB-14390
@@ -81,114 +58,165 @@ fun RegularMessageItem(
     failureInteractionAvailable: Boolean = true,
     useSmallBottomPadding: Boolean = false,
     selfDeletionTimerState: SelfDeletionTimerHelper.SelfDeletionTimerState = SelfDeletionTimerHelper.SelfDeletionTimerState.NotExpirable,
+    isBubbleUiEnabled: Boolean = false
 ): Unit = with(message) {
     @Composable
     fun messageContent() {
-        MessageItemTemplate(
-            modifier = modifier
-                .interceptCombinedClickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = LocalIndication.current,
-                    onClick = clickActions.onFullMessageClicked?.let { onFullMessageClicked ->
-                        {
-                            onFullMessageClicked(message.header.messageId)
-                        }
-                    },
-                    onLongPress = when {
-                        message.header.messageStatus.isDeleted -> null // do not allow long press on deleted messages
-                        else -> clickActions.onFullMessageLongClicked?.let {
-                            {
-                                it(message)
-                            }
-                        }
-                    },
-                ),
-            showAuthor = showAuthor,
-            useSmallBottomPadding = useSmallBottomPadding,
-            fullAvatarOuterPadding = dimensions().avatarClickablePadding,
-            leading = {
-                RegularMessageItemLeading(
-                    header = header,
-                    showAuthor = showAuthor,
-                    userAvatarData = message.userAvatarData,
-                    onOpenProfile = clickActions.onProfileClicked
-                )
-            },
-            content = {
-                Column {
-                    if (showAuthor) {
-                        Spacer(modifier = Modifier.height(dimensions().avatarClickablePadding))
-                        MessageAuthorRow(messageHeader = message.header)
-                        Spacer(modifier = Modifier.height(dimensions().spacing4x))
-                    }
-                    if (selfDeletionTimerState is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable) {
-                        MessageExpireLabel(messageContent, selfDeletionTimerState.timeLeftFormatted)
+        val messageStyle = when {
+            !isBubbleUiEnabled -> MessageStyle.NORMAL
+            message.isMyMessage -> MessageStyle.BUBBLE_SELF
+            else -> MessageStyle.BUBBLE_OTHER
+        }
 
-                        // if the message is marked as deleted and is [SelfDeletionTimer.SelfDeletionTimerState.Expirable]
-                        // the deletion responsibility belongs to the receiver, therefore we need to wait for the receiver
-                        // timer to expire to permanently delete the message, in the meantime we show the EphemeralMessageExpiredLabel
-                        if (isDeleted) {
-                            EphemeralMessageExpiredLabel(
-                                message.isMyMessage,
-                                conversationDetailsData
-                            )
-                        }
-                    } else {
-                        MessageStatusLabel(messageStatus = message.header.messageStatus)
-                    }
-
-                    if (isDeleted) return@Column
-
-                    if (!decryptionFailed) {
-                        MessageContentAndStatus(
-                            message = message,
-                            assetStatus = assetStatus,
-                            onAssetClicked = clickActions.onAssetClicked,
-                            onImageClicked = clickActions.onImageClicked,
-                            searchQuery = searchQuery,
-                            onProfileClicked = clickActions.onProfileClicked,
-                            onLinkClicked = clickActions.onLinkClicked,
-                            shouldDisplayMessageStatus = shouldDisplayMessageStatus,
-                            conversationDetailsData = conversationDetailsData,
-                            onReplyClicked = clickActions.onReplyClicked,
-                        )
-                        if (shouldDisplayFooter) {
-                            VerticalSpace.x4()
-                            MessageFooter(
-                                messageFooter = messageFooter,
-                                onReactionClicked = clickActions.onReactionClicked
-                            )
-                        }
-                    } else {
-                        MessageDecryptionFailure(
-                            messageHeader = header,
-                            decryptionStatus = header.messageStatus.flowStatus as MessageFlowStatus.Failure.Decryption,
-                            onResetSessionClicked = clickActions.onResetSessionClicked,
-                            conversationProtocol = conversationDetailsData.conversationProtocol
+        if (isBubbleUiEnabled) {
+            val footerSlot: (@Composable () -> Unit)? =
+                if (shouldDisplayFooter) {
+                    {
+                        MessageReactionsItem(
+                            messageFooter = message.messageFooter,
+                            onReactionClicked = clickActions.onReactionClicked,
+                            modifier = Modifier.padding(horizontal = dimensions().spacing10x)
                         )
                     }
-                    if (message.sendingFailed) {
-                        MessageSendFailureWarning(
-                            messageStatus = header.messageStatus.flowStatus as MessageFlowStatus.Failure.Send,
-                            isInteractionAvailable = failureInteractionAvailable,
-                            onRetryClick = remember(message) {
-                                {
-                                    clickActions.onFailedMessageRetryClicked(
-                                        header.messageId,
-                                        message.conversationId
-                                    )
-                                }
-                            },
-                            onCancelClick = remember(message) {
-                                {
-                                    clickActions.onFailedMessageCancelClicked(header.messageId)
-                                }
-                            }
-                        )
-                    }
+                } else {
+                    null
                 }
-            }
-        )
+
+            val leadingSlot: (@Composable () -> Unit)? =
+                if (source == MessageSource.OtherUser && conversationDetailsData is ConversationDetailsData.Group) {
+                    {
+                        RegularMessageItemLeading(
+                            header = header,
+                            showAuthor = showAuthor,
+                            userAvatarData = message.userAvatarData,
+                            onOpenProfile = clickActions.onProfileClicked
+                        )
+                    }
+                } else {
+                    null
+                }
+
+            val headerSlot: (@Composable (inner: PaddingValues) -> Unit)? =
+                if (showAuthor && (source == MessageSource.OtherUser)) {
+                    { innerPadding ->
+                        MessageAuthorRow(
+                            messageHeader = message.header,
+                            messageStyle = messageStyle,
+                            modifier = Modifier
+                                .padding(innerPadding)
+                                .padding(
+                                    bottom = dimensions().spacing4x,
+                                )
+                        )
+                    }
+                } else {
+                    null
+                }
+
+            MessageBubbleItem(
+                message = message,
+                source = source,
+                messageStatus = header.messageStatus,
+                showAuthor = showAuthor,
+                accent = header.accent,
+                useSmallBottomPadding = useSmallBottomPadding,
+                leading = leadingSlot,
+                onClick = clickActions.onFullMessageClicked?.let { onFullMessageClicked ->
+                    {
+                        onFullMessageClicked(message.header.messageId)
+                    }
+                },
+                onLongClick = when {
+                    message.header.messageStatus.isDeleted -> null // do not allow long press on deleted messages
+                    else -> clickActions.onFullMessageLongClicked?.let {
+                        {
+                            it(message)
+                        }
+                    }
+                },
+                footer = footerSlot,
+                header = headerSlot,
+                content = { innerPadding ->
+                    MessageContentItem(
+                        clickActions = clickActions,
+                        message = message,
+                        conversationDetailsData = conversationDetailsData,
+                        modifier = modifier,
+                        searchQuery = searchQuery,
+                        assetStatus = assetStatus,
+                        shouldDisplayMessageStatus = shouldDisplayMessageStatus,
+                        shouldDisplayFooter = shouldDisplayFooter,
+                        failureInteractionAvailable = failureInteractionAvailable,
+                        useSmallBottomPadding = useSmallBottomPadding,
+                        selfDeletionTimerState = selfDeletionTimerState,
+                        innerPadding = innerPadding,
+                        messageStyle = messageStyle
+                    )
+                }
+            )
+        } else {
+            val headerSlot: (@Composable () -> Unit)? =
+                if (showAuthor) {
+                    {
+                        MessageAuthorRow(
+                            messageHeader = message.header,
+                            messageStyle = messageStyle,
+                            modifier = Modifier
+                                .padding(top = dimensions().avatarClickablePadding, bottom = dimensions().spacing4x)
+                        )
+                    }
+                } else {
+                    null
+                }
+
+            MessageItemTemplate(
+                modifier = modifier
+                    .interceptCombinedClickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = LocalIndication.current,
+                        onClick = clickActions.onFullMessageClicked?.let { onFullMessageClicked ->
+                            {
+                                onFullMessageClicked(message.header.messageId)
+                            }
+                        },
+                        onLongPress = when {
+                            message.header.messageStatus.isDeleted -> null // do not allow long press on deleted messages
+                            else -> clickActions.onFullMessageLongClicked?.let {
+                                {
+                                    it(message)
+                                }
+                            }
+                        },
+                    ),
+                useSmallBottomPadding = useSmallBottomPadding,
+                fullAvatarOuterPadding = dimensions().avatarClickablePadding,
+                header = headerSlot,
+                leading = {
+                    RegularMessageItemLeading(
+                        header = header,
+                        showAuthor = showAuthor,
+                        userAvatarData = message.userAvatarData,
+                        onOpenProfile = clickActions.onProfileClicked
+                    )
+                },
+                content = {
+                    MessageContentItem(
+                        clickActions = clickActions,
+                        message = message,
+                        conversationDetailsData = conversationDetailsData,
+                        modifier = modifier,
+                        searchQuery = searchQuery,
+                        assetStatus = assetStatus,
+                        shouldDisplayMessageStatus = shouldDisplayMessageStatus,
+                        shouldDisplayFooter = shouldDisplayFooter,
+                        failureInteractionAvailable = failureInteractionAvailable,
+                        useSmallBottomPadding = useSmallBottomPadding,
+                        selfDeletionTimerState = selfDeletionTimerState,
+                        messageStyle = messageStyle
+                    )
+                }
+            )
+        }
     }
 
     when (swipeableMessageConfiguration) {
@@ -207,6 +235,7 @@ fun EphemeralMessageExpiredLabel(
     isSelfMessage: Boolean,
     conversationDetailsData: ConversationDetailsData,
     modifier: Modifier = Modifier,
+    color: Color = Color.Unspecified
 ) {
 
     val stringResource = if (!isSelfMessage) {
@@ -224,6 +253,7 @@ fun EphemeralMessageExpiredLabel(
 
     Text(
         modifier = modifier,
+        color = color,
         text = stringResource,
         style = typography().body05
     )
@@ -261,125 +291,6 @@ fun MessageExpireLabel(messageContent: UIMessageContent?, timeLeft: String) {
         }
 
         else -> {}
-    }
-}
-
-@Composable
-private fun MessageAuthorRow(messageHeader: MessageHeader) {
-    with(messageHeader) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Row(
-                modifier = Modifier.weight(weight = 1f, fill = true),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Username(
-                    username.asString(),
-                    accent,
-                    modifier = Modifier.weight(weight = 1f, fill = false)
-                )
-                UserBadge(
-                    membership = membership,
-                    connectionState = connectionState,
-                    startPadding = dimensions().spacing6x,
-                    isDeleted = isSenderDeleted
-                )
-                if (showLegalHoldIndicator) {
-                    LegalHoldIndicator(modifier = Modifier.padding(start = dimensions().spacing6x))
-                }
-            }
-            MessageTimeLabel(
-                messageTime = messageHeader.messageTime.formattedDate,
-                modifier = Modifier.padding(start = dimensions().spacing6x)
-            )
-        }
-    }
-}
-
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun MessageFooter(
-    messageFooter: MessageFooter,
-    onReactionClicked: (String, String) -> Unit
-) {
-    // to eliminate adding unnecessary paddings when the list is empty
-    if (messageFooter.reactions.entries.isNotEmpty()) {
-        FlowRow(
-            horizontalArrangement = Arrangement.spacedBy(dimensions().spacing4x, Alignment.Start),
-            verticalArrangement = Arrangement.spacedBy(dimensions().spacing6x, Alignment.Top),
-        ) {
-            messageFooter.reactions.entries
-                .sortedBy { it.key }
-                .forEach {
-                    val reaction = it.key
-                    val count = it.value
-                    ReactionPill(
-                        emoji = reaction,
-                        count = count,
-                        isOwn = messageFooter.ownReactions.contains(reaction),
-                        onTap = {
-                            onReactionClicked(messageFooter.messageId, reaction)
-                        },
-                    )
-                }
-        }
-    }
-}
-
-@Composable
-private fun MessageTimeLabel(
-    messageTime: String,
-    modifier: Modifier = Modifier
-) {
-    Text(
-        text = messageTime,
-        style = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.wireColorScheme.secondaryText),
-        maxLines = 1,
-        modifier = modifier
-    )
-}
-
-@Composable
-private fun Username(username: String, accent: Accent, modifier: Modifier = Modifier) {
-    Text(
-        text = username,
-        style = MaterialTheme.wireTypography.body02,
-        color = MaterialTheme.wireColorScheme.wireAccentColors.getOrDefault(
-            accent,
-            MaterialTheme.wireColorScheme.onBackground
-        ),
-        modifier = modifier,
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis
-    )
-}
-
-@Composable
-private fun MessageStatusLabel(messageStatus: MessageStatus) {
-    messageStatus.badgeText?.let {
-        StatusBox(it.asString())
-    }
-}
-
-@PreviewMultipleThemes
-@Composable
-fun LongMessageFooterPreview() = WireTheme {
-    Box(modifier = Modifier.width(200.dp)) {
-        MessageFooter(
-            messageFooter = MessageFooter(
-                messageId = "messageId",
-                reactions = mapOf(
-                    "👍" to 1,
-                    "👎" to 2,
-                    "👏" to 3,
-                    "🤔" to 4,
-                    "🤷" to 5,
-                    "🤦" to 6,
-                    "🤢" to 7
-                ),
-                ownReactions = setOf("👍"),
-            ),
-            onReactionClicked = { _, _ -> }
-        )
     }
 }
 

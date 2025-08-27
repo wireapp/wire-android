@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2025 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,12 +15,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.home.settings.appearance
+package com.wire.android.ui.home.conversations.messages.item
 
-import com.wire.android.ui.theme.ThemeOption
+enum class MessageStyle {
+    BUBBLE_SELF,
+    BUBBLE_OTHER,
+    NORMAL
+}
 
-data class CustomizationState(
-    val selectedThemeOption: ThemeOption = ThemeOption.SYSTEM,
-    val pressEnterToSentState: Boolean = false,
-    val isBubbleUiEnabled: Boolean = false
-)
+fun MessageStyle.isBubble(): Boolean = this != MessageStyle.NORMAL

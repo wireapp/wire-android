@@ -330,6 +330,15 @@ fun ConversationScreen(
         }
     }
 
+    LaunchedEffect(sendMessageViewModel.pendingBundles) {
+        sendMessageViewModel.pendingBundles.collect {
+            if (it.isNotEmpty()) {
+                messageAttachmentsViewModel.onFilesAddedAsBundle(it)
+                sendMessageViewModel.clearPendingBundles()
+            }
+        }
+    }
+
     HandleActions(conversationCallViewModel.actions) { action ->
         when (action) {
             is ConversationCallViewActions.InitiatedCall -> {

@@ -48,6 +48,7 @@ import com.wire.kalium.logic.feature.message.SendLocationUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.message.draft.RemoveMessageDraftUseCase
 import com.wire.kalium.common.functional.Either
+import com.wire.kalium.logic.feature.client.IsWireCellsEnabledForConversationUseCase
 import com.wire.kalium.logic.feature.message.SendMultipartMessageUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import io.mockk.MockKAnnotations
@@ -147,6 +148,9 @@ internal class SendMessageViewModelArrangement {
     @MockK
     lateinit var analyticsManager: AnonymousAnalyticsManager
 
+    @MockK
+    lateinit var isWireCellsEnabledForConversation: IsWireCellsEnabledForConversationUseCase
+
     private val viewModel by lazy {
         SendMessageViewModel(
             sendTextMessage = sendTextMessage,
@@ -169,6 +173,7 @@ internal class SendMessageViewModelArrangement {
             savedStateHandle = savedStateHandle,
             analyticsManager = analyticsManager,
             sendMultipartMessage = sendMultipartMessage,
+            isWireCellsEnabledForConversation = isWireCellsEnabledForConversation
         )
     }
 
@@ -273,6 +278,10 @@ internal class SendMessageViewModelArrangement {
             conversationId = conversationId,
             pendingBundles = arrayListOf(*assetBundle)
         )
+    }
+
+    fun withCellsEnabledForConversation(result: Boolean) = apply {
+        coEvery { isWireCellsEnabledForConversation.invoke(conversationId) } returns result
     }
 
     fun arrange() = this to viewModel

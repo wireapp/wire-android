@@ -57,6 +57,7 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.failure.LegalHoldEnabledForConversationFailure
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageResult
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
+import com.wire.kalium.logic.feature.client.IsWireCellsEnabledForConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationUnderLegalHoldNotifiedUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveDegradedConversationNotifiedUseCase
 import com.wire.kalium.logic.feature.conversation.SendTypingEventUseCase
@@ -101,7 +102,8 @@ class SendMessageViewModel @Inject constructor(
     private val observeConversationUnderLegalHoldNotified: ObserveConversationUnderLegalHoldNotifiedUseCase,
     private val sendLocation: SendLocationUseCase,
     private val removeMessageDraft: RemoveMessageDraftUseCase,
-    private val analyticsManager: AnonymousAnalyticsManager
+    private val analyticsManager: AnonymousAnalyticsManager,
+    private val isWireCellsEnabledForConversation: IsWireCellsEnabledForConversationUseCase,
 ) : ViewModel() {
 
     private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
@@ -118,19 +120,40 @@ class SendMessageViewModel @Inject constructor(
         SureAboutMessagingDialogState.Hidden
     )
 
+    private val _pendingBundles = MutableSharedFlow<List<AssetBundle>>()
+    val pendingBundles = _pendingBundles.asSharedFlow()
+
     init {
         conversationNavArgs.pendingTextBundle?.let { text ->
             trySendPendingMessageBundle(text)
         }
-        conversationNavArgs.pendingBundles?.let { assetBundles ->
-            trySendMessages(
-                assetBundles.map { assetBundle ->
-                    ComposableMessageBundle.AttachmentPickedBundle(
-                        conversationId,
-                        assetBundle
-                    )
-                }
-            )
+        conversationNavArgs.pendingBundles?.let {
+            handlePendingBundles(it)
+        }
+    }
+
+    // for cells conversations we need to add the items to attachments list
+    // for regular conversations we can send them right away
+    private fun handlePendingBundles(assetBundles: ArrayList<AssetBundle>) {
+        viewModelScope.launch {
+            if (isWireCellsEnabledForConversation(conversationId)) {
+                _pendingBundles.emit(assetBundles)
+            } else {
+                trySendMessages(
+                    assetBundles.map { assetBundle ->
+                        ComposableMessageBundle.AttachmentPickedBundle(
+                            conversationId,
+                            assetBundle
+                        )
+                    }
+                )
+            }
+        }
+    }
+
+    fun clearPendingBundles() {
+        viewModelScope.launch {
+            _pendingBundles.emit(emptyList())
         }
     }
 

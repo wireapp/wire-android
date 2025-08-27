@@ -102,6 +102,12 @@ class MessageAttachmentsViewModel @Inject constructor(
         }
     }
 
+    fun onFilesAddedAsBundle(bundles: List<AssetBundle>) = viewModelScope.launch {
+        bundles.forEach { bundle ->
+            addAttachment(bundle)
+        }
+    }
+
     private suspend fun handleImportedAsset(uri: Uri): ImportedMediaAsset? =
         when (val result = handleUriAsset.invoke(uri, saveToDeviceIfInvalid = false)) {
             is HandleUriAssetUseCase.Result.Failure.AssetTooLarge -> ImportedMediaAsset(result.assetBundle, result.maxLimitInMB)

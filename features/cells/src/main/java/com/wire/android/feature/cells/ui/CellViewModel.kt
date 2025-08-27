@@ -170,6 +170,10 @@ class CellViewModel @Inject constructor(
 
     internal fun currentNodeUuid(): String? = navArgs.conversationId
     internal fun isRecycleBin(): Boolean = navArgs.isRecycleBin ?: false
+    private fun isSearching(): Boolean = searchQueryFlow.value.isNotEmpty()
+    private fun isConversationFiles(): Boolean = navArgs.conversationId != null && !isRecycleBin()
+    private fun isAllFiles(): Boolean = navArgs.conversationId == null && !isRecycleBin()
+
     internal fun screenTitle(): String? = navArgs.screenTitle
     internal fun breadcrumbs(): Array<String>? = navArgs.breadcrumbs
 
@@ -183,22 +187,20 @@ class CellViewModel @Inject constructor(
 
     private fun downloadNode(node: CellNodeUi) = viewModelScope.launch {
 
-        if (node.name.isNullOrBlank()) {
-            sendAction(ShowError(CellError.OTHER_ERROR))
-            return@launch
-        }
-
         val (nodeName, nodeRemotePath) = when (node) {
             is CellNodeUi.File -> Pair(node.name, node.remotePath)
             is CellNodeUi.Folder -> Pair(node.name + ZIP_EXTENSION, node.remotePath + ZIP_EXTENSION)
         }
 
+        if (nodeName.isNullOrBlank()) {
+            sendAction(ShowError(CellError.OTHER_ERROR))
+            return@launch
+        }
+
         val publicDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
         val filePath = File(publicDir, nodeName).toPath().toOkioPath()
 
-        if (kaliumFileSystem.exists(filePath)) {
-            kaliumFileSystem.delete(filePath)
-        }
+        deleteIfExists(filePath)
 
         download(
             assetId = node.uuid,
@@ -218,6 +220,12 @@ class CellViewModel @Inject constructor(
         }.onFailure {
             _downloadFileSheet.update { null }
             sendAction(ShowError(CellError.DOWNLOAD_FAILED))
+        }
+    }
+
+    private fun deleteIfExists(filePath: Path) = runCatching {
+        if (kaliumFileSystem.exists(filePath)) {
+            kaliumFileSystem.delete(filePath)
         }
     }
 
@@ -273,61 +281,52 @@ class CellViewModel @Inject constructor(
     }
 
     private fun onItemMenuClick(cellNode: CellNodeUi) = viewModelScope.launch {
-        val menuOption = when (cellNode) {
-            is CellNodeUi.File -> {
-                val list = buildList {
-                    if (isRecycleBin()) {
-                        add(NodeBottomSheetAction.RESTORE)
-                        add(NodeBottomSheetAction.DELETE_PERMANENTLY)
-                    } else {
-                        if (cellNode.localFileAvailable()) {
-                            add(NodeBottomSheetAction.SHARE)
-                        }
-                        add(NodeBottomSheetAction.PUBLIC_LINK)
-                        add(NodeBottomSheetAction.SAVE)
-                        if (searchQueryFlow.value.isEmpty()) {
-                            add(NodeBottomSheetAction.ADD_REMOVE_TAGS)
-                            add(NodeBottomSheetAction.MOVE)
-                            add(NodeBottomSheetAction.RENAME)
-                            add(NodeBottomSheetAction.DELETE)
-                        }
-                    }
+        val list = when {
+            isRecycleBin() -> {
+                buildList {
+                    add(NodeBottomSheetAction.RESTORE)
+                    add(NodeBottomSheetAction.DELETE_PERMANENTLY)
                 }
-                MenuOptions(
-                    node = cellNode,
-                    actions = list,
-                )
             }
 
-            is CellNodeUi.Folder -> {
-                val list = buildList {
-                    if (isRecycleBin()) {
-                        add(NodeBottomSheetAction.RESTORE)
-                        add(NodeBottomSheetAction.DELETE_PERMANENTLY)
-                    } else {
+            isConversationFiles() -> {
+                buildList {
+                    if (cellNode is CellNodeUi.File && cellNode.localFileAvailable()) {
                         add(NodeBottomSheetAction.SHARE)
-                        add(NodeBottomSheetAction.DOWNLOAD)
-                        if (searchQueryFlow.value.isEmpty()) {
-                            add(NodeBottomSheetAction.ADD_REMOVE_TAGS)
-                            add(NodeBottomSheetAction.MOVE)
-                            add(NodeBottomSheetAction.RENAME)
-                            add(NodeBottomSheetAction.DELETE)
-                        }
                     }
+                    add(NodeBottomSheetAction.PUBLIC_LINK)
+                    add(NodeBottomSheetAction.DOWNLOAD)
+                    add(NodeBottomSheetAction.ADD_REMOVE_TAGS)
+                    add(NodeBottomSheetAction.MOVE)
+                    add(NodeBottomSheetAction.RENAME)
+                    add(NodeBottomSheetAction.DELETE)
                 }
-                MenuOptions(
-                    node = cellNode,
-                    actions = list,
-                )
+            }
+
+            isAllFiles() || isSearching() -> {
+                buildList {
+                    if (cellNode is CellNodeUi.File && cellNode.localFileAvailable()) {
+                        add(NodeBottomSheetAction.SHARE)
+                    }
+                    add(NodeBottomSheetAction.PUBLIC_LINK)
+                    add(NodeBottomSheetAction.DOWNLOAD)
+                }
+            }
+
+            else -> {
+                emptyList()
             }
         }
 
+        val menuOption = MenuOptions(
+            node = cellNode,
+            actions = list,
+        )
         _menu.emit(menuOption)
     }
 
     private fun onMenuItemAction(node: CellNodeUi, action: NodeBottomSheetAction) {
         when (action) {
-            NodeBottomSheetAction.SAVE -> downloadNode(node)
             NodeBottomSheetAction.SHARE -> {
                 if (node is CellNodeUi.File) {
                     shareFile(node)

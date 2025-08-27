@@ -26,12 +26,19 @@ import androidx.compose.ui.graphics.Color
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.messages.item.MessageClickActions
 import com.wire.android.ui.home.conversations.messages.item.RegularMessageItem
+import com.wire.android.ui.home.conversations.mock.mockFooterWithMultipleReactions
+import com.wire.android.ui.home.conversations.mock.mockHeaderWithExpiration
 import com.wire.android.ui.home.conversations.mock.mockMessageWithText
 import com.wire.android.ui.home.conversations.mock.mockMessageWithTextContent
+import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.message.Message
+import kotlinx.datetime.Instant
+import kotlin.time.DurationUnit
+import kotlin.time.toDuration
 
 @PreviewMultipleThemes
 @Composable
@@ -178,6 +185,88 @@ fun PreviewBubbleOtherMultipleTextMessage() {
                 conversationDetailsData = ConversationDetailsData.None(null),
                 clickActions = MessageClickActions.Content(),
                 isBubbleUiEnabled = true
+            )
+        }
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewBubbleMultipleTextMessagesWithReactions() {
+    WireTheme {
+        Column(modifier = Modifier.background(Color.Gray)) {
+            RegularMessageItem(
+                message = mockMessageWithTextContent("Hello").copy(
+                    header = mockMessageWithText.header.copy(
+                        username = UIText.DynamicString(
+                            "Paul Nagel"
+                        )
+                    ),
+                    messageFooter = mockFooterWithMultipleReactions,
+                ),
+                conversationDetailsData = ConversationDetailsData.None(null),
+                clickActions = MessageClickActions.Content(),
+                isBubbleUiEnabled = true,
+            )
+            RegularMessageItem(
+                message = mockMessageWithTextContent("Hello").copy(
+                    source = MessageSource.OtherUser,
+                    header = mockMessageWithText.header.copy(
+                        username = UIText.DynamicString(
+                            "Paul Nagel"
+                        )
+                    ),
+                    messageFooter = mockFooterWithMultipleReactions,
+                ),
+                conversationDetailsData = ConversationDetailsData.None(null),
+                clickActions = MessageClickActions.Content(),
+                isBubbleUiEnabled = true,
+            )
+        }
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewBubbleMultipleDeletedMessages() {
+    WireTheme {
+        Column(modifier = Modifier.background(Color.Gray)) {
+            RegularMessageItem(
+                message = mockMessageWithTextContent("Hello").copy(
+                    header = mockHeaderWithExpiration(
+                        ExpirationStatus.Expirable(
+                            expireAfter = 1.toDuration(DurationUnit.MINUTES),
+                            selfDeletionStatus = Message.ExpirationData.SelfDeletionStatus.Started(Instant.DISTANT_FUTURE),
+                        ),
+                        isDeleted = true
+                    ).copy(
+                        username = UIText.DynamicString(
+                            "Paul Nagel"
+                        )
+                    ),
+                ),
+                conversationDetailsData = ConversationDetailsData.None(null),
+                clickActions = MessageClickActions.Content(),
+                isBubbleUiEnabled = true,
+            )
+            RegularMessageItem(
+                message = mockMessageWithTextContent("Hello").copy(
+                    source = MessageSource.OtherUser,
+                    header = mockHeaderWithExpiration(
+                        ExpirationStatus.Expirable(
+                            expireAfter = 1.toDuration(DurationUnit.MINUTES),
+                            selfDeletionStatus = Message.ExpirationData.SelfDeletionStatus.Started(Instant.DISTANT_FUTURE),
+                        ),
+                        isDeleted = true
+                    ).copy(
+                        username = UIText.DynamicString(
+                            "Paul Nagel"
+                        )
+                    ),
+                ),
+                conversationDetailsData = ConversationDetailsData.None(null),
+                clickActions = MessageClickActions.Content(),
+                isBubbleUiEnabled = true,
             )
         }
     }

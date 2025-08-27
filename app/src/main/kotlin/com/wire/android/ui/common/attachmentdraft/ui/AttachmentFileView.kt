@@ -50,6 +50,8 @@ fun AttachmentFileView(
                 extension = attachment.fileName.fileExtension() ?: "",
                 size = attachment.fileSize,
                 isError = attachment.uploadError,
+                isMyMessage = false,
+                isBubble = false
             )
             Spacer(
                 modifier = Modifier

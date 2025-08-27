@@ -28,11 +28,17 @@ import com.wire.android.ui.home.conversations.model.messagetypes.multipart.Trans
 import com.wire.kalium.logic.util.fileExtension
 
 @Composable
-internal fun BoxScope.FileAssetGridPreview(item: MultipartAttachmentUi) {
+internal fun BoxScope.FileAssetGridPreview(
+    item: MultipartAttachmentUi,
+    isMyMessage: Boolean,
+    isBubble: Boolean,
+) {
     FileHeaderView(
         modifier = Modifier.padding(dimensions().spacing8x),
         extension = item.fileName?.fileExtension() ?: item.mimeType.substringAfter("/"),
         size = item.assetSize,
+        isBubble = isBubble,
+        isMyMessage = isMyMessage
     )
     TransferStatusIcon(item)
 }

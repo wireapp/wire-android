@@ -24,9 +24,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -39,6 +41,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
 import coil.compose.SubcomposeAsyncImage
 import com.wire.android.R
 import com.wire.android.model.ImageAsset
@@ -52,19 +56,22 @@ import okio.Path
 @Composable
 fun DisplayableImageMessage(
     imageData: ImageAsset.Remote,
-    width: Dp,
-    height: Dp,
+    size: DpSize,
     modifier: Modifier = Modifier
 ) {
-    Image(
-        painter = imageData.paint(),
-        contentDescription = stringResource(R.string.content_description_image_message),
-        modifier = modifier
-            .width(width)
-            .height(height),
-        alignment = Alignment.Center,
-        contentScale = ContentScale.Crop
-    )
+    Box(modifier = Modifier) {
+        Image(
+            painter = imageData.paint(),
+            contentDescription = stringResource(R.string.content_description_image_message),
+            modifier = modifier
+                .widthIn(min = 180.dp)
+                .heightIn(min = 180.dp)
+//                .size(size)
+            ,
+            alignment = Alignment.Center,
+            contentScale = ContentScale.Crop
+        )
+    }
 }
 
 @Composable
@@ -108,8 +115,9 @@ fun ImageMessageInProgress(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
-            .width(width)
-            .height(height)
+            // TODO make one modifier for all image types
+            .widthIn(min = 180.dp)
+            .heightIn(min = 180.dp)
             .padding(MaterialTheme.wireDimensions.spacing8x)
     ) {
         WireCircularProgressIndicator(
@@ -137,8 +145,8 @@ fun ImageMessageFailed(width: Dp, height: Dp, isDownloadFailure: Boolean, modifi
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
-            .width(width)
-            .height(height)
+            .widthIn(min = 180.dp)
+            .heightIn(min = 180.dp)
             .padding(MaterialTheme.wireDimensions.spacing8x)
     ) {
         Icon(

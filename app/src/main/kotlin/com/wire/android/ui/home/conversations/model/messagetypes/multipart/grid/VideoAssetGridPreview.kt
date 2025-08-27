@@ -37,7 +37,11 @@ import com.wire.android.ui.home.conversations.model.messagetypes.multipart.previ
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.previewImageModel
 
 @Composable
-internal fun BoxScope.VideoAssetGridPreview(item: MultipartAttachmentUi) {
+internal fun BoxScope.VideoAssetGridPreview(
+    item: MultipartAttachmentUi,
+    isMyMessage: Boolean,
+    isBubble: Boolean,
+) {
     if (item.previewAvailable()) {
         AsyncImage(
             modifier = Modifier.fillMaxSize(),
@@ -52,6 +56,8 @@ internal fun BoxScope.VideoAssetGridPreview(item: MultipartAttachmentUi) {
             modifier = Modifier.padding(dimensions().spacing8x),
             extension = item.mimeType.substringAfter("/"),
             size = item.assetSize,
+            isBubble = isBubble,
+            isMyMessage = isMyMessage
         )
     }
     item.contentUrl?.let {

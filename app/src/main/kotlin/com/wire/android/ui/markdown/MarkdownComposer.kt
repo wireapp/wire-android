@@ -297,7 +297,7 @@ fun appendLinksAndMentions(
                     addStyle(
                         style = SpanStyle(
                             fontWeight = nodeData.typography.body02.fontWeight,
-                            color = onPrimaryVariant,
+                            color = primaryVariant,
                             background = if (mention.isSelfMention) primaryVariant else Color.Unspecified
                         ),
                         start = mention.start,

@@ -48,6 +48,8 @@ import com.wire.kalium.logic.data.message.AssetContent
 @Composable
 internal fun AssetGridPreview(
     item: MultipartAttachmentUi,
+    isMyMessage: Boolean,
+    isBubble: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -74,7 +76,11 @@ internal fun AssetGridPreview(
                 }
 
                 AttachmentFileType.VIDEO -> {
-                    VideoAssetGridPreview(item)
+                    VideoAssetGridPreview(
+                        item = item,
+                        isMyMessage = isMyMessage,
+                        isBubble = isBubble
+                    )
                 }
 
                 AttachmentFileType.PDF -> {
@@ -82,7 +88,11 @@ internal fun AssetGridPreview(
                 }
 
                 else -> {
-                    FileAssetGridPreview(item)
+                    FileAssetGridPreview(
+                        item = item,
+                        isMyMessage = isMyMessage,
+                        isBubble = isBubble
+                    )
                 }
             }
 
@@ -134,6 +144,8 @@ private fun PreviewAssetGrid() {
                     fileName = "Test file.kt",
                     transferStatus = AssetTransferStatus.NOT_DOWNLOADED,
                 ),
+                isMyMessage = false,
+                isBubble = false,
                 onClick = {},
             )
         }

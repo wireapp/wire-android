@@ -60,7 +60,11 @@ import com.wire.kalium.logic.data.message.width
 import com.wire.kalium.logic.util.fileExtension
 
 @Composable
-internal fun PdfAssetPreview(item: MultipartAttachmentUi) {
+internal fun PdfAssetPreview(
+    item: MultipartAttachmentUi,
+    isBubble: Boolean,
+    isMyMessage: Boolean,
+) {
 
     val width = item.metadata?.width() ?: 0
     val height = item.metadata?.height() ?: 0
@@ -92,6 +96,8 @@ internal fun PdfAssetPreview(item: MultipartAttachmentUi) {
         FileHeaderView(
             extension = item.fileName?.fileExtension() ?: item.mimeType.substringAfter("/"),
             size = item.assetSize,
+            isBubble = isBubble,
+            isMyMessage = isMyMessage
         )
 
         item.fileName?.let {
@@ -180,7 +186,9 @@ private fun PreviewPdfAsset() {
                 PdfAssetPreview(
                     item = attachment.copy(
                         transferStatus = AssetTransferStatus.NOT_DOWNLOADED
-                    )
+                    ),
+                    isBubble = false,
+                    isMyMessage = false
                 )
             }
             Box {
@@ -188,12 +196,16 @@ private fun PreviewPdfAsset() {
                     item = attachment.copy(
                         transferStatus = AssetTransferStatus.DOWNLOAD_IN_PROGRESS,
                         progress = 0.75f
-                    )
+                    ),
+                    isBubble = false,
+                    isMyMessage = false
                 )
             }
             Box {
                 PdfAssetPreview(
-                    item = attachment
+                    item = attachment,
+                    isBubble = false,
+                    isMyMessage = false
                 )
             }
             Box {
@@ -201,7 +213,9 @@ private fun PreviewPdfAsset() {
                     item = attachment.copy(
                         transferStatus = FAILED_DOWNLOAD,
                         progress = 0.75f
-                    )
+                    ),
+                    isBubble = false,
+                    isMyMessage = false
                 )
             }
         }

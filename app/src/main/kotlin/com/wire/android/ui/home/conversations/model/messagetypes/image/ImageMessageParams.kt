@@ -19,10 +19,17 @@
 package com.wire.android.ui.home.conversations.model.messagetypes.image
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpSize
 import com.wire.android.ui.common.dimensions
+import kotlin.math.min
 
-data class ImageMessageParams(private val realImgWidth: Int, private val realImgHeight: Int) {
+data class ImageMessageParams(
+    private val realImgWidth: Int,
+    private val realImgHeight: Int,
+    val allowUpscale: Boolean = false
+) {
     // Image size normalizations to keep the ratio of the inline message image
     val normalizedWidth: Dp
         @Composable
@@ -31,4 +38,20 @@ data class ImageMessageParams(private val realImgWidth: Int, private val realImg
     val normalizedHeight: Dp
         @Composable
         get() = Dp(normalizedWidth.value * realImgHeight.toFloat() / realImgWidth)
+
+    @Composable
+    fun normalizedSize(): DpSize {
+        val d = LocalDensity.current
+        val maxW = dimensions().messageImageMaxWidth
+        val maxH = dimensions().messageImageMaxHeight
+
+        val realW = with(d) { realImgWidth.coerceAtLeast(1).toDp() }
+        val realH = with(d) { realImgHeight.coerceAtLeast(1).toDp() }
+
+        val scaleToFit = minOf(maxW / realW, maxH / realH)
+
+        val scale = if (allowUpscale) scaleToFit else min(1f, scaleToFit)
+
+        return DpSize(realW * scale, realH * scale)
+    }
 }

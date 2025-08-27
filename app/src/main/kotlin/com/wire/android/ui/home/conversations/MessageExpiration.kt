@@ -20,6 +20,7 @@ package com.wire.android.ui.home.conversations
 import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -130,6 +131,10 @@ class SelfDeletionTimerHelper(private val stringResourceProvider: StringResource
 
             var timeLeft by mutableStateOf(calculateTimeLeft())
                 private set
+
+            @Stable
+            fun fractionLeft(): Float =
+                ((timeLeft / expireAfter).toFloat()).coerceIn(0f, 1f)
 
             @Suppress("MagicNumber", "ComplexMethod")
             val timeLeftFormatted: String by derivedStateOf {

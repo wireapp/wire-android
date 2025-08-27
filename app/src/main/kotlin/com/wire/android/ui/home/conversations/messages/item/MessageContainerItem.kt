@@ -46,6 +46,7 @@ fun MessageContainerItem(
     isSelectedMessage: Boolean = false,
     failureInteractionAvailable: Boolean = true,
     defaultBackgroundColor: Color = colorsScheme().surfaceContainerLow,
+    isBubble: Boolean = false,
 ) {
     val selfDeletionTimerState = rememberSelfDeletionTimer(message.header.messageStatus.expirationStatus)
     if (
@@ -81,7 +82,7 @@ fun MessageContainerItem(
                 message = message,
                 conversationDetailsData = conversationDetailsData,
                 clickActions = clickActions,
-                showAuthor = showAuthor,
+                showAuthor = showAuthor && conversationDetailsData is ConversationDetailsData.Group,
                 assetStatus = assetStatus,
                 swipeableMessageConfiguration = swipeableMessageConfiguration,
                 failureInteractionAvailable = failureInteractionAvailable,
@@ -90,6 +91,7 @@ fun MessageContainerItem(
                 shouldDisplayFooter = shouldDisplayFooter,
                 selfDeletionTimerState = selfDeletionTimerState,
                 useSmallBottomPadding = useSmallBottomPadding,
+                isBubble = isBubble
             )
         }
     }

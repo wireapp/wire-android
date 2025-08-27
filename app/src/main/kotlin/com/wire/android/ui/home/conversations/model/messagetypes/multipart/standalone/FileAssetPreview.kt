@@ -49,7 +49,11 @@ import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.util.fileExtension
 
 @Composable
-internal fun BoxScope.FileAssetPreview(item: MultipartAttachmentUi) {
+internal fun BoxScope.FileAssetPreview(
+    item: MultipartAttachmentUi,
+    isMyMessage: Boolean,
+    isBubble: Boolean,
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -62,7 +66,9 @@ internal fun BoxScope.FileAssetPreview(item: MultipartAttachmentUi) {
             type = item.assetType,
             size = item.assetSize,
             label = getDownloadStatusText(item.transferStatus),
-            labelColor = if (item.transferStatus.isFailed()) colorsScheme().error else null
+            labelColor = if (item.transferStatus.isFailed()) colorsScheme().error else null,
+            isBubble = isBubble,
+            isMyMessage = isMyMessage
         )
         item.fileName?.let {
             Box(modifier = Modifier.weight(1f)) {
@@ -122,7 +128,9 @@ private fun PreviewFileAsset() {
                         assetType = AttachmentFileType.CODE,
                         fileName = "Test file.kt",
                         transferStatus = AssetTransferStatus.NOT_DOWNLOADED
-                    )
+                    ),
+                    isBubble = false,
+                    isMyMessage = false
                 )
             }
             Box {
@@ -132,12 +140,16 @@ private fun PreviewFileAsset() {
                         fileName = "Test file.zip",
                         transferStatus = AssetTransferStatus.DOWNLOAD_IN_PROGRESS,
                         progress = 0.75f
-                    )
+                    ),
+                    isBubble = false,
+                    isMyMessage = false
                 )
             }
             Box {
                 FileAssetPreview(
-                    item = attachment
+                    item = attachment,
+                    isBubble = false,
+                    isMyMessage = false
                 )
             }
             Box {
@@ -147,7 +159,9 @@ private fun PreviewFileAsset() {
                         fileName = "Test file.prof",
                         transferStatus = AssetTransferStatus.FAILED_DOWNLOAD,
                         progress = 0.75f
-                    )
+                    ),
+                    isBubble = false,
+                    isMyMessage = false
                 )
             }
         }

@@ -50,6 +50,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import com.wire.android.R
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.model.Clickable
+import com.wire.android.ui.common.applyIf
 import com.wire.android.ui.common.attachmentdraft.ui.FileHeaderView
 import com.wire.android.ui.common.clickable
 import com.wire.android.ui.common.colorsScheme
@@ -71,20 +72,24 @@ internal fun MessageAsset(
     assetSizeInBytes: Long,
     assetDataPath: String?,
     onAssetClick: Clickable,
-    assetTransferStatus: AssetTransferStatus
+    assetTransferStatus: AssetTransferStatus,
+    isBubble: Boolean = false,
+    isMyMessage: Boolean = false
 ) {
     Box(
         modifier = Modifier
-            .padding(top = dimensions().spacing4x)
-            .background(
-                color = MaterialTheme.wireColorScheme.surfaceVariant,
-                shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
-            )
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.wireColorScheme.secondaryButtonDisabledOutline,
-                shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
-            )
+            .applyIf(!isBubble) {
+                padding(top = dimensions().spacing4x)
+                .background(
+                    color = MaterialTheme.wireColorScheme.surfaceVariant,
+                    shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
+                )
+                .border(
+                    width = 1.dp,
+                    color = MaterialTheme.wireColorScheme.secondaryButtonDisabledOutline,
+                    shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
+                )
+            }
             .clickable(if (isNotClickable(assetTransferStatus)) null else onAssetClick)
     ) {
         if (assetTransferStatus == AssetTransferStatus.UPLOAD_IN_PROGRESS) {
@@ -101,7 +106,9 @@ internal fun MessageAsset(
                     extension = assetExtension,
                     size = assetSizeInBytes,
                     label = getDownloadStatusText(assetTransferStatus),
-                    labelColor = if (assetTransferStatus.isFailed()) colorsScheme().error else null
+                    labelColor = if (assetTransferStatus.isFailed()) colorsScheme().error else null,
+                    isBubble = isBubble,
+                    isMyMessage = isMyMessage
                 )
                 Text(
                     text = assetName,

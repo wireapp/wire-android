@@ -70,7 +70,9 @@ fun VideoMessage(
     duration: Long?,
     transferStatus: AssetTransferStatus,
     onVideoClick: Clickable,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isBubble: Boolean = false,
+    isMyMessage: Boolean = false
 ) {
     val context = LocalContext.current
 
@@ -105,6 +107,8 @@ fun VideoMessage(
             size = assetSize,
             modifier = Modifier
                 .fillMaxWidth(),
+            isMyMessage = isMyMessage,
+            isBubble = isBubble
         )
 
         Text(

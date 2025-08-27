@@ -42,7 +42,11 @@ import com.wire.kalium.logic.data.message.height
 import com.wire.kalium.logic.data.message.width
 
 @Composable
-internal fun ImageAssetPreview(item: MultipartAttachmentUi) {
+internal fun ImageAssetPreview(
+    item: MultipartAttachmentUi,
+    isBubble: Boolean,
+    isMyMessage: Boolean,
+) {
 
     val imageSize = ImageMessageParams(
         realImgWidth = item.metadata?.width() ?: 0,
@@ -67,6 +71,8 @@ internal fun ImageAssetPreview(item: MultipartAttachmentUi) {
                 modifier = Modifier.padding(dimensions().spacing12x),
                 extension = item.mimeType.substringAfter("/"),
                 size = item.assetSize,
+                isBubble = isBubble,
+                isMyMessage = isMyMessage
             )
             if (item.transferStatus == AssetTransferStatus.NOT_FOUND) {
                 Icon(

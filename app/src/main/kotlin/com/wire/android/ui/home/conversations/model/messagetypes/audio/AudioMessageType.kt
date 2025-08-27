@@ -66,6 +66,7 @@ import com.wire.android.model.Clickable
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
+import com.wire.android.ui.common.applyIf
 import com.wire.android.ui.common.attachmentdraft.ui.FileHeaderView
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
@@ -93,11 +94,12 @@ fun AudioMessage(
     extension: String,
     size: Long,
     modifier: Modifier = Modifier,
+    isBubble: Boolean = false,
 ) {
     if (assetTransferStatus == AssetTransferStatus.UPLOAD_IN_PROGRESS) {
-        UploadingAudioMessage(extension, size, modifier)
+        UploadingAudioMessage(extension, size, modifier, isBubble)
     } else {
-        UploadedAudioMessage(audioMessageArgs, audioMessageDurationInMs, extension, size, modifier)
+        UploadedAudioMessage(audioMessageArgs, audioMessageDurationInMs, extension, size, modifier, isBubble)
     }
 }
 
@@ -106,26 +108,32 @@ private fun AudioMessageLayout(
     extension: String,
     size: Long,
     modifier: Modifier = Modifier,
+    isBubble: Boolean = false,
+    isMyMessage: Boolean = false,
     content: @Composable () -> Unit,
 ) {
     Column(
         modifier = modifier
-            .padding(top = dimensions().spacing4x)
-            .background(
-                color = MaterialTheme.wireColorScheme.onPrimary,
-                shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
-            )
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.wireColorScheme.secondaryButtonDisabledOutline,
-                shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
-            )
-            .padding(dimensions().spacing8x),
+            .applyIf(!isBubble) {
+                padding(top = dimensions().spacing4x)
+                    .background(
+                        color = MaterialTheme.wireColorScheme.onPrimary,
+                        shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
+                    )
+                    .border(
+                        width = 1.dp,
+                        color = MaterialTheme.wireColorScheme.secondaryButtonDisabledOutline,
+                        shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
+                    )
+                    .padding(dimensions().spacing8x)
+            },
         verticalArrangement = Arrangement.spacedBy(dimensions().spacing8x),
     ) {
         FileHeaderView(
             extension = extension,
             size = size,
+            isBubble = isBubble,
+            isMyMessage = isMyMessage
         )
         Box(
             modifier = Modifier.defaultMinSize(minHeight = MaterialTheme.wireDimensions.spacing72x)
@@ -139,8 +147,9 @@ private fun AudioMessageLayout(
 private fun UploadingAudioMessage(
     extension: String,
     size: Long,
-    modifier: Modifier = Modifier
-) = AudioMessageLayout(extension, size, modifier) {
+    modifier: Modifier = Modifier,
+    isBubble: Boolean = false,
+) = AudioMessageLayout(extension, size, modifier, isBubble) {
     UploadInProgressAssetMessage()
 }
 
@@ -151,6 +160,7 @@ private fun UploadedAudioMessage(
     extension: String,
     size: Long,
     modifier: Modifier = Modifier,
+    isBubble: Boolean = false
 ) {
     val viewModel: AudioMessageViewModel =
         hiltViewModelScoped<AudioMessageViewModelImpl, AudioMessageViewModel, AudioMessageArgs>(audioMessageArgs)
@@ -170,6 +180,7 @@ private fun UploadedAudioMessage(
             viewModel.changeAudioSpeed(viewModel.state.audioSpeed.toggle())
         },
         modifier = modifier,
+        isBubble = isBubble
     )
 }
 
@@ -183,7 +194,8 @@ private fun UploadedAudioMessage(
     onSliderPositionChange: (Float) -> Unit,
     onAudioSpeedChange: (() -> Unit)?,
     modifier: Modifier = Modifier,
-) = AudioMessageLayout(extension, size, modifier) {
+    isBubble: Boolean = false
+) = AudioMessageLayout(extension, size, modifier, isBubble) {
     if (audioState.audioMediaPlayingState is AudioMediaPlayingState.Failed) {
         FailedAudioMessageContent()
     } else {

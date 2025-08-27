@@ -40,6 +40,8 @@ import com.wire.kalium.logic.data.message.width
 @Composable
 fun AssetPreview(
     item: MultipartAttachmentUi,
+    isMyMessage: Boolean,
+    isBubble: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -59,9 +61,23 @@ fun AssetPreview(
     ) {
         if (item.transferStatus != AssetTransferStatus.NOT_FOUND) {
             when (item.assetType) {
-                AttachmentFileType.IMAGE -> ImageAssetPreview(item)
-                AttachmentFileType.VIDEO -> VideoAssetPreview(item)
-                else -> FileAssetPreview(item)
+                AttachmentFileType.IMAGE -> ImageAssetPreview(
+                    item = item,
+                    isMyMessage = isMyMessage,
+                    isBubble = isBubble
+                )
+
+                AttachmentFileType.VIDEO -> VideoAssetPreview(
+                    item = item,
+                    isMyMessage = isMyMessage,
+                    isBubble = isBubble
+                )
+
+                else -> FileAssetPreview(
+                    item = item,
+                    isMyMessage = isMyMessage,
+                    isBubble = isBubble
+                )
             }
         } else {
             AssetNotAvailablePreview()

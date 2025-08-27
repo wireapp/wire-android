@@ -53,6 +53,8 @@ import com.wire.kalium.logic.data.message.MessageAttachment
 fun MultipartAttachmentsView(
     conversationId: ConversationId,
     attachments: List<MessageAttachment>,
+    isMyMessage: Boolean,
+    isBubble: Boolean,
     modifier: Modifier = Modifier,
     viewModel: MultipartAttachmentsViewModel = hiltViewModel<MultipartAttachmentsViewModel>(key = conversationId.value),
 ) {
@@ -65,15 +67,21 @@ fun MultipartAttachmentsView(
             attachments = media,
             onClick = { viewModel.onClick(it) },
             modifier = modifier,
+            isBubble = isBubble,
+            isMyMessage = isMyMessage
         )
         Spacer(modifier = Modifier.height(dimensions().spacing8x))
         AttachmentsList(
             attachments = files,
+            isMyMessage = isMyMessage,
+            isBubble = isBubble,
             onClick = { viewModel.onClick(it) }
         )
     } else {
         AttachmentsList(
             attachments = (media + files),
+            isMyMessage = isMyMessage,
+            isBubble = isBubble,
             onClick = { viewModel.onClick(it) }
         )
     }
@@ -86,6 +94,8 @@ fun MultipartAttachmentsView(
 @Composable
 private fun AttachmentsList(
     attachments: List<MultipartAttachmentUi>,
+    isMyMessage: Boolean,
+    isBubble: Boolean,
     onClick: (MultipartAttachmentUi) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -97,6 +107,8 @@ private fun AttachmentsList(
                 item = it,
                 onClick = { onClick(it) },
                 modifier = modifier,
+                isBubble = isBubble,
+                isMyMessage = isMyMessage
             )
         }
     }
@@ -106,6 +118,8 @@ private fun AttachmentsList(
 private fun AttachmentsGrid(
     attachments: List<MultipartAttachmentUi>,
     onClick: (MultipartAttachmentUi) -> Unit,
+    isMyMessage: Boolean,
+    isBubble: Boolean,
     modifier: Modifier = Modifier,
 ) {
     LazyVerticalGrid(
@@ -121,6 +135,8 @@ private fun AttachmentsGrid(
             AssetGridPreview(
                 item,
                 onClick = { onClick(item) },
+                isMyMessage = isMyMessage,
+                isBubble = isBubble
             )
         }
     }

@@ -20,8 +20,8 @@ package com.wire.android.ui.home.conversations.media
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -32,7 +32,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -47,7 +50,6 @@ import com.wire.android.ui.home.conversations.usecase.UIImageAssetPagingItem
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
-import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.id.ConversationId
@@ -90,91 +92,82 @@ private fun ImageAssetGrid(
     onImageLongClicked: (messagId: String, isMyMessage: Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    BoxWithConstraints(
-        modifier
+    val spacing = dimensions().spacing2x
+    val outer = dimensions().spacing12x
+    val configuration = LocalConfiguration.current
+
+    val screenWidth = configuration.screenWidthDp.dp
+
+    val horizontalPadding = dimensions().spacing12x
+    val itemSpacing = dimensions().spacing2x * 2
+    val totalItemSpacing = itemSpacing * COLUMN_COUNT
+    val availableWidth = screenWidth - horizontalPadding - totalItemSpacing
+    val itemSize = availableWidth / COLUMN_COUNT
+    val dpSize = DpSize(itemSize, itemSize)
+
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(COLUMN_COUNT),
+        modifier = modifier
             .fillMaxSize()
-            .background(color = colorsScheme().surfaceContainerLow)
+            .background(colorsScheme().surfaceContainerLow),
+        contentPadding = PaddingValues(horizontal = outer, vertical = spacing),
+        horizontalArrangement = Arrangement.spacedBy(spacing),
+        verticalArrangement   = Arrangement.spacedBy(spacing),
     ) {
-        val screenWidth = maxWidth
-        val horizontalPadding = dimensions().spacing12x
-        val itemSpacing = dimensions().spacing2x * 2
-        val totalItemSpacing = itemSpacing * COLUMN_COUNT
-        val availableWidth = screenWidth - horizontalPadding - totalItemSpacing
-        val itemSize = availableWidth / COLUMN_COUNT
-
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(COLUMN_COUNT),
-            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.wireDimensions.spacing2x),
-        ) {
-            items(
-                count = uiAssetMessageList.itemCount,
-                key = {
-                    when (val item = uiAssetMessageList[it]) {
-                        is UIImageAssetPagingItem.Asset -> item.uiAssetMessage.assetId
-                        is UIImageAssetPagingItem.Label -> item.date
-                        null -> "$it"
-                    }
-                },
-                contentType = uiAssetMessageList.itemContentType { it },
-                span = { index ->
-                    when (uiAssetMessageList[index]) {
-                        is UIImageAssetPagingItem.Asset -> GridItemSpan(1)
-                        is UIImageAssetPagingItem.Label -> GridItemSpan(COLUMN_COUNT)
-                        null -> GridItemSpan(1)
-                    }
+        items(
+            count = uiAssetMessageList.itemCount,
+            key = {
+                when (val item = uiAssetMessageList[it]) {
+                    is UIImageAssetPagingItem.Asset -> item.uiAssetMessage.assetId
+                    is UIImageAssetPagingItem.Label -> item.date
+                    null -> "$it"
                 }
-            ) { index ->
-                when (val uiImageAssetPagingItem = uiAssetMessageList[index]) {
-                    is UIImageAssetPagingItem.Asset -> {
-                        val uiAsset = uiImageAssetPagingItem.uiAssetMessage
-                        val currentOnImageClick = remember(uiAsset) {
-                            Clickable(
-                                enabled = true,
-                                onClick = {
-                                    onImageClicked(uiAsset.conversationId, uiAsset.messageId, uiAsset.isSelfAsset)
-                                },
-                                onLongClick = {
-                                    onImageLongClicked(uiAsset.messageId, uiAsset.isSelfAsset)
-                                }
-                            )
-                        }
-                        Box(
-                            modifier = Modifier
-                                .padding(all = dimensions().spacing2x)
-                        ) {
-                            MediaAssetImage(
-                                asset = null,
-                                width = itemSize,
-                                height = itemSize,
-                                transferStatus = assetStatuses[uiAsset.messageId]?.transferStatus,
-                                onImageClick = currentOnImageClick,
-                                assetPath = uiAsset.assetPath
-                            )
-                        }
-                    }
-
-                    is UIImageAssetPagingItem.Label -> {
-                        val label = uiImageAssetPagingItem.date
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(
-                                    bottom = dimensions().spacing6x,
-                                    // first label should not have top padding
-                                    top = if (index == 0) dimensions().spacing0x else dimensions().spacing6x,
-                                )
-                        ) {
-                            FolderHeader(
-                                name = label.uppercase(),
-                                modifier = Modifier
-                                    .background(MaterialTheme.wireColorScheme.background)
-                                    .fillMaxWidth()
-                            )
-                        }
-                    }
-
-                    null -> {}
+            },
+            contentType = uiAssetMessageList.itemContentType { it },
+            span = { index ->
+                when (uiAssetMessageList[index]) {
+                    is UIImageAssetPagingItem.Asset -> GridItemSpan(1)
+                    is UIImageAssetPagingItem.Label -> GridItemSpan(COLUMN_COUNT)
+                    null -> GridItemSpan(1)
                 }
+            }
+        ) { index ->
+            when (val item = uiAssetMessageList[index]) {
+                is UIImageAssetPagingItem.Asset -> {
+                    val uiAsset = item.uiAssetMessage
+                    val click = remember(uiAsset) {
+                        Clickable(
+                            enabled = true,
+                            onClick = { onImageClicked(uiAsset.conversationId, uiAsset.messageId, uiAsset.isSelfAsset) },
+                            onLongClick = { onImageLongClicked(uiAsset.messageId, uiAsset.isSelfAsset) }
+                        )
+                    }
+
+                    MediaAssetImage(
+                        asset = null,
+                        transferStatus = assetStatuses[uiAsset.messageId]?.transferStatus,
+                        onImageClick = click,
+                        assetPath = uiAsset.assetPath,
+                        size = dpSize,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .aspectRatio(1f)
+                    )
+                }
+
+                is UIImageAssetPagingItem.Label -> {
+                    val label = item.date
+                    FolderHeader(
+                        name = label.uppercase(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(MaterialTheme.wireColorScheme.background)
+                            .padding(top = if (index == 0) dimensions().spacing0x else dimensions().spacing6x,
+                                bottom = dimensions().spacing6x)
+                    )
+                }
+
+                null -> Unit
             }
         }
     }

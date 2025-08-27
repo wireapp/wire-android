@@ -122,10 +122,13 @@ class ConversationInfoViewModel @Inject constructor(
             legalHoldStatus = conversationDetails.conversation.legalHoldStatus,
             accentId = getAccentId(conversationDetails),
             isWireCellEnabled = isWireCellFeatureEnabled() && (conversationDetails as? ConversationDetails.Group)?.wireCell != null,
+            isBubble = isBubble()
         )
     }
 
     private suspend fun isWireCellFeatureEnabled() = globalDataStore.wireCellsEnabled().firstOrNull() ?: false
+
+    private suspend fun isBubble() = globalDataStore.messageBubbleEnabled().firstOrNull() ?: false
 
     private fun getAccentId(conversationDetails: ConversationDetails): Int {
         return if (conversationDetails is ConversationDetails.OneOne) {

@@ -68,7 +68,9 @@ import com.wire.kalium.logic.data.message.width
 
 @Composable
 internal fun VideoAssetPreview(
-    item: MultipartAttachmentUi
+    item: MultipartAttachmentUi,
+    isBubble: Boolean = false,
+    isMyMessage: Boolean = false
 ) {
 
     val width = item.metadata?.width() ?: 0
@@ -104,6 +106,8 @@ internal fun VideoAssetPreview(
             ),
             extension = item.mimeType.substringAfter("/"),
             size = item.assetSize,
+            isBubble = isBubble,
+            isMyMessage = isMyMessage
         )
 
         item.fileName?.let {

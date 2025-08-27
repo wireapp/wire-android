@@ -85,7 +85,6 @@ fun SystemMessageItem(
         modifier = modifier
             .background(backgroundColor ?: Color.Transparent)
             .padding(vertical = additionalVerticalPaddings),
-        showAuthor = false,
         fullAvatarOuterPadding = dimensions().avatarClickablePadding,
         leading = {
             SystemMessageItemLeading(

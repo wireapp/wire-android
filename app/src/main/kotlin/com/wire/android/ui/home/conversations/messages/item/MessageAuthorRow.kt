@@ -27,6 +27,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.UserBadge
+import com.wire.android.ui.common.applyIf
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.theme.Accent
@@ -34,14 +36,20 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
-fun MessageAuthorRow(messageHeader: MessageHeader, modifier: Modifier = Modifier) {
+fun MessageAuthorRow(
+    messageHeader: MessageHeader,
+    messageStyle: MessageStyle,
+    modifier: Modifier = Modifier,
+) {
     with(messageHeader) {
         Row(
             modifier = modifier,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Row(
-                modifier = Modifier.weight(weight = 1f, fill = true),
+                modifier = Modifier.applyIf(!messageStyle.isBubble()) {
+                    weight(weight = 1f)
+                },
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Username(
@@ -59,10 +67,13 @@ fun MessageAuthorRow(messageHeader: MessageHeader, modifier: Modifier = Modifier
                     LegalHoldIndicator(modifier = Modifier.padding(start = dimensions().spacing6x))
                 }
             }
-            MessageTimeLabel(
-                messageTime = messageHeader.messageTime.formattedDate,
-                modifier = Modifier.padding(start = dimensions().spacing6x)
-            )
+            if (!messageStyle.isBubble()) {
+                MessageTimeLabel(
+                    messageTime = messageHeader.messageTime.formattedDate,
+                    messageStyle = messageStyle,
+                    modifier = Modifier.padding(start = dimensions().spacing6x)
+                )
+            }
         }
     }
 }
@@ -83,13 +94,20 @@ private fun Username(username: String, accent: Accent, modifier: Modifier = Modi
 }
 
 @Composable
-private fun MessageTimeLabel(
+fun MessageTimeLabel(
     messageTime: String,
+    messageStyle: MessageStyle,
     modifier: Modifier = Modifier
 ) {
+    val color = when (messageStyle) {
+        MessageStyle.BUBBLE_SELF -> colorsScheme().onPrimary
+        MessageStyle.BUBBLE_OTHER -> colorsScheme().secondaryText
+        MessageStyle.NORMAL -> colorsScheme().secondaryText
+    }
+
     Text(
         text = messageTime,
-        style = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.wireColorScheme.secondaryText),
+        style = MaterialTheme.typography.labelSmall.copy(color = color),
         maxLines = 1,
         modifier = modifier
     )

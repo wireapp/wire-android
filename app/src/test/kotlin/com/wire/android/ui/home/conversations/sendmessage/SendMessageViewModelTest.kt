@@ -850,7 +850,6 @@ class SendMessageViewModelTest {
         }
     }
 
-
     @Test
     fun `given an asset is being shared and Cells is enabled, when initializing the viewmodel, then emit the message`() = runTest {
         val assetBundles = arrayOf(

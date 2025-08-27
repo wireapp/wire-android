@@ -21,6 +21,9 @@ import android.content.Context
 import android.os.Environment
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import androidx.paging.LoadState
+import androidx.paging.LoadStates
+import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.filter
 import androidx.paging.map
@@ -38,6 +41,7 @@ import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
 import com.wire.kalium.cells.domain.usecase.DownloadCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
+import com.wire.kalium.cells.domain.usecase.IsAtLeastOneCellAvailableUseCase
 import com.wire.kalium.cells.domain.usecase.RestoreNodeFromRecycleBinUseCase
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
@@ -54,6 +58,9 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flatMapMerge
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -63,7 +70,7 @@ import okio.Path.Companion.toPath
 import java.io.File
 import javax.inject.Inject
 
-@Suppress("TooManyFunctions")
+@Suppress("TooManyFunctions", "LongParameterList")
 @HiltViewModel
 class CellViewModel @Inject constructor(
     val savedStateHandle: SavedStateHandle,
@@ -72,6 +79,7 @@ class CellViewModel @Inject constructor(
     private val deleteCellAsset: DeleteCellAssetUseCase,
     private val restoreNodeFromRecycleBinUseCase: RestoreNodeFromRecycleBinUseCase,
     private val download: DownloadCellFileUseCase,
+    private val isCellAvailable: IsAtLeastOneCellAvailableUseCase,
     private val fileHelper: FileHelper,
     private val kaliumFileSystem: KaliumFileSystem,
     @ApplicationContext val context: Context
@@ -101,11 +109,29 @@ class CellViewModel @Inject constructor(
     private val _tags = MutableStateFlow<Set<String>>(emptySet())
     val tags: StateFlow<Set<String>> = _tags.asStateFlow()
 
+    private val checkIfCellAvailable = flow {
+        if (isAllFiles()) {
+            isCellAvailable()
+                .onSuccess { emit(it) }
+                .onFailure { emit(false) }
+        } else {
+            emit(true)
+        }
+    }
+
     init {
         loadTags()
     }
 
-    internal val nodesFlow = combine(
+    internal val nodesFlow = checkIfCellAvailable.flatMapMerge { cellAvailable ->
+        if (cellAvailable) {
+            buildNodesFlow()
+        } else {
+            flowOf(emptyData)
+        }
+    }
+
+    private fun buildNodesFlow() = combine(
         searchQueryFlow
             .debounce { if (it.isEmpty()) 0L else DEFAULT_SEARCH_QUERY_DEBOUNCE }
             .onStart { emit("") }
@@ -143,7 +169,6 @@ class CellViewModel @Inject constructor(
                     }
             }
         }
-
     fun updateSelectedTags(tags: Set<String>) {
         _selectedTags.value = tags
     }
@@ -426,6 +451,14 @@ class CellViewModel @Inject constructor(
 
     companion object {
         const val ZIP_EXTENSION = ".zip"
+
+        private val emptyData: PagingData<CellNodeUi> = PagingData.empty(
+            LoadStates(
+                refresh = LoadState.NotLoading(true),
+                prepend = LoadState.NotLoading(true),
+                append = LoadState.NotLoading(true)
+            )
+        )
     }
 }
 

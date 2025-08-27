@@ -82,6 +82,21 @@ val mockMessageWithText = UIMessage.Regular(
     messageFooter = mockEmptyFooter
 )
 
+fun mockMessageWithTextContent(text: String) = UIMessage.Regular(
+    conversationId = ConversationId("value", "domain"),
+    userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
+    header = mockHeader,
+    messageContent = UIMessageContent.TextMessage(
+        messageBody = MessageBody(
+            UIText.DynamicString(
+                text
+            )
+        )
+    ),
+    source = MessageSource.Self,
+    messageFooter = mockEmptyFooter
+)
+
 val mockMessageWithTextLoremIpsum = UIMessage.Regular(
     conversationId = ConversationId("value", "domain"),
     userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),

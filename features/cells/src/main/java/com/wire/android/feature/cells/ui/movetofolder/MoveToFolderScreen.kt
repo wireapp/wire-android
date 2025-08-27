@@ -58,7 +58,6 @@ import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.FileIconPreview
 import com.wire.android.feature.cells.ui.FolderIconPreview
 import com.wire.android.feature.cells.ui.common.Breadcrumbs
-import com.wire.android.feature.cells.ui.common.FullScreenLoading
 import com.wire.android.feature.cells.ui.common.LoadingScreen
 import com.wire.android.feature.cells.ui.destinations.CreateFolderScreenDestination
 import com.wire.android.feature.cells.ui.destinations.MoveToFolderScreenDestination
@@ -140,6 +139,7 @@ fun MoveToFolderScreen(
                             modifier = Modifier
                                 .padding(dimensions().spacing16x)
                         ) {
+                            val isLoading = moveToFolderViewModel.state.collectAsState().value == MoveToFolderScreenState.LOADING_IN_FULL_SCREEN
                             WireSecondaryButton(
                                 text = stringResource(R.string.cells_create_folder),
                                 onClick = {
@@ -149,7 +149,7 @@ fun MoveToFolderScreen(
                                         )
                                     )
                                 },
-                                state = WireButtonState.Default,
+                                state = if (isLoading) WireButtonState.Disabled else WireButtonState.Default,
                                 clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
                                 modifier = Modifier.padding(bottom = dimensions().spacing12x)
                             )
@@ -160,7 +160,8 @@ fun MoveToFolderScreen(
                                     isScreenLoading.value = true
                                     moveToFolderViewModel.moveHere()
                                 },
-                                state = WireButtonState.Default,
+                                state = if (isLoading) WireButtonState.Disabled else WireButtonState.Default,
+                                loading = isLoading,
                                 clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
                             )
                         }
@@ -190,9 +191,6 @@ fun MoveToFolderScreen(
                 },
                 innerPadding = innerPadding
             )
-        }
-        if (moveToFolderViewModel.state.collectAsState().value == MoveToFolderScreenState.LOADING_IN_FULL_SCREEN) {
-            FullScreenLoading()
         }
     }
 

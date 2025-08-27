@@ -22,6 +22,7 @@ import com.wire.android.util.ui.UIText
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
 
 fun Duration.toTimeLongLabelUiText(): UIText.PluralResource = when {
     inWholeDays >= DAYS_IN_WEEK -> {
@@ -36,27 +37,30 @@ fun Duration.toTimeLongLabelUiText(): UIText.PluralResource = when {
 }
 
 fun Duration.compactLabel(): String {
-    val d = this
+    val duration = this
     return when {
-        d < 1.hours -> {
-            val totalSec = d.inWholeSeconds.coerceAtLeast(0)
-            val m = totalSec / 60
-            val s = totalSec % 60
+        duration < MINUTES_IN_HOUR.minutes -> {
+            val totalSec = duration.inWholeSeconds.coerceAtLeast(0)
+            val m = totalSec / MINUTES_IN_HOUR
+            val s = totalSec % MINUTES_IN_HOUR
             "%d:%02d".format(m, s)
         }
-        d < 24.hours -> {
-            val h = d.inWholeHours
-            val m = (d - h.hours).inWholeMinutes
+        duration < HOURS_IN_DAY.hours -> {
+            val h = duration.inWholeHours
+            val m = (duration - h.hours).inWholeMinutes
             "%d:%02d".format(h, m)
         }
-        d < 7.days -> {
-            "${d.inWholeDays}d"
+        duration < DAYS_IN_WEEK.days -> {
+            "${duration.inWholeDays}d"
         }
         else -> {
-            val weeks = d.inWholeDays / 7
+            val weeks = duration.inWholeDays / DAYS_IN_WEEK
             "${weeks}w"
         }
     }
 }
 
 private const val DAYS_IN_WEEK = 7
+private const val HOURS_IN_DAY = 24
+
+private const val MINUTES_IN_HOUR = 60

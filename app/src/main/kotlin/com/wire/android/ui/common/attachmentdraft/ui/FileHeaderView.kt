@@ -40,6 +40,7 @@ import com.wire.android.feature.cells.domain.model.icon
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.typography
+import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.DeviceUtil
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -48,8 +49,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 fun FileHeaderView(
     extension: String,
     size: Long?,
-    isMyMessage: Boolean,
-    isBubble: Boolean,
+    messageStyle: MessageStyle,
     modifier: Modifier = Modifier,
     type: AttachmentFileType? = null,
     label: String? = null,
@@ -59,17 +59,10 @@ fun FileHeaderView(
     val attachmentFileType = type ?: remember(extension) { AttachmentFileType.fromExtension(extension) }
     val sizeString = remember(size) { size?.let { DeviceUtil.formatSize(size) } ?: "" }
 
-    val color = when {
-        isBubble -> {
-            if(isMyMessage) {
-                colorsScheme().onPrimary
-            } else {
-                colorsScheme().secondaryText
-            }
-        }
-        else -> {
-            colorsScheme().secondaryText
-        }
+    val color = when(messageStyle) {
+        MessageStyle.BUBBLE_SELF -> colorsScheme().onPrimary
+        MessageStyle.BUBBLE_OTHER -> colorsScheme().secondaryText
+        MessageStyle.NORMAL -> colorsScheme().secondaryText
     }
 
     Row(
@@ -119,35 +112,30 @@ private fun PreviewFileHeader() {
                 extension = "PDF",
                 size = 1241235,
                 label = "Tap to download",
-                isBubble = false,
-                isMyMessage = false
+                messageStyle = MessageStyle.NORMAL
             )
             FileHeaderView(
                 extension = "DOCX",
                 size = 6796203,
                 label = "Downloading...",
-                isBubble = false,
-                isMyMessage = false
+                messageStyle = MessageStyle.NORMAL
             )
             FileHeaderView(
                 extension = "ZIP",
                 size = 512746,
                 label = "Tap to view",
-                isBubble = false,
-                isMyMessage = false
+                messageStyle = MessageStyle.NORMAL
             )
             FileHeaderView(
                 extension = "OTHER",
                 size = 78238296,
-                isBubble = false,
-                isMyMessage = false
+                messageStyle = MessageStyle.NORMAL
             )
             FileHeaderView(
                 extension = "OTHER",
                 size = 78238296,
                 isError = true,
-                isBubble = false,
-                isMyMessage = false
+                messageStyle = MessageStyle.NORMAL
             )
         }
     }

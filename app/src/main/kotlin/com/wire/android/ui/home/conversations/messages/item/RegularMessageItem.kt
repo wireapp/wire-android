@@ -20,6 +20,7 @@ package com.wire.android.ui.home.conversations.messages.item
 
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -57,158 +58,175 @@ fun RegularMessageItem(
     failureInteractionAvailable: Boolean = true,
     useSmallBottomPadding: Boolean = false,
     selfDeletionTimerState: SelfDeletionTimerHelper.SelfDeletionTimerState = SelfDeletionTimerHelper.SelfDeletionTimerState.NotExpirable,
-    isBubble: Boolean = false
+    isBubbleUiEnabled: Boolean = false
 ): Unit = with(message) {
     @Composable
     fun messageContent() {
-        MessageItemTemplate(
-            modifier = modifier
-                .interceptCombinedClickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = LocalIndication.current,
-                    onClick = clickActions.onFullMessageClicked?.let { onFullMessageClicked ->
-                        {
-                            onFullMessageClicked(message.header.messageId)
-                        }
-                    },
-                    onLongPress = when {
-                        message.header.messageStatus.isDeleted -> null // do not allow long press on deleted messages
-                        else -> clickActions.onFullMessageLongClicked?.let {
-                            {
-                                it(message)
-                            }
-                        }
-                    },
-                ),
-            showAuthor = showAuthor,
-            useSmallBottomPadding = useSmallBottomPadding,
-            fullAvatarOuterPadding = dimensions().avatarClickablePadding,
-            leading = {
-                RegularMessageItemLeading(
-                    header = header,
-                    showAuthor = showAuthor,
-                    userAvatarData = message.userAvatarData,
-                    onOpenProfile = clickActions.onProfileClicked
-                )
-            },
-            content = {
-                MessageContentItem(
-                    clickActions = clickActions,
-                    message = message,
-                    conversationDetailsData = conversationDetailsData,
-                    modifier = modifier,
-                    searchQuery = searchQuery,
-                    showAuthor = showAuthor,
-                    assetStatus = assetStatus,
-                    shouldDisplayMessageStatus = shouldDisplayMessageStatus,
-                    shouldDisplayFooter = shouldDisplayFooter,
-                    failureInteractionAvailable = failureInteractionAvailable,
-                    useSmallBottomPadding = useSmallBottomPadding,
-                    selfDeletionTimerState = selfDeletionTimerState,
-                    isBubbleUiEnabled = false
-                )
-            }
-        )
-    }
+        val messageStyle = when {
+            !isBubbleUiEnabled -> MessageStyle.NORMAL
+            message.isMyMessage -> MessageStyle.BUBBLE_SELF
+            else -> MessageStyle.BUBBLE_OTHER
+        }
 
-    @Composable
-    fun bubbleMessageContent() {
-        val footerSlot: (@Composable () -> Unit)? =
-            if (shouldDisplayFooter) {
-                {
-                    MessageReactionsItem(
-                        messageFooter = message.messageFooter,
-                        onReactionClicked = clickActions.onReactionClicked,
-                        modifier = Modifier.padding(horizontal = dimensions().spacing10x)
+        if (isBubbleUiEnabled) {
+            val footerSlot: (@Composable () -> Unit)? =
+                if (shouldDisplayFooter) {
+                    {
+                        MessageReactionsItem(
+                            messageFooter = message.messageFooter,
+                            onReactionClicked = clickActions.onReactionClicked,
+                            modifier = Modifier.padding(horizontal = dimensions().spacing10x)
+                        )
+                    }
+                } else {
+                    null
+                }
+
+            val leadingSlot: (@Composable () -> Unit)? =
+                if (source == MessageSource.OtherUser && conversationDetailsData is ConversationDetailsData.Group) {
+                    {
+                        RegularMessageItemLeading(
+                            header = header,
+                            showAuthor = showAuthor,
+                            userAvatarData = message.userAvatarData,
+                            onOpenProfile = clickActions.onProfileClicked
+                        )
+                    }
+                } else {
+                    null
+                }
+
+            val headerSlot: (@Composable (inner: PaddingValues) -> Unit)? =
+                if (showAuthor && (source == MessageSource.OtherUser)) {
+                    { innerPadding ->
+                        MessageAuthorRow(
+                            messageHeader = message.header,
+                            messageStyle = messageStyle,
+                            modifier = Modifier
+                                .padding(innerPadding)
+                                .padding(
+                                    bottom = dimensions().spacing4x,
+                                )
+                        )
+                    }
+                } else {
+                    null
+                }
+
+            MessageBubbleItem(
+                message = message,
+                source = source,
+                messageStatus = header.messageStatus,
+                showAuthor = showAuthor,
+                accent = header.accent,
+                useSmallBottomPadding = useSmallBottomPadding,
+                leading = leadingSlot,
+                onClick = clickActions.onFullMessageClicked?.let { onFullMessageClicked ->
+                    {
+                        onFullMessageClicked(message.header.messageId)
+                    }
+                },
+                onLongClick = when {
+                    message.header.messageStatus.isDeleted -> null // do not allow long press on deleted messages
+                    else -> clickActions.onFullMessageLongClicked?.let {
+                        {
+                            it(message)
+                        }
+                    }
+                },
+                footer = footerSlot,
+                header = headerSlot,
+                content = { innerPadding ->
+                    MessageContentItem(
+                        clickActions = clickActions,
+                        message = message,
+                        conversationDetailsData = conversationDetailsData,
+                        modifier = modifier,
+                        searchQuery = searchQuery,
+                        assetStatus = assetStatus,
+                        shouldDisplayMessageStatus = shouldDisplayMessageStatus,
+                        shouldDisplayFooter = shouldDisplayFooter,
+                        failureInteractionAvailable = failureInteractionAvailable,
+                        useSmallBottomPadding = useSmallBottomPadding,
+                        selfDeletionTimerState = selfDeletionTimerState,
+                        innerPadding = innerPadding,
+                        messageStyle = messageStyle
                     )
                 }
-            } else null
+            )
+        } else {
+            val headerSlot: (@Composable () -> Unit)? =
+                if (showAuthor) {
+                    {
+                        MessageAuthorRow(
+                            messageHeader = message.header,
+                            messageStyle = messageStyle,
+                            modifier = Modifier
+                                .padding(top = dimensions().avatarClickablePadding, bottom = dimensions().spacing4x)
+                        )
+                    }
+                } else {
+                    null
+                }
 
-        val leadingSlot: (@Composable () -> Unit)? =
-            if (source == MessageSource.OtherUser && conversationDetailsData is ConversationDetailsData.Group) {
-                {
+            MessageItemTemplate(
+                modifier = modifier
+                    .interceptCombinedClickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = LocalIndication.current,
+                        onClick = clickActions.onFullMessageClicked?.let { onFullMessageClicked ->
+                            {
+                                onFullMessageClicked(message.header.messageId)
+                            }
+                        },
+                        onLongPress = when {
+                            message.header.messageStatus.isDeleted -> null // do not allow long press on deleted messages
+                            else -> clickActions.onFullMessageLongClicked?.let {
+                                {
+                                    it(message)
+                                }
+                            }
+                        },
+                    ),
+                useSmallBottomPadding = useSmallBottomPadding,
+                fullAvatarOuterPadding = dimensions().avatarClickablePadding,
+                header = headerSlot,
+                leading = {
                     RegularMessageItemLeading(
                         header = header,
                         showAuthor = showAuthor,
                         userAvatarData = message.userAvatarData,
                         onOpenProfile = clickActions.onProfileClicked
                     )
-                }
-            } else null
-
-        MessageBubbleItem(
-            message = message,
-            source = source,
-            messageStatus = header.messageStatus,
-            showAuthor = showAuthor,
-            accent = header.accent,
-            useSmallBottomPadding = useSmallBottomPadding,
-            leading = leadingSlot,
-            onClick = clickActions.onFullMessageClicked?.let { onFullMessageClicked ->
-                {
-                    onFullMessageClicked(message.header.messageId)
-                }
-            },
-            onLongClick = when {
-                message.header.messageStatus.isDeleted -> null // do not allow long press on deleted messages
-                else -> clickActions.onFullMessageLongClicked?.let {
-                    {
-                        it(message)
-                    }
-                }
-            },
-            footer = footerSlot,
-            header = {
-                if (showAuthor && (source == MessageSource.OtherUser)) {
-                    MessageAuthorRow(
-                        messageHeader = message.header, isBubbleUiEnabled = isBubble, modifier = Modifier
-                            .padding(
-                                bottom = dimensions().spacing12x,
-                                start = dimensions().spacing10x,
-                                end = dimensions().spacing10x // TODO KBX make this as variable
-                            )
+                },
+                content = {
+                    MessageContentItem(
+                        clickActions = clickActions,
+                        message = message,
+                        conversationDetailsData = conversationDetailsData,
+                        modifier = modifier,
+                        searchQuery = searchQuery,
+                        assetStatus = assetStatus,
+                        shouldDisplayMessageStatus = shouldDisplayMessageStatus,
+                        shouldDisplayFooter = shouldDisplayFooter,
+                        failureInteractionAvailable = failureInteractionAvailable,
+                        useSmallBottomPadding = useSmallBottomPadding,
+                        selfDeletionTimerState = selfDeletionTimerState,
+                        messageStyle = messageStyle
                     )
                 }
-            },
-            content = { innerPadding ->
-                MessageContentItem(
-                    clickActions = clickActions,
-                    message = message,
-                    conversationDetailsData = conversationDetailsData,
-                    modifier = modifier,
-                    searchQuery = searchQuery,
-                    showAuthor = showAuthor,
-                    assetStatus = assetStatus,
-                    shouldDisplayMessageStatus = shouldDisplayMessageStatus,
-                    shouldDisplayFooter = shouldDisplayFooter,
-                    failureInteractionAvailable = failureInteractionAvailable,
-                    useSmallBottomPadding = useSmallBottomPadding,
-                    selfDeletionTimerState = selfDeletionTimerState,
-                    innerPadding = innerPadding,
-                    isBubbleUiEnabled = true
-                )
-            }
-        )
+            )
+        }
     }
 
     when (swipeableMessageConfiguration) {
         is SwipeableMessageConfiguration.Swipeable -> {
             SwipeableMessageBox(swipeableMessageConfiguration) {
-                if (isBubble) {
-                    bubbleMessageContent()
-                } else {
-                    messageContent()
-                }
-            }
-        }
-
-        SwipeableMessageConfiguration.NotSwipeable -> {
-            if (isBubble) {
-                bubbleMessageContent()
-            } else {
                 messageContent()
             }
         }
+
+        SwipeableMessageConfiguration.NotSwipeable -> messageContent()
     }
 }
 

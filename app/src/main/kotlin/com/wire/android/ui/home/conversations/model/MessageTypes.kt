@@ -89,32 +89,25 @@ internal fun MessageBody(
     onLinkClick: (String) -> Unit,
     searchQuery: String = "",
     clickable: Boolean = true,
-    isMyMessage: Boolean = false,
-    isBubble: Boolean = false
+    messageStyle: MessageStyle = MessageStyle.NORMAL
 ) {
     val (displayMentions, text) = messageBody?.message?.let {
         mapToDisplayMentions(it, LocalContext.current.resources)
     } ?: Pair(emptyList(), null)
 
-    val color = when {
-        !isBubble -> {
-            when {
-                isAvailable -> MaterialTheme.colorScheme.onBackground
-                else -> MaterialTheme.wireColorScheme.secondaryText
-            }
+    val color = when(messageStyle) {
+        MessageStyle.BUBBLE_SELF -> MaterialTheme.wireColorScheme.onPrimary
+        MessageStyle.BUBBLE_OTHER ->    when {
+            isAvailable -> MaterialTheme.colorScheme.onBackground
+            else -> MaterialTheme.wireColorScheme.secondaryText
         }
-        isMyMessage -> {
-            MaterialTheme.wireColorScheme.onPrimary
-        }
-        else -> {
+        MessageStyle.NORMAL -> {
             when {
                 isAvailable -> MaterialTheme.colorScheme.onBackground
                 else -> MaterialTheme.wireColorScheme.secondaryText
             }
         }
     }
-
-    println("KBX message ${messageBody?.message?.asString()} isMyMessage $isMyMessage isBubble $isBubble")
 
     val nodeData = NodeData(
         modifier = Modifier.defaultMinSize(minHeight = dimensions().spacing20x),

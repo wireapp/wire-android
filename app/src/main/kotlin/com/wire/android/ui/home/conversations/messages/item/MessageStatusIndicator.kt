@@ -28,6 +28,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.ui.common.spacers.HorizontalSpace
+import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.home.conversations.model.MessageFlowStatus
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
@@ -39,9 +40,9 @@ fun MessageStatusIndicator(
     status: MessageFlowStatus,
     messageStyle: MessageStyle,
     modifier: Modifier = Modifier,
-    isGroupConversation: Boolean = false,
+    isGroupConversation: Boolean = false
 ) {
-    val defaultTint = when(messageStyle) {
+    val defaultTint = when (messageStyle) {
         MessageStyle.BUBBLE_SELF -> MaterialTheme.wireColorScheme.onPrimary
         MessageStyle.BUBBLE_OTHER -> MaterialTheme.wireColorScheme.secondaryText
         MessageStyle.NORMAL -> MaterialTheme.wireColorScheme.onTertiaryButtonDisabled
@@ -104,7 +105,10 @@ fun MessageStatusIndicator(
 @Composable
 fun PreviewMessageStatusFailed() {
     WireTheme {
-        MessageStatusIndicator(MessageFlowStatus.Failure.Send.Locally(false))
+        MessageStatusIndicator(
+            MessageFlowStatus.Failure.Send.Locally(false),
+            messageStyle = MessageStyle.NORMAL
+        )
     }
 }
 
@@ -112,7 +116,10 @@ fun PreviewMessageStatusFailed() {
 @Composable
 fun PreviewMessageStatusSending() {
     WireTheme {
-        MessageStatusIndicator(MessageFlowStatus.Sending)
+        MessageStatusIndicator(
+            MessageFlowStatus.Sending,
+            messageStyle = MessageStyle.NORMAL
+        )
     }
 }
 
@@ -120,6 +127,9 @@ fun PreviewMessageStatusSending() {
 @Composable
 fun PreviewMessageStatusRead() {
     WireTheme {
-        MessageStatusIndicator(MessageFlowStatus.Read(1))
+        MessageStatusIndicator(
+            MessageFlowStatus.Read(1),
+            messageStyle = MessageStyle.NORMAL
+        )
     }
 }

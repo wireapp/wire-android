@@ -79,16 +79,16 @@ sealed interface UIMessage {
         override val isPending: Boolean = header.messageStatus.flowStatus == MessageFlowStatus.Sending
         val isMyMessage = source == MessageSource.Self
 
-        // TODO KBX check if this is enough for special paddings
         val isAssetMessage = messageContent is UIMessageContent.AssetMessage
                 || messageContent is UIMessageContent.ImageMessage
                 || messageContent is UIMessageContent.AudioAssetMessage
 
-        val hasMediaWidth: Boolean = when(messageContent) {
+        val hasMediaWidth: Boolean = when (messageContent) {
             is UIMessageContent.ImageMessage -> true
             is UIMessageContent.VideoMessage -> messageContent.width != null
             else -> false
         }
+
         private val isReplyableContent: Boolean
             get() = messageContent is UIMessageContent.TextMessage ||
                     messageContent is UIMessageContent.AssetMessage ||

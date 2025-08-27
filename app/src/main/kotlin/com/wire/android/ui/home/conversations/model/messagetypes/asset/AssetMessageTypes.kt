@@ -56,6 +56,8 @@ import com.wire.android.ui.common.clickable
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
+import com.wire.android.ui.home.conversations.messages.item.MessageStyle
+import com.wire.android.ui.home.conversations.messages.item.isBubble
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -73,12 +75,11 @@ internal fun MessageAsset(
     assetDataPath: String?,
     onAssetClick: Clickable,
     assetTransferStatus: AssetTransferStatus,
-    isBubble: Boolean = false,
-    isMyMessage: Boolean = false
+    messageStyle: MessageStyle
 ) {
     Box(
         modifier = Modifier
-            .applyIf(!isBubble) {
+            .applyIf(!messageStyle.isBubble()) {
                 padding(top = dimensions().spacing4x)
                 .background(
                     color = MaterialTheme.wireColorScheme.surfaceVariant,
@@ -107,8 +108,7 @@ internal fun MessageAsset(
                     size = assetSizeInBytes,
                     label = getDownloadStatusText(assetTransferStatus),
                     labelColor = if (assetTransferStatus.isFailed()) colorsScheme().error else null,
-                    isBubble = isBubble,
-                    isMyMessage = isMyMessage
+                    messageStyle = messageStyle
                 )
                 Text(
                     text = assetName,
@@ -300,7 +300,8 @@ private fun PreviewMessageAsset() {
             assetSizeInBytes = 1000000,
             assetDataPath = null,
             onAssetClick = Clickable {},
-            assetTransferStatus = AssetTransferStatus.NOT_DOWNLOADED
+            assetTransferStatus = AssetTransferStatus.NOT_DOWNLOADED,
+            messageStyle = MessageStyle.NORMAL
         )
     }
 }

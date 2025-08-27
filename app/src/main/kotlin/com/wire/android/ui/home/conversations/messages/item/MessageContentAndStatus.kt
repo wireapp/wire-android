@@ -102,12 +102,11 @@ internal fun UIMessage.Regular.MessageContentAndStatus(
                 HorizontalSpace.x24()
             }
         } else {
-            Box(
-                modifier = Modifier.padding(
-                    top = if (message.isTextContentWithoutQuote) dimensions().spacing2x else dimensions().spacing4x,
-//                start = dimensions().spacing8x
-                )
-            )
+            if (message.isTextContentWithoutQuote) {
+                VerticalSpace.x2()
+            } else {
+                VerticalSpace.x4()
+            }
         }
     }
 }
@@ -152,8 +151,8 @@ private fun MessageContent(
                     duration = messageContent.duration,
                     transferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
                     onVideoClick = onAssetClick,
-                    isBubble = isBubble,
-                    isMyMessage = message.isMyMessage
+                    messageStyle = messageStyle
+
                 )
                 PartialDeliveryInformation(messageContent.deliveryStatus)
             }
@@ -181,8 +180,7 @@ private fun MessageContent(
                     buttonList = null,
                     messageId = message.header.messageId,
                     onLinkClick = onLinkClick,
-                    isMyMessage = message.isMyMessage,
-                    isBubble = isBubble
+                    messageStyle = messageStyle
                 )
                 PartialDeliveryInformation(messageContent.deliveryStatus)
             }
@@ -209,8 +207,7 @@ private fun MessageContent(
                     buttonList = messageContent.buttonList,
                     messageId = message.header.messageId,
                     onLinkClick = onLinkClick,
-                    isMyMessage = message.isMyMessage,
-                    isBubble = isBubble
+                    messageStyle = messageStyle
                 )
             }
         }
@@ -224,8 +221,7 @@ private fun MessageContent(
                     assetDataPath = messageContent.assetDataPath,
                     assetTransferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
                     onAssetClick = onAssetClick,
-                    isBubble = isBubble,
-                    isMyMessage = message.isMyMessage
+                    messageStyle = messageStyle
                 )
                 PartialDeliveryInformation(messageContent.deliveryStatus)
             }

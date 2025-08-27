@@ -54,6 +54,7 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.typography
+import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.DateAndTimeParsers
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -70,9 +71,8 @@ fun VideoMessage(
     duration: Long?,
     transferStatus: AssetTransferStatus,
     onVideoClick: Clickable,
+    messageStyle: MessageStyle,
     modifier: Modifier = Modifier,
-    isBubble: Boolean = false,
-    isMyMessage: Boolean = false
 ) {
     val context = LocalContext.current
 
@@ -107,8 +107,7 @@ fun VideoMessage(
             size = assetSize,
             modifier = Modifier
                 .fillMaxWidth(),
-            isMyMessage = isMyMessage,
-            isBubble = isBubble
+            messageStyle = messageStyle
         )
 
         Text(
@@ -172,17 +171,20 @@ fun VideoMessage(
                         color = colorsScheme().onSurface,
                         style = typography().subline01,
                     )
+
                 AssetTransferStatus.DOWNLOAD_IN_PROGRESS ->
                     WireCircularProgressIndicator(
                         modifier = Modifier.size(dimensions().spacing32x),
                         progressColor = colorsScheme().inverseOnSurface,
                     )
+
                 AssetTransferStatus.FAILED_DOWNLOAD ->
                     Text(
                         text = stringResource(R.string.asset_message_failed_download_text),
                         color = colorsScheme().onSurface,
                         style = typography().subline01,
                     )
+
                 AssetTransferStatus.UPLOADED,
                 AssetTransferStatus.SAVED_INTERNALLY ->
                     Image(
@@ -190,6 +192,7 @@ fun VideoMessage(
                         painter = painterResource(id = R.drawable.ic_play_circle_filled),
                         contentDescription = null,
                     )
+
                 else -> {}
             }
         }
@@ -233,6 +236,7 @@ private fun PreviewVideoMessage() {
                 height = 1080,
                 duration = 1231231,
                 transferStatus = AssetTransferStatus.NOT_DOWNLOADED,
+                messageStyle = MessageStyle.NORMAL,
                 onVideoClick = Clickable {},
             )
             VideoMessage(
@@ -244,6 +248,7 @@ private fun PreviewVideoMessage() {
                 width = null,
                 height = null,
                 duration = 1231231,
+                messageStyle = MessageStyle.NORMAL,
                 onVideoClick = Clickable {},
             )
             VideoMessage(
@@ -255,6 +260,7 @@ private fun PreviewVideoMessage() {
                 width = 1920,
                 height = 1080,
                 duration = 234000,
+                messageStyle = MessageStyle.NORMAL,
                 onVideoClick = Clickable { },
             )
         }
@@ -278,6 +284,7 @@ private fun PreviewVideoMessageError() {
                 width = null,
                 height = null,
                 duration = 123123,
+                messageStyle = MessageStyle.NORMAL,
                 onVideoClick = Clickable {},
             )
         }
@@ -301,6 +308,7 @@ private fun PreviewVideoMessageVertical() {
                 width = 1080,
                 height = 1920,
                 duration = 12412412,
+                messageStyle = MessageStyle.NORMAL,
                 onVideoClick = Clickable {},
             )
         }

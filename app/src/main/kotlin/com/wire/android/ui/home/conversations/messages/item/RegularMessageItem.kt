@@ -62,6 +62,12 @@ fun RegularMessageItem(
 ): Unit = with(message) {
     @Composable
     fun messageContent() {
+        val messageStyle = when {
+            !isBubbleUiEnabled -> MessageStyle.NORMAL
+            message.isMyMessage -> MessageStyle.BUBBLE_SELF
+            else -> MessageStyle.BUBBLE_OTHER
+        }
+
         if (isBubbleUiEnabled) {
             val footerSlot: (@Composable () -> Unit)? =
                 if (shouldDisplayFooter) {
@@ -95,7 +101,7 @@ fun RegularMessageItem(
                     { innerPadding ->
                         MessageAuthorRow(
                             messageHeader = message.header,
-                            isBubbleUiEnabled = isBubbleUiEnabled,
+                            messageStyle = messageStyle,
                             modifier = Modifier
                                 .padding(innerPadding)
                                 .padding(
@@ -144,7 +150,7 @@ fun RegularMessageItem(
                         useSmallBottomPadding = useSmallBottomPadding,
                         selfDeletionTimerState = selfDeletionTimerState,
                         innerPadding = innerPadding,
-                        isBubbleUiEnabled = true
+                        messageStyle = messageStyle
                     )
                 }
             )
@@ -154,7 +160,7 @@ fun RegularMessageItem(
                     {
                         MessageAuthorRow(
                             messageHeader = message.header,
-                            isBubbleUiEnabled = false,
+                            messageStyle = messageStyle,
                             modifier = Modifier
                                 .padding(top = dimensions().avatarClickablePadding, bottom = dimensions().spacing4x)
                         )
@@ -206,7 +212,7 @@ fun RegularMessageItem(
                         failureInteractionAvailable = failureInteractionAvailable,
                         useSmallBottomPadding = useSmallBottomPadding,
                         selfDeletionTimerState = selfDeletionTimerState,
-                        isBubbleUiEnabled = false
+                        messageStyle = messageStyle
                     )
                 }
             )

@@ -53,7 +53,7 @@ fun MessageContentItem(
     clickActions: MessageClickActions,
     message: UIMessage.Regular,
     conversationDetailsData: ConversationDetailsData,
-    isBubbleUiEnabled: Boolean,
+    messageStyle: MessageStyle,
     modifier: Modifier = Modifier,
     searchQuery: String = "",
     assetStatus: AssetTransferStatus? = null,
@@ -64,17 +64,13 @@ fun MessageContentItem(
     selfDeletionTimerState: SelfDeletionTimerHelper.SelfDeletionTimerState = SelfDeletionTimerHelper.SelfDeletionTimerState.NotExpirable,
     innerPadding: PaddingValues = PaddingValues(),
 ) {
-    val messageStyle = when {
-        !isBubbleUiEnabled -> MessageStyle.NORMAL
-        message.isMyMessage -> MessageStyle.BUBBLE_SELF
-        else -> MessageStyle.BUBBLE_OTHER
-    }
+
     with(message) {
         Column(
             modifier = modifier,
             horizontalAlignment = if (messageStyle == MessageStyle.BUBBLE_SELF) Alignment.End else Alignment.Start
         ) {
-            if (!isBubbleUiEnabled) {
+            if (!messageStyle.isBubble()) {
                 MessageStatusAndExpireTimer(
                     message = message,
                     conversationDetailsData = conversationDetailsData,
@@ -83,7 +79,7 @@ fun MessageContentItem(
             }
 
             if (isDeleted) {
-                if (isBubbleUiEnabled) {
+                if (messageStyle.isBubble()) {
                     MessageBubbleEphemeralItem(
                         message = message,
                         conversationDetailsData = conversationDetailsData,
@@ -108,7 +104,7 @@ fun MessageContentItem(
                     conversationDetailsData = conversationDetailsData,
                     onReplyClicked = clickActions.onReplyClicked,
                 )
-                if (shouldDisplayFooter && !isBubbleUiEnabled) {
+                if (shouldDisplayFooter && !messageStyle.isBubble()) {
                     VerticalSpace.x4()
                     MessageReactionsItem(
                         messageFooter = messageFooter,
@@ -142,7 +138,7 @@ fun MessageContentItem(
                     }
                 )
             }
-            if (isBubbleUiEnabled && !useSmallBottomPadding) {
+            if (messageStyle.isBubble() && !useSmallBottomPadding) {
                 VerticalSpace.x4()
                 Row(
                     Modifier.padding(innerPadding),
@@ -151,14 +147,11 @@ fun MessageContentItem(
                 ) {
                     MessageTimeLabel(
                         messageTime = header.messageTime.formattedDate,
-                        color = if (source == MessageSource.Self) {
-                            colorsScheme().onPrimary
-                        } else {
-                            colorsScheme().secondaryText
-                        }
+                        messageStyle = messageStyle
                     )
                     MessageBubbleExpireFooter(
                         message = message,
+                        messageStyle = messageStyle,
                         selfDeletionTimerState = selfDeletionTimerState,
                     )
 
@@ -223,6 +216,7 @@ private fun MessageBubbleEphemeralItem(
 @Composable
 private fun MessageBubbleExpireFooter(
     message: UIMessage.Regular,
+    messageStyle: MessageStyle,
     selfDeletionTimerState: SelfDeletionTimerHelper.SelfDeletionTimerState,
     modifier: Modifier = Modifier,
 ) {
@@ -235,11 +229,7 @@ private fun MessageBubbleExpireFooter(
                     HorizontalSpace.x4()
                     MessageTimeLabel(
                         messageTime = selfDeletionTimerState.timeLeft.compactLabel(),
-                        color = if (source == MessageSource.Self) {
-                            colorsScheme().onPrimary
-                        } else {
-                            colorsScheme().secondaryText
-                        }
+                        messageStyle = messageStyle
                     )
                 }
             }

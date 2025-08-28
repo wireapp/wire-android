@@ -39,11 +39,17 @@ import com.wire.kalium.logic.failure.LegalHoldEnabledForConversationFailure
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageResult
 import io.mockk.coVerify
 import io.mockk.verify
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
 import okio.Path.Companion.toPath
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -52,6 +58,17 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(NavigationTestExtension::class)
 @Suppress("LargeClass")
 class SendMessageViewModelTest {
+    private val testDispatcher = StandardTestDispatcher()
+
+    @BeforeEach
+    fun setup() {
+        Dispatchers.setMain(testDispatcher)
+    }
+
+    @AfterEach
+    fun tearDown() {
+        Dispatchers.resetMain()
+    }
 
     @Test
     fun `given the user sends an asset message, when invoked, then sendAssetMessageUseCase gets called`() =
@@ -74,6 +91,7 @@ class SendMessageViewModelTest {
             // When
             viewModel.sendAttachment(mockedAttachment, conversationId)
 
+            advanceUntilIdle()
             // Then
             coVerify(exactly = 1) {
                 arrangement.sendAssetMessage.invoke(
@@ -119,6 +137,7 @@ class SendMessageViewModelTest {
             // When
             viewModel.sendAttachment(mockedAttachment, conversationId)
 
+            advanceUntilIdle()
             // Then
             coVerify(exactly = 1) {
                 arrangement.sendAssetMessage.invoke(
@@ -155,6 +174,7 @@ class SendMessageViewModelTest {
             // When
             viewModel.sendAttachment(mockedAttachment, conversationId)
 
+            advanceUntilIdle()
             coVerify(inverse = true) {
                 arrangement.sendAssetMessage.invoke(
                     any(),
@@ -199,6 +219,7 @@ class SendMessageViewModelTest {
             // When
             viewModel.trySendMessage(mockedMessageBundle)
 
+            advanceUntilIdle()
             // Then
             coVerify(inverse = true) {
                 arrangement.sendAssetMessage.invoke(
@@ -244,6 +265,7 @@ class SendMessageViewModelTest {
             // When
             viewModel.trySendMessage(mockedMessageBundle)
 
+            advanceUntilIdle()
             // Then
             coVerify(inverse = true) {
                 arrangement.sendAssetMessage.invoke(
@@ -281,6 +303,7 @@ class SendMessageViewModelTest {
             viewModel.infoMessage.test {
                 viewModel.trySendMessage(mockedMessageBundle)
 
+                advanceUntilIdle()
                 // Then
                 coVerify(inverse = true) {
                     arrangement.sendAssetMessage.invoke(
@@ -314,6 +337,7 @@ class SendMessageViewModelTest {
                 messageBundle = Ping(conversationId)
             )
 
+            advanceUntilIdle()
             // Then
             coVerify(exactly = 1) { arrangement.sendKnockUseCase.invoke(any(), any()) }
             verify(exactly = 1) { arrangement.pingRinger.ping(any(), isReceivingPing = false) }
@@ -348,6 +372,7 @@ class SendMessageViewModelTest {
             // When
             viewModel.sendAttachment(mockedAttachment, conversationId)
 
+            advanceUntilIdle()
             // Then
             coVerify(exactly = 1) {
                 arrangement.sendAssetMessage.invoke(
@@ -380,7 +405,7 @@ class SendMessageViewModelTest {
 
         // when
         viewModel.trySendMessage(ComposableMessageBundle.SendTextMessageBundle(conversationId, "mocked-text-message", emptyList()))
-
+        advanceUntilIdle()
         // then
         coVerify(exactly = 1) {
             arrangement.sendTextMessage.invoke(
@@ -426,7 +451,7 @@ class SendMessageViewModelTest {
                     emptyList()
                 )
             )
-
+            advanceUntilIdle()
             // then
             coVerify(exactly = 1) {
                 arrangement.sendEditTextMessage.invoke(
@@ -467,7 +492,7 @@ class SendMessageViewModelTest {
 
             // when
             viewModel.trySendMessage(messageBundle)
-
+            advanceUntilIdle()
             // then
             coVerify(exactly = 0) {
                 arrangement.sendTextMessage.invoke(
@@ -497,6 +522,7 @@ class SendMessageViewModelTest {
                 .arrange()
             // when
             viewModel.trySendMessage(messageBundle)
+            advanceUntilIdle()
             // then
             coVerify(exactly = 0) { arrangement.sendTextMessage.invoke(any(), any(), any(), any()) }
             assertEquals(
@@ -519,6 +545,7 @@ class SendMessageViewModelTest {
                 .arrange()
             viewModel.trySendMessage(messageBundle)
             // when
+            advanceUntilIdle()
             arrangement.withObserveConversationUnderLegalHoldNotified(true)
             viewModel.dismissSureAboutSendingMessage()
             advanceUntilIdle()
@@ -569,6 +596,7 @@ class SendMessageViewModelTest {
                 .arrange()
             // when
             viewModel.trySendMessage(messageBundle)
+            advanceUntilIdle()
             // then
             coVerify(exactly = 0) { arrangement.retryFailedMessageUseCase.invoke(eq(messageId), any()) }
             assertEquals(
@@ -592,6 +620,7 @@ class SendMessageViewModelTest {
                 .withFailedSendTextMessage(LegalHoldEnabledForConversationFailure(messageId))
                 .arrange()
             viewModel.trySendMessage(messageBundle)
+            advanceUntilIdle()
             // when
             viewModel.dismissSureAboutSendingMessage()
             advanceUntilIdle()
@@ -615,6 +644,7 @@ class SendMessageViewModelTest {
                 .withSuccessfulRetryFailedMessage()
                 .arrange()
             viewModel.trySendMessage(messageBundle)
+            advanceUntilIdle()
             // when
             viewModel.acceptSureAboutSendingMessage()
             advanceUntilIdle()
@@ -681,6 +711,7 @@ class SendMessageViewModelTest {
             // When
             viewModel.infoMessage.test {
                 viewModel.sendAttachment(mockedAttachment, conversationId)
+                advanceUntilIdle()
 
                 // Then
                 coVerify(exactly = 1) {
@@ -728,6 +759,7 @@ class SendMessageViewModelTest {
             // When
             viewModel.infoMessage.test {
                 viewModel.sendAttachment(mockedAttachment, conversationId)
+                advanceUntilIdle()
 
                 // Then
                 coVerify(exactly = 1) {
@@ -757,6 +789,7 @@ class SendMessageViewModelTest {
             .withPendingTextBundle(textToShare)
             .withSuccessfulSendTextMessage()
             .arrange()
+        advanceUntilIdle()
 
         coVerify { arrangement.sendTextMessage(any(), eq(textToShare), any(), any()) }
         verify(exactly = 1) {
@@ -769,7 +802,7 @@ class SendMessageViewModelTest {
     }
 
     @Test
-    fun `given an asset is being shared, when initializing the viewmodel, then message is sent to use the case`() = runTest {
+    fun `given an asset is being shared and Cells is not enabled, when initializing the viewmodel, then message is sent to use the case`() = runTest {
         val assetBundles = arrayOf(
             AssetBundle(
                 "key1",
@@ -791,9 +824,11 @@ class SendMessageViewModelTest {
         val (arrangement, _) = SendMessageViewModelArrangement()
             .withSuccessfulViewModelInit()
             .withPendingAssetBundle(*assetBundles)
+            .withCellsEnabledForConversation(false)
             .withSendAttachmentMessageResult(ScheduleNewAssetMessageResult.Success("some-message-id1"))
             .withSendAttachmentMessageResult(ScheduleNewAssetMessageResult.Success("some-message-id2"))
             .arrange()
+        advanceUntilIdle()
 
         assetBundles.forEach { bundle ->
             coVerify {
@@ -811,6 +846,41 @@ class SendMessageViewModelTest {
             verify {
                 arrangement.analyticsManager.sendEvent(any())
             }
+        }
+    }
+
+    @Test
+    fun `given an asset is being shared and Cells is enabled, when initializing the viewmodel, then emit the message`() = runTest {
+        val assetBundles = arrayOf(
+            AssetBundle(
+                "key1",
+                "application/pdf",
+                "some-data-path1".toPath(),
+                1L,
+                "mocked_file1.pdf",
+                AttachmentType.GENERIC_FILE
+            ),
+            AssetBundle(
+                "key2",
+                "application/pdf",
+                "some-data-path2".toPath(),
+                1L,
+                "mocked_file2.pdf",
+                AttachmentType.GENERIC_FILE
+            )
+        )
+        val (arrangement, _) = SendMessageViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .withPendingAssetBundle(*assetBundles)
+            .withCellsEnabledForConversation(true)
+            .withSendAttachmentMessageResult(ScheduleNewAssetMessageResult.Success("some-message-id1"))
+            .withSendAttachmentMessageResult(ScheduleNewAssetMessageResult.Success("some-message-id2"))
+            .arrange()
+
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) {
+            arrangement.sharedState.postBundles(any())
         }
     }
 

@@ -1,3 +1,4 @@
+@file:Suppress("TooManyFunctions", "MagicNumber")
 /*
  * Wire
  * Copyright (C) 2024 Wire Swiss GmbH
@@ -46,6 +47,20 @@ import okio.Path.Companion.toPath
 
 private const val MOCK_TIME_IN_SECONDS: Long = 1729837498
 val mockFooter = MessageFooter("", mapOf("👍" to 1), setOf("👍"))
+
+val mockFooterWithMultipleReactions = MessageFooter(
+    messageId = "messageId",
+    reactions = mapOf(
+        "👍" to 1,
+        "👎" to 2,
+        "👏" to 3,
+        "🤔" to 4,
+        "🤷" to 5,
+        "🤦" to 6,
+        "🤢" to 7
+    ),
+    ownReactions = setOf("👍"),
+)
 val mockEmptyFooter = MessageFooter("", emptyMap(), emptySet())
 val mockMessageTime = MessageTime(Instant.fromEpochSeconds(MOCK_TIME_IN_SECONDS))
 
@@ -62,6 +77,14 @@ val mockHeader = MessageHeader(
     connectionState = ConnectionState.ACCEPTED,
     isSenderDeleted = false,
     isSenderUnavailable = false
+)
+
+fun mockHeaderWithExpiration(expirable: ExpirationStatus.Expirable, isDeleted: Boolean = false) = mockHeader.copy(
+    messageStatus = MessageStatus(
+        flowStatus = MessageFlowStatus.Delivered,
+        expirationStatus = expirable,
+        isDeleted = isDeleted
+    )
 )
 
 val mockMessageWithText = UIMessage.Regular(

@@ -20,17 +20,17 @@ package com.wire.android.ui.home.conversations
 import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import com.wire.android.R
+import com.wire.android.ui.home.conversations.SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable.Companion.HIGH_END_TIME_ELAPSED_RATIO_BOUNDARY_FOR_PROPORTIONAL_ALPHA_CHANGE
+import com.wire.android.ui.home.conversations.SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable.Companion.LOW_END_TIME_ELAPSED_RATIO_BOUNDARY_FOR_PROPORTIONAL_ALPHA_CHANGE
 import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.kalium.logic.data.message.Message
@@ -132,9 +132,9 @@ class SelfDeletionTimerHelper(private val stringResourceProvider: StringResource
             var timeLeft by mutableStateOf(calculateTimeLeft())
                 private set
 
-            @Stable
-            fun fractionLeft(): Float =
+            val fractionLeft: Float by derivedStateOf {
                 ((timeLeft / expireAfter).toFloat()).coerceIn(0f, 1f)
+            }
 
             @Suppress("MagicNumber", "ComplexMethod")
             val timeLeftFormatted: String by derivedStateOf {
@@ -262,7 +262,7 @@ class SelfDeletionTimerHelper(private val stringResourceProvider: StringResource
                         recalculateTimeLeft()
                     }
                 }
-                val lifecycleOwner = LocalLifecycleOwner.current
+                val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
                 LaunchedEffect(lifecycleOwner) {
                     lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                         recalculateTimeLeft()

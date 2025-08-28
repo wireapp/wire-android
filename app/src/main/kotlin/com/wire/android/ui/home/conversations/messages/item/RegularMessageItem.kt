@@ -22,23 +22,17 @@ import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
-import com.wire.android.R
-import com.wire.android.ui.common.StatusBox
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.typography
 import com.wire.android.ui.home.conversations.SelfDeletionTimerHelper
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.model.DeliveryStatusContent
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.UIMessage
-import com.wire.android.ui.home.conversations.model.UIMessageContent
+import com.wire.android.ui.theme.wireColorScheme
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 
 // TODO: a definite candidate for a refactor and cleanup WPB-14390
@@ -60,22 +54,23 @@ fun RegularMessageItem(
     selfDeletionTimerState: SelfDeletionTimerHelper.SelfDeletionTimerState = SelfDeletionTimerHelper.SelfDeletionTimerState.NotExpirable,
     isBubbleUiEnabled: Boolean = false
 ): Unit = with(message) {
+    val messageStyle = when {
+        !isBubbleUiEnabled -> MessageStyle.NORMAL
+        message.isMyMessage -> MessageStyle.BUBBLE_SELF
+        else -> MessageStyle.BUBBLE_OTHER
+    }
+
     @Composable
     fun messageContent() {
-        val messageStyle = when {
-            !isBubbleUiEnabled -> MessageStyle.NORMAL
-            message.isMyMessage -> MessageStyle.BUBBLE_SELF
-            else -> MessageStyle.BUBBLE_OTHER
-        }
-
         if (isBubbleUiEnabled) {
-            val footerSlot: (@Composable () -> Unit)? =
+            val footerSlot: (@Composable (inner: PaddingValues) -> Unit)? =
                 if (shouldDisplayFooter) {
-                    {
+                    { innerPadding ->
                         MessageReactionsItem(
                             messageFooter = message.messageFooter,
+                            messageStyle = messageStyle,
                             onReactionClicked = clickActions.onReactionClicked,
-                            modifier = Modifier.padding(horizontal = dimensions().spacing10x)
+                            modifier = Modifier.padding(innerPadding)
                         )
                     }
                 } else {
@@ -221,79 +216,19 @@ fun RegularMessageItem(
 
     when (swipeableMessageConfiguration) {
         is SwipeableMessageConfiguration.Swipeable -> {
-            SwipeableMessageBox(swipeableMessageConfiguration) {
+            SwipeableMessageBox(
+                configuration = swipeableMessageConfiguration,
+                messageStyle = messageStyle,
+                accentColor = MaterialTheme.wireColorScheme.wireAccentColors.getOrDefault(
+                    header.accent,
+                    MaterialTheme.wireColorScheme.primary
+                )
+            ) {
                 messageContent()
             }
         }
 
         SwipeableMessageConfiguration.NotSwipeable -> messageContent()
-    }
-}
-
-@Composable
-fun EphemeralMessageExpiredLabel(
-    isSelfMessage: Boolean,
-    conversationDetailsData: ConversationDetailsData,
-    modifier: Modifier = Modifier,
-    color: Color = Color.Unspecified
-) {
-
-    val stringResource = if (!isSelfMessage) {
-        stringResource(id = R.string.label_information_waiting_for_deleation_when_self_not_sender)
-    } else if (conversationDetailsData is ConversationDetailsData.OneOne) {
-        conversationDetailsData.otherUserName?.let {
-            stringResource(
-                R.string.label_information_waiting_for_recipient_timer_to_expire_one_to_one,
-                conversationDetailsData.otherUserName
-            )
-        } ?: stringResource(id = R.string.unknown_user_name)
-    } else {
-        stringResource(R.string.label_information_waiting_for_recipient_timer_to_expire_group)
-    }
-
-    Text(
-        modifier = modifier,
-        color = color,
-        text = stringResource,
-        style = typography().body05
-    )
-}
-
-@Composable
-fun MessageExpireLabel(messageContent: UIMessageContent?, timeLeft: String) {
-    when (messageContent) {
-        is UIMessageContent.Location,
-        is UIMessageContent.AssetMessage,
-        is UIMessageContent.AudioAssetMessage,
-        is UIMessageContent.ImageMessage,
-        is UIMessageContent.TextMessage -> {
-            StatusBox(
-                statusText = stringResource(
-                    R.string.self_deleting_message_time_left,
-                    timeLeft
-                )
-            )
-        }
-
-        is UIMessageContent.Deleted -> {
-            val context = LocalContext.current
-            Text("Deleted") // TODO check
-
-            StatusBox(
-                statusText = stringResource(
-                    R.string.self_deleting_message_time_left,
-                    context.resources.getQuantityString(
-                        R.plurals.seconds_left,
-                        0,
-                        0
-                    )
-                )
-            )
-        }
-
-        else -> {
-            Text("Deleted") // TODO check
-        }
     }
 }
 

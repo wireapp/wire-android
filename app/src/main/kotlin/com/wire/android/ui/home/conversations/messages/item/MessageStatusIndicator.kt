@@ -28,7 +28,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.ui.common.spacers.HorizontalSpace
-import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.home.conversations.model.MessageFlowStatus
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
@@ -125,10 +124,10 @@ fun PreviewMessageStatusSending() {
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewMessageStatusRead() {
+fun PreviewMessageStatusDelivered() {
     WireTheme {
         MessageStatusIndicator(
-            MessageFlowStatus.Read(1),
+            MessageFlowStatus.Delivered,
             messageStyle = MessageStyle.NORMAL
         )
     }

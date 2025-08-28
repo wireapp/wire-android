@@ -18,33 +18,28 @@
 package com.wire.android.ui.home.conversations.messages.item
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import com.wire.android.R
-import com.wire.android.ui.common.StatusBox
-import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversations.SelfDeletionTimerHelper
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
+import com.wire.android.ui.home.conversations.model.MessageEditStatus
 import com.wire.android.ui.home.conversations.model.MessageFlowStatus
 import com.wire.android.ui.home.conversations.model.MessageSource
-import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.theme.wireColorScheme
-import com.wire.android.util.compactLabel
-import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 
 @Suppress("CyclomaticComplexMethod")
@@ -108,6 +103,7 @@ fun MessageContentItem(
                     VerticalSpace.x4()
                     MessageReactionsItem(
                         messageFooter = messageFooter,
+                        messageStyle = messageStyle,
                         onReactionClicked = clickActions.onReactionClicked
                     )
                 }
@@ -138,21 +134,34 @@ fun MessageContentItem(
                     }
                 )
             }
-            if (messageStyle.isBubble() && !useSmallBottomPadding) {
+            if (messageStyle.isBubble() && (!useSmallBottomPadding || header.messageStatus.editStatus is MessageEditStatus.Edited)) {
                 VerticalSpace.x4()
                 Row(
                     Modifier.padding(innerPadding),
                     horizontalArrangement = if (source == MessageSource.Self) Arrangement.End else Arrangement.Start,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    MessageTimeLabel(
-                        messageTime = header.messageTime.formattedDate,
+                    MessageSmallLabel(
+                        text = header.messageTime.formattedDate,
                         messageStyle = messageStyle
                     )
+
+                    if (header.messageStatus.editStatus is MessageEditStatus.Edited) {
+                        HorizontalSpace.x8()
+                        MessageSmallLabel(
+                            text = "• " + stringResource(R.string.label_message_status_edited),
+                            messageStyle = messageStyle
+                        )
+                        HorizontalSpace.x8()
+                    }
+
                     MessageBubbleExpireFooter(
-                        message = message,
                         messageStyle = messageStyle,
                         selfDeletionTimerState = selfDeletionTimerState,
+                        accentColor = MaterialTheme.wireColorScheme.wireAccentColors.getOrDefault(
+                            header.accent,
+                            MaterialTheme.wireColorScheme.primary
+                        )
                     )
 
                     if (isMyMessage && shouldDisplayMessageStatus) {
@@ -170,105 +179,5 @@ fun MessageContentItem(
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun MessageBubbleEphemeralItem(
-    message: UIMessage.Regular,
-    conversationDetailsData: ConversationDetailsData,
-    selfDeletionTimerState: SelfDeletionTimerHelper.SelfDeletionTimerState = SelfDeletionTimerHelper.SelfDeletionTimerState.NotExpirable,
-) {
-    with(message) {
-        when (selfDeletionTimerState) {
-            is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable -> {
-                EphemeralMessageExpiredLabel(
-                    message.isMyMessage,
-                    conversationDetailsData,
-                    color = if (source == MessageSource.Self) {
-                        MaterialTheme.wireColorScheme.wireAccentColors.getOrDefault(
-                            header.accent,
-                            MaterialTheme.wireColorScheme.primary
-                        )
-                    } else {
-                        MaterialTheme.wireColorScheme.primary
-                    }
-                )
-            }
-
-            SelfDeletionTimerHelper.SelfDeletionTimerState.NotExpirable -> {
-                Text(
-                    UIText.StringResource(R.string.deleted_message_text).asString(),
-                    color = if (source == MessageSource.Self) {
-                        MaterialTheme.wireColorScheme.wireAccentColors.getOrDefault(
-                            header.accent,
-                            MaterialTheme.wireColorScheme.primary
-                        )
-                    } else {
-                        colorsScheme().secondaryText
-                    }
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun MessageBubbleExpireFooter(
-    message: UIMessage.Regular,
-    messageStyle: MessageStyle,
-    selfDeletionTimerState: SelfDeletionTimerHelper.SelfDeletionTimerState,
-    modifier: Modifier = Modifier,
-) {
-    with(message) {
-        when (selfDeletionTimerState) {
-            is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable -> {
-                Row(modifier) {
-                    HorizontalSpace.x8()
-//                    SelfDeletingMessageIcon(selfDeletionTimerState) // TODO will be handled in other PR
-                    HorizontalSpace.x4()
-                    MessageTimeLabel(
-                        messageTime = selfDeletionTimerState.timeLeft.compactLabel(),
-                        messageStyle = messageStyle
-                    )
-                }
-            }
-
-            SelfDeletionTimerHelper.SelfDeletionTimerState.NotExpirable -> {}
-        }
-    }
-}
-
-@Composable
-private fun MessageStatusAndExpireTimer(
-    message: UIMessage.Regular,
-    conversationDetailsData: ConversationDetailsData,
-    selfDeletionTimerState: SelfDeletionTimerHelper.SelfDeletionTimerState,
-    modifier: Modifier = Modifier,
-) {
-    with(message) {
-        Box(modifier) {
-            if (selfDeletionTimerState is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable) {
-                MessageExpireLabel(messageContent, selfDeletionTimerState.timeLeftFormatted)
-                // if the message is marked as deleted and is [SelfDeletionTimer.SelfDeletionTimerState.Expirable]
-                // the deletion responsibility belongs to the receiver, therefore we need to wait for the receiver
-                // timer to expire to permanently delete the message, in the meantime we show the EphemeralMessageExpiredLabel
-                if (isDeleted) {
-                    EphemeralMessageExpiredLabel(
-                        message.isMyMessage,
-                        conversationDetailsData
-                    )
-                }
-            } else {
-                MessageStatusLabel(messageStatus = message.header.messageStatus)
-            }
-        }
-    }
-}
-
-@Composable
-private fun MessageStatusLabel(messageStatus: MessageStatus) {
-    messageStatus.badgeText?.let {
-        StatusBox(it.asString())
     }
 }

@@ -37,6 +37,7 @@ import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.CellAssetContent
 import com.wire.kalium.logic.data.message.MessageAttachment
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
 import okio.Path.Companion.toPath
 import javax.inject.Inject
@@ -55,16 +56,43 @@ class MultipartAttachmentsViewModel @Inject constructor(
 
     fun mapAttachments(
         attachments: List<MessageAttachment>
-    ): Pair<List<MultipartAttachmentUi>, List<MultipartAttachmentUi>> {
+    ): List<MultipartAttachmentGroup> {
 
-        val (media, files) = attachments.partition {
-            it.isMediaAttachment()
+        val result = mutableListOf<MultipartAttachmentGroup>()
+        var group: MultipartAttachmentGroup? = null
+
+        attachments.forEach {
+            if (it.isMediaAttachment()) {
+                group = when (group) {
+                    null -> MultipartAttachmentGroup.Media(listOf(it.toUiModel()))
+                    is MultipartAttachmentGroup.Media -> group.copy(group.attachments + it.toUiModel())
+                    else -> {
+                        result.add(group)
+                        MultipartAttachmentGroup.Media(listOf(it.toUiModel()))
+                    }
+                }
+            } else {
+                group = when (group) {
+                    null -> MultipartAttachmentGroup.Files(listOf(it.toUiModel()))
+                    is MultipartAttachmentGroup.Files -> group.copy(group.attachments + it.toUiModel())
+                    else -> {
+                        result.add(group)
+                        MultipartAttachmentGroup.Files(listOf(it.toUiModel()))
+                    }
+                }
+            }
         }
 
-        val mediaAttachments = media.map { it.toUiModel() }
-        val fileAttachments = files.map { it.toUiModel() }
+        group?.let {
+            result.add(it)
+        }
 
-        return mediaAttachments to fileAttachments
+        return result.toImmutableList()
+    }
+
+    sealed interface MultipartAttachmentGroup {
+        data class Media(val attachments: List<MultipartAttachmentUi>) : MultipartAttachmentGroup
+        data class Files(val attachments: List<MultipartAttachmentUi>) : MultipartAttachmentGroup
     }
 
     fun onClick(attachment: MultipartAttachmentUi) {

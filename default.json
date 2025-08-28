@@ -66,7 +66,8 @@
             "analytics_enabled": true,
             "analytics_app_key": "8ffae535f1836ed5f58fd5c8a11c00eca07c5438",
             "analytics_server_url": "https://wire.count.ly/",
-            "enable_new_registration": true
+            "enable_new_registration": true,
+            "is_mls_reset_enabled": true
         },
         "internal": {
             "application_id": "com.wire.internal",

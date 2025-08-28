@@ -103,8 +103,8 @@ fun MessageBubbleExpireFooter(
                 HorizontalSpace.x8()
                 SelfDeletionTimerIcon(selfDeletionTimerState, messageStyle, accentColor)
                 HorizontalSpace.x4()
-                MessageTimeLabel(
-                    messageTime = selfDeletionTimerState.timeLeft.compactLabel(),
+                MessageSmallLabel(
+                    text = selfDeletionTimerState.timeLeft.compactLabel(),
                     messageStyle = messageStyle
                 )
             }

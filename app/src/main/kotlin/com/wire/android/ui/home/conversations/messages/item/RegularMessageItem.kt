@@ -22,6 +22,7 @@ import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -31,6 +32,7 @@ import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.model.DeliveryStatusContent
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.UIMessage
+import com.wire.android.ui.theme.wireColorScheme
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 
 // TODO: a definite candidate for a refactor and cleanup WPB-14390
@@ -52,14 +54,14 @@ fun RegularMessageItem(
     selfDeletionTimerState: SelfDeletionTimerHelper.SelfDeletionTimerState = SelfDeletionTimerHelper.SelfDeletionTimerState.NotExpirable,
     isBubbleUiEnabled: Boolean = false
 ): Unit = with(message) {
+    val messageStyle = when {
+        !isBubbleUiEnabled -> MessageStyle.NORMAL
+        message.isMyMessage -> MessageStyle.BUBBLE_SELF
+        else -> MessageStyle.BUBBLE_OTHER
+    }
+
     @Composable
     fun messageContent() {
-        val messageStyle = when {
-            !isBubbleUiEnabled -> MessageStyle.NORMAL
-            message.isMyMessage -> MessageStyle.BUBBLE_SELF
-            else -> MessageStyle.BUBBLE_OTHER
-        }
-
         if (isBubbleUiEnabled) {
             val footerSlot: (@Composable (inner: PaddingValues) -> Unit)? =
                 if (shouldDisplayFooter) {
@@ -214,7 +216,14 @@ fun RegularMessageItem(
 
     when (swipeableMessageConfiguration) {
         is SwipeableMessageConfiguration.Swipeable -> {
-            SwipeableMessageBox(swipeableMessageConfiguration) {
+            SwipeableMessageBox(
+                configuration = swipeableMessageConfiguration,
+                messageStyle = messageStyle,
+                accentColor = MaterialTheme.wireColorScheme.wireAccentColors.getOrDefault(
+                    header.accent,
+                    MaterialTheme.wireColorScheme.primary
+                )
+            ) {
                 messageContent()
             }
         }

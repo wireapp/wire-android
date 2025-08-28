@@ -28,11 +28,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import com.wire.android.R
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversations.SelfDeletionTimerHelper
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
+import com.wire.android.ui.home.conversations.model.MessageEditStatus
 import com.wire.android.ui.home.conversations.model.MessageFlowStatus
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.UIMessage
@@ -131,17 +134,27 @@ fun MessageContentItem(
                     }
                 )
             }
-            if (messageStyle.isBubble() && !useSmallBottomPadding) {
+            if (messageStyle.isBubble() && (!useSmallBottomPadding || header.messageStatus.editStatus is MessageEditStatus.Edited)) {
                 VerticalSpace.x4()
                 Row(
                     Modifier.padding(innerPadding),
                     horizontalArrangement = if (source == MessageSource.Self) Arrangement.End else Arrangement.Start,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    MessageTimeLabel(
-                        messageTime = header.messageTime.formattedDate,
+                    MessageSmallLabel(
+                        text = header.messageTime.formattedDate,
                         messageStyle = messageStyle
                     )
+
+                    if (header.messageStatus.editStatus is MessageEditStatus.Edited) {
+                        HorizontalSpace.x8()
+                        MessageSmallLabel(
+                            text = "• " + stringResource(R.string.label_message_status_edited),
+                            messageStyle = messageStyle
+                        )
+                        HorizontalSpace.x8()
+                    }
+
                     MessageBubbleExpireFooter(
                         messageStyle = messageStyle,
                         selfDeletionTimerState = selfDeletionTimerState,

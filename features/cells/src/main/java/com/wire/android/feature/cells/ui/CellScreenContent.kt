@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -53,6 +54,7 @@ import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.MultipleThemePreviews
+import com.wire.android.ui.common.typography
 import com.wire.android.ui.theme.WireTheme
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
@@ -243,6 +245,14 @@ private fun EmptyScreen(
                 .fillMaxHeight()
                 .weight(1f)
         )
+        if (!isSearchResult && !isRecycleBin) {
+            Text(
+                text = stringResource(R.string.file_list_empty_title),
+                style = typography().title01,
+                textAlign = TextAlign.Center,
+            )
+            Spacer(modifier = Modifier.height(dimensions().spacing16x))
+        }
         Text(
             text = when {
                 isSearchResult -> stringResource(R.string.file_list_search_empty_message)

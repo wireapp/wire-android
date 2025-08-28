@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
@@ -68,10 +69,14 @@ data class SwipeAction(
 @Composable
 internal fun SwipeableMessageBox(
     configuration: SwipeableMessageConfiguration.Swipeable,
+    messageStyle: MessageStyle,
+    accentColor: Color,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
     SwipeableBox(
+        messageStyle = messageStyle,
+        accentColor = accentColor,
         modifier = modifier,
         onSwipeRight = configuration.onSwipedRight?.let {
             SwipeAction(
@@ -93,6 +98,8 @@ internal fun SwipeableMessageBox(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun SwipeableBox(
+    messageStyle: MessageStyle,
+    accentColor: Color,
     modifier: Modifier = Modifier,
     onSwipeRight: SwipeAction? = null,
     onSwipeLeft: SwipeAction? = null,
@@ -114,6 +121,19 @@ private fun SwipeableBox(
         override val touchSlop: Float
             get() = currentViewConfiguration.touchSlop * 3f
     }
+
+    val backgroundColor: Color = when (messageStyle) {
+        MessageStyle.BUBBLE_SELF -> colorsScheme().surfaceContainerLow
+        MessageStyle.BUBBLE_OTHER -> colorsScheme().surfaceContainerLow
+        MessageStyle.NORMAL -> colorsScheme().primary
+    }
+
+    val tintColor = when (messageStyle) {
+        MessageStyle.BUBBLE_SELF -> accentColor
+        MessageStyle.BUBBLE_OTHER -> accentColor
+        MessageStyle.NORMAL -> colorsScheme().onPrimary
+    }
+
     CompositionLocalProvider(LocalViewConfiguration provides scopedViewConfiguration) {
         val dragState = remember {
             AnchoredDraggableState(
@@ -154,8 +174,6 @@ private fun SwipeableBox(
             didVibrateOnCurrentDrag = false
         }
 
-        val primaryColor = colorsScheme().primary
-
         Box(
             modifier = modifier.fillMaxSize(),
         ) {
@@ -168,7 +186,7 @@ private fun SwipeableBox(
                     .matchParentSize()
                     .drawBehind {
                         drawRect(
-                            color = primaryColor,
+                            color = backgroundColor,
                             topLeft = if (dragOffset >= 0f) {
                                 Offset(0f, 0f)
                             } else {
@@ -193,11 +211,11 @@ private fun SwipeableBox(
 
                 if (dragState.offset > 0f) {
                     onSwipeRight?.let { action ->
-                        SwipeActionIcon(action.icon, screenWidth, dragWidth, density, progress)
+                        SwipeActionIcon(action.icon, screenWidth, dragWidth, density, progress, tintColor)
                     }
                 } else if (dragState.offset < 0f) {
                     onSwipeLeft?.let {
-                        SwipeActionIcon(it.icon, screenWidth, dragWidth, density, progress, false)
+                        SwipeActionIcon(it.icon, screenWidth, dragWidth, density, progress, tintColor, false)
                     }
                 }
             }
@@ -224,6 +242,7 @@ private fun SwipeActionIcon(
     dragWidth: Float,
     density: Density,
     progress: Float,
+    tint: Color,
     swipeRight: Boolean = true
 ) {
     val midPointBetweenStartAndGestureEnd = dragWidth / 2
@@ -249,6 +268,6 @@ private fun SwipeActionIcon(
                     IntOffset(screenWidth.toInt() - xOffset.toInt(), 0)
                 }
             },
-        tint = colorsScheme().onPrimary
+        tint = tint
     )
 }

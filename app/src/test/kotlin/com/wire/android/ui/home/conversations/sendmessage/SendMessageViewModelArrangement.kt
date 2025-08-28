@@ -25,6 +25,7 @@ import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.media.PingRinger
 import com.wire.android.ui.home.conversations.ConversationNavArgs
+import com.wire.android.ui.home.conversations.MessageSharedState
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
 import com.wire.android.ui.navArgs
@@ -151,6 +152,9 @@ internal class SendMessageViewModelArrangement {
     @MockK
     lateinit var isWireCellsEnabledForConversation: IsWireCellsEnabledForConversationUseCase
 
+    @MockK
+    lateinit var sharedState: MessageSharedState
+
     private val viewModel by lazy {
         SendMessageViewModel(
             sendTextMessage = sendTextMessage,
@@ -173,7 +177,8 @@ internal class SendMessageViewModelArrangement {
             savedStateHandle = savedStateHandle,
             analyticsManager = analyticsManager,
             sendMultipartMessage = sendMultipartMessage,
-            isWireCellsEnabledForConversation = isWireCellsEnabledForConversation
+            isWireCellsEnabledForConversation = isWireCellsEnabledForConversation,
+            sharedState = sharedState
         )
     }
 

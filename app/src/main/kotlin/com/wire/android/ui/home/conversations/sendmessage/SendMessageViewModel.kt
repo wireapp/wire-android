@@ -33,6 +33,7 @@ import com.wire.android.model.SnackBarMessage
 import com.wire.android.ui.home.conversations.AssetTooLargeDialogState
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
+import com.wire.android.ui.home.conversations.MessageSharedState
 import com.wire.android.ui.home.conversations.SureAboutMessagingDialogState
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.UriAsset
@@ -104,6 +105,7 @@ class SendMessageViewModel @Inject constructor(
     private val removeMessageDraft: RemoveMessageDraftUseCase,
     private val analyticsManager: AnonymousAnalyticsManager,
     private val isWireCellsEnabledForConversation: IsWireCellsEnabledForConversationUseCase,
+    private val sharedState: MessageSharedState
 ) : ViewModel() {
 
     private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
@@ -120,9 +122,6 @@ class SendMessageViewModel @Inject constructor(
         SureAboutMessagingDialogState.Hidden
     )
 
-    private val _pendingBundles = MutableSharedFlow<List<AssetBundle>>()
-    val pendingBundles = _pendingBundles.asSharedFlow()
-
     init {
         conversationNavArgs.pendingTextBundle?.let { text ->
             trySendPendingMessageBundle(text)
@@ -137,7 +136,7 @@ class SendMessageViewModel @Inject constructor(
     private fun handlePendingBundles(assetBundles: ArrayList<AssetBundle>) {
         viewModelScope.launch {
             if (isWireCellsEnabledForConversation(conversationId)) {
-                _pendingBundles.emit(assetBundles)
+                sharedState.postBundles(assetBundles)
             } else {
                 trySendMessages(
                     assetBundles.map { assetBundle ->
@@ -148,12 +147,6 @@ class SendMessageViewModel @Inject constructor(
                     }
                 )
             }
-        }
-    }
-
-    fun clearPendingBundles() {
-        viewModelScope.launch {
-            _pendingBundles.emit(emptyList())
         }
     }
 

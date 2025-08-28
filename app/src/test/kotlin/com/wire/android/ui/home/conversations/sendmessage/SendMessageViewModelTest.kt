@@ -870,7 +870,7 @@ class SendMessageViewModelTest {
                 AttachmentType.GENERIC_FILE
             )
         )
-        val (_, viewModel) = SendMessageViewModelArrangement()
+        val (arrangement, _) = SendMessageViewModelArrangement()
             .withSuccessfulViewModelInit()
             .withPendingAssetBundle(*assetBundles)
             .withCellsEnabledForConversation(true)
@@ -878,7 +878,11 @@ class SendMessageViewModelTest {
             .withSendAttachmentMessageResult(ScheduleNewAssetMessageResult.Success("some-message-id2"))
             .arrange()
 
-        assertEquals(2, viewModel.pendingBundles.first().size)
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) {
+            arrangement.sharedState.postBundles(any())
+        }
     }
 
     companion object {

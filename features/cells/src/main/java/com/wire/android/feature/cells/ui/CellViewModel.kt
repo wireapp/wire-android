@@ -43,6 +43,7 @@ import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
 import com.wire.kalium.cells.domain.usecase.IsAtLeastOneCellAvailableUseCase
 import com.wire.kalium.cells.domain.usecase.RestoreNodeFromRecycleBinUseCase
+import com.wire.kalium.common.functional.fold
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
@@ -57,8 +58,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flatMapMerge
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.onStart
@@ -109,26 +110,13 @@ class CellViewModel @Inject constructor(
     private val _tags = MutableStateFlow<Set<String>>(emptySet())
     val tags: StateFlow<Set<String>> = _tags.asStateFlow()
 
-    private val checkIfCellAvailable = flow {
-        if (isAllFiles()) {
-            isCellAvailable()
-                .onSuccess { emit(it) }
-                .onFailure { emit(false) }
-        } else {
-            emit(true)
-        }
-    }
-
     init {
         loadTags()
     }
 
-    internal val nodesFlow = checkIfCellAvailable.flatMapMerge { cellAvailable ->
-        if (cellAvailable) {
-            buildNodesFlow()
-        } else {
-            flowOf(emptyData)
-        }
+    internal val nodesFlow = flow {
+        val cellAvailable = isCellAvailable().fold({ false }, { it })
+        emitAll(if (cellAvailable) buildNodesFlow() else flowOf(emptyData))
     }
 
     private fun buildNodesFlow() = combine(

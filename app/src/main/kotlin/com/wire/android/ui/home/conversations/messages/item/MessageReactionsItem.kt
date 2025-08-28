@@ -32,10 +32,13 @@ import com.wire.android.ui.home.conversations.model.MessageFooter
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 
+private const val BUBBLE_MAX_REACTIONS_IN_ROW = 4
+
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun MessageReactionsItem(
     messageFooter: MessageFooter,
+    messageStyle: MessageStyle,
     onReactionClicked: (String, String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -45,6 +48,7 @@ fun MessageReactionsItem(
             modifier = modifier,
             horizontalArrangement = Arrangement.spacedBy(dimensions().spacing4x, Alignment.Start),
             verticalArrangement = Arrangement.spacedBy(dimensions().spacing6x, Alignment.Top),
+            maxItemsInEachRow = if (messageStyle.isBubble()) BUBBLE_MAX_REACTIONS_IN_ROW else Int.MAX_VALUE
         ) {
             messageFooter.reactions.entries
                 .sortedBy { it.key }
@@ -67,8 +71,33 @@ fun MessageReactionsItem(
 @PreviewMultipleThemes
 @Composable
 fun LongMessageReactionsItemPreview() = WireTheme {
-    Box(modifier = Modifier.width(200.dp)) {
+    Box(modifier = Modifier.width(300.dp)) {
         MessageReactionsItem(
+            messageStyle = MessageStyle.NORMAL,
+            messageFooter = MessageFooter(
+                messageId = "messageId",
+                reactions = mapOf(
+                    "👍" to 1,
+                    "👎" to 2,
+                    "👏" to 3,
+                    "🤔" to 4,
+                    "🤷" to 5,
+                    "🤦" to 6,
+                    "🤢" to 7
+                ),
+                ownReactions = setOf("👍"),
+            ),
+            onReactionClicked = { _, _ -> }
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun LongMessageReactionsBubbleItemPreview() = WireTheme {
+    Box(modifier = Modifier.width(300.dp)) {
+        MessageReactionsItem(
+            messageStyle = MessageStyle.BUBBLE_OTHER,
             messageFooter = MessageFooter(
                 messageId = "messageId",
                 reactions = mapOf(

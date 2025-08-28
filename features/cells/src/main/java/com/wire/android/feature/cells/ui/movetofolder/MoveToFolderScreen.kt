@@ -139,7 +139,9 @@ fun MoveToFolderScreen(
                             modifier = Modifier
                                 .padding(dimensions().spacing16x)
                         ) {
-                            val isLoading = moveToFolderViewModel.state.collectAsState().value == MoveToFolderScreenState.LOADING_IN_FULL_SCREEN
+                            val isLoading = moveToFolderViewModel.state.collectAsState().value ==
+                                    MoveToFolderScreenState.LOADING_IN_FULL_SCREEN
+
                             WireSecondaryButton(
                                 text = stringResource(R.string.cells_create_folder),
                                 onClick = {

@@ -136,45 +136,33 @@ private fun SelfDeletionTimerIcon(
         MessageStyle.NORMAL -> colorsScheme().secondaryText
     }
 
-    val rawFractionLeft = state.fractionLeft
-    val displayFractionLeft =
-        if (discreteSteps != null && discreteSteps > 0) {
-            (kotlin.math.ceil(rawFractionLeft * discreteSteps) / discreteSteps)
-                .coerceIn(0f, 1f)
-        } else {
-            rawFractionLeft
-        }
-
-    val elapsedFraction = 1f - displayFractionLeft
-    val emptySweepDegrees = 360f * elapsedFraction
-    val startAngle = -90f
-    val backgroundAlpha = state.alphaBackgroundColor()
+    val metrics = state.iconMetrics(discreteSteps = discreteSteps)
 
     Canvas(
         modifier
             .size(size)
             .semantics(mergeDescendants = true) {
-                contentDescription = "Time left ${"%.0f".format(displayFractionLeft * 100)}%"
+                contentDescription = "Time left ${"%.0f".format(metrics.displayFractionLeft * 100)}%"
             }
     ) {
-        if (backgroundAlpha > 0f) {
-            drawCircle(color = filledColor.copy(alpha = backgroundAlpha))
+        if (metrics.backgroundAlpha > 0f) {
+            drawCircle(color = filledColor.copy(alpha = metrics.backgroundAlpha))
         }
 
         drawCircle(color = filledColor)
 
-        if (emptySweepDegrees > 0f) {
+        if (metrics.emptySweepDegrees > 0f) {
             drawArc(
                 color = emptyColor,
-                startAngle = startAngle,
-                sweepAngle = emptySweepDegrees,
+                startAngle = START_ANGLE_TOP_DEG,
+                sweepAngle = metrics.emptySweepDegrees,
                 useCenter = true
             )
         }
 
         drawCircle(
             color = filledColor,
-            style = Stroke(width = size.value * 0.08f)
+            style = Stroke(width = this.size.minDimension * STROKE_WIDTH_FRACTION)
         )
     }
 }

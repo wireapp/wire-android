@@ -19,8 +19,6 @@
 <resources>
     <string name="retry">Yeniden dene</string>
     <string name="file_list_load_error">Dosya listesi yüklenirken bir hata oluştu. Lütfen tekrar deneyin.</string>
-    <string name="file_list_empty_message">Henüz dosya yok. Konuşmalarınızda paylaşılan tüm dosyaları burada bulabilirsiniz.</string>
-    <string name="conversation_file_list_empty_message">Bu konuşmada dosya bulunmamaktadır.</string>
     <string name="file_list_search_empty_message">Dosya bulunamadı.</string>
     <string name="save_label">Kaydet</string>
     <string name="share_label">Paylaş</string>
@@ -28,14 +26,12 @@
     <string name="delete_permanently">Kalıcı olarak sil</string>
     <string name="restore_label">Geri yükle</string>
     <string name="add_remove_tags_label">Etiket ekle ya da kaldır</string>
-    <string name="move_label">Taşı</string>
     <string name="download_label">İndir</string>
     <string name="copy_link">Bağlantıyı kopyala</string>
     <string name="share_link">Bağlantıyı paylaş</string>
     <string name="copied_to_clipboard_message">Bağlantı panoya kopyalandı</string>
     <string name="file_subtitle">%2$s içinden %1$s</string>
     <string name="file_subtitle_modified">%2$s tarafından %1$s</string>
-    <string name="public_link_message_file">Dosyanızı genel bağlantı aracılığıyla yükleyin ve paylaşın. Tüm alıcılar dosyayı görüntüleyebilir ve indirebilir.</string>
     <string name="public_link_message_folder">Klasörünüzü genel bir bağlantı aracılığıyla yükleyin ve paylaşın. Tüm alıcılar görüntüleyebilir ve indirebilir.</string>
     <string name="create_public_link">Genel bağlantı oluştur</string>
     <string name="share_file_via_link">Dosyayı bağlantı yoluyla paylaş</string>
@@ -101,7 +97,6 @@
     <string name="added_tags_label">Eklenen etiketler</string>
     <string name="add_tag_label">Etiket ekle</string>
     <string name="enter_name_label">Etiket adı girin</string>
-    <string name="no_tags_message">Bu dosyaya hiçbir etiket eklenmedi.</string>
     <string name="tags_edited">Etiketler düzenlendi</string>
     <string name="failed_edit_tags">Etiketler düzenlenemedi</string>
 </resources>

@@ -17,17 +17,12 @@
  */
 package com.wire.android.feature.cells.ui.common
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.semantics.invisibleToUser
-import androidx.compose.ui.semantics.semantics
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
@@ -38,25 +33,6 @@ fun LoadingScreen(
 ) {
     Box(
         modifier = modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        WireCircularProgressIndicator(
-            modifier = Modifier.size(dimensions().spacing32x),
-            progressColor = colorsScheme().primary
-        )
-    }
-}
-
-@Composable
-fun FullScreenLoading(
-    modifier: Modifier = Modifier,
-) {
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .pointerInput(Unit) {}
-            .semantics { invisibleToUser() }
-            .background(Color.Gray.copy(alpha = 0.6f)),
         contentAlignment = Alignment.Center
     ) {
         WireCircularProgressIndicator(

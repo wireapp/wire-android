@@ -68,6 +68,7 @@ fun AllFilesScreen(
         downloadFileState = viewModel.downloadFileSheet,
         menuState = viewModel.menu,
         isAllFiles = true,
+        isRestoreInProgress = viewModel.isRestoreInProgress.collectAsState().value,
         isRecycleBin = viewModel.isRecycleBin(),
         isSearchResult = viewModel.hasSearchQuery(),
         showPublicLinkScreen = { publicLinkScreenData ->

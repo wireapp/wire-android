@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
@@ -96,6 +97,7 @@ fun ConversationFilesScreen(
         pagingListItems = viewModel.nodesFlow.collectAsLazyPagingItems(),
         downloadFileSheet = viewModel.downloadFileSheet,
         menu = viewModel.menu,
+        isRestoreInProgress = viewModel.isRestoreInProgress.collectAsState().value,
         breadcrumbs = viewModel.breadcrumbs(),
         sendIntent = { viewModel.sendIntent(it) },
     )
@@ -113,6 +115,7 @@ fun ConversationFilesScreenContent(
     modifier: Modifier = Modifier,
     screenTitle: String? = null,
     isRecycleBin: Boolean = false,
+    isRestoreInProgress: Boolean = false,
     breadcrumbs: Array<String>? = emptyArray(),
     navigationIconType: NavigationIconType = NavigationIconType.Close()
 ) {
@@ -221,6 +224,7 @@ fun ConversationFilesScreenContent(
                 downloadFileState = downloadFileSheet,
                 menuState = menu,
                 isAllFiles = false,
+                isRestoreInProgress = isRestoreInProgress,
                 isRecycleBin = isRecycleBin,
                 onFolderClick = {
                     val folderPath = "$currentNodeUuid/${it.name}"

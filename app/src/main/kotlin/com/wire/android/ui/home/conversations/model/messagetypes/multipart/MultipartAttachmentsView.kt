@@ -20,8 +20,6 @@ package com.wire.android.ui.home.conversations.model.messagetypes.multipart
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -59,30 +57,49 @@ fun MultipartAttachmentsView(
     viewModel: MultipartAttachmentsViewModel = hiltViewModel<MultipartAttachmentsViewModel>(key = conversationId.value),
 ) {
 
-    // File attachments are shown separately after media files grid
-    val (media, files) = viewModel.mapAttachments(attachments)
-
-    if (media.size > 1) {
-        AttachmentsGrid(
-            attachments = media,
-            messageStyle = messageStyle,
-            onClick = { viewModel.onClick(it) },
-            modifier = modifier,
-        )
-        Spacer(modifier = Modifier.height(dimensions().spacing8x))
-        AttachmentsList(
-            attachments = files,
-            messageStyle = messageStyle,
-            onClick = { viewModel.onClick(it) }
-        )
+    // TODO I found out that empty attachments list is not handled here and it shows empty message with no information
+    if (attachments.size == 1) {
+        attachments.first().toUiModel().let {
+            AssetPreview(
+                item = it,
+                messageStyle = messageStyle,
+                onClick = { viewModel.onClick(it) },
+            )
+        }
     } else {
-        AttachmentsList(
-            attachments = (media + files),
-            messageStyle = messageStyle,
-            onClick = { viewModel.onClick(it) }
-        )
-    }
+        val groups = viewModel.mapAttachments(attachments)
 
+        Column(
+            modifier = modifier,
+            verticalArrangement = Arrangement.spacedBy(dimensions().spacing8x)
+        ) {
+            groups.forEach { group ->
+                when (group) {
+                    is MultipartAttachmentsViewModel.MultipartAttachmentGroup.Media ->
+                        if (group.attachments.size == 1) {
+                            AssetPreview(
+                                item = group.attachments.first(),
+                                messageStyle = messageStyle,
+                                onClick = { viewModel.onClick(group.attachments.first()) },
+                            )
+                        } else {
+                            AttachmentsGrid(
+                                attachments = group.attachments,
+                                messageStyle = messageStyle,
+                                onClick = { viewModel.onClick(it) },
+                            )
+                        }
+
+                    is MultipartAttachmentsViewModel.MultipartAttachmentGroup.Files ->
+                        AttachmentsList(
+                            attachments = group.attachments,
+                            messageStyle = messageStyle,
+                            onClick = { viewModel.onClick(it) }
+                        )
+                }
+            }
+        }
+    }
     LaunchedEffect(attachments) {
         attachments.onEach { viewModel.refreshAssetState(it.toUiModel()) }
     }

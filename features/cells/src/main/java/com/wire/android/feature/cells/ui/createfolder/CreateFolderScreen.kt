@@ -29,6 +29,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -125,19 +126,22 @@ fun CreateFolderScreen(
                         modifier = Modifier
                             .padding(dimensions().spacing16x)
                     ) {
-                        WirePrimaryButton(
-                            text = stringResource(R.string.cells_create_folder),
-                            onClick = {
-                                createFolderViewModel.createFolder(
-                                    folderName = createFolderViewModel.fileNameTextFieldState.text.toString()
-                                )
-                            },
-                            state = if (createFolderViewModel.displayNameState.saveEnabled) {
-                                WireButtonState.Default
-                            } else {
-                                WireButtonState.Disabled
-                            },
-                        )
+                        with(createFolderViewModel) {
+                            WirePrimaryButton(
+                                text = stringResource(R.string.cells_create_folder),
+                                onClick = {
+                                    createFolder(
+                                        folderName = fileNameTextFieldState.text.toString()
+                                    )
+                                },
+                                state = if (displayNameState.saveEnabled && !isCreating.collectAsState().value) {
+                                    WireButtonState.Default
+                                } else {
+                                    WireButtonState.Disabled
+                                },
+                                loading = isCreating.collectAsState().value
+                            )
+                        }
                     }
                 }
             }

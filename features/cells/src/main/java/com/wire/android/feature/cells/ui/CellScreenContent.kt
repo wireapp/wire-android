@@ -72,6 +72,7 @@ internal fun CellScreenContent(
     showRenameScreen: (CellNodeUi) -> Unit,
     showMoveToFolderScreen: (String, String, String) -> Unit,
     showAddRemoveTagsScreen: (CellNodeUi) -> Unit,
+    isRestoreInProgress: Boolean,
     isAllFiles: Boolean,
     isRecycleBin: Boolean,
     isSearchResult: Boolean = false,
@@ -150,6 +151,7 @@ internal fun CellScreenContent(
         RestoreConfirmationDialog(
             itemName = it.name ?: "",
             isFolder = it is CellNodeUi.Folder,
+            isRestoreInProgress = isRestoreInProgress,
             onConfirm = {
                 sendIntent(CellViewIntent.OnNodeRestoreConfirmed(it))
                 restoreConfirmation = null

@@ -86,7 +86,9 @@ class CellViewModel @Inject constructor(
     // Show bottom sheet with download progress.
     private val _downloadFileSheet: MutableStateFlow<CellNodeUi.File?> = MutableStateFlow(null)
     internal val downloadFileSheet = _downloadFileSheet.asStateFlow()
-    val isLoading = MutableStateFlow(false)
+
+    private val _isRestoreInProgress = MutableStateFlow(false)
+    val isRestoreInProgress = _isRestoreInProgress.asStateFlow()
 
     // Download progress value for each file being downloaded.
     private val downloadDataFlow = MutableStateFlow<Map<String, DownloadData>>(emptyMap())
@@ -390,18 +392,18 @@ class CellViewModel @Inject constructor(
 
     private fun restoreNodeFromRecycleBin(node: CellNodeUi) {
         viewModelScope.launch {
-            isLoading.value = true
+            _isRestoreInProgress.value = true
             node.remotePath?.let {
                 restoreNodeFromRecycleBinUseCase(it)
                     .onSuccess {
                         removedItemsFlow.update { deletedItems ->
                             deletedItems - node.uuid
                         }
-                        isLoading.value = false
+                        _isRestoreInProgress.value = false
                         sendAction(RefreshData)
                     }
                     .onFailure {
-                        isLoading.value = false
+                        _isRestoreInProgress.value = false
                         sendAction(ShowError(CellError.OTHER_ERROR))
                     }
             }

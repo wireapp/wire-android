@@ -20,6 +20,7 @@ package com.wire.android.ui.debug
 import androidx.compose.ui.test.junit4.createComposeRule
 import com.wire.android.extensions.waitUntilExists
 import com.wire.android.ui.WireTestTheme
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.Test
@@ -40,6 +41,7 @@ class DebugScreenComposeTest {
                         onDeleteLogs = {},
                         onDatabaseLoggerEnabledChanged = {},
                         onShowFeatureFlags = {},
+                        onFlushLogs = { CompletableDeferred(Unit) },
                     )
             }
         }

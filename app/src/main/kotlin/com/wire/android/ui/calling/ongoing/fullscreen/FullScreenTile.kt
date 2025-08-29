@@ -41,7 +41,6 @@ import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.calling.model.CallState
 import com.wire.android.ui.calling.model.UICallParticipant
-import com.wire.android.ui.calling.ongoing.OngoingCallViewModel.Companion.DOUBLE_TAP_TOAST_DISPLAY_TIME
 import com.wire.android.ui.calling.ongoing.buildPreviewParticipantsList
 import com.wire.android.ui.calling.ongoing.participantsview.ParticipantTile
 import com.wire.android.ui.common.dimensions
@@ -109,9 +108,6 @@ fun FullScreenTile(
             LaunchedEffect(Unit) {
                 delay(200)
                 shouldShowDoubleTapToast = true
-
-                delay(DOUBLE_TAP_TOAST_DISPLAY_TIME)
-                shouldShowDoubleTapToast = false
             }
             DoubleTapToast(
                 modifier = Modifier

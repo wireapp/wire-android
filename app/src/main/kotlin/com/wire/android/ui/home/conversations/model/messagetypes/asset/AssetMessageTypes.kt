@@ -50,11 +50,14 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import com.wire.android.R
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.model.Clickable
+import com.wire.android.ui.common.applyIf
 import com.wire.android.ui.common.attachmentdraft.ui.FileHeaderView
 import com.wire.android.ui.common.clickable
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
+import com.wire.android.ui.home.conversations.messages.item.MessageStyle
+import com.wire.android.ui.home.conversations.messages.item.isBubble
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -71,20 +74,23 @@ internal fun MessageAsset(
     assetSizeInBytes: Long,
     assetDataPath: String?,
     onAssetClick: Clickable,
-    assetTransferStatus: AssetTransferStatus
+    assetTransferStatus: AssetTransferStatus,
+    messageStyle: MessageStyle
 ) {
     Box(
         modifier = Modifier
-            .padding(top = dimensions().spacing4x)
-            .background(
-                color = MaterialTheme.wireColorScheme.surfaceVariant,
-                shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
-            )
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.wireColorScheme.secondaryButtonDisabledOutline,
-                shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
-            )
+            .applyIf(!messageStyle.isBubble()) {
+                padding(top = dimensions().spacing4x)
+                .background(
+                    color = MaterialTheme.wireColorScheme.surfaceVariant,
+                    shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
+                )
+                .border(
+                    width = 1.dp,
+                    color = MaterialTheme.wireColorScheme.secondaryButtonDisabledOutline,
+                    shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
+                )
+            }
             .clickable(if (isNotClickable(assetTransferStatus)) null else onAssetClick)
     ) {
         if (assetTransferStatus == AssetTransferStatus.UPLOAD_IN_PROGRESS) {
@@ -101,7 +107,8 @@ internal fun MessageAsset(
                     extension = assetExtension,
                     size = assetSizeInBytes,
                     label = getDownloadStatusText(assetTransferStatus),
-                    labelColor = if (assetTransferStatus.isFailed()) colorsScheme().error else null
+                    labelColor = if (assetTransferStatus.isFailed()) colorsScheme().error else null,
+                    messageStyle = messageStyle
                 )
                 Text(
                     text = assetName,
@@ -293,7 +300,8 @@ private fun PreviewMessageAsset() {
             assetSizeInBytes = 1000000,
             assetDataPath = null,
             onAssetClick = Clickable {},
-            assetTransferStatus = AssetTransferStatus.NOT_DOWNLOADED
+            assetTransferStatus = AssetTransferStatus.NOT_DOWNLOADED,
+            messageStyle = MessageStyle.NORMAL
         )
     }
 }

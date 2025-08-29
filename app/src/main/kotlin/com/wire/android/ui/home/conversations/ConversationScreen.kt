@@ -1279,7 +1279,12 @@ fun MessageList(
                             )
                         }
 
-                    val showAuthor = rememberShouldShowHeader(index, message, lazyPagingMessages)
+                    val showAuthor = if (!isBubbleUiEnabled || conversationDetailsData is ConversationDetailsData.Group) {
+                        rememberShouldShowHeader(index, message, lazyPagingMessages)
+                    } else {
+                        false
+                    }
+
                     val useSmallBottomPadding = rememberShouldHaveSmallBottomPadding(index, message, lazyPagingMessages)
 
                     if (index > 0) {

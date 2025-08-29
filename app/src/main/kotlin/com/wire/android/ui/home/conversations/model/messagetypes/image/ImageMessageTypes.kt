@@ -25,8 +25,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -38,7 +38,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpSize
 import coil.compose.SubcomposeAsyncImage
 import com.wire.android.R
 import com.wire.android.model.ImageAsset
@@ -52,34 +52,34 @@ import okio.Path
 @Composable
 fun DisplayableImageMessage(
     imageData: ImageAsset.Remote,
-    width: Dp,
-    height: Dp,
+    size: DpSize,
     modifier: Modifier = Modifier
 ) {
-    Image(
-        painter = imageData.paint(),
-        contentDescription = stringResource(R.string.content_description_image_message),
-        modifier = modifier
-            .width(width)
-            .height(height),
-        alignment = Alignment.Center,
-        contentScale = ContentScale.Crop
-    )
+
+    Box(
+        modifier = Modifier,
+        propagateMinConstraints = true
+    ) {
+        Image(
+            painter = imageData.paint(),
+            contentDescription = stringResource(R.string.content_description_image_message),
+            modifier = modifier.requiredSize(size),
+            alignment = Alignment.Center,
+            contentScale = ContentScale.Crop
+        )
+    }
 }
 
 @Composable
 fun AsyncImageMessage(
     assetPath: Path,
-    width: Dp,
-    height: Dp,
+    size: DpSize,
     modifier: Modifier = Modifier
 ) {
     SubcomposeAsyncImage(
         assetPath.toFile(),
         contentDescription = stringResource(R.string.content_description_image_message),
-        modifier = modifier
-            .width(width)
-            .height(height),
+        modifier = modifier.requiredSize(size),
         loading = { _ ->
             Box(
                 modifier = Modifier.size(MaterialTheme.wireDimensions.spacing24x),
@@ -98,8 +98,7 @@ fun AsyncImageMessage(
 
 @Composable
 fun ImageMessageInProgress(
-    width: Dp,
-    height: Dp,
+    size: DpSize,
     isDownloading: Boolean,
     modifier: Modifier = Modifier,
     showText: Boolean = true
@@ -108,8 +107,7 @@ fun ImageMessageInProgress(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
-            .width(width)
-            .height(height)
+            .requiredSize(size)
             .padding(MaterialTheme.wireDimensions.spacing8x)
     ) {
         WireCircularProgressIndicator(
@@ -132,13 +130,12 @@ fun ImageMessageInProgress(
 }
 
 @Composable
-fun ImageMessageFailed(width: Dp, height: Dp, isDownloadFailure: Boolean, modifier: Modifier = Modifier) {
+fun ImageMessageFailed(size: DpSize, isDownloadFailure: Boolean, modifier: Modifier = Modifier) {
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
-            .width(width)
-            .height(height)
+            .requiredSize(size)
             .padding(MaterialTheme.wireDimensions.spacing8x)
     ) {
         Icon(

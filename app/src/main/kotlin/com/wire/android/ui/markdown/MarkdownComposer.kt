@@ -31,6 +31,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import com.wire.android.ui.common.LinkSpannableString
+import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.markdown.MarkdownConstants.TAG_URL
 import com.wire.android.util.MatchQueryResult
 import com.wire.android.util.QueryMatchExtractor
@@ -264,6 +265,12 @@ fun appendLinksAndMentions(
 
     val linkInfos = LinkSpannableString.getLinkInfos(stringBuilder.toString(), Linkify.WEB_URLS or Linkify.EMAIL_ADDRESSES)
 
+    val linkAndMentionColor = when (nodeData.messageStyle) {
+        MessageStyle.BUBBLE_SELF -> nodeData.colorScheme.onPrimary
+        MessageStyle.BUBBLE_OTHER -> nodeData.colorScheme.primary
+        MessageStyle.NORMAL -> nodeData.colorScheme.primary
+    }
+
     val updatedAnnotatedString = buildAnnotatedString {
         append(stringBuilder)
         with(nodeData.colorScheme) {
@@ -275,7 +282,7 @@ fun appendLinksAndMentions(
                 }
                 addStyle(
                     style = SpanStyle(
-                        color = primary,
+                        color = linkAndMentionColor,
                         textDecoration = TextDecoration.Underline
                     ),
                     start = safeStart,
@@ -297,7 +304,7 @@ fun appendLinksAndMentions(
                     addStyle(
                         style = SpanStyle(
                             fontWeight = nodeData.typography.body02.fontWeight,
-                            color = onPrimaryVariant,
+                            color = linkAndMentionColor,
                             background = if (mention.isSelfMention) primaryVariant else Color.Unspecified
                         ),
                         start = mention.start,

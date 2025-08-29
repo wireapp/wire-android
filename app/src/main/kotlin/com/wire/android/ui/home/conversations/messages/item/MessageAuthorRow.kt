@@ -39,7 +39,7 @@ import com.wire.android.ui.theme.wireTypography
 fun MessageAuthorRow(
     messageHeader: MessageHeader,
     messageStyle: MessageStyle,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     with(messageHeader) {
         Row(

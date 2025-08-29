@@ -66,8 +66,7 @@
             "analytics_enabled": true,
             "analytics_app_key": "8ffae535f1836ed5f58fd5c8a11c00eca07c5438",
             "analytics_server_url": "https://wire.count.ly/",
-            "enable_new_registration": true,
-            "is_mls_reset_enabled": true
+            "enable_new_registration": true
         },
         "internal": {
             "application_id": "com.wire.internal",
@@ -78,8 +77,7 @@
             "analytics_enabled": true,
             "analytics_app_key": "8ffae535f1836ed5f58fd5c8a11c00eca07c5438",
             "analytics_server_url": "https://wire.count.ly/",
-            "enable_new_registration": true,
-            "is_mls_reset_enabled": true
+            "enable_new_registration": true
         },
         "fdroid": {
             "application_id": "com.wire",
@@ -146,5 +144,5 @@
     "use_new_login_for_default_backend": true,
     "enable_crossplatform_backup": true,
     "mls_read_receipts_enabled": false,
-    "is_mls_reset_enabled": false
+    "is_mls_reset_enabled": true
 }

@@ -45,7 +45,7 @@ import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationsSource
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.conversation.Conversation
-import com.wire.kalium.logic.data.conversation.ConversationFilter
+import com.wire.kalium.logic.data.conversation.Filter
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
@@ -298,14 +298,14 @@ class ConversationListViewModelImpl @AssistedInject constructor(
 
 fun Conversation.LegalHoldStatus.showLegalHoldIndicator() = this == Conversation.LegalHoldStatus.ENABLED
 
-private fun ConversationsSource.toFilter(): ConversationFilter = when (this) {
-    ConversationsSource.MAIN -> ConversationFilter.All
-    ConversationsSource.ARCHIVE -> ConversationFilter.All
-    ConversationsSource.GROUPS -> ConversationFilter.Groups
-    ConversationsSource.CHANNELS -> ConversationFilter.Channels
-    ConversationsSource.FAVORITES -> ConversationFilter.Favorites
-    ConversationsSource.ONE_ON_ONE -> ConversationFilter.OneOnOne
-    is ConversationsSource.FOLDER -> ConversationFilter.Folder(folderId = folderId, folderName = folderName)
+private fun ConversationsSource.toFilter(): Filter.Conversation = when (this) {
+    ConversationsSource.MAIN -> Filter.Conversation.All
+    ConversationsSource.ARCHIVE -> Filter.Conversation.All
+    ConversationsSource.GROUPS -> Filter.Conversation.Groups
+    ConversationsSource.CHANNELS -> Filter.Conversation.Channels
+    ConversationsSource.FAVORITES -> Filter.Conversation.Favorites
+    ConversationsSource.ONE_ON_ONE -> Filter.Conversation.OneOnOne
+    is ConversationsSource.FOLDER -> Filter.Conversation.Folder(folderId = folderId, folderName = folderName)
 }
 
 /**

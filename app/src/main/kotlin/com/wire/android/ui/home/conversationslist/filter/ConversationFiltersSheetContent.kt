@@ -26,12 +26,12 @@ import com.wire.android.ui.common.bottomsheet.RichMenuItemState
 import com.wire.android.ui.common.bottomsheet.SelectableMenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.WireMenuModalSheetContent
 import com.wire.android.ui.common.dimensions
-import com.wire.kalium.logic.data.conversation.ConversationFilter
+import com.wire.kalium.logic.data.conversation.Filter
 
 @Composable
 fun ConversationFiltersSheetContent(
     sheetData: ConversationFilterSheetData,
-    onChangeFilter: (ConversationFilter) -> Unit,
+    onChangeFilter: (Filter.Conversation) -> Unit,
     showFoldersBottomSheet: (selectedFolderId: String?) -> Unit
 ) {
     WireMenuModalSheetContent(
@@ -41,98 +41,98 @@ fun ConversationFiltersSheetContent(
         ),
         menuItems = buildList<@Composable () -> Unit> {
             add {
-                val state = if (ConversationFilter.All == sheetData.currentFilter) {
+                val state = if (Filter.Conversation.All == sheetData.currentFilter) {
                     RichMenuItemState.SELECTED
                 } else {
                     RichMenuItemState.DEFAULT
                 }
                 SelectableMenuBottomSheetItem(
-                    title = ConversationFilter.All.toSheetItemLabel().asString(),
+                    title = Filter.Conversation.All.toSheetItemLabel().asString(),
                     onItemClick = Clickable(
                         enabled = state == RichMenuItemState.DEFAULT,
                         onClickDescription = stringResource(id = R.string.content_description_select_label),
-                        onClick = { onChangeFilter(ConversationFilter.All) },
+                        onClick = { onChangeFilter(Filter.Conversation.All) },
                     ),
                     state = state
                 )
             }
             add {
-                val state = if (ConversationFilter.Favorites == sheetData.currentFilter) {
+                val state = if (Filter.Conversation.Favorites == sheetData.currentFilter) {
                     RichMenuItemState.SELECTED
                 } else {
                     RichMenuItemState.DEFAULT
                 }
                 SelectableMenuBottomSheetItem(
-                    title = ConversationFilter.Favorites.toSheetItemLabel().asString(),
+                    title = Filter.Conversation.Favorites.toSheetItemLabel().asString(),
                     onItemClick = Clickable(
                         enabled = state == RichMenuItemState.DEFAULT,
                         onClickDescription = stringResource(id = R.string.content_description_select_label),
-                        onClick = { onChangeFilter(ConversationFilter.Favorites) },
+                        onClick = { onChangeFilter(Filter.Conversation.Favorites) },
                     ),
                     state = state
                 )
             }
             add {
-                val state = if (ConversationFilter.Channels == sheetData.currentFilter) {
+                val state = if (Filter.Conversation.Channels == sheetData.currentFilter) {
                     RichMenuItemState.SELECTED
                 } else {
                     RichMenuItemState.DEFAULT
                 }
                 SelectableMenuBottomSheetItem(
-                    title = ConversationFilter.Channels.toSheetItemLabel().asString(),
+                    title = Filter.Conversation.Channels.toSheetItemLabel().asString(),
                     onItemClick = Clickable(
                         enabled = state == RichMenuItemState.DEFAULT,
                         onClickDescription = stringResource(id = R.string.content_description_select_label),
-                        onClick = { onChangeFilter(ConversationFilter.Channels) },
+                        onClick = { onChangeFilter(Filter.Conversation.Channels) },
                     ),
                     state = state
                 )
             }
             add {
-                val state = if (ConversationFilter.Groups == sheetData.currentFilter) {
+                val state = if (Filter.Conversation.Groups == sheetData.currentFilter) {
                     RichMenuItemState.SELECTED
                 } else {
                     RichMenuItemState.DEFAULT
                 }
                 SelectableMenuBottomSheetItem(
-                    title = ConversationFilter.Groups.toSheetItemLabel().asString(),
+                    title = Filter.Conversation.Groups.toSheetItemLabel().asString(),
                     onItemClick = Clickable(
                         enabled = state == RichMenuItemState.DEFAULT,
                         onClickDescription = stringResource(id = R.string.content_description_select_label),
-                        onClick = { onChangeFilter(ConversationFilter.Groups) },
+                        onClick = { onChangeFilter(Filter.Conversation.Favorites) },
                     ),
                     state = state
                 )
             }
             add {
-                val state = if (ConversationFilter.OneOnOne == sheetData.currentFilter) {
+                val state = if (Filter.Conversation.OneOnOne == sheetData.currentFilter) {
                     RichMenuItemState.SELECTED
                 } else {
                     RichMenuItemState.DEFAULT
                 }
                 SelectableMenuBottomSheetItem(
-                    title = ConversationFilter.OneOnOne.toSheetItemLabel().asString(),
+                    title = Filter.Conversation.OneOnOne.toSheetItemLabel().asString(),
                     onItemClick = Clickable(
                         enabled = state == RichMenuItemState.DEFAULT,
                         onClickDescription = stringResource(id = R.string.content_description_select_label),
-                        onClick = { onChangeFilter(ConversationFilter.OneOnOne) },
+                        onClick = { onChangeFilter(Filter.Conversation.Favorites) },
                     ),
                     state = state
                 )
             }
             add {
-                val state = if (sheetData.currentFilter is ConversationFilter.Folder) {
+                val state = if (sheetData.currentFilter is Filter.Conversation.Folder) {
                     RichMenuItemState.SELECTED
                 } else {
                     RichMenuItemState.DEFAULT
                 }
                 SelectableMenuBottomSheetItem(
                     title = stringResource(R.string.label_filter_folders),
-                    description = (sheetData.currentFilter as? ConversationFilter.Folder)?.folderName,
+                    description = (sheetData.currentFilter as? Filter.Conversation.Folder)?.folderName,
                     onItemClick = Clickable(
                         enabled = true,
                         onClickDescription = stringResource(id = R.string.content_description_select_label),
-                        onClick = { showFoldersBottomSheet((sheetData.currentFilter as? ConversationFilter.Folder)?.folderId) },
+                        onClick = { showFoldersBottomSheet((sheetData.currentFilter as? Filter.Conversation.Folder)?.folderId) },
                     ),
                     state = state
                 )

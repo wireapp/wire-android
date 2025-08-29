@@ -20,17 +20,17 @@ package com.wire.android.ui.home.conversationslist.filter
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import com.wire.kalium.logic.data.conversation.ConversationFilter
+import com.wire.kalium.logic.data.conversation.Filter
 import com.wire.kalium.logic.data.conversation.ConversationFolder
 import kotlinx.serialization.Serializable
 
 class ConversationFilterSheetState(
-    conversationFilterSheetData: ConversationFilterSheetData = ConversationFilterSheetData(
-        currentFilter = ConversationFilter.All,
+    filterSheetData: ConversationFilterSheetData = ConversationFilterSheetData(
+        currentFilter = Filter.Conversation.All,
         folders = listOf()
     )
 ) {
-    var currentData: ConversationFilterSheetData by mutableStateOf(conversationFilterSheetData)
+    var currentData: ConversationFilterSheetData by mutableStateOf(filterSheetData)
 
     fun toFolders() {
         currentData = currentData.copy(tab = FilterTab.FOLDERS)
@@ -44,7 +44,7 @@ class ConversationFilterSheetState(
 @Serializable
 data class ConversationFilterSheetData(
     val tab: FilterTab = FilterTab.FILTERS,
-    val currentFilter: ConversationFilter,
+    val currentFilter: Filter,
     val folders: List<ConversationFolder>
 )
 

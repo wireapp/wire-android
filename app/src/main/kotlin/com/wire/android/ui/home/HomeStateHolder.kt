@@ -34,12 +34,17 @@ import com.wire.android.navigation.HomeDestination
 import com.wire.android.navigation.HomeDestination.Conversations
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.rememberTrackingAnimatedNavController
+import com.wire.android.ui.common.bottomsheet.WireModalSheetState
+import com.wire.android.ui.common.bottomsheet.WireSheetValue
+import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.topappbar.ConversationFilterState
 import com.wire.android.ui.common.topappbar.rememberConversationFilterState
 import com.wire.android.ui.common.search.SearchBarState
 import com.wire.android.ui.common.search.rememberSearchbarState
+import com.wire.android.ui.common.topappbar.CellsFilterState
+import com.wire.android.ui.common.topappbar.rememberCellsFilterState
 import com.wire.android.ui.home.conversationslist.filter.toTopBarTitle
-import com.wire.kalium.logic.data.conversation.ConversationFilter
+import com.wire.kalium.logic.data.conversation.Filter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -49,15 +54,20 @@ class HomeStateHolder(
     val navController: NavHostController,
     val drawerState: DrawerState,
     val searchBarState: SearchBarState,
+    val cellsFilterBottomSheetState: WireModalSheetState<Unit>,
     val navigator: Navigator,
     private val currentNavigationItemState: State<HomeDestination>,
     private val conversationFilterState: ConversationFilterState,
+    private val cellsFilterState: CellsFilterState
 ) {
     val currentNavigationItem
         get() = currentNavigationItemState.value
 
     val currentConversationFilter
         get() = conversationFilterState.filter
+
+    val currentCellsFilters
+        get() = cellsFilterState.filters
 
     val currentTitle
         get() = when (currentNavigationItemState.value) {
@@ -69,11 +79,11 @@ class HomeStateHolder(
 
     fun lazyListStateFor(
         destination: HomeDestination,
-        conversationFilter: ConversationFilter = ConversationFilter.All,
+        filter: Filter = Filter.Conversation.All,
     ): LazyListState =
         lazyListStatesMap.getOrPut(
             key = destination.itemName + when (destination) {
-                Conversations -> ":$conversationFilter" // each filter has its own scroll state
+                Conversations -> ":$filter" // each filter has its own scroll state
                 else -> "" // other destinations shouldn't care about the conversation filter
             }
         ) {
@@ -92,7 +102,9 @@ class HomeStateHolder(
         }
     }
 
-    fun changeFilter(filter: ConversationFilter) = conversationFilterState.changeFilter(filter)
+    fun changeConversationFilter(filter: Filter.Conversation) = conversationFilterState.changeFilter(filter)
+
+    fun updateFilters(newFilters: Set<Filter.Cells>) = cellsFilterState.updateFilters(newFilters)
 }
 
 @Composable
@@ -113,7 +125,10 @@ fun rememberHomeScreenState(
             navBackStackEntry?.destination?.route?.let { HomeDestination.fromRoute(it) } ?: Conversations
         }
     }
+
     val conversationFilterState = rememberConversationFilterState()
+    val cellsFilterState = rememberCellsFilterState()
+    val cellsFilterBottomSheetState = rememberWireModalSheetState<Unit>(WireSheetValue.Hidden)
 
     return remember {
         HomeStateHolder(
@@ -121,9 +136,11 @@ fun rememberHomeScreenState(
             navController = navController,
             drawerState = drawerState,
             searchBarState = searchBarState,
+            cellsFilterBottomSheetState = cellsFilterBottomSheetState,
             navigator = navigator,
             currentNavigationItemState = currentNavigationItemState,
             conversationFilterState = conversationFilterState,
+            cellsFilterState = cellsFilterState
         )
     }
 }

@@ -33,7 +33,7 @@ import com.wire.android.ui.home.conversationslist.common.previewConversationFold
 import com.wire.android.ui.home.conversationslist.model.ConversationsSource
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
-import com.wire.kalium.logic.data.conversation.ConversationFilter
+import com.wire.kalium.logic.data.conversation.Filter
 
 @HomeNavGraph(start = true)
 @WireDestination
@@ -48,12 +48,12 @@ fun AllConversationsScreen(homeStateHolder: HomeStateHolder) {
                 navigator = navigator,
                 searchBarState = searchBarState,
                 conversationsSource = when (filter) {
-                    is ConversationFilter.All -> ConversationsSource.MAIN
-                    is ConversationFilter.Favorites -> ConversationsSource.FAVORITES
-                    is ConversationFilter.Groups -> ConversationsSource.GROUPS
-                    is ConversationFilter.OneOnOne -> ConversationsSource.ONE_ON_ONE
-                    is ConversationFilter.Folder -> ConversationsSource.FOLDER(filter.folderId, filter.folderName)
-                    is ConversationFilter.Channels -> ConversationsSource.CHANNELS
+                    is Filter.Conversation.All -> ConversationsSource.MAIN
+                    is Filter.Conversation.Favorites -> ConversationsSource.FAVORITES
+                    is Filter.Conversation.Groups -> ConversationsSource.GROUPS
+                    is Filter.Conversation.OneOnOne -> ConversationsSource.ONE_ON_ONE
+                    is Filter.Conversation.Folder -> ConversationsSource.FOLDER(filter.folderId, filter.folderName)
+                    is Filter.Conversation.Channels -> ConversationsSource.CHANNELS
                 },
                 lazyListState = lazyListStateFor(HomeDestination.Conversations, filter),
                 emptyListContent = { ConversationsEmptyContent(filter = filter, navigator = navigator) }

@@ -34,6 +34,7 @@ import com.wire.android.ui.common.attachmentdraft.ui.FileHeaderView
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
+import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageParams
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.previewAvailable
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.previewImageModel
@@ -42,17 +43,21 @@ import com.wire.kalium.logic.data.message.height
 import com.wire.kalium.logic.data.message.width
 
 @Composable
-internal fun ImageAssetPreview(item: MultipartAttachmentUi) {
+internal fun ImageAssetPreview(
+    item: MultipartAttachmentUi,
+    messageStyle: MessageStyle
+) {
 
     val imageSize = ImageMessageParams(
         realImgWidth = item.metadata?.width() ?: 0,
-        realImgHeight = item.metadata?.height() ?: 0
-    )
+        realImgHeight = item.metadata?.height() ?: 0,
+        allowUpscale = true
+    ).normalizedSize()
 
     Box(
         modifier = Modifier
-            .width(imageSize.normalizedWidth)
-            .height(imageSize.normalizedHeight)
+            .width(imageSize.width)
+            .height(imageSize.height)
     ) {
         if (item.previewAvailable()) {
             // Image preview
@@ -67,6 +72,7 @@ internal fun ImageAssetPreview(item: MultipartAttachmentUi) {
                 modifier = Modifier.padding(dimensions().spacing12x),
                 extension = item.mimeType.substringAfter("/"),
                 size = item.assetSize,
+                messageStyle = messageStyle
             )
             if (item.transferStatus == AssetTransferStatus.NOT_FOUND) {
                 Icon(

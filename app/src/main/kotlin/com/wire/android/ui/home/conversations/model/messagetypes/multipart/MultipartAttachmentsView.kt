@@ -38,6 +38,7 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
 import com.wire.android.ui.common.multipart.toUiModel
+import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.grid.AssetGridPreview
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.standalone.AssetPreview
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
@@ -53,6 +54,7 @@ import com.wire.kalium.logic.data.message.MessageAttachment
 fun MultipartAttachmentsView(
     conversationId: ConversationId,
     attachments: List<MessageAttachment>,
+    messageStyle: MessageStyle,
     modifier: Modifier = Modifier,
     viewModel: MultipartAttachmentsViewModel = hiltViewModel<MultipartAttachmentsViewModel>(key = conversationId.value),
 ) {
@@ -63,17 +65,20 @@ fun MultipartAttachmentsView(
     if (media.size > 1) {
         AttachmentsGrid(
             attachments = media,
+            messageStyle = messageStyle,
             onClick = { viewModel.onClick(it) },
             modifier = modifier,
         )
         Spacer(modifier = Modifier.height(dimensions().spacing8x))
         AttachmentsList(
             attachments = files,
+            messageStyle = messageStyle,
             onClick = { viewModel.onClick(it) }
         )
     } else {
         AttachmentsList(
             attachments = (media + files),
+            messageStyle = messageStyle,
             onClick = { viewModel.onClick(it) }
         )
     }
@@ -86,6 +91,7 @@ fun MultipartAttachmentsView(
 @Composable
 private fun AttachmentsList(
     attachments: List<MultipartAttachmentUi>,
+    messageStyle: MessageStyle,
     onClick: (MultipartAttachmentUi) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -95,6 +101,7 @@ private fun AttachmentsList(
         attachments.forEach {
             AssetPreview(
                 item = it,
+                messageStyle = messageStyle,
                 onClick = { onClick(it) },
                 modifier = modifier,
             )
@@ -105,6 +112,7 @@ private fun AttachmentsList(
 @Composable
 private fun AttachmentsGrid(
     attachments: List<MultipartAttachmentUi>,
+    messageStyle: MessageStyle,
     onClick: (MultipartAttachmentUi) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -119,7 +127,8 @@ private fun AttachmentsGrid(
             key = { it.uuid },
         ) { item ->
             AssetGridPreview(
-                item,
+                item = item,
+                messageStyle = messageStyle,
                 onClick = { onClick(item) },
             )
         }

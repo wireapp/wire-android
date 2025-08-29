@@ -24,15 +24,20 @@ import androidx.compose.ui.Modifier
 import com.wire.android.ui.common.attachmentdraft.ui.FileHeaderView
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
+import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.TransferStatusIcon
 import com.wire.kalium.logic.util.fileExtension
 
 @Composable
-internal fun BoxScope.FileAssetGridPreview(item: MultipartAttachmentUi) {
+internal fun BoxScope.FileAssetGridPreview(
+    item: MultipartAttachmentUi,
+    messageStyle: MessageStyle
+) {
     FileHeaderView(
         modifier = Modifier.padding(dimensions().spacing8x),
         extension = item.fileName?.fileExtension() ?: item.mimeType.substringAfter("/"),
         size = item.assetSize,
+        messageStyle = messageStyle
     )
     TransferStatusIcon(item)
 }

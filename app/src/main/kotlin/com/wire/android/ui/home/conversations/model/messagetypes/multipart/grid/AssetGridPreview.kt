@@ -35,10 +35,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
+import com.wire.android.ui.common.applyIf
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.multipart.AssetSource
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
+import com.wire.android.ui.home.conversations.messages.item.MessageStyle
+import com.wire.android.ui.home.conversations.messages.item.isBubble
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.transferProgressColor
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -48,6 +51,7 @@ import com.wire.kalium.logic.data.message.AssetContent
 @Composable
 internal fun AssetGridPreview(
     item: MultipartAttachmentUi,
+    messageStyle: MessageStyle,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -55,10 +59,12 @@ internal fun AssetGridPreview(
         modifier = modifier
             .aspectRatio(1f)
             .clickable { onClick() }
-            .background(
-                color = colorsScheme().surfaceVariant,
-                shape = RoundedCornerShape(dimensions().messageAttachmentGridCornerSize)
-            )
+            .applyIf(messageStyle.isBubble()) {
+                background(
+                    color = colorsScheme().surfaceVariant,
+                    shape = RoundedCornerShape(dimensions().messageAttachmentGridCornerSize)
+                )
+            }
             .border(
                 width = 1.dp,
                 color = colorsScheme().outline,
@@ -74,7 +80,7 @@ internal fun AssetGridPreview(
                 }
 
                 AttachmentFileType.VIDEO -> {
-                    VideoAssetGridPreview(item)
+                    VideoAssetGridPreview(item, messageStyle)
                 }
 
                 AttachmentFileType.PDF -> {
@@ -82,7 +88,7 @@ internal fun AssetGridPreview(
                 }
 
                 else -> {
-                    FileAssetGridPreview(item)
+                    FileAssetGridPreview(item, messageStyle)
                 }
             }
 
@@ -134,6 +140,7 @@ private fun PreviewAssetGrid() {
                     fileName = "Test file.kt",
                     transferStatus = AssetTransferStatus.NOT_DOWNLOADED,
                 ),
+                messageStyle = MessageStyle.NORMAL,
                 onClick = {},
             )
         }

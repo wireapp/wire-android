@@ -138,7 +138,7 @@ fun PreviewTopBarWithSelectedFilter() {
     WireTheme {
         HomeTopBar(
             title = "Conversations",
-            currentConversationFilter = ConversationFilter.Favorites,
+            currentConversationFilter = ConversationFilter.Groups,
             currentCellsFilters = setOf(),
             navigationItem = HomeDestination.Conversations,
             userAvatarData = UserAvatarData(

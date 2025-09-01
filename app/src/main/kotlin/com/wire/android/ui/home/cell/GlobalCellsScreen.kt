@@ -33,6 +33,6 @@ fun GlobalCellsScreen(
         navigator = homeStateHolder.navigator,
         searchBarState = homeStateHolder.searchBarState,
         filterBottomSheetState = homeStateHolder.cellsFilterBottomSheetState,
-        updateFilters = { homeStateHolder.updateFilters(it) },
+        updateFilters = { homeStateHolder.updateCellsFilters(it) },
     )
 }

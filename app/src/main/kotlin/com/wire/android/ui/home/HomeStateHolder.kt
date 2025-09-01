@@ -80,11 +80,11 @@ class HomeStateHolder(
 
     fun lazyListStateFor(
         destination: HomeDestination,
-        filter: ConversationFilter = ConversationFilter.All,
+        conversationFilter: ConversationFilter = ConversationFilter.All,
     ): LazyListState =
         lazyListStatesMap.getOrPut(
             key = destination.itemName + when (destination) {
-                Conversations -> ":$filter" // each filter has its own scroll state
+                Conversations -> ":$conversationFilter" // each filter has its own scroll state
                 else -> "" // other destinations shouldn't care about the conversation filter
             }
         ) {
@@ -105,7 +105,7 @@ class HomeStateHolder(
 
     fun changeConversationFilter(filter: ConversationFilter) = conversationFilterState.changeFilter(filter)
 
-    fun updateFilters(newFilters: Set<CellsFilter>) = cellsFilterState.updateFilters(newFilters)
+    fun updateCellsFilters(newFilters: Set<CellsFilter>) = cellsFilterState.updateFilters(newFilters)
 }
 
 @Composable

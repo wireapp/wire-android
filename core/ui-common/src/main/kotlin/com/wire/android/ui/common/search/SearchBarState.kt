@@ -40,7 +40,6 @@ fun rememberSearchbarState(
 class SearchBarState(
     isSearchActive: Boolean = false,
     isSearchVisible: Boolean = true,
-    isFilterActive: Boolean = false,
     val searchQueryTextState: TextFieldState
 ) {
 

@@ -54,7 +54,6 @@ class ConversationFilterState(initialValue: ConversationFilter = ConversationFil
     }
 }
 
-
 @Composable
 fun rememberCellsFilterState(): CellsFilterState =
     rememberSaveable(saver = CellsFilterState.saver()) {

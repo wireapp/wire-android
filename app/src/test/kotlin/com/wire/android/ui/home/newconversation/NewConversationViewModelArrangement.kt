@@ -19,7 +19,6 @@
 package com.wire.android.ui.home.newconversation
 
 import com.wire.android.config.mockUri
-import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.newconversation.common.CreateGroupState
 import com.wire.kalium.common.error.CoreFailure
@@ -36,6 +35,7 @@ import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.channels.ChannelCreationPermission
 import com.wire.kalium.logic.feature.channels.ObserveChannelsCreationPermissionUseCase
+import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.createconversation.ConversationCreationResult
 import com.wire.kalium.logic.feature.conversation.createconversation.CreateChannelUseCase
 import com.wire.kalium.logic.feature.conversation.createconversation.CreateRegularGroupUseCase
@@ -61,7 +61,7 @@ internal class NewConversationViewModelArrangement {
         coEvery { createRegularGroup(any(), any(), any()) } returns ConversationCreationResult.Success(CONVERSATION)
         coEvery { observeChannelsCreationPermissionUseCase() } returns flowOf(ChannelCreationPermission.Forbidden)
         every { getDefaultProtocol() } returns SupportedProtocol.PROTEUS
-        every { globalDataStore.wireCellsEnabled() } returns flowOf(false)
+        coEvery { isWireCellsEnabled() } returns false
         withAppsAllowedResult(false)
     }
 
@@ -87,7 +87,7 @@ internal class NewConversationViewModelArrangement {
     lateinit var observeIsAppsAllowedForUsage: ObserveIsAppsAllowedForUsageUseCase
 
     @MockK
-    lateinit var globalDataStore: GlobalDataStore
+    lateinit var isWireCellsEnabled: IsWireCellsEnabledUseCase
 
     private var createGroupState: CreateGroupState = CreateGroupState.Default
 
@@ -221,8 +221,8 @@ internal class NewConversationViewModelArrangement {
         isUserAllowedToCreateChannels = observeChannelsCreationPermissionUseCase,
         getSelfUser = getSelf,
         getDefaultProtocol = getDefaultProtocol,
+        isWireCellsFeatureEnabled = isWireCellsEnabled,
         observeIsAppsAllowedForUsage = observeIsAppsAllowedForUsage,
-        globalDataStore = globalDataStore,
     ).also {
         it.createGroupState = createGroupState
     }

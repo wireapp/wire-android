@@ -120,7 +120,7 @@ internal class OtherUserProfileViewModelArrangement {
         mockUri()
 
         every { savedStateHandle.navArgs<OtherUserProfileNavArgs>() } returns OtherUserProfileNavArgs(
-            conversationId = CONVERSATION_ID,
+            groupConversationId = CONVERSATION_ID,
             userId = USER_ID
         )
 
@@ -151,7 +151,7 @@ internal class OtherUserProfileViewModelArrangement {
     fun withConversationIdInSavedState(conversationId: ConversationId?) = apply {
         every { savedStateHandle.navArgs<OtherUserProfileNavArgs>() } returns OtherUserProfileNavArgs(
             userId = USER_ID,
-            conversationId = conversationId
+            groupConversationId = conversationId
         )
     }
 

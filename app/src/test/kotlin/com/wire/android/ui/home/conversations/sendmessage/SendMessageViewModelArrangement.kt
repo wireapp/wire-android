@@ -25,6 +25,7 @@ import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.media.PingRinger
 import com.wire.android.ui.home.conversations.ConversationNavArgs
+import com.wire.android.ui.home.conversations.MessageSharedState
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
 import com.wire.android.ui.navArgs
@@ -48,6 +49,7 @@ import com.wire.kalium.logic.feature.message.SendLocationUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.message.draft.RemoveMessageDraftUseCase
 import com.wire.kalium.common.functional.Either
+import com.wire.kalium.logic.feature.client.IsWireCellsEnabledForConversationUseCase
 import com.wire.kalium.logic.feature.message.SendMultipartMessageUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import io.mockk.MockKAnnotations
@@ -147,6 +149,12 @@ internal class SendMessageViewModelArrangement {
     @MockK
     lateinit var analyticsManager: AnonymousAnalyticsManager
 
+    @MockK
+    lateinit var isWireCellsEnabledForConversation: IsWireCellsEnabledForConversationUseCase
+
+    @MockK
+    lateinit var sharedState: MessageSharedState
+
     private val viewModel by lazy {
         SendMessageViewModel(
             sendTextMessage = sendTextMessage,
@@ -169,6 +177,8 @@ internal class SendMessageViewModelArrangement {
             savedStateHandle = savedStateHandle,
             analyticsManager = analyticsManager,
             sendMultipartMessage = sendMultipartMessage,
+            isWireCellsEnabledForConversation = isWireCellsEnabledForConversation,
+            sharedState = sharedState
         )
     }
 
@@ -273,6 +283,10 @@ internal class SendMessageViewModelArrangement {
             conversationId = conversationId,
             pendingBundles = arrayListOf(*assetBundle)
         )
+    }
+
+    fun withCellsEnabledForConversation(result: Boolean) = apply {
+        coEvery { isWireCellsEnabledForConversation.invoke(conversationId) } returns result
     }
 
     fun arrange() = this to viewModel

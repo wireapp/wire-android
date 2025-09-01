@@ -18,11 +18,14 @@
 
 package com.wire.android.ui.common
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
@@ -33,14 +36,17 @@ import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import kotlin.math.absoluteValue
 
@@ -94,6 +100,89 @@ fun WireTabRow(
 }
 
 @Composable
+fun LoadingWireTabRow(
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .height(dimensions().spacing48x)
+            .fillMaxWidth()
+            .background(color = colorsScheme().background),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxHeight()
+                .weight(1f)
+        ) {
+            Spacer(
+                modifier = Modifier
+                    .padding(start = dimensions().spacing8x, end = dimensions().spacing8x)
+                    .height(dimensions().spacing14x)
+                    .fillMaxWidth()
+                    .align(Alignment.Center)
+                    .background(
+                        color = colorsScheme().defaultSelectedItemInLoadingState,
+                        shape = RoundedCornerShape(dimensions().corner16x)
+                    )
+                    .shimmerPlaceholder(
+                        visible = true,
+                        color = colorsScheme().defaultSelectedItemInLoadingState,
+                        shape = RoundedCornerShape(dimensions().corner16x)
+                    )
+            )
+
+            Spacer(
+                modifier = Modifier
+                    .height(2.dp)
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .background(color = colorsScheme().primary)
+            )
+        }
+        Spacer(
+            Modifier
+                .weight(1f)
+                .height(dimensions().spacing14x)
+                .padding(start = dimensions().spacing8x, end = dimensions().spacing8x)
+                .background(color = colorsScheme().primaryButtonDisabled, shape = RoundedCornerShape(dimensions().corner16x))
+                .shimmerPlaceholder(
+                    visible = true,
+                    color = colorsScheme().primaryButtonDisabled,
+                    shape = RoundedCornerShape(dimensions().corner16x)
+                )
+        )
+    }
+}
+
+@Composable
+@PreviewMultipleThemes
+fun PreviewLoadingWireTabRow() {
+    WireTheme {
+        LoadingWireTabRow()
+    }
+}
+
+@Composable
+@PreviewMultipleThemes
+fun PreviewWireTabRow() {
+    WireTheme {
+        WireTabRow(
+            tabs = listOf(
+                object : TabItem {
+                    override val title: UIText = UIText.StringResource(com.wire.android.R.string.conversation_details_options_tab)
+                },
+                object : TabItem {
+                    override val title: UIText = UIText.StringResource(com.wire.android.R.string.conversation_details_participants_tab)
+                }
+            ),
+            selectedTabIndex = 0,
+            onTabChange = {}
+        )
+    }
+}
+
+@Composable
 private fun WireIndicator(modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
@@ -106,7 +195,6 @@ private fun WireIndicator(modifier: Modifier = Modifier) {
     )
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Suppress("MagicNumber")
 fun PagerState.calculateCurrentTab() = // change the tab if we go over half the offset
     if (this.currentPageOffsetFraction.absoluteValue > 0.5f) this.targetPage else this.currentPage

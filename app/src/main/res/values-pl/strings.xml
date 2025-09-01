@@ -343,7 +343,6 @@ Usuni&#281;ta wiadomo&#347;&#263; nie mo&#380;e zosta&#263; przywr&#243;cona.</s
     <!--Read receipts -->
     <string name="conversation_options_read_receipt_label">Potwierdzenia odczytania</string>
     <string name="conversation_options_read_receipt_description">Gdy ta opcja jest w&#322;&#261;czona, inne osoby mog&#261; zobaczy&#263; kiedy ich wiadomo&#347;ci w tej rozmowie zosta&#322;y przeczytane.</string>
-    <!--Wire Cell -->
     <!-- Messages -->
     <string name="message_details_title">Szczeg&#243;&#322;y Wiadomo&#347;ci</string>
     <string name="message_details_reactions_tab">REAKCJE (%s)</string>

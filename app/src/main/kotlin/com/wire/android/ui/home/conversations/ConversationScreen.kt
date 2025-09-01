@@ -518,6 +518,7 @@ fun ConversationScreen(
         onAttachmentPicked = {
             if (conversationInfoViewModel.conversationInfoViewState.isWireCellEnabled) {
                 messageAttachmentsViewModel.onFilesSelected(listOf(it.uri))
+                messageComposerStateHolder.messageCompositionInputStateHolder.showAttachments(false)
             } else {
                 val bundle = ComposableMessageBundle.UriPickedBundle(conversationInfoViewModel.conversationId, it)
                 sendMessageViewModel.trySendMessage(bundle)
@@ -526,6 +527,7 @@ fun ConversationScreen(
         onAudioRecorded = {
             if (conversationInfoViewModel.conversationInfoViewState.isWireCellEnabled) {
                 messageAttachmentsViewModel.onFilesSelected(listOf(it.uri))
+                messageComposerStateHolder.messageCompositionInputStateHolder.showAttachments(false)
             } else {
                 val bundle = ComposableMessageBundle.AudioMessageBundle(conversationInfoViewModel.conversationId, it)
                 sendMessageViewModel.trySendMessage(bundle)
@@ -994,6 +996,7 @@ private fun ConversationScreen(
                         onAttachmentClick = onAttachmentClick,
                         onAttachmentMenuClick = onAttachmentMenuClick,
                         showHistoryLoadingIndicator = conversationInfoViewState.showHistoryLoadingIndicator,
+                        isBubbleUiEnabled = conversationInfoViewState.isBubbleUiEnabled
                     )
                 }
             }
@@ -1077,6 +1080,7 @@ private fun ConversationScreenContent(
     onAttachmentMenuClick: (AttachmentDraftUi) -> Unit,
     currentTimeInMillisFlow: Flow<Long> = flow {},
     showHistoryLoadingIndicator: Boolean = false,
+    isBubbleUiEnabled: Boolean = false
 ) {
     val lazyPagingMessages = messages.collectAsLazyPagingItems()
 
@@ -1121,6 +1125,7 @@ private fun ConversationScreenContent(
                 interactionAvailability = messageComposerStateHolder.messageComposerViewState.value.interactionAvailability,
                 currentTimeInMillisFlow = currentTimeInMillisFlow,
                 showHistoryLoadingIndicator = showHistoryLoadingIndicator,
+                isBubbleUiEnabled = isBubbleUiEnabled
             )
         },
         onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
@@ -1201,6 +1206,7 @@ fun MessageList(
     modifier: Modifier = Modifier,
     currentTimeInMillisFlow: Flow<Long> = flow { },
     showHistoryLoadingIndicator: Boolean = false,
+    isBubbleUiEnabled: Boolean = false
 ) {
     val prevItemCount = remember { mutableStateOf(lazyPagingMessages.itemCount) }
     val readLastMessageAtStartTriggered = remember { mutableStateOf(false) }
@@ -1315,7 +1321,8 @@ fun MessageList(
                         swipeableMessageConfiguration = swipeableConfiguration,
                         onSelfDeletingMessageRead = onSelfDeletingMessageRead,
                         isSelectedMessage = (message.header.messageId == selectedMessageId),
-                        failureInteractionAvailable = interactionAvailability == InteractionAvailability.ENABLED
+                        failureInteractionAvailable = interactionAvailability == InteractionAvailability.ENABLED,
+                        isBubbleUiEnabled = isBubbleUiEnabled
                     )
 
                     val isTheOnlyItem = index == 0 && lazyPagingMessages.itemCount == 1

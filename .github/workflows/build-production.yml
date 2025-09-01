@@ -5,7 +5,7 @@ on:
     types: [ published ]
 
 permissions:
-  contents: read
+  contents: write
   actions: read
 
 concurrency:
@@ -84,9 +84,6 @@ jobs:
             "deployment-targets": [
               {
                 "type": "s3"
-              },
-              {
-                "type": "github-release"
               }
             ]
           }

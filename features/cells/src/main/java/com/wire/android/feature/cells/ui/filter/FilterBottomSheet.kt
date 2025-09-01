@@ -82,7 +82,7 @@ fun FilterBottomSheet(
             },
             onClearAll = {
                 if (sheetState.currentValue is WireSheetValue.Expanded) {
-                    sheetState.hide { onClearAll() }
+                    onClearAll()
                 }
             }
         )

@@ -23,7 +23,6 @@ import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.TestDispatcherProvider
-import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.framework.TestConversation
 import com.wire.android.framework.TestConversationDetails
 import com.wire.android.framework.TestUser
@@ -45,6 +44,7 @@ import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.ArchiveStatusUpdateResult
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateReceiptModeResult
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
@@ -792,7 +792,7 @@ internal class GroupConversationDetailsViewModelArrangement {
     lateinit var observeIsAppsAllowedForUsage: ObserveIsAppsAllowedForUsageUseCase
 
     @MockK
-    lateinit var globalDataStore: GlobalDataStore
+    lateinit var isWireCellsEnabled: IsWireCellsEnabledUseCase
 
     private val viewModel by lazy {
         GroupConversationDetailsViewModel(
@@ -808,7 +808,7 @@ internal class GroupConversationDetailsViewModelArrangement {
             observeSelfDeletionTimerSettingsForConversation = observeSelfDeletionTimerSettingsForConversation,
             refreshUsersWithoutMetadata = refreshUsersWithoutMetadata,
             observeIsAppsAllowedForUsage = observeIsAppsAllowedForUsage,
-            globalDataStore = globalDataStore,
+            isWireCellsEnabled = isWireCellsEnabled,
         )
     }
 
@@ -836,7 +836,7 @@ internal class GroupConversationDetailsViewModelArrangement {
         coEvery { updateConversationMutedStatus(any(), any(), any()) } returns ConversationUpdateStatusResult.Success
         coEvery { observeSelfDeletionTimerSettingsForConversation(any(), any()) } returns flowOf(SelfDeletionTimer.Disabled)
         coEvery { updateConversationArchivedStatus(any(), any(), any()) } returns ArchiveStatusUpdateResult.Success
-        every { globalDataStore.wireCellsEnabled() } returns flowOf(false)
+        coEvery { isWireCellsEnabled() } returns false
         withAppsAllowedResult(false)
     }
 

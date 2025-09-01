@@ -80,7 +80,7 @@ class DebugFeatureFlagsViewModel @Inject constructor(
                                 )
                             )
                         }
-                    }.sortedBy { feature -> feature.status }
+                    }.sortedWith(compareBy(Feature::status, Feature::name))
 
                     _state.update { current -> current.copy(features = features) }
                 }

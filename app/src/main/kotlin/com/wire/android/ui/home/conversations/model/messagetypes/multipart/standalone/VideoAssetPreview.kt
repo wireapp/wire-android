@@ -39,11 +39,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.decode.VideoFrameDecoder
 import com.wire.android.R
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
+import com.wire.android.ui.common.applyIf
 import com.wire.android.ui.common.attachmentdraft.ui.FileHeaderView
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.darkColorsScheme
@@ -52,6 +54,8 @@ import com.wire.android.ui.common.multipart.AssetSource
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
 import com.wire.android.ui.common.progress.WireLinearProgressIndicator
 import com.wire.android.ui.common.typography
+import com.wire.android.ui.home.conversations.messages.item.MessageStyle
+import com.wire.android.ui.home.conversations.messages.item.isBubble
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.previewAvailable
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.previewImageModel
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.transferProgressColor
@@ -67,7 +71,8 @@ import com.wire.kalium.logic.data.message.width
 
 @Composable
 internal fun VideoAssetPreview(
-    item: MultipartAttachmentUi
+    item: MultipartAttachmentUi,
+    messageStyle: MessageStyle
 ) {
 
     val width = item.metadata?.width() ?: 0
@@ -78,13 +83,21 @@ internal fun VideoAssetPreview(
         maxDefaultWidthLandscape = dimensions().attachmentVideoMaxWidthLandscape
     )
 
+    val fileNameColor = when (messageStyle) {
+        MessageStyle.BUBBLE_SELF -> colorsScheme().onPrimary
+        MessageStyle.BUBBLE_OTHER -> colorsScheme().onPrimary
+        MessageStyle.NORMAL -> colorsScheme().onSurface
+    }
+
     Column(
         modifier = Modifier
             .widthIn(max = maxWidth)
-            .background(
-                color = colorsScheme().surface,
-                shape = RoundedCornerShape(dimensions().messageAttachmentCornerSize)
-            )
+            .applyIf(!messageStyle.isBubble()) {
+                background(
+                    color = colorsScheme().surface,
+                    shape = RoundedCornerShape(dimensions().messageAttachmentCornerSize)
+                )
+            }
             .border(
                 width = dimensions().spacing1x,
                 color = colorsScheme().outline,
@@ -97,10 +110,25 @@ internal fun VideoAssetPreview(
     ) {
 
         FileHeaderView(
-            modifier = Modifier.padding(dimensions().spacing8x),
+            modifier = Modifier.padding(
+                top = dimensions().spacing8x,
+                bottom = dimensions().spacing8x,
+            ),
             extension = item.mimeType.substringAfter("/"),
             size = item.assetSize,
+            messageStyle = messageStyle
         )
+
+        item.fileName?.let {
+            Text(
+                modifier = Modifier.fillMaxWidth(),
+                text = it.substringBeforeLast("."),
+                style = typography().body02,
+                color = fileNameColor,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
 
         Box(
             modifier = Modifier
@@ -210,7 +238,8 @@ private fun PreviewVideoAsset() {
                 VideoAssetPreview(
                     item = attachment.copy(
                         transferStatus = AssetTransferStatus.NOT_DOWNLOADED
-                    )
+                    ),
+                    messageStyle = MessageStyle.NORMAL
                 )
             }
             Box {
@@ -218,12 +247,14 @@ private fun PreviewVideoAsset() {
                     item = attachment.copy(
                         transferStatus = AssetTransferStatus.DOWNLOAD_IN_PROGRESS,
                         progress = 0.75f
-                    )
+                    ),
+                    messageStyle = MessageStyle.NORMAL
                 )
             }
             Box {
                 VideoAssetPreview(
-                    item = attachment
+                    item = attachment,
+                    messageStyle = MessageStyle.NORMAL
                 )
             }
             Box {
@@ -231,7 +262,8 @@ private fun PreviewVideoAsset() {
                     item = attachment.copy(
                         transferStatus = FAILED_DOWNLOAD,
                         progress = 0.75f
-                    )
+                    ),
+                    messageStyle = MessageStyle.NORMAL
                 )
             }
         }

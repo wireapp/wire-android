@@ -38,7 +38,6 @@
     <string name="label_logging_in">Oturum açılıyor…</string>
     <string name="label_membership_guest">Misafir</string>
     <string name="label_membership_external">Harici</string>
-    <string name="label_membership_service">Hizmet</string>
     <string name="label_user_deleted">Silinmiş</string>
     <string name="label_try_again">Yeniden Dene</string>
     <string name="label_done">Tamamlandı</string>
@@ -215,7 +214,6 @@
     <string name="content_description_accept_or_ignore_connection_label">isteği kabul et veya yok say</string>
     <string name="content_description_open_user_profile_label">profili aç</string>
     <string name="content_description_open_conversation_label">açık konuşma</string>
-    <string name="content_description_open_service_label">açık servis</string>
     <string name="content_description_change_it_label">değiştir</string>
     <string name="content_description_open_link_label">bağlantıyı aç</string>
     <string name="content_description_alert">Uyarı</string>
@@ -223,19 +221,38 @@
     <string name="content_description_close_dropdown">açılır listeyi kapat</string>
     <string name="content_description_open_notification_settings_label">bildirim ayarlarını aç</string>
     <string name="content_description_new_conversation_close_btn">Yeni konuşma görünümünü kapat</string>
+    <string name="content_description_new_conversation_back_btn">Yeni konuşma görünümüne geri dön</string>
+    <string name="content_description_new_conversation_name_back_btn">Yeni konuşma görünümüne geri dön</string>
     <string name="content_description_new_group_name_field">Grup adını yazın</string>
     <string name="content_description_new_channel_name_field">Kanal adını yazın</string>
     <string name="content_description_new_conversation_options_heading">Sohbet ayarları</string>
+    <string name="content_description_new_conversation_history_heading">Konuşma geçmişi seçenekleri</string>
+    <string name="content_description_new_conversation_history_custom_heading">Konuşma geçmişi özel</string>
+    <string name="content_description_new_conversation_history_back_btn">Konuşma geçmişi seçeneklerine geri dön</string>
+    <string name="content_description_new_conversation_history_custom_change_time">Zamanı değiştir seçeneği</string>
+    <string name="content_description_new_group_options_back_btn">Yeni grup oluşturmaya geri dön</string>
+    <string name="content_description_new_channel_options_back_btn">Yeni kanal oluşturmaya geri dön</string>
+    <string name="content_description_pending_connection_badge">bağlantı isteğinin onaylanması bekleniyor</string>
     <string name="content_description_self_profile_close">Profili kapat</string>
     <string name="content_description_self_profile_heading">Profil</string>
     <string name="content_description_self_profile_avatar">Profil resmi</string>
     <string name="content_description_self_profile_profile_name">Profil adı, %s</string>
     <string name="content_description_self_profile_username">Kullanıcı adı, %s</string>
     <string name="content_description_self_profile_team">Ekip adı, %s</string>
+    <string name="content_description_self_profile_change_status">kullanılabilirlik durumunu değiştir</string>
+    <string name="content_description_self_profile_new_account_btn">Yeni bir ekip veya kişisel hesap oluşturun veya giriş yapın</string>
     <string name="content_description_self_profile_manage_team_btn">Ekibi yönet</string>
+    <string name="content_description_change_picture_back_btn">Profilinizin genel görünümüne geri dönün</string>
+    <string name="content_description_welcome_screen_close_btn">Yeni ekip oluşturma ve oturum açma görünümünü kapatın</string>
+    <string name="content_description_login_back_btn">Yeni takım oluşturma ve oturum açma görünümüne geri dön</string>
     <string name="content_description_login_user_identifier_field">e-posta adresinizi ya da kullanıcı adınızı girin</string>
     <string name="content_description_login_email_field">e-posta adresi girin</string>
+    <string name="content_description_enterprise_login_email_field">e-postanızı veya SSO kodunuzu girin</string>
     <string name="content_description_login_password_field">parolanızı girin</string>
+    <string name="content_description_login_sso_code_field">SSO kodunuzu veya Wire e-postanızı girin</string>
+    <string name="content_description_whats_new_welcome_item">Wire\'ın Yeni Android Uygulamasına Hoş Geldiniz, destek sayfasına bağlantı</string>
+    <string name="content_description_whats_new_all_releases_item">Tüm Android sürüm notları, sürüm notlarına genel bakış bağlantısı</string>
+    <string name="content_description_whats_new_release_item">%1$s, %2$s, sürüm ayrıntılarına bağlantı</string>
     <string name="content_description_empty"></string>
     <!-- Non translatable strings-->
     <!-- Wire Urls - Non translatable -->
@@ -255,10 +272,12 @@
     <string name="settings_terms_of_use_label">Yasal</string>
     <string name="settings_wire_website_label">Wire Web Sitesi</string>
     <string name="label_copyright">Telif Hakkı</string>
+    <string name="item_dependencies_title">Gereksinimler:</string>
     <string name="support_screen_title">Destek</string>
     <string name="backup_and_restore_screen_title">Konuşmaları Yedekle &amp; Geri yükle</string>
     <string name="search_bar_conversations_hint">Konuşmalarda ara</string>
     <string name="search_no_results">Eşleşme bulunamadı</string>
+    <string name="team_management_screen_title">Takımı yönet</string>
     <!--Whats New -->
     <string name="whats_new_screen_title">Neler yeni</string>
     <string name="whats_new_welcome_to_new_android_app_label">👋 Wire\'ın yeni Android uygulamasına hoşgeldin!</string>
@@ -280,18 +299,46 @@ Yedek dosyayı korumak için güçlü bir şifre seçin.</string>
     <string name="welcome_footer_link">Ücretsiz olarak özel bir hesap oluşturun</string>
     <string name="welcome_button_create_personal_account">Kişisel Hesap Oluşturun</string>
     <string name="welcome_screen_carousel_item_message_1">En güvenli işbirliği platformu Wire\'a hoş geldiniz!</string>
+    <string name="welcome_screen_carousel_item_message_2">Bilgilerinizin mutlak güven içinde olduğundan\u00A0emin olabilirsiniz</string>
+    <string name="welcome_screen_carousel_item_message_3">50\'ye kadar katılımcıyla şifreli\u00A0sesli ve görüntülü konferans</string>
+    <string name="welcome_screen_carousel_item_message_4">Takımlar ve istemcilerle\u00A0güvenli dosya paylaşımı</string>
     <string name="welcome_screen_carousel_item_message_5">Wire bağımsız olarak denetlenir ve ISO, CCPA, GDPR, SOX ile uyumludur</string>
     <string name="welcome_button_create_team">Bir ekip oluşturun</string>
+    <string name="server_details_dialog_body">Backend ismi:\n%1$s\n\nBackend URL:\n%2$s</string>
+    <string name="server_details_dialog_body_with_proxy">Backend ismi:\n%1$s\n\nBackend URL:\n%2$s\n\nProxy URL:\n%3$s\n\nProxy authentication:\n%4$s</string>
     <string name="welcome_migration_dialog_title">👋 Wire\'ın Yeni Android Uygulamasına Hoşgeldin!</string>
+    <string name="welcome_migration_dialog_content">Uygulamayı herkes için daha kullanışlı hale getirmek amacıyla yeniden oluşturduk.\n\nWire\'ın yeniden tasarlanan uygulaması hakkında daha fazla bilgi edinin: Aynı güçlü güvenlikle birlikte yeni seçenekler ve geliştirilmiş erişilebilirlik.</string>
     <string name="welcome_migration_dialog_continue">Wire\'ı kullanmaya başlayın</string>
     <!-- API Versioning Dialogs -->
     <string name="api_versioning_client_update_required_title">Güncelleme gerekli</string>
+    <string name="api_versioning_client_update_required_message">Yeni özellikleri kaçırıyorsunuz. Uygulamayı bu hesapla kullanmaya devam etmek için Wire\'ın en son sürümüne güncelleyin.</string>
     <string name="api_versioning_server_version_not_supported_title">Sunucu versiyonu desteklenmiyor</string>
     <string name="api_versioning_server_version_not_supported_message">Wire sunucunuzun güncellenmesi gerekiyor. Lütfen sistem yöneticinizi bilgilendirin.</string>
     <!-- Migration -->
+    <string name="migration_title">Wire Kurulumu</string>
     <string name="migration_message">Uygulamayı sizin için ayarlarken lütfen bekleyin</string>
+    <string name="migration_message_unknown">Lütfen verilerinizi sizin için taşırken bekleyin</string>
+    <string name="migration_accounts_message">Hesaplarınız taşınıyor...</string>
+    <string name="migration_messages_message">Mesajlarınız taşınıyor...</string>
+    <string name="migration_title_step">Adım %1$d/%2$d</string>
+    <string name="migration_title_almost_done">Neredeyse bitti!</string>
+    <string name="migration_title_updated">Wire Kuruluyor</string>
+    <string name="migration_login_required">Wire\'ın eski sürümünden mesajlarınızı taşımak için hesabınıza giriş yapmanız gerekmektedir.</string>
+    <string name="migration_login_required_specific_account">Wire\'ın eski sürümünden mesajlarınızı taşımak için %s hesabınıza giriş yapmanız gerekmektedir.</string>
+    <string name="migration_login_required_specific_account_name">“%1$s (@%2$s)“</string>
+    <string name="migration_messages_failure">Ne yazık ki, Wire\'ın eski sürümüyle uyumsuzluk nedeniyle tüm mesajlar ve konuşmalar taşınamadı (hata kodu: %s)</string>
+    <string name="migration_cancel_title">Taşımayı iptal et</string>
+    <string name="migration_cancel_message">Uygulamayı kapatmak ve devam eden taşımanı iptal etmek istediğinizden emin misiniz?</string>
     <!-- Enterprise Login -->
+    <string name="enterprise_login_welcome">Başlamak için e-postanızı girin!</string>
     <string name="enterprise_login_password_title">Giriş yapmak için parolanızı girin</string>
+    <string name="enterprise_login_credentials_title">Giriş yapmak için kimlik bilgilerinizi girin</string>
+    <string name="enterprise_login_next">İleri</string>
+    <string name="enterprise_login_user_identifier_label">E-POSTA VEYA SSO KODU</string>
+    <string name="enterprise_login_user_identifier_label_placeholder">E-posta veya SSO Kodunu Girin</string>
+    <string name="enterprise_login_error_invalid_user_identifier">Lütfen geçerli bir e-posta veya SSO kodu girin</string>
+    <string name="enterprise_login_create_account_label">Wire hesabınız yok mu?</string>
+    <string name="enterprise_login_create_account_text_button">Hesap veya takım oluşturun</string>
     <!-- Login -->
     <string name="login_forgot_password">Parolanızı mı unuttunuz?</string>
     <string name="login_password_placeholder">Parola</string>
@@ -299,6 +346,8 @@ Yedek dosyayı korumak için güçlü bir şifre seçin.</string>
     <!-- Second Factor Authentication -->
     <!-- Remove Device -->
     <string name="remove_device_invalid_password">Geçersiz parola</string>
+    <string name="item_subtitle_serial_number_e2ei_certificate">Seri numarası</string>
+    <string name="show_e2ei_certificate_details_button">Sertifika Ayrıntılarını Göster</string>
     <!-- Register Device -->
     <string name="register_device_text">Bu cihazda Wire\'ı kullanmak için parolanızı girin.</string>
     <!-- Delete Message -->
@@ -316,12 +365,9 @@ Yedek dosyayı korumak için güçlü bir şifre seçin.</string>
     <string name="conversation_details_participants_count">%s Katılımcı</string>
     <string name="conversation_options_guests_label">Misafirler</string>
     <string name="conversation_details_guest_description">Eğer bu seçenek açık ise, ekibiniz dışındaki kişiler bu sohbete katılabilir.</string>
-    <string name="conversation_options_services_label">Servisler</string>
-    <string name="conversation_options_services_description">Bu görüşmeyi hizmetlere açmak için bu seçeneği AÇIK konumuna getirin.</string>
     <!-- Import/Export External Media -->
     <!--Read receipts -->
     <string name="conversation_options_read_receipt_label">Okundu bilgisi</string>
-    <!--Wire Cell -->
     <!-- Messages -->
     <!-- Messages Date and Time -->
     <!-- Attachment options -->

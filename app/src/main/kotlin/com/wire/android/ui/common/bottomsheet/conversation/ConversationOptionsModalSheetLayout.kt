@@ -39,6 +39,7 @@ import com.wire.android.ui.home.conversations.details.menu.DeleteConversationGro
 import com.wire.android.ui.home.conversations.details.menu.DeleteConversationGroupLocallyDialog
 import com.wire.android.ui.home.conversations.details.menu.LeaveConversationGroupDialog
 import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavArgs
+import com.wire.kalium.logic.data.id.ConversationId
 
 @SuppressLint("ComposeModifierMissing")
 @Composable
@@ -48,6 +49,7 @@ fun ConversationOptionsModalSheetLayout(
     onLeftConversation: () -> Unit = {},
     onDeletedConversation: () -> Unit = {},
     onDeletedConversationLocally: () -> Unit = {},
+    openConversationDebugMenu: (ConversationId) -> Unit = {},
     viewModel: ConversationOptionsMenuViewModel =
         hiltViewModelScoped<ConversationOptionsMenuViewModelImpl, ConversationOptionsMenuViewModel>()
 ) {
@@ -137,6 +139,9 @@ fun ConversationOptionsModalSheetLayout(
                         sheetState.hide { viewModel.deleteGroupLocallyDialogState.show(it) }
                     },
                     updateMutedConversationStatus = viewModel::changeMutedState,
+                    openDebugMenu = { conversationId ->
+                        sheetState.hide { openConversationDebugMenu(conversationId) }
+                    }
                 )
 
                 ConversationOptionsMenuState.Loading -> WireCircularProgressIndicator( // loading state - show a progress indicator

@@ -15,20 +15,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.tests.core.pages
+package com.wire.android.ui.home.conversations.messages.item
 
-import androidx.test.uiautomator.UiDevice
-import uiautomatorutils.UiSelectorParams
-import uiautomatorutils.UiWaitUtils
-
-data class ConversationPage(private val device: UiDevice) {
-    fun clickMainMenuButtonOnConversationViewPage(): ConversationPage {
-        UiWaitUtils.waitElement(UiSelectorParams(description = "Main navigation")).click()
-        return this
-    }
-
-    fun clickSettingsButtonOnMenuEntry(): ConversationPage {
-        UiWaitUtils.waitElement(UiSelectorParams(text = "Settings")).click()
-        return this
-    }
+enum class MessageStyle {
+    BUBBLE_SELF,
+    BUBBLE_OTHER,
+    NORMAL
 }
+
+fun MessageStyle.isBubble(): Boolean = this != MessageStyle.NORMAL

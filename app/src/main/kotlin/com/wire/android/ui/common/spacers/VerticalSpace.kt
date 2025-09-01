@@ -29,6 +29,11 @@ import com.wire.android.ui.common.dimensions
 object VerticalSpace {
 
     @Composable
+    fun x2() {
+        Spacer(Modifier.height(dimensions().spacing2x))
+    }
+
+    @Composable
     fun x4() {
         Spacer(Modifier.height(dimensions().spacing4x))
     }

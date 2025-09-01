@@ -58,14 +58,12 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 
 @Composable
 fun FilterBottomSheet(
-    selectableTags: StateFlow<List<String>>,
-    selectedTags: StateFlow<List<String>>,
-    onApply: (List<String>) -> Unit,
+    selectableTags: Set<String>,
+    selectedTags: Set<String>,
+    onApply: (Set<String>) -> Unit,
     onClearAll: () -> Unit,
     onDismiss: () -> Unit,
     sheetState: WireModalSheetState<Unit> = rememberWireModalSheetState<Unit>(WireSheetValue.Expanded(Unit))
@@ -74,15 +72,28 @@ fun FilterBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState
     ) {
-        SheetContent(selectableTags, selectedTags, onApply, onClearAll)
+        SheetContent(
+            selectableTags = selectableTags,
+            selectedTags = selectedTags,
+            onApply = {
+                if (sheetState.currentValue is WireSheetValue.Expanded) {
+                    sheetState.hide { onApply(it) }
+                }
+            },
+            onClearAll = {
+                if (sheetState.currentValue is WireSheetValue.Expanded) {
+                    onClearAll()
+                }
+            }
+        )
     }
 }
 
 @Composable
 private fun SheetContent(
-    selectableTags: StateFlow<List<String>>,
-    selectedTags: StateFlow<List<String>>,
-    onApply: (List<String>) -> Unit = {},
+    selectableTags: Set<String>,
+    selectedTags: Set<String>,
+    onApply: (Set<String>) -> Unit = {},
     onClearAll: () -> Unit = {},
 ) {
     var isExpanded by remember { mutableStateOf(true) }
@@ -93,7 +104,7 @@ private fun SheetContent(
         targetValue = if (isExpanded) 0f else 180f,
     )
 
-    val selectedChips = remember { mutableStateOf(selectedTags.value) }
+    var selectedChips by remember { mutableStateOf(selectedTags) }
 
     Column(modifier = Modifier.padding(horizontal = dimensions().spacing16x)) {
         Box(
@@ -146,8 +157,8 @@ private fun SheetContent(
                         bottom = dimensions().spacing16x
                     )
                 ) {
-                    selectableTags.value.forEach { tag ->
-                        val isSelected = selectedChips.value.contains(tag)
+                    selectableTags.forEach { tag ->
+                        val isSelected = selectedChips.contains(tag)
 
                         item {
                             WireFilterChip(
@@ -155,10 +166,10 @@ private fun SheetContent(
                                 isSelected = isSelected,
                                 modifier = Modifier.padding(end = dimensions().spacing16x),
                                 onSelectChip = { label ->
-                                    selectedChips.value = if (isSelected) {
-                                        selectedChips.value - label
+                                    selectedChips = if (isSelected) {
+                                        selectedChips - label
                                     } else {
-                                        selectedChips.value + label
+                                        selectedChips + label
                                     }
                                 }
                             )
@@ -181,7 +192,7 @@ private fun SheetContent(
                 modifier = Modifier.weight(1f),
                 text = stringResource(R.string.clear_all_label),
                 onClick = {
-                    selectedChips.value = emptyList()
+                    selectedChips = emptySet()
                     onClearAll()
                 },
             )
@@ -191,7 +202,7 @@ private fun SheetContent(
             WirePrimaryButton(
                 modifier = Modifier.weight(1f),
                 text = stringResource(R.string.apply_label),
-                onClick = { onApply(selectedChips.value) },
+                onClick = { onApply(selectedChips) },
                 state = WireButtonState.Default,
             )
         }
@@ -203,8 +214,8 @@ private fun SheetContent(
 fun PreviewFilterBottomSheet() {
     WireTheme {
         FilterBottomSheet(
-            MutableStateFlow(listOf("Android", "iOS", "Web", "QA")),
-            MutableStateFlow(emptyList()),
+            setOf("Android", "iOS", "Web", "QA"),
+            emptySet(),
             onApply = {},
             onClearAll = {},
             onDismiss = {}

@@ -20,6 +20,11 @@ package com.wire.android.ui.home.conversations.details
 
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
@@ -69,6 +74,7 @@ import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.HandleActions
+import com.wire.android.ui.common.LoadingWireTabRow
 import com.wire.android.ui.common.MLSVerifiedIcon
 import com.wire.android.ui.common.MoreOptionIcon
 import com.wire.android.ui.common.ProteusVerifiedIcon
@@ -91,6 +97,7 @@ import com.wire.android.ui.destinations.AddMembersSearchScreenDestination
 import com.wire.android.ui.destinations.ChannelAccessOnUpdateScreenDestination
 import com.wire.android.ui.destinations.ConversationFoldersScreenDestination
 import com.wire.android.ui.destinations.ConversationMediaScreenDestination
+import com.wire.android.ui.destinations.DebugConversationScreenDestination
 import com.wire.android.ui.destinations.EditConversationNameScreenDestination
 import com.wire.android.ui.destinations.EditGuestAccessScreenDestination
 import com.wire.android.ui.destinations.EditSelfDeletingMessagesScreenDestination
@@ -101,6 +108,7 @@ import com.wire.android.ui.destinations.ServiceDetailsScreenDestination
 import com.wire.android.ui.home.conversations.details.editguestaccess.EditGuestAccessParams
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptions
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsState
+import com.wire.android.ui.home.conversations.details.options.LoadingGroupConversation
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipants
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipantsState
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
@@ -119,6 +127,8 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 @Suppress("CyclomaticComplexMethod")
@@ -248,7 +258,15 @@ fun GroupConversationDetailsScreen(
                     conversationName = groupOptions.groupName
                 )
             )
-        }
+        },
+        openConversationDebugMenu = {
+            navigator.navigate(
+                NavigationCommand(
+                    DebugConversationScreenDestination(conversationId = it)
+                )
+            )
+        },
+        isScreenLoading = viewModel.isFetchingInitialData
     )
 
     val tryAgainSnackBarMessage = stringResource(id = R.string.error_unknown_message)
@@ -316,7 +334,9 @@ private fun GroupConversationDetailsContent(
     onMoveToFolder: (ConversationFoldersNavArgs) -> Unit = {},
     onLeftConversation: () -> Unit = {},
     onDeletedConversation: () -> Unit = {},
+    openConversationDebugMenu: (ConversationId) -> Unit = {},
     initialPageIndex: GroupConversationDetailsTabItem = GroupConversationDetailsTabItem.OPTIONS,
+    isScreenLoading: StateFlow<Boolean> = MutableStateFlow(false),
 ) {
     val scope = rememberCoroutineScope()
     val lazyListStates: List<LazyListState> = GroupConversationDetailsTabItem.entries.map { rememberLazyListState() }
@@ -360,24 +380,51 @@ private fun GroupConversationDetailsContent(
             } else {
                 ConversationAvatar.Group.Regular(conversationId = groupConversationOptionsState.conversationId)
             }
-            GroupConversationDetailsTopBarCollapsing(
-                title = groupConversationOptionsState.groupName,
-                totalParticipants = groupParticipantsState.data.allCount,
-                conversationAvatar = avatarData,
-                onSearchConversationMessagesClick = onSearchConversationMessagesClick,
-                onConversationMediaClick = onConversationMediaClick,
-                isUnderLegalHold = groupConversationOptionsState.legalHoldStatus.showLegalHoldIndicator(),
-                isWireCellEnabled = isWireCellEnabled,
-                onLegalHoldLearnMoreClick = remember { { legalHoldSubjectDialogState.show(Unit) } },
-                modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.spacing16x)
-            )
+
+            AnimatedContent(
+                targetState = isScreenLoading.collectAsState().value,
+                transitionSpec = {
+                    val enter = if (this.targetState) {
+                        slideInVertically(initialOffsetY = { it })
+                    } else {
+                        fadeIn(tween(durationMillis = 500, delayMillis = 100)) + slideInVertically(initialOffsetY = { it / 2 })
+                    }
+                    val exit = fadeOut()
+                    enter.togetherWith(exit)
+                },
+                label = "TopBarContent"
+            ) { loading ->
+                if (loading) {
+                    LoadingGroupConversationDetailsTopBarCollapsing(
+                        modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.spacing16x)
+                    )
+                } else {
+                    GroupConversationDetailsTopBarCollapsing(
+                        title = groupConversationOptionsState.groupName,
+                        totalParticipants = groupParticipantsState.data.allCount,
+                        conversationAvatar = avatarData,
+                        onSearchConversationMessagesClick = onSearchConversationMessagesClick,
+                        onConversationMediaClick = onConversationMediaClick,
+                        isUnderLegalHold = groupConversationOptionsState.legalHoldStatus.showLegalHoldIndicator(),
+                        isWireCellEnabled = isWireCellEnabled,
+                        onLegalHoldLearnMoreClick = remember { { legalHoldSubjectDialogState.show(Unit) } },
+                        modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.spacing16x)
+                    )
+                }
+            }
         },
         topBarFooter = {
-            WireTabRow(
-                tabs = GroupConversationDetailsTabItem.entries,
-                selectedTabIndex = currentTabState,
-                onTabChange = { scope.launch { pagerState.animateScrollToPage(it) } },
-            )
+            Crossfade(isScreenLoading.collectAsState().value) {
+                if (it) {
+                    LoadingWireTabRow()
+                } else {
+                    WireTabRow(
+                        tabs = GroupConversationDetailsTabItem.entries,
+                        selectedTabIndex = currentTabState,
+                        onTabChange = { scope.launch { pagerState.animateScrollToPage(it) } },
+                    )
+                }
+            }
         },
         bottomBar = {
             AnimatedContent(
@@ -417,38 +464,55 @@ private fun GroupConversationDetailsContent(
         },
         contentLazyListState = lazyListStates[currentTabState],
     ) {
+        AnimatedVisibility(
+            visible = isScreenLoading.collectAsState().value,
+            enter = fadeIn(),
+            exit = fadeOut()
+        ) {
+            LoadingGroupConversation()
+        }
+
         var focusedTabIndex: Int by remember { mutableStateOf(initialPageIndex.ordinal) }
         val keyboardController = LocalSoftwareKeyboardController.current
         val focusManager = LocalFocusManager.current
 
-        CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
-            HorizontalPager(
-                state = pagerState,
-                modifier = Modifier
-                    .fillMaxSize()
-            ) { pageIndex ->
-                when (GroupConversationDetailsTabItem.entries[pageIndex]) {
-                    GroupConversationDetailsTabItem.OPTIONS -> GroupConversationOptions(
-                        lazyListState = lazyListStates[pageIndex],
-                        onEditGuestAccess = onEditGuestAccess,
-                        onChannelAccessItemClicked = onChannelAccessItemClicked,
-                        onEditSelfDeletingMessages = onEditSelfDeletingMessages,
-                        onEditGroupName = onEditGroupName
-                    )
+        AnimatedVisibility(
+            visible = !isScreenLoading.collectAsState().value,
+            enter = fadeIn(
+                animationSpec = tween(durationMillis = 500, delayMillis = 100)
+            ) + slideInVertically(
+                initialOffsetY = { it / 2 }
+            ),
+            exit = fadeOut()
+        ) {
+            CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
+                HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier.fillMaxSize()
+                ) { pageIndex ->
+                    when (GroupConversationDetailsTabItem.entries[pageIndex]) {
+                        GroupConversationDetailsTabItem.OPTIONS -> GroupConversationOptions(
+                            lazyListState = lazyListStates[pageIndex],
+                            onEditGuestAccess = onEditGuestAccess,
+                            onChannelAccessItemClicked = onChannelAccessItemClicked,
+                            onEditSelfDeletingMessages = onEditSelfDeletingMessages,
+                            onEditGroupName = onEditGroupName
+                        )
 
-                    GroupConversationDetailsTabItem.PARTICIPANTS -> GroupConversationParticipants(
-                        groupParticipantsState = groupParticipantsState,
-                        onProfilePressed = onProfilePressed,
-                        lazyListState = lazyListStates[pageIndex]
-                    )
+                        GroupConversationDetailsTabItem.PARTICIPANTS -> GroupConversationParticipants(
+                            groupParticipantsState = groupParticipantsState,
+                            onProfilePressed = onProfilePressed,
+                            lazyListState = lazyListStates[pageIndex]
+                        )
+                    }
                 }
-            }
 
-            LaunchedEffect(pagerState.isScrollInProgress, focusedTabIndex, pagerState.currentPage) {
-                if (!pagerState.isScrollInProgress && focusedTabIndex != pagerState.currentPage) {
-                    keyboardController?.hide()
-                    focusManager.clearFocus()
-                    focusedTabIndex = pagerState.currentPage
+                LaunchedEffect(pagerState.isScrollInProgress, focusedTabIndex, pagerState.currentPage) {
+                    if (!pagerState.isScrollInProgress && focusedTabIndex != pagerState.currentPage) {
+                        keyboardController?.hide()
+                        focusManager.clearFocus()
+                        focusedTabIndex = pagerState.currentPage
+                    }
                 }
             }
         }
@@ -459,6 +523,7 @@ private fun GroupConversationDetailsContent(
         openConversationFolders = onMoveToFolder,
         onLeftConversation = onLeftConversation,
         onDeletedConversation = onDeletedConversation,
+        openConversationDebugMenu = openConversationDebugMenu,
     )
 
     VisibilityState(legalHoldSubjectDialogState) {

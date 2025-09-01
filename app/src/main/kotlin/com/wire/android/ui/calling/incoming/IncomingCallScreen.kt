@@ -29,24 +29,29 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.calling.CallActivity
-import com.wire.android.ui.calling.CallState
-import com.wire.android.ui.calling.ConversationName
-import com.wire.android.ui.calling.SharedCallingViewModel
 import com.wire.android.ui.calling.common.CallVideoPreview
 import com.wire.android.ui.calling.common.CallerDetails
+import com.wire.android.ui.calling.common.ObserveRotation
+import com.wire.android.ui.calling.common.SharedCallingViewModel
 import com.wire.android.ui.calling.controlbuttons.AcceptButton
 import com.wire.android.ui.calling.controlbuttons.CallOptionsControls
 import com.wire.android.ui.calling.controlbuttons.HangUpButton
+import com.wire.android.ui.calling.model.CallState
+import com.wire.android.ui.calling.model.ConversationName
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.bottomsheet.WireBottomSheetScaffold
 import com.wire.android.ui.common.colorsScheme
@@ -64,6 +69,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 @Composable
 fun IncomingCallScreen(
     conversationId: ConversationId,
+    shouldTryToAnswerCallAutomatically: Boolean,
     incomingCallViewModel: IncomingCallViewModel = hiltViewModel<IncomingCallViewModel, IncomingCallViewModel.Factory>(
         key = "incoming_$conversationId",
         creationCallback = { factory -> factory.create(conversationId = conversationId) }
@@ -75,6 +81,7 @@ fun IncomingCallScreen(
     onCallAccepted: () -> Unit
 ) {
     val activity = LocalActivity.current
+    val lifecycleOwner = LocalLifecycleOwner.current
 
     val permissionPermanentlyDeniedDialogState =
         rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
@@ -113,6 +120,22 @@ fun IncomingCallScreen(
             }
         }
     }
+    LaunchedEffect(shouldTryToAnswerCallAutomatically) {
+        if (shouldTryToAnswerCallAutomatically) {
+            appLogger.d("IncomingCall - Trying to automatically accept the call")
+            audioPermissionCheck.launch()
+        }
+    }
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_STOP) incomingCallViewModel.bringBackNotificationIfNeeded()
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+            incomingCallViewModel.bringBackNotificationIfNeeded()
+        }
+    }
     HandleActions(incomingCallViewModel.actions) { action ->
         when (action) {
             IncomingCallViewActions.AppLocked -> (activity as CallActivity).openAppLockActivity()
@@ -141,6 +164,7 @@ fun IncomingCallScreen(
                 activity.moveTaskToBack(true)
             }
         )
+        ObserveRotation(::setUIRotation)
     }
 
     PermissionPermanentlyDeniedDialog(

@@ -46,9 +46,11 @@ import com.wire.android.ui.common.dialogs.calling.JoinAnywayDialog
 import com.wire.android.ui.common.search.SearchBarState
 import com.wire.android.ui.common.search.rememberSearchbarState
 import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.debug.conversation.DebugConversationScreenNavArgs
 import com.wire.android.ui.destinations.BrowseChannelsScreenDestination
 import com.wire.android.ui.destinations.ConversationFoldersScreenDestination
 import com.wire.android.ui.destinations.ConversationScreenDestination
+import com.wire.android.ui.destinations.DebugConversationScreenDestination
 import com.wire.android.ui.destinations.NewConversationSearchPeopleScreenDestination
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
@@ -108,7 +110,7 @@ fun ConversationsScreenContent(
         when (action) {
             is ConversationListCallViewActions.JoinedCall -> {
                 AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallJoined)
-                getOngoingCallIntent(context, action.conversationId.toString()).run {
+                getOngoingCallIntent(context, action.conversationId.toString(), action.userId.toString()).run {
                     context.startActivity(this)
                 }
             }
@@ -238,6 +240,11 @@ fun ConversationsScreenContent(
     ConversationOptionsModalSheetLayout(
         sheetState = sheetState,
         openConversationFolders = { navigator.navigate(NavigationCommand(ConversationFoldersScreenDestination(it))) },
+        openConversationDebugMenu = { conversationId ->
+            navigator.navigate(NavigationCommand(DebugConversationScreenDestination(
+                navArgs = DebugConversationScreenNavArgs(conversationId)
+            )))
+        },
     )
 
     SnackBarMessageHandler(infoMessages = conversationListViewModel.infoMessage, onEmitted = {

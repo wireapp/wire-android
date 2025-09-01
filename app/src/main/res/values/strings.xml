@@ -47,7 +47,7 @@
     <string name="label_logging_in">Logging in…</string>
     <string name="label_membership_guest">Guest</string>
     <string name="label_membership_external">External</string>
-    <string name="label_membership_service">Service</string>
+    <string name="label_membership_service">App</string>
     <string name="label_user_deleted">Deleted</string>
     <string name="label_try_again">Try Again</string>
     <string name="label_done">Done</string>
@@ -224,7 +224,7 @@
     <string name="content_description_accept_or_ignore_connection_label">accept or ignore the request</string>
     <string name="content_description_open_user_profile_label">open profile</string>
     <string name="content_description_open_conversation_label">open conversation</string>
-    <string name="content_description_open_service_label">open service</string>
+    <string name="content_description_open_service_label">open app</string>
     <string name="content_description_change_it_label">change it</string>
     <string name="content_description_open_link_label">open link</string>
     <string name="content_description_alert">Alert</string>
@@ -300,6 +300,7 @@
     <string name="url_delete_personal_account" translatable="false">https://support.wire.com/hc/articles/207555795</string>
     <string name="url_system_message_learn_more_about_e2ee" translatable="false">https://support.wire.com/hc/articles/10898523878173</string>
     <string name="url_e2ee_id_shield" translatable="false">https://support.wire.com/hc/articles/9211300150685</string>
+    <string name="url_how_to_add_apps" translatable="false">https://support.wire.com/hc/articles/360000296158</string>
     <!-- Navigation -->
     <string name="vault_screen_title">Vault</string>
     <string name="channels_screen_title">Channels</string>
@@ -642,13 +643,13 @@
     <string name="conversation_details_guest_description">When this is ON, people from outside your team can join this conversation</string>
     <string name="conversation_options_guest_description">Turn this option ON to open this conversation to people outside your team, even if they don\'t have Wire.</string>
     <string name="conversation_options_guest_not_editable_description">You cannot disable the guest option in this conversation, since it has been created by someone from another team.</string>
-    <string name="conversation_options_services_label">Services</string>
-    <string name="conversation_options_services_description">Turn this option ON to open this conversation to services.</string>
+    <string name="conversation_options_services_label">Apps</string>
+    <string name="conversation_options_services_description">Turn this option ON to open this conversation to apps.</string>
     <string name="conversation_options_renamed">Conversation renamed</string>
     <string name="disable_guest_dialog_title">Disable guest access?</string>
     <string name="disable_guest_dialog_text">Current guests will be removed from the conversation. New guests will not be allowed.</string>
-    <string name="disable_services_dialog_title">Disable services access?</string>
-    <string name="disable_services_dialog_text">Current services will be removed from the conversation. New services will not be allowed.</string>
+    <string name="disable_services_dialog_title">Disable app access?</string>
+    <string name="disable_services_dialog_text">Current apps will be removed from the conversation. New apps will not be allowed.</string>
     <string name="leave_conversation_menu_item">Leave Conversation…</string>
     <string name="leave_conversation_dialog_title">Leave “%s”?</string>
     <string name="leave_conversation_dialog_description">You will then no longer be able to send or read messages in this conversation on any device.</string>
@@ -667,10 +668,6 @@
     <!--Read receipts -->
     <string name="conversation_options_read_receipt_label">Read receipts</string>
     <string name="conversation_options_read_receipt_description">When this is on, people can see when their messages in this conversation are read.</string>
-    <!--Wire Cell -->
-    <string name="conversation_options_wire_cell_label">Wire Cell</string>
-    <string name="conversation_options_wire_cell_description">When this is on, all conversation files are saved in Wire Cell Storage.</string>
-    <string name="folder_label_wire_cell">File Storage</string>
     <!-- Messages -->
     <string name="message_details_title">Message Details</string>
     <string name="message_details_reactions_tab">REACTIONS (%s)</string>
@@ -728,7 +725,7 @@
     <!-- Remove Conversation Member Dialog -->
     <string name="dialog_remove_conversation_member_title">Remove from conversation?</string>
     <string name="dialog_remove_conversation_member_description">%1$s (@%2$s) will not be able to send or receive messages in this conversation.</string>
-    <string name="dialog_remove_conversation_member_error">There was an error while removing the participant from the conversatrion</string>
+    <string name="dialog_remove_conversation_member_error">There was an error while removing the participant from the conversation</string>
     <string name="conversation_role_admin">Admin</string>
     <string name="conversation_role_member">Member</string>
     <!-- Logout Wipe Data Dialog -->
@@ -794,22 +791,22 @@
     <string name="conversation_banner_federated">federated users</string>
     <string name="conversation_banner_externals">externals</string>
     <string name="conversation_banner_guests">guests</string>
-    <string name="conversation_banner_services">services</string>
-    <string name="conversation_banner_federated_externals_guests_services_present">Federated users, externals, guests and services are present</string>
+    <string name="conversation_banner_services">apps</string>
+    <string name="conversation_banner_federated_externals_guests_services_present">Federated users, externals, guests and apps are present</string>
     <string name="conversation_banner_federated_externals_guests_present">Federated users, externals and guests are present</string>
-    <string name="conversation_banner_federated_externals_services_present">Federated users, externals and services are present</string>
-    <string name="conversation_banner_federated_guests_services_present">Federated users, guests and services are present</string>
-    <string name="conversation_banner_federated_services_present">Federated users and services are present</string>
+    <string name="conversation_banner_federated_externals_services_present">Federated users, externals and apps are present</string>
+    <string name="conversation_banner_federated_guests_services_present">Federated users, guests and apps are present</string>
+    <string name="conversation_banner_federated_services_present">Federated users and apps are present</string>
     <string name="conversation_banner_federated_guests_present">Federated users and guests are present</string>
     <string name="conversation_banner_federated_externals_present">Federated users and Externals are present</string>
-    <string name="conversation_banner_externals_guests_services_present">Externals, guests and services are present</string>
-    <string name="conversation_banner_externals_services_present">Externals and services are present</string>
+    <string name="conversation_banner_externals_guests_services_present">Externals, guests and apps are present</string>
+    <string name="conversation_banner_externals_services_present">Externals and apps are present</string>
     <string name="conversation_banner_externals_guests_present">Externals and guests are present</string>
-    <string name="conversation_banner_guests_services_present">Guests and services are present</string>
+    <string name="conversation_banner_guests_services_present">Guests and apps are present</string>
     <string name="conversation_banner_federated_present">Federated users are present</string>
     <string name="conversation_banner_guests_present">Guests are present</string>
     <string name="conversation_banner_externals_present">Externals are present</string>
-    <string name="conversation_banner_services_active">Services are active</string>
+    <string name="conversation_banner_services_active">Apps are active</string>
     <string name="conversation_history_loading">Loading conversation history...</string>
     <string name="conversation_history_loaded">You made it to the top 🥳\nYou see all available messages.</string>
     <!-- System messages -->
@@ -1003,13 +1000,16 @@
     <string name="label_learn_more_about_channels">Learn more about channels</string>
     <string name="label_new_conversation">New Conversation</string>
     <string name="label_search_people">Search people</string>
+    <string name="label_search_people_or_apps">Search people or apps</string>
     <string name="label_public_wire">Public Wire</string>
     <string name="label_search_people_instruction">Search for people by their profile name or @username</string>
+    <string name="label_search_apps_instruction">Improve productivity with apps.</string>
     <string name="label_learn_more_searching_user">Learn more</string>
+    <string name="label_learn_more_searching_app">How to add apps to your team</string>
     <string name="label_no_results_found">No results could be found. Please try again.</string>
     <string name="label_general_error">Something went wrong</string>
     <string name="label_add_member_people">People</string>
-    <string name="label_add_member_services">Services</string>
+    <string name="label_add_member_services">Apps</string>
     <string name="label_empty_contacts_list">Search for people by their name or username to start a conversation 🔍</string>
     <!-- Snackbar messages -->
     <string name="error_unknown_title">Something went wrong</string>
@@ -1190,16 +1190,16 @@
     <string name="change">Change</string>
     <string name="allow_guests">Allow guests</string>
     <string name="allow_guest_switch_description">Open this conversation to people outside your team. You can always change it later.</string>
-    <string name="allow_services">Allow services</string>
-    <string name="allow_services_regular_group_description">Open this conversation to services. You can always change it later.</string>
-    <string name="allow_services_channel_description">Open this conversation to people outside your team or services. You can always change it later.</string>
-    <string name="service_details_label">Service</string>
+    <string name="allow_services">Allow apps</string>
+    <string name="allow_services_regular_group_description">Open this conversation to apps. You can always change it later.</string>
+    <string name="allow_services_channel_description">Open this conversation to people outside your team or to apps. You can always change it later.</string>
+    <string name="service_details_label">App</string>
     <string name="service_details_add_service_label">Add To Conversation</string>
     <string name="service_details_remove_service_label">Remove From Conversation</string>
-    <string name="service_remove_success">Service removed from conversation</string>
-    <string name="service_remove_error">Unable to remove service from conversation</string>
-    <string name="service_add_success">Service added to conversation</string>
-    <string name="service_add_error">Unable to add service to conversation</string>
+    <string name="service_remove_success">App removed from conversation</string>
+    <string name="service_remove_error">Unable to remove app from conversation</string>
+    <string name="service_add_success">App added to conversation</string>
+    <string name="service_add_error">Unable to add app to conversation</string>
     <string name="service_no_information_available_title">No information available</string>
     <string name="service_no_information_available_subtitle">Try again or reach out to your team admin</string>
     <string name="read_receipts">Read receipts</string>
@@ -1769,6 +1769,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="debug_settings_force_api_versioning_update" translatable="false">Force API versioning update</string>
     <string name="debug_settings_break_session" translatable="false">⚠️ Break Session</string>
     <string name="debug_settings_force_api_versioning_update_button_text" translatable="false">Update</string>
+    <string name="debug_settings_feature_flags" translatable="false">Feature Flags</string>
 
     <!--    Personal to team migration screen-->
     <string name="personal_to_team_migration_step_label">Step %1$d of 4</string>

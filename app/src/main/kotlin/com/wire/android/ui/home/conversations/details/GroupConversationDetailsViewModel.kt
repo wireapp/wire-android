@@ -21,7 +21,6 @@ package com.wire.android.ui.home.conversations.details
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
-import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.ui.common.ActionsManager
 import com.wire.android.ui.common.ActionsManagerImpl
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsState
@@ -33,22 +32,21 @@ import com.wire.android.ui.home.newconversation.channelaccess.toUiEnum
 import com.wire.android.ui.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
-import com.wire.kalium.cells.domain.usecase.SetWireCellForConversationUseCase
 import com.wire.kalium.common.functional.getOrNull
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateReceiptModeResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReceiptModeUseCase
+import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageUseCase
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.team.GetUpdatedSelfTeamUseCase
-import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -59,7 +57,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
@@ -72,7 +69,7 @@ import javax.inject.Inject
 class GroupConversationDetailsViewModel @Inject constructor(
     private val dispatcher: DispatcherProvider,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
-    private val observeConversationMembers: ObserveParticipantsForConversationUseCase,
+    observeConversationMembers: ObserveParticipantsForConversationUseCase,
     private val updateConversationAccessRole: UpdateConversationAccessRoleUseCase,
     private val getSelfTeam: GetUpdatedSelfTeamUseCase,
     private val getSelfUser: GetSelfUserUseCase,
@@ -80,16 +77,20 @@ class GroupConversationDetailsViewModel @Inject constructor(
     private val observeSelfDeletionTimerSettingsForConversation: ObserveSelfDeletionTimerSettingsForConversationUseCase,
     savedStateHandle: SavedStateHandle,
     private val isMLSEnabled: IsMLSEnabledUseCase,
-    private val getDefaultProtocol: GetDefaultProtocolUseCase,
     refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase,
-    private val enableCell: SetWireCellForConversationUseCase,
-    private val globalDataStore: GlobalDataStore,
+    private val isWireCellsEnabled: IsWireCellsEnabledUseCase,
+    private val observeIsAppsAllowedForUsage: ObserveIsAppsAllowedForUsageUseCase,
 ) : GroupConversationParticipantsViewModel(savedStateHandle, observeConversationMembers, refreshUsersWithoutMetadata),
     ActionsManager<GroupConversationDetailsViewAction> by ActionsManagerImpl() {
+
     private val groupConversationDetailsNavArgs: GroupConversationDetailsNavArgs = savedStateHandle.navArgs()
     val conversationId: QualifiedID = groupConversationDetailsNavArgs.conversationId
+
     private val _groupOptionsState = MutableStateFlow(GroupConversationOptionsState(conversationId))
     val groupOptionsState: StateFlow<GroupConversationOptionsState> = _groupOptionsState
+
+    private val _isFetchingInitialData: MutableStateFlow<Boolean> = MutableStateFlow(true)
+    val isFetchingInitialData: MutableStateFlow<Boolean> = _isFetchingInitialData
 
     init {
         observeConversationDetails()
@@ -114,12 +115,12 @@ class GroupConversationDetailsViewModel @Inject constructor(
 
             val selfTeam = getSelfTeam().getOrNull()
             val selfUser = getSelfUser()
-            val isMLSTeam = getDefaultProtocol() == SupportedProtocol.MLS
 
             combine(
+                observeIsAppsAllowedForUsage(),
                 groupDetailsFlow,
                 observeSelfDeletionTimerSettingsForConversation(conversationId, considerSelfUserSettings = false),
-            ) { groupDetails, selfDeletionTimer ->
+            ) { isAppsUsageAllowed, groupDetails, selfDeletionTimer ->
                 val isSelfInTeamThatOwnsConversation = selfTeam?.id != null && selfTeam.id == groupDetails.conversation.teamId?.value
                 val isSelfExternalMember = selfUser?.userType == UserType.EXTERNAL
                 val isChannel = groupDetails is ConversationDetails.Group.Channel
@@ -127,9 +128,10 @@ class GroupConversationDetailsViewModel @Inject constructor(
                 val canPerformChannelAdminTasks = isChannel && isSelfInTeamThatOwnsConversation && isSelfTeamAdmin
                 val isRegularGroupAdmin = groupDetails.selfRole == Conversation.Member.Role.Admin
                 val canSelfPerformAdminTasks = (isRegularGroupAdmin) || (canPerformChannelAdminTasks)
-                val isMLSConversation = groupDetails.conversation.protocol is Conversation.ProtocolInfo.MLS
                 val channelPermissionType = groupDetails.getChannelPermissionType()
                 val channelAccessType = groupDetails.getChannelAccessType()
+
+                _isFetchingInitialData.value = false
 
                 updateState(
                     groupOptionsState.value.copy(
@@ -140,11 +142,11 @@ class GroupConversationDetailsViewModel @Inject constructor(
                         legalHoldStatus = groupDetails.conversation.legalHoldStatus,
                         areAccessOptionsAvailable = groupDetails.conversation.isTeamGroup(),
                         isGuestAllowed = groupDetails.conversation.isGuestAllowed() || groupDetails.conversation.isNonTeamMemberAllowed(),
-                        isServicesAllowed = groupDetails.conversation.isServicesAllowed() && !isMLSTeam && !isMLSConversation,
                         isUpdatingNameAllowed = canSelfPerformAdminTasks && !isSelfExternalMember,
                         isUpdatingGuestAllowed = canSelfPerformAdminTasks && isSelfInTeamThatOwnsConversation,
                         isUpdatingChannelAccessAllowed = canSelfPerformAdminTasks && isSelfInTeamThatOwnsConversation,
-                        isUpdatingServicesAllowed = canSelfPerformAdminTasks && !isMLSTeam && !isMLSConversation,
+                        isServicesAllowed = groupDetails.conversation.isServicesAllowed() && isAppsUsageAllowed,
+                        isUpdatingServicesAllowed = canSelfPerformAdminTasks && isAppsUsageAllowed,
                         isUpdatingReadReceiptAllowed = canSelfPerformAdminTasks && groupDetails.conversation.isTeamGroup(),
                         isUpdatingSelfDeletingAllowed = canSelfPerformAdminTasks,
                         mlsEnabled = isMLSEnabled(),
@@ -156,7 +158,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
                         channelAccessType = channelAccessType,
                         loadingWireCellState = false,
                         isWireCellEnabled = groupDetails.wireCell != null,
-                        isWireCellFeatureEnabled = globalDataStore.wireCellsEnabled().firstOrNull() ?: false,
+                        isWireCellFeatureEnabled = isWireCellsEnabled(),
                     )
                 )
             }.collect {}
@@ -227,18 +229,6 @@ class GroupConversationDetailsViewModel @Inject constructor(
     fun onServiceDialogConfirm() {
         updateState(groupOptionsState.value.copy(changeServiceOptionConfirmationRequired = false, loadingServicesOption = true))
         updateServicesRemoteRequest(false)
-    }
-
-    fun onWireCellStateChange(enableWireCell: Boolean) {
-        updateState(
-            groupOptionsState.value.copy(
-                loadingWireCellState = true,
-                isWireCellEnabled = enableWireCell,
-            )
-        )
-        viewModelScope.launch {
-            enableCell(conversationId, enableWireCell)
-        }
     }
 
     private fun updateServicesRemoteRequest(enableServices: Boolean) {

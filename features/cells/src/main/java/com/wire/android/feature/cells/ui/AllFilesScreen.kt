@@ -19,16 +19,15 @@ package com.wire.android.feature.cells.ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.wire.android.feature.cells.ui.destinations.AddRemoveTagsScreenDestination
+import com.wire.android.feature.cells.ui.destinations.ConversationFilesScreenDestination
 import com.wire.android.feature.cells.ui.destinations.PublicLinkScreenDestination
 import com.wire.android.feature.cells.ui.filter.FilterBottomSheet
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.WireNavigator
-import com.wire.android.ui.common.bottomsheet.WireSheetValue
-import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
-import com.wire.android.ui.common.bottomsheet.show
 import com.wire.android.ui.common.search.SearchBarState
 import kotlinx.coroutines.delay
 
@@ -42,8 +41,6 @@ fun AllFilesScreen(
     searchBarState: SearchBarState,
     viewModel: CellViewModel = hiltViewModel(),
 ) {
-    val sheetState = rememberWireModalSheetState<Unit>(WireSheetValue.Hidden)
-
     val pagingListItems = viewModel.nodesFlow.collectAsLazyPagingItems()
 
     LaunchedEffect(searchBarState.searchQueryTextState.text) {
@@ -61,17 +58,18 @@ fun AllFilesScreen(
     }
 
     searchBarState.searchVisibleChanged(isSearchVisible)
-
     CellScreenContent(
         actionsFlow = viewModel.actions,
         pagingListItems = pagingListItems,
         sendIntent = { viewModel.sendIntent(it) },
         onFolderClick = {
-            // TODO: Handle folder click later
+            navigator.navigate(NavigationCommand(ConversationFilesScreenDestination(it.remotePath)))
         },
         downloadFileState = viewModel.downloadFileSheet,
         menuState = viewModel.menu,
         isAllFiles = true,
+        isRestoreInProgress = viewModel.isRestoreInProgress.collectAsState().value,
+        isRecycleBin = viewModel.isRecycleBin(),
         isSearchResult = viewModel.hasSearchQuery(),
         showPublicLinkScreen = { publicLinkScreenData ->
             navigator.navigate(
@@ -97,22 +95,20 @@ fun AllFilesScreen(
     )
 
     if (searchBarState.isFilterActive) {
-        sheetState.show()
-    } else {
-        sheetState.hide()
-    }
 
-    FilterBottomSheet(
-        selectableTags = viewModel.tags,
-        selectedTags = viewModel.selectedTags,
-        onApply = {
-            searchBarState.onFilterActiveChanged(false)
-            viewModel.updateSelectedTags(it)
-        },
-        onClearAll = {
-            viewModel.updateSelectedTags(emptyList())
-        },
-        onDismiss = { searchBarState.onFilterActiveChanged(false) },
-        sheetState = sheetState
-    )
+        viewModel.loadTags()
+
+        FilterBottomSheet(
+            selectableTags = viewModel.tags.collectAsState().value,
+            selectedTags = viewModel.selectedTags.collectAsState().value,
+            onApply = {
+                searchBarState.onFilterActiveChanged(false)
+                viewModel.updateSelectedTags(it)
+            },
+            onClearAll = {
+                viewModel.updateSelectedTags(emptySet())
+            },
+            onDismiss = { searchBarState.onFilterActiveChanged(false) },
+        )
+    }
 }

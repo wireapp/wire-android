@@ -27,6 +27,7 @@ import com.wire.android.feature.cells.R
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
+import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.theme.WireTheme
 
@@ -34,6 +35,7 @@ import com.wire.android.ui.theme.WireTheme
 fun RestoreConfirmationDialog(
     itemName: String,
     isFolder: Boolean,
+    isRestoreInProgress: Boolean,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
 ) {
@@ -73,6 +75,8 @@ fun RestoreConfirmationDialog(
         optionButton1Properties = WireDialogButtonProperties(
             onClick = onConfirm,
             text = stringResource(id = R.string.dialog_restore_button_label),
+            loading = isRestoreInProgress,
+            state = if (isRestoreInProgress) WireButtonState.Disabled else WireButtonState.Default,
             type = WireDialogButtonType.Primary,
         ),
         dismissButtonProperties = WireDialogButtonProperties(
@@ -91,6 +95,7 @@ fun PreviewRestoreConfirmationDialog() {
         RestoreConfirmationDialog(
             itemName = "Test",
             isFolder = false,
+            isRestoreInProgress = false,
             onConfirm = {},
             onDismiss = {}
         )

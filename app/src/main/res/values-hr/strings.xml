@@ -38,7 +38,6 @@
     <string name="label_logging_in">Prijava…</string>
     <string name="label_membership_guest">Gost</string>
     <string name="label_membership_external">Vanjski</string>
-    <string name="label_membership_service">Usluga</string>
     <string name="label_user_deleted">Izbrisano</string>
     <string name="label_message_sent_failure">Poruka se ne može poslati zbog problema s konekcijom.</string>
     <string name="label_message_edit_sent_failure">Uređena poruka nije mogla biti poslana zbog problema konekcijom.</string>
@@ -382,7 +381,6 @@
     <!-- Import/Export External Media -->
     <string name="import_media_send_button_title">Pošalji</string>
     <!--Read receipts -->
-    <!--Wire Cell -->
     <!-- Messages -->
     <string name="message_details_title">Detalji o poruci</string>
     <!-- Messages Date and Time -->
@@ -446,7 +444,6 @@
     <string name="label_learn_more_searching_user">Saznaj više</string>
     <string name="label_general_error">Nešto je pošlo po zlu</string>
     <string name="label_add_member_people">Kontakti</string>
-    <string name="label_add_member_services">Usluge</string>
     <!-- Snackbar messages -->
     <string name="error_unknown_title">Nešto je pošlo po zlu</string>
     <string name="error_unknown_message">Molimo pokušajte ponovno</string>

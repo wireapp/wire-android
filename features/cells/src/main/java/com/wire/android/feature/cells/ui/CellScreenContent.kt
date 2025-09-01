@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -54,6 +55,9 @@ import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.preview.MultipleThemePreviews
+import com.wire.android.ui.common.typography
+import com.wire.android.ui.theme.WireTheme
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -70,7 +74,9 @@ internal fun CellScreenContent(
     showRenameScreen: (CellNodeUi) -> Unit,
     showMoveToFolderScreen: (String, String, String) -> Unit,
     showAddRemoveTagsScreen: (CellNodeUi) -> Unit,
+    isRestoreInProgress: Boolean,
     isAllFiles: Boolean,
+    isRecycleBin: Boolean,
     isSearchResult: Boolean = false,
 ) {
 
@@ -91,6 +97,7 @@ internal fun CellScreenContent(
         pagingListItems.itemCount == 0 -> EmptyScreen(
             isSearchResult = isSearchResult,
             isAllFiles = isAllFiles,
+            isRecycleBin = isRecycleBin,
             onRetry = { pagingListItems.retry() }
         )
 
@@ -148,6 +155,7 @@ internal fun CellScreenContent(
         RestoreConfirmationDialog(
             itemName = it.name ?: "",
             isFolder = it is CellNodeUi.Folder,
+            isRestoreInProgress = isRestoreInProgress,
             onConfirm = {
                 sendIntent(CellViewIntent.OnNodeRestoreConfirmed(it))
                 restoreConfirmation = null
@@ -196,6 +204,7 @@ internal fun CellScreenContent(
                     isFolder = action.cellNode is CellNodeUi.Folder
                 )
             )
+
             is ShowRenameScreen -> showRenameScreen(action.cellNode)
             is ShowMoveToFolderScreen -> showMoveToFolderScreen(action.currentPath, action.nodeToMovePath, action.uuid)
             is ShowAddRemoveTagsScreen -> showAddRemoveTagsScreen(action.cellNode)
@@ -252,6 +261,7 @@ private fun ErrorScreen(onRetry: () -> Unit) {
 private fun EmptyScreen(
     isSearchResult: Boolean = false,
     isAllFiles: Boolean = true,
+    isRecycleBin: Boolean = false,
     onRetry: () -> Unit = {},
 ) {
     Column(
@@ -266,16 +276,20 @@ private fun EmptyScreen(
                 .fillMaxHeight()
                 .weight(1f)
         )
-
+        if (!isSearchResult && !isRecycleBin) {
+            Text(
+                text = stringResource(R.string.file_list_empty_title),
+                style = typography().title01,
+                textAlign = TextAlign.Center,
+            )
+            Spacer(modifier = Modifier.height(dimensions().spacing16x))
+        }
         Text(
-            text = if (isSearchResult) {
-                stringResource(R.string.file_list_search_empty_message)
-            } else {
-                if (isAllFiles) {
-                    stringResource(R.string.file_list_empty_message)
-                } else {
-                    stringResource(R.string.conversation_file_list_empty_message)
-                }
+            text = when {
+                isSearchResult -> stringResource(R.string.file_list_search_empty_message)
+                isAllFiles -> stringResource(R.string.file_list_empty_message)
+                isRecycleBin -> stringResource(R.string.empty_recycle_bin)
+                else -> stringResource(R.string.conversation_file_list_empty_message)
             },
             textAlign = TextAlign.Center,
         )
@@ -292,6 +306,28 @@ private fun EmptyScreen(
                 onClick = onRetry
             )
         }
+    }
+}
+
+@MultipleThemePreviews
+@Composable
+fun PreviewErrorScreen() {
+    WireTheme {
+        ErrorScreen(
+            onRetry = {}
+        )
+    }
+}
+
+@MultipleThemePreviews
+@Composable
+fun PreviewEmptyScreen() {
+    WireTheme {
+        EmptyScreen(
+            isSearchResult = false,
+            isAllFiles = true,
+            onRetry = {}
+        )
     }
 }
 

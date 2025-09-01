@@ -34,7 +34,7 @@ import com.wire.kalium.logic.data.call.CallQuality
 import com.wire.kalium.logic.data.call.VideoState
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveLastActiveCallWithSortedParticipantsUseCase
 import com.wire.kalium.logic.feature.call.usecase.RequestVideoStreamsUseCase
 import com.wire.kalium.logic.feature.call.usecase.video.SetVideoSendStateUseCase
 import dagger.assisted.Assisted
@@ -42,8 +42,9 @@ import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 @Suppress("LongParameterList", "TooManyFunctions")
@@ -54,7 +55,7 @@ class OngoingCallViewModel @AssistedInject constructor(
     @CurrentAccount
     val currentUserId: UserId,
     private val globalDataStore: GlobalDataStore,
-    private val establishedCalls: ObserveEstablishedCallsUseCase,
+    private val observeLastActiveCall: ObserveLastActiveCallWithSortedParticipantsUseCase,
     private val requestVideoStreams: RequestVideoStreamsUseCase,
     private val setVideoSendState: SetVideoSendStateUseCase,
 ) : ViewModel() {
@@ -68,12 +69,7 @@ class OngoingCallViewModel @AssistedInject constructor(
         private set
 
     init {
-        viewModelScope.launch {
-            establishedCalls().first { it.isNotEmpty() }.run {
-                // We start observing once we have an ongoing call
-                observeCurrentCall()
-            }
-        }
+        observeCurrentCallFlowState()
         showDoubleTapToast()
     }
 
@@ -95,15 +91,21 @@ class OngoingCallViewModel @AssistedInject constructor(
         }
     }
 
-    private suspend fun observeCurrentCall() {
-        establishedCalls()
-            .distinctUntilChanged()
-            .collect { calls ->
-                val currentCall = calls.find { call -> call.conversationId == conversationId }
-                if (currentCall == null) {
-                    state = state.copy(flowState = OngoingCallState.FlowState.CallClosed)
+    private fun observeCurrentCallFlowState() {
+        viewModelScope.launch {
+            observeLastActiveCall(conversationId)
+                .map { it != null }
+                .distinctUntilChanged()
+                .map { isActive ->
+                    when (isActive) {
+                        false -> OngoingCallState.FlowState.CallClosed
+                        true -> OngoingCallState.FlowState.Default
+                    }
                 }
-            }
+                .collectLatest { flowState ->
+                    state = state.copy(flowState = flowState)
+                }
+        }
     }
 
     fun requestVideoStreams(participants: List<UICallParticipant>) {

@@ -18,7 +18,6 @@
 
 package com.wire.android.ui
 
-import android.app.Activity
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -300,25 +299,27 @@ class WireActivity : AppCompatActivity() {
             backgroundType = backgroundType,
             onReturnToCallClick = { establishedCall ->
                 getOngoingCallIntent(
-                    this@WireActivity,
-                    establishedCall.conversationId.toString()
+                    context = this@WireActivity,
+                    conversationId = establishedCall.conversationId.toString(),
+                    userId = establishedCall.userId.toString(),
                 ).run {
                     startActivity(this)
                 }
             },
             onReturnToIncomingCallClick = {
                 getIncomingCallIntent(
-                    this@WireActivity,
-                    it.conversationId.toString(),
-                    null
+                    context = this@WireActivity,
+                    conversationId = it.conversationId.toString(),
+                    userId = it.userId.toString(),
                 ).run {
                     startActivity(this)
                 }
             },
             onReturnToOutgoingCallClick = {
                 getOutgoingCallIntent(
-                    this@WireActivity,
-                    it.conversationId.toString()
+                    context = this@WireActivity,
+                    conversationId = it.conversationId.toString(),
+                    userId = it.userId.toString(),
                 ).run {
                     startActivity(this)
                 }
@@ -739,6 +740,6 @@ internal fun Navigator.isEmptyWelcomeStartDestination(): Boolean {
     return firstDestinationBaseRoute == NewWelcomeEmptyStartScreenDestination.route.getBaseRoute()
 }
 
-val LocalActivity = staticCompositionLocalOf<Activity> {
+val LocalActivity = staticCompositionLocalOf<AppCompatActivity> {
     error("No Activity provided")
 }

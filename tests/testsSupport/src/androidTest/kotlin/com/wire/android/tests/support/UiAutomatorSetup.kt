@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.testSupport.uiautomatorutils
+package com.wire.android.tests.support
 
 import android.content.Context
 import android.content.Intent
@@ -36,6 +36,7 @@ object UiAutomatorSetup {
     const val APP_STAGING: String = "com.waz.zclient.dev"
     const val APP_BETA: String = "com.wire.android.internal"
     const val APP_PROD: String = "com.wire"
+    const val APP_INTERNAL: String = "com.wire.internal"
     lateinit var appPackage: String
 
     fun start(appPackage: String, clearData: Boolean = true): UiDevice {

@@ -21,7 +21,7 @@ import InbucketClient
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.uiautomator.UiDevice
 import com.wire.android.testSupport.BuildConfig
-import com.wire.android.testSupport.uiautomatorutils.UiAutomatorSetup
+import com.wire.android.tests.support.UiAutomatorSetup
 import com.wire.android.tests.core.di.testModule
 import com.wire.android.tests.core.pages.AllPages
 import com.wire.android.tests.support.suite.RC
@@ -62,7 +62,7 @@ class PersonalUserRegistrationTest : KoinTest {
     }
 
     @Test
-    fun personalUserRegistrationFlow() {
+    fun givenUserWantsToRegister_whenTheyProvideValidDetails_thenAccountIsCreatedSuccessfully() {
         val userInfo = UserClient.generateUniqueUserInfo()
         pages.registrationPage.apply {
             assertEmailWelcomePage()
@@ -76,7 +76,7 @@ class PersonalUserRegistrationTest : KoinTest {
             clickShowPasswordEyeIcon()
             verifyConfirmPasswordIsCorrect(userInfo.password)
             clickHidePasswordEyeIcon()
-            checkIagreeToShareAnonymousUsageData()
+            checkIAgreeToShareAnonymousUsageData()
             clickContinueButton()
             assertTermsOfUseModalVisible() // Asserts all elements
             clickContinueButton()

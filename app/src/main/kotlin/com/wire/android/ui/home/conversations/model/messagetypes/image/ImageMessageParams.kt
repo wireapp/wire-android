@@ -19,16 +19,43 @@
 package com.wire.android.ui.home.conversations.model.messagetypes.image
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpSize
 import com.wire.android.ui.common.dimensions
+import kotlinx.serialization.Serializable
+import kotlin.math.max
 
-data class ImageMessageParams(private val realImgWidth: Int, private val realImgHeight: Int) {
-    // Image size normalizations to keep the ratio of the inline message image
-    val normalizedWidth: Dp
-        @Composable
-        get() = dimensions().messageImageMaxWidth
+@Serializable
+data class ImageMessageParams(
+    private val realImgWidth: Int,
+    private val realImgHeight: Int,
+    val allowUpscale: Boolean = true
+) {
+    @Composable
+    fun normalizedSize(
+        minW: Dp = dimensions().messageImageMinWidth,
+        minH: Dp = dimensions().messageImageMinHeight,
+        maxW: Dp = dimensions().messageImageMaxWidth,
+        maxH: Dp = dimensions().messageImageMaxHeight
+    ): DpSize {
+        val d = LocalDensity.current
+        val realW = with(d) { realImgWidth.coerceAtLeast(1).toDp() }
+        val realH = with(d) { realImgHeight.coerceAtLeast(1).toDp() }
 
-    val normalizedHeight: Dp
-        @Composable
-        get() = Dp(normalizedWidth.value * realImgHeight.toFloat() / realImgWidth)
+        val scaleToMax = minOf(maxW / realW, maxH / realH)
+        val scaleToMin = max(minW / realW, minH / realH)
+
+        val scale = when {
+            realW in minW..maxW && realH in minH..maxH -> 1f
+            scaleToMax < 1f -> scaleToMax
+            scaleToMin > 1f -> if (allowUpscale) scaleToMin else 1f
+            else -> 1f
+        }
+
+        val w = (realW * scale).coerceIn(if (allowUpscale) minW else dimensions().spacing0x, maxW)
+        val h = (realH * scale).coerceIn(if (allowUpscale) minH else dimensions().spacing0x, maxH)
+
+        return DpSize(w, h)
+    }
 }

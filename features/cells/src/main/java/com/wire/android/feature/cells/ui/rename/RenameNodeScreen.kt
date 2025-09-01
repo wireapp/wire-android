@@ -32,7 +32,6 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.feature.cells.R
-import com.wire.android.feature.cells.ui.common.FullScreenLoading
 import com.wire.android.feature.cells.ui.rename.RenameNodeViewModel.Companion.NAME_MAX_COUNT
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.model.DisplayNameState
@@ -89,12 +88,16 @@ fun RenameNodeScreen(
                 color = MaterialTheme.wireColorScheme.background,
                 shadowElevation = MaterialTheme.wireDimensions.bottomNavigationShadowElevation
             ) {
-                WirePrimaryButton(
-                    text = stringResource(R.string.rename_label),
-                    onClick = { renameNodeViewModel.renameNode() },
-                    state = if (renameNodeViewModel.displayNameState.saveEnabled) Default else Disabled,
-                    clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
-                )
+                with(renameNodeViewModel) {
+                    WirePrimaryButton(
+                        modifier = Modifier.padding(dimensions().spacing16x),
+                        text = stringResource(R.string.rename_label),
+                        onClick = { renameNode(textState.text.toString()) },
+                        state = if (displayNameState.saveEnabled && !displayNameState.loading) Default else Disabled,
+                        clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
+                        loading = displayNameState.loading
+                    )
+                }
             }
         }
     ) { innerPadding ->
@@ -128,10 +131,6 @@ fun RenameNodeScreen(
         }
     }
 
-    if (renameNodeViewModel.displayNameState.loading) {
-        FullScreenLoading()
-    }
-
     HandleActions(renameNodeViewModel.actions) { action ->
         when (action) {
             is RenameNodeViewModelAction.Success -> {
@@ -163,6 +162,8 @@ private fun computeNameErrorState(
 
                 DisplayNameState.NameError.TextFieldError.NameExceedLimitError ->
                     if (isFolder == true) R.string.rename_long_folder_name_error else R.string.rename_long_file_name_error
+
+                DisplayNameState.NameError.TextFieldError.InvalidNameError -> R.string.rename_invalid_name
             }
             WireTextFieldState.Error(stringResource(id = messageRes))
         }

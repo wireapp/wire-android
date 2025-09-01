@@ -18,24 +18,24 @@
 <resources>
     <string name="retry">Retry</string>
     <string name="file_list_load_error">There was an error loading the files list. Please try again</string>
-    <string name="file_list_empty_message">There are no files yet You\'ll find all files shared across your conversations here.</string>
-    <string name="conversation_file_list_empty_message">There are no files in this conversation.</string>
+    <string name="file_list_empty_message">You\'ll find all files shared across your conversations here.</string>
+    <string name="conversation_file_list_empty_message">You\'ll find all files and folders shared in this conversation here.</string>
     <string name="file_list_search_empty_message">No files found.</string>
     <string name="save_label">Save</string>
     <string name="share_label">Share</string>
     <string name="delete_label">Delete</string>
-    <string name="public_link">Copy public link</string>
+    <string name="public_link">Share via Link</string>
     <string name="delete_permanently">Delete permanently</string>
     <string name="restore_label">Restore</string>
     <string name="add_remove_tags_label">Add or remove tags</string>
-    <string name="move_label">Move</string>
+    <string name="move_label">Move to Folder</string>
     <string name="download_label">Download</string>
     <string name="copy_link">Copy Link</string>
     <string name="share_link">Share Link</string>
     <string name="copied_to_clipboard_message">Link copied to clipboard</string>
     <string name="file_subtitle">%1$s in %2$s</string>
     <string name="file_subtitle_modified">%1$s by %2$s</string>
-    <string name="public_link_message_file">Upload and share your file via a public link. All recipients can view and download it.</string>
+    <string name="public_link_message_file">Upload and share your file via a public link. All recipients can view and download the folder and it\'s contents.</string>
     <string name="public_link_message_folder">Upload and share your folder via a public link. All recipients can view and download it.</string>
     <string name="create_public_link">Create public link</string>
     <string name="share_file_via_link">Share file via link</string>
@@ -75,8 +75,9 @@
     <string name="content_description_conversation_files_more_button">Open files options</string>
     <string name="recycle_bin">Recycle Bin</string>
     <string name="open_recycle_bin">Open Recycle Bin</string>
-    <string name="dialog_restore_file_title">Restore File?</string>
-    <string name="dialog_restore_folder_title">Restore Folder?</string>
+    <string name="empty_recycle_bin">You \'ll find all deleted files and folders here.</string>
+    <string name="dialog_restore_file_title">Restore File</string>
+    <string name="dialog_restore_folder_title">Restore Folder</string>
     <string name="dialog_restore_file_description">This file %1$s will be restored and available again to everyone in this conversation.</string>
     <string name="dialog_restore_folder_description">This folder %1$s will be restored and available again to everyone in this conversation.</string>
     <string name="dialog_restore_button_label">Restore</string>
@@ -99,6 +100,7 @@
     <string name="rename_file_renamed">File was renamed</string>
     <string name="rename_folder_renamed">Folder was renamed</string>
     <string name="rename_failure">Failed to rename</string>
+    <string name="rename_invalid_name">Name cannot contain "/" or "." characters</string>
     <string name="filter_label">Filter</string>
     <string name="tags_label">Tags</string>
     <string name="select_tags_label">select tags</string>
@@ -110,7 +112,9 @@
     <string name="added_tags_label">Added tags</string>
     <string name="add_tag_label">Add tag</string>
     <string name="enter_name_label">Enter tag name</string>
-    <string name="no_tags_message">No tags has been added this file.</string>
+    <string name="no_tags_message">No tags were added yet.</string>
     <string name="tags_edited">Tags were edited</string>
     <string name="failed_edit_tags">Failed to edit tags</string>
+    <string name="create_folder_invalid_name">Use a name without "/" or "."</string>
+    <string name="file_list_empty_title">There are no files or folders yet</string>
 </resources>

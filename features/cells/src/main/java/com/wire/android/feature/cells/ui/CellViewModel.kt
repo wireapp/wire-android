@@ -21,6 +21,9 @@ import android.content.Context
 import android.os.Environment
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import androidx.paging.LoadState
+import androidx.paging.LoadStates
+import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.filter
 import androidx.paging.map
@@ -38,8 +41,9 @@ import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
 import com.wire.kalium.cells.domain.usecase.DownloadCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
+import com.wire.kalium.cells.domain.usecase.IsAtLeastOneCellAvailableUseCase
 import com.wire.kalium.cells.domain.usecase.RestoreNodeFromRecycleBinUseCase
-import com.wire.kalium.common.functional.getOrElse
+import com.wire.kalium.common.functional.fold
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
@@ -54,7 +58,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -64,7 +71,7 @@ import okio.Path.Companion.toPath
 import java.io.File
 import javax.inject.Inject
 
-@Suppress("TooManyFunctions")
+@Suppress("TooManyFunctions", "LongParameterList")
 @HiltViewModel
 class CellViewModel @Inject constructor(
     val savedStateHandle: SavedStateHandle,
@@ -73,6 +80,7 @@ class CellViewModel @Inject constructor(
     private val deleteCellAsset: DeleteCellAssetUseCase,
     private val restoreNodeFromRecycleBinUseCase: RestoreNodeFromRecycleBinUseCase,
     private val download: DownloadCellFileUseCase,
+    private val isCellAvailable: IsAtLeastOneCellAvailableUseCase,
     private val fileHelper: FileHelper,
     private val kaliumFileSystem: KaliumFileSystem,
     @ApplicationContext val context: Context
@@ -87,7 +95,9 @@ class CellViewModel @Inject constructor(
     // Show bottom sheet with download progress.
     private val _downloadFileSheet: MutableStateFlow<CellNodeUi.File?> = MutableStateFlow(null)
     internal val downloadFileSheet = _downloadFileSheet.asStateFlow()
-    val isLoading = MutableStateFlow(false)
+
+    private val _isRestoreInProgress = MutableStateFlow(false)
+    val isRestoreInProgress = _isRestoreInProgress.asStateFlow()
 
     // Download progress value for each file being downloaded.
     private val downloadDataFlow = MutableStateFlow<Map<String, DownloadData>>(emptyMap())
@@ -96,19 +106,22 @@ class CellViewModel @Inject constructor(
 
     private val removedItemsFlow: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
 
-    private val _selectedTags = MutableStateFlow<List<String>>(emptyList())
-    val selectedTags: StateFlow<List<String>> = _selectedTags.asStateFlow()
+    private val _selectedTags = MutableStateFlow<Set<String>>(emptySet())
+    val selectedTags: StateFlow<Set<String>> = _selectedTags.asStateFlow()
 
-    private val _tags = MutableStateFlow<List<String>>(emptyList())
-    val tags: StateFlow<List<String>> = _tags.asStateFlow()
+    private val _tags = MutableStateFlow<Set<String>>(emptySet())
+    val tags: StateFlow<Set<String>> = _tags.asStateFlow()
 
     init {
-        viewModelScope.launch {
-            _tags.value = getAllTagsUseCase().getOrElse(emptyList())
-        }
+        loadTags()
     }
 
-    internal val nodesFlow = combine(
+    internal val nodesFlow = flow {
+        val cellAvailable = isCellAvailable().fold({ false }, { it })
+        emitAll(if (cellAvailable) buildNodesFlow() else flowOf(emptyData))
+    }
+
+    private fun buildNodesFlow() = combine(
         searchQueryFlow
             .debounce { if (it.isEmpty()) 0L else DEFAULT_SEARCH_QUERY_DEBOUNCE }
             .onStart { emit("") }
@@ -121,7 +134,7 @@ class CellViewModel @Inject constructor(
                     conversationId = navArgs.conversationId,
                     query = query,
                     onlyDeleted = navArgs.isRecycleBin ?: false,
-                    tags = currentTags
+                    tags = currentTags.toList(),
                 ).cachedIn(viewModelScope),
                 removedItemsFlow,
                 downloadDataFlow
@@ -146,8 +159,7 @@ class CellViewModel @Inject constructor(
                     }
             }
         }
-
-    fun updateSelectedTags(tags: List<String>) {
+    fun updateSelectedTags(tags: Set<String>) {
         _selectedTags.value = tags
     }
 
@@ -190,6 +202,10 @@ class CellViewModel @Inject constructor(
 
     internal fun currentNodeUuid(): String? = navArgs.conversationId
     internal fun isRecycleBin(): Boolean = navArgs.isRecycleBin ?: false
+    private fun isSearching(): Boolean = searchQueryFlow.value.isNotEmpty()
+    private fun isConversationFiles(): Boolean = navArgs.conversationId != null && !isRecycleBin()
+    private fun isAllFiles(): Boolean = navArgs.conversationId == null && !isRecycleBin()
+
     internal fun screenTitle(): String? = navArgs.screenTitle
     internal fun breadcrumbs(): Array<String>? = navArgs.breadcrumbs
 
@@ -203,22 +219,20 @@ class CellViewModel @Inject constructor(
 
     private fun downloadNode(node: CellNodeUi) = viewModelScope.launch {
 
-        if (node.name.isNullOrBlank()) {
-            sendAction(ShowError(CellError.OTHER_ERROR))
-            return@launch
-        }
-
         val (nodeName, nodeRemotePath) = when (node) {
             is CellNodeUi.File -> Pair(node.name, node.remotePath)
             is CellNodeUi.Folder -> Pair(node.name + ZIP_EXTENSION, node.remotePath + ZIP_EXTENSION)
         }
 
+        if (nodeName.isNullOrBlank()) {
+            sendAction(ShowError(CellError.OTHER_ERROR))
+            return@launch
+        }
+
         val publicDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
         val filePath = File(publicDir, nodeName).toPath().toOkioPath()
 
-        if (kaliumFileSystem.exists(filePath)) {
-            kaliumFileSystem.delete(filePath)
-        }
+        deleteIfExists(filePath)
 
         download(
             assetId = node.uuid,
@@ -238,6 +252,12 @@ class CellViewModel @Inject constructor(
         }.onFailure {
             _downloadFileSheet.update { null }
             sendAction(ShowError(CellError.DOWNLOAD_FAILED))
+        }
+    }
+
+    private fun deleteIfExists(filePath: Path) = runCatching {
+        if (kaliumFileSystem.exists(filePath)) {
+            kaliumFileSystem.delete(filePath)
         }
     }
 
@@ -293,59 +313,52 @@ class CellViewModel @Inject constructor(
     }
 
     private fun onItemMenuClick(cellNode: CellNodeUi) = viewModelScope.launch {
-        val menuOption = when (cellNode) {
-            is CellNodeUi.File -> {
-                val list = buildList {
-                    if (isRecycleBin()) {
-                        add(NodeBottomSheetAction.RESTORE)
-                        add(NodeBottomSheetAction.DELETE_PERMANENTLY)
-                    } else {
-                        if (!cellNode.localFileAvailable()) {
-                            add(NodeBottomSheetAction.PUBLIC_LINK)
-                            add(NodeBottomSheetAction.SAVE)
-                        } else {
-                            add(NodeBottomSheetAction.SHARE)
-                            add(NodeBottomSheetAction.PUBLIC_LINK)
-                        }
-                        add(NodeBottomSheetAction.ADD_REMOVE_TAGS)
-                        add(NodeBottomSheetAction.MOVE)
-                        add(NodeBottomSheetAction.RENAME)
-                        add(NodeBottomSheetAction.DELETE)
-                    }
+        val list = when {
+            isRecycleBin() -> {
+                buildList {
+                    add(NodeBottomSheetAction.RESTORE)
+                    add(NodeBottomSheetAction.DELETE_PERMANENTLY)
                 }
-                MenuOptions(
-                    node = cellNode,
-                    actions = list,
-                )
             }
 
-            is CellNodeUi.Folder -> {
-                val list = buildList {
-                    if (isRecycleBin()) {
-                        add(NodeBottomSheetAction.RESTORE)
-                        add(NodeBottomSheetAction.DELETE_PERMANENTLY)
-                    } else {
+            isConversationFiles() -> {
+                buildList {
+                    if (cellNode is CellNodeUi.File && cellNode.localFileAvailable()) {
                         add(NodeBottomSheetAction.SHARE)
-                        add(NodeBottomSheetAction.DOWNLOAD)
-                        add(NodeBottomSheetAction.ADD_REMOVE_TAGS)
-                        add(NodeBottomSheetAction.MOVE)
-                        add(NodeBottomSheetAction.RENAME)
-                        add(NodeBottomSheetAction.DELETE)
                     }
+                    add(NodeBottomSheetAction.PUBLIC_LINK)
+                    add(NodeBottomSheetAction.DOWNLOAD)
+                    add(NodeBottomSheetAction.ADD_REMOVE_TAGS)
+                    add(NodeBottomSheetAction.MOVE)
+                    add(NodeBottomSheetAction.RENAME)
+                    add(NodeBottomSheetAction.DELETE)
                 }
-                MenuOptions(
-                    node = cellNode,
-                    actions = list,
-                )
+            }
+
+            isAllFiles() || isSearching() -> {
+                buildList {
+                    if (cellNode is CellNodeUi.File && cellNode.localFileAvailable()) {
+                        add(NodeBottomSheetAction.SHARE)
+                    }
+                    add(NodeBottomSheetAction.PUBLIC_LINK)
+                    add(NodeBottomSheetAction.DOWNLOAD)
+                }
+            }
+
+            else -> {
+                emptyList()
             }
         }
 
+        val menuOption = MenuOptions(
+            node = cellNode,
+            actions = list,
+        )
         _menu.emit(menuOption)
     }
 
     private fun onMenuItemAction(node: CellNodeUi, action: NodeBottomSheetAction) {
         when (action) {
-            NodeBottomSheetAction.SAVE -> downloadNode(node)
             NodeBottomSheetAction.SHARE -> {
                 if (node is CellNodeUi.File) {
                     shareFile(node)
@@ -417,18 +430,18 @@ class CellViewModel @Inject constructor(
 
     private fun restoreNodeFromRecycleBin(node: CellNodeUi) {
         viewModelScope.launch {
-            isLoading.value = true
+            _isRestoreInProgress.value = true
             node.remotePath?.let {
                 restoreNodeFromRecycleBinUseCase(it)
                     .onSuccess {
                         removedItemsFlow.update { deletedItems ->
                             deletedItems - node.uuid
                         }
-                        isLoading.value = false
+                        _isRestoreInProgress.value = false
                         sendAction(RefreshData)
                     }
                     .onFailure {
-                        isLoading.value = false
+                        _isRestoreInProgress.value = false
                         sendAction(ShowError(CellError.OTHER_ERROR))
                     }
             }
@@ -458,8 +471,20 @@ class CellViewModel @Inject constructor(
         }
     }
 
+    fun loadTags() = viewModelScope.launch {
+        getAllTagsUseCase().onSuccess { updated -> _tags.update { updated } }
+    }
+
     companion object {
         const val ZIP_EXTENSION = ".zip"
+
+        private val emptyData: PagingData<CellNodeUi> = PagingData.empty(
+            LoadStates(
+                refresh = LoadState.NotLoading(true),
+                prepend = LoadState.NotLoading(true),
+                append = LoadState.NotLoading(true)
+            )
+        )
     }
 }
 

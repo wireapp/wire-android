@@ -26,6 +26,7 @@ import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.common.functional.Either
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.Dispatchers
@@ -36,6 +37,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -56,11 +58,11 @@ class RenameNodeViewModelTest {
 
     @Test
     fun `given renameNodeUseCase success, when rename is called, then send success action`() = runTest {
-        val (_, viewModel) = Arrangement()
+        val (arrangement, viewModel) = Arrangement()
             .withRenameNodeUseCaseReturning(Either.Right(Unit))
             .arrange()
 
-        viewModel.renameNode()
+        viewModel.renameNode("newFileName")
 
         advanceUntilIdle()
         viewModel.actions.test {
@@ -68,17 +70,18 @@ class RenameNodeViewModelTest {
                 assertEquals(false, viewModel.displayNameState.loading)
                 assertEquals(DisplayNameState.Completed.Success, viewModel.displayNameState.completed)
                 assertTrue(this is RenameNodeViewModelAction.Success)
+                coVerify(exactly = 1) { arrangement.renameNodeUseCase(eq(UUID), eq(CURRENT_PATH), eq("newFileName.txt")) }
             }
         }
     }
 
     @Test
     fun `given renameNodeUseCase failure, when rename is called, then send failure action`() = runTest {
-        val (_, viewModel) = Arrangement()
+        val (arrangement, viewModel) = Arrangement()
             .withRenameNodeUseCaseReturning(Either.Left(CoreFailure.InvalidEventSenderID))
             .arrange()
 
-        viewModel.renameNode()
+        viewModel.renameNode("")
 
         advanceUntilIdle()
         viewModel.actions.test {
@@ -86,8 +89,58 @@ class RenameNodeViewModelTest {
                 assertEquals(false, viewModel.displayNameState.loading)
                 assertEquals(DisplayNameState.Completed.Failure, viewModel.displayNameState.completed)
                 assertTrue(this is RenameNodeViewModelAction.Failure)
+                coVerify(exactly = 1) { arrangement.renameNodeUseCase(any(), any(), any()) }
             }
         }
+    }
+
+    @Test
+    fun `given invalid name with slash, when text is emitted, then InvalidNameError is set`() = runTest {
+        val invalidName = "invalid/name"
+        val (_, viewModel) = Arrangement()
+            .withNodeNameReturning(invalidName)
+            .arrange()
+
+        advanceUntilIdle()
+
+        assertFalse(viewModel.displayNameState.saveEnabled)
+        assertEquals(
+            DisplayNameState.NameError.TextFieldError.InvalidNameError,
+            viewModel.displayNameState.error
+        )
+    }
+
+    @Test
+    fun `given empty name, when text is emitted, then NameEmptyError is set`() = runTest {
+        val emptyName = ""
+        val (_, viewModel) = Arrangement()
+            .withNodeNameReturning(emptyName)
+            .arrange()
+
+        advanceUntilIdle()
+
+        assertFalse(viewModel.displayNameState.saveEnabled)
+        assertEquals(
+            DisplayNameState.NameError.TextFieldError.NameEmptyError,
+            viewModel.displayNameState.error
+        )
+    }
+
+    @Test
+    fun `given long name, when text is emitted, then NameExceedLimitError is set`() = runTest {
+        val longName = "Long name that exceeds the limit of sixty four characters" +
+                " which is the maximum allowed for a file name in this application"
+        val (_, viewModel) = Arrangement()
+            .withNodeNameReturning(longName)
+            .arrange()
+
+        advanceUntilIdle()
+
+        assertFalse(viewModel.displayNameState.saveEnabled)
+        assertEquals(
+            DisplayNameState.NameError.TextFieldError.NameExceedLimitError,
+            viewModel.displayNameState.error
+        )
     }
 
     private class Arrangement {
@@ -124,14 +177,16 @@ class RenameNodeViewModelTest {
         fun withRenameNodeUseCaseReturning(result: Either<CoreFailure, Unit>) = apply {
             coEvery { renameNodeUseCase(any(), any(), any()) } returns result
         }
+        fun withNodeNameReturning(name: String) = apply {
+            every { savedStateHandle.get<String>("nodeName") } returns name
+        }
 
         fun arrange() = this to viewModel
     }
 
     companion object {
         const val CURRENT_PATH = "currentPath"
-        const val NODE_TO_MOVE_PATH = "nodeToMovePath"
         const val UUID = "uuid"
-        const val NODE_NAME = "nodeName"
+        const val NODE_NAME = "nodeName.txt"
     }
 }

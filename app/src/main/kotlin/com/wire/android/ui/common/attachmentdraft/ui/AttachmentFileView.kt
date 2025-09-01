@@ -34,6 +34,7 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireLinearProgressIndicator
 import com.wire.android.ui.common.typography
+import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.util.fileExtension
@@ -50,6 +51,7 @@ fun AttachmentFileView(
                 extension = attachment.fileName.fileExtension() ?: "",
                 size = attachment.fileSize,
                 isError = attachment.uploadError,
+                messageStyle = MessageStyle.NORMAL
             )
             Spacer(
                 modifier = Modifier

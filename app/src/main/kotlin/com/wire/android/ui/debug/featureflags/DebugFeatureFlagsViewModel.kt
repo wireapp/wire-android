@@ -68,6 +68,7 @@ class DebugFeatureFlagsViewModel @Inject constructor(
                             addFeature("Consumable Notifications", consumableNotificationsModel?.status)
                             addFeature("Allowed Global Operations", allowedGlobalOperationsModel?.status, allowedGlobalOperationsModel)
                             addFeature("Wire Cells", cellsModel?.status)
+                            addFeature("Async Notifications", consumableNotificationsModel?.status)
 
                             add(
                                 Feature(
@@ -80,7 +81,7 @@ class DebugFeatureFlagsViewModel @Inject constructor(
                                 )
                             )
                         }
-                    }.sortedBy { feature -> feature.status }
+                    }.sortedWith(compareBy(Feature::status, Feature::name))
 
                     _state.update { current -> current.copy(features = features) }
                 }

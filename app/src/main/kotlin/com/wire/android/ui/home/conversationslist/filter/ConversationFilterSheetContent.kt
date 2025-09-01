@@ -66,7 +66,7 @@ fun rememberFilterSheetState(
 ): ConversationFilterSheetState {
     return remember(filterSheetData) {
         ConversationFilterSheetState(
-            filterSheetData = filterSheetData
+            conversationFilterSheetData = filterSheetData
         )
     }
 }

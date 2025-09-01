@@ -29,7 +29,6 @@ import com.wire.android.ui.home.HomeStateHolder
 fun GlobalCellsScreen(
     homeStateHolder: HomeStateHolder,
 ) {
-    homeStateHolder.drawerState
     AllFilesScreen(
         navigator = homeStateHolder.navigator,
         searchBarState = homeStateHolder.searchBarState,

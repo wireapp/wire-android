@@ -27,7 +27,7 @@ import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.kalium.logic.data.conversation.ConversationDetailsWithEvents
-import com.wire.kalium.logic.data.conversation.Filter
+import com.wire.kalium.logic.data.conversation.ConversationFilter
 import com.wire.kalium.logic.data.conversation.ConversationFolder
 import com.wire.kalium.logic.data.conversation.ConversationQueryConfig
 import com.wire.kalium.logic.data.conversation.FolderType
@@ -112,7 +112,7 @@ class GetConversationsFromSearchUseCaseTest {
             fromArchive = false,
             newActivitiesOnTop = false,
             onlyInteractionEnabled = false,
-            filter = ConversationFilter.Favorites
+            conversationFilter = ConversationFilter.Favorites
         ).asSnapshot()
 
         // Then

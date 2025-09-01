@@ -99,7 +99,7 @@ fun ConversationFiltersSheetContent(
                     onItemClick = Clickable(
                         enabled = state == RichMenuItemState.DEFAULT,
                         onClickDescription = stringResource(id = R.string.content_description_select_label),
-                        onClick = { onChangeFilter(ConversationFilter.Favorites) },
+                        onClick = { onChangeFilter(ConversationFilter.Groups) },
                     ),
                     state = state
                 )
@@ -115,7 +115,7 @@ fun ConversationFiltersSheetContent(
                     onItemClick = Clickable(
                         enabled = state == RichMenuItemState.DEFAULT,
                         onClickDescription = stringResource(id = R.string.content_description_select_label),
-                        onClick = { onChangeFilter(ConversationFilter.Favorites) },
+                        onClick = { onChangeFilter(ConversationFilter.OneOnOne) },
                     ),
                     state = state
                 )

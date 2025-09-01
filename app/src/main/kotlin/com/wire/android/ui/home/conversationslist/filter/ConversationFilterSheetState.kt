@@ -25,12 +25,12 @@ import com.wire.kalium.logic.data.conversation.ConversationFolder
 import kotlinx.serialization.Serializable
 
 class ConversationFilterSheetState(
-    filterSheetData: ConversationFilterSheetData = ConversationFilterSheetData(
+    conversationFilterSheetData: ConversationFilterSheetData = ConversationFilterSheetData(
         currentFilter = ConversationFilter.All,
         folders = listOf()
     )
 ) {
-    var currentData: ConversationFilterSheetData by mutableStateOf(filterSheetData)
+    var currentData: ConversationFilterSheetData by mutableStateOf(conversationFilterSheetData)
 
     fun toFolders() {
         currentData = currentData.copy(tab = FilterTab.FOLDERS)

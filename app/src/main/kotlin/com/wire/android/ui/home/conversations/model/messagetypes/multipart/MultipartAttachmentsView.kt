@@ -36,6 +36,7 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
 import com.wire.android.ui.common.multipart.toUiModel
+import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.grid.AssetGridPreview
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.standalone.AssetPreview
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
@@ -51,19 +52,21 @@ import com.wire.kalium.logic.data.message.MessageAttachment
 fun MultipartAttachmentsView(
     conversationId: ConversationId,
     attachments: List<MessageAttachment>,
+    messageStyle: MessageStyle,
     modifier: Modifier = Modifier,
     viewModel: MultipartAttachmentsViewModel = hiltViewModel<MultipartAttachmentsViewModel>(key = conversationId.value),
 ) {
 
+    // TODO I found out that empty attachments list is not handled here and it shows empty message with no information
     if (attachments.size == 1) {
         attachments.first().toUiModel().let {
             AssetPreview(
                 item = it,
+                messageStyle = messageStyle,
                 onClick = { viewModel.onClick(it) },
             )
         }
     } else {
-
         val groups = viewModel.mapAttachments(attachments)
 
         Column(
@@ -76,11 +79,13 @@ fun MultipartAttachmentsView(
                         if (group.attachments.size == 1) {
                             AssetPreview(
                                 item = group.attachments.first(),
+                                messageStyle = messageStyle,
                                 onClick = { viewModel.onClick(group.attachments.first()) },
                             )
                         } else {
                             AttachmentsGrid(
                                 attachments = group.attachments,
+                                messageStyle = messageStyle,
                                 onClick = { viewModel.onClick(it) },
                             )
                         }
@@ -88,6 +93,7 @@ fun MultipartAttachmentsView(
                     is MultipartAttachmentsViewModel.MultipartAttachmentGroup.Files ->
                         AttachmentsList(
                             attachments = group.attachments,
+                            messageStyle = messageStyle,
                             onClick = { viewModel.onClick(it) }
                         )
                 }
@@ -102,6 +108,7 @@ fun MultipartAttachmentsView(
 @Composable
 private fun AttachmentsList(
     attachments: List<MultipartAttachmentUi>,
+    messageStyle: MessageStyle,
     onClick: (MultipartAttachmentUi) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -111,6 +118,7 @@ private fun AttachmentsList(
         attachments.forEach {
             AssetPreview(
                 item = it,
+                messageStyle = messageStyle,
                 onClick = { onClick(it) },
                 modifier = modifier,
             )
@@ -121,6 +129,7 @@ private fun AttachmentsList(
 @Composable
 private fun AttachmentsGrid(
     attachments: List<MultipartAttachmentUi>,
+    messageStyle: MessageStyle,
     onClick: (MultipartAttachmentUi) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -135,7 +144,8 @@ private fun AttachmentsGrid(
             key = { it.uuid },
         ) { item ->
             AssetGridPreview(
-                item,
+                item = item,
+                messageStyle = messageStyle,
                 onClick = { onClick(item) },
             )
         }

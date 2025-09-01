@@ -91,7 +91,7 @@ fun AllFilesScreen(
                     AddRemoveTagsScreenDestination(node.uuid, node.tags.toCollection(ArrayList()))
                 )
             )
-        },
+        }
     )
 
     if (searchBarState.isFilterActive) {

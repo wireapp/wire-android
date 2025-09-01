@@ -125,7 +125,7 @@ fun ConversationFilesScreenContent(
     val isFabVisible = when {
         pagingListItems.isLoading() -> false
         pagingListItems.isError() -> false
-        isRecycleBin == true -> false
+        isRecycleBin -> false
         else -> true
     }
 
@@ -169,7 +169,7 @@ fun ConversationFilesScreenContent(
                     navigationIconType = navigationIconType,
                     elevation = dimensions().spacing0x,
                     actions = {
-                        if (isRecycleBin == false) {
+                        if (!isRecycleBin) {
                             MoreOptionIcon(
                                 contentDescription = R.string.content_description_conversation_files_more_button,
                                 onButtonClicked = { optionsBottomSheetState.show() }
@@ -235,9 +235,9 @@ fun ConversationFilesScreenContent(
                                 conversationId = folderPath,
                                 screenTitle = it.name,
                                 isRecycleBin = isRecycleBin,
-                                breadcrumbs = if (isRecycleBin == false) it.name?.let { name ->
+                                breadcrumbs = if (!isRecycleBin) it.name?.let { name ->
                                     (breadcrumbs ?: emptyArray()) + name
-                                } else null                            ),
+                                } else null),
                             BackStackMode.NONE,
                             launchSingleTop = false
                         )

@@ -27,6 +27,7 @@ import com.wire.android.feature.cells.R
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
+import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.theme.WireTheme
 
@@ -35,6 +36,7 @@ fun RestoreParentFolderConfirmationDialog(
     itemName: String,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
+    isRestoreInProgress: Boolean = false
 ) {
     val description = stringResource(
         id = R.string.dialog_restore_parent_folder_description,
@@ -63,9 +65,12 @@ fun RestoreParentFolderConfirmationDialog(
             onClick = onConfirm,
             text = stringResource(id = R.string.dialog_restore_parent_folder_button),
             type = WireDialogButtonType.Primary,
+            loading = isRestoreInProgress,
+            state = if (isRestoreInProgress) WireButtonState.Disabled else WireButtonState.Default,
         ),
         dismissButtonProperties = WireDialogButtonProperties(
             text = stringResource(id = R.string.cancel),
+            state = if (isRestoreInProgress) WireButtonState.Disabled else WireButtonState.Default,
             onClick = onDismiss
         ),
         buttonsHorizontalAlignment = false,

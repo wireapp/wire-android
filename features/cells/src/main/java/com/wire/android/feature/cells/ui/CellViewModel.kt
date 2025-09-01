@@ -112,6 +112,10 @@ class CellViewModel @Inject constructor(
     private val _tags = MutableStateFlow<Set<String>>(emptySet())
     val tags: StateFlow<Set<String>> = _tags.asStateFlow()
 
+    // Used to navigate to the root of the recycle bin after restoring a parent folder.
+    private val _navigateToRecycleBinRoot = MutableStateFlow(false)
+    val navigateToRecycleBinRoot: StateFlow<Boolean> get() = _navigateToRecycleBinRoot
+
     init {
         loadTags()
     }
@@ -159,6 +163,7 @@ class CellViewModel @Inject constructor(
                     }
             }
         }
+
     fun updateSelectedTags(tags: Set<String>) {
         _selectedTags.value = tags
     }
@@ -181,9 +186,8 @@ class CellViewModel @Inject constructor(
             is CellViewIntent.OnNodeRestoreConfirmed -> restoreNodeFromRecycleBin(intent.node)
             is CellViewIntent.OnDownloadMenuClosed -> onDownloadMenuClosed()
             is CellViewIntent.OnParentFolderRestoreConfirmed -> restoreNodeFromRecycleBin(
-                intent.folder.copy(
-                    remotePath = recycleBinTopFolderPath(intent.folder.remotePath ?: "")
-                )
+                node = intent.folder.copy(remotePath = recycleBinTopFolderPath(intent.folder.remotePath ?: "")),
+                isParentNode = true
             )
         }
     }
@@ -390,6 +394,7 @@ class CellViewModel @Inject constructor(
                     }
                 }
             }
+
             NodeBottomSheetAction.DELETE -> sendAction(ShowDeleteConfirmation(node = node, isPermanentDelete = false))
             NodeBottomSheetAction.DELETE_PERMANENTLY -> sendAction(ShowDeleteConfirmation(node = node, isPermanentDelete = true))
         }
@@ -428,7 +433,7 @@ class CellViewModel @Inject constructor(
             }
     }
 
-    private fun restoreNodeFromRecycleBin(node: CellNodeUi) {
+    private fun restoreNodeFromRecycleBin(node: CellNodeUi, isParentNode: Boolean = false) {
         viewModelScope.launch {
             _isRestoreInProgress.value = true
             node.remotePath?.let {
@@ -438,11 +443,19 @@ class CellViewModel @Inject constructor(
                             deletedItems - node.uuid
                         }
                         _isRestoreInProgress.value = false
+                        if (isParentNode) {
+                            sendAction(HideRestoreParentFolderDialog)
+                            _navigateToRecycleBinRoot.value = true
+                        }
+                        sendAction(HideRestoreConfirmation)
                         sendAction(RefreshData)
                     }
                     .onFailure {
                         _isRestoreInProgress.value = false
                         sendAction(ShowError(CellError.OTHER_ERROR))
+                        if (isParentNode) {
+                            _navigateToRecycleBinRoot.value = false
+                        }
                     }
             }
         }
@@ -502,6 +515,7 @@ sealed interface CellViewIntent {
 sealed interface CellViewAction
 internal data class ShowDeleteConfirmation(val node: CellNodeUi, val isPermanentDelete: Boolean) : CellViewAction
 internal data class ShowRestoreConfirmation(val node: CellNodeUi) : CellViewAction
+internal data object HideRestoreConfirmation : CellViewAction
 internal data class ShowError(val error: CellError) : CellViewAction
 internal data class ShowPublicLinkScreen(val cellNode: CellNodeUi) : CellViewAction
 internal data class ShowRenameScreen(val cellNode: CellNodeUi) : CellViewAction
@@ -509,6 +523,7 @@ internal data class ShowAddRemoveTagsScreen(val cellNode: CellNodeUi) : CellView
 internal data class ShowMoveToFolderScreen(val currentPath: String, val nodeToMovePath: String, val uuid: String) : CellViewAction
 internal data object ShowUnableToRestoreDialog : CellViewAction
 internal data class ShowRestoreParentFolderDialog(val cellNode: CellNodeUi) : CellViewAction
+internal data object HideRestoreParentFolderDialog : CellViewAction
 internal data object RefreshData : CellViewAction
 
 internal enum class CellError(val message: Int) {

@@ -158,7 +158,6 @@ internal fun CellScreenContent(
             isRestoreInProgress = isRestoreInProgress,
             onConfirm = {
                 sendIntent(CellViewIntent.OnNodeRestoreConfirmed(it))
-                restoreConfirmation = null
             },
             onDismiss = {
                 restoreConfirmation = null
@@ -181,9 +180,9 @@ internal fun CellScreenContent(
     restoreParentFolderConfirmation?.let {
         RestoreParentFolderConfirmationDialog(
             itemName = it.name ?: "",
+            isRestoreInProgress = isRestoreInProgress,
             onConfirm = {
                 sendIntent(CellViewIntent.OnParentFolderRestoreConfirmed(it as CellNodeUi.Folder))
-                restoreParentFolderConfirmation = null
             },
             onDismiss = {
                 restoreParentFolderConfirmation = null
@@ -211,6 +210,8 @@ internal fun CellScreenContent(
             is RefreshData -> pagingListItems.refresh()
             is ShowUnableToRestoreDialog -> unableToRestore = true
             is ShowRestoreParentFolderDialog -> restoreParentFolderConfirmation = action.cellNode
+            is HideRestoreConfirmation -> restoreConfirmation = null
+            is HideRestoreParentFolderDialog -> restoreParentFolderConfirmation = null
         }
     }
 

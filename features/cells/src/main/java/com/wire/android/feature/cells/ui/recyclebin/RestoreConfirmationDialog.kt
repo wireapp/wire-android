@@ -81,6 +81,7 @@ fun RestoreConfirmationDialog(
         ),
         dismissButtonProperties = WireDialogButtonProperties(
             text = stringResource(id = R.string.cancel),
+            state = if (isRestoreInProgress) WireButtonState.Disabled else WireButtonState.Default,
             onClick = onDismiss
         ),
         buttonsHorizontalAlignment = false,

@@ -357,7 +357,7 @@
         <service
             android:name=".services.CallService"
             android:exported="false"
-            android:foregroundServiceType="phoneCall|microphone" />
+            android:foregroundServiceType="specialUse" />
 
         <service
                 android:name=".services.PlayingAudioMessageService"

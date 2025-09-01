@@ -164,16 +164,16 @@ class CallService : Service() {
     private fun updateForegroundNotification(data: CallNotificationData) {
         // Updating service notification when notifications are disabled (or background work restricted)
         // causes app crash when putting app in background
-        if (callNotificationManager.areServiceNotificationsEnabled()) {
-
-            val notification = if (data.callStatus == CallStatus.STARTED) {
-                callNotificationManager.builder.getOutgoingCallNotification(data)
-            } else {
-                callNotificationManager.builder.getOngoingCallNotification(data)
-            }
-
-            callNotificationManager.showNotification(NotificationIds.CALL_OUTGOING_ONGOING_NOTIFICATION_ID, notification)
-        }
+//        if (callNotificationManager.areServiceNotificationsEnabled()) {
+//            appLogger.e("$data")
+//            val notification = if (data.callStatus == CallStatus.STARTED) {
+//                callNotificationManager.builder.getOutgoingCallNotification(data)
+//            } else {
+//                callNotificationManager.builder.getOngoingCallNotification(data)
+//            }
+//
+//            callNotificationManager.showNotification(NotificationIds.CALL_OUTGOING_ONGOING_NOTIFICATION_ID, notification)
+//        }
     }
 
     private fun generatePlaceholderForegroundNotification() {
@@ -182,9 +182,9 @@ class CallService : Service() {
             callNotificationManager.builder.getCallServicePlaceholderNotification()
         ServiceCompat.startForeground(
             this,
-            NotificationIds.CALL_OUTGOING_ONGOING_NOTIFICATION_ID.ordinal,
+            NotificationIds.PERSISTENT_NOTIFICATION_ID.ordinal,
             notification,
-            ServiceInfo.FOREGROUND_SERVICE_TYPE_PHONE_CALL or ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
+            ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
         )
 
         appLogger.i("$TAG: started foreground with placeholder notification")

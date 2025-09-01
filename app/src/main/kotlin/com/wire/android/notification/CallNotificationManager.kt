@@ -32,6 +32,7 @@ import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.notification.NotificationConstants.INCOMING_CALL_ID_PREFIX
+import com.wire.android.notification.NotificationConstants.WEB_SOCKET_CHANNEL_ID
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.call.Call
@@ -54,6 +55,7 @@ import kotlinx.coroutines.launch
 import org.jetbrains.annotations.VisibleForTesting
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.collections.map
 
 @Singleton
 @Suppress("TooManyFunctions")
@@ -192,105 +194,153 @@ class CallNotificationBuilder @Inject constructor(
 ) {
 
     fun getOutgoingCallNotification(data: CallNotificationData): Notification {
-        val userIdString = data.userId.toString()
-        val conversationIdString = data.conversationId.toString()
-        val channelId = NotificationConstants.getOutgoingChannelId(data.userId)
-        val person = Person.Builder().setName(data.conversationName).build()
-
-        val notificationBuilder = NotificationCompat.Builder(context, channelId)
-        return notificationBuilder
-            .setPriority(NotificationCompat.PRIORITY_LOW)
-            .setCategory(NotificationCompat.CATEGORY_CALL)
-            .setSmallIcon(R.drawable.notification_icon_small)
-            .setContentTitle(data.conversationName)
-            .setContentText(context.getString(R.string.notification_outgoing_call_tap_to_return))
-            .setSubText(data.userName)
+//        val userIdString = data.userId.toString()
+//        val conversationIdString = data.conversationId.toString()
+//        var channelId = NotificationConstants.getOutgoingChannelId(data.userId)
+//        val person = Person.Builder().setName(data.conversationName).build()
+//
+//        val channel = NotificationManagerCompat.from(context).getNotificationChannel(channelId)
+//
+//        if (channel == null) {
+//            appLogger.e("channel $channelId not found!")
+//            channelId = NotificationConstants.ONGOING_CALL_CHANNEL_ID
+//        }
+//
+//        appLogger.e("Outgoing notif: Starting with channel $channelId")
+//
+//        val notificationBuilder = NotificationCompat.Builder(context, channelId)
+//        return notificationBuilder
+//            .setPriority(NotificationCompat.PRIORITY_LOW)
+//            .setCategory(NotificationCompat.CATEGORY_CALL)
+//            .setSmallIcon(R.drawable.notification_icon_small)
+//            .setContentTitle(data.conversationName)
+//            .setContentText(context.getString(R.string.notification_outgoing_call_tap_to_return))
+//            .setSubText(data.userName)
+//            .setAutoCancel(false)
+//            .setOngoing(true)
+//            .setSilent(true)
+//            .setStyle(
+//                CallStyle.forOngoingCall(
+//                    person,
+//                    endOngoingCallPendingIntent(context, conversationIdString, userIdString)
+//                )
+//            )
+//            .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
+//            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+//            .setContentIntent(outgoingCallPendingIntent(context, conversationIdString))
+//            .build()
+        return NotificationCompat.Builder(context, WEB_SOCKET_CHANNEL_ID)
+            .setContentTitle("Test outgoing call notification")
+            .setSmallIcon(R.drawable.websocket_notification_icon_small)
+            .setContentIntent(openAppPendingIntent(context))
+            .setCategory(NotificationCompat.CATEGORY_SERVICE)
+            .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
             .setAutoCancel(false)
             .setOngoing(true)
-            .setSilent(true)
-            .setStyle(
-                CallStyle.forOngoingCall(
-                    person,
-                    endOngoingCallPendingIntent(context, conversationIdString, userIdString)
-                )
-            )
-            .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
-            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            .setContentIntent(outgoingCallPendingIntent(context, conversationIdString))
             .build()
     }
 
     fun getIncomingCallNotification(data: CallNotificationData, asFullScreenIntent: Boolean): Notification {
-        val conversationIdString = data.conversationId.toString()
-        val userIdString = data.userId.toString()
-        val title = getNotificationTitle(data)
-        val content = getNotificationBody(data)
-        val channelId = NotificationConstants.getIncomingChannelId(data.userId)
-        val person = Person.Builder().setName(title).build()
+//        val conversationIdString = data.conversationId.toString()
+//        val userIdString = data.userId.toString()
+//        val title = getNotificationTitle(data)
+//        val content = getNotificationBody(data)
+//        var channelId = NotificationConstants.getIncomingChannelId(data.userId)
+//        val person = Person.Builder().setName(title).build()
+//
+//        val channel = NotificationManagerCompat.from(context).getNotificationChannel(channelId)
+//
+//        if (channel == null) {
+//            appLogger.e("channel $channelId not found!")
+//            channelId = NotificationConstants.ONGOING_CALL_CHANNEL_ID
+//        }
+//
+//        appLogger.e("Incoming notif: Starting with channel $channelId")
 
-        val notification = NotificationCompat.Builder(context, channelId)
-            .setPriority(NotificationCompat.PRIORITY_MAX)
-            .setCategory(NotificationCompat.CATEGORY_CALL)
-            .setSmallIcon(R.drawable.notification_icon_small)
-            .setContentTitle(title)
-            .setContentText(content)
-            .setSubText(data.userName)
+        val notification: Notification = NotificationCompat.Builder(context, WEB_SOCKET_CHANNEL_ID)
+            .setContentTitle("Test incoming call notification")
+            .setSmallIcon(R.drawable.websocket_notification_icon_small)
+            .setContentIntent(openAppPendingIntent(context))
+            .setCategory(NotificationCompat.CATEGORY_SERVICE)
+            .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
             .setAutoCancel(false)
             .setOngoing(true)
-            .setVibrate(VIBRATE_PATTERN)
-            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            .setContentIntent(fullScreenIncomingCallPendingIntent(context, conversationIdString, userIdString))
-            .let {
-                if (asFullScreenIntent) {
-                    it.setFullScreenIntent(fullScreenIncomingCallPendingIntent(context, conversationIdString, userIdString), true)
-                        .setStyle(
-                            CallStyle.forIncomingCall(
-                                person,
-                                declineCallPendingIntent(context, conversationIdString, userIdString),
-                                answerCallPendingIntent(context, conversationIdString, userIdString)
-                            )
-                        )
-                } else {
-                    // CallStyle available only for FullScreenIntent or Services notification.
-                    // So for non-asFullScreenIntent we have show regular notification with actions.
-                    it.addAction(getDeclineCallAction(context, conversationIdString, userIdString))
-                        .addAction(getOpenIncomingCallAction(context, conversationIdString, userIdString))
-                }
-            }
             .build()
 
-        // Added FLAG_INSISTENT so the ringing sound repeats itself until an action is done.
-        notification.flags += Notification.FLAG_INSISTENT
+//        val notification = NotificationCompat.Builder(context, channelId)
+//            .setPriority(NotificationCompat.PRIORITY_MAX)
+//            .setCategory(NotificationCompat.CATEGORY_CALL)
+//            .setSmallIcon(R.drawable.notification_icon_small)
+//            .setContentTitle(title)
+//            .setContentText(content)
+//            .setSubText(data.userName)
+//            .setAutoCancel(false)
+//            .setOngoing(true)
+//            .setVibrate(VIBRATE_PATTERN)
+//            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+//            .setContentIntent(fullScreenIncomingCallPendingIntent(context, conversationIdString, userIdString))
+//            .let {
+//                if (asFullScreenIntent) {
+//                    it.setFullScreenIntent(fullScreenIncomingCallPendingIntent(context, conversationIdString, userIdString), true)
+//                        .setStyle(
+//                            CallStyle.forIncomingCall(
+//                                person,
+//                                declineCallPendingIntent(context, conversationIdString, userIdString),
+//                                answerCallPendingIntent(context, conversationIdString, userIdString)
+//                            )
+//                        )
+//                } else {
+//                    // CallStyle available only for FullScreenIntent or Services notification.
+//                    // So for non-asFullScreenIntent we have show regular notification with actions.
+//                    it.addAction(getDeclineCallAction(context, conversationIdString, userIdString))
+//                        .addAction(getOpenIncomingCallAction(context, conversationIdString, userIdString))
+//                }
+//            }
+//            .build()
+//
+//        // Added FLAG_INSISTENT so the ringing sound repeats itself until an action is done.
+//        notification.flags += Notification.FLAG_INSISTENT
 
         return notification
     }
 
     fun getOngoingCallNotification(data: CallNotificationData): Notification {
-        val channelId = NotificationConstants.ONGOING_CALL_CHANNEL_ID
-        val conversationIdString = data.conversationId.toString()
-        val userIdString = data.userId.toString()
-        val title = getNotificationTitle(data)
-        val person = Person.Builder().setName(title).build()
-
-        return NotificationCompat.Builder(context, channelId)
-            .setContentTitle(title)
-            .setContentText(context.getString(R.string.notification_ongoing_call_content))
-            .setSubText(data.userName)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setCategory(NotificationCompat.CATEGORY_CALL)
-            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            .setSmallIcon(R.drawable.notification_icon_small)
-            .setAutoCancel(true)
-            .setOngoing(true)
-            .setUsesChronometer(true)
-            .setStyle(
-                CallStyle.forOngoingCall(
-                    person,
-                    endOngoingCallPendingIntent(context, conversationIdString, userIdString)
-                )
-            )
+//        val channelId = NotificationConstants.ONGOING_CALL_CHANNEL_ID
+//        val conversationIdString = data.conversationId.toString()
+//        val userIdString = data.userId.toString()
+//        val title = getNotificationTitle(data)
+//        val person = Person.Builder().setName(title).build()
+//
+//        appLogger.e("Ongoing notif: Starting with channel $channelId")
+//
+//        return NotificationCompat.Builder(context, channelId)
+//            .setContentTitle(title)
+//            .setContentText(context.getString(R.string.notification_ongoing_call_content))
+//            .setSubText(data.userName)
+//            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+//            .setCategory(NotificationCompat.CATEGORY_CALL)
+//            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+//            .setSmallIcon(R.drawable.notification_icon_small)
+//            .setAutoCancel(true)
+//            .setOngoing(true)
+//            .setUsesChronometer(true)
+//            .setStyle(
+//                CallStyle.forOngoingCall(
+//                    person,
+//                    endOngoingCallPendingIntent(context, conversationIdString, userIdString)
+//                )
+//            )
+//            .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
+//            .setContentIntent(openOngoingCallPendingIntent(context, conversationIdString, userIdString))
+//            .build()
+        return NotificationCompat.Builder(context, WEB_SOCKET_CHANNEL_ID)
+            .setContentTitle("Test ongoing call notification")
+            .setSmallIcon(R.drawable.websocket_notification_icon_small)
+            .setContentIntent(openAppPendingIntent(context))
+            .setCategory(NotificationCompat.CATEGORY_SERVICE)
             .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
-            .setContentIntent(openOngoingCallPendingIntent(context, conversationIdString, userIdString))
+            .setAutoCancel(false)
+            .setOngoing(true)
             .build()
     }
 

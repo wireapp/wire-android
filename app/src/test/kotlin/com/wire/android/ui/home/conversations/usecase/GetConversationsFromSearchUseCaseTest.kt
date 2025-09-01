@@ -112,7 +112,7 @@ class GetConversationsFromSearchUseCaseTest {
             fromArchive = false,
             newActivitiesOnTop = false,
             onlyInteractionEnabled = false,
-            filter = Filter.Conversation.Favorites
+            filter = ConversationFilter.Favorites
         ).asSnapshot()
 
         // Then

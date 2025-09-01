@@ -24,10 +24,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import com.wire.android.ui.common.bottomsheet.WireModalSheetState
-import com.wire.android.ui.common.bottomsheet.WireSheetValue
-import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
-import com.wire.kalium.logic.data.conversation.Filter
+import com.wire.android.feature.cells.domain.model.CellsFilter
+import com.wire.kalium.logic.data.conversation.ConversationFilter
 import dev.ahmedmourad.bundlizer.Bundlizer
 import kotlinx.serialization.builtins.ListSerializer
 
@@ -36,21 +34,21 @@ fun rememberConversationFilterState(): ConversationFilterState = rememberSaveabl
     ConversationFilterState()
 }
 
-class ConversationFilterState(initialValue: Filter.Conversation = Filter.Conversation.All) {
-    var filter: Filter.Conversation by mutableStateOf(initialValue)
+class ConversationFilterState(initialValue: ConversationFilter = ConversationFilter.All) {
+    var filter: ConversationFilter by mutableStateOf(initialValue)
         private set
 
-    fun changeFilter(newFilter: Filter.Conversation) {
+    fun changeFilter(newFilter: ConversationFilter) {
         filter = newFilter
     }
 
     companion object {
         fun saver(): Saver<ConversationFilterState, Bundle> = Saver(
             save = {
-                Bundlizer.bundle(Filter.serializer(), it.filter)
+                Bundlizer.bundle(ConversationFilter.serializer(), it.filter)
             },
             restore = {
-                ConversationFilterState(Bundlizer.unbundle(Filter.Conversation.serializer(), it))
+                ConversationFilterState(Bundlizer.unbundle(ConversationFilter.serializer(), it))
             }
         )
     }
@@ -63,28 +61,24 @@ fun rememberCellsFilterState(): CellsFilterState =
         CellsFilterState()
     }
 
-class CellsFilterState(initialFilters: Set<Filter.Cells> = emptySet()) {
-    var filters: Set<Filter.Cells> by mutableStateOf(initialFilters)
+class CellsFilterState(initialFilters: Set<CellsFilter> = emptySet()) {
+    var filters: Set<CellsFilter> by mutableStateOf(initialFilters)
         private set
 
-    fun updateFilters(newFilters: Set<Filter.Cells>) {
+    fun updateFilters(newFilters: Set<CellsFilter>) {
         filters = newFilters
     }
 
-    fun clearFilters() {
-        filters = emptySet()
-    }
-
-    fun isSelected(filter: Filter.Cells): Boolean = filters.contains(filter)
+    fun isSelected(filter: CellsFilter): Boolean = filters.contains(filter)
 
     companion object {
         fun saver(): Saver<CellsFilterState, Bundle> = Saver(
             save = {
                 val list = it.filters.toList()
-                Bundlizer.bundle(ListSerializer(Filter.Cells.serializer()), list)
+                Bundlizer.bundle(ListSerializer(CellsFilter.serializer()), list)
             },
             restore = {
-                val list = Bundlizer.unbundle(ListSerializer(Filter.Cells.serializer()), it)
+                val list = Bundlizer.unbundle(ListSerializer(CellsFilter.serializer()), it)
                 CellsFilterState(list.toSet())
             }
         )

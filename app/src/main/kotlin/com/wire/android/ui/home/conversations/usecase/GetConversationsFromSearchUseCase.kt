@@ -29,7 +29,7 @@ import com.wire.android.media.audiomessage.PlayingAudioMessage
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.conversation.ConversationDetailsWithEvents
-import com.wire.kalium.logic.data.conversation.Filter
+import com.wire.kalium.logic.data.conversation.ConversationFilter
 import com.wire.kalium.logic.data.conversation.ConversationQueryConfig
 import com.wire.kalium.logic.feature.conversation.GetPaginatedFlowOfConversationDetailsWithEventsBySearchQueryUseCase
 import com.wire.kalium.logic.feature.conversation.folder.GetFavoriteFolderUseCase
@@ -55,7 +55,7 @@ class GetConversationsFromSearchUseCase @Inject constructor(
         fromArchive: Boolean = false,
         newActivitiesOnTop: Boolean = false,
         onlyInteractionEnabled: Boolean = false,
-        conversationFilter: Filter.Conversation = Filter.Conversation.All,
+        conversationFilter: ConversationFilter = ConversationFilter.All,
         playingAudioMessage: PlayingAudioMessage = PlayingAudioMessage.None
     ): Flow<PagingData<ConversationItem>> {
         val pagingConfig = PagingConfig(
@@ -65,22 +65,22 @@ class GetConversationsFromSearchUseCase @Inject constructor(
             enablePlaceholders = true,
         )
         return when (conversationFilter) {
-            Filter.Conversation.All,
-            Filter.Conversation.Groups,
-            Filter.Conversation.Channels,
-            Filter.Conversation.OneOnOne -> useCase(
+            ConversationFilter.All,
+            ConversationFilter.Groups,
+            ConversationFilter.Channels,
+            ConversationFilter.OneOnOne -> useCase(
                 queryConfig = ConversationQueryConfig(
                     searchQuery = searchQuery,
                     fromArchive = fromArchive,
                     newActivitiesOnTop = newActivitiesOnTop,
                     onlyInteractionEnabled = onlyInteractionEnabled,
-                    filter = conversationFilter,
+                    conversationFilter = conversationFilter,
                 ),
                 pagingConfig = pagingConfig,
                 startingOffset = 0L,
             )
 
-            Filter.Conversation.Favorites -> {
+            ConversationFilter.Favorites -> {
                 when (val result = getFavoriteFolderUseCase.invoke()) {
                     GetFavoriteFolderUseCase.Result.Failure -> flowOf(emptyList())
                     is GetFavoriteFolderUseCase.Result.Success ->
@@ -89,7 +89,7 @@ class GetConversationsFromSearchUseCase @Inject constructor(
                     .map { staticPagingItems(it) }
             }
 
-            is Filter.Conversation.Folder -> {
+            is ConversationFilter.Folder -> {
                 observeConversationsFromFromFolder(conversationFilter.folderId)
                     .map { staticPagingItems(it) }
             }

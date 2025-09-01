@@ -50,13 +50,13 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.ui.PreviewMultipleThemes
-import com.wire.kalium.logic.data.conversation.Filter
+import com.wire.kalium.logic.data.conversation.ConversationFilter
 
 @Composable
 fun ConversationsEmptyContent(
     navigator: Navigator,
     modifier: Modifier = Modifier,
-    filter: Filter.Conversation = Filter.Conversation.All,
+    filter: ConversationFilter = ConversationFilter.All,
     domain: String = "wire.com"
 ) {
     Column(
@@ -68,7 +68,7 @@ fun ConversationsEmptyContent(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        if (filter == Filter.Conversation.All) {
+        if (filter == ConversationFilter.All) {
             Text(
                 modifier = Modifier.padding(
                     bottom = dimensions().spacing24x,
@@ -92,10 +92,10 @@ fun ConversationsEmptyContent(
 }
 
 @Composable
-private fun EmptyContentFooter(currentFilter: Filter, navigator: Navigator) {
+private fun EmptyContentFooter(currentFilter: ConversationFilter, navigator: Navigator) {
     val context = LocalContext.current
     when (currentFilter) {
-        Filter.Conversation.Favorites -> {
+        ConversationFilter.Favorites -> {
             val supportUrl = stringResource(id = R.string.url_how_to_add_favorites)
             Text(
                 text = stringResource(R.string.favorites_empty_list_how_to_label),
@@ -109,7 +109,7 @@ private fun EmptyContentFooter(currentFilter: Filter, navigator: Navigator) {
             )
         }
 
-        Filter.Conversation.Channels -> {
+        ConversationFilter.Channels -> {
             val supportUrl = stringResource(id = R.string.url_support) // todo. change to url for channels
             Text(
                 text = stringResource(R.string.channels_empty_list_learn_more),
@@ -150,42 +150,42 @@ private fun EmptyContentFooter(currentFilter: Filter, navigator: Navigator) {
 }
 
 @Composable
-private fun Filter.Conversation.emptyDescription(backendName: String): String = when (this) {
-    Filter.Conversation.All -> stringResource(R.string.conversation_empty_list_description)
-    Filter.Conversation.Favorites -> stringResource(R.string.favorites_empty_list_description)
-    Filter.Conversation.Groups -> stringResource(R.string.group_empty_list_description)
-    Filter.Conversation.Channels -> stringResource(R.string.channels_empty_list_description)
-    Filter.Conversation.OneOnOne -> stringResource(R.string.one_on_one_empty_list_description, backendName)
+private fun ConversationFilter.emptyDescription(backendName: String): String = when (this) {
+    ConversationFilter.All -> stringResource(R.string.conversation_empty_list_description)
+    ConversationFilter.Favorites -> stringResource(R.string.favorites_empty_list_description)
+    ConversationFilter.Groups -> stringResource(R.string.group_empty_list_description)
+    ConversationFilter.Channels -> stringResource(R.string.channels_empty_list_description)
+    ConversationFilter.OneOnOne -> stringResource(R.string.one_on_one_empty_list_description, backendName)
     // currently not used, because empty folders are removed from filters
-    is Filter.Conversation.Folder -> ""
+    is ConversationFilter.Folder -> ""
 }
 
 @PreviewMultipleThemes
 @Composable
 fun PreviewAllConversationsEmptyContent() = WireTheme {
-    ConversationsEmptyContent(filter = Filter.Conversation.All, navigator = rememberNavigator {})
+    ConversationsEmptyContent(filter = ConversationFilter.All, navigator = rememberNavigator {})
 }
 
 @PreviewMultipleThemes
 @Composable
 fun PreviewChannelsConversationsEmptyContent() = WireTheme {
-    ConversationsEmptyContent(filter = Filter.Conversation.Channels, navigator = rememberNavigator {})
+    ConversationsEmptyContent(filter = ConversationFilter.Channels, navigator = rememberNavigator {})
 }
 
 @PreviewMultipleThemes
 @Composable
 fun PreviewFavoritesConversationsEmptyContent() = WireTheme {
-    ConversationsEmptyContent(filter = Filter.Conversation.Favorites, navigator = rememberNavigator {})
+    ConversationsEmptyContent(filter = ConversationFilter.Favorites, navigator = rememberNavigator {})
 }
 
 @PreviewMultipleThemes
 @Composable
 fun PreviewGroupConversationsEmptyContent() = WireTheme {
-    ConversationsEmptyContent(filter = Filter.Conversation.Groups, navigator = rememberNavigator {})
+    ConversationsEmptyContent(filter = ConversationFilter.Groups, navigator = rememberNavigator {})
 }
 
 @PreviewMultipleThemes
 @Composable
 fun PreviewOneOnOneConversationsEmptyContent() = WireTheme {
-    ConversationsEmptyContent(filter = Filter.Conversation.OneOnOne, domain = "wire.com", navigator = rememberNavigator {})
+    ConversationsEmptyContent(filter = ConversationFilter.OneOnOne, domain = "wire.com", navigator = rememberNavigator {})
 }

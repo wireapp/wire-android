@@ -22,12 +22,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import com.wire.android.R
 import com.wire.android.util.ui.UIText
-import com.wire.kalium.logic.data.conversation.Filter
+import com.wire.kalium.logic.data.conversation.ConversationFilter
 
 @Composable
 fun ConversationFilterSheetContent(
     filterSheetState: ConversationFilterSheetState,
-    onChangeFilter: (Filter.Conversation) -> Unit,
+    onChangeFilter: (ConversationFilter) -> Unit,
     isBottomSheetVisible: () -> Boolean = { true }
 ) {
     when (filterSheetState.currentData.tab) {
@@ -71,20 +71,20 @@ fun rememberFilterSheetState(
     }
 }
 
-fun Filter.Conversation.toSheetItemLabel(): UIText = when (this) {
-    Filter.Conversation.All -> UIText.StringResource(R.string.label_filter_all)
-    Filter.Conversation.Favorites -> UIText.StringResource(R.string.label_filter_favorites)
-    Filter.Conversation.Groups -> UIText.StringResource(R.string.label_filter_group)
-    Filter.Conversation.OneOnOne -> UIText.StringResource(R.string.label_filter_one_on_one)
-    Filter.Conversation.Channels -> UIText.StringResource(R.string.label_filter_channels)
-    is Filter.Conversation.Folder -> UIText.DynamicString(this.folderName)
+fun ConversationFilter.toSheetItemLabel(): UIText = when (this) {
+    ConversationFilter.All -> UIText.StringResource(R.string.label_filter_all)
+    ConversationFilter.Favorites -> UIText.StringResource(R.string.label_filter_favorites)
+    ConversationFilter.Groups -> UIText.StringResource(R.string.label_filter_group)
+    ConversationFilter.OneOnOne -> UIText.StringResource(R.string.label_filter_one_on_one)
+    ConversationFilter.Channels -> UIText.StringResource(R.string.label_filter_channels)
+    is ConversationFilter.Folder -> UIText.DynamicString(this.folderName)
 }
 
-fun Filter.Conversation.toTopBarTitle(): UIText = when (this) {
-    Filter.Conversation.All -> UIText.StringResource(R.string.conversations_screen_title)
-    Filter.Conversation.Favorites -> UIText.StringResource(R.string.label_filter_favorites)
-    Filter.Conversation.Groups -> UIText.StringResource(R.string.label_filter_group)
-    Filter.Conversation.OneOnOne -> UIText.StringResource(R.string.label_filter_one_on_one)
-    Filter.Conversation.Channels -> UIText.StringResource(R.string.label_filter_channels)
-    is Filter.Conversation.Folder -> UIText.DynamicString(this.folderName)
+fun ConversationFilter.toTopBarTitle(): UIText = when (this) {
+    ConversationFilter.All -> UIText.StringResource(R.string.conversations_screen_title)
+    ConversationFilter.Favorites -> UIText.StringResource(R.string.label_filter_favorites)
+    ConversationFilter.Groups -> UIText.StringResource(R.string.label_filter_group)
+    ConversationFilter.OneOnOne -> UIText.StringResource(R.string.label_filter_one_on_one)
+    ConversationFilter.Channels -> UIText.StringResource(R.string.label_filter_channels)
+    is ConversationFilter.Folder -> UIText.DynamicString(this.folderName)
 }

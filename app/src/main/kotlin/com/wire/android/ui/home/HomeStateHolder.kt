@@ -44,7 +44,8 @@ import com.wire.android.ui.common.search.rememberSearchbarState
 import com.wire.android.ui.common.topappbar.CellsFilterState
 import com.wire.android.ui.common.topappbar.rememberCellsFilterState
 import com.wire.android.ui.home.conversationslist.filter.toTopBarTitle
-import com.wire.kalium.logic.data.conversation.Filter
+import com.wire.android.feature.cells.domain.model.CellsFilter
+import com.wire.kalium.logic.data.conversation.ConversationFilter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -79,7 +80,7 @@ class HomeStateHolder(
 
     fun lazyListStateFor(
         destination: HomeDestination,
-        filter: Filter = Filter.Conversation.All,
+        filter: ConversationFilter = ConversationFilter.All,
     ): LazyListState =
         lazyListStatesMap.getOrPut(
             key = destination.itemName + when (destination) {
@@ -102,9 +103,9 @@ class HomeStateHolder(
         }
     }
 
-    fun changeConversationFilter(filter: Filter.Conversation) = conversationFilterState.changeFilter(filter)
+    fun changeConversationFilter(filter: ConversationFilter) = conversationFilterState.changeFilter(filter)
 
-    fun updateFilters(newFilters: Set<Filter.Cells>) = cellsFilterState.updateFilters(newFilters)
+    fun updateFilters(newFilters: Set<CellsFilter>) = cellsFilterState.updateFilters(newFilters)
 }
 
 @Composable

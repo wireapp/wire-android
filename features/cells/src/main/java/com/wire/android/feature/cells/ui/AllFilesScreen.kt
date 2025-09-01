@@ -30,7 +30,7 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.WireNavigator
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.search.SearchBarState
-import com.wire.kalium.logic.data.conversation.Filter
+import com.wire.android.feature.cells.domain.model.CellsFilter
 import kotlinx.coroutines.delay
 
 /**
@@ -41,7 +41,7 @@ import kotlinx.coroutines.delay
 fun AllFilesScreen(
     navigator: WireNavigator,
     searchBarState: SearchBarState,
-    updateFilters: (Set<Filter.Cells>) -> Unit,
+    updateFilters: (Set<CellsFilter>) -> Unit,
     filterBottomSheetState: WireModalSheetState<Unit>,
     viewModel: CellViewModel = hiltViewModel(),
 ) {
@@ -107,7 +107,7 @@ fun AllFilesScreen(
             if (it.isEmpty()) {
                 updateFilters(setOf())
             } else {
-                updateFilters(setOf(Filter.Cells.Tags))
+                updateFilters(setOf(CellsFilter.Tags))
             }
         },
         onClearAll = {

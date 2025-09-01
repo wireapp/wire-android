@@ -50,12 +50,12 @@ import com.wire.android.ui.common.typography
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
-import com.wire.kalium.logic.data.conversation.Filter
+import com.wire.kalium.logic.data.conversation.ConversationFilter
 
 @Composable
 fun ConversationFoldersSheetContent(
     sheetData: ConversationFilterSheetData,
-    onChangeFolder: (Filter.Conversation.Folder) -> Unit,
+    onChangeFolder: (ConversationFilter.Folder) -> Unit,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -80,7 +80,7 @@ fun ConversationFoldersSheetContent(
             } else {
                 sheetData.folders.forEach { folder ->
                     add {
-                        val state = if (sheetData.currentFilter is Filter.Conversation.Folder) {
+                        val state = if (sheetData.currentFilter is ConversationFilter.Folder) {
                             val currentFolder = sheetData.currentFilter
                             if (currentFolder.folderId == folder.id) {
                                 RichMenuItemState.SELECTED
@@ -95,7 +95,7 @@ fun ConversationFoldersSheetContent(
                             onItemClick = Clickable(
                                 enabled = state == RichMenuItemState.DEFAULT,
                                 onClickDescription = stringResource(id = R.string.content_description_select_label),
-                                onClick = { onChangeFolder(Filter.Conversation.Folder(folder.name, folder.id)) }
+                                onClick = { onChangeFolder(ConversationFilter.Folder(folder.name, folder.id)) }
                             ),
                             state = state
                         )

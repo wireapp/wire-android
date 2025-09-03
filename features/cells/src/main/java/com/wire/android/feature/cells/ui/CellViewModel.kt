@@ -213,9 +213,7 @@ class CellViewModel @Inject constructor(
         }
 
         val publicDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-        val filePath = File(publicDir, nodeName).toPath().toOkioPath()
-
-        deleteIfExists(filePath)
+        val filePath = getUniqueFile(publicDir, nodeName).toPath().toOkioPath()
 
         download(
             assetId = node.uuid,
@@ -238,10 +236,20 @@ class CellViewModel @Inject constructor(
         }
     }
 
-    private fun deleteIfExists(filePath: Path) = runCatching {
-        if (kaliumFileSystem.exists(filePath)) {
-            kaliumFileSystem.delete(filePath)
+    private fun getUniqueFile(directory: File, originalFileName: String): File {
+        val dotIndex = originalFileName.lastIndexOf('.')
+        val baseName = if (dotIndex != -1) originalFileName.substring(0, dotIndex) else originalFileName
+        val extension = if (dotIndex != -1) originalFileName.substring(dotIndex) else ""
+
+        var file = File(directory, originalFileName)
+        var index = 1
+
+        while (file.exists()) {
+            val newName = "$baseName($index)$extension"
+            file = File(directory, newName)
+            index++
         }
+        return file
     }
 
     private fun updateDownloadProgress(progress: Long, it: Long, node: CellNodeUi, path: Path) = viewModelScope.launch {

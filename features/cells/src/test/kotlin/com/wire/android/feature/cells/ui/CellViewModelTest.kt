@@ -489,9 +489,6 @@ class CellViewModelTest {
         @MockK
         lateinit var kaliumFileSystem: KaliumFileSystem
 
-        @MockK
-        lateinit var context: Context
-
         init {
 
             MockKAnnotations.init(this, relaxUnitFun = true)
@@ -575,7 +572,6 @@ class CellViewModelTest {
                 isCellAvailable = isCellAvailableUseCase,
                 fileHelper = fileHelper,
                 kaliumFileSystem = kaliumFileSystem,
-                context = context
             )
         }
     }

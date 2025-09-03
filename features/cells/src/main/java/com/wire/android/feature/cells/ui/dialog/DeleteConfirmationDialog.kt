@@ -34,6 +34,7 @@ fun DeleteConfirmationDialog(
     itemName: String,
     isFolder: Boolean,
     isPermanentDelete: Boolean,
+    isDeleteInProgress: Boolean,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
 ) {
@@ -75,10 +76,12 @@ fun DeleteConfirmationDialog(
             onClick = onConfirm,
             text = stringResource(id = R.string.delete_label),
             type = WireDialogButtonType.Primary,
-            state = WireButtonState.Error
+            loading = isDeleteInProgress,
+            state = if (isDeleteInProgress) WireButtonState.Disabled else WireButtonState.Error,
         ),
         dismissButtonProperties = WireDialogButtonProperties(
             text = stringResource(id = R.string.cancel),
+            state = if (isDeleteInProgress) WireButtonState.Disabled else WireButtonState.Error,
             onClick = onDismiss
         ),
         buttonsHorizontalAlignment = false,

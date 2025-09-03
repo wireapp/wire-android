@@ -69,6 +69,7 @@ fun AllFilesScreen(
         menuState = viewModel.menu,
         isAllFiles = true,
         isRestoreInProgress = viewModel.isRestoreInProgress.collectAsState().value,
+        isDeleteInProgress = viewModel.isDeleteInProgress.collectAsState().value,
         isRecycleBin = viewModel.isRecycleBin(),
         isSearchResult = viewModel.hasSearchQuery(),
         showPublicLinkScreen = { publicLinkScreenData ->
@@ -91,7 +92,9 @@ fun AllFilesScreen(
                     AddRemoveTagsScreenDestination(node.uuid, node.tags.toCollection(ArrayList()))
                 )
             )
-        }
+        },
+        isRefreshing = viewModel.isPullToRefresh.collectAsState(),
+        onRefresh = { viewModel.onPullToRefresh() }
     )
 
     if (searchBarState.isFilterActive) {

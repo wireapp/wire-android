@@ -65,8 +65,11 @@ fun ConversationFilesWithSlideInTransitionScreen(
         downloadFileSheet = viewModel.downloadFileSheet,
         menu = viewModel.menu,
         isRestoreInProgress = viewModel.isRestoreInProgress.collectAsState().value,
+        isDeleteInProgress = viewModel.isDeleteInProgress.collectAsState().value,
+        isRefreshing = viewModel.isPullToRefresh.collectAsState(),
         breadcrumbs = cellFilesNavArgs.breadcrumbs,
         sendIntent = { viewModel.sendIntent(it) },
-        navigationIconType = NavigationIconType.Back()
+        onRefresh = { viewModel.onPullToRefresh() },
+        navigationIconType = NavigationIconType.Back(),
     )
 }

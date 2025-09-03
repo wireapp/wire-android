@@ -29,7 +29,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.wire.android.feature.cells.ui.model.CellNodeUi
@@ -50,49 +53,56 @@ import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.theme.WireTheme
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun CellFilesScreen(
     cellNodes: LazyPagingItems<CellNodeUi>,
+    isRefreshing: State<Boolean>,
+    onRefresh: () -> Unit,
     onItemClick: (CellNodeUi) -> Unit,
     onItemMenuClick: (CellNodeUi) -> Unit,
 ) {
-
-    LazyColumn(
-        modifier = Modifier
-            .background(color = colorsScheme().surface)
-            .fillMaxWidth(),
+    PullToRefreshBox(
+        isRefreshing = isRefreshing.value,
+        onRefresh = onRefresh,
     ) {
-        items(
-            count = cellNodes.itemCount,
-            key = cellNodes.itemKey { it.uuid },
-            contentType = cellNodes.itemContentType { it }
-        ) { index ->
+        LazyColumn(
+            modifier = Modifier
+                .background(color = colorsScheme().surface)
+                .fillMaxWidth(),
+        ) {
+            items(
+                count = cellNodes.itemCount,
+                key = cellNodes.itemKey { it.uuid },
+                contentType = cellNodes.itemContentType { it }
+            ) { index ->
 
-            cellNodes[index]?.let { item ->
-                CellListItem(
-                    modifier = Modifier
-                        .animateItem()
-                        .background(color = colorsScheme().surface)
-                        .clickable { onItemClick(item) },
-                    cell = item,
-                    onMenuClick = { onItemMenuClick(item) }
-                )
-                WireDivider(modifier = Modifier.fillMaxWidth())
-            }
-        }
-
-        when (cellNodes.loadState.append) {
-            is LoadState.Error -> item(contentType = "error") {
-                ErrorFooter(
-                    onRetry = { cellNodes.retry() }
-                )
+                cellNodes[index]?.let { item ->
+                    CellListItem(
+                        modifier = Modifier
+                            .animateItem()
+                            .background(color = colorsScheme().surface)
+                            .clickable { onItemClick(item) },
+                        cell = item,
+                        onMenuClick = { onItemMenuClick(item) }
+                    )
+                    WireDivider(modifier = Modifier.fillMaxWidth())
+                }
             }
 
-            is LoadState.Loading -> item(contentType = "progress") {
-                ProgressFooter()
-            }
+            when (cellNodes.loadState.append) {
+                is LoadState.Error -> item(contentType = "error") {
+                    ErrorFooter(
+                        onRetry = { cellNodes.retry() }
+                    )
+                }
 
-            is LoadState.NotLoading -> {}
+                is LoadState.Loading -> item(contentType = "progress") {
+                    ProgressFooter()
+                }
+
+                is LoadState.NotLoading -> {}
+            }
         }
     }
 }

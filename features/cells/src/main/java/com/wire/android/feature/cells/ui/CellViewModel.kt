@@ -17,7 +17,6 @@
  */
 package com.wire.android.feature.cells.ui
 
-import android.content.Context
 import android.os.Environment
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
@@ -48,10 +47,11 @@ import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.collections.immutable.toImmutableMap
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -59,6 +59,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
@@ -83,7 +84,6 @@ class CellViewModel @Inject constructor(
     private val isCellAvailable: IsAtLeastOneCellAvailableUseCase,
     private val fileHelper: FileHelper,
     private val kaliumFileSystem: KaliumFileSystem,
-    @ApplicationContext val context: Context
 ) : ActionsViewModel<CellViewAction>() {
 
     private val navArgs: CellFilesNavArgs = savedStateHandle.navArgs()
@@ -98,6 +98,9 @@ class CellViewModel @Inject constructor(
 
     private val _isRestoreInProgress = MutableStateFlow(false)
     val isRestoreInProgress = _isRestoreInProgress.asStateFlow()
+
+    private val _isDeleteInProgress = MutableStateFlow(false)
+    val isDeleteInProgress = _isDeleteInProgress.asStateFlow()
 
     // Download progress value for each file being downloaded.
     private val downloadDataFlow = MutableStateFlow<Map<String, DownloadData>>(emptyMap())
@@ -116,6 +119,14 @@ class CellViewModel @Inject constructor(
     private val _navigateToRecycleBinRoot = MutableStateFlow(false)
     val navigateToRecycleBinRoot: StateFlow<Boolean> get() = _navigateToRecycleBinRoot
 
+    private val _isPullToRefresh = MutableStateFlow(false)
+    val isPullToRefresh: StateFlow<Boolean> = _isPullToRefresh.asStateFlow()
+
+    private val _pagingRefreshDone = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    private val pagingRefreshDone: SharedFlow<Unit> = _pagingRefreshDone
+
+    private val refreshTrigger = MutableSharedFlow<Unit>(replay = 0)
+
     init {
         loadTags()
     }
@@ -125,13 +136,25 @@ class CellViewModel @Inject constructor(
         emitAll(if (cellAvailable) buildNodesFlow() else flowOf(emptyData))
     }
 
+    fun onPullToRefresh() {
+        _isPullToRefresh.value = true
+        refreshNodes()
+    }
+
+    private fun refreshNodes() {
+        viewModelScope.launch {
+            refreshTrigger.emit(Unit)
+        }
+    }
+
     private fun buildNodesFlow() = combine(
         searchQueryFlow
             .debounce { if (it.isEmpty()) 0L else DEFAULT_SEARCH_QUERY_DEBOUNCE }
             .onStart { emit("") }
             .distinctUntilChanged(),
-        selectedTags
-    ) { query, currentTags -> query to currentTags }
+        selectedTags,
+        refreshTrigger.onStart { emit(Unit) }
+    ) { query, currentTags, _ -> query to currentTags }
         .flatMapLatest { (query, currentTags) ->
             combine(
                 getCellFilesPaged(
@@ -143,22 +166,30 @@ class CellViewModel @Inject constructor(
                 removedItemsFlow,
                 downloadDataFlow
             ) { pagingData, removedItems, downloadData ->
-                pagingData
-                    .filter {
-                        it.uuid !in removedItems
-                    }
-                    .map {
-                        when (it) {
-                            is Node.Folder -> it.toUiModel().copy(
-                                downloadProgress = downloadData[it.uuid]?.progress
-                            )
+                var emittedRefreshDone = false
 
-                            is Node.File -> {
-                                it.toUiModel().copy(
-                                    downloadProgress = downloadData[it.uuid]?.progress,
-                                    localPath = downloadData[it.uuid]?.localPath?.toString()
-                                )
+                pagingData
+                    .filter { it.uuid !in removedItems }
+                    .map { node ->
+                        if (!emittedRefreshDone) {
+                            emittedRefreshDone = true
+
+                            // If this refresh was triggered by pull-to-refresh, stop the spinner
+                            if (_isPullToRefresh.value) {
+                                _isPullToRefresh.value = false
                             }
+
+                            _pagingRefreshDone.tryEmit(Unit)
+                        }
+
+                        when (node) {
+                            is Node.Folder -> node.toUiModel().copy(
+                                downloadProgress = downloadData[node.uuid]?.progress
+                            )
+                            is Node.File -> node.toUiModel().copy(
+                                downloadProgress = downloadData[node.uuid]?.progress,
+                                localPath = downloadData[node.uuid]?.localPath?.toString()
+                            )
                         }
                     }
             }
@@ -197,10 +228,9 @@ class CellViewModel @Inject constructor(
         val index = parts.indexOf("recycle_bin")
 
         return if (index != -1 && index + 1 < parts.size) {
-            // Keep everything up to and including folder1
             parts.subList(0, index + 2).joinToString("/")
         } else {
-            null // Not enough parts to extract recycle_bin/folder1
+            null
         }
     }
 
@@ -414,23 +444,30 @@ class CellViewModel @Inject constructor(
     }
 
     private fun deleteFile(node: CellNodeUi) = viewModelScope.launch {
-
-        removedItemsFlow.update {
-            it + node.uuid
-        }
+        _isDeleteInProgress.value = true
         val localPath = if (node is CellNodeUi.File) {
             node.localPath
         } else {
             null
         }
-
         deleteCellAsset(node.uuid, localPath)
-            .onFailure {
-                sendAction(ShowError(CellError.OTHER_ERROR))
-                removedItemsFlow.update {
-                    it - node.uuid
+            .onSuccess {
+                removedItemsFlow.update { currentList ->
+                    currentList + node.uuid
                 }
+                refreshNodes()
+                _isDeleteInProgress.value = false
+                sendAction(HideDeleteConfirmation)
+                // Wait until refresh completes
+                pagingRefreshDone.first()
             }
+            .onFailure {
+                _isDeleteInProgress.value = false
+                sendAction(ShowError(CellError.OTHER_ERROR))
+            }
+        removedItemsFlow.update { currentList ->
+            currentList - node.uuid
+        }
     }
 
     private fun restoreNodeFromRecycleBin(node: CellNodeUi, isParentNode: Boolean = false) {
@@ -439,24 +476,31 @@ class CellViewModel @Inject constructor(
             node.remotePath?.let {
                 restoreNodeFromRecycleBinUseCase(it)
                     .onSuccess {
-                        removedItemsFlow.update { deletedItems ->
-                            deletedItems - node.uuid
+                        removedItemsFlow.update { currentList ->
+                            currentList + node.uuid
                         }
-                        _isRestoreInProgress.value = false
                         if (isParentNode) {
                             sendAction(HideRestoreParentFolderDialog)
                             _navigateToRecycleBinRoot.value = true
+                            // delay to allow navigation to complete before refreshing data
+                            delay(300)
+                        } else {
+                            sendAction(HideRestoreConfirmation)
                         }
-                        sendAction(HideRestoreConfirmation)
-                        sendAction(RefreshData)
+                        refreshNodes()
                     }
                     .onFailure {
-                        _isRestoreInProgress.value = false
                         sendAction(ShowError(CellError.OTHER_ERROR))
                         if (isParentNode) {
-                            _navigateToRecycleBinRoot.value = false
+                            sendAction(HideRestoreParentFolderDialog)
+                        } else {
+                            sendAction(HideRestoreConfirmation)
                         }
                     }
+                _isRestoreInProgress.value = false
+                removedItemsFlow.update { currentList ->
+                    currentList - node.uuid
+                }
             }
         }
     }
@@ -514,6 +558,7 @@ sealed interface CellViewIntent {
 
 sealed interface CellViewAction
 internal data class ShowDeleteConfirmation(val node: CellNodeUi, val isPermanentDelete: Boolean) : CellViewAction
+internal data object HideDeleteConfirmation : CellViewAction
 internal data class ShowRestoreConfirmation(val node: CellNodeUi) : CellViewAction
 internal data object HideRestoreConfirmation : CellViewAction
 internal data class ShowError(val error: CellError) : CellViewAction

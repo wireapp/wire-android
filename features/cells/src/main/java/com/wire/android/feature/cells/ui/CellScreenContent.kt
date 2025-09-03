@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -74,7 +75,10 @@ internal fun CellScreenContent(
     showRenameScreen: (CellNodeUi) -> Unit,
     showMoveToFolderScreen: (String, String, String) -> Unit,
     showAddRemoveTagsScreen: (CellNodeUi) -> Unit,
+    isRefreshing: State<Boolean>,
+    onRefresh: () -> Unit,
     isRestoreInProgress: Boolean,
+    isDeleteInProgress: Boolean,
     isAllFiles: Boolean,
     isRecycleBin: Boolean,
     isSearchResult: Boolean = false,
@@ -111,9 +115,8 @@ internal fun CellScreenContent(
                     }
                 },
                 onItemMenuClick = { sendIntent(CellViewIntent.OnItemMenuClick(it)) },
-//                onRefresh = {
-//                    viewModel.loadFiles(pullToRefresh = true)
-//                }
+                isRefreshing = isRefreshing,
+                onRefresh = onRefresh
             )
     }
 
@@ -141,9 +144,9 @@ internal fun CellScreenContent(
             itemName = node.name ?: "",
             isFolder = node is CellNodeUi.Folder,
             isPermanentDelete = isPermanentDelete,
+            isDeleteInProgress = isDeleteInProgress,
             onConfirm = {
                 sendIntent(CellViewIntent.OnNodeDeleteConfirmed(node))
-                deleteConfirmation = null
             },
             onDismiss = {
                 deleteConfirmation = null
@@ -212,6 +215,7 @@ internal fun CellScreenContent(
             is ShowRestoreParentFolderDialog -> restoreParentFolderConfirmation = action.cellNode
             is HideRestoreConfirmation -> restoreConfirmation = null
             is HideRestoreParentFolderDialog -> restoreParentFolderConfirmation = null
+            is HideDeleteConfirmation -> deleteConfirmation = null
         }
     }
 

@@ -245,9 +245,11 @@ fun ConversationFilesScreenContent(
                                 conversationId = folderPath,
                                 screenTitle = it.name,
                                 isRecycleBin = isRecycleBin,
-                                breadcrumbs = if (!isRecycleBin) it.name?.let { name ->
-                                    (breadcrumbs ?: emptyArray()) + name
-                                } else null),
+                                breadcrumbs = if (!isRecycleBin) {
+                                    it.name?.let { name ->
+                                        (breadcrumbs ?: emptyArray()) + name
+                                    }} else { null }
+                            ),
                             BackStackMode.NONE,
                             launchSingleTop = false
                         )

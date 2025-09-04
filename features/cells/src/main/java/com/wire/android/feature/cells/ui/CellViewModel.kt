@@ -515,7 +515,6 @@ class CellViewModel @Inject constructor(
         return recycleBinIndex != -1 && parts.size - recycleBinIndex == 2
     }
 
-
     private fun onDownloadMenuClosed() {
         _downloadFileSheet.update { null }
     }

@@ -186,6 +186,7 @@ class CellViewModel @Inject constructor(
                             is Node.Folder -> node.toUiModel().copy(
                                 downloadProgress = downloadData[node.uuid]?.progress
                             )
+
                             is Node.File -> node.toUiModel().copy(
                                 downloadProgress = downloadData[node.uuid]?.progress,
                                 localPath = downloadData[node.uuid]?.localPath?.toString()
@@ -391,6 +392,7 @@ class CellViewModel @Inject constructor(
         _menu.emit(menuOption)
     }
 
+    @Suppress("CyclomaticComplexMethod")
     private fun onMenuItemAction(node: CellNodeUi, action: NodeBottomSheetAction) {
         when (action) {
             NodeBottomSheetAction.SHARE -> {
@@ -483,7 +485,7 @@ class CellViewModel @Inject constructor(
                             sendAction(HideRestoreParentFolderDialog)
                             _navigateToRecycleBinRoot.value = true
                             // delay to allow navigation to complete before refreshing data
-                            delay(300)
+                            delay(RESTORE_DELAY)
                         } else {
                             sendAction(HideRestoreConfirmation)
                         }
@@ -585,3 +587,5 @@ private data class DownloadData(
     val progress: Float? = null,
     val localPath: Path? = null,
 )
+
+private const val RESTORE_DELAY = 300L

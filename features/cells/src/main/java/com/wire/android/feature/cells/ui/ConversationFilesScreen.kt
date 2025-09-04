@@ -248,7 +248,8 @@ fun ConversationFilesScreenContent(
                                 breadcrumbs = if (!isRecycleBin) {
                                     it.name?.let { name ->
                                         (breadcrumbs ?: emptyArray()) + name
-                                    }} else { null }
+                                    }
+                                } else { null }
                             ),
                             BackStackMode.NONE,
                             launchSingleTop = false

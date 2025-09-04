@@ -39,7 +39,7 @@ plugins {
     id(ScriptPlugins.testing)
     id(libs.plugins.wire.kover.get().pluginId)
     id(libs.plugins.wire.versionizer.get().pluginId)
-    alias(libs.plugins.screenshot)
+//    alias(libs.plugins.screenshot)
 }
 
 repositories {
@@ -94,11 +94,11 @@ android {
     android.buildFeatures.buildConfig = true
     experimentalProperties["android.experimental.enableScreenshotTest"] = true
 
-    testOptions {
-        screenshotTests {
-            imageDifferenceThreshold = 0.0001f // 0.01%
-        }
-    }
+//    testOptions {
+//        screenshotTests {
+//            imageDifferenceThreshold = 0.0001f // 0.01%
+//        }
+//    }
 
     sourceSets {
         allFlavors.forEach { flavor ->

@@ -18,6 +18,7 @@
 package com.wire.android.feature.cells.ui
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.wire.android.navigation.WireNavigator
@@ -45,6 +46,7 @@ fun ConversationFilesWithSlideInTransitionScreen(
         pagingListItems = viewModel.nodesFlow.collectAsLazyPagingItems(),
         downloadFileSheet = viewModel.downloadFileSheet,
         menu = viewModel.menu,
+        isRestoreInProgress = viewModel.isRestoreInProgress.collectAsState().value,
         breadcrumbs = cellFilesNavArgs.breadcrumbs,
         sendIntent = { viewModel.sendIntent(it) },
         navigationIconType = NavigationIconType.Back()

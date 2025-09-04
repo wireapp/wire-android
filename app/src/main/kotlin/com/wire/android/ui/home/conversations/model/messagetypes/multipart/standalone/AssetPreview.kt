@@ -30,9 +30,12 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
+import com.wire.android.ui.common.applyIf
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
+import com.wire.android.ui.home.conversations.messages.item.MessageStyle
+import com.wire.android.ui.home.conversations.messages.item.isBubble
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.message.height
 import com.wire.kalium.logic.data.message.width
@@ -40,16 +43,19 @@ import com.wire.kalium.logic.data.message.width
 @Composable
 fun AssetPreview(
     item: MultipartAttachmentUi,
+    messageStyle: MessageStyle,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Box(
         modifier = modifier
             .clickable { onClick() }
-            .background(
-                color = colorsScheme().surfaceVariant,
-                shape = RoundedCornerShape(dimensions().messageAttachmentCornerSize)
-            )
+            .applyIf(!messageStyle.isBubble()) {
+                background(
+                    color = colorsScheme().surfaceVariant,
+                    shape = RoundedCornerShape(dimensions().messageAttachmentCornerSize)
+                )
+            }
             .border(
                 width = 1.dp,
                 color = colorsScheme().outline,
@@ -59,9 +65,9 @@ fun AssetPreview(
     ) {
         if (item.transferStatus != AssetTransferStatus.NOT_FOUND) {
             when (item.assetType) {
-                AttachmentFileType.IMAGE -> ImageAssetPreview(item)
-                AttachmentFileType.VIDEO -> VideoAssetPreview(item)
-                else -> FileAssetPreview(item)
+                AttachmentFileType.IMAGE -> ImageAssetPreview(item, messageStyle)
+                AttachmentFileType.VIDEO -> VideoAssetPreview(item, messageStyle)
+                else -> FileAssetPreview(item, messageStyle)
             }
         } else {
             AssetNotAvailablePreview()

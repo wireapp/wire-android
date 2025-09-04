@@ -27,6 +27,7 @@ import com.wire.android.mapper.groupedUIMessageDateTime
 import com.wire.android.mapper.shouldDisplayDatesDifferenceDivider
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.UserAvatarData
+import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageParams
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
 import com.wire.android.ui.markdown.MarkdownConstants
@@ -82,6 +83,21 @@ sealed interface UIMessage {
         val isAssetMessage = messageContent is UIMessageContent.AssetMessage
                 || messageContent is UIMessageContent.ImageMessage
                 || messageContent is UIMessageContent.AudioAssetMessage
+
+        val assetParams: ImageMessageParams? = when (messageContent) {
+            is UIMessageContent.ImageMessage -> ImageMessageParams(messageContent.width, messageContent.height)
+            is UIMessageContent.VideoMessage -> {
+                if (messageContent.width != null && messageContent.height != null) {
+                    ImageMessageParams(messageContent.width, messageContent.height)
+                } else {
+                    null
+                }
+            }
+
+            else -> null
+        }
+
+        val hasAssetParams: Boolean = assetParams != null
 
         private val isReplyableContent: Boolean
             get() = messageContent is UIMessageContent.TextMessage ||

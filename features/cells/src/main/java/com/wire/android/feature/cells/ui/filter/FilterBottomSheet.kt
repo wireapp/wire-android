@@ -72,7 +72,20 @@ fun FilterBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState
     ) {
-        SheetContent(selectableTags, selectedTags, onApply, onClearAll)
+        SheetContent(
+            selectableTags = selectableTags,
+            selectedTags = selectedTags,
+            onApply = {
+                if (sheetState.currentValue is WireSheetValue.Expanded) {
+                    sheetState.hide { onApply(it) }
+                }
+            },
+            onClearAll = {
+                if (sheetState.currentValue is WireSheetValue.Expanded) {
+                    onClearAll()
+                }
+            }
+        )
     }
 }
 

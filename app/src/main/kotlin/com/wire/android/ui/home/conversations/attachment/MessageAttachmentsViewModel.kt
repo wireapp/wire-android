@@ -30,6 +30,7 @@ import com.wire.android.appLogger
 import com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi
 import com.wire.android.ui.common.attachmentdraft.model.toUiModel
 import com.wire.android.ui.home.conversations.ConversationNavArgs
+import com.wire.android.ui.home.conversations.MessageSharedState
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
 import com.wire.android.ui.navArgs
@@ -71,6 +72,7 @@ class MessageAttachmentsViewModel @Inject constructor(
     private val retryUpload: RetryAttachmentUploadUseCase,
     private val uploadManager: CellUploadManager,
     private val fileManager: FileManager,
+    private val sharedState: MessageSharedState
 ) : ViewModel() {
 
     private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
@@ -92,6 +94,14 @@ class MessageAttachmentsViewModel @Inject constructor(
                 attachments.addAll(it)
             }
         }
+
+        viewModelScope.launch {
+            sharedState.asFlow().collect {
+                if (it.isNotEmpty()) {
+                    onFilesAddedAsBundle(it)
+                }
+            }
+        }
     }
 
     fun onFilesSelected(uriList: List<Uri>) = viewModelScope.launch {
@@ -99,6 +109,12 @@ class MessageAttachmentsViewModel @Inject constructor(
             handleImportedAsset(uri)?.let { asset ->
                 addAttachment(asset.assetBundle)
             }
+        }
+    }
+
+    fun onFilesAddedAsBundle(bundles: List<AssetBundle>) = viewModelScope.launch {
+        bundles.forEach { bundle ->
+            addAttachment(bundle)
         }
     }
 

@@ -27,7 +27,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -45,8 +44,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.sp
 import com.wire.android.R
 import com.wire.android.model.Clickable
+import com.wire.android.ui.common.applyIf
 import com.wire.android.ui.common.clickable
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.home.conversations.messages.item.MessageStyle
+import com.wire.android.ui.home.conversations.messages.item.isBubble
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -57,22 +60,37 @@ fun LocationMessageContent(
     locationName: String,
     locationUrl: String,
     onLocationClick: Clickable,
+    messageStyle: MessageStyle,
     modifier: Modifier = Modifier
 ) {
+    val linkColor = when (messageStyle) {
+        MessageStyle.BUBBLE_SELF -> colorsScheme().onPrimary
+        MessageStyle.BUBBLE_OTHER -> colorsScheme().secondaryText
+        MessageStyle.NORMAL -> colorsScheme().secondaryText
+    }
+
+    val textColor = when (messageStyle) {
+        MessageStyle.BUBBLE_SELF -> colorsScheme().onPrimary
+        MessageStyle.BUBBLE_OTHER -> colorsScheme().onBackground
+        MessageStyle.NORMAL -> colorsScheme().onBackground
+    }
+
     Column(
         modifier = modifier
             .clickable(onLocationClick)
-            .padding(top = dimensions().spacing4x)
-            .clip(shape = RoundedCornerShape(dimensions().messageAssetBorderRadius))
-            .border(
-                width = dimensions().spacing1x,
-                color = MaterialTheme.wireColorScheme.secondaryButtonDisabledOutline,
-                shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
-            )
-            .background(
-                color = MaterialTheme.wireColorScheme.surfaceVariant,
-                shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
-            )
+            .applyIf(!messageStyle.isBubble()) {
+                padding(top = dimensions().spacing4x)
+                    .clip(shape = RoundedCornerShape(dimensions().messageAssetBorderRadius))
+                    .border(
+                        width = dimensions().spacing1x,
+                        color = MaterialTheme.wireColorScheme.secondaryButtonDisabledOutline,
+                        shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
+                    )
+                    .background(
+                        color = MaterialTheme.wireColorScheme.surfaceVariant,
+                        shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
+                    )
+            }
             .defaultMinSize(minHeight = dimensions().spacing64x),
         verticalArrangement = Arrangement.SpaceEvenly,
     ) {
@@ -83,26 +101,27 @@ fun LocationMessageContent(
                 .fillMaxWidth()
                 .padding(PaddingValues(horizontal = dimensions().spacing8x)),
             horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.Top
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_location),
                 contentDescription = stringResource(id = R.string.content_description_location_icon),
+                tint = textColor,
                 modifier = Modifier
                     .size(MaterialTheme.wireDimensions.wireIconButtonSize)
-                    .offset(y = dimensions().spacing4x)
             )
             Spacer(modifier = Modifier.width(dimensions().spacing4x))
             Text(
                 text = locationName,
                 style = MaterialTheme.wireTypography.body02,
                 fontSize = 15.sp,
+                color = textColor,
                 overflow = TextOverflow.Ellipsis
             )
         }
         Text(
             text = locationUrl,
-            style = MaterialTheme.wireTypography.subline01.copy(color = MaterialTheme.wireColorScheme.secondaryText),
+            style = MaterialTheme.wireTypography.subline01.copy(color = linkColor),
             overflow = TextOverflow.Ellipsis,
             maxLines = 1,
             modifier = Modifier.padding(horizontal = dimensions().spacing8x)
@@ -118,6 +137,7 @@ fun PreviewLocationMessageContent() {
     LocationMessageContent(
         locationName = "Rapa Nui, 2770000, CL",
         locationUrl = "https://www.google.com/maps/place/Rapa+Nui",
-        onLocationClick = Clickable()
+        onLocationClick = Clickable(),
+        messageStyle = MessageStyle.NORMAL
     )
 }

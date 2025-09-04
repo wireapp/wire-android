@@ -229,8 +229,8 @@ private fun ImportMediaAuthenticatedContent(
             onConversationClicked = importMediaViewModel::onConversationClicked,
             checkRestrictionsAndSendImportedMedia = {
                 with(importMediaViewModel.importMediaState) {
-                        checkAssetRestrictionsViewModel.checkRestrictions(importedMediaList = importedAssets)
-                    }
+                    checkAssetRestrictionsViewModel.checkRestrictions(importedMediaList = importedAssets)
+                }
             },
             onNewSelfDeletionTimerPicked = importMediaViewModel::onNewSelfDeletionTimerPicked,
             infoMessage = importMediaViewModel.infoMessage,
@@ -441,7 +441,8 @@ fun FileSharingRestrictedContent(
         } else {
             LinkText(
                 linkTextData = listOf(
-                    LinkTextData(text = stringResource(R.string.label_learn_more),
+                    LinkTextData(
+                        text = stringResource(R.string.label_learn_more),
                         tag = "learn_more",
                         annotation = learnMoreUrl,
                         onClick = { CustomTabsHelper.launchUrl(context, learnMoreUrl) }

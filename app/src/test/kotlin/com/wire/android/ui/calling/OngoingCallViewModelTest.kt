@@ -21,6 +21,7 @@ package com.wire.android.ui.calling
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.ui.calling.model.UICallParticipant
+import com.wire.android.ui.calling.ongoing.OngoingCallState
 import com.wire.android.ui.calling.ongoing.OngoingCallViewModel
 import com.wire.android.ui.calling.ongoing.fullscreen.SelectedParticipant
 import com.wire.android.ui.home.conversationslist.model.Membership
@@ -33,7 +34,7 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveLastActiveCallWithSortedParticipantsUseCase
 import com.wire.kalium.logic.feature.call.usecase.RequestVideoStreamsUseCase
 import com.wire.kalium.logic.feature.call.usecase.video.SetVideoSendStateUseCase
 import io.mockk.MockKAnnotations
@@ -42,6 +43,7 @@ import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -54,7 +56,7 @@ class OngoingCallViewModelTest {
     @Test
     fun givenAnOngoingCall_WhenTurningOnCamera_ThenSetVideoSendStateToStarted() = runTest {
         val (arrangement, ongoingCallViewModel) = Arrangement()
-            .withCall(provideCall())
+            .withLastActiveCall(provideCall())
             .withShouldShowDoubleTapToastReturning(false)
             .withSetVideoSendState()
             .arrange()
@@ -67,7 +69,7 @@ class OngoingCallViewModelTest {
     @Test
     fun givenAnOngoingCall_WhenTurningOffCamera_ThenSetVideoSendStateToStopped() = runTest {
         val (arrangement, ongoingCallViewModel) = Arrangement()
-            .withCall(provideCall())
+            .withLastActiveCall(provideCall())
             .withShouldShowDoubleTapToastReturning(false)
             .withSetVideoSendState()
             .arrange()
@@ -86,7 +88,7 @@ class OngoingCallViewModelTest {
             )
 
             val (arrangement, ongoingCallViewModel) = Arrangement()
-                .withCall(provideCall())
+                .withLastActiveCall(provideCall())
                 .withShouldShowDoubleTapToastReturning(false)
                 .withSetVideoSendState()
                 .withRequestVideoStreams(conversationId, expectedClients)
@@ -105,7 +107,7 @@ class OngoingCallViewModelTest {
     @Test
     fun givenDoubleTabIndicatorIsDisplayed_whenUserTapsOnIt_thenHideIt() = runTest {
         val (arrangement, ongoingCallViewModel) = Arrangement()
-            .withCall(provideCall())
+            .withLastActiveCall(provideCall())
             .withShouldShowDoubleTapToastReturning(false)
             .withSetVideoSendState()
             .withSetShouldShowDoubleTapToastStatus(currentUserId.toString(), false)
@@ -126,7 +128,7 @@ class OngoingCallViewModelTest {
     fun givenSetVideoSendStateUseCase_whenStartSendingVideoFeedIsCalled_thenInvokeUseCaseWithStartedStateOnce() =
         runTest {
             val (arrangement, ongoingCallViewModel) = Arrangement()
-                .withCall(provideCall())
+                .withLastActiveCall(provideCall())
                 .withShouldShowDoubleTapToastReturning(false)
                 .withSetVideoSendState()
                 .arrange()
@@ -142,7 +144,7 @@ class OngoingCallViewModelTest {
     fun givenSetVideoSendStateUseCase_whenPauseSendingVideoFeedIsCalled_thenInvokeUseCaseWithPausedStateOnce() =
         runTest {
             val (arrangement, ongoingCallViewModel) = Arrangement()
-                .withCall(provideCall())
+                .withLastActiveCall(provideCall())
                 .withShouldShowDoubleTapToastReturning(false)
                 .withSetVideoSendState()
                 .arrange()
@@ -158,7 +160,7 @@ class OngoingCallViewModelTest {
     fun givenSetVideoSendStateUseCase_whenStopSendingVideoFeedIsCalled_thenInvokeUseCaseWithStoppedState() =
         runTest {
             val (arrangement, ongoingCallViewModel) = Arrangement()
-                .withCall(provideCall().copy(isCameraOn = true))
+                .withLastActiveCall(provideCall().copy(isCameraOn = true))
                 .withShouldShowDoubleTapToastReturning(false)
                 .withSetVideoSendState()
                 .arrange()
@@ -174,7 +176,7 @@ class OngoingCallViewModelTest {
     fun givenAUserIsSelected_whenRequestedFullScreen_thenSetTheUserAsSelected() =
         runTest {
             val (_, ongoingCallViewModel) = Arrangement()
-                .withCall(provideCall().copy(isCameraOn = true))
+                .withLastActiveCall(provideCall().copy(isCameraOn = true))
                 .withShouldShowDoubleTapToastReturning(false)
                 .withSetVideoSendState()
                 .arrange()
@@ -193,7 +195,7 @@ class OngoingCallViewModelTest {
             )
 
             val (arrangement, ongoingCallViewModel) = Arrangement()
-                .withCall(provideCall())
+                .withLastActiveCall(provideCall())
                 .withShouldShowDoubleTapToastReturning(false)
                 .withSetVideoSendState()
                 .withRequestVideoStreams(conversationId, expectedClients)
@@ -219,7 +221,7 @@ class OngoingCallViewModelTest {
             )
 
             val (arrangement, ongoingCallViewModel) = Arrangement()
-                .withCall(provideCall())
+                .withLastActiveCall(provideCall())
                 .withShouldShowDoubleTapToastReturning(false)
                 .withSetVideoSendState()
                 .withRequestVideoStreams(conversationId, expectedClients)
@@ -236,10 +238,34 @@ class OngoingCallViewModelTest {
             }
         }
 
+    @Test
+    fun givenActiveOngoingCall_WhenObservingState_ThenStateShouldBeSetToDefault() = runTest {
+        val (_, ongoingCallViewModel) = Arrangement()
+            .withLastActiveCall(provideCall())
+            .withShouldShowDoubleTapToastReturning(false)
+            .withSetVideoSendState()
+            .arrange()
+        advanceUntilIdle()
+
+        assertEquals(OngoingCallState.FlowState.Default, ongoingCallViewModel.state.flowState)
+    }
+
+    @Test
+    fun givenClosedOngoingCall_WhenObservingState_ThenStateShouldBeSetToCallClosed() = runTest {
+        val (_, ongoingCallViewModel) = Arrangement()
+            .withNoLastActiveCall()
+            .withShouldShowDoubleTapToastReturning(false)
+            .withSetVideoSendState()
+            .arrange()
+        advanceUntilIdle()
+
+        assertEquals(OngoingCallState.FlowState.CallClosed, ongoingCallViewModel.state.flowState)
+    }
+
     private class Arrangement {
 
         @MockK
-        private lateinit var establishedCall: ObserveEstablishedCallsUseCase
+        private lateinit var observeLastActiveCall: ObserveLastActiveCallWithSortedParticipantsUseCase
 
         @MockK
         lateinit var requestVideoStreams: RequestVideoStreamsUseCase
@@ -253,7 +279,7 @@ class OngoingCallViewModelTest {
         private val ongoingCallViewModel by lazy {
             OngoingCallViewModel(
                 conversationId = conversationId,
-                establishedCalls = establishedCall,
+                observeLastActiveCall = observeLastActiveCall,
                 requestVideoStreams = requestVideoStreams,
                 currentUserId = currentUserId,
                 setVideoSendState = setVideoSendState,
@@ -267,8 +293,12 @@ class OngoingCallViewModelTest {
 
         fun arrange() = this to ongoingCallViewModel
 
-        fun withCall(call: Call) = apply {
-            coEvery { establishedCall() } returns flowOf(listOf(call))
+        fun withNoLastActiveCall() = apply {
+            coEvery { observeLastActiveCall(any()) } returns flowOf(null)
+        }
+
+        fun withLastActiveCall(call: Call) = apply {
+            coEvery { observeLastActiveCall(any()) } returns flowOf(call)
         }
 
         fun withShouldShowDoubleTapToastReturning(shouldShow: Boolean) = apply {

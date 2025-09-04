@@ -54,6 +54,7 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.typography
+import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.DateAndTimeParsers
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -70,7 +71,8 @@ fun VideoMessage(
     duration: Long?,
     transferStatus: AssetTransferStatus,
     onVideoClick: Clickable,
-    modifier: Modifier = Modifier
+    messageStyle: MessageStyle,
+    modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
 
@@ -103,8 +105,9 @@ fun VideoMessage(
         FileHeaderView(
             extension = assetExtension,
             size = assetSize,
+            messageStyle = messageStyle,
             modifier = Modifier
-                .fillMaxWidth(),
+                .fillMaxWidth()
         )
 
         Text(
@@ -229,6 +232,7 @@ private fun PreviewVideoMessage() {
                 height = 1080,
                 duration = 1231231,
                 transferStatus = AssetTransferStatus.NOT_DOWNLOADED,
+                messageStyle = MessageStyle.NORMAL,
                 onVideoClick = Clickable {},
             )
             VideoMessage(
@@ -240,6 +244,7 @@ private fun PreviewVideoMessage() {
                 width = null,
                 height = null,
                 duration = 1231231,
+                messageStyle = MessageStyle.NORMAL,
                 onVideoClick = Clickable {},
             )
             VideoMessage(
@@ -251,6 +256,7 @@ private fun PreviewVideoMessage() {
                 width = 1920,
                 height = 1080,
                 duration = 234000,
+                messageStyle = MessageStyle.NORMAL,
                 onVideoClick = Clickable { },
             )
         }
@@ -274,6 +280,7 @@ private fun PreviewVideoMessageError() {
                 width = null,
                 height = null,
                 duration = 123123,
+                messageStyle = MessageStyle.NORMAL,
                 onVideoClick = Clickable {},
             )
         }
@@ -297,6 +304,7 @@ private fun PreviewVideoMessageVertical() {
                 width = 1080,
                 height = 1920,
                 duration = 12412412,
+                messageStyle = MessageStyle.NORMAL,
                 onVideoClick = Clickable {},
             )
         }

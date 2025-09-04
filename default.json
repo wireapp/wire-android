@@ -6,7 +6,6 @@
             "logging_enabled": false,
             "application_is_private_build": false,
             "development_api_enabled": false,
-            "paginated_conversation_list_enabled": true,
             "analytics_enabled": true,
             "analytics_app_key": "4483f7a58ae3e70b3780319c4ccb5c88a037be49",
             "analytics_server_url": "https://wire.count.ly/",
@@ -78,7 +77,6 @@
             "analytics_enabled": true,
             "analytics_app_key": "8ffae535f1836ed5f58fd5c8a11c00eca07c5438",
             "analytics_server_url": "https://wire.count.ly/",
-            "paginated_conversation_list_enabled": true,
             "enable_new_registration": true
         },
         "fdroid": {
@@ -139,11 +137,12 @@
     "max_remote_search_result_count": 30,
     "limit_team_members_fetch_during_slow_sync": 2000,
     "picture_in_picture_enabled": false,
-    "paginated_conversation_list_enabled": false,
+    "paginated_conversation_list_enabled": true,
     "should_display_release_notes": true,
     "public_channels_enabled": false,
     "channels_history_options_enabled": false,
     "use_new_login_for_default_backend": true,
     "enable_crossplatform_backup": true,
-    "mls_read_receipts_enabled": false
+    "mls_read_receipts_enabled": false,
+    "is_mls_reset_enabled": true
 }

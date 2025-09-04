@@ -14,6 +14,7 @@ import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.media.audiomessage.AudioMessageArgs
 import com.wire.android.model.Clickable
+import com.wire.android.ui.common.applyIf
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.common.spacers.VerticalSpace
@@ -44,6 +45,7 @@ internal fun UIMessage.Regular.MessageContentAndStatus(
     message: UIMessage.Regular,
     assetStatus: AssetTransferStatus?,
     searchQuery: String,
+    messageStyle: MessageStyle,
     onAssetClicked: (String) -> Unit,
     onImageClicked: (UIMessage.Regular, Boolean) -> Unit,
     onProfileClicked: (String) -> Unit,
@@ -68,7 +70,10 @@ internal fun UIMessage.Regular.MessageContentAndStatus(
         }
     }
     Row {
-        Box(modifier = Modifier.weight(1F)) {
+        Box(
+            Modifier
+                .applyIf(!messageStyle.isBubble()) { weight(1F) }
+        ) {
             MessageContent(
                 message = message,
                 messageContent = messageContent,
@@ -79,19 +84,29 @@ internal fun UIMessage.Regular.MessageContentAndStatus(
                 onOpenProfile = onProfileClicked,
                 onLinkClick = onLinkClicked,
                 onReplyClick = onReplyClickable,
+                messageStyle = messageStyle,
             )
         }
-        if (isMyMessage && shouldDisplayMessageStatus) {
-            MessageStatusIndicator(
-                status = message.header.messageStatus.flowStatus,
-                isGroupConversation = conversationDetailsData is ConversationDetailsData.Group,
-                modifier = Modifier.padding(
-                    top = if (message.isTextContentWithoutQuote) dimensions().spacing2x else dimensions().spacing4x,
-                    start = dimensions().spacing8x
+        if (!messageStyle.isBubble()) {
+            if (isMyMessage && shouldDisplayMessageStatus) {
+                MessageStatusIndicator(
+                    status = message.header.messageStatus.flowStatus,
+                    isGroupConversation = conversationDetailsData is ConversationDetailsData.Group,
+                    messageStyle = messageStyle,
+                    modifier = Modifier.padding(
+                        top = if (message.isTextContentWithoutQuote) dimensions().spacing2x else dimensions().spacing4x,
+                        start = dimensions().spacing8x
+                    )
                 )
-            )
+            } else {
+                HorizontalSpace.x24()
+            }
         } else {
-            HorizontalSpace.x24()
+            if (message.isTextContentWithoutQuote) {
+                VerticalSpace.x2()
+            } else {
+                VerticalSpace.x4()
+            }
         }
     }
 }
@@ -102,6 +117,7 @@ private fun MessageContent(
     message: UIMessage.Regular,
     messageContent: UIMessageContent.Regular?,
     searchQuery: String,
+    messageStyle: MessageStyle,
     assetStatus: AssetTransferStatus?,
     onAssetClick: Clickable,
     onImageClick: Clickable,
@@ -114,9 +130,10 @@ private fun MessageContent(
             Column {
                 MessageImage(
                     asset = messageContent.asset,
-                    imgParams = ImageMessageParams(messageContent.width, messageContent.height),
+                    imgParams = ImageMessageParams(messageContent.width, messageContent.height, allowUpscale = true),
                     transferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
-                    onImageClick = onImageClick
+                    onImageClick = onImageClick,
+                    messageStyle = messageStyle
                 )
                 PartialDeliveryInformation(messageContent.deliveryStatus)
             }
@@ -134,6 +151,8 @@ private fun MessageContent(
                     duration = messageContent.duration,
                     transferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
                     onVideoClick = onAssetClick,
+                    messageStyle = messageStyle
+
                 )
                 PartialDeliveryInformation(messageContent.deliveryStatus)
             }
@@ -161,6 +180,7 @@ private fun MessageContent(
                     buttonList = null,
                     messageId = message.header.messageId,
                     onLinkClick = onLinkClick,
+                    messageStyle = messageStyle
                 )
                 PartialDeliveryInformation(messageContent.deliveryStatus)
             }
@@ -186,7 +206,8 @@ private fun MessageContent(
                     onOpenProfile = onOpenProfile,
                     buttonList = messageContent.buttonList,
                     messageId = message.header.messageId,
-                    onLinkClick = onLinkClick
+                    onLinkClick = onLinkClick,
+                    messageStyle = messageStyle
                 )
             }
         }
@@ -199,7 +220,8 @@ private fun MessageContent(
                     assetSizeInBytes = messageContent.assetSizeInBytes,
                     assetDataPath = messageContent.assetDataPath,
                     assetTransferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
-                    onAssetClick = onAssetClick
+                    onAssetClick = onAssetClick,
+                    messageStyle = messageStyle
                 )
                 PartialDeliveryInformation(messageContent.deliveryStatus)
             }
@@ -242,6 +264,7 @@ private fun MessageContent(
                     extension = messageContent.assetExtension,
                     size = messageContent.sizeInBytes,
                     assetTransferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
+                    messageStyle = messageStyle
                 )
                 PartialDeliveryInformation(messageContent.deliveryStatus)
             }
@@ -257,7 +280,8 @@ private fun MessageContent(
                     onLocationClick = Clickable(
                         enabled = message.isAvailable,
                         onClick = { launchGeoIntent(latitude, longitude, name, locationUrl, context) },
-                    )
+                    ),
+                    messageStyle = messageStyle
                 )
                 PartialDeliveryInformation(deliveryStatus)
             }
@@ -274,12 +298,14 @@ private fun MessageContent(
                         buttonList = null,
                         messageId = message.header.messageId,
                         onLinkClick = onLinkClick,
+                        messageStyle = messageStyle
                     )
                     Spacer(modifier = Modifier.height(dimensions().spacing8x))
                 }
                 MultipartAttachmentsView(
-                    message.conversationId,
-                    messageContent.attachments
+                    conversationId = message.conversationId,
+                    attachments = messageContent.attachments,
+                    messageStyle = messageStyle
                 )
                 PartialDeliveryInformation(messageContent.deliveryStatus)
             }

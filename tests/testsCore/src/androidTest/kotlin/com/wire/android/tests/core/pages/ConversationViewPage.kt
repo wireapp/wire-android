@@ -57,6 +57,11 @@ data class ConversationViewPage(private val device: UiDevice) {
 
     private val messageInputField = UiSelectorParams(className = "android.widget.EditText")
 
+    private fun conversationDetails1On1(userName: String) =
+        UiSelector()
+            .resourceId("User avatar")
+            .fromParent(UiSelector().className("android.widget.TextView").text(userName))
+
     private val sendButton = UiSelectorParams(description = "Send")
 
     private val backButton = UiSelectorParams(description = "Go back to conversation list")
@@ -277,7 +282,7 @@ data class ConversationViewPage(private val device: UiDevice) {
         return this
     }
 
-    fun assertMessageSentIsVisible(message: String): ConversationViewPage {
+    fun assertSentMessageIsVisibleInCurrentConversation(message: String): ConversationViewPage {
         val messageSelector = UiSelectorParams(text = message)
         val messageElement = UiWaitUtils.waitElement(messageSelector)
 
@@ -338,7 +343,7 @@ data class ConversationViewPage(private val device: UiDevice) {
         }
     }
 
-    fun assertReceivedMessageIsVisible(message: String): ConversationViewPage {
+    fun assertReceivedMessageIsVisibleInCurrentConversation(message: String): ConversationViewPage {
         val messageSelector = UiSelectorParams(text = message)
 
         try {
@@ -366,6 +371,15 @@ data class ConversationViewPage(private val device: UiDevice) {
         } catch (e: AssertionError) {
             throw AssertionError("Conversation screen is not visible: 'Type a message' field not found.", e)
         }
+
+        return this
+    }
+
+    fun click1On1ConversationDetails(userName: String): ConversationViewPage {
+        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        val userName = device.findObject(conversationDetails1On1(userName))
+        if (!userName.exists()) throw AssertionError("User '$userName' not found in current conversation")
+        userName.click()
 
         return this
     }

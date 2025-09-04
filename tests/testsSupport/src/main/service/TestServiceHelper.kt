@@ -389,6 +389,41 @@ class TestServiceHelper {
         )
     }
 
+    fun userSendMessageToConversationObj(
+        senderAlias: String,
+        msg: String,
+        deviceName: String,
+        dstConvoName: String,
+        isSelfDeleting: Boolean
+    ) {
+        val clientUser = toClientUser(senderAlias)
+        val conversation = toConvoObjPersonal(clientUser, dstConvoName)
+        val convoId = conversation.qualifiedID.id
+        val convoDomain = conversation.qualifiedID.domain
+
+        val expReadConfirm = conversation.type.let { type ->
+            when (type) {
+                0 -> conversation.isReceiptModeEnabled
+                2 -> isSendReadReceiptEnabled(senderAlias)
+                else -> false
+            }
+        }
+
+        testServiceClient.sendText(
+            SendTextParams(
+                owner = clientUser,
+                deviceName = deviceName,
+                convoDomain = convoDomain,
+                convoId = convoId,
+                timeout = if (isSelfDeleting) Duration.ofSeconds(1000) else Duration.ofSeconds(0),
+                expReadConfirm,
+                text = msg,
+                legalHoldStatus = LegalHoldStatus.DISABLED.code,
+
+                )
+        )
+    }
+
     fun toClientUser(nameAlias: String): ClientUser {
         return usersManager.findUserByNameOrNameAlias(nameAlias)
     }

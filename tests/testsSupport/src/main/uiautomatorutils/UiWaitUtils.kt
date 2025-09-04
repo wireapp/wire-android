@@ -35,6 +35,8 @@ data class UiSelectorParams(
     val resourceId: String? = null,
     val className: String? = null,
     val description: String? = null,
+    val instance: Int? = null,
+    val fromParentText: String? = null,
     val timeout: Long = TIMEOUT_IN_MILLISECONDS
 )
 

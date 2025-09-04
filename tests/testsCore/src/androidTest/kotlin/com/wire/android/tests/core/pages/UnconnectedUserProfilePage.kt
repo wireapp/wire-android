@@ -28,10 +28,13 @@ data class UnconnectedUserProfilePage(private val device: UiDevice) {
 
     private val ignoreButton = UiSelectorParams(text = "Ignore")
 
+    private val connectionRequestButton = UiSelectorParams(text = "Connect")
+
     private val connectionNotificationText = UiSelectorParams(
         textContains = "This user wants to connect with you."
     )
 
+    private val closeButtonOnUnconnectedUserProfilePage = UiSelectorParams(description = "Close")
     fun assertAcceptButtonIsDisplayed(): UnconnectedUserProfilePage {
         val acceptButtonElement = UiWaitUtils.waitElement(acceptButton)
         Assert.assertTrue("Accept button is not visible", !acceptButtonElement.visibleBounds.isEmpty)
@@ -55,6 +58,25 @@ data class UnconnectedUserProfilePage(private val device: UiDevice) {
             "'This user wants to connect with you' text is not visible.",
             !connectionRequestNotificationText.visibleBounds.isEmpty
         )
+        return this
+    }
+
+    fun assertUserNameInUnconnectedUserProfilePage(userName: String): UnconnectedUserProfilePage {
+        try {
+            UiWaitUtils.waitElement(UiSelectorParams(text = userName))
+        } catch (e: AssertionError) {
+            throw AssertionError(" The user'$userName' is not visible in unconnected user profile page", e)
+        }
+        return this
+    }
+
+    fun clickCloseButtonOnUnconnectedUserProfilePage(): UnconnectedUserProfilePage {
+        UiWaitUtils.waitElement(closeButtonOnUnconnectedUserProfilePage).click()
+        return this
+    }
+
+    fun clickConnectionRequestButton(): UnconnectedUserProfilePage {
+        UiWaitUtils.waitElement(connectionRequestButton).click()
         return this
     }
 }

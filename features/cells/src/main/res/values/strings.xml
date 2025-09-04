@@ -99,7 +99,7 @@
     <string name="select_tags_label">select tags</string>
     <string name="clear_all_label">Clear All</string>
     <string name="apply_label">Apply</string>
-    <string name="add_or_remove_tags_title">Add or remove tags</string>
+    <string name="add_or_remove_tags_title">Add or Remove Tags</string>
     <string name="tags_description">All members of your team can see and use the tags you create.</string>
     <string name="suggested_tags_label">Suggested tags</string>
     <string name="added_tags_label">Added tags</string>

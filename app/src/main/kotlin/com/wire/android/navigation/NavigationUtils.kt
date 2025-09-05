@@ -36,6 +36,7 @@ import com.wire.android.util.CustomTabsHelper
 import com.wire.kalium.logger.obfuscateId
 
 @SuppressLint("RestrictedApi")
+@Suppress("CyclomaticComplexMethod")
 internal fun NavController.navigateToItem(command: NavigationCommand) {
 
     fun firstDestination() = currentBackStack.value.firstOrNull { it.route() is DestinationSpec<*> }
@@ -74,8 +75,15 @@ internal fun NavController.navigateToItem(command: NavigationCommand) {
                 popUpTo(true) { firstDestinationWithRoute(command.destination.route) }
             }
 
-            BackStackMode.NONE -> {
+            BackStackMode.POP_CONSECUTIVE_SAME_SCREENS -> {
+                val currentRoute = currentBackStackEntry?.destination?.route
+                while (previousBackStackEntry?.destination?.route == currentRoute) {
+                    popBackStack()
+                }
+                popBackStack()
             }
+
+            BackStackMode.NONE -> {}
         }
         launchSingleTop = command.launchSingleTop
         restoreState = true

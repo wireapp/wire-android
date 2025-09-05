@@ -59,6 +59,7 @@ import com.wire.android.feature.cells.ui.FileIconPreview
 import com.wire.android.feature.cells.ui.FolderIconPreview
 import com.wire.android.feature.cells.ui.common.Breadcrumbs
 import com.wire.android.feature.cells.ui.common.LoadingScreen
+import com.wire.android.feature.cells.ui.destinations.ConversationFilesWithSlideInTransitionScreenDestination
 import com.wire.android.feature.cells.ui.destinations.CreateFolderScreenDestination
 import com.wire.android.feature.cells.ui.destinations.MoveToFolderScreenDestination
 import com.wire.android.feature.cells.ui.model.CellNodeUi
@@ -120,6 +121,10 @@ fun MoveToFolderScreen(
                             modifier = Modifier
                                 .height(dimensions().spacing40x)
                                 .fillMaxWidth(),
+                            onBreadcrumbsFolderClick = {
+                                val stepsBack = moveToFolderViewModel.breadcrumbs().size - it - 1
+                                navigator.navigateBackAndRemoveAllConsecutiveXTimes(MoveToFolderScreenDestination.route, stepsBack)
+                            },
                         )
                     }
                 }

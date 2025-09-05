@@ -120,6 +120,10 @@ fun MoveToFolderScreen(
                             modifier = Modifier
                                 .height(dimensions().spacing40x)
                                 .fillMaxWidth(),
+                            onBreadcrumbsFolderClick = {
+                                val stepsBack = moveToFolderViewModel.breadcrumbs().size - it - 1
+                                navigator.navigateBackAndRemoveAllConsecutiveXTimes(MoveToFolderScreenDestination.route, stepsBack)
+                            },
                         )
                     }
                 }

@@ -113,6 +113,7 @@ fun ConversationFilesScreenContent(
     menu: SharedFlow<MenuOptions>,
     sendIntent: (CellViewIntent) -> Unit,
     modifier: Modifier = Modifier,
+    onBreadcrumbsFolderClick: (index: Int) -> Unit = {},
     screenTitle: String? = null,
     isRecycleBin: Boolean = false,
     isRestoreInProgress: Boolean = false,
@@ -125,7 +126,7 @@ fun ConversationFilesScreenContent(
     val isFabVisible = when {
         pagingListItems.isLoading() -> false
         pagingListItems.isError() -> false
-        isRecycleBin == true -> false
+        isRecycleBin -> false
         else -> true
     }
 
@@ -182,7 +183,8 @@ fun ConversationFilesScreenContent(
                         modifier = Modifier
                             .height(dimensions().spacing40x)
                             .fillMaxWidth(),
-                        pathSegments = it
+                        pathSegments = it,
+                        onBreadcrumbsFolderClick = onBreadcrumbsFolderClick
                     )
                 }
             }
@@ -332,6 +334,7 @@ fun PreviewConversationFilesScreen() {
             downloadFileSheet = MutableStateFlow(null),
             menu = MutableSharedFlow(replay = 0),
             sendIntent = {},
+            onBreadcrumbsFolderClick = {},
             screenTitle = "Android",
             isRecycleBin = false,
             breadcrumbs = arrayOf("Engineering", "Android"),

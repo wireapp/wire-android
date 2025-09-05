@@ -17,8 +17,9 @@
  */
 package com.wire.android.ui.home.conversations.usecase
 
+import android.app.Application
+import android.net.Uri
 import androidx.core.net.toUri
-import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.ui.home.conversations.model.AssetBundle
@@ -30,19 +31,40 @@ import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import okio.Path.Companion.toPath
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
-@OptIn(ExperimentalCoroutinesApi::class)
-@ExtendWith(CoroutineTestExtension::class)
+@RunWith(RobolectricTestRunner::class)
+@Config(application = Application::class)
 class HandleUriAssetUseCaseTest {
+
+    private val dispatcher = StandardTestDispatcher()
+
+    @Test
+    fun `given an invalid url schema, when invoked, then result should not succeed`() =
+        runTest(dispatcher) {
+            // Given
+            val limit = GetAssetSizeLimitUseCaseImpl.ASSET_SIZE_DEFAULT_LIMIT_BYTES
+            val (_, useCase) = Arrangement()
+                .withGetAssetSizeLimitUseCase(true, limit)
+                .withGetAssetBundleFromUri(null)
+                .arrange()
+
+            // When
+            val result = useCase.invoke(Uri.Builder().scheme("file").path("/data/asdasdasd.txt").build(), false)
+
+            // Then
+            assert(result is HandleUriAssetUseCase.Result.Failure.Unknown)
+        }
 
     @Test
     fun `given a user picks an image asset less than limit, when invoked, then result should succeed`() =
-        runTest {
+        runTest(dispatcher) {
             // Given
             val limit = GetAssetSizeLimitUseCaseImpl.ASSET_SIZE_DEFAULT_LIMIT_BYTES
             val mockedAttachment = AssetBundle(
@@ -67,7 +89,7 @@ class HandleUriAssetUseCaseTest {
 
     @Test
     fun `given a user picks an image asset larger than limit, when invoked, then result is asset too large failure`() =
-        runTest {
+        runTest(dispatcher) {
             // Given
             val limit = GetAssetSizeLimitUseCaseImpl.ASSET_SIZE_DEFAULT_LIMIT_BYTES
             val mockedAttachment = AssetBundle(
@@ -92,7 +114,7 @@ class HandleUriAssetUseCaseTest {
 
     @Test
     fun `given that a user picks too large asset that needs saving if invalid, when invoked, then saveToExternalMediaStorage is called`() =
-        runTest {
+        runTest(dispatcher) {
             // Given
             val limit = GetAssetSizeLimitUseCaseImpl.ASSET_SIZE_DEFAULT_LIMIT_BYTES
             val mockedAttachment = AssetBundle(
@@ -127,7 +149,7 @@ class HandleUriAssetUseCaseTest {
 
     @Test
     fun `given that a user picks asset, when getting uri returns null, then it should return error`() =
-        runTest {
+        runTest(dispatcher) {
             // Given
             val limit = GetAssetSizeLimitUseCaseImpl.ASSET_SIZE_DEFAULT_LIMIT_BYTES
             val (_, useCase) = Arrangement()

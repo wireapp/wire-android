@@ -161,13 +161,15 @@ fun GroupConversationSettings(
             }
         }
         item { WireDivider(color = colorsScheme().divider) }
-        item {
-            ReadReceiptOption(
-                isSwitchEnabled = state.isUpdatingReadReceiptAllowed,
-                switchState = state.isReadReceiptAllowed,
-                isLoading = state.loadingReadReceiptOption,
-                onCheckedChange = onReadReceiptSwitchClicked
-            )
+        if (state.protocolInfo !is Conversation.ProtocolInfo.MLS) {
+            item {
+                ReadReceiptOption(
+                    isSwitchEnabled = state.isUpdatingReadReceiptAllowed,
+                    switchState = state.isReadReceiptAllowed,
+                    isLoading = state.loadingReadReceiptOption,
+                    onCheckedChange = onReadReceiptSwitchClicked
+                )
+            }
         }
         item {
             ConversationProtocolDetails(

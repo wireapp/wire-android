@@ -41,6 +41,7 @@ import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.ui.navArgs
 import com.wire.android.util.EMPTY
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.android.util.ui.CountdownTimer
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.auth.login.ProxyCredentials
 import com.wire.kalium.logic.data.auth.verification.VerifiableAction
@@ -69,6 +70,7 @@ class LoginEmailViewModel @Inject constructor(
     authServerConfigProvider: AuthServerConfigProvider,
     userDataStoreProvider: UserDataStoreProvider,
     @KaliumCoreLogic coreLogic: CoreLogic,
+    private val resendCodeTimer: CountdownTimer,
     private val dispatchers: DispatcherProvider
 ) : LoginViewModel(
     clientScopeProviderFactory,
@@ -281,12 +283,33 @@ class LoginEmailViewModel @Inject constructor(
                     emailUsed = email,
                 )
                 updateEmailFlowState(LoginState.Default)
+                startResendCodeTimer()
             }
 
             is RequestSecondFactorVerificationCodeUseCase.Result.Failure.Generic -> {
                 updateEmailFlowState(LoginState.Error.DialogError.GenericError(result.cause))
             }
         }
+    }
+
+    private fun startResendCodeTimer() {
+        viewModelScope.launch {
+            resendCodeTimer.start(
+                seconds = RESEND_TIMER_DELAY,
+                onUpdate = { timerText ->
+                    updateResendTimer(timerText)
+                },
+                onFinish = {
+                    updateResendTimer(null)
+                }
+            )
+        }
+    }
+
+    private fun updateResendTimer(timerText: String?) {
+        secondFactorVerificationCodeState = secondFactorVerificationCodeState.copy(
+            remainingTimerText = timerText?.let { timerText }
+        )
     }
 
     fun onCodeVerificationBackPress() {
@@ -307,5 +330,6 @@ class LoginEmailViewModel @Inject constructor(
 
     companion object {
         const val USER_IDENTIFIER_SAVED_STATE_KEY = "user_identifier"
+        const val RESEND_TIMER_DELAY = 300L
     }
 }

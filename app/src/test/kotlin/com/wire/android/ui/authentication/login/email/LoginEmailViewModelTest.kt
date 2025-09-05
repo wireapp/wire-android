@@ -33,6 +33,7 @@ import com.wire.android.framework.TestClient
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.util.EMPTY
 import com.wire.android.util.newServerConfig
+import com.wire.android.util.ui.CountdownTimer
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.CoreLogic
@@ -541,6 +542,9 @@ class LoginEmailViewModelTest {
         @MockK
         internal lateinit var authenticationScope: AuthenticationScope
 
+        @MockK
+        internal lateinit var countdownTimer: CountdownTimer
+
         init {
             MockKAnnotations.init(this)
             mockUri()
@@ -557,6 +561,7 @@ class LoginEmailViewModelTest {
             every { authenticationScope.login } returns loginUseCase
             every { authenticationScope.requestSecondFactorVerificationCode } returns requestSecondFactorCodeUseCase
             every { coreLogic.versionedAuthenticationScope(any()) } returns autoVersionAuthScopeUseCase
+            coEvery { countdownTimer.start(any(), any(), any()) } returns Unit
         }
 
         fun arrange() = this to LoginEmailViewModel(
@@ -566,6 +571,7 @@ class LoginEmailViewModelTest {
             authServerConfigProvider,
             userDataStoreProvider,
             coreLogic,
+            countdownTimer,
             dispatcherProvider
         )
 

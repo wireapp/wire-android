@@ -154,6 +154,7 @@ class WireApplication : BaseApp() {
             )
             StrictMode.setVmPolicy(
                 StrictMode.VmPolicy.Builder()
+                    .detectFileUriExposure()
                     .detectLeakedSqlLiteObjects()
                     .detectLeakedClosableObjects()
                     .penaltyLog()

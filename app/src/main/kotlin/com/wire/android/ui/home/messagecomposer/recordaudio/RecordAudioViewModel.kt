@@ -21,7 +21,6 @@ import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
@@ -37,6 +36,7 @@ import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.SUPPORTED_AUDIO_MIME_TYPE
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.fileDateTime
+import com.wire.android.util.fromNioPathToContentUri
 import com.wire.android.util.getAudioLengthInMs
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
@@ -321,12 +321,12 @@ class RecordAudioViewModel @Inject constructor(
             onAudioRecorded(
                 UriAsset(
                     uri = if (didSucceed) {
-                        audioMediaRecorder.mp4OutputPath!!.toFile().toUri()
+                        context.fromNioPathToContentUri(nioPath = audioMediaRecorder.mp4OutputPath!!.toNioPath())
                     } else {
                         if (state.shouldApplyEffects) {
-                            state.effectsOutputFile!!.toUri()
+                            context.fromNioPathToContentUri(nioPath = state.effectsOutputFile!!.toPath())
                         } else {
-                            state.originalOutputFile!!.toUri()
+                            context.fromNioPathToContentUri(nioPath = state.originalOutputFile!!.toPath())
                         }
                     },
                     mimeType = if (didSucceed) {

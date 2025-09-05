@@ -59,6 +59,7 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.conversation.Conversation
 import kotlinx.coroutines.launch
 
 @RootNavGraph
@@ -113,7 +114,15 @@ private fun MessageDetailsScreenContent(
         derivedStateOf {
             val reactions = MessageDetailsTabItem.Reactions(messageDetailsState.reactionsData.reactions.map { it.value.size }.sum())
             val readReceipts = MessageDetailsTabItem.ReadReceipts(messageDetailsState.readReceiptsData.readReceipts.size)
-            if (messageDetailsState.isSelfMessage) listOf(reactions, readReceipts) else listOf(reactions)
+
+            // Hide read receipts tab for MLS conversations
+            val isMLSConversation = messageDetailsState.protocolInfo is Conversation.ProtocolInfo.MLS
+
+            if (messageDetailsState.isSelfMessage && !isMLSConversation) {
+                listOf(reactions, readReceipts)
+            } else {
+                listOf(reactions)
+            }
         }
     }
     val scope = rememberCoroutineScope()

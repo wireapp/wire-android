@@ -56,6 +56,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import okio.Path
+import okio.Path.Companion.toOkioPath
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
@@ -178,6 +179,8 @@ private fun Context.saveFileDataToMediaFolder(assetName: String, downloadedDataP
     resolver.copyFile(insertedUri, downloadedDataPath)
     return insertedUri
 }
+
+fun Context.fromNioPathToContentUri(nioPath: java.nio.file.Path): Uri = this.pathToUri(nioPath.toOkioPath(), null)
 
 fun Context.pathToUri(assetDataPath: Path, assetName: String?): Uri =
     FileProvider.getUriForFile(this, getProviderAuthority(), assetDataPath.toFile(), assetName ?: assetDataPath.name)

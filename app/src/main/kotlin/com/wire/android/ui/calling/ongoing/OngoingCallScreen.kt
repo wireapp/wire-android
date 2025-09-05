@@ -417,7 +417,7 @@ private fun OngoingCallContent(
                             .fillMaxSize()
                             .drawInCallReactions(
                                 state = inCallReactionsState,
-                                enabled = !inPictureInPictureMode,
+                                enabled = BuildConfig.IN_CALL_REACTIONS_ENABLED && !inPictureInPictureMode,
                             )
                     ) {
 
@@ -494,7 +494,7 @@ private fun OngoingCallContent(
                 }
             }
 
-            if (showInCallReactionsPanel && !inPictureInPictureMode) {
+            if (BuildConfig.IN_CALL_REACTIONS_ENABLED && showInCallReactionsPanel && !inPictureInPictureMode) {
                 InCallReactionsPanel(
                     onReactionClick = onReactionClick,
                     onMoreClick = { showEmojiPicker = true }
@@ -502,7 +502,7 @@ private fun OngoingCallContent(
             }
 
             EmojiPickerBottomSheet(
-                isVisible = showEmojiPicker,
+                isVisible = BuildConfig.IN_CALL_REACTIONS_ENABLED && showEmojiPicker,
                 onEmojiSelected = {
                     showEmojiPicker = false
                     onReactionClick(it)
@@ -608,11 +608,13 @@ private fun CallingControls(
                 onSpeakerButtonClicked = toggleSpeaker
             )
 
-            InCallReactionsButton(
-                isSelected = isShowingCallReactions,
-                isEnabled = !isConnecting,
-                onInCallReactionsClick = onCallReactionsClick
-            )
+            if (BuildConfig.IN_CALL_REACTIONS_ENABLED) {
+                InCallReactionsButton(
+                    isSelected = isShowingCallReactions,
+                    isEnabled = !isConnecting,
+                    onInCallReactionsClick = onCallReactionsClick
+                )
+            }
 
             HangUpOngoingButton(
                 onHangUpButtonClicked = onHangUpCall

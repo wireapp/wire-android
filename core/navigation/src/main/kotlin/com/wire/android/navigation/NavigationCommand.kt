@@ -67,11 +67,6 @@ enum class BackStackMode {
     // it's REMOVE_CURRENT and UPDATE_EXISTED applied one after the other respectively
     REMOVE_CURRENT_AND_REPLACE,
 
-    // Pops all consecutive instances of the same screen (based on route) from the backstack,
-    // including the current one. Useful when the same destination has been pushed multiple times
-    // (e.g., Details -> Details -> Details), and you want to clean up duplicates by going back to the last different screen.
-    POP_CONSECUTIVE_SAME_SCREENS,
-
     // screen will be added to the existing backstack.
     NONE;
 }

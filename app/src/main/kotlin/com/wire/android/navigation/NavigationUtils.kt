@@ -75,14 +75,6 @@ internal fun NavController.navigateToItem(command: NavigationCommand) {
                 popUpTo(true) { firstDestinationWithRoute(command.destination.route) }
             }
 
-            BackStackMode.POP_CONSECUTIVE_SAME_SCREENS -> {
-                val currentRoute = currentBackStackEntry?.destination?.route
-                while (previousBackStackEntry?.destination?.route == currentRoute) {
-                    popBackStack()
-                }
-                popBackStack()
-            }
-
             BackStackMode.NONE -> {}
         }
         launchSingleTop = command.launchSingleTop

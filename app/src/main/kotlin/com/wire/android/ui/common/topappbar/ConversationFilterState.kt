@@ -24,8 +24,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import com.wire.android.feature.cells.domain.model.CellsFilter
 import com.wire.kalium.logic.data.conversation.ConversationFilter
 import dev.ahmedmourad.bundlizer.Bundlizer
+import kotlinx.serialization.builtins.ListSerializer
 
 @Composable
 fun rememberConversationFilterState(): ConversationFilterState = rememberSaveable(saver = ConversationFilterState.saver()) {
@@ -47,6 +49,36 @@ class ConversationFilterState(initialValue: ConversationFilter = ConversationFil
             },
             restore = {
                 ConversationFilterState(Bundlizer.unbundle(ConversationFilter.serializer(), it))
+            }
+        )
+    }
+}
+
+@Composable
+fun rememberCellsFilterState(): CellsFilterState =
+    rememberSaveable(saver = CellsFilterState.saver()) {
+        CellsFilterState()
+    }
+
+class CellsFilterState(initialFilters: Set<CellsFilter> = emptySet()) {
+    var filters: Set<CellsFilter> by mutableStateOf(initialFilters)
+        private set
+
+    fun updateFilters(newFilters: Set<CellsFilter>) {
+        filters = newFilters
+    }
+
+    fun isSelected(filter: CellsFilter): Boolean = filters.contains(filter)
+
+    companion object {
+        fun saver(): Saver<CellsFilterState, Bundle> = Saver(
+            save = {
+                val list = it.filters.toList()
+                Bundlizer.bundle(ListSerializer(CellsFilter.serializer()), list)
+            },
+            restore = {
+                val list = Bundlizer.unbundle(ListSerializer(CellsFilter.serializer()), it)
+                CellsFilterState(list.toSet())
             }
         )
     }

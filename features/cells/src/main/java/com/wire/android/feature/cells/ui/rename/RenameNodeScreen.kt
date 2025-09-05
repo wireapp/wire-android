@@ -117,11 +117,6 @@ fun RenameNodeScreen(
                     lineLimits = TextFieldLineLimits.SingleLine,
                     state = computeNameErrorState(renameNodeViewModel.displayNameState.error, renameNodeViewModel.isFolder()),
                     keyboardOptions = KeyboardOptions.DefaultText,
-                    descriptionText = if (renameNodeViewModel.isFolder() == true) {
-                        stringResource(id = R.string.rename_long_folder_name_error)
-                    } else {
-                        stringResource(id = R.string.rename_long_file_name_error)
-                    },
                     onKeyboardAction = { keyboardController?.hide() },
                     modifier = Modifier.padding(
                         horizontal = MaterialTheme.wireDimensions.spacing16x

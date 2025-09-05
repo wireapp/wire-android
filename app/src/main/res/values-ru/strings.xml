@@ -999,9 +999,12 @@
     <string name="label_learn_more_about_channels">Подробнее о каналах</string>
     <string name="label_new_conversation">Новая беседа</string>
     <string name="label_search_people">Поиск пользователей</string>
+    <string name="label_search_people_or_apps">Поиск людей или приложений</string>
     <string name="label_public_wire">Wire Public</string>
     <string name="label_search_people_instruction">Поиск пользователей по названию их профиля или @псевдониму</string>
+    <string name="label_search_apps_instruction">Повышайте производительность с помощью приложений.</string>
     <string name="label_learn_more_searching_user">Подробнее</string>
+    <string name="label_learn_more_searching_app">Как добавить приложения в вашу команду</string>
     <string name="label_no_results_found">Результатов не найдено. Пожалуйста, попробуйте еще раз.</string>
     <string name="label_general_error">Что-то пошло не так</string>
     <string name="label_add_member_people">Контакты</string>

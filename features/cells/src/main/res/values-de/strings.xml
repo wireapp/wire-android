@@ -55,8 +55,6 @@
     <string name="rename_label">Umbenennen</string>
     <string name="rename_file_name_label">Dateiname</string>
     <string name="rename_folder_name_label">Ordnername</string>
-    <string name="rename_long_file_name_error">Verwenden Sie einen kürzeren Namen (max. 64 Zeichen)</string>
-    <string name="rename_long_folder_name_error">Verwenden Sie einen kürzeren Namen (max. 64 Zeichen)</string>
     <string name="rename_enter_file_name">Dateinamen eingeben</string>
     <string name="rename_enter_folder_name">Ordnernamen eingeben</string>
     <string name="rename_file_renamed">Datei wurde umbenannt</string>
@@ -66,7 +64,6 @@
     <string name="select_tags_label">Tags auswählen</string>
     <string name="clear_all_label">Alle löschen</string>
     <string name="apply_label">Anwenden</string>
-    <string name="add_or_remove_tags_title">Tags hinzufügen oder entfernen</string>
     <string name="suggested_tags_label">Vorgeschlagene Tags</string>
     <string name="add_tag_label">Tag hinzufügen</string>
     <string name="tags_edited">Tags wurden bearbeitet</string>

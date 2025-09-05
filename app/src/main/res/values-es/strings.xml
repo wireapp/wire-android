@@ -488,7 +488,7 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="label_system_message_removed_by_self">%1$s elimin&#243; a %2$s de la conversaci&#243;n</string>
     <string name="label_system_message_added_by_other">%1$s agreg&#243; a %2$s a la conversaci&#243;n</string>
     <string name="label_system_message_removed_by_other">%1$s elimin&#243; a %2$s de la conversaci&#243;n</string>
-    <string name="label_system_message_left_the_conversation_by_self">%1$s dej&#243; la conversaci&#243;n</string>
+    <string name="label_system_message_left_the_conversation_by_self">%1$s abandonaste la conversación</string>
     <string name="label_system_message_left_the_conversation_by_other">%1$s dej&#243; la conversaci&#243;n</string>
     <string name="label_system_message_other_called">%1$s llam&#243;</string>
     <string name="label_system_message_you_called">%1$s llam&#243;</string>
@@ -542,24 +542,24 @@ Un mensaje eliminado no puede ser restaurado.</string>
     </plurals>
     <string name="last_message_self_user_shared_asset">compartiste un archivo.</string>
     <string name="last_message_other_user_shared_asset">compartió un archivo.</string>
-    <string name="last_message_self_user_shared_image">comparti&#243; una imagen.</string>
+    <string name="last_message_self_user_shared_image">compartiste una imagen.</string>
     <string name="last_message_other_user_shared_image">comparti&#243; una imagen.</string>
-    <string name="last_message_self_user_shared_video">comparti&#243; un video.</string>
+    <string name="last_message_self_user_shared_video">compartiste un video.</string>
     <string name="last_message_other_user_shared_video">comparti&#243; un video.</string>
-    <string name="last_message_self_user_shared_audio">comparti&#243; un mensaje de audio.</string>
+    <string name="last_message_self_user_shared_audio">compartiste un mensaje de audio.</string>
     <string name="last_message_other_user_shared_audio">comparti&#243; un mensaje de audio.</string>
     <string name="last_message_self_user_shared_location">compartiste una ubicación.</string>
     <string name="last_message_other_user_shared_location">compartió una ubicación.</string>
-    <string name="last_message_self_user_knock">hizo un ping.</string>
+    <string name="last_message_self_user_knock">hiciste un ping.</string>
     <string name="last_message_other_user_knock">hizo un ping.</string>
     <string name="last_message_call">llam&#243;.</string>
     <string name="last_message_mentioned">te mencion&#243;</string>
     <string name="last_message_replied">te respondi&#243;</string>
     <string name="last_message_other_changed_conversation_name">cambi&#243; el nombre de la conversaci&#243;n</string>
-    <string name="last_message_self_changed_conversation_name">cambi&#243; el nombre de la conversaci&#243;n</string>
+    <string name="last_message_self_changed_conversation_name">cambiaste el nombre de conversación</string>
     <string name="last_message_calling">%1$s llamando...</string>
-    <string name="last_message_self_user_joined_conversation">se uni&#243; a la conversaci&#243;n.</string>
-    <string name="last_message_self_user_left_conversation">sali&#243; de la conversaci&#243;n.</string>
+    <string name="last_message_self_user_joined_conversation">te uniste a la conversación.</string>
+    <string name="last_message_self_user_left_conversation">abandonaste la conversación.</string>
     <string name="last_message_other_user_joined_conversation">se uni&#243; a la conversaci&#243;n.</string>
     <string name="last_message_other_user_left_conversation">sali&#243; de la conversaci&#243;n.</string>
     <!-- Unread Events -->
@@ -895,7 +895,7 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="new_device_dialog_current_user_btn">Administrar dispositivos</string>
     <string name="new_device_dialog_other_user_title">Su cuenta &#8220;%1$s (@%2$s)&#8221; se utiliz&#243; en:</string>
     <string name="new_device_dialog_other_user_btn">Cambiar de cuenta</string>
-    <string name="label_system_message_joined_the_conversation_by_self">%1$s se uni&#243; a la conversaci&#243;n</string>
+    <string name="label_system_message_joined_the_conversation_by_self">%1$s te uniste a la conversación</string>
     <string name="label_system_message_joined_the_conversation_by_other">%1$s se uni&#243; a la conversaci&#243;n</string>
     <string name="label_client_verified">Verificado</string>
     <string name="label_client_unverified">No verificado</string>

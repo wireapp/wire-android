@@ -87,8 +87,8 @@
     <string name="rename_label">Переименовать</string>
     <string name="rename_file_name_label">Имя файла</string>
     <string name="rename_folder_name_label">Название папки</string>
-    <string name="rename_long_file_name_error">Используйте более короткое название файла (максимум 64 символа)</string>
-    <string name="rename_long_folder_name_error">Используйте более короткое название папки (максимум 64 символа)</string>
+    <string name="rename_long_file_name_error">Используйте более короткое название файла (не более 64 символа)</string>
+    <string name="rename_long_folder_name_error">Используйте более короткое название папки (не более 64 символа)</string>
     <string name="rename_enter_file_name">Введите название файла</string>
     <string name="rename_enter_folder_name">Введите название папки</string>
     <string name="rename_file_renamed">Файл переименован</string>

@@ -75,10 +75,8 @@ class RegistrationPage(private val device: UiDevice) {
         return this
     }
 
-    fun assertAndClickLoginButton(): RegistrationPage {
-        val button = UiWaitUtils.waitElement(loginButton)
-        assertTrue("Login button is not clickable", button.isClickable)
-        button.click()
+    fun clickLoginButton(): RegistrationPage {
+        UiWaitUtils.waitElement(loginButton).click()
         return this
     }
 
@@ -229,6 +227,12 @@ class RegistrationPage(private val device: UiDevice) {
         if (!checkbox.isChecked) {
             checkbox.click()
         }
+        return this
+    }
+
+    fun closeKeyBoard(): RegistrationPage {
+        UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+            .pressBack() // closes the soft keyboard if it's open
         return this
     }
 }

@@ -25,8 +25,8 @@ import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 import user.usermanager.ClientUserManager
 
-    data class SearchPage(private val device: UiDevice) {
-        private val searchFieldSearchPage = UiSelectorParams(className = "android.widget.EditText")
+data class SearchPage(private val device: UiDevice) {
+    private val searchFieldSearchPage = UiSelectorParams(className = "android.widget.EditText")
     private val searchFieldSearchPeople = UiSelectorParams(description = "Search people by name or username")
 
     fun assertUsernameInSearchResultIs(expectedName: String): SearchPage {
@@ -52,12 +52,10 @@ import user.usermanager.ClientUserManager
         return this
     }
 
-    fun typeUniqueUserNameInSearchField(alias: String): SearchPage {
-        val teamHelper by lazy {
-            TeamHelper()
-        }
+    fun typeUniqueUserNameInSearchField(teamHelper: TeamHelper, alias: String): SearchPage {
+
         // Resolve the alias to the (unique) username
-        val uniqueUserName = teamHelper.usersManager.replaceAliasesOccurrences(
+        val uniqueUserName = teamHelper.usersManager.findUserBy(
             alias,
             ClientUserManager.FindBy.NAME_ALIAS
         )
@@ -65,7 +63,7 @@ import user.usermanager.ClientUserManager
         field.click()
 
         // Use shell typing; replace spaces for adb `input text`
-        val toType = uniqueUserName.replace(" ", "%s")
+        val toType = uniqueUserName.uniqueUsername.orEmpty().replace(" ", "%s")
         UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()).executeShellCommand("input text $toType")
 
         return this

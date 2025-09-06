@@ -33,8 +33,10 @@ import network.NetworkBackendClient
 import network.NumberSequence
 import network.RequestOptions
 import org.json.JSONObject
+import service.models.Connection
 import user.utils.AccessCookie
 import user.utils.AccessCredentials
+import user.utils.AccessToken
 import user.utils.BasicAuth
 import user.utils.ClientUser
 import java.net.Authenticator
@@ -550,5 +552,139 @@ class BackendClient(
 
     fun String.composeCompleteUrl(): String {
         return "${backendUrl}$this"
+    }
+
+    suspend fun acceptAllIncomingConnectionRequests(asUser: ClientUser) {
+        updateConnections(asUser, ConnectionStatus.Pending, ConnectionStatus.Accepted, null)
+    }
+
+    private suspend fun updateConnections(
+        asUser: ClientUser,
+        srcStatus: ConnectionStatus,
+        dstStatus: ConnectionStatus,
+        forUserIds: List<String>? = null
+    ) {
+        getAllConnections(asUser)
+            .filter { it.status == srcStatus && (forUserIds == null || forUserIds.contains(it.to)) }
+            .forEach { connection ->
+                try {
+                    changeConnectRequestStatus(asUser, connection.to.orEmpty(), connection.domain.orEmpty(), dstStatus)
+                } catch (e: Exception) {
+                    throw RuntimeException("Failed to update connection for ${connection.to}", e)
+                }
+            }
+    }
+
+    private suspend fun getAllConnections(user: ClientUser): List<Connection> {
+        var pagingState: String? = null
+        val result = mutableListOf<Connection>()
+
+        do {
+            val connectionsInfo = getConnectionsInfo(getAuthToken(user), pagingState)
+            val connections = connectionsInfo.getJSONArray("connections")
+
+            for (i in 0 until connections.length()) {
+                result.add(Connection.fromJSON(connections.getJSONObject(i)))
+            }
+
+            // Backward-compat with older backends
+            if (connectionsInfo.has("paging_state")) {
+                pagingState = connectionsInfo.getString("paging_state")
+            }
+        } while (connectionsInfo.getBoolean("has_more"))
+
+        return result
+    }
+
+    private fun getConnectionsInfo(token: AccessToken?, pagingState: String?): JSONObject {
+        val url = URL("list-connections".composeCompleteUrl())
+
+        val headers = defaultheaders.toMutableMap().apply {
+            put(AUTHORIZATION, "${token?.type} ${token?.value}")
+        }
+
+        val requestBody = JSONObject().apply {
+            put("paging_state", pagingState)
+        }
+
+        return try {
+            val output = NetworkBackendClient.sendJsonRequestWithCookies(
+                url = url,
+                method = "POST",
+                headers = headers,
+                body = requestBody.toString(),
+                options = RequestOptions(accessToken = token)
+            )
+            JSONObject(output.body.toString())
+        } catch (e: Exception) {
+            e.printStackTrace()
+            if (e.message?.contains("404") == true) {
+                // Fallback for old backend
+                val fallbackUrl = URL("connections".composeCompleteUrl())
+                val output = NetworkBackendClient.sendJsonRequestWithCookies(
+                    url = fallbackUrl,
+                    method = "GET",
+                    headers = headers,
+                    options = RequestOptions(accessToken = token)
+                )
+                JSONObject(output.body.toString())
+            } else {
+                throw RuntimeException("Failed to fetch connections info", e)
+            }
+        }
+    }
+
+    suspend fun changeConnectRequestStatus(
+        asUser: ClientUser,
+        connectionId: String,
+        domain: String,
+        newStatus: ConnectionStatus
+    ) {
+        val token = getAuthToken(asUser)
+        val url = URL("connections/$domain/$connectionId".composeCompleteUrl())
+
+        val headers = defaultheaders.toMutableMap().apply {
+            put(AUTHORIZATION, "${token?.type} ${token?.value}")
+        }
+
+        val requestBody = JSONObject().apply {
+            put("status", newStatus.toString())
+        }
+
+        try {
+            NetworkBackendClient.sendJsonRequestWithCookies(
+                url = url,
+                method = "PUT",
+                headers = headers,
+                body = requestBody.toString(),
+                options = RequestOptions(accessToken = token)
+            )
+        } catch (e: Exception) {
+            if (e.message?.contains("404") == true) {
+                // fallback for old backend
+                val fallbackUrl = URL("connections/$connectionId".composeCompleteUrl())
+                NetworkBackendClient.sendJsonRequestWithCookies(
+                    url = fallbackUrl,
+                    method = "PUT",
+                    headers = headers,
+                    body = requestBody.toString(),
+                    options = RequestOptions(accessToken = token)
+                )
+            } else {
+                throw RuntimeException("Failed to change connection status for $connectionId", e)
+            }
+        }
+    }
+}
+
+enum class ConnectionStatus {
+    Accepted, Blocked, Pending, Ignored, Sent, Cancelled;
+
+    override fun toString(): String = name.lowercase()
+
+    companion object {
+        fun fromString(s: String): ConnectionStatus =
+            entries.firstOrNull { it.name.equals(s, ignoreCase = true) }
+                ?: throw IllegalArgumentException("Connection status '$s' is unknown")
     }
 }

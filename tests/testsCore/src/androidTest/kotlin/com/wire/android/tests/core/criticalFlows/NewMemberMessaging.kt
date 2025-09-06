@@ -138,7 +138,7 @@ class NewMemberMessaging : KoinTest {
         }
         pages.searchPage.apply {
             tapSearchPeopleField()
-            typeUniqueUserNameInSearchField("user1Name")
+            typeUniqueUserNameInSearchField(teamHelper, "user1Name")
             assertUsernameInSearchResultIs(teamOwner?.name ?: "")
             tapUsernameInSearchResult(teamOwner?.name ?: "")
         }
@@ -151,7 +151,7 @@ class NewMemberMessaging : KoinTest {
             assertConversationScreenVisible()
             typeMessageInInputField("Hello Team Owner")
             clickSendButton()
-            assertMessageSentIsVisible("Hello Team Owner")
+            assertSentMessageIsVisibleInCurrentConversation("Hello Team Owner")
             tapBackButtonOnConversationViewPage()
         }
         pages.connectedUserProfilePage.apply {
@@ -178,7 +178,7 @@ class NewMemberMessaging : KoinTest {
             tapUnreadConversationNameInConversationList(teamOwner?.name ?: "")
         }
         pages.conversationViewPage.apply {
-            assertReceivedMessageIsVisible("Hello new member")
+            assertReceivedMessageIsVisibleInCurrentConversation("Hello new member")
         }
 
         pages.conversationViewPage.apply {

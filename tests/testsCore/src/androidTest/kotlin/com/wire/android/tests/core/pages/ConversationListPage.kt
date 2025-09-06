@@ -48,14 +48,17 @@ data class ConversationListPage(private val device: UiDevice) {
         description = "Close new conversation view"
     )
 
+    private val userConversationNamePendingLabelString = UiSelectorParams(description = "pending approval of connection request")
+
     fun assertConversationListVisible(): ConversationListPage {
         val heading = UiWaitUtils.waitElement(conversationListHeading)
         Assert.assertTrue(
-            "❌ Conversation list heading is not visible",
+            "Conversation list heading is not visible",
             !heading.visibleBounds.isEmpty
         )
         return this
     }
+
     fun clickMainMenuButtonOnConversationPage(): ConversationListPage {
         UiWaitUtils.waitElement(mainMenuButton).click()
         return this
@@ -144,6 +147,38 @@ data class ConversationListPage(private val device: UiDevice) {
     }
 
     fun tapUnreadConversationNameInConversationList(userName: String): ConversationListPage {
+        val userName = UiWaitUtils.waitElement(UiSelectorParams(text = userName))
+        userName.click()
+        return this
+    }
+
+    fun assertConversationNameWithPendingStatusVisibleInConversationList(userName: String): ConversationListPage {
+        try {
+            UiWaitUtils.waitElement(UiSelectorParams(text = userName))
+        } catch (e: AssertionError) {
+            throw AssertionError("User '$userName' is not visible in the conversation list", e)
+        }
+        // Assert the 'pending' badge is visible
+        try {
+            UiWaitUtils.waitElement(userConversationNamePendingLabelString)
+        } catch (e: AssertionError) {
+            throw AssertionError("Pending status is not visible for user '$userName'", e)
+        }
+        return this
+    }
+
+    fun assertPendingStatusIsNoLongerVisible(): ConversationListPage {
+        val pending = runCatching {
+            UiWaitUtils.waitElement(userConversationNamePendingLabelString)
+        }.getOrNull()
+
+        if (pending != null && !pending.visibleBounds.isEmpty) {
+            throw AssertionError("Pending status is still visible (expected it to be gone)")
+        }
+        return this
+    }
+
+    fun tapConversationNameInConversationList(userName: String): ConversationListPage {
         val userName = UiWaitUtils.waitElement(UiSelectorParams(text = userName))
         userName.click()
         return this

@@ -25,6 +25,7 @@ import androidx.test.uiautomator.UiDevice
 import backendUtils.BackendClient
 import backendUtils.team.TeamHelper
 import backendUtils.team.deleteTeam
+import backendUtils.user.deleteUser
 import com.wire.android.testSupport.BuildConfig
 import com.wire.android.tests.core.di.testModule
 import com.wire.android.tests.core.pages.AllPages
@@ -39,6 +40,7 @@ import org.koin.test.KoinTestRule
 import org.koin.test.inject
 import service.TestServiceHelper
 import uiautomatorutils.UiWaitUtils.WaitUtils.waitFor
+import uiautomatorutils.UiWaitUtils.closeKeyBoardIfOpened
 import user.usermanager.ClientUserManager
 import user.utils.ClientUser
 import kotlin.getValue
@@ -77,8 +79,8 @@ class PersonalAccountLifeCycle : KoinTest {
 
     @After
     fun tearDown() {
-        // To delete team
         teamOwner?.deleteTeam(backendClient!!)
+        personalUser?.deleteUser(backendClient!!)
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
@@ -117,7 +119,7 @@ class PersonalAccountLifeCycle : KoinTest {
             verifyConfirmPasswordIsCorrect(personalUser?.password.orEmpty())
             clickHidePasswordEyeIcon()
             checkIAgreeToShareAnonymousUsageData()
-            closeKeyBoard()
+            closeKeyBoardIfOpened()
             clickContinueButton()
             assertTermsOfUseModalVisible() // Asserts all elements
             clickContinueButton()
@@ -148,78 +150,78 @@ class PersonalAccountLifeCycle : KoinTest {
                 assertUsernameInSearchResultIs(teamOwner?.uniqueUsername ?: "")
                 tapUsernameInSearchResult(teamOwner?.name ?: "")
             }
-                pages.unconnectedUserProfilePage.apply {
-                    assertUserNameInUnconnectedUserProfilePage(teamOwner?.name ?: "")
-                    clickConnectionRequestButton()
-                }
-                pages.connectedUserProfilePage.apply {
-                    assertToastMessageIsDisplayed("Connection request sent")
-                }
-                pages.unconnectedUserProfilePage.apply {
-                    clickCloseButtonOnUnconnectedUserProfilePage()
-                }
-                pages.conversationListPage.apply {
-                    tapBackArrowButtonInsideSearchField()
-                    clickCloseButtonOnNewConversationScreen()
-                }
-                pages.conversationListPage.apply {
-                    assertConversationNameWithPendingStatusVisibleInConversationList(teamOwner?.name ?: "")
-                }
-                runBlocking {
-                    val user = teamHelper.usersManager.findUserByNameOrNameAlias("user1Name")
-                    backendClient?.acceptAllIncomingConnectionRequests(user)
-                }
-                Thread.sleep(1000)
-                pages.conversationListPage.apply {
-                    assertPendingStatusIsNoLongerVisible()
-                    tapConversationNameInConversationList(teamOwner?.name ?: "")
-                }
+            pages.unconnectedUserProfilePage.apply {
+                assertUserNameInUnconnectedUserProfilePage(teamOwner?.name ?: "")
+                clickConnectionRequestButton()
+            }
+            pages.connectedUserProfilePage.apply {
+                assertToastMessageIsDisplayed("Connection request sent")
+            }
+            pages.unconnectedUserProfilePage.apply {
+                clickCloseButtonOnUnconnectedUserProfilePage()
+            }
+            pages.conversationListPage.apply {
+                tapBackArrowButtonInsideSearchField()
+                clickCloseButtonOnNewConversationScreen()
+            }
+            pages.conversationListPage.apply {
+                assertConversationNameWithPendingStatusVisibleInConversationList(teamOwner?.name ?: "")
+            }
+            runBlocking {
+                val user = teamHelper.usersManager.findUserByNameOrNameAlias("user1Name")
+                backendClient?.acceptAllIncomingConnectionRequests(user)
+            }
+            Thread.sleep(1000)
+            pages.conversationListPage.apply {
+                assertPendingStatusIsNoLongerVisible()
+                tapConversationNameInConversationList(teamOwner?.name ?: "")
+            }
+            pages.conversationViewPage.apply {
+                typeMessageInInputField("Hello Team Owner")
+                clickSendButton()
+                assertSentMessageIsVisibleInCurrentConversation("Hello Team Owner")
+            }
+            val conversationName = "user3Name"
+            testServiceHelper.userSendMessageToConversationObj(
+                "user1Name",
+                "Hello to you too!",
+                "Device1",
+                conversationName,
+                false
+            )
+            pages.conversationViewPage.apply {
+                assertReceivedMessageIsVisibleInCurrentConversation("Hello to you too!")
+                click1On1ConversationDetails(teamOwner?.name ?: "")
+            }
+            pages.connectedUserProfilePage.apply {
+                clickShowMoreOptions()
+                clickBlockOption()
+                clickBlockButtonAlert()
+                assertToastMessageIsDisplayed("${(teamOwner?.name ?: "")} blocked")
+                assertBlockedLabelVisible()
+                assertUnblockUserButtonVisible()
+                tapCloseButtonOnConnectedUserProfilePage()
                 pages.conversationViewPage.apply {
-                    typeMessageInInputField("Hello Team Owner")
-                    clickSendButton()
-                    assertSentMessageIsVisibleInCurrentConversation("Hello Team Owner")
+                    tapBackButtonOnConversationViewPage()
                 }
-                val conversationName = "user3Name"
-                testServiceHelper.userSendMessageToConversationObj(
-                    "user1Name",
-                    "Hello to you too!",
-                    "Device1",
-                    conversationName,
-                    false
-                )
-                pages.conversationViewPage.apply {
-                    assertReceivedMessageIsVisibleInCurrentConversation("Hello to you too!")
-                    click1On1ConversationDetails(teamOwner?.name ?: "")
+                pages.conversationListPage.apply {
+                    clickMainMenuButtonOnConversationPage()
+                    clickSettingsButtonOnMenuEntry()
                 }
-                pages.connectedUserProfilePage.apply {
-                    clickShowMoreOptions()
-                    clickBlockOption()
-                    clickBlockButtonAlert()
-                    assertToastMessageIsDisplayed("${(teamOwner?.name ?: "")} blocked")
-                    assertBlockedLabelVisible()
-                    assertUnblockUserButtonVisible()
-                    tapCloseButtonOnConnectedUserProfilePage()
-                    pages.conversationViewPage.apply {
-                        tapBackButtonOnConversationViewPage()
-                    }
-                    pages.conversationListPage.apply {
-                        clickMainMenuButtonOnConversationPage()
-                        clickSettingsButtonOnMenuEntry()
-                    }
-                    waitFor(1) // Simple wait
-                    pages.settingsPage.apply {
-                        tapAccountDetailsButton()
-                        verifyDisplayedEmailAddress(personalUser?.email ?: "")
-                        verifyDisplayedDomain("staging.zinfra.io")
-                        verifyDisplayedProfileName(personalUser?.name ?: "")
-                        verifyDisplayedUserName(personalUser?.uniqueUsername ?: "")
-                        assertDeleteAccountButtonIsDisplayed()
-                        tapDeleteAccountButton()
-                        assertDeleteAccountConfirmationModalIsDisplayed()
-                        tapContinueButtonOnDeleteAccountConfirmationModal()
-                        assertDeleteAccountConfirmationModalIsNoLongerVisible()
-                    }
+                waitFor(1)
+                pages.settingsPage.apply {
+                    tapAccountDetailsButton()
+                    verifyDisplayedEmailAddress(personalUser?.email ?: "")
+                    verifyDisplayedDomain("staging.zinfra.io")
+                    verifyDisplayedProfileName(personalUser?.name ?: "")
+                    verifyDisplayedUserName(personalUser?.uniqueUsername ?: "")
+                    assertDeleteAccountButtonIsDisplayed()
+                    tapDeleteAccountButton()
+                    assertDeleteAccountConfirmationModalIsDisplayed()
+                    tapContinueButtonOnDeleteAccountConfirmationModal()
+                    assertDeleteAccountConfirmationModalIsNoLongerVisible()
                 }
             }
         }
     }
+}

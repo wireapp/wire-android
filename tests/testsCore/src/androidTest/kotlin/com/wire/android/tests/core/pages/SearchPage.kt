@@ -17,8 +17,8 @@
  */
 package com.wire.android.tests.core.pages
 
-import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.type
 import backendUtils.team.TeamHelper
 import org.junit.Assert
 import uiautomatorutils.UiSelectorParams
@@ -53,7 +53,6 @@ data class SearchPage(private val device: UiDevice) {
     }
 
     fun typeUniqueUserNameInSearchField(teamHelper: TeamHelper, alias: String): SearchPage {
-
         // Resolve the alias to the (unique) username
         val uniqueUserName = teamHelper.usersManager.findUserBy(
             alias,
@@ -61,11 +60,8 @@ data class SearchPage(private val device: UiDevice) {
         )
         val field = UiWaitUtils.waitElement(searchFieldSearchPeople)
         field.click()
-
-        // Use shell typing; replace spaces for adb `input text`
         val toType = uniqueUserName.uniqueUsername.orEmpty().replace(" ", "%s")
-        UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()).executeShellCommand("input text $toType")
-
+        device.type(toType)
         return this
     }
 }

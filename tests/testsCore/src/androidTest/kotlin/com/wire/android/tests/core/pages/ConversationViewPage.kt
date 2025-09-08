@@ -23,6 +23,7 @@ import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiScrollable
 import androidx.test.uiautomator.UiSelector
 import androidx.test.uiautomator.Until
+import androidx.test.uiautomator.type
 import junit.framework.TestCase.assertFalse
 import org.junit.Assert
 import uiautomatorutils.UiSelectorParams
@@ -267,13 +268,9 @@ data class ConversationViewPage(private val device: UiDevice) {
             currentPackage.contains("APP_")
         )
     }
-
     fun typeMessageInInputField(message: String): ConversationViewPage {
-        val inputField = UiWaitUtils.waitElement(messageInputField)
-        inputField.click()
-        // Use shell command to input text
-        UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-            .executeShellCommand("input text ${message.replace(" ", "%s")}")
+        UiWaitUtils.waitElement(messageInputField).click()
+        device.type(message)
         return this
     }
 

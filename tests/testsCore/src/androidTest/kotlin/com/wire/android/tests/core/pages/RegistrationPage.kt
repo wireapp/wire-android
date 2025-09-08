@@ -229,10 +229,4 @@ class RegistrationPage(private val device: UiDevice) {
         }
         return this
     }
-
-    fun closeKeyBoard(): RegistrationPage {
-        UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-            .pressBack() // closes the soft keyboard if it's open
-        return this
-    }
 }

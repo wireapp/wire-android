@@ -152,4 +152,23 @@ object UiWaitUtils {
             }
         }
     }
+
+    @Suppress("MagicNumber")
+    fun closeKeyBoardIfOpened() {
+        val d = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        val ims = d.executeShellCommand("dumpsys input_method")
+        val isOpen = (
+                ims.contains("mInputShown=true") ||
+                        ims.contains("mIsInputViewShown=true") ||
+                        (
+                                Regex("mImeWindowVis=0x([0-9a-fA-F]+)")
+                                    .find(ims)
+                                    ?.groups?.get(1)?.value
+                                    ?.toInt(16)
+                                    ?.let { it != 0 } == true
+                                ) ||
+                        ims.contains("mVisible=true")
+                )
+        if (isOpen) d.pressBack()
+    }
 }

@@ -595,6 +595,7 @@
     <string name="label_delete_group">Gruppe löschen</string>
     <!-- Conversation filter BottomSheet -->
     <string name="label_filter_conversations">Unterhaltungen filtern</string>
+    <string name="label_filter_all">Alle Unterhaltungen</string>
     <string name="label_filter_favorites">Favoriten</string>
     <string name="label_filter_folders">Ordner</string>
     <string name="label_filter_group">Gruppen</string>
@@ -1562,4 +1563,5 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="new_folder_failure">Ordner “%1$s” konnte nicht hinzugefügt werden</string>
     <string name="press_enter_to_send_title">Enter zum Senden drücken</string>
     <string name="custimization_options_header_title">Optionen</string>
+    <string name="press_enter_to_send_text">Wenn diese Option aktiviert ist, können Sie Nachrichten mit der Eingabetaste auf Ihrer Tastatur senden.</string>
 </resources>

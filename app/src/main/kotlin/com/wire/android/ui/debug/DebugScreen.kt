@@ -133,7 +133,9 @@ internal fun UserDebugContent(
                     onCopyText = debugContentState::copyToClipboard,
                     onManualMigrationPressed = onManualMigrationPressed
                 )
-                DangerOptions()
+                if (BuildConfig.PRIVATE_BUILD) {
+                    DangerOptions()
+                }
             }
         }
     }
@@ -151,36 +153,34 @@ fun DangerOptions(
     Column(modifier = modifier) {
         FolderHeader("Danger Zone DO NOT TOUCH")
         @SuppressLint("ComposeViewModelInjection")
-        if (BuildConfig.PRIVATE_BUILD) {
-            val backupAndRestoreStateHolder = rememberBackUpAndRestoreStateHolder()
+        val backupAndRestoreStateHolder = rememberBackUpAndRestoreStateHolder()
 
-            SettingsItem(
-                text = "Create Obfuscated Database Copy",
-                onRowPressed = Clickable(enabled = true, onClick = backupAndRestoreStateHolder::showBackupDialog),
-                modifier = Modifier.background(Color.Red)
-            )
-            when (backupAndRestoreStateHolder.dialogState) {
-                BackupAndRestoreDialog.CreateBackup -> {
-                    CreateObfuscatedCopyFlow(
-                        backUpAndRestoreState = exportObfuscatedCopyViewModel.state,
-                        backupPasswordTextState = exportObfuscatedCopyViewModel.createBackupPasswordState,
-                        onCreateBackup = exportObfuscatedCopyViewModel::createObfuscatedCopy,
-                        onSaveBackup = exportObfuscatedCopyViewModel::saveCopy,
-                        onShareBackup = exportObfuscatedCopyViewModel::shareCopy,
-                        onCancelCreateBackup = {
-                            backupAndRestoreStateHolder.dismissDialog()
-                            exportObfuscatedCopyViewModel.cancelBackupCreation()
-                        },
-                        onPermissionPermanentlyDenied = {}
-                    )
-                }
-
-                BackupAndRestoreDialog.None -> {
-                    /*no-op*/
-                }
-
-                BackupAndRestoreDialog.RestoreBackup -> TODO("Restore backup not implemented")
+        SettingsItem(
+            text = "Create Obfuscated Database Copy",
+            onRowPressed = Clickable(enabled = true, onClick = backupAndRestoreStateHolder::showBackupDialog),
+            modifier = Modifier.background(Color.Red)
+        )
+        when (backupAndRestoreStateHolder.dialogState) {
+            BackupAndRestoreDialog.CreateBackup -> {
+                CreateObfuscatedCopyFlow(
+                    backUpAndRestoreState = exportObfuscatedCopyViewModel.state,
+                    backupPasswordTextState = exportObfuscatedCopyViewModel.createBackupPasswordState,
+                    onCreateBackup = exportObfuscatedCopyViewModel::createObfuscatedCopy,
+                    onSaveBackup = exportObfuscatedCopyViewModel::saveCopy,
+                    onShareBackup = exportObfuscatedCopyViewModel::shareCopy,
+                    onCancelCreateBackup = {
+                        backupAndRestoreStateHolder.dismissDialog()
+                        exportObfuscatedCopyViewModel.cancelBackupCreation()
+                    },
+                    onPermissionPermanentlyDenied = {}
+                )
             }
+
+            BackupAndRestoreDialog.None -> {
+                /*no-op*/
+            }
+
+            BackupAndRestoreDialog.RestoreBackup -> TODO("Restore backup not implemented")
         }
     }
 }

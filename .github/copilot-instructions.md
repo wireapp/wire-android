@@ -5,7 +5,7 @@ We have a dependency on a git submodule called "Kalium"
 In Kalium, we use kotlin multiplatform to share code between android and other platforms.
 
 # Instructions 
-Our team uses Jira for tracking items of work, verify that the PR title contains a Jira ticket reference.
+Our team uses Jira for tracking items of work. Verify that the PR title contains a Jira ticket reference.
 When the `kalium` submodule is updated to a newer commit, ensure the PR description includes either a summary of the changes or a link to the corresponding PR at https://github.com/wireapp/kalium.
 Focus on code quality, performance, security, and best practices.
 Ensure the code adheres to idiomatic Kotlin and Android development practices.

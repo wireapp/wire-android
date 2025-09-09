@@ -15,11 +15,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.feature.cells.ui
+package com.wire.android.feature.cells.domain.model
 
-data class PublicLinkScreenData(
-    val assetId: String,
-    val fileName: String,
-    val linkId: String? = null,
-    val isFolder: Boolean
-)
+import kotlinx.serialization.Serializable
+
+@Serializable
+sealed class CellsFilter {
+    @Serializable
+    data object Tags : CellsFilter()
+}

@@ -19,6 +19,8 @@
 <resources>
     <string name="retry">Повторить</string>
     <string name="file_list_load_error">Произошла ошибка при загрузке списка файлов. Пожалуйста, попробуйте еще раз</string>
+    <string name="file_list_empty_message">Здесь вы найдете все файлы, которыми поделились в ваших беседах.</string>
+    <string name="conversation_file_list_empty_message">Здесь вы найдете все файлы и папки, которыми поделились в этой беседе.</string>
     <string name="file_list_search_empty_message">Файлы не найдены.</string>
     <string name="save_label">Сохранить</string>
     <string name="share_label">Поделится</string>
@@ -27,12 +29,14 @@
     <string name="delete_permanently">Удалить навсегда</string>
     <string name="restore_label">Восстановить</string>
     <string name="add_remove_tags_label">Добавить или удалить теги</string>
+    <string name="move_label">Переместить в папку</string>
     <string name="download_label">Скачать</string>
     <string name="copy_link">Скопировать ссылку</string>
     <string name="share_link">Поделиться ссылкой</string>
     <string name="copied_to_clipboard_message">Ссылка скопирована в буфер обмена</string>
     <string name="file_subtitle">%1$s в %2$s</string>
     <string name="file_subtitle_modified">%1$s от %2$s</string>
+    <string name="public_link_message_file">Загрузите свой файл и поделитесь им с помощью общедоступной ссылки. Все получатели смогут просмотреть и скачать папку и ее содержимое.</string>
     <string name="public_link_message_folder">Загрузите папку и поделитесь ею с помощью общедоступной ссылки. Все получатели смогут просмотреть и скачать ее.</string>
     <string name="create_public_link">Создать публичную ссылку</string>
     <string name="share_file_via_link">Поделиться файлом по ссылке</string>
@@ -73,6 +77,8 @@
     <string name="recycle_bin">Корзина</string>
     <string name="open_recycle_bin">Открыть корзину</string>
     <string name="empty_recycle_bin">Здесь вы найдете все удаленные файлы и папки.</string>
+    <string name="dialog_restore_file_title">Восстановить файл</string>
+    <string name="dialog_restore_folder_title">Восстановить папку</string>
     <string name="dialog_restore_file_description">Файл %1$s будет восстановлен и снова доступен для всех в этой беседе.</string>
     <string name="dialog_restore_folder_description">Папка %1$s будет восстановлена и снова доступна для всех в этой беседе.</string>
     <string name="dialog_restore_button_label">Восстановить</string>
@@ -81,8 +87,8 @@
     <string name="rename_label">Переименовать</string>
     <string name="rename_file_name_label">Имя файла</string>
     <string name="rename_folder_name_label">Название папки</string>
-    <string name="rename_long_file_name_error">Используйте более короткое название файла (максимум 64 символа)</string>
-    <string name="rename_long_folder_name_error">Используйте более короткое название папки (максимум 64 символа)</string>
+    <string name="rename_long_file_name_error">Используйте более короткое название файла (не более 64 символа)</string>
+    <string name="rename_long_folder_name_error">Используйте более короткое название папки (не более 64 символа)</string>
     <string name="rename_enter_file_name">Введите название файла</string>
     <string name="rename_enter_folder_name">Введите название папки</string>
     <string name="rename_file_renamed">Файл переименован</string>
@@ -100,6 +106,9 @@
     <string name="added_tags_label">Теги добавлены</string>
     <string name="add_tag_label">Добавить тег</string>
     <string name="enter_name_label">Введите название тега</string>
+    <string name="no_tags_message">Теги еще не добавлены.</string>
     <string name="tags_edited">Теги были изменены</string>
     <string name="failed_edit_tags">Не удалось изменить теги</string>
+    <string name="create_folder_invalid_name">Используйте название без \"/\" или \".\"</string>
+    <string name="file_list_empty_title">Файлов и папок пока нет</string>
 </resources>

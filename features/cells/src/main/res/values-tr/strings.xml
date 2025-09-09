@@ -79,8 +79,6 @@
     <string name="rename_label">Yeniden adlandır</string>
     <string name="rename_file_name_label">Dosya adı</string>
     <string name="rename_folder_name_label">Klasör adı</string>
-    <string name="rename_long_file_name_error">Daha kısa bir dosya adı kullanın (en fazla 64 karakter)</string>
-    <string name="rename_long_folder_name_error">Daha kısa bir klasör adı kullanın (en fazla 64 karakter)</string>
     <string name="rename_enter_file_name">Bir dosya adı girin</string>
     <string name="rename_enter_folder_name">Bir klasör adı girin</string>
     <string name="rename_file_renamed">Dosya yeniden adlandırıldı</string>
@@ -91,7 +89,6 @@
     <string name="select_tags_label">etiketleri seç</string>
     <string name="clear_all_label">Tümünü temizle</string>
     <string name="apply_label">Uygula</string>
-    <string name="add_or_remove_tags_title">Etiket ekle ya da kaldır</string>
     <string name="tags_description">Oluşturduğunuz etiketleri ekibinizdeki herkes görebilir ve kullanabilir.</string>
     <string name="suggested_tags_label">Önerilen etiketler</string>
     <string name="added_tags_label">Eklenen etiketler</string>

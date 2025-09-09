@@ -63,6 +63,7 @@ class ImportMediaAuthenticatedViewModelTest {
                     fromArchive = false,
                     newActivitiesOnTop = false,
                     onlyInteractionEnabled = true,
+                    useStrictMlsFilter = true
                 )
             }
             cancelAndIgnoreRemainingEvents()
@@ -89,7 +90,7 @@ class ImportMediaAuthenticatedViewModelTest {
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             coEvery {
-                getConversationsPaginated.invoke(any(), any(), any(), any())
+                getConversationsPaginated.invoke(any(), any(), any(), any(), useStrictMlsFilter = any())
             } returns flowOf(
                 PagingData.from(listOf(TestConversationItem.CONNECTION, TestConversationItem.PRIVATE, TestConversationItem.GROUP))
             )

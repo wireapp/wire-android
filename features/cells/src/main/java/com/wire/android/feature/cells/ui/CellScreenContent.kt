@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -50,6 +49,7 @@ import com.wire.android.feature.cells.ui.dialog.NodeActionsBottomSheet
 import com.wire.android.feature.cells.ui.dialog.RestoreConfirmationDialog
 import com.wire.android.feature.cells.ui.download.DownloadFileBottomSheet
 import com.wire.android.feature.cells.ui.model.CellNodeUi
+import com.wire.android.feature.cells.ui.publiclink.PublicLinkScreenData
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.colorsScheme
@@ -78,6 +78,7 @@ internal fun CellScreenContent(
     isAllFiles: Boolean,
     isRecycleBin: Boolean,
     isSearchResult: Boolean = false,
+    isFiltering: Boolean = false
 ) {
 
     val context = LocalContext.current
@@ -96,6 +97,7 @@ internal fun CellScreenContent(
             isSearchResult = isSearchResult,
             isAllFiles = isAllFiles,
             isRecycleBin = isRecycleBin,
+            isFiltering = isFiltering,
             onRetry = { pagingListItems.retry() }
         )
 
@@ -249,6 +251,7 @@ private fun EmptyScreen(
     isSearchResult: Boolean = false,
     isAllFiles: Boolean = true,
     isRecycleBin: Boolean = false,
+    isFiltering: Boolean = false,
     onRetry: () -> Unit = {},
 ) {
     Column(
@@ -263,16 +266,19 @@ private fun EmptyScreen(
                 .fillMaxHeight()
                 .weight(1f)
         )
-        if (!isSearchResult && !isRecycleBin) {
-            Text(
-                text = stringResource(R.string.file_list_empty_title),
-                style = typography().title01,
-                textAlign = TextAlign.Center,
-            )
-            Spacer(modifier = Modifier.height(dimensions().spacing16x))
+        val emptyMessage = when {
+            isFiltering || isSearchResult -> stringResource(R.string.no_results_found_label)
+            isAllFiles -> stringResource(R.string.file_list_empty_title)
+            else -> stringResource(R.string.file_list_empty_title)
         }
         Text(
+            text = emptyMessage,
+            style = typography().title01,
+            textAlign = TextAlign.Center,
+        )
+        Text(
             text = when {
+                isFiltering -> stringResource(R.string.filters_try_adjusting_your_filters_label)
                 isSearchResult -> stringResource(R.string.file_list_search_empty_message)
                 isAllFiles -> stringResource(R.string.file_list_empty_message)
                 isRecycleBin -> stringResource(R.string.empty_recycle_bin)
@@ -284,10 +290,10 @@ private fun EmptyScreen(
         Spacer(
             modifier = Modifier
                 .fillMaxHeight()
-                .weight(1f)
+                .weight(1.5f)
         )
 
-        if (!isSearchResult && isAllFiles) {
+        if (!isSearchResult && isAllFiles && !isFiltering) {
             WirePrimaryButton(
                 text = stringResource(R.string.reload),
                 onClick = onRetry

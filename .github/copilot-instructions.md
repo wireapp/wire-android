@@ -6,7 +6,7 @@ In Kalium, we use kotlin multiplatform to share code between android and other p
 
 # Instructions 
 Our team uses Jira for tracking items of work, verify that the PR title contains a Jira ticket reference.
-Ensure `kalium` submodule changes to a newer commit reference, a mention of the changes in the PR description exists or a link to https://github.com/wireapp/kalium with the PR reference.
+When the `kalium` submodule is updated to a newer commit, ensure the PR description includes either a summary of the changes or a link to the corresponding PR at https://github.com/wireapp/kalium.
 Focus on code quality, performance, security, and best practices.
 Ensure the code adheres to idiomatic Kotlin and Android development practices.
 Ensure the code adheres to idiomatic Gradle and toml configuration practices.

@@ -266,11 +266,11 @@ fun DeviceDetailsContent(
                 HorizontalDivider(color = MaterialTheme.wireColorScheme.background)
             }
 
-            if (!state.isCurrentDevice) {
+            if (!state.isCurrentDevice && state.fingerPrint != null) {
                 item {
                     DeviceVerificationItem(
                         state.device.isVerifiedProteus,
-                        state.fingerPrint != null,
+                        true,
                         state.isSelfClient,
                         state.userName,
                         onUpdateClientVerification

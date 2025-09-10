@@ -138,7 +138,8 @@ class OtherUserProfileScreenViewModel @Inject constructor(
 
     private fun getIfConversationExist() {
         viewModelScope.launch {
-            state = state.copy(isConversationStarted = isOneToOneConversationCreated(userId))
+            val isOneToOneConversationCreated = isOneToOneConversationCreated(userId)
+            state = state.copy(isConversationStarted = isOneToOneConversationCreated)
         }
     }
 

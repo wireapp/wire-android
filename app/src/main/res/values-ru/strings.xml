@@ -1103,7 +1103,6 @@
     <string name="settings_network_settings_label">Настройки сети</string>
     <string name="settings_manage_devices_label">Управление устройствами</string>
     <string name="settings_keep_connection_to_websocket">Поддерживать соединение с веб-сокетом</string>
-    <string name="settings_keep_connection_to_websocket_description">Позволяет оптимизировать получение уведомлений, поддерживая постоянное соединение с %1$s. Эта опция заменит службу уведомлений, если Google Services недоступны на устройстве.</string>
     <string name="settings_service_is_running">активен</string>
     <!--Settings, Appearance -->
     <string name="settings_customization_label">Внешний вид</string>

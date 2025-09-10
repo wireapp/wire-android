@@ -878,7 +878,6 @@ Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
     <string name="settings_network_settings_label">Impostazioni Rete</string>
     <string name="settings_manage_devices_label">Gestisci i tuoi Dispositivi</string>
     <string name="settings_keep_connection_to_websocket">Mantieni la Connessione al Websocket</string>
-    <string name="settings_keep_connection_to_websocket_description">Migliora la ricezione di notifiche mantenendo una costante connessione a %1$s. Questo servizio sostituir&#224; i servizi di notifica se Google Services non sono disponibili sul tuo dispositivo.</string>
     <string name="settings_service_is_running">il servizio &#232; in esecuzione</string>
     <!--Settings, Appearance -->
     <string name="settings_appearance_theme_label">Tema</string>

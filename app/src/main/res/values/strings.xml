@@ -529,6 +529,8 @@
     <string name="asset_message_saved_externally_text">Saved</string>
     <string name="asset_message_failed_download_text">File not available</string>
     <string name="asset_message_failed_upload_text">File upload failed</string>
+    <string name="asset_download_not_available_text">File is not available anymore</string>
+    <string name="asset_download_deleted_text">You can\'t download this file as it was deleted.</string>
     <string name="asset_download_dialog_text">Do you want to open the file, or save it to your
         device\'s download folder?
  </string>

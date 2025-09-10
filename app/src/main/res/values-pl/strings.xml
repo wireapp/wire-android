@@ -735,7 +735,6 @@ Do&#322;&#261;czenie do tego po&#322;&#261;czenia spowoduje zako&#324;czenie tam
     <string name="settings_network_settings_label">Ustawienia sieci</string>
     <string name="settings_manage_devices_label">Zarz&#261;dzaj swoimi urz&#261;dzeniami</string>
     <string name="settings_keep_connection_to_websocket">Utrzymaj po&#322;&#261;czenie z Websocketem</string>
-    <string name="settings_keep_connection_to_websocket_description">Popraw otrzymywanie powiadomie&#324; poprzez utrzymywanie sta&#322;ego po&#322;&#261;czenia z %1$s. Zast&#261;pi to us&#322;ugi powiadomie&#324;, je&#347;li us&#322;ugi Google nie s&#261; dost&#281;pne na Twoim urz&#261;dzeniu.</string>
     <string name="settings_service_is_running">us&#322;uga dzia&#322;a</string>
     <!--Settings, Appearance -->
     <!--Settings, My Account -->

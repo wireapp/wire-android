@@ -810,7 +810,6 @@ Até 500 pessoas podem participar de uma conversa em grupo.</string>
     <string name="settings_network_settings_label">Configurações de Conexão</string>
     <string name="settings_manage_devices_label">Gerenciar seus Dispositivos</string>
     <string name="settings_keep_connection_to_websocket">Manter conexão ativa</string>
-    <string name="settings_keep_connection_to_websocket_description">Melhore o recebimento de notificações mantendo uma conexão ativa com %1$s. Recomendado se seu aparalho não possui serviços da Google para recebimentos de notificações.</string>
     <string name="settings_service_is_running">Serviço está rodando</string>
     <!--Settings, Appearance -->
     <!--Settings, My Account -->

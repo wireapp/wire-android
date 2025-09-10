@@ -52,7 +52,6 @@ fun NetworkSettingsScreen(
         onBackPressed = navigator::navigateBack,
         isWebSocketEnabled = networkSettingsViewModel.networkSettingsState.isPersistentWebSocketConnectionEnabled,
         setWebSocketState = { networkSettingsViewModel.setWebSocketState(it) },
-        backendName = networkSettingsViewModel.backendName
     )
 }
 
@@ -61,7 +60,6 @@ fun NetworkSettingsScreenContent(
     onBackPressed: () -> Unit,
     isWebSocketEnabled: Boolean,
     setWebSocketState: (Boolean) -> Unit,
-    backendName: String,
     modifier: Modifier = Modifier
 ) {
     WireScaffold(
@@ -96,10 +94,7 @@ fun NetworkSettingsScreenContent(
 
             GroupConversationOptionsItem(
                 title = stringResource(R.string.settings_keep_connection_to_websocket),
-                subtitle = stringResource(
-                    R.string.settings_keep_connection_to_websocket_description,
-                    backendName
-                ),
+                subtitle = stringResource(R.string.settings_keep_connection_to_websocket_description),
                 switchState = switchState,
                 arrowType = ArrowType.NONE
             )
@@ -114,6 +109,5 @@ fun PreviewNetworkSettingsScreen() = WireTheme {
         onBackPressed = {},
         isWebSocketEnabled = true,
         setWebSocketState = {},
-        backendName = ""
     )
 }

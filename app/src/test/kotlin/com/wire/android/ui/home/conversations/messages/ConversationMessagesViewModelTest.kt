@@ -35,6 +35,7 @@ import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogState
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogType
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.common.error.StorageFailure
+import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.GetConversationUnreadEventsCountUseCase
@@ -165,6 +166,51 @@ class ConversationMessagesViewModelTest {
             // Then
             coVerify(exactly = 1) { arrangement.fileManager.saveToExternalStorage(any(), any(), any(), any(), any()) }
             assert(viewModel.conversationViewState.downloadedAssetDialogState == DownloadedAssetDialogVisibilityState.Hidden)
+        }
+
+    @Test
+    fun `given a deleted asset message, when downloading to open or save, then show already deleted dialog`() =
+        runTest {
+            // Given
+            val message = TestMessage.ASSET_MESSAGE.copy(visibility = Message.Visibility.DELETED)
+            val (_, viewModel) = ConversationMessagesViewModelArrangement()
+                .withSuccessfulViewModelInit()
+                .withGetMessageByIdReturning(message)
+                .arrange()
+            // When
+            viewModel.downloadOrFetchAssetAndShowDialog(message.id)
+            // Then
+            assert(viewModel.conversationViewState.downloadedAssetDialogState == DownloadedAssetDialogVisibilityState.AlreadyDeleted)
+        }
+
+    @Test
+    fun `given a deleted asset message, when opening it, then show already deleted dialog`() =
+        runTest {
+            // Given
+            val message = TestMessage.ASSET_MESSAGE.copy(visibility = Message.Visibility.DELETED)
+            val (_, viewModel) = ConversationMessagesViewModelArrangement()
+                .withSuccessfulViewModelInit()
+                .withGetMessageByIdReturning(message)
+                .arrange()
+            // When
+            viewModel.downloadAndOpenAsset(message.id)
+            // Then
+            assert(viewModel.conversationViewState.downloadedAssetDialogState == DownloadedAssetDialogVisibilityState.AlreadyDeleted)
+        }
+
+    @Test
+    fun `given a deleted asset message, when downloading to external storage, then show already deleted dialog`() =
+        runTest {
+            // Given
+            val message = TestMessage.ASSET_MESSAGE.copy(visibility = Message.Visibility.DELETED)
+            val (_, viewModel) = ConversationMessagesViewModelArrangement()
+                .withSuccessfulViewModelInit()
+                .withGetMessageByIdReturning(message)
+                .arrange()
+            // When
+            viewModel.downloadAssetExternally(message.id)
+            // Then
+            assert(viewModel.conversationViewState.downloadedAssetDialogState == DownloadedAssetDialogVisibilityState.AlreadyDeleted)
         }
 
     @Test

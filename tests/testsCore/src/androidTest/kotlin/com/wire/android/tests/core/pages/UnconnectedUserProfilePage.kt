@@ -65,7 +65,7 @@ data class UnconnectedUserProfilePage(private val device: UiDevice) {
         try {
             UiWaitUtils.waitElement(UiSelectorParams(text = userName))
         } catch (e: AssertionError) {
-            throw AssertionError(" The user'$userName' is not visible in unconnected user profile page", e)
+            throw AssertionError(" The user '$userName' is not visible in unconnected user profile page", e)
         }
         return this
     }

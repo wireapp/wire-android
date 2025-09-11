@@ -37,7 +37,7 @@ import org.koin.test.KoinTest
 import org.koin.test.KoinTestRule
 import org.koin.test.inject
 import service.TestServiceHelper
-import uiautomatorutils.UiWaitUtils
+import uiautomatorutils.UiWaitUtils.WaitUtils.waitFor
 import user.usermanager.ClientUserManager
 import user.utils.ClientUser
 
@@ -138,7 +138,7 @@ class GroupMessaging : KoinTest {
         pages.conversationViewPage.apply {
             typeMessageInInputField("Hello Team Members")
             clickSendButton()
-            assertMessageSentIsVisible("Hello Team Members")
+            assertSentMessageIsVisibleInCurrentConversation("Hello Team Members")
             tapBackButtonOnConversationViewPage()
         }
         testServiceHelper.apply {
@@ -153,7 +153,7 @@ class GroupMessaging : KoinTest {
             clickGroupConversation("MyTeam")
         }
         pages.conversationViewPage.apply {
-            assertReceivedMessageIsVisible("Hello Friends")
+            assertReceivedMessageIsVisibleInCurrentConversation("Hello Friends")
             tapMessageInInputField()
             tapSelfDeleteTimerButton()
             assertSelfDeleteOptionVisible("OFF")
@@ -167,10 +167,10 @@ class GroupMessaging : KoinTest {
             assertSelfDeletingMessageLabelVisible()
             typeMessageInInputField("This is a Self deleting Message")
             clickSendButton()
-            assertMessageSentIsVisible("This is a Self deleting Message")
-            UiWaitUtils.WaitUtils.waitFor(14) // Simple wait
+            assertSentMessageIsVisibleInCurrentConversation("This is a Self deleting Message")
+            waitFor(14) // Simple wait
             assertMessageNotVisible("This is a Self deleting Message")
-            assertMessageSentIsVisible(
+            assertSentMessageIsVisibleInCurrentConversation(
                 "After one participant has seen your message and the timer has expired on their side, this note disappears."
             )
         }

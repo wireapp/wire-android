@@ -354,6 +354,9 @@ class TestServiceHelper {
         return this != 0
     }
 
+    fun toClientUser(nameAlias: String): ClientUser {
+        return usersManager.findUserByNameOrNameAlias(nameAlias)
+    }
     fun userSendMessageToConversation(
         senderAlias: String,
         msg: String,
@@ -363,15 +366,35 @@ class TestServiceHelper {
     ) {
         val clientUser = toClientUser(senderAlias)
         val conversation = toConvoObj(clientUser, dstConvoName)
+        sendMessageInternal(clientUser, conversation, msg, deviceName, isSelfDeleting)
+    }
+
+    fun userSendMessageToConversationObj(
+        senderAlias: String,
+        msg: String,
+        deviceName: String,
+        dstConvoName: String,
+        isSelfDeleting: Boolean
+    ) {
+        val clientUser = toClientUser(senderAlias)
+        val conversation = toConvoObjPersonal(clientUser, dstConvoName)
+        sendMessageInternal(clientUser, conversation, msg, deviceName, isSelfDeleting)
+    }
+
+    private fun sendMessageInternal(
+        clientUser: ClientUser,
+        conversation: Conversation,
+        msg: String,
+        deviceName: String,
+        isSelfDeleting: Boolean
+    ) {
         val convoId = conversation.qualifiedID.id
         val convoDomain = conversation.qualifiedID.domain
 
-        val expReadConfirm = conversation.type.let { type ->
-            when (type) {
-                0 -> conversation.isReceiptModeEnabled
-                2 -> isSendReadReceiptEnabled(senderAlias)
-                else -> false
-            }
+        val expReadConfirm = when (conversation.type) {
+            0 -> conversation.isReceiptModeEnabled
+            2 -> isSendReadReceiptEnabled(clientUser.name.orEmpty())
+            else -> false
         }
 
         testServiceClient.sendText(
@@ -380,16 +403,11 @@ class TestServiceHelper {
                 deviceName = deviceName,
                 convoDomain = convoDomain,
                 convoId = convoId,
-                timeout = if (isSelfDeleting) Duration.ofSeconds(1000) else Duration.ofSeconds(0),
-                expReadConfirm,
+                timeout = if (isSelfDeleting) Duration.ofSeconds(1000) else Duration.ZERO,
+                expectsReadConfirmation = expReadConfirm,
                 text = msg,
                 legalHoldStatus = LegalHoldStatus.DISABLED.code,
-
-                )
+            )
         )
-    }
-
-    fun toClientUser(nameAlias: String): ClientUser {
-        return usersManager.findUserByNameOrNameAlias(nameAlias)
     }
 }

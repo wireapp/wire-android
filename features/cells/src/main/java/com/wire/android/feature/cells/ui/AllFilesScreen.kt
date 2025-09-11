@@ -75,6 +75,7 @@ fun AllFilesScreen(
         isRestoreInProgress = viewModel.isRestoreInProgress.collectAsState().value,
         isRecycleBin = viewModel.isRecycleBin(),
         isSearchResult = viewModel.hasSearchQuery(),
+        isFiltering = viewModel.selectedTags.collectAsState().value.isNotEmpty(),
         showPublicLinkScreen = { publicLinkScreenData ->
             navigator.navigate(
                 NavigationCommand(

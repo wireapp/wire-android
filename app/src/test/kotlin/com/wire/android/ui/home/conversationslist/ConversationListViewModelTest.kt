@@ -78,7 +78,13 @@ class ConversationListViewModelTest {
             (conversationListViewModel.conversationListState as ConversationListState.Paginated).conversations.test {
                 // Then
                 coVerify(exactly = 1) {
-                    arrangement.getConversationsPaginated("", false, true, false)
+                    arrangement.getConversationsPaginated(
+                        searchQuery = "",
+                        fromArchive = false,
+                        newActivitiesOnTop = true,
+                        onlyInteractionEnabled = false,
+                        useStrictMlsFilter = true,
+                    )
                 }
                 cancelAndIgnoreRemainingEvents()
             }
@@ -98,7 +104,13 @@ class ConversationListViewModelTest {
 
                 // Then
                 coVerify(exactly = 1) {
-                    arrangement.getConversationsPaginated(searchQueryText, false, true, false)
+                    arrangement.getConversationsPaginated(
+                        searchQuery = searchQueryText,
+                        fromArchive = false,
+                        newActivitiesOnTop = true,
+                        onlyInteractionEnabled = false,
+                        useStrictMlsFilter = true,
+                    )
                 }
                 cancelAndIgnoreRemainingEvents()
             }
@@ -118,7 +130,13 @@ class ConversationListViewModelTest {
 
                 // Then
                 coVerify(exactly = 1) {
-                    arrangement.getConversationsPaginated(searchQueryText, true, false, false)
+                    arrangement.getConversationsPaginated(
+                        searchQuery = searchQueryText,
+                        fromArchive = true,
+                        newActivitiesOnTop = false,
+                        onlyInteractionEnabled = false,
+                        useStrictMlsFilter = true
+                    )
                 }
                 cancelAndIgnoreRemainingEvents()
             }
@@ -202,7 +220,7 @@ class ConversationListViewModelTest {
 
                 // use case is called initially
                 coVerify(exactly = 1) {
-                    arrangement.getConversationsPaginated(any(), any(), any(), any(), any())
+                    arrangement.getConversationsPaginated(any(), any(), any(), any(), useStrictMlsFilter = any())
                 }
 
                 // when legal hold state is changed
@@ -211,7 +229,7 @@ class ConversationListViewModelTest {
 
                 // then use case should be called again (in total 2 executions) to create new PagingData
                 coVerify(exactly = 2) {
-                    arrangement.getConversationsPaginated(any(), any(), any(), any(), any())
+                    arrangement.getConversationsPaginated(any(), any(), any(), any(), useStrictMlsFilter = any())
                 }
 
                 cancelAndIgnoreRemainingEvents()
@@ -238,7 +256,7 @@ class ConversationListViewModelTest {
 
             // use case is called initially
             coVerify(exactly = 1) {
-                arrangement.getConversationsPaginated(any(), any(), any(), any(), any())
+                arrangement.getConversationsPaginated(any(), any(), any(), any(), useStrictMlsFilter = any())
             }
 
             // flow is collected second time
@@ -246,7 +264,7 @@ class ConversationListViewModelTest {
 
             // use case should NOT be called again, there should be still only one call
             coVerify(exactly = 1) {
-                arrangement.getConversationsPaginated(any(), any(), any(), any(), any())
+                arrangement.getConversationsPaginated(any(), any(), any(), any(), useStrictMlsFilter = any())
             }
         }
 
@@ -294,7 +312,7 @@ class ConversationListViewModelTest {
 
         fun withConversationsPaginated(items: List<ConversationItem>) = apply {
             coEvery {
-                getConversationsPaginated.invoke(any(), any(), any(), any())
+                getConversationsPaginated.invoke(any(), any(), any(), useStrictMlsFilter = any())
             } returns flowOf(
                 PagingData.from(
                     data = items,

@@ -47,7 +47,7 @@ class GetConversationsFromSearchUseCase @Inject constructor(
     private val observeConversationsFromFromFolder: ObserveConversationsFromFolderUseCase,
     private val userTypeMapper: UserTypeMapper,
     private val dispatchers: DispatcherProvider,
-    private val getSelfUser: GetSelfUserUseCase
+    private val getSelfUser: GetSelfUserUseCase,
 ) {
     @Suppress("LongParameterList")
     suspend operator fun invoke(
@@ -56,7 +56,8 @@ class GetConversationsFromSearchUseCase @Inject constructor(
         newActivitiesOnTop: Boolean = false,
         onlyInteractionEnabled: Boolean = false,
         conversationFilter: ConversationFilter = ConversationFilter.All,
-        playingAudioMessage: PlayingAudioMessage = PlayingAudioMessage.None
+        playingAudioMessage: PlayingAudioMessage = PlayingAudioMessage.None,
+        useStrictMlsFilter: Boolean,
     ): Flow<PagingData<ConversationItem>> {
         val pagingConfig = PagingConfig(
             pageSize = PAGE_SIZE,
@@ -78,6 +79,7 @@ class GetConversationsFromSearchUseCase @Inject constructor(
                 ),
                 pagingConfig = pagingConfig,
                 startingOffset = 0L,
+                strictMlsFilter = useStrictMlsFilter
             )
 
             ConversationFilter.Favorites -> {

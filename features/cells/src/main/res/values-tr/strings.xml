@@ -19,7 +19,6 @@
 <resources>
     <string name="retry">Yeniden dene</string>
     <string name="file_list_load_error">Dosya listesi yüklenirken bir hata oluştu. Lütfen tekrar deneyin.</string>
-    <string name="file_list_search_empty_message">Dosya bulunamadı.</string>
     <string name="save_label">Kaydet</string>
     <string name="share_label">Paylaş</string>
     <string name="delete_label">Sil</string>

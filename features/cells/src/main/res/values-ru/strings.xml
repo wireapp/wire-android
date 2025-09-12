@@ -21,7 +21,7 @@
     <string name="file_list_load_error">Произошла ошибка при загрузке списка файлов. Пожалуйста, попробуйте еще раз</string>
     <string name="file_list_empty_message">Здесь вы найдете все файлы, которыми поделились в ваших беседах.</string>
     <string name="conversation_file_list_empty_message">Здесь вы найдете все файлы и папки, которыми поделились в этой беседе.</string>
-    <string name="file_list_search_empty_message">Файлы не найдены.</string>
+    <string name="file_list_search_empty_message">Попробуйте изменить условия поиска</string>
     <string name="save_label">Сохранить</string>
     <string name="share_label">Поделится</string>
     <string name="delete_label">Удалить</string>
@@ -111,4 +111,6 @@
     <string name="failed_edit_tags">Не удалось изменить теги</string>
     <string name="create_folder_invalid_name">Используйте название без \"/\" или \".\"</string>
     <string name="file_list_empty_title">Файлов и папок пока нет</string>
+    <string name="no_results_found_label">Ничего не найдено</string>
+    <string name="filters_try_adjusting_your_filters_label">Попробуйте изменить фильтры.</string>
 </resources>

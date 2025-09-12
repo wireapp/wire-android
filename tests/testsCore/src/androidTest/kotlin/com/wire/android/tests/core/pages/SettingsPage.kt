@@ -16,6 +16,7 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 package com.wire.android.tests.core.pages
+
 import android.content.Intent
 import android.net.Uri
 import androidx.test.espresso.matcher.ViewMatchers.assertThat
@@ -43,20 +44,32 @@ data class SettingsPage(private val device: UiDevice) {
 
     private val accountDetails = UiSelectorParams(text = "Account Details")
     private val toggle = UiSelector().className("android.view.View")
-
     private val analyticsTrackingLabel = UiSelector().text("Analytics Tracking Identifier")
     private val anonymousUsageDataText = UiSelector().text("Send anonymous usage data")
 
     private val setAppLockInfoText = UiSelectorParams(
         textContains = "The app will lock itself after 1 minute of inactivity"
     )
-
     private val resetPasswordButton = UiSelectorParams(text = "Reset Password")
+    private val deleteAccountButton = UiSelectorParams(text = "Delete Account")
+
+    private val deleteAccountConfirmationModal = UiSelectorParams(textContains = "If you continue,")
+
+    private val continueButton = UiSelectorParams(text = "Continue")
+
     private val passcodeField = UiSelectorParams(resourceId = "password")
 
     private val displayedEmail = UiSelectorParams(textContains = "@wire.engineering")
 
     private val displayedDomain = UiSelectorParams(textContains = "staging.zinfra")
+    private fun displayedProfileName(profileName: String) =
+        UiSelectorParams(text = profileName, fromParentText = "PROFILE NAME")
+
+    private fun displayedUserName(userName: String) =
+        UiSelectorParams(
+            text = "@$userName",
+            fromParentText = "USERNAME"
+        )
 
     private val emailVerificationNotification = UiSelectorParams(
         textContains = "A verification email has been sent to your email"
@@ -86,6 +99,7 @@ data class SettingsPage(private val device: UiDevice) {
     fun clickBackButtonOnSettingsPage() {
         device.pressBack()
     }
+
     fun assertAnalyticsInitializedIsSetToTrue(): SettingsPage {
         val label = UiWaitUtils.waitElement(analyticsInitializedLabel)
         val parent = label.parent
@@ -93,18 +107,22 @@ data class SettingsPage(private val device: UiDevice) {
         assertTrue("'Analytics Initialized' is not set to true", value != null && value.visibleBounds.width() > 0)
         return this
     }
+
     fun clickBackButtonOnPrivacySettingsPage() {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         device.pressBack()
     }
+
     fun clickPrivacySettingsButtonOnSettingsPage(): SettingsPage {
         UiWaitUtils.waitElement(privacySettingsButton).click()
         return this
     }
+
     fun clickDebugSettingsButton(): SettingsPage {
         UiWaitUtils.waitElement(debugSettingsButton).click()
         return this
     }
+
     fun assertAnalyticsTrackingIdentifierIsDispayed(): SettingsPage {
         val container = device.findObject(
             UiSelector().className("android.view.View").childSelector(analyticsTrackingLabel)
@@ -195,6 +213,24 @@ data class SettingsPage(private val device: UiDevice) {
         return this
     }
 
+    fun verifyDisplayedProfileName(expectedName: String): SettingsPage {
+        try {
+            UiWaitUtils.waitElement(displayedProfileName(expectedName))
+        } catch (e: AssertionError) {
+            throw AssertionError("Displayed profile name does not match expected name $expectedName", e)
+        }
+        return this
+    }
+
+    fun verifyDisplayedUserName(expectedUserName: String): SettingsPage {
+        try {
+            UiWaitUtils.waitElement(displayedUserName(expectedUserName))
+        } catch (e: AssertionError) {
+            throw AssertionError("Displayed user name does not match expected @$expectedUserName", e)
+        }
+        return this
+    }
+
     fun clickDisplayedEmailAddress(): SettingsPage {
         val emailElement = UiWaitUtils.waitElement(displayedEmail)
         emailElement.click()
@@ -228,6 +264,34 @@ data class SettingsPage(private val device: UiDevice) {
     fun assertResetPasswordButtonIsDisplayed(): SettingsPage {
         val resetPasswordButton = UiWaitUtils.waitElement(resetPasswordButton)
         Assert.assertTrue("Reset password button is not visible", !resetPasswordButton.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun assertDeleteAccountButtonIsDisplayed(): SettingsPage {
+        try {
+            UiWaitUtils.waitElement(deleteAccountButton)
+        } catch (e: AssertionError) {
+            throw AssertionError("Delete account button is not visible", e)
+        }
+        return this
+    }
+
+    fun tapDeleteAccountButton(): SettingsPage {
+        UiWaitUtils.waitElement(deleteAccountButton).click()
+        return this
+    }
+
+    fun assertDeleteAccountConfirmationModalIsDisplayed(): SettingsPage {
+        try {
+            UiWaitUtils.waitElement(deleteAccountConfirmationModal)
+        } catch (e: AssertionError) {
+            throw AssertionError("Delete account confirmation modal is not visible", e)
+        }
+        return this
+    }
+
+    fun tapContinueButtonOnDeleteAccountConfirmationModal(): SettingsPage {
+        UiWaitUtils.waitElement(continueButton).click()
         return this
     }
 
@@ -277,6 +341,17 @@ data class SettingsPage(private val device: UiDevice) {
             5_000
         )
         assertTrue("Expected URL '$expectedUrl' was not found in Chrome", urlElement != null)
+        return this
+    }
+
+    fun assertDeleteAccountConfirmationModalIsNoLongerVisible(): SettingsPage {
+        val modal = runCatching {
+            UiWaitUtils.waitElement(deleteAccountConfirmationModal)
+        }.getOrNull()
+
+        if (modal != null && !modal.visibleBounds.isEmpty) {
+            throw AssertionError("Delete account confirmation modal is still visible (expected it to be gone)")
+        }
         return this
     }
 }

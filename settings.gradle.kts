@@ -30,6 +30,7 @@ val ignorableModules = setOf("buildSrc", "kalium")
 rootDir
     .walk()
     .maxDepth(1)
+    .filter { it != rootDir }
     .filter { project ->
         basePathModules.contains(project.name) || ignorableModules.none { project.name == it }
                 && project.isDirectory && file("${project.absolutePath}/build.gradle.kts").exists()

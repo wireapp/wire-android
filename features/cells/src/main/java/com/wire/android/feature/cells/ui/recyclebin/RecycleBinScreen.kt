@@ -83,6 +83,7 @@ fun RecycleBinScreen(
                     isAllFiles = false,
                     isRecycleBin = true,
                     isRestoreInProgress = cellViewModel.isRestoreInProgress.collectAsState().value,
+                    isDeleteInProgress = cellViewModel.isDeleteInProgress.collectAsState().value,
                     onFolderClick = {
                         val folderPath = "${cellViewModel.currentNodeUuid()}/recycle_bin/${it.name}"
 
@@ -122,7 +123,9 @@ fun RecycleBinScreen(
                         )
                     },
                     showRenameScreen = { },
-                    showAddRemoveTagsScreen = {}
+                    showAddRemoveTagsScreen = {},
+                    isRefreshing = cellViewModel.isPullToRefresh.collectAsState(),
+                    onRefresh = { cellViewModel.onPullToRefresh() }
                 )
             }
         }

@@ -73,6 +73,7 @@ fun AllFilesScreen(
         menuState = viewModel.menu,
         isAllFiles = true,
         isRestoreInProgress = viewModel.isRestoreInProgress.collectAsState().value,
+        isDeleteInProgress = viewModel.isDeleteInProgress.collectAsState().value,
         isRecycleBin = viewModel.isRecycleBin(),
         isSearchResult = viewModel.hasSearchQuery(),
         isFiltering = viewModel.selectedTags.collectAsState().value.isNotEmpty(),
@@ -97,6 +98,8 @@ fun AllFilesScreen(
                 )
             )
         },
+        isRefreshing = viewModel.isPullToRefresh.collectAsState(),
+        onRefresh = { viewModel.onPullToRefresh() }
     )
 
     FilterBottomSheet(

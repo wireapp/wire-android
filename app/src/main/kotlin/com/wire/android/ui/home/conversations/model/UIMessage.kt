@@ -594,6 +594,12 @@ sealed interface UIMessageContent {
                 data object Conversation : Disabled
             }
         }
+
+        @Serializable
+        data object NewConversationWithCellStarted : SystemMessage
+
+        @Serializable
+        data object NewConversationWithCellSelfDeleteDisabled : SystemMessage
     }
 }
 

@@ -775,7 +775,6 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="settings_network_settings_label">Configuraci&#243;n de red</string>
     <string name="settings_manage_devices_label">Administrar tus dispositivos</string>
     <string name="settings_keep_connection_to_websocket">Mantener conexi&#243;n al websocket</string>
-    <string name="settings_keep_connection_to_websocket_description">Mejore la recepci&#243;n de notificaciones manteniendo una conexi&#243;n constante con %1$s. Reemplazar&#225; los servicios de notificaci&#243;n si Google Services no est&#225;n disponibles en su dispositivo.</string>
     <string name="settings_service_is_running">el servicio est&#225; en ejecuci&#243;n</string>
     <!--Settings, Appearance -->
     <string name="settings_customization_label">Personalización</string>

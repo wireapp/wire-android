@@ -17,16 +17,16 @@
  */
 package com.wire.android.tests.core.pages
 
-import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.type
 import backendUtils.team.TeamHelper
 import org.junit.Assert
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 import user.usermanager.ClientUserManager
 
-    data class SearchPage(private val device: UiDevice) {
-        private val searchFieldSearchPage = UiSelectorParams(className = "android.widget.EditText")
+data class SearchPage(private val device: UiDevice) {
+    private val searchFieldSearchPage = UiSelectorParams(className = "android.widget.EditText")
     private val searchFieldSearchPeople = UiSelectorParams(description = "Search people by name or username")
 
     fun assertUsernameInSearchResultIs(expectedName: String): SearchPage {
@@ -52,22 +52,16 @@ import user.usermanager.ClientUserManager
         return this
     }
 
-    fun typeUniqueUserNameInSearchField(alias: String): SearchPage {
-        val teamHelper by lazy {
-            TeamHelper()
-        }
+    fun typeUniqueUserNameInSearchField(teamHelper: TeamHelper, alias: String): SearchPage {
         // Resolve the alias to the (unique) username
-        val uniqueUserName = teamHelper.usersManager.replaceAliasesOccurrences(
+        val uniqueUserName = teamHelper.usersManager.findUserBy(
             alias,
             ClientUserManager.FindBy.NAME_ALIAS
         )
         val field = UiWaitUtils.waitElement(searchFieldSearchPeople)
         field.click()
-
-        // Use shell typing; replace spaces for adb `input text`
-        val toType = uniqueUserName.replace(" ", "%s")
-        UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()).executeShellCommand("input text $toType")
-
+        val toType = uniqueUserName.uniqueUsername.orEmpty().replace(" ", "%s")
+        device.type(toType)
         return this
     }
 }

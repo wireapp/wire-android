@@ -268,7 +268,8 @@ class NewConversationViewModel @Inject constructor(
                         nonTeamMembersAllowed = groupOptionsState.isAllowGuestEnabled
                     ),
                     access = Conversation.accessFor(groupOptionsState.isAllowGuestEnabled),
-                    channelAddPermission = newGroupState.channelAddPermissionType.toDomainEnum()
+                    channelAddPermission = newGroupState.channelAddPermissionType.toDomainEnum(),
+                    wireCellEnabled = groupOptionsState.isWireCellsEnabled ?: false,
                     // TODO: include channel history type
                 )
             )

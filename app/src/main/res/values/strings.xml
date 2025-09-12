@@ -1225,7 +1225,7 @@
     <string name="settings_network_settings_label">Network Settings</string>
     <string name="settings_manage_devices_label">Manage your Devices</string>
     <string name="settings_keep_connection_to_websocket">Keep Connection to Websocket</string>
-    <string name="settings_keep_connection_to_websocket_description">Improve receiving notifications by keeping a constant connection to %1$s. It will replace notification services if Google Services are not available on your device.</string>
+    <string name="settings_keep_connection_to_websocket_description">Improve receiving notifications by keeping a constant connection to your organization\'s server. It will replace notification services if Google Services are not available on your device.</string>
     <string name="settings_service_is_running">service is running</string>
     <!--Settings, Appearance -->
     <string name="settings_customization_label">Customization</string>

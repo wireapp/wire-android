@@ -178,7 +178,7 @@ class ConversationMessagesViewModelTest {
                 .withGetMessageByIdReturning(message)
                 .arrange()
             // When
-            viewModel.downloadOrFetchAssetAndShowDialog(message.id)
+            viewModel.openOrFetchAsset(message.id)
             // Then
             assert(viewModel.conversationViewState.downloadedAssetDialogState == DownloadedAssetDialogVisibilityState.AlreadyDeleted)
         }

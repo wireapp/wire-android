@@ -25,6 +25,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.wire.android.feature.cells.ui.destinations.RecycleBinScreenDestination
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
+import com.wire.android.feature.cells.ui.destinations.ConversationFilesWithSlideInTransitionScreenDestination
 import com.wire.android.navigation.WireNavigator
 import com.wire.android.navigation.annotation.features.cells.WireDestination
 import com.wire.android.navigation.style.SlideNavigationAnimation
@@ -68,6 +69,10 @@ fun ConversationFilesWithSlideInTransitionScreen(
         isDeleteInProgress = viewModel.isDeleteInProgress.collectAsState().value,
         isRefreshing = viewModel.isPullToRefresh.collectAsState(),
         breadcrumbs = cellFilesNavArgs.breadcrumbs,
+        onBreadcrumbsFolderClick = {
+            val stepsBack = viewModel.breadcrumbs()?.size!! - it - 1
+            navigator.navigateBackAndRemoveAllConsecutiveXTimes(ConversationFilesWithSlideInTransitionScreenDestination.route, stepsBack)
+        },
         sendIntent = { viewModel.sendIntent(it) },
         onRefresh = { viewModel.onPullToRefresh() },
         navigationIconType = NavigationIconType.Back(),

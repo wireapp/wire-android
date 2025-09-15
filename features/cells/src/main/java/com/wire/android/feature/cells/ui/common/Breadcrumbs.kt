@@ -17,6 +17,7 @@
  */
 package com.wire.android.feature.cells.ui.common
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -31,7 +32,11 @@ import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
-fun Breadcrumbs(pathSegments: Array<String>, modifier: Modifier = Modifier) {
+fun Breadcrumbs(
+    pathSegments: Array<String>,
+    modifier: Modifier = Modifier,
+    onBreadcrumbsFolderClick: (index: Int) -> Unit
+) {
     val listState = rememberLazyListState()
 
     LaunchedEffect(pathSegments) {
@@ -52,6 +57,8 @@ fun Breadcrumbs(pathSegments: Array<String>, modifier: Modifier = Modifier) {
             item {
                 if (index != pathSegments.lastIndex) {
                     Text(
+                        modifier = Modifier
+                            .clickable { onBreadcrumbsFolderClick(index) },
                         text = item,
                         style = MaterialTheme.wireTypography.button02.copy(
                             color = colorsScheme().secondaryText
@@ -65,6 +72,8 @@ fun Breadcrumbs(pathSegments: Array<String>, modifier: Modifier = Modifier) {
                     )
                 } else {
                     Text(
+                        modifier = Modifier
+                            .clickable { onBreadcrumbsFolderClick(index) },
                         text = item,
                         style = MaterialTheme.wireTypography.button02.copy(
                             color = colorsScheme().onBackground
@@ -84,6 +93,7 @@ fun PreviewBreadcrumbs() {
             "Folder 1",
             "Folder 2",
             "Folder 3",
-        )
+        ),
+        onBreadcrumbsFolderClick = {}
     )
 }

@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
@@ -59,6 +61,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.theme.WireTheme
+import com.wire.kalium.cells.domain.paging.FileListLoadError
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -98,7 +101,10 @@ internal fun CellScreenContent(
 
     when {
         pagingListItems.isLoading() -> LoadingScreen()
-        pagingListItems.isError() -> ErrorScreen { pagingListItems.retry() }
+        pagingListItems.isError() -> ErrorScreen(
+            error = (pagingListItems.loadState.refresh as? LoadState.Error)?.error,
+            onRetry = { pagingListItems.retry() }
+        )
         pagingListItems.itemCount == 0 -> EmptyScreen(
             isSearchResult = isSearchResult,
             isAllFiles = isAllFiles,
@@ -218,6 +224,14 @@ internal fun CellScreenContent(
             is HideRestoreConfirmation -> restoreConfirmation = null
             is HideRestoreParentFolderDialog -> restoreParentFolderConfirmation = null
             is HideDeleteConfirmation -> deleteConfirmation = null
+            is ShowFileDeletedMessage -> {
+                val message = if (action.permanently) {
+                    context.getString(R.string.cells_file_permanently_deleted_message)
+                } else {
+                    context.getString(R.string.cells_file_deleted_message)
+                }
+                Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+            }
         }
     }
 
@@ -231,7 +245,10 @@ internal fun CellScreenContent(
 }
 
 @Composable
-private fun ErrorScreen(onRetry: () -> Unit) {
+private fun ErrorScreen(error: Throwable?, onRetry: () -> Unit) {
+
+    val isConnectionError = (error as? FileListLoadError)?.isConnectionError ?: false
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -246,9 +263,22 @@ private fun ErrorScreen(onRetry: () -> Unit) {
         )
 
         Text(
-            text = stringResource(R.string.file_list_load_error),
+            text = stringResource(
+                if (isConnectionError) R.string.file_list_load_network_error_title else R.string.file_list_load_error_title
+            ),
             textAlign = TextAlign.Center,
-            color = colorsScheme().error,
+            style = typography().title01,
+            color = if (isConnectionError) colorsScheme().onBackground else colorsScheme().error,
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Text(
+            text = stringResource(
+                if (isConnectionError) R.string.file_list_load_network_error else R.string.file_list_load_error
+            ),
+            textAlign = TextAlign.Center,
+            color = if (isConnectionError) colorsScheme().onBackground else colorsScheme().error,
         )
 
         Spacer(
@@ -325,6 +355,18 @@ private fun EmptyScreen(
 fun PreviewErrorScreen() {
     WireTheme {
         ErrorScreen(
+            error = null,
+            onRetry = {}
+        )
+    }
+}
+
+@MultipleThemePreviews
+@Composable
+fun PreviewNetworkErrorScreen() {
+    WireTheme {
+        ErrorScreen(
+            error = FileListLoadError(true),
             onRetry = {}
         )
     }

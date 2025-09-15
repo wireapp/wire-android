@@ -29,6 +29,7 @@ import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.NodeBottomSheetAction
 import com.wire.android.feature.cells.ui.model.toUiModel
 import com.wire.android.feature.cells.util.FileHelper
+import com.wire.android.feature.cells.util.FileNameResolver
 import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
 import com.wire.kalium.cells.domain.usecase.DownloadCellFileUseCase
@@ -488,6 +489,9 @@ class CellViewModelTest {
         @MockK
         lateinit var kaliumFileSystem: KaliumFileSystem
 
+        @MockK
+        lateinit var fileNameResolver: FileNameResolver
+
         init {
 
             MockKAnnotations.init(this, relaxUnitFun = true)
@@ -570,7 +574,7 @@ class CellViewModelTest {
                 download = downloadCellFileUseCase,
                 isCellAvailable = isCellAvailableUseCase,
                 fileHelper = fileHelper,
-                kaliumFileSystem = kaliumFileSystem,
+                fileNameResolver = fileNameResolver
             )
         }
     }

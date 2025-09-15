@@ -567,6 +567,8 @@
     <string name="asset_message_saved_externally_text">Сохранено</string>
     <string name="asset_message_failed_download_text">Файл недоступен</string>
     <string name="asset_message_failed_upload_text">Загрузка файла не удалась</string>
+    <string name="asset_download_not_available_text">Файл больше не доступен</string>
+    <string name="asset_download_deleted_text">Вы не можете загрузить этот файл, так как он был удален.</string>
     <string name="asset_download_dialog_text">Вы хотите открыть файл или сохранить его в
         папке загрузок устройства?
  </string>
@@ -595,6 +597,7 @@
     <string name="conversation_details_is_not_classified">УРОВЕНЬ БЕЗОПАСНОСТИ: НЕКЛАССИФИЦИРОВАН</string>
     <string name="conversation_options_self_deleting_messages_label">Самоудаляющиеся сообщения</string>
     <string name="conversation_options_self_deleting_messages_description">Если этот параметр включен, все сообщения в этой беседе будут исчезать через определенное время.</string>
+    <string name="conversation_options_self_deleting_messages_cells_description">Самоудаляющиеся сообщения в настоящее время недоступны для бесед с Cells.</string>
     <string name="conversation_options_guests_label">Гости</string>
     <string name="conversation_details_guest_description">Когда эта опция включена, к беседе могут присоединиться пользователи, не входящие в вашу команду</string>
     <string name="conversation_options_guest_description">Включите эту опцию, чтобы открыть эту беседу для пользователей не из вашей команды, даже если у них нет Wire.</string>
@@ -855,6 +858,9 @@
     <string name="label_system_message_conversation_started_sensitive_information_footer">Пожалуйста, будьте осторожны со всеми с кем делитесь конфиденциальной информацией.</string>
     <string name="label_conversations_details_verified_proteus">Верифицировано (Proteus)</string>
     <string name="label_conversations_details_verified_mls">Верифицировано (сквозная идентификация)</string>
+    <string name="label_system_message_cell_enabled_for_conversation">Cell включен дня всех</string>
+    <string name="label_system_message_cell_self_delete_disabled_for_conversation">Самоудаляющиеся сообщения - это %1$s в беседах с Cells</string>
+    <string name="label_system_message_cell_self_delete_disabled">отключено</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
         <item quantity="one">Вы добавили 1 пользователя в беседу</item>
@@ -1221,7 +1227,7 @@
     <string name="settings_network_settings_label">Настройки сети</string>
     <string name="settings_manage_devices_label">Управление устройствами</string>
     <string name="settings_keep_connection_to_websocket">Поддерживать соединение с веб-сокетом</string>
-    <string name="settings_keep_connection_to_websocket_description">Позволяет оптимизировать получение уведомлений, поддерживая постоянное соединение с %1$s. Эта опция заменит службу уведомлений, если Google Services недоступны на устройстве.</string>
+    <string name="settings_keep_connection_to_websocket_description">Позволяет оптимизировать получение уведомлений, поддерживая постоянное соединение с сервером вашей организации. Эта опция заменит службу уведомлений, если Google Services недоступны на устройстве.</string>
     <string name="settings_service_is_running">активен</string>
     <!--Settings, Appearance -->
     <string name="settings_customization_label">Внешний вид</string>

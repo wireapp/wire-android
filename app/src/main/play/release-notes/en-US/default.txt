@@ -1,13 +1,10 @@
 New
-- Flows for account and team creation
-- Access team management from the main navigation
-- Landscape support for tablets (Android 16)
+- Design for message structure
+- Renaming Services to Apps
 
 Improvements
-- Notifications
-- Display MLS thumbprint in the device list
+- Messaging Layer Security (MLS) protocol robustness
+- Calling connectivity on switching networks
 
 Fixes
-- Replying from a notification
-- Calling related issues
-- Login issue
+- Conference call with a bad connection left people with only one other participant

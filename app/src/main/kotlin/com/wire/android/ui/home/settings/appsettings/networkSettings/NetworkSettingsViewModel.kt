@@ -24,7 +24,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
-import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
@@ -41,8 +40,6 @@ class NetworkSettingsViewModel
     private val currentSession: CurrentSessionUseCase
 ) : ViewModel() {
     var networkSettingsState by mutableStateOf(NetworkSettingsState())
-
-    val backendName = ServerConfig.DEFAULT.title
 
     init {
         observePersistentWebSocketConnection()

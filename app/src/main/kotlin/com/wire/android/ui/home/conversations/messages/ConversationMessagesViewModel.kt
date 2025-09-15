@@ -50,6 +50,7 @@ import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
@@ -271,12 +272,20 @@ class ConversationMessagesViewModel @Inject constructor(
         return when {
             messageDataResult !is GetMessageByIdUseCase.Result.Success -> {
                 appLogger.w("Failed when fetching details of message to download asset: $messageDataResult")
+                onSnackbarMessage(ConversationSnackbarMessages.ErrorDownloadingAsset)
+                null
+            }
+
+            (messageDataResult.message as? Message.Regular)?.visibility == Message.Visibility.DELETED -> {
+                appLogger.w("Attempting to download asset of a deleted message.")
+                showOnAssetDownloadAlreadyDeletedDialog()
                 null
             }
 
             messageDataResult.message.content !is MessageContent.Asset -> {
                 // This _should_ not even happen, tho. Unless UI is buggy. So... do we crash?! Better not.
                 appLogger.w("Attempting to download assets of a non-asset message. Ignoring user input.")
+                hideOnAssetDownloadedDialog()
                 null
             }
 
@@ -326,6 +335,12 @@ class ConversationMessagesViewModel @Inject constructor(
     fun showOnAssetDownloadedDialog(assetBundle: AssetBundle, messageId: String) {
         conversationViewState = conversationViewState.copy(
             downloadedAssetDialogState = DownloadedAssetDialogVisibilityState.Displayed(assetBundle, messageId)
+        )
+    }
+
+    fun showOnAssetDownloadAlreadyDeletedDialog() {
+        conversationViewState = conversationViewState.copy(
+            downloadedAssetDialogState = DownloadedAssetDialogVisibilityState.AlreadyDeleted
         )
     }
 

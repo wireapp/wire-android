@@ -188,6 +188,16 @@ fun GroupConversationSettings(
                         )
                     )
                 }
+                addIf(state.isWireCellEnabled) {
+                    GroupConversationOptionsItem(
+                        title = stringResource(id = R.string.conversation_options_self_deleting_messages_label),
+                        subtitle = stringResource(id = R.string.conversation_options_self_deleting_messages_cells_description),
+                        trailingOnText = null,
+                        switchState = SwitchState.TextOnly(),
+                        arrowType = ArrowType.NONE,
+                        clickable = Clickable(enabled = false)
+                    )
+                }
                 addIf(state.protocolInfo !is Conversation.ProtocolInfo.MLS || mlsReadReceiptsEnabled) {
                     ReadReceiptOption(
                         isSwitchEnabled = state.isUpdatingReadReceiptAllowed,

@@ -20,9 +20,12 @@ package com.wire.android.feature.cells.ui.dialog
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
@@ -42,18 +45,22 @@ import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.bottomsheet.WireSheetValue
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
+import com.wire.android.ui.common.bottomsheet.show
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.divider.WireDivider
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.theme.WireTheme
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun NodeActionsBottomSheet(
     menuOptions: MenuOptions,
     onAction: (NodeBottomSheetAction) -> Unit,
     onDismiss: () -> Unit,
-    sheetState: WireModalSheetState<Unit> = rememberWireModalSheetState<Unit>(WireSheetValue.Expanded(Unit))
+    sheetState: WireModalSheetState<Unit> = rememberWireModalSheetState<Unit>(WireSheetValue.Hidden)
 ) {
+
+    sheetState.show(hideKeyboard = WindowInsets.isImeVisible)
 
     WireModalSheetLayout(
         onDismissRequest = {

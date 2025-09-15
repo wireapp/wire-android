@@ -21,4 +21,5 @@ interface WireNavigator {
     fun navigate(navigationCommand: NavigationCommand)
     fun navigateBack()
     fun navigateBackAndRemoveAllConsecutive(currentRoute: String)
+    fun navigateBackAndRemoveAllConsecutiveXTimes(currentRoute: String, stepsBack: Int)
 }

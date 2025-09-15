@@ -65,5 +65,17 @@ fun DownloadedAssetDialog(
                 onClick = { hideOnAssetDownloadedDialog() }
             ),
         )
+    } else if (downloadedAssetDialogState is DownloadedAssetDialogVisibilityState.AlreadyDeleted) {
+        WireDialog(
+            title = stringResource(R.string.asset_download_not_available_text),
+            text = stringResource(R.string.asset_download_deleted_text),
+            buttonsHorizontalAlignment = false,
+            onDismiss = { hideOnAssetDownloadedDialog() },
+            optionButton1Properties = WireDialogButtonProperties(
+                text = stringResource(R.string.label_ok),
+                type = WireDialogButtonType.Primary,
+                onClick = hideOnAssetDownloadedDialog
+            ),
+        )
     }
 }

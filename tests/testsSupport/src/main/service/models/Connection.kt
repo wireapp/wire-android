@@ -15,11 +15,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.navigation
+package service.models
 
-object PreviewNavigator : WireNavigator {
-    override fun navigate(navigationCommand: NavigationCommand) { /* No-op */ }
-    override fun navigateBack() { /* No-op */ }
-    override fun navigateBackAndRemoveAllConsecutive(currentRoute: String) { /* No-op */ }
-    override fun navigateBackAndRemoveAllConsecutiveXTimes(currentRoute: String, stepsBack: Int) { /* No-op */ }
+import backendUtils.ConnectionStatus
+import org.json.JSONObject
+
+data class Connection(
+    val to: String? = null,
+    val status: ConnectionStatus? = null,
+    val domain: String? = null
+) {
+    companion object {
+        fun fromJSON(connection: JSONObject): Connection {
+            return Connection(
+                to = connection.getString("to"),
+                status = ConnectionStatus.fromString(connection.getString("status")),
+                domain = connection.optJSONObject("qualified_to")?.getString("domain")
+            )
+        }
+    }
 }

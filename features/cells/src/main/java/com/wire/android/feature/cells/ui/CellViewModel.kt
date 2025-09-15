@@ -485,7 +485,7 @@ class CellViewModel @Inject constructor(
                             sendAction(HideRestoreParentFolderDialog)
                             _navigateToRecycleBinRoot.value = true
                             // delay to allow navigation to complete before refreshing data
-                            delay(RESTORE_DELAY)
+                            delay(RESTORE_DELAY_MS)
                         } else {
                             sendAction(HideRestoreConfirmation)
                         }
@@ -588,4 +588,4 @@ private data class DownloadData(
     val localPath: Path? = null,
 )
 
-private const val RESTORE_DELAY = 300L
+private const val RESTORE_DELAY_MS = 300L

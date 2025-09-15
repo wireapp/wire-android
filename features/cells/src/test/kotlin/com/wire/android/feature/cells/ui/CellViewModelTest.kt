@@ -17,7 +17,6 @@
  */
 package com.wire.android.feature.cells.ui
 
-import android.content.Context
 import androidx.lifecycle.SavedStateHandle
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
@@ -489,9 +488,6 @@ class CellViewModelTest {
         @MockK
         lateinit var kaliumFileSystem: KaliumFileSystem
 
-        @MockK
-        lateinit var context: Context
-
         init {
 
             MockKAnnotations.init(this, relaxUnitFun = true)
@@ -575,7 +571,6 @@ class CellViewModelTest {
                 isCellAvailable = isCellAvailableUseCase,
                 fileHelper = fileHelper,
                 kaliumFileSystem = kaliumFileSystem,
-                context = context
             )
         }
     }

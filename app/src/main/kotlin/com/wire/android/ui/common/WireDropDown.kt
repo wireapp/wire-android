@@ -83,6 +83,7 @@ internal fun WireDropDown(
     showDefaultTextIndicator: Boolean = true,
     leadingCompose: @Composable ((index: Int) -> Unit)? = null,
     onChangeClickDescription: String = stringResource(R.string.content_description_change_it_label),
+    placeholder: String = stringResource(R.string.wire_dropdown_placeholder),
     onSelected: (selectedIndex: Int) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -95,7 +96,9 @@ internal fun WireDropDown(
             selectedIndex,
             defaultItemIndex
         )
-    } else stringResource(R.string.wire_dropdown_placeholder)
+    } else {
+        placeholder
+    }
     val borderColor = MaterialTheme.wireColorScheme.secondaryButtonEnabledOutline
     val shape = RoundedCornerShape(MaterialTheme.wireDimensions.textFieldCornerSize)
 

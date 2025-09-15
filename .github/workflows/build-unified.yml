@@ -37,7 +37,7 @@ jobs:
       DISABLE_ABOUT_LIBRARIES: TRUE
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           submodules: recursive # Needed in order to fetch Kalium sources for building
           fetch-depth: 0
@@ -63,7 +63,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           submodules: recursive # Needed in order to fetch Kalium sources for building
           fetch-depth: 0
@@ -117,7 +117,7 @@ jobs:
           echo "🚀 Building ${{ matrix.flavor }}${{ matrix.variant }}..." >> $GITHUB_STEP_SUMMARY
           
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           submodules: recursive
           fetch-depth: 0

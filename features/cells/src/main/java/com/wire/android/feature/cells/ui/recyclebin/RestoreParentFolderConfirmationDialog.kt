@@ -15,46 +15,35 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.feature.cells.ui.dialog
+package com.wire.android.feature.cells.ui.recyclebin
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.window.DialogProperties
 import com.wire.android.feature.cells.R
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
-import com.wire.android.ui.common.wireDialogPropertiesBuilder
+import com.wire.android.ui.common.preview.MultipleThemePreviews
+import com.wire.android.ui.theme.WireTheme
 
 @Composable
-fun DeleteConfirmationDialog(
+fun RestoreParentFolderConfirmationDialog(
     itemName: String,
-    isFolder: Boolean,
-    isPermanentDelete: Boolean,
-    isDeleteInProgress: Boolean,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
+    isRestoreInProgress: Boolean = false
 ) {
     val description = stringResource(
-        id = when {
-            isFolder && isPermanentDelete -> R.string.confirm_permanent_delete_folder_text
-            isFolder && !isPermanentDelete -> R.string.confirm_delete_folder_text
-            !isFolder && isPermanentDelete -> R.string.confirm_permanent_delete_file_text
-            else -> R.string.confirm_delete_file_text
-        },
+        id = R.string.dialog_restore_parent_folder_description,
         itemName
     )
     WireDialog(
-        title = stringResource(
-            id = if (isFolder) {
-                R.string.confirm_delete_folder_title
-            } else {
-                R.string.confirm_delete_file_title
-            }
-        ),
+        title = stringResource(id = R.string.dialog_restore_folder_title),
         text = buildAnnotatedString {
             // We look for the position of %1$s and make that part bold
             val startIndex = description.indexOf(itemName)
@@ -74,17 +63,29 @@ fun DeleteConfirmationDialog(
         onDismiss = onDismiss,
         optionButton1Properties = WireDialogButtonProperties(
             onClick = onConfirm,
-            text = stringResource(id = R.string.delete_label),
+            text = stringResource(id = R.string.dialog_restore_parent_folder_button),
             type = WireDialogButtonType.Primary,
-            loading = isDeleteInProgress,
-            state = if (isDeleteInProgress) WireButtonState.Disabled else WireButtonState.Error,
+            loading = isRestoreInProgress,
+            state = if (isRestoreInProgress) WireButtonState.Disabled else WireButtonState.Default,
         ),
         dismissButtonProperties = WireDialogButtonProperties(
             text = stringResource(id = R.string.cancel),
-            state = if (isDeleteInProgress) WireButtonState.Disabled else WireButtonState.Error,
+            state = if (isRestoreInProgress) WireButtonState.Disabled else WireButtonState.Default,
             onClick = onDismiss
         ),
         buttonsHorizontalAlignment = false,
-        properties = wireDialogPropertiesBuilder(dismissOnBackPress = true, dismissOnClickOutside = true)
+        properties = DialogProperties(usePlatformDefaultWidth = false, dismissOnBackPress = true, dismissOnClickOutside = true)
     )
+}
+
+@MultipleThemePreviews
+@Composable
+fun PreviewRestoreParentFolderConfirmationDialog() {
+    WireTheme {
+        RestoreParentFolderConfirmationDialog(
+            itemName = "Test",
+            onConfirm = {},
+            onDismiss = {}
+        )
+    }
 }

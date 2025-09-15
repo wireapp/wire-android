@@ -17,7 +17,6 @@
  */
 package com.wire.android.feature.cells.ui
 
-import android.content.Context
 import androidx.lifecycle.SavedStateHandle
 import androidx.paging.LoadState
 import androidx.paging.LoadStates

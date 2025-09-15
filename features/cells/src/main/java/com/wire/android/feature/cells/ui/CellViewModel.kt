@@ -17,7 +17,6 @@
  */
 package com.wire.android.feature.cells.ui
 
-import android.content.Context
 import android.os.Environment
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
@@ -34,6 +33,7 @@ import com.wire.android.feature.cells.ui.model.canOpenWithUrl
 import com.wire.android.feature.cells.ui.model.localFileAvailable
 import com.wire.android.feature.cells.ui.model.toUiModel
 import com.wire.android.feature.cells.util.FileHelper
+import com.wire.android.feature.cells.util.FileNameResolver
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.common.DEFAULT_SEARCH_QUERY_DEBOUNCE
 import com.wire.kalium.cells.domain.model.Node
@@ -47,7 +47,6 @@ import com.wire.kalium.common.functional.fold
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -67,7 +66,6 @@ import kotlinx.coroutines.launch
 import okio.Path
 import okio.Path.Companion.toOkioPath
 import okio.Path.Companion.toPath
-import java.io.File
 import javax.inject.Inject
 
 @Suppress("TooManyFunctions", "LongParameterList")
@@ -81,7 +79,7 @@ class CellViewModel @Inject constructor(
     private val download: DownloadCellFileUseCase,
     private val isCellAvailable: IsAtLeastOneCellAvailableUseCase,
     private val fileHelper: FileHelper,
-    @ApplicationContext val context: Context
+    private val fileNameResolver: FileNameResolver
 ) : ActionsViewModel<CellViewAction>() {
 
     private val navArgs: CellFilesNavArgs = savedStateHandle.navArgs()
@@ -211,7 +209,7 @@ class CellViewModel @Inject constructor(
         }
 
         val publicDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-        val filePath = getUniqueFile(publicDir, nodeName).toPath().toOkioPath()
+        val filePath = fileNameResolver.getUniqueFile(publicDir, nodeName).toPath().toOkioPath()
 
         download(
             assetId = node.uuid,
@@ -232,22 +230,6 @@ class CellViewModel @Inject constructor(
             _downloadFileSheet.update { null }
             sendAction(ShowError(CellError.DOWNLOAD_FAILED))
         }
-    }
-
-    private fun getUniqueFile(directory: File, originalFileName: String): File {
-        val dotIndex = originalFileName.lastIndexOf('.')
-        val baseName = if (dotIndex != -1) originalFileName.substring(0, dotIndex) else originalFileName
-        val extension = if (dotIndex != -1) originalFileName.substring(dotIndex) else ""
-
-        var file = File(directory, originalFileName)
-        var index = 1
-
-        while (file.exists()) {
-            val newName = "$baseName($index)$extension"
-            file = File(directory, newName)
-            index++
-        }
-        return file
     }
 
     private fun updateDownloadProgress(progress: Long, it: Long, node: CellNodeUi, path: Path) = viewModelScope.launch {

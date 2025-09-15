@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -92,7 +93,10 @@ internal fun CellScreenContent(
 
     when {
         pagingListItems.isLoading() -> LoadingScreen()
-        pagingListItems.isError() -> ErrorScreen((pagingListItems.loadState.refresh as? LoadState.Error)?.error) { pagingListItems.retry() }
+        pagingListItems.isError() -> ErrorScreen(
+            error = (pagingListItems.loadState.refresh as? LoadState.Error)?.error,
+            onRetry = { pagingListItems.retry() }
+        )
         pagingListItems.itemCount == 0 -> EmptyScreen(
             isSearchResult = isSearchResult,
             isAllFiles = isAllFiles,

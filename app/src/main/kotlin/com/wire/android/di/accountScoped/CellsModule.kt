@@ -19,6 +19,7 @@ package com.wire.android.di.accountScoped
 
 import com.wire.android.di.CurrentAccount
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.feature.cells.util.FileNameResolver
 import com.wire.kalium.cells.CellsScope
 import com.wire.kalium.cells.domain.CellUploadManager
 import com.wire.kalium.cells.domain.usecase.AddAttachmentDraftUseCase
@@ -162,4 +163,7 @@ class CellsModule {
     @ViewModelScoped
     @Provides
     fun provideCellAvailableUseCase(cellsScope: CellsScope): IsAtLeastOneCellAvailableUseCase = cellsScope.isCellAvailable
+
+    @Provides
+    fun provideFileNameResolver(): FileNameResolver = FileNameResolver()
 }

@@ -20,6 +20,8 @@ package com.wire.android
 
 import android.app.Activity
 import android.content.ComponentCallbacks2
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Build
 import android.os.Bundle
 import android.os.StrictMode
@@ -31,6 +33,7 @@ import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.ApplicationScope
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.emm.ManagedConfigurationsReceiver
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
 import com.wire.android.feature.analytics.AnonymousAnalyticsRecorderImpl
@@ -92,6 +95,9 @@ class WireApplication : BaseApp() {
 
     @Inject
     lateinit var currentScreenManager: CurrentScreenManager
+
+    @Inject
+    lateinit var managedConfigurationsReceiver: ManagedConfigurationsReceiver
 
     @Inject
     lateinit var analyticsManager: Lazy<AnonymousAnalyticsManager>
@@ -166,12 +172,14 @@ class WireApplication : BaseApp() {
             override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {}
             override fun onActivityStarted(activity: Activity) {
                 globalAnalyticsManager.onStart(activity)
+                registerReceiver(managedConfigurationsReceiver, restrictionsFilter)
             }
 
             override fun onActivityResumed(activity: Activity) {}
             override fun onActivityPaused(activity: Activity) {}
             override fun onActivityStopped(activity: Activity) {
                 globalAnalyticsManager.onStop(activity)
+                unregisterReceiver(managedConfigurationsReceiver)
             }
 
             override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {}
@@ -312,6 +320,7 @@ class WireApplication : BaseApp() {
             }
         }
 
+        private val restrictionsFilter = IntentFilter(Intent.ACTION_APPLICATION_RESTRICTIONS_CHANGED)
         private const val TAG = "WireApplication"
     }
 }

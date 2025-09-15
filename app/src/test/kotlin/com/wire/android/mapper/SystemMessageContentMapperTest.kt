@@ -152,7 +152,8 @@ class SystemMessageContentMapperTest {
         val contentFederationRemoved = MessageContent.MemberChange.FederationRemoved(listOf(userId2, userId3))
         val contentCreationAdded = MessageContent.MemberChange.CreationAdded(listOf(userId2, userId3))
         val contentFailedToAdd = MessageContent.MemberChange.FailedToAdd(
-            listOf(userId2, userId3), MessageContent.MemberChange.FailedToAdd.Type.Unknown
+            listOf(userId2, userId3),
+            MessageContent.MemberChange.FailedToAdd.Type.Unknown
         )
 
         val member1 = TestUser.MEMBER_OTHER.copy(TestUser.OTHER_USER.copy(id = userId1, name = "member1"))

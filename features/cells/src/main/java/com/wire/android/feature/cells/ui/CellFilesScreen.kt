@@ -22,6 +22,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -67,9 +68,8 @@ internal fun CellFilesScreen(
         onRefresh = onRefresh,
     ) {
         LazyColumn(
-            modifier = Modifier
-                .background(color = colorsScheme().surface)
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
+            contentPadding = PaddingValues(bottom = dimensions().spacing80x)
         ) {
             items(
                 count = cellNodes.itemCount,

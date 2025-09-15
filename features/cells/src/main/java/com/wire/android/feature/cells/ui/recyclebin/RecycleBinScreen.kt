@@ -30,7 +30,6 @@ import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.CellFilesNavArgs
 import com.wire.android.feature.cells.ui.CellScreenContent
 import com.wire.android.feature.cells.ui.CellViewModel
-import com.wire.android.feature.cells.ui.common.FullScreenLoading
 import com.wire.android.feature.cells.ui.destinations.ConversationFilesWithSlideInTransitionScreenDestination
 import com.wire.android.feature.cells.ui.destinations.MoveToFolderScreenDestination
 import com.wire.android.feature.cells.ui.destinations.PublicLinkScreenDestination
@@ -83,6 +82,7 @@ fun RecycleBinScreen(
                     menuState = cellViewModel.menu,
                     isAllFiles = false,
                     isRecycleBin = true,
+                    isRestoreInProgress = cellViewModel.isRestoreInProgress.collectAsState().value,
                     onFolderClick = {
                         val folderPath = "${cellViewModel.currentNodeUuid()}/recycle_bin/${it.name}"
 
@@ -125,10 +125,6 @@ fun RecycleBinScreen(
                     showAddRemoveTagsScreen = {}
                 )
             }
-        }
-
-        if (cellViewModel.isLoading.collectAsState().value) {
-            FullScreenLoading()
         }
     }
 }

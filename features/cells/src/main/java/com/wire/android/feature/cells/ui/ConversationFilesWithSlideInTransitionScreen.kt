@@ -18,8 +18,10 @@
 package com.wire.android.feature.cells.ui
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
+import com.wire.android.feature.cells.ui.destinations.ConversationFilesWithSlideInTransitionScreenDestination
 import com.wire.android.navigation.WireNavigator
 import com.wire.android.navigation.annotation.features.cells.WireDestination
 import com.wire.android.navigation.style.SlideNavigationAnimation
@@ -45,7 +47,12 @@ fun ConversationFilesWithSlideInTransitionScreen(
         pagingListItems = viewModel.nodesFlow.collectAsLazyPagingItems(),
         downloadFileSheet = viewModel.downloadFileSheet,
         menu = viewModel.menu,
+        isRestoreInProgress = viewModel.isRestoreInProgress.collectAsState().value,
         breadcrumbs = cellFilesNavArgs.breadcrumbs,
+        onBreadcrumbsFolderClick = {
+            val stepsBack = viewModel.breadcrumbs()?.size!! - it - 1
+            navigator.navigateBackAndRemoveAllConsecutiveXTimes(ConversationFilesWithSlideInTransitionScreenDestination.route, stepsBack)
+        },
         sendIntent = { viewModel.sendIntent(it) },
         navigationIconType = NavigationIconType.Back()
     )

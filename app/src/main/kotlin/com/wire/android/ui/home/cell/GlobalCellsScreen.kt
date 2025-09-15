@@ -31,6 +31,8 @@ fun GlobalCellsScreen(
 ) {
     AllFilesScreen(
         navigator = homeStateHolder.navigator,
-        searchBarState = homeStateHolder.searchBarState
+        searchBarState = homeStateHolder.searchBarState,
+        filterBottomSheetState = homeStateHolder.cellsFilterBottomSheetState,
+        updateFilters = { homeStateHolder.updateCellsFilters(it) },
     )
 }

@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.ksp)
     id(libs.plugins.wire.android.navigation.get().pluginId)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 dependencies {
@@ -18,6 +19,7 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.ktx.immutableCollections)
+    implementation(libs.ktx.serialization)
 
     // hilt
     implementation(libs.hilt.navigationCompose)

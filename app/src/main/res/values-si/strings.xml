@@ -1095,7 +1095,6 @@
     <string name="settings_network_settings_label">ජාල සැකසුම්</string>
     <string name="settings_manage_devices_label">උපාංගය කළමනාකරණය</string>
     <string name="settings_keep_connection_to_websocket">වියමන කෙවෙනියට සම්බන්ධතාවය තබා ගන්න</string>
-    <string name="settings_keep_connection_to_websocket_description">%1$s වෙත ස්ථායී සම්බන්ධතාවයක් පවත්වා ගැනීමෙන් දැනුම්දීම් ලැබීම වැඩි දියුණු කරගන්න. ඔබගේ උපාංගයේ ගූගල් සේවා නැති නම් දැනුම්දීමේ සේවා සඳහා විසඳුමක් වේ.</string>
     <string name="settings_service_is_running">සේවාව ධාවනය වෙමින්</string>
     <!--Settings, Appearance -->
     <string name="settings_customization_label">අභිරුචිකරණය</string>

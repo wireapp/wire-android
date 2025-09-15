@@ -62,7 +62,7 @@ fun MessageBubbleItem(
     showAuthor: Boolean = true,
     useSmallBottomPadding: Boolean = false,
     leading: (@Composable () -> Unit)? = null,
-    footer: (@Composable () -> Unit)? = null,
+    footer: (@Composable (inner: PaddingValues) -> Unit)? = null,
     header: (@Composable (inner: PaddingValues) -> Unit)? = null,
     content: @Composable (inner: PaddingValues) -> Unit
 ) {
@@ -130,13 +130,17 @@ fun MessageBubbleItem(
             } else {
                 null
             }
+            val paddingValue = dimensions().spacing10x
+
+            val bubbleWidthMod = message.assetParams?.normalizedSize()?.width
+                ?.let { Modifier.widthIn(max = it) }
+                ?: Modifier
 
             Surface(
                 color = bubbleColor,
                 shape = shape,
                 border = borderColor?.let { BorderStroke(dimensions().spacing1x, it) },
-                modifier = Modifier
-                    .widthIn(max = maxBubbleWidth)
+                modifier = bubbleWidthMod
                     .clip(shape)
                     .interceptCombinedClickable(
                         interactionSource = remember { MutableInteractionSource() },
@@ -146,27 +150,26 @@ fun MessageBubbleItem(
                     )
             ) {
                 Column {
-                    val contentModifier = if (message.hasMediaWidth) {
+                    val contentModifier = if (message.hasAssetParams) {
                         Modifier.padding(
-                            bottom = if (useSmallBottomPadding) dimensions().spacing0x else dimensions().spacing10x
+                            bottom = if (useSmallBottomPadding) dimensions().spacing0x else paddingValue
                         )
                     } else {
-                        Modifier.padding(all = dimensions().spacing10x)
+                        Modifier.padding(all = paddingValue)
                     }
-                    val contentPadding = if (message.hasMediaWidth) {
-                        PaddingValues(horizontal = dimensions().spacing10x)
-                    } else {
-                        PaddingValues()
-                    }
-
-                    val headerPadding = if (message.hasMediaWidth) {
-                        PaddingValues(start = dimensions().spacing10x, end = dimensions().spacing10x, top = dimensions().spacing10x)
+                    val contentPadding = if (message.hasAssetParams) {
+                        PaddingValues(horizontal = paddingValue)
                     } else {
                         PaddingValues()
                     }
 
                     Column(contentModifier) {
                         if (header != null) {
+                            val headerPadding = if (message.hasAssetParams) {
+                                PaddingValues(start = paddingValue, end = paddingValue, top = paddingValue)
+                            } else {
+                                PaddingValues()
+                            }
                             header(headerPadding)
                         }
                         content(contentPadding)
@@ -175,7 +178,8 @@ fun MessageBubbleItem(
             }
 
             if (footer != null) {
-                footer()
+                val footerPadding = PaddingValues(horizontal = paddingValue)
+                footer(footerPadding)
             }
         }
     }

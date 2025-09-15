@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
@@ -96,6 +97,7 @@ fun ConversationFilesScreen(
         pagingListItems = viewModel.nodesFlow.collectAsLazyPagingItems(),
         downloadFileSheet = viewModel.downloadFileSheet,
         menu = viewModel.menu,
+        isRestoreInProgress = viewModel.isRestoreInProgress.collectAsState().value,
         breadcrumbs = viewModel.breadcrumbs(),
         sendIntent = { viewModel.sendIntent(it) },
     )
@@ -111,8 +113,10 @@ fun ConversationFilesScreenContent(
     menu: SharedFlow<MenuOptions>,
     sendIntent: (CellViewIntent) -> Unit,
     modifier: Modifier = Modifier,
+    onBreadcrumbsFolderClick: (index: Int) -> Unit = {},
     screenTitle: String? = null,
     isRecycleBin: Boolean = false,
+    isRestoreInProgress: Boolean = false,
     breadcrumbs: Array<String>? = emptyArray(),
     navigationIconType: NavigationIconType = NavigationIconType.Close()
 ) {
@@ -122,7 +126,7 @@ fun ConversationFilesScreenContent(
     val isFabVisible = when {
         pagingListItems.isLoading() -> false
         pagingListItems.isError() -> false
-        isRecycleBin == true -> false
+        isRecycleBin -> false
         else -> true
     }
 
@@ -179,7 +183,8 @@ fun ConversationFilesScreenContent(
                         modifier = Modifier
                             .height(dimensions().spacing40x)
                             .fillMaxWidth(),
-                        pathSegments = it
+                        pathSegments = it,
+                        onBreadcrumbsFolderClick = onBreadcrumbsFolderClick
                     )
                 }
             }
@@ -221,6 +226,7 @@ fun ConversationFilesScreenContent(
                 downloadFileState = downloadFileSheet,
                 menuState = menu,
                 isAllFiles = false,
+                isRestoreInProgress = isRestoreInProgress,
                 isRecycleBin = isRecycleBin,
                 onFolderClick = {
                     val folderPath = "$currentNodeUuid/${it.name}"
@@ -328,6 +334,7 @@ fun PreviewConversationFilesScreen() {
             downloadFileSheet = MutableStateFlow(null),
             menu = MutableSharedFlow(replay = 0),
             sendIntent = {},
+            onBreadcrumbsFolderClick = {},
             screenTitle = "Android",
             isRecycleBin = false,
             breadcrumbs = arrayOf("Engineering", "Android"),

@@ -39,7 +39,7 @@ import com.wire.android.ui.theme.wireTypography
 fun MessageAuthorRow(
     messageHeader: MessageHeader,
     messageStyle: MessageStyle,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     with(messageHeader) {
         Row(
@@ -68,8 +68,8 @@ fun MessageAuthorRow(
                 }
             }
             if (!messageStyle.isBubble()) {
-                MessageTimeLabel(
-                    messageTime = messageHeader.messageTime.formattedDate,
+                MessageSmallLabel(
+                    text = messageHeader.messageTime.formattedDate,
                     messageStyle = messageStyle,
                     modifier = Modifier.padding(start = dimensions().spacing6x)
                 )
@@ -94,8 +94,8 @@ private fun Username(username: String, accent: Accent, modifier: Modifier = Modi
 }
 
 @Composable
-fun MessageTimeLabel(
-    messageTime: String,
+fun MessageSmallLabel(
+    text: String,
     messageStyle: MessageStyle,
     modifier: Modifier = Modifier
 ) {
@@ -106,7 +106,7 @@ fun MessageTimeLabel(
     }
 
     Text(
-        text = messageTime,
+        text = text,
         style = MaterialTheme.typography.labelSmall.copy(color = color),
         maxLines = 1,
         modifier = modifier

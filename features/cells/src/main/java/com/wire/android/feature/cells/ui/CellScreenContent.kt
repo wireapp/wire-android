@@ -48,11 +48,13 @@ import com.wire.android.feature.cells.ui.dialog.NodeActionsBottomSheet
 import com.wire.android.feature.cells.ui.dialog.RestoreConfirmationDialog
 import com.wire.android.feature.cells.ui.download.DownloadFileBottomSheet
 import com.wire.android.feature.cells.ui.model.CellNodeUi
+import com.wire.android.feature.cells.ui.publiclink.PublicLinkScreenData
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.MultipleThemePreviews
+import com.wire.android.ui.common.typography
 import com.wire.android.ui.theme.WireTheme
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
@@ -70,9 +72,11 @@ internal fun CellScreenContent(
     showRenameScreen: (CellNodeUi) -> Unit,
     showMoveToFolderScreen: (String, String, String) -> Unit,
     showAddRemoveTagsScreen: (CellNodeUi) -> Unit,
+    isRestoreInProgress: Boolean,
     isAllFiles: Boolean,
     isRecycleBin: Boolean,
     isSearchResult: Boolean = false,
+    isFiltering: Boolean = false
 ) {
 
     val context = LocalContext.current
@@ -91,6 +95,7 @@ internal fun CellScreenContent(
             isSearchResult = isSearchResult,
             isAllFiles = isAllFiles,
             isRecycleBin = isRecycleBin,
+            isFiltering = isFiltering,
             onRetry = { pagingListItems.retry() }
         )
 
@@ -148,6 +153,7 @@ internal fun CellScreenContent(
         RestoreConfirmationDialog(
             itemName = it.name ?: "",
             isFolder = it is CellNodeUi.Folder,
+            isRestoreInProgress = isRestoreInProgress,
             onConfirm = {
                 sendIntent(CellViewIntent.OnNodeRestoreConfirmed(it))
                 restoreConfirmation = null
@@ -227,6 +233,7 @@ private fun EmptyScreen(
     isSearchResult: Boolean = false,
     isAllFiles: Boolean = true,
     isRecycleBin: Boolean = false,
+    isFiltering: Boolean = false,
     onRetry: () -> Unit = {},
 ) {
     Column(
@@ -241,8 +248,19 @@ private fun EmptyScreen(
                 .fillMaxHeight()
                 .weight(1f)
         )
+        val emptyMessage = when {
+            isFiltering || isSearchResult -> stringResource(R.string.no_results_found_label)
+            isAllFiles -> stringResource(R.string.file_list_empty_title)
+            else -> stringResource(R.string.file_list_empty_title)
+        }
+        Text(
+            text = emptyMessage,
+            style = typography().title01,
+            textAlign = TextAlign.Center,
+        )
         Text(
             text = when {
+                isFiltering -> stringResource(R.string.filters_try_adjusting_your_filters_label)
                 isSearchResult -> stringResource(R.string.file_list_search_empty_message)
                 isAllFiles -> stringResource(R.string.file_list_empty_message)
                 isRecycleBin -> stringResource(R.string.empty_recycle_bin)
@@ -254,10 +272,10 @@ private fun EmptyScreen(
         Spacer(
             modifier = Modifier
                 .fillMaxHeight()
-                .weight(1f)
+                .weight(1.5f)
         )
 
-        if (!isSearchResult && isAllFiles) {
+        if (!isSearchResult && isAllFiles && !isFiltering) {
             WirePrimaryButton(
                 text = stringResource(R.string.reload),
                 onClick = onRetry

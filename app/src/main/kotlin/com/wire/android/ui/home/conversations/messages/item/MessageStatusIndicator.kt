@@ -121,3 +121,14 @@ fun PreviewMessageStatusSending() {
         )
     }
 }
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewMessageStatusDelivered() {
+    WireTheme {
+        MessageStatusIndicator(
+            MessageFlowStatus.Delivered,
+            messageStyle = MessageStyle.NORMAL
+        )
+    }
+}

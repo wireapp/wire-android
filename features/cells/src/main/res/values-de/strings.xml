@@ -18,9 +18,13 @@
   -->
 <resources>
     <string name="retry">Wiederholen</string>
+    <string name="file_list_empty_message">Hier finden Sie alle Dateien, die Sie in Ihren Unterhaltungen gemeinsam nutzen.</string>
+    <string name="conversation_file_list_empty_message">Hier finden Sie alle Dateien und Ordner, die in dieser Unterhaltung geteilt wurden.</string>
+    <string name="file_list_search_empty_message">Versuchen Sie, Ihre Suche anzupassen</string>
     <string name="save_label">Speichern</string>
     <string name="share_label">Teilen</string>
     <string name="delete_label">Löschen</string>
+    <string name="public_link">Per Link teilen</string>
     <string name="delete_permanently">Endgültig löschen</string>
     <string name="restore_label">Wiederherstellen</string>
     <string name="add_remove_tags_label">Tags hinzufügen oder entfernen</string>
@@ -30,7 +34,6 @@
     <string name="copied_to_clipboard_message">Link in Zwischenablage kopiert</string>
     <string name="file_subtitle">%1$s in %2$s</string>
     <string name="file_subtitle_modified">%1$s von %2$s</string>
-    <string name="public_link_message_file">Laden Sie Ihre Datei hoch und teilen Sie sie über einen öffentlichen Link. Alle Empfänger können sie ansehen und herunterladen.</string>
     <string name="create_public_link">Öffentlichen Link erstellen</string>
     <string name="share_file_via_link">Datei über Link teilen</string>
     <string name="cancel">Abbrechen</string>
@@ -49,6 +52,7 @@
     <string name="no_subfolders_message">Es gibt keine Unterordner in diesem Ordner.</string>
     <string name="item_move_success">Objekt wurde in Ordner verschoben.</string>
     <string name="open_recycle_bin">Papierkorb öffnen</string>
+    <string name="empty_recycle_bin">Hier finden Sie alle gelöschten Dateien und Ordner.</string>
     <string name="dialog_restore_file_description">Diese Datei %1$s wird wiederhergestellt und ist für alle Teilnehmer dieser Unterhaltung wieder verfügbar.</string>
     <string name="dialog_restore_button_label">Wiederherstellen</string>
     <string name="rename_file_label">Datei umbenennen</string>
@@ -56,8 +60,6 @@
     <string name="rename_label">Umbenennen</string>
     <string name="rename_file_name_label">Dateiname</string>
     <string name="rename_folder_name_label">Ordnername</string>
-    <string name="rename_long_file_name_error">Verwenden Sie einen kürzeren Namen (max. 64 Zeichen)</string>
-    <string name="rename_long_folder_name_error">Verwenden Sie einen kürzeren Namen (max. 64 Zeichen)</string>
     <string name="rename_enter_file_name">Dateinamen eingeben</string>
     <string name="rename_enter_folder_name">Ordnernamen eingeben</string>
     <string name="rename_file_renamed">Datei wurde umbenannt</string>
@@ -67,8 +69,12 @@
     <string name="select_tags_label">Tags auswählen</string>
     <string name="clear_all_label">Alle löschen</string>
     <string name="apply_label">Anwenden</string>
-    <string name="add_or_remove_tags_title">Tags hinzufügen oder entfernen</string>
     <string name="suggested_tags_label">Vorgeschlagene Tags</string>
     <string name="add_tag_label">Tag hinzufügen</string>
+    <string name="no_tags_message">Noch keine Tags erstellt.</string>
     <string name="tags_edited">Tags wurden bearbeitet</string>
+    <string name="create_folder_invalid_name">Verwenden Sie einen Namen ohne \"/\" oder \".\"</string>
+    <string name="file_list_empty_title">Es gibt noch keine Dateien oder Ordner</string>
+    <string name="no_results_found_label">Keine Ergebnisse gefunden</string>
+    <string name="filters_try_adjusting_your_filters_label">Versuchen Sie, Ihre Filter anzupassen.</string>
 </resources>

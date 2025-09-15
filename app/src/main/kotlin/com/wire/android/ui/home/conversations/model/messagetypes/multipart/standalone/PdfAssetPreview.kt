@@ -45,6 +45,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.multipart.AssetSource
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
 import com.wire.android.ui.common.progress.WireLinearProgressIndicator
+import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.previewAvailable
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.previewImageModel
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.transferProgressColor
@@ -60,7 +61,10 @@ import com.wire.kalium.logic.data.message.width
 import com.wire.kalium.logic.util.fileExtension
 
 @Composable
-internal fun PdfAssetPreview(item: MultipartAttachmentUi) {
+internal fun PdfAssetPreview(
+    item: MultipartAttachmentUi,
+    messageStyle: MessageStyle
+) {
 
     val width = item.metadata?.width() ?: 0
     val height = item.metadata?.height() ?: 0
@@ -92,6 +96,7 @@ internal fun PdfAssetPreview(item: MultipartAttachmentUi) {
         FileHeaderView(
             extension = item.fileName?.fileExtension() ?: item.mimeType.substringAfter("/"),
             size = item.assetSize,
+            messageStyle = messageStyle
         )
 
         item.fileName?.let {
@@ -180,7 +185,8 @@ private fun PreviewPdfAsset() {
                 PdfAssetPreview(
                     item = attachment.copy(
                         transferStatus = AssetTransferStatus.NOT_DOWNLOADED
-                    )
+                    ),
+                    messageStyle = MessageStyle.NORMAL
                 )
             }
             Box {
@@ -188,12 +194,14 @@ private fun PreviewPdfAsset() {
                     item = attachment.copy(
                         transferStatus = AssetTransferStatus.DOWNLOAD_IN_PROGRESS,
                         progress = 0.75f
-                    )
+                    ),
+                    messageStyle = MessageStyle.NORMAL
                 )
             }
             Box {
                 PdfAssetPreview(
-                    item = attachment
+                    item = attachment,
+                    messageStyle = MessageStyle.NORMAL
                 )
             }
             Box {
@@ -201,7 +209,8 @@ private fun PreviewPdfAsset() {
                     item = attachment.copy(
                         transferStatus = FAILED_DOWNLOAD,
                         progress = 0.75f
-                    )
+                    ),
+                    messageStyle = MessageStyle.NORMAL
                 )
             }
         }

@@ -273,9 +273,9 @@ class MessagePreviewContentMapperTest {
             val otherRemovedUsers = listOf(UserId("otherValue", "a-domain"), UserId("otherValue2", "a-domain2"))
             val messagePreview = TestMessage.PREVIEW.copy(
                 content = MessagePreviewContent.WithUser.ConversationMembersRemoved(
-                    "admin",
+                    username = "admin",
                     isSelfUserRemoved = true,
-                    otherRemovedUsers
+                    otherUserIdList = otherRemovedUsers
                 )
             )
 
@@ -291,9 +291,9 @@ class MessagePreviewContentMapperTest {
             val otherUsersAdded = listOf(UserId("otherValue", "a-domain"), UserId("otherValue2", "a-domain2"))
             val messagePreview = TestMessage.PREVIEW.copy(
                 content = MessagePreviewContent.WithUser.MembersAdded(
-                    "admin",
+                    username = "admin",
                     isSelfUserAdded = true,
-                    otherUsersAdded
+                    otherUserIdList = otherUsersAdded
                 )
             )
 
@@ -308,9 +308,9 @@ class MessagePreviewContentMapperTest {
         val otherUsersAdded = listOf(UserId("otherValue", "a-domain"), UserId("otherValue2", "a-domain2"))
         val messagePreview = TestMessage.PREVIEW.copy(
             content = MessagePreviewContent.WithUser.MembersAdded(
-                "admin",
+                username = "admin",
                 isSelfUserAdded = false,
-                otherUsersAdded
+                otherUserIdList = otherUsersAdded
             ),
             isSelfMessage = true
         )
@@ -322,22 +322,21 @@ class MessagePreviewContentMapperTest {
     }
 
     @Test
-    fun givenOtherUsersWereAddedToConversationMessage_whenMappingToUILastMessageContent_thenCorrectContentShouldBeReturned() =
-        runTest {
-            val otherUsersAdded = listOf(UserId("otherValue", "a-domain"), UserId("otherValue2", "a-domain2"))
-            val messagePreview = TestMessage.PREVIEW.copy(
-                content = MessagePreviewContent.WithUser.MembersAdded(
-                    "admin",
-                    isSelfUserAdded = false,
-                    otherUsersAdded
-                )
+    fun givenOtherUsersWereAddedToConversationMessage_whenMappingToUILastMessageContent_thenCorrectContentShouldBeReturned() = runTest {
+        val otherUsersAdded = listOf(UserId("otherValue", "a-domain"), UserId("otherValue2", "a-domain2"))
+        val messagePreview = TestMessage.PREVIEW.copy(
+            content = MessagePreviewContent.WithUser.MembersAdded(
+                username = "admin",
+                isSelfUserAdded = false,
+                otherUserIdList = otherUsersAdded
             )
+        )
 
-            val uiPreviewMessage = messagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.TextMessage>()
-            val previewString = uiPreviewMessage.messageBody.message.shouldBeInstanceOf<UIText.PluralResource>()
-            previewString.count shouldBeEqualTo otherUsersAdded.size
-            previewString.resId shouldBeEqualTo R.plurals.last_message_other_added_other_users
-        }
+        val uiPreviewMessage = messagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.TextMessage>()
+        val previewString = uiPreviewMessage.messageBody.message.shouldBeInstanceOf<UIText.PluralResource>()
+        previewString.count shouldBeEqualTo otherUsersAdded.size
+        previewString.resId shouldBeEqualTo R.plurals.last_message_other_added_other_users
+    }
 
     @Test
     fun givenFederatedUsersWereRemovedFromConversationMessage_whenMappingToUILastMessageContent_thenCorrectContentShouldBeReturned() =
@@ -346,7 +345,7 @@ class MessagePreviewContentMapperTest {
             val messagePreview = TestMessage.PREVIEW.copy(
                 content = MessagePreviewContent.FederatedMembersRemoved(
                     isSelfUserRemoved = true,
-                    otherRemovedUsers
+                    otherUserIdList = otherRemovedUsers
                 )
             )
 
@@ -363,7 +362,7 @@ class MessagePreviewContentMapperTest {
             val messagePreview = TestMessage.PREVIEW.copy(
                 content = MessagePreviewContent.FederatedMembersRemoved(
                     isSelfUserRemoved = false,
-                    otherRemovedUsers
+                    otherUserIdList = otherRemovedUsers
                 )
             )
 
@@ -374,16 +373,15 @@ class MessagePreviewContentMapperTest {
         }
 
     @Test
-    fun givenLastMessageIsDeleted_whenMappingToUILastMessageContent_thenCorrectContentShouldBeReturned() =
-        runTest {
-            val messagePreview = TestMessage.PREVIEW.copy(
-                content = MessagePreviewContent.WithUser.Deleted("admin"),
-                isSelfMessage = false
-            )
+    fun givenLastMessageIsDeleted_whenMappingToUILastMessageContent_thenCorrectContentShouldBeReturned() = runTest {
+        val messagePreview = TestMessage.PREVIEW.copy(
+            content = MessagePreviewContent.WithUser.Deleted("admin"),
+            isSelfMessage = false
+        )
 
-            val senderWithMessage = messagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.SenderWithMessage>()
-            val result = senderWithMessage.message.shouldBeInstanceOf<UIText.StringResource>()
+        val senderWithMessage = messagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.SenderWithMessage>()
+        val result = senderWithMessage.message.shouldBeInstanceOf<UIText.StringResource>()
 
-            result.resId shouldBeEqualTo R.string.deleted_message_text
-        }
+        result.resId shouldBeEqualTo R.string.deleted_message_text
+    }
 }

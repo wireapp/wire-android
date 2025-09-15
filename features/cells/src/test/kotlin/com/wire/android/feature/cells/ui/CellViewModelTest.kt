@@ -35,6 +35,7 @@ import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
 import com.wire.kalium.cells.domain.usecase.DownloadCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
+import com.wire.kalium.cells.domain.usecase.IsAtLeastOneCellAvailableUseCase
 import com.wire.kalium.cells.domain.usecase.RestoreNodeFromRecycleBinUseCase
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.common.functional.left
@@ -447,6 +448,18 @@ class CellViewModelTest {
             }
         }
 
+    @Test
+    fun `GIVEN no cells available WHEN ViewModel initialized THEN no load request is sent`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withNoCellsAvailable()
+            .arrange()
+
+        viewModel.nodesFlow.test {
+            coVerify(exactly = 0) { arrangement.getCellFilesPagedUseCase(any(), any()) }
+            cancelAndConsumeRemainingEvents()
+        }
+    }
+
     private class Arrangement(conversationId: String? = null) {
 
         @MockK
@@ -466,6 +479,9 @@ class CellViewModelTest {
 
         @MockK
         lateinit var restoreNodeFromRecycleBinUseCase: RestoreNodeFromRecycleBinUseCase
+
+        @MockK
+        lateinit var isCellAvailableUseCase: IsAtLeastOneCellAvailableUseCase
 
         @MockK
         lateinit var fileHelper: FileHelper
@@ -489,6 +505,21 @@ class CellViewModelTest {
             every { kaliumFileSystem.exists(any()) } returns false
 
             coEvery { getAllTagsUseCase.invoke() } returns emptySet<String>().right()
+
+            coEvery { isCellAvailableUseCase.invoke() } returns true.right()
+
+            coEvery { getCellFilesPagedUseCase.invoke(any(), any()) } returns flowOf(
+                PagingData.from(
+                    data = listOf(
+                        testFiles[0]
+                    ),
+                    sourceLoadStates = LoadStates(
+                        prepend = LoadState.NotLoading(true),
+                        append = LoadState.NotLoading(true),
+                        refresh = LoadState.NotLoading(true),
+                    ),
+                )
+            )
         }
 
         fun withLoadSuccess() = apply {
@@ -529,6 +560,10 @@ class CellViewModelTest {
             )
         }
 
+        fun withNoCellsAvailable() = apply {
+            coEvery { isCellAvailableUseCase.invoke() } returns false.right()
+        }
+
         fun arrange(): Pair<Arrangement, CellViewModel> {
             return this to CellViewModel(
                 savedStateHandle = savedStateHandle,
@@ -537,6 +572,7 @@ class CellViewModelTest {
                 getAllTagsUseCase = getAllTagsUseCase,
                 restoreNodeFromRecycleBinUseCase = restoreNodeFromRecycleBinUseCase,
                 download = downloadCellFileUseCase,
+                isCellAvailable = isCellAvailableUseCase,
                 fileHelper = fileHelper,
                 kaliumFileSystem = kaliumFileSystem,
                 context = context

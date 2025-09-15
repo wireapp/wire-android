@@ -29,7 +29,7 @@ import org.json.JSONObject
 import user.utils.ClientUser
 import java.net.URL
 
-suspend fun ClientUser.deleteUser(backend: BackendClient) {
+fun ClientUser.deleteUser(backend: BackendClient) {
     val token = runBlocking {
         backend.getAuthToken(this@deleteUser)
     }

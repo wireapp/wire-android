@@ -46,7 +46,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -325,7 +325,8 @@ fun HomeContent(
                         ) {
                             HomeTopBar(
                                 title = currentTitle.asString(),
-                                currentFilter = currentConversationFilter,
+                                currentConversationFilter = currentConversationFilter,
+                                currentCellsFilters = currentCellsFilters,
                                 navigationItem = currentNavigationItem,
                                 userAvatarData = homeState.userAvatarData,
                                 elevation = dimensions().spacing0x, // CollapsingTopBarScaffold manages applied elevation
@@ -342,7 +343,7 @@ fun HomeContent(
                                     )
                                 },
                                 onOpenFilesFilter = {
-                                    searchBarState.onFilterActiveChanged(true)
+                                    homeStateHolder.cellsFilterBottomSheetState.show(Unit)
                                 }
                             )
                         }
@@ -426,7 +427,7 @@ fun HomeContent(
                 ConversationFilterSheetContent(
                     onChangeFilter = { filter ->
                         filterSheetState.hide()
-                        homeStateHolder.changeFilter(filter)
+                        homeStateHolder.changeConversationFilter(filter)
                     },
                     filterSheetState = sheetContentState
                 )

@@ -19,7 +19,6 @@
 <resources>
     <string name="retry">නැවත</string>
     <string name="file_list_load_error">ගොනු ලැයිස්තුව පූරණය කිරීමේදී දෝෂයක් ඇති විය. කරුණාකර නැවත උත්සාහ කරන්න.</string>
-    <string name="file_list_search_empty_message">ගොනු කිසිවක් හමු නොවීය.</string>
     <string name="copied_to_clipboard_message">සබැඳිය පසුරු පුවරුවට පිටපත් කරන ලදී</string>
     <string name="file_subtitle">%2$sකින් %1$s</string>
     <string name="file_subtitle_modified">%1$s %2$sවිසින්</string>

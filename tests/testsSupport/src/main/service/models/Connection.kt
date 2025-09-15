@@ -15,24 +15,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.home.cell
+package service.models
 
-import androidx.compose.runtime.Composable
-import com.wire.android.feature.cells.ui.AllFilesScreen
-import com.wire.android.navigation.HomeNavGraph
-import com.wire.android.navigation.annotation.app.WireDestination
-import com.wire.android.ui.home.HomeStateHolder
+import backendUtils.ConnectionStatus
+import org.json.JSONObject
 
-@HomeNavGraph
-@WireDestination
-@Composable
-fun GlobalCellsScreen(
-    homeStateHolder: HomeStateHolder,
+data class Connection(
+    val to: String? = null,
+    val status: ConnectionStatus? = null,
+    val domain: String? = null
 ) {
-    AllFilesScreen(
-        navigator = homeStateHolder.navigator,
-        searchBarState = homeStateHolder.searchBarState,
-        filterBottomSheetState = homeStateHolder.cellsFilterBottomSheetState,
-        updateFilters = { homeStateHolder.updateCellsFilters(it) },
-    )
+    companion object {
+        fun fromJSON(connection: JSONObject): Connection {
+            return Connection(
+                to = connection.getString("to"),
+                status = ConnectionStatus.fromString(connection.getString("status")),
+                domain = connection.optJSONObject("qualified_to")?.getString("domain")
+            )
+        }
+    }
 }

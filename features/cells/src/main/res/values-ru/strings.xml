@@ -21,7 +21,7 @@
     <string name="file_list_load_error">Произошла ошибка при загрузке списка файлов. Пожалуйста, попробуйте еще раз</string>
     <string name="file_list_empty_message">Здесь вы найдете все файлы, которыми поделились в ваших беседах.</string>
     <string name="conversation_file_list_empty_message">Здесь вы найдете все файлы и папки, которыми поделились в этой беседе.</string>
-    <string name="file_list_search_empty_message">Файлы не найдены.</string>
+    <string name="file_list_search_empty_message">Попробуйте изменить условия поиска</string>
     <string name="save_label">Сохранить</string>
     <string name="share_label">Поделится</string>
     <string name="delete_label">Удалить</string>
@@ -87,8 +87,8 @@
     <string name="rename_label">Переименовать</string>
     <string name="rename_file_name_label">Имя файла</string>
     <string name="rename_folder_name_label">Название папки</string>
-    <string name="rename_long_file_name_error">Используйте более короткое название файла (максимум 64 символа)</string>
-    <string name="rename_long_folder_name_error">Используйте более короткое название папки (максимум 64 символа)</string>
+    <string name="rename_long_file_name_error">Используйте более короткое название файла (не более 64 символа)</string>
+    <string name="rename_long_folder_name_error">Используйте более короткое название папки (не более 64 символа)</string>
     <string name="rename_enter_file_name">Введите название файла</string>
     <string name="rename_enter_folder_name">Введите название папки</string>
     <string name="rename_file_renamed">Файл переименован</string>
@@ -111,4 +111,6 @@
     <string name="failed_edit_tags">Не удалось изменить теги</string>
     <string name="create_folder_invalid_name">Используйте название без \"/\" или \".\"</string>
     <string name="file_list_empty_title">Файлов и папок пока нет</string>
+    <string name="no_results_found_label">Ничего не найдено</string>
+    <string name="filters_try_adjusting_your_filters_label">Попробуйте изменить фильтры.</string>
 </resources>

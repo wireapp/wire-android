@@ -77,7 +77,7 @@ fun LocationPickerComponent(
 
     val locationFlow = rememberCurrentLocationPermissionFlow(
         onAllPermissionsGranted = viewModel::getCurrentLocation,
-        onAnyPermissionDenied = { /* do nothing */ },
+        onAnyPermissionDenied = { sheetState.hide() },
         onAnyPermissionPermanentlyDenied = viewModel::onPermissionPermanentlyDenied
     )
 

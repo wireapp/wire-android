@@ -29,6 +29,7 @@ import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.common.wireDialogPropertiesBuilder
+import com.wire.android.ui.theme.WireTheme
 
 @Composable
 fun DeleteConfirmationDialog(
@@ -89,11 +90,13 @@ fun DeleteConfirmationDialog(
 @MultipleThemePreviews
 @Composable
 fun DeleteConfirmationDialogPreview() {
-    DeleteConfirmationDialog(
-        itemName = "Very important file.pdf",
-        isFolder = false,
-        isPermanentDelete = false,
-        onConfirm = {},
-        onDismiss = {}
-    )
+    WireTheme {
+        DeleteConfirmationDialog(
+            itemName = "Very important file.pdf",
+            isFolder = false,
+            isPermanentDelete = false,
+            onConfirm = {},
+            onDismiss = {}
+        )
+    }
 }

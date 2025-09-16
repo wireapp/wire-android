@@ -27,6 +27,7 @@ import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
+import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.common.wireDialogPropertiesBuilder
 
 @Composable
@@ -81,7 +82,18 @@ fun DeleteConfirmationDialog(
             text = stringResource(id = R.string.cancel),
             onClick = onDismiss
         ),
-        buttonsHorizontalAlignment = false,
         properties = wireDialogPropertiesBuilder(dismissOnBackPress = true, dismissOnClickOutside = true)
+    )
+}
+
+@MultipleThemePreviews
+@Composable
+fun DeleteConfirmationDialogPreview() {
+    DeleteConfirmationDialog(
+        itemName = "Very important file.pdf",
+        isFolder = false,
+        isPermanentDelete = false,
+        onConfirm = {},
+        onDismiss = {}
     )
 }

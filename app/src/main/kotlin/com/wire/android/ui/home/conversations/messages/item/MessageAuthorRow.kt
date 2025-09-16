@@ -24,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.style.TextOverflow
 import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.UserBadge
@@ -105,10 +106,16 @@ fun MessageSmallLabel(
         MessageStyle.NORMAL -> colorsScheme().secondaryText
     }
 
+    val alpha = when (messageStyle) {
+        MessageStyle.BUBBLE_SELF -> 0.5F
+        MessageStyle.BUBBLE_OTHER -> 1F
+        MessageStyle.NORMAL -> 1F
+    }
+
     Text(
         text = text,
         style = MaterialTheme.typography.labelSmall.copy(color = color),
         maxLines = 1,
-        modifier = modifier
+        modifier = modifier.alpha(alpha)
     )
 }

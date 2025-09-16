@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.SelfDeletionTimerHelper
@@ -70,7 +71,20 @@ fun RegularMessageItem(
                             messageFooter = message.messageFooter,
                             messageStyle = messageStyle,
                             onReactionClicked = clickActions.onReactionClicked,
-                            modifier = Modifier.padding(innerPadding)
+                            modifier = Modifier.padding(innerPadding),
+                            itemsAlignment = if (message.isMyMessage) {
+                                Alignment.End
+                            } else {
+                                Alignment.Start
+                            },
+                            onLongClick = when {
+                                message.header.messageStatus.isDeleted -> null // do not allow long press on deleted messages
+                                else -> clickActions.onFullMessageLongClicked?.let {
+                                    {
+                                        it(message)
+                                    }
+                                }
+                            },
                         )
                     }
                 } else {
@@ -82,7 +96,7 @@ fun RegularMessageItem(
                     {
                         RegularMessageItemLeading(
                             header = header,
-                            showAuthor = showAuthor,
+                            showAuthor = !useSmallBottomPadding,
                             userAvatarData = message.userAvatarData,
                             onOpenProfile = clickActions.onProfileClicked
                         )

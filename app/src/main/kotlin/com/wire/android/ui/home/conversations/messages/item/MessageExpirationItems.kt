@@ -25,6 +25,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
@@ -35,6 +36,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.StatusBox
+import com.wire.android.ui.common.applyIf
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.common.typography
@@ -45,7 +47,6 @@ import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.theme.wireColorScheme
-import com.wire.android.util.compactLabel
 import com.wire.android.util.ui.UIText
 
 @SuppressLint("ComposeModifierMissing")
@@ -101,10 +102,15 @@ fun MessageBubbleExpireFooter(
         is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable -> {
             Row(modifier) {
                 HorizontalSpace.x8()
-                SelfDeletionTimerIcon(selfDeletionTimerState, messageStyle, accentColor)
+                SelfDeletionTimerIcon(
+                    selfDeletionTimerState,
+                    messageStyle,
+                    accentColor,
+                    modifier = Modifier.applyIf(messageStyle == MessageStyle.BUBBLE_SELF) { alpha(0.5F) }
+                )
                 HorizontalSpace.x4()
                 MessageSmallLabel(
-                    text = selfDeletionTimerState.timeLeft.compactLabel(),
+                    text = selfDeletionTimerState.timeFormatted,
                     messageStyle = messageStyle
                 )
             }

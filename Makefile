@@ -12,6 +12,6 @@ install/staging-debug:
 	@echo "🚀$(PURPLE)Installing staging debug build on connected device...$(NC)"
 	adb install -r $(STAGING_APK_PATH)
 
-mdm/install/staging-debug:
+emm/install/staging-debug:
 	@echo "🚀$(PURPLE)Installing staging debug build on connected device on work-profile...$(NC)"
 	adb install --user 10 -r $(STAGING_APK_PATH)

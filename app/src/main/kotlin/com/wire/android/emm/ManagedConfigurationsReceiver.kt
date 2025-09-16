@@ -22,18 +22,20 @@ import android.content.Context
 import android.content.Intent
 import android.content.RestrictionsManager
 import com.wire.android.appLogger
-import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
+import javax.inject.Singleton
 
-@AndroidEntryPoint
-class ManagedConfigurationsReceiver @Inject constructor() : BroadcastReceiver() {
+@Singleton
+class ManagedConfigurationsReceiver @Inject constructor(@ApplicationContext val context: Context) : BroadcastReceiver() {
 
     val logger = appLogger.withTextTag(TAG)
 
     override fun onReceive(context: Context, intent: Intent) {
+        logger.i("onReceive called")
         val myRestrictionsMgr = context.getSystemService(Context.RESTRICTIONS_SERVICE) as RestrictionsManager
         myRestrictionsMgr.applicationRestrictions
-        logger.d("onReceive: ${intent.action}, restrictions: ${myRestrictionsMgr.applicationRestrictions}")
+        logger.i("onReceive: ${intent.action}, restrictions: ${myRestrictionsMgr.applicationRestrictions}")
     }
 
     companion object {

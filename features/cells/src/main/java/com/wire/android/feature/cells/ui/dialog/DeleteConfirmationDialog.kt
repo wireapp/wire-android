@@ -98,6 +98,7 @@ fun DeleteConfirmationDialogPreview() {
             itemName = "Very important file.pdf",
             isFolder = false,
             isPermanentDelete = false,
+            isDeleteInProgress = false,
             onConfirm = {},
             onDismiss = {}
         )

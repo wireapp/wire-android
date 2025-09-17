@@ -18,9 +18,9 @@
 <restrictions xmlns:android="http://schemas.android.com/apk/res/android">
 
     <restriction
-            android:key="testMDM"
-            android:title="test MDM key"
+            android:defaultValue="true"
+            android:key="test_key"
             android:restrictionType="bool"
-            android:defaultValue="true" />
+            android:title="test EMM key" />
 
 </restrictions>

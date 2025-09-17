@@ -20,10 +20,8 @@ package com.wire.android
 
 import android.app.Activity
 import android.content.ComponentCallbacks2
-import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.RestrictionsManager
 import android.os.Build
 import android.os.Bundle
 import android.os.StrictMode
@@ -174,26 +172,35 @@ class WireApplication : BaseApp() {
             override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {}
             override fun onActivityStarted(activity: Activity) {
                 globalAnalyticsManager.onStart(activity)
-                val myRestrictionsMgr = activity.getSystemService(Context.RESTRICTIONS_SERVICE) as RestrictionsManager
-                myRestrictionsMgr.applicationRestrictions.let {
-                    appLogger.i("EMM managed configurations at start: $it")
-                    appLogger.d("EMM isTestMDMEnabled=${it.getBoolean("testMDM")}")
-                }
-                appLogger.i("ym. Registering EMM managed configurations receiver")
-                registerReceiver(managedConfigurationsReceiver, restrictionsFilter)
+                registerRuntimeReceivers()
             }
 
             override fun onActivityResumed(activity: Activity) {}
             override fun onActivityPaused(activity: Activity) {}
             override fun onActivityStopped(activity: Activity) {
                 globalAnalyticsManager.onStop(activity)
-//                appLogger.i("ym. Registering EMM managed configurations receiver")
-//                unregisterReceiver(managedConfigurationsReceiver)
+                unregisterRuntimeReceivers()
             }
 
             override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {}
             override fun onActivityDestroyed(activity: Activity) {}
         })
+    }
+
+    /**
+     * Register broadcast receivers that need to be active dynamically.
+     */
+    private fun registerRuntimeReceivers() {
+        appLogger.i("Registering Runtime broadcast receivers")
+        registerReceiver(managedConfigurationsReceiver, restrictionsFilter)
+    }
+
+    /**
+     * Unregister broadcast receivers that were dynamically registered.
+     */
+    private fun unregisterRuntimeReceivers() {
+        appLogger.i("Unregistering Runtime broadcast receivers")
+        unregisterReceiver(managedConfigurationsReceiver)
     }
 
     private suspend fun initializeApplicationLoggingFrameworks() {

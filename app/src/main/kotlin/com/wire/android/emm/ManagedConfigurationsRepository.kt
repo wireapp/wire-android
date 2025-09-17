@@ -17,31 +17,31 @@
  */
 package com.wire.android.emm
 
-import android.content.BroadcastReceiver
 import android.content.Context
-import android.content.Intent
-import com.wire.android.appLogger
+import android.content.RestrictionsManager
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class ManagedConfigurationsReceiver @Inject constructor(
-    @ApplicationContext val context: Context,
-    private val managedConfigurationsRepository: ManagedConfigurationsRepository
-) : BroadcastReceiver() {
+class ManagedConfigurationsRepository @Inject constructor(
+    @ApplicationContext private val context: Context
+) {
 
-    val logger = appLogger.withTextTag(TAG)
+    private val restrictionsManager: RestrictionsManager by lazy {
+        context.getSystemService(Context.RESTRICTIONS_SERVICE) as RestrictionsManager
+    }
 
-    override fun onReceive(context: Context, intent: Intent) {
-        logger.i("onReceive called")
-        managedConfigurationsRepository.getStringRestrictionByKey("test_key")?.let {
-            logger.i("Received restriction test_key: $it")
-        }
+    fun getBooleanRestrictionByKey(key: String, defaultValue: Boolean = false): Boolean {
+        return restrictionsManager.applicationRestrictions.getBoolean(key, defaultValue)
+    }
+
+    fun getStringRestrictionByKey(key: String, defaultValue: String? = null): String? {
+        return restrictionsManager.applicationRestrictions.getString(key) ?: defaultValue
     }
 
     companion object {
-        const val TAG = "ManagedConfigurationsReceiver"
+        const val TAG = "ManagedConfigurationsRepository"
     }
 
 }

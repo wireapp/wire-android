@@ -58,6 +58,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.home.conversations.messages.item.isBubble
+import com.wire.android.ui.home.conversations.messages.item.textColor
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -94,7 +95,7 @@ internal fun MessageAsset(
             .clickable(if (isNotClickable(assetTransferStatus)) null else onAssetClick)
     ) {
         if (assetTransferStatus == AssetTransferStatus.UPLOAD_IN_PROGRESS) {
-            UploadInProgressAssetMessage()
+            UploadInProgressAssetMessage(messageStyle)
         } else {
             val assetModifier = Modifier
                 .align(Alignment.Center)
@@ -115,7 +116,8 @@ internal fun MessageAsset(
                     style = MaterialTheme.wireTypography.body02,
                     fontSize = 15.sp,
                     maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
+                    color = messageStyle.textColor()
                 )
 
                 assetDataPath?.let { localPath ->
@@ -130,7 +132,7 @@ internal fun MessageAsset(
 }
 
 @Composable
-fun UploadInProgressAssetMessage(modifier: Modifier = Modifier) {
+fun UploadInProgressAssetMessage(messageStyle: MessageStyle, modifier: Modifier = Modifier) {
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -139,21 +141,21 @@ fun UploadInProgressAssetMessage(modifier: Modifier = Modifier) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         WireCircularProgressIndicator(
-            progressColor = MaterialTheme.wireColorScheme.secondaryText,
+            progressColor = messageStyle.textColor(),
             size = dimensions().spacing16x
         )
         Spacer(modifier = Modifier.size(MaterialTheme.wireDimensions.spacing8x))
         Text(
             modifier = Modifier.padding(end = dimensions().spacing4x),
             text = stringResource(R.string.asset_message_upload_in_progress_text),
-            color = MaterialTheme.wireColorScheme.secondaryText,
+            color = messageStyle.textColor(),
             style = MaterialTheme.wireTypography.subline01
         )
     }
 }
 
 @Composable
-fun RestrictedAssetMessage(assetTypeIcon: Int, restrictedAssetMessage: String, modifier: Modifier = Modifier) {
+fun RestrictedAssetMessage(assetTypeIcon: Int, restrictedAssetMessage: String, messageStyle: MessageStyle, modifier: Modifier = Modifier) {
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(dimensions().messageAssetBorderRadius),
@@ -175,12 +177,12 @@ fun RestrictedAssetMessage(assetTypeIcon: Int, restrictedAssetMessage: String, m
                 ),
                 alignment = Alignment.Center,
                 contentDescription = stringResource(R.string.content_description_image_message),
-                colorFilter = ColorFilter.tint(MaterialTheme.wireColorScheme.secondaryText)
+                colorFilter = ColorFilter.tint(messageStyle.textColor())
             )
 
             Text(
                 text = restrictedAssetMessage,
-                style = MaterialTheme.wireTypography.body01.copy(color = MaterialTheme.wireColorScheme.secondaryText),
+                style = MaterialTheme.wireTypography.body01.copy(color = messageStyle.textColor()),
                 overflow = TextOverflow.Ellipsis,
                 maxLines = 1
             )
@@ -189,7 +191,7 @@ fun RestrictedAssetMessage(assetTypeIcon: Int, restrictedAssetMessage: String, m
 }
 
 @Composable
-fun RestrictedGenericFileMessage(fileName: String, fileSize: Long, modifier: Modifier = Modifier) {
+fun RestrictedGenericFileMessage(fileName: String, fileSize: Long, messageStyle: MessageStyle, modifier: Modifier = Modifier) {
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(dimensions().messageAssetBorderRadius),
@@ -236,12 +238,12 @@ fun RestrictedGenericFileMessage(fileName: String, fileSize: Long, modifier: Mod
                 ),
                 alignment = Alignment.Center,
                 contentDescription = stringResource(R.string.content_description_image_message),
-                colorFilter = ColorFilter.tint(MaterialTheme.wireColorScheme.secondaryText)
+                colorFilter = ColorFilter.tint(messageStyle.textColor())
             )
 
             Text(
                 text = assetDescription,
-                style = MaterialTheme.wireTypography.body01,
+                style = MaterialTheme.wireTypography.body01.copy(color = messageStyle.textColor()),
                 modifier = Modifier
                     .padding(start = dimensions().spacing4x)
                     .constrainAs(size) {
@@ -253,7 +255,7 @@ fun RestrictedGenericFileMessage(fileName: String, fileSize: Long, modifier: Mod
 
             Text(
                 text = stringResource(id = R.string.prohibited_file_message),
-                style = MaterialTheme.wireTypography.body01.copy(color = MaterialTheme.wireColorScheme.secondaryText),
+                style = MaterialTheme.wireTypography.body01.copy(color = messageStyle.textColor()),
                 overflow = TextOverflow.Ellipsis,
                 maxLines = 1,
                 modifier = Modifier

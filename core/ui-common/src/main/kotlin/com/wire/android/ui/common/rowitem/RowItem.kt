@@ -16,7 +16,7 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
-package com.wire.android.ui.home.conversationslist.common
+package com.wire.android.ui.common.rowitem
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope

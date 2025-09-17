@@ -24,3 +24,11 @@ enum class MessageStyle {
 }
 
 fun MessageStyle.isBubble(): Boolean = this != MessageStyle.NORMAL
+
+fun MessageStyle.alpha() = when (this) {
+    MessageStyle.BUBBLE_SELF -> SELF_BUBBLE_OPACITY
+    MessageStyle.BUBBLE_OTHER -> 1F
+    MessageStyle.NORMAL -> 1F
+}
+
+private const val SELF_BUBBLE_OPACITY = 0.5F

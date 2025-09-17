@@ -486,7 +486,11 @@ class SelfDeletionTimerTest {
     internal class Arrangement(val dispatcher: TestDispatcher) {
 
         val stringsProvider: StringResourceProvider = object : StringResourceProvider {
-            override fun quantityString(type: StringResourceType, quantity: Int): String = "${type.name}: $quantity"
+            override fun quantityString(
+                type: StringResourceType,
+                quantity: Int,
+                withLeftText: Boolean
+            ): String = "${type.name}: $quantity"
         }
         private val currentTime: CurrentTimeProvider = { Instant.fromEpochMilliseconds(dispatcher.scheduler.currentTime) }
 

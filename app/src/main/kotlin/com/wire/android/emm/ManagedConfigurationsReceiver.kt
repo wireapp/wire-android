@@ -35,7 +35,7 @@ class ManagedConfigurationsReceiver @Inject constructor(
 
     override fun onReceive(context: Context, intent: Intent) {
         logger.i("onReceive called")
-        managedConfigurationsRepository.getStringRestrictionByKey("test_key")?.let {
+        managedConfigurationsRepository.getStringRestrictionByKey(ManagedConfigurationsKeys.TEST_KEY.asKey())?.let {
             logger.i("Received restriction test_key: $it")
         }
     }

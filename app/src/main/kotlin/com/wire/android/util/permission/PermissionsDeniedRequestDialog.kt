@@ -53,7 +53,10 @@ fun PermissionsDeniedRequestDialog(
             state = WireButtonState.Default
         ),
         optionButton1Properties = WireDialogButtonProperties(
-            onClick = context::openAppInfoScreen,
+            onClick = {
+                context.openAppInfoScreen()
+                onDismiss()
+            },
             text = stringResource(id = positiveButton),
             type = WireDialogButtonType.Primary,
             state = WireButtonState.Default

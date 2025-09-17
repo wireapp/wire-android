@@ -41,6 +41,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
+import com.wire.android.BuildConfig
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import com.wire.android.ui.common.bottomsheet.WireBottomSheetDefaults
 import com.wire.android.ui.common.colorsScheme
@@ -65,6 +66,11 @@ fun NewAuthContainer(
     NavigationBarBackground()
     WireScaffold(
         containerColor = Color.Transparent,
+        topBar = {
+            if (BuildConfig.PRIVATE_BUILD) {
+                BackendSelectorDropDown()
+            }
+        },
         bottomBar = {
             Column(
                 modifier = Modifier

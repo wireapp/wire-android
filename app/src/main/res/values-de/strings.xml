@@ -1135,7 +1135,7 @@
     <string name="settings_network_settings_label">Netzwerkeinstellungen</string>
     <string name="settings_manage_devices_label">Geräte verwalten</string>
     <string name="settings_keep_connection_to_websocket">Verbindung zu Websocket behalten</string>
-    <string name="settings_keep_connection_to_websocket_description">Verbessern Sie den Empfang von Benachrichtigungen, indem Sie eine ständige Verbindung zum Server Ihrer Organisation aufrechterhalten. Es ersetzt die Benachrichtigungsdienste, wenn die Google-Dienste auf Ihrem Gerät nicht verfügbar sind.</string>
+    <string name="settings_keep_connection_to_websocket_description">Verbessern Sie den Empfang von Benachrichtigungen, indem Sie eine ständige Verbindung zum Server Ihrer Organisation aufrechterhalten. Es ersetzt Benachrichtigungsdienste, wenn Google-Dienste auf Ihrem Gerät nicht verfügbar sind.</string>
     <string name="settings_service_is_running">Dienst wird ausgeführt</string>
     <!--Settings, Appearance -->
     <string name="settings_customization_label">Anpassung</string>

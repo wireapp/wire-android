@@ -12,7 +12,7 @@ import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.ArrowRightIcon
-import com.wire.android.ui.common.RowItemTemplate
+import com.wire.android.ui.common.rowitem.RowItemTemplate
 import com.wire.android.ui.common.avatar.UserProfileAvatar
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.search.HighlightName

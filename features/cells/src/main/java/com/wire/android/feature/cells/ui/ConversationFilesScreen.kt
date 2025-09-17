@@ -160,7 +160,8 @@ fun ConversationFilesScreenContent(
                 NavigationCommand(
                     RecycleBinScreenDestination(
                         conversationId = currentNodeUuid?.substringBefore("/"),
-                        isRecycleBin = true
+                        isRecycleBin = true,
+                        breadcrumbs = breadcrumbs?.let { arrayOf(it.first()) } // only root in recycle bin
                     )
                 )
             )
@@ -247,11 +248,9 @@ fun ConversationFilesScreenContent(
                                 conversationId = folderPath,
                                 screenTitle = it.name,
                                 isRecycleBin = isRecycleBin,
-                                breadcrumbs = if (!isRecycleBin) {
-                                    it.name?.let { name ->
-                                        (breadcrumbs ?: emptyArray()) + name
-                                    }
-                                } else { null }
+                                breadcrumbs = it.name?.let { name ->
+                                    (breadcrumbs ?: emptyArray()) + name
+                                }
                             ),
                             BackStackMode.NONE,
                             launchSingleTop = false

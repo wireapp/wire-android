@@ -17,6 +17,7 @@
  */
 package com.wire.android.feature.cells.ui
 
+import android.content.Context
 import android.os.Environment
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
@@ -47,6 +48,7 @@ import com.wire.kalium.common.functional.fold
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -82,7 +84,8 @@ class CellViewModel @Inject constructor(
     private val download: DownloadCellFileUseCase,
     private val isCellAvailable: IsAtLeastOneCellAvailableUseCase,
     private val fileHelper: FileHelper,
-    private val fileNameResolver: FileNameResolver
+    private val fileNameResolver: FileNameResolver,
+    @ApplicationContext private val context: Context
 ) : ActionsViewModel<CellViewAction>() {
 
     private val navArgs: CellFilesNavArgs = savedStateHandle.navArgs()
@@ -241,7 +244,10 @@ class CellViewModel @Inject constructor(
     private fun isAllFiles(): Boolean = navArgs.conversationId == null && !isRecycleBin()
 
     internal fun screenTitle(): String? = navArgs.screenTitle
-    internal fun breadcrumbs(): Array<String>? = navArgs.breadcrumbs
+    internal fun breadcrumbs(): Array<String>? = navArgs.breadcrumbs?.run {
+        // Display '🗑 Recycle Bin' as the title when at the root of the Recycle Bin.
+        if (isRecycleBin() && this.size == 1) plus("🗑 ${context.getString(R.string.recycle_bin)}") else this
+    }
 
     private fun onFileClick(cellNode: CellNodeUi.File) {
         when {

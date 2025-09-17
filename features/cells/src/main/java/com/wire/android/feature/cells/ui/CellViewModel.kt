@@ -469,34 +469,32 @@ class CellViewModel @Inject constructor(
     private fun restoreNodeFromRecycleBin(node: CellNodeUi, isParentNode: Boolean = false) {
         viewModelScope.launch {
             _isRestoreInProgress.value = true
-            node.remotePath?.let {
-                restoreNodeFromRecycleBinUseCase(it)
-                    .onSuccess {
-                        removedItemsFlow.update { currentList ->
-                            currentList + node.uuid
-                        }
-                        if (isParentNode) {
-                            sendAction(HideRestoreParentFolderDialog)
-                            _navigateToRecycleBinRoot.value = true
-                            // delay to allow navigation to complete before refreshing data
-                            delay(RESTORE_DELAY_MS)
-                        } else {
-                            sendAction(HideRestoreConfirmation)
-                        }
-                        refreshNodes()
+            restoreNodeFromRecycleBinUseCase(node.uuid)
+                .onSuccess {
+                    removedItemsFlow.update { currentList ->
+                        currentList + node.uuid
                     }
-                    .onFailure {
-                        sendAction(ShowError(CellError.OTHER_ERROR))
-                        if (isParentNode) {
-                            sendAction(HideRestoreParentFolderDialog)
-                        } else {
-                            sendAction(HideRestoreConfirmation)
-                        }
+                    if (isParentNode) {
+                        sendAction(HideRestoreParentFolderDialog)
+                        _navigateToRecycleBinRoot.value = true
+                        // delay to allow navigation to complete before refreshing data
+                        delay(RESTORE_DELAY_MS)
+                    } else {
+                        sendAction(HideRestoreConfirmation)
                     }
-                _isRestoreInProgress.value = false
-                removedItemsFlow.update { currentList ->
-                    currentList - node.uuid
+                    refreshNodes()
                 }
+                .onFailure {
+                    sendAction(ShowError(CellError.OTHER_ERROR))
+                    if (isParentNode) {
+                        sendAction(HideRestoreParentFolderDialog)
+                    } else {
+                        sendAction(HideRestoreConfirmation)
+                    }
+                }
+            _isRestoreInProgress.value = false
+            removedItemsFlow.update { currentList ->
+                currentList - node.uuid
             }
         }
     }

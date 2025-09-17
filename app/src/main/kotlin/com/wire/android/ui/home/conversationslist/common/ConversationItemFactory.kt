@@ -45,7 +45,7 @@ import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.calling.controlbuttons.JoinButton
-import com.wire.android.ui.common.RowItemTemplate
+import com.wire.android.ui.common.rowitem.RowItemTemplate
 import com.wire.android.ui.common.WireRadioButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions

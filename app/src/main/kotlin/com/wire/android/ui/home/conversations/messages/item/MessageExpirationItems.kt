@@ -36,7 +36,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.StatusBox
-import com.wire.android.ui.common.applyIf
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.common.typography
@@ -106,7 +105,7 @@ fun MessageBubbleExpireFooter(
                     selfDeletionTimerState,
                     messageStyle,
                     accentColor,
-                    modifier = Modifier.applyIf(messageStyle == MessageStyle.BUBBLE_SELF) { alpha(0.5F) }
+                    modifier = Modifier.alpha(messageStyle.alpha())
                 )
                 HorizontalSpace.x4()
                 MessageSmallLabel(

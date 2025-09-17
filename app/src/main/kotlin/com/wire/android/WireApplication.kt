@@ -191,15 +191,15 @@ class WireApplication : BaseApp() {
      * Register broadcast receivers that need to be active dynamically.
      */
     private fun registerRuntimeReceivers() {
-        appLogger.i("Registering Runtime broadcast receivers")
-        registerReceiver(managedConfigurationsReceiver, restrictionsFilter)
+        appLogger.i("$TAG Registering Runtime broadcast receivers")
+        registerReceiver(managedConfigurationsReceiver, IntentFilter(Intent.ACTION_APPLICATION_RESTRICTIONS_CHANGED))
     }
 
     /**
      * Unregister broadcast receivers that were dynamically registered.
      */
     private fun unregisterRuntimeReceivers() {
-        appLogger.i("Unregistering Runtime broadcast receivers")
+        appLogger.i("$TAG Unregistering Runtime broadcast receivers")
         unregisterReceiver(managedConfigurationsReceiver)
     }
 
@@ -336,7 +336,6 @@ class WireApplication : BaseApp() {
             }
         }
 
-        private val restrictionsFilter = IntentFilter(Intent.ACTION_APPLICATION_RESTRICTIONS_CHANGED)
         private const val TAG = "WireApplication"
     }
 }

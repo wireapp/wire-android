@@ -21,6 +21,7 @@ import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.messages.QuotedMessage
 import com.wire.android.ui.home.conversations.messages.QuotedMessageStyle
+import com.wire.android.ui.home.conversations.messages.QuotedStyle
 import com.wire.android.ui.home.conversations.messages.QuotedUnavailable
 import com.wire.android.ui.home.conversations.model.DeliveryStatusContent
 import com.wire.android.ui.home.conversations.model.MessageBody
@@ -165,10 +166,16 @@ private fun MessageContent(
                     when (it) {
                         is UIQuotedMessage.UIQuotedData -> QuotedMessage(
                             messageData = it,
+                            style = QuotedMessageStyle(quotedStyle = QuotedStyle.COMPLETE, messageStyle = messageStyle),
                             clickable = onReplyClick
                         )
 
-                        UIQuotedMessage.UnavailableData -> QuotedUnavailable(style = QuotedMessageStyle.COMPLETE)
+                        UIQuotedMessage.UnavailableData -> QuotedUnavailable(
+                            style = QuotedMessageStyle(
+                                quotedStyle = QuotedStyle.COMPLETE,
+                                messageStyle = messageStyle
+                            )
+                        )
                     }
                     VerticalSpace.x4()
                 }
@@ -193,10 +200,19 @@ private fun MessageContent(
                     when (it) {
                         is UIQuotedMessage.UIQuotedData -> QuotedMessage(
                             messageData = it,
+                            style = QuotedMessageStyle(
+                                quotedStyle = QuotedStyle.COMPLETE,
+                                messageStyle = messageStyle
+                            ),
                             clickable = onReplyClick
                         )
 
-                        UIQuotedMessage.UnavailableData -> QuotedUnavailable(style = QuotedMessageStyle.COMPLETE)
+                        UIQuotedMessage.UnavailableData -> QuotedUnavailable(
+                            style = QuotedMessageStyle(
+                                quotedStyle = QuotedStyle.COMPLETE,
+                                messageStyle = messageStyle
+                            )
+                        )
                     }
                     VerticalSpace.x4()
                 }

@@ -27,6 +27,7 @@ import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.MessageButton
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
+import com.wire.android.ui.theme.Accent
 import com.wire.android.util.getVideoMetaData
 import com.wire.android.util.time.ISOFormatter
 import com.wire.android.util.ui.UIText
@@ -199,38 +200,46 @@ class RegularMessageMapper @Inject constructor(
         }
     }
 
-    private fun mapQuoteData(conversationId: ConversationId, it: MessageContent.QuotedMessageDetails) = UIQuotedMessage.UIQuotedData(
-        it.messageId,
-        it.senderId,
-        it.senderName.orUnknownName(),
-        UIText.StringResource(R.string.label_quote_original_message_date, isoFormatter.fromInstantToTimeFormatter(it.timeInstant)),
-        it.editInstant?.let { instant ->
-            UIText.StringResource(R.string.label_message_status_edited_with_date, isoFormatter.fromInstantToTimeFormatter(instant))
-        },
-        when (val quotedContent = it.quotedContent) {
-            is MessageContent.QuotedMessageDetails.Asset -> when (AttachmentType.fromMimeTypeString(quotedContent.assetMimeType)) {
-                AttachmentType.IMAGE -> UIQuotedMessage.UIQuotedData.DisplayableImage(
-                    ImageAsset.PrivateAsset(
-                        conversationId,
-                        it.messageId,
-                        it.isQuotingSelfUser
+    private fun mapQuoteData(conversationId: ConversationId, details: MessageContent.QuotedMessageDetails) =
+        UIQuotedMessage.UIQuotedData(
+            messageId = details.messageId,
+            senderId = details.senderId,
+            senderName = details.senderName.orUnknownName(),
+            senderAccent = Accent.fromAccentId(details.accentId),
+            originalMessageDateDescription = UIText.StringResource(
+                R.string.label_quote_original_message_date,
+                isoFormatter.fromInstantToTimeFormatter(details.timeInstant)
+            ),
+            editedTimeDescription = details.editInstant?.let { instant ->
+                UIText.StringResource(R.string.label_message_status_edited_with_date, isoFormatter.fromInstantToTimeFormatter(instant))
+            },
+            quotedContent = when (val quotedContent = details.quotedContent) {
+                is MessageContent.QuotedMessageDetails.Asset -> when (AttachmentType.fromMimeTypeString(quotedContent.assetMimeType)) {
+                    AttachmentType.IMAGE -> UIQuotedMessage.UIQuotedData.DisplayableImage(
+                        ImageAsset.PrivateAsset(
+                            conversationId,
+                            details.messageId,
+                            details.isQuotingSelfUser
+                        )
                     )
+
+                    AttachmentType.AUDIO -> UIQuotedMessage.UIQuotedData.AudioMessage
+                    AttachmentType.VIDEO,
+                    AttachmentType.GENERIC_FILE -> UIQuotedMessage.UIQuotedData.GenericAsset(
+                        quotedContent.assetName,
+                        quotedContent.assetMimeType
+                    )
+                }
+
+                is MessageContent.QuotedMessageDetails.Text -> UIQuotedMessage.UIQuotedData.Text(quotedContent.value)
+                is MessageContent.QuotedMessageDetails.Location -> UIQuotedMessage.UIQuotedData.Location(
+                    quotedContent.locationName.orEmpty()
                 )
 
-                AttachmentType.AUDIO -> UIQuotedMessage.UIQuotedData.AudioMessage
-                AttachmentType.VIDEO,
-                AttachmentType.GENERIC_FILE -> UIQuotedMessage.UIQuotedData.GenericAsset(
-                    quotedContent.assetName,
-                    quotedContent.assetMimeType
-                )
+                MessageContent.QuotedMessageDetails.Deleted -> UIQuotedMessage.UIQuotedData.Deleted
+                MessageContent.QuotedMessageDetails.Invalid -> UIQuotedMessage.UIQuotedData.Invalid
             }
-
-            is MessageContent.QuotedMessageDetails.Text -> UIQuotedMessage.UIQuotedData.Text(quotedContent.value)
-            is MessageContent.QuotedMessageDetails.Location -> UIQuotedMessage.UIQuotedData.Location(quotedContent.locationName.orEmpty())
-            MessageContent.QuotedMessageDetails.Deleted -> UIQuotedMessage.UIQuotedData.Deleted
-            MessageContent.QuotedMessageDetails.Invalid -> UIQuotedMessage.UIQuotedData.Invalid
-        }
-    )
+        )
 
     fun toUIMessageContent(
         assetMessageContentMetadata: AssetMessageContentMetadata,
@@ -313,7 +322,7 @@ class RegularMessageMapper @Inject constructor(
         deliveryStatus: DeliveryStatus
     ): UIMessageContent.Multipart {
 
-        val quotedMessage = content.quotedMessageDetails?.let { mapQuoteData(conversationId, it) }
+        val quotedMessage = content.quotedMessageDetails?.let { mapQuoteData(conversationId = conversationId, details = it) }
             ?: if (content.quotedMessageReference?.quotedMessageId != null) {
                 UIQuotedMessage.UnavailableData
             } else {

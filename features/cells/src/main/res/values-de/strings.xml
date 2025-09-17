@@ -55,6 +55,10 @@
     <string name="empty_recycle_bin">Hier finden Sie alle gelöschten Dateien und Ordner.</string>
     <string name="dialog_restore_file_description">Diese Datei %1$s wird wiederhergestellt und ist für alle Teilnehmer dieser Unterhaltung wieder verfügbar.</string>
     <string name="dialog_restore_button_label">Wiederherstellen</string>
+    <string name="dialog_unable_to_restore_folder_title">Ordner kann nicht wiederhergestellt werden</string>
+    <string name="dialog_unable_to_restore_file_title">Datei kann nicht wiederhergestellt werden</string>
+    <string name="dialog_restore_parent_folder_button">Übergeordneten Ordner wiederherstellen</string>
+    <string name="dialog_restore_parent_folder_description">Sie können keine Ordner oder Dateien aus einem gelöschten Ordner wiederherstellen. Um das gewünschte Objekt wiederzuverwenden, müssen Sie den übergeordneten Ordner wiederherstellen.\n\nDer Ordner %1$s mit allen Dateien und Unterordnern wird wiederhergestellt und steht allen Teilnehmern dieser Unterhaltung zur Verfügung.</string>
     <string name="rename_file_label">Datei umbenennen</string>
     <string name="rename_folder_label">Ordner umbenennen</string>
     <string name="rename_label">Umbenennen</string>

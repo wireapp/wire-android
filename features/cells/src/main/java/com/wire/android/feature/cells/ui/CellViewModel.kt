@@ -444,36 +444,31 @@ class CellViewModel @Inject constructor(
             null
         }
 
-        sendAction(ShowFileDeletedMessage(isRecycleBin()))
+        removeFromListUi(node)
 
         deleteCellAsset(node.uuid, localPath)
             .onSuccess {
-                removedItemsFlow.update { currentList ->
-                    currentList + node.uuid
-                }
-                refreshNodes()
                 _isDeleteInProgress.value = false
                 sendAction(HideDeleteConfirmation)
+                sendAction(ShowFileDeletedMessage(isRecycleBin()))
+                refreshNodes()
                 // Wait until refresh completes
                 pagingRefreshDone.first()
             }
             .onFailure {
                 _isDeleteInProgress.value = false
                 sendAction(ShowError(CellError.OTHER_ERROR))
+                addToListUi(node)
             }
-        removedItemsFlow.update { currentList ->
-            currentList - node.uuid
-        }
     }
 
     private fun restoreNodeFromRecycleBin(node: CellNodeUi, isParentNode: Boolean = false) {
         viewModelScope.launch {
             _isRestoreInProgress.value = true
+            removeFromListUi(node)
             restoreNodeFromRecycleBinUseCase(node.uuid)
                 .onSuccess {
-                    removedItemsFlow.update { currentList ->
-                        currentList + node.uuid
-                    }
+                    _isRestoreInProgress.value = false
                     if (isParentNode) {
                         sendAction(HideRestoreParentFolderDialog)
                         _navigateToRecycleBinRoot.value = true
@@ -485,6 +480,8 @@ class CellViewModel @Inject constructor(
                     refreshNodes()
                 }
                 .onFailure {
+                    _isRestoreInProgress.value = false
+                    addToListUi(node)
                     sendAction(ShowError(CellError.OTHER_ERROR))
                     if (isParentNode) {
                         sendAction(HideRestoreParentFolderDialog)
@@ -492,12 +489,12 @@ class CellViewModel @Inject constructor(
                         sendAction(HideRestoreConfirmation)
                     }
                 }
-            _isRestoreInProgress.value = false
-            removedItemsFlow.update { currentList ->
-                currentList - node.uuid
-            }
         }
     }
+
+    private fun removeFromListUi(node: CellNodeUi) = removedItemsFlow.update { it + node.uuid }
+    private fun addToListUi(node: CellNodeUi) = removedItemsFlow.update { it - node.uuid }
+    fun clearRemovedItems() = removedItemsFlow.update { emptyList() }
 
     private fun isExactlyOneLevelUnderRecycleBin(path: String): Boolean {
         val normalized = path.trimEnd('/')

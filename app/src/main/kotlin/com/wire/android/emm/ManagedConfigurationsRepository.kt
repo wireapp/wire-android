@@ -27,10 +27,10 @@ import javax.inject.Singleton
 
 @Singleton
 class ManagedConfigurationsRepository @Inject constructor(
-    @ApplicationContext private val context: Context,
-    private val json: Json
+    @ApplicationContext private val context: Context
 ) {
 
+    val json: Json = Json { ignoreUnknownKeys = true }
     val logger = appLogger.withTextTag(TAG)
 
     private val restrictionsManager: RestrictionsManager by lazy {

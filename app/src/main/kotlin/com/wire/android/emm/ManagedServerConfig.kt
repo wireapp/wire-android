@@ -21,13 +21,16 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class ManagedServerConfig(
-    val serverTitle: String? = null,
-    val serverUrl: String? = null,
-    val federationUrl: String? = null,
-    val websocketUrl: String? = null,
-    val blacklistUrl: String? = null,
-    val teamsUrl: String? = null,
-    val accountsUrl: String? = null,
-    val websiteUrl: String? = null,
-    private val isOnPremises: Boolean = true
+    val title: String,
+    val endpoints: Endpoints
+)
+
+@Serializable
+data class Endpoints(
+    val accountsURL: String,
+    val backendURL: String,
+    val backendWSURL: String,
+    val blackListURL: String,
+    val teamsURL: String,
+    val websiteURL: String
 )

@@ -248,24 +248,34 @@ private fun MessageContent(
                 when {
                     messageContent.mimeType.contains("image/") -> {
                         RestrictedAssetMessage(
-                            R.drawable.ic_gallery,
-                            stringResource(id = R.string.prohibited_images_message)
+                            assetTypeIcon = R.drawable.ic_gallery,
+                            restrictedAssetMessage = stringResource(id = R.string.prohibited_images_message),
+                            messageStyle = messageStyle
                         )
                     }
 
                     messageContent.mimeType.contains("video/") -> {
-                        RestrictedAssetMessage(R.drawable.ic_video, stringResource(id = R.string.prohibited_videos_message))
+                        RestrictedAssetMessage(
+                            assetTypeIcon = R.drawable.ic_video,
+                            restrictedAssetMessage = stringResource(id = R.string.prohibited_videos_message),
+                            messageStyle = messageStyle
+                        )
                     }
 
                     messageContent.mimeType.contains("audio/") -> {
                         RestrictedAssetMessage(
-                            R.drawable.ic_speaker_on,
-                            stringResource(id = R.string.prohibited_audio_message)
+                            assetTypeIcon = R.drawable.ic_speaker_on,
+                            restrictedAssetMessage = stringResource(id = R.string.prohibited_audio_message),
+                            messageStyle = messageStyle
                         )
                     }
 
                     else -> {
-                        RestrictedGenericFileMessage(messageContent.assetName, messageContent.assetSizeInBytes)
+                        RestrictedGenericFileMessage(
+                            fileName = messageContent.assetName,
+                            fileSize = messageContent.assetSizeInBytes,
+                            messageStyle = messageStyle
+                        )
                     }
                 }
                 PartialDeliveryInformation(messageContent.deliveryStatus)

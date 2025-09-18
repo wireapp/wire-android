@@ -41,6 +41,7 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.home.conversations.messages.item.MessageStyle
+import com.wire.android.ui.home.conversations.messages.item.textColor
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.DeviceUtil
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -58,12 +59,6 @@ fun FileHeaderView(
 ) {
     val attachmentFileType = type ?: remember(extension) { AttachmentFileType.fromExtension(extension) }
     val sizeString = remember(size) { size?.let { DeviceUtil.formatSize(size) } ?: "" }
-
-    val color = when (messageStyle) {
-        MessageStyle.BUBBLE_SELF -> colorsScheme().onPrimary
-        MessageStyle.BUBBLE_OTHER -> colorsScheme().secondaryText
-        MessageStyle.NORMAL -> colorsScheme().secondaryText
-    }
 
     Row(
         modifier = modifier.fillMaxWidth(),
@@ -87,14 +82,14 @@ fun FileHeaderView(
         Text(
             text = "${extension.uppercase()} ($sizeString)",
             style = typography().subline01,
-            color = color,
+            color = messageStyle.textColor(),
         )
         Spacer(modifier = Modifier.weight(1f))
         label?.let {
             Text(
                 text = label,
                 style = typography().subline01,
-                color = labelColor ?: color,
+                color = labelColor ?: messageStyle.textColor(),
             )
         }
     }

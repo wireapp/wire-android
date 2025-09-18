@@ -213,8 +213,9 @@ class WireActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        val serverConfig = managedConfigurationsRepository.getServerConfig() // move from here to di creation
-        appLogger.i("$TAG managed server config is : $serverConfig")
+        managedConfigurationsRepository.getServerConfig().let { serverConfig ->
+            appLogger.d("$TAG managed server config is : $serverConfig")
+        }
         dynamicReceiversManager.registerAll()
     }
 

@@ -17,25 +17,17 @@
  */
 package com.wire.android.emm
 
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import com.wire.android.appLogger
-import javax.inject.Inject
-import javax.inject.Singleton
+import kotlinx.serialization.Serializable
 
-@Singleton
-class ManagedConfigurationsReceiver @Inject constructor(
-    private val managedConfigurationsRepository: ManagedConfigurationsRepository
-) : BroadcastReceiver() {
-
-    val logger = appLogger.withTextTag(TAG)
-
-    override fun onReceive(context: Context, intent: Intent) {
-        logger.i("onReceive called ${intent.action}")
-    }
-
-    companion object {
-        const val TAG = "ManagedConfigurationsReceiver"
-    }
-}
+@Serializable
+data class ManagedServerConfig(
+    val serverTitle: String? = null,
+    val serverUrl: String? = null,
+    val federationUrl: String? = null,
+    val websocketUrl: String? = null,
+    val blacklistUrl: String? = null,
+    val teamsUrl: String? = null,
+    val accountsUrl: String? = null,
+    val websiteUrl: String? = null,
+    private val isOnPremises: Boolean = true
+)

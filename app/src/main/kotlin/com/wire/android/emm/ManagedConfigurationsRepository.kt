@@ -19,26 +19,52 @@ package com.wire.android.emm
 
 import android.content.Context
 import android.content.RestrictionsManager
+import com.wire.android.appLogger
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.serialization.json.Json
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class ManagedConfigurationsRepository @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val json: Json
 ) {
+
+    val logger = appLogger.withTextTag(TAG)
 
     private val restrictionsManager: RestrictionsManager by lazy {
         context.getSystemService(Context.RESTRICTIONS_SERVICE) as RestrictionsManager
     }
 
-    fun getBooleanRestrictionByKey(key: String, defaultValue: Boolean = false): Boolean {
-        return restrictionsManager.applicationRestrictions.getBoolean(key, defaultValue)
+    fun getServerConfig(): ManagedServerConfig? {
+        val restrictions = restrictionsManager.applicationRestrictions
+
+        if (restrictions == null || restrictions.isEmpty) {
+            return null
+        }
+
+        val serverConfigJson = getJsonRestrictionByKey<ManagedServerConfig>(
+            ManagedConfigurationsKeys.DEFAULT_SERVER_URLS.asKey()
+        )
+        logger.d("Managed server config: $serverConfigJson")
+        return serverConfigJson
     }
 
-    fun getStringRestrictionByKey(key: String, defaultValue: String? = null): String? {
-        return restrictionsManager.applicationRestrictions.getString(key) ?: defaultValue
-    }
+    private inline fun <reified T> getJsonRestrictionByKey(key: String): T? =
+        restrictionsManager.applicationRestrictions.getString(key)?.let {
+            try {
+                json.decodeFromString<T>(it)
+            } catch (e: Exception) {
+                null
+            }
+        }
+
+    private fun getBooleanRestrictionByKey(key: String, defaultValue: Boolean = false): Boolean =
+        restrictionsManager.applicationRestrictions.getBoolean(key, defaultValue)
+
+    private fun getStringRestrictionByKey(key: String, defaultValue: String? = null): String? =
+        restrictionsManager.applicationRestrictions.getString(key) ?: defaultValue
 
     companion object {
         const val TAG = "ManagedConfigurationsRepository"

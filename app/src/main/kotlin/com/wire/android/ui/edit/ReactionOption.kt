@@ -17,7 +17,9 @@
  */
 package com.wire.android.ui.edit
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -25,6 +27,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CornerSize
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -43,11 +47,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.wire.android.R
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.emoji.EmojiPickerBottomSheet
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
@@ -57,6 +61,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReactionOption(
+    ownReactions: Set<String>,
     onReactionClick: (emoji: String) -> Unit,
     modifier: Modifier = Modifier,
     emojiFontSize: TextUnit = 28.sp
@@ -64,6 +69,7 @@ fun ReactionOption(
     val emojiPickerState = rememberWireModalSheetState<Unit>(skipPartiallyExpanded = false)
     CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.onSurface) {
         Column(modifier = modifier) {
+            VerticalSpace.x8()
             Row {
                 Spacer(modifier = Modifier.width(dimensions().spacing8x))
                 Text(
@@ -76,18 +82,25 @@ fun ReactionOption(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                listOf("👍", "🙂", "❤️", "☹️", "👎").forEach { emoji ->
+                ownReactions.plus(listOf("👍", "🙂", "❤️", "☹️", "👎")).take(5).forEach { emoji ->
                     CompositionLocalProvider(
                         LocalMinimumInteractiveComponentSize provides Dp.Unspecified,
                     ) {
+                        val containerColor = if (ownReactions.contains(emoji)) {
+                            MaterialTheme.wireColorScheme.primaryVariant
+                        } else {
+                            MaterialTheme.wireColorScheme.surface
+                        }
+
                         Button(
                             onClick = {
                                 onReactionClick(emoji)
                             },
-                            modifier = Modifier.defaultMinSize(minWidth = 1.dp, minHeight = 1.dp),
-                            contentPadding = PaddingValues(dimensions().spacing8x),
+                            shape = RoundedCornerShape(corner = CornerSize(dimensions().spacing12x)),
+                            modifier = Modifier.defaultMinSize(minWidth = dimensions().spacing1x, minHeight = dimensions().spacing1x),
+                            contentPadding = PaddingValues(dimensions().spacing6x),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.wireColorScheme.surface,
+                                containerColor = containerColor,
                                 contentColor = MaterialTheme.wireColorScheme.secondaryButtonSelectedOutline
                             )
                         ) {
@@ -106,6 +119,7 @@ fun ReactionOption(
                     )
                 }
             }
+            VerticalSpace.x8()
         }
     }
     EmojiPickerBottomSheet(
@@ -119,6 +133,11 @@ fun ReactionOption(
 
 @PreviewMultipleThemes
 @Composable
-private fun BasePreview() = WireTheme {
-    ReactionOption(onReactionClick = {})
+private fun PreviewReactionOption() = WireTheme {
+    Box(modifier = Modifier.background(MaterialTheme.wireColorScheme.surface)) {
+        ReactionOption(
+            setOf("😆"),
+            onReactionClick = {}
+        )
+    }
 }

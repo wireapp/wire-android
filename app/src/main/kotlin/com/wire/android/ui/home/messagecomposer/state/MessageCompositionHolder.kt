@@ -87,7 +87,8 @@ class MessageCompositionHolder(
                 senderName = message.header.username,
                 originalMessageDateDescription = "".toUIText(),
                 editedTimeDescription = "".toUIText(),
-                quotedContent = quotedContent
+                quotedContent = quotedContent,
+                senderAccent = message.header.accent
             )
 
             messageComposition.update {

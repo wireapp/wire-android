@@ -23,17 +23,22 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.messages.item.MessageClickActions
 import com.wire.android.ui.home.conversations.messages.item.RegularMessageItem
 import com.wire.android.ui.home.conversations.mock.mockFooterWithMultipleReactions
 import com.wire.android.ui.home.conversations.mock.mockHeader
 import com.wire.android.ui.home.conversations.mock.mockHeaderWithExpiration
+import com.wire.android.ui.home.conversations.mock.mockMessageWithMarkdownListAndImages
+import com.wire.android.ui.home.conversations.mock.mockMessageWithMarkdownTablesAndBlocks
+import com.wire.android.ui.home.conversations.mock.mockMessageWithMarkdownTextAndLinks
 import com.wire.android.ui.home.conversations.mock.mockMessageWithText
 import com.wire.android.ui.home.conversations.mock.mockMessageWithTextContent
 import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.MessageEditStatus
 import com.wire.android.ui.home.conversations.model.MessageSource
+import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
@@ -306,6 +311,98 @@ fun PreviewBubbleMultipleEditedMessages() {
                 conversationDetailsData = ConversationDetailsData.None(null),
                 clickActions = MessageClickActions.Content(),
                 isBubbleUiEnabled = true,
+            )
+        }
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewMessageBubbleSelfWithMarkdownTextAndLinks() {
+    WireTheme {
+        Box(modifier = Modifier.background(color = colorsScheme().surface)) {
+            RegularMessageItem(
+                message = mockMessageWithMarkdownTextAndLinks,
+                conversationDetailsData = ConversationDetailsData.None(null),
+                clickActions = MessageClickActions.Content(),
+                isBubbleUiEnabled = true
+            )
+        }
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewMessageBubbleOtherWithMarkdownTextAndLinks() {
+    WireTheme {
+        Box(modifier = Modifier.background(color = colorsScheme().surface)) {
+            RegularMessageItem(
+                message = mockMessageWithMarkdownTextAndLinks.copy(source = MessageSource.OtherUser),
+                conversationDetailsData = ConversationDetailsData.None(null),
+                clickActions = MessageClickActions.Content(),
+                isBubbleUiEnabled = true
+            )
+        }
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewMessageBubbleSelfWithMarkdownListAndImages() {
+    WireTheme {
+        Box(modifier = Modifier.background(color = colorsScheme().surface)) {
+            RegularMessageItem(
+                message = mockMessageWithMarkdownListAndImages,
+                conversationDetailsData = ConversationDetailsData.None(null),
+                clickActions = MessageClickActions.Content(),
+                isBubbleUiEnabled = true
+            )
+        }
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewMessageBubbleOtherWithMarkdownListAndImages() {
+    WireTheme {
+        Box(modifier = Modifier.background(color = colorsScheme().surface)) {
+            RegularMessageItem(
+                message = mockMessageWithMarkdownListAndImages.copy(source = MessageSource.OtherUser),
+                conversationDetailsData = ConversationDetailsData.None(null),
+                clickActions = MessageClickActions.Content(),
+                isBubbleUiEnabled = true
+            )
+        }
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewMessageBubbleSelfWithMarkdownTablesAndBlocks() {
+    WireTheme {
+        Box(modifier = Modifier.background(color = colorsScheme().surface)) {
+            RegularMessageItem(
+                message = mockMessageWithMarkdownTablesAndBlocks.copy(
+                    header = mockMessageWithMarkdownTablesAndBlocks.header.copy(accent = Accent.Amber)
+                ),
+                conversationDetailsData = ConversationDetailsData.None(null),
+                clickActions = MessageClickActions.Content(),
+                isBubbleUiEnabled = true
+            )
+        }
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewMessageBubbleOtherWithMarkdownTablesAndBlocks() {
+    WireTheme {
+        Box(modifier = Modifier.background(color = colorsScheme().surface)) {
+            RegularMessageItem(
+                message = mockMessageWithMarkdownTablesAndBlocks.copy(source = MessageSource.OtherUser),
+                conversationDetailsData = ConversationDetailsData.None(null),
+                clickActions = MessageClickActions.Content(),
+                isBubbleUiEnabled = true
             )
         }
     }

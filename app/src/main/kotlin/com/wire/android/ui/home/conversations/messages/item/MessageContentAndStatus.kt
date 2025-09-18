@@ -21,6 +21,7 @@ import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.messages.QuotedMessage
 import com.wire.android.ui.home.conversations.messages.QuotedMessageStyle
+import com.wire.android.ui.home.conversations.messages.QuotedStyle
 import com.wire.android.ui.home.conversations.messages.QuotedUnavailable
 import com.wire.android.ui.home.conversations.model.DeliveryStatusContent
 import com.wire.android.ui.home.conversations.model.MessageBody
@@ -165,10 +166,16 @@ private fun MessageContent(
                     when (it) {
                         is UIQuotedMessage.UIQuotedData -> QuotedMessage(
                             messageData = it,
+                            style = QuotedMessageStyle(quotedStyle = QuotedStyle.COMPLETE, messageStyle = messageStyle),
                             clickable = onReplyClick
                         )
 
-                        UIQuotedMessage.UnavailableData -> QuotedUnavailable(style = QuotedMessageStyle.COMPLETE)
+                        UIQuotedMessage.UnavailableData -> QuotedUnavailable(
+                            style = QuotedMessageStyle(
+                                quotedStyle = QuotedStyle.COMPLETE,
+                                messageStyle = messageStyle
+                            )
+                        )
                     }
                     VerticalSpace.x4()
                 }
@@ -193,10 +200,19 @@ private fun MessageContent(
                     when (it) {
                         is UIQuotedMessage.UIQuotedData -> QuotedMessage(
                             messageData = it,
+                            style = QuotedMessageStyle(
+                                quotedStyle = QuotedStyle.COMPLETE,
+                                messageStyle = messageStyle
+                            ),
                             clickable = onReplyClick
                         )
 
-                        UIQuotedMessage.UnavailableData -> QuotedUnavailable(style = QuotedMessageStyle.COMPLETE)
+                        UIQuotedMessage.UnavailableData -> QuotedUnavailable(
+                            style = QuotedMessageStyle(
+                                quotedStyle = QuotedStyle.COMPLETE,
+                                messageStyle = messageStyle
+                            )
+                        )
                     }
                     VerticalSpace.x4()
                 }
@@ -232,24 +248,34 @@ private fun MessageContent(
                 when {
                     messageContent.mimeType.contains("image/") -> {
                         RestrictedAssetMessage(
-                            R.drawable.ic_gallery,
-                            stringResource(id = R.string.prohibited_images_message)
+                            assetTypeIcon = R.drawable.ic_gallery,
+                            restrictedAssetMessage = stringResource(id = R.string.prohibited_images_message),
+                            messageStyle = messageStyle
                         )
                     }
 
                     messageContent.mimeType.contains("video/") -> {
-                        RestrictedAssetMessage(R.drawable.ic_video, stringResource(id = R.string.prohibited_videos_message))
+                        RestrictedAssetMessage(
+                            assetTypeIcon = R.drawable.ic_video,
+                            restrictedAssetMessage = stringResource(id = R.string.prohibited_videos_message),
+                            messageStyle = messageStyle
+                        )
                     }
 
                     messageContent.mimeType.contains("audio/") -> {
                         RestrictedAssetMessage(
-                            R.drawable.ic_speaker_on,
-                            stringResource(id = R.string.prohibited_audio_message)
+                            assetTypeIcon = R.drawable.ic_speaker_on,
+                            restrictedAssetMessage = stringResource(id = R.string.prohibited_audio_message),
+                            messageStyle = messageStyle
                         )
                     }
 
                     else -> {
-                        RestrictedGenericFileMessage(messageContent.assetName, messageContent.assetSizeInBytes)
+                        RestrictedGenericFileMessage(
+                            fileName = messageContent.assetName,
+                            fileSize = messageContent.assetSizeInBytes,
+                            messageStyle = messageStyle
+                        )
                     }
                 }
                 PartialDeliveryInformation(messageContent.deliveryStatus)

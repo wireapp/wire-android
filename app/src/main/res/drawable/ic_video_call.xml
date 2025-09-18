@@ -16,6 +16,7 @@
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:autoMirrored="true"
     android:width="20dp"
     android:height="16dp"
     android:viewportWidth="20"

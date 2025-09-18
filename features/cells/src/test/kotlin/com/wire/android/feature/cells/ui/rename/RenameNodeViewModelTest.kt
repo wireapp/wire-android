@@ -143,6 +143,20 @@ class RenameNodeViewModelTest {
         )
     }
 
+    @Test
+    fun `given name not changed, when text is emitted, then save is disabled`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .arrange()
+
+        advanceUntilIdle()
+
+        assertFalse(viewModel.displayNameState.saveEnabled)
+        assertEquals(
+            DisplayNameState.NameError.None,
+            viewModel.displayNameState.error
+        )
+    }
+
     private class Arrangement {
 
         @MockK

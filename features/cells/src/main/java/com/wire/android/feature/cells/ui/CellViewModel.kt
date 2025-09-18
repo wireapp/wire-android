@@ -444,62 +444,57 @@ class CellViewModel @Inject constructor(
             null
         }
 
-        sendAction(ShowFileDeletedMessage(isRecycleBin()))
+        removeFromListUi(node)
 
         deleteCellAsset(node.uuid, localPath)
             .onSuccess {
-                removedItemsFlow.update { currentList ->
-                    currentList + node.uuid
-                }
-                refreshNodes()
                 _isDeleteInProgress.value = false
                 sendAction(HideDeleteConfirmation)
+                sendAction(ShowFileDeletedMessage(isRecycleBin()))
+                refreshNodes()
                 // Wait until refresh completes
                 pagingRefreshDone.first()
             }
             .onFailure {
                 _isDeleteInProgress.value = false
                 sendAction(ShowError(CellError.OTHER_ERROR))
+                addToListUi(node)
             }
-        removedItemsFlow.update { currentList ->
-            currentList - node.uuid
-        }
     }
 
     private fun restoreNodeFromRecycleBin(node: CellNodeUi, isParentNode: Boolean = false) {
         viewModelScope.launch {
             _isRestoreInProgress.value = true
-            node.remotePath?.let {
-                restoreNodeFromRecycleBinUseCase(it)
-                    .onSuccess {
-                        removedItemsFlow.update { currentList ->
-                            currentList + node.uuid
-                        }
-                        if (isParentNode) {
-                            sendAction(HideRestoreParentFolderDialog)
-                            _navigateToRecycleBinRoot.value = true
-                            // delay to allow navigation to complete before refreshing data
-                            delay(RESTORE_DELAY_MS)
-                        } else {
-                            sendAction(HideRestoreConfirmation)
-                        }
-                        refreshNodes()
+            removeFromListUi(node)
+            restoreNodeFromRecycleBinUseCase(node.uuid)
+                .onSuccess {
+                    _isRestoreInProgress.value = false
+                    if (isParentNode) {
+                        sendAction(HideRestoreParentFolderDialog)
+                        _navigateToRecycleBinRoot.value = true
+                        // delay to allow navigation to complete before refreshing data
+                        delay(RESTORE_DELAY_MS)
+                    } else {
+                        sendAction(HideRestoreConfirmation)
                     }
-                    .onFailure {
-                        sendAction(ShowError(CellError.OTHER_ERROR))
-                        if (isParentNode) {
-                            sendAction(HideRestoreParentFolderDialog)
-                        } else {
-                            sendAction(HideRestoreConfirmation)
-                        }
-                    }
-                _isRestoreInProgress.value = false
-                removedItemsFlow.update { currentList ->
-                    currentList - node.uuid
+                    refreshNodes()
                 }
-            }
+                .onFailure {
+                    _isRestoreInProgress.value = false
+                    addToListUi(node)
+                    sendAction(ShowError(CellError.OTHER_ERROR))
+                    if (isParentNode) {
+                        sendAction(HideRestoreParentFolderDialog)
+                    } else {
+                        sendAction(HideRestoreConfirmation)
+                    }
+                }
         }
     }
+
+    private fun removeFromListUi(node: CellNodeUi) = removedItemsFlow.update { it + node.uuid }
+    private fun addToListUi(node: CellNodeUi) = removedItemsFlow.update { it - node.uuid }
+    fun clearRemovedItems() = removedItemsFlow.update { emptyList() }
 
     private fun isExactlyOneLevelUnderRecycleBin(path: String): Boolean {
         val normalized = path.trimEnd('/')

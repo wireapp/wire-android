@@ -67,7 +67,7 @@ fun FilterBottomSheet(
     onApply: (Set<String>) -> Unit,
     onClearAll: () -> Unit,
     onDismiss: () -> Unit,
-    onShow: () -> Unit = {},
+    onShow: suspend () -> Unit = {},
     sheetState: WireModalSheetState<Unit> = rememberWireModalSheetState<Unit>(WireSheetValue.Expanded(Unit))
 ) {
     WireModalSheetLayout(

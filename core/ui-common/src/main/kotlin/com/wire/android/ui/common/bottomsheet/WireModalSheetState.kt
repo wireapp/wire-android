@@ -36,7 +36,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
-import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalMaterial3Api::class)
 open class WireModalSheetState<T : Any>(
@@ -136,15 +135,12 @@ inline fun <reified T : Any> rememberWireModalSheetState(
 fun WireModalSheetState<Unit>.show(hideKeyboard: Boolean = false) = this.show(Unit, hideKeyboard = hideKeyboard)
 
 @Composable
-fun WireModalSheetState<*>.onShow(throttle: Long? = 30, block: () -> Unit) {
+fun WireModalSheetState<*>.onShow(block: suspend () -> Unit) {
     LaunchedEffect(this) {
         snapshotFlow { isVisible }
             .filter { it }
             .collect {
                 block()
-                throttle?.let {
-                    delay(it.seconds)
-                }
             }
     }
 }

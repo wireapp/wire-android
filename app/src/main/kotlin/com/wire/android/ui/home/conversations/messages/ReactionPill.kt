@@ -18,6 +18,8 @@
 
 package com.wire.android.ui.home.conversations.messages
 
+import androidx.compose.foundation.LocalIndication
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
@@ -27,6 +29,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
@@ -36,6 +39,7 @@ import androidx.compose.ui.unit.sp
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.button.wireSecondaryButtonColors
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.home.conversations.messages.item.interceptCombinedClickable
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
@@ -46,8 +50,9 @@ fun ReactionPill(
     emoji: String,
     count: Int,
     isOwn: Boolean,
+    onTap: () -> Unit,
     modifier: Modifier = Modifier,
-    onTap: () -> Unit
+    onLongClick: (() -> Unit)? = null
 ) {
 
     val strokeColor = if (isOwn) {
@@ -72,7 +77,12 @@ fun ReactionPill(
         LocalMinimumInteractiveComponentSize provides Dp.Unspecified
     ) {
         WireSecondaryButton(
-            modifier = modifier,
+            modifier = modifier
+                .interceptCombinedClickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = LocalIndication.current,
+                    onLongPress = onLongClick
+                ),
             onClick = onTap,
             shape = RoundedCornerShape(borderRadius),
             contentPadding = PaddingValues(

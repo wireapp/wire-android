@@ -44,6 +44,8 @@ import com.wire.android.R
 import com.wire.android.model.ImageAsset
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
+import com.wire.android.ui.home.conversations.messages.item.MessageStyle
+import com.wire.android.ui.home.conversations.messages.item.textColor
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -100,6 +102,7 @@ fun AsyncImageMessage(
 fun ImageMessageInProgress(
     size: DpSize,
     isDownloading: Boolean,
+    messageStyle: MessageStyle,
     modifier: Modifier = Modifier,
     showText: Boolean = true
 ) {
@@ -111,7 +114,7 @@ fun ImageMessageInProgress(
             .padding(MaterialTheme.wireDimensions.spacing8x)
     ) {
         WireCircularProgressIndicator(
-            progressColor = MaterialTheme.wireColorScheme.primary,
+            progressColor = messageStyle.textColor(),
             size = MaterialTheme.wireDimensions.spacing24x
         )
         if (showText) {
@@ -121,7 +124,7 @@ fun ImageMessageInProgress(
                     id = if (isDownloading) R.string.asset_message_download_in_progress_text
                     else R.string.asset_message_upload_in_progress_text
                 ),
-                style = MaterialTheme.wireTypography.subline01.copy(color = MaterialTheme.wireColorScheme.secondaryText),
+                style = MaterialTheme.wireTypography.subline01.copy(color = messageStyle.textColor()),
                 overflow = TextOverflow.Ellipsis,
                 maxLines = 1
             )

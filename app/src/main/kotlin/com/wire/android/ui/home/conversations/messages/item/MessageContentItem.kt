@@ -38,6 +38,7 @@ import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.model.MessageEditStatus
 import com.wire.android.ui.home.conversations.model.MessageFlowStatus
 import com.wire.android.ui.home.conversations.model.MessageSource
+import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
@@ -134,7 +135,7 @@ fun MessageContentItem(
                     }
                 )
             }
-            if (messageStyle.isBubble() && (!useSmallBottomPadding || header.messageStatus.editStatus is MessageEditStatus.Edited)) {
+            if (shouldShowBottomLabels(messageStyle, header.messageStatus, useSmallBottomPadding, selfDeletionTimerState)) {
                 VerticalSpace.x4()
                 Row(
                     Modifier.padding(innerPadding),
@@ -181,3 +182,15 @@ fun MessageContentItem(
         }
     }
 }
+
+@Composable
+private fun shouldShowBottomLabels(
+    messageStyle: MessageStyle,
+    messageStatus: MessageStatus,
+    useSmallBottomPadding: Boolean,
+    selfDeletionTimerState: SelfDeletionTimerHelper.SelfDeletionTimerState
+): Boolean = messageStyle.isBubble() && (
+        !useSmallBottomPadding
+                || messageStatus.editStatus is MessageEditStatus.Edited
+                || selfDeletionTimerState is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable
+        )

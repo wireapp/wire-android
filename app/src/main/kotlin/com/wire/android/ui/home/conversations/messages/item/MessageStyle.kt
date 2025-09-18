@@ -17,6 +17,11 @@
  */
 package com.wire.android.ui.home.conversations.messages.item
 
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
+import com.wire.android.ui.theme.wireColorScheme
+
 enum class MessageStyle {
     BUBBLE_SELF,
     BUBBLE_OTHER,
@@ -24,3 +29,20 @@ enum class MessageStyle {
 }
 
 fun MessageStyle.isBubble(): Boolean = this != MessageStyle.NORMAL
+
+fun MessageStyle.alpha() = when (this) {
+    MessageStyle.BUBBLE_SELF -> SELF_BUBBLE_OPACITY
+    MessageStyle.BUBBLE_OTHER -> 1F
+    MessageStyle.NORMAL -> 1F
+}
+
+@Composable
+fun MessageStyle.textColor(): Color {
+    return when (this) {
+        MessageStyle.BUBBLE_SELF -> MaterialTheme.wireColorScheme.onPrimary
+        MessageStyle.BUBBLE_OTHER -> MaterialTheme.wireColorScheme.secondaryText
+        MessageStyle.NORMAL -> MaterialTheme.wireColorScheme.secondaryText
+    }
+}
+
+private const val SELF_BUBBLE_OPACITY = 0.5F

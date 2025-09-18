@@ -24,7 +24,6 @@
     <string name="delete_label">Sil</string>
     <string name="delete_permanently">Kalıcı olarak sil</string>
     <string name="restore_label">Geri yükle</string>
-    <string name="add_remove_tags_label">Etiket ekle ya da kaldır</string>
     <string name="download_label">İndir</string>
     <string name="copy_link">Bağlantıyı kopyala</string>
     <string name="share_link">Bağlantıyı paylaş</string>

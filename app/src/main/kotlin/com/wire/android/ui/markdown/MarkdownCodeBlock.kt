@@ -27,19 +27,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.home.conversations.messages.item.onNodeBackground
+import com.wire.android.ui.home.conversations.messages.item.surface
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
 fun MarkdownIndentedCodeBlock(indentedCodeBlock: MarkdownNode.Block.IntendedCode, nodeData: NodeData, modifier: Modifier = Modifier) {
     Text(
         text = highlightText(nodeData, indentedCodeBlock.literal),
-        style = MaterialTheme.wireTypography.body01,
+        style = MaterialTheme.wireTypography.body01.copy(color = nodeData.messageStyle.onNodeBackground()),
         fontFamily = FontFamily.Monospace,
         modifier = modifier
             .fillMaxWidth()
             .padding(vertical = dimensions().spacing4x)
-            .background(MaterialTheme.wireColorScheme.surfaceVariant, shape = RoundedCornerShape(dimensions().spacing16x))
+            .background(nodeData.messageStyle.surface(), shape = RoundedCornerShape(dimensions().spacing16x))
             .padding(dimensions().spacing8x)
     )
 }
@@ -48,12 +49,12 @@ fun MarkdownIndentedCodeBlock(indentedCodeBlock: MarkdownNode.Block.IntendedCode
 fun MarkdownFencedCodeBlock(fencedCodeBlock: MarkdownNode.Block.FencedCode, nodeData: NodeData, modifier: Modifier = Modifier) {
     Text(
         text = highlightText(nodeData, fencedCodeBlock.literal),
-        style = MaterialTheme.wireTypography.body01,
+        style = MaterialTheme.wireTypography.body01.copy(color = nodeData.messageStyle.onNodeBackground()),
         fontFamily = FontFamily.Monospace,
         modifier = modifier
             .fillMaxWidth()
             .padding(vertical = dimensions().spacing4x)
-            .background(MaterialTheme.wireColorScheme.surfaceVariant, shape = RoundedCornerShape(dimensions().spacing16x))
+            .background(nodeData.messageStyle.surface(), shape = RoundedCornerShape(dimensions().spacing16x))
             .padding(dimensions().spacing8x)
     )
 }

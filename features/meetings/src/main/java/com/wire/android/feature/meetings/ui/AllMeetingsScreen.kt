@@ -19,9 +19,9 @@ package com.wire.android.feature.meetings.ui
 
 import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
-import com.wire.android.navigation.WireNavigator
 
 @SuppressLint("ComposeModifierMissing")
 @Composable
-fun AllMeetingsScreen(navigator: WireNavigator) {
+fun AllMeetingsScreen() {
+    // TODO
 }

@@ -21,15 +21,10 @@ import androidx.compose.runtime.Composable
 import com.wire.android.feature.meetings.ui.AllMeetingsScreen
 import com.wire.android.navigation.HomeNavGraph
 import com.wire.android.navigation.annotation.app.WireDestination
-import com.wire.android.ui.home.HomeStateHolder
 
 @HomeNavGraph
 @WireDestination
 @Composable
-fun MeetingsScreen(
-    homeStateHolder: HomeStateHolder,
-) {
-    AllMeetingsScreen(
-        navigator = homeStateHolder.navigator,
-    )
+fun MeetingsScreen() {
+    AllMeetingsScreen()
 }

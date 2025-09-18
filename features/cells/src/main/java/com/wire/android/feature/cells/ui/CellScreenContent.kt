@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -37,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
@@ -46,9 +48,12 @@ import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.common.LoadingScreen
 import com.wire.android.feature.cells.ui.dialog.DeleteConfirmationDialog
 import com.wire.android.feature.cells.ui.dialog.NodeActionsBottomSheet
-import com.wire.android.feature.cells.ui.dialog.RestoreConfirmationDialog
 import com.wire.android.feature.cells.ui.download.DownloadFileBottomSheet
 import com.wire.android.feature.cells.ui.model.CellNodeUi
+import com.wire.android.feature.cells.ui.publiclink.PublicLinkScreenData
+import com.wire.android.feature.cells.ui.recyclebin.RestoreConfirmationDialog
+import com.wire.android.feature.cells.ui.recyclebin.RestoreParentFolderConfirmationDialog
+import com.wire.android.feature.cells.ui.recyclebin.UnableToRestoreDialog
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.colorsScheme
@@ -56,6 +61,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.theme.WireTheme
+import com.wire.kalium.cells.domain.paging.FileListLoadError
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -72,10 +78,14 @@ internal fun CellScreenContent(
     showRenameScreen: (CellNodeUi) -> Unit,
     showMoveToFolderScreen: (String, String, String) -> Unit,
     showAddRemoveTagsScreen: (CellNodeUi) -> Unit,
+    isRefreshing: State<Boolean>,
+    onRefresh: () -> Unit,
     isRestoreInProgress: Boolean,
+    isDeleteInProgress: Boolean,
     isAllFiles: Boolean,
     isRecycleBin: Boolean,
     isSearchResult: Boolean = false,
+    isFiltering: Boolean = false
 ) {
 
     val context = LocalContext.current
@@ -83,17 +93,23 @@ internal fun CellScreenContent(
 
     var deleteConfirmation by remember { mutableStateOf<Pair<CellNodeUi, Boolean>?>((null)) }
     var restoreConfirmation by remember { mutableStateOf<CellNodeUi?>(null) }
+    var unableToRestore by remember { mutableStateOf(false) }
+    var restoreParentFolderConfirmation by remember { mutableStateOf<CellNodeUi?>(null) }
     var menu by remember { mutableStateOf<MenuOptions?>(null) }
 
     val downloadFile by downloadFileState.collectAsState()
 
     when {
         pagingListItems.isLoading() -> LoadingScreen()
-        pagingListItems.isError() -> ErrorScreen { pagingListItems.retry() }
+        pagingListItems.isError() -> ErrorScreen(
+            error = (pagingListItems.loadState.refresh as? LoadState.Error)?.error,
+            onRetry = { pagingListItems.retry() }
+        )
         pagingListItems.itemCount == 0 -> EmptyScreen(
             isSearchResult = isSearchResult,
             isAllFiles = isAllFiles,
             isRecycleBin = isRecycleBin,
+            isFiltering = isFiltering,
             onRetry = { pagingListItems.retry() }
         )
 
@@ -107,9 +123,8 @@ internal fun CellScreenContent(
                     }
                 },
                 onItemMenuClick = { sendIntent(CellViewIntent.OnItemMenuClick(it)) },
-//                onRefresh = {
-//                    viewModel.loadFiles(pullToRefresh = true)
-//                }
+                isRefreshing = isRefreshing,
+                onRefresh = onRefresh
             )
     }
 
@@ -137,9 +152,9 @@ internal fun CellScreenContent(
             itemName = node.name ?: "",
             isFolder = node is CellNodeUi.Folder,
             isPermanentDelete = isPermanentDelete,
+            isDeleteInProgress = isDeleteInProgress,
             onConfirm = {
                 sendIntent(CellViewIntent.OnNodeDeleteConfirmed(node))
-                deleteConfirmation = null
             },
             onDismiss = {
                 deleteConfirmation = null
@@ -154,10 +169,34 @@ internal fun CellScreenContent(
             isRestoreInProgress = isRestoreInProgress,
             onConfirm = {
                 sendIntent(CellViewIntent.OnNodeRestoreConfirmed(it))
-                restoreConfirmation = null
             },
             onDismiss = {
                 restoreConfirmation = null
+            }
+        )
+    }
+
+    if (unableToRestore) {
+        UnableToRestoreDialog(
+            isFolder = restoreConfirmation is CellNodeUi.Folder,
+            onConfirm = {
+                unableToRestore = false
+            },
+            onDismiss = {
+                unableToRestore = false
+            }
+        )
+    }
+
+    restoreParentFolderConfirmation?.let {
+        RestoreParentFolderConfirmationDialog(
+            itemName = it.name ?: "",
+            isRestoreInProgress = isRestoreInProgress,
+            onConfirm = {
+                sendIntent(CellViewIntent.OnParentFolderRestoreConfirmed(it as CellNodeUi.Folder))
+            },
+            onDismiss = {
+                restoreParentFolderConfirmation = null
             }
         )
     }
@@ -180,6 +219,19 @@ internal fun CellScreenContent(
             is ShowMoveToFolderScreen -> showMoveToFolderScreen(action.currentPath, action.nodeToMovePath, action.uuid)
             is ShowAddRemoveTagsScreen -> showAddRemoveTagsScreen(action.cellNode)
             is RefreshData -> pagingListItems.refresh()
+            is ShowUnableToRestoreDialog -> unableToRestore = true
+            is ShowRestoreParentFolderDialog -> restoreParentFolderConfirmation = action.cellNode
+            is HideRestoreConfirmation -> restoreConfirmation = null
+            is HideRestoreParentFolderDialog -> restoreParentFolderConfirmation = null
+            is HideDeleteConfirmation -> deleteConfirmation = null
+            is ShowFileDeletedMessage -> {
+                val message = if (action.permanently) {
+                    context.getString(R.string.cells_file_permanently_deleted_message)
+                } else {
+                    context.getString(R.string.cells_file_deleted_message)
+                }
+                Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+            }
         }
     }
 
@@ -193,7 +245,10 @@ internal fun CellScreenContent(
 }
 
 @Composable
-private fun ErrorScreen(onRetry: () -> Unit) {
+private fun ErrorScreen(error: Throwable?, onRetry: () -> Unit) {
+
+    val isConnectionError = (error as? FileListLoadError)?.isConnectionError ?: false
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -208,9 +263,22 @@ private fun ErrorScreen(onRetry: () -> Unit) {
         )
 
         Text(
-            text = stringResource(R.string.file_list_load_error),
+            text = stringResource(
+                if (isConnectionError) R.string.file_list_load_network_error_title else R.string.file_list_load_error_title
+            ),
             textAlign = TextAlign.Center,
-            color = colorsScheme().error,
+            style = typography().title01,
+            color = if (isConnectionError) colorsScheme().onBackground else colorsScheme().error,
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Text(
+            text = stringResource(
+                if (isConnectionError) R.string.file_list_load_network_error else R.string.file_list_load_error
+            ),
+            textAlign = TextAlign.Center,
+            color = if (isConnectionError) colorsScheme().onBackground else colorsScheme().error,
         )
 
         Spacer(
@@ -231,6 +299,7 @@ private fun EmptyScreen(
     isSearchResult: Boolean = false,
     isAllFiles: Boolean = true,
     isRecycleBin: Boolean = false,
+    isFiltering: Boolean = false,
     onRetry: () -> Unit = {},
 ) {
     Column(
@@ -245,16 +314,19 @@ private fun EmptyScreen(
                 .fillMaxHeight()
                 .weight(1f)
         )
-        if (!isSearchResult && !isRecycleBin) {
-            Text(
-                text = stringResource(R.string.file_list_empty_title),
-                style = typography().title01,
-                textAlign = TextAlign.Center,
-            )
-            Spacer(modifier = Modifier.height(dimensions().spacing16x))
+        val emptyMessage = when {
+            isFiltering || isSearchResult -> stringResource(R.string.no_results_found_label)
+            isAllFiles -> stringResource(R.string.file_list_empty_title)
+            else -> stringResource(R.string.file_list_empty_title)
         }
         Text(
+            text = emptyMessage,
+            style = typography().title01,
+            textAlign = TextAlign.Center,
+        )
+        Text(
             text = when {
+                isFiltering -> stringResource(R.string.filters_try_adjusting_your_filters_label)
                 isSearchResult -> stringResource(R.string.file_list_search_empty_message)
                 isAllFiles -> stringResource(R.string.file_list_empty_message)
                 isRecycleBin -> stringResource(R.string.empty_recycle_bin)
@@ -266,10 +338,10 @@ private fun EmptyScreen(
         Spacer(
             modifier = Modifier
                 .fillMaxHeight()
-                .weight(1f)
+                .weight(1.5f)
         )
 
-        if (!isSearchResult && isAllFiles) {
+        if (!isSearchResult && isAllFiles && !isFiltering) {
             WirePrimaryButton(
                 text = stringResource(R.string.reload),
                 onClick = onRetry
@@ -283,6 +355,18 @@ private fun EmptyScreen(
 fun PreviewErrorScreen() {
     WireTheme {
         ErrorScreen(
+            error = null,
+            onRetry = {}
+        )
+    }
+}
+
+@MultipleThemePreviews
+@Composable
+fun PreviewNetworkErrorScreen() {
+    WireTheme {
+        ErrorScreen(
+            error = FileListLoadError(true),
             onRetry = {}
         )
     }

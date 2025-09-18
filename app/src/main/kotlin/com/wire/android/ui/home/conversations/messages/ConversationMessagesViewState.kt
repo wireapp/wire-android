@@ -42,4 +42,5 @@ data class ConversationMessagesViewState(
 sealed class DownloadedAssetDialogVisibilityState {
     data object Hidden : DownloadedAssetDialogVisibilityState()
     data class Displayed(val assetData: AssetBundle, val messageId: String) : DownloadedAssetDialogVisibilityState()
+    data object AlreadyDeleted : DownloadedAssetDialogVisibilityState()
 }

@@ -31,6 +31,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.map
+import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.SnackBarMessage
@@ -90,6 +91,7 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
                 fromArchive = false,
                 onlyInteractionEnabled = true,
                 newActivitiesOnTop = false,
+                useStrictMlsFilter = BuildConfig.USE_STRICT_MLS_FILTER
             ).map {
                 it.map {
                     it as ConversationFolderItem

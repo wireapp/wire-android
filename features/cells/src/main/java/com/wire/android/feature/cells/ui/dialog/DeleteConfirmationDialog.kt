@@ -27,13 +27,16 @@ import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
+import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.common.wireDialogPropertiesBuilder
+import com.wire.android.ui.theme.WireTheme
 
 @Composable
 fun DeleteConfirmationDialog(
     itemName: String,
     isFolder: Boolean,
     isPermanentDelete: Boolean,
+    isDeleteInProgress: Boolean,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
 ) {
@@ -75,13 +78,29 @@ fun DeleteConfirmationDialog(
             onClick = onConfirm,
             text = stringResource(id = R.string.delete_label),
             type = WireDialogButtonType.Primary,
-            state = WireButtonState.Error
+            loading = isDeleteInProgress,
+            state = if (isDeleteInProgress) WireButtonState.Disabled else WireButtonState.Error,
         ),
         dismissButtonProperties = WireDialogButtonProperties(
             text = stringResource(id = R.string.cancel),
+            state = if (isDeleteInProgress) WireButtonState.Disabled else WireButtonState.Error,
             onClick = onDismiss
         ),
-        buttonsHorizontalAlignment = false,
         properties = wireDialogPropertiesBuilder(dismissOnBackPress = true, dismissOnClickOutside = true)
     )
+}
+
+@MultipleThemePreviews
+@Composable
+fun DeleteConfirmationDialogPreview() {
+    WireTheme {
+        DeleteConfirmationDialog(
+            itemName = "Very important file.pdf",
+            isFolder = false,
+            isPermanentDelete = false,
+            isDeleteInProgress = false,
+            onConfirm = {},
+            onDismiss = {}
+        )
+    }
 }

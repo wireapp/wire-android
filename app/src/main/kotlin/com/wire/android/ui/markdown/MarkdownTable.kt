@@ -22,7 +22,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -31,7 +32,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.home.conversations.messages.item.onNodeBackground
+import com.wire.android.ui.home.conversations.messages.item.surface
 
 @Composable
 fun MarkdownTable(
@@ -64,22 +66,23 @@ fun MarkdownTable(
     }
 
     // Create a table
-    Column(modifier = modifier.padding(bottom = dimensions().spacing8x)) {
+    Column(
+        modifier = modifier
+            .padding(bottom = dimensions().spacing8x)
+            .background(
+                nodeData.messageStyle.surface(),
+                shape = RoundedCornerShape(dimensions().spacing16x)
+            )
+    ) {
         tableData.map { row ->
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(
-                        if (row.firstOrNull()?.isHeader == true) {
-                            MaterialTheme.wireColorScheme.outline
-                        } else {
-                            MaterialTheme.wireColorScheme.background
-                        }
-                    )
             ) {
                 for (columnIndex in 0 until columnCount) {
                     MarkdownText(
                         annotatedString = row[columnIndex].annotatedString,
+                        color = nodeData.messageStyle.onNodeBackground(),
                         modifier = Modifier
                             .weight(1f)
                             .padding(dimensions().spacing8x),
@@ -87,6 +90,9 @@ fun MarkdownTable(
                         onOpenProfile = nodeData.actions?.onOpenProfile
                     )
                 }
+            }
+            if (row.firstOrNull()?.isHeader == true) {
+                HorizontalDivider(color = nodeData.messageStyle.onNodeBackground())
             }
         }
     }

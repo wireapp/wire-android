@@ -184,7 +184,7 @@ fun inlineNodeChildren(
                 } else {
                     annotatedString.pushStyle(
                         SpanStyle(
-                            color = nodeData.colorScheme.primary,
+                            color = nodeData.messageColors.highlighted,
                             textDecoration = TextDecoration.Underline
                         )
                     )
@@ -358,7 +358,7 @@ fun highlightText(nodeData: NodeData, text: String): AnnotatedString {
                     addStyle(
                         style = SpanStyle(
                             background = nodeData.colorScheme.highlight,
-                            color = nodeData.colorScheme.onHighlight,
+                            color = nodeData.colorScheme.onPrimaryVariant,
                             fontFamily = nodeData.typography.body02.fontFamily,
                             fontWeight = FontWeight.Bold
                         ),

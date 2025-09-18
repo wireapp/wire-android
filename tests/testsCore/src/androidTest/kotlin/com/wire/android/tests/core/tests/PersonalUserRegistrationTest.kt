@@ -67,7 +67,7 @@ class PersonalUserRegistrationTest : KoinTest {
         pages.registrationPage.apply {
             assertEmailWelcomePage()
             enterPersonalUserRegistrationEmail(userInfo.email)
-            assertAndClickLoginButton()
+            clickLoginButton()
             clickCreateAccountButton()
             clickCreatePersonalAccountButton()
             enterFirstName(userInfo.name)

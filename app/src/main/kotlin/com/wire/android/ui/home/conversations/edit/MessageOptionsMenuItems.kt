@@ -29,6 +29,7 @@ fun messageOptionsMenuItems(
     isComposite: Boolean,
     isEditable: Boolean,
     isCopyable: Boolean,
+    ownReactions: Set<String>,
     onCopyClick: () -> Unit,
     onDeleteClick: () -> Unit,
     onReactionClick: (reactionEmoji: String) -> Unit,
@@ -41,6 +42,7 @@ fun messageOptionsMenuItems(
 ): List<@Composable () -> Unit> {
     return if (isAssetMessage) {
         assetMessageOptionsMenuItems(
+            ownReactions = ownReactions,
             isEphemeral = isEphemeral,
             isUploading = isUploading,
             isOpenable = isOpenable,
@@ -54,6 +56,7 @@ fun messageOptionsMenuItems(
         )
     } else {
         textMessageEditMenuItems(
+            ownReactions = ownReactions,
             isEphemeral = isEphemeral,
             isUploading = isUploading,
             isComposite = isComposite,

@@ -58,11 +58,22 @@ class GetConversationsFromSearchUseCaseTest {
         val (arrangement, useCase) = Arrangement().arrange()
         // When
         with(arrangement.queryConfig) {
-            useCase(searchQuery, fromArchive, newActivitiesOnTop, onlyInteractionEnabled)
+            useCase(
+                searchQuery = searchQuery,
+                fromArchive = fromArchive,
+                newActivitiesOnTop = newActivitiesOnTop,
+                onlyInteractionEnabled = onlyInteractionEnabled,
+                useStrictMlsFilter = true
+            )
         }
         // Then
         coVerify {
-            arrangement.useCase(queryConfig = eq(arrangement.queryConfig), pagingConfig = any(), startingOffset = any())
+            arrangement.useCase(
+                queryConfig = eq(arrangement.queryConfig),
+                pagingConfig = any(),
+                startingOffset = any(),
+                strictMlsFilter = any()
+            )
         }
     }
 
@@ -74,13 +85,16 @@ class GetConversationsFromSearchUseCaseTest {
             ConversationDetailsWithEvents(TestConversationDetails.CONVERSATION_ONE_ONE),
             ConversationDetailsWithEvents(TestConversationDetails.GROUP),
         )
-        val (arrangement, useCase) = Arrangement()
-            .withPaginatedResult(conversationsList)
-            .withSelfUser()
-            .arrange()
+        val (arrangement, useCase) = Arrangement().withPaginatedResult(conversationsList).withSelfUser().arrange()
         // When
         val result = with(arrangement.queryConfig) {
-            useCase(searchQuery, fromArchive, newActivitiesOnTop, onlyInteractionEnabled).asSnapshot()
+            useCase(
+                searchQuery = searchQuery,
+                fromArchive = fromArchive,
+                newActivitiesOnTop = newActivitiesOnTop,
+                onlyInteractionEnabled = onlyInteractionEnabled,
+                useStrictMlsFilter = true,
+            ).asSnapshot()
         }
         // Then
         result.forEachIndexed { index, conversationItem ->
@@ -100,11 +114,8 @@ class GetConversationsFromSearchUseCaseTest {
             ConversationDetailsWithEvents(TestConversationDetails.CONVERSATION_ONE_ONE)
         )
 
-        val (arrangement, useCase) = Arrangement()
-            .withFavoriteFolderResult(folderResult)
-            .withFolderConversationsResult(conversationsList)
-            .withSelfUser()
-            .arrange()
+        val (arrangement, useCase) = Arrangement().withFavoriteFolderResult(folderResult).withFolderConversationsResult(conversationsList)
+            .withSelfUser().arrange()
 
         // When
         useCase(
@@ -112,13 +123,14 @@ class GetConversationsFromSearchUseCaseTest {
             fromArchive = false,
             newActivitiesOnTop = false,
             onlyInteractionEnabled = false,
-            conversationFilter = ConversationFilter.Favorites
+            conversationFilter = ConversationFilter.Favorites,
+            useStrictMlsFilter = true,
         ).asSnapshot()
 
         // Then
         coVerify(exactly = 1) { arrangement.getFavoriteFolderUseCase.invoke() }
         coVerify(exactly = 1) { arrangement.observeConversationsFromFolderUseCase.invoke(favoriteFolderId) }
-        coVerify(exactly = 0) { arrangement.useCase(any(), any(), any()) }
+        coVerify(exactly = 0) { arrangement.useCase(any(), any(), any(), any()) }
     }
 
     @Test
@@ -134,13 +146,16 @@ class GetConversationsFromSearchUseCaseTest {
                     )
                 )
             )
-            val (arrangement, useCase) = Arrangement()
-                .withPaginatedResult(conversationsList)
-                .withSelfUser()
-                .arrange()
+            val (arrangement, useCase) = Arrangement().withPaginatedResult(conversationsList).withSelfUser().arrange()
             // When
             val result = with(arrangement.queryConfig) {
-                useCase(searchQuery, fromArchive, newActivitiesOnTop, onlyInteractionEnabled).asSnapshot()
+                useCase(
+                    searchQuery = searchQuery,
+                    fromArchive = fromArchive,
+                    newActivitiesOnTop = newActivitiesOnTop,
+                    onlyInteractionEnabled = onlyInteractionEnabled,
+                    useStrictMlsFilter = true
+                ).asSnapshot()
             }
             // Then
             val conversation = result.first()
@@ -153,13 +168,16 @@ class GetConversationsFromSearchUseCaseTest {
         runTest(dispatcherProvider.main()) {
             // Given
             val conversationsList = listOf(ConversationDetailsWithEvents(TestConversationDetails.GROUP))
-            val (arrangement, useCase) = Arrangement()
-                .withPaginatedResult(conversationsList)
-                .withSelfUser()
-                .arrange()
+            val (arrangement, useCase) = Arrangement().withPaginatedResult(conversationsList).withSelfUser().arrange()
             // When
             val result = with(arrangement.queryConfig) {
-                useCase(searchQuery, fromArchive, newActivitiesOnTop, onlyInteractionEnabled).asSnapshot()
+                useCase(
+                    searchQuery = searchQuery,
+                    fromArchive = fromArchive,
+                    newActivitiesOnTop = newActivitiesOnTop,
+                    onlyInteractionEnabled = onlyInteractionEnabled,
+                    useStrictMlsFilter = true
+                ).asSnapshot()
             }
             // Then
             val conversation = result.first()
@@ -199,7 +217,7 @@ class GetConversationsFromSearchUseCaseTest {
 
         fun withPaginatedResult(conversations: List<ConversationDetailsWithEvents> = emptyList()) = apply {
             coEvery {
-                useCase.invoke(any(), any(), any())
+                useCase.invoke(any(), any(), any(), any())
             } returns flowOf(PagingData.from(conversations))
         }
 
@@ -218,12 +236,7 @@ class GetConversationsFromSearchUseCaseTest {
         }
 
         fun arrange() = this to GetConversationsFromSearchUseCase(
-            useCase,
-            getFavoriteFolderUseCase,
-            observeConversationsFromFolderUseCase,
-            userTypeMapper,
-            dispatcherProvider,
-            getSelfUser
+            useCase, getFavoriteFolderUseCase, observeConversationsFromFolderUseCase, userTypeMapper, dispatcherProvider, getSelfUser
         )
     }
 }

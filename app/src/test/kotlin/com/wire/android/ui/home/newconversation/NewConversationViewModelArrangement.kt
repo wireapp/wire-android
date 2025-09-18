@@ -39,6 +39,7 @@ import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.createconversation.ConversationCreationResult
 import com.wire.kalium.logic.feature.conversation.createconversation.CreateChannelUseCase
 import com.wire.kalium.logic.feature.conversation.createconversation.CreateRegularGroupUseCase
+import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageUseCase
 import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
@@ -61,6 +62,7 @@ internal class NewConversationViewModelArrangement {
         coEvery { observeChannelsCreationPermissionUseCase() } returns flowOf(ChannelCreationPermission.Forbidden)
         every { getDefaultProtocol() } returns SupportedProtocol.PROTEUS
         coEvery { isWireCellsEnabled() } returns false
+        withAppsAllowedResult(false)
     }
 
     @MockK
@@ -80,6 +82,9 @@ internal class NewConversationViewModelArrangement {
 
     @MockK
     lateinit var getDefaultProtocol: GetDefaultProtocolUseCase
+
+    @MockK
+    lateinit var observeIsAppsAllowedForUsage: ObserveIsAppsAllowedForUsageUseCase
 
     @MockK
     lateinit var isWireCellsEnabled: IsWireCellsEnabledUseCase
@@ -206,6 +211,10 @@ internal class NewConversationViewModelArrangement {
         every { getDefaultProtocol() } returns supportedProtocol
     }
 
+    fun withAppsAllowedResult(result: Boolean) = apply {
+        coEvery { observeIsAppsAllowedForUsage() } returns flowOf(result)
+    }
+
     fun arrange() = this to NewConversationViewModel(
         createRegularGroup = createRegularGroup,
         createChannel = createChannel,
@@ -213,6 +222,7 @@ internal class NewConversationViewModelArrangement {
         getSelfUser = getSelf,
         getDefaultProtocol = getDefaultProtocol,
         isWireCellsFeatureEnabled = isWireCellsEnabled,
+        observeIsAppsAllowedForUsage = observeIsAppsAllowedForUsage,
     ).also {
         it.createGroupState = createGroupState
     }

@@ -23,6 +23,7 @@ import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiScrollable
 import androidx.test.uiautomator.UiSelector
 import androidx.test.uiautomator.Until
+import androidx.test.uiautomator.type
 import junit.framework.TestCase.assertFalse
 import org.junit.Assert
 import uiautomatorutils.UiSelectorParams
@@ -56,6 +57,11 @@ data class ConversationViewPage(private val device: UiDevice) {
     private val videoDurationLocator = UiSelectorParams(text = "00:03")
 
     private val messageInputField = UiSelectorParams(className = "android.widget.EditText")
+
+    private fun conversationDetails1On1(userName: String) =
+        UiSelector()
+            .resourceId("User avatar")
+            .fromParent(UiSelector().className("android.widget.TextView").text(userName))
 
     private val sendButton = UiSelectorParams(description = "Send")
 
@@ -262,13 +268,9 @@ data class ConversationViewPage(private val device: UiDevice) {
             currentPackage.contains("APP_")
         )
     }
-
     fun typeMessageInInputField(message: String): ConversationViewPage {
-        val inputField = UiWaitUtils.waitElement(messageInputField)
-        inputField.click()
-        // Use shell command to input text
-        UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-            .executeShellCommand("input text ${message.replace(" ", "%s")}")
+        UiWaitUtils.waitElement(messageInputField).click()
+        device.type(message)
         return this
     }
 
@@ -277,7 +279,7 @@ data class ConversationViewPage(private val device: UiDevice) {
         return this
     }
 
-    fun assertMessageSentIsVisible(message: String): ConversationViewPage {
+    fun assertSentMessageIsVisibleInCurrentConversation(message: String): ConversationViewPage {
         val messageSelector = UiSelectorParams(text = message)
         val messageElement = UiWaitUtils.waitElement(messageSelector)
 
@@ -338,7 +340,7 @@ data class ConversationViewPage(private val device: UiDevice) {
         }
     }
 
-    fun assertReceivedMessageIsVisible(message: String): ConversationViewPage {
+    fun assertReceivedMessageIsVisibleInCurrentConversation(message: String): ConversationViewPage {
         val messageSelector = UiSelectorParams(text = message)
 
         try {
@@ -366,6 +368,15 @@ data class ConversationViewPage(private val device: UiDevice) {
         } catch (e: AssertionError) {
             throw AssertionError("Conversation screen is not visible: 'Type a message' field not found.", e)
         }
+
+        return this
+    }
+
+    fun click1On1ConversationDetails(userName: String): ConversationViewPage {
+        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        val userName = device.findObject(conversationDetails1On1(userName))
+        if (!userName.exists()) throw AssertionError("User '$userName' not found in current conversation")
+        userName.click()
 
         return this
     }

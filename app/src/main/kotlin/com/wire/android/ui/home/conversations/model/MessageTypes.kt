@@ -51,6 +51,7 @@ import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversations.CompositeMessageViewModel
 import com.wire.android.ui.home.conversations.CompositeMessageViewModelImpl
 import com.wire.android.ui.home.conversations.messages.item.MessageStyle
+import com.wire.android.ui.home.conversations.messages.item.highlighted
 import com.wire.android.ui.home.conversations.messages.item.isBubble
 import com.wire.android.ui.home.conversations.mock.mockedPrivateAsset
 import com.wire.android.ui.home.conversations.model.messagetypes.image.AsyncImageMessage
@@ -61,6 +62,7 @@ import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMess
 import com.wire.android.ui.markdown.DisplayMention
 import com.wire.android.ui.markdown.MarkdownConstants.MENTION_MARK
 import com.wire.android.ui.markdown.MarkdownDocument
+import com.wire.android.ui.markdown.MessageColors
 import com.wire.android.ui.markdown.NodeActions
 import com.wire.android.ui.markdown.NodeData
 import com.wire.android.ui.markdown.toMarkdownDocument
@@ -122,7 +124,8 @@ internal fun MessageBody(
             onOpenProfile = onOpenProfile,
             onLinkClick = onLinkClick
         ),
-        messageStyle = messageStyle
+        messageStyle = messageStyle,
+        messageColors = MessageColors(highlighted = messageStyle.highlighted())
     )
 
     val markdownDocument = remember(text) {

@@ -17,6 +17,11 @@
  */
 package com.wire.android.ui.home.conversations.messages.item
 
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
+import com.wire.android.ui.theme.wireColorScheme
+
 enum class MessageStyle {
     BUBBLE_SELF,
     BUBBLE_OTHER,
@@ -29,6 +34,36 @@ fun MessageStyle.alpha() = when (this) {
     MessageStyle.BUBBLE_SELF -> SELF_BUBBLE_OPACITY
     MessageStyle.BUBBLE_OTHER -> 1F
     MessageStyle.NORMAL -> 1F
+}
+
+@Composable
+fun MessageStyle.textColor(): Color {
+    return when (this) {
+        MessageStyle.BUBBLE_SELF -> MaterialTheme.wireColorScheme.onPrimary
+        MessageStyle.BUBBLE_OTHER -> MaterialTheme.wireColorScheme.secondaryText
+        MessageStyle.NORMAL -> MaterialTheme.wireColorScheme.secondaryText
+    }
+}
+
+@Composable
+fun MessageStyle.surface(): Color = when (this) {
+    MessageStyle.BUBBLE_SELF -> MaterialTheme.wireColorScheme.scrim
+    MessageStyle.BUBBLE_OTHER -> MaterialTheme.wireColorScheme.surfaceVariant
+    MessageStyle.NORMAL -> MaterialTheme.wireColorScheme.outline
+}
+
+@Composable
+fun MessageStyle.highlighted(): Color = when (this) {
+    MessageStyle.BUBBLE_SELF -> MaterialTheme.wireColorScheme.onPrimary
+    MessageStyle.BUBBLE_OTHER -> MaterialTheme.wireColorScheme.primary
+    MessageStyle.NORMAL -> MaterialTheme.wireColorScheme.primary
+}
+
+@Composable
+fun MessageStyle.onNodeBackground(): Color = when (this) {
+    MessageStyle.BUBBLE_SELF -> MaterialTheme.wireColorScheme.markdownNodeTextColor
+    MessageStyle.BUBBLE_OTHER -> MaterialTheme.wireColorScheme.onBackground
+    MessageStyle.NORMAL -> MaterialTheme.wireColorScheme.onBackground
 }
 
 private const val SELF_BUBBLE_OPACITY = 0.5F

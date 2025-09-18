@@ -121,6 +121,7 @@ private fun MessageOptionsModalContent(
     WireMenuModalSheetContent(
         header = MenuModalSheetHeader.Gone,
         menuItems = messageOptionsMenuItems(
+            ownReactions = message.messageFooter.ownReactions,
             isAssetMessage = message.isAssetMessage,
             isUploading = message.isPending,
             isComposite = message.messageContent is UIMessageContent.Composite,

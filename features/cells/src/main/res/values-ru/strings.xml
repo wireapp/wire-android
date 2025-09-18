@@ -18,7 +18,10 @@
   -->
 <resources>
     <string name="retry">Повторить</string>
+    <string name="file_list_load_error_title">Ошибка</string>
     <string name="file_list_load_error">Произошла ошибка при загрузке списка файлов. Пожалуйста, попробуйте еще раз</string>
+    <string name="file_list_load_network_error_title">Невозможно загрузить файлы</string>
+    <string name="file_list_load_network_error">Не удалось загрузить список ваших файлов. Пожалуйста, проверьте подключение к интернету и повторите попытку.</string>
     <string name="file_list_empty_message">Здесь вы найдете все файлы, которыми поделились в ваших беседах.</string>
     <string name="conversation_file_list_empty_message">Здесь вы найдете все файлы и папки, которыми поделились в этой беседе.</string>
     <string name="file_list_search_empty_message">Попробуйте изменить условия поиска</string>
@@ -82,6 +85,13 @@
     <string name="dialog_restore_file_description">Файл %1$s будет восстановлен и снова доступен для всех в этой беседе.</string>
     <string name="dialog_restore_folder_description">Папка %1$s будет восстановлена и снова доступна для всех в этой беседе.</string>
     <string name="dialog_restore_button_label">Восстановить</string>
+    <string name="dialog_unable_to_restore_folder_title">Невозможно восстановить папку</string>
+    <string name="dialog_unable_to_restore_file_title">Невозможно восстановить файл</string>
+    <string name="dialog_unable_to_restore_folder_description">Из-за ошибки не удалось восстановить папку.</string>
+    <string name="dialog_unable_to_restore_file_description">Из-за ошибки не удалось восстановить файл.</string>
+    <string name="ok_label">OK</string>
+    <string name="dialog_restore_parent_folder_button">Восстановить родительскую папку</string>
+    <string name="dialog_restore_parent_folder_description">Вы не можете восстановить папки или файлы из удаленной папки. Чтобы повторно использовать нужный элемент, вы должны восстановить его родительскую папку.\n\n Папка %1$s со всеми файлами и подпапками будет восстановлена и доступна всем участникам этой беседы.</string>
     <string name="rename_file_label">Переименовать файл</string>
     <string name="rename_folder_label">Переименовать папку</string>
     <string name="rename_label">Переименовать</string>
@@ -94,7 +104,6 @@
     <string name="rename_file_renamed">Файл переименован</string>
     <string name="rename_folder_renamed">Папка переименована</string>
     <string name="rename_failure">Не удалось переименовать</string>
-    <string name="rename_invalid_name">Название не может содержать символы \"/\" или \".\" </string>
     <string name="filter_label">Фильтр</string>
     <string name="tags_label">Теги</string>
     <string name="select_tags_label">выбрать теги</string>
@@ -113,4 +122,6 @@
     <string name="file_list_empty_title">Файлов и папок пока нет</string>
     <string name="no_results_found_label">Ничего не найдено</string>
     <string name="filters_try_adjusting_your_filters_label">Попробуйте изменить фильтры.</string>
+    <string name="cells_file_deleted_message">Файл удален</string>
+    <string name="cells_file_permanently_deleted_message">Файл удален навсегда</string>
 </resources>

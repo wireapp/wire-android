@@ -224,6 +224,14 @@ internal fun CellScreenContent(
             is HideRestoreConfirmation -> restoreConfirmation = null
             is HideRestoreParentFolderDialog -> restoreParentFolderConfirmation = null
             is HideDeleteConfirmation -> deleteConfirmation = null
+            is ShowFileDeletedMessage -> {
+                val message = if (action.permanently) {
+                    context.getString(R.string.cells_file_permanently_deleted_message)
+                } else {
+                    context.getString(R.string.cells_file_deleted_message)
+                }
+                Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+            }
         }
     }
 

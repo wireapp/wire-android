@@ -443,6 +443,9 @@ class CellViewModel @Inject constructor(
         } else {
             null
         }
+
+        sendAction(ShowFileDeletedMessage(isRecycleBin()))
+
         deleteCellAsset(node.uuid, localPath)
             .onSuccess {
                 removedItemsFlow.update { currentList ->
@@ -561,6 +564,7 @@ internal data class ShowMoveToFolderScreen(val currentPath: String, val nodeToMo
 internal data object ShowUnableToRestoreDialog : CellViewAction
 internal data class ShowRestoreParentFolderDialog(val cellNode: CellNodeUi) : CellViewAction
 internal data object HideRestoreParentFolderDialog : CellViewAction
+internal data class ShowFileDeletedMessage(val permanently: Boolean) : CellViewAction
 internal data object RefreshData : CellViewAction
 
 internal enum class CellError(val message: Int) {

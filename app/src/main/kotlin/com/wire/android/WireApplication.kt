@@ -20,8 +20,6 @@ package com.wire.android
 
 import android.app.Activity
 import android.content.ComponentCallbacks2
-import android.content.Intent
-import android.content.IntentFilter
 import android.os.Build
 import android.os.Bundle
 import android.os.StrictMode
@@ -33,7 +31,6 @@ import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.ApplicationScope
 import com.wire.android.di.KaliumCoreLogic
-import com.wire.android.emm.ManagedConfigurationsReceiver
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
 import com.wire.android.feature.analytics.AnonymousAnalyticsRecorderImpl
@@ -95,9 +92,6 @@ class WireApplication : BaseApp() {
 
     @Inject
     lateinit var currentScreenManager: CurrentScreenManager
-
-    @Inject
-    lateinit var managedConfigurationsReceiver: ManagedConfigurationsReceiver
 
     @Inject
     lateinit var analyticsManager: Lazy<AnonymousAnalyticsManager>
@@ -172,35 +166,17 @@ class WireApplication : BaseApp() {
             override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {}
             override fun onActivityStarted(activity: Activity) {
                 globalAnalyticsManager.onStart(activity)
-                registerRuntimeReceivers()
             }
 
             override fun onActivityResumed(activity: Activity) {}
             override fun onActivityPaused(activity: Activity) {}
             override fun onActivityStopped(activity: Activity) {
                 globalAnalyticsManager.onStop(activity)
-                unregisterRuntimeReceivers()
             }
 
             override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {}
             override fun onActivityDestroyed(activity: Activity) {}
         })
-    }
-
-    /**
-     * Register broadcast receivers that need to be active dynamically.
-     */
-    private fun registerRuntimeReceivers() {
-        appLogger.i("$TAG Registering Runtime broadcast receivers")
-        registerReceiver(managedConfigurationsReceiver, IntentFilter(Intent.ACTION_APPLICATION_RESTRICTIONS_CHANGED))
-    }
-
-    /**
-     * Unregister broadcast receivers that were dynamically registered.
-     */
-    private fun unregisterRuntimeReceivers() {
-        appLogger.i("$TAG Unregistering Runtime broadcast receivers")
-        unregisterReceiver(managedConfigurationsReceiver)
     }
 
     private suspend fun initializeApplicationLoggingFrameworks() {

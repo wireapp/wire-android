@@ -43,5 +43,4 @@ class ManagedConfigurationsRepository @Inject constructor(
     companion object {
         const val TAG = "ManagedConfigurationsRepository"
     }
-
 }

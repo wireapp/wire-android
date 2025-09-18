@@ -21,13 +21,11 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import com.wire.android.appLogger
-import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class ManagedConfigurationsReceiver @Inject constructor(
-    @ApplicationContext val context: Context,
     private val managedConfigurationsRepository: ManagedConfigurationsRepository
 ) : BroadcastReceiver() {
 
@@ -43,5 +41,4 @@ class ManagedConfigurationsReceiver @Inject constructor(
     companion object {
         const val TAG = "ManagedConfigurationsReceiver"
     }
-
 }

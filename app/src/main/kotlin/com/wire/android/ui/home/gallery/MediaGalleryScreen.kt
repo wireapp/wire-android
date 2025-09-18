@@ -233,6 +233,7 @@ private fun MediaGalleryOptionsBottomSheetLayout(
                         onDeleteClick = onDeleteClick,
                         onShareAsset = onShareAssetClick,
                         onDownloadAsset = downloadAsset,
+                        ownReactions = setOf()
                     )
                 } else {
                     assetOptionsMenuItems(

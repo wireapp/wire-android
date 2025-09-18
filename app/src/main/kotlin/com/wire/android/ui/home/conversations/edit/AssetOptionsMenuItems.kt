@@ -30,6 +30,7 @@ import com.wire.android.ui.edit.ShareAssetMenuOption
 @Composable
 fun assetMessageOptionsMenuItems(
     isEphemeral: Boolean,
+    ownReactions: Set<String>,
     onDeleteClick: () -> Unit,
     onDetailsClick: () -> Unit,
     onShareAsset: () -> Unit,
@@ -54,7 +55,7 @@ fun assetMessageOptionsMenuItems(
             }
 
             else -> {
-                add { ReactionOption(onReactionClick) }
+                add { ReactionOption(ownReactions, onReactionClick) }
                 add { MessageDetailsMenuOption(onDetailsClick) }
                 add { ReplyMessageOption(onReplyClick) }
                 add { DownloadAssetExternallyOption(onDownloadAsset) }

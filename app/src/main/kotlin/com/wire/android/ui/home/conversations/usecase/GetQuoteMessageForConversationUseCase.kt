@@ -53,7 +53,8 @@ class GetQuoteMessageForConversationUseCase @Inject constructor(
                                         senderName = uiMessage.header.username,
                                         originalMessageDateDescription = "".toUIText(),
                                         editedTimeDescription = "".toUIText(),
-                                        quotedContent = quotedContent
+                                        quotedContent = quotedContent,
+                                        senderAccent = uiMessage.header.accent
                                     )
                                 }
                             } ?: UIQuotedMessage.UnavailableData

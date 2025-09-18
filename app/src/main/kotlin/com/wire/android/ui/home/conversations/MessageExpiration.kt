@@ -61,7 +61,7 @@ fun rememberSelfDeletionTimer(expirationStatus: ExpirationStatus): SelfDeletionT
 private fun stringResourceProvider(): StringResourceProvider {
     with(LocalContext.current.resources) {
         return object : StringResourceProvider {
-            override fun quantityString(type: StringResourceType, quantity: Int): String =
+            override fun quantityString(type: StringResourceType, quantity: Int, withLeftText: Boolean): String = if (withLeftText) {
                 getQuantityString(
                     when (type) {
                         StringResourceType.WEEKS -> R.plurals.weeks_left
@@ -69,8 +69,23 @@ private fun stringResourceProvider(): StringResourceProvider {
                         StringResourceType.HOURS -> R.plurals.hours_left
                         StringResourceType.MINUTES -> R.plurals.minutes_left
                         StringResourceType.SECONDS -> R.plurals.seconds_left
-                    }, quantity, quantity
+                    },
+                    quantity,
+                    quantity
                 )
+            } else {
+                getQuantityString(
+                    when (type) {
+                        StringResourceType.WEEKS -> R.plurals.weeks
+                        StringResourceType.DAYS -> R.plurals.days
+                        StringResourceType.HOURS -> R.plurals.hours
+                        StringResourceType.MINUTES -> R.plurals.minutes
+                        StringResourceType.SECONDS -> R.plurals.seconds
+                    },
+                    quantity,
+                    quantity
+                )
+            }
         }
     }
 }
@@ -164,6 +179,37 @@ class SelfDeletionTimerHelper(private val stringResourceProvider: StringResource
                         stringResourceProvider.quantityString(StringResourceType.SECONDS, timeLeft.inWholeSeconds.toInt())
 
                     else -> throw IllegalStateException("Not possible state for a time left label")
+                }
+            }
+
+            @Suppress("MagicNumber", "ComplexMethod")
+            val timeFormatted: String by derivedStateOf {
+                when {
+                    timeLeft > 28.days ->
+                        stringResourceProvider.quantityString(StringResourceType.WEEKS, 4, false)
+                    // 4 weeks
+                    timeLeft >= 27.days && timeLeft <= 28.days ->
+                        stringResourceProvider.quantityString(StringResourceType.WEEKS, 4, false)
+                    // days below 4 weeks
+                    timeLeft <= 27.days && timeLeft > 7.days ->
+                        stringResourceProvider.quantityString(StringResourceType.DAYS, timeLeft.inWholeDays.toInt(), false)
+                    // one week
+                    timeLeft >= 6.days && timeLeft <= 7.days ->
+                        stringResourceProvider.quantityString(StringResourceType.WEEKS, 1, false)
+                    // days below 1 week
+                    timeLeft < 7.days && timeLeft >= 1.days ->
+                        stringResourceProvider.quantityString(StringResourceType.DAYS, timeLeft.inWholeDays.toInt(), false)
+                    // hours below one day
+                    timeLeft >= 1.hours && timeLeft < 24.hours ->
+                        stringResourceProvider.quantityString(StringResourceType.HOURS, timeLeft.inWholeHours.toInt(), false)
+                    // minutes below hour
+                    timeLeft >= 1.minutes && timeLeft < 60.minutes ->
+                        stringResourceProvider.quantityString(StringResourceType.MINUTES, timeLeft.inWholeMinutes.toInt(), false)
+                    // seconds below minute
+                    timeLeft < 60.seconds ->
+                        stringResourceProvider.quantityString(StringResourceType.SECONDS, timeLeft.inWholeSeconds.toInt(), false)
+
+                    else -> throw IllegalStateException("Not possible state for a time label")
                 }
             }
 
@@ -279,5 +325,5 @@ typealias CurrentTimeProvider = () -> Instant
 
 enum class StringResourceType { WEEKS, DAYS, HOURS, MINUTES, SECONDS; }
 interface StringResourceProvider {
-    fun quantityString(type: StringResourceType, quantity: Int): String
+    fun quantityString(type: StringResourceType, quantity: Int, withLeftText: Boolean = true): String
 }

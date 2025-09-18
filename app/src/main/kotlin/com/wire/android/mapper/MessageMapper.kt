@@ -159,7 +159,7 @@ class MessageMapper @Inject constructor(
             is SelfUser, null -> false
         },
         clientId = (message as? Message.Sendable)?.senderClientId,
-        accent = sender?.accentId?.let { Accent.fromAccentId(it) } ?: Accent.Unknown,
+        accent = Accent.fromAccentId(sender?.accentId),
         guestExpiresAt = sender?.expiresAt
     )
 

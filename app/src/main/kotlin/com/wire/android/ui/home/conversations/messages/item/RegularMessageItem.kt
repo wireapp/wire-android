@@ -234,7 +234,7 @@ fun RegularMessageItem(
                 configuration = swipeableMessageConfiguration,
                 messageStyle = messageStyle,
                 accentColor = MaterialTheme.wireColorScheme.wireAccentColors.getOrDefault(
-                    header.accent,
+                    swipeableMessageConfiguration.selfUserAccent,
                     MaterialTheme.wireColorScheme.primary
                 )
             ) {

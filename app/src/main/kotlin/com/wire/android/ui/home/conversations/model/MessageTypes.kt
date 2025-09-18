@@ -228,6 +228,7 @@ fun MessageImage(
                 ImageMessageInProgress(
                     size = imgParams.normalizedSize(),
                     isDownloading = transferStatus == DOWNLOAD_IN_PROGRESS,
+                    messageStyle = messageStyle,
                     modifier = alignCenterModifier
                 )
             }
@@ -263,6 +264,7 @@ fun MediaAssetImage(
     asset: ImageAsset.Remote?,
     size: DpSize,
     transferStatus: AssetTransferStatus?,
+    messageStyle: MessageStyle,
     onImageClick: Clickable,
     modifier: Modifier = Modifier,
     assetPath: Path? = null
@@ -289,6 +291,7 @@ fun MediaAssetImage(
                     size = size,
                     isDownloading = true,
                     showText = false,
+                    messageStyle = messageStyle,
                     modifier = Modifier.align(Alignment.Center)
                 )
             }

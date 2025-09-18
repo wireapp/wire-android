@@ -45,4 +45,25 @@ fun MessageStyle.textColor(): Color {
     }
 }
 
+@Composable
+fun MessageStyle.surface(): Color = when (this) {
+    MessageStyle.BUBBLE_SELF -> MaterialTheme.wireColorScheme.scrim
+    MessageStyle.BUBBLE_OTHER -> MaterialTheme.wireColorScheme.surfaceVariant
+    MessageStyle.NORMAL -> MaterialTheme.wireColorScheme.outline
+}
+
+@Composable
+fun MessageStyle.highlighted(): Color = when (this) {
+    MessageStyle.BUBBLE_SELF -> MaterialTheme.wireColorScheme.onPrimary
+    MessageStyle.BUBBLE_OTHER -> MaterialTheme.wireColorScheme.primary
+    MessageStyle.NORMAL -> MaterialTheme.wireColorScheme.primary
+}
+
+@Composable
+fun MessageStyle.onNodeBackground(): Color = when (this) {
+    MessageStyle.BUBBLE_SELF -> MaterialTheme.wireColorScheme.markdownNodeTextColor
+    MessageStyle.BUBBLE_OTHER -> MaterialTheme.wireColorScheme.onBackground
+    MessageStyle.NORMAL -> MaterialTheme.wireColorScheme.onBackground
+}
+
 private const val SELF_BUBBLE_OPACITY = 0.5F

@@ -25,6 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.text.style.TextOverflow
 import com.wire.android.ui.markdown.MarkdownConstants
 import com.wire.android.ui.markdown.MarkdownInline
+import com.wire.android.ui.markdown.MessageColors
 import com.wire.android.ui.markdown.NodeData
 import com.wire.android.ui.markdown.getFirstInlines
 import com.wire.android.ui.markdown.toMarkdownDocument
@@ -57,7 +58,8 @@ private fun LastMessageMarkdown(text: String, leadingText: String = "") {
         typography = MaterialTheme.wireTypography,
         searchQuery = "",
         mentions = listOf(),
-        disableLinks = true
+        disableLinks = true,
+        messageColors = MessageColors(highlighted = MaterialTheme.wireColorScheme.primary,)
     )
 
     val markdownPreview = remember(text) {

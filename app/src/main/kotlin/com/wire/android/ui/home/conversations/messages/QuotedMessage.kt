@@ -61,8 +61,10 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.home.conversations.messages.item.MessageStyle
+import com.wire.android.ui.home.conversations.messages.item.highlighted
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
 import com.wire.android.ui.markdown.MarkdownInline
+import com.wire.android.ui.markdown.MessageColors
 import com.wire.android.ui.markdown.NodeData
 import com.wire.android.ui.markdown.getFirstInlines
 import com.wire.android.ui.markdown.toMarkdownDocument
@@ -407,7 +409,7 @@ private fun QuotedText(
                     StatusBox(it.asString())
                 }
             }
-            MainMarkdownText(text)
+            MainMarkdownText(text, messageStyle = style.messageStyle)
         },
         footerContent = {
             QuotedMessageOriginalDate(originalDateTimeDescription)
@@ -604,7 +606,7 @@ fun QuotedAudioMessage(
 }
 
 @Composable
-private fun MainMarkdownText(text: String, fontStyle: FontStyle = FontStyle.Normal) {
+private fun MainMarkdownText(text: String, messageStyle: MessageStyle, fontStyle: FontStyle = FontStyle.Normal) {
     val nodeData = NodeData(
         color = colorsScheme().onSurfaceVariant,
         style = MaterialTheme.wireTypography.subline01.copy(fontStyle = fontStyle),
@@ -613,6 +615,8 @@ private fun MainMarkdownText(text: String, fontStyle: FontStyle = FontStyle.Norm
         searchQuery = "",
         mentions = listOf(),
         disableLinks = true,
+        messageStyle = messageStyle,
+        messageColors = MessageColors(highlighted = messageStyle.highlighted())
     )
 
     val markdownPreview = remember(text) {

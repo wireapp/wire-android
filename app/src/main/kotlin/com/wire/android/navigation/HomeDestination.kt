@@ -25,6 +25,7 @@ import com.wire.android.R
 import com.wire.android.ui.destinations.AllConversationsScreenDestination
 import com.wire.android.ui.destinations.ArchiveScreenDestination
 import com.wire.android.ui.destinations.GlobalCellsScreenDestination
+import com.wire.android.ui.destinations.MeetingsScreenDestination
 import com.wire.android.ui.destinations.SettingsScreenDestination
 import com.wire.android.ui.destinations.VaultScreenDestination
 import com.wire.android.ui.destinations.WhatsNewScreenDestination
@@ -94,6 +95,12 @@ sealed class HomeDestination(
         direction = GlobalCellsScreenDestination
     )
 
+    data object Meetings : HomeDestination(
+        title = UIText.StringResource(R.string.meetings_screen_title),
+        icon = R.drawable.ic_video_call,
+        direction = MeetingsScreenDestination
+    )
+
     data class SearchBarOptions(
         @StringRes
         val hint: Int = R.string.search_bar_conversations_hint
@@ -108,6 +115,6 @@ sealed class HomeDestination(
             values().find { it.direction.route.getBaseRoute() == fullRoute.getBaseRoute() }
 
         fun values(): Array<HomeDestination> =
-            arrayOf(Conversations, Settings, Vault, Archive, Support, TeamManagement, WhatsNew, Cells)
+            arrayOf(Conversations, Settings, Vault, Archive, Support, TeamManagement, WhatsNew, Cells, Meetings)
     }
 }

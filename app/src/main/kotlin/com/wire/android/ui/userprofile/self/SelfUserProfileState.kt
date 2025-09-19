@@ -43,5 +43,6 @@ data class SelfUserProfileState(
     val isAbleToMigrateToTeamAccount: Boolean = false,
     val isLoggingOut: Boolean = false,
     val legalHoldStatus: LegalHoldUIState = LegalHoldUIState.None,
-    val accentId: Int = -1
+    val accentId: Int = -1,
+    val showQrCode: Boolean = false,
 )

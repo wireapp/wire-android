@@ -68,6 +68,7 @@ class DebugFeatureFlagsViewModel @Inject constructor(
                             addFeature("Consumable Notifications", consumableNotificationsModel?.status)
                             addFeature("Allowed Global Operations", allowedGlobalOperationsModel?.status, allowedGlobalOperationsModel)
                             addFeature("Wire Cells", cellsModel?.status)
+                            addFeature("Disable Profile QR code", disableUserProfileQRCodeConfigModel?.status)
 
                             add(
                                 Feature(

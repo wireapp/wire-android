@@ -20,7 +20,12 @@ package com.wire.android.ui.userprofile.other
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 
+/**
+ * @param userId the id of the user whose profile is accessed
+ * @param groupConversationId the id of the group conversation from which the user profile is accessed, to show and edit the member role
+ * for that user, if the profile is not accessed from a conversation members list or mention then this parameter should be null
+ */
 data class OtherUserProfileNavArgs(
     val userId: UserId,
-    val conversationId: ConversationId? = null
+    val groupConversationId: ConversationId? = null
 )

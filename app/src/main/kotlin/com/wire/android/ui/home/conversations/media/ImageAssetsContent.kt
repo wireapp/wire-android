@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.home.conversations.media
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -33,6 +34,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.DpSize
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -41,6 +43,7 @@ import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.home.conversations.mock.mockUIAssetMessage
 import com.wire.android.ui.home.conversations.model.MediaAssetImage
 import com.wire.android.ui.home.conversations.usecase.UIImageAssetPagingItem
@@ -82,6 +85,7 @@ fun ImageAssetsContent(
     }
 }
 
+@SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
 private fun ImageAssetGrid(
     uiAssetMessageList: LazyPagingItems<UIImageAssetPagingItem>,
@@ -144,11 +148,11 @@ private fun ImageAssetGrid(
                         ) {
                             MediaAssetImage(
                                 asset = null,
-                                width = itemSize,
-                                height = itemSize,
+                                size = DpSize(itemSize, itemSize),
                                 transferStatus = assetStatuses[uiAsset.messageId]?.transferStatus,
                                 onImageClick = currentOnImageClick,
-                                assetPath = uiAsset.assetPath
+                                assetPath = uiAsset.assetPath,
+                                messageStyle = MessageStyle.NORMAL
                             )
                         }
                     }

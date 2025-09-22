@@ -30,7 +30,6 @@ import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.CellFilesNavArgs
 import com.wire.android.feature.cells.ui.CellScreenContent
 import com.wire.android.feature.cells.ui.CellViewModel
-import com.wire.android.feature.cells.ui.common.FullScreenLoading
 import com.wire.android.feature.cells.ui.destinations.ConversationFilesWithSlideInTransitionScreenDestination
 import com.wire.android.feature.cells.ui.destinations.MoveToFolderScreenDestination
 import com.wire.android.feature.cells.ui.destinations.PublicLinkScreenDestination
@@ -54,6 +53,7 @@ fun RecycleBinScreen(
     modifier: Modifier = Modifier,
     cellViewModel: CellViewModel = hiltViewModel()
 ) {
+
     Box(modifier = modifier) {
         WireScaffold(
             topBar = {
@@ -81,6 +81,9 @@ fun RecycleBinScreen(
                     downloadFileState = cellViewModel.downloadFileSheet,
                     menuState = cellViewModel.menu,
                     isAllFiles = false,
+                    isRecycleBin = true,
+                    isRestoreInProgress = cellViewModel.isRestoreInProgress.collectAsState().value,
+                    isDeleteInProgress = cellViewModel.isDeleteInProgress.collectAsState().value,
                     onFolderClick = {
                         val folderPath = "${cellViewModel.currentNodeUuid()}/recycle_bin/${it.name}"
 
@@ -120,13 +123,11 @@ fun RecycleBinScreen(
                         )
                     },
                     showRenameScreen = { },
-                    showAddRemoveTagsScreen = {}
+                    showAddRemoveTagsScreen = {},
+                    isRefreshing = cellViewModel.isPullToRefresh.collectAsState(),
+                    onRefresh = { cellViewModel.onPullToRefresh() }
                 )
             }
-        }
-
-        if (cellViewModel.isLoading.collectAsState().value) {
-            FullScreenLoading()
         }
     }
 }

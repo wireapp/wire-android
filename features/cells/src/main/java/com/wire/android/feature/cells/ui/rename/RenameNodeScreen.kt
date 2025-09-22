@@ -32,7 +32,6 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.feature.cells.R
-import com.wire.android.feature.cells.ui.common.FullScreenLoading
 import com.wire.android.feature.cells.ui.rename.RenameNodeViewModel.Companion.NAME_MAX_COUNT
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.model.DisplayNameState
@@ -89,12 +88,16 @@ fun RenameNodeScreen(
                 color = MaterialTheme.wireColorScheme.background,
                 shadowElevation = MaterialTheme.wireDimensions.bottomNavigationShadowElevation
             ) {
-                WirePrimaryButton(
-                    text = stringResource(R.string.rename_label),
-                    onClick = { renameNodeViewModel.renameNode(renameNodeViewModel.textState.text.toString()) },
-                    state = if (renameNodeViewModel.displayNameState.saveEnabled) Default else Disabled,
-                    clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
-                )
+                with(renameNodeViewModel) {
+                    WirePrimaryButton(
+                        modifier = Modifier.padding(dimensions().spacing16x),
+                        text = stringResource(R.string.rename_label),
+                        onClick = { renameNode(textState.text.toString()) },
+                        state = if (displayNameState.saveEnabled && !displayNameState.loading) Default else Disabled,
+                        clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
+                        loading = displayNameState.loading
+                    )
+                }
             }
         }
     ) { innerPadding ->
@@ -114,11 +117,6 @@ fun RenameNodeScreen(
                     lineLimits = TextFieldLineLimits.SingleLine,
                     state = computeNameErrorState(renameNodeViewModel.displayNameState.error, renameNodeViewModel.isFolder()),
                     keyboardOptions = KeyboardOptions.DefaultText,
-                    descriptionText = if (renameNodeViewModel.isFolder() == true) {
-                        stringResource(id = R.string.rename_long_folder_name_error)
-                    } else {
-                        stringResource(id = R.string.rename_long_file_name_error)
-                    },
                     onKeyboardAction = { keyboardController?.hide() },
                     modifier = Modifier.padding(
                         horizontal = MaterialTheme.wireDimensions.spacing16x
@@ -126,10 +124,6 @@ fun RenameNodeScreen(
                 )
             }
         }
-    }
-
-    if (renameNodeViewModel.displayNameState.loading) {
-        FullScreenLoading()
     }
 
     HandleActions(renameNodeViewModel.actions) { action ->

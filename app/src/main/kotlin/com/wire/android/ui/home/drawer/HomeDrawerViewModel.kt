@@ -24,10 +24,11 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.BuildConfig
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveArchivedUnreadConversationsCountUseCase
 import com.wire.kalium.logic.feature.server.GetTeamUrlUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
@@ -35,6 +36,7 @@ import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -46,7 +48,7 @@ class HomeDrawerViewModel @Inject constructor(
     private val observeArchivedUnreadConversationsCount: Lazy<ObserveArchivedUnreadConversationsCountUseCase>,
     private val observeSelfUser: ObserveSelfUserUseCase,
     private val getTeamUrl: GetTeamUrlUseCase,
-    private val globalDataStore: Lazy<GlobalDataStore>,
+    private val isWireCellsEnabled: IsWireCellsEnabledUseCase,
 ) : ViewModel() {
 
     var drawerState by mutableStateOf(HomeDrawerState())
@@ -79,7 +81,7 @@ class HomeDrawerViewModel @Inject constructor(
     private fun buildDrawerItems() {
         viewModelScope.launch {
             combine(
-                globalDataStore.get().wireCellsEnabled(),
+                flowOf(isWireCellsEnabled()),
                 observeArchivedUnreadConversationsCount.get().invoke(),
                 observeTeamManagementUrlForUser()
             ) { wireCellsEnabled, unreadArchiveConversationsCount, teamManagementUrl ->
@@ -87,6 +89,9 @@ class HomeDrawerViewModel @Inject constructor(
                     add(DrawerUiItem.RegularItem(destination = HomeDestination.Conversations))
                     if (wireCellsEnabled) {
                         add(DrawerUiItem.RegularItem(destination = HomeDestination.Cells))
+                    }
+                    if (BuildConfig.MEETINGS_ENABLED) {
+                        add(DrawerUiItem.RegularItem(destination = HomeDestination.Meetings))
                     }
                     add(
                         DrawerUiItem.UnreadCounterItem(

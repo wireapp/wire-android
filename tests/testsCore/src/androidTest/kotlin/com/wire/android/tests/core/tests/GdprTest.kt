@@ -95,7 +95,7 @@ class GdprTest : KoinTest {
             clickAgreeShareDataAlert()
             assertConversationPageVisible()
         }
-        pages.conversationPage.apply {
+        pages.conversationListPage.apply {
             clickMainMenuButtonOnConversationPage()
             clickSettingsButtonOnMenuEntry()
         }

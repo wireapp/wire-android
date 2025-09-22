@@ -590,7 +590,6 @@
     <!--Read receipts -->
     <string name="conversation_options_read_receipt_label">Lesebestätigungen</string>
     <string name="conversation_options_read_receipt_description">Wenn diese Option aktiviert ist, können Sender sehen, wenn ihre Nachrichten gelesen werden.</string>
-    <!--Wire Cell -->
     <!-- Messages -->
     <string name="message_details_title">Nachrichtendetails</string>
     <string name="message_details_reactions_tab">REAKTIONEN (%s)</string>
@@ -919,7 +918,9 @@
     <string name="label_learn_more_about_channels">Mehr über Channels erfahren</string>
     <string name="label_new_conversation">Neue Unterhaltung</string>
     <string name="label_search_people">Personen suchen</string>
+    <string name="label_search_people_or_apps">Personen oder Apps suchen</string>
     <string name="label_search_people_instruction">Nach Personen anhand ihres Profilnamens oder @Benutzernamens suchen</string>
+    <string name="label_search_apps_instruction">Steigern Sie die Produktivität mit Apps.</string>
     <string name="label_learn_more_searching_user">Mehr erfahren</string>
     <string name="label_no_results_found">Keine Ergebnisse, bitte erneut versuchen.</string>
     <string name="label_general_error">Ein Fehler ist aufgetreten</string>
@@ -1134,7 +1135,7 @@
     <string name="settings_network_settings_label">Netzwerkeinstellungen</string>
     <string name="settings_manage_devices_label">Geräte verwalten</string>
     <string name="settings_keep_connection_to_websocket">Verbindung zu Websocket behalten</string>
-    <string name="settings_keep_connection_to_websocket_description">Verbessern Sie den Empfang von Benachrichtigungen, indem Sie eine ständige Verbindung zu %1$s aufrechterhalten. Es ersetzt die Benachrichtigungsdienste, wenn die Google-Dienste auf Ihrem Gerät nicht verfügbar sind.</string>
+    <string name="settings_keep_connection_to_websocket_description">Verbessern Sie den Empfang von Benachrichtigungen, indem Sie eine ständige Verbindung zum Server Ihrer Organisation aufrechterhalten. Es ersetzt Benachrichtigungsdienste, wenn Google-Dienste auf Ihrem Gerät nicht verfügbar sind.</string>
     <string name="settings_service_is_running">Dienst wird ausgeführt</string>
     <!--Settings, Appearance -->
     <string name="settings_customization_label">Anpassung</string>

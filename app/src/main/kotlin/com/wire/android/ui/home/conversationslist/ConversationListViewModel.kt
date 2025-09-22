@@ -153,7 +153,8 @@ class ConversationListViewModelImpl @AssistedInject constructor(
                 conversationFilter = conversationsSource.toFilter(),
                 onlyInteractionEnabled = false,
                 newActivitiesOnTop = containsNewActivitiesSection,
-                playingAudioMessage = playingAudioMessage
+                playingAudioMessage = playingAudioMessage,
+                useStrictMlsFilter = BuildConfig.USE_STRICT_MLS_FILTER,
             ).map { pagingData ->
                 pagingData
                     .map { it.hideIndicatorForSelfUserUnderLegalHold(isSelfUserUnderLegalHold) }

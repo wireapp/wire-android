@@ -20,6 +20,7 @@ package com.wire.android.ui.markdown
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.theme.WireColorScheme
 import com.wire.android.ui.theme.WireTypography
 import com.wire.kalium.logic.data.user.UserId
@@ -33,8 +34,12 @@ data class NodeData(
     val mentions: List<DisplayMention>,
     val searchQuery: String,
     val disableLinks: Boolean = false,
-    val actions: NodeActions? = null
+    val actions: NodeActions? = null,
+    val messageStyle: MessageStyle = MessageStyle.NORMAL,
+    val messageColors: MessageColors
 )
+
+data class MessageColors(val highlighted: Color)
 
 data class NodeActions(
     val onLongClick: (() -> Unit)? = null,

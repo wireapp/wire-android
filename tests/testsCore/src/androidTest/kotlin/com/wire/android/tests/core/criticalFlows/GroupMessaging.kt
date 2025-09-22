@@ -37,7 +37,7 @@ import org.koin.test.KoinTest
 import org.koin.test.KoinTestRule
 import org.koin.test.inject
 import service.TestServiceHelper
-import uiautomatorutils.UiWaitUtils
+import uiautomatorutils.UiWaitUtils.WaitUtils.waitFor
 import user.usermanager.ClientUserManager
 import user.utils.ClientUser
 
@@ -63,7 +63,8 @@ class GroupMessaging : KoinTest {
     fun setUp() {
         context = InstrumentationRegistry.getInstrumentation().context
         // device = UiAutomatorSetup.start(UiAutomatorSetup.APP_DEV)
-        device = UiAutomatorSetup.start(UiAutomatorSetup.APP_STAGING)
+        // device = UiAutomatorSetup.start(UiAutomatorSetup.APP_STAGING)
+        device = UiAutomatorSetup.start(UiAutomatorSetup.APP_INTERNAL)
         backendClient = BackendClient.loadBackend("STAGING")
         teamHelper = TeamHelper()
     }
@@ -107,6 +108,10 @@ class GroupMessaging : KoinTest {
             assertEmailWelcomePage()
         }
         pages.loginPage.apply {
+            clickStagingDeepLink()
+            clickProceedButtonOnDeeplinkOverlay()
+        }
+        pages.loginPage.apply {
             enterTeamOwnerLoggingEmail(teamOwner?.email ?: "")
             clickLoginButton()
             enterTeamOwnerLoggingPassword(teamOwner?.password ?: "")
@@ -117,14 +122,14 @@ class GroupMessaging : KoinTest {
             clickAllowNotificationButton()
             clickDeclineShareDataAlert()
         }
-        pages.conversationPage.apply {
+        pages.conversationListPage.apply {
             assertGroupConversationVisible("MyTeam")
         }
         pages.conversationListPage.apply {
             tapSearchConversationField()
             typeFirstNCharsInSearchField("MyTestGroup", 3) // types "MyT"
         }
-        pages.conversationPage.apply {
+        pages.conversationListPage.apply {
             assertGroupConversationVisible("MyTeam")
         }
         pages.conversationListPage.apply {
@@ -133,14 +138,13 @@ class GroupMessaging : KoinTest {
         pages.conversationViewPage.apply {
             typeMessageInInputField("Hello Team Members")
             clickSendButton()
-            assertMessageSentIsVisible("Hello Team Members")
+            assertSentMessageIsVisibleInCurrentConversation("Hello Team Members")
             tapBackButtonOnConversationViewPage()
         }
         testServiceHelper.apply {
             addDevice("user2Name", null, "Device1")
             userSendMessageToConversation("user2Name", "Hello Friends", "Device1", "MyTeam", false)
         }
-        // Thread.sleep(1000)
         pages.notificationsPage.apply {
             waitUntilNotificationPopUpGone()
         }
@@ -149,7 +153,7 @@ class GroupMessaging : KoinTest {
             clickGroupConversation("MyTeam")
         }
         pages.conversationViewPage.apply {
-            assertMessageReceivedIsVisible("Hello Friends")
+            assertReceivedMessageIsVisibleInCurrentConversation("Hello Friends")
             tapMessageInInputField()
             tapSelfDeleteTimerButton()
             assertSelfDeleteOptionVisible("OFF")
@@ -163,10 +167,10 @@ class GroupMessaging : KoinTest {
             assertSelfDeletingMessageLabelVisible()
             typeMessageInInputField("This is a Self deleting Message")
             clickSendButton()
-            assertMessageSentIsVisible("This is a Self deleting Message")
-            UiWaitUtils.WaitUtils.waitFor(14) // Simple wait
+            assertSentMessageIsVisibleInCurrentConversation("This is a Self deleting Message")
+            waitFor(14) // Simple wait
             assertMessageNotVisible("This is a Self deleting Message")
-            assertMessageSentIsVisible(
+            assertSentMessageIsVisibleInCurrentConversation(
                 "After one participant has seen your message and the timer has expired on their side, this note disappears."
             )
         }

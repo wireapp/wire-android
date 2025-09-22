@@ -48,6 +48,8 @@ import com.wire.android.services.ServicesManager
 import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.calling.CallActivity
 import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_CONVERSATION_ID
+import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_SHOULD_ANSWER_CALL
+import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_USER_ID
 import com.wire.android.ui.calling.common.ProximitySensorManager
 import com.wire.android.ui.calling.ongoing.OngoingCallActivity.Companion.TAG
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
@@ -85,6 +87,8 @@ class OngoingCallActivity : CallActivity() {
         conversationId = intent.extras?.getString(EXTRA_CONVERSATION_ID)
         userId = intent.extras?.getString(EXTRA_USER_ID)
         shouldAnswerCall = intent.extras?.getBoolean(EXTRA_SHOULD_ANSWER_CALL) ?: false
+        require(conversationId != null) { "$TAG No conversation ID provided in intent extras" }
+        require(userId != null) { "$TAG No user ID provided in intent extras" }
         switchAccountIfNeeded(userId)
     }
 
@@ -167,10 +171,14 @@ class OngoingCallActivity : CallActivity() {
 
 fun getOngoingCallIntent(
     context: Context,
-    conversationId: String
+    conversationId: String,
+    userId: String,
+    shouldAnswerCall: Boolean = false,
 ) = Intent(context, OngoingCallActivity::class.java).apply {
     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     putExtra(EXTRA_CONVERSATION_ID, conversationId)
+    putExtra(EXTRA_USER_ID, userId)
+    putExtra(EXTRA_SHOULD_ANSWER_CALL, shouldAnswerCall)
 }
 
 private const val ASPECT_RATIO_NUMERATOR = 2

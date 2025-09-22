@@ -18,21 +18,30 @@
  */
 package service
 
+import android.graphics.Bitmap
 import backendUtils.BackendClient
 import backendUtils.team.defaultheaders
 import backendUtils.team.getAuthToken
 import com.wire.android.testSupport.backendConnections.team.Team
+import com.wire.android.testSupport.service.TestService
 import kotlinx.coroutines.runBlocking
 import network.NetworkBackendClient
 import network.RequestOptions
 import org.json.JSONArray
 import org.json.JSONObject
+import service.enums.LegalHoldStatus
 import service.models.Conversation
 import service.models.QualifiedID
+import service.models.SendTextWithLinkParams
 import user.utils.AccessToken
 import user.utils.ClientUser
+import util.generateQRCode
+import java.io.File
+import java.io.FileOutputStream
 import java.io.IOException
 import java.net.URL
+import java.time.Duration
+import java.util.regex.Matcher
 
 suspend fun BackendClient.createTeamConversation(
     user: ClientUser,
@@ -194,6 +203,127 @@ fun BackendClient.getConversationIDs(token: AccessToken, pagingState: String? = 
     return JSONObject(response.body)
 }
 
+fun TestServiceHelper.userSendsGenericMessageToConversation(
+    senderAlias: String,
+    convoName: String,
+    deviceName: String? = null,
+    message: String
+) {
+    matchUrl(message)?.let { matcher ->
+        val title = matcher.group(0)
+
+        // Generate QR Code bitmap
+        val bitmap = generateQRCode(title.orEmpty(), 512)
+
+        // Save bitmap to temporary file
+        val tempFile = File.createTempFile("link_preview_", ".png")
+        FileOutputStream(tempFile).use { fos ->
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos)
+        }
+
+        testServiceClient.userSendsLinkPreview(
+            this,
+            senderAlias,
+            convoName,
+            deviceName,
+            false,
+            message,
+            title,
+            tempFile.absolutePath
+        )
+
+        tempFile.deleteOnExit() // Optional: cleanup later
+    } ?: run {
+        userSendMessageToConversation(senderAlias, message, deviceName.orEmpty(), convoName, false)
+    }
+}
+
+@Suppress("LongParameterList")
+fun TestService.userSendsLinkPreview(
+    helper: TestServiceHelper,
+    senderAlias: String,
+    convoName: String,
+    deviceName: String? = null,
+    isSelfDeleting: Boolean = true,
+    msg: String,
+    title: String,
+    imagePath: String
+) {
+    val matcher = matchUrl(msg)
+        ?: throw IllegalArgumentException("Text does not contain any URL: $msg")
+
+    val urlOffset = matcher.regionStart()
+    val url = matcher.group(0)
+
+    val user = helper.toClientUser(senderAlias)
+    val conversation = runBlocking {
+        helper.toConvoObj(user, convoName)
+    }
+    val convoId = conversation.qualifiedID.id
+    val convoDomain = conversation.qualifiedID.domain
+
+    sendLinkPreview(
+        SendTextWithLinkParams(
+            user,
+            deviceName,
+            convoId,
+            convoDomain,
+            expectsReadConfirmation = false,
+            text = msg,
+            legalHoldStatus = LegalHoldStatus.ENABLED.code,
+            summary = title,
+            title = title,
+            url = url,
+            permUrl = url,
+            urlOffset = urlOffset.toString(),
+            filePath = imagePath,
+            imagePath = imagePath,
+            imageFile = File(imagePath),
+            timeout = Duration.ofSeconds(1000),
+            messageTimer = if (isSelfDeleting) Duration.ofSeconds(1000) else Duration.ofSeconds(0),
+        )
+    )
+}
+
+private fun matchUrl(message: String): Matcher? {
+    val pattern = Regex("""([a-z]+://)?[a-z0-9\-]+\.[a-z]+[^\s\n]*""", RegexOption.IGNORE_CASE)
+    val matcher = pattern.toPattern().matcher(message)
+    return if (matcher.find()) matcher else null
+}
+
+fun BackendClient.addUsersToGroupConversation(
+    asUser: ClientUser,
+    contacts: List<ClientUser>,
+    conversation: Conversation
+): JSONObject {
+    val url = "conversations/${conversation.id}/members/v2".composeCompleteUrl()
+
+    val requestBody = JSONObject().apply {
+        val userIds = JSONArray().apply {
+            contacts.forEach { contact ->
+                val backendDomain = BackendClient.loadBackend(contact.backendName.orEmpty()).domain
+                put(QualifiedID(contact.id.orEmpty(), backendDomain).toJSON())
+            }
+        }
+        put("qualified_users", userIds)
+        put("conversation_role", "wire_member")
+    }
+    val token = runBlocking { getAuthToken(asUser) }
+    val headers =
+        defaultheaders.toMutableMap().apply {
+            put("Authorization", "${token?.type} ${token?.value}")
+        }
+
+    val response = NetworkBackendClient.sendJsonRequestWithCookies(
+        url = URL(url),
+        method = "POST",
+        body = requestBody.toString(),
+        headers = headers,
+        options = RequestOptions(accessToken = token)
+    )
+    return JSONObject(response.body)
+}
+
 fun BackendClient.getPersonalConversationByName(user: ClientUser, name: String): Conversation =
     getConversations(user).firstOrNull { conv ->
         conv.protocol == "mls" &&
@@ -221,12 +351,12 @@ fun BackendClient.getConversationsByName(user: ClientUser, name: String): List<C
     getConversations(user).filter { conv ->
         conv.name == name || (
                 conv.otherIds.size == 1 && try {
-            getUserNameByID(
-                conv.qualifiedID.domain,
-                conv.otherIds[0].id, user
-            ) == name
-        } catch (e: Exception) {
-            false
-        }
+                    getUserNameByID(
+                        conv.qualifiedID.domain,
+                        conv.otherIds[0].id, user
+                    ) == name
+                } catch (e: Exception) {
+                    false
+                }
                 )
     }

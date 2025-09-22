@@ -49,11 +49,14 @@ import coil.decode.VideoFrameDecoder
 import coil.request.ImageRequest
 import com.wire.android.R
 import com.wire.android.model.Clickable
+import com.wire.android.ui.common.applyIf
 import com.wire.android.ui.common.attachmentdraft.ui.FileHeaderView
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.typography
+import com.wire.android.ui.home.conversations.messages.item.MessageStyle
+import com.wire.android.ui.home.conversations.messages.item.isBubble
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.DateAndTimeParsers
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -70,7 +73,8 @@ fun VideoMessage(
     duration: Long?,
     transferStatus: AssetTransferStatus,
     onVideoClick: Clickable,
-    modifier: Modifier = Modifier
+    messageStyle: MessageStyle,
+    modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
 
@@ -86,16 +90,18 @@ fun VideoMessage(
 
     Column(
         modifier = modifier
-            .widthIn(max = maxWidth)
-            .background(color = colorsScheme().surface, shape = RoundedCornerShape(dimensions().buttonCornerSize))
-            .border(
-                width = dimensions().spacing1x,
-                color = colorsScheme().outline,
-                shape = RoundedCornerShape(dimensions().buttonCornerSize)
-            )
-            .clip(RoundedCornerShape(dimensions().buttonCornerSize))
+            .applyIf(!messageStyle.isBubble()) {
+                widthIn(max = maxWidth)
+                    .background(color = colorsScheme().surface, shape = RoundedCornerShape(dimensions().buttonCornerSize))
+                    .border(
+                        width = dimensions().spacing1x,
+                        color = colorsScheme().outline,
+                        shape = RoundedCornerShape(dimensions().buttonCornerSize)
+                    )
+                    .clip(RoundedCornerShape(dimensions().buttonCornerSize))
+            }
             .clickable { }
-            .padding(dimensions().spacing10x),
+            .padding(dimensions().spacing6x),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(dimensions().spacing8x)
     ) {
@@ -103,30 +109,39 @@ fun VideoMessage(
         FileHeaderView(
             extension = assetExtension,
             size = assetSize,
+            messageStyle = messageStyle,
             modifier = Modifier
-                .fillMaxWidth(),
+                .fillMaxWidth()
         )
+
+        val textColor = when (messageStyle) {
+            MessageStyle.BUBBLE_SELF -> colorsScheme().onPrimary
+            MessageStyle.BUBBLE_OTHER -> colorsScheme().onBackground
+            MessageStyle.NORMAL -> colorsScheme().onSurfaceVariant
+        }
 
         Text(
             modifier = Modifier.align(Alignment.Start),
             text = assetName,
             style = typography().body02,
-            color = colorsScheme().onSurfaceVariant,
+            color = textColor,
         )
 
         Box(
             modifier = Modifier
-                .fillMaxWidth(widthFraction(width, height))
-                .aspectRatio(aspectRatio(width, height))
-                .background(
-                    color = colorsScheme().scrim,
-                    shape = RoundedCornerShape(dimensions().buttonCornerSize)
-                )
-                .border(
-                    width = 1.dp,
-                    color = colorsScheme().outline,
-                    shape = RoundedCornerShape(dimensions().buttonCornerSize)
-                )
+                .applyIf(!messageStyle.isBubble()) {
+                    fillMaxWidth(widthFraction(width, height))
+                        .aspectRatio(aspectRatio(width, height))
+                        .background(
+                            color = colorsScheme().scrim,
+                            shape = RoundedCornerShape(dimensions().buttonCornerSize)
+                        )
+                        .border(
+                            width = 1.dp,
+                            color = colorsScheme().outline,
+                            shape = RoundedCornerShape(dimensions().buttonCornerSize)
+                        )
+                }
                 .clip(RoundedCornerShape(dimensions().buttonCornerSize))
                 .clickable { onVideoClick.onClick() },
             contentAlignment = Alignment.Center
@@ -143,7 +158,7 @@ fun VideoMessage(
                 AsyncImage(
                     modifier = Modifier.fillMaxSize(),
                     model = model,
-                    contentScale = ContentScale.Fit,
+                    contentScale = ContentScale.Crop,
                     contentDescription = null,
                 )
                 duration?.let {
@@ -168,17 +183,20 @@ fun VideoMessage(
                         color = colorsScheme().onSurface,
                         style = typography().subline01,
                     )
+
                 AssetTransferStatus.DOWNLOAD_IN_PROGRESS ->
                     WireCircularProgressIndicator(
                         modifier = Modifier.size(dimensions().spacing32x),
                         progressColor = colorsScheme().inverseOnSurface,
                     )
+
                 AssetTransferStatus.FAILED_DOWNLOAD ->
                     Text(
                         text = stringResource(R.string.asset_message_failed_download_text),
                         color = colorsScheme().onSurface,
                         style = typography().subline01,
                     )
+
                 AssetTransferStatus.UPLOADED,
                 AssetTransferStatus.SAVED_INTERNALLY ->
                     Image(
@@ -186,6 +204,7 @@ fun VideoMessage(
                         painter = painterResource(id = R.drawable.ic_play_circle_filled),
                         contentDescription = null,
                     )
+
                 else -> {}
             }
         }
@@ -229,6 +248,7 @@ private fun PreviewVideoMessage() {
                 height = 1080,
                 duration = 1231231,
                 transferStatus = AssetTransferStatus.NOT_DOWNLOADED,
+                messageStyle = MessageStyle.NORMAL,
                 onVideoClick = Clickable {},
             )
             VideoMessage(
@@ -240,6 +260,7 @@ private fun PreviewVideoMessage() {
                 width = null,
                 height = null,
                 duration = 1231231,
+                messageStyle = MessageStyle.NORMAL,
                 onVideoClick = Clickable {},
             )
             VideoMessage(
@@ -251,6 +272,7 @@ private fun PreviewVideoMessage() {
                 width = 1920,
                 height = 1080,
                 duration = 234000,
+                messageStyle = MessageStyle.NORMAL,
                 onVideoClick = Clickable { },
             )
         }
@@ -274,6 +296,7 @@ private fun PreviewVideoMessageError() {
                 width = null,
                 height = null,
                 duration = 123123,
+                messageStyle = MessageStyle.NORMAL,
                 onVideoClick = Clickable {},
             )
         }
@@ -297,6 +320,7 @@ private fun PreviewVideoMessageVertical() {
                 width = 1080,
                 height = 1920,
                 duration = 12412412,
+                messageStyle = MessageStyle.NORMAL,
                 onVideoClick = Clickable {},
             )
         }

@@ -17,10 +17,12 @@
  */
 package com.wire.android.ui.home.conversations.search
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -33,7 +35,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.model.Clickable
-import com.wire.android.ui.common.RowItemTemplate
+import com.wire.android.ui.common.ArrowRightIcon
+import com.wire.android.ui.common.rowitem.RowItemTemplate
 import com.wire.android.ui.common.UserBadge
 import com.wire.android.ui.common.avatar.UserProfileAvatar
 import com.wire.android.ui.common.dimensions
@@ -41,8 +44,8 @@ import com.wire.android.ui.common.progress.CenteredCircularProgressBarIndicator
 import com.wire.android.ui.home.conversations.search.widget.SearchFailureBox
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.model.Contact
-import com.wire.android.util.extension.folderWithElements
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.util.extension.folderWithElements
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.user.ConnectionState
 import kotlinx.collections.immutable.ImmutableList
@@ -80,8 +83,10 @@ private fun SearchAllServicesContent(
     when {
         isLoading -> CenteredCircularProgressBarIndicator()
 
-        // TODO(user experience): what to do when user team has no services?
-        searchQuery.isBlank() && result.isEmpty() -> EmptySearchQueryScreen()
+        searchQuery.isBlank() && result.isEmpty() -> EmptySearchQueryScreen(
+            text = stringResource(R.string.label_search_apps_instruction),
+            learnMoreTextToLink = stringResource(R.string.label_learn_more_searching_app) to stringResource(R.string.url_how_to_add_apps)
+        )
 
         searchQuery.isNotBlank() && result.isEmpty() -> SearchFailureBox(R.string.label_no_results_found)
 
@@ -134,7 +139,15 @@ private fun SuccessServicesList(
                             )
                         }
                     },
-                    actions = {},
+                    actions = {
+                        Box(
+                            modifier = Modifier
+                                .wrapContentWidth()
+                                .padding(end = dimensions().spacing4x)
+                        ) {
+                            ArrowRightIcon(Modifier.align(Alignment.TopEnd), R.string.content_description_empty)
+                        }
+                    },
                     clickable = remember(it) { Clickable(onClickDescription = clickDescription) { onServiceClicked(it) } },
                     modifier = Modifier.padding(start = dimensions().spacing8x)
                 )

@@ -27,7 +27,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.appLogger
-import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.ui.common.visbility.VisibilityState
@@ -51,12 +50,14 @@ import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.feature.asset.ObserveAssetStatusesUseCase
 import com.wire.kalium.logic.feature.asset.UpdateAssetMessageTransferStatusUseCase
+import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.ClearUsersTypingEventsUseCase
 import com.wire.kalium.logic.feature.conversation.GetConversationUnreadEventsCountUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
@@ -76,7 +77,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.shareIn
@@ -107,7 +107,7 @@ class ConversationMessagesViewModel @Inject constructor(
     private val clearUsersTypingEvents: ClearUsersTypingEventsUseCase,
     private val getSearchedConversationMessagePosition: GetSearchedConversationMessagePositionUseCase,
     private val deleteMessage: DeleteMessageUseCase,
-    private val globalDataStore: GlobalDataStore,
+    private val isWireCellFeatureEnabled: IsWireCellsEnabledUseCase,
 ) : ViewModel() {
 
     private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
@@ -272,12 +272,20 @@ class ConversationMessagesViewModel @Inject constructor(
         return when {
             messageDataResult !is GetMessageByIdUseCase.Result.Success -> {
                 appLogger.w("Failed when fetching details of message to download asset: $messageDataResult")
+                onSnackbarMessage(ConversationSnackbarMessages.ErrorDownloadingAsset)
+                null
+            }
+
+            (messageDataResult.message as? Message.Regular)?.visibility == Message.Visibility.DELETED -> {
+                appLogger.w("Attempting to download asset of a deleted message.")
+                showOnAssetDownloadAlreadyDeletedDialog()
                 null
             }
 
             messageDataResult.message.content !is MessageContent.Asset -> {
                 // This _should_ not even happen, tho. Unless UI is buggy. So... do we crash?! Better not.
                 appLogger.w("Attempting to download assets of a non-asset message. Ignoring user input.")
+                hideOnAssetDownloadedDialog()
                 null
             }
 
@@ -327,6 +335,12 @@ class ConversationMessagesViewModel @Inject constructor(
     fun showOnAssetDownloadedDialog(assetBundle: AssetBundle, messageId: String) {
         conversationViewState = conversationViewState.copy(
             downloadedAssetDialogState = DownloadedAssetDialogVisibilityState.Displayed(assetBundle, messageId)
+        )
+    }
+
+    fun showOnAssetDownloadAlreadyDeletedDialog() {
+        conversationViewState = conversationViewState.copy(
+            downloadedAssetDialogState = DownloadedAssetDialogVisibilityState.AlreadyDeleted
         )
     }
 
@@ -403,8 +417,6 @@ class ConversationMessagesViewModel @Inject constructor(
             deleteMessageDialogState.dismiss()
         }
     }
-
-    private suspend fun isWireCellFeatureEnabled() = globalDataStore.wireCellsEnabled().firstOrNull() ?: false
 
     private companion object {
         const val DEFAULT_ASSET_NAME = "Wire File"

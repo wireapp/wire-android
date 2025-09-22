@@ -31,6 +31,7 @@ import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.kalium.cells.domain.usecase.CreateFolderUseCase
 import com.wire.kalium.common.functional.fold
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -51,6 +52,9 @@ class CreateFolderViewModel @Inject constructor(
     var displayNameState: DisplayNameState by mutableStateOf(DisplayNameState())
         private set
 
+    private val _isCreating = MutableStateFlow(false)
+    val isCreating = _isCreating
+
     init {
         viewModelScope.launch {
             fileNameTextFieldState.textAsFlow().collectLatest {
@@ -68,11 +72,13 @@ class CreateFolderViewModel @Inject constructor(
     }
 
     internal fun createFolder(folderName: String) {
+        _isCreating.value = true
         viewModelScope.launch {
             createFolderState = createFolderUseCase("${navArgs.uuid}/$folderName").fold(
                 { CreateFolderState.Failure },
                 { CreateFolderState.Success },
             )
+            _isCreating.value = false
         }
     }
 }

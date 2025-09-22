@@ -19,6 +19,7 @@
 
 package com.wire.android.ui.home.conversations.messages.item
 
+import android.R.attr.author
 import androidx.annotation.DrawableRes
 import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes
@@ -85,7 +86,6 @@ fun SystemMessageItem(
         modifier = modifier
             .background(backgroundColor ?: Color.Transparent)
             .padding(vertical = additionalVerticalPaddings),
-        showAuthor = false,
         fullAvatarOuterPadding = dimensions().avatarClickablePadding,
         leading = {
             SystemMessageItemLeading(
@@ -526,6 +526,24 @@ private fun SystemMessage.buildContent() = when (this) {
             appendVerticalSpace()
             append("") // so that "learn more" can be on a new line below another vertical space
         }
+    }
+
+    is SystemMessage.NewConversationWithCellStarted -> buildContent(
+        iconResId = R.drawable.ic_files,
+        iconTintColor = MaterialTheme.wireColorScheme.onBackground,
+    ) {
+        stringResource(R.string.label_system_message_cell_enabled_for_conversation).toMarkdownAnnotatedString()
+    }
+
+    is SystemMessage.NewConversationWithCellSelfDeleteDisabled -> buildContent(
+        iconResId = R.drawable.ic_timer,
+        iconTintColor = MaterialTheme.wireColorScheme.onBackground,
+    ) {
+        val arg = stringResource(R.string.label_system_message_cell_self_delete_disabled)
+        stringResource(
+            id = R.string.label_system_message_cell_self_delete_disabled_for_conversation,
+            formatArgs = arrayOf(arg.markdownBold())
+        ).toMarkdownAnnotatedString()
     }
 }
 

@@ -153,6 +153,7 @@ dependencies {
     // features
     implementation(project(":features:cells"))
     implementation(project(":features:sketch"))
+    implementation(project(":features:meetings"))
     implementation(project(":core:ui-common"))
 
     // kover
@@ -211,10 +212,7 @@ dependencies {
     implementation(libs.compose.activity)
     implementation(libs.compose.constraintLayout)
     implementation(libs.compose.runtime.liveData)
-
-    // Accompanist
-    implementation(libs.accompanist.placeholder)
-
+    
     implementation(libs.androidx.paging3)
     implementation(libs.androidx.paging3Compose)
 

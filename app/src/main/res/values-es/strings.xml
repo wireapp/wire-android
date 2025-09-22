@@ -122,16 +122,16 @@
     <string name="content_description_timed_message_button">Botón, mensaje con autoborrado</string>
     <string name="content_description_close_button">Botón de Cerrar</string>
     <string name="content_description_menu_button">Navegación principal</string>
-    <string name="content_description_drop_down_icon">Flecha hacia abajo</string>
+    <string name="content_description_drop_down_icon">Menú desplegable</string>
     <string name="content_description_remove_devices_screen_device_item_icon">Dispositivo</string>
     <string name="content_description_remove_devices_screen_remove_icon">Eliminar dispositivo</string>
     <string name="content_description_avatar_preview">Vista previa de la foto de perfil</string>
     <string name="content_description_choose_from_gallery">Elegir de la galería</string>
     <string name="content_description_take_a_picture">Tomar una foto</string>
     <string name="content_description_right_arrow">Flecha derecha</string>
-    <string name="content_description_left_arrow">Ir hacia atr&#225;s</string>
-    <string name="content_description_mention_icon">Icono de menci&#243;n</string>
-    <string name="content_description_attachment_item">Adjuntar nuevo elemento a la conversaci&#243;n</string>
+    <string name="content_description_left_arrow">Regresar</string>
+    <string name="content_description_mention_icon">Icono de mención</string>
+    <string name="content_description_attachment_item">Adjuntar nuevo elemento a la conversación</string>
     <string name="content_description_open_message_details">Abrir detalles del mensaje</string>
     <string name="content_description_copy_the_message">Copiar el mensaje</string>
     <string name="content_description_share_the_file">Compartir el archivo seleccionado con otra aplicaci&#243;n</string>
@@ -173,6 +173,7 @@
     <string name="content_description_message_error_status">Estado de error del mensaje</string>
     <string name="content_description_location_icon">Compartir ubicación</string>
     <string name="content_description_open_service_label">abrir aplicación</string>
+    <string name="content_description_new_channel_options_back_btn">Volver a la creación de canal</string>
     <string name="content_description_empty"></string>
     <!-- Non translatable strings-->
     <!-- Wire Urls - Non translatable -->
@@ -184,11 +185,13 @@
     <string name="app_settings_screen_title">Ajustes de la aplicación</string>
     <string name="give_feedback_screen_title">Danos tu opinión</string>
     <string name="report_bug_screen_title">Informar de un fallo</string>
+    <string name="about_app_screen_title">Acerca de la aplicación</string>
     <string name="support_screen_title">Asistencia</string>
     <string name="backup_and_restore_screen_title">Respaldar y restaurar conversaciones</string>
     <string name="search_bar_conversations_hint">Buscar conversación</string>
     <string name="search_no_results">No se encontraron resultados</string>
     <!--Whats New -->
+    <string name="whats_new_screen_title">Novedades</string>
     <!-- Settings -->
     <string name="settings_backups_group_title">Copias de seguridad</string>
     <string name="settings_other_group_title">Misceláneo</string>
@@ -349,6 +352,7 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="sent_a_message_with_content">envi&#243; un mensaje con contenido %s</string>
     <string name="sent_a_message_with_unknown_content">envió un mensaje con contenido desconocido</string>
     <string name="new_group_title">Nuevo Grupo</string>
+    <string name="new_channel_title">Nuevo Canal</string>
     <string name="new_group_description">Hasta 500 personas pueden unirse a una conversaci&#243;n grupal.</string>
     <string name="group_name_title">Nombre del grupo</string>
     <string name="group_name_description">Asigna un nombre significativo a este grupo.</string>
@@ -372,6 +376,8 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="conversation_details_options_tab">OPCIONES</string>
     <string name="conversation_details_participants_tab">PARTICIPANTES</string>
     <string name="conversation_details_options_group_name">NOMBRE DEL GRUPO</string>
+    <string name="conversation_details_conversation_admins">ADMINISTRADORES DE LA CONVERSACIÓN (%d)</string>
+    <string name="conversation_details_conversation_members">MIEMBROS DE CONVERSACIÓN (%d)</string>
     <string name="conversation_details_show_all_participants">Mostrar todos los participantes (%d)</string>
     <string name="conversation_participant_you_label">(Tú)</string>
     <string name="conversation_details_is_classified">NIVEL DE SEGURIDAD: VS-NfD</string>
@@ -396,7 +402,6 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <!--Read receipts -->
     <string name="conversation_options_read_receipt_label">Recibos de lectura</string>
     <string name="conversation_options_read_receipt_description">Cuando est&#225; activado, las personas pueden ver cu&#225;ndo se lee su mensaje en esta conversaci&#243;n.</string>
-    <!--Wire Cell -->
     <!-- Messages -->
     <string name="message_details_title">Detalles del mensaje</string>
     <string name="message_details_reactions_tab">REACCIONES (%s)</string>
@@ -450,6 +455,13 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="label_block">Bloquear</string>
     <string name="label_unblock">Desbloquear</string>
     <!-- Conversation filter BottomSheet -->
+    <string name="label_filter_conversations">Filtrar Conversaciones</string>
+    <string name="label_filter_all">Todas las conversaciones</string>
+    <string name="label_filter_favorites">Favoritas</string>
+    <string name="label_filter_folders">Carpetas</string>
+    <string name="label_filter_group">Grupos</string>
+    <string name="label_filter_one_on_one">Conversaciones 1:1</string>
+    <string name="label_filter_channels">Canales</string>
     <!-- Muting options BottomSheet -->
     <string name="muting_option_all_allowed_title">Todo</string>
     <string name="muting_option_all_allowed_text">Recibir notificaciones para esta conversaci&#243;n sobre todo (incluidas las llamadas de audio y video).</string>
@@ -489,7 +501,7 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="label_system_message_removed_by_self">%1$s elimin&#243; a %2$s de la conversaci&#243;n</string>
     <string name="label_system_message_added_by_other">%1$s agreg&#243; a %2$s a la conversaci&#243;n</string>
     <string name="label_system_message_removed_by_other">%1$s elimin&#243; a %2$s de la conversaci&#243;n</string>
-    <string name="label_system_message_left_the_conversation_by_self">%1$s dej&#243; la conversaci&#243;n</string>
+    <string name="label_system_message_left_the_conversation_by_self">%1$s abandonaste la conversación</string>
     <string name="label_system_message_left_the_conversation_by_other">%1$s dej&#243; la conversaci&#243;n</string>
     <string name="label_system_message_other_called">%1$s llam&#243;</string>
     <string name="label_system_message_you_called">%1$s llam&#243;</string>
@@ -514,6 +526,15 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="label_system_message_conversation_history_lost">No has usado este dispositivo por un tiempo. Es posible que algunos mensajes no aparezcan aqu&#237;.</string>
     <string name="label_system_message_receipt_mode_on">encendido</string>
     <string name="label_system_message_receipt_mode_off">apagado</string>
+    <string name="label_system_message_conversation_started_with_members">Con: %1$s</string>
+    <plurals name="label_system_message_conversation_failed_add_members_header">
+        <item quantity="one">**%1$s participante** no se pudo agregar a la conversación.</item>
+        <item quantity="other">**%1$s participantes** no se pudieron agregar a la conversación.</item>
+    </plurals>
+    <plurals name="label_system_message_conversation_failed_add_members_details_unknown">
+        <item quantity="one">%1$s no se pudo agregar a la conversación.</item>
+        <item quantity="other">%1$s participantes no se pudieron agregar a la conversación.</item>
+    </plurals>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
         <item quantity="one">Has añadido a 1 persona a la conversación</item>
@@ -543,24 +564,24 @@ Un mensaje eliminado no puede ser restaurado.</string>
     </plurals>
     <string name="last_message_self_user_shared_asset">compartiste un archivo.</string>
     <string name="last_message_other_user_shared_asset">compartió un archivo.</string>
-    <string name="last_message_self_user_shared_image">comparti&#243; una imagen.</string>
+    <string name="last_message_self_user_shared_image">compartiste una imagen.</string>
     <string name="last_message_other_user_shared_image">comparti&#243; una imagen.</string>
-    <string name="last_message_self_user_shared_video">comparti&#243; un video.</string>
+    <string name="last_message_self_user_shared_video">compartiste un video.</string>
     <string name="last_message_other_user_shared_video">comparti&#243; un video.</string>
-    <string name="last_message_self_user_shared_audio">comparti&#243; un mensaje de audio.</string>
+    <string name="last_message_self_user_shared_audio">compartiste un mensaje de audio.</string>
     <string name="last_message_other_user_shared_audio">comparti&#243; un mensaje de audio.</string>
     <string name="last_message_self_user_shared_location">compartiste una ubicación.</string>
     <string name="last_message_other_user_shared_location">compartió una ubicación.</string>
-    <string name="last_message_self_user_knock">hizo un ping.</string>
+    <string name="last_message_self_user_knock">hiciste un ping.</string>
     <string name="last_message_other_user_knock">hizo un ping.</string>
     <string name="last_message_call">llam&#243;.</string>
     <string name="last_message_mentioned">te mencion&#243;</string>
     <string name="last_message_replied">te respondi&#243;</string>
     <string name="last_message_other_changed_conversation_name">cambi&#243; el nombre de la conversaci&#243;n</string>
-    <string name="last_message_self_changed_conversation_name">cambi&#243; el nombre de la conversaci&#243;n</string>
+    <string name="last_message_self_changed_conversation_name">cambiaste el nombre de conversación</string>
     <string name="last_message_calling">%1$s llamando...</string>
-    <string name="last_message_self_user_joined_conversation">se uni&#243; a la conversaci&#243;n.</string>
-    <string name="last_message_self_user_left_conversation">sali&#243; de la conversaci&#243;n.</string>
+    <string name="last_message_self_user_joined_conversation">te uniste a la conversación.</string>
+    <string name="last_message_self_user_left_conversation">abandonaste la conversación.</string>
     <string name="last_message_other_user_joined_conversation">se uni&#243; a la conversaci&#243;n.</string>
     <string name="last_message_other_user_left_conversation">sali&#243; de la conversaci&#243;n.</string>
     <!-- Unread Events -->
@@ -589,7 +610,11 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <!-- Search Messages -->
     <!-- Conversation Media -->
     <!-- Search Contact-->
+    <string name="label_contacts">Contactos</string>
     <string name="label_new_group">Nuevo Grupo</string>
+    <string name="label_new_channel">Nuevo Canal</string>
+    <string name="label_create_new_group">Nuevo Grupo</string>
+    <string name="label_create_new_channel">Nuevo Canal</string>
     <!-- Search Channels -->
     <string name="label_new_conversation">Nueva Conversaci&#243;n</string>
     <string name="label_search_people">Buscar Personas</string>
@@ -597,6 +622,7 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="label_learn_more_searching_user">Aprende m&#225;s</string>
     <string name="label_no_results_found">No se encontraron resultados. Por favor intenta nuevamente.</string>
     <string name="label_general_error">Algo sali&#243; mal</string>
+    <string name="label_empty_contacts_list">Buscar personas por su nombre o nombre de usuario para iniciar una conversación 🔍</string>
     <!-- Snackbar messages -->
     <string name="error_unknown_title">Algo sali&#243; mal</string>
     <string name="error_unknown_message">Por favor intenta nuevamente</string>
@@ -749,9 +775,9 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="settings_network_settings_label">Configuraci&#243;n de red</string>
     <string name="settings_manage_devices_label">Administrar tus dispositivos</string>
     <string name="settings_keep_connection_to_websocket">Mantener conexi&#243;n al websocket</string>
-    <string name="settings_keep_connection_to_websocket_description">Mejore la recepci&#243;n de notificaciones manteniendo una conexi&#243;n constante con %1$s. Reemplazar&#225; los servicios de notificaci&#243;n si Google Services no est&#225;n disponibles en su dispositivo.</string>
     <string name="settings_service_is_running">el servicio est&#225; en ejecuci&#243;n</string>
     <!--Settings, Appearance -->
+    <string name="settings_customization_label">Personalización</string>
     <!--Settings, My Account -->
     <string name="settings_myaccount_title">Datos de la cuenta</string>
     <string name="settings_myaccount_display_name">NOMBRE DE PERFIL</string>
@@ -768,6 +794,7 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="settings_myaccount_display_name_updated">Tu nombre de perfil se ha cambiado</string>
     <!--Privacy Settings -->
     <string name="settings_send_read_receipts">Enviar recibos de lectura</string>
+    <string name="settings_app_lock_title">Bloquear con contraseña</string>
     <!--Privacy Settings, App lock -->
     <!--Devices -->
     <string name="devices_title">Tus dispositivos</string>
@@ -796,6 +823,7 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="label_client_id">ID de cliente: %1$s</string>
     <string name="label_client_added_time">A&#209;ADIDO</string>
     <string name="conversation_empty_list_description">&#161;Con&#233;ctate con otros o crea un nuevo grupo para empezar a colaborar!</string>
+    <string name="one_on_one_empty_list_description">Aún no tienes contactos.\nBusca personas en %1$s y conéctate.</string>
     <string name="conversation_empty_list_title">Bienvenido &#128075;</string>
     <string name="label_no_conversation_found">No se encontraron conversaciones.</string>
     <string name="label_connect_with_new_users">Con&#233;ctate con nuevos usuarios o inicia una nueva conversaci&#243;n</string>
@@ -896,7 +924,7 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="new_device_dialog_current_user_btn">Administrar dispositivos</string>
     <string name="new_device_dialog_other_user_title">Su cuenta &#8220;%1$s (@%2$s)&#8221; se utiliz&#243; en:</string>
     <string name="new_device_dialog_other_user_btn">Cambiar de cuenta</string>
-    <string name="label_system_message_joined_the_conversation_by_self">%1$s se uni&#243; a la conversaci&#243;n</string>
+    <string name="label_system_message_joined_the_conversation_by_self">%1$s te uniste a la conversación</string>
     <string name="label_system_message_joined_the_conversation_by_other">%1$s se uni&#243; a la conversaci&#243;n</string>
     <string name="label_client_verified">Verificado</string>
     <string name="label_client_unverified">No verificado</string>

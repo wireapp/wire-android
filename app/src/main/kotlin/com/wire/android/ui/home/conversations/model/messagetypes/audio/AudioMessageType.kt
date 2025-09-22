@@ -66,15 +66,20 @@ import com.wire.android.model.Clickable
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
+import com.wire.android.ui.common.applyIf
 import com.wire.android.ui.common.attachmentdraft.ui.FileHeaderView
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
+import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.common.clickable
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.spacers.HorizontalSpace
+import com.wire.android.ui.home.conversations.messages.item.MessageStyle
+import com.wire.android.ui.home.conversations.messages.item.isBubble
+import com.wire.android.ui.home.conversations.messages.item.textColor
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.UploadInProgressAssetMessage
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
@@ -92,12 +97,13 @@ fun AudioMessage(
     assetTransferStatus: AssetTransferStatus,
     extension: String,
     size: Long,
+    messageStyle: MessageStyle,
     modifier: Modifier = Modifier,
 ) {
     if (assetTransferStatus == AssetTransferStatus.UPLOAD_IN_PROGRESS) {
-        UploadingAudioMessage(extension, size, modifier)
+        UploadingAudioMessage(extension, size, messageStyle, modifier)
     } else {
-        UploadedAudioMessage(audioMessageArgs, audioMessageDurationInMs, extension, size, modifier)
+        UploadedAudioMessage(audioMessageArgs, audioMessageDurationInMs, extension, size, messageStyle, modifier)
     }
 }
 
@@ -105,27 +111,31 @@ fun AudioMessage(
 private fun AudioMessageLayout(
     extension: String,
     size: Long,
+    messageStyle: MessageStyle,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
     Column(
         modifier = modifier
-            .padding(top = dimensions().spacing4x)
-            .background(
-                color = MaterialTheme.wireColorScheme.onPrimary,
-                shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
-            )
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.wireColorScheme.secondaryButtonDisabledOutline,
-                shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
-            )
-            .padding(dimensions().spacing8x),
+            .applyIf(!messageStyle.isBubble()) {
+                padding(top = dimensions().spacing4x)
+                    .background(
+                        color = MaterialTheme.wireColorScheme.onPrimary,
+                        shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
+                    )
+                    .border(
+                        width = 1.dp,
+                        color = MaterialTheme.wireColorScheme.secondaryButtonDisabledOutline,
+                        shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
+                    )
+                    .padding(dimensions().spacing8x)
+            },
         verticalArrangement = Arrangement.spacedBy(dimensions().spacing8x),
     ) {
         FileHeaderView(
             extension = extension,
             size = size,
+            messageStyle = messageStyle
         )
         Box(
             modifier = Modifier.defaultMinSize(minHeight = MaterialTheme.wireDimensions.spacing72x)
@@ -139,9 +149,10 @@ private fun AudioMessageLayout(
 private fun UploadingAudioMessage(
     extension: String,
     size: Long,
+    messageStyle: MessageStyle,
     modifier: Modifier = Modifier
-) = AudioMessageLayout(extension, size, modifier) {
-    UploadInProgressAssetMessage()
+) = AudioMessageLayout(extension, size, messageStyle, modifier) {
+    UploadInProgressAssetMessage(messageStyle)
 }
 
 @Composable
@@ -150,6 +161,7 @@ private fun UploadedAudioMessage(
     audioMessageDurationInMs: Long,
     extension: String,
     size: Long,
+    messageStyle: MessageStyle,
     modifier: Modifier = Modifier,
 ) {
     val viewModel: AudioMessageViewModel =
@@ -169,6 +181,7 @@ private fun UploadedAudioMessage(
         onAudioSpeedChange = {
             viewModel.changeAudioSpeed(viewModel.state.audioSpeed.toggle())
         },
+        messageStyle = messageStyle,
         modifier = modifier,
     )
 }
@@ -182,14 +195,16 @@ private fun UploadedAudioMessage(
     onPlayButtonClick: () -> Unit,
     onSliderPositionChange: (Float) -> Unit,
     onAudioSpeedChange: (() -> Unit)?,
+    messageStyle: MessageStyle,
     modifier: Modifier = Modifier,
-) = AudioMessageLayout(extension, size, modifier) {
+) = AudioMessageLayout(extension, size, messageStyle, modifier) {
     if (audioState.audioMediaPlayingState is AudioMediaPlayingState.Failed) {
         FailedAudioMessageContent()
     } else {
         SuccessfulAudioMessageContent(
             audioState = audioState,
             audioSpeed = audioSpeed,
+            messageStyle = messageStyle,
             onPlayButtonClick = onPlayButtonClick,
             onSliderPositionChange = onSliderPositionChange,
             onAudioSpeedChange = onAudioSpeedChange,
@@ -216,6 +231,7 @@ fun RecordedAudioMessage(
             audioSpeed = AudioSpeed.NORMAL,
             onPlayButtonClick = onPlayButtonClick,
             onSliderPositionChange = onSliderPositionChange,
+            messageStyle = MessageStyle.NORMAL,
             onAudioSpeedChange = null
         )
     }
@@ -225,6 +241,7 @@ fun RecordedAudioMessage(
 fun SuccessfulAudioMessageContent(
     audioState: AudioState,
     audioSpeed: AudioSpeed,
+    messageStyle: MessageStyle,
     onPlayButtonClick: () -> Unit,
     onSliderPositionChange: (Float) -> Unit,
     onAudioSpeedChange: (() -> Unit)?,
@@ -262,8 +279,15 @@ fun SuccessfulAudioMessageContent(
                 audioDuration = audioDuration,
                 totalTimeInMs = audioState.totalTimeInMs,
                 waveMask = audioState.wavesMask,
+                messageStyle = messageStyle,
                 onSliderPositionChange = onSliderPositionChange
             )
+
+            val currentTimeColor = when (messageStyle) {
+                MessageStyle.BUBBLE_SELF -> MaterialTheme.wireColorScheme.onPrimary
+                MessageStyle.BUBBLE_OTHER -> MaterialTheme.wireColorScheme.primary
+                MessageStyle.NORMAL -> MaterialTheme.wireColorScheme.primary
+            }
 
             Row {
                 Text(
@@ -272,30 +296,52 @@ fun SuccessfulAudioMessageContent(
                         .padding(vertical = MaterialTheme.wireDimensions.spacing2x),
                     text = audioDuration.formattedCurrentTime(),
                     style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.wireColorScheme.primary,
+                    color = currentTimeColor,
                     maxLines = 1
                 )
 
                 if (audioState.audioMediaPlayingState is AudioMediaPlayingState.Playing && onAudioSpeedChange != null) {
-                    WirePrimaryButton(
-                        onClick = onAudioSpeedChange,
-                        text = stringResource(audioSpeed.titleRes),
-                        textStyle = MaterialTheme.wireTypography.label03,
-                        contentPadding = PaddingValues(
-                            horizontal = MaterialTheme.wireDimensions.spacing4x,
-                            vertical = MaterialTheme.wireDimensions.spacing2x
-                        ),
-                        shape = RoundedCornerShape(MaterialTheme.wireDimensions.corner4x),
-                        minSize = DpSize(
-                            dimensions().spacing32x,
-                            dimensions().spacing16x
-                        ),
-                        minClickableSize = DpSize(
-                            dimensions().spacing40x,
-                            dimensions().spacing16x
-                        ),
-                        fillMaxWidth = false
-                    )
+                    if (messageStyle == MessageStyle.BUBBLE_SELF) {
+                        WireSecondaryButton(
+                            onClick = onAudioSpeedChange,
+                            text = stringResource(audioSpeed.titleRes),
+                            textStyle = MaterialTheme.wireTypography.label03,
+                            contentPadding = PaddingValues(
+                                horizontal = MaterialTheme.wireDimensions.spacing4x,
+                                vertical = MaterialTheme.wireDimensions.spacing2x
+                            ),
+                            shape = RoundedCornerShape(MaterialTheme.wireDimensions.corner4x),
+                            minSize = DpSize(
+                                dimensions().spacing32x,
+                                dimensions().spacing16x
+                            ),
+                            minClickableSize = DpSize(
+                                dimensions().spacing40x,
+                                dimensions().spacing16x
+                            ),
+                            fillMaxWidth = false
+                        )
+                    } else {
+                        WirePrimaryButton(
+                            onClick = onAudioSpeedChange,
+                            text = stringResource(audioSpeed.titleRes),
+                            textStyle = MaterialTheme.wireTypography.label03,
+                            contentPadding = PaddingValues(
+                                horizontal = MaterialTheme.wireDimensions.spacing4x,
+                                vertical = MaterialTheme.wireDimensions.spacing2x
+                            ),
+                            shape = RoundedCornerShape(MaterialTheme.wireDimensions.corner4x),
+                            minSize = DpSize(
+                                dimensions().spacing32x,
+                                dimensions().spacing16x
+                            ),
+                            minClickableSize = DpSize(
+                                dimensions().spacing40x,
+                                dimensions().spacing16x
+                            ),
+                            fillMaxWidth = false
+                        )
+                    }
                 }
 
                 Spacer(Modifier.weight(1F))
@@ -312,7 +358,7 @@ fun SuccessfulAudioMessageContent(
                             .padding(vertical = MaterialTheme.wireDimensions.spacing2x),
                         text = audioDuration.formattedTotalTime(),
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.wireColorScheme.secondaryText,
+                        color = messageStyle.textColor(),
                         maxLines = 1
                     )
                 }
@@ -335,6 +381,7 @@ fun SuccessfulAudioMessageContent(
 private fun AudioMessageSlider(
     audioDuration: AudioDuration,
     totalTimeInMs: AudioState.TotalTimeInMs,
+    messageStyle: MessageStyle,
     waveMask: List<Int>?,
     onSliderPositionChange: (Float) -> Unit,
 ) {
@@ -342,6 +389,17 @@ private fun AudioMessageSlider(
         val totalMs = if (totalTimeInMs is AudioState.TotalTimeInMs.Known) totalTimeInMs.value.toFloat() else 0f
         val waves = waveMask?.ifEmpty { getDefaultWaveMask() } ?: getDefaultWaveMask()
         val wavesAmount = waves.size
+
+        val activatedColor = when (messageStyle) {
+            MessageStyle.BUBBLE_SELF -> colorsScheme().onPrimary
+            MessageStyle.BUBBLE_OTHER -> colorsScheme().primary
+            MessageStyle.NORMAL -> colorsScheme().primary
+        }
+        val disabledColor = when (messageStyle) {
+            MessageStyle.BUBBLE_SELF -> colorsScheme().onPrimary.copy(alpha = 0.7F)
+            MessageStyle.BUBBLE_OTHER -> colorsScheme().onTertiaryButtonDisabled
+            MessageStyle.NORMAL -> colorsScheme().onTertiaryButtonDisabled
+        }
 
         Row(
             modifier = Modifier
@@ -354,7 +412,7 @@ private fun AudioMessageSlider(
                 Spacer(
                     Modifier
                         .background(
-                            color = if (isWaveActivated) colorsScheme().primary else colorsScheme().onTertiaryButtonDisabled,
+                            color = if (isWaveActivated) activatedColor else disabledColor,
                             shape = RoundedCornerShape(dimensions().corner2x)
                         )
                         .weight(2f)
@@ -372,6 +430,7 @@ private fun AudioMessageSlider(
             thumb = {
                 SliderDefaults.Thumb(
                     interactionSource = remember { MutableInteractionSource() },
+                    colors = SliderDefaults.colors(thumbColor = activatedColor),
                     thumbSize = DpSize(dimensions().spacing4x, dimensions().spacing32x)
                 )
             },
@@ -463,7 +522,8 @@ private fun PreviewUploadingAudioMessage() = WireTheme {
         audioMessageDurationInMs = 10000,
         extension = "MP3",
         size = 1024,
-        assetTransferStatus = AssetTransferStatus.UPLOAD_IN_PROGRESS
+        assetTransferStatus = AssetTransferStatus.UPLOAD_IN_PROGRESS,
+        messageStyle = MessageStyle.NORMAL
     )
 }
 
@@ -475,7 +535,8 @@ private fun PreviewUploadedAudioMessage() = WireTheme {
         audioMessageDurationInMs = 10000,
         extension = "MP3",
         size = 1024,
-        assetTransferStatus = AssetTransferStatus.UPLOADED
+        assetTransferStatus = AssetTransferStatus.UPLOADED,
+        messageStyle = MessageStyle.NORMAL
     )
 }
 
@@ -485,6 +546,7 @@ private fun PreviewUploadedAudioMessageFetching() = WireTheme {
     UploadedAudioMessage(
         audioState = PREVIEW_AUDIO_STATE.copy(audioMediaPlayingState = AudioMediaPlayingState.Fetching),
         audioSpeed = AudioSpeed.NORMAL,
+        messageStyle = MessageStyle.NORMAL,
         extension = "MP3",
         size = 1024,
         onPlayButtonClick = {},
@@ -500,6 +562,7 @@ private fun PreviewUploadedAudioMessageFetched() = WireTheme {
         audioState = PREVIEW_AUDIO_STATE.copy(audioMediaPlayingState = AudioMediaPlayingState.SuccessfulFetching),
         audioSpeed = AudioSpeed.NORMAL,
         extension = "MP3",
+        messageStyle = MessageStyle.NORMAL,
         size = 1024,
         onPlayButtonClick = {},
         onSliderPositionChange = {},
@@ -513,6 +576,7 @@ private fun PreviewUploadedAudioMessagePlaying() = WireTheme {
     UploadedAudioMessage(
         audioState = PREVIEW_AUDIO_STATE.copy(audioMediaPlayingState = AudioMediaPlayingState.Playing, currentPositionInMs = 5000),
         audioSpeed = AudioSpeed.NORMAL,
+        messageStyle = MessageStyle.NORMAL,
         extension = "MP3",
         size = 1024,
         onPlayButtonClick = {},
@@ -527,6 +591,7 @@ private fun PreviewUploadedAudioMessageFailed() = WireTheme {
     UploadedAudioMessage(
         audioState = PREVIEW_AUDIO_STATE.copy(audioMediaPlayingState = AudioMediaPlayingState.Failed),
         audioSpeed = AudioSpeed.NORMAL,
+        messageStyle = MessageStyle.NORMAL,
         extension = "MP3",
         size = 1024,
         onPlayButtonClick = {},

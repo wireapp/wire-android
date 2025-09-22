@@ -38,6 +38,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.multipart.AssetSource
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
 import com.wire.android.ui.common.progress.WireLinearProgressIndicator
+import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.getDownloadStatusText
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.transferProgressColor
 import com.wire.android.ui.theme.WireTheme
@@ -49,7 +50,10 @@ import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.util.fileExtension
 
 @Composable
-internal fun BoxScope.FileAssetPreview(item: MultipartAttachmentUi) {
+internal fun BoxScope.FileAssetPreview(
+    item: MultipartAttachmentUi,
+    messageStyle: MessageStyle
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -62,7 +66,8 @@ internal fun BoxScope.FileAssetPreview(item: MultipartAttachmentUi) {
             type = item.assetType,
             size = item.assetSize,
             label = getDownloadStatusText(item.transferStatus),
-            labelColor = if (item.transferStatus.isFailed()) colorsScheme().error else null
+            labelColor = if (item.transferStatus.isFailed()) colorsScheme().error else null,
+            messageStyle = messageStyle
         )
         item.fileName?.let {
             Box(modifier = Modifier.weight(1f)) {
@@ -122,7 +127,8 @@ private fun PreviewFileAsset() {
                         assetType = AttachmentFileType.CODE,
                         fileName = "Test file.kt",
                         transferStatus = AssetTransferStatus.NOT_DOWNLOADED
-                    )
+                    ),
+                    messageStyle = MessageStyle.NORMAL
                 )
             }
             Box {
@@ -132,12 +138,14 @@ private fun PreviewFileAsset() {
                         fileName = "Test file.zip",
                         transferStatus = AssetTransferStatus.DOWNLOAD_IN_PROGRESS,
                         progress = 0.75f
-                    )
+                    ),
+                    messageStyle = MessageStyle.NORMAL
                 )
             }
             Box {
                 FileAssetPreview(
-                    item = attachment
+                    item = attachment,
+                    messageStyle = MessageStyle.NORMAL
                 )
             }
             Box {
@@ -147,7 +155,8 @@ private fun PreviewFileAsset() {
                         fileName = "Test file.prof",
                         transferStatus = AssetTransferStatus.FAILED_DOWNLOAD,
                         progress = 0.75f
-                    )
+                    ),
+                    messageStyle = MessageStyle.NORMAL
                 )
             }
         }

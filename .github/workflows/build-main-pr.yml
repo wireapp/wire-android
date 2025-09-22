@@ -7,7 +7,7 @@ on:
   workflow_call:
 
 permissions:
-  contents: read
+  contents: write
   actions: read
 
 concurrency:
@@ -19,6 +19,7 @@ jobs:
   build-validation:
     uses: ./.github/workflows/build-unified.yml
     with:
+      concurrency-group-suffix: pr
       build-config: |
         [
           {

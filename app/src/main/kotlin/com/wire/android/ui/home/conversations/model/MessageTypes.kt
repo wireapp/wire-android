@@ -38,16 +38,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
-import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpSize
 import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset
+import com.wire.android.ui.common.applyIf
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.clickable
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversations.CompositeMessageViewModel
 import com.wire.android.ui.home.conversations.CompositeMessageViewModelImpl
+import com.wire.android.ui.home.conversations.messages.item.MessageStyle
+import com.wire.android.ui.home.conversations.messages.item.highlighted
+import com.wire.android.ui.home.conversations.messages.item.isBubble
 import com.wire.android.ui.home.conversations.mock.mockedPrivateAsset
 import com.wire.android.ui.home.conversations.model.messagetypes.image.AsyncImageMessage
 import com.wire.android.ui.home.conversations.model.messagetypes.image.DisplayableImageMessage
@@ -57,6 +62,7 @@ import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMess
 import com.wire.android.ui.markdown.DisplayMention
 import com.wire.android.ui.markdown.MarkdownConstants.MENTION_MARK
 import com.wire.android.ui.markdown.MarkdownDocument
+import com.wire.android.ui.markdown.MessageColors
 import com.wire.android.ui.markdown.NodeActions
 import com.wire.android.ui.markdown.NodeData
 import com.wire.android.ui.markdown.toMarkdownDocument
@@ -84,15 +90,31 @@ internal fun MessageBody(
     buttonList: PersistentList<MessageButton>?,
     onLinkClick: (String) -> Unit,
     searchQuery: String = "",
-    clickable: Boolean = true
+    clickable: Boolean = true,
+    messageStyle: MessageStyle = MessageStyle.NORMAL
 ) {
     val (displayMentions, text) = messageBody?.message?.let {
         mapToDisplayMentions(it, LocalContext.current.resources)
     } ?: Pair(emptyList(), null)
 
+    val color = when (messageStyle) {
+        MessageStyle.BUBBLE_SELF -> MaterialTheme.wireColorScheme.onPrimary
+        MessageStyle.BUBBLE_OTHER -> when {
+            isAvailable -> MaterialTheme.colorScheme.onBackground
+            else -> MaterialTheme.wireColorScheme.secondaryText
+        }
+
+        MessageStyle.NORMAL -> {
+            when {
+                isAvailable -> MaterialTheme.colorScheme.onBackground
+                else -> MaterialTheme.wireColorScheme.secondaryText
+            }
+        }
+    }
+
     val nodeData = NodeData(
         modifier = Modifier.defaultMinSize(minHeight = dimensions().spacing20x),
-        color = if (isAvailable) MaterialTheme.colorScheme.onBackground else MaterialTheme.wireColorScheme.secondaryText,
+        color = color,
         style = MaterialTheme.wireTypography.body01,
         colorScheme = MaterialTheme.wireColorScheme,
         typography = MaterialTheme.wireTypography,
@@ -101,7 +123,9 @@ internal fun MessageBody(
         actions = NodeActions(
             onOpenProfile = onOpenProfile,
             onLinkClick = onLinkClick
-        )
+        ),
+        messageStyle = messageStyle,
+        messageColors = MessageColors(highlighted = messageStyle.highlighted())
     )
 
     val markdownDocument = remember(text) {
@@ -116,6 +140,7 @@ internal fun MessageBody(
         )
     }
     buttonList?.also {
+        VerticalSpace.x4()
         MessageButtonsContent(
             messageId = messageId,
             buttonList = it,
@@ -171,23 +196,26 @@ fun MessageButtonsContent(
 fun MessageImage(
     asset: ImageAsset.Remote?,
     imgParams: ImageMessageParams,
+    messageStyle: MessageStyle,
     transferStatus: AssetTransferStatus,
     onImageClick: Clickable,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     Box(
         modifier
-            .padding(top = MaterialTheme.wireDimensions.spacing4x)
-            .clip(shape = RoundedCornerShape(dimensions().messageAssetBorderRadius))
-            .background(
-                color = MaterialTheme.wireColorScheme.onPrimary,
-                shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
-            )
-            .border(
-                width = dimensions().spacing1x,
-                color = MaterialTheme.wireColorScheme.secondaryButtonDisabledOutline,
-                shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
-            )
+            .applyIf(!messageStyle.isBubble()) {
+                padding(top = MaterialTheme.wireDimensions.spacing4x)
+                    .clip(shape = RoundedCornerShape(dimensions().messageAssetBorderRadius))
+                    .background(
+                        color = MaterialTheme.wireColorScheme.onPrimary,
+                        shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
+                    )
+                    .border(
+                        width = dimensions().spacing1x,
+                        color = MaterialTheme.wireColorScheme.secondaryButtonDisabledOutline,
+                        shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
+                    )
+            }
             .wrapContentSize()
             .combinedClickable(
                 enabled = onImageClick.enabled,
@@ -201,33 +229,31 @@ fun MessageImage(
             // Trying to upload the asset
             transferStatus == UPLOAD_IN_PROGRESS || transferStatus == DOWNLOAD_IN_PROGRESS -> {
                 ImageMessageInProgress(
-                    width = imgParams.normalizedWidth,
-                    height = imgParams.normalizedHeight,
+                    size = imgParams.normalizedSize(),
                     isDownloading = transferStatus == DOWNLOAD_IN_PROGRESS,
+                    messageStyle = messageStyle,
                     modifier = alignCenterModifier
                 )
             }
 
             transferStatus == NOT_FOUND -> {
                 ImageMessageFailed(
-                    width = imgParams.normalizedWidth,
-                    height = imgParams.normalizedHeight,
+                    size = imgParams.normalizedSize(),
                     isDownloadFailure = true,
                     modifier = alignCenterModifier
                 )
             }
 
+            // TODO check on both styles
             asset != null -> DisplayableImageMessage(
                 imageData = asset,
-                width = imgParams.normalizedWidth,
-                height = imgParams.normalizedHeight,
+                size = imgParams.normalizedSize(),
                 modifier = alignCenterModifier
             )
             // Show error placeholder
             transferStatus == FAILED_UPLOAD || transferStatus == FAILED_DOWNLOAD -> {
                 ImageMessageFailed(
-                    width = imgParams.normalizedWidth,
-                    height = imgParams.normalizedHeight,
+                    size = imgParams.normalizedSize(),
                     isDownloadFailure = transferStatus == FAILED_DOWNLOAD,
                     modifier = alignCenterModifier
                 )
@@ -239,9 +265,9 @@ fun MessageImage(
 @Composable
 fun MediaAssetImage(
     asset: ImageAsset.Remote?,
-    width: Dp,
-    height: Dp,
+    size: DpSize,
     transferStatus: AssetTransferStatus?,
+    messageStyle: MessageStyle,
     onImageClick: Clickable,
     modifier: Modifier = Modifier,
     assetPath: Path? = null
@@ -265,39 +291,37 @@ fun MediaAssetImage(
             // Trying to upload the asset
             transferStatus == DOWNLOAD_IN_PROGRESS -> {
                 ImageMessageInProgress(
-                    width = width,
-                    height = height,
+                    size = size,
                     isDownloading = true,
                     showText = false,
+                    messageStyle = messageStyle,
                     modifier = Modifier.align(Alignment.Center)
                 )
             }
 
             LocalInspectionMode.current -> { // preview
-                DisplayableImageMessage(mockedPrivateAsset(), width, height)
+                DisplayableImageMessage(mockedPrivateAsset(), size)
             }
 
             assetPath != null -> {
-                AsyncImageMessage(assetPath, width, height)
+                AsyncImageMessage(assetPath, size)
             }
 
             asset != null -> {
-                DisplayableImageMessage(asset, width, height)
+                DisplayableImageMessage(asset, size)
             }
 
             // Show error placeholder
             transferStatus == FAILED_DOWNLOAD -> {
                 ImageMessageFailed(
-                    width = width,
-                    height = height,
+                    size = size,
                     isDownloadFailure = true
                 )
             }
 
             transferStatus == NOT_FOUND -> {
                 ImageMessageFailed(
-                    width = width,
-                    height = height,
+                    size = size,
                     isDownloadFailure = true
                 )
             }

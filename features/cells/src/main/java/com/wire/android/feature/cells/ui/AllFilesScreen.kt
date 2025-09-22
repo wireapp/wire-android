@@ -28,10 +28,9 @@ import com.wire.android.feature.cells.ui.destinations.PublicLinkScreenDestinatio
 import com.wire.android.feature.cells.ui.filter.FilterBottomSheet
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.WireNavigator
-import com.wire.android.ui.common.bottomsheet.WireSheetValue
-import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
-import com.wire.android.ui.common.bottomsheet.show
+import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.search.SearchBarState
+import com.wire.android.feature.cells.domain.model.CellsFilter
 import kotlinx.coroutines.delay
 
 /**
@@ -42,10 +41,10 @@ import kotlinx.coroutines.delay
 fun AllFilesScreen(
     navigator: WireNavigator,
     searchBarState: SearchBarState,
+    updateFilters: (Set<CellsFilter>) -> Unit,
+    filterBottomSheetState: WireModalSheetState<Unit>,
     viewModel: CellViewModel = hiltViewModel(),
 ) {
-    val sheetState = rememberWireModalSheetState<Unit>(WireSheetValue.Hidden)
-
     val pagingListItems = viewModel.nodesFlow.collectAsLazyPagingItems()
 
     LaunchedEffect(searchBarState.searchQueryTextState.text) {
@@ -73,7 +72,11 @@ fun AllFilesScreen(
         downloadFileState = viewModel.downloadFileSheet,
         menuState = viewModel.menu,
         isAllFiles = true,
+        isRestoreInProgress = viewModel.isRestoreInProgress.collectAsState().value,
+        isDeleteInProgress = viewModel.isDeleteInProgress.collectAsState().value,
+        isRecycleBin = viewModel.isRecycleBin(),
         isSearchResult = viewModel.hasSearchQuery(),
+        isFiltering = viewModel.selectedTags.collectAsState().value.isNotEmpty(),
         showPublicLinkScreen = { publicLinkScreenData ->
             navigator.navigate(
                 NavigationCommand(
@@ -95,26 +98,29 @@ fun AllFilesScreen(
                 )
             )
         },
+        isRefreshing = viewModel.isPullToRefresh.collectAsState(),
+        onRefresh = { viewModel.onPullToRefresh() }
     )
-
-    if (searchBarState.isFilterActive) {
-        viewModel.loadTags()
-        sheetState.show()
-    } else {
-        sheetState.hide()
-    }
 
     FilterBottomSheet(
         selectableTags = viewModel.tags.collectAsState().value,
         selectedTags = viewModel.selectedTags.collectAsState().value,
         onApply = {
-            searchBarState.onFilterActiveChanged(false)
+            filterBottomSheetState.hide()
             viewModel.updateSelectedTags(it)
+            if (it.isEmpty()) {
+                updateFilters(setOf())
+            } else {
+                updateFilters(setOf(CellsFilter.Tags))
+            }
         },
         onClearAll = {
             viewModel.updateSelectedTags(emptySet())
+            updateFilters(setOf())
         },
-        onDismiss = { searchBarState.onFilterActiveChanged(false) },
-        sheetState = sheetState
+        sheetState = filterBottomSheetState,
+        onDismiss = {
+            filterBottomSheetState.hide()
+        },
     )
 }

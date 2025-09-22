@@ -20,6 +20,7 @@
 
 package com.wire.android.ui.home.newconversation
 
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import com.wire.android.assertions.shouldBeEqualTo
@@ -185,8 +186,8 @@ class NewConversationViewModelTest {
 
         // then
         assertEquals(CreateConversationParam.Protocol.MLS, result)
-        assertEquals(false, result2.isAllowServicesEnabled)
-        assertEquals(false, result2.isAllowServicesPossible)
+        assertEquals(false, result2.isAllowAppsEnabled)
+        assertEquals(false, result2.isTeamAllowedToUseApps)
     }
 
     @Test
@@ -362,5 +363,52 @@ class NewConversationViewModelTest {
             .arrange()
 
         assertFalse(viewModel.isChannelCreationPossible)
+    }
+
+    @Test
+    fun `given apps are not allowed, when initializing viewModel, then state should reflect that`() = runTest {
+        // Given
+        val (_, viewModel) = NewConversationViewModelArrangement()
+            .withGetSelfUser(isTeamMember = true)
+            .withAppsAllowedResult(false)
+            .arrange()
+
+        assertFalse(viewModel.groupOptionsState.isTeamAllowedToUseApps)
+        assertFalse(viewModel.groupOptionsState.isAllowAppsEnabled)
+    }
+
+    @Test
+    fun `given apps are allowed, when initializing viewModel, then state should reflect that`() = runTest {
+        // Given
+        val (_, viewModel) = NewConversationViewModelArrangement()
+            .withGetSelfUser(isTeamMember = true)
+            .withAppsAllowedResult(true)
+            .arrange()
+
+        assertTrue(viewModel.groupOptionsState.isTeamAllowedToUseApps)
+        assertTrue(viewModel.groupOptionsState.isAllowAppsEnabled)
+    }
+
+    @Test
+    fun `given state is reset, when reset called, then state should reflect that`() = runTest {
+        // Given
+        val (_, viewModel) = NewConversationViewModelArrangement()
+            .withGetSelfUser(isTeamMember = true)
+            .withAppsAllowedResult(true)
+            .arrange()
+
+        // dirty state
+        viewModel.newGroupNameTextState = TextFieldState("Test Group")
+        viewModel.groupOptionsState = viewModel.groupOptionsState.copy(
+            isTeamAllowedToUseApps = true,
+            isAllowAppsEnabled = false
+        )
+
+        // When
+        viewModel.resetState()
+
+        assertTrue(viewModel.groupOptionsState.isTeamAllowedToUseApps)
+        assertTrue(viewModel.groupOptionsState.isAllowAppsEnabled)
+        assertEquals("", viewModel.newGroupNameTextState.text)
     }
 }

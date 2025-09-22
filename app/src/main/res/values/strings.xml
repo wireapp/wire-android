@@ -300,6 +300,7 @@
     <string name="url_delete_personal_account" translatable="false">https://support.wire.com/hc/articles/207555795</string>
     <string name="url_system_message_learn_more_about_e2ee" translatable="false">https://support.wire.com/hc/articles/10898523878173</string>
     <string name="url_e2ee_id_shield" translatable="false">https://support.wire.com/hc/articles/9211300150685</string>
+    <string name="url_how_to_add_apps" translatable="false">https://support.wire.com/hc/articles/360000296158</string>
     <!-- Navigation -->
     <string name="vault_screen_title">Vault</string>
     <string name="channels_screen_title">Channels</string>
@@ -323,6 +324,7 @@
     <string name="search_bar_conversations_hint">Search conversations</string>
     <string name="search_no_results">No matches found</string>
     <string name="team_management_screen_title">Manage Team</string>
+    <string name="meetings_screen_title">Meetings</string>
     <!--Whats New -->
     <string name="whats_new_screen_title">What\'s new</string>
     <string name="whats_new_welcome_to_new_android_app_label">👋 Welcome to Wire\'s New Android App!</string>
@@ -610,6 +612,8 @@
     <string name="asset_message_saved_externally_text">Saved</string>
     <string name="asset_message_failed_download_text">File not available</string>
     <string name="asset_message_failed_upload_text">File upload failed</string>
+    <string name="asset_download_not_available_text">File is not available anymore</string>
+    <string name="asset_download_deleted_text">You can\'t download this file as it was deleted.</string>
     <string name="asset_download_dialog_text">Do you want to open the file, or save it to your
         device\'s download folder?
  </string>
@@ -638,6 +642,7 @@
     <string name="conversation_details_is_not_classified">SECURITY LEVEL: UNCLASSIFIED</string>
     <string name="conversation_options_self_deleting_messages_label">Self-deleting messages</string>
     <string name="conversation_options_self_deleting_messages_description">When this is on, all messages in this conversation will disappear after a certain time.</string>
+    <string name="conversation_options_self_deleting_messages_cells_description">Self-deleting messages are currently not available for conversations with Cells.</string>
     <string name="conversation_options_guests_label">Guests</string>
     <string name="conversation_details_guest_description">When this is ON, people from outside your team can join this conversation</string>
     <string name="conversation_options_guest_description">Turn this option ON to open this conversation to people outside your team, even if they don\'t have Wire.</string>
@@ -667,10 +672,6 @@
     <!--Read receipts -->
     <string name="conversation_options_read_receipt_label">Read receipts</string>
     <string name="conversation_options_read_receipt_description">When this is on, people can see when their messages in this conversation are read.</string>
-    <!--Wire Cell -->
-    <string name="conversation_options_wire_cell_label">Wire Cell</string>
-    <string name="conversation_options_wire_cell_description">When this is on, all conversation files are saved in Wire Cell Storage.</string>
-    <string name="folder_label_wire_cell">File Storage</string>
     <!-- Messages -->
     <string name="message_details_title">Message Details</string>
     <string name="message_details_reactions_tab">REACTIONS (%s)</string>
@@ -887,6 +888,9 @@
     <string name="label_system_message_conversation_started_sensitive_information_footer">Please still be careful with who you share sensitive information.</string>
     <string name="label_conversations_details_verified_proteus">Verified (Proteus)</string>
     <string name="label_conversations_details_verified_mls">Verified (End-to-end Identity)</string>
+    <string name="label_system_message_cell_enabled_for_conversation">Cell is on for everyone</string>
+    <string name="label_system_message_cell_self_delete_disabled_for_conversation">Self-deleting messages are %1$s in conversations with Cells</string>
+    <string name="label_system_message_cell_self_delete_disabled">off</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
         <item quantity="one">You added 1 person to the conversation</item>
@@ -1003,9 +1007,12 @@
     <string name="label_learn_more_about_channels">Learn more about channels</string>
     <string name="label_new_conversation">New Conversation</string>
     <string name="label_search_people">Search people</string>
+    <string name="label_search_people_or_apps">Search people or apps</string>
     <string name="label_public_wire">Public Wire</string>
     <string name="label_search_people_instruction">Search for people by their profile name or @username</string>
+    <string name="label_search_apps_instruction">Improve productivity with apps.</string>
     <string name="label_learn_more_searching_user">Learn more</string>
+    <string name="label_learn_more_searching_app">How to add apps to your team</string>
     <string name="label_no_results_found">No results could be found. Please try again.</string>
     <string name="label_general_error">Something went wrong</string>
     <string name="label_add_member_people">People</string>
@@ -1225,7 +1232,7 @@
     <string name="settings_network_settings_label">Network Settings</string>
     <string name="settings_manage_devices_label">Manage your Devices</string>
     <string name="settings_keep_connection_to_websocket">Keep Connection to Websocket</string>
-    <string name="settings_keep_connection_to_websocket_description">Improve receiving notifications by keeping a constant connection to %1$s. It will replace notification services if Google Services are not available on your device.</string>
+    <string name="settings_keep_connection_to_websocket_description">Improve receiving notifications by keeping a constant connection to your organization\'s server. It will replace notification services if Google Services are not available on your device.</string>
     <string name="settings_service_is_running">service is running</string>
     <!--Settings, Appearance -->
     <string name="settings_customization_label">Customization</string>
@@ -1533,6 +1540,26 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="label_information_waiting_for_recipient_timer_to_expire_group">After one participant has seen your message and the timer has expired on their side, this note disappears.</string>
     <string name="label_information_waiting_for_recipient_timer_to_expire_one_to_one">After %1$s has seen your message and the timer has expired on their side, this note disappears.</string>
     <string name="label_information_waiting_for_deleation_when_self_not_sender">Once you are online, this note disappears.</string>
+    <plurals name="weeks">
+        <item quantity="one">1 week</item>
+        <item quantity="other">%1$d weeks</item>
+    </plurals>
+    <plurals name="days">
+        <item quantity="one">1 day</item>
+        <item quantity="other">%1$d days</item>
+    </plurals>
+    <plurals name="hours">
+        <item quantity="one">1 hour</item>
+        <item quantity="other">%1$d hours</item>
+    </plurals>
+    <plurals name="minutes">
+        <item quantity="one">1 minute</item>
+        <item quantity="other">%1$d minutes</item>
+    </plurals>
+    <plurals name="seconds">
+        <item quantity="one">1 second</item>
+        <item quantity="other">%1$d seconds</item>
+    </plurals>
     <plurals name="weeks_left">
         <item quantity="one">1 week left</item>
         <item quantity="other">%1$d weeks left</item>

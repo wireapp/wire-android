@@ -118,5 +118,8 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
      */
     ANALYTICS_ENABLED("analytics_enabled", ConfigType.BOOLEAN),
     ANALYTICS_APP_KEY("analytics_app_key", ConfigType.STRING),
-    ANALYTICS_SERVER_URL("analytics_server_url", ConfigType.STRING)
+    ANALYTICS_SERVER_URL("analytics_server_url", ConfigType.STRING),
+    IS_MLS_RESET_ENABLED("is_mls_reset_enabled", ConfigType.BOOLEAN),
+    USE_STRICT_MLS_FILTER("use_strict_mls_filter", ConfigType.BOOLEAN),
+    MEETINGS_ENABLED("meetings_enabled", ConfigType.BOOLEAN),
 }

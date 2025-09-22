@@ -84,7 +84,6 @@ fun GroupConversationOptions(
         onReadReceiptSwitchClicked = viewModel::onReadReceiptUpdate,
         lazyListState = lazyListState,
         onEditGroupName = onEditGroupName,
-        onWireCellSwitchClicked = viewModel::onWireCellStateChange,
     )
 
     if (state.changeServiceOptionConfirmationRequired) {
@@ -103,7 +102,6 @@ fun GroupConversationSettings(
     onSelfDeletingClicked: () -> Unit,
     onServiceSwitchClicked: (Boolean) -> Unit,
     onReadReceiptSwitchClicked: (Boolean) -> Unit,
-    onWireCellSwitchClicked: (Boolean) -> Unit,
     onEditGroupName: () -> Unit,
     modifier: Modifier = Modifier,
     lazyListState: LazyListState = rememberLazyListState(),
@@ -190,6 +188,16 @@ fun GroupConversationSettings(
                         )
                     )
                 }
+                addIf(state.isWireCellEnabled) {
+                    GroupConversationOptionsItem(
+                        title = stringResource(id = R.string.conversation_options_self_deleting_messages_label),
+                        subtitle = stringResource(id = R.string.conversation_options_self_deleting_messages_cells_description),
+                        trailingOnText = null,
+                        switchState = SwitchState.TextOnly(),
+                        arrowType = ArrowType.NONE,
+                        clickable = Clickable(enabled = false)
+                    )
+                }
                 addIf(state.protocolInfo !is Conversation.ProtocolInfo.MLS || mlsReadReceiptsEnabled) {
                     ReadReceiptOption(
                         isSwitchEnabled = state.isUpdatingReadReceiptAllowed,
@@ -205,19 +213,6 @@ fun GroupConversationSettings(
             folderTitleResId = R.string.folder_label_protocol_details,
             items = conversationProtocolDetailsItems(protocolInfo = state.protocolInfo),
         )
-
-        if (state.isWireCellFeatureEnabled) {
-            folderWithItems(
-                folderTitleResId = R.string.folder_label_wire_cell,
-                items = listOf {
-                    ConversationCellDetails(
-                        isWireCellEnabled = state.isWireCellEnabled,
-                        isLoading = state.loadingWireCellState,
-                        onCheckedChange = onWireCellSwitchClicked
-                    )
-                }
-            )
-        }
     }
 }
 
@@ -409,23 +404,6 @@ fun DisableConformationDialog(@StringRes title: Int, @StringRes text: Int, onCon
     )
 }
 
-@Composable
-private fun ConversationCellDetails(
-    isWireCellEnabled: Boolean,
-    isLoading: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
-) {
-    GroupOptionWithSwitch(
-        switchClickable = true,
-        switchVisible = true,
-        switchState = isWireCellEnabled,
-        isLoading = isLoading,
-        onClick = onCheckedChange,
-        title = R.string.conversation_options_wire_cell_label,
-        subTitle = R.string.conversation_options_wire_cell_description
-    )
-}
-
 private val StateMember = GroupConversationOptionsState(
     conversationId = ConversationId("someValue", "someDomain"),
     groupName = "Conversation Name",
@@ -462,7 +440,6 @@ private fun PreviewGroupConversationOptions(state: GroupConversationOptionsState
         onSelfDeletingClicked = {},
         onServiceSwitchClicked = {},
         onReadReceiptSwitchClicked = {},
-        onWireCellSwitchClicked = {},
         onEditGroupName = {},
         modifier = Modifier,
         lazyListState = rememberLazyListState(),

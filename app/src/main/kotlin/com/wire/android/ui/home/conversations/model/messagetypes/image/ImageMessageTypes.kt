@@ -25,8 +25,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -38,12 +38,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpSize
 import coil.compose.SubcomposeAsyncImage
 import com.wire.android.R
 import com.wire.android.model.ImageAsset
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
+import com.wire.android.ui.home.conversations.messages.item.MessageStyle
+import com.wire.android.ui.home.conversations.messages.item.textColor
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -52,34 +54,34 @@ import okio.Path
 @Composable
 fun DisplayableImageMessage(
     imageData: ImageAsset.Remote,
-    width: Dp,
-    height: Dp,
+    size: DpSize,
     modifier: Modifier = Modifier
 ) {
-    Image(
-        painter = imageData.paint(),
-        contentDescription = stringResource(R.string.content_description_image_message),
-        modifier = modifier
-            .width(width)
-            .height(height),
-        alignment = Alignment.Center,
-        contentScale = ContentScale.Crop
-    )
+
+    Box(
+        modifier = Modifier,
+        propagateMinConstraints = true
+    ) {
+        Image(
+            painter = imageData.paint(),
+            contentDescription = stringResource(R.string.content_description_image_message),
+            modifier = modifier.requiredSize(size),
+            alignment = Alignment.Center,
+            contentScale = ContentScale.Crop
+        )
+    }
 }
 
 @Composable
 fun AsyncImageMessage(
     assetPath: Path,
-    width: Dp,
-    height: Dp,
+    size: DpSize,
     modifier: Modifier = Modifier
 ) {
     SubcomposeAsyncImage(
         assetPath.toFile(),
         contentDescription = stringResource(R.string.content_description_image_message),
-        modifier = modifier
-            .width(width)
-            .height(height),
+        modifier = modifier.requiredSize(size),
         loading = { _ ->
             Box(
                 modifier = Modifier.size(MaterialTheme.wireDimensions.spacing24x),
@@ -98,9 +100,9 @@ fun AsyncImageMessage(
 
 @Composable
 fun ImageMessageInProgress(
-    width: Dp,
-    height: Dp,
+    size: DpSize,
     isDownloading: Boolean,
+    messageStyle: MessageStyle,
     modifier: Modifier = Modifier,
     showText: Boolean = true
 ) {
@@ -108,12 +110,11 @@ fun ImageMessageInProgress(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
-            .width(width)
-            .height(height)
+            .requiredSize(size)
             .padding(MaterialTheme.wireDimensions.spacing8x)
     ) {
         WireCircularProgressIndicator(
-            progressColor = MaterialTheme.wireColorScheme.primary,
+            progressColor = messageStyle.textColor(),
             size = MaterialTheme.wireDimensions.spacing24x
         )
         if (showText) {
@@ -123,7 +124,7 @@ fun ImageMessageInProgress(
                     id = if (isDownloading) R.string.asset_message_download_in_progress_text
                     else R.string.asset_message_upload_in_progress_text
                 ),
-                style = MaterialTheme.wireTypography.subline01.copy(color = MaterialTheme.wireColorScheme.secondaryText),
+                style = MaterialTheme.wireTypography.subline01.copy(color = messageStyle.textColor()),
                 overflow = TextOverflow.Ellipsis,
                 maxLines = 1
             )
@@ -132,13 +133,12 @@ fun ImageMessageInProgress(
 }
 
 @Composable
-fun ImageMessageFailed(width: Dp, height: Dp, isDownloadFailure: Boolean, modifier: Modifier = Modifier) {
+fun ImageMessageFailed(size: DpSize, isDownloadFailure: Boolean, modifier: Modifier = Modifier) {
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
-            .width(width)
-            .height(height)
+            .requiredSize(size)
             .padding(MaterialTheme.wireDimensions.spacing8x)
     ) {
         Icon(

@@ -31,6 +31,7 @@ import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
 import com.wire.android.mapper.MessageResourceProvider
 import com.wire.android.ui.analytics.AnalyticsConfiguration
 import com.wire.android.ui.home.appLock.CurrentTimestampProvider
+import com.wire.android.ui.home.conversations.MessageSharedState
 import com.wire.android.ui.home.messagecomposer.location.LocationPickerParameters
 import com.wire.android.util.dispatchers.DefaultDispatcherProvider
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -111,4 +112,8 @@ object AppModule {
     @Provides
     @Named("useNewLoginForDefaultBackend")
     fun provideUseNewLoginForDefaultBackend(): Boolean = BuildConfig.USE_NEW_LOGIN_FOR_DEFAULT_BACKEND
+
+    @Provides
+    @Singleton
+    fun provideMessageSharedState(): MessageSharedState = MessageSharedState()
 }

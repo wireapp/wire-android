@@ -575,10 +575,6 @@
     <!--Read receipts -->
     <string name="conversation_options_read_receipt_label">Olvasási visszaigazolások</string>
     <string name="conversation_options_read_receipt_description">Amikor ez be van kapcsolva, az emberek láthatják, mikor olvasták el a beszélgetés üzeneteit.</string>
-    <!--Wire Cell -->
-    <string name="conversation_options_wire_cell_label">Wire Cell</string>
-    <string name="conversation_options_wire_cell_description">Ha ez aktív, minden beszélgetés fájljai a Wire Cell tárhelyre lesznek mentve.</string>
-    <string name="folder_label_wire_cell">Fájltárhely</string>
     <!-- Messages -->
     <string name="message_details_title">Üzenet részletei</string>
     <string name="message_details_reactions_tab">REAKCIÓK (%s)</string>
@@ -1085,7 +1081,6 @@
     <string name="settings_network_settings_label">Hálózati beállítások</string>
     <string name="settings_manage_devices_label">Eszközök kezelése</string>
     <string name="settings_keep_connection_to_websocket">Tartsa fenn a kapcsolatot a Websockettel</string>
-    <string name="settings_keep_connection_to_websocket_description">Javítson az értesítések fogadásán a(z) %1$s szolgáltatáshoz való állandó kapcsolattal. Ez helyettesíti az értesítési szolgáltatásokat, ha a Google-szolgáltatások nem elérhetők az eszközén.</string>
     <string name="settings_service_is_running">szolgáltatás fut</string>
     <!--Settings, Appearance -->
     <string name="settings_customization_label">Testreszabás</string>

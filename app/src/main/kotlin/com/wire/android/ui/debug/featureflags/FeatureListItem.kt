@@ -41,7 +41,7 @@ import com.wire.android.model.Clickable
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.typography
-import com.wire.android.ui.home.conversationslist.common.RowItem
+import com.wire.android.ui.common.rowitem.RowItem
 
 @Composable
 fun FeatureListItem(

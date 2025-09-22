@@ -33,7 +33,8 @@ import kotlinx.serialization.Serializable
 
 data class OtherUserProfileState(
     val userId: UserId,
-    val conversationId: ConversationId? = null,
+    val groupConversationId: ConversationId? = null,
+    val activeOneOnOneConversationId: ConversationId? = null,
     val userAvatarAsset: UserAvatarAsset? = null,
     val isDataLoading: Boolean = false,
     val isAvatarLoading: Boolean = false,

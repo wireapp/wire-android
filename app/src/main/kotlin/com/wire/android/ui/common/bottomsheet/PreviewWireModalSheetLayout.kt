@@ -29,7 +29,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 fun PreviewMenuModalSheetContentWithoutHeader() {
     WireMenuModalSheetContent(
         header = MenuModalSheetHeader.Gone,
-        menuItems = listOf { ReactionOption({}) }
+        menuItems = listOf { ReactionOption(setOf(), {}) }
     )
 }
 
@@ -46,6 +46,6 @@ fun PreviewMenuModalSheetContentWithHeader() {
             },
             dimensions().spacing8x
         ),
-        menuItems = listOf { ReactionOption({}) }
+        menuItems = listOf { ReactionOption(setOf(), {}) }
     )
 }

@@ -30,6 +30,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.FetchConversationMLSVerificationStatusUseCase
 import io.mockk.MockKAnnotations
@@ -60,6 +61,9 @@ class ConversationInfoViewModelArrangement {
     lateinit var fetchConversationMLSVerificationStatus: FetchConversationMLSVerificationStatusUseCase
 
     @MockK
+    lateinit var isCellsEnabled: IsWireCellsEnabledUseCase
+
+    @MockK
     lateinit var globalDataStore: GlobalDataStore
 
     private val viewModel: ConversationInfoViewModel by lazy {
@@ -69,6 +73,7 @@ class ConversationInfoViewModelArrangement {
             observeConversationDetails = observeConversationDetails,
             fetchConversationMLSVerificationStatus = fetchConversationMLSVerificationStatus,
             selfUserId = TestUser.SELF_USER_ID,
+            isWireCellFeatureEnabled = isCellsEnabled,
             globalDataStore = globalDataStore,
         )
     }
@@ -85,7 +90,8 @@ class ConversationInfoViewModelArrangement {
             ObserveConversationDetailsUseCase.Result.Success(it)
         }
         coEvery { fetchConversationMLSVerificationStatus.invoke(any()) } returns Unit
-        every { globalDataStore.wireCellsEnabled() } returns flowOf(false)
+        coEvery { isCellsEnabled() } returns false
+        coEvery { globalDataStore.observeIsBubbleUI() } returns flowOf(false)
     }
 
     suspend fun withConversationDetailUpdate(conversationDetails: ConversationDetails) = apply {

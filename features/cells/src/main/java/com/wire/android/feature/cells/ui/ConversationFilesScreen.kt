@@ -29,6 +29,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
@@ -96,9 +101,17 @@ fun ConversationFilesScreen(
         pagingListItems = viewModel.nodesFlow.collectAsLazyPagingItems(),
         downloadFileSheet = viewModel.downloadFileSheet,
         menu = viewModel.menu,
+        isRestoreInProgress = viewModel.isRestoreInProgress.collectAsState().value,
+        isDeleteInProgress = viewModel.isDeleteInProgress.collectAsState().value,
+        isRefreshing = viewModel.isPullToRefresh.collectAsState(),
         breadcrumbs = viewModel.breadcrumbs(),
         sendIntent = { viewModel.sendIntent(it) },
+        onRefresh = { viewModel.onPullToRefresh() },
     )
+
+    LaunchedEffect(Unit) {
+        viewModel.clearRemovedItems()
+    }
 }
 
 @Composable
@@ -110,9 +123,14 @@ fun ConversationFilesScreenContent(
     downloadFileSheet: StateFlow<CellNodeUi.File?>,
     menu: SharedFlow<MenuOptions>,
     sendIntent: (CellViewIntent) -> Unit,
+    isRefreshing: State<Boolean>,
+    onRefresh: () -> Unit,
     modifier: Modifier = Modifier,
+    onBreadcrumbsFolderClick: (index: Int) -> Unit = {},
+    isDeleteInProgress: Boolean = false,
     screenTitle: String? = null,
-    isRecycleBin: Boolean? = false,
+    isRecycleBin: Boolean = false,
+    isRestoreInProgress: Boolean = false,
     breadcrumbs: Array<String>? = emptyArray(),
     navigationIconType: NavigationIconType = NavigationIconType.Close()
 ) {
@@ -122,7 +140,7 @@ fun ConversationFilesScreenContent(
     val isFabVisible = when {
         pagingListItems.isLoading() -> false
         pagingListItems.isError() -> false
-        isRecycleBin == true -> false
+        isRecycleBin -> false
         else -> true
     }
 
@@ -132,6 +150,7 @@ fun ConversationFilesScreenContent(
             newActionBottomSheetState.hide()
         },
         onCreateFolder = {
+            newActionBottomSheetState.hide()
             navigator.navigate(NavigationCommand(CreateFolderScreenDestination(currentNodeUuid)))
         }
     )
@@ -165,10 +184,12 @@ fun ConversationFilesScreenContent(
                     navigationIconType = navigationIconType,
                     elevation = dimensions().spacing0x,
                     actions = {
-                        MoreOptionIcon(
-                            contentDescription = R.string.content_description_conversation_files_more_button,
-                            onButtonClicked = { optionsBottomSheetState.show() }
-                        )
+                        if (!isRecycleBin) {
+                            MoreOptionIcon(
+                                contentDescription = R.string.content_description_conversation_files_more_button,
+                                onButtonClicked = { optionsBottomSheetState.show() }
+                            )
+                        }
                     }
                 )
                 breadcrumbs?.let {
@@ -176,7 +197,8 @@ fun ConversationFilesScreenContent(
                         modifier = Modifier
                             .height(dimensions().spacing40x)
                             .fillMaxWidth(),
-                        pathSegments = it
+                        pathSegments = it,
+                        onBreadcrumbsFolderClick = onBreadcrumbsFolderClick
                     )
                 }
             }
@@ -218,6 +240,9 @@ fun ConversationFilesScreenContent(
                 downloadFileState = downloadFileSheet,
                 menuState = menu,
                 isAllFiles = false,
+                isRestoreInProgress = isRestoreInProgress,
+                isDeleteInProgress = isDeleteInProgress,
+                isRecycleBin = isRecycleBin,
                 onFolderClick = {
                     val folderPath = "$currentNodeUuid/${it.name}"
 
@@ -226,7 +251,12 @@ fun ConversationFilesScreenContent(
                             ConversationFilesWithSlideInTransitionScreenDestination(
                                 conversationId = folderPath,
                                 screenTitle = it.name,
-                                breadcrumbs = it.name?.let { name -> (breadcrumbs ?: emptyArray()) + name }
+                                isRecycleBin = isRecycleBin,
+                                breadcrumbs = if (!isRecycleBin) {
+                                    it.name?.let { name ->
+                                        (breadcrumbs ?: emptyArray()) + name
+                                    }
+                                } else { null }
                             ),
                             BackStackMode.NONE,
                             launchSingleTop = false
@@ -274,7 +304,9 @@ fun ConversationFilesScreenContent(
                             AddRemoveTagsScreenDestination(node.uuid, node.tags.toCollection(ArrayList()))
                         )
                     )
-                }
+                },
+                isRefreshing = isRefreshing,
+                onRefresh = onRefresh
             )
         }
     }
@@ -323,10 +355,13 @@ fun PreviewConversationFilesScreen() {
             downloadFileSheet = MutableStateFlow(null),
             menu = MutableSharedFlow(replay = 0),
             sendIntent = {},
+            onBreadcrumbsFolderClick = {},
             screenTitle = "Android",
             isRecycleBin = false,
             breadcrumbs = arrayOf("Engineering", "Android"),
-            navigationIconType = NavigationIconType.Close()
+            navigationIconType = NavigationIconType.Close(),
+            isRefreshing = remember { mutableStateOf(false) },
+            onRefresh = { }
         )
     }
 }

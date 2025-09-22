@@ -17,51 +17,79 @@
  */
 package com.wire.android.feature.cells.ui.common
 
-import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.semantics.invisibleToUser
-import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
+import com.wire.android.model.Clickable
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.progress.WireCircularProgressIndicator
+import com.wire.android.ui.common.rowitem.RowItemTemplate
+import com.wire.android.ui.common.shimmerPlaceholder
 
 @Composable
 fun LoadingScreen(
     modifier: Modifier = Modifier,
 ) {
-    Box(
-        modifier = modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+    LazyColumn(
+        state = rememberLazyListState(),
+        modifier = modifier.fillMaxSize()
     ) {
-        WireCircularProgressIndicator(
-            modifier = Modifier.size(dimensions().spacing32x),
-            progressColor = colorsScheme().primary
-        )
+        items(count = LOADING_PLACEHOLDER_ITEMS_COUNT) { index ->
+            val halfItemsCount = LOADING_PLACEHOLDER_ITEMS_COUNT / 2
+            val alpha = if (index < halfItemsCount) 1f else 1f - ((index - halfItemsCount + 1).toFloat() / (halfItemsCount + 1))
+            Box(modifier = Modifier.alpha(alpha)) {
+                LoadingFileItem()
+            }
+        }
     }
 }
 
 @Composable
-fun FullScreenLoading(
-    modifier: Modifier = Modifier,
-) {
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .pointerInput(Unit) {}
-            .semantics { invisibleToUser() }
-            .background(Color.Gray.copy(alpha = 0.6f)),
-        contentAlignment = Alignment.Center
-    ) {
-        WireCircularProgressIndicator(
-            modifier = Modifier.size(dimensions().spacing32x),
-            progressColor = colorsScheme().primary
-        )
-    }
+fun LoadingFileItem(modifier: Modifier = Modifier) {
+    RowItemTemplate(
+        modifier = modifier,
+        leadingIcon = {
+            Box(
+                modifier = Modifier
+                    .padding(dimensions().avatarClickablePadding)
+                    .clip(CircleShape)
+                    .shimmerPlaceholder(visible = true)
+                    .border(dimensions().avatarBorderWidth, colorsScheme().outline)
+                    .size(dimensions().avatarDefaultSize)
+            )
+        },
+        title = {
+            Box(
+                modifier = Modifier
+                    .height(dimensions().spacing16x)
+                    .padding(vertical = dimensions().spacing1x)
+                    .shimmerPlaceholder(visible = true)
+                    .fillMaxWidth(0.75f)
+            )
+        },
+        subTitle = {
+            Box(
+                modifier = Modifier
+                    .padding(top = dimensions().spacing8x)
+                    .shimmerPlaceholder(visible = true)
+                    .fillMaxWidth(0.5f)
+                    .height(dimensions().spacing6x)
+            )
+        },
+        clickable = remember { Clickable(false) },
+    )
 }
+
+private const val LOADING_PLACEHOLDER_ITEMS_COUNT = 6

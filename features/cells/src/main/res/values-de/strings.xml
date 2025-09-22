@@ -27,6 +27,7 @@
     <string name="public_link">Per Link teilen</string>
     <string name="delete_permanently">Endgültig löschen</string>
     <string name="restore_label">Wiederherstellen</string>
+    <string name="add_remove_tags_label">Tags hinzufügen oder entfernen</string>
     <string name="download_label">Herunterladen</string>
     <string name="copy_link">Link kopieren</string>
     <string name="share_link">Link teilen</string>
@@ -67,6 +68,7 @@
     <string name="rename_enter_folder_name">Ordnernamen eingeben</string>
     <string name="rename_file_renamed">Datei wurde umbenannt</string>
     <string name="rename_folder_renamed">Ordner wurde umbenannt</string>
+    <string name="rename_invalid_name">Verwenden Sie einen Namen ohne \"/\" oder \".\"</string>
     <string name="filter_label">Filter</string>
     <string name="tags_label">Tags</string>
     <string name="select_tags_label">Tags auswählen</string>

@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.userprofile.common
 
-import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
@@ -98,7 +97,7 @@ import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
 
-@SuppressLint("ComposeParameterOrder")
+@Suppress("ComposeParameterOrder", "CyclomaticComplexMethod")
 @Composable
 fun UserProfileInfo(
     userId: UserId?,
@@ -117,7 +116,8 @@ fun UserProfileInfo(
     isMLSVerified: Boolean = false,
     expiresAt: Instant? = null,
     onQrCodeClick: (() -> Unit)? = null,
-    accentId: Int = -1
+    accentId: Int = -1,
+    showQrCode: Boolean = true,
 ) {
     Column(
         horizontalAlignment = CenterHorizontally,
@@ -258,7 +258,7 @@ fun UserProfileInfo(
                         bottom.linkTo(displayName.bottom)
                     }
             ) {
-                if (QRCodeEnabled && isLoading.not()) {
+                if (QRCodeEnabled && showQrCode && isLoading.not()) {
                     onQrCodeClick?.let { QRCodeIcon(it) }
                 }
             }

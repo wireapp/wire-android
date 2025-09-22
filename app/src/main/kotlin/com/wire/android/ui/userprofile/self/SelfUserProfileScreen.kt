@@ -292,7 +292,8 @@ private fun SelfUserProfileContent(
                             onUserProfileClick = onChangeUserProfilePicture,
                             editableState = EditableState.IsEditable(onEditClick),
                             onQrCodeClick = onQrCodeClick,
-                            accentId = accentId
+                            accentId = accentId,
+                            showQrCode = state.showQrCode,
                         )
                     }
                     if (state.legalHoldStatus != LegalHoldUIState.None) {

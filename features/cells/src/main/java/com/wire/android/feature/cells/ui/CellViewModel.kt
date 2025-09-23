@@ -70,6 +70,7 @@ import okio.Path
 import okio.Path.Companion.toOkioPath
 import okio.Path.Companion.toPath
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.seconds
 
 @Suppress("TooManyFunctions", "LongParameterList")
 @HiltViewModel
@@ -127,7 +128,9 @@ class CellViewModel @Inject constructor(
     private val refreshTrigger = MutableSharedFlow<Unit>(replay = 0)
 
     init {
-        loadTags()
+        viewModelScope.launch {
+            loadTags()
+        }
     }
 
     internal val nodesFlow = flow {
@@ -518,8 +521,10 @@ class CellViewModel @Inject constructor(
         }
     }
 
-    fun loadTags() = viewModelScope.launch {
+    suspend fun loadTags() {
         getAllTagsUseCase().onSuccess { updated -> _tags.update { updated } }
+        // apply delay to avoid too frequent requests
+        delay(30.seconds)
     }
 
     companion object {

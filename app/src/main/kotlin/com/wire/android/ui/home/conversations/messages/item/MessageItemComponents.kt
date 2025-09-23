@@ -260,7 +260,7 @@ internal fun MessageDecryptionFailure(
     val learnMoreUrl = stringResource(R.string.url_decryption_failure_learn_more)
 
     val textAlign = if (messageStyle == MessageStyle.BUBBLE_SELF) {
-        TextAlign.Start
+        TextAlign.End
     } else {
         TextAlign.Start
     }

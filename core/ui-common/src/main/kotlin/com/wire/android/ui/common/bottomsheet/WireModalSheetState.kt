@@ -73,6 +73,17 @@ open class WireModalSheetState<T : Any>(
 
     fun hide() = hide {}
 
+    /**
+     *  To be used when the content needs to be updated while the sheet is already shown, e.g. when switching from "loading" state
+     *  to the actual content. It's a workaround for the cases when the animations and/or drag gestures are disabled or limited
+     *  and then bottom sheet doesn't update its peek height correctly after the content height changes.
+     */
+    fun updateContent() {
+        scope.launch {
+            sheetState.show()
+        }
+    }
+
     fun onDismissRequest() {
         onDismissAction()
         currentValue = WireSheetValue.Hidden

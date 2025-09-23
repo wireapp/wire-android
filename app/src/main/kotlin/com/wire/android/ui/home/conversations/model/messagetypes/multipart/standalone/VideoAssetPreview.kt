@@ -98,7 +98,6 @@ internal fun VideoAssetPreview(
     Column(
         modifier = Modifier
             .width(videoSize.width)
-            .height(videoSize.height)
             .applyIf(!messageStyle.isBubble()) {
                 background(
                     color = colorsScheme().surface,
@@ -139,6 +138,8 @@ internal fun VideoAssetPreview(
 
         Box(
             modifier = Modifier
+                .width(videoSize.width)
+                .height(videoSize.height)
                 .background(
                     color = colorsScheme().outline,
                     shape = RoundedCornerShape(dimensions().messageAttachmentCornerSize)

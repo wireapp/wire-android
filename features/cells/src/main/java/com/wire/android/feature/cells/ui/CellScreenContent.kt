@@ -72,7 +72,7 @@ internal fun CellScreenContent(
     actionsFlow: Flow<CellViewAction>,
     pagingListItems: LazyPagingItems<CellNodeUi>,
     sendIntent: (CellViewIntent) -> Unit,
-    onFolderClick: (CellNodeUi.Folder) -> Unit,
+    openFolder: (String, String, String?) -> Unit,
     downloadFileState: StateFlow<CellNodeUi.File?>,
     menuState: Flow<MenuOptions?>,
     showPublicLinkScreen: (PublicLinkScreenData) -> Unit,
@@ -117,12 +117,7 @@ internal fun CellScreenContent(
         else ->
             CellFilesScreen(
                 cellNodes = pagingListItems,
-                onItemClick = {
-                    when (it) {
-                        is CellNodeUi.File -> sendIntent(CellViewIntent.OnFileClick(it))
-                        is CellNodeUi.Folder -> onFolderClick(it)
-                    }
-                },
+                onItemClick = { sendIntent(CellViewIntent.OnItemClick(it)) },
                 onItemMenuClick = { sendIntent(CellViewIntent.OnItemMenuClick(it)) },
                 isRefreshing = isRefreshing,
                 onRefresh = onRefresh
@@ -191,7 +186,7 @@ internal fun CellScreenContent(
             itemName = it.name ?: "",
             isRestoreInProgress = isRestoreInProgress,
             onConfirm = {
-                sendIntent(CellViewIntent.OnParentFolderRestoreConfirmed(it as CellNodeUi.Folder))
+                sendIntent(CellViewIntent.OnParentFolderRestoreConfirmed(it))
             },
             onDismiss = {
                 restoreParentFolderConfirmation = null
@@ -223,6 +218,7 @@ internal fun CellScreenContent(
             is HideRestoreParentFolderDialog -> restoreParentFolderConfirmation = null
             is HideDeleteConfirmation -> deleteConfirmation = null
             is ShowFileDeletedMessage -> showDeleteConfirmation(context, action.isFile, action.permanently)
+            is OpenFolder -> openFolder(action.path, action.title, action.parentFolderUuid)
         }
     }
 

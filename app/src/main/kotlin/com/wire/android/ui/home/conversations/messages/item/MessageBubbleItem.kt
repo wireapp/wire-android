@@ -39,6 +39,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import com.wire.android.ui.common.applyIf
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.HorizontalSpace
@@ -64,6 +65,7 @@ fun MessageBubbleItem(
     leading: (@Composable () -> Unit)? = null,
     footer: (@Composable (inner: PaddingValues) -> Unit)? = null,
     header: (@Composable (inner: PaddingValues) -> Unit)? = null,
+    error: (@Composable () -> Unit)? = null,
     content: @Composable (inner: PaddingValues) -> Unit
 ) {
     val isSelfMessage = source == MessageSource.Self
@@ -91,10 +93,10 @@ fun MessageBubbleItem(
         } else {
             HorizontalSpace.x12()
         }
-        val maxBubbleWidth = dimensions().spacing270x
         Column(
-            modifier = Modifier
-                .widthIn(max = maxBubbleWidth),
+            modifier = Modifier.applyIf(!message.decryptionFailed) {
+                widthIn(max = dimensions().bubbleMaxWidth)
+            },
             verticalArrangement = Arrangement.spacedBy(-dimensions().spacing8x),
             horizontalAlignment = if (isSelfMessage) {
                 Alignment.End
@@ -109,32 +111,51 @@ fun MessageBubbleItem(
             } else {
                 MaterialTheme.colorScheme.background
             }
-            val bubbleColor = if (messageStatus.isDeleted) {
-                MaterialTheme.colorScheme.surface
-            } else if (isSelfMessage) {
-                MaterialTheme.wireColorScheme.wireAccentColors.getOrDefault(
-                    accent,
-                    MaterialTheme.wireColorScheme.primary
-                )
-            } else {
-                bubbleColorOther
+            val bubbleColor = when {
+                messageStatus.isDeleted || message.decryptionFailed -> {
+                    MaterialTheme.colorScheme.surface
+                }
+
+                isSelfMessage -> {
+                    MaterialTheme.wireColorScheme.wireAccentColors.getOrDefault(
+                        accent,
+                        MaterialTheme.wireColorScheme.primary
+                    )
+                }
+
+                else -> {
+                    bubbleColorOther
+                }
             }
 
-            val borderColor = if (messageStatus.isDeleted) if (isSelfMessage) {
-                MaterialTheme.wireColorScheme.wireAccentColors.getOrDefault(
-                    accent,
-                    MaterialTheme.wireColorScheme.primary
-                )
-            } else {
-                colorsScheme().outline
-            } else {
-                null
+            val borderColor = when {
+                message.decryptionFailed -> MaterialTheme.wireColorScheme.outline
+                messageStatus.isDeleted -> if (isSelfMessage) {
+                    MaterialTheme.wireColorScheme.wireAccentColors.getOrDefault(
+                        accent,
+                        MaterialTheme.wireColorScheme.primary
+                    )
+                } else {
+                    colorsScheme().outline
+                }
+
+                else -> {
+                    null
+                }
             }
             val paddingValue = dimensions().spacing10x
 
-            val bubbleWidthMod = message.assetParams?.normalizedSize()?.width
-                ?.let { Modifier.widthIn(max = it) }
-                ?: Modifier
+            val bubbleWidthMod = when {
+                !message.decryptionFailed -> {
+                    message.assetParams?.normalizedSize()?.width
+                        ?.let { Modifier.widthIn(max = it) }
+                        ?: Modifier
+                }
+
+                else -> {
+                    Modifier
+                }
+            }
 
             Surface(
                 color = bubbleColor,
@@ -174,6 +195,12 @@ fun MessageBubbleItem(
                         }
                         content(contentPadding)
                     }
+                }
+            }
+
+            if (error != null) {
+                Column(modifier = Modifier.padding(top = dimensions().spacing8x)) {
+                    error()
                 }
             }
 

@@ -29,7 +29,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.UserBadge
 import com.wire.android.ui.common.applyIf
-import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.theme.Accent
@@ -100,15 +99,9 @@ fun MessageSmallLabel(
     messageStyle: MessageStyle,
     modifier: Modifier = Modifier
 ) {
-    val color = when (messageStyle) {
-        MessageStyle.BUBBLE_SELF -> colorsScheme().onPrimary
-        MessageStyle.BUBBLE_OTHER -> colorsScheme().secondaryText
-        MessageStyle.NORMAL -> colorsScheme().secondaryText
-    }
-
     Text(
         text = text,
-        style = MaterialTheme.typography.labelSmall.copy(color = color),
+        style = MaterialTheme.typography.labelSmall.copy(color = messageStyle.textColor()),
         maxLines = 1,
         modifier = modifier.alpha(messageStyle.alpha())
     )

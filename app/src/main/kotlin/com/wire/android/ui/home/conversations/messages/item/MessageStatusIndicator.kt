@@ -47,6 +47,12 @@ fun MessageStatusIndicator(
         MessageStyle.NORMAL -> MaterialTheme.wireColorScheme.onTertiaryButtonDisabled
     }
 
+    val errorTint = when (messageStyle) {
+        MessageStyle.BUBBLE_SELF -> MaterialTheme.wireColorScheme.onPrimary
+        MessageStyle.BUBBLE_OTHER -> MaterialTheme.wireColorScheme.error
+        MessageStyle.NORMAL -> MaterialTheme.wireColorScheme.error
+    }
+
     when (status) {
         MessageFlowStatus.Sending -> Icon(
             modifier = modifier,
@@ -94,7 +100,7 @@ fun MessageStatusIndicator(
         is MessageFlowStatus.Failure -> Icon(
             modifier = modifier,
             painter = painterResource(id = R.drawable.ic_warning_circle),
-            tint = MaterialTheme.wireColorScheme.error,
+            tint = errorTint,
             contentDescription = stringResource(R.string.content_description_message_error_status),
         )
     }

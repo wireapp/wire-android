@@ -88,7 +88,7 @@ fun FileHeaderView(
         label?.let {
             Text(
                 text = label,
-                style = typography().subline01,
+                style = typography().body02,
                 color = labelColor ?: messageStyle.textColor(),
             )
         }

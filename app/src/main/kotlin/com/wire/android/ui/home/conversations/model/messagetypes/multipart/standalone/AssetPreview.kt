@@ -55,12 +55,12 @@ fun AssetPreview(
                     color = colorsScheme().surfaceVariant,
                     shape = RoundedCornerShape(dimensions().messageAttachmentCornerSize)
                 )
+                border(
+                    width = 1.dp,
+                    color = colorsScheme().outline,
+                    shape = RoundedCornerShape(dimensions().messageAttachmentCornerSize)
+                )
             }
-            .border(
-                width = 1.dp,
-                color = colorsScheme().outline,
-                shape = RoundedCornerShape(dimensions().messageAttachmentCornerSize)
-            )
             .clip(RoundedCornerShape(dimensions().messageAttachmentCornerSize))
     ) {
         if (item.transferStatus != AssetTransferStatus.NOT_FOUND) {

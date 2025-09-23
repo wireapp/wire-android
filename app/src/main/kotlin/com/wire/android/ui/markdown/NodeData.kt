@@ -28,6 +28,7 @@ import com.wire.kalium.logic.data.user.UserId
 data class NodeData(
     val modifier: Modifier = Modifier,
     val color: Color = Color.Unspecified,
+    val isAccentBackground: Boolean = false,
     val style: TextStyle,
     val colorScheme: WireColorScheme,
     val typography: WireTypography,
@@ -35,8 +36,11 @@ data class NodeData(
     val searchQuery: String,
     val disableLinks: Boolean = false,
     val actions: NodeActions? = null,
-    val messageStyle: MessageStyle = MessageStyle.NORMAL
+    val messageStyle: MessageStyle = MessageStyle.NORMAL,
+    val messageColors: MessageColors
 )
+
+data class MessageColors(val highlighted: Color)
 
 data class NodeActions(
     val onLongClick: (() -> Unit)? = null,

@@ -34,6 +34,7 @@
             "analytics_server_url": "https://wire.count.ly/",
             "enable_new_registration": true,
             "channels_history_options_enabled": true,
+            "meetings_enabled": true,
             "use_async_flush_logging" : true
         },
         "staging": {
@@ -149,5 +150,6 @@
     "enable_crossplatform_backup": true,
     "mls_read_receipts_enabled": false,
     "is_mls_reset_enabled": true,
-    "use_strict_mls_filter": true
+    "use_strict_mls_filter": true,
+    "meetings_enabled": false
 }

@@ -40,15 +40,17 @@ fun MessageReactionsItem(
     messageFooter: MessageFooter,
     messageStyle: MessageStyle,
     onReactionClicked: (String, String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    itemsAlignment: Alignment.Horizontal = Alignment.Start,
+    onLongClick: (() -> Unit)? = null,
 ) {
     // to eliminate adding unnecessary paddings when the list is empty
     if (messageFooter.reactions.entries.isNotEmpty()) {
         FlowRow(
             modifier = modifier,
-            horizontalArrangement = Arrangement.spacedBy(dimensions().spacing4x, Alignment.Start),
+            horizontalArrangement = Arrangement.spacedBy(dimensions().spacing4x, itemsAlignment),
             verticalArrangement = Arrangement.spacedBy(dimensions().spacing6x, Alignment.Top),
-            maxItemsInEachRow = if (messageStyle.isBubble()) BUBBLE_MAX_REACTIONS_IN_ROW else Int.MAX_VALUE
+            maxItemsInEachRow = if (messageStyle.isBubble()) BUBBLE_MAX_REACTIONS_IN_ROW else Int.MAX_VALUE,
         ) {
             messageFooter.reactions.entries
                 .sortedBy { it.key }
@@ -62,6 +64,7 @@ fun MessageReactionsItem(
                         onTap = {
                             onReactionClicked(messageFooter.messageId, reaction)
                         },
+                        onLongClick = onLongClick
                     )
                 }
         }

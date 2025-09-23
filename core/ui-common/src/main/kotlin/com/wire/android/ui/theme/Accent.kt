@@ -30,7 +30,7 @@ enum class Accent(val accentId: Int) {
     Unknown(0);
 
     companion object {
-        fun fromAccentId(accentId: Int) = entries.firstOrNull { it.accentId == accentId } ?: Unknown
+        fun fromAccentId(accentId: Int?): Accent = accentId?.let { entries.firstOrNull { it.accentId == accentId } } ?: Unknown
     }
 }
 

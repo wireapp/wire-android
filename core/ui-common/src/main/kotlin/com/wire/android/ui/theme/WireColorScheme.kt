@@ -91,8 +91,10 @@ class WireColorScheme(
     val channelAvatarColors: List<ChannelAvatarColors>,
     val wireAccentColors: WireAccentColors,
 
+    // custom
     val emojiBackgroundColor: Color,
-    val defaultSelectedItemInLoadingState: Color
+    val defaultSelectedItemInLoadingState: Color,
+    val markdownNodeTextColor: Color
 
     ) {
     fun toColorScheme(): ColorScheme = ColorScheme(
@@ -212,8 +214,10 @@ private val LightWireColorScheme = WireColorScheme(
             Accent.Unknown -> WireColorPalette.LightBlue500
         }
     },
+    // custom
     emojiBackgroundColor = Color.White,
-    defaultSelectedItemInLoadingState = WireColorPalette.LightBlue100
+    defaultSelectedItemInLoadingState = WireColorPalette.LightBlue100,
+    markdownNodeTextColor = Color.White
 )
 
 // Dark WireColorScheme
@@ -307,7 +311,8 @@ private val DarkWireColorScheme = WireColorScheme(
         }
     },
     emojiBackgroundColor = Color.Black,
-    defaultSelectedItemInLoadingState = WireColorPalette.DarkBlue800
+    defaultSelectedItemInLoadingState = WireColorPalette.DarkBlue800,
+    markdownNodeTextColor = Color.White
 )
 
 @PackagePrivate

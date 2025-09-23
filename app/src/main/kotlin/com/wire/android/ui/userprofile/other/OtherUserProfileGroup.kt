@@ -35,7 +35,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import com.wire.android.R
 import com.wire.android.model.Clickable
-import com.wire.android.ui.common.RowItemTemplate
+import com.wire.android.ui.common.rowitem.RowItemTemplate
 import com.wire.android.ui.common.SurfaceBackgroundWrapper
 import com.wire.android.ui.common.button.WireButton
 import com.wire.android.ui.common.button.WireSecondaryIconButton

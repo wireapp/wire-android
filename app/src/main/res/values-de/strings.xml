@@ -247,6 +247,7 @@
     <string name="search_bar_conversations_hint">Unterhaltungen suchen</string>
     <string name="search_no_results">Keine Ergebnisse gefunden</string>
     <string name="team_management_screen_title">Team verwalten</string>
+    <string name="meetings_screen_title">Meetings</string>
     <!--Whats New -->
     <string name="whats_new_screen_title">Neue Funktionen</string>
     <string name="whats_new_welcome_to_new_android_app_label">👋 Willkommen bei Wires neuer Android App!</string>
@@ -1135,6 +1136,7 @@
     <string name="settings_network_settings_label">Netzwerkeinstellungen</string>
     <string name="settings_manage_devices_label">Geräte verwalten</string>
     <string name="settings_keep_connection_to_websocket">Verbindung zu Websocket behalten</string>
+    <string name="settings_keep_connection_to_websocket_description">Verbessern Sie den Empfang von Benachrichtigungen, indem Sie eine ständige Verbindung zum Server Ihrer Organisation aufrechterhalten. Es ersetzt Benachrichtigungsdienste, wenn Google-Dienste auf Ihrem Gerät nicht verfügbar sind.</string>
     <string name="settings_service_is_running">Dienst wird ausgeführt</string>
     <!--Settings, Appearance -->
     <string name="settings_customization_label">Anpassung</string>

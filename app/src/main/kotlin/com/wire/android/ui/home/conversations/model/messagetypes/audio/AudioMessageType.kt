@@ -70,6 +70,7 @@ import com.wire.android.ui.common.applyIf
 import com.wire.android.ui.common.attachmentdraft.ui.FileHeaderView
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
+import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.common.clickable
 import com.wire.android.ui.common.colorsScheme
@@ -77,7 +78,9 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.home.conversations.messages.item.MessageStyle
+import com.wire.android.ui.home.conversations.messages.item.highlighted
 import com.wire.android.ui.home.conversations.messages.item.isBubble
+import com.wire.android.ui.home.conversations.messages.item.textColor
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.UploadInProgressAssetMessage
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
@@ -150,7 +153,7 @@ private fun UploadingAudioMessage(
     messageStyle: MessageStyle,
     modifier: Modifier = Modifier
 ) = AudioMessageLayout(extension, size, messageStyle, modifier) {
-    UploadInProgressAssetMessage()
+    UploadInProgressAssetMessage(messageStyle)
 }
 
 @Composable
@@ -287,12 +290,6 @@ fun SuccessfulAudioMessageContent(
                 MessageStyle.NORMAL -> MaterialTheme.wireColorScheme.primary
             }
 
-            val totalTimeColor = when (messageStyle) {
-                MessageStyle.BUBBLE_SELF -> MaterialTheme.wireColorScheme.onPrimary
-                MessageStyle.BUBBLE_OTHER -> MaterialTheme.wireColorScheme.secondaryText
-                MessageStyle.NORMAL -> MaterialTheme.wireColorScheme.secondaryText
-            }
-
             Row {
                 Text(
                     modifier = Modifier
@@ -305,25 +302,47 @@ fun SuccessfulAudioMessageContent(
                 )
 
                 if (audioState.audioMediaPlayingState is AudioMediaPlayingState.Playing && onAudioSpeedChange != null) {
-                    WirePrimaryButton(
-                        onClick = onAudioSpeedChange,
-                        text = stringResource(audioSpeed.titleRes),
-                        textStyle = MaterialTheme.wireTypography.label03,
-                        contentPadding = PaddingValues(
-                            horizontal = MaterialTheme.wireDimensions.spacing4x,
-                            vertical = MaterialTheme.wireDimensions.spacing2x
-                        ),
-                        shape = RoundedCornerShape(MaterialTheme.wireDimensions.corner4x),
-                        minSize = DpSize(
-                            dimensions().spacing32x,
-                            dimensions().spacing16x
-                        ),
-                        minClickableSize = DpSize(
-                            dimensions().spacing40x,
-                            dimensions().spacing16x
-                        ),
-                        fillMaxWidth = false
-                    )
+                    if (messageStyle == MessageStyle.BUBBLE_SELF) {
+                        WireSecondaryButton(
+                            onClick = onAudioSpeedChange,
+                            text = stringResource(audioSpeed.titleRes),
+                            textStyle = MaterialTheme.wireTypography.label03,
+                            contentPadding = PaddingValues(
+                                horizontal = MaterialTheme.wireDimensions.spacing4x,
+                                vertical = MaterialTheme.wireDimensions.spacing2x
+                            ),
+                            shape = RoundedCornerShape(MaterialTheme.wireDimensions.corner4x),
+                            minSize = DpSize(
+                                dimensions().spacing32x,
+                                dimensions().spacing16x
+                            ),
+                            minClickableSize = DpSize(
+                                dimensions().spacing40x,
+                                dimensions().spacing16x
+                            ),
+                            fillMaxWidth = false
+                        )
+                    } else {
+                        WirePrimaryButton(
+                            onClick = onAudioSpeedChange,
+                            text = stringResource(audioSpeed.titleRes),
+                            textStyle = MaterialTheme.wireTypography.label03,
+                            contentPadding = PaddingValues(
+                                horizontal = MaterialTheme.wireDimensions.spacing4x,
+                                vertical = MaterialTheme.wireDimensions.spacing2x
+                            ),
+                            shape = RoundedCornerShape(MaterialTheme.wireDimensions.corner4x),
+                            minSize = DpSize(
+                                dimensions().spacing32x,
+                                dimensions().spacing16x
+                            ),
+                            minClickableSize = DpSize(
+                                dimensions().spacing40x,
+                                dimensions().spacing16x
+                            ),
+                            fillMaxWidth = false
+                        )
+                    }
                 }
 
                 Spacer(Modifier.weight(1F))
@@ -340,7 +359,7 @@ fun SuccessfulAudioMessageContent(
                             .padding(vertical = MaterialTheme.wireDimensions.spacing2x),
                         text = audioDuration.formattedTotalTime(),
                         style = MaterialTheme.typography.labelSmall,
-                        color = totalTimeColor,
+                        color = messageStyle.textColor(),
                         maxLines = 1
                     )
                 }
@@ -372,11 +391,8 @@ private fun AudioMessageSlider(
         val waves = waveMask?.ifEmpty { getDefaultWaveMask() } ?: getDefaultWaveMask()
         val wavesAmount = waves.size
 
-        val activatedColor = when (messageStyle) {
-            MessageStyle.BUBBLE_SELF -> colorsScheme().onPrimary
-            MessageStyle.BUBBLE_OTHER -> colorsScheme().primary
-            MessageStyle.NORMAL -> colorsScheme().primary
-        }
+        val activatedColor = messageStyle.highlighted()
+
         val disabledColor = when (messageStyle) {
             MessageStyle.BUBBLE_SELF -> colorsScheme().onPrimary.copy(alpha = 0.7F)
             MessageStyle.BUBBLE_OTHER -> colorsScheme().onTertiaryButtonDisabled

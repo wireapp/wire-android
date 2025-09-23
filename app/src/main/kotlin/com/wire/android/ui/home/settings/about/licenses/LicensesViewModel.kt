@@ -41,7 +41,7 @@ class LicensesViewModel @Inject constructor(
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            val libraryList = Libs.Builder().withContext(context).build().libraries
+            val libraryList = Libs.Builder().withContext(context).build().libraries.distinctBy { it.uniqueId }
             state = state.copy(libraryList = libraryList)
         }
     }

@@ -48,6 +48,27 @@ fun MessageStyle.textColor(): Color {
 }
 
 @Composable
+fun MessageStyle.surface(): Color = when (this) {
+    MessageStyle.BUBBLE_SELF -> MaterialTheme.wireColorScheme.scrim
+    MessageStyle.BUBBLE_OTHER -> MaterialTheme.wireColorScheme.surfaceVariant
+    MessageStyle.NORMAL -> MaterialTheme.wireColorScheme.outline
+}
+
+@Composable
+fun MessageStyle.highlighted(): Color = when (this) {
+    MessageStyle.BUBBLE_SELF -> MaterialTheme.wireColorScheme.onPrimary
+    MessageStyle.BUBBLE_OTHER -> MaterialTheme.wireColorScheme.primary
+    MessageStyle.NORMAL -> MaterialTheme.wireColorScheme.primary
+}
+
+@Composable
+fun MessageStyle.onNodeBackground(): Color = when (this) {
+    MessageStyle.BUBBLE_SELF -> MaterialTheme.wireColorScheme.markdownNodeTextColor
+    MessageStyle.BUBBLE_OTHER -> MaterialTheme.wireColorScheme.onBackground
+    MessageStyle.NORMAL -> MaterialTheme.wireColorScheme.onBackground
+}
+
+@Composable
 fun MessageStyle.errorTextStyle(): TextStyle {
     return when (this) {
         MessageStyle.BUBBLE_SELF -> MaterialTheme.typography.bodySmall

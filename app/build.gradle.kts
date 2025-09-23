@@ -153,6 +153,7 @@ dependencies {
     // features
     implementation(project(":features:cells"))
     implementation(project(":features:sketch"))
+    implementation(project(":features:meetings"))
     implementation(project(":core:ui-common"))
 
     // kover

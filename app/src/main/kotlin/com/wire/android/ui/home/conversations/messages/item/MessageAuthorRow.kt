@@ -100,15 +100,9 @@ fun MessageSmallLabel(
     messageStyle: MessageStyle,
     modifier: Modifier = Modifier
 ) {
-    val color = when (messageStyle) {
-        MessageStyle.BUBBLE_SELF -> colorsScheme().onPrimary
-        MessageStyle.BUBBLE_OTHER -> colorsScheme().secondaryText
-        MessageStyle.NORMAL -> colorsScheme().secondaryText
-    }
-
     Text(
         text = text,
-        style = MaterialTheme.typography.labelSmall.copy(color = color),
+        style = MaterialTheme.typography.labelSmall.copy(color = messageStyle.textColor()),
         maxLines = 1,
         modifier = modifier.alpha(messageStyle.alpha())
     )

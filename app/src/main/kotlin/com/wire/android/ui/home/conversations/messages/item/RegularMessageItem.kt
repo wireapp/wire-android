@@ -34,6 +34,7 @@ import com.wire.android.ui.home.conversations.model.DeliveryStatusContent
 import com.wire.android.ui.home.conversations.model.MessageFlowStatus
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.UIMessage
+import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.UIMessageContent.PartialDeliverable
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
@@ -148,7 +149,7 @@ fun RegularMessageItem(
                     }
                 }
 
-                (messageContent as PartialDeliverable?)?.deliveryStatus?.hasAnyFailures == true -> {
+                (messageContent as? PartialDeliverable?)?.deliveryStatus?.hasAnyFailures == true -> {
                     {
                         PartialDeliveryInformation((messageContent as PartialDeliverable?)?.deliveryStatus, messageStyle)
                     }

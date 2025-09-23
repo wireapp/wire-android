@@ -1,6 +1,5 @@
 package com.wire.android.ui.home.conversations.messages.item
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -88,7 +87,7 @@ internal fun UIMessage.Regular.MessageContentAndStatus(
                 onReplyClick = onReplyClickable,
                 messageStyle = messageStyle,
             )
-            if(!messageStyle.isBubble()) {
+            if (!messageStyle.isBubble()) {
                 (messageContent as PartialDeliverable?)?.deliveryStatus?.let {
                     PartialDeliveryInformation(it, messageStyle)
                 }
@@ -289,15 +288,15 @@ private fun MessageContent(
         is UIMessageContent.Location -> with(messageContent) {
             val context = LocalContext.current
             val locationUrl = stringResource(urlCoordinates, zoom, latitude, longitude)
-                LocationMessageContent(
-                    locationName = name,
-                    locationUrl = locationUrl,
-                    onLocationClick = Clickable(
-                        enabled = message.isAvailable,
-                        onClick = { launchGeoIntent(latitude, longitude, name, locationUrl, context) },
-                    ),
-                    messageStyle = messageStyle
-                )
+            LocationMessageContent(
+                locationName = name,
+                locationUrl = locationUrl,
+                onLocationClick = Clickable(
+                    enabled = message.isAvailable,
+                    onClick = { launchGeoIntent(latitude, longitude, name, locationUrl, context) },
+                ),
+                messageStyle = messageStyle
+            )
         }
 
         is UIMessageContent.Multipart ->

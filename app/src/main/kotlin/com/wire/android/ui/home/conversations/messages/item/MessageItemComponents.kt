@@ -147,11 +147,13 @@ private fun MultiUserDeliveryFailure(
     resources: Resources
 ) {
     var expanded: Boolean by remember { mutableStateOf(false) }
-    Column(horizontalAlignment = if(messageStyle == MessageStyle.BUBBLE_SELF) {
-        Alignment.End
-    } else {
-        Alignment.Start
-    }) {
+    Column(
+        horizontalAlignment = if (messageStyle == MessageStyle.BUBBLE_SELF) {
+            Alignment.End
+        } else {
+            Alignment.Start
+        }
+    ) {
         Text(
             text = stringResource(
                 id = R.string.label_message_partial_delivery_participants_count,

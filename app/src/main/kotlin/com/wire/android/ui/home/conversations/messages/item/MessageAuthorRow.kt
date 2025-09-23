@@ -29,7 +29,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.UserBadge
 import com.wire.android.ui.common.applyIf
-import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.theme.Accent

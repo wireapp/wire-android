@@ -627,7 +627,7 @@ data class MessageTime(val instant: Instant) {
 sealed interface DeliveryStatusContent {
 
     val hasAnyFailures: Boolean
-        get() = when(this) {
+        get() = when (this) {
             CompleteDelivery -> false
             is PartialDelivery -> hasFailures
         }

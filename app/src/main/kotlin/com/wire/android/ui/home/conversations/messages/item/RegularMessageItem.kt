@@ -150,7 +150,7 @@ fun RegularMessageItem(
 
                 messageContent is PartialDeliverable && messageContent.deliveryStatus.hasAnyFailures -> {
                     {
-                        PartialDeliveryInformation((messageContent as PartialDeliverable?)?.deliveryStatus, messageStyle)
+                        PartialDeliveryInformation(messageContent.deliveryStatus, messageStyle)
                     }
                 }
 

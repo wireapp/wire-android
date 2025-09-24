@@ -40,6 +40,7 @@ import com.wire.android.ui.home.conversations.model.MessageFlowStatus
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
+import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 
@@ -51,6 +52,7 @@ fun MessageContentItem(
     conversationDetailsData: ConversationDetailsData,
     messageStyle: MessageStyle,
     modifier: Modifier = Modifier,
+    accent: Accent = Accent.Unknown,
     searchQuery: String = "",
     assetStatus: AssetTransferStatus? = null,
     shouldDisplayMessageStatus: Boolean = true,
@@ -94,6 +96,7 @@ fun MessageContentItem(
                     onAssetClicked = clickActions.onAssetClicked,
                     onImageClicked = clickActions.onImageClicked,
                     searchQuery = searchQuery,
+                    accent = accent,
                     onProfileClicked = clickActions.onProfileClicked,
                     onLinkClicked = clickActions.onLinkClicked,
                     shouldDisplayMessageStatus = shouldDisplayMessageStatus,

@@ -41,6 +41,7 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.home.conversations.messages.item.MessageStyle
+import com.wire.android.ui.home.conversations.messages.item.isBubble
 import com.wire.android.ui.home.conversations.messages.item.textColor
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.DeviceUtil
@@ -85,12 +86,14 @@ fun FileHeaderView(
             color = messageStyle.textColor(),
         )
         Spacer(modifier = Modifier.weight(1f))
-        label?.let {
-            Text(
-                text = label,
-                style = typography().body02,
-                color = labelColor ?: messageStyle.textColor(),
-            )
+        if (!messageStyle.isBubble()) {
+            label?.let {
+                Text(
+                    text = label,
+                    style = typography().body02,
+                    color = labelColor ?: messageStyle.textColor(),
+                )
+            }
         }
     }
 }

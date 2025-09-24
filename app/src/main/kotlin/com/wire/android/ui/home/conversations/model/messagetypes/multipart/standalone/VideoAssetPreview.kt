@@ -61,6 +61,7 @@ import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMess
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.previewAvailable
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.previewImageModel
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.transferProgressColor
+import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.DateAndTimeParsers
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -74,7 +75,8 @@ import com.wire.kalium.logic.data.message.width
 @Composable
 internal fun VideoAssetPreview(
     item: MultipartAttachmentUi,
-    messageStyle: MessageStyle
+    messageStyle: MessageStyle,
+    accent: Accent = Accent.Unknown
 ) {
 
     val videoSize = ImageMessageParams(
@@ -91,16 +93,30 @@ internal fun VideoAssetPreview(
 
     val fileNameColor = when (messageStyle) {
         MessageStyle.BUBBLE_SELF -> colorsScheme().onPrimary
-        MessageStyle.BUBBLE_OTHER -> colorsScheme().onPrimary
+        MessageStyle.BUBBLE_OTHER -> colorsScheme().onSurface
         MessageStyle.NORMAL -> colorsScheme().onSurface
     }
 
     Column(
         modifier = Modifier
             .width(videoSize.width)
+            .applyIf(messageStyle == MessageStyle.BUBBLE_SELF) {
+                background(
+                    colorsScheme().bubbleContainerAccentBackgroundColor.getOrDefault(
+                        accent,
+                        colorsScheme().defaultBubbleContainerBackgroundColor
+                    )
+                )
+            }
+            .applyIf(messageStyle == MessageStyle.BUBBLE_OTHER) {
+                background(
+                    colorsScheme().surface
+                )
+            }
+            .padding(dimensions().spacing8x)
             .applyIf(!messageStyle.isBubble()) {
                 background(
-                    color = colorsScheme().surface,
+                    color = colorsScheme().primaryButtonSelected,
                     shape = RoundedCornerShape(dimensions().messageAttachmentCornerSize)
                 )
                 border(

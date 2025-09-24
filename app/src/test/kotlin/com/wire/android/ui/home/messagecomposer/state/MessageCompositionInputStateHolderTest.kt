@@ -246,7 +246,7 @@ class MessageCompositionInputStateHolderTest {
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
-            every { focusRequester.requestFocus() } returns true
+            every { focusRequester.requestFocus() } returns Unit
             every { focusRequester.captureFocus() } returns true
             every { softwareKeyboardController.show() } returns Unit
         }

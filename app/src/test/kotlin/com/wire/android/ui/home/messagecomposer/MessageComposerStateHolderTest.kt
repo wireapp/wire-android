@@ -74,7 +74,7 @@ class MessageComposerStateHolderTest {
     @BeforeEach
     fun before() {
         MockKAnnotations.init(this, relaxUnitFun = true)
-        every { focusRequester.requestFocus() } returns true
+        every { focusRequester.requestFocus() } returns Unit
         every { focusRequester.captureFocus() } returns true
         messageComposerViewState = mutableStateOf(MessageComposerViewState())
         messageComposition = mutableStateOf(MessageComposition(TestConversation.ID))

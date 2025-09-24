@@ -138,8 +138,9 @@ android {
 }
 
 aboutLibraries {
-    android.registerAndroidTasks = true
-    export.excludeFields.add("generated")
+    val isAboutLibrariesDisabled = System.getenv("DISABLE_ABOUT_LIBRARIES")?.equals("true", true) ?: false
+    registerAndroidTasks = !isAboutLibrariesDisabled
+    excludeFields = arrayOf("generated")
 }
 
 dependencies {
@@ -264,8 +265,7 @@ dependencies {
     implementation(libs.commonmark.tables)
 
     implementation(libs.aboutLibraries.core)
-    implementation(libs.aboutLibraries.compose.core)
-    implementation(libs.aboutLibraries.compose.m3)
+    implementation(libs.aboutLibraries.ui)
     implementation(libs.compose.qr.code)
     implementation(libs.audio.amplituda)
 

@@ -19,7 +19,7 @@ detekt = "1.23.8"
 google-gms = "4.4.2"
 gms-location = "21.3.0"
 android-gradlePlugin = "8.10.1"
-desugaring = "2.1.5"
+desugaring = "2.1.3"
 firebaseBOM = "33.6.0"
 fragment = "1.5.6"
 resaca = "3.0.0"
@@ -87,7 +87,7 @@ lint-compose = "1.4.2"
 openIdAppAuth = "0.11.1"
 
 # Other Tools
-aboutLibraries = "12.2.4"
+aboutLibraries = "11.1.4"
 leakCanary = "2.14"
 ksp = "2.1.0-1.0.28"
 
@@ -265,8 +265,7 @@ audio-amplituda = { module = "com.github.lincollincol:amplituda", version.ref = 
 
 # Dev tools
 aboutLibraries-core = { module = "com.mikepenz:aboutlibraries-core", version.ref = "aboutLibraries" }
-aboutLibraries-compose-core = { module = "com.mikepenz:aboutlibraries-compose-core", version.ref = "aboutLibraries" }
-aboutLibraries-compose-m3 = { module = "com.mikepenz:aboutlibraries-compose-m3", version.ref = "aboutLibraries" }
+aboutLibraries-ui = { module = "com.mikepenz:aboutlibraries-compose", version.ref = "aboutLibraries" }
 leakCanary = { module = "com.squareup.leakcanary:leakcanary-android", version.ref = "leakCanary" }
 
 # Testing

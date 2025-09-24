@@ -29,7 +29,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.mikepenz.aboutlibraries.entity.Library
-import com.mikepenz.aboutlibraries.ui.compose.util.strippedLicenseContent
+import com.mikepenz.aboutlibraries.ui.compose.HtmlText
+import com.mikepenz.aboutlibraries.ui.compose.util.htmlReadyLicenseContent
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 
@@ -56,8 +57,8 @@ fun WireLicenseDialog(
             Column(
                 modifier = Modifier.verticalScroll(scrollState),
             ) {
-                Text(
-                    text = library.strippedLicenseContent,
+                HtmlText(
+                    html = library.licenses.firstOrNull()?.htmlReadyLicenseContent.orEmpty(),
                     color = MaterialTheme.wireColorScheme.onBackground,
                 )
             }

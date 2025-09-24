@@ -85,57 +85,65 @@ fun MessageContentItem(
 
                 return@Column
             }
-
-            if (!decryptionFailed) {
-                MessageContentAndStatus(
-                    message = message,
-                    assetStatus = assetStatus,
-                    messageStyle = messageStyle,
-                    onAssetClicked = clickActions.onAssetClicked,
-                    onImageClicked = clickActions.onImageClicked,
-                    searchQuery = searchQuery,
-                    onProfileClicked = clickActions.onProfileClicked,
-                    onLinkClicked = clickActions.onLinkClicked,
-                    shouldDisplayMessageStatus = shouldDisplayMessageStatus,
-                    conversationDetailsData = conversationDetailsData,
-                    onReplyClicked = clickActions.onReplyClicked,
-                )
-                if (shouldDisplayFooter && !messageStyle.isBubble()) {
-                    VerticalSpace.x4()
-                    MessageReactionsItem(
-                        messageFooter = messageFooter,
+                if (!decryptionFailed) {
+                    MessageContentAndStatus(
+                        message = message,
+                        assetStatus = assetStatus,
                         messageStyle = messageStyle,
-                        onReactionClicked = clickActions.onReactionClicked
+                        onAssetClicked = clickActions.onAssetClicked,
+                        onImageClicked = clickActions.onImageClicked,
+                        searchQuery = searchQuery,
+                        onProfileClicked = clickActions.onProfileClicked,
+                        onLinkClicked = clickActions.onLinkClicked,
+                        shouldDisplayMessageStatus = shouldDisplayMessageStatus,
+                        conversationDetailsData = conversationDetailsData,
+                        onReplyClicked = clickActions.onReplyClicked,
+                    )
+                    if (shouldDisplayFooter && !messageStyle.isBubble()) {
+                        VerticalSpace.x4()
+                        MessageReactionsItem(
+                            messageFooter = messageFooter,
+                            messageStyle = messageStyle,
+                            onReactionClicked = clickActions.onReactionClicked
+                        )
+                    }
+                } else {
+                    MessageDecryptionFailure(
+                        messageHeader = header,
+                        decryptionStatus = header.messageStatus.flowStatus as MessageFlowStatus.Failure.Decryption,
+                        onResetSessionClicked = clickActions.onResetSessionClicked,
+                        conversationProtocol = conversationDetailsData.conversationProtocol,
+                        messageStyle = messageStyle
                     )
                 }
-            } else {
-                MessageDecryptionFailure(
-                    messageHeader = header,
-                    decryptionStatus = header.messageStatus.flowStatus as MessageFlowStatus.Failure.Decryption,
-                    onResetSessionClicked = clickActions.onResetSessionClicked,
-                    conversationProtocol = conversationDetailsData.conversationProtocol
-                )
-            }
-            if (message.sendingFailed) {
-                MessageSendFailureWarning(
-                    messageStatus = header.messageStatus.flowStatus as MessageFlowStatus.Failure.Send,
-                    isInteractionAvailable = failureInteractionAvailable,
-                    onRetryClick = remember(message) {
-                        {
-                            clickActions.onFailedMessageRetryClicked(
-                                header.messageId,
-                                message.conversationId
-                            )
+                if (!messageStyle.isBubble() && message.sendingFailed) {
+                    MessageSendFailureWarning(
+                        messageStatus = header.messageStatus.flowStatus as MessageFlowStatus.Failure.Send,
+                        isInteractionAvailable = failureInteractionAvailable,
+                        messageStyle = messageStyle,
+                        onRetryClick = remember(message) {
+                            {
+                                clickActions.onFailedMessageRetryClicked(
+                                    header.messageId,
+                                    message.conversationId
+                                )
+                            }
+                        },
+                        onCancelClick = remember(message) {
+                            {
+                                clickActions.onFailedMessageCancelClicked(header.messageId)
+                            }
                         }
-                    },
-                    onCancelClick = remember(message) {
-                        {
-                            clickActions.onFailedMessageCancelClicked(header.messageId)
-                        }
-                    }
+                    )
+                }
+            if (shouldShowBottomLabels(
+                    messageStyle = messageStyle,
+                    messageStatus = header.messageStatus,
+                    useSmallBottomPadding = useSmallBottomPadding,
+                    selfDeletionTimerState = selfDeletionTimerState,
+                    decryptionFailed = decryptionFailed
                 )
-            }
-            if (shouldShowBottomLabels(messageStyle, header.messageStatus, useSmallBottomPadding, selfDeletionTimerState)) {
+            ) {
                 VerticalSpace.x4()
                 Row(
                     Modifier.padding(innerPadding),
@@ -188,8 +196,9 @@ private fun shouldShowBottomLabels(
     messageStyle: MessageStyle,
     messageStatus: MessageStatus,
     useSmallBottomPadding: Boolean,
-    selfDeletionTimerState: SelfDeletionTimerHelper.SelfDeletionTimerState
-): Boolean = messageStyle.isBubble() && (
+    selfDeletionTimerState: SelfDeletionTimerHelper.SelfDeletionTimerState,
+    decryptionFailed: Boolean
+): Boolean = messageStyle.isBubble() && !decryptionFailed && (
         !useSmallBottomPadding
                 || messageStatus.editStatus is MessageEditStatus.Edited
                 || selfDeletionTimerState is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable

@@ -17,6 +17,7 @@
  */
 package com.wire.android.feature.cells.ui
 
+import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -224,14 +225,7 @@ internal fun CellScreenContent(
             is HideRestoreConfirmation -> restoreConfirmation = null
             is HideRestoreParentFolderDialog -> restoreParentFolderConfirmation = null
             is HideDeleteConfirmation -> deleteConfirmation = null
-            is ShowFileDeletedMessage -> {
-                val message = if (action.permanently) {
-                    context.getString(R.string.cells_file_permanently_deleted_message)
-                } else {
-                    context.getString(R.string.cells_file_deleted_message)
-                }
-                Toast.makeText(context, message, Toast.LENGTH_LONG).show()
-            }
+            is ShowFileDeletedMessage -> showDeleteConfirmation(context, action.isFile, action.permanently)
         }
     }
 
@@ -348,6 +342,20 @@ private fun EmptyScreen(
             )
         }
     }
+}
+
+private fun showDeleteConfirmation(
+    context: Context,
+    isFile: Boolean,
+    isPermanentlyDeleted: Boolean
+) {
+    val message = when {
+        !isFile && isPermanentlyDeleted -> R.string.cells_folder_permanently_deleted_message
+        !isFile && !isPermanentlyDeleted -> R.string.cells_folder_deleted_message
+        isFile && isPermanentlyDeleted -> R.string.cells_file_permanently_deleted_message
+        else -> R.string.cells_file_deleted_message
+    }
+    Toast.makeText(context, message, Toast.LENGTH_LONG).show()
 }
 
 @MultipleThemePreviews

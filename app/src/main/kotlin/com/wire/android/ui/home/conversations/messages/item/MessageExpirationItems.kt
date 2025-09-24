@@ -135,11 +135,7 @@ private fun SelfDeletionTimerIcon(
         MessageStyle.NORMAL -> colorsScheme().background
     }
 
-    val filledColor = when (messageStyle) {
-        MessageStyle.BUBBLE_SELF -> colorsScheme().onPrimary
-        MessageStyle.BUBBLE_OTHER -> colorsScheme().secondaryText
-        MessageStyle.NORMAL -> colorsScheme().secondaryText
-    }
+    val filledColor = messageStyle.textColor()
 
     val metrics = state.iconMetrics(discreteSteps = discreteSteps)
 

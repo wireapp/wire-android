@@ -142,7 +142,9 @@ fun ConversationOptionsModalSheetLayout(
                     openDebugMenu = { conversationId ->
                         sheetState.hide { openConversationDebugMenu(conversationId) }
                     }
-                )
+                ).also {
+                    sheetState.updateContent()
+                }
 
                 ConversationOptionsMenuState.Loading -> WireCircularProgressIndicator( // loading state - show a progress indicator
                     progressColor = colorsScheme().onSurface,

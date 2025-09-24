@@ -33,7 +33,8 @@
             "analytics_app_key": "8ffae535f1836ed5f58fd5c8a11c00eca07c5438",
             "analytics_server_url": "https://wire.count.ly/",
             "enable_new_registration": true,
-            "channels_history_options_enabled": true
+            "channels_history_options_enabled": true,
+            "meetings_enabled": true
         },
         "staging": {
             "application_id": "com.waz.zclient.dev",
@@ -146,5 +147,6 @@
     "enable_crossplatform_backup": true,
     "mls_read_receipts_enabled": false,
     "is_mls_reset_enabled": true,
-    "use_strict_mls_filter": true
+    "use_strict_mls_filter": true,
+    "meetings_enabled": false
 }

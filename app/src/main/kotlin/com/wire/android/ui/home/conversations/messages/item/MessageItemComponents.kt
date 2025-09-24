@@ -37,6 +37,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
@@ -71,21 +72,33 @@ import kotlinx.collections.immutable.persistentMapOf
 internal fun MessageSendFailureWarning(
     messageStatus: MessageFlowStatus.Failure.Send,
     isInteractionAvailable: Boolean,
+    messageStyle: MessageStyle,
     onRetryClick: () -> Unit,
     onCancelClick: () -> Unit
 ) {
     CompositionLocalProvider(
-        LocalTextStyle provides MaterialTheme.typography.labelSmall
+        LocalTextStyle provides messageStyle.errorTextStyle()
     ) {
-        Column {
+        Column(
+            horizontalAlignment = if (messageStyle == MessageStyle.BUBBLE_SELF) {
+                Alignment.End
+            } else {
+                Alignment.Start
+            }
+        ) {
             VerticalSpace.x4()
             Text(
                 text = messageStatus.errorText.asString(),
                 style = LocalTextStyle.current,
-                color = MaterialTheme.colorScheme.error
+                color = MaterialTheme.colorScheme.error,
+                textAlign = if (messageStyle == MessageStyle.BUBBLE_SELF) {
+                    TextAlign.End
+                } else {
+                    TextAlign.Start
+                }
             )
             if (messageStatus is MessageFlowStatus.Failure.Send.Remotely) {
-                OfflineBackendsLearnMoreLink()
+                OfflineBackendsLearnMoreLink(messageStyle)
             }
             if (isInteractionAvailable) {
                 Row {
@@ -111,15 +124,18 @@ internal fun MessageSendFailureWarning(
 }
 
 @Composable
-internal fun MessageSentPartialDeliveryFailures(partialDeliveryFailureContent: DeliveryStatusContent.PartialDelivery) {
+internal fun MessageSentPartialDeliveryFailures(
+    partialDeliveryFailureContent: DeliveryStatusContent.PartialDelivery,
+    messageStyle: MessageStyle
+) {
     val resources = LocalContext.current.resources
     CompositionLocalProvider(
-        LocalTextStyle provides MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.wireColorScheme.error)
+        LocalTextStyle provides messageStyle.errorTextStyle().copy(color = MaterialTheme.wireColorScheme.error)
     ) {
         if (partialDeliveryFailureContent.isSingleUserFailure) {
-            SingleUserDeliveryFailure(partialDeliveryFailureContent, resources)
+            SingleUserDeliveryFailure(partialDeliveryFailureContent, messageStyle, resources)
         } else {
-            MultiUserDeliveryFailure(partialDeliveryFailureContent, resources)
+            MultiUserDeliveryFailure(partialDeliveryFailureContent, messageStyle, resources)
         }
     }
 }
@@ -127,10 +143,17 @@ internal fun MessageSentPartialDeliveryFailures(partialDeliveryFailureContent: D
 @Composable
 private fun MultiUserDeliveryFailure(
     partialDeliveryFailureContent: DeliveryStatusContent.PartialDelivery,
+    messageStyle: MessageStyle,
     resources: Resources
 ) {
     var expanded: Boolean by remember { mutableStateOf(false) }
-    Column {
+    Column(
+        horizontalAlignment = if (messageStyle == MessageStyle.BUBBLE_SELF) {
+            Alignment.End
+        } else {
+            Alignment.Start
+        }
+    ) {
         Text(
             text = stringResource(
                 id = R.string.label_message_partial_delivery_participants_count,
@@ -169,7 +192,7 @@ private fun MultiUserDeliveryFailure(
                     textAlign = TextAlign.Start
                 )
             }
-            OfflineBackendsLearnMoreLink()
+            OfflineBackendsLearnMoreLink(messageStyle)
         }
         VerticalSpace.x4()
         if (partialDeliveryFailureContent.expandable) {
@@ -189,6 +212,7 @@ private fun MultiUserDeliveryFailure(
 @Composable
 private fun SingleUserDeliveryFailure(
     partialDeliveryFailureContent: DeliveryStatusContent.PartialDelivery,
+    messageStyle: MessageStyle,
     resources: Resources
 ) {
     Column {
@@ -200,7 +224,7 @@ private fun SingleUserDeliveryFailure(
                         it.asString(resources).ifEmpty { resources.getString(R.string.username_unavailable_label) }
                     }
                 ),
-                textAlign = TextAlign.Start
+                textAlign = messageStyle.textAlign()
             )
         }
         if (partialDeliveryFailureContent.noClients.isNotEmpty()) {
@@ -216,10 +240,10 @@ private fun SingleUserDeliveryFailure(
                     R.string.label_message_partial_delivery_participants_wont_deliver,
                     String.EMPTY
                 ),
-                textAlign = TextAlign.Start
+                textAlign = messageStyle.textAlign()
             )
         }
-        OfflineBackendsLearnMoreLink()
+        OfflineBackendsLearnMoreLink(messageStyle)
         VerticalSpace.x4()
     }
 }
@@ -228,20 +252,34 @@ private fun SingleUserDeliveryFailure(
 internal fun MessageDecryptionFailure(
     messageHeader: MessageHeader,
     decryptionStatus: MessageFlowStatus.Failure.Decryption,
+    messageStyle: MessageStyle,
     onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
     conversationProtocol: Conversation.ProtocolInfo?
 ) {
     val context = LocalContext.current
     val learnMoreUrl = stringResource(R.string.url_decryption_failure_learn_more)
+
+    val textAlign = if (messageStyle == MessageStyle.BUBBLE_SELF) {
+        TextAlign.End
+    } else {
+        TextAlign.Start
+    }
     CompositionLocalProvider(
-        LocalTextStyle provides MaterialTheme.typography.labelSmall
+        LocalTextStyle provides messageStyle.errorTextStyle()
     ) {
-        Column {
+        Column(
+            horizontalAlignment = if (messageStyle == MessageStyle.BUBBLE_SELF) {
+                Alignment.End
+            } else {
+                Alignment.Start
+            }
+        ) {
             VerticalSpace.x4()
             Text(
                 text = decryptionStatus.errorText.asString(),
                 style = LocalTextStyle.current,
-                color = MaterialTheme.colorScheme.error
+                color = MaterialTheme.colorScheme.error,
+                textAlign = textAlign
             )
             Text(
                 modifier = Modifier
@@ -249,7 +287,8 @@ internal fun MessageDecryptionFailure(
                 style = LocalTextStyle.current,
                 textDecoration = TextDecoration.Underline,
                 color = MaterialTheme.wireColorScheme.onBackground,
-                text = stringResource(R.string.label_learn_more)
+                text = stringResource(R.string.label_learn_more),
+                textAlign = textAlign
             )
             VerticalSpace.x4()
 
@@ -258,8 +297,10 @@ internal fun MessageDecryptionFailure(
             Text(
                 text = stringResource(R.string.label_message_decryption_failure_informative_message),
                 style = LocalTextStyle.current,
-                color = MaterialTheme.colorScheme.error
+                color = MaterialTheme.colorScheme.error,
+                textAlign = textAlign
             )
+
             if (!decryptionStatus.isDecryptionResolved) {
                 Row {
                     WireSecondaryButton(
@@ -333,7 +374,7 @@ internal fun Modifier.customizeMessageBackground(
 }
 
 @Composable
-internal fun OfflineBackendsLearnMoreLink(context: Context = LocalContext.current) {
+internal fun OfflineBackendsLearnMoreLink(messageStyle: MessageStyle, context: Context = LocalContext.current) {
     val learnMoreUrl = stringResource(R.string.url_message_details_offline_backends_learn_more)
     VerticalSpace.x4()
     Text(
@@ -342,7 +383,12 @@ internal fun OfflineBackendsLearnMoreLink(context: Context = LocalContext.curren
             color = MaterialTheme.wireColorScheme.onBackground,
             textDecoration = TextDecoration.Underline
         ),
-        text = stringResource(R.string.label_learn_more)
+        text = stringResource(R.string.label_learn_more),
+        textAlign = if (messageStyle == MessageStyle.BUBBLE_SELF) {
+            TextAlign.End
+        } else {
+            TextAlign.Start
+        }
     )
 }
 
@@ -350,7 +396,15 @@ internal fun OfflineBackendsLearnMoreLink(context: Context = LocalContext.curren
 @Composable
 fun PreviewMessageSendFailureWarning() {
     WireTheme {
-        MessageSendFailureWarning(MessageFlowStatus.Failure.Send.Locally(false), true, {}, {})
+        MessageSendFailureWarning(MessageFlowStatus.Failure.Send.Locally(false), true, MessageStyle.NORMAL, {}, {})
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewMessageBubbleSelfSendFailureWarning() {
+    WireTheme {
+        MessageSendFailureWarning(MessageFlowStatus.Failure.Send.Locally(false), true, MessageStyle.BUBBLE_SELF, {}, {})
     }
 }
 
@@ -358,7 +412,7 @@ fun PreviewMessageSendFailureWarning() {
 @Composable
 fun PreviewMessageSendFailureWarningWithInteractionDisabled() {
     WireTheme {
-        MessageSendFailureWarning(MessageFlowStatus.Failure.Send.Locally(false), false, {}, {})
+        MessageSendFailureWarning(MessageFlowStatus.Failure.Send.Locally(false), false, MessageStyle.NORMAL, {}, {})
     }
 }
 
@@ -369,6 +423,7 @@ fun PreviewMessageDecryptionFailure() {
         MessageDecryptionFailure(
             mockHeader,
             MessageFlowStatus.Failure.Decryption(false, 0),
+            MessageStyle.NORMAL,
             { _, _ -> },
             Conversation.ProtocolInfo.Proteus
         )
@@ -387,6 +442,7 @@ fun PreviewMultiUserDeliveryFailure() {
                     "Android" to listOf(UIText.DynamicString("android"))
                 ),
             ),
+            MessageStyle.NORMAL,
             LocalContext.current.resources
         )
     }

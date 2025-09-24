@@ -48,6 +48,7 @@ import com.wire.android.feature.cells.R
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.bottomsheet.WireSheetValue
+import com.wire.android.ui.common.bottomsheet.onShow
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
@@ -66,6 +67,7 @@ fun FilterBottomSheet(
     onApply: (Set<String>) -> Unit,
     onClearAll: () -> Unit,
     onDismiss: () -> Unit,
+    onShow: suspend () -> Unit = {},
     sheetState: WireModalSheetState<Unit> = rememberWireModalSheetState<Unit>(WireSheetValue.Expanded(Unit))
 ) {
     WireModalSheetLayout(
@@ -87,6 +89,8 @@ fun FilterBottomSheet(
             }
         )
     }
+
+    sheetState.onShow { onShow() }
 }
 
 @Composable
@@ -218,7 +222,7 @@ fun PreviewFilterBottomSheet() {
             emptySet(),
             onApply = {},
             onClearAll = {},
-            onDismiss = {}
+            onDismiss = {},
         )
     }
 }

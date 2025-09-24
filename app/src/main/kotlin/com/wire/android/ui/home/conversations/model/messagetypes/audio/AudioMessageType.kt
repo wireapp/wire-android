@@ -78,6 +78,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.home.conversations.messages.item.MessageStyle
+import com.wire.android.ui.home.conversations.messages.item.highlighted
 import com.wire.android.ui.home.conversations.messages.item.isBubble
 import com.wire.android.ui.home.conversations.messages.item.textColor
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.UploadInProgressAssetMessage
@@ -390,11 +391,8 @@ private fun AudioMessageSlider(
         val waves = waveMask?.ifEmpty { getDefaultWaveMask() } ?: getDefaultWaveMask()
         val wavesAmount = waves.size
 
-        val activatedColor = when (messageStyle) {
-            MessageStyle.BUBBLE_SELF -> colorsScheme().onPrimary
-            MessageStyle.BUBBLE_OTHER -> colorsScheme().primary
-            MessageStyle.NORMAL -> colorsScheme().primary
-        }
+        val activatedColor = messageStyle.highlighted()
+
         val disabledColor = when (messageStyle) {
             MessageStyle.BUBBLE_SELF -> colorsScheme().onPrimary.copy(alpha = 0.7F)
             MessageStyle.BUBBLE_OTHER -> colorsScheme().onTertiaryButtonDisabled

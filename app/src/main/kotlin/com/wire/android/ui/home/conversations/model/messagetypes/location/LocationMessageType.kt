@@ -96,7 +96,15 @@ fun LocationMessageContent(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(PaddingValues(horizontal = dimensions().spacing8x)),
+                .padding(
+                    PaddingValues(
+                        horizontal = if (messageStyle.isBubble()) {
+                            dimensions().spacing0x
+                        } else {
+                            dimensions().spacing8x
+                        }
+                    )
+                ),
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically
         ) {

@@ -28,6 +28,7 @@ import com.wire.kalium.logic.data.user.UserId
 data class NodeData(
     val modifier: Modifier = Modifier,
     val color: Color = Color.Unspecified,
+    val isAccentBackground: Boolean = false,
     val style: TextStyle,
     val colorScheme: WireColorScheme,
     val typography: WireTypography,

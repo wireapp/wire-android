@@ -123,5 +123,7 @@
     <string name="no_results_found_label">No results found</string>
     <string name="filters_try_adjusting_your_filters_label">Try adjusting your filters.</string>
     <string name="cells_file_deleted_message">File was deleted</string>
+    <string name="cells_folder_deleted_message">Folder was deleted</string>
     <string name="cells_file_permanently_deleted_message">File was permanently deleted</string>
+    <string name="cells_folder_permanently_deleted_message">Folder was permanently deleted</string>
 </resources>

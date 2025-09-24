@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import com.wire.android.ui.common.applyIf
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.home.conversations.SelfDeletionTimerHelper
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
@@ -61,14 +62,16 @@ fun MessageContainerItem(
     }
     Row(
         modifier
-            .customizeMessageBackground(
-                sendingFailed = message.sendingFailed,
-                receivingFailed = message.decryptionFailed,
-                isDeleted = message.header.messageStatus.isDeleted,
-                isSelectedMessage = isSelectedMessage,
-                selfDeletionTimerState = selfDeletionTimerState,
-                defaultBackgroundColor = defaultBackgroundColor,
-            )
+            .applyIf(!isBubbleUiEnabled) {
+                customizeMessageBackground(
+                    sendingFailed = message.sendingFailed,
+                    receivingFailed = message.decryptionFailed,
+                    isDeleted = message.header.messageStatus.isDeleted,
+                    isSelectedMessage = isSelectedMessage,
+                    selfDeletionTimerState = selfDeletionTimerState,
+                    defaultBackgroundColor = defaultBackgroundColor,
+                )
+            }
     ) {
         when (message) {
             is UIMessage.System -> SystemMessageItem(

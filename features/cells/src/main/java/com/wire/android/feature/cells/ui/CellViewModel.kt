@@ -490,12 +490,12 @@ class CellViewModel @Inject constructor(
                 .onFailure {
                     _isRestoreInProgress.value = false
                     addToListUi(node)
-                    sendAction(ShowError(CellError.OTHER_ERROR))
                     if (isParentNode) {
                         sendAction(HideRestoreParentFolderDialog)
                     } else {
                         sendAction(HideRestoreConfirmation)
                     }
+                    sendAction(ShowUnableToRestoreDialog(node is CellNodeUi.Folder))
                 }
         }
     }
@@ -566,7 +566,7 @@ internal data class ShowPublicLinkScreen(val cellNode: CellNodeUi) : CellViewAct
 internal data class ShowRenameScreen(val cellNode: CellNodeUi) : CellViewAction
 internal data class ShowAddRemoveTagsScreen(val cellNode: CellNodeUi) : CellViewAction
 internal data class ShowMoveToFolderScreen(val currentPath: String, val nodeToMovePath: String, val uuid: String) : CellViewAction
-internal data object ShowUnableToRestoreDialog : CellViewAction
+internal data class ShowUnableToRestoreDialog(val isFolder: Boolean) : CellViewAction
 internal data class ShowRestoreParentFolderDialog(val cellNode: CellNodeUi) : CellViewAction
 internal data object HideRestoreParentFolderDialog : CellViewAction
 internal data class ShowFileDeletedMessage(val isFile: Boolean, val permanently: Boolean) : CellViewAction

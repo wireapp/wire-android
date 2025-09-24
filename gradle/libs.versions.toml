@@ -48,9 +48,8 @@ compose-qr = "1.0.1"
 amplituda = "2.2.2"
 
 # Compose
-composeBom = "2024.12.01"
+composeBom = "2025.09.00"
 compose-activity = "1.9.3"
-compose-compiler = "1.5.13"
 compose-constraint = "1.1.0"
 compose-navigation = "2.7.7" # adjusted to work with compose-destinations "1.9.54"
 compose-destinations = "1.11.9"

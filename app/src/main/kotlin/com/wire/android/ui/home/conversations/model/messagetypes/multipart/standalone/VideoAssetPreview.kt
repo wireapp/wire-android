@@ -99,7 +99,7 @@ internal fun VideoAssetPreview(
 
     Column(
         modifier = Modifier
-            .width(videoSize.width)
+            .width(videoSize.width + dimensions().spacing16x)
             .applyIf(messageStyle == MessageStyle.BUBBLE_SELF) {
                 background(
                     colorsScheme().bubbleContainerAccentBackgroundColor.getOrDefault(

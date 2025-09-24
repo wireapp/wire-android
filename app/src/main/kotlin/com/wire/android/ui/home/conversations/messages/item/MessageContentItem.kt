@@ -116,13 +116,15 @@ fun MessageContentItem(
                     messageHeader = header,
                     decryptionStatus = header.messageStatus.flowStatus as MessageFlowStatus.Failure.Decryption,
                     onResetSessionClicked = clickActions.onResetSessionClicked,
-                    conversationProtocol = conversationDetailsData.conversationProtocol
+                    conversationProtocol = conversationDetailsData.conversationProtocol,
+                    messageStyle = messageStyle
                 )
             }
-            if (message.sendingFailed) {
+            if (!messageStyle.isBubble() && message.sendingFailed) {
                 MessageSendFailureWarning(
                     messageStatus = header.messageStatus.flowStatus as MessageFlowStatus.Failure.Send,
                     isInteractionAvailable = failureInteractionAvailable,
+                    messageStyle = messageStyle,
                     onRetryClick = remember(message) {
                         {
                             clickActions.onFailedMessageRetryClicked(
@@ -138,7 +140,14 @@ fun MessageContentItem(
                     }
                 )
             }
-            if (shouldShowBottomLabels(messageStyle, header.messageStatus, useSmallBottomPadding, selfDeletionTimerState)) {
+            if (shouldShowBottomLabels(
+                    messageStyle = messageStyle,
+                    messageStatus = header.messageStatus,
+                    useSmallBottomPadding = useSmallBottomPadding,
+                    selfDeletionTimerState = selfDeletionTimerState,
+                    decryptionFailed = decryptionFailed
+                )
+            ) {
                 VerticalSpace.x4()
                 Row(
                     Modifier.padding(innerPadding),
@@ -191,8 +200,9 @@ private fun shouldShowBottomLabels(
     messageStyle: MessageStyle,
     messageStatus: MessageStatus,
     useSmallBottomPadding: Boolean,
-    selfDeletionTimerState: SelfDeletionTimerHelper.SelfDeletionTimerState
-): Boolean = messageStyle.isBubble() && (
+    selfDeletionTimerState: SelfDeletionTimerHelper.SelfDeletionTimerState,
+    decryptionFailed: Boolean
+): Boolean = messageStyle.isBubble() && !decryptionFailed && (
         !useSmallBottomPadding
                 || messageStatus.editStatus is MessageEditStatus.Edited
                 || selfDeletionTimerState is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable

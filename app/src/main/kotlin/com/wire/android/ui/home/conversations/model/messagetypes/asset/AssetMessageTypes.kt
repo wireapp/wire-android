@@ -58,6 +58,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.home.conversations.messages.item.isBubble
+import com.wire.android.ui.home.conversations.messages.item.onBackground
 import com.wire.android.ui.home.conversations.messages.item.textColor
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
@@ -82,15 +83,15 @@ internal fun MessageAsset(
         modifier = Modifier
             .applyIf(!messageStyle.isBubble()) {
                 padding(top = dimensions().spacing4x)
-                .background(
-                    color = MaterialTheme.wireColorScheme.surfaceVariant,
-                    shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
-                )
-                .border(
-                    width = 1.dp,
-                    color = MaterialTheme.wireColorScheme.secondaryButtonDisabledOutline,
-                    shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
-                )
+                    .background(
+                        color = MaterialTheme.wireColorScheme.surfaceVariant,
+                        shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
+                    )
+                    .border(
+                        width = 1.dp,
+                        color = MaterialTheme.wireColorScheme.secondaryButtonDisabledOutline,
+                        shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
+                    )
             }
             .clickable(if (isNotClickable(assetTransferStatus)) null else onAssetClick)
     ) {
@@ -101,7 +102,14 @@ internal fun MessageAsset(
                 .align(Alignment.Center)
                 .fillMaxWidth()
             Column(
-                modifier = assetModifier.padding(dimensions().spacing8x),
+                modifier = assetModifier.padding(
+                    horizontal = if (messageStyle.isBubble()) {
+                        dimensions().spacing0x
+                    } else {
+                        dimensions().spacing8x
+                    },
+                    vertical = dimensions().spacing8x
+                ),
                 verticalArrangement = Arrangement.spacedBy(dimensions().spacing8x)
             ) {
                 FileHeaderView(
@@ -117,7 +125,7 @@ internal fun MessageAsset(
                     fontSize = 15.sp,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
-                    color = messageStyle.textColor()
+                    color = messageStyle.onBackground()
                 )
 
                 assetDataPath?.let { localPath ->
@@ -261,9 +269,9 @@ fun RestrictedGenericFileMessage(fileName: String, fileSize: Long, messageStyle:
                 modifier = Modifier
                     .padding(top = dimensions().spacing4x)
                     .constrainAs(message) {
-                    start.linkTo(parent.start)
-                    top.linkTo(icon.bottom)
-                }
+                        start.linkTo(parent.start)
+                        top.linkTo(icon.bottom)
+                    }
             )
         }
     }

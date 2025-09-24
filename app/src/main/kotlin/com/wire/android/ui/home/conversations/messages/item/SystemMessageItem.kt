@@ -137,6 +137,7 @@ fun SystemMessageItem(
                     MessageSendFailureWarning(
                         messageStatus = message.header.messageStatus.flowStatus as MessageFlowStatus.Failure.Send,
                         isInteractionAvailable = failureInteractionAvailable,
+                        messageStyle = MessageStyle.NORMAL,
                         onRetryClick = remember { { onFailedMessageRetryClicked(message.header.messageId, message.conversationId) } },
                         onCancelClick = remember { { onFailedMessageCancelClicked(message.header.messageId) } }
                     )

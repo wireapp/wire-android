@@ -266,7 +266,12 @@ fun appendLinksAndMentions(
     val linkInfos = LinkSpannableString.getLinkInfos(stringBuilder.toString(), Linkify.WEB_URLS or Linkify.EMAIL_ADDRESSES)
 
     val linkAndMentionColor = when (nodeData.messageStyle) {
-        MessageStyle.BUBBLE_SELF -> nodeData.colorScheme.onPrimary
+        MessageStyle.BUBBLE_SELF -> if (nodeData.isAccentBackground) {
+            nodeData.colorScheme.markdownNodeTextColor
+        } else {
+            nodeData.colorScheme.onPrimary
+        }
+
         MessageStyle.BUBBLE_OTHER -> nodeData.colorScheme.primary
         MessageStyle.NORMAL -> nodeData.colorScheme.primary
     }

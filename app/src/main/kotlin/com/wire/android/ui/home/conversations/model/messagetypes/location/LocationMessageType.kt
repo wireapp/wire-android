@@ -50,6 +50,7 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.home.conversations.messages.item.isBubble
+import com.wire.android.ui.home.conversations.messages.item.textColor
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -63,11 +64,7 @@ fun LocationMessageContent(
     messageStyle: MessageStyle,
     modifier: Modifier = Modifier
 ) {
-    val linkColor = when (messageStyle) {
-        MessageStyle.BUBBLE_SELF -> colorsScheme().onPrimary
-        MessageStyle.BUBBLE_OTHER -> colorsScheme().secondaryText
-        MessageStyle.NORMAL -> colorsScheme().secondaryText
-    }
+    val linkColor = messageStyle.textColor()
 
     val textColor = when (messageStyle) {
         MessageStyle.BUBBLE_SELF -> colorsScheme().onPrimary
@@ -99,9 +96,17 @@ fun LocationMessageContent(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(PaddingValues(horizontal = dimensions().spacing8x)),
+                .padding(
+                    PaddingValues(
+                        horizontal = if (messageStyle.isBubble()) {
+                            dimensions().spacing0x
+                        } else {
+                            dimensions().spacing8x
+                        }
+                    )
+                ),
             horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.Top
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_location),

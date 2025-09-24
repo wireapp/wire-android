@@ -132,7 +132,6 @@ fun ConversationFilesScreenContent(
     isRecycleBin: Boolean = false,
     isRestoreInProgress: Boolean = false,
     breadcrumbs: Array<String>? = emptyArray(),
-    navigationIconType: NavigationIconType = NavigationIconType.Close()
 ) {
     val newActionBottomSheetState = rememberWireModalSheetState<Unit>()
     val optionsBottomSheetState = rememberWireModalSheetState<Unit>()
@@ -181,7 +180,7 @@ fun ConversationFilesScreenContent(
                 WireCenterAlignedTopAppBar(
                     onNavigationPressed = { navigator.navigateBack() },
                     title = screenTitle ?: stringResource(R.string.conversation_files_title),
-                    navigationIconType = navigationIconType,
+                    navigationIconType = NavigationIconType.Back(),
                     elevation = dimensions().spacing0x,
                     actions = {
                         if (!isRecycleBin) {
@@ -359,7 +358,6 @@ fun PreviewConversationFilesScreen() {
             screenTitle = "Android",
             isRecycleBin = false,
             breadcrumbs = arrayOf("Engineering", "Android"),
-            navigationIconType = NavigationIconType.Close(),
             isRefreshing = remember { mutableStateOf(false) },
             onRefresh = { }
         )

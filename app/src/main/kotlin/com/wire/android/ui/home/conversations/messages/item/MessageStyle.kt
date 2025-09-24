@@ -48,6 +48,15 @@ fun MessageStyle.textColor(): Color {
 }
 
 @Composable
+fun MessageStyle.onBackground(): Color {
+    return when (this) {
+        MessageStyle.BUBBLE_SELF -> MaterialTheme.wireColorScheme.onPrimary
+        MessageStyle.BUBBLE_OTHER -> MaterialTheme.wireColorScheme.onBackground
+        MessageStyle.NORMAL -> MaterialTheme.wireColorScheme.onBackground
+    }
+}
+
+@Composable
 fun MessageStyle.surface(): Color = when (this) {
     MessageStyle.BUBBLE_SELF -> MaterialTheme.wireColorScheme.scrim
     MessageStyle.BUBBLE_OTHER -> MaterialTheme.wireColorScheme.surfaceVariant

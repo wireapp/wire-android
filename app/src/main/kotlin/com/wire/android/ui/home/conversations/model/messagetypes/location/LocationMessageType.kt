@@ -106,7 +106,7 @@ fun LocationMessageContent(
                     )
                 ),
             horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.Top
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_location),

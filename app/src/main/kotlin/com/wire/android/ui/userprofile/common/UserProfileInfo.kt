@@ -79,7 +79,6 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.debug.FeatureVisibilityFlags.QRCodeEnabled
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.ifNotEmpty
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -258,7 +257,7 @@ fun UserProfileInfo(
                         bottom.linkTo(displayName.bottom)
                     }
             ) {
-                if (QRCodeEnabled && showQrCode && isLoading.not()) {
+                if (showQrCode && isLoading.not()) {
                     onQrCodeClick?.let { QRCodeIcon(it) }
                 }
             }

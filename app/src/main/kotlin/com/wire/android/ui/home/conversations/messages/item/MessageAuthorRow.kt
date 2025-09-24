@@ -55,6 +55,7 @@ fun MessageAuthorRow(
                 Username(
                     username.asString(),
                     accent,
+                    messageStyle,
                     modifier = Modifier.weight(weight = 1f, fill = false)
                 )
                 UserBadge(
@@ -79,13 +80,17 @@ fun MessageAuthorRow(
 }
 
 @Composable
-private fun Username(username: String, accent: Accent, modifier: Modifier = Modifier) {
+private fun Username(username: String, accent: Accent, messageStyle: MessageStyle, modifier: Modifier = Modifier) {
     Text(
         text = username,
         style = MaterialTheme.wireTypography.body02,
         color = MaterialTheme.wireColorScheme.wireAccentColors.getOrDefault(
             accent,
-            MaterialTheme.wireColorScheme.onBackground
+            if (messageStyle.isBubble()) {
+                MaterialTheme.wireColorScheme.primary
+            } else {
+                MaterialTheme.wireColorScheme.onBackground
+            }
         ),
         modifier = modifier,
         maxLines = 1,

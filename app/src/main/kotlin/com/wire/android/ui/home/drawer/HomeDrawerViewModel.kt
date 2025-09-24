@@ -24,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.BuildConfig
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.user.type.UserType
@@ -88,6 +89,9 @@ class HomeDrawerViewModel @Inject constructor(
                     add(DrawerUiItem.RegularItem(destination = HomeDestination.Conversations))
                     if (wireCellsEnabled) {
                         add(DrawerUiItem.RegularItem(destination = HomeDestination.Cells))
+                    }
+                    if (BuildConfig.MEETINGS_ENABLED) {
+                        add(DrawerUiItem.RegularItem(destination = HomeDestination.Meetings))
                     }
                     add(
                         DrawerUiItem.UnreadCounterItem(

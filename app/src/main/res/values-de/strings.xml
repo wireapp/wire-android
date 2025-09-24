@@ -247,6 +247,7 @@
     <string name="search_bar_conversations_hint">Unterhaltungen suchen</string>
     <string name="search_no_results">Keine Ergebnisse gefunden</string>
     <string name="team_management_screen_title">Team verwalten</string>
+    <string name="meetings_screen_title">Meetings</string>
     <!--Whats New -->
     <string name="whats_new_screen_title">Neue Funktionen</string>
     <string name="whats_new_welcome_to_new_android_app_label">👋 Willkommen bei Wires neuer Android App!</string>

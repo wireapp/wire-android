@@ -30,7 +30,6 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.client.IsChatBubblesEnabledUseCase
 import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.FetchConversationMLSVerificationStatusUseCase

@@ -94,7 +94,7 @@ internal fun CellScreenContent(
 
     var deleteConfirmation by remember { mutableStateOf<Pair<CellNodeUi, Boolean>?>((null)) }
     var restoreConfirmation by remember { mutableStateOf<CellNodeUi?>(null) }
-    var unableToRestore by remember { mutableStateOf(false) }
+    var showRestoreError by remember { mutableStateOf<ShowUnableToRestoreDialog?>(null) }
     var restoreParentFolderConfirmation by remember { mutableStateOf<CellNodeUi?>(null) }
     var menu by remember { mutableStateOf<MenuOptions?>(null) }
 
@@ -177,14 +177,11 @@ internal fun CellScreenContent(
         )
     }
 
-    if (unableToRestore) {
+    showRestoreError?.let {
         UnableToRestoreDialog(
-            isFolder = restoreConfirmation is CellNodeUi.Folder,
-            onConfirm = {
-                unableToRestore = false
-            },
+            isFolder = it.isFolder,
             onDismiss = {
-                unableToRestore = false
+                showRestoreError = null
             }
         )
     }
@@ -220,7 +217,7 @@ internal fun CellScreenContent(
             is ShowMoveToFolderScreen -> showMoveToFolderScreen(action.currentPath, action.nodeToMovePath, action.uuid)
             is ShowAddRemoveTagsScreen -> showAddRemoveTagsScreen(action.cellNode)
             is RefreshData -> pagingListItems.refresh()
-            is ShowUnableToRestoreDialog -> unableToRestore = true
+            is ShowUnableToRestoreDialog -> showRestoreError = action
             is ShowRestoreParentFolderDialog -> restoreParentFolderConfirmation = action.cellNode
             is HideRestoreConfirmation -> restoreConfirmation = null
             is HideRestoreParentFolderDialog -> restoreParentFolderConfirmation = null

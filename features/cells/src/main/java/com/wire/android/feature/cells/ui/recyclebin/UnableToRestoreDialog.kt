@@ -30,7 +30,6 @@ import com.wire.android.ui.theme.WireTheme
 @Composable
 fun UnableToRestoreDialog(
     isFolder: Boolean,
-    onConfirm: () -> Unit,
     onDismiss: () -> Unit,
 ) {
     WireDialog(
@@ -48,7 +47,7 @@ fun UnableToRestoreDialog(
         },
         onDismiss = onDismiss,
         optionButton1Properties = WireDialogButtonProperties(
-            onClick = onConfirm,
+            onClick = onDismiss,
             text = stringResource(id = R.string.ok_label),
             type = WireDialogButtonType.Primary,
         ),
@@ -63,7 +62,6 @@ fun PreviewUnableToRestoreDialog() {
     WireTheme {
         UnableToRestoreDialog(
             isFolder = true,
-            onConfirm = {},
             onDismiss = {}
         )
     }

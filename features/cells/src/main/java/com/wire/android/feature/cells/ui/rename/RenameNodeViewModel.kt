@@ -33,9 +33,12 @@ import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.util.splitFileExtension
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.seconds
 
 @HiltViewModel
 class RenameNodeViewModel @Inject constructor(
@@ -44,6 +47,8 @@ class RenameNodeViewModel @Inject constructor(
 ) : ActionsViewModel<RenameNodeViewModelAction>() {
 
     private val navArgs: RenameNodeNavArgs = savedStateHandle.navArgs()
+
+    private var clearErrorJob: Job? = null
 
     fun isFolder(): Boolean? = navArgs.isFolder
 
@@ -97,6 +102,17 @@ class RenameNodeViewModel @Inject constructor(
         trim().isEmpty() -> DisplayNameState.NameError.TextFieldError.NameEmptyError
         contains("/") || contains(".") -> DisplayNameState.NameError.TextFieldError.InvalidNameError
         else -> None
+    }
+
+    internal fun onMaxLengthExceeded() {
+        displayNameState = displayNameState.copy(
+            error = DisplayNameState.NameError.TextFieldError.NameExceedLimitError
+        )
+        clearErrorJob?.cancel()
+        clearErrorJob = viewModelScope.launch {
+            delay(2.seconds)
+            displayNameState = displayNameState.copy(error = None)
+        }
     }
 
     companion object {

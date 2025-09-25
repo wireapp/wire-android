@@ -148,9 +148,9 @@ fun RegularMessageItem(
                     }
                 }
 
-                (messageContent as? PartialDeliverable?)?.deliveryStatus?.hasAnyFailures == true -> {
+                messageContent is PartialDeliverable && messageContent.deliveryStatus.hasAnyFailures -> {
                     {
-                        PartialDeliveryInformation((messageContent as PartialDeliverable?)?.deliveryStatus, messageStyle)
+                        PartialDeliveryInformation(messageContent.deliveryStatus, messageStyle)
                     }
                 }
 
@@ -187,6 +187,7 @@ fun RegularMessageItem(
                         message = message,
                         conversationDetailsData = conversationDetailsData,
                         modifier = modifier,
+                        accent = header.accent,
                         searchQuery = searchQuery,
                         assetStatus = assetStatus,
                         shouldDisplayMessageStatus = shouldDisplayMessageStatus,

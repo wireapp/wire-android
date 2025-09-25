@@ -113,7 +113,13 @@ fun RenameNodeScreen(
                     } else {
                         stringResource(R.string.rename_file_label).uppercase()
                     },
-                    inputTransformation = InputTransformation.maxLengthWithCallback(NAME_MAX_COUNT, animate),
+                    inputTransformation = InputTransformation.maxLengthWithCallback(
+                        maxLength = NAME_MAX_COUNT,
+                        onIncorrectChangesFound = {
+                            renameNodeViewModel.onMaxLengthExceeded()
+                            animate()
+                        }
+                    ),
                     lineLimits = TextFieldLineLimits.SingleLine,
                     state = computeNameErrorState(renameNodeViewModel.displayNameState.error, renameNodeViewModel.isFolder()),
                     keyboardOptions = KeyboardOptions.DefaultText,

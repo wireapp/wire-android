@@ -18,7 +18,6 @@
 package com.wire.android.ui.home.conversations.messages.item
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -49,7 +48,6 @@ import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.wireColorScheme
 
-@OptIn(ExperimentalFoundationApi::class)
 @Suppress("CyclomaticComplexMethod")
 @Composable
 fun MessageBubbleItem(
@@ -79,6 +77,7 @@ fun MessageBubbleItem(
                 bottom = if (useSmallBottomPadding) dimensions().spacing1x else dimensions().messageItemBottomPadding
             ),
         verticalArrangement = Arrangement.spacedBy(-dimensions().spacing8x, alignment = Alignment.Bottom),
+        horizontalAlignment = if (isSelfMessage) Alignment.End else Alignment.Start
     ) {
         val paddingValue = dimensions().spacing10x
         val leadingPadding = if (leading != null) {

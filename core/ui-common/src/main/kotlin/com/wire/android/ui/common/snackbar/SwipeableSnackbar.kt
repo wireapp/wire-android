@@ -17,8 +17,6 @@
  */
 package com.wire.android.ui.common.snackbar
 
-import androidx.compose.animation.core.SpringSpec
-import androidx.compose.animation.splineBasedDecay
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.DraggableAnchors
@@ -76,24 +74,10 @@ fun SwipeableSnackbar(
         SnackBarState.DismissedRight at -currentScreenWidth
     }
 
-    // Determines how far the user needs to drag (as a fraction of total distance) for an action to be triggered.
-    // In this example, the Snackbar will trigger an action if dragged to half (0.5) of its width.
-    val positionalThreshold: (Float) -> Float = { distance -> distance * 0.5f }
-
-    // Determines the minimum velocity (in pixels per second) with which the user needs to drag for an action to be triggered,
-    // even if the positional threshold hasn't been reached.
-    // Here, it's set to 125 device-independent pixels per second.
-    val velocityThreshold: () -> Float = with(density) { { 125.dp.toPx() } }
-
     val state = remember {
         AnchoredDraggableState(
             initialValue = SnackBarState.Visible,
             anchors = anchors,
-            positionalThreshold = positionalThreshold,
-            velocityThreshold = velocityThreshold,
-            snapAnimationSpec = SpringSpec(),
-            decayAnimationSpec = splineBasedDecay(density),
-            confirmValueChange = { true }
         )
     }
 

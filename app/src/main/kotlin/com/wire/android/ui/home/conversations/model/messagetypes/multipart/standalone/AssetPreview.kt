@@ -36,6 +36,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
 import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.home.conversations.messages.item.isBubble
+import com.wire.android.ui.theme.Accent
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.message.height
 import com.wire.kalium.logic.data.message.width
@@ -45,7 +46,8 @@ fun AssetPreview(
     item: MultipartAttachmentUi,
     messageStyle: MessageStyle,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier,
+    accent: Accent,
+    modifier: Modifier = Modifier
 ) {
     Box(
         modifier = modifier
@@ -55,22 +57,22 @@ fun AssetPreview(
                     color = colorsScheme().surfaceVariant,
                     shape = RoundedCornerShape(dimensions().messageAttachmentCornerSize)
                 )
+                border(
+                    width = 1.dp,
+                    color = colorsScheme().outline,
+                    shape = RoundedCornerShape(dimensions().messageAttachmentCornerSize)
+                )
             }
-            .border(
-                width = 1.dp,
-                color = colorsScheme().outline,
-                shape = RoundedCornerShape(dimensions().messageAttachmentCornerSize)
-            )
             .clip(RoundedCornerShape(dimensions().messageAttachmentCornerSize))
     ) {
         if (item.transferStatus != AssetTransferStatus.NOT_FOUND) {
             when (item.assetType) {
                 AttachmentFileType.IMAGE -> ImageAssetPreview(item, messageStyle)
-                AttachmentFileType.VIDEO -> VideoAssetPreview(item, messageStyle)
-                else -> FileAssetPreview(item, messageStyle)
+                AttachmentFileType.VIDEO -> VideoAssetPreview(item, messageStyle, accent)
+                else -> FileAssetPreview(item, messageStyle, accent)
             }
         } else {
-            AssetNotAvailablePreview()
+            AssetNotAvailablePreview(messageStyle = messageStyle, accent = accent)
         }
     }
 }

@@ -378,7 +378,7 @@ private fun PreviewActiveMessageComposerInput(inputType: InputType, isTextExpand
         keyboardOptions = KeyboardOptions.Companion.MessageComposerDefault,
         onKeyboardAction = null,
         canSendMessage = true,
-        focusRequester = FocusRequester(),
+        focusRequester = remember { FocusRequester() },
         onSendButtonClicked = {},
         onEditButtonClicked = {},
         onChangeSelfDeletionClicked = {},

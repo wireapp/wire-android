@@ -29,12 +29,14 @@ import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import coil.compose.AsyncImage
 import com.wire.android.ui.common.attachmentdraft.ui.FileHeaderView
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
 import com.wire.android.ui.home.conversations.messages.item.MessageStyle
+import com.wire.android.ui.home.conversations.messages.item.isBubble
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageParams
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.previewAvailable
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.previewImageModel
@@ -65,6 +67,7 @@ internal fun ImageAssetPreview(
                 modifier = Modifier.fillMaxSize(),
                 model = item.previewImageModel(),
                 contentDescription = null,
+                contentScale = if (messageStyle.isBubble()) ContentScale.Crop else ContentScale.Fit
             )
         } else {
             // File card if no preview available

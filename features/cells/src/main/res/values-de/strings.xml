@@ -40,6 +40,7 @@
     <string name="confirm_delete_file_title">Datei löschen</string>
     <string name="confirm_delete_file_text">Die Datei %1$s wird in den Papierkorb dieser Unterhaltung verschoben.</string>
     <string name="confirm_delete_folder_text">Der Ordner %1$s wird in den Papierkorb dieser Unterhaltung verschoben.</string>
+    <string name="confirm_permanent_delete_file_text">Dies wird die Datei %1$s für alle Teilnehmer endgültig löschen.</string>
     <string name="reload">Neu laden</string>
     <string name="download">Herunterladen</string>
     <string name="conversation_files_title">Dateien</string>
@@ -82,4 +83,6 @@
     <string name="file_list_empty_title">Es gibt noch keine Dateien oder Ordner</string>
     <string name="no_results_found_label">Keine Ergebnisse gefunden</string>
     <string name="filters_try_adjusting_your_filters_label">Versuchen Sie, Ihre Filter anzupassen.</string>
+    <string name="cells_folder_deleted_message">Ordner wurde gelöscht</string>
+    <string name="cells_folder_permanently_deleted_message">Ordner wurde dauerhaft gelöscht</string>
 </resources>

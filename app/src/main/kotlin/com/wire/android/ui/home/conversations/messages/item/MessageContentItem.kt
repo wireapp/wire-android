@@ -40,6 +40,7 @@ import com.wire.android.ui.home.conversations.model.MessageFlowStatus
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
+import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 
@@ -51,6 +52,7 @@ fun MessageContentItem(
     conversationDetailsData: ConversationDetailsData,
     messageStyle: MessageStyle,
     modifier: Modifier = Modifier,
+    accent: Accent = Accent.Unknown,
     searchQuery: String = "",
     assetStatus: AssetTransferStatus? = null,
     shouldDisplayMessageStatus: Boolean = true,
@@ -85,57 +87,59 @@ fun MessageContentItem(
 
                 return@Column
             }
-                if (!decryptionFailed) {
-                    MessageContentAndStatus(
-                        message = message,
-                        assetStatus = assetStatus,
+
+            if (!decryptionFailed) {
+                MessageContentAndStatus(
+                    message = message,
+                    assetStatus = assetStatus,
+                    messageStyle = messageStyle,
+                    onAssetClicked = clickActions.onAssetClicked,
+                    onImageClicked = clickActions.onImageClicked,
+                    searchQuery = searchQuery,
+                    accent = accent,
+                    onProfileClicked = clickActions.onProfileClicked,
+                    onLinkClicked = clickActions.onLinkClicked,
+                    shouldDisplayMessageStatus = shouldDisplayMessageStatus,
+                    conversationDetailsData = conversationDetailsData,
+                    onReplyClicked = clickActions.onReplyClicked,
+                )
+                if (shouldDisplayFooter && !messageStyle.isBubble()) {
+                    VerticalSpace.x4()
+                    MessageReactionsItem(
+                        messageFooter = messageFooter,
                         messageStyle = messageStyle,
-                        onAssetClicked = clickActions.onAssetClicked,
-                        onImageClicked = clickActions.onImageClicked,
-                        searchQuery = searchQuery,
-                        onProfileClicked = clickActions.onProfileClicked,
-                        onLinkClicked = clickActions.onLinkClicked,
-                        shouldDisplayMessageStatus = shouldDisplayMessageStatus,
-                        conversationDetailsData = conversationDetailsData,
-                        onReplyClicked = clickActions.onReplyClicked,
-                    )
-                    if (shouldDisplayFooter && !messageStyle.isBubble()) {
-                        VerticalSpace.x4()
-                        MessageReactionsItem(
-                            messageFooter = messageFooter,
-                            messageStyle = messageStyle,
-                            onReactionClicked = clickActions.onReactionClicked
-                        )
-                    }
-                } else {
-                    MessageDecryptionFailure(
-                        messageHeader = header,
-                        decryptionStatus = header.messageStatus.flowStatus as MessageFlowStatus.Failure.Decryption,
-                        onResetSessionClicked = clickActions.onResetSessionClicked,
-                        conversationProtocol = conversationDetailsData.conversationProtocol,
-                        messageStyle = messageStyle
+                        onReactionClicked = clickActions.onReactionClicked
                     )
                 }
-                if (!messageStyle.isBubble() && message.sendingFailed) {
-                    MessageSendFailureWarning(
-                        messageStatus = header.messageStatus.flowStatus as MessageFlowStatus.Failure.Send,
-                        isInteractionAvailable = failureInteractionAvailable,
-                        messageStyle = messageStyle,
-                        onRetryClick = remember(message) {
-                            {
-                                clickActions.onFailedMessageRetryClicked(
-                                    header.messageId,
-                                    message.conversationId
-                                )
-                            }
-                        },
-                        onCancelClick = remember(message) {
-                            {
-                                clickActions.onFailedMessageCancelClicked(header.messageId)
-                            }
+            } else {
+                MessageDecryptionFailure(
+                    messageHeader = header,
+                    decryptionStatus = header.messageStatus.flowStatus as MessageFlowStatus.Failure.Decryption,
+                    onResetSessionClicked = clickActions.onResetSessionClicked,
+                    conversationProtocol = conversationDetailsData.conversationProtocol,
+                    messageStyle = messageStyle
+                )
+            }
+            if (!messageStyle.isBubble() && message.sendingFailed) {
+                MessageSendFailureWarning(
+                    messageStatus = header.messageStatus.flowStatus as MessageFlowStatus.Failure.Send,
+                    isInteractionAvailable = failureInteractionAvailable,
+                    messageStyle = messageStyle,
+                    onRetryClick = remember(message) {
+                        {
+                            clickActions.onFailedMessageRetryClicked(
+                                header.messageId,
+                                message.conversationId
+                            )
                         }
-                    )
-                }
+                    },
+                    onCancelClick = remember(message) {
+                        {
+                            clickActions.onFailedMessageCancelClicked(header.messageId)
+                        }
+                    }
+                )
+            }
             if (shouldShowBottomLabels(
                     messageStyle = messageStyle,
                     messageStatus = header.messageStatus,

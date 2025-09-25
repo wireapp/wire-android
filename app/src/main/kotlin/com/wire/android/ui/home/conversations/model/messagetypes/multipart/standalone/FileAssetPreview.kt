@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.home.conversations.model.messagetypes.multipart.standalone
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -32,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
+import com.wire.android.ui.common.applyIf
 import com.wire.android.ui.common.attachmentdraft.ui.FileHeaderView
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -39,8 +41,10 @@ import com.wire.android.ui.common.multipart.AssetSource
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
 import com.wire.android.ui.common.progress.WireLinearProgressIndicator
 import com.wire.android.ui.home.conversations.messages.item.MessageStyle
+import com.wire.android.ui.home.conversations.messages.item.textColor
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.getDownloadStatusText
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.transferProgressColor
+import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -52,10 +56,22 @@ import com.wire.kalium.logic.util.fileExtension
 @Composable
 internal fun BoxScope.FileAssetPreview(
     item: MultipartAttachmentUi,
-    messageStyle: MessageStyle
+    messageStyle: MessageStyle,
+    accent: Accent = Accent.Unknown
 ) {
     Column(
         modifier = Modifier
+            .applyIf(messageStyle == MessageStyle.BUBBLE_SELF) {
+                background(
+                    colorsScheme().bubbleContainerAccentBackgroundColor.getOrDefault(
+                        accent,
+                        colorsScheme().defaultBubbleContainerBackgroundColor
+                    )
+                )
+            }
+            .applyIf(messageStyle == MessageStyle.BUBBLE_OTHER) {
+                background(colorsScheme().surface)
+            }
             .fillMaxWidth()
             .height(dimensions().spacing80x)
             .padding(dimensions().spacing8x),
@@ -78,6 +94,7 @@ internal fun BoxScope.FileAssetPreview(
                     text = it,
                     style = MaterialTheme.wireTypography.body02,
                     maxLines = 2,
+                    color = messageStyle.textColor(),
                     overflow = TextOverflow.Ellipsis
                 )
             }

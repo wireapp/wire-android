@@ -19,6 +19,7 @@ package com.wire.android.ui.common.snackbar
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.AnchoredDraggableState
+import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.foundation.layout.offset
@@ -31,7 +32,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
 import com.wire.android.ui.theme.wireDimensions
 import kotlin.math.roundToInt
 
@@ -59,10 +63,21 @@ fun SwipeableSnackbar(
     modifier: Modifier = Modifier,
     onDismiss: () -> Unit = { hostState.currentSnackbarData?.dismiss() },
 ) {
+    val density = LocalDensity.current
+    val configuration = LocalConfiguration.current
+
+    val currentScreenWidth = with(density) { configuration.screenWidthDp.dp.toPx() }
+
+    val anchors = DraggableAnchors {
+        SnackBarState.Visible at 0f
+        SnackBarState.DismissedLeft at currentScreenWidth
+        SnackBarState.DismissedRight at -currentScreenWidth
+    }
 
     val state = remember {
         AnchoredDraggableState(
             initialValue = SnackBarState.Visible,
+            anchors = anchors,
         )
     }
 

@@ -62,6 +62,8 @@ class WireColorScheme(
     val surfaceContainer: Color,
     val surfaceContainerHigh: Color,
     val surfaceContainerHighest: Color,
+    val defaultBubbleContainerBackgroundColor: Color,
+    val bubbleContainerAccentBackgroundColor: WireAccentColors,
 
     // buttons
     val primaryButtonEnabled: Color, val onPrimaryButtonEnabled: Color,
@@ -152,6 +154,18 @@ private val LightWireColorScheme = WireColorScheme(
     surfaceContainer = WireColorPalette.Gray20,
     surfaceContainerHigh = WireColorPalette.Gray30,
     surfaceContainerHighest = WireColorPalette.Gray40,
+    defaultBubbleContainerBackgroundColor = WireColorPalette.LightBlue400,
+    bubbleContainerAccentBackgroundColor = WireAccentColors {
+        when (it) {
+            Accent.Amber -> WireColorPalette.LightAmber400
+            Accent.Blue -> WireColorPalette.LightBlue400
+            Accent.Green -> WireColorPalette.LightGreen400
+            Accent.Purple -> WireColorPalette.LightPurple400
+            Accent.Red -> WireColorPalette.LightRed400
+            Accent.Petrol -> WireColorPalette.LightPetrol400
+            Accent.Unknown -> WireColorPalette.LightBlue400
+        }
+    },
 
     // buttons
     primaryButtonEnabled = WireColorPalette.LightBlue500, onPrimaryButtonEnabled = Color.White,
@@ -248,6 +262,18 @@ private val DarkWireColorScheme = WireColorScheme(
     surfaceContainer = WireColorPalette.Gray90,
     surfaceContainerHigh = WireColorPalette.Gray80,
     surfaceContainerHighest = WireColorPalette.Gray70,
+    defaultBubbleContainerBackgroundColor = WireColorPalette.DarkBlue400,
+    bubbleContainerAccentBackgroundColor = WireAccentColors {
+        when (it) {
+            Accent.Amber -> WireColorPalette.DarkAmber400
+            Accent.Blue -> WireColorPalette.DarkBlue400
+            Accent.Green -> WireColorPalette.DarkGreen400
+            Accent.Purple -> WireColorPalette.DarkPurple400
+            Accent.Red -> WireColorPalette.DarkRed400
+            Accent.Petrol -> WireColorPalette.DarkPetrol400
+            Accent.Unknown -> WireColorPalette.DarkBlue400
+        }
+    },
 
     // buttons
     primaryButtonEnabled = WireColorPalette.DarkBlue500, onPrimaryButtonEnabled = Color.Black,

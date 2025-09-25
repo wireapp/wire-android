@@ -67,8 +67,8 @@ class ConversationInfoViewModelArrangement {
     @MockK
     lateinit var globalDataStore: GlobalDataStore
 
-    @MockK
-    lateinit var isChatBubblesEnabled: IsChatBubblesEnabledUseCase
+//    @MockK
+//    lateinit var isChatBubblesEnabled: IsChatBubblesEnabledUseCase
 
     private val viewModel: ConversationInfoViewModel by lazy {
         ConversationInfoViewModel(
@@ -79,7 +79,7 @@ class ConversationInfoViewModelArrangement {
             selfUserId = TestUser.SELF_USER_ID,
             isWireCellFeatureEnabled = isCellsEnabled,
             globalDataStore = globalDataStore,
-            isChatBubblesEnabledUseCase = isChatBubblesEnabled
+//            isChatBubblesEnabledUseCase = isChatBubblesEnabled
         )
     }
 
@@ -97,7 +97,7 @@ class ConversationInfoViewModelArrangement {
         coEvery { fetchConversationMLSVerificationStatus.invoke(any()) } returns Unit
         coEvery { isCellsEnabled() } returns false
         coEvery { globalDataStore.observeIsBubbleUI() } returns flowOf(false)
-        coEvery { isChatBubblesEnabled() } returns false
+//        coEvery { isChatBubblesEnabled() } returns false
     }
 
     suspend fun withConversationDetailUpdate(conversationDetails: ConversationDetails) = apply {

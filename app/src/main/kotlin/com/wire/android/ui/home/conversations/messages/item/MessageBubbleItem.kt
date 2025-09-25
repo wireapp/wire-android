@@ -79,6 +79,7 @@ fun MessageBubbleItem(
                 bottom = if (useSmallBottomPadding) dimensions().spacing1x else dimensions().messageItemBottomPadding
             ),
         verticalArrangement = Arrangement.spacedBy(-dimensions().spacing8x, alignment = Alignment.Bottom),
+        horizontalAlignment = if (isSelfMessage) Alignment.End else Alignment.Start
     ) {
         val paddingValue = dimensions().spacing10x
         val leadingPadding = if (leading != null) {

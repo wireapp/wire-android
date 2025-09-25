@@ -124,5 +124,7 @@
     <string name="no_results_found_label">Ничего не найдено</string>
     <string name="filters_try_adjusting_your_filters_label">Попробуйте изменить фильтры.</string>
     <string name="cells_file_deleted_message">Файл удален</string>
+    <string name="cells_folder_deleted_message">Папка удалена</string>
     <string name="cells_file_permanently_deleted_message">Файл удален навсегда</string>
+    <string name="cells_folder_permanently_deleted_message">Папка удалена навсегда</string>
 </resources>

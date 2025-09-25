@@ -39,7 +39,6 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.client.IsChatBubblesEnabledUseCase
 import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.FetchConversationMLSVerificationStatusUseCase
@@ -57,7 +56,7 @@ class ConversationInfoViewModel @Inject constructor(
     private val globalDataStore: GlobalDataStore,
     private val fetchConversationMLSVerificationStatus: FetchConversationMLSVerificationStatusUseCase,
     private val isWireCellFeatureEnabled: IsWireCellsEnabledUseCase,
-    private val isChatBubblesEnabledUseCase: IsChatBubblesEnabledUseCase,
+//    private val isChatBubblesEnabledUseCase: IsChatBubblesEnabledUseCase,
     @CurrentAccount private val selfUserId: UserId,
 ) : ViewModel() {
 
@@ -130,7 +129,8 @@ class ConversationInfoViewModel @Inject constructor(
         )
     }
 
-    private suspend fun isBubbleUiEnabled() = (globalDataStore.observeIsBubbleUI().firstOrNull() ?: false) || isChatBubblesEnabledUseCase()
+    private suspend fun isBubbleUiEnabled() = (globalDataStore.observeIsBubbleUI().firstOrNull() ?: false)
+//            || isChatBubblesEnabledUseCase() // TODO uncomment when production ready
 
     private fun getAccentId(conversationDetails: ConversationDetails): Int {
         return if (conversationDetails is ConversationDetails.OneOne) {

@@ -25,6 +25,7 @@ import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.anchoredDraggable
+import androidx.compose.foundation.gestures.animateTo
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -33,6 +34,7 @@ import androidx.compose.material3.FabPosition
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -161,6 +163,16 @@ fun CollapsingTopBarScaffold(
         }
 
         private fun Float.toOffset() = Offset(0f, this)
+    }
+
+    LaunchedEffect(contentLazyListState) {
+        anchoredDraggableState.animateTo(
+            when {
+                contentLazyListState == null -> State.EXPANDED
+                contentLazyListState.firstVisibleItemIndex > 0 || contentLazyListState.firstVisibleItemScrollOffset > 0 -> State.COLLAPSED
+                else -> State.EXPANDED
+            }
+        )
     }
 
     WireScaffold(

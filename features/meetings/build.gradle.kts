@@ -24,6 +24,11 @@ dependencies {
     implementation(libs.hilt.navigationCompose)
     implementation(libs.hilt.work)
 
+    // smaller view models
+    implementation(libs.resaca.core)
+    implementation(libs.resaca.hilt)
+    implementation(libs.bundlizer.core)
+
     val composeBom = platform(libs.compose.bom)
     implementation(composeBom)
     implementation(libs.compose.ui)

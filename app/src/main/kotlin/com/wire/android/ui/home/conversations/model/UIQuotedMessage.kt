@@ -45,7 +45,7 @@ sealed class UIQuotedMessage {
         sealed interface Content
 
         @Serializable
-        data class Text(val value: String) : Content
+        data class Text(val value: UIText) : Content
 
         @Serializable
         data class GenericAsset(
@@ -89,9 +89,7 @@ fun UIMessage.Regular.mapToQuotedContent(): UIQuotedMessage.UIQuotedData.Content
             assetMimeType = messageContent.mimeType
         )
 
-        is UIMessageContent.TextMessage -> UIQuotedMessage.UIQuotedData.Text(
-            value = messageContent.messageBody.message.asString(null)
-        )
+        is UIMessageContent.TextMessage -> UIQuotedMessage.UIQuotedData.Text(value = messageContent.messageBody.message)
 
         is UIMessageContent.AudioAssetMessage -> UIQuotedMessage.UIQuotedData.AudioMessage
 

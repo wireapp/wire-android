@@ -26,7 +26,7 @@ object AndroidSdk {
 
 object AndroidApp {
     const val id = "com.wire.android"
-    const val versionName = "4.15.1"
+    const val versionName = "4.15.2"
     val versionCode by lazy {
         Versionizer(_rootDir).versionCode
     }

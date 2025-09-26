@@ -17,6 +17,7 @@
  */
 package com.wire.android.feature.cells.ui
 
+import android.os.Environment
 import androidx.lifecycle.SavedStateHandle
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
@@ -46,6 +47,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.mockkStatic
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -61,6 +63,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import java.io.File
 
 @ExtendWith(NavigationTestExtension::class)
 class CellViewModelTest {
@@ -140,7 +143,7 @@ class CellViewModelTest {
             .withLoadSuccess()
             .arrange()
 
-        viewModel.sendIntent(CellViewIntent.OnFileClick(testFiles[0].toUiModel()))
+        viewModel.sendIntent(CellViewIntent.OnItemClick(testFiles[0].toUiModel()))
 
         coVerify(exactly = 1) { arrangement.fileHelper.openAssetFileWithExternalApp(any(), any(), any(), any()) }
     }
@@ -156,7 +159,7 @@ class CellViewModelTest {
             contentUrl = "https://example.com/file"
         )
 
-        viewModel.sendIntent(CellViewIntent.OnFileClick(testFile.toUiModel()))
+        viewModel.sendIntent(CellViewIntent.OnItemClick(testFile.toUiModel()))
 
         coVerify(exactly = 1) { arrangement.fileHelper.openAssetUrlWithExternalApp(any(), any(), any()) }
     }
@@ -173,7 +176,7 @@ class CellViewModelTest {
         ).toUiModel()
 
         viewModel.downloadFileSheet.test {
-            viewModel.sendIntent(CellViewIntent.OnFileClick(testFile))
+            viewModel.sendIntent(CellViewIntent.OnItemClick(testFile))
 
             with(expectMostRecentItem()) {
                 assertEquals(testFile, this)
@@ -565,6 +568,12 @@ class CellViewModelTest {
         }
 
         fun arrange(): Pair<Arrangement, CellViewModel> {
+
+            mockkStatic(Environment::class)
+
+            every { fileNameResolver.getUniqueFile(any(), any()) } returns File("")
+            coEvery { Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) } returns File("")
+
             return this to CellViewModel(
                 savedStateHandle = savedStateHandle,
                 getCellFilesPaged = getCellFilesPagedUseCase,

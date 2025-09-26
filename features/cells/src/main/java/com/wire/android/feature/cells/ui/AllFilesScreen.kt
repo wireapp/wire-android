@@ -66,8 +66,8 @@ fun AllFilesScreen(
         actionsFlow = viewModel.actions,
         pagingListItems = pagingListItems,
         sendIntent = { viewModel.sendIntent(it) },
-        onFolderClick = {
-            navigator.navigate(NavigationCommand(ConversationFilesScreenDestination(it.remotePath)))
+        openFolder = { path, _, _ ->
+            navigator.navigate(NavigationCommand(ConversationFilesScreenDestination(path)))
         },
         downloadFileState = viewModel.downloadFileSheet,
         menuState = viewModel.menu,

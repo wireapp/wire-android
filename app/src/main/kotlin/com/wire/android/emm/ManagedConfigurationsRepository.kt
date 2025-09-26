@@ -40,22 +40,18 @@ class ManagedConfigurationsRepository @Inject constructor(
         context.getSystemService(Context.RESTRICTIONS_SERVICE) as RestrictionsManager
     }
 
-    fun getServerConfig(): ManagedServerConfig? {
+    suspend fun getServerConfigAsync(): ManagedServerConfig? = withContext(dispatchers.io()) {
         val restrictions = restrictionsManager.applicationRestrictions
 
         if (restrictions == null || restrictions.isEmpty) {
-            return null
+            return@withContext null
         }
 
         val serverConfigJson = getJsonRestrictionByKey<ManagedServerConfig>(
             ManagedConfigurationsKeys.DEFAULT_SERVER_URLS.asKey()
         )
         logger.d("Managed server config: $serverConfigJson")
-        return serverConfigJson
-    }
-
-    suspend fun getServerConfigAsync(): ManagedServerConfig? = withContext(dispatchers.io()) {
-        getServerConfig()
+        return@withContext serverConfigJson
     }
 
     private inline fun <reified T> getJsonRestrictionByKey(key: String): T? =

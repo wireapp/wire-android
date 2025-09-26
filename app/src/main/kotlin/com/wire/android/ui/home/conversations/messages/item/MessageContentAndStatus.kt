@@ -1,6 +1,5 @@
 package com.wire.android.ui.home.conversations.messages.item
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -29,6 +28,7 @@ import com.wire.android.ui.home.conversations.model.MessageImage
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
+import com.wire.android.ui.home.conversations.model.UIMessageContent.PartialDeliverable
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.MessageAsset
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.RestrictedAssetMessage
@@ -38,6 +38,7 @@ import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMess
 import com.wire.android.ui.home.conversations.model.messagetypes.location.LocationMessageContent
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.MultipartAttachmentsView
 import com.wire.android.ui.home.conversations.model.messagetypes.video.VideoMessage
+import com.wire.android.ui.theme.Accent
 import com.wire.android.util.launchGeoIntent
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 
@@ -54,6 +55,7 @@ internal fun UIMessage.Regular.MessageContentAndStatus(
     onReplyClicked: (UIMessage.Regular) -> Unit,
     shouldDisplayMessageStatus: Boolean,
     conversationDetailsData: ConversationDetailsData,
+    accent: Accent = Accent.Unknown,
 ) {
     val onAssetClickable = remember(message) {
         Clickable(enabled = isAvailable, onClick = {
@@ -71,7 +73,7 @@ internal fun UIMessage.Regular.MessageContentAndStatus(
         }
     }
     Row {
-        Box(
+        Column(
             Modifier
                 .applyIf(!messageStyle.isBubble()) { weight(1F) }
         ) {
@@ -86,7 +88,13 @@ internal fun UIMessage.Regular.MessageContentAndStatus(
                 onLinkClick = onLinkClicked,
                 onReplyClick = onReplyClickable,
                 messageStyle = messageStyle,
+                accent = accent
             )
+            if (!messageStyle.isBubble()) {
+                (messageContent as PartialDeliverable?)?.deliveryStatus?.let {
+                    PartialDeliveryInformation(it, messageStyle)
+                }
+            }
         }
         if (!messageStyle.isBubble()) {
             if (isMyMessage && shouldDisplayMessageStatus) {
@@ -125,38 +133,33 @@ private fun MessageContent(
     onOpenProfile: (String) -> Unit,
     onLinkClick: (String) -> Unit,
     onReplyClick: Clickable,
+    accent: Accent
 ) {
     when (messageContent) {
         is UIMessageContent.ImageMessage -> {
-            Column {
-                MessageImage(
-                    asset = messageContent.asset,
-                    imgParams = ImageMessageParams(messageContent.width, messageContent.height, allowUpscale = true),
-                    transferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
-                    onImageClick = onImageClick,
-                    messageStyle = messageStyle
-                )
-                PartialDeliveryInformation(messageContent.deliveryStatus)
-            }
+            MessageImage(
+                asset = messageContent.asset,
+                imgParams = ImageMessageParams(messageContent.width, messageContent.height, allowUpscale = true),
+                transferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
+                onImageClick = onImageClick,
+                messageStyle = messageStyle
+            )
         }
 
         is UIMessageContent.VideoMessage -> {
-            Column {
-                VideoMessage(
-                    assetSize = messageContent.assetSizeInBytes,
-                    assetName = messageContent.assetName,
-                    assetExtension = messageContent.assetExtension,
-                    assetDataPath = messageContent.assetDataPath,
-                    width = messageContent.width,
-                    height = messageContent.height,
-                    duration = messageContent.duration,
-                    transferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
-                    onVideoClick = onAssetClick,
-                    messageStyle = messageStyle
+            VideoMessage(
+                assetSize = messageContent.assetSizeInBytes,
+                assetName = messageContent.assetName,
+                assetExtension = messageContent.assetExtension,
+                assetDataPath = messageContent.assetDataPath,
+                width = messageContent.width,
+                height = messageContent.height,
+                duration = messageContent.duration,
+                transferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
+                onVideoClick = onAssetClick,
+                messageStyle = messageStyle
 
-                )
-                PartialDeliveryInformation(messageContent.deliveryStatus)
-            }
+            )
         }
 
         is UIMessageContent.TextMessage -> {
@@ -166,14 +169,19 @@ private fun MessageContent(
                     when (it) {
                         is UIQuotedMessage.UIQuotedData -> QuotedMessage(
                             messageData = it,
-                            style = QuotedMessageStyle(quotedStyle = QuotedStyle.COMPLETE, messageStyle = messageStyle),
+                            style = QuotedMessageStyle(
+                                quotedStyle = QuotedStyle.COMPLETE,
+                                messageStyle = messageStyle,
+                                selfAccent = accent
+                            ),
                             clickable = onReplyClick
                         )
 
                         UIQuotedMessage.UnavailableData -> QuotedUnavailable(
                             style = QuotedMessageStyle(
                                 quotedStyle = QuotedStyle.COMPLETE,
-                                messageStyle = messageStyle
+                                messageStyle = messageStyle,
+                                selfAccent = accent
                             )
                         )
                     }
@@ -189,7 +197,6 @@ private fun MessageContent(
                     onLinkClick = onLinkClick,
                     messageStyle = messageStyle
                 )
-                PartialDeliveryInformation(messageContent.deliveryStatus)
             }
         }
 
@@ -202,7 +209,8 @@ private fun MessageContent(
                             messageData = it,
                             style = QuotedMessageStyle(
                                 quotedStyle = QuotedStyle.COMPLETE,
-                                messageStyle = messageStyle
+                                messageStyle = messageStyle,
+                                selfAccent = accent
                             ),
                             clickable = onReplyClick
                         )
@@ -210,7 +218,8 @@ private fun MessageContent(
                         UIQuotedMessage.UnavailableData -> QuotedUnavailable(
                             style = QuotedMessageStyle(
                                 quotedStyle = QuotedStyle.COMPLETE,
-                                messageStyle = messageStyle
+                                messageStyle = messageStyle,
+                                selfAccent = accent
                             )
                         )
                     }
@@ -229,88 +238,76 @@ private fun MessageContent(
         }
 
         is UIMessageContent.AssetMessage -> {
-            Column {
-                MessageAsset(
-                    assetName = messageContent.assetName,
-                    assetExtension = messageContent.assetExtension,
-                    assetSizeInBytes = messageContent.assetSizeInBytes,
-                    assetDataPath = messageContent.assetDataPath,
-                    assetTransferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
-                    onAssetClick = onAssetClick,
-                    messageStyle = messageStyle
-                )
-                PartialDeliveryInformation(messageContent.deliveryStatus)
-            }
+            MessageAsset(
+                assetName = messageContent.assetName,
+                assetExtension = messageContent.assetExtension,
+                assetSizeInBytes = messageContent.assetSizeInBytes,
+                assetDataPath = messageContent.assetDataPath,
+                assetTransferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
+                onAssetClick = onAssetClick,
+                messageStyle = messageStyle
+            )
         }
 
         is UIMessageContent.RestrictedAsset -> {
-            Column {
-                when {
-                    messageContent.mimeType.contains("image/") -> {
-                        RestrictedAssetMessage(
-                            assetTypeIcon = R.drawable.ic_gallery,
-                            restrictedAssetMessage = stringResource(id = R.string.prohibited_images_message),
-                            messageStyle = messageStyle
-                        )
-                    }
-
-                    messageContent.mimeType.contains("video/") -> {
-                        RestrictedAssetMessage(
-                            assetTypeIcon = R.drawable.ic_video,
-                            restrictedAssetMessage = stringResource(id = R.string.prohibited_videos_message),
-                            messageStyle = messageStyle
-                        )
-                    }
-
-                    messageContent.mimeType.contains("audio/") -> {
-                        RestrictedAssetMessage(
-                            assetTypeIcon = R.drawable.ic_speaker_on,
-                            restrictedAssetMessage = stringResource(id = R.string.prohibited_audio_message),
-                            messageStyle = messageStyle
-                        )
-                    }
-
-                    else -> {
-                        RestrictedGenericFileMessage(
-                            fileName = messageContent.assetName,
-                            fileSize = messageContent.assetSizeInBytes,
-                            messageStyle = messageStyle
-                        )
-                    }
+            when {
+                messageContent.mimeType.contains("image/") -> {
+                    RestrictedAssetMessage(
+                        assetTypeIcon = R.drawable.ic_gallery,
+                        restrictedAssetMessage = stringResource(id = R.string.prohibited_images_message),
+                        messageStyle = messageStyle
+                    )
                 }
-                PartialDeliveryInformation(messageContent.deliveryStatus)
+
+                messageContent.mimeType.contains("video/") -> {
+                    RestrictedAssetMessage(
+                        assetTypeIcon = R.drawable.ic_video,
+                        restrictedAssetMessage = stringResource(id = R.string.prohibited_videos_message),
+                        messageStyle = messageStyle
+                    )
+                }
+
+                messageContent.mimeType.contains("audio/") -> {
+                    RestrictedAssetMessage(
+                        assetTypeIcon = R.drawable.ic_speaker_on,
+                        restrictedAssetMessage = stringResource(id = R.string.prohibited_audio_message),
+                        messageStyle = messageStyle
+                    )
+                }
+
+                else -> {
+                    RestrictedGenericFileMessage(
+                        fileName = messageContent.assetName,
+                        fileSize = messageContent.assetSizeInBytes,
+                        messageStyle = messageStyle
+                    )
+                }
             }
         }
 
         is UIMessageContent.AudioAssetMessage -> {
-            Column {
-                AudioMessage(
-                    audioMessageArgs = AudioMessageArgs(message.conversationId, message.header.messageId),
-                    audioMessageDurationInMs = messageContent.audioMessageDurationInMs,
-                    extension = messageContent.assetExtension,
-                    size = messageContent.sizeInBytes,
-                    assetTransferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
-                    messageStyle = messageStyle
-                )
-                PartialDeliveryInformation(messageContent.deliveryStatus)
-            }
+            AudioMessage(
+                audioMessageArgs = AudioMessageArgs(message.conversationId, message.header.messageId),
+                audioMessageDurationInMs = messageContent.audioMessageDurationInMs,
+                extension = messageContent.assetExtension,
+                size = messageContent.sizeInBytes,
+                assetTransferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
+                messageStyle = messageStyle
+            )
         }
 
         is UIMessageContent.Location -> with(messageContent) {
             val context = LocalContext.current
             val locationUrl = stringResource(urlCoordinates, zoom, latitude, longitude)
-            Column {
-                LocationMessageContent(
-                    locationName = name,
-                    locationUrl = locationUrl,
-                    onLocationClick = Clickable(
-                        enabled = message.isAvailable,
-                        onClick = { launchGeoIntent(latitude, longitude, name, locationUrl, context) },
-                    ),
-                    messageStyle = messageStyle
-                )
-                PartialDeliveryInformation(deliveryStatus)
-            }
+            LocationMessageContent(
+                locationName = name,
+                locationUrl = locationUrl,
+                onLocationClick = Clickable(
+                    enabled = message.isAvailable,
+                    onClick = { launchGeoIntent(latitude, longitude, name, locationUrl, context) },
+                ),
+                messageStyle = messageStyle
+            )
         }
 
         is UIMessageContent.Multipart ->
@@ -331,9 +328,9 @@ private fun MessageContent(
                 MultipartAttachmentsView(
                     conversationId = message.conversationId,
                     attachments = messageContent.attachments,
-                    messageStyle = messageStyle
+                    messageStyle = messageStyle,
+                    accent = accent,
                 )
-                PartialDeliveryInformation(messageContent.deliveryStatus)
             }
 
         UIMessageContent.Deleted -> {}
@@ -345,11 +342,11 @@ private fun MessageContent(
 }
 
 @Composable
-private fun PartialDeliveryInformation(deliveryStatus: DeliveryStatusContent) {
+fun PartialDeliveryInformation(deliveryStatus: DeliveryStatusContent?, messageStyle: MessageStyle) {
     (deliveryStatus as? DeliveryStatusContent.PartialDelivery)?.let { partialDelivery ->
         if (partialDelivery.hasFailures) {
             VerticalSpace.x4()
-            MessageSentPartialDeliveryFailures(partialDelivery)
+            MessageSentPartialDeliveryFailures(partialDelivery, messageStyle)
         }
     }
 }

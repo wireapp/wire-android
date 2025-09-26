@@ -23,11 +23,12 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
@@ -56,9 +57,11 @@ import com.wire.android.ui.common.progress.WireLinearProgressIndicator
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.home.conversations.messages.item.isBubble
+import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageParams
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.previewAvailable
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.previewImageModel
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.transferProgressColor
+import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.DateAndTimeParsers
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -72,11 +75,16 @@ import com.wire.kalium.logic.data.message.width
 @Composable
 internal fun VideoAssetPreview(
     item: MultipartAttachmentUi,
-    messageStyle: MessageStyle
+    messageStyle: MessageStyle,
+    accent: Accent = Accent.Unknown
 ) {
 
-    val width = item.metadata?.width() ?: 0
-    val height = item.metadata?.height() ?: 0
+    val videoSize = ImageMessageParams(
+        realImgWidth = item.metadata?.width() ?: 0,
+        realImgHeight = item.metadata?.height() ?: 0,
+        allowUpscale = true
+    ).normalizedSize()
+
     val maxWidth = calculateMaxMediaAssetWidth(
         item = item,
         maxDefaultWidth = dimensions().attachmentVideoMaxWidth,
@@ -85,26 +93,40 @@ internal fun VideoAssetPreview(
 
     val fileNameColor = when (messageStyle) {
         MessageStyle.BUBBLE_SELF -> colorsScheme().onPrimary
-        MessageStyle.BUBBLE_OTHER -> colorsScheme().onPrimary
+        MessageStyle.BUBBLE_OTHER -> colorsScheme().onSurface
         MessageStyle.NORMAL -> colorsScheme().onSurface
     }
 
     Column(
         modifier = Modifier
-            .widthIn(max = maxWidth)
-            .applyIf(!messageStyle.isBubble()) {
+            .width(videoSize.width + dimensions().spacing16x)
+            .applyIf(messageStyle == MessageStyle.BUBBLE_SELF) {
                 background(
-                    color = colorsScheme().surface,
-                    shape = RoundedCornerShape(dimensions().messageAttachmentCornerSize)
+                    colorsScheme().bubbleContainerAccentBackgroundColor.getOrDefault(
+                        accent,
+                        colorsScheme().defaultBubbleContainerBackgroundColor
+                    )
                 )
             }
-            .border(
-                width = dimensions().spacing1x,
-                color = colorsScheme().outline,
-                shape = RoundedCornerShape(dimensions().messageAttachmentCornerSize)
-            )
-            .clip(RoundedCornerShape(dimensions().messageAttachmentCornerSize))
-            .padding(dimensions().spacing10x),
+            .applyIf(messageStyle == MessageStyle.BUBBLE_OTHER) {
+                background(
+                    colorsScheme().surface
+                )
+            }
+            .padding(dimensions().spacing8x)
+            .applyIf(!messageStyle.isBubble()) {
+                background(
+                    color = colorsScheme().primaryButtonSelected,
+                    shape = RoundedCornerShape(dimensions().messageAttachmentCornerSize)
+                )
+                border(
+                    width = dimensions().spacing1x,
+                    color = colorsScheme().outline,
+                    shape = RoundedCornerShape(dimensions().messageAttachmentCornerSize)
+                )
+                padding(dimensions().spacing6x)
+            }
+            .clip(RoundedCornerShape(dimensions().messageAttachmentCornerSize)),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(dimensions().spacing8x)
     ) {
@@ -132,7 +154,8 @@ internal fun VideoAssetPreview(
 
         Box(
             modifier = Modifier
-                .aspectRatio(aspectRatio(width, height))
+                .width(videoSize.width)
+                .height(videoSize.height)
                 .background(
                     color = colorsScheme().outline,
                     shape = RoundedCornerShape(dimensions().messageAttachmentCornerSize)

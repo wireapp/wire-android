@@ -31,8 +31,10 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.SelfDeletionTimerHelper
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.model.DeliveryStatusContent
+import com.wire.android.ui.home.conversations.model.MessageFlowStatus
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.UIMessage
+import com.wire.android.ui.home.conversations.model.UIMessageContent.PartialDeliverable
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 
@@ -122,6 +124,39 @@ fun RegularMessageItem(
                     null
                 }
 
+            val errorSlot: (@Composable () -> Unit)? = when {
+                sendingFailed -> {
+                    {
+                        MessageSendFailureWarning(
+                            messageStatus = header.messageStatus.flowStatus as MessageFlowStatus.Failure.Send,
+                            isInteractionAvailable = failureInteractionAvailable,
+                            messageStyle = messageStyle,
+                            onRetryClick = remember(message) {
+                                {
+                                    clickActions.onFailedMessageRetryClicked(
+                                        header.messageId,
+                                        message.conversationId
+                                    )
+                                }
+                            },
+                            onCancelClick = remember(message) {
+                                {
+                                    clickActions.onFailedMessageCancelClicked(header.messageId)
+                                }
+                            }
+                        )
+                    }
+                }
+
+                messageContent is PartialDeliverable && messageContent.deliveryStatus.hasAnyFailures -> {
+                    {
+                        PartialDeliveryInformation(messageContent.deliveryStatus, messageStyle)
+                    }
+                }
+
+                else -> null
+            }
+
             MessageBubbleItem(
                 message = message,
                 source = source,
@@ -130,6 +165,7 @@ fun RegularMessageItem(
                 accent = header.accent,
                 useSmallBottomPadding = useSmallBottomPadding,
                 leading = leadingSlot,
+                error = errorSlot,
                 onClick = clickActions.onFullMessageClicked?.let { onFullMessageClicked ->
                     {
                         onFullMessageClicked(message.header.messageId)
@@ -151,6 +187,7 @@ fun RegularMessageItem(
                         message = message,
                         conversationDetailsData = conversationDetailsData,
                         modifier = modifier,
+                        accent = header.accent,
                         searchQuery = searchQuery,
                         assetStatus = assetStatus,
                         shouldDisplayMessageStatus = shouldDisplayMessageStatus,

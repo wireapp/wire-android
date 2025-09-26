@@ -17,6 +17,7 @@
  */
 package com.wire.android.feature.cells.ui
 
+import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -93,7 +94,7 @@ internal fun CellScreenContent(
 
     var deleteConfirmation by remember { mutableStateOf<Pair<CellNodeUi, Boolean>?>((null)) }
     var restoreConfirmation by remember { mutableStateOf<CellNodeUi?>(null) }
-    var unableToRestore by remember { mutableStateOf(false) }
+    var showRestoreError by remember { mutableStateOf<ShowUnableToRestoreDialog?>(null) }
     var restoreParentFolderConfirmation by remember { mutableStateOf<CellNodeUi?>(null) }
     var menu by remember { mutableStateOf<MenuOptions?>(null) }
 
@@ -176,14 +177,11 @@ internal fun CellScreenContent(
         )
     }
 
-    if (unableToRestore) {
+    showRestoreError?.let {
         UnableToRestoreDialog(
-            isFolder = restoreConfirmation is CellNodeUi.Folder,
-            onConfirm = {
-                unableToRestore = false
-            },
+            isFolder = it.isFolder,
             onDismiss = {
-                unableToRestore = false
+                showRestoreError = null
             }
         )
     }
@@ -219,19 +217,12 @@ internal fun CellScreenContent(
             is ShowMoveToFolderScreen -> showMoveToFolderScreen(action.currentPath, action.nodeToMovePath, action.uuid)
             is ShowAddRemoveTagsScreen -> showAddRemoveTagsScreen(action.cellNode)
             is RefreshData -> pagingListItems.refresh()
-            is ShowUnableToRestoreDialog -> unableToRestore = true
+            is ShowUnableToRestoreDialog -> showRestoreError = action
             is ShowRestoreParentFolderDialog -> restoreParentFolderConfirmation = action.cellNode
             is HideRestoreConfirmation -> restoreConfirmation = null
             is HideRestoreParentFolderDialog -> restoreParentFolderConfirmation = null
             is HideDeleteConfirmation -> deleteConfirmation = null
-            is ShowFileDeletedMessage -> {
-                val message = if (action.permanently) {
-                    context.getString(R.string.cells_file_permanently_deleted_message)
-                } else {
-                    context.getString(R.string.cells_file_deleted_message)
-                }
-                Toast.makeText(context, message, Toast.LENGTH_LONG).show()
-            }
+            is ShowFileDeletedMessage -> showDeleteConfirmation(context, action.isFile, action.permanently)
         }
     }
 
@@ -348,6 +339,20 @@ private fun EmptyScreen(
             )
         }
     }
+}
+
+private fun showDeleteConfirmation(
+    context: Context,
+    isFile: Boolean,
+    isPermanentlyDeleted: Boolean
+) {
+    val message = when {
+        !isFile && isPermanentlyDeleted -> R.string.cells_folder_permanently_deleted_message
+        !isFile && !isPermanentlyDeleted -> R.string.cells_folder_deleted_message
+        isFile && isPermanentlyDeleted -> R.string.cells_file_permanently_deleted_message
+        else -> R.string.cells_file_deleted_message
+    }
+    Toast.makeText(context, message, Toast.LENGTH_LONG).show()
 }
 
 @MultipleThemePreviews

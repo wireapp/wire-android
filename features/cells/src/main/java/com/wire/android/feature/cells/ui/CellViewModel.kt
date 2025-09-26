@@ -70,6 +70,7 @@ import okio.Path
 import okio.Path.Companion.toOkioPath
 import okio.Path.Companion.toPath
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.seconds
 
 @Suppress("TooManyFunctions", "LongParameterList")
 @HiltViewModel
@@ -127,7 +128,9 @@ class CellViewModel @Inject constructor(
     private val refreshTrigger = MutableSharedFlow<Unit>(replay = 0)
 
     init {
-        loadTags()
+        viewModelScope.launch {
+            loadTags()
+        }
     }
 
     internal val nodesFlow = flow {
@@ -450,7 +453,12 @@ class CellViewModel @Inject constructor(
             .onSuccess {
                 _isDeleteInProgress.value = false
                 sendAction(HideDeleteConfirmation)
-                sendAction(ShowFileDeletedMessage(isRecycleBin()))
+                sendAction(
+                    ShowFileDeletedMessage(
+                        isFile = node is CellNodeUi.File,
+                        permanently = isRecycleBin()
+                    )
+                )
                 refreshNodes()
                 // Wait until refresh completes
                 pagingRefreshDone.first()
@@ -482,12 +490,12 @@ class CellViewModel @Inject constructor(
                 .onFailure {
                     _isRestoreInProgress.value = false
                     addToListUi(node)
-                    sendAction(ShowError(CellError.OTHER_ERROR))
                     if (isParentNode) {
                         sendAction(HideRestoreParentFolderDialog)
                     } else {
                         sendAction(HideRestoreConfirmation)
                     }
+                    sendAction(ShowUnableToRestoreDialog(node is CellNodeUi.Folder))
                 }
         }
     }
@@ -518,8 +526,10 @@ class CellViewModel @Inject constructor(
         }
     }
 
-    fun loadTags() = viewModelScope.launch {
+    suspend fun loadTags() {
         getAllTagsUseCase().onSuccess { updated -> _tags.update { updated } }
+        // apply delay to avoid too frequent requests
+        delay(30.seconds)
     }
 
     companion object {
@@ -556,10 +566,10 @@ internal data class ShowPublicLinkScreen(val cellNode: CellNodeUi) : CellViewAct
 internal data class ShowRenameScreen(val cellNode: CellNodeUi) : CellViewAction
 internal data class ShowAddRemoveTagsScreen(val cellNode: CellNodeUi) : CellViewAction
 internal data class ShowMoveToFolderScreen(val currentPath: String, val nodeToMovePath: String, val uuid: String) : CellViewAction
-internal data object ShowUnableToRestoreDialog : CellViewAction
+internal data class ShowUnableToRestoreDialog(val isFolder: Boolean) : CellViewAction
 internal data class ShowRestoreParentFolderDialog(val cellNode: CellNodeUi) : CellViewAction
 internal data object HideRestoreParentFolderDialog : CellViewAction
-internal data class ShowFileDeletedMessage(val permanently: Boolean) : CellViewAction
+internal data class ShowFileDeletedMessage(val isFile: Boolean, val permanently: Boolean) : CellViewAction
 internal data object RefreshData : CellViewAction
 
 internal enum class CellError(val message: Int) {

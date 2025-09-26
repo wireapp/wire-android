@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.DpSize
 import com.wire.android.ui.common.dimensions
 import kotlinx.serialization.Serializable
 import kotlin.math.max
+import kotlin.math.min
 
 @Serializable
 data class ImageMessageParams(
@@ -39,23 +40,32 @@ data class ImageMessageParams(
         maxW: Dp = dimensions().messageImageMaxWidth,
         maxH: Dp = dimensions().messageImageMaxHeight
     ): DpSize {
-        val d = LocalDensity.current
-        val realW = with(d) { realImgWidth.coerceAtLeast(1).toDp() }
-        val realH = with(d) { realImgHeight.coerceAtLeast(1).toDp() }
+        if (realImgWidth <= 0 || realImgHeight <= 0) {
+            return DpSize(minW, minH)
+        }
 
-        val scaleToMax = minOf(maxW / realW, maxH / realH)
-        val scaleToMin = max(minW / realW, minH / realH)
+        val density = LocalDensity.current
+        val realW = with(density) { realImgWidth.toDp() }
+        val realH = with(density) { realImgHeight.toDp() }
+
+        val widthScale = maxW / realW
+        val heightScale = maxH / realH
+        val scaleToFit = min(widthScale, heightScale)
+
+        val minWidthScale = minW / realW
+        val minHeightScale = minH / realH
+        val scaleToMin = max(minWidthScale, minHeightScale)
 
         val scale = when {
             realW in minW..maxW && realH in minH..maxH -> 1f
-            scaleToMax < 1f -> scaleToMax
+            scaleToFit < 1f -> scaleToFit
             scaleToMin > 1f -> if (allowUpscale) scaleToMin else 1f
             else -> 1f
         }
 
-        val w = (realW * scale).coerceIn(if (allowUpscale) minW else dimensions().spacing0x, maxW)
-        val h = (realH * scale).coerceIn(if (allowUpscale) minH else dimensions().spacing0x, maxH)
+        val scaledW = realW * scale
+        val scaledH = realH * scale
 
-        return DpSize(w, h)
+        return DpSize(scaledW, scaledH)
     }
 }

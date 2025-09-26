@@ -20,6 +20,8 @@ package com.wire.android.ui.home.conversations.messages.item
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import com.wire.android.ui.theme.wireColorScheme
 
 enum class MessageStyle {
@@ -46,6 +48,15 @@ fun MessageStyle.textColor(): Color {
 }
 
 @Composable
+fun MessageStyle.onBackground(): Color {
+    return when (this) {
+        MessageStyle.BUBBLE_SELF -> MaterialTheme.wireColorScheme.onPrimary
+        MessageStyle.BUBBLE_OTHER -> MaterialTheme.wireColorScheme.onBackground
+        MessageStyle.NORMAL -> MaterialTheme.wireColorScheme.onBackground
+    }
+}
+
+@Composable
 fun MessageStyle.surface(): Color = when (this) {
     MessageStyle.BUBBLE_SELF -> MaterialTheme.wireColorScheme.scrim
     MessageStyle.BUBBLE_OTHER -> MaterialTheme.wireColorScheme.surfaceVariant
@@ -64,6 +75,24 @@ fun MessageStyle.onNodeBackground(): Color = when (this) {
     MessageStyle.BUBBLE_SELF -> MaterialTheme.wireColorScheme.markdownNodeTextColor
     MessageStyle.BUBBLE_OTHER -> MaterialTheme.wireColorScheme.onBackground
     MessageStyle.NORMAL -> MaterialTheme.wireColorScheme.onBackground
+}
+
+@Composable
+fun MessageStyle.errorTextStyle(): TextStyle {
+    return when (this) {
+        MessageStyle.BUBBLE_SELF -> MaterialTheme.typography.bodySmall
+        MessageStyle.BUBBLE_OTHER -> MaterialTheme.typography.bodySmall
+        MessageStyle.NORMAL -> MaterialTheme.typography.labelSmall
+    }
+}
+
+@Composable
+fun MessageStyle.textAlign(): TextAlign {
+    return when (this) {
+        MessageStyle.BUBBLE_SELF -> TextAlign.End
+        MessageStyle.BUBBLE_OTHER -> TextAlign.Start
+        MessageStyle.NORMAL -> TextAlign.Start
+    }
 }
 
 private const val SELF_BUBBLE_OPACITY = 0.5F

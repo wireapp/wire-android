@@ -282,6 +282,7 @@
     <string name="search_bar_conversations_hint">Поиск бесед</string>
     <string name="search_no_results">Совпадений не найдено</string>
     <string name="team_management_screen_title">Управлять командой</string>
+    <string name="meetings_screen_title">Встречи</string>
     <!--Whats New -->
     <string name="whats_new_screen_title">Что нового</string>
     <string name="whats_new_welcome_to_new_android_app_label">👋 Добро пожаловать в новое приложение Wire для Android!</string>

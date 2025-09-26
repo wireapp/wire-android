@@ -39,6 +39,7 @@ import com.wire.android.ui.common.multipart.toUiModel
 import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.grid.AssetGridPreview
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.standalone.AssetPreview
+import com.wire.android.ui.theme.Accent
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.asset.isFailed
 import com.wire.kalium.logic.data.id.ConversationId
@@ -54,6 +55,7 @@ fun MultipartAttachmentsView(
     attachments: List<MessageAttachment>,
     messageStyle: MessageStyle,
     modifier: Modifier = Modifier,
+    accent: Accent = Accent.Unknown,
     viewModel: MultipartAttachmentsViewModel = hiltViewModel<MultipartAttachmentsViewModel>(key = conversationId.value),
 ) {
 
@@ -63,6 +65,7 @@ fun MultipartAttachmentsView(
             AssetPreview(
                 item = it,
                 messageStyle = messageStyle,
+                accent = accent,
                 onClick = { viewModel.onClick(it) },
             )
         }
@@ -81,6 +84,7 @@ fun MultipartAttachmentsView(
                                 item = group.attachments.first(),
                                 messageStyle = messageStyle,
                                 onClick = { viewModel.onClick(group.attachments.first()) },
+                                accent = accent
                             )
                         } else {
                             AttachmentsGrid(
@@ -94,7 +98,8 @@ fun MultipartAttachmentsView(
                         AttachmentsList(
                             attachments = group.attachments,
                             messageStyle = messageStyle,
-                            onClick = { viewModel.onClick(it) }
+                            onClick = { viewModel.onClick(it) },
+                            accent = accent
                         )
                 }
             }
@@ -109,6 +114,7 @@ fun MultipartAttachmentsView(
 private fun AttachmentsList(
     attachments: List<MultipartAttachmentUi>,
     messageStyle: MessageStyle,
+    accent: Accent,
     onClick: (MultipartAttachmentUi) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -121,6 +127,7 @@ private fun AttachmentsList(
                 messageStyle = messageStyle,
                 onClick = { onClick(it) },
                 modifier = modifier,
+                accent = accent
             )
         }
     }

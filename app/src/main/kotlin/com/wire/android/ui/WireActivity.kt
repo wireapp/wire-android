@@ -213,8 +213,10 @@ class WireActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        managedConfigurationsRepository.getServerConfig().let { serverConfig ->
-            appLogger.d("$TAG managed server config is : $serverConfig")
+        lifecycleScope.launch(Dispatchers.IO) {
+            managedConfigurationsRepository.getServerConfigAsync().let { serverConfig ->
+                appLogger.d("$TAG managed server config is : $serverConfig")
+            }
         }
         dynamicReceiversManager.registerAll()
     }

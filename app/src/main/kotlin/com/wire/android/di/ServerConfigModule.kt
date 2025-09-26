@@ -25,6 +25,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
+import kotlinx.coroutines.runBlocking
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -39,7 +40,10 @@ class ServerConfigModule {
         serverConfigProvider: ServerConfigProvider,
         managedConfigurationsRepository: ManagedConfigurationsRepository
     ): ServerConfig.Links {
-        val managedServerConfig = managedConfigurationsRepository.getServerConfig()
+        // Use runBlocking with IO dispatcher to avoid StrictMode violation
+        val managedServerConfig = runBlocking {
+            managedConfigurationsRepository.getServerConfigAsync()
+        }
         return serverConfigProvider.getDefaultServerConfig(managedServerConfig)
     }
 }

@@ -24,8 +24,8 @@ import kotlinx.serialization.Serializable
 data class ManagedServerConfig(
     @SerialName("title")
     val title: String,
-    @SerialName("links")
-    val links: ManagedServerLinks
+    @SerialName("endpoints")
+    val endpoints: ManagedServerLinks
 )
 
 @Serializable

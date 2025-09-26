@@ -30,12 +30,12 @@ class ServerConfigProvider @Inject constructor() {
         return if (managedServerConfig != null) {
             with(managedServerConfig) {
                 ServerConfig.Links(
-                    api = links.backendURL,
-                    accounts = links.accountsURL,
-                    webSocket = links.backendWSURL,
-                    teams = links.teamsURL,
-                    blackList = links.blackListURL,
-                    website = links.websiteURL,
+                    api = endpoints.backendURL,
+                    accounts = endpoints.accountsURL,
+                    webSocket = endpoints.backendWSURL,
+                    teams = endpoints.teamsURL,
+                    blackList = endpoints.blackListURL,
+                    website = endpoints.websiteURL,
                     title = title,
                     isOnPremises = true, // EMM configuration always treated as on-premises
                     apiProxy = null

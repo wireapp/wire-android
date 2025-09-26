@@ -20,14 +20,17 @@ package com.wire.android.emm
 import android.content.Context
 import android.content.RestrictionsManager
 import com.wire.android.appLogger
+import com.wire.android.util.dispatchers.DispatcherProvider
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class ManagedConfigurationsRepository @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val dispatchers: DispatcherProvider,
 ) {
 
     val json: Json = Json { ignoreUnknownKeys = true }
@@ -49,6 +52,10 @@ class ManagedConfigurationsRepository @Inject constructor(
         )
         logger.d("Managed server config: $serverConfigJson")
         return serverConfigJson
+    }
+
+    suspend fun getServerConfigAsync(): ManagedServerConfig? = withContext(dispatchers.io()) {
+        getServerConfig()
     }
 
     private inline fun <reified T> getJsonRestrictionByKey(key: String): T? =

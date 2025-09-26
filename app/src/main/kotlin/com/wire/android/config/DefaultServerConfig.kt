@@ -73,21 +73,3 @@ val DefaultServerConfig get() = getDefaultServerConfig()
 )
 fun ServerConfig.Links?.orDefault(managedServerConfig: ManagedServerConfig? = null) =
     this ?: getDefaultServerConfig(managedServerConfig)
-
-fun ServerConfig.Links.withManagedServerConfig(managedServerConfig: ManagedServerConfig?): ServerConfig.Links =
-    if (managedServerConfig != null) {
-        with(managedServerConfig) {
-            copy(
-                api = links.backendURL,
-                accounts = links.accountsURL,
-                webSocket = links.backendWSURL,
-                teams = links.teamsURL,
-                blackList = links.blackListURL,
-                website = links.websiteURL,
-                title = title,
-                isOnPremises = true // EMM configuration always treated as on-premises
-            )
-        }
-    } else {
-        this
-    }

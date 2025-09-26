@@ -74,6 +74,7 @@ import kotlin.math.roundToInt
  * @param contentLazyListState state of the content lazy list, used for calculating elevations
  * @param content content of the screen
  */
+@Suppress("CyclomaticComplexMethod")
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CollapsingTopBarScaffold(

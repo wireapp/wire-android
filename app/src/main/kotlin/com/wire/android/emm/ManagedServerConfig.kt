@@ -17,16 +17,19 @@
  */
 package com.wire.android.emm
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class ManagedServerConfig(
+    @SerialName("title")
     val title: String,
-    val endpoints: Endpoints
+    @SerialName("links")
+    val links: ManagedServerLinks
 )
 
 @Serializable
-data class Endpoints(
+data class ManagedServerLinks(
     val accountsURL: String,
     val backendURL: String,
     val backendWSURL: String,

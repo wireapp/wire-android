@@ -18,18 +18,76 @@
 package com.wire.android.config
 
 import com.wire.android.BuildConfig
+import com.wire.android.emm.ManagedServerConfig
 import com.wire.kalium.logic.configuration.server.ServerConfig
+import javax.inject.Inject
+import javax.inject.Singleton
 
-val DefaultServerConfig = ServerConfig.Links(
-    api = BuildConfig.DEFAULT_BACKEND_URL_BASE_API,
-    accounts = BuildConfig.DEFAULT_BACKEND_URL_ACCOUNTS,
-    webSocket = BuildConfig.DEFAULT_BACKEND_URL_BASE_WEBSOCKET,
-    teams = BuildConfig.DEFAULT_BACKEND_URL_TEAM_MANAGEMENT,
-    blackList = BuildConfig.DEFAULT_BACKEND_URL_BLACKLIST,
-    website = BuildConfig.DEFAULT_BACKEND_URL_WEBSITE,
-    title = BuildConfig.DEFAULT_BACKEND_TITLE,
-    isOnPremises = false,
-    apiProxy = null
+@Singleton
+class ServerConfigProvider @Inject constructor() {
+
+    fun getDefaultServerConfig(managedServerConfig: ManagedServerConfig? = null): ServerConfig.Links {
+        return if (managedServerConfig != null) {
+            with(managedServerConfig) {
+                ServerConfig.Links(
+                    api = links.backendURL,
+                    accounts = links.accountsURL,
+                    webSocket = links.backendWSURL,
+                    teams = links.teamsURL,
+                    blackList = links.blackListURL,
+                    website = links.websiteURL,
+                    title = title,
+                    isOnPremises = true, // EMM configuration always treated as on-premises
+                    apiProxy = null
+                )
+            }
+        } else {
+            ServerConfig.Links(
+                api = BuildConfig.DEFAULT_BACKEND_URL_BASE_API,
+                accounts = BuildConfig.DEFAULT_BACKEND_URL_ACCOUNTS,
+                webSocket = BuildConfig.DEFAULT_BACKEND_URL_BASE_WEBSOCKET,
+                teams = BuildConfig.DEFAULT_BACKEND_URL_TEAM_MANAGEMENT,
+                blackList = BuildConfig.DEFAULT_BACKEND_URL_BLACKLIST,
+                website = BuildConfig.DEFAULT_BACKEND_URL_WEBSITE,
+                title = BuildConfig.DEFAULT_BACKEND_TITLE,
+                isOnPremises = false,
+                apiProxy = null
+            )
+        }
+    }
+}
+
+// Keep the function for backward compatibility and Hilt module usage
+fun getDefaultServerConfig(managedServerConfig: ManagedServerConfig? = null): ServerConfig.Links {
+    val provider = ServerConfigProvider()
+    return provider.getDefaultServerConfig(managedServerConfig)
+}
+
+// Keep backward compatibility
+val DefaultServerConfig get() = getDefaultServerConfig()
+
+// Deprecated: Use Hilt-injected ServerConfig.Links instead
+@Deprecated(
+    "Use Hilt-injected ServerConfig.Links instead of calling orDefault()",
+    ReplaceWith("this ?: getDefaultServerConfig(managedServerConfig)")
 )
+fun ServerConfig.Links?.orDefault(managedServerConfig: ManagedServerConfig? = null) =
+    this ?: getDefaultServerConfig(managedServerConfig)
 
-fun ServerConfig.Links?.orDefault() = this ?: DefaultServerConfig
+fun ServerConfig.Links.withManagedServerConfig(managedServerConfig: ManagedServerConfig?): ServerConfig.Links =
+    if (managedServerConfig != null) {
+        with(managedServerConfig) {
+            copy(
+                api = links.backendURL,
+                accounts = links.accountsURL,
+                webSocket = links.backendWSURL,
+                teams = links.teamsURL,
+                blackList = links.blackListURL,
+                website = links.websiteURL,
+                title = title,
+                isOnPremises = true // EMM configuration always treated as on-premises
+            )
+        }
+    } else {
+        this
+    }

@@ -139,25 +139,25 @@ class WireApplication : BaseApp() {
     }
 
     private fun enableStrictMode() {
-//        if (BuildConfig.DEBUG) {
-//            StrictMode.setThreadPolicy(
-//                StrictMode.ThreadPolicy.Builder()
-//                    .detectDiskReads()
-//                    .detectDiskWrites()
-//                    .penaltyLog()
-////                    .penaltyDeath() // Disabled as some devices and libraries are not compliant
-//                    .build()
-//            )
-//            StrictMode.setVmPolicy(
-//                StrictMode.VmPolicy.Builder()
-//                    .detectFileUriExposure()
-//                    .detectLeakedSqlLiteObjects()
-//                    .detectLeakedClosableObjects()
-//                    .penaltyLog()
-//                    // .penaltyDeath() TODO: add it later after fixing reported violations
-//                    .build()
-//            )
-//        }
+        if (BuildConfig.DEBUG) {
+            StrictMode.setThreadPolicy(
+                StrictMode.ThreadPolicy.Builder()
+                    .detectDiskReads()
+                    .detectDiskWrites()
+                    .penaltyLog()
+//                    .penaltyDeath() // Disabled as some devices and libraries are not compliant
+                    .build()
+            )
+            StrictMode.setVmPolicy(
+                StrictMode.VmPolicy.Builder()
+                    .detectFileUriExposure()
+                    .detectLeakedSqlLiteObjects()
+                    .detectLeakedClosableObjects()
+                    .penaltyLog()
+                    // .penaltyDeath() TODO: add it later after fixing reported violations
+                    .build()
+            )
+        }
     }
 
     @Suppress("EmptyFunctionBlock")

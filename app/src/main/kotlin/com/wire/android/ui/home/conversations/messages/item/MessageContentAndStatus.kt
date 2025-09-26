@@ -91,8 +91,8 @@ internal fun UIMessage.Regular.MessageContentAndStatus(
                 accent = accent
             )
             if (!messageStyle.isBubble()) {
-                (messageContent as PartialDeliverable?)?.deliveryStatus?.let {
-                    PartialDeliveryInformation(it, messageStyle)
+                if (messageContent is PartialDeliverable && messageContent.deliveryStatus.hasAnyFailures) {
+                    PartialDeliveryInformation(messageContent.deliveryStatus, messageStyle)
                 }
             }
         }

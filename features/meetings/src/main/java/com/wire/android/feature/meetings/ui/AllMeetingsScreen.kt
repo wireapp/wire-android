@@ -25,7 +25,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material.Text
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
@@ -76,7 +75,6 @@ fun AllMeetingsScreen() {
                 state = lazyListState,
                 modifier = Modifier.fillMaxSize()
             ) {
-                for (i in 1..100) { item { Text(text = "Item $i") } }
             }
         }
     }

@@ -101,7 +101,10 @@ class HomeStateHolder(
         }
     }
 
-    fun changeConversationFilter(filter: ConversationFilter) = conversationFilterState.changeFilter(filter)
+    fun changeConversationFilter(filter: ConversationFilter) {
+        lazyListStateFor(Conversations, conversationFilterState.filter).requestScrollToItem(0, 0) // reset scroll for previous filter
+        conversationFilterState.changeFilter(filter)
+    }
 
     fun updateCellsFilters(newFilters: Set<CellsFilter>) = cellsFilterState.updateFilters(newFilters)
 }

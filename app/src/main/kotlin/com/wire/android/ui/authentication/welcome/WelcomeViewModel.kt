@@ -25,7 +25,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig
-import com.wire.android.config.orDefault
 import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.auth.AccountInfo
@@ -39,10 +38,11 @@ import javax.inject.Inject
 class WelcomeViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val getSessions: GetSessionsUseCase,
+    defaultServerConfig: ServerConfig.Links
 ) : ViewModel() {
     private val navArgs: WelcomeNavArgs = savedStateHandle.navArgs()
 
-    var state by mutableStateOf(WelcomeScreenState(navArgs.customServerConfig.orDefault()))
+    var state by mutableStateOf(WelcomeScreenState(navArgs.customServerConfig ?: defaultServerConfig))
         private set
 
     init {

@@ -27,7 +27,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig
 import com.wire.android.analytics.RegistrationAnalyticsManagerUseCase
-import com.wire.android.config.orDefault
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.feature.analytics.model.AnalyticsEvent
@@ -57,11 +56,12 @@ class CreateAccountVerificationCodeViewModel @Inject constructor(
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
     private val registrationAnalyticsManager: RegistrationAnalyticsManagerUseCase,
     private val clientScopeProviderFactory: ClientScopeProvider.Factory,
+    defaultServerConfig: ServerConfig.Links
 ) : ViewModel() {
 
     val createAccountNavArgs: CreateAccountDataNavArgs = savedStateHandle.navArgs()
 
-    val serverConfig: ServerConfig.Links = createAccountNavArgs.customServerConfig.orDefault()
+    val serverConfig: ServerConfig.Links = createAccountNavArgs.customServerConfig ?: defaultServerConfig
 
     val codeTextState: TextFieldState = TextFieldState()
     var codeState: CreateAccountVerificationCodeViewState by mutableStateOf(

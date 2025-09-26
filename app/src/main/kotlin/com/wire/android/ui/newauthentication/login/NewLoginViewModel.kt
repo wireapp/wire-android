@@ -27,7 +27,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.wire.android.config.orDefault
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.di.KaliumCoreLogic
@@ -75,6 +74,7 @@ class NewLoginViewModel(
     private val loginExtension: LoginViewModelExtension,
     private val ssoExtension: LoginSSOViewModelExtension,
     private val dispatchers: DispatcherProvider,
+    defaultServerConfig: ServerConfig.Links
 ) : ActionsViewModel<NewLoginAction>() {
 
     @Inject
@@ -86,6 +86,7 @@ class NewLoginViewModel(
         clientScopeProviderFactory: ClientScopeProvider.Factory,
         userDataStoreProvider: UserDataStoreProvider,
         dispatchers: DispatcherProvider,
+        defaultServerConfig: ServerConfig.Links
     ) : this(
         validateEmailOrSSOCode,
         coreLogic,
@@ -95,11 +96,12 @@ class NewLoginViewModel(
         LoginViewModelExtension(clientScopeProviderFactory, userDataStoreProvider),
         LoginSSOViewModelExtension(addAuthenticatedUser, coreLogic),
         dispatchers,
+        defaultServerConfig
     )
 
     private val loginNavArgs: LoginNavArgs = savedStateHandle.navArgs()
     private val preFilledUserIdentifier: PreFilledUserIdentifierType = loginNavArgs.userHandle ?: PreFilledUserIdentifierType.None
-    var serverConfig: ServerConfig.Links by mutableStateOf(loginNavArgs.loginPasswordPath?.customServerConfig.orDefault())
+    var serverConfig: ServerConfig.Links by mutableStateOf(loginNavArgs.loginPasswordPath?.customServerConfig ?: defaultServerConfig)
         private set
 
     var state by mutableStateOf(NewLoginScreenState())

@@ -32,10 +32,7 @@ class ManagedConfigurationsReceiver @Inject constructor(
     val logger = appLogger.withTextTag(TAG)
 
     override fun onReceive(context: Context, intent: Intent) {
-        logger.i("onReceive called")
-        managedConfigurationsRepository.getStringRestrictionByKey(ManagedConfigurationsKeys.TEST_KEY.asKey())?.let {
-            logger.i("Received restriction test_key: $it")
-        }
+        logger.i("onReceive called ${intent.action}")
     }
 
     companion object {

@@ -20,7 +20,6 @@ package com.wire.android.ui.authentication.login
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import com.wire.android.config.orDefault
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.di.KaliumCoreLogic
@@ -43,7 +42,8 @@ open class LoginViewModel(
     val clientScopeProviderFactory: ClientScopeProvider.Factory,
     val userDataStoreProvider: UserDataStoreProvider,
     val coreLogic: CoreLogic,
-    private val loginExtension: LoginViewModelExtension
+    private val loginExtension: LoginViewModelExtension,
+    defaultServerConfig: ServerConfig.Links
 ) : ViewModel() {
 
     @Inject
@@ -51,17 +51,19 @@ open class LoginViewModel(
         savedStateHandle: SavedStateHandle,
         clientScopeProviderFactory: ClientScopeProvider.Factory,
         userDataStoreProvider: UserDataStoreProvider,
-        @KaliumCoreLogic coreLogic: CoreLogic
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        defaultServerConfig: ServerConfig.Links
     ) : this(
         savedStateHandle,
         clientScopeProviderFactory,
         userDataStoreProvider,
         coreLogic,
-        LoginViewModelExtension(clientScopeProviderFactory, userDataStoreProvider)
+        LoginViewModelExtension(clientScopeProviderFactory, userDataStoreProvider),
+        defaultServerConfig
     )
 
     private val loginNavArgs: LoginNavArgs = savedStateHandle.navArgs()
-    val serverConfig: ServerConfig.Links = loginNavArgs.loginPasswordPath?.customServerConfig.orDefault()
+    val serverConfig: ServerConfig.Links = loginNavArgs.loginPasswordPath?.customServerConfig ?: defaultServerConfig
 
     suspend fun registerClient(
         userId: UserId,

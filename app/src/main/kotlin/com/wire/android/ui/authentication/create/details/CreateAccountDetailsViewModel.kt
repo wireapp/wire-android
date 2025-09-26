@@ -24,7 +24,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.config.orDefault
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
 import com.wire.android.ui.common.textfield.textAsFlow
@@ -41,6 +40,7 @@ import javax.inject.Inject
 class CreateAccountDetailsViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val validatePasswordUseCase: ValidatePasswordUseCase,
+    defaultServerConfig: ServerConfig.Links
 ) : ViewModel() {
 
     val createAccountNavArgs: CreateAccountNavArgs = savedStateHandle.navArgs()
@@ -52,7 +52,7 @@ class CreateAccountDetailsViewModel @Inject constructor(
     val teamNameTextState: TextFieldState = TextFieldState()
     var detailsState: CreateAccountDetailsViewState by mutableStateOf(CreateAccountDetailsViewState(createAccountNavArgs.flowType))
 
-    val serverConfig: ServerConfig.Links = createAccountNavArgs.customServerConfig.orDefault()
+    val serverConfig: ServerConfig.Links = createAccountNavArgs.customServerConfig ?: defaultServerConfig
 
     init {
         viewModelScope.launch {

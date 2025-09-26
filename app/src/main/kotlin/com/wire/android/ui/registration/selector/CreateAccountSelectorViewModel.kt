@@ -20,7 +20,6 @@ package com.wire.android.ui.registration.selector
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.config.orDefault
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.configuration.server.ServerConfig
@@ -32,9 +31,10 @@ import javax.inject.Inject
 class CreateAccountSelectorViewModel @Inject constructor(
     private val globalDataStore: GlobalDataStore,
     savedStateHandle: SavedStateHandle,
+    defaultServerConfig: ServerConfig.Links
 ) : ViewModel() {
     val navArgs: CreateAccountSelectorNavArgs = savedStateHandle.navArgs()
-    val serverConfig: ServerConfig.Links = navArgs.customServerConfig.orDefault()
+    val serverConfig: ServerConfig.Links = navArgs.customServerConfig ?: defaultServerConfig
     val email: String = navArgs.email.orEmpty()
     val teamAccountCreationUrl = serverConfig.teams
 

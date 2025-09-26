@@ -17,8 +17,23 @@
  */
 package com.wire.android.emm
 
-enum class ManagedConfigurationsKeys {
-    DEFAULT_SERVER_URLS;
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
-    fun asKey() = name.lowercase()
-}
+@Serializable
+data class ManagedServerConfig(
+    @SerialName("title")
+    val title: String,
+    @SerialName("endpoints")
+    val endpoints: ManagedServerLinks
+)
+
+@Serializable
+data class ManagedServerLinks(
+    val accountsURL: String,
+    val backendURL: String,
+    val backendWSURL: String,
+    val blackListURL: String,
+    val teamsURL: String,
+    val websiteURL: String
+)

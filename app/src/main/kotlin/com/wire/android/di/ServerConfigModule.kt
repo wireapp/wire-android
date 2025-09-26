@@ -22,10 +22,11 @@ import com.wire.android.emm.ManagedConfigurationsRepository
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import dagger.Module
 import dagger.Provides
+import dagger.Reusable
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import javax.inject.Singleton
 import kotlinx.coroutines.runBlocking
+import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -36,14 +37,13 @@ class ServerConfigModule {
     fun provideServerConfigProvider(): ServerConfigProvider = ServerConfigProvider()
 
     @Provides
+    @Reusable
     fun provideCurrentServerConfig(
         serverConfigProvider: ServerConfigProvider,
         managedConfigurationsRepository: ManagedConfigurationsRepository
     ): ServerConfig.Links {
-        // Use runBlocking with IO dispatcher to avoid StrictMode violation
-        val managedServerConfig = runBlocking {
-            managedConfigurationsRepository.getServerConfigAsync()
-        }
+        // Always fetch fresh managed config to avoid caching
+        val managedServerConfig = runBlocking { managedConfigurationsRepository.getServerConfigAsync() }
         return serverConfigProvider.getDefaultServerConfig(managedServerConfig)
     }
 }

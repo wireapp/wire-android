@@ -5,7 +5,7 @@ NC := \033[0m # No Color (reset)
 STAGING_APK_PATH := $(wildcard app/build/outputs/apk/staging/debug/com.*.apk)
 
 # Get user id for sample work profile
-WORK_PROFILE := $(shell adb shell pm list users | grep Sample)
+WORK_PROFILE := $(shell adb shell pm list users | grep "Managed Profile")
 WORK_PROFILE_ID := $(shell echo "$(WORK_PROFILE)" | awk -F'[:{}]' '{print $$2}')
 
 assemble/staging-debug:

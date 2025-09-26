@@ -145,7 +145,7 @@ internal fun QuotedMessage(
         )
 
         is UIQuotedMessage.UIQuotedData.Text -> QuotedText(
-            text = quotedContent.value,
+            text = quotedContent.value.asString(),
             editedTimeDescription = messageData.editedTimeDescription,
             originalDateTimeDescription = messageData.originalMessageDateDescription,
             senderName = messageData.senderName,

@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2025 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,7 +46,7 @@ import androidx.compose.ui.unit.dp
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.android.util.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import kotlin.math.absoluteValue
 
@@ -79,7 +79,7 @@ fun WireTabRow(
             val text = tabItem.title.asString().let {
                 if (upperCaseTitles) it.uppercase() else it
             }
-            val selectText = stringResource(id = com.wire.android.R.string.content_description_select_label)
+            val selectText = stringResource(id = R.string.content_description_select_label)
 
             Tab(
                 modifier = Modifier.semantics { onClick(selectText) { false } },
@@ -170,10 +170,10 @@ fun PreviewWireTabRow() {
         WireTabRow(
             tabs = listOf(
                 object : TabItem {
-                    override val title: UIText = UIText.StringResource(com.wire.android.R.string.conversation_details_options_tab)
+                    override val title: UIText = UIText.DynamicString("OPTIONS")
                 },
                 object : TabItem {
-                    override val title: UIText = UIText.StringResource(com.wire.android.R.string.conversation_details_participants_tab)
+                    override val title: UIText = UIText.DynamicString("PARTICIPANTS")
                 }
             ),
             selectedTabIndex = 0,

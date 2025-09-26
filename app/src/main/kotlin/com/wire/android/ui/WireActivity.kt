@@ -214,7 +214,7 @@ class WireActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         lifecycleScope.launch(Dispatchers.IO) {
-            managedConfigurationsRepository.getServerConfigAsync().let { serverConfig ->
+            managedConfigurationsRepository.getServerConfig().let { serverConfig ->
                 appLogger.d("$TAG managed server config is : $serverConfig")
             }
         }

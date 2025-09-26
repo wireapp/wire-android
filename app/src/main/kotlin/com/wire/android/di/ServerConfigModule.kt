@@ -43,7 +43,7 @@ class ServerConfigModule {
         managedConfigurationsRepository: ManagedConfigurationsRepository
     ): ServerConfig.Links {
         // Always fetch fresh managed config to avoid caching
-        val managedServerConfig = runBlocking { managedConfigurationsRepository.getServerConfigAsync() }
+        val managedServerConfig = runBlocking { managedConfigurationsRepository.getServerConfig() }
         return serverConfigProvider.getDefaultServerConfig(managedServerConfig)
     }
 }

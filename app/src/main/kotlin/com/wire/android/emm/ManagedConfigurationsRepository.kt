@@ -40,7 +40,7 @@ class ManagedConfigurationsRepository @Inject constructor(
         context.getSystemService(Context.RESTRICTIONS_SERVICE) as RestrictionsManager
     }
 
-    suspend fun getServerConfigAsync(): ManagedServerConfig? = withContext(dispatchers.io()) {
+    suspend fun getServerConfig(): ManagedServerConfig? = withContext(dispatchers.io()) {
         val restrictions = restrictionsManager.applicationRestrictions
 
         if (restrictions == null || restrictions.isEmpty) {

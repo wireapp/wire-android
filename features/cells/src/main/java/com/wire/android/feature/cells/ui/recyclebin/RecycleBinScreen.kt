@@ -18,6 +18,9 @@
 package com.wire.android.feature.cells.ui.recyclebin
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -30,6 +33,7 @@ import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.CellFilesNavArgs
 import com.wire.android.feature.cells.ui.CellScreenContent
 import com.wire.android.feature.cells.ui.CellViewModel
+import com.wire.android.feature.cells.ui.common.Breadcrumbs
 import com.wire.android.feature.cells.ui.destinations.ConversationFilesWithSlideInTransitionScreenDestination
 import com.wire.android.feature.cells.ui.destinations.MoveToFolderScreenDestination
 import com.wire.android.feature.cells.ui.destinations.PublicLinkScreenDestination
@@ -57,20 +61,31 @@ fun RecycleBinScreen(
     Box(modifier = modifier) {
         WireScaffold(
             topBar = {
-                WireCenterAlignedTopAppBar(
-                    elevation = dimensions().spacing0x,
-                    titleContent = {
-                        WireTopAppBarTitle(
-                            title = stringResource(R.string.recycle_bin),
-                            style = MaterialTheme.wireTypography.title01,
-                            maxLines = 2
+                Column {
+                    WireCenterAlignedTopAppBar(
+                        elevation = dimensions().spacing0x,
+                        titleContent = {
+                            WireTopAppBarTitle(
+                                title = stringResource(R.string.recycle_bin),
+                                style = MaterialTheme.wireTypography.title01,
+                                maxLines = 2
+                            )
+                        },
+                        navigationIconType = NavigationIconType.Close(com.wire.android.ui.common.R.string.content_description_close),
+                        onNavigationPressed = {
+                            navigator.navigateBack()
+                        }
+                    )
+                    cellViewModel.breadcrumbs()?.let {
+                        Breadcrumbs(
+                            modifier = Modifier
+                                .height(dimensions().spacing40x)
+                                .fillMaxWidth(),
+                            pathSegments = it,
+                            onBreadcrumbsFolderClick = {}
                         )
-                    },
-                    navigationIconType = NavigationIconType.Close(com.wire.android.ui.common.R.string.content_description_close),
-                    onNavigationPressed = {
-                        navigator.navigateBack()
                     }
-                )
+                }
             }
         ) { innerPadding ->
             Box(modifier = Modifier.padding(innerPadding)) {
@@ -92,7 +107,10 @@ fun RecycleBinScreen(
                                 ConversationFilesWithSlideInTransitionScreenDestination(
                                     conversationId = folderPath,
                                     screenTitle = it.name,
-                                    isRecycleBin = true
+                                    isRecycleBin = true,
+                                    breadcrumbs = it.name?.let { name ->
+                                        (cellViewModel.breadcrumbs() ?: emptyArray()) + name
+                                    }
                                 ),
                                 BackStackMode.NONE,
                                 launchSingleTop = false

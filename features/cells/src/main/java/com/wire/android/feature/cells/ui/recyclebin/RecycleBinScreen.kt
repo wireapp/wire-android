@@ -66,7 +66,7 @@ fun RecycleBinScreen(
                             maxLines = 2
                         )
                     },
-                    navigationIconType = NavigationIconType.Close(com.wire.android.ui.common.R.string.content_description_close),
+                    navigationIconType = NavigationIconType.Back(com.wire.android.ui.common.R.string.content_description_back_button),
                     onNavigationPressed = {
                         navigator.navigateBack()
                     }

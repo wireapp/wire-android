@@ -23,12 +23,12 @@ import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 
-class LazyListStateProvider<T: Any> {
+class LazyListStateProvider<T : Any> {
     private val map = mutableMapOf<T, LazyListState>()
     operator fun get(key: T): LazyListState = map.getOrPut(key) { LazyListState() }
 
     companion object {
-        fun <T: Any> saver(): Saver<LazyListStateProvider<T>, Any> = listSaver(
+        fun <T : Any> saver(): Saver<LazyListStateProvider<T>, Any> = listSaver(
             save = {
                 it.map.entries.map { (key, lazyListState) ->
                     key to listOf(lazyListState.firstVisibleItemIndex, lazyListState.firstVisibleItemScrollOffset)
@@ -48,6 +48,6 @@ class LazyListStateProvider<T: Any> {
 }
 
 @Composable
-fun <T: Any> rememberLazyListStateProvider() = rememberSaveable(saver = LazyListStateProvider.saver<T>()) {
+fun <T : Any> rememberLazyListStateProvider() = rememberSaveable(saver = LazyListStateProvider.saver<T>()) {
     LazyListStateProvider()
 }

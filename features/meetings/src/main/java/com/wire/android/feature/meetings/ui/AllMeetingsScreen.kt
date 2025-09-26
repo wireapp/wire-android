@@ -92,4 +92,3 @@ enum class MeetingsTabItem(@StringRes val titleResId: Int) : TabItem {
 fun PreviewAllMeetingsScreen() = WireTheme {
     AllMeetingsScreen()
 }
-

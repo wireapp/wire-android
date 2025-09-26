@@ -84,15 +84,14 @@ fun RecycleBinScreen(
                     isRecycleBin = true,
                     isRestoreInProgress = cellViewModel.isRestoreInProgress.collectAsState().value,
                     isDeleteInProgress = cellViewModel.isDeleteInProgress.collectAsState().value,
-                    onFolderClick = {
-                        val folderPath = "${cellViewModel.currentNodeUuid()}/recycle_bin/${it.name}"
-
+                    openFolder = { path, title, parentFolderUuid ->
                         navigator.navigate(
                             NavigationCommand(
                                 ConversationFilesWithSlideInTransitionScreenDestination(
-                                    conversationId = folderPath,
-                                    screenTitle = it.name,
-                                    isRecycleBin = true
+                                    conversationId = path,
+                                    screenTitle = title,
+                                    isRecycleBin = true,
+                                    parentFolderUuid = parentFolderUuid,
                                 ),
                                 BackStackMode.NONE,
                                 launchSingleTop = false

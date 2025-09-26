@@ -242,19 +242,15 @@ fun ConversationFilesScreenContent(
                 isRestoreInProgress = isRestoreInProgress,
                 isDeleteInProgress = isDeleteInProgress,
                 isRecycleBin = isRecycleBin,
-                onFolderClick = {
-                    val folderPath = "$currentNodeUuid/${it.name}"
-
+                openFolder = { path, title, parentFolderUuid ->
                     navigator.navigate(
                         NavigationCommand(
                             ConversationFilesWithSlideInTransitionScreenDestination(
-                                conversationId = folderPath,
-                                screenTitle = it.name,
+                                conversationId = path,
+                                screenTitle = title,
                                 isRecycleBin = isRecycleBin,
                                 breadcrumbs = if (!isRecycleBin) {
-                                    it.name?.let { name ->
-                                        (breadcrumbs ?: emptyArray()) + name
-                                    }
+                                    (breadcrumbs ?: emptyArray()) + title
                                 } else { null }
                             ),
                             BackStackMode.NONE,

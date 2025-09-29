@@ -33,8 +33,8 @@ class ManagedConfigurationsRepository @Inject constructor(
     private val dispatchers: DispatcherProvider,
 ) {
 
-    val json: Json = Json { ignoreUnknownKeys = true }
-    val logger = appLogger.withTextTag(TAG)
+    private val json: Json = Json { ignoreUnknownKeys = true }
+    private val logger = appLogger.withTextTag(TAG)
 
     private val restrictionsManager: RestrictionsManager by lazy {
         context.getSystemService(Context.RESTRICTIONS_SERVICE) as RestrictionsManager
@@ -54,6 +54,7 @@ class ManagedConfigurationsRepository @Inject constructor(
         return@withContext serverConfigJson
     }
 
+    @Suppress("TooGenericExceptionCaught")
     private inline fun <reified T> getJsonRestrictionByKey(key: String): T? =
         restrictionsManager.applicationRestrictions.getString(key)?.let {
             try {

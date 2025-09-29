@@ -19,6 +19,8 @@
 package com.wire.android.ui.authentication.create.email
 
 import androidx.lifecycle.SavedStateHandle
+import com.wire.android.assertions.shouldBeEqualTo
+import com.wire.android.assertions.shouldBeInstanceOf
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.SnapshotExtension
@@ -26,6 +28,7 @@ import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
 import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.auth.AuthenticationScope
 import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
@@ -38,8 +41,6 @@ import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import com.wire.android.assertions.shouldBeEqualTo
-import com.wire.android.assertions.shouldBeInstanceOf
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -106,6 +107,6 @@ class CreateAccountEmailViewModelTest {
             coEvery { requestActivationCodeUseCase(any()) } returns result
         }
 
-        fun arrange() = this to CreateAccountEmailViewModel(savedStateHandle, validateEmailUseCase, coreLogic)
+        fun arrange() = this to CreateAccountEmailViewModel(savedStateHandle, validateEmailUseCase, coreLogic, ServerConfig.STAGING)
     }
 }

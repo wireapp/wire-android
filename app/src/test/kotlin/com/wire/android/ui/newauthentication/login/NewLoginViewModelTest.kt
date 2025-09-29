@@ -542,7 +542,7 @@ class NewLoginViewModelTest {
             viewModel.getEnterpriseLoginFlow(email)
             advanceUntilIdle()
 
-         expectNoEvents()
+            expectNoEvents()
             assertEquals(NewLoginFlowState.Error.DialogError.GenericError(failure), viewModel.state.flowState)
         }
     }
@@ -557,7 +557,7 @@ class NewLoginViewModelTest {
             viewModel.getEnterpriseLoginFlow(email)
             advanceUntilIdle()
 
-         expectNoEvents()
+            expectNoEvents()
             assertEquals(NewLoginFlowState.Error.DialogError.ServerVersionNotSupported, viewModel.state.flowState)
         }
     }
@@ -764,7 +764,8 @@ class NewLoginViewModelTest {
             userDataStoreProvider,
             loginViewModelExtension,
             loginSSOViewModelExtension,
-            dispatchers
+            dispatchers,
+            ServerConfig.STAGING
         )
     }
 

@@ -20,12 +20,15 @@ package com.wire.android.ui.authentication.create.details
 
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.lifecycle.SavedStateHandle
+import com.wire.android.assertions.shouldBeEqualTo
+import com.wire.android.assertions.shouldBeInstanceOf
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.SnapshotExtension
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
 import com.wire.android.ui.navArgs
+import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.auth.ValidatePasswordResult
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import io.mockk.MockKAnnotations
@@ -35,8 +38,6 @@ import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import com.wire.android.assertions.shouldBeEqualTo
-import com.wire.android.assertions.shouldBeInstanceOf
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -107,6 +108,6 @@ class CreateAccountDetailsViewModelTest {
             coEvery { validatePasswordUseCase(any()) } returns result
         }
 
-        fun arrange() = this to CreateAccountDetailsViewModel(savedStateHandle, validatePasswordUseCase)
+        fun arrange() = this to CreateAccountDetailsViewModel(savedStateHandle, validatePasswordUseCase, ServerConfig.STAGING)
     }
 }

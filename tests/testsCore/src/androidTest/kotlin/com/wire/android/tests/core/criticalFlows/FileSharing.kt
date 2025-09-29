@@ -29,7 +29,7 @@ import backendUtils.team.deleteTeam
 import com.wire.android.tests.support.UiAutomatorSetup
 import com.wire.android.tests.core.di.testModule
 import com.wire.android.tests.core.pages.AllPages
-import deleteDownloadedFilesContainingFileWord
+import deleteDownloadedFilesContaining
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
@@ -66,7 +66,7 @@ class FileSharing : KoinTest {
         context = InstrumentationRegistry.getInstrumentation().context
         // device = UiAutomatorSetup.start(UiAutomatorSetup.APP_DEV)
         device = UiAutomatorSetup.start(UiAutomatorSetup.APP_INTERNAL)
-       // device = UiAutomatorSetup.start(UiAutomatorSetup.APP_STAGING)
+        // device = UiAutomatorSetup.start(UiAutomatorSetup.APP_STAGING)
         backendClient = BackendClient.loadBackend("STAGING")
         teamHelper = TeamHelper()
     }
@@ -75,9 +75,9 @@ class FileSharing : KoinTest {
     fun tearDown() {
         //  UiAutomatorSetup.stopApp()
         // To delete team
-         teamOwner2?.deleteTeam(backendClient!!)
+        teamOwner2?.deleteTeam(backendClient!!)
         teamOwner1?.deleteTeam(backendClient!!)
-        deleteDownloadedFilesContainingFileWord()
+        deleteDownloadedFilesContaining("File")
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")

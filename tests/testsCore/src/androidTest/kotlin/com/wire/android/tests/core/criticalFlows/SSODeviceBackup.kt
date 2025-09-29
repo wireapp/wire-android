@@ -31,7 +31,7 @@ import backendUtils.team.deleteTeam
 import com.wire.android.tests.core.di.testModule
 import com.wire.android.tests.core.pages.AllPages
 import com.wire.android.tests.support.UiAutomatorSetup
-import deleteDownloadedFilesContainingWireWord
+import deleteDownloadedFilesContaining
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
@@ -77,7 +77,7 @@ class SSODeviceBackup : KoinTest {
     @After
     fun tearDown() {
         teamOwner?.deleteTeam(backendClient!!)
-        deleteDownloadedFilesContainingWireWord()
+        deleteDownloadedFilesContaining("Wire")
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")

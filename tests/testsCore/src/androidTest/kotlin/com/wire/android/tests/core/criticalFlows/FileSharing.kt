@@ -145,7 +145,7 @@ class FileSharing : KoinTest {
         }
         pages.registrationPage.apply {
 
-            waitUntilLoginFlowIsComplete()
+            waitUntilLoginFlowIsCompleted()
             clickAllowNotificationButton()
             clickDeclineShareDataAlert()
             testServiceHelper.apply {

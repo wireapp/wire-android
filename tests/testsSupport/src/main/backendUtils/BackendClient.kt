@@ -21,10 +21,12 @@ package backendUtils
 
 import CredentialsManager
 import android.net.Uri
+import backendUtils.team.TeamRole
 import backendUtils.team.defaultheaders
 import backendUtils.team.getAuthToken
 import backendUtils.team.getTeamId
 import com.wire.android.testSupport.BuildConfig
+import com.wire.android.testSupport.backendConnections.team.Team
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import logger.WireTestLogger
@@ -34,6 +36,7 @@ import network.NumberSequence
 import network.RequestOptions
 import org.json.JSONObject
 import service.models.Connection
+import service.models.TeamMember
 import user.utils.AccessCookie
 import user.utils.AccessCredentials
 import user.utils.AccessToken
@@ -85,6 +88,7 @@ class BackendClient(
 
     companion object {
         const val contentType = "Content-Type"
+        const val accept = "Accept"
         const val applicationJson = "application/json"
         const val AUTHORIZATION = "Authorization"
 
@@ -138,7 +142,7 @@ class BackendClient(
         }
 
         fun getDefault(): BackendClient? {
-            return loadBackend("Staging")
+            return loadBackend("STAGING")
         }
 
         fun loadBackend(connectionName: String): BackendClient {
@@ -364,6 +368,97 @@ class BackendClient(
             .info("JsonBody response is $requestBody")
 
         return "Email Registered"
+    }
+
+    fun createIdentityProvider(user: ClientUser, metadata: String): String {
+        val token = runBlocking { getAuthToken(user) }
+        val url = URL("identity-providers".composeCompleteUrl())
+
+        val headers = defaultheaders.toMutableMap().apply {
+            put("Authorization", "${token?.type} ${token?.value}")
+            put("Accept", applicationJson)
+            put("Content-Type", "application/xml")
+        }
+
+        val response = NetworkBackendClient.sendJsonRequestWithCookies(
+            url = url,
+            method = "POST",
+            body = metadata,
+            headers = headers,
+            options = RequestOptions(
+                accessToken = token,
+                expectedResponseCodes = NumberSequence.Array(intArrayOf(HttpURLConnection.HTTP_OK, HttpURLConnection.HTTP_CREATED))
+            )
+        )
+
+        val responseBody = JSONObject(response.body)
+        return responseBody.getString("id")
+    }
+
+    fun getAllTeams(forUser: ClientUser): List<Team> {
+        val token = runBlocking { getAuthToken(forUser) }
+        val url = URL("teams".composeCompleteUrl())
+
+        val headers = defaultheaders.toMutableMap().apply {
+            put("Authorization", "${token?.type} ${token?.value}")
+            put("Accept", applicationJson)
+        }
+
+        val response = NetworkBackendClient.sendJsonRequestWithCookies(
+            url = url,
+            method = "GET",
+            headers = headers,
+            options = RequestOptions(
+                accessToken = token,
+                expectedResponseCodes = NumberSequence.Array(intArrayOf(HttpURLConnection.HTTP_OK))
+            )
+        )
+
+        val jsonResponse = JSONObject(response.body)
+        val teams = jsonResponse.getJSONArray("teams")
+
+        return buildList {
+            for (i in 0 until teams.length()) {
+                add(Team.fromJSON(teams.getJSONObject(i)))
+            }
+        }
+    }
+
+    fun getTeamMembers(asUser: ClientUser): List<TeamMember> {
+        val firstTeam = getAllTeams(asUser).first()
+        return getTeamMembers(runBlocking { getAuthToken(asUser)!! }, firstTeam.id, asUser)
+    }
+
+    private fun getTeamMembers(token: AccessToken, teamId: String, asUser: ClientUser): List<TeamMember> {
+        val url = URL("teams/$teamId/members".composeCompleteUrl())
+
+        val headers = defaultheaders.toMutableMap().apply {
+            put("Authorization", "${token.type} ${token.value}")
+            put("Accept", applicationJson)
+        }
+
+        val response = NetworkBackendClient.sendJsonRequestWithCookies(
+            url = url,
+            method = "GET",
+            headers = headers,
+            options = RequestOptions(
+                accessToken = token,
+                expectedResponseCodes = NumberSequence.Array(intArrayOf(HttpURLConnection.HTTP_OK))
+            )
+        )
+
+        val jsonResponse = JSONObject(response.body)
+        val members = jsonResponse.getJSONArray("members")
+
+        return buildList {
+            for (i in 0 until members.length()) {
+                val member = members.getJSONObject(i)
+                val userId = member.getString("user")
+                val permissions = member.getJSONObject("permissions")
+                val role = TeamRole.getByPermissionBitMask(permissions.getInt("self"))
+                add(TeamMember(userId, role))
+            }
+        }
     }
 
     private fun getFeatureConfig(feature: String, user: ClientUser): JSONObject {

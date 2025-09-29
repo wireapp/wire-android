@@ -118,7 +118,7 @@ class GroupMessaging : KoinTest {
             clickLoginButton()
         }
         pages.registrationPage.apply {
-            waitUntilLoginFlowIsComplete()
+            waitUntilLoginFlowIsCompleted()
             clickAllowNotificationButton()
             clickDeclineShareDataAlert()
         }
@@ -139,7 +139,7 @@ class GroupMessaging : KoinTest {
             typeMessageInInputField("Hello Team Members")
             clickSendButton()
             assertSentMessageIsVisibleInCurrentConversation("Hello Team Members")
-            tapBackButtonOnConversationViewPage()
+            tapBackButtonToCloseConversationViewPage()
         }
         testServiceHelper.apply {
             addDevice("user2Name", null, "Device1")

@@ -56,7 +56,38 @@ data class LoginPage(private val device: UiDevice) {
         return this
     }
 
+    fun enterTeamMemberLoggingPassword(password: String): LoginPage {
+        val passwordInputField = UiWaitUtils.waitElement(passwordInputFieldSelector)
+        passwordInputField.click()
+        passwordInputField.text = password
+        return this
+    }
+
     fun enterTeamOwnerLoggingEmail(email: String): LoginPage {
+        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        // Click the input field (waits until visible)
+        device.findObject(emailInputField).click()
+        // Wait again to avoid stale object
+        device.findObject(emailInputField)
+        // Set text via UiObject (more reliable than UiObject2.text=)
+        device.findObject(emailInputField).setText(email)
+
+        return this
+    }
+
+    fun enterTeamMemberLoggingEmail(email: String): LoginPage {
+        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        // Click the input field (waits until visible)
+        device.findObject(emailInputField).click()
+        // Wait again to avoid stale object
+        device.findObject(emailInputField)
+        // Set text via UiObject (more reliable than UiObject2.text=)
+        device.findObject(emailInputField).setText(email)
+
+        return this
+    }
+
+    fun enterSSOCodeOnSSOLoginTab(email: String): LoginPage {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         // Click the input field (waits until visible)
         device.findObject(emailInputField).click()

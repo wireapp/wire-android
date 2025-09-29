@@ -63,12 +63,6 @@ class ManagedConfigurationsRepository @Inject constructor(
             }
         }
 
-    private fun getBooleanRestrictionByKey(key: String, defaultValue: Boolean = false): Boolean =
-        restrictionsManager.applicationRestrictions.getBoolean(key, defaultValue)
-
-    private fun getStringRestrictionByKey(key: String, defaultValue: String? = null): String? =
-        restrictionsManager.applicationRestrictions.getString(key) ?: defaultValue
-
     companion object {
         const val TAG = "ManagedConfigurationsRepository"
     }

@@ -25,6 +25,7 @@ import dagger.Provides
 import dagger.Reusable
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import javax.inject.Singleton
 
@@ -42,7 +43,9 @@ class ServerConfigModule {
         serverConfigProvider: ServerConfigProvider,
         managedConfigurationsRepository: ManagedConfigurationsRepository
     ): ServerConfig.Links {
-        val managedServerConfig = runBlocking { managedConfigurationsRepository.getServerConfig() }
+        val managedServerConfig = runBlocking(Dispatchers.IO) {
+            managedConfigurationsRepository.getServerConfig()
+        }
         return serverConfigProvider.getDefaultServerConfig(managedServerConfig)
     }
 }

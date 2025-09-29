@@ -184,7 +184,7 @@ fun inlineNodeChildren(
                 } else {
                     annotatedString.pushStyle(
                         SpanStyle(
-                            color = nodeData.colorScheme.primary,
+                            color = nodeData.messageColors.highlighted,
                             textDecoration = TextDecoration.Underline
                         )
                     )
@@ -266,7 +266,12 @@ fun appendLinksAndMentions(
     val linkInfos = LinkSpannableString.getLinkInfos(stringBuilder.toString(), Linkify.WEB_URLS or Linkify.EMAIL_ADDRESSES)
 
     val linkAndMentionColor = when (nodeData.messageStyle) {
-        MessageStyle.BUBBLE_SELF -> nodeData.colorScheme.onPrimary
+        MessageStyle.BUBBLE_SELF -> if (nodeData.isAccentBackground) {
+            nodeData.colorScheme.markdownNodeTextColor
+        } else {
+            nodeData.colorScheme.onPrimary
+        }
+
         MessageStyle.BUBBLE_OTHER -> nodeData.colorScheme.primary
         MessageStyle.NORMAL -> nodeData.colorScheme.primary
     }
@@ -358,7 +363,7 @@ fun highlightText(nodeData: NodeData, text: String): AnnotatedString {
                     addStyle(
                         style = SpanStyle(
                             background = nodeData.colorScheme.highlight,
-                            color = nodeData.colorScheme.onHighlight,
+                            color = nodeData.colorScheme.onPrimaryVariant,
                             fontFamily = nodeData.typography.body02.fontFamily,
                             fontWeight = FontWeight.Bold
                         ),

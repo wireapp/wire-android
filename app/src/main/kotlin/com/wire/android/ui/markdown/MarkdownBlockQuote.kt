@@ -28,12 +28,13 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.home.conversations.messages.item.onBackground
+import com.wire.android.ui.home.conversations.messages.item.textColor
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
 fun MarkdownBlockQuote(blockQuote: MarkdownNode.Block.BlockQuote, nodeData: NodeData, modifier: Modifier = Modifier) {
-    val color = MaterialTheme.wireColorScheme.onBackground
+    val color = nodeData.messageStyle.textColor()
     val xOffset = dimensions().spacing12x.value
     Column(
         modifier = modifier
@@ -58,7 +59,7 @@ fun MarkdownBlockQuote(blockQuote: MarkdownNode.Block.BlockQuote, nodeData: Node
                 is MarkdownNode.Block.Paragraph -> {
                     val text = buildAnnotatedString {
                         pushStyle(
-                            MaterialTheme.wireTypography.body01.toSpanStyle()
+                            MaterialTheme.wireTypography.body01.copy(color = nodeData.messageStyle.onBackground()).toSpanStyle()
                                 .plus(SpanStyle(fontStyle = FontStyle.Italic))
                         )
                         inlineNodeChildren(child.children, this, nodeData)

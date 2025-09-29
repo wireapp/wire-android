@@ -35,7 +35,7 @@ import com.wire.android.model.ItemActionType
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.AddContactButton
 import com.wire.android.ui.common.ArrowRightIcon
-import com.wire.android.ui.common.RowItemTemplate
+import com.wire.android.ui.common.rowitem.RowItemTemplate
 import com.wire.android.ui.common.UserBadge
 import com.wire.android.ui.common.avatar.UserProfileAvatar
 import com.wire.android.ui.common.WireCheckbox

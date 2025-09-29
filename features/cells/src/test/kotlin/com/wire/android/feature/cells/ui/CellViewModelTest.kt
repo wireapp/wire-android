@@ -17,7 +17,7 @@
  */
 package com.wire.android.feature.cells.ui
 
-import android.content.Context
+import android.os.Environment
 import androidx.lifecycle.SavedStateHandle
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
@@ -30,6 +30,7 @@ import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.NodeBottomSheetAction
 import com.wire.android.feature.cells.ui.model.toUiModel
 import com.wire.android.feature.cells.util.FileHelper
+import com.wire.android.feature.cells.util.FileNameResolver
 import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
 import com.wire.kalium.cells.domain.usecase.DownloadCellFileUseCase
@@ -46,6 +47,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.mockkStatic
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -61,6 +63,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import java.io.File
 
 @ExtendWith(NavigationTestExtension::class)
 class CellViewModelTest {
@@ -140,7 +143,7 @@ class CellViewModelTest {
             .withLoadSuccess()
             .arrange()
 
-        viewModel.sendIntent(CellViewIntent.OnFileClick(testFiles[0].toUiModel()))
+        viewModel.sendIntent(CellViewIntent.OnItemClick(testFiles[0].toUiModel()))
 
         coVerify(exactly = 1) { arrangement.fileHelper.openAssetFileWithExternalApp(any(), any(), any(), any()) }
     }
@@ -156,7 +159,7 @@ class CellViewModelTest {
             contentUrl = "https://example.com/file"
         )
 
-        viewModel.sendIntent(CellViewIntent.OnFileClick(testFile.toUiModel()))
+        viewModel.sendIntent(CellViewIntent.OnItemClick(testFile.toUiModel()))
 
         coVerify(exactly = 1) { arrangement.fileHelper.openAssetUrlWithExternalApp(any(), any(), any()) }
     }
@@ -173,7 +176,7 @@ class CellViewModelTest {
         ).toUiModel()
 
         viewModel.downloadFileSheet.test {
-            viewModel.sendIntent(CellViewIntent.OnFileClick(testFile))
+            viewModel.sendIntent(CellViewIntent.OnItemClick(testFile))
 
             with(expectMostRecentItem()) {
                 assertEquals(testFile, this)
@@ -490,7 +493,7 @@ class CellViewModelTest {
         lateinit var kaliumFileSystem: KaliumFileSystem
 
         @MockK
-        lateinit var context: Context
+        lateinit var fileNameResolver: FileNameResolver
 
         init {
 
@@ -565,6 +568,12 @@ class CellViewModelTest {
         }
 
         fun arrange(): Pair<Arrangement, CellViewModel> {
+
+            mockkStatic(Environment::class)
+
+            every { fileNameResolver.getUniqueFile(any(), any()) } returns File("")
+            coEvery { Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) } returns File("")
+
             return this to CellViewModel(
                 savedStateHandle = savedStateHandle,
                 getCellFilesPaged = getCellFilesPagedUseCase,
@@ -574,8 +583,7 @@ class CellViewModelTest {
                 download = downloadCellFileUseCase,
                 isCellAvailable = isCellAvailableUseCase,
                 fileHelper = fileHelper,
-                kaliumFileSystem = kaliumFileSystem,
-                context = context
+                fileNameResolver = fileNameResolver
             )
         }
     }

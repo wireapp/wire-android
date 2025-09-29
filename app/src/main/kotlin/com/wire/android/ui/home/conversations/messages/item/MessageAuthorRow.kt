@@ -24,11 +24,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.style.TextOverflow
 import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.UserBadge
 import com.wire.android.ui.common.applyIf
-import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.theme.Accent
@@ -55,6 +55,7 @@ fun MessageAuthorRow(
                 Username(
                     username.asString(),
                     accent,
+                    messageStyle,
                     modifier = Modifier.weight(weight = 1f, fill = false)
                 )
                 UserBadge(
@@ -79,13 +80,17 @@ fun MessageAuthorRow(
 }
 
 @Composable
-private fun Username(username: String, accent: Accent, modifier: Modifier = Modifier) {
+private fun Username(username: String, accent: Accent, messageStyle: MessageStyle, modifier: Modifier = Modifier) {
     Text(
         text = username,
         style = MaterialTheme.wireTypography.body02,
         color = MaterialTheme.wireColorScheme.wireAccentColors.getOrDefault(
             accent,
-            MaterialTheme.wireColorScheme.onBackground
+            if (messageStyle.isBubble()) {
+                MaterialTheme.wireColorScheme.primary
+            } else {
+                MaterialTheme.wireColorScheme.onBackground
+            }
         ),
         modifier = modifier,
         maxLines = 1,
@@ -99,16 +104,10 @@ fun MessageSmallLabel(
     messageStyle: MessageStyle,
     modifier: Modifier = Modifier
 ) {
-    val color = when (messageStyle) {
-        MessageStyle.BUBBLE_SELF -> colorsScheme().onPrimary
-        MessageStyle.BUBBLE_OTHER -> colorsScheme().secondaryText
-        MessageStyle.NORMAL -> colorsScheme().secondaryText
-    }
-
     Text(
         text = text,
-        style = MaterialTheme.typography.labelSmall.copy(color = color),
+        style = MaterialTheme.typography.labelSmall.copy(color = messageStyle.textColor()),
         maxLines = 1,
-        modifier = modifier
+        modifier = modifier.alpha(messageStyle.alpha())
     )
 }

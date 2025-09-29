@@ -19,6 +19,7 @@ package com.wire.android.ui.home.conversations.model
 
 import com.wire.android.appLogger
 import com.wire.android.model.ImageAsset
+import com.wire.android.ui.theme.Accent
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.serialization.Serializable
@@ -34,6 +35,7 @@ sealed class UIQuotedMessage {
         val messageId: String,
         val senderId: UserId,
         val senderName: UIText,
+        val senderAccent: Accent,
         val originalMessageDateDescription: UIText,
         val editedTimeDescription: UIText?,
         val quotedContent: Content
@@ -43,7 +45,7 @@ sealed class UIQuotedMessage {
         sealed interface Content
 
         @Serializable
-        data class Text(val value: String) : Content
+        data class Text(val value: UIText) : Content
 
         @Serializable
         data class GenericAsset(
@@ -87,9 +89,7 @@ fun UIMessage.Regular.mapToQuotedContent(): UIQuotedMessage.UIQuotedData.Content
             assetMimeType = messageContent.mimeType
         )
 
-        is UIMessageContent.TextMessage -> UIQuotedMessage.UIQuotedData.Text(
-            value = messageContent.messageBody.message.asString(null)
-        )
+        is UIMessageContent.TextMessage -> UIQuotedMessage.UIQuotedData.Text(value = messageContent.messageBody.message)
 
         is UIMessageContent.AudioAssetMessage -> UIQuotedMessage.UIQuotedData.AudioMessage
 

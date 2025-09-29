@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2025 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,6 @@ import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import com.wire.android.appLogger
 import com.wire.android.util.AnyPrimitiveAsStringSerializer
 import com.wire.kalium.logic.data.message.mention.MessageMention
 import kotlinx.serialization.Serializable
@@ -60,25 +59,10 @@ sealed class UIText {
     }
 
     @Suppress("SpreadOperator")
-    fun asString(resources: Resources?): String = when (this) {
+    fun asString(resources: Resources): String = when (this) {
         is DynamicString -> value
-        is StringResource -> resources?.getString(resId, *formatArgs).let {
-            if (it != null) {
-                it
-            } else {
-                appLogger.w("StringResource used with nullable Resources")
-                ""
-            }
-        }
-
-        is PluralResource -> resources?.getQuantityString(resId, count, *formatArgs).let {
-            if (it != null) {
-                it
-            } else {
-                appLogger.w("PluralResource used with nullable Resources")
-                ""
-            }
-        }
+        is StringResource -> resources.getString(resId, *formatArgs)
+        is PluralResource -> resources.getQuantityString(resId, count, *formatArgs)
     }
 
     override fun equals(other: Any?): Boolean {

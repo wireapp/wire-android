@@ -17,7 +17,10 @@
   -->
 <resources>
     <string name="retry">Retry</string>
+    <string name="file_list_load_error_title">Error</string>
     <string name="file_list_load_error">There was an error loading the files list. Please try again</string>
+    <string name="file_list_load_network_error_title">Can’t Load Files</string>
+    <string name="file_list_load_network_error">Your list of files could not be loaded. Please check your Internet connection and try again.</string>
     <string name="file_list_empty_message">You\'ll find all files shared across your conversations here.</string>
     <string name="conversation_file_list_empty_message">You\'ll find all files and folders shared in this conversation here.</string>
     <string name="file_list_search_empty_message">Try adjusting your search</string>
@@ -27,7 +30,7 @@
     <string name="public_link">Share via Link</string>
     <string name="delete_permanently">Delete permanently</string>
     <string name="restore_label">Restore</string>
-    <string name="add_remove_tags_label">Add or remove tags</string>
+    <string name="add_remove_tags_label">Add or Remove Tags</string>
     <string name="move_label">Move to Folder</string>
     <string name="download_label">Download</string>
     <string name="copy_link">Copy Link</string>
@@ -81,6 +84,13 @@
     <string name="dialog_restore_file_description">This file %1$s will be restored and available again to everyone in this conversation.</string>
     <string name="dialog_restore_folder_description">This folder %1$s will be restored and available again to everyone in this conversation.</string>
     <string name="dialog_restore_button_label">Restore</string>
+    <string name="dialog_unable_to_restore_folder_title">Unable to restore folder</string>
+    <string name="dialog_unable_to_restore_file_title">Unable to restore file</string>
+    <string name="dialog_unable_to_restore_folder_description">Due to an error your folder could not be restored.</string>
+    <string name="dialog_unable_to_restore_file_description">Due to an error your file could not be restored.</string>
+    <string name="ok_label">Ok</string>
+    <string name="dialog_restore_parent_folder_button">Restore Parent Folder</string>
+    <string name="dialog_restore_parent_folder_description">You can’t restore folders or files from a deleted folder. To reuse the desired item, you must restore its parent folder.\n\nThe folder %1$s with all files and subfolders will be restored and available to everyone in this conversation.</string>
     <string name="rename_file_label">Rename file</string>
     <string name="rename_folder_label">Rename folder</string>
     <string name="rename_label">Rename</string>
@@ -93,7 +103,7 @@
     <string name="rename_file_renamed">File was renamed</string>
     <string name="rename_folder_renamed">Folder was renamed</string>
     <string name="rename_failure">Failed to rename</string>
-    <string name="rename_invalid_name">Name cannot contain "/" or "." characters</string>
+    <string name="rename_invalid_name">Use a name without "/" or "."</string>
     <string name="filter_label">Filter</string>
     <string name="tags_label">Tags</string>
     <string name="select_tags_label">select tags</string>
@@ -112,4 +122,8 @@
     <string name="file_list_empty_title">There are no files or folders yet</string>
     <string name="no_results_found_label">No results found</string>
     <string name="filters_try_adjusting_your_filters_label">Try adjusting your filters.</string>
+    <string name="cells_file_deleted_message">File was deleted</string>
+    <string name="cells_folder_deleted_message">Folder was deleted</string>
+    <string name="cells_file_permanently_deleted_message">File was permanently deleted</string>
+    <string name="cells_folder_permanently_deleted_message">Folder was permanently deleted</string>
 </resources>

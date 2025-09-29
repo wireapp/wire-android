@@ -66,7 +66,7 @@ fun RecycleBinScreen(
                             maxLines = 2
                         )
                     },
-                    navigationIconType = NavigationIconType.Close(com.wire.android.ui.common.R.string.content_description_close),
+                    navigationIconType = NavigationIconType.Back(com.wire.android.ui.common.R.string.content_description_back_button),
                     onNavigationPressed = {
                         navigator.navigateBack()
                     }
@@ -83,15 +83,15 @@ fun RecycleBinScreen(
                     isAllFiles = false,
                     isRecycleBin = true,
                     isRestoreInProgress = cellViewModel.isRestoreInProgress.collectAsState().value,
-                    onFolderClick = {
-                        val folderPath = "${cellViewModel.currentNodeUuid()}/recycle_bin/${it.name}"
-
+                    isDeleteInProgress = cellViewModel.isDeleteInProgress.collectAsState().value,
+                    openFolder = { path, title, parentFolderUuid ->
                         navigator.navigate(
                             NavigationCommand(
                                 ConversationFilesWithSlideInTransitionScreenDestination(
-                                    conversationId = folderPath,
-                                    screenTitle = it.name,
-                                    isRecycleBin = true
+                                    conversationId = path,
+                                    screenTitle = title,
+                                    isRecycleBin = true,
+                                    parentFolderUuid = parentFolderUuid,
                                 ),
                                 BackStackMode.NONE,
                                 launchSingleTop = false
@@ -122,7 +122,9 @@ fun RecycleBinScreen(
                         )
                     },
                     showRenameScreen = { },
-                    showAddRemoveTagsScreen = {}
+                    showAddRemoveTagsScreen = {},
+                    isRefreshing = cellViewModel.isPullToRefresh.collectAsState(),
+                    onRefresh = { cellViewModel.onPullToRefresh() }
                 )
             }
         }

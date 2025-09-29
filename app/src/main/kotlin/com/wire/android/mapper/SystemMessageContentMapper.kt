@@ -74,6 +74,9 @@ class SystemMessageContentMapper @Inject constructor(
         is MessageContent.ConversationProtocolChangedDuringACall -> mapConversationProtocolChangedDuringACall()
         is MessageContent.ConversationStartedUnverifiedWarning -> mapConversationCreatedUnverifiedWarning()
         is MessageContent.LegalHold -> mapLegalHoldMessage(content, message.senderUserId, members)
+        is MessageContent.NewConversationWithCellMessage -> UIMessageContent.SystemMessage.NewConversationWithCellStarted
+        is MessageContent.NewConversationWithCellSelfDeleteDisabledMessage ->
+            UIMessageContent.SystemMessage.NewConversationWithCellSelfDeleteDisabled
     }
 
     private fun mapConversationCreated(senderUserId: UserId, date: Instant, userList: List<User>): UIMessageContent.SystemMessage {

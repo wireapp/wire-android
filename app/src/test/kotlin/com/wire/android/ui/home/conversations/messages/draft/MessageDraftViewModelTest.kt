@@ -28,6 +28,7 @@ import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
 import com.wire.android.ui.home.conversations.usecase.GetQuoteMessageForConversationUseCase
 import com.wire.android.ui.navArgs
+import com.wire.android.ui.theme.Accent
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.message.draft.MessageDraft
 import com.wire.kalium.logic.data.user.UserId
@@ -105,7 +106,8 @@ class MessageDraftViewModelTest {
             senderName = UIText.DynamicString("John"),
             originalMessageDateDescription = UIText.StringResource(R.string.label_quote_original_message_date, "10:30"),
             editedTimeDescription = UIText.StringResource(R.string.label_message_status_edited_with_date, "10:32"),
-            quotedContent = UIQuotedMessage.UIQuotedData.Text("Any ideas?")
+            quotedContent = UIQuotedMessage.UIQuotedData.Text(UIText.DynamicString("Any ideas?")),
+            senderAccent = Accent.Unknown
         )
         val (arrangement, viewModel) = Arrangement()
             .withMessageDraft(messageDraft)

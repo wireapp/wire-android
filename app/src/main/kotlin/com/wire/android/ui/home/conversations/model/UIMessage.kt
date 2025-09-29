@@ -97,7 +97,7 @@ sealed interface UIMessage {
             else -> null
         }
 
-        val hasAssetParams: Boolean = assetParams != null
+        val hasAssetParams: Boolean = assetParams != null && !decryptionFailed
 
         private val isReplyableContent: Boolean
             get() = messageContent is UIMessageContent.TextMessage ||
@@ -594,6 +594,12 @@ sealed interface UIMessageContent {
                 data object Conversation : Disabled
             }
         }
+
+        @Serializable
+        data object NewConversationWithCellStarted : SystemMessage
+
+        @Serializable
+        data object NewConversationWithCellSelfDeleteDisabled : SystemMessage
     }
 }
 
@@ -619,6 +625,12 @@ data class MessageTime(val instant: Instant) {
 @Stable
 @Serializable
 sealed interface DeliveryStatusContent {
+
+    val hasAnyFailures: Boolean
+        get() = when (this) {
+            CompleteDelivery -> false
+            is PartialDelivery -> hasFailures
+        }
 
     @Serializable
     class PartialDelivery(

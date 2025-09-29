@@ -43,6 +43,7 @@ import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.home.conversations.mock.mockUIAssetMessage
 import com.wire.android.ui.home.conversations.model.MediaAssetImage
 import com.wire.android.ui.home.conversations.usecase.UIImageAssetPagingItem
@@ -150,7 +151,8 @@ private fun ImageAssetGrid(
                                 size = DpSize(itemSize, itemSize),
                                 transferStatus = assetStatuses[uiAsset.messageId]?.transferStatus,
                                 onImageClick = currentOnImageClick,
-                                assetPath = uiAsset.assetPath
+                                assetPath = uiAsset.assetPath,
+                                messageStyle = MessageStyle.NORMAL
                             )
                         }
                     }

@@ -29,7 +29,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
@@ -98,9 +102,16 @@ fun ConversationFilesScreen(
         downloadFileSheet = viewModel.downloadFileSheet,
         menu = viewModel.menu,
         isRestoreInProgress = viewModel.isRestoreInProgress.collectAsState().value,
+        isDeleteInProgress = viewModel.isDeleteInProgress.collectAsState().value,
+        isRefreshing = viewModel.isPullToRefresh.collectAsState(),
         breadcrumbs = viewModel.breadcrumbs(),
         sendIntent = { viewModel.sendIntent(it) },
+        onRefresh = { viewModel.onPullToRefresh() },
     )
+
+    LaunchedEffect(Unit) {
+        viewModel.clearRemovedItems()
+    }
 }
 
 @Composable
@@ -112,12 +123,15 @@ fun ConversationFilesScreenContent(
     downloadFileSheet: StateFlow<CellNodeUi.File?>,
     menu: SharedFlow<MenuOptions>,
     sendIntent: (CellViewIntent) -> Unit,
+    isRefreshing: State<Boolean>,
+    onRefresh: () -> Unit,
     modifier: Modifier = Modifier,
+    onBreadcrumbsFolderClick: (index: Int) -> Unit = {},
+    isDeleteInProgress: Boolean = false,
     screenTitle: String? = null,
     isRecycleBin: Boolean = false,
     isRestoreInProgress: Boolean = false,
     breadcrumbs: Array<String>? = emptyArray(),
-    navigationIconType: NavigationIconType = NavigationIconType.Close()
 ) {
     val newActionBottomSheetState = rememberWireModalSheetState<Unit>()
     val optionsBottomSheetState = rememberWireModalSheetState<Unit>()
@@ -125,7 +139,7 @@ fun ConversationFilesScreenContent(
     val isFabVisible = when {
         pagingListItems.isLoading() -> false
         pagingListItems.isError() -> false
-        isRecycleBin == true -> false
+        isRecycleBin -> false
         else -> true
     }
 
@@ -166,10 +180,10 @@ fun ConversationFilesScreenContent(
                 WireCenterAlignedTopAppBar(
                     onNavigationPressed = { navigator.navigateBack() },
                     title = screenTitle ?: stringResource(R.string.conversation_files_title),
-                    navigationIconType = navigationIconType,
+                    navigationIconType = NavigationIconType.Back(),
                     elevation = dimensions().spacing0x,
                     actions = {
-                        if (isRecycleBin == false) {
+                        if (!isRecycleBin) {
                             MoreOptionIcon(
                                 contentDescription = R.string.content_description_conversation_files_more_button,
                                 onButtonClicked = { optionsBottomSheetState.show() }
@@ -182,7 +196,8 @@ fun ConversationFilesScreenContent(
                         modifier = Modifier
                             .height(dimensions().spacing40x)
                             .fillMaxWidth(),
-                        pathSegments = it
+                        pathSegments = it,
+                        onBreadcrumbsFolderClick = onBreadcrumbsFolderClick
                     )
                 }
             }
@@ -225,17 +240,18 @@ fun ConversationFilesScreenContent(
                 menuState = menu,
                 isAllFiles = false,
                 isRestoreInProgress = isRestoreInProgress,
+                isDeleteInProgress = isDeleteInProgress,
                 isRecycleBin = isRecycleBin,
-                onFolderClick = {
-                    val folderPath = "$currentNodeUuid/${it.name}"
-
+                openFolder = { path, title, parentFolderUuid ->
                     navigator.navigate(
                         NavigationCommand(
                             ConversationFilesWithSlideInTransitionScreenDestination(
-                                conversationId = folderPath,
-                                screenTitle = it.name,
+                                conversationId = path,
+                                screenTitle = title,
                                 isRecycleBin = isRecycleBin,
-                                breadcrumbs = it.name?.let { name -> (breadcrumbs ?: emptyArray()) + name }
+                                breadcrumbs = if (!isRecycleBin) {
+                                    (breadcrumbs ?: emptyArray()) + title
+                                } else { null }
                             ),
                             BackStackMode.NONE,
                             launchSingleTop = false
@@ -283,7 +299,9 @@ fun ConversationFilesScreenContent(
                             AddRemoveTagsScreenDestination(node.uuid, node.tags.toCollection(ArrayList()))
                         )
                     )
-                }
+                },
+                isRefreshing = isRefreshing,
+                onRefresh = onRefresh
             )
         }
     }
@@ -332,10 +350,12 @@ fun PreviewConversationFilesScreen() {
             downloadFileSheet = MutableStateFlow(null),
             menu = MutableSharedFlow(replay = 0),
             sendIntent = {},
+            onBreadcrumbsFolderClick = {},
             screenTitle = "Android",
             isRecycleBin = false,
             breadcrumbs = arrayOf("Engineering", "Android"),
-            navigationIconType = NavigationIconType.Close()
+            isRefreshing = remember { mutableStateOf(false) },
+            onRefresh = { }
         )
     }
 }

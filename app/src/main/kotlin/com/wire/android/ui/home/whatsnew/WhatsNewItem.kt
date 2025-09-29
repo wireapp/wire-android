@@ -38,7 +38,7 @@ import com.wire.android.model.Clickable
 import com.wire.android.navigation.AndroidReleaseNotesDestination
 import com.wire.android.navigation.ExternalUriDirection
 import com.wire.android.navigation.WelcomeToNewAndroidAppDestination
-import com.wire.android.ui.common.RowItemTemplate
+import com.wire.android.ui.common.rowitem.RowItemTemplate
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.shimmerPlaceholder
 import com.wire.android.ui.theme.WireTheme

@@ -38,7 +38,9 @@ import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.model.MessageEditStatus
 import com.wire.android.ui.home.conversations.model.MessageFlowStatus
 import com.wire.android.ui.home.conversations.model.MessageSource
+import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
+import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 
@@ -50,6 +52,7 @@ fun MessageContentItem(
     conversationDetailsData: ConversationDetailsData,
     messageStyle: MessageStyle,
     modifier: Modifier = Modifier,
+    accent: Accent = Accent.Unknown,
     searchQuery: String = "",
     assetStatus: AssetTransferStatus? = null,
     shouldDisplayMessageStatus: Boolean = true,
@@ -93,6 +96,7 @@ fun MessageContentItem(
                     onAssetClicked = clickActions.onAssetClicked,
                     onImageClicked = clickActions.onImageClicked,
                     searchQuery = searchQuery,
+                    accent = accent,
                     onProfileClicked = clickActions.onProfileClicked,
                     onLinkClicked = clickActions.onLinkClicked,
                     shouldDisplayMessageStatus = shouldDisplayMessageStatus,
@@ -112,13 +116,15 @@ fun MessageContentItem(
                     messageHeader = header,
                     decryptionStatus = header.messageStatus.flowStatus as MessageFlowStatus.Failure.Decryption,
                     onResetSessionClicked = clickActions.onResetSessionClicked,
-                    conversationProtocol = conversationDetailsData.conversationProtocol
+                    conversationProtocol = conversationDetailsData.conversationProtocol,
+                    messageStyle = messageStyle
                 )
             }
-            if (message.sendingFailed) {
+            if (!messageStyle.isBubble() && message.sendingFailed) {
                 MessageSendFailureWarning(
                     messageStatus = header.messageStatus.flowStatus as MessageFlowStatus.Failure.Send,
                     isInteractionAvailable = failureInteractionAvailable,
+                    messageStyle = messageStyle,
                     onRetryClick = remember(message) {
                         {
                             clickActions.onFailedMessageRetryClicked(
@@ -134,7 +140,14 @@ fun MessageContentItem(
                     }
                 )
             }
-            if (messageStyle.isBubble() && (!useSmallBottomPadding || header.messageStatus.editStatus is MessageEditStatus.Edited)) {
+            if (shouldShowBottomLabels(
+                    messageStyle = messageStyle,
+                    messageStatus = header.messageStatus,
+                    useSmallBottomPadding = useSmallBottomPadding,
+                    selfDeletionTimerState = selfDeletionTimerState,
+                    decryptionFailed = decryptionFailed
+                )
+            ) {
                 VerticalSpace.x4()
                 Row(
                     Modifier.padding(innerPadding),
@@ -181,3 +194,16 @@ fun MessageContentItem(
         }
     }
 }
+
+@Composable
+private fun shouldShowBottomLabels(
+    messageStyle: MessageStyle,
+    messageStatus: MessageStatus,
+    useSmallBottomPadding: Boolean,
+    selfDeletionTimerState: SelfDeletionTimerHelper.SelfDeletionTimerState,
+    decryptionFailed: Boolean
+): Boolean = messageStyle.isBubble() && !decryptionFailed && (
+        !useSmallBottomPadding
+                || messageStatus.editStatus is MessageEditStatus.Edited
+                || selfDeletionTimerState is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable
+        )

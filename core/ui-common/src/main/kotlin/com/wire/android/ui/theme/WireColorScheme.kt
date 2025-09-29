@@ -62,6 +62,9 @@ class WireColorScheme(
     val surfaceContainer: Color,
     val surfaceContainerHigh: Color,
     val surfaceContainerHighest: Color,
+    val defaultBubbleContainerBackgroundColor: Color,
+    val bubbleContainerAccentBackgroundColor: WireAccentColors,
+    val accentVariantColors: WireAccentColors,
 
     // buttons
     val primaryButtonEnabled: Color, val onPrimaryButtonEnabled: Color,
@@ -91,8 +94,10 @@ class WireColorScheme(
     val channelAvatarColors: List<ChannelAvatarColors>,
     val wireAccentColors: WireAccentColors,
 
+    // custom
     val emojiBackgroundColor: Color,
-    val defaultSelectedItemInLoadingState: Color
+    val defaultSelectedItemInLoadingState: Color,
+    val markdownNodeTextColor: Color
 
     ) {
     fun toColorScheme(): ColorScheme = ColorScheme(
@@ -150,6 +155,29 @@ private val LightWireColorScheme = WireColorScheme(
     surfaceContainer = WireColorPalette.Gray20,
     surfaceContainerHigh = WireColorPalette.Gray30,
     surfaceContainerHighest = WireColorPalette.Gray40,
+    defaultBubbleContainerBackgroundColor = WireColorPalette.LightBlue400,
+    bubbleContainerAccentBackgroundColor = WireAccentColors {
+        when (it) {
+            Accent.Amber -> WireColorPalette.LightAmber400
+            Accent.Blue -> WireColorPalette.LightBlue400
+            Accent.Green -> WireColorPalette.LightGreen400
+            Accent.Purple -> WireColorPalette.LightPurple400
+            Accent.Red -> WireColorPalette.LightRed400
+            Accent.Petrol -> WireColorPalette.LightPetrol400
+            Accent.Unknown -> WireColorPalette.LightBlue400
+        }
+    },
+    accentVariantColors = WireAccentColors {
+        when (it) {
+            Accent.Amber -> WireColorPalette.LightAmber50
+            Accent.Blue -> WireColorPalette.LightBlue50
+            Accent.Green -> WireColorPalette.LightGreen50
+            Accent.Purple -> WireColorPalette.LightPurple50
+            Accent.Red -> WireColorPalette.LightRed50
+            Accent.Petrol -> WireColorPalette.LightPetrol50
+            Accent.Unknown -> WireColorPalette.LightBlue50
+        }
+    },
 
     // buttons
     primaryButtonEnabled = WireColorPalette.LightBlue500, onPrimaryButtonEnabled = Color.White,
@@ -212,8 +240,10 @@ private val LightWireColorScheme = WireColorScheme(
             Accent.Unknown -> WireColorPalette.LightBlue500
         }
     },
+    // custom
     emojiBackgroundColor = Color.White,
-    defaultSelectedItemInLoadingState = WireColorPalette.LightBlue100
+    defaultSelectedItemInLoadingState = WireColorPalette.LightBlue100,
+    markdownNodeTextColor = Color.White
 )
 
 // Dark WireColorScheme
@@ -244,6 +274,29 @@ private val DarkWireColorScheme = WireColorScheme(
     surfaceContainer = WireColorPalette.Gray90,
     surfaceContainerHigh = WireColorPalette.Gray80,
     surfaceContainerHighest = WireColorPalette.Gray70,
+    defaultBubbleContainerBackgroundColor = WireColorPalette.DarkBlue400,
+    bubbleContainerAccentBackgroundColor = WireAccentColors {
+        when (it) {
+            Accent.Amber -> WireColorPalette.DarkAmber400
+            Accent.Blue -> WireColorPalette.DarkBlue400
+            Accent.Green -> WireColorPalette.DarkGreen400
+            Accent.Purple -> WireColorPalette.DarkPurple400
+            Accent.Red -> WireColorPalette.DarkRed400
+            Accent.Petrol -> WireColorPalette.DarkPetrol400
+            Accent.Unknown -> WireColorPalette.DarkBlue400
+        }
+    },
+    accentVariantColors = WireAccentColors {
+        when (it) {
+            Accent.Amber -> WireColorPalette.DarkAmber800
+            Accent.Blue -> WireColorPalette.DarkBlue800
+            Accent.Green -> WireColorPalette.DarkGreen800
+            Accent.Purple -> WireColorPalette.DarkPurple800
+            Accent.Red -> WireColorPalette.DarkRed800
+            Accent.Petrol -> WireColorPalette.DarkPetrol800
+            Accent.Unknown -> WireColorPalette.DarkBlue800
+        }
+    },
 
     // buttons
     primaryButtonEnabled = WireColorPalette.DarkBlue500, onPrimaryButtonEnabled = Color.Black,
@@ -307,7 +360,8 @@ private val DarkWireColorScheme = WireColorScheme(
         }
     },
     emojiBackgroundColor = Color.Black,
-    defaultSelectedItemInLoadingState = WireColorPalette.DarkBlue800
+    defaultSelectedItemInLoadingState = WireColorPalette.DarkBlue800,
+    markdownNodeTextColor = Color.White
 )
 
 @PackagePrivate

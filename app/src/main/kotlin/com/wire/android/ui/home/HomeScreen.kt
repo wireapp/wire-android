@@ -32,7 +32,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.DrawerDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
@@ -40,13 +40,14 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -54,6 +55,7 @@ import androidx.compose.ui.unit.min
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.animations.defaults.RootNavGraphDefaultAnimations
 import com.ramcosta.composedestinations.animations.rememberAnimatedNavHostEngine
@@ -62,10 +64,10 @@ import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.navigation.AdjustDestinationStylesForTablets
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.AdjustDestinationStylesForTablets
 import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.handleNavigation
 import com.wire.android.ui.NavGraphs
@@ -296,12 +298,12 @@ fun HomeContent(
             drawerState = drawerState,
             drawerContent = {
                 BoxWithConstraints {
-                    val maxWidth = min(this.maxWidth - dimensions().homeDrawerSheetEndPadding, DrawerDefaults.MaximumDrawerWidth)
+                    val width = min(this.maxWidth - dimensions().homeDrawerSheetEndPadding, DrawerDefaults.MaximumDrawerWidth)
                     ModalDrawerSheet(
                         drawerContainerColor = MaterialTheme.colorScheme.surface,
                         drawerTonalElevation = 0.dp,
                         drawerShape = RectangleShape,
-                        modifier = Modifier.widthIn(max = maxWidth)
+                        modifier = Modifier.width(width)
                     ) {
                         HomeDrawer(
                             currentRoute = currentNavigationItem.direction.route,
@@ -365,7 +367,7 @@ fun HomeContent(
                         }
                     },
                     collapsingEnabled = !searchBarState.isSearchActive,
-                    contentLazyListState = homeStateHolder.lazyListStateFor(currentNavigationItem),
+                    contentLazyListState = homeStateHolder.lazyListStateFor(currentNavigationItem, currentConversationFilter),
                     content = {
                         /**
                          * This "if" is a workaround, otherwise it can crash because of the SubcomposeLayout's nature.
@@ -375,7 +377,8 @@ fun HomeContent(
                          * https://issuetracker.google.com/issues/268422136
                          * https://issuetracker.google.com/issues/254645321
                          */
-                        if (LocalLifecycleOwner.current.lifecycle.currentState != Lifecycle.State.DESTROYED) {
+                        val lifecycleState by LocalLifecycleOwner.current.lifecycle.currentStateFlow.collectAsState()
+                        if (lifecycleState != Lifecycle.State.DESTROYED) {
                             val navHostEngine = rememberAnimatedNavHostEngine(
                                 rootDefaultAnimations = RootNavGraphDefaultAnimations.ACCOMPANIST_FADING
                             )

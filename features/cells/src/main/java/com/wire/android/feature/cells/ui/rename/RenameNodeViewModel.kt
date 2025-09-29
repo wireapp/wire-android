@@ -25,6 +25,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.feature.cells.ui.navArgs
 import com.wire.android.model.DisplayNameState
+import com.wire.android.model.DisplayNameState.NameError.None
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.kalium.cells.domain.usecase.RenameNodeUseCase
@@ -32,9 +33,12 @@ import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.util.splitFileExtension
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.seconds
 
 @HiltViewModel
 class RenameNodeViewModel @Inject constructor(
@@ -44,8 +48,11 @@ class RenameNodeViewModel @Inject constructor(
 
     private val navArgs: RenameNodeNavArgs = savedStateHandle.navArgs()
 
+    private var clearErrorJob: Job? = null
+
     fun isFolder(): Boolean? = navArgs.isFolder
 
+    private val originalFileName = navArgs.nodeName?.splitFileExtension()?.first ?: ""
     private val fileExtension: String = navArgs.nodeName?.splitFileExtension()?.second ?: ""
     val textState: TextFieldState = TextFieldState(navArgs.nodeName?.splitFileExtension()?.first ?: "")
 
@@ -54,16 +61,11 @@ class RenameNodeViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            textState.textAsFlow().collectLatest {
+            textState.textAsFlow().collectLatest { name ->
+                val validationError = name.validate()
                 displayNameState = displayNameState.copy(
-                    saveEnabled = it.trim().isNotEmpty() && it.length <= NAME_MAX_COUNT && it.trim() != navArgs.nodeName &&
-                            !it.contains("/") && !it.contains("."),
-                    error = when {
-                        it.trim().isEmpty() -> DisplayNameState.NameError.TextFieldError.NameEmptyError
-                        it.length > NAME_MAX_COUNT -> DisplayNameState.NameError.TextFieldError.NameExceedLimitError
-                        it.contains("/") || it.contains(".") -> DisplayNameState.NameError.TextFieldError.InvalidNameError
-                        else -> DisplayNameState.NameError.None
-                    }
+                    saveEnabled = validationError == None && name.trim() != originalFileName,
+                    error = validationError,
                 )
             }
         }
@@ -92,6 +94,24 @@ class RenameNodeViewModel @Inject constructor(
                     )
                     sendAction(RenameNodeViewModelAction.Failure)
                 }
+        }
+    }
+
+    private fun CharSequence.validate() = when {
+        length > NAME_MAX_COUNT -> DisplayNameState.NameError.TextFieldError.NameExceedLimitError
+        trim().isEmpty() -> DisplayNameState.NameError.TextFieldError.NameEmptyError
+        contains("/") || contains(".") -> DisplayNameState.NameError.TextFieldError.InvalidNameError
+        else -> None
+    }
+
+    internal fun onMaxLengthExceeded() {
+        displayNameState = displayNameState.copy(
+            error = DisplayNameState.NameError.TextFieldError.NameExceedLimitError
+        )
+        clearErrorJob?.cancel()
+        clearErrorJob = viewModelScope.launch {
+            delay(2.seconds)
+            displayNameState = displayNameState.copy(error = None)
         }
     }
 

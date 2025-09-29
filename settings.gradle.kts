@@ -15,6 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+rootProject.name = "wire-android"
 pluginManagement {
     includeBuild("build-logic")
     repositories {
@@ -30,6 +31,7 @@ val ignorableModules = setOf("buildSrc", "kalium")
 rootDir
     .walk()
     .maxDepth(1)
+    .filter { it != rootDir }
     .filter { project ->
         basePathModules.contains(project.name) || ignorableModules.none { project.name == it }
                 && project.isDirectory && file("${project.absolutePath}/build.gradle.kts").exists()

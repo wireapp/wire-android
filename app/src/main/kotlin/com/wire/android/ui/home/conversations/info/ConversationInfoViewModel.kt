@@ -56,6 +56,7 @@ class ConversationInfoViewModel @Inject constructor(
     private val globalDataStore: GlobalDataStore,
     private val fetchConversationMLSVerificationStatus: FetchConversationMLSVerificationStatusUseCase,
     private val isWireCellFeatureEnabled: IsWireCellsEnabledUseCase,
+//    private val isChatBubblesEnabledUseCase: IsChatBubblesEnabledUseCase,
     @CurrentAccount private val selfUserId: UserId,
 ) : ViewModel() {
 
@@ -128,7 +129,8 @@ class ConversationInfoViewModel @Inject constructor(
         )
     }
 
-    private suspend fun isBubbleUiEnabled() = globalDataStore.observeIsBubbleUI().firstOrNull() ?: false
+    private suspend fun isBubbleUiEnabled() = (globalDataStore.observeIsBubbleUI().firstOrNull() ?: false)
+//            || isChatBubblesEnabledUseCase() // TODO uncomment when production ready
 
     private fun getAccentId(conversationDetails: ConversationDetails): Int {
         return if (conversationDetails is ConversationDetails.OneOne) {
@@ -172,6 +174,7 @@ class ConversationInfoViewModel @Inject constructor(
                 val isPrivate = conversationDetails.access == ConversationDetails.Group.Channel.ChannelAccess.PRIVATE
                 ConversationAvatar.Group.Channel(conversationDetails.conversation.id, isPrivate)
             }
+
             else -> ConversationAvatar.None
         }
 

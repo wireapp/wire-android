@@ -21,7 +21,8 @@ data class CellFilesNavArgs(
     val conversationId: String? = null,
     val screenTitle: String? = null,
     val isRecycleBin: Boolean? = false,
-    val breadcrumbs: Array<String>? = null
+    val breadcrumbs: Array<String>? = null,
+    val parentFolderUuid: String? = null,
 ) {
 
     override fun hashCode(): Int {

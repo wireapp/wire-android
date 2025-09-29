@@ -58,6 +58,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.selectableBackground
 import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.home.conversationslist.common.UnreadMessageEventBadge
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -164,13 +165,20 @@ fun DrawerItem(
             .background(backgroundColor)
             .selectableBackground(selected, stringResource(R.string.content_description_open_label), onItemClick),
     ) {
-        Image(
-            painter = painterResource(id = destination.icon),
-            contentDescription = null,
-            colorFilter = ColorFilter.tint(contentColor),
-            contentScale = ContentScale.Fit,
-            modifier = Modifier.padding(start = dimensions().spacing16x, end = dimensions().spacing16x)
-        )
+        Box(
+            contentAlignment = Alignment.CenterStart,
+            modifier = Modifier.width(dimensions().spacing48x)
+        ) {
+            Image(
+                painter = painterResource(id = destination.icon),
+                contentDescription = null,
+                colorFilter = ColorFilter.tint(contentColor),
+                contentScale = ContentScale.Fit,
+                modifier = Modifier
+                    .height(dimensions().spacing16x)
+                    .padding(start = dimensions().spacing16x)
+            )
+        }
         Text(
             style = MaterialTheme.wireTypography.button02,
             text = destination.title.asString(),
@@ -198,7 +206,7 @@ fun DrawerItem(
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewSelectedArchivedItemWithUnreadCount() {
+fun PreviewSelectedArchivedItemWithUnreadCount() = WireTheme {
     Box(modifier = Modifier.background(color = MaterialTheme.colorScheme.surface)) {
         DrawerItem(
             destination = HomeDestination.Archive,
@@ -211,7 +219,7 @@ fun PreviewSelectedArchivedItemWithUnreadCount() {
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewUnSelectedArchivedItemWithUnreadCount() {
+fun PreviewUnSelectedArchivedItemWithUnreadCount() = WireTheme {
     Box(modifier = Modifier.background(color = MaterialTheme.colorScheme.surface)) {
         DrawerItem(
             destination = HomeDestination.Archive,
@@ -224,7 +232,7 @@ fun PreviewUnSelectedArchivedItemWithUnreadCount() {
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewItemWithExternalDestination() {
+fun PreviewItemWithExternalDestination() = WireTheme {
     Box(modifier = Modifier.background(color = MaterialTheme.colorScheme.surface)) {
         DrawerItem(
             destination = HomeDestination.Support,

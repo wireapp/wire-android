@@ -32,4 +32,5 @@
     <string name="content_description_pending_connection_badge">ожидание подтверждения запроса</string>
     <string name="content_description_alert">Оповещение</string>
     <string name="content_description_show_more_options">Показать больше вариантов</string>
+    <string name="content_description_select_label">выбрать</string>
 </resources>

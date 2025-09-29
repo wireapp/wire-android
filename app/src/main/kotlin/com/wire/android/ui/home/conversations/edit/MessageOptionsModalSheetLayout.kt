@@ -83,7 +83,9 @@ fun MessageOptionsModalSheetLayout(
                     onShareAssetClick = onShareAssetClick,
                     onDownloadAssetClick = onDownloadAssetClick,
                     onOpenAssetClick = onOpenAssetClick
-                )
+                ).also {
+                    sheetState.updateContent()
+                }
 
                 MessageOptionsMenuState.Loading -> WireCircularProgressIndicator( // loading state - show a progress indicator
                     progressColor = colorsScheme().onSurface,
@@ -121,6 +123,7 @@ private fun MessageOptionsModalContent(
     WireMenuModalSheetContent(
         header = MenuModalSheetHeader.Gone,
         menuItems = messageOptionsMenuItems(
+            ownReactions = message.messageFooter.ownReactions,
             isAssetMessage = message.isAssetMessage,
             isUploading = message.isPending,
             isComposite = message.messageContent is UIMessageContent.Composite,

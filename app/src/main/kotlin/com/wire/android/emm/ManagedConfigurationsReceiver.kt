@@ -36,7 +36,7 @@ class ManagedConfigurationsReceiver @Inject constructor(
 
     val logger = appLogger.withTextTag(TAG)
     private val scope by lazy {
-        CoroutineScope(SupervisorJob() + dispatcher.default())
+        CoroutineScope(SupervisorJob() + dispatcher.io())
     }
 
     override fun onReceive(context: Context, intent: Intent) {

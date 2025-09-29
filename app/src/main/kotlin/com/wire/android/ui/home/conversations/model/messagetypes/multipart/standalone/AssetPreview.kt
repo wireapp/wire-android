@@ -69,6 +69,7 @@ fun AssetPreview(
             when (item.assetType) {
                 AttachmentFileType.IMAGE -> ImageAssetPreview(item, messageStyle)
                 AttachmentFileType.VIDEO -> VideoAssetPreview(item, messageStyle, accent)
+                AttachmentFileType.PDF -> PdfAssetPreview(item, messageStyle, accent)
                 else -> FileAssetPreview(item, messageStyle, accent)
             }
         } else {

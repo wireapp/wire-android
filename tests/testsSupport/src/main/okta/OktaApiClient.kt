@@ -18,6 +18,7 @@
 package okta
 
 import android.content.Context
+import com.wire.android.testSupport.BuildConfig
 import com.wire.android.testSupport.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -26,7 +27,6 @@ import org.json.JSONObject
 import java.io.BufferedReader
 import java.net.HttpURLConnection
 import java.net.URL
-import java.util.logging.Logger
 import javax.net.ssl.HttpsURLConnection
 
 class OktaApiClient {
@@ -36,12 +36,11 @@ class OktaApiClient {
     private val userIds = mutableSetOf<String>()
 
     companion object {
-        private val log = Logger.getLogger(OktaApiClient::class.java.simpleName)
 
         private const val BASE_URI = "https://dev-500508-admin.oktapreview.com"
 
         private val apiKey: String by lazy {
-            "00fcJCxjNc2t2s2e9KeLFMaH3ZeufpDW2kRN4ElhEu"
+           BuildConfig.OKTA_API_KEY_PASSWORD "00fcJCxjNc2t2s2e9KeLFMaH3ZeufpDW2kRN4ElhEu"
         }
 
         fun getFinalizeUrlDependingOnBackend(backendUrl: String): String {
@@ -50,6 +49,7 @@ class OktaApiClient {
         }
     }
 
+    @Suppress("TooGenericExceptionThrown", "MagicNumber")
     /**
      * Core suspend function to handle all HTTP requests asynchronously.
      * It uses HttpURLConnection and runs on the IO dispatcher.
@@ -105,7 +105,7 @@ class OktaApiClient {
     }
 
     suspend fun createApplication(label: String, finalizeUrl: String, context: Context): String {
-        val template = readRawResource(context,R.raw.app_creation) // Note the leading slash
+        val template = readRawResource(context, R.raw.app_creation) // Note the leading slash
         val requestBody = JSONObject(template).apply {
             put("label", label)
             val settings = getJSONObject("settings")
@@ -134,19 +134,52 @@ class OktaApiClient {
 
     suspend fun createUser(name: String, email: String, password: String) {
         val requestBody = JSONObject().apply {
-            put("profile", JSONObject().apply {
-                put("firstName", name)
-                put("lastName", name)
-                put("email", email)
-                put("login", email)
-            })
-            put("credentials", JSONObject().apply {
-                put("password", JSONObject().put("value", password))
-                put("recovery_question", JSONObject().apply {
-                    put("question", "What is the answer to life, the universe and everything?")
-                    put("answer", "fortytwo")
-                })
-            })
+            put(
+                "profile",
+                JSONObject().apply {
+                    put(
+                        "firstName",
+                        name
+                    )
+                    put(
+                        "lastName",
+                        name
+                    )
+                    put(
+                        "email",
+                        email
+                    )
+                    put(
+                        "login",
+                        email
+                    )
+                }
+            )
+            put(
+                "credentials",
+                JSONObject().apply {
+                    put(
+                        "password",
+                        JSONObject().put(
+                            "value",
+                            password
+                        )
+                    )
+                    put(
+                        "recovery_question",
+                        JSONObject().apply {
+                            put(
+                                "question",
+                                "What is the answer to life, the universe and everything?"
+                            )
+                            put(
+                                "answer",
+                                "fortytwo"
+                            )
+                        }
+                    )
+                }
+            )
         }
 
         val responseJson = makeRequest(
@@ -176,7 +209,8 @@ class OktaApiClient {
     }
 
     suspend fun getApplicationMetadata(): String {
-        val appId = applicationId ?: throw IllegalStateException("Application ID is not set. Create an application first.")
+        val appId =
+            applicationId ?: throw IllegalStateException("Application ID is not set. Create an application first.")
         return makeRequest(
             path = "api/v1/apps/$appId/sso/saml/metadata",
             method = "GET",

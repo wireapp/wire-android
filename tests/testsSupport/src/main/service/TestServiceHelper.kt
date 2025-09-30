@@ -26,7 +26,6 @@ import com.wire.android.testSupport.R
 import com.wire.android.testSupport.service.TestService
 import kotlinx.coroutines.runBlocking
 import network.HttpRequestException
-import okta.OktaApiClient
 import service.enums.LegalHoldStatus
 import service.models.Conversation
 import service.models.SendTextParams
@@ -356,6 +355,7 @@ class TestServiceHelper {
         return this != 0
     }
 
+    @Suppress("LongParameterList")
     fun thereIsATeamOwner(
         context: Context,
         ownerNameAlias: String,
@@ -370,7 +370,7 @@ class TestServiceHelper {
                 "Cannot create team with user ${owner.nameAliases} as owner because user is already created"
             )
         }
-        usersManager.createTeamOwnerByAlias(ownerNameAlias, teamName, locale, updateHandle, backend,context)
+        usersManager.createTeamOwnerByAlias(ownerNameAlias, teamName, locale, updateHandle, backend, context)
     }
 
     fun syncUserIdsForUsersCreatedThroughIdP(ownerNameAlias: String, user: ClientUser) {
@@ -378,7 +378,6 @@ class TestServiceHelper {
             val asUser = toClientUser(ownerNameAlias)
             val backend = BackendClient.loadBackend(asUser.backendName.orEmpty())
             val teamMembers = backend.getTeamMembers(asUser)
-
 
             for (member in teamMembers) {
                 val memberId = member.userId

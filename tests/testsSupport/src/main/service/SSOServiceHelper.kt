@@ -23,7 +23,7 @@ object SSOServiceHelper {
         val owner = toClientUser(ownerNameAlias)
         thereIsATeamOwner(context, ownerNameAlias, teamName, true, backend = loadBackend(owner.backendName ?: "STAGING"))
         enableSSOFeature(owner, teamName)
-        val backend = loadBackend(owner.backendName.orEmpty());
+        val backend = loadBackend(owner.backendName.orEmpty())
         val finalizeUrl = OktaApiClient.getFinalizeUrlDependingOnBackend(backend.backendUrl)
         val client = OktaApiClient()
         client.createApplication(owner.name + " " + teamName, finalizeUrl, context)
@@ -36,6 +36,7 @@ object SSOServiceHelper {
             )
     }
 
+    @Suppress("TooGenericExceptionThrown", "MagicNumber")
     fun TestServiceHelper.userAddsOktaUser(ownerNameAlias: String, userNameAliases: String) {
         val aliases = usersManager.splitAliases(userNameAliases)
         for (userNameAlias in aliases) {
@@ -76,8 +77,11 @@ object SSOServiceHelper {
         usersManager.setSelfUser(toClientUser(nameAlias))
     }
 
-    fun getSSOCode(): String = "wire-$identityProviderId".also { WireTestLogger.getLog ("Test Log").info("The sso code is $it") }
+    fun getSSOCode(): String = "wire-$identityProviderId".also {
+        WireTestLogger.getLog("Test Log").info("The sso code is $it")
+    }
 
+    @Suppress("MagicNumber")
     fun enableSSOFeature(clientUser: ClientUser, teamName: String) {
         val backend = loadBackend(clientUser.backendName.orEmpty())
         val dstTeam = runBlocking {
@@ -102,5 +106,4 @@ object SSOServiceHelper {
             options = RequestOptions(expectedResponseCodes = NumberSequence.Array(intArrayOf(200))),
         )
     }
-
 }

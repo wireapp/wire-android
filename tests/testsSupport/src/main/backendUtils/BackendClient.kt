@@ -426,10 +426,10 @@ class BackendClient(
 
     fun getTeamMembers(asUser: ClientUser): List<TeamMember> {
         val firstTeam = getAllTeams(asUser).first()
-        return getTeamMembers(runBlocking { getAuthToken(asUser)!! }, firstTeam.id, asUser)
+        return getTeamMembers(runBlocking { getAuthToken(asUser)!! }, firstTeam.id)
     }
 
-    private fun getTeamMembers(token: AccessToken, teamId: String, asUser: ClientUser): List<TeamMember> {
+    private fun getTeamMembers(token: AccessToken, teamId: String): List<TeamMember> {
         val url = URL("teams/$teamId/members".composeCompleteUrl())
 
         val headers = defaultheaders.toMutableMap().apply {

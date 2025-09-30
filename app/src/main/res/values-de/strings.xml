@@ -174,6 +174,7 @@
     <string name="content_description_open_label">Öffnen</string>
     <string name="content_description_join_call_label">Anruf annehmen</string>
     <string name="content_description_share_label">Teilen</string>
+    <string name="content_description_collapse_label">Ausblenden</string>
     <string name="content_description_expand_label">ausklappen</string>
     <string name="content_description_edit_label">bearbeiten</string>
     <string name="content_description_select_label">auswählen</string>
@@ -1229,6 +1230,7 @@ Bei Gruppenunterhaltungen kann der Gruppen-Admin diese Einstellung überschreibe
     <string name="custom_backend_dialog_body_backend_website">Website-URL:</string>
     <string name="custom_backend_dialog_body_backend_websocket">Backend-WSURL:</string>
     <string name="custom_backend_error_title">Ein Fehler ist aufgetreten</string>
+    <string name="custom_backend_error_no_internet_connection_body">Die Weiterleitung zu einem lokalen Backend war nicht möglich. Sie scheinen nicht mit dem Internet verbunden zu sein.\n\nStellen Sie eine Internetverbindung her und versuchen Sie es erneut.</string>
     <string name="custom_backend_error_no_internet_connection_try_again">Erneut versuchen</string>
     <string name="label_fetching_your_messages">Empfang von neuen Nachrichten</string>
     <string name="label_text_copied">Text in Zwischenablage kopiert</string>
@@ -1431,6 +1433,26 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="label_information_waiting_for_recipient_timer_to_expire_group">Nachdem eine Person Ihre Nachricht gesehen hat und deren Timer abgelaufen ist, verschwindet diese Notiz.</string>
     <string name="label_information_waiting_for_recipient_timer_to_expire_one_to_one">Nachdem %1$s Ihre Nachricht gesehen hat und der Timer abgelaufen ist, verschwindet diese Notiz.</string>
     <string name="label_information_waiting_for_deleation_when_self_not_sender">Sobald Sie online sind, verschwindet diese Notiz.</string>
+    <plurals name="weeks">
+        <item quantity="one">1 Woche</item>
+        <item quantity="other">%1$d Wochen</item>
+    </plurals>
+    <plurals name="days">
+        <item quantity="one">1 Tag</item>
+        <item quantity="other">%1$d Tage</item>
+    </plurals>
+    <plurals name="hours">
+        <item quantity="one">1 Stunde</item>
+        <item quantity="other">%1$d Stunden</item>
+    </plurals>
+    <plurals name="minutes">
+        <item quantity="one">1 Minute</item>
+        <item quantity="other">%1$d Minuten</item>
+    </plurals>
+    <plurals name="seconds">
+        <item quantity="one">1 Sekunde</item>
+        <item quantity="other">%1$d Sekunden</item>
+    </plurals>
     <plurals name="weeks_left">
         <item quantity="one">Noch 1 Woche</item>
         <item quantity="other">Noch %1$d Wochen</item>

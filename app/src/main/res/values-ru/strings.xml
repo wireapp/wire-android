@@ -119,6 +119,7 @@
     <string name="content_description_conversation_back_btn">Вернуться к списку бесед</string>
     <string name="content_description_conversation_open_details_label">открыть информацию о беседе</string>
     <string name="content_description_new_conversation">Поиск друзей или создание новой беседы</string>
+    <string name="content_description_new_meeting">Начните или запланируйте новую встречу Wire</string>
     <string name="content_description_back_button">Кнопка назад</string>
     <string name="content_description_send_button">Отправить</string>
     <string name="content_description_timed_message_button">Самоудаляющиеся сообщения, кнопка</string>

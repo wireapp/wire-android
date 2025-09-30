@@ -42,7 +42,7 @@ class ManagedConfigurationsReceiver @Inject constructor(
     override fun onReceive(context: Context, intent: Intent) {
         scope.launch {
             logger.i("onReceive called")
-            managedConfigurationsRepository.getServerConfig()?.let {
+            managedConfigurationsRepository.refreshServerConfig().let {
                 logger.i("Received restriction serverConfig: $it")
             }
         }

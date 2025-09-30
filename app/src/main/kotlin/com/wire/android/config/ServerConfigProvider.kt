@@ -57,7 +57,6 @@ class ServerConfigProvider @Inject constructor() {
     }
 }
 
-// Keep the function for backward compatibility and Hilt module usage
 private val staticServerConfigProvider = ServerConfigProvider()
 
 fun getDefaultServerConfig(managedServerConfig: ManagedServerConfig? = null): ServerConfig.Links {

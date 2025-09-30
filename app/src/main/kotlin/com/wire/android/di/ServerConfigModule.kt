@@ -17,15 +17,17 @@
  */
 package com.wire.android.di
 
+import android.content.Context
 import com.wire.android.config.ServerConfigProvider
 import com.wire.android.emm.ManagedConfigurationsRepository
+import com.wire.android.emm.ManagedConfigurationsRepositoryImpl
+import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 import javax.inject.Singleton
 
 @Module
@@ -37,13 +39,20 @@ class ServerConfigModule {
     fun provideServerConfigProvider(): ServerConfigProvider = ServerConfigProvider()
 
     @Provides
+    @Singleton
+    fun provideManagedConfigurationsRepository(
+        @ApplicationContext context: Context,
+        dispatcherProvider: DispatcherProvider,
+        serverConfigProvider: ServerConfigProvider
+    ): ManagedConfigurationsRepository {
+        return ManagedConfigurationsRepositoryImpl(context, dispatcherProvider, serverConfigProvider)
+    }
+
+    @Provides
     fun provideCurrentServerConfig(
-        serverConfigProvider: ServerConfigProvider,
         managedConfigurationsRepository: ManagedConfigurationsRepository
     ): ServerConfig.Links {
-        val managedServerConfig = runBlocking(Dispatchers.IO) {
-            managedConfigurationsRepository.getServerConfig()
-        }
-        return serverConfigProvider.getDefaultServerConfig(managedServerConfig)
+        // Returns the current resolved server configuration links, which could be either managed or default
+        return managedConfigurationsRepository.currentServerConfig
     }
 }

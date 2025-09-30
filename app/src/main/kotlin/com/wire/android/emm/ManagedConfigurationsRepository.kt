@@ -20,27 +20,56 @@ package com.wire.android.emm
 import android.content.Context
 import android.content.RestrictionsManager
 import com.wire.android.appLogger
+import com.wire.android.config.ServerConfigProvider
 import com.wire.android.util.dispatchers.DispatcherProvider
-import dagger.hilt.android.qualifiers.ApplicationContext
+import com.wire.kalium.logic.configuration.server.ServerConfig
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
-import javax.inject.Inject
-import javax.inject.Singleton
+import java.util.concurrent.atomic.AtomicReference
 
-@Singleton
-class ManagedConfigurationsRepository @Inject constructor(
-    @ApplicationContext private val context: Context,
+interface ManagedConfigurationsRepository {
+    /**
+     * Current server config that ViewModels can access.
+     * This is thread-safe and will be updated when app resumes or broadcast receiver is triggered.
+     *
+     * @see refreshServerConfig
+     */
+    val currentServerConfig: ServerConfig.Links
+
+    /**
+     * Initialize the server config on first access or when explicitly called.
+     * This should be called when the app starts, resumes, or when broadcast receiver triggers.
+     */
+    suspend fun refreshServerConfig(): ServerConfig.Links
+}
+
+internal class ManagedConfigurationsRepositoryImpl(
+    private val context: Context,
     private val dispatchers: DispatcherProvider,
-) {
+    private val serverConfigProvider: ServerConfigProvider,
+) : ManagedConfigurationsRepository {
 
     private val json: Json = Json { ignoreUnknownKeys = true }
     private val logger = appLogger.withTextTag(TAG)
-
     private val restrictionsManager: RestrictionsManager by lazy {
         context.getSystemService(Context.RESTRICTIONS_SERVICE) as RestrictionsManager
     }
 
-    suspend fun getServerConfig(): ManagedServerConfig? = withContext(dispatchers.io()) {
+    private val _currentServerConfig = AtomicReference<ServerConfig.Links?>(null)
+
+    override val currentServerConfig: ServerConfig.Links
+        get() = _currentServerConfig.get() ?: serverConfigProvider.getDefaultServerConfig()
+
+
+    override suspend fun refreshServerConfig(): ServerConfig.Links = withContext(dispatchers.io()) {
+        val managedServerConfig = getServerConfig()
+        val serverConfig = serverConfigProvider.getDefaultServerConfig(managedServerConfig)
+        _currentServerConfig.set(serverConfig)
+        logger.i("Server config refreshed: $serverConfig")
+        serverConfig
+    }
+
+    private suspend fun getServerConfig(): ManagedServerConfig? = withContext(dispatchers.io()) {
         val restrictions = restrictionsManager.applicationRestrictions
         if (restrictions == null || restrictions.isEmpty) {
             logger.i("No application restrictions found")

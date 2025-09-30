@@ -40,7 +40,7 @@ class OktaApiClient {
         private const val BASE_URI = "https://dev-500508-admin.oktapreview.com"
 
         private val apiKey: String by lazy {
-           BuildConfig.OKTA_API_KEY_PASSWORD "00fcJCxjNc2t2s2e9KeLFMaH3ZeufpDW2kRN4ElhEu"
+           BuildConfig.OKTA_API_KEY_PASSWORD
         }
 
         fun getFinalizeUrlDependingOnBackend(backendUrl: String): String {

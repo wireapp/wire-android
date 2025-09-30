@@ -60,7 +60,6 @@ internal class ManagedConfigurationsRepositoryImpl(
     override val currentServerConfig: ServerConfig.Links
         get() = _currentServerConfig.get() ?: serverConfigProvider.getDefaultServerConfig()
 
-
     override suspend fun refreshServerConfig(): ServerConfig.Links = withContext(dispatchers.io()) {
         val managedServerConfig = getServerConfig()
         val serverConfig = serverConfigProvider.getDefaultServerConfig(managedServerConfig)

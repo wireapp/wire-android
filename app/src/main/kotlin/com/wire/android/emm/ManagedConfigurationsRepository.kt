@@ -42,16 +42,29 @@ class ManagedConfigurationsRepository @Inject constructor(
 
     suspend fun getServerConfig(): ManagedServerConfig? = withContext(dispatchers.io()) {
         val restrictions = restrictionsManager.applicationRestrictions
-
         if (restrictions == null || restrictions.isEmpty) {
+            logger.i("No application restrictions found")
             return@withContext null
         }
 
-        val serverConfigJson = getJsonRestrictionByKey<ManagedServerConfig>(
+        val managedServerConfig = getJsonRestrictionByKey<ManagedServerConfig>(
             ManagedConfigurationsKeys.DEFAULT_SERVER_URLS.asKey()
-        )
-        logger.d("Managed server config: $serverConfigJson")
-        return@withContext serverConfigJson
+        ) ?: run {
+            logger.w("No managed server config found in restrictions")
+            return@withContext null
+        }
+
+        return@withContext when {
+            !managedServerConfig.endpoints.isValid -> {
+                logger.w("Managed server config is not valid: $managedServerConfig")
+                null
+            }
+
+            else -> {
+                logger.i("Managed server config found: $managedServerConfig")
+                managedServerConfig
+            }
+        }
     }
 
     @Suppress("TooGenericExceptionCaught")

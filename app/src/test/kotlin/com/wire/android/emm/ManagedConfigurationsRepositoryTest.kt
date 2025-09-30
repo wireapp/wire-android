@@ -53,6 +53,17 @@ class ManagedConfigurationsRepositoryTest {
         assertNull(serverConfig)
     }
 
+    @Test
+    fun `given a server config valid, and endpoints not valid urls, then return null`() = runTest {
+        val (_, repository) = Arrangement()
+            .withRestrictions(mapOf(ManagedConfigurationsKeys.DEFAULT_SERVER_URLS.asKey() to validServerConfigJsonWithInvalidEndpoints))
+            .arrange()
+
+        val serverConfig = repository.getServerConfig()
+
+        assertNull(serverConfig)
+    }
+
     private class Arrangement {
 
         private val context: Context = ApplicationProvider.getApplicationContext()
@@ -79,6 +90,20 @@ class ManagedConfigurationsRepositoryTest {
                 "accountsURL": "https://account.anta.wire.link",
                 "backendURL": "https://nginz-https.anta.wire.link",
                 "backendWSURL": "https://nginz-ssl.anta.wire.link",
+                "blackListURL": "https://disallowed-clients.anta.wire.link",
+                "teamsURL": "https://teams.anta.wire.link",
+                "websiteURL": "https://wire.com"
+              },
+              "title": "anta.wire.link"
+            }
+        """.trimIndent()
+
+        val validServerConfigJsonWithInvalidEndpoints = """
+            {
+              "endpoints": {
+                "accountsURL": "account.anta.wire.link",
+                "backendURL": "nginz-https.anta.wire.link",
+                "backendWSURL": "nginz-ssl.anta.wire.",
                 "blackListURL": "https://disallowed-clients.anta.wire.link",
                 "teamsURL": "https://teams.anta.wire.link",
                 "websiteURL": "https://wire.com"

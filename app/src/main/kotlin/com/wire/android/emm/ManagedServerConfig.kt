@@ -17,8 +17,10 @@
  */
 package com.wire.android.emm
 
+import com.wire.android.util.isValidWebUrl
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 
 @Serializable
 data class ManagedServerConfig(
@@ -36,4 +38,13 @@ data class ManagedServerLinks(
     val blackListURL: String,
     val teamsURL: String,
     val websiteURL: String
-)
+) {
+
+    @Transient
+    val isValid: Boolean = accountsURL.isValidWebUrl() &&
+            backendURL.isValidWebUrl() &&
+            backendWSURL.isValidWebUrl() &&
+            blackListURL.isValidWebUrl() &&
+            teamsURL.isValidWebUrl() &&
+            websiteURL.isValidWebUrl()
+}

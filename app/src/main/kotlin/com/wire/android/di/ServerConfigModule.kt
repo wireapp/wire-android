@@ -22,7 +22,6 @@ import com.wire.android.emm.ManagedConfigurationsRepository
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import dagger.Module
 import dagger.Provides
-import dagger.Reusable
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.Dispatchers
@@ -38,7 +37,6 @@ class ServerConfigModule {
     fun provideServerConfigProvider(): ServerConfigProvider = ServerConfigProvider()
 
     @Provides
-    @Reusable
     fun provideCurrentServerConfig(
         serverConfigProvider: ServerConfigProvider,
         managedConfigurationsRepository: ManagedConfigurationsRepository

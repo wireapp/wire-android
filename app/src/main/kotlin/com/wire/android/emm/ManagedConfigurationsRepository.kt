@@ -55,14 +55,14 @@ class ManagedConfigurationsRepository @Inject constructor(
         }
 
         return@withContext when {
-            !managedServerConfig.endpoints.isValid -> {
-                logger.w("Managed server config is not valid: $managedServerConfig")
-                null
+            managedServerConfig.endpoints.isValid -> {
+                logger.i("Managed server config found: $managedServerConfig")
+                managedServerConfig
             }
 
             else -> {
-                logger.i("Managed server config found: $managedServerConfig")
-                managedServerConfig
+                logger.w("Managed server config is not valid: $managedServerConfig")
+                null
             }
         }
     }

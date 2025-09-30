@@ -64,13 +64,4 @@ fun getDefaultServerConfig(managedServerConfig: ManagedServerConfig? = null): Se
     return staticServerConfigProvider.getDefaultServerConfig(managedServerConfig)
 }
 
-// Keep backward compatibility
 val DefaultServerConfig get() = getDefaultServerConfig()
-
-// Deprecated: Use Hilt-injected ServerConfig.Links instead
-@Deprecated(
-    "Use Hilt-injected ServerConfig.Links instead of calling orDefault()",
-    ReplaceWith("this ?: getDefaultServerConfig(managedServerConfig)")
-)
-fun ServerConfig.Links?.orDefault(managedServerConfig: ManagedServerConfig? = null) =
-    this ?: getDefaultServerConfig(managedServerConfig)

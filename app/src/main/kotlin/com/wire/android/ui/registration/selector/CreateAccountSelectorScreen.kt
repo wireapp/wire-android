@@ -48,7 +48,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
-import com.wire.android.config.orDefault
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
@@ -89,7 +88,7 @@ fun CreateAccountSelectorScreen(
     val context = LocalContext.current
     fun navigateToEmailScreen() {
         val createAccountNavArgs = CreateAccountDataNavArgs(
-            customServerConfig = viewModel.serverConfig.orDefault(),
+            customServerConfig = viewModel.serverConfig,
             userRegistrationInfo = UserRegistrationInfo(viewModel.email)
         )
         navigator.navigate(NavigationCommand(CreateAccountDataDetailScreenDestination(createAccountNavArgs)))

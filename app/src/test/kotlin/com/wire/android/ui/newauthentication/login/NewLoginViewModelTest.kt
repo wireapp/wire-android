@@ -19,6 +19,7 @@ import com.wire.android.ui.authentication.login.sso.LoginSSOViewModelExtension
 import com.wire.android.ui.authentication.login.sso.SSOUrlConfig
 import com.wire.android.ui.navArgs
 import com.wire.android.ui.newauthentication.login.ValidateEmailOrSSOCodeUseCase.Result.ValidEmail
+import com.wire.android.util.EMPTY
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.deeplink.SSOFailureCodes
 import com.wire.android.util.newServerConfig
@@ -765,7 +766,8 @@ class NewLoginViewModelTest {
             loginViewModelExtension,
             loginSSOViewModelExtension,
             dispatchers,
-            ServerConfig.STAGING
+            ServerConfig.STAGING,
+            String.EMPTY
         )
     }
 

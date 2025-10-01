@@ -65,6 +65,7 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Named
 
+@Suppress("LongParameterList")
 @HiltViewModel
 class NewLoginViewModel(
     private val validateEmailOrSSOCode: ValidateEmailOrSSOCodeUseCase,

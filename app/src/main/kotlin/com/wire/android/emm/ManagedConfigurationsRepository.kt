@@ -158,6 +158,6 @@ internal class ManagedConfigurationsRepositoryImpl(
         }
 
     companion object {
-        const val TAG = "ManagedConfigurationsRepository"
+        private const val TAG = "ManagedConfigurationsRepository"
     }
 }

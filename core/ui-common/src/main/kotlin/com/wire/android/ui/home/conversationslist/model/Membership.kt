@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2025 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,20 +16,22 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
-package com.wire.android.config
+package com.wire.android.ui.home.conversationslist.model
 
-import com.wire.android.util.dispatchers.DispatcherProvider
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import androidx.annotation.StringRes
+import com.wire.android.ui.common.R
 
-/**
- * Default testing dispatchers provider wrapper
- */
-@OptIn(ExperimentalCoroutinesApi::class)
-class TestDispatcherProvider(private val dispatcher: CoroutineDispatcher = UnconfinedTestDispatcher()) : DispatcherProvider {
-    override fun main() = dispatcher
-    override fun io() = dispatcher
-    override fun default() = dispatcher
-    override fun unconfined() = dispatcher
+enum class Membership(@StringRes val stringResourceId: Int) {
+    Guest(R.string.label_membership_guest),
+    Federated(R.string.label_federated_membership),
+    External(R.string.label_membership_external),
+    Service(R.string.label_membership_service),
+    Owner(-1),
+    Admin(-1),
+    Standard(-1),
+    None(-1)
 }
+
+fun Membership.hasLabel(): Boolean = stringResourceId != -1
+
+fun Membership.allowsRoleEdition() = this != Membership.Federated && this != Membership.Service

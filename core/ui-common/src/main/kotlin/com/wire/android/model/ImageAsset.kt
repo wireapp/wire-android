@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2025 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@ import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
-import com.wire.android.R
+import com.wire.android.ui.common.R
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
@@ -69,7 +69,7 @@ sealed class ImageAsset {
             fallbackData: Any? = null,
             withCrossfadeAnimation: Boolean = false
         ) = when {
-            LocalInspectionMode.current -> painterResource(id = R.drawable.ic_welcome_1)
+            LocalInspectionMode.current -> painterResource(id = R.drawable.mock_image)
             else -> hiltViewModel<RemoteAssetImageViewModel>().imageLoader
                 .paint(asset = this, fallbackData = fallbackData, withCrossfadeAnimation = withCrossfadeAnimation)
         }

@@ -16,4 +16,8 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
-<resources></resources>
+<resources>
+    <string name="label_membership_guest">Host</string>
+    <string name="label_membership_external">Externí</string>
+	<string name="user_profile_status_available"></string>
+</resources>

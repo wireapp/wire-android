@@ -4,11 +4,13 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     id(BuildPlugins.kotlinParcelize)
     id(BuildPlugins.junit5)
+    id(libs.plugins.wire.hilt.get().pluginId)
     alias(libs.plugins.compose.compiler)
 }
 
 android {
     namespace = "com.wire.android.ui.common"
+    testFixtures.enable = true
 }
 
 dependencies {
@@ -18,6 +20,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.ktx.serialization)
     implementation(libs.bundlizer.core)
+    implementation(libs.coroutines.android)
 
     val composeBom = platform(libs.compose.bom)
     implementation(composeBom)
@@ -31,6 +34,15 @@ dependencies {
     debugImplementation(libs.compose.ui.tooling)
 
     implementation(libs.visibilityModifiers)
+
+    // hilt
+    implementation(libs.hilt.navigationCompose)
+    implementation(libs.hilt.work)
+
+    // smaller view models
+    implementation(libs.resaca.core)
+    implementation(libs.resaca.hilt)
+    implementation(libs.bundlizer.core)
 
     // Compose Preview
     implementation(libs.compose.edgetoedge.preview)
@@ -51,4 +63,9 @@ dependencies {
     testRuntimeOnly(libs.junit5.engine)
     androidTestImplementation(libs.androidx.test.extJunit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    testFixturesImplementation(libs.androidx.compose.runtime)
+    testFixturesImplementation(libs.coroutines.test)
+    testFixturesImplementation(libs.okio.fakeFileSystem)
+    testFixturesImplementation("com.wire.kalium:kalium-logic")
 }

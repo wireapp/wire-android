@@ -21,20 +21,30 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import com.wire.android.appLogger
+import com.wire.android.util.dispatchers.DispatcherProvider
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class ManagedConfigurationsReceiver @Inject constructor(
-    private val managedConfigurationsRepository: ManagedConfigurationsRepository
+    private val managedConfigurationsRepository: ManagedConfigurationsRepository,
+    dispatcher: DispatcherProvider
 ) : BroadcastReceiver() {
 
     val logger = appLogger.withTextTag(TAG)
+    private val scope by lazy {
+        CoroutineScope(SupervisorJob() + dispatcher.io())
+    }
 
     override fun onReceive(context: Context, intent: Intent) {
-        logger.i("onReceive called")
-        managedConfigurationsRepository.getStringRestrictionByKey(ManagedConfigurationsKeys.TEST_KEY.asKey())?.let {
-            logger.i("Received restriction test_key: $it")
+        scope.launch {
+            logger.i("onReceive called")
+            managedConfigurationsRepository.refreshServerConfig().let {
+                logger.i("Received restriction serverConfig: $it")
+            }
         }
     }
 

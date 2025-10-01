@@ -17,10 +17,11 @@
   -->
 <restrictions xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- Server Endpoints Configuration -->
     <restriction
-            android:defaultValue="true"
-            android:key="test_key"
-            android:restrictionType="bool"
-            android:title="test EMM key" />
+            android:description="@string/restriction_server_urls_description"
+            android:key="default_server_urls"
+            android:restrictionType="string"
+            android:title="@string/restriction_server_urls_title" />
 
 </restrictions>

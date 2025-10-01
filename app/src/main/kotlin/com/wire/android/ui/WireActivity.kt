@@ -61,6 +61,7 @@ import com.wire.android.appLogger
 import com.wire.android.config.CustomUiConfigurationProvider
 import com.wire.android.config.LocalCustomUiConfigurationProvider
 import com.wire.android.datastore.UserDataStore
+import com.wire.android.emm.ManagedConfigurationsRepository
 import com.wire.android.feature.NavigationSwitchAccountActions
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.LoginTypeSelector
@@ -152,6 +153,9 @@ class WireActivity : AppCompatActivity() {
     @Inject
     lateinit var dynamicReceiversManager: DynamicReceiversManager
 
+    @Inject
+    lateinit var managedConfigurationsRepository: ManagedConfigurationsRepository
+
     private val viewModel: WireActivityViewModel by viewModels()
     private val featureFlagNotificationViewModel: FeatureFlagNotificationViewModel by viewModels()
     private val callFeedbackViewModel: CallFeedbackViewModel by viewModels()
@@ -210,6 +214,9 @@ class WireActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         dynamicReceiversManager.registerAll()
+        lifecycleScope.launch(Dispatchers.IO) {
+            managedConfigurationsRepository.refreshServerConfig()
+        }
     }
 
     override fun onStop() {

@@ -18,7 +18,6 @@
 package com.wire.android.emm
 
 enum class ManagedConfigurationsKeys {
-    TEST_KEY,
     DEFAULT_SERVER_URLS;
 
     fun asKey() = name.lowercase()

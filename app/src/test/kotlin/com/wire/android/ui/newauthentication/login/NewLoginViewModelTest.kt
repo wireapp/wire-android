@@ -51,6 +51,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertInstanceOf
 import org.junit.jupiter.api.extension.ExtendWith
 
+@Suppress("LargeClass")
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class, SnapshotExtension::class, NavigationTestExtension::class)
 class NewLoginViewModelTest {

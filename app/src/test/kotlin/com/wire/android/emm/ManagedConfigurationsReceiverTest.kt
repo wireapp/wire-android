@@ -33,7 +33,6 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
-
 @RunWith(RobolectricTestRunner::class)
 @Config(application = Application::class)
 class ManagedConfigurationsReceiverTest {
@@ -45,7 +44,7 @@ class ManagedConfigurationsReceiverTest {
     private val dispatchers = TestDispatcherProvider()
 
     @Before
-fun setUp() {
+    fun setUp() {
         MockKAnnotations.init(this, relaxed = true)
         context = ApplicationProvider.getApplicationContext()
     }

@@ -85,12 +85,12 @@ internal class ManagedConfigurationsManagerImpl(
         serverConfig
     }
 
-    override suspend fun refreshSSOCodeConfig(): String {
+    override suspend fun refreshSSOCodeConfig(): String = withContext(dispatchers.io()) {
         val managedSSOCodeConfig = getSSOCodeConfig()
         val ssoCode = managedSSOCodeConfig?.ssoCode.orEmpty()
         _currentSSOCodeConfig.set(ssoCode)
         logger.i("SSO code config refreshed: $ssoCode")
-        return ssoCode
+        ssoCode
     }
 
     private suspend fun getSSOCodeConfig(): ManagedSSOCodeConfig? = withContext(dispatchers.io()) {

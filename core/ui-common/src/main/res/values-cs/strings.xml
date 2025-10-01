@@ -19,5 +19,4 @@
 <resources>
     <string name="label_membership_guest">Host</string>
     <string name="label_membership_external">Externí</string>
-	<string name="user_profile_status_available"></string>
 </resources>

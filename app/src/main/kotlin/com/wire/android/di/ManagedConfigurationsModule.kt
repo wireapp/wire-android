@@ -28,11 +28,12 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import javax.inject.Named
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-class ServerConfigModule {
+class ManagedConfigurationsModule {
 
     @Provides
     @Singleton
@@ -54,5 +55,14 @@ class ServerConfigModule {
     ): ServerConfig.Links {
         // Returns the current resolved server configuration links, which could be either managed or default
         return managedConfigurationsRepository.currentServerConfig
+    }
+
+    @Provides
+    @Named("ssoCodeConfig")
+    fun provideCurrentSSOCodeConfig(
+        managedConfigurationsRepository: ManagedConfigurationsRepository
+    ): String {
+        // Returns the current SSO code configuration, which could be either managed or empty
+        return managedConfigurationsRepository.currentSSOCodeConfig
     }
 }

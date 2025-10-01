@@ -216,6 +216,7 @@ class WireActivity : AppCompatActivity() {
         dynamicReceiversManager.registerAll()
         lifecycleScope.launch(Dispatchers.IO) {
             managedConfigurationsRepository.refreshServerConfig()
+            managedConfigurationsRepository.refreshSSOCodeConfig()
         }
     }
 

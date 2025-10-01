@@ -19,7 +19,6 @@
 package com.wire.android.ui.newauthentication.login
 
 import androidx.annotation.VisibleForTesting
-import com.wire.android.appLogger
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.runtime.getValue
@@ -27,6 +26,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.wire.android.appLogger
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.di.KaliumCoreLogic
@@ -63,6 +63,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import javax.inject.Named
 
 @HiltViewModel
 class NewLoginViewModel(
@@ -74,7 +75,8 @@ class NewLoginViewModel(
     private val loginExtension: LoginViewModelExtension,
     private val ssoExtension: LoginSSOViewModelExtension,
     private val dispatchers: DispatcherProvider,
-    defaultServerConfig: ServerConfig.Links
+    defaultServerConfig: ServerConfig.Links,
+    ssoCode: String,
 ) : ActionsViewModel<NewLoginAction>() {
 
     @Inject
@@ -86,7 +88,8 @@ class NewLoginViewModel(
         clientScopeProviderFactory: ClientScopeProvider.Factory,
         userDataStoreProvider: UserDataStoreProvider,
         dispatchers: DispatcherProvider,
-        defaultServerConfig: ServerConfig.Links
+        defaultServerConfig: ServerConfig.Links,
+        @Named("ssoCodeConfig") ssoCode: String,
     ) : this(
         validateEmailOrSSOCode,
         coreLogic,
@@ -96,7 +99,8 @@ class NewLoginViewModel(
         LoginViewModelExtension(clientScopeProviderFactory, userDataStoreProvider),
         LoginSSOViewModelExtension(addAuthenticatedUser, coreLogic),
         dispatchers,
-        defaultServerConfig
+        defaultServerConfig,
+        ssoCode
     )
 
     private val loginNavArgs: LoginNavArgs = savedStateHandle.navArgs()
@@ -112,6 +116,8 @@ class NewLoginViewModel(
         userIdentifierTextState.setTextAndPlaceCursorAtEnd(
             if (preFilledUserIdentifier is PreFilledUserIdentifierType.PreFilled) {
                 preFilledUserIdentifier.userIdentifier
+            } else if (ssoCode.isNotEmpty()) {
+                ssoCode.ssoCodeWithPrefix()
             } else {
                 savedStateHandle[USER_IDENTIFIER_SAVED_STATE_KEY] ?: String.EMPTY
             }
@@ -355,13 +361,13 @@ class NewLoginViewModel(
      * Update the state based on the current state and input.
      */
     private fun getAndUpdateLoginFlowState(update: (NewLoginFlowState) -> NewLoginFlowState) = viewModelScope.launch(dispatchers.main()) {
-            val newState = update(state.flowState)
-            val currentUserLoginInput = userIdentifierTextState.text
-            state = state.copy(
-                flowState = newState,
-                nextEnabled = newState !is NewLoginFlowState.Loading && currentUserLoginInput.isNotEmpty()
-            )
-        }
+        val newState = update(state.flowState)
+        val currentUserLoginInput = userIdentifierTextState.text
+        state = state.copy(
+            flowState = newState,
+            nextEnabled = newState !is NewLoginFlowState.Loading && currentUserLoginInput.isNotEmpty()
+        )
+    }
 }
 
 private fun AutoVersionAuthScopeUseCase.Result.Failure.toLoginError() = when (this) {

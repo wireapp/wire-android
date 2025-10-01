@@ -17,9 +17,21 @@
  */
 package com.wire.android.emm
 
-enum class ManagedConfigurationsKeys {
-    DEFAULT_SERVER_URLS,
-    SSO_CODE;
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
+import java.util.UUID
 
-    fun asKey() = name.lowercase()
+@Serializable
+data class ManagedSSOCodeConfig(
+    @SerialName("sso_code")
+    val ssoCode: String
+) {
+    @Transient
+    val isValid: Boolean = try {
+        UUID.fromString(ssoCode)
+        true
+    } catch (exception: IllegalArgumentException) {
+        false
+    }
 }

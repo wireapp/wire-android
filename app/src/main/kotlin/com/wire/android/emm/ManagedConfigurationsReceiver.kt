@@ -30,25 +30,30 @@ import javax.inject.Singleton
 
 @Singleton
 class ManagedConfigurationsReceiver @Inject constructor(
-    private val managedConfigurationsRepository: ManagedConfigurationsRepository,
+    private val managedConfigurationsManager: ManagedConfigurationsManager,
     dispatcher: DispatcherProvider
 ) : BroadcastReceiver() {
 
-    val logger = appLogger.withTextTag(TAG)
+    private val logger = appLogger.withTextTag(TAG)
     private val scope by lazy {
         CoroutineScope(SupervisorJob() + dispatcher.io())
     }
 
     override fun onReceive(context: Context, intent: Intent) {
-        scope.launch {
-            logger.i("onReceive called")
-            managedConfigurationsRepository.refreshServerConfig().let {
-                logger.i("Received restriction serverConfig: $it")
+        when (intent.action) {
+            Intent.ACTION_APPLICATION_RESTRICTIONS_CHANGED -> {
+                scope.launch {
+                    logger.i("Received intent to refresh managed configurations")
+                    managedConfigurationsManager.refreshServerConfig()
+                    managedConfigurationsManager.refreshSSOCodeConfig()
+                }
             }
+
+            else -> logger.i("Received unexpected intent action: ${intent.action}")
         }
     }
 
     companion object {
-        const val TAG = "ManagedConfigurationsReceiver"
+        private const val TAG = "ManagedConfigurationsReceiver"
     }
 }

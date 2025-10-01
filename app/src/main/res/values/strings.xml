@@ -1872,7 +1872,9 @@ In group conversations, the group admin can overwrite this setting.</string>
 
     <!-- enterprise configurations -->
     <string name="restriction_server_urls_title">Server endpoints configuration</string>
+    <string name="restriction_sso_code_title">SSO code configuration</string>
     <string name="restriction_server_urls_description">JSON value with the server endpoints configuration</string>
+    <string name="restriction_sso_code_description">JSON value with the default SSO code configuration</string>
 
     <!--    channel not available dialog-->
     <string name="channel_not_available_dialog_title">Channels are available for team members.</string>

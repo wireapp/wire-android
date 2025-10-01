@@ -19,6 +19,7 @@ import com.wire.android.ui.authentication.login.sso.LoginSSOViewModelExtension
 import com.wire.android.ui.authentication.login.sso.SSOUrlConfig
 import com.wire.android.ui.navArgs
 import com.wire.android.ui.newauthentication.login.ValidateEmailOrSSOCodeUseCase.Result.ValidEmail
+import com.wire.android.util.EMPTY
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.deeplink.SSOFailureCodes
 import com.wire.android.util.newServerConfig
@@ -50,6 +51,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertInstanceOf
 import org.junit.jupiter.api.extension.ExtendWith
 
+@Suppress("LargeClass")
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class, SnapshotExtension::class, NavigationTestExtension::class)
 class NewLoginViewModelTest {
@@ -756,6 +758,22 @@ class NewLoginViewModelTest {
             }
         }
 
+        fun withDefaultSSOCodeConfig(ssoCode: String) = apply {
+            defaultSSOCodeConfig = ssoCode
+        }
+
+        fun withCustomServerConfigDeepLink() = apply {
+            every {
+                savedStateHandle.navArgs<LoginNavArgs>()
+            } returns LoginNavArgs(
+                loginPasswordPath = LoginPasswordPath(
+                    customServerConfig = ServerConfig.STAGING
+                )
+            )
+        }
+
+        private var defaultSSOCodeConfig: String = String.EMPTY
+
         fun arrange() = this to NewLoginViewModel(
             validateEmailOrSSOCodeUseCase,
             coreLogic,
@@ -765,7 +783,8 @@ class NewLoginViewModelTest {
             loginViewModelExtension,
             loginSSOViewModelExtension,
             dispatchers,
-            ServerConfig.STAGING
+            ServerConfig.STAGING,
+            defaultSSOCodeConfig
         )
     }
 
@@ -882,6 +901,55 @@ class NewLoginViewModelTest {
             advanceUntilIdle()
 
             assertEquals(userInput, viewModel.userIdentifierTextState.text.toString())
+        }
+
+    @Test
+    fun `given managed SSO code config provided, when initializing view model without prefilled user, then pre-fill SSO code`() =
+        runTest(dispatchers.main()) {
+            val managedSSOCode = "fd994b20-b9af-11ec-ae36-00163e9b33ca"
+            val (arrangement, viewModel) = Arrangement()
+                .withEmptyUserIdentifierAndNoPreFilledIdentifier()
+                .withDefaultSSOCodeConfig(managedSSOCode)
+                .arrange()
+
+            assertEquals("wire-$managedSSOCode", viewModel.userIdentifierTextState.text.toString())
+        }
+
+    @Test
+    fun `given managed SSO code config provided, when initializing with prefilled user, then use prefilled user not SSO code`() =
+        runTest(dispatchers.main()) {
+            val managedSSOCode = "fd994b20-b9af-11ec-ae36-00163e9b33ca"
+            val preFilledUser = "prefilled@user.com"
+            val (arrangement, viewModel) = Arrangement()
+                .withPreFilledUserIdentifier(preFilledUser)
+                .withDefaultSSOCodeConfig(managedSSOCode)
+                .arrange()
+
+            assertEquals(preFilledUser, viewModel.userIdentifierTextState.text.toString())
+        }
+
+    @Test
+    fun `given managed SSO code config provided, when initializing with custom server deep link, then do not use SSO code`() =
+        runTest(dispatchers.main()) {
+            val managedSSOCode = "fd994b20-b9af-11ec-ae36-00163e9b33ca"
+            val (arrangement, viewModel) = Arrangement()
+                .withEmptyUserIdentifierAndNoPreFilledIdentifier()
+                .withCustomServerConfigDeepLink()
+                .withDefaultSSOCodeConfig(managedSSOCode)
+                .arrange()
+
+            assertEquals("", viewModel.userIdentifierTextState.text.toString())
+        }
+
+    @Test
+    fun `given empty managed SSO code config, when initializing view model, then do not pre-fill SSO code`() =
+        runTest(dispatchers.main()) {
+            val (arrangement, viewModel) = Arrangement()
+                .withEmptyUserIdentifierAndNoPreFilledIdentifier()
+                .withDefaultSSOCodeConfig("")
+                .arrange()
+
+            assertEquals("", viewModel.userIdentifierTextState.text.toString())
         }
 
     @Test

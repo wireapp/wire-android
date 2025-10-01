@@ -113,10 +113,11 @@ class NewLoginViewModel(
     val userIdentifierTextState: TextFieldState = TextFieldState()
 
     init {
+        val isCustomServerDeepLink = loginNavArgs.loginPasswordPath?.customServerConfig != null
         userIdentifierTextState.setTextAndPlaceCursorAtEnd(
             if (preFilledUserIdentifier is PreFilledUserIdentifierType.PreFilled) {
                 preFilledUserIdentifier.userIdentifier
-            } else if (defaultSSOCodeConfig.isNotEmpty()) {
+            } else if (defaultSSOCodeConfig.isNotEmpty() && !isCustomServerDeepLink) {
                 defaultSSOCodeConfig.ssoCodeWithPrefix()
             } else {
                 savedStateHandle[USER_IDENTIFIER_SAVED_STATE_KEY] ?: String.EMPTY

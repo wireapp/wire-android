@@ -76,7 +76,7 @@ class NewLoginViewModel(
     private val ssoExtension: LoginSSOViewModelExtension,
     private val dispatchers: DispatcherProvider,
     defaultServerConfig: ServerConfig.Links,
-    ssoCode: String,
+    ssoCodeConfig: String,
 ) : ActionsViewModel<NewLoginAction>() {
 
     @Inject
@@ -89,7 +89,7 @@ class NewLoginViewModel(
         userDataStoreProvider: UserDataStoreProvider,
         dispatchers: DispatcherProvider,
         defaultServerConfig: ServerConfig.Links,
-        @Named("ssoCodeConfig") ssoCode: String,
+        @Named("ssoCodeConfig") ssoCodeConfig: String,
     ) : this(
         validateEmailOrSSOCode,
         coreLogic,
@@ -100,7 +100,7 @@ class NewLoginViewModel(
         LoginSSOViewModelExtension(addAuthenticatedUser, coreLogic),
         dispatchers,
         defaultServerConfig,
-        ssoCode
+        ssoCodeConfig
     )
 
     private val loginNavArgs: LoginNavArgs = savedStateHandle.navArgs()
@@ -116,8 +116,8 @@ class NewLoginViewModel(
         userIdentifierTextState.setTextAndPlaceCursorAtEnd(
             if (preFilledUserIdentifier is PreFilledUserIdentifierType.PreFilled) {
                 preFilledUserIdentifier.userIdentifier
-            } else if (ssoCode.isNotEmpty()) {
-                ssoCode.ssoCodeWithPrefix()
+            } else if (ssoCodeConfig.isNotEmpty()) {
+                ssoCodeConfig.ssoCodeWithPrefix()
             } else {
                 savedStateHandle[USER_IDENTIFIER_SAVED_STATE_KEY] ?: String.EMPTY
             }

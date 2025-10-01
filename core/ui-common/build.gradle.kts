@@ -60,6 +60,7 @@ dependencies {
     testImplementation(libs.junit5.core)
     testImplementation(libs.junit5.params)
     testImplementation(libs.mockk.core)
+    testImplementation(libs.coroutines.test)
     testRuntimeOnly(libs.junit5.engine)
     androidTestImplementation(libs.androidx.test.extJunit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -68,4 +69,5 @@ dependencies {
     testFixturesImplementation(libs.coroutines.test)
     testFixturesImplementation(libs.okio.fakeFileSystem)
     testFixturesImplementation("com.wire.kalium:kalium-logic")
+
 }

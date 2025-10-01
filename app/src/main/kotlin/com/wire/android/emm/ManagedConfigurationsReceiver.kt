@@ -30,7 +30,7 @@ import javax.inject.Singleton
 
 @Singleton
 class ManagedConfigurationsReceiver @Inject constructor(
-    private val managedConfigurationsRepository: ManagedConfigurationsRepository,
+    private val managedConfigurationsManager: ManagedConfigurationsManager,
     dispatcher: DispatcherProvider
 ) : BroadcastReceiver() {
 
@@ -44,8 +44,8 @@ class ManagedConfigurationsReceiver @Inject constructor(
             Intent.ACTION_APPLICATION_RESTRICTIONS_CHANGED -> {
                 scope.launch {
                     logger.i("Received intent to refresh managed configurations")
-                    managedConfigurationsRepository.refreshServerConfig()
-                    managedConfigurationsRepository.refreshSSOCodeConfig()
+                    managedConfigurationsManager.refreshServerConfig()
+                    managedConfigurationsManager.refreshSSOCodeConfig()
                 }
             }
 

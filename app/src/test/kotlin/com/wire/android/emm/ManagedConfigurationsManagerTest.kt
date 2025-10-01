@@ -18,7 +18,7 @@ import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 @Config(application = Application::class)
-class ManagedConfigurationsRepositoryTest {
+class ManagedConfigurationsManagerTest {
 
     @Test
     fun `given a server config is valid, then parse it to a corresponding ManagedServerConfig`() = runTest {
@@ -111,7 +111,7 @@ class ManagedConfigurationsRepositoryTest {
             )
         }
 
-        fun arrange() = this to ManagedConfigurationsRepositoryImpl(
+        fun arrange() = this to ManagedConfigurationsManagerImpl(
             context = context,
             serverConfigProvider = ServerConfigProvider(),
             dispatchers = TestDispatcherProvider()

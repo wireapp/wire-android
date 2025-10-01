@@ -28,7 +28,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import java.util.concurrent.atomic.AtomicReference
 
-interface ManagedConfigurationsRepository {
+interface ManagedConfigurationsManager {
     /**
      * Current server config that ViewModels can access.
      * This is thread-safe and will be updated when app resumes or broadcast receiver is triggered.
@@ -56,11 +56,11 @@ interface ManagedConfigurationsRepository {
     suspend fun refreshSSOCodeConfig(): String
 }
 
-internal class ManagedConfigurationsRepositoryImpl(
+internal class ManagedConfigurationsManagerImpl(
     private val context: Context,
     private val dispatchers: DispatcherProvider,
     private val serverConfigProvider: ServerConfigProvider,
-) : ManagedConfigurationsRepository {
+) : ManagedConfigurationsManager {
 
     private val json: Json = Json { ignoreUnknownKeys = true }
     private val logger = appLogger.withTextTag(TAG)
@@ -158,6 +158,6 @@ internal class ManagedConfigurationsRepositoryImpl(
         }
 
     companion object {
-        private const val TAG = "ManagedConfigurationsRepository"
+        private const val TAG = "ManagedConfigurationsManager"
     }
 }

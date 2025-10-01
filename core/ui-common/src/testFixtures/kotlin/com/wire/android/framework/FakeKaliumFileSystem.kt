@@ -33,6 +33,7 @@ import okio.buffer
 import okio.fakefilesystem.FakeFileSystem
 import okio.use
 
+@Suppress("TooManyFunctions")
 class FakeKaliumFileSystem(
     private val dispatcher: TestDispatcherProvider = TestDispatcherProvider()
 ) : KaliumFileSystem {

@@ -28,12 +28,17 @@ import kotlin.test.DefaultAsserter.assertTrue
 data class ConversationListPage(private val device: UiDevice) {
 
     private val searchField = UiSelectorParams(description = "Search conversations")
+    private val userProfileButtonNoPhoto = UiSelectorParams(description = "Your profile")
 
+    private val userProfileButton = UiSelectorParams(resourceId = "User avatar")
     private val conversationListHeading = UiSelectorParams(
         textContains = "Conversations"
     )
     private val mainMenuButton = UiSelectorParams(description = "Main navigation")
     private val settingsButton = UiSelectorParams(text = "Settings")
+
+    private val conversationsButton = UiSelectorParams(text = "Conversations")
+
     private fun displayedUserName(userName: String) = UiSelectorParams(text = userName)
     private val conversationNameSelector: (String) -> UiSelectorParams = { conversationName ->
         UiSelectorParams(text = conversationName)
@@ -59,13 +64,18 @@ data class ConversationListPage(private val device: UiDevice) {
         return this
     }
 
-    fun clickMainMenuButtonOnConversationPage(): ConversationListPage {
+    fun clickConversationsMenuEntry(): ConversationListPage {
         UiWaitUtils.waitElement(mainMenuButton).click()
         return this
     }
 
     fun clickSettingsButtonOnMenuEntry(): ConversationListPage {
         UiWaitUtils.waitElement(settingsButton).click()
+        return this
+    }
+
+    fun clickConversationsButtonOnMenuEntry(): ConversationListPage {
+        UiWaitUtils.waitElement(conversationsButton).click()
         return this
     }
 
@@ -124,7 +134,7 @@ data class ConversationListPage(private val device: UiDevice) {
     fun assertConversationNotVisible(conversationName: String): ConversationListPage {
         val conversation = findElementOrNull(conversationNameSelector(conversationName))
         Assert.assertTrue(
-            "❌ Conversation '$conversationName' is still visible.",
+            "Conversation '$conversationName' is still visible.",
             conversation == null || conversation.visibleBounds.isEmpty
         )
         return this
@@ -181,6 +191,26 @@ data class ConversationListPage(private val device: UiDevice) {
     fun tapConversationNameInConversationList(userName: String): ConversationListPage {
         val userName = UiWaitUtils.waitElement(UiSelectorParams(text = userName))
         userName.click()
+        return this
+    }
+
+    fun clickUserProfileButton(): ConversationListPage {
+        val buttonWithPhoto = UiWaitUtils.findElementOrNull(userProfileButton)
+        if (buttonWithPhoto != null && !buttonWithPhoto.visibleBounds.isEmpty) {
+            buttonWithPhoto.click()
+        } else {
+            val buttonNoPhoto = UiWaitUtils.waitElement(userProfileButtonNoPhoto)
+            buttonNoPhoto.click()
+        }
+        return this
+    }
+
+    fun assertConversationIsVisibleWithTeamOwner(userName: String): ConversationListPage {
+        try {
+            UiWaitUtils.waitElement(displayedUserName(userName))
+        } catch (e: AssertionError) {
+            throw AssertionError("Team owner name '$userName' is not visible in conversation view", e)
+        }
         return this
     }
 }

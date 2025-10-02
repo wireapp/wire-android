@@ -545,3 +545,23 @@ enum class TeamRoles(val role: String) {
     Partner("Partner"),
     External("External")
 }
+
+enum class TeamRole(val permissionBitMask: Int) {
+    OWNER(8191),
+    ADMIN(5951),
+    MEMBER(1587),
+    INVALID(1234),
+    PARTNER(1025);
+
+    companion object {
+        fun getByPermissionBitMask(permissionBitMask: Int): TeamRole =
+            entries.firstOrNull { it.permissionBitMask == permissionBitMask }
+                ?: throw NoSuchElementException("Permission bit mask '$permissionBitMask' is unknown")
+
+        fun getByName(roleName: String): TeamRole =
+            entries.firstOrNull { it.name.equals(roleName, ignoreCase = true) }
+                ?: throw NoSuchElementException("Team role '$roleName' is unknown")
+    }
+
+    override fun toString(): String = name
+}

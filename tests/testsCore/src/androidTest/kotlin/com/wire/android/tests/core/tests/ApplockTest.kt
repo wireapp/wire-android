@@ -96,7 +96,7 @@ class ApplockTest : KoinTest {
             clickLoginButton()
         }
         pages.registrationPage.apply {
-            waitUntilLoginFlowIsComplete()
+            waitUntilLoginFlowIsCompleted()
             clickAllowNotificationButton()
             clickAgreeShareDataAlert()
             assertConversationPageVisible()

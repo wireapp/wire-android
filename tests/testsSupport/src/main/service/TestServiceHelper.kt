@@ -35,6 +35,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.time.Duration
+import java.util.concurrent.Callable
 import java.util.concurrent.TimeUnit
 
 class TestServiceHelper {
@@ -352,6 +353,46 @@ class TestServiceHelper {
 
     private fun Int.toBoolean(): Boolean {
         return this != 0
+    }
+
+    @Suppress("LongParameterList")
+    fun thereIsATeamOwner(
+        context: Context,
+        ownerNameAlias: String,
+        teamName: String,
+        updateHandle: Boolean,
+        locale: String = "en_US",
+        backend: BackendClient = BackendClient.getDefault()!!
+    ) {
+        val owner = toClientUser(ownerNameAlias)
+        if (usersManager.isUserCreated(owner)) {
+            throw Exception(
+                "Cannot create team with user ${owner.nameAliases} as owner because user is already created"
+            )
+        }
+        usersManager.createTeamOwnerByAlias(ownerNameAlias, teamName, locale, updateHandle, backend, context)
+    }
+
+    fun syncUserIdsForUsersCreatedThroughIdP(ownerNameAlias: String, user: ClientUser) {
+        user.getUserIdThroughOwner = Callable {
+            val asUser = toClientUser(ownerNameAlias)
+            val backend = BackendClient.loadBackend(asUser.backendName.orEmpty())
+            val teamMembers = backend.getTeamMembers(asUser)
+
+            for (member in teamMembers) {
+                val memberId = member.userId
+
+                val memberName = backend.getUserNameByID(backend.domain, memberId, asUser)
+
+                if (user.name == memberName) {
+                    return@Callable memberId
+                }
+            }
+
+            throw IOException(
+                "No user ID found for user ${user.email}. Please verify you are using the right Team Owner account"
+            )
+        }
     }
 
     fun toClientUser(nameAlias: String): ClientUser {

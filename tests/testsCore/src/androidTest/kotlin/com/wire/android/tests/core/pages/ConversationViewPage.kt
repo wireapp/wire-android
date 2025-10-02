@@ -80,11 +80,20 @@ data class ConversationViewPage(private val device: UiDevice) {
     }
 
     fun assertConversationIsVisibleWithTeamMember(userName: String): ConversationViewPage {
-        val teamMemberName = UiWaitUtils.waitElement(displayedUserName(userName))
-        assertTrue(
-            "Team member name '$userName' is not visible in conversation view",
-            !teamMemberName.visibleBounds.isEmpty
-        )
+        try {
+            UiWaitUtils.waitElement(displayedUserName(userName))
+        } catch (e: AssertionError) {
+            throw AssertionError("Team member name '$userName' is not visible in conversation view", e)
+        }
+        return this
+    }
+
+    fun assertConversationIsVisibleWithTeamOwner(userName: String): ConversationViewPage {
+        try {
+            UiWaitUtils.waitElement(displayedUserName(userName))
+        } catch (e: AssertionError) {
+            throw AssertionError("Team owner name '$userName' is not visible in conversation view", e)
+        }
         return this
     }
 
@@ -268,6 +277,7 @@ data class ConversationViewPage(private val device: UiDevice) {
             currentPackage.contains("APP_")
         )
     }
+
     fun typeMessageInInputField(message: String): ConversationViewPage {
         UiWaitUtils.waitElement(messageInputField).click()
         device.type(message)
@@ -299,7 +309,7 @@ data class ConversationViewPage(private val device: UiDevice) {
         )
     }
 
-    fun tapBackButtonOnConversationViewPage(): ConversationViewPage {
+    fun tapBackButtonToCloseConversationViewPage(): ConversationViewPage {
         UiWaitUtils.waitElement(backButton).click()
         return this
     }

@@ -64,4 +64,18 @@ data class SearchPage(private val device: UiDevice) {
         device.type(toType)
         return this
     }
+
+    fun typeUserNameInSearchField(alias: String): SearchPage {
+        val teamHelper by lazy {
+            TeamHelper()
+        }
+        // Resolve the alias to the username
+        val userName = teamHelper.usersManager.replaceAliasesOccurrences(
+            alias,
+            ClientUserManager.FindBy.NAME_ALIAS
+        )
+         UiWaitUtils.waitElement(searchFieldSearchPeople).click()
+        device.type(userName)
+        return this
+    }
 }

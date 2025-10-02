@@ -1,0 +1,31 @@
+{
+    "label": "Custom Saml 2.0 App2",
+    "visibility": {
+        "autoSubmitToolbar": false
+    },
+    "signOnMode": "SAML_2_0",
+    "credentials": {
+        "userNameTemplate": {
+            "template": "${fn:substringBefore(source.login, \"@\")}",
+            "type": "BUILT_IN"
+        }
+    },
+    "settings": {
+        "signOn": {
+            "ssoAcsUrl": "will be replaced",
+            "idpIssuer": "https://www.okta.com/${org.externalKey}",
+            "audience": "will be replaced",
+            "recipient": "will be replaced",
+            "destination": "will be replaced",
+            "subjectNameIdTemplate": "${user.email}",
+            "subjectNameIdFormat": "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress",
+            "responseSigned": true,
+            "assertionSigned": true,
+            "signatureAlgorithm": "RSA_SHA256",
+            "digestAlgorithm": "SHA256",
+            "honorForceAuthn": true,
+            "authnContextClassRef": "urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport",
+            "requestCompressed": false
+        }
+    }
+}

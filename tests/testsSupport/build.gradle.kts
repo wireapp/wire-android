@@ -18,7 +18,7 @@ val secretsJson =  rootProject.file("secrets.json")
 
 // Function to sanitize keys by replacing spaces and dashes with underscores, and making uppercase
 fun sanitize(text: String): String {
-    return text.replace("[-\\s]+".toRegex(), "_").uppercase()
+    return text.replace("[.\\-\\s]+".toRegex(), "_").uppercase()
 }
 
 // Function to escape special characters for BuildConfig string fields
@@ -116,14 +116,17 @@ tasks.register("fetchSecrets") {
 
                 // 3. Convert fields from List to Map where label is the key (simplify structure)
                 val rawFields = itemData["fields"] as? List<Map<String, Any>> ?: emptyList()
+                val fieldsMap = mutableMapOf<String, Map<String, Any?>>()
+                rawFields.forEachIndexed { index, field ->
+                    val label = field["label"] as? String ?: return@forEachIndexed
+                    // If label already exists, append index to make it unique
+                    val uniqueLabel = if (fieldsMap.containsKey(label)) "${label}_$index" else label
 
-                val fieldsMap = rawFields.mapNotNull { field ->
-                    val label = field["label"] as? String ?: return@mapNotNull null
-                    label to mapOf(
+                    fieldsMap[uniqueLabel] = mapOf(
                         "type" to field["type"],
                         "value" to field["value"]
                     )
-                }.toMap()
+                }
 
                 // Replace original fields list with simplified map
                 val simplifiedItemData = itemData.toMutableMap()

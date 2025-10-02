@@ -36,9 +36,6 @@
     <string name="label_learn_more">Mehr erfahren</string>
     <string name="label_removing">Entfernen…</string>
     <string name="label_logging_in">Anmelden…</string>
-    <string name="label_membership_guest">Gast</string>
-    <string name="label_membership_external">Extern</string>
-    <string name="label_membership_service">App</string>
     <string name="label_user_deleted">Gelöscht</string>
     <string name="label_try_again">Erneut versuchen</string>
     <string name="label_done">Fertig</string>
@@ -62,7 +59,6 @@
     </plurals>
     <string name="label_reset_session">Session zurücksetzen</string>
     <string name="label_reset_session_success">Sitzung erfolgreich zurückgesetzt</string>
-    <string name="label_federated_membership">Föderiert</string>
     <string name="label_update">Aktualisieren</string>
     <string name="label_close">Schließen</string>
     <string name="label_download">Herunterladen</string>
@@ -89,7 +85,6 @@
     <string name="content_description_hide_password">Passwort ausblenden</string>
     <string name="content_description_search_back">Suche-Icon zurück</string>
     <string name="content_description_clear_content">Gesprächsverlauf löschen</string>
-    <string name="content_description_user_avatar">Profilbild</string>
     <string name="content_description_muted_conversation">Unterhaltung ist stummgeschaltet</string>
     <string name="content_description_check">Haken</string>
     <string name="content_description_download_icon">Icon herunterladen</string>
@@ -622,10 +617,6 @@
     <string name="user_profile_logout">Abmelden</string>
     <string name="user_profile_other_accs">Ihre anderen Benutzerkonten</string>
     <string name="user_profile_status_availability">Verfügbarkeit</string>
-    <string name="user_profile_status_available">Verfügbar</string>
-    <string name="user_profile_status_busy">Beschäftigt</string>
-    <string name="user_profile_status_away">Abwesend</string>
-    <string name="user_profile_status_none">Kein Status</string>
     <string name="user_profile_new_account_text">Neues Team oder Konto</string>
     <string name="user_profile_account_management">Team verwalten</string>
     <string name="user_profile_details_tab">Details</string>

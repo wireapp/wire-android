@@ -16,4 +16,13 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
-<resources></resources>
+<resources>
+    <string name="label_membership_guest">Vendég</string>
+    <string name="label_membership_external">Külső</string>
+    <string name="label_federated_membership">Szövetséges</string>
+	<string name="user_profile_status_available">Elérhető</string>
+    <string name="user_profile_status_busy">Elfoglalt</string>
+    <string name="user_profile_status_away">Nincs a gépnél</string>
+    <string name="user_profile_status_none">Semmi</string>
+    <string name="content_description_user_avatar">Profilkép</string>
+</resources>

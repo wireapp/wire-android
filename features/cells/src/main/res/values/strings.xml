@@ -50,7 +50,7 @@
     <string name="confirm_delete_file_title">Delete file</string>
     <string name="confirm_delete_folder_title">Delete folder</string>
     <string name="confirm_delete_file_text">The file %1$s will move to this conversation\'s recycle bin.</string>
-    <string name="confirm_delete_folder_text">The folder %1$s will move to this conversation\'s recycle bin.</string>
+    <string name="confirm_delete_folder_text">The folder %1$s with all files and subfolders will move to this conversation\'s recycle bin.</string>
     <string name="confirm_permanent_delete_file_text">This will permanently delete the file %1$s for all participants.</string>
     <string name="confirm_permanent_delete_folder_text">This will permanently delete the folder %1$s for all participants.</string>
     <string name="reload">Reload</string>

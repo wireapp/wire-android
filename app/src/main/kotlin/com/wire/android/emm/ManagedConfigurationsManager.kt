@@ -46,8 +46,14 @@ interface ManagedConfigurationsManager {
     /**
      * Initialize the server config on first access or when explicitly called.
      * This should be called when the app starts, resumes, or when broadcast receiver triggers.
+     *
+     * The result indicates whether a valid config was found or if there was an error.
+     * Nevertheless, the config is either updated or defaulted to [ServerConfigProvider.getDefaultServerConfig()].
+     *
+     * @return result of the update attempt, either success with the config,
+     * default [ServerConfigProvider.getDefaultServerConfig()] if no config found or cleared, or failure with reason.
      */
-    suspend fun refreshServerConfig(): ServerConfig.Links
+    suspend fun refreshServerConfig(): ServerConfigResult
 
     /**
      * Initialize the SSO code config on first access or when explicitly called.
@@ -83,12 +89,19 @@ internal class ManagedConfigurationsManagerImpl(
     override val currentSSOCodeConfig: String
         get() = _currentSSOCodeConfig.get()
 
-    override suspend fun refreshServerConfig(): ServerConfig.Links = withContext(dispatchers.io()) {
+    override suspend fun refreshServerConfig(): ServerConfigResult = withContext(dispatchers.io()) {
         val managedServerConfig = getServerConfig()
-        val serverConfig = serverConfigProvider.getDefaultServerConfig(managedServerConfig)
+        val serverConfig: ServerConfig.Links = when (managedServerConfig) {
+            is ServerConfigResult.Empty,
+            is ServerConfigResult.Failure -> serverConfigProvider.getDefaultServerConfig(null)
+
+            is ServerConfigResult.Success -> serverConfigProvider.getDefaultServerConfig(
+                managedServerConfig.config
+            )
+        }
         _currentServerConfig.set(serverConfig)
         logger.i("Server config refreshed: $serverConfig")
-        serverConfig
+        managedServerConfig
     }
 
     override suspend fun refreshSSOCodeConfig(): SSOCodeConfigResult =
@@ -113,7 +126,7 @@ internal class ManagedConfigurationsManagerImpl(
                 return@withContext SSOCodeConfigResult.Empty
             }
 
-            try {
+            return@withContext try {
                 val ssoCode = getJsonRestrictionByKey<ManagedSSOCodeConfig>(
                     ManagedConfigurationsKeys.SSO_CODE.asKey()
                 )
@@ -131,30 +144,27 @@ internal class ManagedConfigurationsManagerImpl(
             }
         }
 
-    private suspend fun getServerConfig(): ManagedServerConfig? = withContext(dispatchers.io()) {
+    private suspend fun getServerConfig(): ServerConfigResult = withContext(dispatchers.io()) {
         val restrictions = restrictionsManager.applicationRestrictions
         if (restrictions == null || restrictions.isEmpty) {
             logger.i("No application restrictions found")
-            return@withContext null
+            return@withContext ServerConfigResult.Empty
         }
 
-        val managedServerConfig = getJsonRestrictionByKey<ManagedServerConfig>(
-            ManagedConfigurationsKeys.DEFAULT_SERVER_URLS.asKey()
-        ) ?: run {
-            logger.w("No managed server config found in restrictions")
-            return@withContext null
-        }
-
-        return@withContext when {
-            managedServerConfig.endpoints.isValid -> {
+        return@withContext try {
+            val managedServerConfig = getJsonRestrictionByKey<ManagedServerConfig>(
+                ManagedConfigurationsKeys.DEFAULT_SERVER_URLS.asKey()
+            )
+            if (managedServerConfig?.endpoints?.isValid == true) {
                 logger.i("Managed server config found: $managedServerConfig")
-                managedServerConfig
-            }
-
-            else -> {
+                ServerConfigResult.Success(managedServerConfig)
+            } else {
                 logger.w("Managed server config is not valid: $managedServerConfig")
-                null
+                ServerConfigResult.Failure("Managed server config is not a valid config. Check the URLs and format.")
             }
+        } catch (e: InvalidManagedConfig) {
+            logger.w("Invalid managed server config: ${e.reason}")
+            ServerConfigResult.Failure(e.reason)
         }
     }
 

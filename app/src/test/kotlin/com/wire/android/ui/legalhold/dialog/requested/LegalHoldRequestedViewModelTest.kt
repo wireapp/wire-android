@@ -92,7 +92,7 @@ class LegalHoldRequestedViewModelTest {
 
     @Test
     fun givenPendingLegalHoldRequest_whenGettingState_thenStateShouldBeVisible() = runTest {
-        val fingerprint = "fingerprint".toByteArray()
+        val fingerprint = "fingerprint"
         val (_, viewModel) = Arrangement()
             .withCurrentSessionExists()
             .withLegalHoldRequestResult(ObserveLegalHoldRequestUseCase.Result.LegalHoldRequestAvailable(fingerprint))
@@ -102,7 +102,7 @@ class LegalHoldRequestedViewModelTest {
         val state = viewModel.state
         state shouldBeInstanceOf LegalHoldRequestedState.Visible::class
         state as LegalHoldRequestedState.Visible
-        state.legalHoldDeviceFingerprint shouldBeEqualTo fingerprint.decodeToString()
+        state.legalHoldDeviceFingerprint shouldBeEqualTo fingerprint
     }
 
     @Test

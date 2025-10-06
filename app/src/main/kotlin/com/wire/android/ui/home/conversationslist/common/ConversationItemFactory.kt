@@ -171,6 +171,7 @@ private fun GeneralConversationItem(
             with(conversation) {
                 RowItemTemplate(
                     modifier = modifier,
+                    titleStartPadding = dimensions().spacing0x,
                     leadingIcon = {
                         Row {
                             if (isSelectable) {
@@ -193,9 +194,9 @@ private fun GeneralConversationItem(
                             searchQuery = searchQuery
                         )
                     },
-                    subTitle = subTitle,
+                    subtitle = subTitle,
                     clickable = onConversationItemClick,
-                    trailingIcon = {
+                    actions = {
                         if (!isSelectable) {
                             if (hasOnGoingCall) {
                                 JoinButton(
@@ -210,7 +211,6 @@ private fun GeneralConversationItem(
                                 )
                             } else {
                                 Row(
-                                    modifier = Modifier.padding(horizontal = dimensions().spacing8x),
                                     horizontalArrangement = Arrangement.spacedBy(dimensions().spacing8x)
                                 ) {
                                     if (mutedStatus != MutedConversationStatus.AllAllowed) {
@@ -245,19 +245,18 @@ private fun GeneralConversationItem(
                             searchQuery = searchQuery
                         )
                     },
-                    subTitle = subTitle,
+                    subtitle = subTitle,
                     clickable = onConversationItemClick,
-                    trailingIcon = {
+                    actions = {
                         if (!isSelectable) {
                             if (conversation.playingAudio != null) {
                                 AudioControlButtons(
-                                    playingAudio = conversation.playingAudio!!,
+                                    playingAudio = conversation.playingAudio,
                                     onPlayPauseCurrentAudio = onPlayPauseCurrentAudio,
                                     onStopCurrentAudio = onStopCurrentAudio
                                 )
                             } else {
                                 Row(
-                                    modifier = Modifier.padding(horizontal = dimensions().spacing8x),
                                     horizontalArrangement = Arrangement.spacedBy(dimensions().spacing8x)
                                 ) {
                                     if (mutedStatus != MutedConversationStatus.AllAllowed) {
@@ -283,13 +282,10 @@ private fun GeneralConversationItem(
                             searchQuery = searchQuery
                         )
                     },
-                    subTitle = subTitle,
+                    subtitle = subTitle,
                     clickable = onConversationItemClick,
-                    trailingIcon = {
-                        EventBadgeFactory(
-                            modifier = Modifier.padding(horizontal = dimensions().spacing8x),
-                            eventType = conversation.badgeEventType
-                        )
+                    actions = {
+                        EventBadgeFactory(eventType = conversation.badgeEventType)
                     }
                 )
             }
@@ -304,7 +300,7 @@ fun AudioControlButtons(
     onPlayPauseCurrentAudio: () -> Unit = {},
     onStopCurrentAudio: () -> Unit = {}
 ) {
-    Row(modifier = modifier.padding(end = dimensions().spacing8x)) {
+    Row(modifier = modifier) {
         val playPauseIconId = if (playingAudio.isPaused) R.drawable.ic_play else R.drawable.ic_pause
 
         val leftBtnShape = RoundedCornerShape(topStart = dimensions().corner16x, bottomStart = dimensions().corner16x)
@@ -318,7 +314,7 @@ fun AudioControlButtons(
                 .border(
                     width = dimensions().spacing1x,
                     shape = leftBtnShape,
-                    color = colorsScheme().secondaryButtonDisabledOutline
+                    color = colorsScheme().outline
                 )
                 .size(dimensions().buttonSmallMinSize)
                 .padding(vertical = dimensions().spacing10x, horizontal = dimensions().spacing14x),
@@ -334,7 +330,7 @@ fun AudioControlButtons(
                 .border(
                     width = dimensions().spacing1x,
                     shape = rightBtnShape,
-                    color = colorsScheme().secondaryButtonDisabledOutline
+                    color = colorsScheme().outline
                 )
                 .size(dimensions().buttonSmallMinSize)
                 .padding(vertical = dimensions().spacing10x, horizontal = dimensions().spacing14x),
@@ -366,7 +362,7 @@ fun LoadingConversationItem(modifier: Modifier = Modifier) {
                     .fillMaxWidth(0.75f)
             )
         },
-        subTitle = {
+        subtitle = {
             Box(
                 modifier = Modifier
                     .padding(top = dimensions().spacing8x)

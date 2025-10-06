@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2025 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +15,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-
 package com.wire.android.ui.home.conversationslist.common
 
 import androidx.compose.foundation.background
@@ -30,46 +29,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.groupConversationColor
-import com.wire.android.ui.home.conversations.info.ConversationAvatar
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
+import com.wire.android.util.PreviewMultipleThemes
 import com.wire.kalium.logic.data.id.ConversationId
-
-@Composable
-fun GroupConversationAvatar(
-    avatarData: ConversationAvatar.Group,
-    modifier: Modifier = Modifier,
-    size: Dp = MaterialTheme.wireDimensions.avatarDefaultSize,
-    cornerRadius: Dp = MaterialTheme.wireDimensions.groupAvatarCornerRadius,
-    padding: Dp = MaterialTheme.wireDimensions.avatarClickablePadding,
-    borderWidth: Dp = dimensions().avatarBorderWidth,
-    borderColor: Color = colorsScheme().outline
-) = when (avatarData) {
-    is ConversationAvatar.Group.Channel -> ChannelConversationAvatar(
-        avatarData.conversationId,
-        avatarData.isPrivate,
-        modifier,
-        size,
-        cornerRadius,
-        padding,
-        borderWidth
-    )
-
-    is ConversationAvatar.Group.Regular -> RegularGroupConversationAvatar(
-        avatarData.conversationId,
-        modifier,
-        size,
-        cornerRadius,
-        padding,
-        borderWidth,
-        borderColor
-    )
-}
 
 @Composable
 fun RegularGroupConversationAvatar(
@@ -86,14 +53,14 @@ fun RegularGroupConversationAvatar(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .padding(padding)
-            .size(size + borderWidth * 2) // border exceeds the size to keep sizes consistent with UserProfileAvatar
+            .size(size)
             .border(color = borderColor, width = borderWidth, shape = RoundedCornerShape(cornerRadius + borderWidth))
             .padding(borderWidth)
             .background(color = colorsScheme().surface, shape = RoundedCornerShape(cornerRadius))
     ) {
         val colors = colorsScheme().groupConversationColor(id = conversationId)
         CustomGroupAvatarDrawing(
-            modifier = Modifier.padding(dimensions().spacing4x),
+            modifier = Modifier.padding(size / 8),
             leftSideShapeColor = colors.left,
             middleSideShapeColor = colors.middle,
             rightSideShapeColor = colors.right
@@ -101,7 +68,7 @@ fun RegularGroupConversationAvatar(
     }
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
 fun PreviewGroupConversationAvatar() {
     WireTheme {
@@ -109,4 +76,17 @@ fun PreviewGroupConversationAvatar() {
             conversationId = ConversationId("conversationId", "domain")
         )
     }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewGroupConversationAvatarSmall() = WireTheme {
+    RegularGroupConversationAvatar(
+        conversationId = ConversationId("conversationId", "domain"),
+        size = dimensions().spacing18x,
+        borderWidth = dimensions().spacing1x,
+        borderColor = colorsScheme().outline,
+        cornerRadius = dimensions().spacing6x,
+        padding = dimensions().spacing4x,
+    )
 }

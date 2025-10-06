@@ -169,7 +169,7 @@ private fun BrowsePublicChannelsItem(onBrowsePublicChannels: () -> Unit = {}) {
         leadingIcon = {
             Icon(
                 modifier = Modifier.size(dimensions().systemMessageIconSize),
-                painter = painterResource(id = R.drawable.ic_channel),
+                painter = painterResource(id = com.wire.android.ui.common.R.drawable.ic_channel),
                 contentDescription = null,
             )
         },

@@ -79,7 +79,7 @@ fun LoadingFileItem(modifier: Modifier = Modifier) {
                     .fillMaxWidth(0.75f)
             )
         },
-        subTitle = {
+        subtitle = {
             Box(
                 modifier = Modifier
                     .padding(top = dimensions().spacing8x)

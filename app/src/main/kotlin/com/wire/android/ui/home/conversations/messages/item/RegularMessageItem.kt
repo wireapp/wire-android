@@ -187,6 +187,7 @@ fun RegularMessageItem(
                         message = message,
                         conversationDetailsData = conversationDetailsData,
                         modifier = modifier,
+                        accent = header.accent,
                         searchQuery = searchQuery,
                         assetStatus = assetStatus,
                         shouldDisplayMessageStatus = shouldDisplayMessageStatus,

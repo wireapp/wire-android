@@ -38,6 +38,7 @@ import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMess
 import com.wire.android.ui.home.conversations.model.messagetypes.location.LocationMessageContent
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.MultipartAttachmentsView
 import com.wire.android.ui.home.conversations.model.messagetypes.video.VideoMessage
+import com.wire.android.ui.theme.Accent
 import com.wire.android.util.launchGeoIntent
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 
@@ -54,6 +55,7 @@ internal fun UIMessage.Regular.MessageContentAndStatus(
     onReplyClicked: (UIMessage.Regular) -> Unit,
     shouldDisplayMessageStatus: Boolean,
     conversationDetailsData: ConversationDetailsData,
+    accent: Accent = Accent.Unknown,
 ) {
     val onAssetClickable = remember(message) {
         Clickable(enabled = isAvailable, onClick = {
@@ -86,10 +88,11 @@ internal fun UIMessage.Regular.MessageContentAndStatus(
                 onLinkClick = onLinkClicked,
                 onReplyClick = onReplyClickable,
                 messageStyle = messageStyle,
+                accent = accent
             )
             if (!messageStyle.isBubble()) {
-                (messageContent as PartialDeliverable?)?.deliveryStatus?.let {
-                    PartialDeliveryInformation(it, messageStyle)
+                if (messageContent is PartialDeliverable && messageContent.deliveryStatus.hasAnyFailures) {
+                    PartialDeliveryInformation(messageContent.deliveryStatus, messageStyle)
                 }
             }
         }
@@ -130,6 +133,7 @@ private fun MessageContent(
     onOpenProfile: (String) -> Unit,
     onLinkClick: (String) -> Unit,
     onReplyClick: Clickable,
+    accent: Accent
 ) {
     when (messageContent) {
         is UIMessageContent.ImageMessage -> {
@@ -165,14 +169,19 @@ private fun MessageContent(
                     when (it) {
                         is UIQuotedMessage.UIQuotedData -> QuotedMessage(
                             messageData = it,
-                            style = QuotedMessageStyle(quotedStyle = QuotedStyle.COMPLETE, messageStyle = messageStyle),
+                            style = QuotedMessageStyle(
+                                quotedStyle = QuotedStyle.COMPLETE,
+                                messageStyle = messageStyle,
+                                selfAccent = accent
+                            ),
                             clickable = onReplyClick
                         )
 
                         UIQuotedMessage.UnavailableData -> QuotedUnavailable(
                             style = QuotedMessageStyle(
                                 quotedStyle = QuotedStyle.COMPLETE,
-                                messageStyle = messageStyle
+                                messageStyle = messageStyle,
+                                selfAccent = accent
                             )
                         )
                     }
@@ -200,7 +209,8 @@ private fun MessageContent(
                             messageData = it,
                             style = QuotedMessageStyle(
                                 quotedStyle = QuotedStyle.COMPLETE,
-                                messageStyle = messageStyle
+                                messageStyle = messageStyle,
+                                selfAccent = accent
                             ),
                             clickable = onReplyClick
                         )
@@ -208,7 +218,8 @@ private fun MessageContent(
                         UIQuotedMessage.UnavailableData -> QuotedUnavailable(
                             style = QuotedMessageStyle(
                                 quotedStyle = QuotedStyle.COMPLETE,
-                                messageStyle = messageStyle
+                                messageStyle = messageStyle,
+                                selfAccent = accent
                             )
                         )
                     }
@@ -317,7 +328,8 @@ private fun MessageContent(
                 MultipartAttachmentsView(
                     conversationId = message.conversationId,
                     attachments = messageContent.attachments,
-                    messageStyle = messageStyle
+                    messageStyle = messageStyle,
+                    accent = accent,
                 )
             }
 

@@ -36,8 +36,6 @@
     <string name="label_learn_more">Saiba mais</string>
     <string name="label_removing">Removendo…</string>
     <string name="label_logging_in">Iniciando sessão…</string>
-    <string name="label_membership_guest">Convidado</string>
-    <string name="label_membership_external">Externo</string>
     <string name="label_user_deleted">Excluído</string>
     <string name="label_try_again">Tente novamente</string>
     <string name="label_done">Pronto</string>
@@ -61,7 +59,6 @@
     </plurals>
     <string name="label_reset_session">Redefinir sessão</string>
     <string name="label_reset_session_success">Sessão redefinida com sucesso</string>
-    <string name="label_federated_membership">Federado</string>
     <string name="label_update">Atualizar</string>
     <string name="label_close">Fechar</string>
     <string name="label_download">Baixar</string>
@@ -88,7 +85,6 @@
     <string name="content_description_hide_password">Ocultar senha</string>
     <string name="content_description_search_back">Ícone de busca</string>
     <string name="content_description_clear_content">Limpar conteúdo</string>
-    <string name="content_description_user_avatar">Imagem de perfil</string>
     <string name="content_description_muted_conversation">Conversa silenciada</string>
     <string name="content_description_check">Marca de seleção</string>
     <string name="content_description_download_icon">Ícone de download</string>
@@ -574,10 +570,6 @@ Uma mensagem excluída não pode ser restaurada.</string>
     <string name="user_profile_logout">Encerrar Sessão</string>
     <string name="user_profile_other_accs">Suas outras contas</string>
     <string name="user_profile_status_availability">Disponibilidade</string>
-    <string name="user_profile_status_available">Disponível</string>
-    <string name="user_profile_status_busy">Ocupado</string>
-    <string name="user_profile_status_away">Ausente</string>
-    <string name="user_profile_status_none">Nenhum</string>
     <string name="user_profile_new_account_text">Nova Equipe ou Adicionar Conta</string>
     <string name="user_profile_account_management">Gerenciar Equipe</string>
     <string name="user_profile_details_tab">Detalhes</string>

@@ -36,9 +36,6 @@
     <string name="label_learn_more">Mehr erfahren</string>
     <string name="label_removing">Entfernen…</string>
     <string name="label_logging_in">Anmelden…</string>
-    <string name="label_membership_guest">Gast</string>
-    <string name="label_membership_external">Extern</string>
-    <string name="label_membership_service">App</string>
     <string name="label_user_deleted">Gelöscht</string>
     <string name="label_try_again">Erneut versuchen</string>
     <string name="label_done">Fertig</string>
@@ -62,7 +59,6 @@
     </plurals>
     <string name="label_reset_session">Session zurücksetzen</string>
     <string name="label_reset_session_success">Sitzung erfolgreich zurückgesetzt</string>
-    <string name="label_federated_membership">Föderiert</string>
     <string name="label_update">Aktualisieren</string>
     <string name="label_close">Schließen</string>
     <string name="label_download">Herunterladen</string>
@@ -89,7 +85,6 @@
     <string name="content_description_hide_password">Passwort ausblenden</string>
     <string name="content_description_search_back">Suche-Icon zurück</string>
     <string name="content_description_clear_content">Gesprächsverlauf löschen</string>
-    <string name="content_description_user_avatar">Profilbild</string>
     <string name="content_description_muted_conversation">Unterhaltung ist stummgeschaltet</string>
     <string name="content_description_check">Haken</string>
     <string name="content_description_download_icon">Icon herunterladen</string>
@@ -174,6 +169,7 @@
     <string name="content_description_open_label">Öffnen</string>
     <string name="content_description_join_call_label">Anruf annehmen</string>
     <string name="content_description_share_label">Teilen</string>
+    <string name="content_description_collapse_label">Ausblenden</string>
     <string name="content_description_expand_label">ausklappen</string>
     <string name="content_description_edit_label">bearbeiten</string>
     <string name="content_description_select_label">auswählen</string>
@@ -621,10 +617,6 @@
     <string name="user_profile_logout">Abmelden</string>
     <string name="user_profile_other_accs">Ihre anderen Benutzerkonten</string>
     <string name="user_profile_status_availability">Verfügbarkeit</string>
-    <string name="user_profile_status_available">Verfügbar</string>
-    <string name="user_profile_status_busy">Beschäftigt</string>
-    <string name="user_profile_status_away">Abwesend</string>
-    <string name="user_profile_status_none">Kein Status</string>
     <string name="user_profile_new_account_text">Neues Team oder Konto</string>
     <string name="user_profile_account_management">Team verwalten</string>
     <string name="user_profile_details_tab">Details</string>
@@ -1229,6 +1221,7 @@ Bei Gruppenunterhaltungen kann der Gruppen-Admin diese Einstellung überschreibe
     <string name="custom_backend_dialog_body_backend_website">Website-URL:</string>
     <string name="custom_backend_dialog_body_backend_websocket">Backend-WSURL:</string>
     <string name="custom_backend_error_title">Ein Fehler ist aufgetreten</string>
+    <string name="custom_backend_error_no_internet_connection_body">Die Weiterleitung zu einem lokalen Backend war nicht möglich. Sie scheinen nicht mit dem Internet verbunden zu sein.\n\nStellen Sie eine Internetverbindung her und versuchen Sie es erneut.</string>
     <string name="custom_backend_error_no_internet_connection_try_again">Erneut versuchen</string>
     <string name="label_fetching_your_messages">Empfang von neuen Nachrichten</string>
     <string name="label_text_copied">Text in Zwischenablage kopiert</string>
@@ -1431,6 +1424,26 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="label_information_waiting_for_recipient_timer_to_expire_group">Nachdem eine Person Ihre Nachricht gesehen hat und deren Timer abgelaufen ist, verschwindet diese Notiz.</string>
     <string name="label_information_waiting_for_recipient_timer_to_expire_one_to_one">Nachdem %1$s Ihre Nachricht gesehen hat und der Timer abgelaufen ist, verschwindet diese Notiz.</string>
     <string name="label_information_waiting_for_deleation_when_self_not_sender">Sobald Sie online sind, verschwindet diese Notiz.</string>
+    <plurals name="weeks">
+        <item quantity="one">1 Woche</item>
+        <item quantity="other">%1$d Wochen</item>
+    </plurals>
+    <plurals name="days">
+        <item quantity="one">1 Tag</item>
+        <item quantity="other">%1$d Tage</item>
+    </plurals>
+    <plurals name="hours">
+        <item quantity="one">1 Stunde</item>
+        <item quantity="other">%1$d Stunden</item>
+    </plurals>
+    <plurals name="minutes">
+        <item quantity="one">1 Minute</item>
+        <item quantity="other">%1$d Minuten</item>
+    </plurals>
+    <plurals name="seconds">
+        <item quantity="one">1 Sekunde</item>
+        <item quantity="other">%1$d Sekunden</item>
+    </plurals>
     <plurals name="weeks_left">
         <item quantity="one">Noch 1 Woche</item>
         <item quantity="other">Noch %1$d Wochen</item>

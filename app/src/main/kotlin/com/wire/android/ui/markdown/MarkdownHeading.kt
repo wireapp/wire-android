@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.home.conversations.messages.item.onBackground
 
 @Composable
 @Suppress("MagicNumber")
@@ -46,7 +47,7 @@ fun MarkdownHeading(heading: MarkdownNode.Block.Heading, nodeData: NodeData, mod
         }
         MarkdownText(
             annotatedString = text,
-            style = style,
+            style = style.copy(color = nodeData.messageStyle.onBackground()),
             onLongClick = nodeData.actions?.onLongClick,
             onOpenProfile = nodeData.actions?.onOpenProfile
         )

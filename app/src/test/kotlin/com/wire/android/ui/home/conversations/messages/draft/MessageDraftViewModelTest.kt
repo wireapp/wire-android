@@ -106,7 +106,7 @@ class MessageDraftViewModelTest {
             senderName = UIText.DynamicString("John"),
             originalMessageDateDescription = UIText.StringResource(R.string.label_quote_original_message_date, "10:30"),
             editedTimeDescription = UIText.StringResource(R.string.label_message_status_edited_with_date, "10:32"),
-            quotedContent = UIQuotedMessage.UIQuotedData.Text("Any ideas?"),
+            quotedContent = UIQuotedMessage.UIQuotedData.Text(UIText.DynamicString("Any ideas?")),
             senderAccent = Accent.Unknown
         )
         val (arrangement, viewModel) = Arrangement()

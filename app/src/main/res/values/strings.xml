@@ -45,9 +45,6 @@
     <string name="label_learn_more">Learn more</string>
     <string name="label_removing">Removing…</string>
     <string name="label_logging_in">Logging in…</string>
-    <string name="label_membership_guest">Guest</string>
-    <string name="label_membership_external">External</string>
-    <string name="label_membership_service">App</string>
     <string name="label_user_deleted">Deleted</string>
     <string name="label_try_again">Try Again</string>
     <string name="label_done">Done</string>
@@ -71,7 +68,6 @@
     </plurals>
     <string name="label_reset_session">Reset Session</string>
     <string name="label_reset_session_success">Session successfully reset</string>
-    <string name="label_federated_membership">Federated</string>
     <string name="label_update">Update</string>
     <string name="label_close">Close</string>
     <string name="label_download">Download</string>
@@ -98,7 +94,6 @@
     <string name="content_description_hide_password">Hide password</string>
     <string name="content_description_search_back">Search back icon</string>
     <string name="content_description_clear_content">Clear content</string>
-    <string name="content_description_user_avatar">Profile picture</string>
     <string name="content_description_muted_conversation">Muted conversation</string>
     <string name="content_description_check">Check mark</string>
     <string name="content_description_download_icon">Download icon</string>
@@ -126,6 +121,7 @@
     <string name="content_description_conversation_back_btn">Go back to conversation list</string>
     <string name="content_description_conversation_open_details_label">open conversation details</string>
     <string name="content_description_new_conversation">Search for people or create a new conversation</string>
+    <string name="content_description_new_meeting">Start or schedule a new Wire Meeting</string>
     <string name="content_description_back_button">Back button</string>
     <string name="content_description_send_button">Send</string>
     <string name="content_description_timed_message_button">Self-deleting messages, button</string>
@@ -702,10 +698,6 @@
     <string name="user_profile_logout">Log out</string>
     <string name="user_profile_other_accs">Your Other Accounts</string>
     <string name="user_profile_status_availability">Availability</string>
-    <string name="user_profile_status_available">Available</string>
-    <string name="user_profile_status_busy">Busy</string>
-    <string name="user_profile_status_away">Away</string>
-    <string name="user_profile_status_none">None</string>
     <string name="user_profile_new_account_text">New Team or Add Account</string>
     <string name="user_profile_account_management">Manage Team</string>
     <string name="user_profile_details_tab">Details</string>

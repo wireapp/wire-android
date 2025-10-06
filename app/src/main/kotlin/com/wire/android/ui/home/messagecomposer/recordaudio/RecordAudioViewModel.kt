@@ -291,9 +291,9 @@ class RecordAudioViewModel @Inject constructor(
             )
 
             val didSucceed = if (state.shouldApplyEffects) {
-                audioMediaRecorder.convertWavToMp4(effectsFile!!.toString())
+                audioMediaRecorder.convertWavToM4a(effectsFile!!.toString())
             } else {
-                audioMediaRecorder.convertWavToMp4(outputFile!!.toString())
+                audioMediaRecorder.convertWavToM4a(outputFile!!.toString())
             }
 
             try {
@@ -318,7 +318,7 @@ class RecordAudioViewModel @Inject constructor(
                 RecordAudioViewActions.Recorded(
                     UriAsset(
                         uri = if (didSucceed) {
-                            context.fromNioPathToContentUri(nioPath = audioMediaRecorder.mp4OutputPath!!.toNioPath())
+                            context.fromNioPathToContentUri(nioPath = audioMediaRecorder.m4aOutputPath!!.toNioPath())
                         } else {
                             if (state.shouldApplyEffects) {
                                 context.fromNioPathToContentUri(nioPath = state.effectsOutputFile!!.toPath())

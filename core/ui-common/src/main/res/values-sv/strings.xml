@@ -16,4 +16,13 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
-<resources></resources>
+<resources>
+    <string name="label_membership_guest">Gäst</string>
+    <string name="label_membership_external">Extern</string>
+    <string name="label_federated_membership">Federerade</string>
+	<string name="user_profile_status_available">Tillgänglig</string>
+    <string name="user_profile_status_busy">Upptagen</string>
+    <string name="user_profile_status_away">Borta</string>
+    <string name="user_profile_status_none">Ingen</string>
+    <string name="content_description_user_avatar">Profilbild</string>
+</resources>

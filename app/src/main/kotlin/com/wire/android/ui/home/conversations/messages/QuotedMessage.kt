@@ -77,7 +77,8 @@ private const val TEXT_QUOTE_MAX_LINES = 7
 
 data class QuotedMessageStyle(
     val quotedStyle: QuotedStyle,
-    val messageStyle: MessageStyle
+    val messageStyle: MessageStyle,
+    val selfAccent: Accent
 )
 
 /**
@@ -144,7 +145,7 @@ internal fun QuotedMessage(
         )
 
         is UIQuotedMessage.UIQuotedData.Text -> QuotedText(
-            text = quotedContent.value,
+            text = quotedContent.value.asString(),
             editedTimeDescription = messageData.editedTimeDescription,
             originalDateTimeDescription = messageData.originalMessageDateDescription,
             senderName = messageData.senderName,
@@ -188,7 +189,7 @@ fun QuotedMessagePreview(
         modifier = modifier,
         messageData = quotedMessageData,
         clickable = null,
-        style = QuotedMessageStyle(QuotedStyle.PREVIEW, MessageStyle.NORMAL)
+        style = QuotedMessageStyle(QuotedStyle.PREVIEW, MessageStyle.NORMAL, Accent.Unknown)
     ) {
         Box(
             modifier = Modifier
@@ -228,7 +229,11 @@ private fun QuotedMessageContent(
 ) {
     val quoteOutlineShape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
     val background = when (style.messageStyle) {
-        MessageStyle.BUBBLE_SELF -> MaterialTheme.wireColorScheme.primaryVariant
+        MessageStyle.BUBBLE_SELF -> MaterialTheme.wireColorScheme.accentVariantColors.getOrDefault(
+            style.selfAccent,
+            colorsScheme().primaryVariant
+        )
+
         MessageStyle.BUBBLE_OTHER -> MaterialTheme.wireColorScheme.surface
         MessageStyle.NORMAL -> MaterialTheme.wireColorScheme.surfaceVariant
     }

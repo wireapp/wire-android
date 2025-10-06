@@ -36,9 +36,6 @@
     <string name="label_learn_more">Подробнее</string>
     <string name="label_removing">Удаление...</string>
     <string name="label_logging_in">Авторизация…</string>
-    <string name="label_membership_guest">Гость</string>
-    <string name="label_membership_external">Внешний</string>
-    <string name="label_membership_service">Приложение</string>
     <string name="label_user_deleted">Удалено</string>
     <string name="label_try_again">Повторить</string>
     <string name="label_done">Готово</string>
@@ -64,7 +61,6 @@
     </plurals>
     <string name="label_reset_session">Сбросить сессию</string>
     <string name="label_reset_session_success">Сессия успешно сброшена</string>
-    <string name="label_federated_membership">Федеративный</string>
     <string name="label_update">Обновить</string>
     <string name="label_close">Закрыть</string>
     <string name="label_download">Скачать</string>
@@ -91,7 +87,6 @@
     <string name="content_description_hide_password">Скрыть пароль</string>
     <string name="content_description_search_back">Значок возврата поиска</string>
     <string name="content_description_clear_content">Очистить контент</string>
-    <string name="content_description_user_avatar">Изображение профиля</string>
     <string name="content_description_muted_conversation">Беззвучные беседы</string>
     <string name="content_description_check">Отметка</string>
     <string name="content_description_download_icon">Значок загрузки</string>
@@ -119,6 +114,7 @@
     <string name="content_description_conversation_back_btn">Вернуться к списку бесед</string>
     <string name="content_description_conversation_open_details_label">открыть информацию о беседе</string>
     <string name="content_description_new_conversation">Поиск друзей или создание новой беседы</string>
+    <string name="content_description_new_meeting">Начните или запланируйте новую встречу Wire</string>
     <string name="content_description_back_button">Кнопка назад</string>
     <string name="content_description_send_button">Отправить</string>
     <string name="content_description_timed_message_button">Самоудаляющиеся сообщения, кнопка</string>
@@ -660,10 +656,6 @@
     <string name="user_profile_logout">Выйти</string>
     <string name="user_profile_other_accs">Другие ваши аккаунты</string>
     <string name="user_profile_status_availability">Доступность</string>
-    <string name="user_profile_status_available">Доступен</string>
-    <string name="user_profile_status_busy">Занят</string>
-    <string name="user_profile_status_away">Отошел</string>
-    <string name="user_profile_status_none">Отключен</string>
     <string name="user_profile_new_account_text">Новая команда или аккаунт</string>
     <string name="user_profile_account_management">Управлять командой</string>
     <string name="user_profile_details_tab">Подробности</string>

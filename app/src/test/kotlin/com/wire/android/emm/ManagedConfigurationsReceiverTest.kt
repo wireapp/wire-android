@@ -22,6 +22,8 @@ import android.content.Context
 import android.content.Intent
 import androidx.test.core.app.ApplicationProvider
 import com.wire.android.config.TestDispatcherProvider
+import com.wire.android.util.EMPTY
+import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -46,7 +48,105 @@ class ManagedConfigurationsReceiverTest {
             advanceUntilIdle()
 
             coVerify(exactly = 1) { arrangement.managedConfigurationsManager.refreshServerConfig() }
+            coVerify(exactly = 1) {
+                arrangement.managedConfigurationsReporter.reportAppliedState(
+                    eq(ManagedConfigurationsKeys.DEFAULT_SERVER_URLS.asKey()),
+                    any(),
+                    any()
+                )
+            }
             coVerify(exactly = 1) { arrangement.managedConfigurationsManager.refreshSSOCodeConfig() }
+            coVerify(exactly = 1) {
+                arrangement.managedConfigurationsReporter.reportAppliedState(
+                    eq(ManagedConfigurationsKeys.SSO_CODE.asKey()),
+                    any(),
+                    any()
+                )
+            }
+        }
+
+    @Test
+    fun `given ACTION_APPLICATION_RESTRICTIONS_CHANGED intent, when onReceive is called and refresh server returns an error, then notify`() =
+        runTest {
+            val (arrangement, receiver) = Arrangement()
+                .withIntent(Intent.ACTION_APPLICATION_RESTRICTIONS_CHANGED)
+                .withRefreshServerConfigResult(ServerConfigResult.Failure("Test error"))
+                .arrange()
+
+            receiver.onReceive(arrangement.context, arrangement.intent)
+            advanceUntilIdle()
+
+            coVerify(exactly = 1) { arrangement.managedConfigurationsManager.refreshServerConfig() }
+            coVerify(exactly = 1) {
+                arrangement.managedConfigurationsReporter.reportErrorState(
+                    eq(ManagedConfigurationsKeys.DEFAULT_SERVER_URLS.asKey()),
+                    eq("Test error"),
+                    any()
+                )
+            }
+        }
+
+    @Test
+    fun `given ACTION_APPLICATION_RESTRICTIONS_CHANGED intent, when onReceive is called and refresh sso code returns an error, then notify`() =
+        runTest {
+            val (arrangement, receiver) = Arrangement()
+                .withIntent(Intent.ACTION_APPLICATION_RESTRICTIONS_CHANGED)
+                .withRefreshSSOConfigResult(SSOCodeConfigResult.Failure("Test error"))
+                .arrange()
+
+            receiver.onReceive(arrangement.context, arrangement.intent)
+            advanceUntilIdle()
+
+            coVerify(exactly = 1) { arrangement.managedConfigurationsManager.refreshSSOCodeConfig() }
+            coVerify(exactly = 1) {
+                arrangement.managedConfigurationsReporter.reportErrorState(
+                    eq(ManagedConfigurationsKeys.SSO_CODE.asKey()),
+                    eq("Test error"),
+                    any()
+                )
+            }
+        }
+
+    @Test
+    fun `given ACTION_APPLICATION_RESTRICTIONS_CHANGED intent, when onReceive is called with Empty Server Config, then notify cleared`() =
+        runTest {
+            val (arrangement, receiver) = Arrangement()
+                .withIntent(Intent.ACTION_APPLICATION_RESTRICTIONS_CHANGED)
+                .withRefreshServerConfigResult(ServerConfigResult.Empty)
+                .arrange()
+
+            receiver.onReceive(arrangement.context, arrangement.intent)
+            advanceUntilIdle()
+
+            coVerify(exactly = 1) { arrangement.managedConfigurationsManager.refreshServerConfig() }
+            coVerify(exactly = 1) {
+                arrangement.managedConfigurationsReporter.reportAppliedState(
+                    eq(ManagedConfigurationsKeys.DEFAULT_SERVER_URLS.asKey()),
+                    eq("Managed configuration cleared"),
+                    eq(String.EMPTY)
+                )
+            }
+        }
+
+    @Test
+    fun `given ACTION_APPLICATION_RESTRICTIONS_CHANGED intent, when onReceive is called with Empty SSO Config, then notify cleared`() =
+        runTest {
+            val (arrangement, receiver) = Arrangement()
+                .withIntent(Intent.ACTION_APPLICATION_RESTRICTIONS_CHANGED)
+                .withRefreshSSOConfigResult(SSOCodeConfigResult.Empty)
+                .arrange()
+
+            receiver.onReceive(arrangement.context, arrangement.intent)
+            advanceUntilIdle()
+
+            coVerify(exactly = 1) { arrangement.managedConfigurationsManager.refreshSSOCodeConfig() }
+            coVerify(exactly = 1) {
+                arrangement.managedConfigurationsReporter.reportAppliedState(
+                    eq(ManagedConfigurationsKeys.SSO_CODE.asKey()),
+                    eq("Managed configuration cleared"),
+                    eq(String.EMPTY)
+                )
+            }
         }
 
     @Test
@@ -81,6 +181,7 @@ class ManagedConfigurationsReceiverTest {
 
         val context: Context = ApplicationProvider.getApplicationContext()
         val managedConfigurationsManager: ManagedConfigurationsManager = mockk(relaxed = true)
+        val managedConfigurationsReporter: ManagedConfigurationsReporter = mockk(relaxed = true)
         private val dispatchers = TestDispatcherProvider()
         lateinit var intent: Intent
 
@@ -88,8 +189,17 @@ class ManagedConfigurationsReceiverTest {
             intent = if (action != null) Intent(action) else Intent()
         }
 
+        fun withRefreshServerConfigResult(result: ServerConfigResult) = apply {
+            coEvery { managedConfigurationsManager.refreshServerConfig() } returns result
+        }
+
+        fun withRefreshSSOConfigResult(result: SSOCodeConfigResult) = apply {
+            coEvery { managedConfigurationsManager.refreshSSOCodeConfig() } returns result
+        }
+
         fun arrange() = this to ManagedConfigurationsReceiver(
             managedConfigurationsManager,
+            managedConfigurationsReporter,
             dispatchers
         )
     }

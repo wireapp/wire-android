@@ -17,6 +17,7 @@
  */
 package uiautomatorutils
 
+import android.graphics.Rect
 import android.os.SystemClock
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
@@ -25,6 +26,7 @@ import androidx.test.uiautomator.StaleObjectException
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiObject2
 import androidx.test.uiautomator.UiSelector
+import androidx.test.uiautomator.Until
 import java.io.IOException
 
 private const val TIMEOUT_IN_MILLISECONDS = 10000L
@@ -80,44 +82,62 @@ object UiWaitUtils {
         }
     }
 
-    @Suppress("MagicNumber", "NestedBlockDepth")
+    @Suppress("MagicNumber", "NestedBlockDepth", "CyclomaticComplexMethod", "ComplexCondition")
     fun waitElement(
         params: UiSelectorParams,
-        timeoutMillis: Long = 10_000,
-        pollingInterval: Long = 250
+        timeoutMillis: Long = 10_000
     ): UiObject2 {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        val selector = buildSelector(params)
-        val deadline = SystemClock.uptimeMillis() + timeoutMillis
+        val sel = buildSelector(params)
 
-        while (SystemClock.uptimeMillis() < deadline) {
-            try {
-                val obj = device.findObject(selector)
-                if (obj != null) {
-                    try {
-                        if (!obj.visibleBounds.isEmpty) return obj
-                    } catch (e: StaleObjectException) {
-                        // Ignore and retry
-                    }
-                }
-            } catch (e: StaleObjectException) {
-                // Ignore and retry
-            }
-
-            SystemClock.sleep(pollingInterval)
+        // 1) Block until node exists
+        if (!device.wait(Until.hasObject(sel), timeoutMillis)) {
+            throw AssertionError("Element not found with selector: ${describe(params)}")
         }
 
-        throw AssertionError(
-            "Element not found or not visible with selector: " +
-                    listOfNotNull(
-                        params.text?.let { "text='$it'" },
-                        params.textContains?.let { "textContains='$it'" },
-                        params.resourceId?.let { "resourceId='$it'" },
-                        params.className?.let { "className='$it'" },
-                        params.description?.let { "description='$it'" }
-                    ).joinToString(", ")
-        )
+        device.waitForIdle(500)
+
+        // 2) Stabilize: refetch until bounds are stable & usable
+        val end = SystemClock.uptimeMillis() + 1_500
+        var lastBounds: Rect? = null
+
+        while (SystemClock.uptimeMillis() < end) {
+            val obj = try {
+                device.findObject(sel)
+            } catch (_: StaleObjectException) {
+                null
+            }
+            if (obj != null) {
+                try {
+                    val b = obj.visibleBounds
+                    val onScreen = b.left >= 0 && b.top >= 0 &&
+                            b.right <= device.displayWidth && b.bottom <= device.displayHeight
+                    val nonZero = b.width() > 0 && b.height() > 0
+                    val enabled = obj.isEnabled
+
+                    // Same bounds twice in a row → considered stable
+                    if (onScreen && nonZero && enabled && lastBounds != null && lastBounds == b) {
+                        return obj
+                    }
+                    lastBounds = b
+                } catch (_: StaleObjectException) {
+                    // re-loop
+                }
+            }
+
+            SystemClock.sleep(100)
+        }
+
+        throw AssertionError("Element found but not stable/visible with selector: ${describe(params)}")
     }
+
+    private fun describe(p: UiSelectorParams) = listOfNotNull(
+        p.text?.let { "text='$it'" },
+        p.textContains?.let { "textContains='$it'" },
+        p.resourceId?.let { "resourceId='$it'" },
+        p.className?.let { "className='$it'" },
+        p.description?.let { "description='$it'" }
+    ).joinToString(", ")
 
     fun waitUntilElementGone(
         device: UiDevice,

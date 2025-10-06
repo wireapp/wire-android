@@ -16,17 +16,25 @@ import service.TestServiceHelper
 import user.utils.ClientUser
 import java.net.URL
 import java.net.URLEncoder
+import java.util.UUID
 
 object SSOServiceHelper {
+
     var identityProviderId = ""
-    suspend fun TestServiceHelper.thereIsASSOTeamOwnerForOkta(context: Context, ownerNameAlias: String, teamName: String) {
+
+    suspend fun TestServiceHelper.thereIsASSOTeamOwnerForOkta(
+        context: Context,
+        ownerNameAlias: String,
+        teamName: String,
+        client: OktaApiClient
+    ) {
         val owner = toClientUser(ownerNameAlias)
         thereIsATeamOwner(context, ownerNameAlias, teamName, true, backend = loadBackend(owner.backendName ?: "STAGING"))
         enableSSOFeature(owner, teamName)
         val backend = loadBackend(owner.backendName.orEmpty())
         val finalizeUrl = OktaApiClient.getFinalizeUrlDependingOnBackend(backend.backendUrl)
         val client = OktaApiClient()
-        client.createApplication(owner.name + " " + teamName, finalizeUrl, context)
+        client.createApplication(owner.name + " " + teamName + UUID.randomUUID().toString(), finalizeUrl, context)
 
         val metadata = client.getApplicationMetadata()
         identityProviderId =
@@ -37,7 +45,7 @@ object SSOServiceHelper {
     }
 
     @Suppress("TooGenericExceptionThrown", "MagicNumber")
-    fun TestServiceHelper.userAddsOktaUser(ownerNameAlias: String, userNameAliases: String) {
+    suspend fun TestServiceHelper.userAddsOktaUser(ownerNameAlias: String, userNameAliases: String, oktaApiClient: OktaApiClient) {
         val aliases = usersManager.splitAliases(userNameAliases)
         for (userNameAlias in aliases) {
             val user = toClientUser(userNameAlias)
@@ -67,9 +75,7 @@ object SSOServiceHelper {
             // set backend for added okta users
             user.backendName = ownerBackendName
 
-            runBlocking {
-                OktaApiClient().createUser(user.name.orEmpty(), user.email.orEmpty(), user.password.orEmpty())
-            }
+            oktaApiClient.createUser(user.name.orEmpty(), user.email.orEmpty(), user.password.orEmpty())
         }
     }
 
@@ -79,6 +85,10 @@ object SSOServiceHelper {
 
     fun getSSOCode(): String = "wire-$identityProviderId".also {
         WireTestLogger.getLog("Test Log").info("The sso code is $it")
+    }
+
+    fun clearSSOCode() {
+        identityProviderId = ""
     }
 
     @Suppress("MagicNumber")

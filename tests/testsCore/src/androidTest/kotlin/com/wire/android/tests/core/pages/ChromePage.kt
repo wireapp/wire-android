@@ -18,6 +18,7 @@
 package com.wire.android.tests.core.pages
 
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
@@ -54,4 +55,12 @@ data class ChromePage(private val device: UiDevice) {
         UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
             .executeShellCommand(command)
             .trim()
+}
+
+fun dismissChromeOnboardingIfVisible(device: UiDevice) {
+    val noThanks = device.findObject(By.text("No, thanks"))
+    if (noThanks != null) {
+        noThanks.click()
+        device.waitForIdle()
+    }
 }

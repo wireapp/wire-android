@@ -100,7 +100,7 @@ internal fun PdfAssetPreview(
                     shape = RoundedCornerShape(dimensions().messageAttachmentCornerSize)
                 )
                 border(
-                    width = 1.dp,
+                    width = dimensions().spacing1x,
                     color = colorsScheme().outline,
                     shape = RoundedCornerShape(dimensions().messageAttachmentCornerSize)
                 )

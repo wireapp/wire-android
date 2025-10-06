@@ -187,7 +187,7 @@ class DeviceDetailsViewModel @Inject constructor(
         viewModelScope.launch {
             state = when (val result = fingerprintUseCase(userId, deviceId)) {
                 is Result.Failure -> state.copy(fingerPrint = null)
-                is Result.Success -> state.copy(fingerPrint = result.fingerprint.decodeToString())
+                is Result.Success -> state.copy(fingerPrint = result.fingerprint)
             }
         }
     }

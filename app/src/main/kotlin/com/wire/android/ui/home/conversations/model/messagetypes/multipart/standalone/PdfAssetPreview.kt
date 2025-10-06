@@ -36,7 +36,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.ui.common.applyIf

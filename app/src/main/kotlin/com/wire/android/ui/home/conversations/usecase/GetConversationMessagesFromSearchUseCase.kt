@@ -56,12 +56,11 @@ class GetConversationMessagesFromSearchUseCase @Inject constructor(
             initialLoadSize = INITIAL_LOAD_SIZE
         )
 
-        if (searchTerm.length >= MINIMUM_CHARACTERS_TO_SEARCH) {
-            return getMessagesSearch(
+        return if (searchTerm.length >= MINIMUM_CHARACTERS_TO_SEARCH) {
+            getMessagesSearch(
                 searchQuery = searchTerm,
                 conversationId = conversationId,
                 pagingConfig = pagingConfig,
-                startingOffset = max(0, lastReadIndex - PREFETCH_DISTANCE).toLong()
             ).map { pagingData ->
                 pagingData.flatMap { messageItem ->
                     val usersForMessage = getUsersForMessage(messageItem)
@@ -69,7 +68,7 @@ class GetConversationMessagesFromSearchUseCase @Inject constructor(
                 }
             }.flowOn(dispatchers.io())
         } else {
-            return flowOf(PagingData.empty<UIMessage>()).flowOn(dispatchers.io())
+            flowOf(PagingData.empty<UIMessage>()).flowOn(dispatchers.io())
         }
     }
 

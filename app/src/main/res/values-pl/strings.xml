@@ -31,8 +31,6 @@
     <string name="label_learn_more">Dowiedz si&#281; wi&#281;cej</string>
     <string name="label_removing">Usuwanie...</string>
     <string name="label_logging_in">Logowanie...</string>
-    <string name="label_membership_guest">Go&#347;&#263;</string>
-    <string name="label_membership_external">Zewn&#281;trzny</string>
     <string name="label_user_deleted">Usuni&#281;te</string>
     <string name="label_message_sent_failure">Wiadomo&#347;&#263; nie mog&#322;a zosta&#263; wys&#322;ana ze wzgl&#281;du na problemy z po&#322;&#261;czeniem.</string>
     <string name="label_message_edit_sent_failure">Edytowana wiadomo&#347;&#263; nie mog&#322;a zosta&#263; wys&#322;ana ze wzgl&#281;du na problemy z po&#322;&#261;czeniem.</string>
@@ -41,7 +39,6 @@
     <string name="label_message_decryption_failure_informative_message">Spr&#243;buj zresetowa&#263; sesj&#281;, aby wygenerowa&#263; nowe klucze szyfrowania.</string>
     <string name="label_reset_session">Zresetuj sesj&#281;</string>
     <string name="label_reset_session_success">Sesja zosta&#322;a pomy&#347;lnie zresetowana.</string>
-    <string name="label_federated_membership">Federowane</string>
     <string name="label_update">Aktualizuj</string>
     <string name="label_close">Zamknij</string>
     <string name="label_download">Pobierz</string>
@@ -63,7 +60,6 @@
     <string name="content_description_hide_password">Ukryj has&#322;o</string>
     <string name="content_description_search_back">Ikona wyszukiwania wstecz</string>
     <string name="content_description_clear_content">Wyczy&#347;&#263; zawarto&#347;&#263;</string>
-    <string name="content_description_user_avatar">Zdj&#281;cie profilowe</string>
     <string name="content_description_muted_conversation">Wyciszona rozmowa</string>
     <string name="content_description_check">Zaznaczenie</string>
     <string name="content_description_download_icon">Ikona pobierania</string>
@@ -363,10 +359,6 @@ Usuni&#281;ta wiadomo&#347;&#263; nie mo&#380;e zosta&#263; przywr&#243;cona.</s
     <string name="user_profile_close_description">Zamknij Profil U&#380;ytkownika</string>
     <string name="user_profile_other_accs">Twoje Pozosta&#322;e Konta</string>
     <string name="user_profile_status_availability">Dost&#281;pno&#347;&#263;</string>
-    <string name="user_profile_status_available">Dost&#281;pny</string>
-    <string name="user_profile_status_busy">Zaj&#281;ty</string>
-    <string name="user_profile_status_away">Nieobecny</string>
-    <string name="user_profile_status_none">Brak</string>
     <string name="user_profile_details_tab">Szczeg&#243;&#322;y</string>
     <string name="user_profile_devices_tab">Urz&#261;dzenia</string>
     <string name="user_profile_role_change_error">Wyst&#261;pi&#322; b&#322;&#261;d podczas zmiany roli. Sprawd&#378; swoje po&#322;&#261;czenie internetowe i spr&#243;buj ponownie.</string>

@@ -393,7 +393,7 @@ class DeviceDetailsViewModelTest {
             }
 
         fun withFingerprintSuccess() = apply {
-            coEvery { deviceFingerprint(any(), any()) } returns Result.Success("fingerprint".encodeToByteArray())
+            coEvery { deviceFingerprint(any(), any()) } returns Result.Success("fingerprint")
         }
 
         fun withFingerprintFailure() = apply {

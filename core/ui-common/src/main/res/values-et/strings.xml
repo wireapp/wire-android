@@ -16,4 +16,13 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
-<resources></resources>
+<resources>
+    <string name="label_membership_guest">Külaline</string>
+    <string name="label_membership_external">Väline</string>
+    <string name="label_federated_membership">Föderatiivne</string>
+	<string name="user_profile_status_available">Saadaval</string>
+    <string name="user_profile_status_busy">Hõivatud</string>
+    <string name="user_profile_status_away">Eemal</string>
+    <string name="user_profile_status_none">Väljas</string>
+    <string name="content_description_user_avatar">Profiilipilt</string>
+</resources>

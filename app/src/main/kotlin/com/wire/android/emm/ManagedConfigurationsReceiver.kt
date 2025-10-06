@@ -20,10 +20,8 @@ package com.wire.android.emm
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import androidx.enterprise.feedback.KeyedAppStatesReporter
 import com.wire.android.appLogger
 import com.wire.android.util.dispatchers.DispatcherProvider
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
@@ -32,7 +30,6 @@ import javax.inject.Singleton
 
 @Singleton
 class ManagedConfigurationsReceiver @Inject constructor(
-    @ApplicationContext context: Context,
     private val managedConfigurationsManager: ManagedConfigurationsManager,
     dispatcher: DispatcherProvider
 ) : BroadcastReceiver() {
@@ -41,7 +38,6 @@ class ManagedConfigurationsReceiver @Inject constructor(
     private val scope by lazy {
         CoroutineScope(SupervisorJob() + dispatcher.io())
     }
-    val reporter = KeyedAppStatesReporter.create(context)
 
     override fun onReceive(context: Context, intent: Intent) {
         when (intent.action) {

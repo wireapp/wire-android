@@ -52,8 +52,14 @@ interface ManagedConfigurationsManager {
     /**
      * Initialize the SSO code config on first access or when explicitly called.
      * This should be called when the app starts, resumes, or when broadcast receiver triggers.
+     *
+     * The result indicates whether a valid config was found or if there was an error.
+     * Nevertheless, the config is either updated or defaulted to empty.
+     *
+     * @return result of the update attempt, either success with the config,
+     * empty if no config found or cleared, or failure with reason.
      */
-    suspend fun refreshSSOCodeConfig(): String
+    suspend fun refreshSSOCodeConfig(): SSOCodeConfigResult
 }
 
 internal class ManagedConfigurationsManagerImpl(
@@ -85,40 +91,45 @@ internal class ManagedConfigurationsManagerImpl(
         serverConfig
     }
 
-    override suspend fun refreshSSOCodeConfig(): String = withContext(dispatchers.io()) {
-        val managedSSOCodeConfig = getSSOCodeConfig()
-        val ssoCode = managedSSOCodeConfig?.ssoCode.orEmpty()
-        _currentSSOCodeConfig.set(ssoCode)
-        logger.i("SSO code config refreshed: $ssoCode")
-        ssoCode
-    }
-
-    private suspend fun getSSOCodeConfig(): ManagedSSOCodeConfig? = withContext(dispatchers.io()) {
-        val restrictions = restrictionsManager.applicationRestrictions
-        if (restrictions == null || restrictions.isEmpty) {
-            logger.i("No application restrictions found")
-            return@withContext null
-        }
-
-        val ssoCode = getJsonRestrictionByKey<ManagedSSOCodeConfig>(
-            ManagedConfigurationsKeys.SSO_CODE.asKey()
-        ) ?: run {
-            logger.w("No managed SSO code found in restrictions")
-            return@withContext null
-        }
-
-        return@withContext when {
-            ssoCode.isValid -> {
-                logger.i("Managed SSO code found: $ssoCode")
-                ssoCode
+    override suspend fun refreshSSOCodeConfig(): SSOCodeConfigResult =
+        withContext(dispatchers.io()) {
+            val managedSSOCodeConfig = getSSOCodeConfig()
+            val ssoCode: String = when (managedSSOCodeConfig) {
+                is SSOCodeConfigResult.Empty -> String.EMPTY
+                is SSOCodeConfigResult.Failure -> String.EMPTY
+                is SSOCodeConfigResult.Success -> managedSSOCodeConfig.config.ssoCode
             }
 
-            else -> {
-                logger.w("Managed SSO code is not valid: $ssoCode")
-                null
+            _currentSSOCodeConfig.set(ssoCode)
+            logger.i("SSO code config refreshed to: $ssoCode")
+            managedSSOCodeConfig
+        }
+
+    private suspend fun getSSOCodeConfig(): SSOCodeConfigResult =
+        withContext(dispatchers.io()) {
+            val restrictions = restrictionsManager.applicationRestrictions
+            if (restrictions == null || restrictions.isEmpty) {
+                logger.i("No application restrictions found")
+                return@withContext SSOCodeConfigResult.Empty
+            }
+
+            try {
+                val ssoCode = getJsonRestrictionByKey<ManagedSSOCodeConfig>(
+                    ManagedConfigurationsKeys.SSO_CODE.asKey()
+                )
+
+                if (ssoCode?.isValid == true) {
+                    logger.i("Managed SSO code found: $ssoCode")
+                    SSOCodeConfigResult.Success(ssoCode)
+                } else {
+                    logger.w("Managed SSO code is not valid: $ssoCode")
+                    SSOCodeConfigResult.Failure("Managed SSO code is not a valid config. Check the format.")
+                }
+            } catch (e: InvalidManagedConfig) {
+                logger.w("Invalid managed SSO code config: ${e.reason}")
+                SSOCodeConfigResult.Failure(e.reason)
             }
         }
-    }
 
     private suspend fun getServerConfig(): ManagedServerConfig? = withContext(dispatchers.io()) {
         val restrictions = restrictionsManager.applicationRestrictions
@@ -153,11 +164,25 @@ internal class ManagedConfigurationsManagerImpl(
             try {
                 json.decodeFromString<T>(it)
             } catch (e: Exception) {
-                null
+                throw InvalidManagedConfig("Failed to parse managed config for key $key: ${e.message}")
             }
         }
 
     companion object {
         private const val TAG = "ManagedConfigurationsManager"
     }
+}
+
+data class InvalidManagedConfig(val reason: String) : Throwable(reason)
+
+sealed interface SSOCodeConfigResult {
+    data class Success(val config: ManagedSSOCodeConfig) : SSOCodeConfigResult
+    data object Empty : SSOCodeConfigResult
+    data class Failure(val reason: String) : SSOCodeConfigResult
+}
+
+sealed interface ServerConfigResult {
+    data class Success(val config: ManagedServerConfig) : ServerConfigResult
+    data object Empty : ServerConfigResult
+    data class Failure(val reason: String) : ServerConfigResult
 }

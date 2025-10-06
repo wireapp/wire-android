@@ -21,13 +21,14 @@ import android.content.Context
 import android.content.RestrictionsManager
 import com.wire.android.appLogger
 import com.wire.android.config.ServerConfigProvider
+import com.wire.android.util.EMPTY
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import java.util.concurrent.atomic.AtomicReference
 
-interface ManagedConfigurationsRepository {
+interface ManagedConfigurationsManager {
     /**
      * Current server config that ViewModels can access.
      * This is thread-safe and will be updated when app resumes or broadcast receiver is triggered.
@@ -37,17 +38,29 @@ interface ManagedConfigurationsRepository {
     val currentServerConfig: ServerConfig.Links
 
     /**
+     * Current SSO code if provided via managed configurations, empty string otherwise.
+     */
+
+    val currentSSOCodeConfig: String
+
+    /**
      * Initialize the server config on first access or when explicitly called.
      * This should be called when the app starts, resumes, or when broadcast receiver triggers.
      */
     suspend fun refreshServerConfig(): ServerConfig.Links
+
+    /**
+     * Initialize the SSO code config on first access or when explicitly called.
+     * This should be called when the app starts, resumes, or when broadcast receiver triggers.
+     */
+    suspend fun refreshSSOCodeConfig(): String
 }
 
-internal class ManagedConfigurationsRepositoryImpl(
+internal class ManagedConfigurationsManagerImpl(
     private val context: Context,
     private val dispatchers: DispatcherProvider,
     private val serverConfigProvider: ServerConfigProvider,
-) : ManagedConfigurationsRepository {
+) : ManagedConfigurationsManager {
 
     private val json: Json = Json { ignoreUnknownKeys = true }
     private val logger = appLogger.withTextTag(TAG)
@@ -56,9 +69,13 @@ internal class ManagedConfigurationsRepositoryImpl(
     }
 
     private val _currentServerConfig = AtomicReference<ServerConfig.Links?>(null)
+    private val _currentSSOCodeConfig = AtomicReference(String.EMPTY)
 
     override val currentServerConfig: ServerConfig.Links
         get() = _currentServerConfig.get() ?: serverConfigProvider.getDefaultServerConfig()
+
+    override val currentSSOCodeConfig: String
+        get() = _currentSSOCodeConfig.get()
 
     override suspend fun refreshServerConfig(): ServerConfig.Links = withContext(dispatchers.io()) {
         val managedServerConfig = getServerConfig()
@@ -66,6 +83,41 @@ internal class ManagedConfigurationsRepositoryImpl(
         _currentServerConfig.set(serverConfig)
         logger.i("Server config refreshed: $serverConfig")
         serverConfig
+    }
+
+    override suspend fun refreshSSOCodeConfig(): String = withContext(dispatchers.io()) {
+        val managedSSOCodeConfig = getSSOCodeConfig()
+        val ssoCode = managedSSOCodeConfig?.ssoCode.orEmpty()
+        _currentSSOCodeConfig.set(ssoCode)
+        logger.i("SSO code config refreshed: $ssoCode")
+        ssoCode
+    }
+
+    private suspend fun getSSOCodeConfig(): ManagedSSOCodeConfig? = withContext(dispatchers.io()) {
+        val restrictions = restrictionsManager.applicationRestrictions
+        if (restrictions == null || restrictions.isEmpty) {
+            logger.i("No application restrictions found")
+            return@withContext null
+        }
+
+        val ssoCode = getJsonRestrictionByKey<ManagedSSOCodeConfig>(
+            ManagedConfigurationsKeys.SSO_CODE.asKey()
+        ) ?: run {
+            logger.w("No managed SSO code found in restrictions")
+            return@withContext null
+        }
+
+        return@withContext when {
+            ssoCode.isValid -> {
+                logger.i("Managed SSO code found: $ssoCode")
+                ssoCode
+            }
+
+            else -> {
+                logger.w("Managed SSO code is not valid: $ssoCode")
+                null
+            }
+        }
     }
 
     private suspend fun getServerConfig(): ManagedServerConfig? = withContext(dispatchers.io()) {
@@ -106,6 +158,6 @@ internal class ManagedConfigurationsRepositoryImpl(
         }
 
     companion object {
-        const val TAG = "ManagedConfigurationsRepository"
+        private const val TAG = "ManagedConfigurationsManager"
     }
 }

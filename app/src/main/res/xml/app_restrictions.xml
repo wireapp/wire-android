@@ -24,4 +24,11 @@
             android:restrictionType="string"
             android:title="@string/restriction_server_urls_title" />
 
+    <!-- SSO code Configuration -->
+    <restriction
+            android:description="@string/restriction_sso_code_description"
+            android:key="sso_code"
+            android:restrictionType="string"
+            android:title="@string/restriction_sso_code_title" />
+
 </restrictions>

@@ -64,7 +64,7 @@ import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.appVersioning.ObserveIfAppUpdateRequiredUseCase
 import com.wire.kalium.logic.feature.client.ClearNewClientsForUserUseCase
-import com.wire.kalium.logic.feature.client.IsProfileQRCodeDisabledUseCase
+import com.wire.kalium.logic.feature.client.IsProfileQRCodeEnabledUseCase
 import com.wire.kalium.logic.feature.client.NewClientResult
 import com.wire.kalium.logic.feature.client.ObserveNewClientsUseCase
 import com.wire.kalium.logic.feature.conversation.CheckConversationInviteCodeUseCase
@@ -123,7 +123,7 @@ class WireActivityViewModel @Inject constructor(
     private val globalDataStore: Lazy<GlobalDataStore>,
     private val observeIfE2EIRequiredDuringLoginUseCaseProviderFactory: ObserveIfE2EIRequiredDuringLoginUseCaseProvider.Factory,
     private val workManager: Lazy<WorkManager>,
-    private val isProfileQRCodeDisabled: IsProfileQRCodeDisabledUseCase,
+    private val isProfileQRCodeEnabled: IsProfileQRCodeEnabledUseCase,
 ) : ActionsViewModel<WireActivityViewAction>() {
 
     var globalAppState: GlobalAppState by mutableStateOf(GlobalAppState())
@@ -517,10 +517,10 @@ class WireActivityViewModel @Inject constructor(
     }
 
     private fun onOpenUserProfileDeepLink(result: DeepLinkResult.OpenOtherUserProfile) = viewModelScope.launch {
-        if (isProfileQRCodeDisabled()) {
-            sendAction(ShowToast(R.string.profile_deeplink_feature_unavailable_title_alert))
-        } else {
+        if (isProfileQRCodeEnabled()) {
             sendAction(OnOpenUserProfile(result))
+        } else {
+            sendAction(ShowToast(R.string.profile_deeplink_feature_unavailable_title_alert))
         }
     }
 

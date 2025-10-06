@@ -26,7 +26,7 @@ import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
 import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.client.FinalizeMLSClientAfterE2EIEnrollment
 import com.wire.kalium.logic.feature.client.IsChatBubblesEnabledUseCase
-import com.wire.kalium.logic.feature.client.IsProfileQRCodeDisabledUseCase
+import com.wire.kalium.logic.feature.client.IsProfileQRCodeEnabledUseCase
 import com.wire.kalium.logic.feature.client.IsWireCellsEnabledForConversationUseCase
 import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.GetAllContactsNotInConversationUseCase
@@ -263,6 +263,6 @@ class UserModule {
 
     @ViewModelScoped
     @Provides
-    fun provideProfileQRCodeConfigUseCase(userScope: UserScope): IsProfileQRCodeDisabledUseCase =
-        userScope.isProfileQRCodeDisabled
+    fun provideProfileQRCodeConfigUseCase(userScope: UserScope): IsProfileQRCodeEnabledUseCase =
+        userScope.isProfileQRCodeEnabled
 }

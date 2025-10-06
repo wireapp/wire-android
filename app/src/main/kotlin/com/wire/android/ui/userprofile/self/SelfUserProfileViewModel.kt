@@ -53,7 +53,7 @@ import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
-import com.wire.kalium.logic.feature.client.IsProfileQRCodeDisabledUseCase
+import com.wire.kalium.logic.feature.client.IsProfileQRCodeEnabledUseCase
 import com.wire.kalium.logic.feature.legalhold.LegalHoldStateForSelfUser
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserUseCase
 import com.wire.kalium.logic.feature.personaltoteamaccount.CanMigrateFromPersonalToTeamUseCase
@@ -103,7 +103,7 @@ class SelfUserProfileViewModel @Inject constructor(
     private val qualifiedIdMapper: QualifiedIdMapper,
     private val anonymousAnalyticsManager: AnonymousAnalyticsManager,
     private val getTeamUrl: GetTeamUrlUseCase,
-    private val isProfileQRCodeDisabled: IsProfileQRCodeDisabledUseCase,
+    private val isProfileQRCodeEnabled: IsProfileQRCodeEnabledUseCase,
 ) : ViewModel() {
 
     var userProfileState by mutableStateOf(SelfUserProfileState(userId = selfUserId, isAvatarLoading = true))
@@ -123,8 +123,8 @@ class SelfUserProfileViewModel @Inject constructor(
     }
 
     fun fetchProfileQRCodeState() = viewModelScope.launch {
-        val isDisabled = isProfileQRCodeDisabled()
-        userProfileState = userProfileState.copy(showQrCode = !isDisabled)
+        val isEnabled = isProfileQRCodeEnabled()
+        userProfileState = userProfileState.copy(showQrCode = isEnabled)
     }
 
     suspend fun checkIfUserAbleToMigrateToTeamAccount() {

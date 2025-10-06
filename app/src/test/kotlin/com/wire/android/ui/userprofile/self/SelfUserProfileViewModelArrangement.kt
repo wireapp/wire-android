@@ -33,7 +33,7 @@ import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
-import com.wire.kalium.logic.feature.client.IsProfileQRCodeDisabledUseCase
+import com.wire.kalium.logic.feature.client.IsProfileQRCodeEnabledUseCase
 import com.wire.kalium.logic.feature.legalhold.LegalHoldStateForSelfUser
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserUseCase
 import com.wire.kalium.logic.feature.personaltoteamaccount.CanMigrateFromPersonalToTeamUseCase
@@ -107,7 +107,7 @@ class SelfUserProfileViewModelArrangement {
     lateinit var getTeamUrl: GetTeamUrlUseCase
 
     @MockK
-    lateinit var profileQRCodeEnabledUseCase: IsProfileQRCodeDisabledUseCase
+    lateinit var profileQRCodeEnabledUseCase: IsProfileQRCodeEnabledUseCase
 
     private val viewModel by lazy {
         SelfUserProfileViewModel(
@@ -131,7 +131,7 @@ class SelfUserProfileViewModelArrangement {
             anonymousAnalyticsManager = anonymousAnalyticsManager,
             canMigrateFromPersonalToTeam = canMigrateFromPersonalToTeam,
             getTeamUrl = getTeamUrl,
-            isProfileQRCodeDisabled = profileQRCodeEnabledUseCase,
+            isProfileQRCodeEnabled = profileQRCodeEnabledUseCase,
         )
     }
 

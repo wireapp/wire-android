@@ -36,8 +36,6 @@
     <string name="label_learn_more">További információ</string>
     <string name="label_removing">Eltávolít…</string>
     <string name="label_logging_in">Bejelentkezés…</string>
-    <string name="label_membership_guest">Vendég</string>
-    <string name="label_membership_external">Külső</string>
     <string name="label_user_deleted">Törölve</string>
     <string name="label_try_again">Próbálja újra</string>
     <string name="label_done">Kész</string>
@@ -61,7 +59,6 @@
     </plurals>
     <string name="label_reset_session">Munkamenet újraindítása</string>
     <string name="label_reset_session_success">Munkamenet sikeresen újraindítva</string>
-    <string name="label_federated_membership">Szövetséges</string>
     <string name="label_update">Frissítés</string>
     <string name="label_close">Bezárás</string>
     <string name="label_download">Letöltés</string>
@@ -88,7 +85,6 @@
     <string name="content_description_hide_password">Jelszó elrejtése</string>
     <string name="content_description_search_back">Keresés vissza ikon</string>
     <string name="content_description_clear_content">Tartalom törlése</string>
-    <string name="content_description_user_avatar">Profilkép</string>
     <string name="content_description_muted_conversation">Némított beszélgetés</string>
     <string name="content_description_check">Pipa jel</string>
     <string name="content_description_download_icon">Letöltés ikon</string>
@@ -605,10 +601,6 @@
     <string name="user_profile_logout">Kijelentkezés</string>
     <string name="user_profile_other_accs">További fiókjai</string>
     <string name="user_profile_status_availability">Elérhetőség</string>
-    <string name="user_profile_status_available">Elérhető</string>
-    <string name="user_profile_status_busy">Elfoglalt</string>
-    <string name="user_profile_status_away">Nincs a gépnél</string>
-    <string name="user_profile_status_none">Semmi</string>
     <string name="user_profile_new_account_text">Új csapat, vagy fiók hozzáadása</string>
     <string name="user_profile_account_management">Csapat kezelése</string>
     <string name="user_profile_details_tab">Részletek</string>

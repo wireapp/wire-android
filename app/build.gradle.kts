@@ -327,4 +327,6 @@ dependencies {
 
     implementation(project(":ksp"))
     ksp(project(":ksp"))
+
+    testImplementation(testFixtures(project(":core:ui-common")))
 }

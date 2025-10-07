@@ -32,4 +32,15 @@
     <string name="content_description_pending_connection_badge">pending approval of connection request</string>
     <string name="content_description_alert">Alert</string>
     <string name="content_description_show_more_options">Show more options</string>
+    <string name="content_description_select_label">select</string>
+
+    <string name="label_membership_guest">Guest</string>
+    <string name="label_membership_external">External</string>
+    <string name="label_membership_service">App</string>
+    <string name="label_federated_membership">Federated</string>
+	<string name="user_profile_status_available">Available</string>
+    <string name="user_profile_status_busy">Busy</string>
+    <string name="user_profile_status_away">Away</string>
+    <string name="user_profile_status_none">None</string>
+    <string name="content_description_user_avatar">Profile picture</string>
 </resources>

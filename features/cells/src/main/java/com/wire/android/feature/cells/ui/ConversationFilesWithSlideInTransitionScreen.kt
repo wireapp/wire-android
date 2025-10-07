@@ -22,14 +22,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
+import com.wire.android.feature.cells.ui.destinations.ConversationFilesWithSlideInTransitionScreenDestination
 import com.wire.android.feature.cells.ui.destinations.RecycleBinScreenDestination
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
-import com.wire.android.feature.cells.ui.destinations.ConversationFilesWithSlideInTransitionScreenDestination
 import com.wire.android.navigation.WireNavigator
 import com.wire.android.navigation.annotation.features.cells.WireDestination
 import com.wire.android.navigation.style.SlideNavigationAnimation
-import com.wire.android.ui.common.topappbar.NavigationIconType
 
 @WireDestination(
     style = SlideNavigationAnimation::class,
@@ -75,6 +74,5 @@ fun ConversationFilesWithSlideInTransitionScreen(
         },
         sendIntent = { viewModel.sendIntent(it) },
         onRefresh = { viewModel.onPullToRefresh() },
-        navigationIconType = NavigationIconType.Back(),
     )
 }

@@ -64,6 +64,7 @@ class WireColorScheme(
     val surfaceContainerHighest: Color,
     val defaultBubbleContainerBackgroundColor: Color,
     val bubbleContainerAccentBackgroundColor: WireAccentColors,
+    val accentVariantColors: WireAccentColors,
 
     // buttons
     val primaryButtonEnabled: Color, val onPrimaryButtonEnabled: Color,
@@ -164,6 +165,17 @@ private val LightWireColorScheme = WireColorScheme(
             Accent.Red -> WireColorPalette.LightRed400
             Accent.Petrol -> WireColorPalette.LightPetrol400
             Accent.Unknown -> WireColorPalette.LightBlue400
+        }
+    },
+    accentVariantColors = WireAccentColors {
+        when (it) {
+            Accent.Amber -> WireColorPalette.LightAmber50
+            Accent.Blue -> WireColorPalette.LightBlue50
+            Accent.Green -> WireColorPalette.LightGreen50
+            Accent.Purple -> WireColorPalette.LightPurple50
+            Accent.Red -> WireColorPalette.LightRed50
+            Accent.Petrol -> WireColorPalette.LightPetrol50
+            Accent.Unknown -> WireColorPalette.LightBlue50
         }
     },
 
@@ -272,6 +284,17 @@ private val DarkWireColorScheme = WireColorScheme(
             Accent.Red -> WireColorPalette.DarkRed400
             Accent.Petrol -> WireColorPalette.DarkPetrol400
             Accent.Unknown -> WireColorPalette.DarkBlue400
+        }
+    },
+    accentVariantColors = WireAccentColors {
+        when (it) {
+            Accent.Amber -> WireColorPalette.DarkAmber800
+            Accent.Blue -> WireColorPalette.DarkBlue800
+            Accent.Green -> WireColorPalette.DarkGreen800
+            Accent.Purple -> WireColorPalette.DarkPurple800
+            Accent.Red -> WireColorPalette.DarkRed800
+            Accent.Petrol -> WireColorPalette.DarkPetrol800
+            Accent.Unknown -> WireColorPalette.DarkBlue800
         }
     },
 

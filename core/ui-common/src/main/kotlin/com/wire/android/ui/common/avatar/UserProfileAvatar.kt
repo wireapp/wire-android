@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2025 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -69,7 +69,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.toSize
 import com.google.common.primitives.Floats.min
-import com.wire.android.R
+import com.wire.android.ui.common.R
 import com.wire.android.model.Clickable
 import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
@@ -80,7 +80,7 @@ import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.nonScaledSp
-import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.android.util.PreviewMultipleThemes
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import kotlinx.datetime.Clock

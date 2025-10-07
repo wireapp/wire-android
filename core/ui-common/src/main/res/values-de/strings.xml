@@ -25,4 +25,13 @@
     <string name="content_description_close">Schließen</string>
     <string name="content_description_menu_button">Hauptnavigation</string>
     <string name="content_description_pending_connection_badge">Ausstehende Genehmigung der Kontaktanfrage</string>
+    <string name="label_membership_guest">Gast</string>
+    <string name="label_membership_external">Extern</string>
+    <string name="label_membership_service">App</string>
+    <string name="label_federated_membership">Föderiert</string>
+    <string name="user_profile_status_available">Verfügbar</string>
+    <string name="user_profile_status_busy">Beschäftigt</string>
+    <string name="user_profile_status_away">Abwesend</string>
+    <string name="user_profile_status_none">Kein Status</string>
+    <string name="content_description_user_avatar">Profilbild</string>
 </resources>

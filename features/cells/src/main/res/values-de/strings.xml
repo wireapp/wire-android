@@ -36,11 +36,13 @@
     <string name="file_subtitle_modified">%1$s von %2$s</string>
     <string name="create_public_link">Öffentlichen Link erstellen</string>
     <string name="share_file_via_link">Datei über Link teilen</string>
+    <string name="share_folder_via_link">Ordner per Link teilen</string>
     <string name="cancel">Abbrechen</string>
     <string name="confirm_delete_file_title">Datei löschen</string>
+    <string name="confirm_delete_folder_title">Ordner löschen</string>
     <string name="confirm_delete_file_text">Die Datei %1$s wird in den Papierkorb dieser Unterhaltung verschoben.</string>
-    <string name="confirm_delete_folder_text">Der Ordner %1$s wird in den Papierkorb dieser Unterhaltung verschoben.</string>
     <string name="confirm_permanent_delete_file_text">Dies wird die Datei %1$s für alle Teilnehmer endgültig löschen.</string>
+    <string name="confirm_permanent_delete_folder_text">Dies wird den Ordner %1$s für alle Teilnehmer endgültig löschen.</string>
     <string name="reload">Neu laden</string>
     <string name="download">Herunterladen</string>
     <string name="conversation_files_title">Dateien</string>
@@ -65,6 +67,8 @@
     <string name="rename_label">Umbenennen</string>
     <string name="rename_file_name_label">Dateiname</string>
     <string name="rename_folder_name_label">Ordnername</string>
+    <string name="rename_long_file_name_error">Verwenden Sie einen kürzeren Namen (max. 64 Zeichen)</string>
+    <string name="rename_long_folder_name_error">Verwenden Sie einen kürzeren Namen (max. 64 Zeichen)</string>
     <string name="rename_enter_file_name">Dateinamen eingeben</string>
     <string name="rename_enter_folder_name">Ordnernamen eingeben</string>
     <string name="rename_file_renamed">Datei wurde umbenannt</string>
@@ -76,6 +80,7 @@
     <string name="clear_all_label">Alle löschen</string>
     <string name="apply_label">Anwenden</string>
     <string name="suggested_tags_label">Vorgeschlagene Tags</string>
+    <string name="added_tags_label">Hinzugefügte Tags</string>
     <string name="add_tag_label">Tag hinzufügen</string>
     <string name="no_tags_message">Noch keine Tags erstellt.</string>
     <string name="tags_edited">Tags wurden bearbeitet</string>

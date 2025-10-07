@@ -31,15 +31,12 @@
     <string name="label_learn_more">Loe lähemalt</string>
     <string name="label_removing">Eemaldamine…</string>
     <string name="label_logging_in">Sisselogimine…</string>
-    <string name="label_membership_guest">Külaline</string>
-    <string name="label_membership_external">Väline</string>
     <string name="label_user_deleted">Kustutatud</string>
     <string name="label_message_receive_failure">Allalaadimise viga</string>
     <string name="label_message_decryption_failure_message">Sõnumi dekrüpteerimine ebaõnnestus.</string>
     <string name="label_message_decryption_failure_informative_message">Proovi seanss lähtestada, et luua uued krüptimisvõtmed.</string>
     <string name="label_reset_session">Lähtesta seanss</string>
     <string name="label_reset_session_success">Seanss edukalt lähtestatud</string>
-    <string name="label_federated_membership">Föderatiivne</string>
     <string name="label_update">Uuenda</string>
     <string name="label_close">Sulge</string>
     <string name="label_download">Laadi alla</string>
@@ -62,7 +59,6 @@
     <string name="content_description_hide_password">Peida parool</string>
     <string name="content_description_search_back">Otsi tagasi ikoon</string>
     <string name="content_description_clear_content">Tühjenda sisu</string>
-    <string name="content_description_user_avatar">Profiilipilt</string>
     <string name="content_description_muted_conversation">Vaigistatud vestlus</string>
     <string name="content_description_check">Märkeruut</string>
     <string name="content_description_download_icon">Allalaadimise ikoon</string>
@@ -190,10 +186,6 @@
     <string name="user_profile_title">Kasutaja profiil</string>
     <string name="user_profile_close_description">Sulge kasutaja profiil</string>
     <string name="user_profile_status_availability">Saadavus</string>
-    <string name="user_profile_status_available">Saadaval</string>
-    <string name="user_profile_status_busy">Hõivatud</string>
-    <string name="user_profile_status_away">Eemal</string>
-    <string name="user_profile_status_none">Väljas</string>
     <string name="user_profile_devices_tab">Seadmed</string>
     <!-- Remove Conversation Member Dialog -->
     <!-- Logout Wipe Data Dialog -->

@@ -91,8 +91,8 @@ internal fun UIMessage.Regular.MessageContentAndStatus(
                 accent = accent
             )
             if (!messageStyle.isBubble()) {
-                (messageContent as PartialDeliverable?)?.deliveryStatus?.let {
-                    PartialDeliveryInformation(it, messageStyle)
+                if (messageContent is PartialDeliverable && messageContent.deliveryStatus.hasAnyFailures) {
+                    PartialDeliveryInformation(messageContent.deliveryStatus, messageStyle)
                 }
             }
         }
@@ -169,14 +169,19 @@ private fun MessageContent(
                     when (it) {
                         is UIQuotedMessage.UIQuotedData -> QuotedMessage(
                             messageData = it,
-                            style = QuotedMessageStyle(quotedStyle = QuotedStyle.COMPLETE, messageStyle = messageStyle),
+                            style = QuotedMessageStyle(
+                                quotedStyle = QuotedStyle.COMPLETE,
+                                messageStyle = messageStyle,
+                                selfAccent = accent
+                            ),
                             clickable = onReplyClick
                         )
 
                         UIQuotedMessage.UnavailableData -> QuotedUnavailable(
                             style = QuotedMessageStyle(
                                 quotedStyle = QuotedStyle.COMPLETE,
-                                messageStyle = messageStyle
+                                messageStyle = messageStyle,
+                                selfAccent = accent
                             )
                         )
                     }
@@ -204,7 +209,8 @@ private fun MessageContent(
                             messageData = it,
                             style = QuotedMessageStyle(
                                 quotedStyle = QuotedStyle.COMPLETE,
-                                messageStyle = messageStyle
+                                messageStyle = messageStyle,
+                                selfAccent = accent
                             ),
                             clickable = onReplyClick
                         )
@@ -212,7 +218,8 @@ private fun MessageContent(
                         UIQuotedMessage.UnavailableData -> QuotedUnavailable(
                             style = QuotedMessageStyle(
                                 quotedStyle = QuotedStyle.COMPLETE,
-                                messageStyle = messageStyle
+                                messageStyle = messageStyle,
+                                selfAccent = accent
                             )
                         )
                     }

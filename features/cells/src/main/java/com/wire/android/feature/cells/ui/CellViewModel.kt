@@ -212,31 +212,19 @@ class CellViewModel @Inject constructor(
 
     internal fun sendIntent(intent: CellViewIntent) {
         when (intent) {
-            is CellViewIntent.OnFileClick -> onFileClick(intent.file)
+            is CellViewIntent.OnItemClick -> when (intent.file) {
+                is CellNodeUi.File -> onFileClick(intent.file)
+                is CellNodeUi.Folder -> onFolderClick(intent.file)
+            }
             is CellViewIntent.OnItemMenuClick -> onItemMenuClick(intent.cellNode)
             is CellViewIntent.OnMenuItemActionSelected -> onMenuItemAction(intent.node, intent.action)
             is CellViewIntent.OnFileDownloadConfirmed -> downloadNode(intent.file)
             is CellViewIntent.OnNodeDeleteConfirmed -> deleteFile(intent.node)
             is CellViewIntent.OnNodeRestoreConfirmed -> restoreNodeFromRecycleBin(intent.node)
             is CellViewIntent.OnDownloadMenuClosed -> onDownloadMenuClosed()
-            is CellViewIntent.OnParentFolderRestoreConfirmed -> restoreNodeFromRecycleBin(
-                node = intent.folder.copy(remotePath = recycleBinTopFolderPath(intent.folder.remotePath ?: "")),
-                isParentNode = true
-            )
+            is CellViewIntent.OnParentFolderRestoreConfirmed -> restoreNodeFromRecycleBin(intent.node)
         }
     }
-
-    private fun recycleBinTopFolderPath(path: String): String? {
-        val parts = path.trimStart('/').split("/")
-        val index = parts.indexOf("recycle_bin")
-
-        return if (index != -1 && index + 1 < parts.size) {
-            parts.subList(0, index + 2).joinToString("/")
-        } else {
-            null
-        }
-    }
-
     internal fun currentNodeUuid(): String? = navArgs.conversationId
     internal fun isRecycleBin(): Boolean = navArgs.isRecycleBin ?: false
     private fun isSearching(): Boolean = searchQueryFlow.value.isNotEmpty()
@@ -252,6 +240,36 @@ class CellViewModel @Inject constructor(
             cellNode.canOpenWithUrl() -> openFileContentUrl(cellNode)
             else -> viewModelScope.launch { _downloadFileSheet.emit(cellNode) }
         }
+    }
+
+    private fun onFolderClick(cellNode: CellNodeUi.Folder) {
+        val path = when {
+            isRecycleBin() -> if (currentNodeUuid()?.contains("recycle_bin") == true) {
+                "${currentNodeUuid()}/${cellNode.name}"
+            } else {
+                "${currentNodeUuid()}/recycle_bin/${cellNode.name}"
+            }
+            isConversationFiles() -> "${currentNodeUuid()}/${cellNode.name}"
+            else -> cellNode.remotePath
+        } ?: run {
+            sendAction(ShowError(CellError.OTHER_ERROR))
+            return
+        }
+
+        // UUID of the top parent folder for Recycle Bin items, used when restoring a folder
+        val parentFolderUuid = if (isRecycleBin()) {
+            navArgs.parentFolderUuid ?: cellNode.uuid
+        } else {
+            null
+        }
+
+        sendAction(
+            OpenFolder(
+                path = path,
+                title = cellNode.name ?: "",
+                parentFolderUuid = parentFolderUuid,
+            )
+        )
     }
 
     private fun downloadNode(node: CellNodeUi) = viewModelScope.launch {
@@ -412,12 +430,10 @@ class CellViewModel @Inject constructor(
             NodeBottomSheetAction.RENAME -> sendAction(ShowRenameScreen(node))
             NodeBottomSheetAction.DOWNLOAD -> downloadNode(node)
             NodeBottomSheetAction.RESTORE -> {
-                node.remotePath?.let {
-                    if (!isExactlyOneLevelUnderRecycleBin(it) && node is CellNodeUi.Folder) {
-                        sendAction(ShowRestoreParentFolderDialog(node))
-                    } else {
-                        sendAction(ShowRestoreConfirmation(node = node))
-                    }
+                if (navArgs.parentFolderUuid != null) {
+                    sendAction(ShowRestoreParentFolderDialog(node))
+                } else {
+                    sendAction(ShowRestoreConfirmation(node = node))
                 }
             }
 
@@ -470,14 +486,14 @@ class CellViewModel @Inject constructor(
             }
     }
 
-    private fun restoreNodeFromRecycleBin(node: CellNodeUi, isParentNode: Boolean = false) {
+    private fun restoreNodeFromRecycleBin(node: CellNodeUi) {
         viewModelScope.launch {
             _isRestoreInProgress.value = true
             removeFromListUi(node)
-            restoreNodeFromRecycleBinUseCase(node.uuid)
+            restoreNodeFromRecycleBinUseCase(navArgs.parentFolderUuid ?: node.uuid)
                 .onSuccess {
                     _isRestoreInProgress.value = false
-                    if (isParentNode) {
+                    if (navArgs.parentFolderUuid != null) {
                         sendAction(HideRestoreParentFolderDialog)
                         _navigateToRecycleBinRoot.value = true
                         // delay to allow navigation to complete before refreshing data
@@ -490,12 +506,12 @@ class CellViewModel @Inject constructor(
                 .onFailure {
                     _isRestoreInProgress.value = false
                     addToListUi(node)
-                    sendAction(ShowError(CellError.OTHER_ERROR))
-                    if (isParentNode) {
+                    if (navArgs.parentFolderUuid != null) {
                         sendAction(HideRestoreParentFolderDialog)
                     } else {
                         sendAction(HideRestoreConfirmation)
                     }
+                    sendAction(ShowUnableToRestoreDialog(node is CellNodeUi.Folder))
                 }
         }
     }
@@ -503,17 +519,6 @@ class CellViewModel @Inject constructor(
     private fun removeFromListUi(node: CellNodeUi) = removedItemsFlow.update { it + node.uuid }
     private fun addToListUi(node: CellNodeUi) = removedItemsFlow.update { it - node.uuid }
     fun clearRemovedItems() = removedItemsFlow.update { emptyList() }
-
-    private fun isExactlyOneLevelUnderRecycleBin(path: String): Boolean {
-        val normalized = path.trimEnd('/')
-        val parts = normalized.split("/")
-
-        val recycleBinIndex = parts.indexOf("recycle_bin")
-
-        // Must have exactly one segment after "recycle_bin"
-        return recycleBinIndex != -1 && parts.size - recycleBinIndex == 2
-    }
-
     private fun onDownloadMenuClosed() {
         _downloadFileSheet.update { null }
     }
@@ -546,13 +551,13 @@ class CellViewModel @Inject constructor(
 }
 
 sealed interface CellViewIntent {
-    data class OnFileClick(val file: CellNodeUi.File) : CellViewIntent
+    data class OnItemClick(val file: CellNodeUi) : CellViewIntent
     data class OnItemMenuClick(val cellNode: CellNodeUi) : CellViewIntent
     data class OnMenuItemActionSelected(val node: CellNodeUi, val action: NodeBottomSheetAction) : CellViewIntent
     data class OnFileDownloadConfirmed(val file: CellNodeUi.File) : CellViewIntent
     data class OnNodeDeleteConfirmed(val node: CellNodeUi) : CellViewIntent
     data class OnNodeRestoreConfirmed(val node: CellNodeUi) : CellViewIntent
-    data class OnParentFolderRestoreConfirmed(val folder: CellNodeUi.Folder) : CellViewIntent
+    data class OnParentFolderRestoreConfirmed(val node: CellNodeUi) : CellViewIntent
     data object OnDownloadMenuClosed : CellViewIntent
 }
 
@@ -566,11 +571,16 @@ internal data class ShowPublicLinkScreen(val cellNode: CellNodeUi) : CellViewAct
 internal data class ShowRenameScreen(val cellNode: CellNodeUi) : CellViewAction
 internal data class ShowAddRemoveTagsScreen(val cellNode: CellNodeUi) : CellViewAction
 internal data class ShowMoveToFolderScreen(val currentPath: String, val nodeToMovePath: String, val uuid: String) : CellViewAction
-internal data object ShowUnableToRestoreDialog : CellViewAction
+internal data class ShowUnableToRestoreDialog(val isFolder: Boolean) : CellViewAction
 internal data class ShowRestoreParentFolderDialog(val cellNode: CellNodeUi) : CellViewAction
 internal data object HideRestoreParentFolderDialog : CellViewAction
 internal data class ShowFileDeletedMessage(val isFile: Boolean, val permanently: Boolean) : CellViewAction
 internal data object RefreshData : CellViewAction
+internal data class OpenFolder(
+    val path: String,
+    val title: String,
+    val parentFolderUuid: String?
+) : CellViewAction
 
 internal enum class CellError(val message: Int) {
     DOWNLOAD_FAILED(R.string.cell_files_download_failure_message),

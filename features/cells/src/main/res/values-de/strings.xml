@@ -41,7 +41,6 @@
     <string name="confirm_delete_file_title">Datei löschen</string>
     <string name="confirm_delete_folder_title">Ordner löschen</string>
     <string name="confirm_delete_file_text">Die Datei %1$s wird in den Papierkorb dieser Unterhaltung verschoben.</string>
-    <string name="confirm_delete_folder_text">Der Ordner %1$s wird in den Papierkorb dieser Unterhaltung verschoben.</string>
     <string name="confirm_permanent_delete_file_text">Dies wird die Datei %1$s für alle Teilnehmer endgültig löschen.</string>
     <string name="confirm_permanent_delete_folder_text">Dies wird den Ordner %1$s für alle Teilnehmer endgültig löschen.</string>
     <string name="reload">Neu laden</string>

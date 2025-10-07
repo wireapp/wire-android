@@ -29,7 +29,7 @@ import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.feature.e2ei.MLSClientIdentity
 import com.wire.kalium.logic.util.inWholeWeeks
 import com.wire.kalium.util.DateTimeUtil.toIsoDateTimeString
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
 
 data class Device(
     val name: UIText = UIText.DynamicString(""),

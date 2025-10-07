@@ -20,7 +20,7 @@ package com.wire.android.util
 import android.util.Log
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.wire.kalium.util.DateTimeUtil.toIsoDateTimeString
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
 import org.junit.Test
 import org.junit.runner.RunWith
 import kotlin.time.measureTime

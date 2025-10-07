@@ -22,7 +22,7 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.Conversation.ProtocolInfo
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.user.type.UserType
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 
 object TestConversationDetails {
 

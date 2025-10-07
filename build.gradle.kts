@@ -59,4 +59,3 @@ plugins {
     alias(libs.plugins.ksp) apply false // https://github.com/google/dagger/issues/3965
     alias(libs.plugins.compose.compiler) apply false
 }
-

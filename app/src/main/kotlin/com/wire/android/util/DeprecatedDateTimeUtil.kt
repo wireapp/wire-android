@@ -21,7 +21,7 @@
 package com.wire.android.util
 
 import com.wire.android.appLogger
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import java.text.DateFormat
 import java.text.ParseException
 import java.text.SimpleDateFormat

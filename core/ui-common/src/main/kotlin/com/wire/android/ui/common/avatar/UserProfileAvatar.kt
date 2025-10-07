@@ -83,8 +83,8 @@ import com.wire.android.ui.theme.nonScaledSp
 import com.wire.android.util.PreviewMultipleThemes
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
+import kotlin.time.Clock
+import kotlin.time.Instant
 import kotlin.math.absoluteValue
 import kotlin.math.sqrt
 import kotlin.time.Duration.Companion.hours

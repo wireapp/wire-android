@@ -44,6 +44,12 @@ plugins {
     id(libs.plugins.wire.android.navigation.get().pluginId)
 }
 
+kotlin {
+    compilerOptions {
+        optIn.add("kotlin.time.ExperimentalTime")
+    }
+}
+
 repositories {
     wireDetektRulesRepo()
     google()

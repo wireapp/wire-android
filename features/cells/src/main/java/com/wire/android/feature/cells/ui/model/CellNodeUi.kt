@@ -23,7 +23,7 @@ import com.wire.android.feature.cells.domain.model.AttachmentFileType.PDF
 import com.wire.android.feature.cells.domain.model.AttachmentFileType.VIDEO
 import com.wire.android.util.cellFileDateTime
 import com.wire.kalium.cells.domain.model.Node
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 
 sealed class CellNodeUi {
     abstract val name: String?

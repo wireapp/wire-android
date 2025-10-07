@@ -20,8 +20,8 @@
 package com.wire.android.util
 
 import androidx.compose.runtime.Stable
-import kotlinx.datetime.Instant
-import kotlinx.datetime.toJavaInstant
+import kotlin.time.Instant
+import kotlin.time.toJavaInstant
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZoneOffset

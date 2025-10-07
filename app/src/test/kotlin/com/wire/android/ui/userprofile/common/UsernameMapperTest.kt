@@ -4,7 +4,7 @@ import com.wire.android.framework.TestUser.OTHER_USER
 import com.wire.android.ui.userprofile.common.UsernameMapper.fromOtherUser
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.type.UserType
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest

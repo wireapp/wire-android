@@ -49,7 +49,7 @@ import com.wire.kalium.logic.feature.e2ei.MLSClientE2EIStatus
 import com.wire.kalium.logic.feature.e2ei.MLSClientIdentity
 import com.wire.kalium.logic.feature.e2ei.MLSCredentialsType
 import com.wire.kalium.logic.feature.e2ei.X509Identity
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 
 @Composable
 fun EndToEndIdentityCertificateItem(

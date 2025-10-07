@@ -9,6 +9,7 @@ plugins {
 }
 
 android {
+
     namespace = "com.wire.android.ui.common"
     testFixtures.enable = true
 }

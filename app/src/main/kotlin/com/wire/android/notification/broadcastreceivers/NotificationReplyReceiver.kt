@@ -33,7 +33,7 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
 import javax.inject.Inject
 
 @AndroidEntryPoint

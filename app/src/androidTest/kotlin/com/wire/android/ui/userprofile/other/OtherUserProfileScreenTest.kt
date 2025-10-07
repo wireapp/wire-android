@@ -24,7 +24,7 @@ import com.wire.android.ui.connection.CONNECTION_ACTION_BUTTONS_TEST_TAG
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.userprofile.other.OtherUserStubs.provideState
 import kotlinx.coroutines.test.runTest
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import org.junit.Rule
 import org.junit.Test
 

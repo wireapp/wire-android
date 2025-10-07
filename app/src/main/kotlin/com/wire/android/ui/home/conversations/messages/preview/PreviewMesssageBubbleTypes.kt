@@ -43,7 +43,7 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.message.Message
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 

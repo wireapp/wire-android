@@ -213,7 +213,7 @@ class ConversationOptionsMenuViewModelImpl @Inject constructor(
                     conversationId = conversationId,
                     shouldArchiveConversation = shouldArchive,
                     onlyLocally = !isSelfAMember,
-                    archivedStatusTimestamp = DateTimeUtil.currentInstant().toEpochMilliseconds()
+                    archivedStatusTimestamp = DateTimeUtil.currentInstant()
                 )
             }.let { result ->
                 when (result) {

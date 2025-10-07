@@ -100,7 +100,7 @@ import com.wire.kalium.logic.feature.e2ei.MLSClientIdentity
 import com.wire.kalium.logic.feature.e2ei.MLSCredentialsType
 import com.wire.kalium.logic.feature.e2ei.X509Identity
 import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 
 @WireDestination(
     navArgsDelegate = DeviceDetailsNavArgs::class,

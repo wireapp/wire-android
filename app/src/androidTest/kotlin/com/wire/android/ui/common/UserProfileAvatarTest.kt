@@ -30,7 +30,7 @@ import com.wire.android.ui.common.avatar.UserProfileAvatar
 import com.wire.android.ui.common.avatar.UserProfileAvatarType
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import kotlinx.coroutines.test.runTest
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
 import org.junit.Rule
 import org.junit.Test
 import kotlin.time.Duration.Companion.hours

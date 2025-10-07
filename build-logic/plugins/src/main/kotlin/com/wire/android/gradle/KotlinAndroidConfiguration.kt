@@ -31,6 +31,7 @@ import versionCatalog
 import findLibrary
 import org.gradle.api.tasks.JavaExec
 import org.gradle.jvm.toolchain.JavaLanguageVersion
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinBaseExtension
 
 internal fun Project.configureKotlinAndroid(
@@ -68,24 +69,28 @@ internal fun Project.configureKotlinAndroid(
  */
 private fun Project.configureKotlin() {
     tasks.withType<KotlinCompile>().configureEach {
-        kotlinOptions {
-            // Set JVM target to 17
-            jvmTarget = JavaVersion.VERSION_17.toString()
-            // Treat all Kotlin warnings as errors (disabled by default)
-            // Override by setting warningsAsErrors=true in your ~/.gradle/gradle.properties
+        compilerOptions {
+            // JVM target 17
+            jvmTarget.set(JvmTarget.JVM_17)
+
+            // Treat all Kotlin warnings as errors (configurable via ~/.gradle/gradle.properties)
+            // e.g. set warningsAsErrors=true to enable
             val warningsAsErrors: String? by project
-            allWarningsAsErrors = warningsAsErrors.toBoolean()
-            freeCompilerArgs = freeCompilerArgs + listOf(
-                "-opt-in=kotlin.RequiresOptIn",
-                // Enable experimental coroutines APIs, including Flow
-                "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",
-                "-opt-in=kotlinx.coroutines.FlowPreview",
+            allWarningsAsErrors.set(warningsAsErrors.toBoolean())
+
+            // Use the dedicated 'optIn' DSL instead of "-opt-in=..."
+            optIn.addAll(
+                "kotlin.RequiresOptIn",
+                "kotlinx.coroutines.ExperimentalCoroutinesApi",
+                "kotlinx.coroutines.FlowPreview",
+                "kotlin.time.ExperimentalTime"
+            )
+
+            freeCompilerArgs.addAll(
+                "-P",
+                "plugin:androidx.compose.compiler.plugins.kotlin:experimentalStrongSkipping=true",
             )
         }
-        compilerOptions.freeCompilerArgs.addAll(
-            "-P",
-            "plugin:androidx.compose.compiler.plugins.kotlin:experimentalStrongSkipping=true",
-        )
     }
 }
 

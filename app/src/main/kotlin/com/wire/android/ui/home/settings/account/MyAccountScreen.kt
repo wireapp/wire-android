@@ -67,7 +67,7 @@ import com.wire.android.ui.home.settings.account.deleteAccount.DeleteAccountView
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
-import com.wire.android.util.extension.folderWithElements
+import com.wire.android.util.ui.sectionWithElements
 import com.wire.android.util.toTitleCase
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -228,7 +228,7 @@ fun MyAccountContent(
                 .fillMaxSize()
                 .padding(internalPadding)
         ) {
-            folderWithElements(
+            sectionWithElements(
                 header = context.getString(R.string.settings_myaccount_title),
                 items = accountDetailItems.associateBy { it.title.toString() },
                 factory = { item: AccountDetailsItem ->

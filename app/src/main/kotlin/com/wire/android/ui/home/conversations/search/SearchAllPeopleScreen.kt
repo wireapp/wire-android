@@ -50,8 +50,8 @@ import com.wire.android.ui.home.conversations.search.widget.SearchFailureBox
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.util.extension.FolderType
-import com.wire.android.util.extension.folderWithElements
+import com.wire.android.util.ui.FolderType
+import com.wire.android.util.ui.sectionWithElements
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.keepOnTopWhenNotScrolled
 import com.wire.kalium.logic.data.user.ConnectionState
@@ -90,10 +90,6 @@ fun SearchAllPeopleScreen(
     onOpenUserProfile: (Contact) -> Unit,
     selectedContactResultsExpanded: Boolean = false,
     onSelectedContactResultsExpansionChanged: (Boolean) -> Unit = {},
-    contactResultsExpanded: Boolean = true,
-    onContactResultsExpansionChanged: (Boolean) -> Unit = {},
-    publicResultsExpanded: Boolean = true,
-    onPublicResultsExpansionChanged: (Boolean) -> Unit = {},
     lazyListState: LazyListState = rememberLazyListState()
 ) {
 
@@ -132,10 +128,6 @@ fun SearchAllPeopleScreen(
             actionType = actionType,
             selectedContactResultsExpanded = selectedContactResultsExpanded,
             onSelectedContactResultsExpansionChanged = onSelectedContactResultsExpansionChanged,
-            contactResultsExpanded = contactResultsExpanded,
-            onContactResultsExpansionChanged = onContactResultsExpansionChanged,
-            publicResultsExpanded = publicResultsExpanded,
-            onPublicResultsExpansionChanged = onPublicResultsExpansionChanged,
         )
     }
 }
@@ -152,10 +144,6 @@ private fun SearchResult(
     onOpenUserProfile: (Contact) -> Unit,
     selectedContactResultsExpanded: Boolean,
     onSelectedContactResultsExpansionChanged: (Boolean) -> Unit,
-    contactResultsExpanded: Boolean,
-    onContactResultsExpansionChanged: (Boolean) -> Unit,
-    publicResultsExpanded: Boolean,
-    onPublicResultsExpansionChanged: (Boolean) -> Unit,
     lazyListState: LazyListState = rememberLazyListState()
 ) {
     val searchPeopleScreenState = rememberSearchPeopleScreenState()
@@ -179,8 +167,7 @@ private fun SearchResult(
                     onShowAllButtonClicked = searchPeopleScreenState::toggleShowAllContactsResult,
                     onOpenUserProfile = onOpenUserProfile,
                     actionType = actionType,
-                    expanded = selectedContactResultsExpanded,
-                    onExpansionChanged = onSelectedContactResultsExpansionChanged,
+                    expandable = Expandable(selectedContactResultsExpanded, onSelectedContactResultsExpansionChanged),
                 )
             }
 
@@ -195,8 +182,7 @@ private fun SearchResult(
                     onShowAllButtonClicked = searchPeopleScreenState::toggleShowAllContactsResult,
                     onOpenUserProfile = onOpenUserProfile,
                     actionType = actionType,
-                    expanded = contactResultsExpanded,
-                    onExpansionChanged = onContactResultsExpansionChanged,
+                    expandable = null, // always expanded
                 )
             }
 
@@ -209,8 +195,7 @@ private fun SearchResult(
                     showMoreOrLessButtonVisible = isSearchActive,
                     onShowAllButtonClicked = searchPeopleScreenState::toggleShowAllPublicResult,
                     onOpenUserProfile = onOpenUserProfile,
-                    expanded = publicResultsExpanded,
-                    onExpansionChanged = onPublicResultsExpansionChanged,
+                    expandable = null, // always expanded
                 )
             }
         }
@@ -232,17 +217,19 @@ private fun LazyListScope.internalSearchResults(
     searchQuery: String,
     onShowAllButtonClicked: () -> Unit,
     onOpenUserProfile: (Contact) -> Unit,
-    expanded: Boolean,
-    onExpansionChanged: (Boolean) -> Unit,
+    expandable: Expandable?,
 ) {
     if (searchResult.isNotEmpty()) {
-        folderWithElements(
+        sectionWithElements(
             header = searchTitle,
             items = (if (allItemsVisible) searchResult else searchResult.take(DEFAULT_SEARCH_RESULT_ITEM_SIZE))
                 .associateBy { (contact, _) ->
                     contact.id
                 },
-            folderType = FolderType.Collapsing(expanded = expanded, onChanged = onExpansionChanged),
+            folderType = when {
+                expandable != null -> FolderType.Collapsing(expanded = expandable.expanded, onChanged = expandable.onExpansionChanged)
+                else -> FolderType.Regular
+            },
         ) { (contact, isSelected) ->
             with(contact) {
                 val onCheckDescription = stringResource(
@@ -268,7 +255,7 @@ private fun LazyListScope.internalSearchResults(
         }
     }
 
-    if (searchResult.size > DEFAULT_SEARCH_RESULT_ITEM_SIZE && showMoreOrLessButtonVisible && expanded) {
+    if (searchResult.size > DEFAULT_SEARCH_RESULT_ITEM_SIZE && showMoreOrLessButtonVisible && expandable.expanded) {
         item {
             Box(
                 Modifier
@@ -296,16 +283,18 @@ private fun LazyListScope.externalSearchResults(
     searchQuery: String,
     onShowAllButtonClicked: () -> Unit,
     onOpenUserProfile: (Contact) -> Unit,
-    onExpansionChanged: (Boolean) -> Unit,
-    expanded: Boolean,
+    expandable: Expandable?,
 ) {
     val itemsList =
         if (allItemsVisible) searchResult else searchResult.take(DEFAULT_SEARCH_RESULT_ITEM_SIZE)
 
-    folderWithElements(
+    sectionWithElements(
         header = searchTitle,
         items = itemsList.associateBy { it.id },
-        folderType = FolderType.Collapsing(expanded = expanded, onChanged = onExpansionChanged),
+        folderType = when {
+            expandable != null -> FolderType.Collapsing(expanded = expandable.expanded, onChanged = expandable.onExpansionChanged)
+            else -> FolderType.Regular
+        },
     ) { contact ->
         with(contact) {
             val clickDescription = stringResource(id = R.string.content_description_open_user_profile_label)
@@ -321,8 +310,7 @@ private fun LazyListScope.externalSearchResults(
             )
         }
     }
-
-    if (searchResult.size > DEFAULT_SEARCH_RESULT_ITEM_SIZE && showMoreOrLessButtonVisible && expanded) {
+    if (searchResult.size > DEFAULT_SEARCH_RESULT_ITEM_SIZE && showMoreOrLessButtonVisible && expandable.expanded) {
         item {
             Box(
                 Modifier
@@ -340,6 +328,9 @@ private fun LazyListScope.externalSearchResults(
         }
     }
 }
+
+private data class Expandable(val expanded: Boolean, val onExpansionChanged: (Boolean) -> Unit)
+private val Expandable?.expanded get() = this?.expanded ?: true // if not expandable, then always expanded
 
 @Composable
 private fun ShowButton(

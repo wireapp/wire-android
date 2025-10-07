@@ -33,7 +33,7 @@ import kotlinx.serialization.Serializable
 import com.wire.kalium.logic.data.conversation.ConversationFolder as CurrentFolder
 
 @Serializable
-sealed interface ConversationItem : ConversationFolderItem {
+sealed interface ConversationItem : ConversationItemType {
     val conversationId: ConversationId
     val mutedStatus: MutedConversationStatus
     val showLegalHoldIndicator: Boolean

@@ -208,8 +208,6 @@
     <string name="content_description_open_label">open</string>
     <string name="content_description_join_call_label">join a call</string>
     <string name="content_description_share_label">share</string>
-    <string name="content_description_collapse_label">collapse</string>
-    <string name="content_description_expand_label">expand</string>
     <string name="content_description_edit_label">edit</string>
     <string name="content_description_select_label">select</string>
     <string name="content_description_unselect_label">unselect</string>

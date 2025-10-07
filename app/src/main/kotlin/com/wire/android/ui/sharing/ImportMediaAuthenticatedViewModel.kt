@@ -39,7 +39,7 @@ import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.ui.common.DEFAULT_SEARCH_QUERY_DEBOUNCE
 import com.wire.android.ui.home.conversations.usecase.GetConversationsFromSearchUseCase
 import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
-import com.wire.android.ui.home.conversationslist.model.ConversationFolderItem
+import com.wire.android.ui.home.conversationslist.model.ConversationItemType
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
 import com.wire.android.util.EMPTY
@@ -80,7 +80,7 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
     val dispatchers: DispatcherProvider,
 ) : ViewModel() {
     val searchQueryTextState: TextFieldState = TextFieldState()
-    private val conversationsFlow: Flow<PagingData<ConversationFolderItem>> = searchQueryTextState.textAsFlow()
+    private val conversationsFlow: Flow<PagingData<ConversationItemType>> = searchQueryTextState.textAsFlow()
         .distinctUntilChanged()
         .map { it.toString() }
         .debounce { if (it.isEmpty()) 0L else DEFAULT_SEARCH_QUERY_DEBOUNCE }
@@ -94,7 +94,7 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
                 useStrictMlsFilter = BuildConfig.USE_STRICT_MLS_FILTER
             ).map {
                 it.map {
-                    it as ConversationFolderItem
+                    it as ConversationItemType
                 }
             }
         }

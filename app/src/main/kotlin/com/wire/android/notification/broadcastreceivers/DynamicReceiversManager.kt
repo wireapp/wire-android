@@ -20,6 +20,7 @@ package com.wire.android.notification.broadcastreceivers
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import com.wire.android.BuildConfig.EMM_SUPPORT_ENABLED
 import com.wire.android.appLogger
 import com.wire.android.emm.ManagedConfigurationsReceiver
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -36,13 +37,17 @@ class DynamicReceiversManager @Inject constructor(
     private val managedConfigurationsReceiver: ManagedConfigurationsReceiver
 ) {
     fun registerAll() {
-        appLogger.i("$TAG Registering Runtime broadcast receivers")
-        context.registerReceiver(managedConfigurationsReceiver, IntentFilter(Intent.ACTION_APPLICATION_RESTRICTIONS_CHANGED))
+        if (EMM_SUPPORT_ENABLED) {
+            appLogger.i("$TAG Registering Runtime ManagedConfigurations Broadcast receiver")
+            context.registerReceiver(managedConfigurationsReceiver, IntentFilter(Intent.ACTION_APPLICATION_RESTRICTIONS_CHANGED))
+        }
     }
 
     fun unregisterAll() {
-        appLogger.i("$TAG Unregistering Runtime broadcast receivers")
-        context.unregisterReceiver(managedConfigurationsReceiver)
+        if (EMM_SUPPORT_ENABLED) {
+            appLogger.i("$TAG Unregistering Runtime ManagedConfigurations Broadcast receiver")
+            context.unregisterReceiver(managedConfigurationsReceiver)
+        }
     }
 
     companion object {

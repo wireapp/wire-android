@@ -18,9 +18,11 @@
 package com.wire.android.di
 
 import android.content.Context
+import com.wire.android.BuildConfig
 import com.wire.android.config.ServerConfigProvider
 import com.wire.android.emm.ManagedConfigurationsManager
 import com.wire.android.emm.ManagedConfigurationsManagerImpl
+import com.wire.android.util.EMPTY
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import dagger.Module
@@ -53,8 +55,13 @@ class ManagedConfigurationsModule {
     fun provideCurrentServerConfig(
         managedConfigurationsManager: ManagedConfigurationsManager
     ): ServerConfig.Links {
-        // Returns the current resolved server configuration links, which could be either managed or default
-        return managedConfigurationsManager.currentServerConfig
+        return if (BuildConfig.EMM_SUPPORT_ENABLED) {
+            // Returns the current resolved server configuration links, which could be either managed or default
+            managedConfigurationsManager.currentServerConfig
+        } else {
+            // If EMM support is disabled, always return the static default server configuration links
+            provideServerConfigProvider().getDefaultServerConfig(null)
+        }
     }
 
     @Provides
@@ -62,7 +69,12 @@ class ManagedConfigurationsModule {
     fun provideCurrentSSOCodeConfig(
         managedConfigurationsManager: ManagedConfigurationsManager
     ): String {
-        // Returns the current SSO code configuration, which could be either managed or empty
-        return managedConfigurationsManager.currentSSOCodeConfig
+        return if (BuildConfig.EMM_SUPPORT_ENABLED) {
+            // Returns the current resolved SSO code from managed configurations, or empty if none
+            managedConfigurationsManager.currentSSOCodeConfig
+        } else {
+            // If EMM support is disabled, always return empty SSO code
+            String.EMPTY
+        }
     }
 }

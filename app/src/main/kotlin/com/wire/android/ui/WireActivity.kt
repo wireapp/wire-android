@@ -214,9 +214,11 @@ class WireActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         dynamicReceiversManager.registerAll()
-        lifecycleScope.launch(Dispatchers.IO) {
-            managedConfigurationsManager.refreshServerConfig()
-            managedConfigurationsManager.refreshSSOCodeConfig()
+        if (BuildConfig.EMM_SUPPORT_ENABLED) {
+            lifecycleScope.launch(Dispatchers.IO) {
+                managedConfigurationsManager.refreshServerConfig()
+                managedConfigurationsManager.refreshSSOCodeConfig()
+            }
         }
     }
 

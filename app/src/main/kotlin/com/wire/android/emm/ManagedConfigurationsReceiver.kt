@@ -78,7 +78,6 @@ class ManagedConfigurationsReceiver @Inject constructor(
                 )
             }
         }
-
     }
 
     private suspend fun updateSSOCodeConfig() {

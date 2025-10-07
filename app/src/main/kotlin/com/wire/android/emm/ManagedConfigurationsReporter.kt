@@ -55,5 +55,4 @@ class ManagedConfigurationsReporter @Inject constructor(
             )
         )
     }
-
 }

@@ -53,7 +53,13 @@ class AndroidNavigationConventionPlugin : Plugin<Project> {
             into(dstPath)
             filter {
                 // adjust the package name in the generated files by adding the suffix so that it doesn't conflict
-                if (it.startsWith("package ")) it + packageNameSuffix else it
+                // also adjust any imports that reference the annotation package
+                when {
+                    it.startsWith("package ") -> it + packageNameSuffix
+                    it.contains("com.wire.android.navigation.annotation") && it.startsWith("import ") ->
+                        it.replace("com.wire.android.navigation.annotation", "com.wire.android.navigation.annotation$packageNameSuffix")
+                    else -> it
+                }
             }
         }
         // make sure the copy task is executed before the KSP tasks

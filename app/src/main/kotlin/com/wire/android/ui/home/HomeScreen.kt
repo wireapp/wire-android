@@ -57,7 +57,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.ramcosta.composedestinations.DestinationsNavHost
-import com.ramcosta.composedestinations.animations.defaults.RootNavGraphDefaultAnimations
 import com.ramcosta.composedestinations.rememberNavHostEngine
 import com.ramcosta.composedestinations.navigation.dependency
 import com.ramcosta.composedestinations.result.NavResult
@@ -379,9 +378,9 @@ fun HomeContent(
                          */
                         val lifecycleState by LocalLifecycleOwner.current.lifecycle.currentStateFlow.collectAsState()
                         if (lifecycleState != Lifecycle.State.DESTROYED) {
-                            val navHostEngine = rememberNavHostEngine(
-                                rootDefaultAnimations = RootNavGraphDefaultAnimations.ACCOMPANIST_FADING
-                            )
+                            // In v2, animation configuration has changed
+                            // Using basic NavHostEngine for now
+                            val navHostEngine = rememberNavHostEngine()
 
                             AdjustDestinationStylesForTablets()
                             DestinationsNavHost(

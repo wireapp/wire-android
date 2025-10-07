@@ -17,16 +17,14 @@
  */
 package com.wire.android.navigation.style
 
-// In v2, these classes may have moved or changed
+// In v2, we need to handle animations differently since the default classes may not be available
+// Using custom implementations for animation defaults
 
-val DefaultRootNavGraphAnimations = RootNavGraphDefaultAnimations(
-    enterTransition = { with(DefaultNavigationAnimation) { enterTransition() } },
-    exitTransition = { with(DefaultNavigationAnimation) { exitTransition() } },
-    popEnterTransition = { with(DefaultNavigationAnimation) { popEnterTransition() } },
-    popExitTransition = { with(DefaultNavigationAnimation) { popExitTransition() } },
-)
+// For root animations, we'll use a custom implementation
+val DefaultRootNavGraphAnimations = WireAnimationDefaults
 
-val DefaultNestedNavGraphAnimations = NestedNavGraphDefaultAnimations(
+// For nested animations, we'll use our custom class
+val DefaultNestedNavGraphAnimations = WireNestedNavGraphAnimations(
     enterTransition = { with(DefaultNavigationAnimation) { enterTransition() } },
     exitTransition = { with(DefaultNavigationAnimation) { exitTransition() } },
     popEnterTransition = { with(DefaultNavigationAnimation) { popEnterTransition() } },

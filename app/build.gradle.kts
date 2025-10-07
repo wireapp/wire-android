@@ -70,6 +70,11 @@ private fun getFlavorsSettings(): NormalizedFlavorSettings =
     }
 
 android {
+    ksp {
+        arg("compose-destinations.mode", "navGraphs")
+        arg("compose-destinations.moduleName", "app")
+    }
+
     defaultConfig {
         ndk {
             abiFilters.apply {

@@ -23,32 +23,32 @@ import com.ramcosta.composedestinations.spec.DestinationStyle
 
 typealias DefaultNavigationAnimation = SlideNavigationAnimation
 
-// Changed from object to class because WireDestinationStyleAnimated is now an abstract class
-class SlideNavigationAnimation : WireDestinationStyleAnimated(), BackgroundStyle {
+// Use objects as singletons since these don't need to be instantiated multiple times
+object SlideNavigationAnimation : WireDestinationStyleAnimated(), BackgroundStyle {
     override fun animationType(): TransitionAnimationType = TransitionAnimationType.SLIDE
 }
 
-class PopUpNavigationAnimation : WireDestinationStyleAnimated(), BackgroundStyle {
+object PopUpNavigationAnimation : WireDestinationStyleAnimated(), BackgroundStyle {
     override fun animationType(): TransitionAnimationType = TransitionAnimationType.POP_UP
 }
 
-class AuthSlideNavigationAnimation : WireDestinationStyleAnimated(), BackgroundStyle {
+object AuthSlideNavigationAnimation : WireDestinationStyleAnimated(), BackgroundStyle {
     override fun animationType(): TransitionAnimationType = TransitionAnimationType.SLIDE
     override fun backgroundType(): BackgroundType = BackgroundType.Auth
 }
 
-class AuthPopUpNavigationAnimation : WireDestinationStyleAnimated(), BackgroundStyle {
+object AuthPopUpNavigationAnimation : WireDestinationStyleAnimated(), BackgroundStyle {
     override fun animationType(): TransitionAnimationType = TransitionAnimationType.POP_UP
     override fun backgroundType(): BackgroundType = BackgroundType.Auth
 }
 
-class AuthNoNavigationAnimation : WireDestinationStyleAnimated(), BackgroundStyle {
+object AuthNoNavigationAnimation : WireDestinationStyleAnimated(), BackgroundStyle {
     override fun animationType(): TransitionAnimationType = TransitionAnimationType.NONE
     override fun backgroundType(): BackgroundType = BackgroundType.Auth
 }
 
-// Dialog style now extends the abstract class
-class DialogNavigation : DestinationStyle.Dialog() {
+// Dialog style as an object singleton
+object DialogNavigation : DestinationStyle.Dialog() {
     override val properties: DialogProperties
         get() = DialogProperties(
             dismissOnBackPress = true,

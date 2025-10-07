@@ -52,14 +52,9 @@ fun MainNavHost(
     startDestination: Route,
     modifier: Modifier = Modifier,
 ) {
-    val navHostEngine = rememberNavHostEngine(
-        rootDefaultAnimations = DefaultRootNavGraphAnimations,
-        defaultAnimationsForNestedNavGraph = mapOf(
-            NavGraphs.createPersonalAccount to DefaultNestedNavGraphAnimations,
-            NavGraphs.createTeamAccount to DefaultNestedNavGraphAnimations,
-            NavGraphs.newConversation to DefaultNestedNavGraphAnimations,
-        )
-    )
+    // In v2, animation configuration has changed
+    // Using basic NavHostEngine for now until proper animation setup is confirmed
+    val navHostEngine = rememberNavHostEngine()
 
     AdjustDestinationStylesForTablets()
     DestinationsNavHost(

@@ -271,6 +271,8 @@ private fun SearchAllPeopleOrContactsScreen(
     }
 
     var selectedContactResultsExpanded by remember { mutableStateOf(false) }
+    var contactResultsExpanded by remember { mutableStateOf(true) }
+    var publicResultsExpanded by remember { mutableStateOf(true) }
     SearchAllPeopleScreen(
         searchQuery = searchUserViewModel.state.searchQuery,
         contactsSearchResult = searchUserViewModel.state.contactsResult,
@@ -284,5 +286,9 @@ private fun SearchAllPeopleOrContactsScreen(
         actionType = actionType,
         selectedContactResultsExpanded = selectedContactResultsExpanded,
         onSelectedContactResultsExpansionChanged = remember { { selectedContactResultsExpanded = it } },
+        contactResultsExpanded = contactResultsExpanded,
+        onContactResultsExpansionChanged = remember { { contactResultsExpanded = it } },
+        publicResultsExpanded = publicResultsExpanded,
+        onPublicResultsExpansionChanged = remember { { publicResultsExpanded = it } }
     )
 }

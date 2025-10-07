@@ -35,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import coil.compose.AsyncImage
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
@@ -147,6 +148,8 @@ internal fun PdfAssetPreview(
                         }
                     ),
                     contentDescription = null,
+                    alignment = Alignment.TopStart,
+                    contentScale = ContentScale.FillWidth
                 )
             }
 
@@ -170,6 +173,8 @@ private fun aspectRatio(width: Int?, height: Int?) =
     when {
         width == null || height == null -> 10f / 14f
         width == 0 || height == 0 -> 10f / 14f
+        // Very long image
+        width.toFloat() / height.toFloat() < 0.7f -> 10f / 14f
         else -> width.toFloat() / height.toFloat()
     }
 

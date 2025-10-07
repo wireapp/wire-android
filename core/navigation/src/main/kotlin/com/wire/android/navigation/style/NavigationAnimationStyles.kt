@@ -23,30 +23,32 @@ import com.ramcosta.composedestinations.spec.DestinationStyle
 
 typealias DefaultNavigationAnimation = SlideNavigationAnimation
 
-object SlideNavigationAnimation : WireDestinationStyleAnimated, BackgroundStyle {
+// Changed from object to class because WireDestinationStyleAnimated is now an abstract class
+class SlideNavigationAnimation : WireDestinationStyleAnimated(), BackgroundStyle {
     override fun animationType(): TransitionAnimationType = TransitionAnimationType.SLIDE
 }
 
-object PopUpNavigationAnimation : WireDestinationStyleAnimated, BackgroundStyle {
+class PopUpNavigationAnimation : WireDestinationStyleAnimated(), BackgroundStyle {
     override fun animationType(): TransitionAnimationType = TransitionAnimationType.POP_UP
 }
 
-object AuthSlideNavigationAnimation : WireDestinationStyleAnimated, BackgroundStyle {
+class AuthSlideNavigationAnimation : WireDestinationStyleAnimated(), BackgroundStyle {
     override fun animationType(): TransitionAnimationType = TransitionAnimationType.SLIDE
     override fun backgroundType(): BackgroundType = BackgroundType.Auth
 }
 
-object AuthPopUpNavigationAnimation : WireDestinationStyleAnimated, BackgroundStyle {
+class AuthPopUpNavigationAnimation : WireDestinationStyleAnimated(), BackgroundStyle {
     override fun animationType(): TransitionAnimationType = TransitionAnimationType.POP_UP
     override fun backgroundType(): BackgroundType = BackgroundType.Auth
 }
 
-object AuthNoNavigationAnimation : WireDestinationStyleAnimated, BackgroundStyle {
+class AuthNoNavigationAnimation : WireDestinationStyleAnimated(), BackgroundStyle {
     override fun animationType(): TransitionAnimationType = TransitionAnimationType.NONE
     override fun backgroundType(): BackgroundType = BackgroundType.Auth
 }
 
-object DialogNavigation : DestinationStyle.Dialog {
+// Dialog style now extends the abstract class
+class DialogNavigation : DestinationStyle.Dialog() {
     override val properties: DialogProperties
         get() = DialogProperties(
             dismissOnBackPress = true,

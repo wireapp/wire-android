@@ -18,17 +18,20 @@
 package com.wire.android.navigation.annotation
 
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.Destination.Companion.COMPOSABLE_NAME
+// In v2, COMPOSABLE_NAME constant has been replaced
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import com.wire.android.navigation.wrapper.TabletDialogWrapper
 import com.wire.android.navigation.wrapper.WaitUntilTransitionEndsWrapper
 import kotlin.reflect.KClass
 
-@Destination(
+// This annotation is used for destinations that should be in the root graph
+// In v2, we need to specify the graph type parameter
+// The actual graph type will be provided by the generated code
+@Destination<RootGraph>(
     wrappers = [WaitUntilTransitionEndsWrapper::class, TabletDialogWrapper::class],
 )
 internal annotation class WireDestination(
-    val route: String = COMPOSABLE_NAME,
+    val route: String = "",  // Empty string will use the composable name
     val navArgsDelegate: KClass<*> = Nothing::class,
     val style: KClass<out DestinationStyle> = DestinationStyle.Default::class,
 )

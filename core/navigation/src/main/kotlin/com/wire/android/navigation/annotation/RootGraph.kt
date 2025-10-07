@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2025 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,12 +15,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.navigation
+package com.wire.android.navigation.annotation
 
-import com.ramcosta.composedestinations.annotation.NavGraph
-import com.wire.android.navigation.annotation.RootGraph
+import com.ramcosta.composedestinations.annotation.NavHostGraph
 
-@NavGraph<RootGraph>
-annotation class HomeNavGraph(
-    val start: Boolean = false
-)
+/**
+ * Root navigation graph annotation for Compose Destinations v2.
+ * This replaces the @RootNavGraph annotation from v1.
+ */
+@NavHostGraph
+annotation class RootGraph

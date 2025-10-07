@@ -58,7 +58,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.animations.defaults.RootNavGraphDefaultAnimations
-import com.ramcosta.composedestinations.animations.rememberAnimatedNavHostEngine
+import com.ramcosta.composedestinations.rememberNavHostEngine
 import com.ramcosta.composedestinations.navigation.dependency
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
@@ -379,7 +379,7 @@ fun HomeContent(
                          */
                         val lifecycleState by LocalLifecycleOwner.current.lifecycle.currentStateFlow.collectAsState()
                         if (lifecycleState != Lifecycle.State.DESTROYED) {
-                            val navHostEngine = rememberAnimatedNavHostEngine(
+                            val navHostEngine = rememberNavHostEngine(
                                 rootDefaultAnimations = RootNavGraphDefaultAnimations.ACCOMPANIST_FADING
                             )
 

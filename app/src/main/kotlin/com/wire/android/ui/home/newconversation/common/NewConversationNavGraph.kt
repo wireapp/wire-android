@@ -19,10 +19,10 @@
 package com.wire.android.ui.home.newconversation.common
 
 import com.ramcosta.composedestinations.annotation.NavGraph
-import com.wire.android.navigation.WireRootNavGraph
+import com.wire.android.navigation.annotation.RootGraph
 
-@WireRootNavGraph
-@NavGraph
+// @WireRootNavGraph is no longer used in v2
+@NavGraph<RootGraph>
 annotation class NewConversationNavGraph(
     val start: Boolean = false
 )

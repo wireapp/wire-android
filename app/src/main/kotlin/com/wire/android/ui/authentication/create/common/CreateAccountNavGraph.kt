@@ -19,24 +19,24 @@
 package com.wire.android.ui.authentication.create.common
 
 import com.ramcosta.composedestinations.annotation.NavGraph
-import com.wire.android.navigation.WireRootNavGraph
+import com.wire.android.navigation.annotation.RootGraph
 
 @Deprecated("These destinations belongs to the old registration flow, please use the new one [CreateAccountNavGraph]")
-@WireRootNavGraph
-@NavGraph
+// @WireRootNavGraph is no longer used in v2
+@NavGraph<RootGraph>
 annotation class CreatePersonalAccountNavGraph(
     val start: Boolean = false
 )
 
 @Deprecated("These destinations belongs to the old registration flow, please use the new one [CreateAccountNavGraph]")
-@WireRootNavGraph
-@NavGraph
+// @WireRootNavGraph is no longer used in v2
+@NavGraph<RootGraph>
 annotation class CreateTeamAccountNavGraph(
     val start: Boolean = false
 )
 
-@WireRootNavGraph
-@NavGraph
+// @WireRootNavGraph is no longer used in v2
+@NavGraph<RootGraph>
 annotation class CreateAccountNavGraph(
     val start: Boolean = false
 )

@@ -30,22 +30,26 @@ import com.ramcosta.composedestinations.utils.destination
  * Chooses the right transition animation to be used depending on the recently opened destination's style.
  * Thanks to that animations are consistent and not mixed when both destinations involved in the transition use different styles.
  */
-internal interface WireDestinationStyleAnimated : DestinationStyle.Animated {
-    fun animationType(): TransitionAnimationType = TransitionAnimationType.SLIDE
-    private fun DestinationSpec<*>.getAnimationTypeStyle() =
-        (this.style as? WireDestinationStyleAnimated)?.animationType() ?: animationType()
+// In v2, DestinationStyle is an abstract class, not an interface
+internal abstract class WireDestinationStyleAnimated : DestinationStyle() {
+    abstract fun animationType(): TransitionAnimationType
+
+    private fun getDestinationAnimationType(entry: NavBackStackEntry): TransitionAnimationType {
+        // This needs to be updated based on v2 API
+        return animationType()
+    }
 
     override fun AnimatedContentTransitionScope<NavBackStackEntry>.enterTransition() =
-        targetState.destination().getAnimationTypeStyle().enterTransition
+        animationType().enterTransition
 
     override fun AnimatedContentTransitionScope<NavBackStackEntry>.exitTransition() =
-        targetState.destination().getAnimationTypeStyle().exitTransition
+        animationType().exitTransition
 
     override fun AnimatedContentTransitionScope<NavBackStackEntry>.popEnterTransition() =
-        initialState.destination().getAnimationTypeStyle().popEnterTransition
+        animationType().popEnterTransition
 
     override fun AnimatedContentTransitionScope<NavBackStackEntry>.popExitTransition(): ExitTransition =
-        initialState.destination().getAnimationTypeStyle().popExitTransition
+        animationType().popExitTransition
 }
 
 /**

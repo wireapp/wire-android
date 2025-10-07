@@ -24,7 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.DestinationsNavHost
-import com.ramcosta.composedestinations.animations.rememberAnimatedNavHostEngine
+import com.ramcosta.composedestinations.rememberNavHostEngine
 import com.ramcosta.composedestinations.manualcomposablecalls.composable
 import com.ramcosta.composedestinations.navigation.dependency
 import com.ramcosta.composedestinations.scope.resultBackNavigator
@@ -52,7 +52,7 @@ fun MainNavHost(
     startDestination: Route,
     modifier: Modifier = Modifier,
 ) {
-    val navHostEngine = rememberAnimatedNavHostEngine(
+    val navHostEngine = rememberNavHostEngine(
         rootDefaultAnimations = DefaultRootNavGraphAnimations,
         defaultAnimationsForNestedNavGraph = mapOf(
             NavGraphs.createPersonalAccount to DefaultNestedNavGraphAnimations,

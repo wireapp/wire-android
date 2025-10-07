@@ -48,7 +48,8 @@ object WireMainNavGraph : NavGraphSpec {
     override val nestedNavGraphs = NavGraphs.wireRoot.nestedNavGraphs
 }
 
-@NavGraph(default = true)
-annotation class WireRootNavGraph(
-    val start: Boolean = false
-)
+// This annotation is deprecated in v2, we'll be using the generated RootGraph instead
+// @NavGraph(default = true)
+// annotation class WireRootNavGraph(
+//     val start: Boolean = false
+// )

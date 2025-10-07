@@ -17,8 +17,7 @@
  */
 package com.wire.android.navigation.style
 
-import com.ramcosta.composedestinations.animations.defaults.NestedNavGraphDefaultAnimations
-import com.ramcosta.composedestinations.animations.defaults.RootNavGraphDefaultAnimations
+// In v2, these classes may have moved or changed
 
 val DefaultRootNavGraphAnimations = RootNavGraphDefaultAnimations(
     enterTransition = { with(DefaultNavigationAnimation) { enterTransition() } },

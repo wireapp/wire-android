@@ -52,7 +52,7 @@ composeBom = "2025.09.00"
 compose-activity = "1.9.3"
 compose-constraint = "1.1.0"
 compose-navigation = "2.7.7" # adjusted to work with compose-destinations "1.9.54"
-compose-destinations = "1.11.9"
+compose-destinations = "2.2.0"
 screenshot = "0.0.1-alpha10"
 
 # Compose Preview
@@ -218,8 +218,9 @@ compose-ui-graphics = { module = "androidx.compose.ui:ui-graphics" }
 compose-activity = { module = "androidx.activity:activity-compose", version.ref = "compose-activity" }
 compose-constraintLayout = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "compose-constraint" }
 compose-navigation = { module = "androidx.navigation:navigation-compose", version.ref = "compose-navigation" }
-compose-destinations-core = { module = "io.github.raamcosta.compose-destinations:animations-core", version.ref = "compose-destinations" }
+compose-destinations-core = { module = "io.github.raamcosta.compose-destinations:core", version.ref = "compose-destinations" }
 compose-destinations-ksp = { module = "io.github.raamcosta.compose-destinations:ksp", version.ref = "compose-destinations" }
+compose-destinations-bottom-sheet = { module = "io.github.raamcosta.compose-destinations:bottom-sheet", version.ref = "compose-destinations" }
 
 # Compose Preview
 compose-edgetoedge-preview = { module = "de.drick.compose:edge-to-edge-preview", version.ref = "compose-edgetoedge-preview" }

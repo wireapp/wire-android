@@ -62,11 +62,22 @@ class AndroidNavigationConventionPlugin : Plugin<Project> {
                 }
             }
         }
-        // make sure the copy task is executed before the KSP tasks
-        target.tasks.withType<KspTask>().configureEach { dependsOn(copyNavigationAnnotations) }
-
         // configure sourceSets - add generated navigation annotations to each module's source set
+        // This needs to be done before KSP task configuration
         project.kotlinExtension.sourceSets.configureEach { kotlin.srcDir(dstPath) }
+
+        // make sure the copy task is executed before the KSP tasks
+        target.tasks.withType<KspTask>().configureEach {
+            dependsOn(copyNavigationAnnotations)
+        }
+
+        // Configure KSP to look at the generated navigation annotations
+        afterEvaluate {
+            extensions.getByType<KspExtension>().apply {
+                // Add the generated navigation directory to KSP source directories
+                arg("compose-destinations.codeGenPackageName", "com.wire.android.navigation.annotation$packageNameSuffix")
+            }
+        }
 
         // add the package name suffix to the KSP arguments so that it can be used in the generated code
         project.extensions.getByType<KspExtension>().arg("packageNameSuffix", packageNameSuffix)

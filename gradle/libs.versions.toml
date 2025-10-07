@@ -52,7 +52,7 @@ composeBom = "2025.09.01"
 compose-activity = "1.9.3"
 compose-constraint = "1.1.0"
 compose-navigation = "2.9.5" # adjusted to work with compose-destinations "2.2.0"
-compose-destinations = "2.2.0"
+compose-destinations = "2.1.0"
 screenshot = "0.0.1-alpha10"
 
 # Compose Preview

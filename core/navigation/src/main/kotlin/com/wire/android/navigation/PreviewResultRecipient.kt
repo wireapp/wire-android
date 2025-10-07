@@ -35,12 +35,4 @@ object PreviewResultRecipient : ResultRecipient<TypedDestinationSpec<Unit>, Stri
     ) {
         // fake result
     }
-
-    @Composable
-    override fun onNavResult(
-        deliverResultOn: OpenResultRecipient.DeliverResultOn,
-        listener: @DisallowComposableCalls ((NavResult<String>) -> Unit)
-    ) {
-        // fake result
-    }
 }

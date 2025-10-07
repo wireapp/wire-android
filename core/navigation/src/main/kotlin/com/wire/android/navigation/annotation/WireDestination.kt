@@ -18,7 +18,6 @@
 package com.wire.android.navigation.annotation
 
 import com.ramcosta.composedestinations.annotation.Destination
-// In v2, COMPOSABLE_NAME constant has been replaced
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import com.wire.android.navigation.wrapper.TabletDialogWrapper
 import com.wire.android.navigation.wrapper.WaitUntilTransitionEndsWrapper
@@ -26,7 +25,6 @@ import kotlin.reflect.KClass
 
 // This annotation is used for destinations that should be in the root graph
 // In v2, we need to specify the graph type parameter
-// The actual graph type will be provided by the generated code
 @Destination<RootGraph>(
     wrappers = [WaitUntilTransitionEndsWrapper::class, TabletDialogWrapper::class],
 )

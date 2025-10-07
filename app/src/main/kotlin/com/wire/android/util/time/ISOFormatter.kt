@@ -19,7 +19,7 @@
 package com.wire.android.util.time
 
 import kotlin.time.Instant
-import kotlinx.datetime.toJavaInstant
+import kotlin.time.toJavaInstant
 import java.text.DateFormat
 import java.util.Date
 import javax.inject.Inject

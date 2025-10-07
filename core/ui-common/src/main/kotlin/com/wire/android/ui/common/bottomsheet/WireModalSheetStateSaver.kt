@@ -33,7 +33,6 @@ import kotlinx.serialization.serializerOrNull
 @Suppress("CyclomaticComplexMethod", "TooGenericExceptionCaught")
 @OptIn(InternalSerializationApi::class)
 inline fun <reified T : Any> WireModalSheetState.Companion.saver(
-    density: Density,
     softwareKeyboardController: SoftwareKeyboardController?,
     noinline onDismissAction: () -> Unit,
     scope: CoroutineScope,
@@ -68,7 +67,6 @@ inline fun <reified T : Any> WireModalSheetState.Companion.saver(
     },
     restore = { savedValue ->
         WireModalSheetState(
-            density = density,
             scope = scope,
             keyboardController = softwareKeyboardController,
             onDismissAction = onDismissAction,

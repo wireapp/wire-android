@@ -39,7 +39,6 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 open class WireModalSheetState<T : Any>(
-    density: Density,
     private val scope: CoroutineScope,
     private val keyboardController: SoftwareKeyboardController? = null,
     private val onDismissAction: () -> Unit = {},
@@ -47,11 +46,12 @@ open class WireModalSheetState<T : Any>(
     skipPartiallyExpanded: Boolean = true,
 ) {
     val sheetState: SheetState = SheetState(
-        density = density,
         skipPartiallyExpanded = skipPartiallyExpanded,
         initialValue = initialValue.originalValue,
         confirmValueChange = { true },
-        skipHiddenState = false
+        skipHiddenState = false,
+        velocityThreshold = { 1f },
+        positionalThreshold = { 1f }
     )
 
     var currentValue: WireSheetValue<T> by mutableStateOf(initialValue)
@@ -121,18 +121,15 @@ inline fun <reified T : Any> rememberWireModalSheetState(
     noinline onDismissAction: () -> Unit = {}
 ): WireModalSheetState<T> {
     val softwareKeyboardController = LocalSoftwareKeyboardController.current
-    val density = LocalDensity.current
     val scope = rememberCoroutineScope()
     return rememberSaveable(
         saver = WireModalSheetState.saver(
-            density = density,
             softwareKeyboardController = softwareKeyboardController,
             onDismissAction = onDismissAction,
             scope = scope,
         )
     ) {
         WireModalSheetState(
-            density = density,
             scope = scope,
             keyboardController = softwareKeyboardController,
             onDismissAction = onDismissAction,

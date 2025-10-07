@@ -24,6 +24,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalConfiguration
 import de.drick.compose.edgetoedgepreviewlib.CameraCutoutMode
 import de.drick.compose.edgetoedgepreviewlib.EdgeToEdgeTemplate
+import de.drick.compose.edgetoedgepreviewlib.InsetMode
 import de.drick.compose.edgetoedgepreviewlib.NavigationMode
 
 @Composable
@@ -43,8 +44,8 @@ fun EdgeToEdgePreview(
             cameraCutoutMode = CameraCutoutMode.Middle,
             isInvertedOrientation = false,
             showInsetsBorder = false,
-            isNavigationBarVisible = true,
-            isStatusBarVisible = true,
+            navigationBarMode = InsetMode.Visible,
+            statusBarMode = InsetMode.Visible,
             content = content,
         )
     }

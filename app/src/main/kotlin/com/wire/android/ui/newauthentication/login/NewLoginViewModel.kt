@@ -19,7 +19,6 @@
 package com.wire.android.ui.newauthentication.login
 
 import androidx.annotation.VisibleForTesting
-import com.wire.android.appLogger
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.runtime.getValue
@@ -27,7 +26,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.wire.android.config.orDefault
+import com.wire.android.appLogger
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.di.KaliumCoreLogic
@@ -64,7 +63,9 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import javax.inject.Named
 
+@Suppress("LongParameterList")
 @HiltViewModel
 class NewLoginViewModel(
     private val validateEmailOrSSOCode: ValidateEmailOrSSOCodeUseCase,
@@ -75,6 +76,8 @@ class NewLoginViewModel(
     private val loginExtension: LoginViewModelExtension,
     private val ssoExtension: LoginSSOViewModelExtension,
     private val dispatchers: DispatcherProvider,
+    defaultServerConfig: ServerConfig.Links,
+    defaultSSOCodeConfig: String,
 ) : ActionsViewModel<NewLoginAction>() {
 
     @Inject
@@ -86,6 +89,8 @@ class NewLoginViewModel(
         clientScopeProviderFactory: ClientScopeProvider.Factory,
         userDataStoreProvider: UserDataStoreProvider,
         dispatchers: DispatcherProvider,
+        defaultServerConfig: ServerConfig.Links,
+        @Named("ssoCodeConfig") defaultSSOCodeConfig: String,
     ) : this(
         validateEmailOrSSOCode,
         coreLogic,
@@ -95,11 +100,13 @@ class NewLoginViewModel(
         LoginViewModelExtension(clientScopeProviderFactory, userDataStoreProvider),
         LoginSSOViewModelExtension(addAuthenticatedUser, coreLogic),
         dispatchers,
+        defaultServerConfig,
+        defaultSSOCodeConfig
     )
 
     private val loginNavArgs: LoginNavArgs = savedStateHandle.navArgs()
     private val preFilledUserIdentifier: PreFilledUserIdentifierType = loginNavArgs.userHandle ?: PreFilledUserIdentifierType.None
-    var serverConfig: ServerConfig.Links by mutableStateOf(loginNavArgs.loginPasswordPath?.customServerConfig.orDefault())
+    var serverConfig: ServerConfig.Links by mutableStateOf(loginNavArgs.loginPasswordPath?.customServerConfig ?: defaultServerConfig)
         private set
 
     var state by mutableStateOf(NewLoginScreenState())
@@ -107,9 +114,12 @@ class NewLoginViewModel(
     val userIdentifierTextState: TextFieldState = TextFieldState()
 
     init {
+        val isCustomServerDeepLink = loginNavArgs.loginPasswordPath?.customServerConfig != null
         userIdentifierTextState.setTextAndPlaceCursorAtEnd(
             if (preFilledUserIdentifier is PreFilledUserIdentifierType.PreFilled) {
                 preFilledUserIdentifier.userIdentifier
+            } else if (defaultSSOCodeConfig.isNotEmpty() && !isCustomServerDeepLink) {
+                defaultSSOCodeConfig.ssoCodeWithPrefix()
             } else {
                 savedStateHandle[USER_IDENTIFIER_SAVED_STATE_KEY] ?: String.EMPTY
             }
@@ -353,13 +363,13 @@ class NewLoginViewModel(
      * Update the state based on the current state and input.
      */
     private fun getAndUpdateLoginFlowState(update: (NewLoginFlowState) -> NewLoginFlowState) = viewModelScope.launch(dispatchers.main()) {
-            val newState = update(state.flowState)
-            val currentUserLoginInput = userIdentifierTextState.text
-            state = state.copy(
-                flowState = newState,
-                nextEnabled = newState !is NewLoginFlowState.Loading && currentUserLoginInput.isNotEmpty()
-            )
-        }
+        val newState = update(state.flowState)
+        val currentUserLoginInput = userIdentifierTextState.text
+        state = state.copy(
+            flowState = newState,
+            nextEnabled = newState !is NewLoginFlowState.Loading && currentUserLoginInput.isNotEmpty()
+        )
+    }
 }
 
 private fun AutoVersionAuthScopeUseCase.Result.Failure.toLoginError() = when (this) {

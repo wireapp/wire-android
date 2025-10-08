@@ -25,7 +25,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.analytics.RegistrationAnalyticsManagerUseCase
-import com.wire.android.config.orDefault
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.feature.analytics.model.AnalyticsEvent.RegistrationPersonalAccount
@@ -53,6 +52,7 @@ class CreateAccountDataDetailViewModel @Inject constructor(
     private val globalDataStore: GlobalDataStore,
     private val registrationAnalyticsManager: RegistrationAnalyticsManagerUseCase,
     @KaliumCoreLogic private val coreLogic: CoreLogic,
+    defaultServerConfig: ServerConfig.Links
 ) : ViewModel() {
 
     val createAccountNavArgs: CreateAccountDataNavArgs = savedStateHandle.navArgs()
@@ -65,7 +65,7 @@ class CreateAccountDataDetailViewModel @Inject constructor(
 
     var detailsState: CreateAccountDataDetailViewState by mutableStateOf(CreateAccountDataDetailViewState())
 
-    val serverConfig: ServerConfig.Links = createAccountNavArgs.customServerConfig.orDefault()
+    val serverConfig: ServerConfig.Links = createAccountNavArgs.customServerConfig ?: defaultServerConfig
     fun tosUrl(): String = serverConfig.tos
     fun teamCreationUrl(): String = serverConfig.teams
 

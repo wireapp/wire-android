@@ -24,6 +24,7 @@ import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.mockUri
 import com.wire.android.ui.navArgs
 import com.wire.android.util.newServerConfig
+import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import io.mockk.MockKAnnotations
@@ -53,6 +54,6 @@ class WelcomeViewModelTest {
         val authServer = newServerConfig(1)
         every { savedStateHandle.navArgs<WelcomeNavArgs>() } returns WelcomeNavArgs(authServer.links)
         coEvery { getSessions() } returns GetAllSessionsResult.Success(listOf())
-        welcomeViewModel = WelcomeViewModel(savedStateHandle, getSessions)
+        welcomeViewModel = WelcomeViewModel(savedStateHandle, getSessions, ServerConfig.STAGING)
     }
 }

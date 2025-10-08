@@ -255,9 +255,9 @@ class LogFileWriterV2Impl(
 
     private fun clearActiveLoggingFileContent() {
         if (activeLoggingFile.exists()) {
-            val writer = PrintWriter(activeLoggingFile)
-            writer.print("")
-            writer.close()
+            PrintWriter(activeLoggingFile).use { writer ->
+                writer.print("")
+            }
         }
     }
 

@@ -129,8 +129,7 @@ class SSODeviceBackup : KoinTest {
             pages.ssoPage.apply {
                 enterOktaEmail(member1?.email ?: "")
                 enterOktaPassword(member1?.password ?: "")
-                waitFor(20)
-                //Thread.sleep(20000)
+                waitFor(20) // Delay added to allow Okta app assignment to fully sync and avoid 403 error
                 tapOktaSignIn()
             }
             pages.registrationPage.apply {

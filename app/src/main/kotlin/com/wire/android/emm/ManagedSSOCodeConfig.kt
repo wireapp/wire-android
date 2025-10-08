@@ -15,21 +15,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.config
+package com.wire.android.emm
 
-import com.wire.android.BuildConfig
-import com.wire.kalium.logic.configuration.server.ServerConfig
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
+import java.util.UUID
 
-val DefaultServerConfig = ServerConfig.Links(
-    api = BuildConfig.DEFAULT_BACKEND_URL_BASE_API,
-    accounts = BuildConfig.DEFAULT_BACKEND_URL_ACCOUNTS,
-    webSocket = BuildConfig.DEFAULT_BACKEND_URL_BASE_WEBSOCKET,
-    teams = BuildConfig.DEFAULT_BACKEND_URL_TEAM_MANAGEMENT,
-    blackList = BuildConfig.DEFAULT_BACKEND_URL_BLACKLIST,
-    website = BuildConfig.DEFAULT_BACKEND_URL_WEBSITE,
-    title = BuildConfig.DEFAULT_BACKEND_TITLE,
-    isOnPremises = false,
-    apiProxy = null
-)
-
-fun ServerConfig.Links?.orDefault() = this ?: DefaultServerConfig
+@Serializable
+data class ManagedSSOCodeConfig(
+    @SerialName("sso_code")
+    val ssoCode: String
+) {
+    @Transient
+    val isValid: Boolean = try {
+        UUID.fromString(ssoCode)
+        true
+    } catch (exception: IllegalArgumentException) {
+        false
+    }
+}

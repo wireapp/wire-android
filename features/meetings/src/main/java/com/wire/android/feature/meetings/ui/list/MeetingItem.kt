@@ -97,7 +97,7 @@ fun MeetingItem(meeting: UIMeeting, modifier: Modifier = Modifier) {
 @Composable
 private fun CurrentTimeScope.MeetingItem(meeting: UIMeeting, modifier: Modifier = Modifier) {
     RowItemTemplate(
-        modifier = modifier,
+        modifier = modifier.padding(start = dimensions().spacing8x),
         titleStartPadding = dimensions().spacing0x,
         actionsEndPadding = dimensions().spacing0x,
         contentBottomPadding = dimensions().spacing0x,

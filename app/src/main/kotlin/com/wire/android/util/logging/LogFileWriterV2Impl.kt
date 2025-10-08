@@ -345,6 +345,28 @@ class LogFileWriterV2Impl(
 
     private fun flushBuffer() {
         if (logBuffer.isEmpty()) return
+
+        try {
+            // Use BufferedWriter for efficient writing
+            val writer = bufferedWriter ?: BufferedWriter(
+                FileWriter(activeLoggingFile, true),
+                config.bufferSizeBytes
+            ).also { bufferedWriter = it }
+
+            // Like here one, Write directly from buffer without copying to the .toList()
+            logBuffer.forEach { line ->
+                writer.appendLine(line)
+            }
+            writer.flush()
+
+            // and here two, Clear only after successful write
+            logBuffer.clear()
+
+        } catch (e: IOException) {
+            appLogger.e("Failed to flush log buffer", e)
+        }
+    }
+        if (logBuffer.isEmpty()) return
         val linesToWrite = logBuffer.toList()
         logBuffer.clear()
         try {

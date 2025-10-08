@@ -214,8 +214,11 @@ class ConversationAudioMessagePlayer
 
             when {
                 (state?.isPlayingOrPausedOrFetching() != true) -> PlayingAudioMessage.None
-
-                (prevState is PlayingAudioMessage.Some && prevState.messageId == currentMessageId.messageId && prevState.assetId == currentMessageId.assetId) ->
+                (
+                prevState is PlayingAudioMessage.Some &&
+                prevState.messageId == currentMessageId.messageId &&
+                prevState.assetId == currentMessageId.assetId
+                ) ->
                     // no need to request Sender name if we already have it
                     PlayingAudioMessage.Some(
                         conversationId = currentMessageId.conversationId,
@@ -279,6 +282,7 @@ class ConversationAudioMessagePlayer
         }
     }
 
+    @Suppress("LongMethod")
     private suspend fun playAudioMessage(
         conversationId: ConversationId,
         messageId: String,

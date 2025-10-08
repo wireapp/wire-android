@@ -65,11 +65,13 @@ class AudioMessageViewModelImpl @Inject constructor(
         viewModelScope.launch {
             audioMessagePlayer.observableAudioMessagesState
                 .mapNotNull {
-                    it[ConversationAudioMessagePlayer.MessageIdWrapper(
-                        conversationId = args.conversationId,
-                        messageId = args.messageId ?: "",
-                        assetId = args.assetId
-                    )]
+                    it[
+                        ConversationAudioMessagePlayer.MessageIdWrapper(
+                            conversationId = args.conversationId,
+                            messageId = args.messageId ?: "",
+                            assetId = args.assetId
+                        )
+                    ]
                 }
                 .distinctUntilChanged()
                 .collectLatest {

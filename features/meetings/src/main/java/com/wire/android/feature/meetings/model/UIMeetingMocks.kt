@@ -95,12 +95,3 @@ val CurrentTimeScope.scheduledRepeatingGroupMeeting
             repeatingInterval = UIMeeting.RepeatingInterval.Weekly,
         )
     )
-
-val CurrentTimeScope.meetingMocks
-    get() = listOf(
-        endedPrivateChannelMeeting,
-        ongoingAttendingOneOnOneMeeting,
-        grouplessOngoingMeeting,
-        scheduledChannelMeetingStartingSoon,
-        scheduledRepeatingGroupMeeting,
-    )

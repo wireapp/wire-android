@@ -56,7 +56,11 @@ import com.wire.android.feature.meetings.model.UIMeeting
 import com.wire.android.feature.meetings.model.UIMeeting.BelongingType
 import com.wire.android.feature.meetings.model.UIMeeting.RepeatingInterval
 import com.wire.android.feature.meetings.model.UIMeeting.Status
-import com.wire.android.feature.meetings.model.meetingMocks
+import com.wire.android.feature.meetings.model.endedPrivateChannelMeeting
+import com.wire.android.feature.meetings.model.grouplessOngoingMeeting
+import com.wire.android.feature.meetings.model.ongoingAttendingOneOnOneMeeting
+import com.wire.android.feature.meetings.model.scheduledChannelMeetingStartingSoon
+import com.wire.android.feature.meetings.model.scheduledRepeatingGroupMeeting
 import com.wire.android.feature.meetings.ui.util.PreviewMultipleThemes
 import com.wire.android.ui.common.avatar.UserProfileAvatar
 import com.wire.android.ui.common.avatar.UserProfileAvatarsRow
@@ -377,12 +381,30 @@ private val previewCurrentTimeScope = CurrentTimeScope { // mocked fixed current
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewMeetingItems() = WireTheme {
-    Column {
-        with(previewCurrentTimeScope) {
-            meetingMocks.forEach { meeting ->
-                MeetingItem(meeting = meeting, modifier = Modifier)
-            }
-        }
-    }
+fun PreviewEndedPrivateChannelMeeting() = WireTheme {
+    MeetingItem(meeting = previewCurrentTimeScope.endedPrivateChannelMeeting)
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewOngoingAttendingOneOnOneMeeting() = WireTheme {
+    MeetingItem(meeting = previewCurrentTimeScope.ongoingAttendingOneOnOneMeeting)
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewGrouplessOngoingMeeting() = WireTheme {
+    MeetingItem(meeting = previewCurrentTimeScope.grouplessOngoingMeeting)
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewScheduledChannelMeetingStartingSoon() = WireTheme {
+    MeetingItem(meeting = previewCurrentTimeScope.scheduledChannelMeetingStartingSoon)
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewScheduledRepeatingGroupMeeting() = WireTheme {
+    MeetingItem(meeting = previewCurrentTimeScope.scheduledRepeatingGroupMeeting)
 }

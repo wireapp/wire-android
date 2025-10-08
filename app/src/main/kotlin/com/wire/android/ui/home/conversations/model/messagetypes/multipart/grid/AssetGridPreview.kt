@@ -83,10 +83,6 @@ internal fun AssetGridPreview(
                     VideoAssetGridPreview(item, messageStyle)
                 }
 
-                AttachmentFileType.PDF -> {
-                    PdfAssetGridPreview(item)
-                }
-
                 else -> {
                     FileAssetGridPreview(item, messageStyle)
                 }

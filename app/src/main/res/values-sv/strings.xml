@@ -35,8 +35,6 @@
     <string name="label_learn_more">Läs mer</string>
     <string name="label_removing">Tar bort…</string>
     <string name="label_logging_in">Loggar in…</string>
-    <string name="label_membership_guest">Gäst</string>
-    <string name="label_membership_external">Extern</string>
     <string name="label_user_deleted">Togs bort</string>
     <string name="label_message_sent_failure">Message could not be sent.</string>
     <string name="label_message_edit_sent_failure">Det redigerade meddelandet kunde inte skickas till följd av problem med anslutningen.</string>
@@ -52,7 +50,6 @@
     </plurals>
     <string name="label_reset_session">Återställ session</string>
     <string name="label_reset_session_success">Återställningen av sessionen lyckades</string>
-    <string name="label_federated_membership">Federerade</string>
     <string name="label_update">Uppdatera</string>
     <string name="label_close">Stäng</string>
     <string name="label_download">Ladda ner</string>
@@ -74,7 +71,6 @@
     <string name="content_description_reveal_password">Visa lösenord</string>
     <string name="content_description_hide_password">Dölj lösenord</string>
     <string name="content_description_clear_content">Rensa innehåll</string>
-    <string name="content_description_user_avatar">Profilbild</string>
     <string name="content_description_muted_conversation">Tystad konversation</string>
     <string name="content_description_check">Bock</string>
     <string name="content_description_download_icon">Hämta ikon</string>
@@ -312,10 +308,6 @@
     <string name="user_profile_close_description">Stäng ner användarprofil</string>
     <string name="user_profile_other_accs">Dina andra konton</string>
     <string name="user_profile_status_availability">Tillgänglighet</string>
-    <string name="user_profile_status_available">Tillgänglig</string>
-    <string name="user_profile_status_busy">Upptagen</string>
-    <string name="user_profile_status_away">Borta</string>
-    <string name="user_profile_status_none">Ingen</string>
     <string name="user_profile_details_tab">Detaljer</string>
     <string name="user_profile_devices_tab">Enheter</string>
     <string name="user_profile_unblock_user">Avblockera användare</string>

@@ -36,8 +36,6 @@
     <string name="label_learn_more">もっと知る</string>
     <string name="label_removing">削除中…</string>
     <string name="label_logging_in">ログイン中…</string>
-    <string name="label_membership_guest">ゲスト</string>
-    <string name="label_membership_external">外部</string>
     <string name="label_user_deleted">削除済み</string>
     <string name="label_message_sent_failure">Message could not be sent.</string>
     <string name="label_message_edit_sent_failure">接続に問題が発生したため編集したメッセージを送信できませんでした。</string>
@@ -57,7 +55,6 @@
     </plurals>
     <string name="label_reset_session">セッションをリセットする</string>
     <string name="label_reset_session_success">セッションをリセットしました</string>
-    <string name="label_federated_membership">連合</string>
     <string name="label_update">更新</string>
     <string name="label_close">閉じる</string>
     <string name="label_download">ダウンロード</string>
@@ -83,7 +80,6 @@
     <string name="content_description_hide_password">パスワードを非表示</string>
     <string name="content_description_search_back">検索に戻るアイコン</string>
     <string name="content_description_clear_content">内容を消去</string>
-    <string name="content_description_user_avatar">プロフィール画像</string>
     <string name="content_description_muted_conversation">ミュートした会話</string>
     <string name="content_description_check">チェックマーク</string>
     <string name="content_description_download_icon">ダウンロードアイコン</string>

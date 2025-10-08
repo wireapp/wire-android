@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2025 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,21 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+package com.wire.android.emm
 
-package com.wire.android.config
+enum class ManagedConfigurationsKeys {
+    DEFAULT_SERVER_URLS,
+    SSO_CODE;
 
-import com.wire.android.util.dispatchers.DispatcherProvider
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
-
-/**
- * Default testing dispatchers provider wrapper
- */
-@OptIn(ExperimentalCoroutinesApi::class)
-class TestDispatcherProvider(private val dispatcher: CoroutineDispatcher = UnconfinedTestDispatcher()) : DispatcherProvider {
-    override fun main() = dispatcher
-    override fun io() = dispatcher
-    override fun default() = dispatcher
-    override fun unconfined() = dispatcher
+    fun asKey() = name.lowercase()
 }

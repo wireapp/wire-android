@@ -45,9 +45,6 @@
     <string name="label_learn_more">Learn more</string>
     <string name="label_removing">Removing…</string>
     <string name="label_logging_in">Logging in…</string>
-    <string name="label_membership_guest">Guest</string>
-    <string name="label_membership_external">External</string>
-    <string name="label_membership_service">App</string>
     <string name="label_user_deleted">Deleted</string>
     <string name="label_try_again">Try Again</string>
     <string name="label_done">Done</string>
@@ -71,7 +68,6 @@
     </plurals>
     <string name="label_reset_session">Reset Session</string>
     <string name="label_reset_session_success">Session successfully reset</string>
-    <string name="label_federated_membership">Federated</string>
     <string name="label_update">Update</string>
     <string name="label_close">Close</string>
     <string name="label_download">Download</string>
@@ -98,7 +94,6 @@
     <string name="content_description_hide_password">Hide password</string>
     <string name="content_description_search_back">Search back icon</string>
     <string name="content_description_clear_content">Clear content</string>
-    <string name="content_description_user_avatar">Profile picture</string>
     <string name="content_description_muted_conversation">Muted conversation</string>
     <string name="content_description_check">Check mark</string>
     <string name="content_description_download_icon">Download icon</string>
@@ -703,10 +698,6 @@
     <string name="user_profile_logout">Log out</string>
     <string name="user_profile_other_accs">Your Other Accounts</string>
     <string name="user_profile_status_availability">Availability</string>
-    <string name="user_profile_status_available">Available</string>
-    <string name="user_profile_status_busy">Busy</string>
-    <string name="user_profile_status_away">Away</string>
-    <string name="user_profile_status_none">None</string>
     <string name="user_profile_new_account_text">New Team or Add Account</string>
     <string name="user_profile_account_management">Manage Team</string>
     <string name="user_profile_details_tab">Details</string>
@@ -1871,6 +1862,12 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="press_enter_to_send_text">When this is on, you can send messages with the Enter key on your keyboard.</string>
     <string name="customization_options_header_title">Options</string>
 
+    <!-- enterprise configurations -->
+    <string name="restriction_server_urls_title">Server endpoints configuration</string>
+    <string name="restriction_sso_code_title">SSO code configuration</string>
+    <string name="restriction_server_urls_description">JSON value with the server endpoints configuration</string>
+    <string name="restriction_sso_code_description">JSON value with the default SSO code configuration</string>
+
     <!--    channel not available dialog-->
     <string name="channel_not_available_dialog_title">Channels are available for team members.</string>
     <string name="channel_not_available_dialog_description">Create a team and start collaborating for free!</string>
@@ -1884,4 +1881,6 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="failed_attachment_remove">Remove</string>
     <string name="content_description_apply_filter">Apply Filter</string>
     <string name="content_description_filter_files">Filter files</string>
+
+    <string name="profile_deeplink_feature_unavailable_title_alert">This feature is not available. Please contact your administrator.</string>
 </resources>

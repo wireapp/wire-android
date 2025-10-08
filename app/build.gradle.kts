@@ -268,6 +268,7 @@ dependencies {
     implementation(libs.aboutLibraries.compose.m3)
     implementation(libs.compose.qr.code)
     implementation(libs.audio.amplituda)
+    implementation(libs.enterprise.feedback)
 
     // screenshot testing
     screenshotTestImplementation(libs.compose.ui.tooling)
@@ -326,4 +327,6 @@ dependencies {
 
     implementation(project(":ksp"))
     ksp(project(":ksp"))
+
+    testImplementation(testFixtures(project(":core:ui-common")))
 }

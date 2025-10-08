@@ -36,8 +36,6 @@
     <string name="label_learn_more">Scopri di pi&#249;</string>
     <string name="label_removing">Rimozione in corso...</string>
     <string name="label_logging_in">Accesso in corso...</string>
-    <string name="label_membership_guest">Ospite</string>
-    <string name="label_membership_external">Esterno</string>
     <string name="label_user_deleted">Cancellato</string>
     <string name="label_message_sent_failure">Il messaggio non pu&#242; essere inviato a causa di problemi di connessione.</string>
     <string name="label_message_edit_sent_failure">Il messaggio modificato non pu&#242; essere inviato a causa di problemi di connessione.</string>
@@ -58,7 +56,6 @@
     </plurals>
     <string name="label_reset_session">Resetta Sessione</string>
     <string name="label_reset_session_success">Sessione resettata con successo</string>
-    <string name="label_federated_membership">Federato</string>
     <string name="label_update">Aggiorna</string>
     <string name="label_close">Chiudi</string>
     <string name="label_download">Scarica</string>
@@ -84,7 +81,6 @@
     <string name="content_description_hide_password">Nascondi la password</string>
     <string name="content_description_search_back">Icona di ricerca all\'indietro</string>
     <string name="content_description_clear_content">Cancella il contenuto</string>
-    <string name="content_description_user_avatar">Immagine del profilo</string>
     <string name="content_description_muted_conversation">Conversazione silenziata</string>
     <string name="content_description_check">Segno di spunta</string>
     <string name="content_description_download_icon">Icona di download</string>
@@ -434,10 +430,6 @@ Un messaggio eliminato non pu&#242; essere ripristinato.</string>
     <string name="user_profile_close_description">Chiudi profilo utente</string>
     <string name="user_profile_other_accs">Gli Altri Tuoi Profili</string>
     <string name="user_profile_status_availability">Disponibilità</string>
-    <string name="user_profile_status_available">Disponibile</string>
-    <string name="user_profile_status_busy">Occupato</string>
-    <string name="user_profile_status_away">Assente</string>
-    <string name="user_profile_status_none">Nessuno</string>
     <string name="user_profile_details_tab">Dettagli</string>
     <string name="user_profile_devices_tab">Dispositivi</string>
     <string name="user_profile_role_change_error">Si è verificato un errore provando a modificare il ruolo. Sei pregato di controllare la tua connessione a Internet e di riprovare</string>

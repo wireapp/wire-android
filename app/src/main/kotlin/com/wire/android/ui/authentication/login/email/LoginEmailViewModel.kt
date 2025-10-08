@@ -43,6 +43,7 @@ import com.wire.android.util.EMPTY
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.CountdownTimer
 import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.auth.login.ProxyCredentials
 import com.wire.kalium.logic.data.auth.verification.VerifiableAction
 import com.wire.kalium.logic.data.logout.LogoutReason
@@ -76,12 +77,14 @@ class LoginEmailViewModel @Inject constructor(
     userDataStoreProvider: UserDataStoreProvider,
     @KaliumCoreLogic coreLogic: CoreLogic,
     private val resendCodeTimer: CountdownTimer,
-    private val dispatchers: DispatcherProvider
+    private val dispatchers: DispatcherProvider,
+    defaultServerConfig: ServerConfig.Links,
 ) : LoginViewModel(
     savedStateHandle,
     clientScopeProviderFactory,
     userDataStoreProvider,
-    coreLogic
+    coreLogic,
+    defaultServerConfig
 ) {
     val loginNavArgs: LoginNavArgs = savedStateHandle.navArgs()
     private val preFilledUserIdentifier: PreFilledUserIdentifierType = loginNavArgs.userHandle ?: PreFilledUserIdentifierType.None

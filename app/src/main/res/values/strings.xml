@@ -1860,6 +1860,12 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="press_enter_to_send_text">When this is on, you can send messages with the Enter key on your keyboard.</string>
     <string name="customization_options_header_title">Options</string>
 
+    <!-- enterprise configurations -->
+    <string name="restriction_server_urls_title">Server endpoints configuration</string>
+    <string name="restriction_sso_code_title">SSO code configuration</string>
+    <string name="restriction_server_urls_description">JSON value with the server endpoints configuration</string>
+    <string name="restriction_sso_code_description">JSON value with the default SSO code configuration</string>
+
     <!--    channel not available dialog-->
     <string name="channel_not_available_dialog_title">Channels are available for team members.</string>
     <string name="channel_not_available_dialog_description">Create a team and start collaborating for free!</string>
@@ -1873,4 +1879,6 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="failed_attachment_remove">Remove</string>
     <string name="content_description_apply_filter">Apply Filter</string>
     <string name="content_description_filter_files">Filter files</string>
+
+    <string name="profile_deeplink_feature_unavailable_title_alert">This feature is not available. Please contact your administrator.</string>
 </resources>

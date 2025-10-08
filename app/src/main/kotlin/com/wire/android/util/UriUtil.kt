@@ -81,3 +81,6 @@ fun URI.findParameterValue(parameterName: String): String? {
         null
     }
 }
+
+fun String.isValidWebUrl() = (this.startsWith("http://") || this.startsWith("https://"))
+        && android.util.Patterns.WEB_URL.matcher(this).matches()

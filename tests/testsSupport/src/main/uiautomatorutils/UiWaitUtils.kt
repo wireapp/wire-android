@@ -131,12 +131,12 @@ object UiWaitUtils {
         throw AssertionError("Element found but not stable/visible with selector: ${describe(params)}")
     }
 
-    private fun describe(p: UiSelectorParams) = listOfNotNull(
-        p.text?.let { "text='$it'" },
-        p.textContains?.let { "textContains='$it'" },
-        p.resourceId?.let { "resourceId='$it'" },
-        p.className?.let { "className='$it'" },
-        p.description?.let { "description='$it'" }
+    private fun describe(params: UiSelectorParams) = listOfNotNull(
+        params.text?.let { "text='$it'" },
+        params.textContains?.let { "textContains='$it'" },
+        params.resourceId?.let { "resourceId='$it'" },
+        params.className?.let { "className='$it'" },
+        params.description?.let { "description='$it'" }
     ).joinToString(", ")
 
     fun waitUntilElementGone(

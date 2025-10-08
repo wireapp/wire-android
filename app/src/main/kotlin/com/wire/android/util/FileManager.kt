@@ -20,6 +20,7 @@ package com.wire.android.util
 
 import android.content.Context
 import android.net.Uri
+import android.webkit.MimeTypeMap
 import com.wire.android.appLogger
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.util.dispatchers.DefaultDispatcherProvider
@@ -98,6 +99,26 @@ class FileManager @Inject constructor(@ApplicationContext private val context: C
     ): Uri = withContext(dispatcher.io()) {
         val tempVideoPath = "$tempCachePath/$TEMP_VIDEO_ATTACHMENT_FILENAME".toPath()
         return@withContext getTempWritableAttachmentUri(context, tempVideoPath)
+    }
+
+    fun getExtensionFromUri(uri: Uri): String? {
+        var extension: String? = null
+
+        // Get MIME type
+        val mimeType = context.contentResolver.getType(uri)
+        if (mimeType != null) {
+            extension = MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType)
+        } else {
+            // If MIME type is null, try to get file extension from URI path
+            val path = uri.path
+            if (path != null) {
+                val lastDot = path.lastIndexOf('.')
+                if (lastDot != -1) {
+                    extension = path.substring(lastDot + 1)
+                }
+            }
+        }
+        return extension
     }
 
     suspend fun getTempWritableImageUri(

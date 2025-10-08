@@ -65,6 +65,7 @@ fun MultipartAttachmentsView(
             AssetPreview(
                 item = it,
                 messageStyle = messageStyle,
+                conversationId = conversationId,
                 accent = accent,
                 onClick = { viewModel.onClick(it) },
             )
@@ -83,6 +84,7 @@ fun MultipartAttachmentsView(
                             AssetPreview(
                                 item = group.attachments.first(),
                                 messageStyle = messageStyle,
+                                conversationId = conversationId,
                                 onClick = { viewModel.onClick(group.attachments.first()) },
                                 accent = accent
                             )
@@ -98,6 +100,7 @@ fun MultipartAttachmentsView(
                         AttachmentsList(
                             attachments = group.attachments,
                             messageStyle = messageStyle,
+                            conversationId = conversationId,
                             onClick = { viewModel.onClick(it) },
                             accent = accent
                         )
@@ -114,6 +117,7 @@ fun MultipartAttachmentsView(
 private fun AttachmentsList(
     attachments: List<MultipartAttachmentUi>,
     messageStyle: MessageStyle,
+    conversationId: ConversationId,
     accent: Accent,
     onClick: (MultipartAttachmentUi) -> Unit,
     modifier: Modifier = Modifier,
@@ -125,6 +129,7 @@ private fun AttachmentsList(
             AssetPreview(
                 item = it,
                 messageStyle = messageStyle,
+                conversationId = conversationId,
                 onClick = { onClick(it) },
                 modifier = modifier,
                 accent = accent

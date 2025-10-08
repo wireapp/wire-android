@@ -173,7 +173,6 @@ class SSODeviceBackup : KoinTest {
             pages.settingsPage.apply {
                 openBackupAndRestoreConversationsMenu()
                 iSeeBackupPageHeading()
-                Thread.sleep(1000)
                 clickCreateBackupButton()
                 clickBackUpNowButton()
                 iSeeBackupConfirmation("Conversations successfully saved")

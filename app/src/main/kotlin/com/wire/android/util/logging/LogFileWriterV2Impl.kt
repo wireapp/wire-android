@@ -23,6 +23,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
@@ -37,8 +39,6 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
-import kotlinx.coroutines.TimeoutCancellationException
-import kotlinx.coroutines.cancelAndJoin
 import java.io.BufferedWriter
 import java.io.File
 import java.io.FileWriter
@@ -109,25 +109,25 @@ class LogFileWriterV2Impl(
         }
 
         // Start periodic flush job
-            flushJob = fileWriterCoroutineScope.launch {
-                while (isActive) {
-                    delay(config.flushIntervalMs)
-                    try {
-                        withTimeout(config.bufferLockTimeoutMs) {
-                            bufferMutex.withLock {
-                                if (logBuffer.isNotEmpty()) {
-                                    flushBuffer()
-                                    lastFlushTime = System.currentTimeMillis()
-                                }
+        flushJob = fileWriterCoroutineScope.launch {
+            while (isActive) {
+                delay(config.flushIntervalMs)
+                try {
+                    withTimeout(config.bufferLockTimeoutMs) {
+                        bufferMutex.withLock {
+                            if (logBuffer.isNotEmpty()) {
+                                flushBuffer()
+                                lastFlushTime = System.currentTimeMillis()
                             }
                         }
-                    } catch (e: TimeoutCancellationException) {
-                        appLogger.w("Periodic flush timed out, buffer may be locked by another operation")
-                    } catch (e: Exception) {
-                        appLogger.e("Error during periodic flush", e)
                     }
+                } catch (e: TimeoutCancellationException) {
+                    appLogger.w("Periodic flush timed out, buffer may be locked by another operation")
+                } catch (e: Exception) {
+                    appLogger.e("Error during periodic flush", e)
                 }
             }
+        }
 
         appLogger.i("KaliumFileWritter.start: Starting log collection.")
         waitInitializationJob.join()
@@ -273,7 +273,7 @@ class LogFileWriterV2Impl(
 
                     val currentTime = System.currentTimeMillis()
                     val shouldFlush = logBuffer.size >= config.maxBufferSize ||
-                        ((currentTime - lastFlushTime) >= config.flushIntervalMs)
+                            ((currentTime - lastFlushTime) >= config.flushIntervalMs)
 
                     if (shouldFlush) {
                         flushBuffer()
@@ -361,7 +361,6 @@ class LogFileWriterV2Impl(
 
             // and here two, Clear only after successful write
             logBuffer.clear()
-
         } catch (e: IOException) {
             appLogger.e("Failed to flush log buffer", e)
         }

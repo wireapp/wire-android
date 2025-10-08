@@ -113,7 +113,7 @@ fun ConversationList(
             },
             contentType = lazyPagingConversations.itemContentType {
                 when (it) {
-                    is ConversationSection -> ConversationItemType::class.simpleName
+                    is ConversationSection -> ConversationSection::class.simpleName
                     is ConversationItem -> ConversationItem::class.simpleName
                 }
             }

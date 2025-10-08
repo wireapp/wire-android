@@ -366,26 +366,6 @@ class LogFileWriterV2Impl(
             appLogger.e("Failed to flush log buffer", e)
         }
     }
-        if (logBuffer.isEmpty()) return
-        val linesToWrite = logBuffer.toList()
-        logBuffer.clear()
-        try {
-            // Use BufferedWriter for efficient writing
-            val writer = bufferedWriter ?: BufferedWriter(
-                FileWriter(activeLoggingFile, true),
-                config.bufferSizeBytes
-            ).also { bufferedWriter = it }
-
-            linesToWrite.forEach { line ->
-                writer.appendLine(line)
-            }
-            writer.flush()
-        } catch (e: IOException) {
-            appLogger.e("Failed to flush log buffer", e)
-            // Re-add failed lines back to buffer for retry
-            logBuffer.addAll(0, linesToWrite)
-        }
-    }
 
     companion object {
         private const val LOG_FILE_PREFIX = "wire"

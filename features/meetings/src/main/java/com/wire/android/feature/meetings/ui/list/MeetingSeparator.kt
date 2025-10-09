@@ -18,22 +18,18 @@
 package com.wire.android.feature.meetings.ui.list
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextOverflow
 import com.wire.android.feature.meetings.R
 import com.wire.android.feature.meetings.model.MeetingSeparator
 import com.wire.android.feature.meetings.ui.util.CurrentTimeScope
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.theme.wireColorScheme
-import com.wire.android.ui.theme.wireTypography
+import com.wire.android.ui.common.rowitem.BigSectionHeader
+import com.wire.android.ui.common.rowitem.SectionHeader
 import com.wire.android.util.DateAndTimeParsers
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.Instant
@@ -77,38 +73,6 @@ fun CurrentTimeScope.MeetingSeparator(
                 )
         }
     }
-}
-
-@Composable
-fun SectionHeader(
-    name: String,
-    modifier: Modifier = Modifier,
-    padding: PaddingValues = PaddingValues(horizontal = dimensions().spacing16x, vertical = dimensions().spacing8x),
-) {
-    Text(
-        text = name.uppercase(),
-        modifier = modifier.padding(padding),
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis,
-        style = MaterialTheme.wireTypography.title03,
-        color = MaterialTheme.wireColorScheme.secondaryText,
-    )
-}
-
-@Composable
-fun BigSectionHeader(
-    name: String,
-    modifier: Modifier = Modifier,
-    padding: PaddingValues = PaddingValues(horizontal = dimensions().spacing16x, vertical = dimensions().spacing8x),
-) {
-    Text(
-        text = name,
-        modifier = modifier.padding(padding),
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis,
-        style = MaterialTheme.wireTypography.body02,
-        color = MaterialTheme.wireColorScheme.onSurface,
-    )
 }
 
 @Composable

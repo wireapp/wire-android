@@ -30,6 +30,7 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.di.IsProfileQRCodeEnabledUseCaseProvider
 import com.wire.android.di.ObserveIfE2EIRequiredDuringLoginUseCaseProvider
 import com.wire.android.di.ObserveScreenshotCensoringConfigUseCaseProvider
 import com.wire.android.di.ObserveSyncStateUseCaseProvider
@@ -846,7 +847,7 @@ class WireActivityViewModelTest {
         lateinit var observeEstablishedCalls: ObserveEstablishedCallsUseCase
 
         @MockK
-        lateinit var isProfileQRCodeEnabled: IsProfileQRCodeEnabledUseCase
+        lateinit var isProfileQRCodeEnabledFactory: IsProfileQRCodeEnabledUseCaseProvider.Factory
 
         private val viewModel by lazy {
             WireActivityViewModel(
@@ -868,7 +869,7 @@ class WireActivityViewModelTest {
                 globalDataStore = { globalDataStore },
                 observeIfE2EIRequiredDuringLoginUseCaseProviderFactory = observeIfE2EIRequiredDuringLoginUseCaseProviderFactory,
                 workManager = { workManager },
-                isProfileQRCodeEnabled = isProfileQRCodeEnabled,
+                isProfileQRCodeEnabledFactory = isProfileQRCodeEnabledFactory,
             )
         }
 
@@ -989,7 +990,9 @@ class WireActivityViewModelTest {
         }
 
         suspend fun withProfileQRCodeEnabled(isEnabled: Boolean = true) = apply {
-            coEvery { isProfileQRCodeEnabled() } returns isEnabled
+            val useCase = mockk<IsProfileQRCodeEnabledUseCase>()
+            coEvery { isProfileQRCodeEnabledFactory.create(any()).isProfileQRCodeEnabled } returns useCase
+            coEvery { useCase() } returns isEnabled
         }
 
         fun arrange() = this to viewModel

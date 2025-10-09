@@ -18,14 +18,17 @@
 package com.wire.android.feature.meetings.ui.list
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import androidx.paging.insertSeparators
 import com.wire.android.feature.meetings.model.MeetingItem
 import com.wire.android.feature.meetings.model.MeetingListItem
 import com.wire.android.feature.meetings.model.MeetingSeparator
 import com.wire.android.feature.meetings.ui.MeetingsTabItem
-import com.wire.android.feature.meetings.ui.mock.meetingMocks
+import com.wire.android.feature.meetings.ui.mock.MeetingMocksProvider
 import com.wire.android.feature.meetings.ui.util.CurrentTimeScope
+import com.wire.android.util.dispatchers.DispatcherProvider
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -33,6 +36,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
@@ -50,22 +54,31 @@ class MeetingListViewModelPreview(
     type: MeetingsTabItem,
     showingAll: Boolean = type == MeetingsTabItem.PAST,
 ) : MeetingListViewModel {
-    override val meetings: Flow<PagingData<MeetingListItem>> =
-        MutableStateFlow(PagingData.from(data = currentTimeScope.meetingMocks(showingAll, type).insertHeaders(showingAll)))
+    private val meetingMocksProvider = MeetingMocksProvider(currentTimeScope, type)
+    override val meetings: Flow<PagingData<MeetingListItem>> = with(currentTimeScope) {
+        MutableStateFlow(PagingData.from(meetingMocksProvider.getItems(showingAll).insertHeaders(showingAll)))
+    }
 }
 
 @HiltViewModel(assistedFactory = MeetingListViewModelImpl.Factory::class)
-class MeetingListViewModelImpl @AssistedInject constructor(@Assisted val type: MeetingsTabItem) : ViewModel(), MeetingListViewModel {
+class MeetingListViewModelImpl @AssistedInject constructor(
+    @Assisted val type: MeetingsTabItem,
+    dispatcher: DispatcherProvider,
+) : ViewModel(), MeetingListViewModel {
     @AssistedFactory
     interface Factory {
         fun create(type: MeetingsTabItem): MeetingListViewModelImpl
     }
 
     private val showingAll = MutableStateFlow(type == MeetingsTabItem.PAST) // for PAST always show all, for NEXT start with false
-    override val meetings: Flow<PagingData<MeetingListItem>> = showingAll.mapLatest { showingAll ->
-        PagingData.from(CurrentTimeScope().meetingMocks(showingAll, type)) // TODO replace with real data source
-            .insertSeparators { before, after -> generateSeparator(before, after, showingAll) }
-    }
+    private val meetingMocksProvider = MeetingMocksProvider(CurrentTimeScope(), type) // TODO replace with real data source
+    override val meetings: Flow<PagingData<MeetingListItem>> = showingAll
+        .mapLatest { showingAll ->
+            PagingData.from(meetingMocksProvider.getItems(showingAll))
+                .insertSeparators { before, after -> generateSeparator(before, after, showingAll) }
+        }
+        .flowOn(dispatcher.io())
+        .cachedIn(viewModelScope)
 
     override fun showAll() { showingAll.value = true }
 }

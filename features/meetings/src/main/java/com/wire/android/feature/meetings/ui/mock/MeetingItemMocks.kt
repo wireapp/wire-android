@@ -209,24 +209,18 @@ val CurrentTimeScope.nextMeetingMocks
         )
     )
 
-fun CurrentTimeScope.meetingMocks(showingAll: Boolean, type: MeetingsTabItem) = when (type) {
-    MeetingsTabItem.PAST -> pastMeetingMocks
-    MeetingsTabItem.NEXT -> nextMeetingMocks
-}.filter {
-    val localDate = it.status.startTime.toLocalDateTime(TimeZone.currentSystemDefault()).date
-    val currentLocalDate = currentTime().toLocalDateTime(TimeZone.currentSystemDefault()).date
-    when {
-        !showingAll && type == MeetingsTabItem.PAST -> currentLocalDate.minus(1, DateTimeUnit.DAY) <= localDate
-        !showingAll && type == MeetingsTabItem.NEXT -> currentLocalDate.plus(1, DateTimeUnit.DAY) >= localDate
-        else -> true
+class MeetingMocksProvider(val currentTimeScope: CurrentTimeScope, private val type: MeetingsTabItem) {
+    private val allItems = when (type) {
+        MeetingsTabItem.PAST -> currentTimeScope.pastMeetingMocks
+        MeetingsTabItem.NEXT -> currentTimeScope.nextMeetingMocks
+    }
+    fun getItems(showingAll: Boolean) = allItems.filter { meeting ->
+        val localDate = meeting.status.startTime.toLocalDateTime(TimeZone.currentSystemDefault()).date
+        val currentLocalDate = currentTimeScope.currentTime().toLocalDateTime(TimeZone.currentSystemDefault()).date
+        when {
+            !showingAll && type == MeetingsTabItem.PAST -> currentLocalDate.minus(1, DateTimeUnit.DAY) <= localDate
+            !showingAll && type == MeetingsTabItem.NEXT -> currentLocalDate.plus(1, DateTimeUnit.DAY) >= localDate
+            else -> true
+        }
     }
 }
-
-val CurrentTimeScope.meetingMocks
-    get() = listOf(
-        endedPrivateChannelMeeting,
-        ongoingAttendingOneOnOneMeeting,
-        grouplessOngoingMeeting,
-        scheduledChannelMeetingStartingSoon,
-        scheduledRepeatingGroupMeeting,
-    )

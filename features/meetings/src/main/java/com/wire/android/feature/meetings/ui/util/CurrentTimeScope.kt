@@ -26,7 +26,7 @@ import kotlinx.datetime.atTime
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.todayIn
 
-data class CurrentTimeScope(val currentTime: () -> Instant = Clock.System::now)  // can be changed for preview purposes
+data class CurrentTimeScope(val currentTime: () -> Instant = Clock.System::now) // can be changed for preview purposes
 
 @Composable
 fun rememberCurrentTimeScope(currentTime: () -> Instant = Clock.System::now): CurrentTimeScope = remember {

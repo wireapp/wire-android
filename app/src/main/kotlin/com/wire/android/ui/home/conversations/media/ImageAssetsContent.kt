@@ -58,8 +58,8 @@ import com.wire.kalium.logic.data.message.MessageAssetStatus
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.flowOf
 
 @Composable
 fun ImageAssetsContent(
@@ -204,7 +204,7 @@ fun mockImages(): Pair<Flow<PagingData<UIImageAssetPagingItem>>, PersistentMap<S
     val msg2 = mockUIAssetMessage().copy(assetId = "asset2", messageId = "msg2")
     val msg3 = mockUIAssetMessage().copy(assetId = "asset3", messageId = "msg3")
     val conversationId = ConversationId("value", "domain")
-    val flowOfAssets = flowOf(
+    val flowOfAssets = MutableStateFlow(
         PagingData.from(
             listOf(
                 UIImageAssetPagingItem.Label("October"),

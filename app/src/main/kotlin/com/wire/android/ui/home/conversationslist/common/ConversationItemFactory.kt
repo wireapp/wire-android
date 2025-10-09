@@ -170,7 +170,7 @@ private fun GeneralConversationItem(
         is ConversationItem.Group -> {
             with(conversation) {
                 RowItemTemplate(
-                    modifier = modifier,
+                    modifier = modifier.padding(start = dimensions().spacing8x),
                     titleStartPadding = dimensions().spacing0x,
                     leadingIcon = {
                         Row {
@@ -228,7 +228,7 @@ private fun GeneralConversationItem(
         is ConversationItem.PrivateConversation -> {
             with(conversation) {
                 RowItemTemplate(
-                    modifier = modifier,
+                    modifier = modifier.padding(start = dimensions().spacing8x),
                     leadingIcon = {
                         Row {
                             if (isSelectable) {
@@ -274,7 +274,7 @@ private fun GeneralConversationItem(
         is ConversationItem.ConnectionConversation -> {
             with(conversation) {
                 RowItemTemplate(
-                    modifier = modifier,
+                    modifier = modifier.padding(start = dimensions().spacing8x),
                     leadingIcon = { ConversationUserAvatar(userAvatarData) },
                     title = {
                         UserLabel(
@@ -342,7 +342,7 @@ fun AudioControlButtons(
 @Composable
 fun LoadingConversationItem(modifier: Modifier = Modifier) {
     RowItemTemplate(
-        modifier = modifier,
+        modifier = modifier.padding(start = dimensions().spacing8x),
         leadingIcon = {
             Box(
                 modifier = Modifier

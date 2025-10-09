@@ -55,8 +55,8 @@ import com.wire.kalium.logic.data.message.MessageAssetStatus
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.datetime.Instant
 
 @Composable
@@ -175,7 +175,7 @@ fun mockAssets(): Pair<Flow<PagingData<UIPagingItem>>, PersistentMap<String, Mes
     val msg4 = mockAssetAudioMessage(assetId = "assset4", messageId = "msg4")
     val msg5 = mockAssetAudioMessage(assetId = "assset5", messageId = "msg5")
     val conversationId = ConversationId("value", "domain")
-    val flowOfAssets = flowOf(
+    val flowOfAssets = MutableStateFlow(
         PagingData.from(
             listOf(
                 UIPagingItem.Label("October"),

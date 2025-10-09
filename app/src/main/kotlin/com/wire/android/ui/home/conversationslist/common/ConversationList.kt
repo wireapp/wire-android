@@ -51,8 +51,8 @@ import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.ArrowRightIcon
-import com.wire.android.ui.common.rowitem.RowItemTemplate
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.rowitem.RowItemTemplate
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.UILastMessageContent
 import com.wire.android.ui.home.conversationslist.model.BadgeEventType
@@ -74,7 +74,7 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.MutableStateFlow
 
 @Suppress("LongParameterList", "CyclomaticComplexMethod")
 @Composable
@@ -342,7 +342,7 @@ private fun fakeChannel(
 fun previewConversationFoldersFlow(
     searchQuery: String = "",
     list: List<ConversationFolderItem> = previewConversationFolders(searchQuery = searchQuery)
-) = flowOf(
+) = MutableStateFlow(
     PagingData.from(
         data = list,
         sourceLoadStates = LoadStates(

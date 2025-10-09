@@ -65,11 +65,6 @@ internal fun AssetGridPreview(
                     shape = RoundedCornerShape(dimensions().messageAttachmentGridCornerSize)
                 )
             }
-            .border(
-                width = 1.dp,
-                color = colorsScheme().outline,
-                shape = RoundedCornerShape(dimensions().messageAttachmentGridCornerSize)
-            )
             .clip(RoundedCornerShape(dimensions().messageAttachmentGridCornerSize))
     ) {
 

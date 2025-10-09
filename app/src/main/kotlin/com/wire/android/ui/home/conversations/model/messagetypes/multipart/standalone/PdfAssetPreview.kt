@@ -105,13 +105,17 @@ internal fun PdfAssetPreview(
                     shape = RoundedCornerShape(dimensions().messageAttachmentCornerSize)
                 )
             }
-            .clip(RoundedCornerShape(dimensions().buttonCornerSize))
-            .padding(dimensions().spacing10x),
+            .clip(RoundedCornerShape(dimensions().buttonCornerSize)),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(dimensions().spacing8x)
     ) {
 
         FileHeaderView(
+            modifier = Modifier.padding(
+                start = dimensions().spacing8x,
+                top = dimensions().spacing8x,
+                end = dimensions().spacing8x
+            ),
             extension = item.fileName?.fileExtension() ?: item.mimeType.substringAfter("/"),
             size = item.assetSize,
             messageStyle = messageStyle
@@ -119,7 +123,9 @@ internal fun PdfAssetPreview(
 
         item.fileName?.let {
             Text(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = dimensions().spacing8x, end = dimensions().spacing8x),
                 text = it,
                 style = MaterialTheme.wireTypography.body02,
                 maxLines = 2,

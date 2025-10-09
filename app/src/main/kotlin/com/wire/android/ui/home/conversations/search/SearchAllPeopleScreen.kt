@@ -50,10 +50,10 @@ import com.wire.android.ui.home.conversations.search.widget.SearchFailureBox
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.util.extension.FolderType
-import com.wire.android.util.extension.folderWithElements
+import com.wire.android.util.ui.FolderType
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.keepOnTopWhenNotScrolled
+import com.wire.android.util.ui.sectionWithElements
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.collections.immutable.ImmutableList
@@ -232,11 +232,11 @@ private fun LazyListScope.internalSearchResults(
     searchQuery: String,
     onShowAllButtonClicked: () -> Unit,
     onOpenUserProfile: (Contact) -> Unit,
-    expanded: Boolean,
     onExpansionChanged: (Boolean) -> Unit,
+    expanded: Boolean,
 ) {
     if (searchResult.isNotEmpty()) {
-        folderWithElements(
+        sectionWithElements(
             header = searchTitle,
             items = (if (allItemsVisible) searchResult else searchResult.take(DEFAULT_SEARCH_RESULT_ITEM_SIZE))
                 .associateBy { (contact, _) ->
@@ -296,13 +296,13 @@ private fun LazyListScope.externalSearchResults(
     searchQuery: String,
     onShowAllButtonClicked: () -> Unit,
     onOpenUserProfile: (Contact) -> Unit,
-    onExpansionChanged: (Boolean) -> Unit,
     expanded: Boolean,
+    onExpansionChanged: (Boolean) -> Unit,
 ) {
     val itemsList =
         if (allItemsVisible) searchResult else searchResult.take(DEFAULT_SEARCH_RESULT_ITEM_SIZE)
 
-    folderWithElements(
+    sectionWithElements(
         header = searchTitle,
         items = itemsList.associateBy { it.id },
         folderType = FolderType.Collapsing(expanded = expanded, onChanged = onExpansionChanged),
@@ -321,7 +321,6 @@ private fun LazyListScope.externalSearchResults(
             )
         }
     }
-
     if (searchResult.size > DEFAULT_SEARCH_RESULT_ITEM_SIZE && showMoreOrLessButtonVisible && expanded) {
         item {
             Box(

@@ -55,7 +55,11 @@ import com.wire.android.feature.meetings.model.MeetingItem
 import com.wire.android.feature.meetings.model.MeetingItem.BelongingType
 import com.wire.android.feature.meetings.model.MeetingItem.RepeatingInterval
 import com.wire.android.feature.meetings.model.MeetingItem.Status
-import com.wire.android.feature.meetings.ui.mock.meetingMocks
+import com.wire.android.feature.meetings.ui.mock.endedPrivateChannelMeeting
+import com.wire.android.feature.meetings.ui.mock.grouplessOngoingMeeting
+import com.wire.android.feature.meetings.ui.mock.ongoingAttendingOneOnOneMeeting
+import com.wire.android.feature.meetings.ui.mock.scheduledChannelMeetingStartingSoon
+import com.wire.android.feature.meetings.ui.mock.scheduledRepeatingGroupMeeting
 import com.wire.android.feature.meetings.ui.util.CurrentTimeScope
 import com.wire.android.feature.meetings.ui.util.PreviewMultipleThemes
 import com.wire.android.feature.meetings.ui.util.previewCurrentTimeScope
@@ -74,7 +78,12 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.DateAndTimeParsers
 import com.wire.kalium.logic.data.id.ConversationId
 import kotlinx.coroutines.delay
+import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.atTime
+import kotlinx.datetime.toInstant
+import kotlinx.datetime.todayIn
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
@@ -362,12 +371,30 @@ private fun PrimaryBodyText(text: String) {
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewMeetingItems() = WireTheme {
-    Column {
-        with(previewCurrentTimeScope) {
-            meetingMocks.forEach { meeting ->
-                MeetingItem(meeting = meeting)
-            }
-        }
-    }
+fun PreviewEndedPrivateChannelMeeting() = WireTheme {
+    MeetingItem(meeting = previewCurrentTimeScope.endedPrivateChannelMeeting)
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewOngoingAttendingOneOnOneMeeting() = WireTheme {
+    MeetingItem(meeting = previewCurrentTimeScope.ongoingAttendingOneOnOneMeeting)
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewGrouplessOngoingMeeting() = WireTheme {
+    MeetingItem(meeting = previewCurrentTimeScope.grouplessOngoingMeeting)
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewScheduledChannelMeetingStartingSoon() = WireTheme {
+    MeetingItem(meeting = previewCurrentTimeScope.scheduledChannelMeetingStartingSoon)
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewScheduledRepeatingGroupMeeting() = WireTheme {
+    MeetingItem(meeting = previewCurrentTimeScope.scheduledRepeatingGroupMeeting)
 }

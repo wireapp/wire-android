@@ -47,7 +47,7 @@ import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.home.conversations.mock.mockUIAssetMessage
 import com.wire.android.ui.home.conversations.model.MediaAssetImage
 import com.wire.android.ui.home.conversations.usecase.UIImageAssetPagingItem
-import com.wire.android.ui.home.conversationslist.common.FolderHeader
+import com.wire.android.ui.common.rowitem.SectionHeader
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -168,7 +168,7 @@ private fun ImageAssetGrid(
                                     top = if (index == 0) dimensions().spacing0x else dimensions().spacing6x,
                                 )
                         ) {
-                            FolderHeader(
+                            SectionHeader(
                                 name = label.uppercase(),
                                 modifier = Modifier
                                     .background(MaterialTheme.wireColorScheme.background)

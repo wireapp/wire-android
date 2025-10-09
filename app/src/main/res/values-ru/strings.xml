@@ -201,8 +201,6 @@
     <string name="content_description_open_label">открыть</string>
     <string name="content_description_join_call_label">присоединиться к вызову</string>
     <string name="content_description_share_label">поделиться</string>
-    <string name="content_description_collapse_label">свернуть</string>
-    <string name="content_description_expand_label">развернуть</string>
     <string name="content_description_edit_label">редактировать</string>
     <string name="content_description_select_label">выбрать</string>
     <string name="content_description_unselect_label">отменить выбор</string>

@@ -45,7 +45,7 @@ import com.wire.android.ui.home.conversations.mock.mockAssetAudioMessage
 import com.wire.android.ui.home.conversations.mock.mockAssetMessage
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.usecase.UIPagingItem
-import com.wire.android.ui.home.conversationslist.common.FolderHeader
+import com.wire.android.ui.common.rowitem.SectionHeader
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -112,7 +112,7 @@ private fun AssetMessagesListContent(
                             top = if (index == 0) dimensions().spacing0x else dimensions().spacing6x,
                         )
                 ) {
-                    FolderHeader(
+                    SectionHeader(
                         name = uiPagingItem.date.uppercase(),
                         modifier = Modifier
                             .background(MaterialTheme.wireColorScheme.background)

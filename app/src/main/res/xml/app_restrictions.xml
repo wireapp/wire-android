@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Wire
+  ~ Copyright (C) 2025 Wire Swiss GmbH
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program. If not, see http://www.gnu.org/licenses/.
+  -->
+<restrictions xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Server Endpoints Configuration -->
+    <restriction
+            android:description="@string/restriction_server_urls_description"
+            android:key="default_server_urls"
+            android:restrictionType="string"
+            android:title="@string/restriction_server_urls_title" />
+
+    <!-- SSO code Configuration -->
+    <restriction
+            android:description="@string/restriction_sso_code_description"
+            android:key="sso_code"
+            android:restrictionType="string"
+            android:title="@string/restriction_sso_code_title" />
+
+</restrictions>

@@ -17,12 +17,6 @@
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
 <resources>
-    <string name="label_membership_guest">Convidado</string>
-    <string name="label_membership_external">Externo</string>
-    <string name="label_federated_membership">Federado</string>
-	<string name="user_profile_status_available">Disponível</string>
-    <string name="user_profile_status_busy">Ocupado</string>
-    <string name="user_profile_status_away">Ausente</string>
-    <string name="user_profile_status_none">Nenhum</string>
-    <string name="content_description_user_avatar">Imagem de perfil</string>
+    <string name="content_description_collapse_label">recolher</string>
+    <string name="content_description_expand_label">expandir</string>
 </resources>

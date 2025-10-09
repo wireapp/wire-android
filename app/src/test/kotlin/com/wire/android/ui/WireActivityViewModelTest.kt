@@ -63,6 +63,7 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.appVersioning.ObserveIfAppUpdateRequiredUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.client.ClearNewClientsForUserUseCase
+import com.wire.kalium.logic.feature.client.IsProfileQRCodeEnabledUseCase
 import com.wire.kalium.logic.feature.client.NewClientResult
 import com.wire.kalium.logic.feature.client.ObserveNewClientsUseCase
 import com.wire.kalium.logic.feature.conversation.CheckConversationInviteCodeUseCase
@@ -335,6 +336,7 @@ class WireActivityViewModelTest {
             val (_, viewModel) = Arrangement()
                 .withSomeCurrentSession()
                 .withDeepLinkResult(result)
+                .withProfileQRCodeEnabled()
                 .arrange()
 
             viewModel.actions.test {
@@ -843,6 +845,9 @@ class WireActivityViewModelTest {
         @MockK
         lateinit var observeEstablishedCalls: ObserveEstablishedCallsUseCase
 
+        @MockK
+        lateinit var isProfileQRCodeEnabled: IsProfileQRCodeEnabledUseCase
+
         private val viewModel by lazy {
             WireActivityViewModel(
                 coreLogic = { coreLogic },
@@ -862,7 +867,8 @@ class WireActivityViewModelTest {
                 observeScreenshotCensoringConfigUseCaseProviderFactory = observeScreenshotCensoringConfigUseCaseProviderFactory,
                 globalDataStore = { globalDataStore },
                 observeIfE2EIRequiredDuringLoginUseCaseProviderFactory = observeIfE2EIRequiredDuringLoginUseCaseProviderFactory,
-                workManager = { workManager }
+                workManager = { workManager },
+                isProfileQRCodeEnabled = isProfileQRCodeEnabled,
             )
         }
 
@@ -980,6 +986,10 @@ class WireActivityViewModelTest {
 
         suspend fun withThemeOption(themeOption: ThemeOption) = apply {
             coEvery { globalDataStore.selectedThemeOptionFlow() } returns flowOf(themeOption)
+        }
+
+        suspend fun withProfileQRCodeEnabled(isEnabled: Boolean = true) = apply {
+            coEvery { isProfileQRCodeEnabled() } returns isEnabled
         }
 
         fun arrange() = this to viewModel

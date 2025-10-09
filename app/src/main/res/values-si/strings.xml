@@ -198,8 +198,6 @@
     <string name="content_description_open_label">විවෘත</string>
     <string name="content_description_join_call_label">ඇමතුමකට සම්බන්ධ වන්න</string>
     <string name="content_description_share_label">බෙදාගන්න</string>
-    <string name="content_description_collapse_label">බිඳ වැටීම</string>
-    <string name="content_description_expand_label">පුළුල් කරන්න</string>
     <string name="content_description_edit_label">සංස්කරණය කරන්න</string>
     <string name="content_description_select_label">තෝරන්න</string>
     <string name="content_description_unselect_label">තේරීම ඉවත් කරන්න</string>

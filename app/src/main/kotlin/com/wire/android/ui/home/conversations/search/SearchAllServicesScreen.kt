@@ -45,7 +45,7 @@ import com.wire.android.ui.home.conversations.search.widget.SearchFailureBox
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.util.extension.folderWithElements
+import com.wire.android.util.ui.sectionWithElements
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.user.ConnectionState
 import kotlinx.collections.immutable.ImmutableList
@@ -114,7 +114,7 @@ private fun SuccessServicesList(
             modifier = Modifier
                 .weight(1f)
         ) {
-            folderWithElements(
+            sectionWithElements(
                 items = services.associateBy { it.id }
             ) {
                 val clickDescription = stringResource(id = R.string.content_description_open_service_label)

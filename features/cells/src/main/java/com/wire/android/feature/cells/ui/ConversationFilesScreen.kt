@@ -249,6 +249,7 @@ fun ConversationFilesScreenContent(
                                 conversationId = path,
                                 screenTitle = title,
                                 isRecycleBin = isRecycleBin,
+                                parentFolderUuid = parentFolderUuid,
                                 breadcrumbs = if (!isRecycleBin) {
                                     (breadcrumbs ?: emptyArray()) + title
                                 } else { null }

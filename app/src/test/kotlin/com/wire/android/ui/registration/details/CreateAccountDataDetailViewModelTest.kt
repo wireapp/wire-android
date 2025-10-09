@@ -12,6 +12,7 @@ import com.wire.android.ui.authentication.create.common.CreateAccountDataNavArgs
 import com.wire.android.ui.authentication.create.common.UserRegistrationInfo
 import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.auth.AuthenticationScope
 import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
 import com.wire.kalium.logic.feature.auth.ValidatePasswordResult
@@ -222,7 +223,8 @@ class CreateAccountDataDetailViewModelTest {
             validatePassword = validatePasswordUseCase,
             coreLogic = coreLogic,
             registrationAnalyticsManager = anonymousAnalyticsManager,
-            globalDataStore = globalDataStore
+            globalDataStore = globalDataStore,
+            defaultServerConfig = ServerConfig.STAGING,
         )
     }
 }

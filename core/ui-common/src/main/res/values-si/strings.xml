@@ -17,12 +17,6 @@
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
 <resources>
-    <string name="label_membership_guest">අමුත්තා</string>
-    <string name="label_membership_external">බාහිර</string>
-    <string name="label_federated_membership">ඒකාබද්ධ</string>
-	<string name="user_profile_status_available">සිටිනවා</string>
-    <string name="user_profile_status_busy">කාර්යබහුලයි</string>
-    <string name="user_profile_status_away">නොසිටියි</string>
-    <string name="user_profile_status_none">කිසිවක් නැත</string>
-    <string name="content_description_user_avatar">පැතිකඩ ඡායාරූපය</string>
+    <string name="content_description_collapse_label">බිඳ වැටීම</string>
+    <string name="content_description_expand_label">පුළුල් කරන්න</string>
 </resources>

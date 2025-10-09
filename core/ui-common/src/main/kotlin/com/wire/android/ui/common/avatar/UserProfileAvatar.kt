@@ -69,10 +69,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.toSize
 import com.google.common.primitives.Floats.min
-import com.wire.android.ui.common.R
 import com.wire.android.model.Clickable
 import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
+import com.wire.android.ui.common.R
 import com.wire.android.ui.common.clickable
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -156,7 +156,6 @@ fun UserProfileAvatar(
             .clickable(clickable)
     ) {
         var userStatusIndicatorParams by remember { mutableStateOf(Size.Zero to Offset.Zero) }
-        var userUnreadIndicatorParams by remember { mutableStateOf(Size.Zero to Offset.Zero) }
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
@@ -189,7 +188,6 @@ fun UserProfileAvatar(
                         shape = CircleShape,
                         color = avatarBorderColor
                     )
-                    .padding(avatarBorderWidth)
                     .size(size)
                     .testTag(USER_AVATAR_TEST_TAG),
             )
@@ -234,9 +232,6 @@ fun UserProfileAvatar(
                             x = offsetToAlignUnreadIndicatorWithAvatar.dp,
                             y = -offsetToAlignUnreadIndicatorWithAvatar.dp
                         )
-                        .onGloballyPositioned {
-                            userUnreadIndicatorParams = it.size.toSize() to it.positionInParent()
-                        }
                         .testTag(UNREAD_INFO_TEST_TAG)
                 )
             }

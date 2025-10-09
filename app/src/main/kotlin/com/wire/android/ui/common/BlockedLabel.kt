@@ -40,7 +40,7 @@ fun BlockedLabel(modifier: Modifier = Modifier) {
         modifier = modifier.border(
             width = dimensions().spacing1x,
             shape = RoundedCornerShape(dimensions().spacing4x),
-            color = colorsScheme().secondaryButtonDisabledOutline
+            color = colorsScheme().outline
         )
     ) {
         Text(

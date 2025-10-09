@@ -18,4 +18,15 @@
 <resources>
     <string name="all_meetings_tab_upcoming">UPCOMING</string>
     <string name="all_meetings_tab_past">PAST</string>
+    <string name="meeting_repeating_daily">Daily</string>
+    <string name="meeting_repeating_weekly">Weekly</string>
+    <string name="meeting_repeating_biweekly">Biweekly</string>
+    <string name="meeting_repeating_monthly">Monthly</string>
+    <string name="meeting_repeating_annually">Annually</string>
+    <string name="meeting_started_at">Started at %1$s</string>
+    <string name="content_description_meeting_icon">Meeting icon</string>
+    <string name="content_description_more_menu_icon">Meeting more menu icon</string>
+    <string name="meeting_join_button">Join</string>
+    <string name="meeting_attending">Attending</string>
+    <string name="meeting_starting_in">Starting in %1$s</string>
 </resources>

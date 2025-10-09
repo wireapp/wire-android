@@ -32,4 +32,6 @@
     <string name="content_description_pending_connection_badge">bağlantı isteğinin onaylanması bekleniyor</string>
     <string name="content_description_alert">Uyarı</string>
     <string name="content_description_show_more_options">Daha fazla seçenek göster</string>
+    <string name="content_description_collapse_label">daralt</string>
+    <string name="content_description_expand_label">genişlet</string>
 </resources>

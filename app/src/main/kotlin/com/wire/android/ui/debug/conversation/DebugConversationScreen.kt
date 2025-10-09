@@ -44,7 +44,7 @@ import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.WireTopAppBarTitle
-import com.wire.android.ui.home.conversationslist.common.FolderHeader
+import com.wire.android.ui.common.rowitem.SectionHeader
 import com.wire.android.ui.home.settings.SettingsItem
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
@@ -88,15 +88,15 @@ fun DebugConversationScreen(
                     .fillMaxSize()
                     .padding(paddingValues),
             ) {
-                FolderHeader("Conversation details")
+                SectionHeader("Conversation details")
                 ConversationDetailsView(state)
 
                 state.mlsProtocolInfo?.let {
-                    FolderHeader("MLS")
+                    SectionHeader("MLS")
                     MlsDetailsView(it)
                 }
 
-                FolderHeader("Actions")
+                SectionHeader("Actions")
                 ConversationActionsView(
                     state = state,
                     onUpdate = { viewModel.updateConversation() },

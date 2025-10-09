@@ -198,8 +198,6 @@
     <string name="content_description_open_label">megnyitás</string>
     <string name="content_description_join_call_label">híváshoz csatlakozás</string>
     <string name="content_description_share_label">megosztás</string>
-    <string name="content_description_collapse_label">összecsukás</string>
-    <string name="content_description_expand_label">kinyitás</string>
     <string name="content_description_edit_label">szerkeszt</string>
     <string name="content_description_select_label">kiválaszt</string>
     <string name="content_description_unselect_label">kiválasztás megszüntetése</string>

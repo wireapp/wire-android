@@ -195,8 +195,6 @@
     <string name="content_description_open_label">abrir</string>
     <string name="content_description_join_call_label">participar de uma chamada</string>
     <string name="content_description_share_label">compartilhar</string>
-    <string name="content_description_collapse_label">recolher</string>
-    <string name="content_description_expand_label">expandir</string>
     <string name="content_description_edit_label">editar</string>
     <string name="content_description_select_label">selecionar</string>
     <string name="content_description_unselect_label">desmarcar</string>

@@ -49,7 +49,7 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsViewModel
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
-import com.wire.android.ui.home.conversationslist.common.FolderHeader
+import com.wire.android.ui.common.rowitem.SectionHeader
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType
 import com.wire.android.ui.home.settings.SwitchState
 import com.wire.android.ui.theme.WireTheme
@@ -230,7 +230,7 @@ private fun LazyListScope.folderWithItems(
 ) {
     if (items.isNotEmpty() && showFolder) {
         item {
-            FolderHeader(
+            SectionHeader(
                 name = stringResource(folderTitleResId),
                 padding = PaddingValues(
                     horizontal = dimensions().spacing16x,

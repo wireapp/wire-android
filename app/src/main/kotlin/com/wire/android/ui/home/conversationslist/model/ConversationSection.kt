@@ -21,17 +21,16 @@ package com.wire.android.ui.home.conversationslist.model
 import androidx.annotation.StringRes
 import com.wire.android.R
 
-// TODO needs renaming
-sealed class ConversationFolder : ConversationFolderItem {
-    sealed class Predefined(@StringRes val folderNameResId: Int) : ConversationFolder() {
+sealed class ConversationSection : ConversationItemType {
+    sealed class Predefined(@StringRes val sectionNameResId: Int) : ConversationSection() {
         data object Conversations : Predefined(R.string.conversation_label_conversations)
         data object Favorites : Predefined(R.string.conversation_label_favorites)
         data object NewActivities : Predefined(R.string.conversation_label_new_activity)
         data object BrowseChannels : Predefined(R.string.content_description_empty)
     }
 
-    data class Custom(val folderName: String) : ConversationFolder()
-    data object WithoutHeader : ConversationFolder()
+    data class Custom(val sectionName: String) : ConversationSection()
+    data object WithoutHeader : ConversationSection()
 }
 
-sealed interface ConversationFolderItem
+sealed interface ConversationItemType

@@ -42,7 +42,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.snackbar.collectAndShowSnackbar
 import com.wire.android.ui.e2eiEnrollment.GetE2EICertificateUI
-import com.wire.android.ui.home.conversationslist.common.FolderHeader
+import com.wire.android.ui.common.rowitem.SectionHeader
 import com.wire.android.ui.home.settings.SettingsItem
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
@@ -102,7 +102,7 @@ fun DebugDataOptionsContent(
 ) {
     Column(modifier = modifier) {
 
-        FolderHeader(stringResource(R.string.label_debug_data))
+        SectionHeader(stringResource(R.string.label_debug_data))
 
         SettingsItem(
             title = stringResource(R.string.app_version),
@@ -242,7 +242,7 @@ private fun GetE2EICertificateSwitch(
     enrollE2EI: () -> Unit
 ) {
     Column {
-        FolderHeader(stringResource(R.string.debug_settings_e2ei_enrollment_title))
+        SectionHeader(stringResource(R.string.debug_settings_e2ei_enrollment_title))
         RowItemTemplate(modifier = Modifier.wrapContentWidth(),
             title = {
                 Text(
@@ -273,7 +273,7 @@ private fun MLSOptions(
     mlsErrorMessage: String,
     onCopyText: (String) -> Unit,
 ) {
-    FolderHeader(stringResource(R.string.label_mls_option_title))
+    SectionHeader(stringResource(R.string.label_mls_option_title))
     Column {
         SettingsItem(
             title = "Error Message",
@@ -365,7 +365,7 @@ private fun DebugToolsOptions(
     isAsyncNotificationsEnabled: Boolean,
     onEnableAsyncNotificationsChange: (Boolean) -> Unit,
 ) {
-    FolderHeader(stringResource(R.string.label_debug_tools_title))
+    SectionHeader(stringResource(R.string.label_debug_tools_title))
     Column {
         DisableEventProcessingSwitch(
             isEnabled = isEventProcessingEnabled,

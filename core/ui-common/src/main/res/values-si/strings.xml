@@ -16,4 +16,7 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
-<resources></resources>
+<resources>
+    <string name="content_description_collapse_label">බිඳ වැටීම</string>
+    <string name="content_description_expand_label">පුළුල් කරන්න</string>
+</resources>

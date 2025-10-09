@@ -43,4 +43,6 @@
     <string name="user_profile_status_away">Away</string>
     <string name="user_profile_status_none">None</string>
     <string name="content_description_user_avatar">Profile picture</string>
+    <string name="content_description_collapse_label">collapse</string>
+    <string name="content_description_expand_label">expand</string>
 </resources>

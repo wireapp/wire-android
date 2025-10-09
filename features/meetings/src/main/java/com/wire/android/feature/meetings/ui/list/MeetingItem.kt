@@ -78,12 +78,7 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.DateAndTimeParsers
 import com.wire.kalium.logic.data.id.ConversationId
 import kotlinx.coroutines.delay
-import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.atTime
-import kotlinx.datetime.toInstant
-import kotlinx.datetime.todayIn
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
@@ -372,29 +367,39 @@ private fun PrimaryBodyText(text: String) {
 @PreviewMultipleThemes
 @Composable
 fun PreviewEndedPrivateChannelMeeting() = WireTheme {
-    MeetingItem(meeting = previewCurrentTimeScope.endedPrivateChannelMeeting)
+    with(previewCurrentTimeScope) {
+        MeetingItem(meeting = endedPrivateChannelMeeting)
+    }
 }
 
 @PreviewMultipleThemes
 @Composable
 fun PreviewOngoingAttendingOneOnOneMeeting() = WireTheme {
-    MeetingItem(meeting = previewCurrentTimeScope.ongoingAttendingOneOnOneMeeting)
+    with(previewCurrentTimeScope) {
+        MeetingItem(meeting = ongoingAttendingOneOnOneMeeting)
+    }
 }
 
 @PreviewMultipleThemes
 @Composable
 fun PreviewGrouplessOngoingMeeting() = WireTheme {
-    MeetingItem(meeting = previewCurrentTimeScope.grouplessOngoingMeeting)
+    with(previewCurrentTimeScope) {
+        MeetingItem(meeting = grouplessOngoingMeeting)
+    }
 }
 
 @PreviewMultipleThemes
 @Composable
 fun PreviewScheduledChannelMeetingStartingSoon() = WireTheme {
-    MeetingItem(meeting = previewCurrentTimeScope.scheduledChannelMeetingStartingSoon)
+    with(previewCurrentTimeScope) {
+        MeetingItem(meeting = scheduledChannelMeetingStartingSoon)
+    }
 }
 
 @PreviewMultipleThemes
 @Composable
 fun PreviewScheduledRepeatingGroupMeeting() = WireTheme {
-    MeetingItem(meeting = previewCurrentTimeScope.scheduledRepeatingGroupMeeting)
+    with(previewCurrentTimeScope) {
+        MeetingItem(meeting = scheduledRepeatingGroupMeeting)
+    }
 }

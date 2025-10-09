@@ -34,7 +34,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.mapLatest
-import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atTime
@@ -61,11 +60,13 @@ class MeetingListViewModelImpl @AssistedInject constructor(@Assisted val type: M
     interface Factory {
         fun create(type: MeetingsTabItem): MeetingListViewModelImpl
     }
+
     private val showingAll = MutableStateFlow(type == MeetingsTabItem.PAST) // for PAST always show all, for NEXT start with false
     override val meetings: Flow<PagingData<MeetingListItem>> = showingAll.mapLatest { showingAll ->
-        PagingData.from(CurrentTimeScope { Clock.System.now() }.meetingMocks(showingAll, type)) // TODO replace with real data source
+        PagingData.from(CurrentTimeScope().meetingMocks(showingAll, type)) // TODO replace with real data source
             .insertSeparators { before, after -> generateSeparator(before, after, showingAll) }
     }
+
     override fun showAll() { showingAll.value = true }
 }
 

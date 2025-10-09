@@ -45,7 +45,10 @@ fun CurrentTimeScope.MeetingList(
         LocalInspectionMode.current -> MeetingListViewModelPreview(this, type)
         else -> hiltViewModel<MeetingListViewModelImpl, MeetingListViewModelImpl.Factory>(
             key = "meeting_list_${type.name}",
-            creationCallback = { factory -> factory.create(type = type) })
+            creationCallback = { factory ->
+                factory.create(type = type)
+            }
+        )
     },
 ) {
     val lazyPagingItems = meetingListViewModel.meetings.collectAsLazyPagingItems()

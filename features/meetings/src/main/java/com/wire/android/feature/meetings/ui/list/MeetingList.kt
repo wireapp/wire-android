@@ -71,8 +71,15 @@ fun CurrentTimeScope.MeetingList(
             itemContent = { index ->
                 lazyPagingItems[index]?.let { item ->
                     when (item) {
-                        is MeetingSeparator -> MeetingSeparator(header = item, onShowAll = meetingListViewModel::showAll)
-                        is MeetingItem -> MeetingItem(meeting = item)
+                        is MeetingSeparator -> MeetingSeparator(
+                            header = item,
+                            onShowAll = meetingListViewModel::showAll,
+                            modifier = Modifier.animateItem(),
+                        )
+                        is MeetingItem -> MeetingItem(
+                            meeting = item,
+                            modifier = Modifier.animateItem(),
+                        )
                     }
                 }
             }

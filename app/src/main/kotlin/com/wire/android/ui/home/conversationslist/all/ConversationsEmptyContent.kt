@@ -43,6 +43,8 @@ import com.wire.android.navigation.rememberNavigator
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.rowitem.EmptyListArrowFooter
+import com.wire.android.ui.common.rowitem.EmptyListContent
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.destinations.BrowseChannelsScreenDestination
 import com.wire.android.ui.theme.WireTheme
@@ -59,36 +61,14 @@ fun ConversationsEmptyContent(
     filter: ConversationFilter = ConversationFilter.All,
     domain: String = "wire.com"
 ) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(
-                dimensions().spacing40x
-            ),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        if (filter == ConversationFilter.All) {
-            Text(
-                modifier = Modifier.padding(
-                    bottom = dimensions().spacing24x,
-                    top = dimensions().spacing100x
-                ),
-                text = stringResource(R.string.conversation_empty_list_title),
-                style = MaterialTheme.wireTypography.title01,
-                color = MaterialTheme.wireColorScheme.onSurface,
-            )
+    EmptyListContent(
+        title = if (filter == ConversationFilter.All) stringResource(R.string.conversation_empty_list_title) else null,
+        text = filter.emptyDescription(domain),
+        modifier = modifier,
+        footer = {
+            EmptyContentFooter(currentFilter = filter, navigator = navigator)
         }
-        Text(
-            modifier = Modifier.padding(bottom = dimensions().spacing8x),
-            text = filter.emptyDescription(domain),
-            style = MaterialTheme.wireTypography.body01,
-            textAlign = TextAlign.Center,
-            color = MaterialTheme.wireColorScheme.onSurface,
-        )
-        VerticalSpace.x8()
-        EmptyContentFooter(currentFilter = filter, navigator = navigator)
-    }
+    )
 }
 
 @Composable
@@ -137,15 +117,7 @@ private fun EmptyContentFooter(currentFilter: ConversationFilter, navigator: Nav
             )
         }
 
-        else -> {
-            Image(
-                modifier = Modifier.padding(start = dimensions().spacing100x),
-                painter = painterResource(
-                    id = R.drawable.ic_empty_conversation_arrow
-                ),
-                contentDescription = ""
-            )
-        }
+        else -> EmptyListArrowFooter()
     }
 }
 

@@ -339,48 +339,6 @@ fun AudioControlButtons(
     }
 }
 
-@Composable
-fun LoadingConversationItem(modifier: Modifier = Modifier) {
-    RowItemTemplate(
-        modifier = modifier.padding(start = dimensions().spacing8x),
-        leadingIcon = {
-            Box(
-                modifier = Modifier
-                    .padding(dimensions().avatarClickablePadding)
-                    .clip(CircleShape)
-                    .shimmerPlaceholder(visible = true)
-                    .border(dimensions().avatarBorderWidth, colorsScheme().outline)
-                    .size(dimensions().avatarDefaultSize)
-            )
-        },
-        title = {
-            Box(
-                modifier = Modifier
-                    .height(dimensions().spacing16x)
-                    .padding(vertical = dimensions().spacing1x)
-                    .shimmerPlaceholder(visible = true)
-                    .fillMaxWidth(0.75f)
-            )
-        },
-        subtitle = {
-            Box(
-                modifier = Modifier
-                    .padding(top = dimensions().spacing8x)
-                    .shimmerPlaceholder(visible = true)
-                    .fillMaxWidth(0.5f)
-                    .height(dimensions().spacing6x)
-            )
-        },
-        clickable = remember { Clickable(false) },
-    )
-}
-
-@PreviewMultipleThemes
-@Composable
-fun PreviewLoadingConversationItem() = WireTheme {
-    LoadingConversationItem()
-}
-
 @PreviewMultipleThemes
 @Composable
 fun PreviewGroupConversationItemWithUnreadCount() = WireTheme {

@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 
@@ -51,7 +52,7 @@ fun MutedConversationBadge(modifier: Modifier = Modifier) {
             .clip(shape = RoundedCornerShape(size = dimensions().spacing6x))
             .border(
                 width = 1.dp,
-                color = MaterialTheme.wireColorScheme.secondaryButtonDisabledOutline,
+                color = MaterialTheme.wireColorScheme.outline,
                 shape = RoundedCornerShape(dimensions().spacing6x)
             ),
         contentAlignment = Alignment.Center
@@ -67,6 +68,6 @@ fun MutedConversationBadge(modifier: Modifier = Modifier) {
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewMutedConversationBadge() {
+fun PreviewMutedConversationBadge() = WireTheme {
     MutedConversationBadge()
 }

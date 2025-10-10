@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2025 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,10 +16,11 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
-package com.wire.android.ui.home.conversationslist.common
+package com.wire.android.ui.common.rowitem
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -37,16 +38,15 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
-import com.wire.android.R
+import com.wire.android.ui.common.R
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.android.util.PreviewMultipleThemes
 
 @Composable
-fun FolderHeader(
+fun SectionHeader(
     name: String,
     modifier: Modifier = Modifier,
     padding: PaddingValues = PaddingValues(horizontal = dimensions().spacing16x, vertical = dimensions().spacing8x),
@@ -62,13 +62,12 @@ fun FolderHeader(
 }
 
 @Composable
-fun CollapsingFolderHeader(
+fun CollapsingSectionHeader(
     name: String,
     expanded: Boolean,
     onClicked: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
-    arrowWidth: Dp = dimensions().avatarDefaultSize,
-    arrowHorizontalPadding: Dp = dimensions().avatarClickablePadding,
+    padding: PaddingValues = PaddingValues(horizontal = dimensions().spacing16x, vertical = dimensions().spacing8x),
 ) {
     val arrowRotation: Float by animateFloatAsState(if (expanded) 180f else 90f, label = "CollapsingArrowRotationAnimation")
     val expandDescription = stringResource(
@@ -76,43 +75,62 @@ fun CollapsingFolderHeader(
     )
     Row(
         verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(dimensions().spacing4x),
         modifier = modifier
             .clickable(onClickLabel = expandDescription) { onClicked(!expanded) }
-            .padding(horizontal = dimensions().spacing8x, vertical = dimensions().spacing16x)
+            .padding(padding)
     ) {
         Icon(
             imageVector = ImageVector.vectorResource(R.drawable.ic_collapse),
             contentDescription = null,
             tint = MaterialTheme.wireColorScheme.secondaryText,
             modifier = Modifier
-                .padding(horizontal = arrowHorizontalPadding)
-                .width(arrowWidth)
+                .width(dimensions().spacing12x)
                 .rotate(arrowRotation)
         )
-        Text(
-            text = name,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            style = MaterialTheme.wireTypography.title02,
-            color = MaterialTheme.wireColorScheme.secondaryText,
+        SectionHeader(
+            name = name,
+            padding = PaddingValues.Zero
         )
     }
 }
 
-@PreviewMultipleThemes
 @Composable
-private fun PreviewFolderHeader() = WireTheme {
-    FolderHeader(name = "Folder name", modifier = Modifier.fillMaxWidth())
+fun BigSectionHeader(
+    name: String,
+    modifier: Modifier = Modifier,
+    padding: PaddingValues = PaddingValues(horizontal = dimensions().spacing16x, vertical = dimensions().spacing8x),
+) {
+    Text(
+        text = name,
+        modifier = modifier.padding(padding),
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+        style = MaterialTheme.wireTypography.body02,
+        color = MaterialTheme.wireColorScheme.onSurface,
+    )
 }
 
 @PreviewMultipleThemes
 @Composable
-private fun PreviewCollapsingFolderHeader_Expanded() = WireTheme {
-    CollapsingFolderHeader(name = "Folder name", expanded = true, onClicked = {}, modifier = Modifier.fillMaxWidth())
+private fun PreviewSectionHeader() = WireTheme {
+    SectionHeader(name = "Section name", modifier = Modifier.fillMaxWidth())
 }
 
 @PreviewMultipleThemes
 @Composable
-private fun PreviewCollapsingFolderHeader_Collapsed() = WireTheme {
-    CollapsingFolderHeader(name = "Folder name", expanded = false, onClicked = {}, modifier = Modifier.fillMaxWidth())
+private fun PreviewCollapsingSectionHeader_Expanded() = WireTheme {
+    CollapsingSectionHeader(name = "Section name", expanded = true, onClicked = {}, modifier = Modifier.fillMaxWidth())
+}
+
+@PreviewMultipleThemes
+@Composable
+private fun PreviewCollapsingSectionHeader_Collapsed() = WireTheme {
+    CollapsingSectionHeader(name = "Section name", expanded = false, onClicked = {}, modifier = Modifier.fillMaxWidth())
+}
+
+@PreviewMultipleThemes
+@Composable
+private fun PreviewBigSectionHeader() = WireTheme {
+    BigSectionHeader(name = "Section name", modifier = Modifier.fillMaxWidth())
 }

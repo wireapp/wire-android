@@ -53,17 +53,18 @@ import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.rowitem.RowItemTemplate
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.rowitem.SectionHeader
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.UILastMessageContent
 import com.wire.android.ui.home.conversationslist.model.BadgeEventType
 import com.wire.android.ui.home.conversationslist.model.BlockingState
-import com.wire.android.ui.home.conversationslist.model.ConversationFolder
-import com.wire.android.ui.home.conversationslist.model.ConversationFolderItem
+import com.wire.android.ui.home.conversationslist.model.ConversationSection
+import com.wire.android.ui.home.conversationslist.model.ConversationItemType
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.extension.folderWithElements
+import com.wire.android.util.ui.sectionWithElements
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.keepOnTopWhenNotScrolled
@@ -79,7 +80,7 @@ import kotlinx.coroutines.flow.flowOf
 @Suppress("LongParameterList", "CyclomaticComplexMethod")
 @Composable
 fun ConversationList(
-    lazyPagingConversations: LazyPagingItems<ConversationFolderItem>,
+    lazyPagingConversations: LazyPagingItems<ConversationItemType>,
     modifier: Modifier = Modifier,
     lazyListState: LazyListState = rememberLazyListState(),
     isSelectableList: Boolean = false,
@@ -104,15 +105,15 @@ fun ConversationList(
             count = lazyPagingConversations.itemCount,
             key = lazyPagingConversations.itemKey {
                 when (it) {
-                    is ConversationFolder.Predefined -> "folder_predefined_${context.getString(it.folderNameResId)}"
-                    is ConversationFolder.Custom -> "folder_custom_${it.folderName}"
-                    is ConversationFolder.WithoutHeader -> "folder_without_header"
+                    is ConversationSection.Predefined -> "section_predefined_${context.getString(it.sectionNameResId)}"
+                    is ConversationSection.Custom -> "section_custom_${it.sectionName}"
+                    is ConversationSection.WithoutHeader -> "section_without_header"
                     is ConversationItem -> it.conversationId.toString()
                 }
             },
             contentType = lazyPagingConversations.itemContentType {
                 when (it) {
-                    is ConversationFolder -> ConversationFolderItem::class.simpleName
+                    is ConversationSection -> ConversationSection::class.simpleName
                     is ConversationItem -> ConversationItem::class.simpleName
                 }
             }
@@ -126,15 +127,15 @@ fun ConversationList(
             ) {
                 val item = lazyPagingConversations[index]
                 if (BuildConfig.PUBLIC_CHANNELS_ENABLED &&
-                    item is ConversationFolder.Predefined.BrowseChannels
+                    item is ConversationSection.Predefined.BrowseChannels
                 ) { // add a flag to public channels based on compile time flag
                     BrowsePublicChannelsItem(onBrowsePublicChannels)
                 }
                 when (item) {
-                    is ConversationFolder -> when (item) {
-                        is ConversationFolder.Predefined -> FolderHeader(context.getString(item.folderNameResId))
-                        is ConversationFolder.Custom -> FolderHeader(item.folderName)
-                        is ConversationFolder.WithoutHeader -> {}
+                    is ConversationSection -> when (item) {
+                        is ConversationSection.Predefined -> SectionHeader(context.getString(item.sectionNameResId))
+                        is ConversationSection.Custom -> SectionHeader(item.sectionName)
+                        is ConversationSection.WithoutHeader -> {}
                     }
 
                     is ConversationItem ->
@@ -169,7 +170,7 @@ private fun BrowsePublicChannelsItem(onBrowsePublicChannels: () -> Unit = {}) {
         leadingIcon = {
             Icon(
                 modifier = Modifier.size(dimensions().systemMessageIconSize),
-                painter = painterResource(id = R.drawable.ic_channel),
+                painter = painterResource(id = com.wire.android.ui.common.R.drawable.ic_channel),
                 contentDescription = null,
             )
         },
@@ -203,7 +204,7 @@ private fun BrowsePublicChannelsItem(onBrowsePublicChannels: () -> Unit = {}) {
 @Suppress("LongParameterList")
 @Composable
 fun ConversationList(
-    conversationListItems: ImmutableMap<ConversationFolder, List<ConversationItem>>,
+    conversationListItems: ImmutableMap<ConversationSection, List<ConversationItem>>,
     modifier: Modifier = Modifier,
     lazyListState: LazyListState = rememberLazyListState(),
     isSelectableList: Boolean = false,
@@ -223,12 +224,12 @@ fun ConversationList(
         state = lazyListState,
         modifier = modifier.fillMaxSize()
     ) {
-        conversationListItems.forEach { (conversationFolder, conversationList) ->
-            folderWithElements(
-                header = when (conversationFolder) {
-                    is ConversationFolder.Predefined -> context.getString(conversationFolder.folderNameResId)
-                    is ConversationFolder.Custom -> conversationFolder.folderName
-                    is ConversationFolder.WithoutHeader -> null
+        conversationListItems.forEach { (conversationSection, conversationList) ->
+            sectionWithElements(
+                header = when (conversationSection) {
+                    is ConversationSection.Predefined -> context.getString(conversationSection.sectionNameResId)
+                    is ConversationSection.Custom -> conversationSection.sectionName
+                    is ConversationSection.WithoutHeader -> null
                 },
                 items = conversationList.associateBy {
                     it.conversationId.toString()
@@ -339,9 +340,9 @@ private fun fakeChannel(
     isPrivate = currentIndex % 2 == 0
 )
 
-fun previewConversationFoldersFlow(
+fun previewConversationItemsFlow(
     searchQuery: String = "",
-    list: List<ConversationFolderItem> = previewConversationFolders(searchQuery = searchQuery)
+    list: List<ConversationItemType> = previewConversationItems(searchQuery = searchQuery)
 ) = flowOf(
     PagingData.from(
         data = list,
@@ -353,18 +354,18 @@ fun previewConversationFoldersFlow(
     )
 )
 
-fun previewConversationFolders(
+fun previewConversationItems(
     isChannels: Boolean = false,
-    withFolders: Boolean = true,
+    withSections: Boolean = true,
     searchQuery: String = "",
     unreadCount: Int = 3,
     readCount: Int = 6
 ) =
     buildList {
-        if (isChannels) add(ConversationFolder.Predefined.BrowseChannels)
-        if (withFolders) add(ConversationFolder.Predefined.NewActivities)
+        if (isChannels) add(ConversationSection.Predefined.BrowseChannels)
+        if (withSections) add(ConversationSection.Predefined.NewActivities)
         addAll(previewConversationList(unreadCount, 0, true, searchQuery))
-        if (withFolders) add(ConversationFolder.Predefined.Conversations)
+        if (withSections) add(ConversationSection.Predefined.Conversations)
         addAll(previewConversationList(readCount, unreadCount, false, searchQuery))
     }
 
@@ -372,7 +373,7 @@ fun previewConversationFolders(
 @Composable
 fun PreviewChannelsList() = WireTheme {
     ConversationList(
-        lazyPagingConversations = previewConversationFoldersFlow(list = previewConversationFolders(isChannels = true))
+        lazyPagingConversations = previewConversationItemsFlow(list = previewConversationItems(isChannels = true))
             .collectAsLazyPagingItems(),
         isSelectableList = false,
     )
@@ -382,7 +383,7 @@ fun PreviewChannelsList() = WireTheme {
 @Composable
 fun PreviewConversationList() = WireTheme {
     ConversationList(
-        lazyPagingConversations = previewConversationFoldersFlow().collectAsLazyPagingItems(),
+        lazyPagingConversations = previewConversationItemsFlow().collectAsLazyPagingItems(),
         isSelectableList = false,
     )
 }
@@ -391,7 +392,7 @@ fun PreviewConversationList() = WireTheme {
 @Composable
 fun PreviewConversationListSearch() = WireTheme {
     ConversationList(
-        lazyPagingConversations = previewConversationFoldersFlow().collectAsLazyPagingItems(),
+        lazyPagingConversations = previewConversationItemsFlow().collectAsLazyPagingItems(),
         isSelectableList = false,
     )
 }
@@ -399,11 +400,11 @@ fun PreviewConversationListSearch() = WireTheme {
 @PreviewMultipleThemes
 @Composable
 fun PreviewConversationListSelect() = WireTheme {
-    val conversationFolders = previewConversationFolders()
+    val conversationItems = previewConversationItems()
     ConversationList(
-        lazyPagingConversations = previewConversationFoldersFlow(list = conversationFolders).collectAsLazyPagingItems(),
+        lazyPagingConversations = previewConversationItemsFlow(list = conversationItems).collectAsLazyPagingItems(),
         isSelectableList = true,
-        selectedConversations = conversationFolders.filterIsInstance<ConversationItem>().filterIndexed { index, _ -> index % 3 == 0 }
+        selectedConversations = conversationItems.filterIsInstance<ConversationItem>().filterIndexed { index, _ -> index % 3 == 0 }
             .map { it.conversationId },
     )
 }

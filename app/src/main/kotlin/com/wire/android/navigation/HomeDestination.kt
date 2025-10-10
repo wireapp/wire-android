@@ -97,7 +97,7 @@ sealed class HomeDestination(
 
     data object Meetings : HomeDestination(
         title = UIText.StringResource(R.string.meetings_screen_title),
-        icon = R.drawable.ic_video_call,
+        icon = com.wire.android.ui.common.R.drawable.ic_video_call,
         direction = MeetingsScreenDestination
     )
 

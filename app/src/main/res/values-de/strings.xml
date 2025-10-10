@@ -169,8 +169,6 @@
     <string name="content_description_open_label">Öffnen</string>
     <string name="content_description_join_call_label">Anruf annehmen</string>
     <string name="content_description_share_label">Teilen</string>
-    <string name="content_description_collapse_label">Ausblenden</string>
-    <string name="content_description_expand_label">ausklappen</string>
     <string name="content_description_edit_label">bearbeiten</string>
     <string name="content_description_select_label">auswählen</string>
     <string name="content_description_selected_label">ausgewählt</string>

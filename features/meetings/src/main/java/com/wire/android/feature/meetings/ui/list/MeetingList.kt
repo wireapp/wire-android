@@ -17,6 +17,7 @@
  */
 package com.wire.android.feature.meetings.ui.list
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -60,23 +61,26 @@ fun CurrentTimeScope.MeetingList(
     val lazyPagingItems = meetingListViewModel.meetings.collectAsLazyPagingItems()
     val isShowingAll = meetingListViewModel.isShowingAll.collectAsState().value
     val showLoading = lazyPagingItems.loadState.refresh == LoadState.Loading && lazyPagingItems.itemCount == 0
-    when {
-        showLoading -> LoadingListContent(
-            lazyListState = lazyListState,
-            modifier = modifier
-        )
+    AnimatedContent(targetState = showLoading to (lazyPagingItems.itemCount == 0)) { (loading, emptyList) ->
+        when {
+            loading -> LoadingListContent(
+                lazyListState = lazyListState,
+                modifier = modifier
+            )
 
-        lazyPagingItems.itemCount == 0 -> EmptyMeetingListContent(
-            type = type,
-            modifier = modifier
-        )
+            emptyList -> EmptyMeetingListContent(
+                type = type,
+                modifier = modifier
+            )
 
-        else -> MeetingList(
-            lazyPagingItems = lazyPagingItems,
-            lazyListState = lazyListState,
-            isShowingAll = isShowingAll,
-            onShowAll = meetingListViewModel::showAll,
-        )
+            else -> MeetingList(
+                lazyPagingItems = lazyPagingItems,
+                lazyListState = lazyListState,
+                isShowingAll = isShowingAll,
+                onShowAll = meetingListViewModel::showAll,
+                modifier = modifier,
+            )
+        }
     }
 }
 
@@ -111,11 +115,14 @@ private fun CurrentTimeScope.MeetingList(
                 }
             }
         }
-        if (!isShowingAll) {
-            item(
-                key = "footer_show_all",
-                contentType = "footer_show_all",
-            ) {
+        val endOfPaginationReached = (lazyPagingItems.loadState.append as? LoadState.NotLoading)?.endOfPaginationReached ?: false
+        val isLoadingMore = lazyPagingItems.loadState.append == LoadState.Loading
+        when {
+            isLoadingMore && !endOfPaginationReached -> item(key = "footer_load_more", contentType = "footer_load_more") {
+                MeetingLoadMoreFooter()
+            }
+
+            endOfPaginationReached && !isShowingAll -> item(key = "footer_show_all", contentType = "footer_show_all") {
                 MeetingShowAllFooter(onShowAll = onShowAll)
             }
         }

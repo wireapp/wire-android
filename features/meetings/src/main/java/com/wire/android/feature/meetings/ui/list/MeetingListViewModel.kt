@@ -19,6 +19,8 @@ package com.wire.android.feature.meetings.ui.list
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.LoadState
+import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.insertSeparators
@@ -33,12 +35,14 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.mapLatest
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atTime
@@ -76,13 +80,51 @@ class MeetingListViewModelImpl @AssistedInject constructor(
     override val isShowingAll = MutableStateFlow(type == MeetingsTabItem.PAST) // for PAST always show all, for NEXT start with false
     private val meetingMocksProvider = MeetingMocksProvider(CurrentTimeScope(), type) // TODO replace with real data source
     override val meetings: Flow<PagingData<MeetingListItem>> = isShowingAll
-        .mapLatest { showingAll ->
-            PagingData.from(meetingMocksProvider.getItems(showingAll)).insertSeparators(generator = ::generateHeader)
+        .flatMapLatest { showingAll ->
+            flow {
+                if (!showingAll) {
+                    delay(2000)
+                    emit(
+                        PagingData.from(
+                            data = meetingMocksProvider.getItems(false),
+                            sourceLoadStates = LoadStates(
+                                refresh = LoadState.NotLoading(true),
+                                prepend = LoadState.NotLoading(true),
+                                append = LoadState.NotLoading(true),
+                            )
+                        ).insertSeparators(generator = ::generateHeader)
+                    )
+                } else {
+                    emit(
+                        PagingData.from(
+                            data = meetingMocksProvider.getItems(false),
+                            sourceLoadStates = LoadStates(
+                                refresh = LoadState.NotLoading(true),
+                                prepend = LoadState.NotLoading(true),
+                                append = LoadState.Loading,
+                            )
+                        ).insertSeparators(generator = ::generateHeader)
+                    )
+                    delay(2000)
+                    emit(
+                        PagingData.from(
+                            data = meetingMocksProvider.getItems(true),
+                            sourceLoadStates = LoadStates(
+                                refresh = LoadState.NotLoading(true),
+                                prepend = LoadState.NotLoading(true),
+                                append = LoadState.NotLoading(true),
+                            )
+                        ).insertSeparators(generator = ::generateHeader)
+                    )
+                }
+            }
         }
         .flowOn(dispatcher.io())
         .cachedIn(viewModelScope)
 
-    override fun showAll() { isShowingAll.value = true }
+    override fun showAll() {
+        isShowingAll.value = true
+    }
 }
 
 // Generates a header between two MeetingItems if needed. The list is assumed to be sorted by start time ascending.

@@ -105,7 +105,7 @@ internal fun PdfAssetPreview(
                     shape = RoundedCornerShape(dimensions().messageAttachmentCornerSize)
                 )
             }
-            .clip(RoundedCornerShape(dimensions().buttonCornerSize)),
+            .clip(RoundedCornerShape(dimensions().messageAttachmentCornerSize)),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(dimensions().spacing8x)
     ) {
@@ -138,9 +138,9 @@ internal fun PdfAssetPreview(
                 .aspectRatio(aspectRatio(width, height))
                 .background(
                     color = colorsScheme().outline,
-                    shape = RoundedCornerShape(dimensions().buttonCornerSize)
+                    shape = RoundedCornerShape(dimensions().messageAttachmentCornerSize)
                 )
-                .clip(RoundedCornerShape(dimensions().buttonCornerSize)),
+                .clip(RoundedCornerShape(dimensions().messageAttachmentCornerSize)),
             contentAlignment = Alignment.Center
         ) {
 

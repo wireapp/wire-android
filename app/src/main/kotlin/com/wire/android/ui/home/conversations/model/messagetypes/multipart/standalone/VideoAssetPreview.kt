@@ -151,7 +151,7 @@ internal fun VideoAssetPreview(
 
         Box(
             modifier = Modifier
-                .width(videoSize.width)
+                .fillMaxWidth()
                 .height(videoSize.height)
                 .background(
                     color = colorsScheme().outline,
@@ -246,7 +246,7 @@ private fun PreviewVideoAsset() {
 
     WireTheme {
         Column(
-            modifier = Modifier.padding(dimensions().spacing8x),
+            modifier = Modifier.padding(dimensions().spacing18x),
             verticalArrangement = Arrangement.spacedBy(dimensions().spacing8x)
         ) {
             Box {

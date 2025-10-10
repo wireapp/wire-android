@@ -60,10 +60,10 @@ internal fun AssetGridPreview(
             .applyIf(messageStyle.isBubble()) {
                 background(
                     color = colorsScheme().surfaceVariant,
-                    shape = RoundedCornerShape(dimensions().messageAttachmentGridCornerSize)
+                    shape = RoundedCornerShape(dimensions().messageAttachmentCornerSize)
                 )
             }
-            .clip(RoundedCornerShape(dimensions().messageAttachmentGridCornerSize))
+            .clip(RoundedCornerShape(dimensions().messageAttachmentCornerSize))
     ) {
 
         if (item.transferStatus != AssetTransferStatus.NOT_FOUND) {

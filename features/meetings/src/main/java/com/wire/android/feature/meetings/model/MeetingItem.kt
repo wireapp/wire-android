@@ -26,13 +26,15 @@ import kotlinx.datetime.Instant
 import kotlinx.parcelize.Parcelize
 import kotlin.time.Duration
 
-data class UIMeeting(
+sealed interface MeetingListItem
+
+data class MeetingItem(
     val meetingId: String,
     val conversationId: ConversationId,
     val belongingType: BelongingType,
     val title: String,
     val status: Status,
-) {
+) : MeetingListItem {
     @Parcelize
     enum class RepeatingInterval(@StringRes val nameResId: Int) : Parcelable {
         Daily(R.string.meeting_repeating_daily),
@@ -50,23 +52,24 @@ data class UIMeeting(
     }
 
     sealed interface Status {
+        val startTime: Instant
         data class Scheduled(
-            val startTime: Instant, // scheduled start time
+            override val startTime: Instant, // scheduled start time
             val endTime: Instant, // scheduled end time
             val repeatingInterval: RepeatingInterval? = null, // null for one-time meetings
         ) : Status
 
         data class Ongoing(
-            val startedTime: Instant, // time when the meeting actually started
+            override val startTime: Instant, // time when the meeting actually started
             val scheduledEndTime: Instant? = null, // null for ad-hoc meetings
             val ongoingCallStatus: OngoingCallStatus? = null, // null if the call is not ongoing / hasn't started yet
         ) : Status
 
         data class Ended(
-            val startedTime: Instant, // time when the meeting actually started
-            val endedTime: Instant // time when the meeting actually ended
+            override val startTime: Instant, // time when the meeting actually started
+            val endTime: Instant // time when the meeting actually ended
         ) : Status {
-            val duration: Duration = endedTime - startedTime
+            val duration: Duration = endTime - startTime
         }
     }
 
@@ -75,7 +78,5 @@ data class UIMeeting(
         val isSelfUserAttending: Boolean // is the current user attending the ongoing call
     )
 }
-
-data class CurrentTimeScope(val currentTime: () -> Instant) // can be changed for preview purposes
 
 private const val GROUPLESS_AVATARS_LIMIT = 5

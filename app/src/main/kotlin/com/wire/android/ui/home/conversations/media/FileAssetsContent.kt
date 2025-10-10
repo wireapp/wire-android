@@ -37,6 +37,7 @@ import androidx.paging.compose.itemKey
 import com.wire.android.R
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
+import com.wire.android.ui.common.rowitem.SectionHeader
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.messages.item.MessageClickActions
 import com.wire.android.ui.home.conversations.messages.item.MessageContainerItem
@@ -45,7 +46,6 @@ import com.wire.android.ui.home.conversations.mock.mockAssetAudioMessage
 import com.wire.android.ui.home.conversations.mock.mockAssetMessage
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.usecase.UIPagingItem
-import com.wire.android.ui.common.rowitem.SectionHeader
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.ui.PreviewMultipleThemes

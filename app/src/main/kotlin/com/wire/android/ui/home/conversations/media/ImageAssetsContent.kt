@@ -43,11 +43,11 @@ import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.rowitem.SectionHeader
 import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.home.conversations.mock.mockUIAssetMessage
 import com.wire.android.ui.home.conversations.model.MediaAssetImage
 import com.wire.android.ui.home.conversations.usecase.UIImageAssetPagingItem
-import com.wire.android.ui.common.rowitem.SectionHeader
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions

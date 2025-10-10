@@ -1586,6 +1586,7 @@ registrado. Tente novamente.</string>
     <string name="press_enter_to_send_title">Pressione Enter para enviar</string>
     <string name="press_enter_to_send_text">Quando ativado, você pode enviar mensagens com a tecla Enter em seu teclado.</string>
     <string name="customization_options_header_title">Opções</string>
+    <!-- enterprise configurations -->
     <!--    channel not available dialog-->
     <string name="channel_not_available_dialog_title">Canais estão disponíveis para os membros da equipe.</string>
     <string name="channel_not_available_dialog_description">Crie uma equipe e comece a colaborar gratuitamente!</string>

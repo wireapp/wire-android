@@ -1874,6 +1874,7 @@
     <string name="press_enter_to_send_title">Нажмите Enter для отправки</string>
     <string name="press_enter_to_send_text">Когда эта опция включена, вы можете отправлять сообщения с помощью клавиши Enter на клавиатуре.</string>
     <string name="customization_options_header_title">Настройки</string>
+    <!-- enterprise configurations -->
     <!--    channel not available dialog-->
     <string name="channel_not_available_dialog_title">Каналы доступны для членов команды.</string>
     <string name="channel_not_available_dialog_description">Создайте команду и начните взаимодействовать бесплатно!</string>
@@ -1887,4 +1888,5 @@
     <string name="failed_attachment_remove">Удалить</string>
     <string name="content_description_apply_filter">Применить фильтр</string>
     <string name="content_description_filter_files">Фильтр файлов</string>
+    <string name="profile_deeplink_feature_unavailable_title_alert">Эта функция недоступна. Пожалуйста, свяжитесь со своим администратором.</string>
 </resources>

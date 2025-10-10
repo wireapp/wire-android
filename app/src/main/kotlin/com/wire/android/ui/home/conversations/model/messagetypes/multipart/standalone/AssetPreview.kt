@@ -67,7 +67,7 @@ fun AssetPreview(
             .clip(RoundedCornerShape(dimensions().messageAttachmentCornerSize))
     ) {
         if (item.transferStatus != AssetTransferStatus.NOT_FOUND) {
-            when  {
+            when {
                 item.assetType == AttachmentFileType.IMAGE -> ImageAssetPreview(item, messageStyle)
                 item.assetType == AttachmentFileType.VIDEO -> VideoAssetPreview(item, messageStyle, accent)
                 item.assetType == AttachmentFileType.PDF && !isForGrid -> PdfAssetPreview(item, messageStyle, accent)

@@ -1657,6 +1657,7 @@
     <string name="press_enter_to_send_title">යැවීමට Enter ඔබන්න</string>
     <string name="press_enter_to_send_text">මෙය ක්‍රියාත්මක විට, ඔබට ඔබේ යතුරුපුවරුවේ Enter යතුර භාවිතයෙන් පණිවිඩ යැවිය හැක.</string>
     <string name="customization_options_header_title">විකල්ප</string>
+    <!-- enterprise configurations -->
     <!--    channel not available dialog-->
     <string name="channel_not_available_dialog_title">කණ්ඩායම් සාමාජිකයින් සඳහා නාලිකා තිබේ.</string>
     <string name="channel_not_available_dialog_description">කණ්ඩායමක් සාදා නොමිලේ සහයෝගයෙන් කටයුතු කිරීම ආරම්භ කරන්න!</string>

@@ -1724,6 +1724,7 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="press_enter_to_send_title">Enter zum Senden drücken</string>
     <string name="press_enter_to_send_text">Wenn diese Option aktiviert ist, können Sie Nachrichten mit der Eingabetaste auf Ihrer Tastatur senden.</string>
     <string name="customization_options_header_title">Optionen</string>
+    <!-- enterprise configurations -->
     <!--    channel not available dialog-->
     <string name="channel_not_available_dialog_title">Channels sind für Team-Mitglieder verfügbar.</string>
     <string name="channel_not_available_dialog_description">Erstellen Sie ein Team und arbeiten Sie kostenlos zusammen!</string>

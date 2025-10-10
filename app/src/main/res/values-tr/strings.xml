@@ -457,5 +457,6 @@ Yedek dosyayı korumak için güçlü bir şifre seçin.</string>
     <string name="debug_settings_screen_title">Hata Ayıklama Günlüğü Ayarları</string>
     <!--    Personal to team migration screen-->
     <!-- Move to Folder -->
+    <!-- enterprise configurations -->
     <!--    channel not available dialog-->
 </resources>

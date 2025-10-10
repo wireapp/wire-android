@@ -35,5 +35,5 @@
     <string name="user_profile_status_none">Kein Status</string>
     <string name="content_description_user_avatar">Profilbild</string>
     <string name="content_description_collapse_label">Ausblenden</string>
-    <string name="content_description_expand_label">ausklappen</string>
+    <string name="content_description_expand_label">anzeigen</string>
 </resources>

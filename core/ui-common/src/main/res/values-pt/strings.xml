@@ -16,7 +16,4 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
-<resources>
-    <string name="content_description_collapse_label">recolher</string>
-    <string name="content_description_expand_label">expandir</string>
-</resources>
+<resources></resources>

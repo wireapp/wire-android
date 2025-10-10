@@ -828,5 +828,6 @@ Prosimy u&#380;y&#263; zarz&#261;dzania zespo&#322;ami (%1$s) na tym &#347;rodow
     <string name="debug_settings_screen_title">Ustawienia debugowania</string>
     <!--    Personal to team migration screen-->
     <!-- Move to Folder -->
+    <!-- enterprise configurations -->
     <!--    channel not available dialog-->
 </resources>

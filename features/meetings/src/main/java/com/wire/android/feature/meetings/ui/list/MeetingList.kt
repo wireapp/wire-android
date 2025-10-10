@@ -30,8 +30,8 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
-import com.wire.android.feature.meetings.model.MeetingItem
 import com.wire.android.feature.meetings.model.MeetingHeader
+import com.wire.android.feature.meetings.model.MeetingItem
 import com.wire.android.feature.meetings.model.MeetingListItem
 import com.wire.android.feature.meetings.ui.MeetingsTabItem
 import com.wire.android.feature.meetings.ui.util.CurrentTimeScope

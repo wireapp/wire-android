@@ -22,14 +22,17 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import com.wire.android.feature.meetings.model.MeetingItem
-import com.wire.android.feature.meetings.model.MeetingSeparator
+import com.wire.android.feature.meetings.model.MeetingHeader
+import com.wire.android.feature.meetings.model.MeetingListItem
 import com.wire.android.feature.meetings.ui.MeetingsTabItem
 import com.wire.android.feature.meetings.ui.util.CurrentTimeScope
 import com.wire.android.feature.meetings.ui.util.PreviewMultipleThemes
@@ -52,6 +55,24 @@ fun CurrentTimeScope.MeetingList(
     },
 ) {
     val lazyPagingItems = meetingListViewModel.meetings.collectAsLazyPagingItems()
+    val isShowingAll = meetingListViewModel.isShowingAll.collectAsState().value
+    MeetingList(
+        lazyListState = lazyListState,
+        lazyPagingItems = lazyPagingItems,
+        isShowingAll = isShowingAll,
+        onShowAll = meetingListViewModel::showAll,
+        modifier = modifier,
+    )
+}
+
+@Composable
+private fun CurrentTimeScope.MeetingList(
+    lazyListState: LazyListState,
+    lazyPagingItems: LazyPagingItems<MeetingListItem>,
+    isShowingAll: Boolean,
+    onShowAll: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     LazyColumn(
         state = lazyListState,
         modifier = modifier.fillMaxSize(),
@@ -60,30 +81,29 @@ fun CurrentTimeScope.MeetingList(
             count = lazyPagingItems.itemCount,
             key = lazyPagingItems.itemKey {
                 when (it) {
-                    is MeetingSeparator.Ongoing -> "separator_ongoing"
-                    is MeetingSeparator.DayAndHour -> "separator_day_and_hour_${it.time.toEpochMilliseconds()}"
-                    is MeetingSeparator.Hour -> "separator_hour_${it.time.toEpochMilliseconds()}"
-                    is MeetingSeparator.ShowAll -> "footer_show_all"
+                    is MeetingHeader.Ongoing -> "separator_ongoing"
+                    is MeetingHeader.DayAndHour -> "separator_day_and_hour_${it.time.toEpochMilliseconds()}"
+                    is MeetingHeader.Hour -> "separator_hour_${it.time.toEpochMilliseconds()}"
                     is MeetingItem -> it.meetingId
                 }
             },
             contentType = lazyPagingItems.itemContentType { it::class.simpleName },
-            itemContent = { index ->
-                lazyPagingItems[index]?.let { item ->
-                    when (item) {
-                        is MeetingSeparator -> MeetingSeparator(
-                            header = item,
-                            onShowAll = meetingListViewModel::showAll,
-                            modifier = Modifier.animateItem(),
-                        )
-                        is MeetingItem -> MeetingItem(
-                            meeting = item,
-                            modifier = Modifier.animateItem(),
-                        )
-                    }
+        ) { index ->
+            lazyPagingItems[index]?.let { item ->
+                when (item) {
+                    is MeetingHeader -> MeetingHeader(header = item, modifier = Modifier.animateItem())
+                    is MeetingItem -> MeetingItem(meeting = item, modifier = Modifier.animateItem())
                 }
             }
-        )
+        }
+        if (!isShowingAll) {
+            item(
+                key = "footer_show_all",
+                contentType = "footer_show_all",
+            ) {
+                MeetingShowAllFooter(onShowAll = onShowAll)
+            }
+        }
     }
 }
 

@@ -24,7 +24,7 @@ import androidx.paging.cachedIn
 import androidx.paging.insertSeparators
 import com.wire.android.feature.meetings.model.MeetingItem
 import com.wire.android.feature.meetings.model.MeetingListItem
-import com.wire.android.feature.meetings.model.MeetingSeparator
+import com.wire.android.feature.meetings.model.MeetingHeader
 import com.wire.android.feature.meetings.ui.MeetingsTabItem
 import com.wire.android.feature.meetings.ui.mock.MeetingMocksProvider
 import com.wire.android.feature.meetings.ui.util.CurrentTimeScope
@@ -35,6 +35,7 @@ import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.mapLatest
@@ -46,6 +47,7 @@ import kotlinx.datetime.toLocalDateTime
 
 interface MeetingListViewModel {
     val meetings: Flow<PagingData<MeetingListItem>> get() = flowOf()
+    val isShowingAll: StateFlow<Boolean> get() = MutableStateFlow(false)
     fun showAll() {}
 }
 
@@ -55,6 +57,7 @@ class MeetingListViewModelPreview(
     showingAll: Boolean = type == MeetingsTabItem.PAST,
 ) : MeetingListViewModel {
     private val meetingMocksProvider = MeetingMocksProvider(currentTimeScope, type)
+    override val isShowingAll: StateFlow<Boolean> = MutableStateFlow(showingAll)
     override val meetings: Flow<PagingData<MeetingListItem>> = with(currentTimeScope) {
         MutableStateFlow(PagingData.from(meetingMocksProvider.getItems(showingAll).insertHeaders(showingAll)))
     }
@@ -70,41 +73,38 @@ class MeetingListViewModelImpl @AssistedInject constructor(
         fun create(type: MeetingsTabItem): MeetingListViewModelImpl
     }
 
-    private val showingAll = MutableStateFlow(type == MeetingsTabItem.PAST) // for PAST always show all, for NEXT start with false
+    override val isShowingAll = MutableStateFlow(type == MeetingsTabItem.PAST) // for PAST always show all, for NEXT start with false
     private val meetingMocksProvider = MeetingMocksProvider(CurrentTimeScope(), type) // TODO replace with real data source
-    override val meetings: Flow<PagingData<MeetingListItem>> = showingAll
+    override val meetings: Flow<PagingData<MeetingListItem>> = isShowingAll
         .mapLatest { showingAll ->
             PagingData.from(meetingMocksProvider.getItems(showingAll))
-                .insertSeparators { before, after -> generateSeparator(before, after, showingAll) }
+                .insertSeparators { before, after -> generateHeader(before, after, showingAll) }
         }
         .flowOn(dispatcher.io())
         .cachedIn(viewModelScope)
 
-    override fun showAll() { showingAll.value = true }
+    override fun showAll() { isShowingAll.value = true }
 }
 
 // Generates a header between two MeetingItems if needed. The list is assumed to be sorted by start time ascending.
-private fun generateSeparator(before: MeetingItem?, after: MeetingItem?, showingAll: Boolean): MeetingSeparator? {
+private fun generateHeader(before: MeetingItem?, after: MeetingItem?, showingAll: Boolean): MeetingHeader? {
     val beforeLocalTime = before?.status?.startTime?.toLocalDateTime(TimeZone.currentSystemDefault())
     val afterLocalTime = after?.status?.startTime?.toLocalDateTime(TimeZone.currentSystemDefault())
     return when {
         // If the next meeting is ongoing and the previous one is not, add an "Ongoing" header.
-        before?.status !is MeetingItem.Status.Ongoing && after?.status is MeetingItem.Status.Ongoing -> MeetingSeparator.Ongoing
+        before?.status !is MeetingItem.Status.Ongoing && after?.status is MeetingItem.Status.Ongoing -> MeetingHeader.Ongoing
 
         // If the previous meeting is ongoing and the next one is not, add a "Day and Hour" header for the next meeting.
         afterLocalTime != null && before?.status is MeetingItem.Status.Ongoing && after.status !is MeetingItem.Status.Ongoing ->
-            MeetingSeparator.DayAndHour(time = afterLocalTime.headerDayHourTime())
+            MeetingHeader.DayAndHour(time = afterLocalTime.headerDayHourTime())
 
         // If the next meeting is on a different day than the previous one, add a "Day and Hour" header.
         afterLocalTime != null && beforeLocalTime?.date != afterLocalTime.date ->
-            MeetingSeparator.DayAndHour(time = afterLocalTime.headerDayHourTime())
+            MeetingHeader.DayAndHour(time = afterLocalTime.headerDayHourTime())
 
         // If the next meeting is on the same day but a different hour than the previous one, add an "Hour" header.
         afterLocalTime != null && beforeLocalTime?.hour != afterLocalTime.hour ->
-            MeetingSeparator.Hour(time = afterLocalTime.headerDayHourTime())
-
-        // If there is no next meeting (so after a last meeting) and we are not showing all meetings, add a "Show All" footer.
-        before != null && after == null && !showingAll -> MeetingSeparator.ShowAll
+            MeetingHeader.Hour(time = afterLocalTime.headerDayHourTime())
 
         // Otherwise, no header is added.
         else -> null
@@ -118,7 +118,7 @@ private fun LocalDateTime.headerDayHourTime() = date.atTime(hour, 0, 0).toInstan
 private fun List<MeetingItem>.insertHeaders(showingAll: Boolean) = buildList<MeetingListItem> {
     for (i in 0..this@insertHeaders.size) {
         val (previous, current) = this@insertHeaders.getOrNull(i - 1) to this@insertHeaders.getOrNull(i)
-        val header = generateSeparator(previous, current, showingAll)
+        val header = generateHeader(previous, current, showingAll)
         if (header != null) add(header)
         if (current != null) add(current)
     }

@@ -18,15 +18,13 @@
 package com.wire.android.feature.meetings.ui.list
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.wire.android.feature.meetings.R
-import com.wire.android.feature.meetings.model.MeetingSeparator
+import com.wire.android.feature.meetings.model.MeetingHeader
 import com.wire.android.feature.meetings.ui.util.CurrentTimeScope
-import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.rowitem.BigSectionHeader
 import com.wire.android.ui.common.rowitem.SectionHeader
@@ -39,19 +37,18 @@ import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
 
 @Composable
-fun CurrentTimeScope.MeetingSeparator(
-    header: MeetingSeparator,
+fun CurrentTimeScope.MeetingHeader(
+    header: MeetingHeader,
     modifier: Modifier = Modifier,
-    onShowAll: () -> Unit,
 ) {
     Column(modifier = modifier) {
         when (header) {
-            is MeetingSeparator.Ongoing -> BigSectionHeader(
+            is MeetingHeader.Ongoing -> BigSectionHeader(
                 name = stringResource(R.string.meeting_date_header_ongoing),
                 modifier = Modifier.padding(top = dimensions().spacing8x),
             )
 
-            is MeetingSeparator.DayAndHour -> {
+            is MeetingHeader.DayAndHour -> {
                 BigSectionHeader(
                     name = getDateHeaderString(header.time),
                     modifier = Modifier.padding(top = dimensions().spacing8x),
@@ -59,18 +56,7 @@ fun CurrentTimeScope.MeetingSeparator(
                 SectionHeader(name = DateAndTimeParsers.meetingTime(header.time))
             }
 
-            is MeetingSeparator.Hour -> SectionHeader(name = DateAndTimeParsers.meetingTime(header.time))
-
-            is MeetingSeparator.ShowAll -> WireSecondaryButton(
-                text = stringResource(R.string.meeting_button_show_all),
-                onClick = onShowAll,
-                fillMaxWidth = true,
-                minSize = dimensions().buttonSmallMinSize,
-                minClickableSize = dimensions().buttonMinClickableSize,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = dimensions().spacing16x),
-            )
+            is MeetingHeader.Hour -> SectionHeader(name = DateAndTimeParsers.meetingTime(header.time))
         }
     }
 }

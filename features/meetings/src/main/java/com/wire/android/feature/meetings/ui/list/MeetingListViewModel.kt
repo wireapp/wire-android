@@ -22,9 +22,9 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.insertSeparators
+import com.wire.android.feature.meetings.model.MeetingHeader
 import com.wire.android.feature.meetings.model.MeetingItem
 import com.wire.android.feature.meetings.model.MeetingListItem
-import com.wire.android.feature.meetings.model.MeetingHeader
 import com.wire.android.feature.meetings.ui.MeetingsTabItem
 import com.wire.android.feature.meetings.ui.mock.MeetingMocksProvider
 import com.wire.android.feature.meetings.ui.util.CurrentTimeScope
@@ -59,7 +59,7 @@ class MeetingListViewModelPreview(
     private val meetingMocksProvider = MeetingMocksProvider(currentTimeScope, type)
     override val isShowingAll: StateFlow<Boolean> = MutableStateFlow(showingAll)
     override val meetings: Flow<PagingData<MeetingListItem>> = with(currentTimeScope) {
-        MutableStateFlow(PagingData.from(meetingMocksProvider.getItems(showingAll).insertHeaders(showingAll)))
+        MutableStateFlow(PagingData.from(meetingMocksProvider.getItems(showingAll).insertHeaders()))
     }
 }
 
@@ -77,8 +77,7 @@ class MeetingListViewModelImpl @AssistedInject constructor(
     private val meetingMocksProvider = MeetingMocksProvider(CurrentTimeScope(), type) // TODO replace with real data source
     override val meetings: Flow<PagingData<MeetingListItem>> = isShowingAll
         .mapLatest { showingAll ->
-            PagingData.from(meetingMocksProvider.getItems(showingAll))
-                .insertSeparators { before, after -> generateHeader(before, after, showingAll) }
+            PagingData.from(meetingMocksProvider.getItems(showingAll)).insertSeparators(generator = ::generateHeader)
         }
         .flowOn(dispatcher.io())
         .cachedIn(viewModelScope)
@@ -87,7 +86,7 @@ class MeetingListViewModelImpl @AssistedInject constructor(
 }
 
 // Generates a header between two MeetingItems if needed. The list is assumed to be sorted by start time ascending.
-private fun generateHeader(before: MeetingItem?, after: MeetingItem?, showingAll: Boolean): MeetingHeader? {
+private fun generateHeader(before: MeetingItem?, after: MeetingItem?): MeetingHeader? {
     val beforeLocalTime = before?.status?.startTime?.toLocalDateTime(TimeZone.currentSystemDefault())
     val afterLocalTime = after?.status?.startTime?.toLocalDateTime(TimeZone.currentSystemDefault())
     return when {
@@ -115,10 +114,10 @@ private fun generateHeader(before: MeetingItem?, after: MeetingItem?, showingAll
 private fun LocalDateTime.headerDayHourTime() = date.atTime(hour, 0, 0).toInstant(TimeZone.currentSystemDefault())
 
 // Extension function to insert headers into a list of MeetingItems.
-private fun List<MeetingItem>.insertHeaders(showingAll: Boolean) = buildList<MeetingListItem> {
+private fun List<MeetingItem>.insertHeaders() = buildList<MeetingListItem> {
     for (i in 0..this@insertHeaders.size) {
         val (previous, current) = this@insertHeaders.getOrNull(i - 1) to this@insertHeaders.getOrNull(i)
-        val header = generateHeader(previous, current, showingAll)
+        val header = generateHeader(previous, current)
         if (header != null) add(header)
         if (current != null) add(current)
     }

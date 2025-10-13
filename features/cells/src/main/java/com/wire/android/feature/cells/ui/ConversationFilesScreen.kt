@@ -164,7 +164,8 @@ fun ConversationFilesScreenContent(
                 NavigationCommand(
                     RecycleBinScreenDestination(
                         conversationId = currentNodeUuid?.substringBefore("/"),
-                        isRecycleBin = true
+                        isRecycleBin = true,
+                        breadcrumbs =  arrayOf(breadcrumbs?.first() ?: ""),
                     )
                 )
             )
@@ -196,6 +197,7 @@ fun ConversationFilesScreenContent(
                         modifier = Modifier
                             .height(dimensions().spacing40x)
                             .fillMaxWidth(),
+                        isRecycleBin = isRecycleBin,
                         pathSegments = it,
                         onBreadcrumbsFolderClick = onBreadcrumbsFolderClick
                     )
@@ -250,9 +252,7 @@ fun ConversationFilesScreenContent(
                                 screenTitle = title,
                                 isRecycleBin = isRecycleBin,
                                 parentFolderUuid = parentFolderUuid,
-                                breadcrumbs = if (!isRecycleBin) {
-                                    (breadcrumbs ?: emptyArray()) + title
-                                } else { null }
+                                breadcrumbs = (breadcrumbs ?: emptyArray()) + title
                             ),
                             BackStackMode.NONE,
                             launchSingleTop = false

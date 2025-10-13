@@ -25,12 +25,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
+import com.wire.android.feature.meetings.R
 import com.wire.android.feature.meetings.model.MeetingHeader
 import com.wire.android.feature.meetings.model.MeetingItem
 import com.wire.android.feature.meetings.model.MeetingListItem
@@ -133,12 +135,12 @@ private fun CurrentTimeScope.MeetingList(
 private fun EmptyMeetingListContent(type: MeetingsTabItem, modifier: Modifier = Modifier) {
     EmptyListContent(
         title = when (type) {
-            MeetingsTabItem.NEXT -> "No upcoming meetings yet"
-            MeetingsTabItem.PAST -> "No past meetings"
+            MeetingsTabItem.NEXT -> stringResource(R.string.meetings_empty_title_next)
+            MeetingsTabItem.PAST -> stringResource(R.string.meetings_empty_title_past)
         },
         text = when (type) {
-            MeetingsTabItem.NEXT -> "Start a meeting with team members, guests, or external parties. "
-            MeetingsTabItem.PAST -> "Previous meetings will be liste here"
+            MeetingsTabItem.NEXT -> stringResource(R.string.meetings_empty_text_next)
+            MeetingsTabItem.PAST -> stringResource(R.string.meetings_empty_text_past)
         },
         footer = {
             if (type == MeetingsTabItem.NEXT) EmptyListArrowFooter()

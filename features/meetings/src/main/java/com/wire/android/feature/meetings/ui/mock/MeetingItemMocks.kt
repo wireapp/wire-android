@@ -40,8 +40,8 @@ val CurrentTimeScope.endedPrivateChannelMeeting
         title = "Ended Private Channel Meeting",
         belongingType = BelongingType.Channel(name = "Private Channel Name", isPrivateChannel = true),
         status = Status.Ended(
-            startTime = currentTime().minus(1.days).minus(120.minutes),
-            endTime = currentTime().minus(1.days).minus(90.minutes),
+            startTime = currentTime().minus(60.minutes),
+            endTime = currentTime().minus(30.minutes),
         ),
     )
 
@@ -113,8 +113,8 @@ val CurrentTimeScope.pastMeetingMocks
             title = "Ended Groupless Meeting",
             belongingType = BelongingType.Groupless(avatars = avatars, limit = 5),
             status = Status.Ended(
-                startTime = currentTime().minus(1.days).minus(120.minutes),
-                endTime = currentTime().minus(1.days).minus(60.minutes),
+                startTime = currentTime().minus(1.days).minus(60.minutes),
+                endTime = currentTime().minus(1.days),
             ),
         ),
         MeetingItem(
@@ -133,8 +133,8 @@ val CurrentTimeScope.pastMeetingMocks
             title = "Ended 1:1 Meeting",
             belongingType = BelongingType.OneOnOne(username = "John Doe", avatar = UserAvatarData()),
             status = Status.Ended(
-                startTime = currentTime().minus(1.days).minus(30.minutes),
-                endTime = currentTime().minus(1.days),
+                startTime = currentTime().minus(1.days).minus(120.minutes),
+                endTime = currentTime().minus(1.days).minus(60.minutes),
             ),
         ),
         MeetingItem(
@@ -143,8 +143,8 @@ val CurrentTimeScope.pastMeetingMocks
             title = "Ended Group Meeting",
             belongingType = BelongingType.Group(name = "Group Name"),
             status = Status.Ended(
-                startTime = currentTime().minus(2.days).minus(120.minutes),
-                endTime = currentTime().minus(2.days).minus(90.minutes),
+                startTime = currentTime().minus(2.days).minus(60.minutes),
+                endTime = currentTime().minus(2.days),
             ),
         ),
         MeetingItem(
@@ -153,16 +153,16 @@ val CurrentTimeScope.pastMeetingMocks
             title = "Ended Channel Meeting",
             belongingType = BelongingType.Channel(name = "Channel Name", isPrivateChannel = true),
             status = Status.Ended(
-                startTime = currentTime().minus(2.days).minus(60.minutes),
-                endTime = currentTime().minus(2.days),
+                startTime = currentTime().minus(2.days).minus(120.minutes),
+                endTime = currentTime().minus(2.days).minus(90.minutes),
             ),
         ),
         MeetingItem(
             meetingId = "past6",
             conversationId = ConversationId("cid", "domain"),
-            title = "Ended Groupless Meeting",
+            title = "Ended Groupless Meeting Old",
             belongingType = BelongingType.Groupless(avatars = avatars.take(2), limit = 5),
-            status = Status.Scheduled(
+            status = Status.Ended(
                 startTime = currentTime().minus(3.days).minus(60.minutes),
                 endTime = currentTime().minus(3.days),
             ),

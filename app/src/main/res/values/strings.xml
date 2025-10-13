@@ -636,7 +636,7 @@
     <string name="conversation_details_is_not_classified">SECURITY LEVEL: UNCLASSIFIED</string>
     <string name="conversation_options_self_deleting_messages_label">Self-deleting messages</string>
     <string name="conversation_options_self_deleting_messages_description">When this is on, all messages in this conversation will disappear after a certain time.</string>
-    <string name="conversation_options_self_deleting_messages_cells_description">Self-deleting messages are currently not available for conversations with Cells.</string>
+    <string name="conversation_options_self_deleting_messages_cells_description">The feature is not available for conversations with Cells.</string>
     <string name="conversation_options_guests_label">Guests</string>
     <string name="conversation_details_guest_description">When this is ON, people from outside your team can join this conversation</string>
     <string name="conversation_options_guest_description">Turn this option ON to open this conversation to people outside your team, even if they don\'t have Wire.</string>
@@ -1881,4 +1881,6 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="content_description_filter_files">Filter files</string>
 
     <string name="profile_deeplink_feature_unavailable_title_alert">This feature is not available. Please contact your administrator.</string>
+    <string name="conversation_options_file_collaboration_label">File collaboration (Cells)</string>
+    <string name="conversation_options_file_collaboration_description">Permanently on for this conversation.</string>
 </resources>

@@ -426,7 +426,7 @@ private val StateAdmin = StateMember.copy(
 private val ProtocolInfoMLS = Conversation.ProtocolInfo.MLS(
     groupId = GroupID("groupId"),
     groupState = Conversation.ProtocolInfo.MLSCapable.GroupState.ESTABLISHED,
-    epoch = ULong.MIN_VALUE,
+//    epoch = ULong.MIN_VALUE,
     keyingMaterialLastUpdate = Instant.fromEpochMilliseconds(1648654560000),
     cipherSuite = CipherSuite.MLS_128_DHKEMX25519_AES128GCM_SHA256_Ed25519
 )

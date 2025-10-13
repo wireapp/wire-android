@@ -162,7 +162,6 @@ object TestConversation {
     val MLS_PROTOCOL_INFO = ProtocolInfo.MLS(
         GROUP_ID,
         ProtocolInfo.MLSCapable.GroupState.PENDING_JOIN,
-        0UL,
         Instant.parse("2021-03-30T15:36:00.000Z"),
         cipherSuite = CipherSuite.MLS_128_DHKEMX25519_AES128GCM_SHA256_Ed25519
     )

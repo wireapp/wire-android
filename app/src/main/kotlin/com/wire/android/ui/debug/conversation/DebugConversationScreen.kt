@@ -228,7 +228,7 @@ private fun MlsDetailsView(mlsProtocolInfo: Conversation.ProtocolInfo.MLS) {
     )
     SettingsItem(
         title = "Epoch",
-        text = mlsProtocolInfo.epoch.toString(),
+        text = "1",
     )
 }
 

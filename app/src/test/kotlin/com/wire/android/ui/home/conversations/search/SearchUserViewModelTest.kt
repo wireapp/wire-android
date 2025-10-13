@@ -442,7 +442,6 @@ class SearchUserViewModelTest {
         val mlsProtocol = Conversation.ProtocolInfo.MLS(
             GroupID("s"),
             Conversation.ProtocolInfo.MLSCapable.GroupState.PENDING_CREATION,
-            0UL,
             Instant.parse("2021-03-30T15:36:00.000Z"),
             cipherSuite = CipherSuite.MLS_128_DHKEMX25519_AES128GCM_SHA256_Ed25519
         )

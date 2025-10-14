@@ -67,6 +67,8 @@ class DebugConversationViewModel @Inject constructor(
                         )
                     }
                 }
+
+                // TODO: call the usecase for the epoch
             }
     }
 
@@ -99,4 +101,5 @@ data class DebugConversationViewState(
     val conversationName: String? = null,
     val teamId: String? = null,
     val mlsProtocolInfo: Conversation.ProtocolInfo.MLS? = null,
+    val epoch: ULong? = null,
 )

@@ -93,7 +93,7 @@ fun DebugConversationScreen(
 
                 state.mlsProtocolInfo?.let {
                     SectionHeader("MLS")
-                    MlsDetailsView(it)
+                    MlsDetailsView(it, state.epoch)
                 }
 
                 SectionHeader("Actions")
@@ -205,7 +205,7 @@ private fun ConversationDetailsView(state: DebugConversationViewState) {
 }
 
 @Composable
-private fun MlsDetailsView(mlsProtocolInfo: Conversation.ProtocolInfo.MLS) {
+private fun MlsDetailsView(mlsProtocolInfo: Conversation.ProtocolInfo.MLS, epoch: ULong?) {
 
     val clipboard = LocalClipboardManager.current
 
@@ -228,7 +228,7 @@ private fun MlsDetailsView(mlsProtocolInfo: Conversation.ProtocolInfo.MLS) {
     )
     SettingsItem(
         title = "Epoch",
-        text = "1",
+        text = epoch.toString(),
     )
 }
 

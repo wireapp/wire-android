@@ -59,6 +59,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -1494,9 +1495,14 @@ fun JumpToLastMessageButton(
 ) {
     val bottomPadding = dimensions().typingIndicatorHeight + dimensions().spacing8x
     val bottomPaddingPx = with(LocalDensity.current) { bottomPadding.toPx() }
+    val showButton by remember(lazyListState, bottomPaddingPx) {
+        derivedStateOf {
+            lazyListState.firstVisibleItemIndex > 0 || lazyListState.firstVisibleItemScrollOffset > bottomPaddingPx
+        }
+    }
     AnimatedVisibility(
         modifier = modifier.padding(bottom = bottomPadding, end = dimensions().spacing16x),
-        visible = lazyListState.firstVisibleItemIndex > 0 || lazyListState.firstVisibleItemScrollOffset > bottomPaddingPx,
+        visible = showButton,
         enter = scaleIn(),
         exit = scaleOut(),
     ) {

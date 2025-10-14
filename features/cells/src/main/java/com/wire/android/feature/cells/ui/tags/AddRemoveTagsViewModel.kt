@@ -72,7 +72,7 @@ class AddRemoveTagsViewModel @Inject constructor(
         }
     }
 
-    fun isValidTag(): Boolean = disallowedChars.none { it in tagsTextState.text }
+    fun isValidTag(): Boolean = disallowedChars.none { it in tagsTextState.text } && tagsTextState.text.length in 1..30
 
     fun addTag(tag: String) {
         tag.trim().let { newTag ->

@@ -60,9 +60,8 @@ import com.wire.android.feature.meetings.ui.mock.grouplessOngoingMeeting
 import com.wire.android.feature.meetings.ui.mock.ongoingAttendingOneOnOneMeeting
 import com.wire.android.feature.meetings.ui.mock.scheduledChannelMeetingStartingSoon
 import com.wire.android.feature.meetings.ui.mock.scheduledRepeatingGroupMeeting
-import com.wire.android.feature.meetings.ui.util.CurrentTimeScope
 import com.wire.android.feature.meetings.ui.util.PreviewMultipleThemes
-import com.wire.android.feature.meetings.ui.util.previewCurrentTimeScope
+import com.wire.android.feature.meetings.ui.util.rememberCurrentTimeProvider
 import com.wire.android.ui.common.avatar.UserProfileAvatar
 import com.wire.android.ui.common.avatar.UserProfileAvatarsRow
 import com.wire.android.ui.common.button.WireItemLabel
@@ -85,7 +84,7 @@ import kotlin.time.toDuration
 import com.wire.android.ui.common.R as UICommonR
 
 @Composable
-fun CurrentTimeScope.MeetingItem(meeting: MeetingItem, modifier: Modifier = Modifier) {
+fun MeetingItem(meeting: MeetingItem, modifier: Modifier = Modifier) {
     RowItemTemplate(
         modifier = modifier.padding(start = dimensions().spacing8x),
         titleStartPadding = dimensions().spacing0x,
@@ -169,7 +168,8 @@ private fun MeetingLeadingIcon() {
 }
 
 @Composable
-private fun CurrentTimeScope.MeetingOngoingDurationTimeSublineText(startedTime: Instant) {
+private fun MeetingOngoingDurationTimeSublineText(startedTime: Instant) {
+    val currentTime = rememberCurrentTimeProvider()
     var currentDuration by remember { mutableStateOf(currentTime().minus(startedTime)) }
     LaunchedEffect(currentDuration) {
         val durationInWholeMinutes = currentDuration.inWholeMinutes.toDuration(DurationUnit.MINUTES)
@@ -188,7 +188,7 @@ private fun RepeatingIntervalInfoLabel(repeatingInterval: RepeatingInterval?) {
 }
 
 @Composable
-private fun CurrentTimeScope.MeetingTimeInfoRow(status: Status) {
+private fun MeetingTimeInfoRow(status: Status) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(dimensions().spacing3x)
@@ -306,7 +306,8 @@ private fun MeetingAttendingPrimaryBodyText() {
 }
 
 @Composable
-private fun CurrentTimeScope.MeetingStartingInPrimaryBodyText(startTime: Instant) {
+private fun MeetingStartingInPrimaryBodyText(startTime: Instant) {
+    val currentTime = rememberCurrentTimeProvider()
     var remainingDuration by remember {
         mutableStateOf(startTime.minus(currentTime()))
     }
@@ -330,7 +331,7 @@ private fun CurrentTimeScope.MeetingStartingInPrimaryBodyText(startTime: Instant
 }
 
 @Composable
-private fun CurrentTimeScope.MeetingOngoingAttendingRow(status: Status, onJoinClick: () -> Unit) {
+private fun MeetingOngoingAttendingRow(status: Status, onJoinClick: () -> Unit) {
     Box(modifier = Modifier.heightIn(min = dimensions().spacing8x)) {
         if (status is Status.Ongoing) {
             if (status.ongoingCallStatus?.isSelfUserAttending == true) {
@@ -367,39 +368,29 @@ private fun PrimaryBodyText(text: String) {
 @PreviewMultipleThemes
 @Composable
 fun PreviewEndedPrivateChannelMeeting() = WireTheme {
-    with(previewCurrentTimeScope) {
-        MeetingItem(meeting = endedPrivateChannelMeeting)
-    }
+    MeetingItem(meeting = rememberCurrentTimeProvider().endedPrivateChannelMeeting)
 }
 
 @PreviewMultipleThemes
 @Composable
 fun PreviewOngoingAttendingOneOnOneMeeting() = WireTheme {
-    with(previewCurrentTimeScope) {
-        MeetingItem(meeting = ongoingAttendingOneOnOneMeeting)
-    }
+    MeetingItem(meeting = rememberCurrentTimeProvider().ongoingAttendingOneOnOneMeeting)
 }
 
 @PreviewMultipleThemes
 @Composable
 fun PreviewGrouplessOngoingMeeting() = WireTheme {
-    with(previewCurrentTimeScope) {
-        MeetingItem(meeting = grouplessOngoingMeeting)
-    }
+    MeetingItem(meeting = rememberCurrentTimeProvider().grouplessOngoingMeeting)
 }
 
 @PreviewMultipleThemes
 @Composable
 fun PreviewScheduledChannelMeetingStartingSoon() = WireTheme {
-    with(previewCurrentTimeScope) {
-        MeetingItem(meeting = scheduledChannelMeetingStartingSoon)
-    }
+    MeetingItem(meeting = rememberCurrentTimeProvider().scheduledChannelMeetingStartingSoon)
 }
 
 @PreviewMultipleThemes
 @Composable
 fun PreviewScheduledRepeatingGroupMeeting() = WireTheme {
-    with(previewCurrentTimeScope) {
-        MeetingItem(meeting = scheduledRepeatingGroupMeeting)
-    }
+    MeetingItem(meeting = rememberCurrentTimeProvider().scheduledRepeatingGroupMeeting)
 }

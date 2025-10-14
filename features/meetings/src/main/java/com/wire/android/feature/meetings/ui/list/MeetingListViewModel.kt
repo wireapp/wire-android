@@ -27,7 +27,7 @@ import com.wire.android.feature.meetings.model.MeetingItem
 import com.wire.android.feature.meetings.model.MeetingListItem
 import com.wire.android.feature.meetings.ui.MeetingsTabItem
 import com.wire.android.feature.meetings.ui.mock.MeetingMocksProvider
-import com.wire.android.feature.meetings.ui.util.CurrentTimeScope
+import com.wire.android.feature.meetings.ui.util.CurrentTimeProvider
 import com.wire.android.util.dispatchers.DispatcherProvider
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -52,15 +52,14 @@ interface MeetingListViewModel {
 }
 
 class MeetingListViewModelPreview(
-    currentTimeScope: CurrentTimeScope,
+    currentTimeProvider: CurrentTimeProvider,
     type: MeetingsTabItem,
     showingAll: Boolean = type == MeetingsTabItem.PAST,
 ) : MeetingListViewModel {
-    private val meetingMocksProvider = MeetingMocksProvider(currentTimeScope, type)
+    private val meetingMocksProvider = MeetingMocksProvider(currentTimeProvider, type)
     override val isShowingAll: StateFlow<Boolean> = MutableStateFlow(showingAll)
-    override val meetings: Flow<PagingData<MeetingListItem>> = with(currentTimeScope) {
+    override val meetings: Flow<PagingData<MeetingListItem>> =
         MutableStateFlow(PagingData.from(meetingMocksProvider.getItems(showingAll).insertHeaders()))
-    }
 }
 
 @HiltViewModel(assistedFactory = MeetingListViewModelImpl.Factory::class)
@@ -74,7 +73,7 @@ class MeetingListViewModelImpl @AssistedInject constructor(
     }
 
     override val isShowingAll = MutableStateFlow(type == MeetingsTabItem.PAST) // for PAST always show all, for NEXT start with false
-    private val meetingMocksProvider = MeetingMocksProvider(CurrentTimeScope(), type) // TODO replace with real data source
+    private val meetingMocksProvider = MeetingMocksProvider(CurrentTimeProvider.Default, type) // TODO replace with real data source
     override val meetings: Flow<PagingData<MeetingListItem>> = isShowingAll
         .mapLatest { showingAll ->
             PagingData.from(meetingMocksProvider.getItems(showingAll)).insertSeparators(generator = ::generateHeader)

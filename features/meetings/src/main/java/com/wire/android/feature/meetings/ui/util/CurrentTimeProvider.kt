@@ -19,6 +19,7 @@ package com.wire.android.feature.meetings.ui.util
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalInspectionMode
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
@@ -26,14 +27,19 @@ import kotlinx.datetime.atTime
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.todayIn
 
-data class CurrentTimeScope(val currentTime: () -> Instant = Clock.System::now) // can be changed for preview purposes
+class CurrentTimeProvider(val currentTime: () -> Instant) {
+    operator fun invoke(): Instant = currentTime()
 
-@Composable
-fun rememberCurrentTimeScope(currentTime: () -> Instant = Clock.System::now): CurrentTimeScope = remember {
-    CurrentTimeScope(currentTime)
+    companion object {
+        @Suppress("MagicNumber")
+        val Preview: CurrentTimeProvider = CurrentTimeProvider(currentTime = { // mocked fixed current time for preview purposes
+            Clock.System.todayIn(TimeZone.currentSystemDefault()).atTime(12, 0).toInstant(TimeZone.currentSystemDefault())
+        })
+        val Default: CurrentTimeProvider = CurrentTimeProvider(currentTime = Clock.System::now)
+    }
 }
 
-@Suppress("MagicNumber")
-val previewCurrentTimeScope @Composable get() = rememberCurrentTimeScope { // mocked fixed current time for preview purposes
-    Clock.System.todayIn(TimeZone.currentSystemDefault()).atTime(12, 0).toInstant(TimeZone.currentSystemDefault())
+@Composable
+fun rememberCurrentTimeProvider(): CurrentTimeProvider = LocalInspectionMode.current.let { isPreview: Boolean ->
+    remember { if (isPreview) CurrentTimeProvider.Preview else CurrentTimeProvider.Default }
 }

@@ -21,7 +21,7 @@ import com.wire.android.feature.meetings.model.MeetingItem
 import com.wire.android.feature.meetings.model.MeetingItem.BelongingType
 import com.wire.android.feature.meetings.model.MeetingItem.Status
 import com.wire.android.feature.meetings.ui.MeetingsTabItem
-import com.wire.android.feature.meetings.ui.util.CurrentTimeScope
+import com.wire.android.feature.meetings.ui.util.CurrentTimeProvider
 import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
 import com.wire.kalium.logic.data.id.ConversationId
@@ -33,7 +33,7 @@ import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.minutes
 
-val CurrentTimeScope.endedPrivateChannelMeeting
+val CurrentTimeProvider.endedPrivateChannelMeeting
     get() = MeetingItem(
         meetingId = "id1",
         conversationId = ConversationId("cid1", "domain"),
@@ -45,7 +45,7 @@ val CurrentTimeScope.endedPrivateChannelMeeting
         ),
     )
 
-val CurrentTimeScope.ongoingAttendingOneOnOneMeeting
+val CurrentTimeProvider.ongoingAttendingOneOnOneMeeting
     get() = MeetingItem(
         meetingId = "id2",
         conversationId = ConversationId("cid2", "domain"),
@@ -70,7 +70,7 @@ private val avatars = listOf(
     UserAvatarData(nameBasedAvatar = NameBasedAvatar(fullName = "Diana", accentColor = 4)),
 )
 
-val CurrentTimeScope.grouplessOngoingMeeting
+val CurrentTimeProvider.grouplessOngoingMeeting
     get() = MeetingItem(
         meetingId = "id3",
         conversationId = ConversationId("cid3", "domain"),
@@ -79,7 +79,7 @@ val CurrentTimeScope.grouplessOngoingMeeting
         status = Status.Ongoing(startTime = currentTime().minus(10.minutes)),
     )
 
-val CurrentTimeScope.scheduledChannelMeetingStartingSoon
+val CurrentTimeProvider.scheduledChannelMeetingStartingSoon
     get() = MeetingItem(
         meetingId = "id4",
         conversationId = ConversationId("cid4", "domain"),
@@ -91,7 +91,7 @@ val CurrentTimeScope.scheduledChannelMeetingStartingSoon
         )
     )
 
-val CurrentTimeScope.scheduledRepeatingGroupMeeting
+val CurrentTimeProvider.scheduledRepeatingGroupMeeting
     get() = MeetingItem(
         meetingId = "id5",
         conversationId = ConversationId("cid5", "domain"),
@@ -104,7 +104,7 @@ val CurrentTimeScope.scheduledRepeatingGroupMeeting
         )
     )
 
-val CurrentTimeScope.pastMeetingMocks
+val CurrentTimeProvider.pastMeetingMocks
     get() = listOf(
         endedPrivateChannelMeeting,
         MeetingItem(
@@ -169,7 +169,7 @@ val CurrentTimeScope.pastMeetingMocks
         )
     )
 
-val CurrentTimeScope.nextMeetingMocks
+val CurrentTimeProvider.nextMeetingMocks
     get() = listOf(
         ongoingAttendingOneOnOneMeeting,
         grouplessOngoingMeeting,
@@ -209,14 +209,14 @@ val CurrentTimeScope.nextMeetingMocks
         )
     )
 
-class MeetingMocksProvider(val currentTimeScope: CurrentTimeScope, private val type: MeetingsTabItem) {
+class MeetingMocksProvider(val currentTimeProvider: CurrentTimeProvider, private val type: MeetingsTabItem) {
     private val allItems = when (type) {
-        MeetingsTabItem.PAST -> currentTimeScope.pastMeetingMocks
-        MeetingsTabItem.NEXT -> currentTimeScope.nextMeetingMocks
+        MeetingsTabItem.PAST -> currentTimeProvider.pastMeetingMocks
+        MeetingsTabItem.NEXT -> currentTimeProvider.nextMeetingMocks
     }
     fun getItems(showingAll: Boolean) = allItems.filter { meeting ->
         val localDate = meeting.status.startTime.toLocalDateTime(TimeZone.currentSystemDefault()).date
-        val currentLocalDate = currentTimeScope.currentTime().toLocalDateTime(TimeZone.currentSystemDefault()).date
+        val currentLocalDate = currentTimeProvider.currentTime().toLocalDateTime(TimeZone.currentSystemDefault()).date
         when {
             !showingAll && type == MeetingsTabItem.PAST -> currentLocalDate.minus(1, DateTimeUnit.DAY) <= localDate
             !showingAll && type == MeetingsTabItem.NEXT -> currentLocalDate.plus(1, DateTimeUnit.DAY) >= localDate

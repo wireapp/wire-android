@@ -17,6 +17,7 @@
  */
 package com.wire.android.feature.cells.ui.tags
 
+import androidx.compose.foundation.text.input.setTextAndSelectAll
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.wire.android.feature.cells.ui.movetofolder.MoveToFolderViewModelTest.Companion.UUID
@@ -221,6 +222,57 @@ class AddRemoveTagsViewModelTest {
 
             assertEquals(AddRemoveTagsViewModelAction.Failure, awaitItem())
         }
+    }
+
+    @Test
+    fun `given valid input when isValidTag called then returns true`() {
+        // Given
+        val (_, viewModel) = Arrangement().arrange()
+        viewModel.tagsTextState.setTextAndSelectAll("ValidTag123")
+
+        // When
+        val result = viewModel.isValidTag()
+
+        // Then
+        assertTrue(result)
+    }
+
+    @Test
+    fun `given multiple invalid inputs when isValidTag called then returns false`() {
+        // Given
+        val (_, viewModel) = Arrangement().arrange()
+
+        val invalidInputs = listOf(
+            "Invalid,Tag",
+            "Invalid;Tag",
+            "Invalid/Tag",
+            "Invalid\\Tag",
+            "Invalid\"Tag",
+            "Invalid'Tag",
+            "Invalid<Tag",
+            "Invalid>Tag",
+            "Inva<lid>/Tag\\"
+        )
+
+        // When & Then
+        invalidInputs.forEach { input ->
+            viewModel.tagsTextState.setTextAndSelectAll(input)
+            val result = viewModel.isValidTag()
+            assertFalse(result)
+        }
+    }
+
+    @Test
+    fun `given empty input when isValidTag called then returns true`() {
+        // Given
+        val (_, viewModel) = Arrangement().arrange()
+        viewModel.tagsTextState.setTextAndSelectAll("")
+
+        // When
+        val result = viewModel.isValidTag()
+
+        // Then
+        assertTrue(result)
     }
 
     private class Arrangement {

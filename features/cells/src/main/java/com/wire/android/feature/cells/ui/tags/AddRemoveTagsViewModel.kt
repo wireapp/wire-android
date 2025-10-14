@@ -57,6 +57,8 @@ class AddRemoveTagsViewModel @Inject constructor(
     private val _addedTags: MutableStateFlow<Set<String>> = MutableStateFlow(navArgs.tags.toSet())
     internal val addedTags = _addedTags.asStateFlow()
 
+    val disallowedChars = listOf(",", ";", "/", "\\", "\"", "\'", "<", ">")
+
     internal val suggestedTags =
         allTags.combine(addedTags) { all, added ->
             all.filter { it !in added }.toSet()
@@ -69,6 +71,8 @@ class AddRemoveTagsViewModel @Inject constructor(
             }
         }
     }
+
+    fun isValidTag(): Boolean = disallowedChars.none { it in tagsTextState.text }
 
     fun addTag(tag: String) {
         tag.trim().let { newTag ->

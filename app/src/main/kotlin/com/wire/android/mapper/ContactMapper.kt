@@ -29,7 +29,7 @@ import com.wire.kalium.logic.data.publicuser.model.UserSearchDetails
 import com.wire.kalium.logic.data.service.ServiceDetails
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.OtherUser
-import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.data.user.type.isFederated
 import javax.inject.Inject
 
 class ContactMapper
@@ -96,11 +96,9 @@ class ContactMapper
      * Adds the fully qualified handle to the contact label in case of federated users.
      */
     private fun mapUserHandle(user: UserSearchDetails): String {
-        return with(user.type) {
-            when (type) {
-                UserType.FEDERATED -> "${user.handle}@${user.id.domain}"
-                else -> user.handle ?: String.EMPTY
-            }
+        return when (user.type.isFederated()) {
+            true -> "${user.handle}@${user.id.domain}"
+            false -> user.handle ?: String.EMPTY
         }
     }
 }

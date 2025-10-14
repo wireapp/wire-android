@@ -35,9 +35,9 @@ class UserTypeMapper @Inject constructor() {
                 UserType.EXTERNAL -> Membership.External
                 UserType.INTERNAL -> Membership.Standard
                 UserType.NONE -> Membership.None
-                UserType.SERVICE -> Membership.Service
                 UserType.ADMIN -> Membership.Admin
                 UserType.OWNER -> Membership.Owner
+                UserType.SERVICE,
                 UserType.APP -> Membership.Service
             }
         }

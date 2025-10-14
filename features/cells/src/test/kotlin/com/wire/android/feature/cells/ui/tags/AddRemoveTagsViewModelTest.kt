@@ -266,8 +266,8 @@ class AddRemoveTagsViewModelTest {
     fun `given input outside length range when isValidTag called then returns false`() {
         // Given
         val (_, viewModel) = Arrangement().arrange()
-        val tooShort = ""               // length 0
-        val tooLong = "A".repeat(31)    // length 31
+        val tooShort = "" // length 0
+        val tooLong = "A".repeat(31) // length 31
 
         // When
         val resultTooShort = viewModel.isValidTag()

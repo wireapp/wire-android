@@ -96,9 +96,11 @@ class ContactMapper
      * Adds the fully qualified handle to the contact label in case of federated users.
      */
     private fun mapUserHandle(user: UserSearchDetails): String {
-        return when (user.type) {
-            UserType.FEDERATED -> "${user.handle}@${user.id.domain}"
-            else -> user.handle ?: String.EMPTY
+        return with(user.type) {
+            when (type) {
+                UserType.FEDERATED -> "${user.handle}@${user.id.domain}"
+                else -> user.handle ?: String.EMPTY
+            }
         }
     }
 }

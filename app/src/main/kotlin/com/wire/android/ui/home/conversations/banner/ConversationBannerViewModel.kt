@@ -32,6 +32,7 @@ import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.data.user.type.UserTypeInfo
 import com.wire.kalium.logic.feature.conversation.NotifyConversationIsOpenUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -73,7 +74,8 @@ class ConversationBannerViewModel @Inject constructor(
     }
 
     @Suppress("ComplexMethod")
-    private fun handleConversationMemberTypes(userTypes: Set<UserType>) {
+    private fun handleConversationMemberTypes(userTypesInfo: Set<UserTypeInfo>) {
+        val userTypes = userTypesInfo.map { it.type }.toSet()
         val containsGuests = userTypes.contains(UserType.GUEST)
         val containsFederated = userTypes.contains(UserType.FEDERATED)
         val containsExternal = userTypes.contains(UserType.EXTERNAL)

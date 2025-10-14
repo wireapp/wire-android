@@ -35,6 +35,7 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.data.user.type.UserTypeInfo
 import com.wire.kalium.logic.feature.call.usecase.AnswerCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ConferenceCallingResult
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
@@ -81,7 +82,7 @@ class ConversationCallViewModel @Inject constructor(
 
     var conversationCallViewState by mutableStateOf(ConversationCallViewState())
     val shouldInformAboutVerification = mutableStateOf(false)
-    val selfTeamRole = mutableStateOf(UserType.GUEST)
+    val selfTeamRole = mutableStateOf(UserType.GUEST) // todo ym. check if worth to move to wrapper or not
     val callingEnabled = MutableSharedFlow<Unit>(replay = 1)
 
     var establishedCallConversationId: QualifiedID? = null
@@ -114,7 +115,7 @@ class ConversationCallViewModel @Inject constructor(
     private fun observeSelfTeamRole() {
         viewModelScope.launch {
             observeSelf().collectLatest { self ->
-                selfTeamRole.value = self.userType
+                selfTeamRole.value = self.userType.type
             }
         }
     }

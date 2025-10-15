@@ -21,7 +21,7 @@
     <string name="file_list_load_error">There was an error loading the files list. Please try again</string>
     <string name="file_list_load_network_error_title">Can’t Load Files</string>
     <string name="file_list_load_network_error">Your list of files could not be loaded. Please check your Internet connection and try again.</string>
-    <string name="file_list_empty_message">You\'ll find all files shared across your conversations here.</string>
+    <string name="file_list_empty_message">For conversations that use file collaboration, you\'ll find shared files here.</string>
     <string name="conversation_file_list_empty_message">You\'ll find all files and folders shared in this conversation here.</string>
     <string name="file_list_search_empty_message">Try adjusting your search</string>
     <string name="save_label">Save</string>

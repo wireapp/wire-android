@@ -1,4 +1,4 @@
-# 7. Introducing Enterprise Mobility Management (EMM) Capabilities
+# 8. Introducing Enterprise Mobility Management (EMM) Capabilities
 
 Date: 2025-10-15
 

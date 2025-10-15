@@ -59,11 +59,10 @@ class CreateFolderViewModel @Inject constructor(
         viewModelScope.launch {
             fileNameTextFieldState.textAsFlow().collectLatest {
                 displayNameState = displayNameState.copy(
-                    saveEnabled = it.trim().isNotEmpty() && it.length <= NAME_MAX_COUNT &&
-                            !it.contains("/") && !it.contains("."),
+                    saveEnabled = it.trim().isNotEmpty() && it.length <= NAME_MAX_COUNT && !it.contains("/"),
                     error = when {
                         it.length > NAME_MAX_COUNT -> DisplayNameState.NameError.TextFieldError.NameExceedLimitError
-                        it.contains("/") || it.contains(".") -> DisplayNameState.NameError.TextFieldError.InvalidNameError
+                        it.contains("/") -> DisplayNameState.NameError.TextFieldError.InvalidNameError
                         else -> DisplayNameState.NameError.None
                     }
                 )

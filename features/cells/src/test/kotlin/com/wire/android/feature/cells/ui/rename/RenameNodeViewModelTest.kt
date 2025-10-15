@@ -176,7 +176,7 @@ class RenameNodeViewModelTest {
             )
             every { savedStateHandle.get<String>("uuid") } returns UUID
             every { savedStateHandle.get<String>("currentPath") } returns CURRENT_PATH
-            every { savedStateHandle.get<Boolean>("isFolder") } returns true
+            every { savedStateHandle.get<Boolean>("isFolder") } returns false
             every { savedStateHandle.get<String>("nodeName") } returns NODE_NAME
         }
 

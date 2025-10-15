@@ -411,6 +411,73 @@ We will create a new module(s) for testing purposes, and we will use the UIAutom
                 </div>
             </div>
             
+            <div class="panel panel-default">
+                <div class="panel-heading adr-accepted">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" href="#collapse8">7. Introducing Enterprise Mobility Management (EMM) Capabilities</a>
+
+                        
+                        <i class="adr-icon fas fa-fw fa-check"></i>
+                        
+
+                    </h4>
+                </div>
+                <div id="collapse8" class="panel-collapse collapse">
+                    <div class="panel-body"><h1>7. Introducing Enterprise Mobility Management (EMM) Capabilities</h1>
+<p>Date: 2025-10-15</p>
+<h2>Status</h2>
+<p>Accepted</p>
+<h2>Context</h2>
+<p>As a requirement for some of our business cases, we need to introduce Enterprise Mobility Management (EMM) capabilities into our Android application. EMM solutions help organizations manage and secure mobile devices, applications, and data.
+To implement EMM capabilities, we want to add support for the following features:</p>
+<ul>
+<li>Backend setup using managed configurations, the ability for the app to connect by default to a specific backend.</li>
+<li>SSO Capabilities, allowing users to authenticate with a default sso code configuration.</li>
+</ul>
+<h2>Decision</h2>
+<p>This was implemented by following the guidelines provided by Google for adding EMM capabilities to Android applications. The steps taken were:</p>
+<ol>
+<li><strong>Manifest Changes</strong>: Updated the AndroidManifest.xml to include the necessary permissions and metadata</li>
+<li><strong>Managed Configurations</strong>: Implemented support for managed configurations to allow IT administrators to configure the app remotely.</li>
+<li><strong>SSO Integration</strong>: Integrated SSO capabilities to allow seamless authentication for users within an enterprise environment.</li>
+<li><strong>Testing</strong>: Conducted thorough testing to ensure that the EMM features work as</li>
+</ol>
+<h2>Consequences</h2>
+<ul>
+<li>The app now support EMM capabilities, by making use of <code>RestrictionsManager</code> component to retrieve managed configurations and apply them accordingly.</li>
+<li>The app reads the managed configurations and applies them to set the default backend and SSO settings.</li>
+<li>The app resolves using DI the backend and SSO settings from the managed configurations if available, otherwise it falls back to the app default settings.</li>
+</ul>
+<pre><code class="language-mermaid">---
+config:
+layout: dagre
+theme: neutral
+---
+flowchart TD
+A([&quot;App Start&quot;]) --&gt; B[&quot;ManagedConfigurationsManager&quot;]
+B --&gt; C{&quot;Managed Configurations Available?&quot;}
+C -- Yes --&gt; D[&quot;Retrieve Managed Configs&quot;]
+D --&gt; E{&quot;Valid Configuration?&quot;}
+E -- Yes --&gt; F[&quot;Use as DI Defaults&quot;]
+E -- No/Error --&gt; G[&quot;Load default.json&quot;]
+C -- No --&gt; G
+G --&gt; H[&quot;Use App Defaults via DI&quot;]
+P([&quot;App Resume&quot;]) --&gt; B
+R([&quot;Broadcast Receiver Triggered&quot;]) --&gt; L[&quot;ManagedConfigurationReceiver&quot;]
+L --&gt; B
+F --&gt; J[&quot;ViewModels Inject non scoped values from ManagedConfigurationsManager&quot;]
+H --&gt; J
+J@{ shape: card}
+style A fill:#C8E6C9
+style B fill:#BBDEFB
+style P fill:#C8E6C9
+style R fill:#C8E6C9
+style J fill:#BBDEFB
+</code></pre>
+</div>
+                </div>
+            </div>
+            
         </div>
         <footer>
             Generated with &lt;3 using ADR Viewer

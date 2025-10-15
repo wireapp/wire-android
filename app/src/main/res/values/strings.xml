@@ -1873,8 +1873,8 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="custimization_options_header_title">Options</string>
     <string name="cells_screen_title">All files</string>
     <string name="cells_screen_search_hint">Search files</string>
-    <string name="enable_wire_cell">Enable Wire Cell</string>
-    <string name="enable_wire_cell_switch_description">All files in this conversation will be uploaded in Wire Cell storage.</string>
+    <string name="enable_wire_cell">File collaboration (Cells beta version)</string>
+    <string name="enable_wire_cell_switch_description">Enable participants to manage their documents and media files. Use folders, tags, and filters to work more efficiently. This can\’t be undone.</string>
     <string name="failed_attachment_retry_upload">Retry upload</string>
     <string name="failed_attachment_remove">Remove</string>
     <string name="content_description_apply_filter">Apply Filter</string>

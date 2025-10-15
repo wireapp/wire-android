@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
@@ -32,11 +33,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.StatusBox
 import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.home.conversations.SelfDeletionTimerHelper
@@ -99,7 +99,10 @@ fun MessageBubbleExpireFooter(
 ) {
     when (selfDeletionTimerState) {
         is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable -> {
-            Row(modifier) {
+            Row(
+                modifier,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 HorizontalSpace.x8()
                 SelfDeletionTimerIcon(
                     selfDeletionTimerState,
@@ -125,8 +128,7 @@ private fun SelfDeletionTimerIcon(
     messageStyle: MessageStyle,
     accentColor: Color,
     modifier: Modifier = Modifier,
-    size: Dp = 11.dp,
-    discreteSteps: Int? = 8,
+    discreteSteps: Int? = 8
 ) {
 
     val emptyColor = when (messageStyle) {
@@ -141,7 +143,7 @@ private fun SelfDeletionTimerIcon(
 
     Canvas(
         modifier
-            .size(size)
+            .size(dimensions().spacing12x)
             .semantics(mergeDescendants = true) {
                 contentDescription = "Time left ${"%.0f".format(metrics.displayFractionLeft * 100)}%"
             }

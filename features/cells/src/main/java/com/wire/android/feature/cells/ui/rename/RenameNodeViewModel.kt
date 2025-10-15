@@ -24,10 +24,10 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.feature.cells.ui.navArgs
-import com.wire.android.model.DisplayNameState
-import com.wire.android.model.DisplayNameState.NameError.None
+import com.wire.android.feature.cells.ui.rename.RenameNodeViewState.RenameError.None
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.common.textfield.textAsFlow
+import com.wire.kalium.cells.domain.usecase.RenameNodeFailure
 import com.wire.kalium.cells.domain.usecase.RenameNodeUseCase
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
@@ -56,67 +56,91 @@ class RenameNodeViewModel @Inject constructor(
     private val fileExtension: String = navArgs.nodeName?.splitFileExtension()?.second ?: ""
     val textState: TextFieldState = TextFieldState(navArgs.nodeName?.splitFileExtension()?.first ?: "")
 
-    var displayNameState: DisplayNameState by mutableStateOf(DisplayNameState())
+    internal var viewState by mutableStateOf(RenameNodeViewState())
         private set
 
     init {
         viewModelScope.launch {
             textState.textAsFlow().collectLatest { name ->
                 val validationError = name.validate()
-                displayNameState = displayNameState.copy(
-                    saveEnabled = validationError == None && name.trim() != originalFileName,
-                    error = validationError,
-                )
+                viewState = viewState.copy(
+                        saveEnabled = validationError == None && name.trim() != originalFileName,
+                        error = validationError,
+                    )
             }
         }
     }
 
     fun renameNode(newName: String) {
-        displayNameState = displayNameState.copy(loading = true)
+        viewState = viewState.copy(loading = true)
         viewModelScope.launch {
-            val newNameWithExtension = newName + fileExtension.takeIf { it.isNotEmpty() }?.let { ".$it" }.orEmpty()
+            val newNameWithExtension = newName.trim() + fileExtension.takeIf { it.isNotEmpty() }?.let { ".$it" }.orEmpty()
             renameNodeUseCase.invoke(
                 uuid = navArgs.uuid!!,
                 path = navArgs.currentPath!!,
                 newName = newNameWithExtension
             )
                 .onSuccess {
-                    displayNameState = displayNameState.copy(
-                        loading = false,
-                        completed = DisplayNameState.Completed.Success,
-                    )
+                    viewState = viewState.copy(
+                            loading = false,
+                            completed = RenameNodeViewState.Completed.Success,
+                        )
                     sendAction(RenameNodeViewModelAction.Success)
                 }
-                .onFailure {
-                    displayNameState = displayNameState.copy(
-                        loading = false,
-                        completed = DisplayNameState.Completed.Failure,
-                    )
-                    sendAction(RenameNodeViewModelAction.Failure)
+                .onFailure { failure ->
+                    when (failure) {
+                        RenameNodeFailure.FileAlreadyExists ->
+                            viewState = viewState.copy(
+                                    loading = false,
+                                    error = RenameNodeViewState.RenameError.TextFieldError.NameAlreadyExist,
+                                    completed = RenameNodeViewState.Completed.Failure,
+                                )
+                        else -> sendAction(RenameNodeViewModelAction.Failure)
+                    }
                 }
         }
     }
 
     private fun CharSequence.validate() = when {
-        length > NAME_MAX_COUNT -> DisplayNameState.NameError.TextFieldError.NameExceedLimitError
-        trim().isEmpty() -> DisplayNameState.NameError.TextFieldError.NameEmptyError
-        contains("/") || contains(".") -> DisplayNameState.NameError.TextFieldError.InvalidNameError
+        length > NAME_MAX_COUNT -> RenameNodeViewState.RenameError.TextFieldError.NameExceedLimit
+        trim().isEmpty() -> RenameNodeViewState.RenameError.TextFieldError.NameEmpty
+        contains("/") || contains(".") -> RenameNodeViewState.RenameError.TextFieldError.InvalidName
         else -> None
     }
 
     internal fun onMaxLengthExceeded() {
-        displayNameState = displayNameState.copy(
-            error = DisplayNameState.NameError.TextFieldError.NameExceedLimitError
-        )
+        viewState = viewState.copy(
+                error = RenameNodeViewState.RenameError.TextFieldError.NameExceedLimit
+            )
         clearErrorJob?.cancel()
         clearErrorJob = viewModelScope.launch {
             delay(2.seconds)
-            displayNameState = displayNameState.copy(error = None)
+            viewState = viewState.copy(error = None)
         }
     }
 
     companion object {
         const val NAME_MAX_COUNT = 64
+    }
+}
+
+internal data class RenameNodeViewState(
+    val loading: Boolean = false,
+    val saveEnabled: Boolean = false,
+    val error: RenameError = None,
+    val completed: Completed = Completed.None,
+) {
+    enum class Completed {
+        None, Success, Failure
+    }
+    sealed interface RenameError {
+        data object None : RenameError
+        sealed interface TextFieldError : RenameError {
+            data object NameEmpty : TextFieldError
+            data object NameExceedLimit : TextFieldError
+            data object NameAlreadyExist : TextFieldError
+            data object InvalidName : TextFieldError
+        }
     }
 }
 

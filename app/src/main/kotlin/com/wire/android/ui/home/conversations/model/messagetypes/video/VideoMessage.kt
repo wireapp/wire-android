@@ -57,6 +57,7 @@ import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.home.conversations.messages.item.isBubble
+import com.wire.android.ui.home.conversations.messages.item.onSurface
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.DateAndTimeParsers
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -180,20 +181,20 @@ fun VideoMessage(
                 AssetTransferStatus.NOT_DOWNLOADED ->
                     Text(
                         text = stringResource(R.string.asset_message_tap_to_download_text),
-                        color = colorsScheme().onSurface,
+                        color = messageStyle.onSurface(),
                         style = typography().subline01,
                     )
 
                 AssetTransferStatus.DOWNLOAD_IN_PROGRESS ->
                     WireCircularProgressIndicator(
                         modifier = Modifier.size(dimensions().spacing32x),
-                        progressColor = colorsScheme().inverseOnSurface,
+                        progressColor = messageStyle.onSurface()
                     )
 
                 AssetTransferStatus.FAILED_DOWNLOAD ->
                     Text(
                         text = stringResource(R.string.asset_message_failed_download_text),
-                        color = colorsScheme().onSurface,
+                        color = messageStyle.onSurface(),
                         style = typography().subline01,
                     )
 

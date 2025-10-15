@@ -104,6 +104,7 @@
     <string name="rename_folder_renamed">Folder was renamed</string>
     <string name="rename_failure">Failed to rename</string>
     <string name="rename_invalid_name">Use a name without "/" or "."</string>
+    <string name="rename_already_exist">File with this name already exists</string>
     <string name="filter_label">Filter</string>
     <string name="tags_label">Tags</string>
     <string name="select_tags_label">select tags</string>
@@ -126,4 +127,5 @@
     <string name="cells_folder_deleted_message">Folder was deleted</string>
     <string name="cells_file_permanently_deleted_message">File was permanently deleted</string>
     <string name="cells_folder_permanently_deleted_message">Folder was permanently deleted</string>
+    <string name="invalid_tag_name_error">Invalid tag name</string>
 </resources>

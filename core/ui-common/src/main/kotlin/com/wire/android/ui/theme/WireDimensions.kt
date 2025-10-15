@@ -69,7 +69,6 @@ data class WireDimensions(
     val bottomNavigationShadowElevation: Dp,
     // Conversation
     val conversationItemRowHeight: Dp,
-    val conversationItemPadding: Dp,
     val conversationsListBottomPadding: Dp,
     // Conversation BottomSheet
     val conversationBottomSheetItemHeight: Dp,
@@ -268,7 +267,6 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     bottomNavigationHeight = 60.dp,
     bottomNavigationShadowElevation = 8.dp,
     conversationItemRowHeight = 56.dp,
-    conversationItemPadding = 0.5.dp,
     conversationsListBottomPadding = 74.dp,
     conversationBottomSheetItemHeight = 48.dp,
     conversationBottomSheetItemPadding = 14.dp,

@@ -64,6 +64,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.textfield.WireTextField
+import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.WireTheme
@@ -133,6 +134,7 @@ fun AddRemoveTagsScreen(
             onRemoveTag = { tag ->
                 addRemoveTagsViewModel.removeTag(tag)
             },
+            isValidTag = { addRemoveTagsViewModel.isValidTag() },
             modifier = Modifier.fillMaxSize()
         )
     }
@@ -158,6 +160,7 @@ fun AddRemoveTagsScreenContent(
     textFieldState: TextFieldState,
     addedTags: Set<String>,
     suggestedTags: Set<String>,
+    isValidTag: () -> Boolean,
     onAddTag: (String) -> Unit,
     onRemoveTag: (String) -> Unit,
     modifier: Modifier = Modifier
@@ -179,6 +182,14 @@ fun AddRemoveTagsScreenContent(
             keyboardOptions = KeyboardOptions.Default.copy(
                 imeAction = ImeAction.Done
             ),
+            state = when {
+                textFieldState.text.isNotBlank() && !isValidTag() ->
+                    WireTextFieldState.Error(
+                        errorText = stringResource(R.string.invalid_tag_name_error),
+                        withStartPadding = true
+                    )
+                else -> WireTextFieldState.Default
+            },
             trailingIcon = {
                 WirePrimaryButton(
                     text = stringResource(R.string.add_tag_label),
@@ -189,10 +200,10 @@ fun AddRemoveTagsScreenContent(
                     onClick = {
                         onAddTag(textFieldState.text.toString())
                     },
-                    state = if (textFieldState.text.isEmpty()) {
-                        WireButtonState.Disabled
-                    } else {
+                    state = if (isValidTag() && textFieldState.text.isNotBlank()) {
                         WireButtonState.Default
+                    } else {
+                        WireButtonState.Disabled
                     },
                 )
             },
@@ -299,6 +310,7 @@ fun PreviewAddRemoveTagsScreen() {
             suggestedTags = setOf("Marketing", "Finance", "HR"),
             onAddTag = {},
             onRemoveTag = {},
+            isValidTag = { true },
             modifier = Modifier.fillMaxSize()
         )
     }

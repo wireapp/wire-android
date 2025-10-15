@@ -55,7 +55,7 @@ fun StartCallButton(
         onClick = audioPermissionCheck::launch,
         leadingIcon = {
             Icon(
-                painter = painterResource(id = R.drawable.ic_video_call),
+                painter = painterResource(id = com.wire.android.ui.common.R.drawable.ic_video_call),
                 contentDescription = stringResource(R.string.content_description_conversation_phone_icon),
             )
         },

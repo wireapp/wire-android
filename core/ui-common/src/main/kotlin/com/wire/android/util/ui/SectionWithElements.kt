@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2025 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
-package com.wire.android.util.extension
+package com.wire.android.util.ui
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,11 +25,11 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.wire.android.ui.home.conversationslist.common.CollapsingFolderHeader
-import com.wire.android.ui.home.conversationslist.common.FolderHeader
+import com.wire.android.ui.common.rowitem.CollapsingSectionHeader
+import com.wire.android.ui.common.rowitem.SectionHeader
 
 @Suppress("LongParameterList", "CyclomaticComplexMethod")
-inline fun <T, K : Any> LazyListScope.folderWithElements(
+inline fun <T, K : Any> LazyListScope.sectionWithElements(
     header: String? = null,
     items: Map<K, T>,
     animateItemPlacement: Boolean = true,
@@ -43,7 +43,7 @@ inline fun <T, K : Any> LazyListScope.folderWithElements(
         if (!header.isNullOrEmpty()) {
             item(key = "header:$header") {
                 when (folderType) {
-                    is FolderType.Collapsing -> CollapsingFolderHeader(
+                    is FolderType.Collapsing -> CollapsingSectionHeader(
                         expanded = folderType.expanded,
                         onClicked = folderType.onChanged,
                         name = header,
@@ -52,7 +52,7 @@ inline fun <T, K : Any> LazyListScope.folderWithElements(
                             .let { if (animateItemPlacement) it.animateItem() else it }
                     )
 
-                    is FolderType.Regular -> FolderHeader(
+                    is FolderType.Regular -> SectionHeader(
                         name = header,
                         modifier = Modifier
                             .fillMaxWidth()

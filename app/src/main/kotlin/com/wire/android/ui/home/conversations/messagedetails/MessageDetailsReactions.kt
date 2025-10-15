@@ -28,7 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.ui.common.preview.MultipleThemePreviews
-import com.wire.android.ui.home.conversations.details.participants.folderWithElements
+import com.wire.android.ui.home.conversations.details.participants.sectionWithElements
 import com.wire.android.ui.home.conversations.messagedetails.model.MessageDetailsReactionsData
 import com.wire.android.ui.theme.WireTheme
 
@@ -55,7 +55,7 @@ fun MessageDetailsReactions(
                 modifier = Modifier.weight(weight = 1f, fill = true)
             ) {
                 reactionsData.reactions.forEach { entry ->
-                    folderWithElements(
+                    sectionWithElements(
                         header = "${entry.key} ${entry.value.size}",
                         items = entry.value.associateBy { "${entry.key}_${it.id}" },
                         onRowItemClicked = { },

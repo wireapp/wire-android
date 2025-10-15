@@ -39,7 +39,7 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.handleNavigation
 import com.wire.android.ui.home.HomeStateHolder
-import com.wire.android.util.extension.folderWithElements
+import com.wire.android.util.ui.sectionWithElements
 import com.wire.android.util.ui.UIText
 
 @HomeNavGraph
@@ -78,7 +78,7 @@ fun WhatsNewScreenContent(
         modifier = modifier.fillMaxSize()
     ) {
         if (BuildConfig.SHOULD_DISPLAY_RELEASE_NOTES) {
-            folderWithElements(
+            sectionWithElements(
                 items = buildList {
                     add(WhatsNewItem.WelcomeToNewAndroidApp)
                 },
@@ -88,7 +88,7 @@ fun WhatsNewScreenContent(
             )
         }
 
-        folderWithElements(
+        sectionWithElements(
             header = context.getString(R.string.whats_new_release_notes_group_title),
             items = buildList {
                 if (state.isLoading) {
@@ -129,14 +129,14 @@ fun WhatsNewScreenContent(
     }
 }
 
-private fun LazyListScope.folderWithElements(
+private fun LazyListScope.sectionWithElements(
     header: String? = null,
     items: List<WhatsNewItem>,
     onItemClicked: (WhatsNewItem) -> Unit,
     onItemClickedDescription: String,
     isLoading: Boolean,
 ) {
-    folderWithElements(
+    sectionWithElements(
         header = header?.uppercase(),
         items = items.associateBy { it.id }
     ) { item ->

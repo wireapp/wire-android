@@ -198,8 +198,6 @@
     <string name="content_description_open_label">aç</string>
     <string name="content_description_join_call_label">bir çağrıya katıl</string>
     <string name="content_description_share_label">paylaş</string>
-    <string name="content_description_collapse_label">daralt</string>
-    <string name="content_description_expand_label">genişlet</string>
     <string name="content_description_edit_label">düzenle</string>
     <string name="content_description_select_label">seç</string>
     <string name="content_description_unselect_label">seçimi kaldır</string>
@@ -459,5 +457,6 @@ Yedek dosyayı korumak için güçlü bir şifre seçin.</string>
     <string name="debug_settings_screen_title">Hata Ayıklama Günlüğü Ayarları</string>
     <!--    Personal to team migration screen-->
     <!-- Move to Folder -->
+    <!-- enterprise configurations -->
     <!--    channel not available dialog-->
 </resources>

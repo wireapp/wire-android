@@ -208,8 +208,6 @@
     <string name="content_description_open_label">open</string>
     <string name="content_description_join_call_label">join a call</string>
     <string name="content_description_share_label">share</string>
-    <string name="content_description_collapse_label">collapse</string>
-    <string name="content_description_expand_label">expand</string>
     <string name="content_description_edit_label">edit</string>
     <string name="content_description_select_label">select</string>
     <string name="content_description_unselect_label">unselect</string>
@@ -638,7 +636,7 @@
     <string name="conversation_details_is_not_classified">SECURITY LEVEL: UNCLASSIFIED</string>
     <string name="conversation_options_self_deleting_messages_label">Self-deleting messages</string>
     <string name="conversation_options_self_deleting_messages_description">When this is on, all messages in this conversation will disappear after a certain time.</string>
-    <string name="conversation_options_self_deleting_messages_cells_description">Self-deleting messages are currently not available for conversations with Cells.</string>
+    <string name="conversation_options_self_deleting_messages_cells_description">The feature is not available for conversations with Cells.</string>
     <string name="conversation_options_guests_label">Guests</string>
     <string name="conversation_details_guest_description">When this is ON, people from outside your team can join this conversation</string>
     <string name="conversation_options_guest_description">Turn this option ON to open this conversation to people outside your team, even if they don\'t have Wire.</string>
@@ -1875,12 +1873,14 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="custimization_options_header_title">Options</string>
     <string name="cells_screen_title">All files</string>
     <string name="cells_screen_search_hint">Search files</string>
-    <string name="enable_wire_cell">Enable Wire Cell</string>
-    <string name="enable_wire_cell_switch_description">All files in this conversation will be uploaded in Wire Cell storage.</string>
+    <string name="enable_wire_cell">File collaboration (Cells beta version)</string>
+    <string name="enable_wire_cell_switch_description">Enable participants to manage their documents and media files. Use folders, tags, and filters to work more efficiently. This can\’t be undone.</string>
     <string name="failed_attachment_retry_upload">Retry upload</string>
     <string name="failed_attachment_remove">Remove</string>
     <string name="content_description_apply_filter">Apply Filter</string>
     <string name="content_description_filter_files">Filter files</string>
 
     <string name="profile_deeplink_feature_unavailable_title_alert">This feature is not available. Please contact your administrator.</string>
+    <string name="conversation_options_file_collaboration_label">File collaboration (Cells)</string>
+    <string name="conversation_options_file_collaboration_description">Permanently on for this conversation.</string>
 </resources>

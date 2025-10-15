@@ -27,7 +27,11 @@ import kotlinx.coroutines.flow.Flow
 
 sealed class WireTextFieldState {
     data object Default : WireTextFieldState()
-    data class Error(val errorText: String? = null) : WireTextFieldState()
+    data class Error(
+        val errorText: String? = null,
+        val withStartPadding: Boolean = false
+    ) : WireTextFieldState()
+
     data object Success : WireTextFieldState()
     data object Disabled : WireTextFieldState()
     data object ReadOnly : WireTextFieldState()

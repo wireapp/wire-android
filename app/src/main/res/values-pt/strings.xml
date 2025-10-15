@@ -195,8 +195,6 @@
     <string name="content_description_open_label">abrir</string>
     <string name="content_description_join_call_label">participar de uma chamada</string>
     <string name="content_description_share_label">compartilhar</string>
-    <string name="content_description_collapse_label">recolher</string>
-    <string name="content_description_expand_label">expandir</string>
     <string name="content_description_edit_label">editar</string>
     <string name="content_description_select_label">selecionar</string>
     <string name="content_description_unselect_label">desmarcar</string>
@@ -1588,6 +1586,7 @@ registrado. Tente novamente.</string>
     <string name="press_enter_to_send_title">Pressione Enter para enviar</string>
     <string name="press_enter_to_send_text">Quando ativado, você pode enviar mensagens com a tecla Enter em seu teclado.</string>
     <string name="customization_options_header_title">Opções</string>
+    <!-- enterprise configurations -->
     <!--    channel not available dialog-->
     <string name="channel_not_available_dialog_title">Canais estão disponíveis para os membros da equipe.</string>
     <string name="channel_not_available_dialog_description">Crie uma equipe e comece a colaborar gratuitamente!</string>

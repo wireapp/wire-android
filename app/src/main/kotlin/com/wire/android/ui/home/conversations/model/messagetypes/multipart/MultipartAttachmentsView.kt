@@ -116,7 +116,7 @@ private fun AttachmentsList(
             AssetPreview(
                 item = it,
                 messageStyle = messageStyle,
-                isMultipartMessage = true,
+                showWithPreview = true,
                 onClick = { onClick(it) },
                 modifier = modifier,
                 accent = accent

@@ -592,7 +592,7 @@
     <string name="conversation_details_is_not_classified">УРОВЕНЬ БЕЗОПАСНОСТИ: НЕКЛАССИФИЦИРОВАН</string>
     <string name="conversation_options_self_deleting_messages_label">Самоудаляющиеся сообщения</string>
     <string name="conversation_options_self_deleting_messages_description">Если этот параметр включен, все сообщения в этой беседе будут исчезать через определенное время.</string>
-    <string name="conversation_options_self_deleting_messages_cells_description">Самоудаляющиеся сообщения в настоящее время недоступны для бесед с Cells.</string>
+    <string name="conversation_options_self_deleting_messages_cells_description">Функция недоступна для бесед с Cells.</string>
     <string name="conversation_options_guests_label">Гости</string>
     <string name="conversation_details_guest_description">Когда эта опция включена, к беседе могут присоединиться пользователи, не входящие в вашу команду</string>
     <string name="conversation_options_guest_description">Включите эту опцию, чтобы открыть эту беседу для пользователей не из вашей команды, даже если у них нет Wire.</string>
@@ -1889,4 +1889,6 @@
     <string name="content_description_apply_filter">Применить фильтр</string>
     <string name="content_description_filter_files">Фильтр файлов</string>
     <string name="profile_deeplink_feature_unavailable_title_alert">Эта функция недоступна. Пожалуйста, свяжитесь со своим администратором.</string>
+    <string name="conversation_options_file_collaboration_label">Совместная работа с файлами (Cells)</string>
+    <string name="conversation_options_file_collaboration_description">Постоянно для этой беседы.</string>
 </resources>

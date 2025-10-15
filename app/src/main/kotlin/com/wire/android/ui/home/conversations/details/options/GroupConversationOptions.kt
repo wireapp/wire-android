@@ -159,6 +159,16 @@ fun GroupConversationSettings(
                             onCheckedChange = onServiceSwitchClicked
                         )
                     }
+                    addIf(state.isWireCellEnabled) {
+                        GroupConversationOptionsItem(
+                            title = stringResource(id = R.string.conversation_options_file_collaboration_label),
+                            subtitle = stringResource(id = R.string.conversation_options_file_collaboration_description),
+                            trailingOnText = null,
+                            switchState = SwitchState.TextOnly(true),
+                            arrowType = ArrowType.NONE,
+                            clickable = Clickable(enabled = false)
+                        )
+                    }
                 }
             )
         }

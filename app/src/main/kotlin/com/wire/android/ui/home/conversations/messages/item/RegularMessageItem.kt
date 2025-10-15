@@ -67,7 +67,7 @@ fun RegularMessageItem(
     fun messageContent() {
         if (isBubbleUiEnabled) {
             val footerSlot: (@Composable (inner: PaddingValues) -> Unit)? =
-                if (shouldDisplayFooter) {
+                if (shouldDisplayFooter && !message.header.messageStatus.isDeleted) {
                     { innerPadding ->
                         MessageReactionsItem(
                             messageFooter = message.messageFooter,

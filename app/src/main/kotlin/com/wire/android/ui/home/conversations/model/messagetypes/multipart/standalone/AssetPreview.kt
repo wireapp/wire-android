@@ -48,7 +48,7 @@ fun AssetPreview(
     onClick: () -> Unit,
     accent: Accent,
     modifier: Modifier = Modifier,
-    isForGrid: Boolean = false
+    isMultipartMessage: Boolean = false
 ) {
     Box(
         modifier = modifier
@@ -70,7 +70,7 @@ fun AssetPreview(
             when {
                 item.assetType == AttachmentFileType.IMAGE -> ImageAssetPreview(item, messageStyle)
                 item.assetType == AttachmentFileType.VIDEO -> VideoAssetPreview(item, messageStyle, accent)
-                item.assetType == AttachmentFileType.PDF && !isForGrid -> PdfAssetPreview(item, messageStyle, accent)
+                item.assetType == AttachmentFileType.PDF && !isMultipartMessage -> PdfAssetPreview(item, messageStyle, accent)
                 else -> FileAssetPreview(item, messageStyle, accent)
             }
         } else {

@@ -165,7 +165,7 @@ fun ConversationFilesScreenContent(
                     RecycleBinScreenDestination(
                         conversationId = currentNodeUuid?.substringBefore("/"),
                         isRecycleBin = true,
-                        breadcrumbs =  arrayOf(breadcrumbs?.first() ?: ""),
+                        breadcrumbs = arrayOf(breadcrumbs?.first() ?: ""),
                     )
                 )
             )

@@ -81,7 +81,9 @@ fun Breadcrumbs(
                         style = MaterialTheme.wireTypography.button02.run {
                             if (index == pathSegments.lastIndex && index != 0) {
                                 copy(color = colorsScheme().primary)
-                            } else this
+                            } else {
+                                this
+                            }
                         }
                     )
 
@@ -130,7 +132,9 @@ private fun RecycleBinItem(
             style = MaterialTheme.wireTypography.button02.run {
                 if (color != null) {
                     copy(color = color)
-                } else this
+                } else {
+                    this
+                }
             }
         )
     }

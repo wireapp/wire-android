@@ -27,6 +27,7 @@ import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.FetchConversationUseCase
 import com.wire.kalium.logic.data.conversation.ResetMLSConversationUseCase
+import com.wire.kalium.logic.feature.conversation.GetConversationEpochUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -40,6 +41,7 @@ class DebugConversationViewModel @Inject constructor(
     private val conversationDetails: ObserveConversationDetailsUseCase,
     private val resetMLSConversation: ResetMLSConversationUseCase,
     private val fetchConversation: FetchConversationUseCase,
+    private val getConversationEpoch: GetConversationEpochUseCase,
     savedStateHandle: SavedStateHandle,
 ) : ActionsViewModel<DebugConversationScreenAction>() {
 
@@ -65,6 +67,19 @@ class DebugConversationViewModel @Inject constructor(
                             teamId = result.conversationDetails.conversation.teamId?.value,
                             mlsProtocolInfo = result.conversationDetails.conversation.protocol as? Conversation.ProtocolInfo.MLS,
                         )
+                    }
+
+                    // Call conversation epoch with the group id on every emit
+                    (result.conversationDetails.conversation.protocol as? Conversation.ProtocolInfo.MLS)?.groupId?.let { groupId ->
+                        when (val epochResult = getConversationEpoch(groupId)) {
+                            is GetConversationEpochUseCase.Result.Success -> {
+                                _state.update { it.copy(epoch = epochResult.epoch) }
+                            }
+
+                            is GetConversationEpochUseCase.Result.Failure -> {
+                                appLogger.e("Failed to get conversation epoch: ${epochResult.coreFailure}")
+                            }
+                        }
                     }
                 }
             }
@@ -99,4 +114,5 @@ data class DebugConversationViewState(
     val conversationName: String? = null,
     val teamId: String? = null,
     val mlsProtocolInfo: Conversation.ProtocolInfo.MLS? = null,
+    val epoch: ULong? = null,
 )

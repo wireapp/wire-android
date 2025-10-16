@@ -109,12 +109,14 @@ fun AddRemoveTagsScreen(
                         .padding(horizontal = dimensions().spacing16x)
                         .height(dimensions().groupButtonHeight)
                 ) {
+                    val shouldDisabledSaveButton =
+                        isLoading || addRemoveTagsViewModel.initialTags == addRemoveTagsViewModel.addedTags.collectAsState().value
                     WirePrimaryButton(
                         text = stringResource(R.string.save_label),
                         onClick = {
                             addRemoveTagsViewModel.updateTags()
                         },
-                        state = if (isLoading) WireButtonState.Disabled else WireButtonState.Default,
+                        state = if (shouldDisabledSaveButton) WireButtonState.Disabled else WireButtonState.Default,
                         loading = isLoading,
                         clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
                     )
@@ -188,6 +190,7 @@ fun AddRemoveTagsScreenContent(
                         errorText = stringResource(R.string.invalid_tag_name_error),
                         withStartPadding = true
                     )
+
                 else -> WireTextFieldState.Default
             },
             trailingIcon = {

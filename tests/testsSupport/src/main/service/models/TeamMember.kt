@@ -17,9 +17,9 @@
  */
 package service.models
 
-import backendUtils.team.TeamRole
+import backendUtils.team.TeamRoles
 
 data class TeamMember(
     val userId: String,
-    val role: TeamRole
+    val role: TeamRoles
 )

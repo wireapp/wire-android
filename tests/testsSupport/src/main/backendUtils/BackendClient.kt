@@ -21,7 +21,7 @@ package backendUtils
 
 import CredentialsManager
 import android.net.Uri
-import backendUtils.team.TeamRole
+import backendUtils.team.TeamRoles
 import backendUtils.team.defaultheaders
 import backendUtils.team.getAuthToken
 import backendUtils.team.getTeamId
@@ -455,7 +455,7 @@ class BackendClient(
                 val member = members.getJSONObject(i)
                 val userId = member.getString("user")
                 val permissions = member.getJSONObject("permissions")
-                val role = TeamRole.getByPermissionBitMask(permissions.getInt("self"))
+                val role = TeamRoles.getByPermissionBitMask(permissions.getInt("self"))
                 add(TeamMember(userId, role))
             }
         }

@@ -538,30 +538,20 @@ val defaultheaders = mapOf(
     BackendClient.contentType to BackendClient.applicationJson
 )
 
-enum class TeamRoles(val role: String) {
-    Owner("Owner"),
-    Admin("Admin"),
-    Member("member"),
-    Partner("Partner"),
-    External("External")
-}
-
-enum class TeamRole(val permissionBitMask: Int) {
-    OWNER(8191),
-    ADMIN(5951),
-    MEMBER(1587),
-    INVALID(1234),
-    PARTNER(1025);
+enum class TeamRoles(val role: String, val permissionBitMask: Int) {
+    Owner("Owner", 8191),
+    Admin("Admin", 5951),
+    Member("member", 1587),
+    Partner("Partner", 1025),
+    External("External", 0),
+    INVALID("Invalid", 1234);
 
     companion object {
-        fun getByPermissionBitMask(permissionBitMask: Int): TeamRole =
-            entries.firstOrNull { it.permissionBitMask == permissionBitMask }
-                ?: throw NoSuchElementException("Permission bit mask '$permissionBitMask' is unknown")
+        fun getByPermissionBitMask(permissionBitMask: Int): TeamRoles = entries.firstOrNull { it.permissionBitMask == permissionBitMask }
+            ?: throw NoSuchElementException("Permission bit mask '$permissionBitMask' is unknown")
 
-        fun getByName(roleName: String): TeamRole =
-            entries.firstOrNull { it.name.equals(roleName, ignoreCase = true) }
-                ?: throw NoSuchElementException("Team role '$roleName' is unknown")
     }
 
-    override fun toString(): String = name
+    override fun toString(): String = role
+
 }

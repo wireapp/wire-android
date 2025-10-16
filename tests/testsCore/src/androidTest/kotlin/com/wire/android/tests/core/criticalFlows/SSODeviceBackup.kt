@@ -74,6 +74,7 @@ class SSODeviceBackup : KoinTest {
     fun setUp() {
         context = InstrumentationRegistry.getInstrumentation().context
         device = UiAutomatorSetup.start(UiAutomatorSetup.APP_INTERNAL)
+        //device = UiAutomatorSetup.start(UiAutomatorSetup.APP_BETA)
         backendClient = BackendClient.loadBackend("STAGING")
         oktaApiClient = OktaApiClient()
     }
@@ -102,17 +103,17 @@ class SSODeviceBackup : KoinTest {
 
             teamServiceHelper.userXIsMe("user2Name")
 
-            teamOwner = teamHelper?.usersManager!!.findUserBy(
+            teamOwner = teamHelper.usersManager.findUserBy(
                 "user1Name",
                 ClientUserManager.FindBy.NAME_ALIAS
             )
-            member1 = teamHelper?.usersManager!!.findUserBy(
+            member1 = teamHelper.usersManager.findUserBy(
                 "user2Name",
                 ClientUserManager.FindBy.NAME_ALIAS
             )
 
             val ssoCode = SSOServiceHelper.getSSOCode()
-
+             waitFor(20) // Delay added to allow Okta app assignment to fully sync and avoid 403 error
             pages.registrationPage.apply {
                 assertEmailWelcomePage()
             }
@@ -124,12 +125,9 @@ class SSODeviceBackup : KoinTest {
                 enterSSOCodeOnSSOLoginTab(ssoCode)
                 clickLoginButton()
             }
-            pages.chromePage.apply {
-            }
             pages.ssoPage.apply {
                 enterOktaEmail(member1?.email ?: "")
                 enterOktaPassword(member1?.password ?: "")
-                waitFor(20) // Delay added to allow Okta app assignment to fully sync and avoid 403 error
                 tapOktaSignIn()
             }
             pages.registrationPage.apply {
@@ -242,3 +240,4 @@ class SSODeviceBackup : KoinTest {
         }
     }
 }
+

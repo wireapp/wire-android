@@ -32,35 +32,26 @@ data class ChromePage(private val device: UiDevice) {
         return this
     }
 
-    fun clearChromeBrowserCache(): ChromePage {
-        val serial = runShellCommand("getprop ro.boot.serialno").trim()
+    private fun isInstalled(pkg: String): Boolean {
+        val output = runShellCommand("pm list packages $pkg")
+        return output.contains(pkg)
+    }
 
-        when (serial) {
-            "ce091829205f7a3704" -> {
-                runShellCommand("pm clear org.lineageos.jelly")
+    fun clearInstalledBrowsers() {
+        listOf(
+            "com.android.chrome",
+            "app.vanadium.browser",
+            "org.lineageos.jelly"
+        )
+            .filter(::isInstalled)
+            .forEach { pkg ->
+                val result = runShellCommand("pm clear $pkg")
+                println("Cleared $pkg -> $result")
             }
-
-            "25181JEGR05249" -> {
-                runShellCommand("pm clear app.vanadium.browser")
-            }
-
-            else -> {
-                runShellCommand("pm clear com.android.chrome")
-            }
-        }
-        return this
     }
 
     private fun runShellCommand(command: String): String =
         UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
             .executeShellCommand(command)
             .trim()
-}
-
-fun dismissChromeOnboardingIfVisible(device: UiDevice) {
-    val noThanks = device.findObject(By.text("No, thanks"))
-    if (noThanks != null) {
-        noThanks.click()
-        device.waitForIdle()
-    }
 }

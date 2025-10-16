@@ -125,8 +125,11 @@ data class LoginPage(private val device: UiDevice) {
     }
 
     fun clickLoginButton(): LoginPage {
-        val nextButton = UiWaitUtils.waitElement(loginButtonSelector)
-        assertTrue("Login button is not clickable", nextButton.isClickable)
+        val nextButton = try {
+            UiWaitUtils.waitElement(loginButtonSelector)
+        } catch (e: AssertionError) {
+            throw AssertionError("Login button not found or not clickable", e)
+        }
         nextButton.click()
         return this
     }

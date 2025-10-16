@@ -127,4 +127,5 @@
     <string name="cells_folder_deleted_message">Папка удалена</string>
     <string name="cells_file_permanently_deleted_message">Файл удален навсегда</string>
     <string name="cells_folder_permanently_deleted_message">Папка удалена навсегда</string>
+    <string name="invalid_tag_name_error">Недопустимое название тега</string>
 </resources>

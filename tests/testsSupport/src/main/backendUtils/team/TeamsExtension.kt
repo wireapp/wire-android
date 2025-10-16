@@ -547,11 +547,14 @@ enum class TeamRoles(val role: String, val permissionBitMask: Int) {
     INVALID("Invalid", 1234);
 
     companion object {
-        fun getByPermissionBitMask(permissionBitMask: Int): TeamRoles = entries.firstOrNull { it.permissionBitMask == permissionBitMask }
-            ?: throw NoSuchElementException("Permission bit mask '$permissionBitMask' is unknown")
-
+        fun getByPermissionBitMask(permissionBitMask: Int): TeamRoles =
+            entries.firstOrNull {
+                it.permissionBitMask == permissionBitMask
+            }
+                ?: throw NoSuchElementException(
+                    "Permission bit mask '$permissionBitMask' is unknown"
+                )
     }
 
     override fun toString(): String = role
-
 }

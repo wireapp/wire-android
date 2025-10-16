@@ -74,7 +74,6 @@ class SSODeviceBackup : KoinTest {
     fun setUp() {
         context = InstrumentationRegistry.getInstrumentation().context
         device = UiAutomatorSetup.start(UiAutomatorSetup.APP_INTERNAL)
-        //device = UiAutomatorSetup.start(UiAutomatorSetup.APP_BETA)
         backendClient = BackendClient.loadBackend("STAGING")
         oktaApiClient = OktaApiClient()
     }
@@ -240,4 +239,3 @@ class SSODeviceBackup : KoinTest {
         }
     }
 }
-

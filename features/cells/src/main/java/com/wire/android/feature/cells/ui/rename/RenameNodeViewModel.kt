@@ -52,9 +52,9 @@ class RenameNodeViewModel @Inject constructor(
 
     fun isFolder(): Boolean? = navArgs.isFolder
 
-    private val originalFileName = navArgs.nodeName?.splitFileExtension()?.first ?: ""
-    private val fileExtension: String = navArgs.nodeName?.splitFileExtension()?.second ?: ""
-    val textState: TextFieldState = TextFieldState(navArgs.nodeName?.splitFileExtension()?.first ?: "")
+    private val originalFile = navArgs.getFileName()
+
+    val textState: TextFieldState = TextFieldState(originalFile.name)
 
     internal var viewState by mutableStateOf(RenameNodeViewState())
         private set
@@ -64,7 +64,7 @@ class RenameNodeViewModel @Inject constructor(
             textState.textAsFlow().collectLatest { name ->
                 val validationError = name.validate()
                 viewState = viewState.copy(
-                        saveEnabled = validationError == None && name.trim() != originalFileName,
+                        saveEnabled = validationError == None && name.trim() != originalFile.name,
                         error = validationError,
                     )
             }
@@ -74,7 +74,7 @@ class RenameNodeViewModel @Inject constructor(
     fun renameNode(newName: String) {
         viewState = viewState.copy(loading = true)
         viewModelScope.launch {
-            val newNameWithExtension = newName.trim() + fileExtension.takeIf { it.isNotEmpty() }?.let { ".$it" }.orEmpty()
+            val newNameWithExtension = newName.trim() + originalFile.extension?.takeIf { it.isNotEmpty() }?.let { ".$it" }.orEmpty()
             renameNodeUseCase.invoke(
                 uuid = navArgs.uuid!!,
                 path = navArgs.currentPath!!,
@@ -104,7 +104,7 @@ class RenameNodeViewModel @Inject constructor(
     private fun CharSequence.validate() = when {
         length > NAME_MAX_COUNT -> RenameNodeViewState.RenameError.TextFieldError.NameExceedLimit
         trim().isEmpty() -> RenameNodeViewState.RenameError.TextFieldError.NameEmpty
-        contains("/") || contains(".") -> RenameNodeViewState.RenameError.TextFieldError.InvalidName
+        contains("/") -> RenameNodeViewState.RenameError.TextFieldError.InvalidName
         else -> None
     }
 
@@ -147,4 +147,16 @@ internal data class RenameNodeViewState(
 sealed interface RenameNodeViewModelAction {
     data object Success : RenameNodeViewModelAction
     data object Failure : RenameNodeViewModelAction
+}
+
+private data class FileNameParts(
+    val name: String,
+    val extension: String?,
+)
+
+private fun RenameNodeNavArgs.getFileName() = if (isFolder == true) {
+    FileNameParts(name = nodeName ?: "", extension = null)
+} else {
+    val (name, extension) = nodeName?.splitFileExtension() ?: ("" to null)
+    FileNameParts(name = name, extension = extension)
 }

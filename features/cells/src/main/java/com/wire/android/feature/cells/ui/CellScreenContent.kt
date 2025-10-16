@@ -111,7 +111,6 @@ internal fun CellScreenContent(
             isAllFiles = isAllFiles,
             isRecycleBin = isRecycleBin,
             isFiltering = isFiltering,
-            onRetry = { pagingListItems.retry() }
         )
 
         else ->
@@ -287,7 +286,6 @@ private fun EmptyScreen(
     isAllFiles: Boolean = true,
     isRecycleBin: Boolean = false,
     isFiltering: Boolean = false,
-    onRetry: () -> Unit = {},
 ) {
     Column(
         modifier = Modifier
@@ -311,6 +309,7 @@ private fun EmptyScreen(
             style = typography().title01,
             textAlign = TextAlign.Center,
         )
+        Spacer(modifier = Modifier.height(dimensions().spacing24x))
         Text(
             text = when {
                 isFiltering -> stringResource(R.string.filters_try_adjusting_your_filters_label)
@@ -319,6 +318,7 @@ private fun EmptyScreen(
                 isRecycleBin -> stringResource(R.string.empty_recycle_bin)
                 else -> stringResource(R.string.conversation_file_list_empty_message)
             },
+            style = typography().body01,
             textAlign = TextAlign.Center,
         )
 
@@ -327,13 +327,6 @@ private fun EmptyScreen(
                 .fillMaxHeight()
                 .weight(1.5f)
         )
-
-        if (!isSearchResult && isAllFiles && !isFiltering) {
-            WirePrimaryButton(
-                text = stringResource(R.string.reload),
-                onClick = onRetry
-            )
-        }
     }
 }
 
@@ -380,7 +373,6 @@ fun PreviewEmptyScreen() {
         EmptyScreen(
             isSearchResult = false,
             isAllFiles = true,
-            onRetry = {}
         )
     }
 }

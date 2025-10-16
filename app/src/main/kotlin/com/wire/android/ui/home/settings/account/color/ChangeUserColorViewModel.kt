@@ -21,10 +21,9 @@ package com.wire.android.ui.home.settings.account.color
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.GlobalDataStore
-import com.wire.android.model.ActionCompleted
+import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.theme.Accent
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.UpdateAccentColorResult
@@ -39,7 +38,7 @@ class ChangeUserColorViewModel @Inject constructor(
     private val getSelf: GetSelfUserUseCase,
     private val updateAccentColor: UpdateAccentColorUseCase,
     private val globalDataStore: GlobalDataStore
-) : ViewModel() {
+) : ActionsViewModel<ChangeUserColorAction>() {
 
     var accentState: AccentActionState by mutableStateOf(AccentActionState(null))
         private set
@@ -68,11 +67,11 @@ class ChangeUserColorViewModel @Inject constructor(
                 accentState.copy(isPerformingAction = true)
                 updateAccentColor(accent.accentId)
                     .let {
-                        accentState = accentState.copy(
-                            isPerformingAction = false,
-                            completed = when (it) {
-                                is UpdateAccentColorResult.Failure -> ActionCompleted.Failure
-                                UpdateAccentColorResult.Success -> ActionCompleted.Success
+                        accentState = accentState.copy(isPerformingAction = false)
+                        sendAction(
+                            when (it) {
+                                is UpdateAccentColorResult.Failure -> ChangeUserColorAction.Failure
+                                UpdateAccentColorResult.Success -> ChangeUserColorAction.Success
                             }
                         )
                     }
@@ -84,6 +83,10 @@ class ChangeUserColorViewModel @Inject constructor(
 data class AccentActionState(
     val accent: Accent?,
     val isPerformingAction: Boolean = false,
-    val completed: ActionCompleted = ActionCompleted.None,
     val isMessageBubbleEnabled: Boolean = false
 )
+
+enum class ChangeUserColorAction {
+    Success,
+    Failure
+}

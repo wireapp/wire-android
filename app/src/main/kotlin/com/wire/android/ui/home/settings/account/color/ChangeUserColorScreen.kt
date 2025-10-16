@@ -33,16 +33,15 @@ import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import com.wire.android.R
-import com.wire.android.model.ActionCompleted
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireDestination
+import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.WireDropDown
 import com.wire.android.ui.common.button.WireButtonState.Default
@@ -85,27 +84,26 @@ fun ChangeUserColorScreen(
     viewModel: ChangeUserColorViewModel = hiltViewModel()
 ) {
     with(viewModel) {
-        LaunchedEffect(viewModel.accentState.completed) {
-            when (viewModel.accentState.completed) {
-                ActionCompleted.Success -> {
-                    resultNavigator.setResult(true)
-                    resultNavigator.navigateBack()
-                }
-
-                ActionCompleted.Failure -> {
-                    resultNavigator.setResult(false)
-                    resultNavigator.navigateBack()
-                }
-
-                ActionCompleted.None -> Unit // No action needed
-            }
-        }
         ChangeUserColorContent(
             state = viewModel.accentState,
             onSavePressed = ::saveAccentColor,
             onChangePressed = ::changeAccentColor,
             onBackPressed = navigator::navigateBack
         )
+
+        HandleActions(actions) {
+            when (it) {
+                ChangeUserColorAction.Success -> {
+                    resultNavigator.setResult(true)
+                    resultNavigator.navigateBack()
+                }
+
+                ChangeUserColorAction.Failure -> {
+                    resultNavigator.setResult(false)
+                    resultNavigator.navigateBack()
+                }
+            }
+        }
     }
 }
 
@@ -180,7 +178,7 @@ fun ChangeUserColorContent(
                 }
 
                 VerticalSpace.x24()
-                if(state.isMessageBubbleEnabled) {
+                if (state.isMessageBubbleEnabled) {
                     SectionHeader(stringResource(R.string.settings_myaccount_user_color_example))
                     VerticalSpace.x4()
 

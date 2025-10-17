@@ -316,7 +316,7 @@ fun PreviewConversationFilesScreen() {
             navigator = PreviewNavigator,
             currentNodeUuid = "conversationId",
             actions = flowOf(),
-            pagingListItems = flowOf(
+            pagingListItems = MutableStateFlow(
                 PagingData.from(
                     listOf(
                         CellNodeUi.File(

@@ -80,6 +80,7 @@ class MeetingListViewModelImpl @AssistedInject constructor(
     private val meetingMocksProvider = MeetingMocksProvider(CurrentTimeProvider.Default, type) // TODO replace with real data source
     override val meetings: Flow<PagingData<MeetingListItem>> = isShowingAll
         .flatMapLatest { showingAll ->
+            @Suppress("MagicNumber")
             flow {
                 if (!showingAll) {
                     delay(1000) // Simulate loading delay

@@ -184,7 +184,7 @@ fun AddRemoveTagsScreenContent(
                 imeAction = ImeAction.Done
             ),
             onKeyboardAction = KeyboardActionHandler { performDefaultAction ->
-                if(isValidTag() && textFieldState.text.isNotBlank()) {
+                if (isValidTag() && textFieldState.text.isNotBlank()) {
                     onAddTag(textFieldState.text.toString())
                     performDefaultAction()
                 }
@@ -195,6 +195,7 @@ fun AddRemoveTagsScreenContent(
                         errorText = stringResource(R.string.invalid_tag_name_error),
                         withStartPadding = true
                     )
+
                 else -> WireTextFieldState.Default
             },
             trailingIcon = {

@@ -27,7 +27,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -86,8 +86,7 @@ fun MessageBubbleItem(
             dimensions().spacing0x
         }
         Row(
-            modifier = Modifier
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = if (isSelfMessage) {
                 Arrangement.End
             } else {
@@ -96,7 +95,7 @@ fun MessageBubbleItem(
             verticalAlignment = Alignment.Bottom
         ) {
             if (leading != null) {
-                Box(Modifier.size(leadingPadding), contentAlignment = Alignment.BottomStart) {
+                Box(Modifier.width(leadingPadding), contentAlignment = Alignment.BottomStart) {
                     leading()
                 }
             } else {

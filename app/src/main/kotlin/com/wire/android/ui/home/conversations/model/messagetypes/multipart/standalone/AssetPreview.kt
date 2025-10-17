@@ -47,7 +47,8 @@ fun AssetPreview(
     messageStyle: MessageStyle,
     onClick: () -> Unit,
     accent: Accent,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    showWithPreview: Boolean = false
 ) {
     Box(
         modifier = modifier
@@ -66,10 +67,10 @@ fun AssetPreview(
             .clip(RoundedCornerShape(dimensions().messageAttachmentCornerSize))
     ) {
         if (item.transferStatus != AssetTransferStatus.NOT_FOUND) {
-            when (item.assetType) {
-                AttachmentFileType.IMAGE -> ImageAssetPreview(item, messageStyle)
-                AttachmentFileType.VIDEO -> VideoAssetPreview(item, messageStyle, accent)
-                AttachmentFileType.PDF -> PdfAssetPreview(item, messageStyle, accent)
+            when {
+                item.assetType == AttachmentFileType.IMAGE -> ImageAssetPreview(item, messageStyle)
+                item.assetType == AttachmentFileType.VIDEO -> VideoAssetPreview(item, messageStyle, accent)
+                item.assetType == AttachmentFileType.PDF && !showWithPreview -> PdfAssetPreview(item, messageStyle, accent)
                 else -> FileAssetPreview(item, messageStyle, accent)
             }
         } else {

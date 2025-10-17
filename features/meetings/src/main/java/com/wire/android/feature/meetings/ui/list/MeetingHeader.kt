@@ -24,7 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.wire.android.feature.meetings.R
 import com.wire.android.feature.meetings.model.MeetingHeader
-import com.wire.android.feature.meetings.ui.util.CurrentTimeScope
+import com.wire.android.feature.meetings.ui.util.rememberCurrentTimeProvider
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.rowitem.BigSectionHeader
 import com.wire.android.ui.common.rowitem.SectionHeader
@@ -37,7 +37,7 @@ import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
 
 @Composable
-fun CurrentTimeScope.MeetingHeader(
+fun MeetingHeader(
     header: MeetingHeader,
     modifier: Modifier = Modifier,
 ) {
@@ -62,7 +62,8 @@ fun CurrentTimeScope.MeetingHeader(
 }
 
 @Composable
-private fun CurrentTimeScope.getDateHeaderString(time: Instant): String {
+private fun getDateHeaderString(time: Instant): String {
+    val currentTime = rememberCurrentTimeProvider()
     val dateString = DateAndTimeParsers.meetingDate(time)
     val currentLocalDate = currentTime().toLocalDateTime(TimeZone.currentSystemDefault()).date
     val localDate = time.toLocalDateTime(TimeZone.currentSystemDefault()).date

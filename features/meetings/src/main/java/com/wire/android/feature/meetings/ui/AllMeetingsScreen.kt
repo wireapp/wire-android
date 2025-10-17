@@ -31,10 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.zIndex
 import com.wire.android.feature.meetings.R
 import com.wire.android.feature.meetings.ui.list.MeetingList
-import com.wire.android.feature.meetings.ui.util.CurrentTimeScope
 import com.wire.android.feature.meetings.ui.util.PreviewMultipleThemes
-import com.wire.android.feature.meetings.ui.util.previewCurrentTimeScope
-import com.wire.android.feature.meetings.ui.util.rememberCurrentTimeScope
 import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
 import com.wire.android.ui.common.bottomsheet.WireBottomSheetDefaults
@@ -47,7 +44,7 @@ import kotlinx.coroutines.launch
 
 @SuppressLint("ComposeModifierMissing")
 @Composable
-fun AllMeetingsScreen(currentTimeScope: CurrentTimeScope = rememberCurrentTimeScope()) {
+fun AllMeetingsScreen() {
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -77,7 +74,7 @@ fun AllMeetingsScreen(currentTimeScope: CurrentTimeScope = rememberCurrentTimeSc
             modifier = Modifier.weight(1f),
         ) {
             val lazyListState = lazyListStateProvider[MeetingsTabItem.entries[it]]
-            currentTimeScope.MeetingList(
+            MeetingList(
                 modifier = Modifier.fillMaxSize(),
                 lazyListState = lazyListState,
                 type = MeetingsTabItem.entries[it]
@@ -96,5 +93,5 @@ enum class MeetingsTabItem(@StringRes val titleResId: Int) : TabItem {
 @PreviewMultipleThemes
 @Composable
 fun PreviewAllMeetingsScreen() = WireTheme {
-    AllMeetingsScreen(currentTimeScope = previewCurrentTimeScope)
+    AllMeetingsScreen()
 }

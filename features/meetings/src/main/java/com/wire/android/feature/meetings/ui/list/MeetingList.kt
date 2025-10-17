@@ -37,21 +37,20 @@ import com.wire.android.feature.meetings.model.MeetingHeader
 import com.wire.android.feature.meetings.model.MeetingItem
 import com.wire.android.feature.meetings.model.MeetingListItem
 import com.wire.android.feature.meetings.ui.MeetingsTabItem
-import com.wire.android.feature.meetings.ui.util.CurrentTimeScope
+import com.wire.android.feature.meetings.ui.util.CurrentTimeProvider
 import com.wire.android.feature.meetings.ui.util.PreviewMultipleThemes
-import com.wire.android.feature.meetings.ui.util.previewCurrentTimeScope
 import com.wire.android.ui.common.rowitem.EmptyListArrowFooter
 import com.wire.android.ui.common.rowitem.EmptyListContent
 import com.wire.android.ui.common.rowitem.LoadingListContent
 import com.wire.android.ui.theme.WireTheme
 
 @Composable
-fun CurrentTimeScope.MeetingList(
+fun MeetingList(
     type: MeetingsTabItem,
     modifier: Modifier = Modifier,
     lazyListState: LazyListState = rememberLazyListState(),
     meetingListViewModel: MeetingListViewModel = when {
-        LocalInspectionMode.current -> MeetingListViewModelPreview(this, type)
+        LocalInspectionMode.current -> MeetingListViewModelPreview(CurrentTimeProvider.Preview, type)
         else -> hiltViewModel<MeetingListViewModelImpl, MeetingListViewModelImpl.Factory>(
             key = "meeting_list_${type.name}",
             creationCallback = { factory ->
@@ -87,7 +86,7 @@ fun CurrentTimeScope.MeetingList(
 }
 
 @Composable
-private fun CurrentTimeScope.MeetingList(
+private fun MeetingList(
     lazyListState: LazyListState,
     lazyPagingItems: LazyPagingItems<MeetingListItem>,
     isShowingAll: Boolean,
@@ -164,11 +163,11 @@ fun MeetingListPastEmptyPreview() = WireTheme {
 @PreviewMultipleThemes
 @Composable
 fun MeetingListNextPreview() = WireTheme {
-    previewCurrentTimeScope.MeetingList(type = MeetingsTabItem.NEXT)
+    MeetingList(type = MeetingsTabItem.NEXT)
 }
 
 @PreviewMultipleThemes
 @Composable
 fun MeetingListPastPreview() = WireTheme {
-    previewCurrentTimeScope.MeetingList(type = MeetingsTabItem.PAST)
+    MeetingList(type = MeetingsTabItem.PAST)
 }

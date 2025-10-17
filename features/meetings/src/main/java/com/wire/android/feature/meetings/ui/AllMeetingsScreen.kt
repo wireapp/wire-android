@@ -22,14 +22,15 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.zIndex
 import com.wire.android.feature.meetings.R
+import com.wire.android.feature.meetings.ui.list.MeetingList
 import com.wire.android.feature.meetings.ui.util.PreviewMultipleThemes
 import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
@@ -54,7 +55,9 @@ fun AllMeetingsScreen() {
         Surface(
             color = WireBottomSheetDefaults.WireSheetContainerColor,
             shadowElevation = lazyListStateProvider[MeetingsTabItem.entries[pagerState.currentPage]].rememberTopBarElevationState().value,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .zIndex(1f) // Ensure tab row is above the lazy column (for elevation shadow)
         ) {
             WireTabRow(
                 tabs = MeetingsTabItem.entries,
@@ -71,17 +74,17 @@ fun AllMeetingsScreen() {
             modifier = Modifier.weight(1f),
         ) {
             val lazyListState = lazyListStateProvider[MeetingsTabItem.entries[it]]
-            LazyColumn(
-                state = lazyListState,
-                modifier = Modifier.fillMaxSize()
-            ) {
-            }
+            MeetingList(
+                modifier = Modifier.fillMaxSize(),
+                lazyListState = lazyListState,
+                type = MeetingsTabItem.entries[it]
+            )
         }
     }
 }
 
 enum class MeetingsTabItem(@StringRes val titleResId: Int) : TabItem {
-    UPCOMING(R.string.all_meetings_tab_upcoming),
+    NEXT(R.string.all_meetings_tab_next),
     PAST(R.string.all_meetings_tab_past);
 
     override val title: UIText = UIText.StringResource(titleResId)

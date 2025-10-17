@@ -51,23 +51,23 @@ import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.ArrowRightIcon
-import com.wire.android.ui.common.rowitem.RowItemTemplate
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.rowitem.RowItemTemplate
 import com.wire.android.ui.common.rowitem.SectionHeader
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.UILastMessageContent
 import com.wire.android.ui.home.conversationslist.model.BadgeEventType
 import com.wire.android.ui.home.conversationslist.model.BlockingState
-import com.wire.android.ui.home.conversationslist.model.ConversationSection
-import com.wire.android.ui.home.conversationslist.model.ConversationItemType
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
+import com.wire.android.ui.home.conversationslist.model.ConversationItemType
+import com.wire.android.ui.home.conversationslist.model.ConversationSection
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.ui.sectionWithElements
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.keepOnTopWhenNotScrolled
+import com.wire.android.util.ui.sectionWithElements
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
@@ -75,7 +75,7 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.MutableStateFlow
 
 @Suppress("LongParameterList", "CyclomaticComplexMethod")
 @Composable
@@ -343,7 +343,7 @@ private fun fakeChannel(
 fun previewConversationItemsFlow(
     searchQuery: String = "",
     list: List<ConversationItemType> = previewConversationItems(searchQuery = searchQuery)
-) = flowOf(
+) = MutableStateFlow(
     PagingData.from(
         data = list,
         sourceLoadStates = LoadStates(

@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2025 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,21 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+package com.wire.android.model
 
-package com.wire.android.ui.home.settings.account
-
-import com.wire.android.ui.theme.Accent
-
-data class MyAccountState(
-    val fullName: String = "",
-    val userName: String = "",
-    val email: String = "",
-    val canDeleteAccount: Boolean = false,
-    val teamName: String? = null,
-    val domain: String = "",
-    val changePasswordUrl: String? = null,
-    val isEditNameAllowed: Boolean = false,
-    val isEditEmailAllowed: Boolean = false,
-    val isEditHandleAllowed: Boolean = false,
-    val accent: Accent? = null
-)
+enum class ActionCompleted {
+    None, Success, Failure
+}

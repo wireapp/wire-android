@@ -21,7 +21,6 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.SnapshotExtension
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.framework.TestUser
-import com.wire.android.model.ActionCompleted
 import com.wire.android.ui.theme.Accent
 import com.wire.kalium.common.error.StorageFailure
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
@@ -32,6 +31,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -52,7 +52,6 @@ class ChangeUserColorViewModelTest {
         val expectedAccent = Accent.fromAccentId(TestUser.SELF_USER.accentId)
         assertEquals(expectedAccent, viewModel.accentState.accent)
         assertEquals(false, viewModel.accentState.isPerformingAction)
-        assertEquals(ActionCompleted.None, viewModel.accentState.completed)
     }
 
     @Test
@@ -67,7 +66,7 @@ class ChangeUserColorViewModelTest {
     }
 
     @Test
-    fun `given valid accent, when saveAccentColor succeeds, then completed is Success`() = runTest {
+    fun `given valid accent, when saveAccentColor succeeds, then action is Success`() = runTest {
         val (_, viewModel) = Arrangement()
             .withUpdateAccentResult(UpdateAccentColorResult.Success)
             .arrange()
@@ -80,11 +79,11 @@ class ChangeUserColorViewModelTest {
         advanceUntilIdle()
 
         assertEquals(false, viewModel.accentState.isPerformingAction)
-        assertEquals(ActionCompleted.Success, viewModel.accentState.completed)
+        assertEquals(ChangeUserColorAction.Success, viewModel.actions.first())
     }
 
     @Test
-    fun `given valid accent, when saveAccentColor fails, then completed is Failure`() = runTest {
+    fun `given valid accent, when saveAccentColor fails, then action is Failure`() = runTest {
         val (_, viewModel) = Arrangement()
             .withUpdateAccentResult(UpdateAccentColorResult.Failure(StorageFailure.DataNotFound))
             .arrange()
@@ -97,7 +96,7 @@ class ChangeUserColorViewModelTest {
         advanceUntilIdle()
 
         assertEquals(false, viewModel.accentState.isPerformingAction)
-        assertEquals(ActionCompleted.Failure, viewModel.accentState.completed)
+        assertEquals(ChangeUserColorAction.Failure, viewModel.actions.first())
     }
 
     @Test

@@ -25,6 +25,7 @@ import android.os.Bundle
 import android.os.StrictMode
 import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.work.Configuration
+import androidx.work.WorkManager
 import co.touchlab.kermit.platformLogWriter
 import com.wire.android.analytics.ObserveCurrentSessionAnalyticsUseCase
 import com.wire.android.datastore.GlobalDataStore
@@ -44,6 +45,7 @@ import com.wire.android.util.LogFileWriter
 import com.wire.android.util.getGitBuildId
 import com.wire.android.util.lifecycle.SyncLifecycleManager
 import com.wire.android.workmanager.WireWorkerFactory
+import com.wire.android.workmanager.worker.enqueueAssetUpload
 import com.wire.kalium.common.logger.CoreLogger
 import com.wire.kalium.logger.KaliumLogLevel
 import com.wire.kalium.logger.KaliumLogger
@@ -57,6 +59,7 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -96,6 +99,9 @@ class WireApplication : BaseApp() {
     @Inject
     lateinit var analyticsManager: Lazy<AnonymousAnalyticsManager>
 
+    @Inject
+    lateinit var workManager: WorkManager
+
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder()
             .setWorkerFactory(wireWorkerFactory.get())
@@ -123,6 +129,8 @@ class WireApplication : BaseApp() {
             appLogger.i("$TAG global observers")
             globalObserversManager.get().observe()
 
+            launch { observeAssetUploadState() }
+
             observeRecentlyEndedCall()
         }
     }
@@ -135,6 +143,23 @@ class WireApplication : BaseApp() {
             }
             .collect { metadata ->
                 analyticsManager.get().sendEvent(AnalyticsEvent.RecentlyEndedCallEvent(metadata))
+            }
+    }
+
+    private suspend fun observeAssetUploadState() {
+        coreLogic.get().getGlobalScope().session.currentSessionFlow()
+            .filterIsInstance<CurrentSessionResult.Success>()
+            .map { it.accountInfo.userId }
+            .flatMapLatest {
+                coreLogic.get().getSessionScope(it).messages.observeAssetUploadState()
+            }
+            .collect { uploadInProgress ->
+                if (uploadInProgress) {
+                    appLogger.d("Uploading files...")
+                    workManager.enqueueAssetUpload()
+                } else {
+                    appLogger.d("All files uploaded.")
+                }
             }
     }
 

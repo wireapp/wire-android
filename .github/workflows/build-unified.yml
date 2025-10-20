@@ -141,6 +141,10 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
+      - name: Generate version file
+        if: matrix.generate-version-file == true
+        run: ./gradlew generateVersionFile
+
       - name: Set build environment variables
         run: |
           echo "Building ${{ matrix.flavor }}${{ matrix.variant }}"
@@ -229,10 +233,6 @@ jobs:
           DATADOG_APP_ID: ${{ secrets.DATADOG_APP_ID }}
           DATADOG_CLIENT_TOKEN: ${{ secrets.DATADOG_CLIENT_TOKEN }}
           ENABLE_SIGNING: ${{ secrets.ENABLE_SIGNING }}
-
-      - name: Generate version file
-        if: matrix.generate-version-file == true
-        run: ./gradlew generateVersionFile
 
       - name: Move version file for consistent artifact structure
         if: matrix.generate-version-file == true

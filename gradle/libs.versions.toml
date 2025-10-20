@@ -1,6 +1,6 @@
 [versions]
 # Gradle - Remind to change in `gradle-wrapper.properties` file as well!
-androidJunit5 = "1.10.0.0"
+androidJunit5 = "1.14.0.0"
 
 # Kotlin
 grgitCore = "5.3.2"

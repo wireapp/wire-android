@@ -21,7 +21,7 @@
     <string name="file_list_load_error">There was an error loading the files list. Please try again</string>
     <string name="file_list_load_network_error_title">Can’t Load Files</string>
     <string name="file_list_load_network_error">Your list of files could not be loaded. Please check your Internet connection and try again.</string>
-    <string name="file_list_empty_message">You\'ll find all files shared across your conversations here.</string>
+    <string name="file_list_empty_message">For conversations that use file collaboration, you\'ll find shared files here.</string>
     <string name="conversation_file_list_empty_message">You\'ll find all files and folders shared in this conversation here.</string>
     <string name="file_list_search_empty_message">Try adjusting your search</string>
     <string name="save_label">Save</string>
@@ -103,7 +103,8 @@
     <string name="rename_file_renamed">File was renamed</string>
     <string name="rename_folder_renamed">Folder was renamed</string>
     <string name="rename_failure">Failed to rename</string>
-    <string name="rename_invalid_name">Use a name without "/" or "."</string>
+    <string name="rename_invalid_name">Use a name without "/"</string>
+    <string name="rename_already_exist">File with this name already exists</string>
     <string name="filter_label">Filter</string>
     <string name="tags_label">Tags</string>
     <string name="select_tags_label">select tags</string>
@@ -126,4 +127,5 @@
     <string name="cells_folder_deleted_message">Folder was deleted</string>
     <string name="cells_file_permanently_deleted_message">File was permanently deleted</string>
     <string name="cells_folder_permanently_deleted_message">Folder was permanently deleted</string>
+    <string name="invalid_tag_name_error">Invalid tag name</string>
 </resources>

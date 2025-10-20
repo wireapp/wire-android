@@ -47,7 +47,7 @@ jobs:
           distribution: 'temurin'
           cache: gradle
       - name: Validate Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v4
+        uses: gradle/actions/wrapper-validation@v5
       - name: Run Linter
         run: |
           ./gradlew lint
@@ -73,7 +73,7 @@ jobs:
           distribution: 'temurin'
           cache: gradle
       - name: Validate Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v4
+        uses: gradle/actions/wrapper-validation@v5
       - name: Run Detekt
         run: |
           ./gradlew detektAll

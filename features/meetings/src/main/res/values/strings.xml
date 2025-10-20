@@ -29,4 +29,9 @@
     <string name="meeting_join_button">Join</string>
     <string name="meeting_attending">Attending</string>
     <string name="meeting_starting_in">Starting in %1$s</string>
+    <string name="new_meeting_title">New Meeting</string>
+    <string name="new_meeting_now">Meet Now</string>
+    <string name="new_meeting_schedule">Schedule a Meeting</string>
+    <string name="content_description_new_meeting_now_icon">Meet now icon</string>
+    <string name="content_description_new_meeting_schedule_icon">Schedule a Meeting icon</string>
 </resources>

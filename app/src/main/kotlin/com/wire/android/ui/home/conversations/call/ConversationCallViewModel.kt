@@ -82,7 +82,7 @@ class ConversationCallViewModel @Inject constructor(
 
     var conversationCallViewState by mutableStateOf(ConversationCallViewState())
     val shouldInformAboutVerification = mutableStateOf(false)
-    val selfTeamRole = mutableStateOf(UserType.GUEST) // todo ym. check if worth to move to wrapper or not
+    val selfTeamRole = mutableStateOf(UserType.GUEST)
     val callingEnabled = MutableSharedFlow<Unit>(replay = 1)
 
     var establishedCallConversationId: QualifiedID? = null

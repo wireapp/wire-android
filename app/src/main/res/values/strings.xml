@@ -1236,6 +1236,7 @@
     <string name="settings_myaccount_display_name">PROFILE NAME</string>
     <string name="settings_myaccount_username">USERNAME</string>
     <string name="settings_myaccount_email">EMAIL</string>
+    <string name="settings_myaccount_user_color">USER COLOR</string>
     <string name="settings_myaccount_team">TEAM</string>
     <string name="settings_myaccount_domain">DOMAIN</string>
     <string name="settings_myaccount_reset_password">Reset Password</string>
@@ -1246,6 +1247,11 @@
     <string name="settings_myaccount_display_name_exceeded_limit_error">Minimum of 1 and maximum of 64 characters</string>
     <string name="settings_myaccount_display_name_updated">Your profile name changed</string>
     <string name="settings_myaccount_handle_updated">Your username changed</string>
+    <string name="settings_myaccount_user_color_title">User Color</string>
+    <string name="settings_myaccount_user_color_description">Your user color is used to guide you through the app’s interface</string>
+    <string name="settings_myaccount_user_color_updated">Your color changed</string>
+    <string name="content_description_settings_myaccount_user_color">change user color</string>
+    <string name="settings_myaccount_user_color_example">EXAMPLE</string>
     <!--Privacy Settings -->
     <string name="settings_send_read_receipts">Send read receipts</string>
     <string name="settings_send_read_receipts_description">If this is on, others can see if you read their messages.

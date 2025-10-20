@@ -18,6 +18,8 @@
 package com.wire.android.ui.theme
 
 import androidx.compose.ui.graphics.Color
+import androidx.annotation.StringRes
+import com.wire.android.ui.common.R
 
 @Suppress("MagicNumber")
 enum class Accent(val accentId: Int) {
@@ -39,4 +41,15 @@ class WireAccentColors(private val association: (Accent) -> Color) {
         Accent.Unknown -> default
         else -> association(accent)
     }
+}
+
+@StringRes
+fun Accent.resourceId(): Int = when (this) {
+    Accent.Amber -> R.string.accent_color_amber
+    Accent.Blue -> R.string.accent_color_blue
+    Accent.Green -> R.string.accent_color_green
+    Accent.Purple -> R.string.accent_color_purple
+    Accent.Red -> R.string.accent_color_red
+    Accent.Petrol -> R.string.accent_color_petrol
+    Accent.Unknown -> R.string.accent_color_blue
 }

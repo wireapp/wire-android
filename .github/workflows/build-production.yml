@@ -56,7 +56,7 @@ jobs:
               {
                 "type": "google-play",
                 "package-name": "com.wire",
-                "track": "alpha"
+                "track": "${{ vars.PROD_APP_RELEASE_TRACK }}"
               },
               {
                 "type": "github-release",

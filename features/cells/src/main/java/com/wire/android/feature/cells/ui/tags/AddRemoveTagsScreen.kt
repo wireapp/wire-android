@@ -35,6 +35,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.KeyboardActionHandler
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -184,6 +185,12 @@ fun AddRemoveTagsScreenContent(
             keyboardOptions = KeyboardOptions.Default.copy(
                 imeAction = ImeAction.Done
             ),
+            onKeyboardAction = KeyboardActionHandler { performDefaultAction ->
+                if (isValidTag() && textFieldState.text.isNotBlank()) {
+                    onAddTag(textFieldState.text.toString())
+                    performDefaultAction()
+                }
+            },
             state = when {
                 textFieldState.text.isNotBlank() && !isValidTag() ->
                     WireTextFieldState.Error(

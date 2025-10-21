@@ -86,36 +86,40 @@ fun GroupCallGrid(
 
         items(
             items = participants,
-            key = { it.id.toString() + it.clientId + pageIndex },
+            key = { it.id.value + it.clientId },
             contentType = { getContentType(it.isCameraOn, it.isSharingScreen) }
         ) { participant ->
-            ParticipantTile(
+            Box(
                 modifier = Modifier
-                    .pointerInput(Unit) {
-                        detectTapGestures(
-                            onDoubleTap = {
-                                onDoubleTap(
-                                    SelectedParticipant(
-                                        userId = participant.id,
-                                        clientId = participant.clientId,
-                                        isSelfUser = participant.isSelfUser,
-                                    )
-                                )
-                            }
-                        )
-                    }
                     .height(tileHeight)
-                    .animateItem(),
-                participantTitleState = participant,
-                isOnPiPMode = isInPictureInPictureMode,
-                isSelfUserMuted = isSelfUserMuted,
-                isSelfUserCameraOn = isSelfUserCameraOn,
-                onSelfUserVideoPreviewCreated = onSelfVideoPreviewCreated,
-                onClearSelfUserVideoPreview = onSelfClearVideoPreview,
-                recentReaction = recentReactions[participant.id],
-                isOnFrontCamera = isOnFrontCamera,
-                flipCamera = flipCamera,
-            )
+                    .animateItem()
+            ) {
+                ParticipantTile(
+                    modifier = Modifier
+                        .pointerInput(Unit) {
+                            detectTapGestures(
+                                onDoubleTap = {
+                                    onDoubleTap(
+                                        SelectedParticipant(
+                                            userId = participant.id,
+                                            clientId = participant.clientId,
+                                            isSelfUser = participant.isSelfUser,
+                                        )
+                                    )
+                                }
+                            )
+                        },
+                    participantTitleState = participant,
+                    isOnPiPMode = isInPictureInPictureMode,
+                    isSelfUserMuted = isSelfUserMuted,
+                    isSelfUserCameraOn = isSelfUserCameraOn,
+                    onSelfUserVideoPreviewCreated = onSelfVideoPreviewCreated,
+                    onClearSelfUserVideoPreview = onSelfClearVideoPreview,
+                    recentReaction = recentReactions[participant.id],
+                    isOnFrontCamera = isOnFrontCamera,
+                    flipCamera = flipCamera,
+                )
+            }
         }
     }
 }

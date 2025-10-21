@@ -53,7 +53,6 @@ import com.wire.kalium.logic.data.user.UserId
 fun GroupCallGrid(
     gridParams: CallingGridParams,
     participants: List<UICallParticipant>,
-    pageIndex: Int,
     isSelfUserMuted: Boolean,
     isSelfUserCameraOn: Boolean,
     contentHeight: Dp,
@@ -136,7 +135,6 @@ private fun PreviewGroupCallGrid(participants: List<UICallParticipant>, modifier
             GroupCallGrid(
                 gridParams = CallingGridParams.fromScreenDimensions(maxWidth, maxHeight),
                 participants = participants,
-                pageIndex = 0,
                 isSelfUserMuted = false,
                 isSelfUserCameraOn = false,
                 contentHeight = maxHeight,

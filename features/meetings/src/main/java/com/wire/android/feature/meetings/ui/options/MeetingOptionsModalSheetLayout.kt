@@ -188,4 +188,3 @@ fun PreviewMessageOptionsModalSheetLayout() = WireTheme {
         )
     )
 }
-

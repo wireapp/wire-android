@@ -182,10 +182,8 @@ fun PreviewConversationOptionsModalSheetLayout_Main() = WireTheme {
     PreviewConversationOptionsModalSheetLayout(initialPage = ConversationSheetPage.Main)
 }
 
-
 @PreviewMultipleThemes
 @Composable
 fun PreviewConversationOptionsModalSheetLayout_MutingNotification() = WireTheme {
     PreviewConversationOptionsModalSheetLayout(initialPage = ConversationSheetPage.MutingNotification)
 }
-

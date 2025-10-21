@@ -35,17 +35,21 @@ interface MeetingOptionsMenuViewModel {
 
 class MeetingOptionsMenuViewModelPreview(currentTimeProvider: CurrentTimeProvider) : MeetingOptionsMenuViewModel {
     private val meetingMocksProvider = MeetingMocksProvider(currentTimeProvider)
-    override fun observeMeetingStateFlow(meetingId: String): StateFlow<MeetingOptionsMenuState> =
-        MutableStateFlow(meetingMocksProvider.getItem(meetingId)?.let { MeetingOptionsMenuState.Meeting(it) }
-            ?: MeetingOptionsMenuState.NotAvailable)
+    override fun observeMeetingStateFlow(meetingId: String): StateFlow<MeetingOptionsMenuState> = MutableStateFlow(
+        meetingMocksProvider.getItem(meetingId)?.let {
+            MeetingOptionsMenuState.Meeting(it)
+        } ?: MeetingOptionsMenuState.NotAvailable
+    )
 }
 
 @HiltViewModel
 class MeetingOptionsMenuViewModelImpl @Inject constructor() : MeetingOptionsMenuViewModel, ViewModel() {
     private val meetingMocksProvider = MeetingMocksProvider(CurrentTimeProvider.Default) // TODO replace with real data source
-    override fun observeMeetingStateFlow(meetingId: String): StateFlow<MeetingOptionsMenuState> =
-        MutableStateFlow(meetingMocksProvider.getItem(meetingId)?.let { MeetingOptionsMenuState.Meeting(it) }
-            ?: MeetingOptionsMenuState.NotAvailable)
+    override fun observeMeetingStateFlow(meetingId: String): StateFlow<MeetingOptionsMenuState> = MutableStateFlow(
+        meetingMocksProvider.getItem(meetingId)?.let {
+            MeetingOptionsMenuState.Meeting(it)
+        } ?: MeetingOptionsMenuState.NotAvailable
+    )
 }
 
 sealed interface MeetingOptionsMenuState {

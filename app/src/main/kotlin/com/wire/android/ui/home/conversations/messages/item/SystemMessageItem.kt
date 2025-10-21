@@ -19,7 +19,6 @@
 
 package com.wire.android.ui.home.conversations.messages.item
 
-import android.R.attr.author
 import androidx.annotation.DrawableRes
 import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes

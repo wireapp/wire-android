@@ -66,6 +66,8 @@ class AddRemoveTagsViewModel @Inject constructor(
     private val _suggestedTags = MutableStateFlow<Set<String>>(emptySet())
     val suggestedTags: StateFlow<Set<String>> = _suggestedTags
 
+    val typingDebounceTime = 200L
+
     init {
         viewModelScope.launch {
             getAllTagsUseCase().onSuccess { tags ->
@@ -73,10 +75,14 @@ class AddRemoveTagsViewModel @Inject constructor(
             }
             launch {
                 snapshotFlow { tagsTextState.text.toString() }
-                    .debounce(200)
+                    .debounce(typingDebounceTime)
                     .collectLatest { query ->
-                        val filtered = if (query.isBlank()) allTags.value
-                        else allTags.value.filter { it.contains(query, ignoreCase = true) }.toSet()
+                        val filtered = if (query.isBlank()) {
+                            allTags.value
+                        }
+                        else {
+                            allTags.value.filter { it.contains(query, ignoreCase = true) }.toSet()
+                        }
                         _suggestedTags.value = filtered
                     }
             }

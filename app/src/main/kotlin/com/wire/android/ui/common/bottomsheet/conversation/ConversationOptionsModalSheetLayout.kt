@@ -22,12 +22,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wire.android.R
 import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
-import com.wire.android.ui.common.collectAsStateLifecycleAware
+import com.wire.android.ui.common.bottomsheet.WireSheetValue
+import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dialogs.ArchiveConversationDialog
 import com.wire.android.ui.common.dialogs.BlockUserDialogContent
@@ -39,6 +41,8 @@ import com.wire.android.ui.home.conversations.details.menu.DeleteConversationGro
 import com.wire.android.ui.home.conversations.details.menu.DeleteConversationGroupLocallyDialog
 import com.wire.android.ui.home.conversations.details.menu.LeaveConversationGroupDialog
 import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavArgs
+import com.wire.android.ui.theme.WireTheme
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.id.ConversationId
 
 @SuppressLint("ComposeModifierMissing")
@@ -97,7 +101,7 @@ fun ConversationOptionsModalSheetLayout(
     WireModalSheetLayout(
         sheetState = sheetState,
         sheetContent = { conversationSheetState ->
-            val state = viewModel.observeConversationStateFlow(conversationSheetState.conversationId).collectAsStateLifecycleAware().value
+            val state = viewModel.observeConversationStateFlow(conversationSheetState.conversationId).collectAsStateWithLifecycle().value
             when (state) {
                 is ConversationOptionsMenuState.Conversation -> ConversationSheetContent(
                     // show the sheet with proper content
@@ -158,3 +162,30 @@ fun ConversationOptionsModalSheetLayout(
         },
     )
 }
+
+@Composable
+private fun PreviewConversationOptionsModalSheetLayout(initialPage: ConversationSheetPage) {
+    ConversationOptionsModalSheetLayout(
+        sheetState = rememberWireModalSheetState(
+            WireSheetValue.Expanded(ConversationSheetState(conversationId = ConversationId("cId", "domain"), initialPage = initialPage))
+        ),
+        openConversationFolders = {},
+        onLeftConversation = {},
+        onDeletedConversation = {},
+        onDeletedConversationLocally = {},
+    )
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewConversationOptionsModalSheetLayout_Main() = WireTheme {
+    PreviewConversationOptionsModalSheetLayout(initialPage = ConversationSheetPage.Main)
+}
+
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewConversationOptionsModalSheetLayout_MutingNotification() = WireTheme {
+    PreviewConversationOptionsModalSheetLayout(initialPage = ConversationSheetPage.MutingNotification)
+}
+

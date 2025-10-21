@@ -84,7 +84,11 @@ import kotlin.time.toDuration
 import com.wire.android.ui.common.R as UICommonR
 
 @Composable
-fun MeetingItem(meeting: MeetingItem, modifier: Modifier = Modifier) {
+fun MeetingItem(
+    meeting: MeetingItem,
+    modifier: Modifier = Modifier,
+    openMeetingOptions: (meetingId: String) -> Unit = {},
+) {
     RowItemTemplate(
         modifier = modifier.padding(start = dimensions().spacing8x),
         titleStartPadding = dimensions().spacing0x,
@@ -110,7 +114,11 @@ fun MeetingItem(meeting: MeetingItem, modifier: Modifier = Modifier) {
                 MeetingOngoingAttendingRow(status = meeting.status, onJoinClick = { /* TODO */ })
             }
         },
-        actions = { MeetingMoreButton { /* TODO */ } },
+        actions = {
+            MeetingMoreButton {
+                openMeetingOptions(meeting.meetingId)
+            }
+        },
         divider = { MeetingItemDivider() },
     )
 }
@@ -141,7 +149,7 @@ private fun MeetingItemDivider() {
 }
 
 @Composable
-private fun VideoCallIcon(tint: Color, modifier: Modifier = Modifier) {
+internal fun VideoCallIcon(tint: Color, modifier: Modifier = Modifier) {
     Icon(
         painter = painterResource(id = UICommonR.drawable.ic_video_call),
         contentDescription = stringResource(R.string.content_description_meeting_icon),
@@ -153,7 +161,7 @@ private fun VideoCallIcon(tint: Color, modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun MeetingLeadingIcon() {
+internal fun MeetingLeadingIcon() {
     val (cornerRadius, borderWidth) = dimensions().groupAvatarCornerRadius to dimensions().avatarBorderWidth
     Box(
         contentAlignment = Alignment.Center,

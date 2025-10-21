@@ -56,10 +56,10 @@ class MeetingListViewModelPreview(
     type: MeetingsTabItem,
     showingAll: Boolean = type == MeetingsTabItem.PAST,
 ) : MeetingListViewModel {
-    private val meetingMocksProvider = MeetingMocksProvider(currentTimeProvider, type)
+    private val meetingMocksProvider = MeetingMocksProvider(currentTimeProvider)
     override val isShowingAll: StateFlow<Boolean> = MutableStateFlow(showingAll)
     override val meetings: Flow<PagingData<MeetingListItem>> =
-        MutableStateFlow(PagingData.from(meetingMocksProvider.getItems(showingAll).insertHeaders()))
+        MutableStateFlow(PagingData.from(meetingMocksProvider.getItems(showingAll, type).insertHeaders()))
 }
 
 @HiltViewModel(assistedFactory = MeetingListViewModelImpl.Factory::class)
@@ -73,10 +73,10 @@ class MeetingListViewModelImpl @AssistedInject constructor(
     }
 
     override val isShowingAll = MutableStateFlow(type == MeetingsTabItem.PAST) // for PAST always show all, for NEXT start with false
-    private val meetingMocksProvider = MeetingMocksProvider(CurrentTimeProvider.Default, type) // TODO replace with real data source
+    private val meetingMocksProvider = MeetingMocksProvider(CurrentTimeProvider.Default) // TODO replace with real data source
     override val meetings: Flow<PagingData<MeetingListItem>> = isShowingAll
         .mapLatest { showingAll ->
-            PagingData.from(meetingMocksProvider.getItems(showingAll)).insertSeparators(generator = ::generateHeader)
+            PagingData.from(meetingMocksProvider.getItems(showingAll, type)).insertSeparators(generator = ::generateHeader)
         }
         .flowOn(dispatcher.io())
         .cachedIn(viewModelScope)

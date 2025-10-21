@@ -162,7 +162,14 @@ fun GroupConversationDetailsScreen(
 
     val onConversationMediaClick: () -> Unit = {
         if (groupOptions.isWireCellEnabled && groupOptions.isWireCellFeatureEnabled) {
-            navigator.navigate(NavigationCommand(ConversationFilesScreenDestination(viewModel.conversationId.toString())))
+            navigator.navigate(
+                NavigationCommand(
+                    ConversationFilesScreenDestination(
+                        conversationId = viewModel.conversationId.toString(),
+                        breadcrumbs = arrayOf(groupOptions.groupName)
+                    )
+                )
+            )
         } else {
             navigator.navigate(NavigationCommand(ConversationMediaScreenDestination(viewModel.conversationId)))
         }

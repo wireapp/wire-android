@@ -99,19 +99,19 @@ class AccountManagement : KoinTest {
             assertEmailWelcomePage()
         }
         pages.loginPage.apply {
-            enterPersonalUserLoggingEmail(teamMember.email ?: "")
+            enterTeamMemberLoggingEmail(teamMember.email ?: "")
             clickLoginButton()
-            enterPersonalUserLoginPassword(teamMember.password ?: "")
+            enterTeamMemberLoggingPassword(teamMember.password ?: "")
             clickLoginButton()
         }
         pages.registrationPage.apply {
-            waitUntilLoginFlowIsComplete()
+            waitUntilLoginFlowIsCompleted()
             clickAllowNotificationButton()
             clickDeclineShareDataAlert()
         }
         pages.conversationListPage.apply {
             assertGroupConversationVisible("MyTeam")
-            clickMainMenuButtonOnConversationPage()
+            clickConversationsMenuEntry()
             clickSettingsButtonOnMenuEntry()
             pages.settingsPage.apply {
                 clickDebugSettingsButton()

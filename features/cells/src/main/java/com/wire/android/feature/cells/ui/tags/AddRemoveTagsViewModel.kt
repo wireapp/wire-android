@@ -55,6 +55,7 @@ class AddRemoveTagsViewModel @Inject constructor(
 
     private val allTags: MutableStateFlow<Set<String>> = MutableStateFlow(emptySet())
 
+    val initialTags: Set<String> = navArgs.tags.toSet()
     private val _addedTags: MutableStateFlow<Set<String>> = MutableStateFlow(navArgs.tags.toSet())
     internal val addedTags = _addedTags.asStateFlow()
 

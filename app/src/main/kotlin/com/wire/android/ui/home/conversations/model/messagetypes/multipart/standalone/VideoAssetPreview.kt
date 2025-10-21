@@ -170,7 +170,7 @@ internal fun VideoAssetPreview(
                             VideoFrameDecoder(result.source, options)
                         }
                     ),
-                    contentScale = ContentScale.Crop,
+                    contentScale = ContentScale.FillBounds,
                     contentDescription = null,
                 )
             }

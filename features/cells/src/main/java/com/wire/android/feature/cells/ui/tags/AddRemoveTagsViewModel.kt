@@ -19,6 +19,7 @@ package com.wire.android.feature.cells.ui.tags
 
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.clearText
+import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.feature.cells.ui.navArgs
@@ -30,10 +31,10 @@ import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -62,15 +63,22 @@ class AddRemoveTagsViewModel @Inject constructor(
     @Suppress("MagicNumber")
     val allowedLength = 1..30
 
-    internal val suggestedTags =
-        allTags.combine(addedTags) { all, added ->
-            all.filter { it !in added }.toSet()
-        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptySet())
+    private val _suggestedTags = MutableStateFlow<Set<String>>(emptySet())
+    val suggestedTags: StateFlow<Set<String>> = _suggestedTags
 
     init {
         viewModelScope.launch {
             getAllTagsUseCase().onSuccess { tags ->
                 allTags.update { tags }
+            }
+            launch {
+                snapshotFlow { tagsTextState.text.toString() }
+                    .debounce(200)
+                    .collectLatest { query ->
+                        val filtered = if (query.isBlank()) allTags.value
+                        else allTags.value.filter { it.contains(query, ignoreCase = true) }.toSet()
+                        _suggestedTags.value = filtered
+                    }
             }
         }
     }

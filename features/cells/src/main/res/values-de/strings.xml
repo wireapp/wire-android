@@ -80,7 +80,6 @@
     <string name="select_tags_label">Tags auswählen</string>
     <string name="clear_all_label">Alle löschen</string>
     <string name="apply_label">Anwenden</string>
-    <string name="suggested_tags_label">Vorgeschlagene Tags</string>
     <string name="added_tags_label">Hinzugefügte Tags</string>
     <string name="add_tag_label">Tag hinzufügen</string>
     <string name="no_tags_message">Noch keine Tags erstellt.</string>

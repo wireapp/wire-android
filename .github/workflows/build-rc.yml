@@ -1,0 +1,101 @@
+name: "Release Candidate"
+
+on:
+  push:
+    tags:
+      - 'v*-rc.*'
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  validate-rc-tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get latest release tag
+        id: get_latest_release
+        run: |
+          latest_tag=$(curl -s https://api.github.com/repos/${{ github.repository }}/releases/latest | jq -r '.tag_name')
+          echo "latest_tag=$latest_tag" >> $GITHUB_OUTPUT
+
+      - name: Compare versions
+        run: |
+          current_tag="${{ github.ref_name }}"
+          latest_tag="${{ steps.get_latest_release.outputs.latest_tag }}"
+
+          # Extract version without 'v' prefix and RC suffix
+          cur_ver="${current_tag#v}"
+          cur_ver="${cur_ver%-rc.*}"
+          lat_ver="${latest_tag#v}"
+          lat_ver="${lat_ver%-rc.*}"
+
+          highest="$(printf '%s\n%s' "$cur_ver" "$lat_ver" | sort -V | tail -n1)"
+
+          if [[ "$cur_ver" != "$lat_ver" && "$highest" != "$cur_ver" ]]; then
+            echo "Warning: RC tag ($current_tag) base version is lower than latest release ($latest_tag)."
+            echo "This RC is for an older version - proceeding but this may not be intended."
+          else
+            echo "RC tag ($current_tag) base version is equal or higher than latest release ($latest_tag). Continuing."
+          fi
+
+  create-github-release:
+    needs: validate-rc-tag
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create GitHub Pre-Release
+        uses: softprops/action-gh-release@v2.4.1
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: "Release Candidate ${{ github.ref_name }}"
+          body: |
+            ## Release Candidate for ${{ github.ref_name }}
+
+            This is a **pre-release** for testing purposes.
+
+            ### Artifacts
+            - **Prod flavor** (com.wire) - Production build for testing
+
+            ### Distribution
+            - GitHub: Manual APK download from this release
+            - Google Play: Beta track for com.wire
+
+            **Note**: This is not a final release. Use for testing only.
+          prerelease: true
+          draft: false
+
+  build-rc:
+    needs: create-github-release
+    uses: ./.github/workflows/build-unified.yml
+    with:
+      concurrency-group-suffix: rc
+      build-config: |
+        [
+          {
+            "flavor": "Prod",
+            "variant": "Compatrelease",
+            "keystore-type": "public",
+            "build-type": "both",
+            "generate-version-file": true,
+            "deployment-targets": [
+              {
+                "type": "s3"
+              },
+              {
+                "type": "google-play",
+                "package-name": "com.wire",
+                "track": "${{ vars.PROD_APP_RC_TRACK }}"
+              },
+              {
+                "type": "github-release",
+                "additional-files": "app/build/outputs/version.txt"
+              }
+            ]
+          }
+        ]
+      enable-deployment: true
+    secrets: inherit

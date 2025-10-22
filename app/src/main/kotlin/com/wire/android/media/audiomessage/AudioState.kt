@@ -69,6 +69,7 @@ sealed class PlayingAudioMessage {
     data class Some(
         val conversationId: ConversationId,
         val messageId: String,
+        val assetId: String,
         val authorName: UIText,
         val state: AudioState
     ) : PlayingAudioMessage()
@@ -79,6 +80,7 @@ sealed class PlayingAudioMessage {
 
         val isMessageSame = this is Some && that is Some
                 && this.messageId == that.messageId
+                && this.assetId == that.assetId
                 && this.state.isPlaying() == that.state.isPlaying()
 
         return isTypeSame && isMessageSame
@@ -123,31 +125,36 @@ sealed class AudioMediaPlayingState {
 
 sealed class AudioMediaPlayerStateUpdate(
     open val conversationId: ConversationId,
-    open val messageId: String
+    open val messageId: String,
+    open val assetId: String
 ) {
     data class AudioMediaPlayingStateUpdate(
         override val conversationId: ConversationId,
         override val messageId: String,
+        override val assetId: String,
         val audioMediaPlayingState: AudioMediaPlayingState
-    ) : AudioMediaPlayerStateUpdate(conversationId, messageId)
+    ) : AudioMediaPlayerStateUpdate(conversationId, messageId, assetId)
 
     data class PositionChangeUpdate(
         override val conversationId: ConversationId,
         override val messageId: String,
+        override val assetId: String,
         val position: Int
-    ) : AudioMediaPlayerStateUpdate(conversationId, messageId)
+    ) : AudioMediaPlayerStateUpdate(conversationId, messageId, assetId)
 
     data class TotalTimeUpdate(
         override val conversationId: ConversationId,
         override val messageId: String,
+        override val assetId: String,
         val totalTimeInMs: Int
-    ) : AudioMediaPlayerStateUpdate(conversationId, messageId)
+    ) : AudioMediaPlayerStateUpdate(conversationId, messageId, assetId)
 
     data class WaveMaskUpdate(
         override val conversationId: ConversationId,
         override val messageId: String,
+        override val assetId: String,
         val waveMask: List<Int>?
-    ) : AudioMediaPlayerStateUpdate(conversationId, messageId)
+    ) : AudioMediaPlayerStateUpdate(conversationId, messageId, assetId)
 }
 
 sealed class RecordAudioMediaPlayerStateUpdate {

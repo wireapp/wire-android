@@ -30,6 +30,7 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.asset.GetAudioAssetUseCase
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
@@ -67,9 +68,9 @@ class ConversationAudioMessagePlayerTest {
             .arrange()
 
         val testAudioMessageId = "some-dummy-message-id"
-        val testAssetId = "some-dummy-asset-id"
+        val testAssetId = "testAssetId"
         val conversationId = ConversationId("some-dummy-value", "some.dummy.domain")
-        val messageIdWrapper = MessageIdWrapper(conversationId, testAudioMessageId)
+        val messageIdWrapper = MessageIdWrapper(conversationId, testAudioMessageId, testAssetId)
 
         conversationAudioMessagePlayer.observableAudioMessagesState.test {
             // skip first emit from onStart
@@ -137,7 +138,7 @@ class ConversationAudioMessagePlayerTest {
         val testAssetId = "some-dummy-asset-id"
 
         val conversationId = ConversationId("some-dummy-value", "some.dummy.domain")
-        val messageIdWrapper = MessageIdWrapper(conversationId, testAudioMessageId)
+        val messageIdWrapper = MessageIdWrapper(conversationId, testAudioMessageId, testAssetId)
 
         conversationAudioMessagePlayer.observableAudioMessagesState.test {
             // skip first emit from onStart
@@ -216,10 +217,11 @@ class ConversationAudioMessagePlayerTest {
             val firstAudioMessageId = "some-dummy-message-id1"
             val secondAudioMessageId = "some-dummy-message-id2"
             val conversationId = ConversationId("some-dummy-value", "some.dummy.domain")
-            val firstAudioMessageIdWrapper = MessageIdWrapper(conversationId, firstAudioMessageId)
-            val secondAudioMessageIdWrapper = MessageIdWrapper(conversationId, secondAudioMessageId)
-
             val testAssetId = "some-dummy-asset-id"
+
+            val firstAudioMessageIdWrapper = MessageIdWrapper(conversationId, firstAudioMessageId, testAssetId)
+            val secondAudioMessageIdWrapper = MessageIdWrapper(conversationId, secondAudioMessageId, testAssetId)
+
 
             conversationAudioMessagePlayer.observableAudioMessagesState.test {
                 // skip first emit from onStart
@@ -323,10 +325,10 @@ class ConversationAudioMessagePlayerTest {
             val firstAudioMessageId = "some-dummy-message-id1"
             val secondAudioMessageId = "some-dummy-message-id2"
             val conversationId = ConversationId("some-dummy-value", "some.dummy.domain")
-            val firstAudioMessageIdWrapper = MessageIdWrapper(conversationId, firstAudioMessageId)
-            val secondAudioMessageIdWrapper = MessageIdWrapper(conversationId, secondAudioMessageId)
-
             val testAssetId = "some-dummy-asset-id"
+
+            val firstAudioMessageIdWrapper = MessageIdWrapper(conversationId, firstAudioMessageId, testAssetId)
+            val secondAudioMessageIdWrapper = MessageIdWrapper(conversationId, secondAudioMessageId, testAssetId)
 
             conversationAudioMessagePlayer.observableAudioMessagesState.test {
                 // skip first emit from onStart
@@ -485,9 +487,11 @@ class ConversationAudioMessagePlayerTest {
 
             val testAudioMessageId = "some-dummy-message-id"
             val conversationId = ConversationId("some-dummy-value", "some.dummy.domain")
-            val messageIdWrapper = MessageIdWrapper(conversationId, testAudioMessageId)
 
             val testAssetId = "some-dummy-asset-id"
+
+            val messageIdWrapper = MessageIdWrapper(conversationId, testAudioMessageId, testAssetId)
+
 
             conversationAudioMessagePlayer.observableAudioMessagesState.test {
                 // skip first emit from onStart
@@ -635,7 +639,7 @@ class ConversationAudioMessagePlayerTest {
 
         with(arrangement) {
             coVerify(exactly = 1) { // only one time because the result is cached
-                getAssetMessage(conversationId, audioMessageId)
+                getAudioAsset(conversationId, audioMessageId, assetId)
             }
         }
     }
@@ -660,7 +664,7 @@ class ConversationAudioMessagePlayerTest {
 
         with(arrangement) {
             coVerify(exactly = 2) { // two times because the file did not exist so it's fetched again with proper file path
-                getAssetMessage(conversationId, audioMessageId)
+                getAudioAsset(conversationId, audioMessageId, assetId)
             }
         }
     }
@@ -683,7 +687,7 @@ class ConversationAudioMessagePlayerTest {
 
         with(arrangement) {
             coVerify(exactly = 2) { // two times because the result is failed so it's fetched again
-                getAssetMessage(conversationId, audioMessageId)
+                getAudioAsset(conversationId, audioMessageId, assetId)
             }
         }
     }
@@ -719,6 +723,9 @@ class Arrangement(private val tempDir: File) {
     @MockK
     lateinit var getAssetMessage: GetMessageAssetUseCase
 
+    @MockK
+    lateinit var getAudioAsset: GetAudioAssetUseCase
+
     private val testScope: CoroutineScope = CoroutineScope(dispatcher)
 
     private val conversationAudioMessagePlayer by lazy {
@@ -738,6 +745,7 @@ class Arrangement(private val tempDir: File) {
         MockKAnnotations.init(this, relaxed = true)
 
         every { coreLogic.getSessionScope(any()).messages.getAssetMessage } returns getAssetMessage
+        every { coreLogic.getSessionScope(any()).messages.getAudioAssetUseCase } returns getAudioAsset
         every { wavesMaskHelper.getWaveMask(any<Path>()) } returns WAVES_MASK
         every { wavesMaskHelper.clear() } returns Unit
         every { mediaPlayer.currentPosition } returns 100
@@ -772,11 +780,25 @@ class Arrangement(private val tempDir: File) {
                 assetName = "some-dummy-asset-name"
             )
         )
+        coEvery {
+            getAudioAsset.invoke(any<ConversationId>(), any<String>(), any<String>())
+        } returns CompletableDeferred(
+            MessageAssetResult.Success(
+                decodedAssetPath = assetFile.toOkioPath(),
+                assetSize = 0,
+                assetName = "some-dummy-asset-name"
+            )
+        )
     }
 
     fun withFailedAssetFetch() = apply {
         coEvery {
             getAssetMessage.invoke(any<ConversationId>(), any<String>())
+        } returns CompletableDeferred(
+            MessageAssetResult.Failure(NetworkFailure.NoNetworkConnection(null), false)
+        )
+        coEvery {
+            getAudioAsset.invoke(any<ConversationId>(), any<String>(), any<String>())
         } returns CompletableDeferred(
             MessageAssetResult.Failure(NetworkFailure.NoNetworkConnection(null), false)
         )

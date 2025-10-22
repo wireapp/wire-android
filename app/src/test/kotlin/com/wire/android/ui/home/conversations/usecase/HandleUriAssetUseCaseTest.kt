@@ -177,6 +177,7 @@ class HandleUriAssetUseCaseTest {
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
+            coEvery { fileManager.getExtensionFromUri(any()) } returns ".jpg"
         }
 
         fun withGetAssetBundleFromUri(assetBundle: AssetBundle?) = apply {

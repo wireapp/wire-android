@@ -3,9 +3,10 @@
 # Wire Android - Release Notes Preparation Script
 # This script prepares release notes for Play Store deployment by:
 # 1. Extracting the version from AndroidCoordinates.kt
-# 2. Checking if version-specific release notes exist
-# 3. Copying version-specific files to default.txt if they exist
-# 4. Using existing default.txt as fallback if version-specific files don't exist
+# 2. Validating that version-specific release notes exist (fails if missing)
+# 3. Copying version-specific files to default.txt for deployment
+# 4. Validating character count (500 character limit)
+# 5. Displaying preview of release notes to be deployed
 
 set -e
 
@@ -71,12 +72,6 @@ for LANG in "${LANGUAGES[@]}"; do
     if [ -f "$VERSION_FILE" ]; then
         echo -e "${GREEN}✓ Found version-specific release notes: ${VERSION}.txt${NC}"
 
-        # Backup existing default.txt
-        if [ -f "$DEFAULT_FILE" ]; then
-            cp "$DEFAULT_FILE" "$DEFAULT_FILE.backup"
-            echo -e "${BLUE}  Backed up existing default.txt to default.txt.backup${NC}"
-        fi
-
         # Copy version-specific file to default.txt
         cp "$VERSION_FILE" "$DEFAULT_FILE"
         echo -e "${GREEN}  Copied ${VERSION}.txt to default.txt${NC}"
@@ -121,31 +116,8 @@ done
 if [ "$VALIDATION_FAILED" = true ]; then
     echo -e "${RED}Error: One or more release notes exceed the Play Store ${MAX_CHARACTERS} character limit${NC}"
     echo -e "${RED}Please reduce the content and try again${NC}"
-
-    # Cleanup backup files before exiting
-    echo ""
-    echo -e "${BLUE}Cleaning up backup files...${NC}"
-    for LANG in "${LANGUAGES[@]}"; do
-        BACKUP_FILE="$RELEASE_NOTES_DIR/$LANG/default.txt.backup"
-        if [ -f "$BACKUP_FILE" ]; then
-            rm "$BACKUP_FILE"
-        fi
-    done
-
     exit 1
 fi
-
-# Cleanup backup files
-echo ""
-echo -e "${BLUE}Cleaning up backup files...${NC}"
-for LANG in "${LANGUAGES[@]}"; do
-    BACKUP_FILE="$RELEASE_NOTES_DIR/$LANG/default.txt.backup"
-    if [ -f "$BACKUP_FILE" ]; then
-        rm "$BACKUP_FILE"
-        echo -e "${GREEN}✓ Removed backup: $LANG/default.txt.backup${NC}"
-    fi
-done
-echo ""
 
 # Summary
 echo -e "${BLUE}=== Summary ===${NC}"

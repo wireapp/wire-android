@@ -18,25 +18,19 @@
 package com.wire.android.feature.cells.ui.tags
 
 import android.widget.Toast
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.shape.CutCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.input.KeyboardActionHandler
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -47,7 +41,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -59,13 +52,12 @@ import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
+import com.wire.android.ui.common.chip.ChipData
 import com.wire.android.ui.common.chip.WireFilterChip
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.common.scaffold.WireScaffold
-import com.wire.android.ui.common.textfield.WireTextField
-import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.WireTheme
@@ -137,6 +129,9 @@ fun AddRemoveTagsScreen(
             onRemoveTag = { tag ->
                 addRemoveTagsViewModel.removeTag(tag)
             },
+            onRemoveLastTag = {
+                addRemoveTagsViewModel.removeLastTag()
+            },
             isValidTag = { addRemoveTagsViewModel.isValidTag() },
             modifier = Modifier.fillMaxSize()
         )
@@ -166,109 +161,37 @@ fun AddRemoveTagsScreenContent(
     isValidTag: () -> Boolean,
     onAddTag: (String) -> Unit,
     onRemoveTag: (String) -> Unit,
+    onRemoveLastTag: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+
+    val scrollState = rememberScrollState()
+
     Column(
-        modifier = modifier.padding(internalPadding)
+        modifier = modifier
+            .verticalScroll(scrollState)
+            .padding(internalPadding)
     ) {
+
         Text(
             modifier = Modifier.padding(dimensions().spacing16x),
             text = stringResource(R.string.tags_description),
             style = MaterialTheme.wireTypography.body01,
         )
 
-        WireTextField(
-            textState = textFieldState,
-            placeholderText = stringResource(R.string.enter_name_label),
-            inputMinHeight = dimensions().spacing56x,
-            shape = CutCornerShape(0.dp),
-            keyboardOptions = KeyboardOptions.Default.copy(
-                imeAction = ImeAction.Done
-            ),
-            onKeyboardAction = KeyboardActionHandler { performDefaultAction ->
-                if (isValidTag() && textFieldState.text.isNotBlank()) {
-                    onAddTag(textFieldState.text.toString())
-                    performDefaultAction()
-                }
-            },
-            state = when {
-                textFieldState.text.isNotBlank() && !isValidTag() ->
-                    WireTextFieldState.Error(
-                        errorText = stringResource(R.string.invalid_tag_name_error),
-                        withStartPadding = true
-                    )
+        ChipAndTextFieldLayout(
+            textFieldState = textFieldState,
+            tags = addedTags.map { ChipData(label = it, isSelected = true, isEnabled = false) }.toSet(),
+            isValidTag = isValidTag,
+            onDone = onAddTag,
+            onRemoveLastTag = onRemoveLastTag,
+        ) { data: ChipData ->
 
-                else -> WireTextFieldState.Default
-            },
-            trailingIcon = {
-                WirePrimaryButton(
-                    text = stringResource(R.string.add_tag_label),
-                    modifier = Modifier
-                        .height(dimensions().spacing32x)
-                        .width(dimensions().spacing72x)
-                        .padding(end = dimensions().spacing8x),
-                    onClick = {
-                        onAddTag(textFieldState.text.toString())
-                    },
-                    state = if (isValidTag() && textFieldState.text.isNotBlank()) {
-                        WireButtonState.Default
-                    } else {
-                        WireButtonState.Disabled
-                    },
-                )
-            },
-        )
-
-        Text(
-            modifier = Modifier.padding(
-                top = dimensions().spacing24x,
-                start = dimensions().spacing16x,
-                end = dimensions().spacing16x,
-                bottom = dimensions().spacing10x,
-            ),
-            text = stringResource(R.string.added_tags_label).uppercase(),
-            style = MaterialTheme.wireTypography.label01.copy(
-                color = colorsScheme().secondaryText,
+            WireFilterChip(
+                label = data.label,
+                isSelected = data.isSelected,
+                onSelectChip = onRemoveTag
             )
-        )
-        AnimatedContent(addedTags.isEmpty()) { isEmpty ->
-            if (isEmpty) {
-                Text(
-                    modifier = Modifier.padding(
-                        start = dimensions().spacing16x,
-                        end = dimensions().spacing16x,
-                        bottom = dimensions().spacing16x,
-                        top = dimensions().spacing10x
-                    ),
-                    text = stringResource(R.string.no_tags_message),
-                    style = MaterialTheme.wireTypography.body01
-                )
-            } else {
-                FlowRow(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(colorsScheme().surfaceVariant)
-                        .padding(
-                            top = dimensions().spacing16x,
-                            start = dimensions().spacing16x,
-                            end = dimensions().spacing16x,
-                            bottom = dimensions().spacing8x
-                        )
-                        .animateContentSize()
-                ) {
-                    addedTags.forEach { tag ->
-                        WireFilterChip(
-                            modifier = Modifier.padding(
-                                end = dimensions().spacing8x,
-                                bottom = dimensions().spacing8x
-                            ),
-                            label = tag,
-                            isSelected = true,
-                            onSelectChip = onRemoveTag
-                        )
-                    }
-                }
-            }
         }
 
         Text(
@@ -321,6 +244,7 @@ fun PreviewAddRemoveTagsScreen() {
             onAddTag = {},
             onRemoveTag = {},
             isValidTag = { true },
+            onRemoveLastTag = {},
             modifier = Modifier.fillMaxSize()
         )
     }

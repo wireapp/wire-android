@@ -93,6 +93,12 @@ class AddRemoveTagsViewModel @Inject constructor(
         _addedTags.update { it - tag }
     }
 
+    fun removeLastTag() {
+        _addedTags.value.lastOrNull()?.let { lastTag ->
+            removeTag(lastTag)
+        }
+    }
+
     fun updateTags() {
         viewModelScope.launch {
             isLoading.value = true

@@ -61,13 +61,8 @@ class AddRemoveTagsViewModel @Inject constructor(
 
     val disallowedChars = listOf(",", ";", "/", "\\", "\"", "\'", "<", ">")
 
-    @Suppress("MagicNumber")
-    val allowedLength = 1..30
-
     private val _suggestedTags = MutableStateFlow<Set<String>>(emptySet())
     val suggestedTags: StateFlow<Set<String>> = _suggestedTags
-
-    val typingDebounceTime = 200L
 
     init {
         viewModelScope.launch {
@@ -76,12 +71,11 @@ class AddRemoveTagsViewModel @Inject constructor(
             }
             launch {
                 snapshotFlow { tagsTextState.text.toString() }
-                    .debounce(typingDebounceTime)
+                    .debounce(TYPING_DEBOUNCE_TIME)
                     .collectLatest { query ->
                         val filtered = if (query.isBlank()) {
                             allTags.value
-                        }
-                        else {
+                        } else {
                             allTags.value.filter { it.contains(query, ignoreCase = true) }.toSet()
                         }
                         _suggestedTags.value = filtered
@@ -92,7 +86,7 @@ class AddRemoveTagsViewModel @Inject constructor(
 
     fun isValidTag(): Boolean = disallowedChars.none {
         it in tagsTextState.text
-    } && tagsTextState.text.length in allowedLength
+    } && tagsTextState.text.length in ALLOWED_LENGTH
 
     fun addTag(tag: String) {
         tag.trim().let { newTag ->
@@ -121,6 +115,11 @@ class AddRemoveTagsViewModel @Inject constructor(
                 .onFailure { sendAction(AddRemoveTagsViewModelAction.Failure) }
                 .also { isLoading.value = false }
         }
+    }
+    companion object {
+        val ALLOWED_LENGTH = 1..30
+
+        const val TYPING_DEBOUNCE_TIME = 200L
     }
 }
 

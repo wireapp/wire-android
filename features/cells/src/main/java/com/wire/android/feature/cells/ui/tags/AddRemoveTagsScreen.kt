@@ -36,7 +36,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -64,6 +66,7 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import kotlinx.coroutines.launch
 
 @WireDestination(
     navArgsDelegate = AddRemoveTagsNavArgs::class,
@@ -96,16 +99,6 @@ fun AddRemoveTagsScreen(
                 modifier = Modifier.background(colorsScheme().background)
             ) {
                 if (tags.value.isNotEmpty()) {
-                    Text(
-                        modifier = Modifier.padding(
-                            horizontal = dimensions().spacing16x,
-                            vertical = dimensions().spacing8x
-                        ),
-                        text = stringResource(R.string.suggested_tags_label).uppercase(),
-                        style = MaterialTheme.wireTypography.label01.copy(
-                            color = colorsScheme().secondaryText,
-                        )
-                    )
                     LazyRow(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -201,6 +194,14 @@ fun AddRemoveTagsScreenContent(
 ) {
 
     val scrollState = rememberScrollState()
+    val coroutineScope = rememberCoroutineScope()
+
+    // Auto-scroll to bottom when item is added
+    LaunchedEffect(addedTags.size) {
+        coroutineScope.launch {
+            scrollState.animateScrollTo(scrollState.maxValue)
+        }
+    }
 
     Column(
         modifier = modifier

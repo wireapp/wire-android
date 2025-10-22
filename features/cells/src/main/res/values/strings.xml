@@ -112,7 +112,6 @@
     <string name="apply_label">Apply</string>
     <string name="add_or_remove_tags_title">Add or Remove Tags</string>
     <string name="tags_description">All members of your team can see and use the tags you create.</string>
-    <string name="suggested_tags_label">Suggested tags</string>
     <string name="added_tags_label">Added tags</string>
     <string name="add_tag_label">Add tag</string>
     <string name="enter_name_label">Enter tag name</string>
@@ -120,7 +119,6 @@
     <string name="no_tags_message">No tags were added yet.</string>
     <string name="tags_edited">Tags were edited</string>
     <string name="failed_edit_tags">Failed to edit tags</string>
-    <string name="no_suggested_tags_label">No matching tags found.</string>
     <string name="create_folder_invalid_name">Use a name without "/" or "."</string>
     <string name="file_list_empty_title">There are no files or folders yet</string>
     <string name="no_results_found_label">No results found</string>

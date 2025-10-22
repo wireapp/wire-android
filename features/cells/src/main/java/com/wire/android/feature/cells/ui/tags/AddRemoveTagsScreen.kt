@@ -18,6 +18,7 @@
 package com.wire.android.feature.cells.ui.tags
 
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -31,7 +32,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -91,28 +91,65 @@ fun AddRemoveTagsScreen(
         },
         bottomBar = {
             val isLoading = addRemoveTagsViewModel.isLoading.collectAsState().value
-            Surface(
-                color = MaterialTheme.wireColorScheme.background,
-                shadowElevation = MaterialTheme.wireDimensions.bottomNavigationShadowElevation
+            val tags = addRemoveTagsViewModel.suggestedTags.collectAsState()
+            Column(
+                modifier = Modifier.background(colorsScheme().background)
             ) {
-                Row(
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .padding(horizontal = dimensions().spacing16x)
-                        .height(dimensions().groupButtonHeight)
-                ) {
-                    val shouldDisabledSaveButton =
-                        isLoading || addRemoveTagsViewModel.initialTags == addRemoveTagsViewModel.addedTags.collectAsState().value
-                    WirePrimaryButton(
-                        text = stringResource(R.string.save_label),
-                        onClick = {
-                            addRemoveTagsViewModel.updateTags()
-                        },
-                        state = if (shouldDisabledSaveButton) WireButtonState.Disabled else WireButtonState.Default,
-                        loading = isLoading,
-                        clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
+                if (tags.value.isNotEmpty()) {
+                    Text(
+                        modifier = Modifier.padding(
+                            horizontal = dimensions().spacing16x,
+                            vertical = dimensions().spacing8x
+                        ),
+                        text = stringResource(R.string.suggested_tags_label).uppercase(),
+                        style = MaterialTheme.wireTypography.label01.copy(
+                            color = colorsScheme().secondaryText,
+                        )
                     )
+                    LazyRow(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = dimensions().spacing16x, end = dimensions().spacing16x)
+                    ) {
+                        tags.value.forEach { tag ->
+                            item {
+                                WireFilterChip(
+                                    modifier = Modifier.padding(
+                                        end = dimensions().spacing8x,
+                                        bottom = dimensions().spacing8x
+                                    ),
+                                    label = tag,
+                                    isSelected = false,
+                                    onSelectChip = { addRemoveTagsViewModel.addTag(tag) }
+                                )
+                            }
+                        }
+                    }
+                }
+
+                Surface(
+                    color = MaterialTheme.wireColorScheme.background,
+                    shadowElevation = MaterialTheme.wireDimensions.bottomNavigationShadowElevation
+                ) {
+                    Row(
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .padding(horizontal = dimensions().spacing16x)
+                            .height(dimensions().groupButtonHeight)
+                    ) {
+                        val shouldDisabledSaveButton =
+                            isLoading || addRemoveTagsViewModel.initialTags == addRemoveTagsViewModel.addedTags.collectAsState().value
+                        WirePrimaryButton(
+                            text = stringResource(R.string.save_label),
+                            onClick = {
+                                addRemoveTagsViewModel.updateTags()
+                            },
+                            state = if (shouldDisabledSaveButton) WireButtonState.Disabled else WireButtonState.Default,
+                            loading = isLoading,
+                            clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
+                        )
+                    }
                 }
             }
         }
@@ -122,7 +159,6 @@ fun AddRemoveTagsScreen(
             internalPadding = internalPadding,
             textFieldState = addRemoveTagsViewModel.tagsTextState,
             addedTags = addRemoveTagsViewModel.addedTags.collectAsState().value,
-            suggestedTags = addRemoveTagsViewModel.suggestedTags.collectAsState().value,
             onAddTag = { tag ->
                 addRemoveTagsViewModel.addTag(tag)
             },
@@ -157,7 +193,6 @@ fun AddRemoveTagsScreenContent(
     internalPadding: PaddingValues,
     textFieldState: TextFieldState,
     addedTags: Set<String>,
-    suggestedTags: Set<String>,
     isValidTag: () -> Boolean,
     onAddTag: (String) -> Unit,
     onRemoveTag: (String) -> Unit,
@@ -193,42 +228,6 @@ fun AddRemoveTagsScreenContent(
                 onSelectChip = onRemoveTag
             )
         }
-        if (!suggestedTags.isEmpty()) {
-            Text(
-                modifier = Modifier.padding(
-                    top = dimensions().spacing28x,
-                    bottom = dimensions().spacing10x,
-                    start = dimensions().spacing16x,
-                    end = dimensions().spacing16x
-                ),
-                text = stringResource(R.string.suggested_tags_label).uppercase(),
-                style = MaterialTheme.wireTypography.label01.copy(
-                    color = colorsScheme().secondaryText,
-                )
-            )
-
-            HorizontalDivider(color = MaterialTheme.wireColorScheme.outline)
-
-            LazyRow(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(dimensions().spacing16x)
-            ) {
-                suggestedTags.forEach { tag ->
-                    item {
-                        WireFilterChip(
-                            modifier = Modifier.padding(
-                                end = dimensions().spacing8x,
-                                bottom = dimensions().spacing8x
-                            ),
-                            label = tag,
-                            isSelected = false,
-                            onSelectChip = onAddTag
-                        )
-                    }
-                }
-            }
-        }
     }
 }
 
@@ -241,7 +240,6 @@ fun PreviewAddRemoveTagsScreen() {
             internalPadding = PaddingValues(0.dp),
             textFieldState = TextFieldState(),
             addedTags = setOf("Android", "Web", "iOS"),
-            suggestedTags = setOf("Marketing", "Finance", "HR"),
             onAddTag = {},
             onRemoveTag = {},
             isValidTag = { true },

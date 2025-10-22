@@ -31,10 +31,12 @@ import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -62,7 +64,10 @@ class AddRemoveTagsViewModel @Inject constructor(
     val disallowedChars = listOf(",", ";", "/", "\\", "\"", "\'", "<", ">")
 
     private val _suggestedTags = MutableStateFlow<Set<String>>(emptySet())
-    val suggestedTags: StateFlow<Set<String>> = _suggestedTags
+    internal val suggestedTags =
+        allTags.combine(addedTags) { all, added ->
+            all.filter { it !in added }.toSet()
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptySet())
 
     init {
         viewModelScope.launch {
@@ -122,6 +127,7 @@ class AddRemoveTagsViewModel @Inject constructor(
                 .also { isLoading.value = false }
         }
     }
+
     companion object {
         val ALLOWED_LENGTH = 1..30
 

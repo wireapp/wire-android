@@ -24,8 +24,8 @@ import android.net.Uri
 import android.text.format.DateUtils
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandIn
-import androidx.compose.animation.shrinkOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -59,6 +59,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -68,6 +69,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -1491,11 +1493,18 @@ fun JumpToLastMessageButton(
     modifier: Modifier = Modifier,
     coroutineScope: CoroutineScope = rememberCoroutineScope()
 ) {
+    val bottomPadding = dimensions().typingIndicatorHeight + dimensions().spacing8x
+    val bottomPaddingPx = with(LocalDensity.current) { bottomPadding.toPx() }
+    val showButton by remember(lazyListState, bottomPaddingPx) {
+        derivedStateOf {
+            lazyListState.firstVisibleItemIndex > 0 || lazyListState.firstVisibleItemScrollOffset > bottomPaddingPx
+        }
+    }
     AnimatedVisibility(
-        modifier = modifier,
-        visible = lazyListState.firstVisibleItemIndex > 0,
-        enter = expandIn { it },
-        exit = shrinkOut { it }
+        modifier = modifier.padding(bottom = bottomPadding, end = dimensions().spacing16x),
+        visible = showButton,
+        enter = scaleIn(),
+        exit = scaleOut(),
     ) {
         SmallFloatingActionButton(
             onClick = { coroutineScope.launch { lazyListState.animateScrollToItem(0) } },
@@ -1503,13 +1512,6 @@ fun JumpToLastMessageButton(
             contentColor = MaterialTheme.wireColorScheme.onPrimaryButtonEnabled,
             shape = CircleShape,
             elevation = FloatingActionButtonDefaults.elevation(dimensions().spacing0x),
-            modifier = Modifier
-                .padding(
-                    PaddingValues(
-                        bottom = dimensions().typingIndicatorHeight + dimensions().spacing8x,
-                        end = dimensions().spacing16x
-                    )
-                )
         ) {
             Icon(
                 imageVector = Icons.Default.KeyboardArrowDown,

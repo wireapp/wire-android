@@ -1,0 +1,173 @@
+#!/bin/bash
+
+# Wire Android - Release Notes Preparation Script
+# This script prepares release notes for Play Store deployment by:
+# 1. Extracting the version from AndroidCoordinates.kt
+# 2. Checking if version-specific release notes exist
+# 3. Copying version-specific files to default.txt if they exist
+# 4. Using existing default.txt as fallback if version-specific files don't exist
+
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+echo -e "${BLUE}=== Wire Android Release Notes Preparation ===${NC}"
+echo ""
+
+# Path to AndroidCoordinates.kt
+COORDINATES_FILE="$PROJECT_ROOT/build-logic/plugins/src/main/kotlin/AndroidCoordinates.kt"
+
+# Extract version name from AndroidCoordinates.kt
+if [ ! -f "$COORDINATES_FILE" ]; then
+    echo -e "${RED}Error: AndroidCoordinates.kt not found at $COORDINATES_FILE${NC}"
+    exit 1
+fi
+
+VERSION=$(grep -E '^\s*const val versionName\s*=\s*"' "$COORDINATES_FILE" | sed -E 's/.*"(.+)".*/\1/')
+
+if [ -z "$VERSION" ]; then
+    echo -e "${RED}Error: Could not extract version from AndroidCoordinates.kt${NC}"
+    exit 1
+fi
+
+echo -e "${GREEN}Detected version: ${VERSION}${NC}"
+echo ""
+
+# Release notes directory
+RELEASE_NOTES_DIR="$PROJECT_ROOT/app/src/main/play/release-notes"
+
+# Play Store character limit for release notes
+MAX_CHARACTERS=500
+
+# Languages to process
+LANGUAGES=("en-US" "de-DE")
+
+# Track if we found version-specific files
+FOUND_VERSION_SPECIFIC=false
+
+# Process each language
+for LANG in "${LANGUAGES[@]}"; do
+    LANG_DIR="$RELEASE_NOTES_DIR/$LANG"
+    VERSION_FILE="$LANG_DIR/${VERSION}.txt"
+    DEFAULT_FILE="$LANG_DIR/default.txt"
+
+    echo -e "${BLUE}Processing $LANG...${NC}"
+
+    if [ ! -d "$LANG_DIR" ]; then
+        echo -e "${YELLOW}Warning: Language directory not found: $LANG_DIR${NC}"
+        echo -e "${YELLOW}Skipping $LANG${NC}"
+        echo ""
+        continue
+    fi
+
+    if [ -f "$VERSION_FILE" ]; then
+        echo -e "${GREEN}✓ Found version-specific release notes: ${VERSION}.txt${NC}"
+
+        # Backup existing default.txt
+        if [ -f "$DEFAULT_FILE" ]; then
+            cp "$DEFAULT_FILE" "$DEFAULT_FILE.backup"
+            echo -e "${BLUE}  Backed up existing default.txt to default.txt.backup${NC}"
+        fi
+
+        # Copy version-specific file to default.txt
+        cp "$VERSION_FILE" "$DEFAULT_FILE"
+        echo -e "${GREEN}  Copied ${VERSION}.txt to default.txt${NC}"
+
+        FOUND_VERSION_SPECIFIC=true
+    else
+        echo -e "${RED}✗ Error: Version-specific release notes not found: ${VERSION}.txt${NC}"
+        echo -e "${RED}  Release notes for version ${VERSION} must be created before deployment${NC}"
+        echo -e "${RED}  Expected file: $VERSION_FILE${NC}"
+        exit 1
+    fi
+
+    echo ""
+done
+
+# Validate character counts
+echo -e "${BLUE}=== Validating Character Counts ===${NC}"
+VALIDATION_FAILED=false
+
+for LANG in "${LANGUAGES[@]}"; do
+    DEFAULT_FILE="$RELEASE_NOTES_DIR/$LANG/default.txt"
+
+    if [ -f "$DEFAULT_FILE" ]; then
+        CHAR_COUNT=$(wc -m < "$DEFAULT_FILE" | tr -d ' ')
+
+        echo -e "${BLUE}[$LANG]${NC} Character count: ${CHAR_COUNT}/${MAX_CHARACTERS}"
+
+        if [ "$CHAR_COUNT" -gt "$MAX_CHARACTERS" ]; then
+            OVERFLOW=$((CHAR_COUNT - MAX_CHARACTERS))
+            echo -e "${RED}✗ FAILED: Exceeds limit by ${OVERFLOW} characters${NC}"
+            VALIDATION_FAILED=true
+        elif [ "$CHAR_COUNT" -eq "$MAX_CHARACTERS" ]; then
+            echo -e "${YELLOW}⚠ WARNING: Exactly at character limit${NC}"
+        else
+            REMAINING=$((MAX_CHARACTERS - CHAR_COUNT))
+            echo -e "${GREEN}✓ PASSED: ${REMAINING} characters remaining${NC}"
+        fi
+        echo ""
+    fi
+done
+
+if [ "$VALIDATION_FAILED" = true ]; then
+    echo -e "${RED}Error: One or more release notes exceed the Play Store ${MAX_CHARACTERS} character limit${NC}"
+    echo -e "${RED}Please reduce the content and try again${NC}"
+
+    # Cleanup backup files before exiting
+    echo ""
+    echo -e "${BLUE}Cleaning up backup files...${NC}"
+    for LANG in "${LANGUAGES[@]}"; do
+        BACKUP_FILE="$RELEASE_NOTES_DIR/$LANG/default.txt.backup"
+        if [ -f "$BACKUP_FILE" ]; then
+            rm "$BACKUP_FILE"
+        fi
+    done
+
+    exit 1
+fi
+
+# Cleanup backup files
+echo ""
+echo -e "${BLUE}Cleaning up backup files...${NC}"
+for LANG in "${LANGUAGES[@]}"; do
+    BACKUP_FILE="$RELEASE_NOTES_DIR/$LANG/default.txt.backup"
+    if [ -f "$BACKUP_FILE" ]; then
+        rm "$BACKUP_FILE"
+        echo -e "${GREEN}✓ Removed backup: $LANG/default.txt.backup${NC}"
+    fi
+done
+echo ""
+
+# Summary
+echo -e "${BLUE}=== Summary ===${NC}"
+if [ "$FOUND_VERSION_SPECIFIC" = true ]; then
+    echo -e "${GREEN}✓ Using version-specific release notes for version ${VERSION}${NC}"
+else
+    echo -e "${YELLOW}⚠ Using default.txt files (no version-specific files found for ${VERSION})${NC}"
+fi
+
+echo ""
+echo -e "${GREEN}Release notes preparation completed successfully!${NC}"
+
+# Display the release notes that will be used
+echo ""
+echo -e "${BLUE}=== Release Notes Preview ===${NC}"
+for LANG in "${LANGUAGES[@]}"; do
+    DEFAULT_FILE="$RELEASE_NOTES_DIR/$LANG/default.txt"
+    if [ -f "$DEFAULT_FILE" ]; then
+        echo ""
+        echo -e "${BLUE}[$LANG]${NC}"
+        echo "---"
+        cat "$DEFAULT_FILE"
+        echo "---"
+    fi
+done

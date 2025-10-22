@@ -67,8 +67,7 @@
             "analytics_enabled": true,
             "analytics_app_key": "8ffae535f1836ed5f58fd5c8a11c00eca07c5438",
             "analytics_server_url": "https://wire.count.ly/",
-            "enable_new_registration": true,
-            "emm_support_enabled": true
+            "enable_new_registration": true
         },
         "internal": {
             "application_id": "com.wire.internal",
@@ -80,8 +79,7 @@
             "analytics_app_key": "8ffae535f1836ed5f58fd5c8a11c00eca07c5438",
             "analytics_server_url": "https://wire.count.ly/",
             "enable_new_registration": true,
-            "use_strict_mls_filter": false,
-            "emm_support_enabled": true
+            "use_strict_mls_filter": false
         },
         "fdroid": {
             "application_id": "com.wire",
@@ -151,5 +149,5 @@
     "is_mls_reset_enabled": true,
     "use_strict_mls_filter": true,
     "meetings_enabled": false,
-    "emm_support_enabled": false
+    "emm_support_enabled": true
 }

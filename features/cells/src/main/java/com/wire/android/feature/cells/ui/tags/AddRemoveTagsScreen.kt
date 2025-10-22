@@ -270,38 +270,39 @@ fun AddRemoveTagsScreenContent(
                 }
             }
         }
-
-        Text(
-            modifier = Modifier.padding(
-                top = dimensions().spacing28x,
-                bottom = dimensions().spacing10x,
-                start = dimensions().spacing16x,
-                end = dimensions().spacing16x
-            ),
-            text = stringResource(R.string.suggested_tags_label).uppercase(),
-            style = MaterialTheme.wireTypography.label01.copy(
-                color = colorsScheme().secondaryText,
+        if (!suggestedTags.isEmpty()) {
+            Text(
+                modifier = Modifier.padding(
+                    top = dimensions().spacing28x,
+                    bottom = dimensions().spacing10x,
+                    start = dimensions().spacing16x,
+                    end = dimensions().spacing16x
+                ),
+                text = stringResource(R.string.suggested_tags_label).uppercase(),
+                style = MaterialTheme.wireTypography.label01.copy(
+                    color = colorsScheme().secondaryText,
+                )
             )
-        )
 
-        HorizontalDivider(color = MaterialTheme.wireColorScheme.outline)
+            HorizontalDivider(color = MaterialTheme.wireColorScheme.outline)
 
-        LazyRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(dimensions().spacing16x)
-        ) {
-            suggestedTags.forEach { tag ->
-                item {
-                    WireFilterChip(
-                        modifier = Modifier.padding(
-                            end = dimensions().spacing8x,
-                            bottom = dimensions().spacing8x
-                        ),
-                        label = tag,
-                        isSelected = false,
-                        onSelectChip = onAddTag
-                    )
+            LazyRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(dimensions().spacing16x)
+            ) {
+                suggestedTags.forEach { tag ->
+                    item {
+                        WireFilterChip(
+                            modifier = Modifier.padding(
+                                end = dimensions().spacing8x,
+                                bottom = dimensions().spacing8x
+                            ),
+                            label = tag,
+                            isSelected = false,
+                            onSelectChip = onAddTag
+                        )
+                    }
                 }
             }
         }

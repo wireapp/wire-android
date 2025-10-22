@@ -36,9 +36,6 @@
     <string name="label_learn_more">Mehr erfahren</string>
     <string name="label_removing">Entfernen…</string>
     <string name="label_logging_in">Anmelden…</string>
-    <string name="label_membership_guest">Gast</string>
-    <string name="label_membership_external">Extern</string>
-    <string name="label_membership_service">App</string>
     <string name="label_user_deleted">Gelöscht</string>
     <string name="label_try_again">Erneut versuchen</string>
     <string name="label_done">Fertig</string>
@@ -62,7 +59,6 @@
     </plurals>
     <string name="label_reset_session">Session zurücksetzen</string>
     <string name="label_reset_session_success">Sitzung erfolgreich zurückgesetzt</string>
-    <string name="label_federated_membership">Föderiert</string>
     <string name="label_update">Aktualisieren</string>
     <string name="label_close">Schließen</string>
     <string name="label_download">Herunterladen</string>
@@ -89,7 +85,6 @@
     <string name="content_description_hide_password">Passwort ausblenden</string>
     <string name="content_description_search_back">Suche-Icon zurück</string>
     <string name="content_description_clear_content">Gesprächsverlauf löschen</string>
-    <string name="content_description_user_avatar">Profilbild</string>
     <string name="content_description_muted_conversation">Unterhaltung ist stummgeschaltet</string>
     <string name="content_description_check">Haken</string>
     <string name="content_description_download_icon">Icon herunterladen</string>
@@ -174,8 +169,6 @@
     <string name="content_description_open_label">Öffnen</string>
     <string name="content_description_join_call_label">Anruf annehmen</string>
     <string name="content_description_share_label">Teilen</string>
-    <string name="content_description_collapse_label">Ausblenden</string>
-    <string name="content_description_expand_label">ausklappen</string>
     <string name="content_description_edit_label">bearbeiten</string>
     <string name="content_description_select_label">auswählen</string>
     <string name="content_description_selected_label">ausgewählt</string>
@@ -563,6 +556,7 @@
     <string name="conversation_details_is_not_classified">SICHERHEITSNIVEAU: NICHT EINGESTUFT</string>
     <string name="conversation_options_self_deleting_messages_label">Selbstlöschende Nachrichten</string>
     <string name="conversation_options_self_deleting_messages_description">Wenn diese Option aktiviert ist, verschwinden alle Nachrichten in dieser Unterhaltung nach einer bestimmten Zeit.</string>
+    <string name="conversation_options_self_deleting_messages_cells_description">Die Funktion ist für Unterhaltungen mit Cells nicht verfügbar.</string>
     <string name="conversation_options_guests_label">Gäste</string>
     <string name="conversation_details_guest_description">Wenn diese Option aktiviert ist, können Personen außerhalb des Teams an dieser Unterhaltung teilnehmen</string>
     <string name="conversation_options_guest_description">Aktivieren Sie diese Option, um die Unterhaltung für Personen außerhalb Ihres Teams zu öffnen – auch wenn diese Wire nicht nutzen.</string>
@@ -622,10 +616,6 @@
     <string name="user_profile_logout">Abmelden</string>
     <string name="user_profile_other_accs">Ihre anderen Benutzerkonten</string>
     <string name="user_profile_status_availability">Verfügbarkeit</string>
-    <string name="user_profile_status_available">Verfügbar</string>
-    <string name="user_profile_status_busy">Beschäftigt</string>
-    <string name="user_profile_status_away">Abwesend</string>
-    <string name="user_profile_status_none">Kein Status</string>
     <string name="user_profile_new_account_text">Neues Team oder Konto</string>
     <string name="user_profile_account_management">Team verwalten</string>
     <string name="user_profile_details_tab">Details</string>
@@ -1735,6 +1725,7 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="press_enter_to_send_title">Enter zum Senden drücken</string>
     <string name="press_enter_to_send_text">Wenn diese Option aktiviert ist, können Sie Nachrichten mit der Eingabetaste auf Ihrer Tastatur senden.</string>
     <string name="customization_options_header_title">Optionen</string>
+    <!-- enterprise configurations -->
     <!--    channel not available dialog-->
     <string name="channel_not_available_dialog_title">Channels sind für Team-Mitglieder verfügbar.</string>
     <string name="channel_not_available_dialog_description">Erstellen Sie ein Team und arbeiten Sie kostenlos zusammen!</string>
@@ -1746,4 +1737,5 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="failed_attachment_remove">Entfernen</string>
     <string name="content_description_apply_filter">Filter anwenden</string>
     <string name="content_description_filter_files">Dateien filtern</string>
+    <string name="conversation_options_file_collaboration_description">Dauerhaft aktiv für diese Unterhaltung.</string>
 </resources>

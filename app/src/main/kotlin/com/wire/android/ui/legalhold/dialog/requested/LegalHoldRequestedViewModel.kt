@@ -82,7 +82,7 @@ class LegalHoldRequestedViewModel @Inject constructor(
                         users.isPasswordRequired()
                             .let {
                                 LegalHoldRequestData.Pending(
-                                    legalHoldRequestResult.fingerprint.decodeToString(),
+                                    legalHoldRequestResult.fingerprint,
                                     (it as? IsPasswordRequiredUseCase.Result.Success)?.value ?: true,
                                     userId,
                                 )

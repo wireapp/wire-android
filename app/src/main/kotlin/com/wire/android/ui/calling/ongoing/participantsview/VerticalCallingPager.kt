@@ -97,7 +97,6 @@ fun VerticalCallingPager(
                     GroupCallGrid(
                         gridParams = gridParams,
                         participants = participantsPages[pageIndex],
-                        pageIndex = pageIndex,
                         isSelfUserMuted = isSelfUserMuted,
                         isSelfUserCameraOn = isSelfUserCameraOn,
                         contentHeight = contentHeight,

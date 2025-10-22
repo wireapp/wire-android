@@ -35,6 +35,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ContentAlpha
 import androidx.compose.material3.Icon
@@ -68,9 +69,6 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.min
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.constraintlayout.compose.Dimension
-import androidx.constraintlayout.compose.atMost
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -117,36 +115,11 @@ fun ParticipantTile(
         color = darkColorsScheme().surfaceContainer,
         shape = RoundedCornerShape(if (participantTitleState.isSpeaking) dimensions().corner8x else dimensions().corner3x),
     ) {
+        val maxAvatarSize = dimensions().onGoingCallUserAvatarSize
+        val activeSpeakerBorderPadding = dimensions().spacing6x
 
-        ConstraintLayout {
-            val (avatar, bottomRow, cameraButton) = createRefs()
-            val maxAvatarSize = dimensions().onGoingCallUserAvatarSize
-            val activeSpeakerBorderPadding = dimensions().spacing6x
-
-            AvatarTile(
-                modifier = Modifier
-                    .alpha(alpha)
-                    .padding(top = activeSpeakerBorderPadding)
-                    .constrainAs(avatar) {
-                        top.linkTo(parent.top)
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                        if (isOnPiPMode) {
-                            bottom.linkTo(parent.bottom)
-                        } else {
-                            bottom.linkTo(bottomRow.top)
-                        }
-                        width = Dimension.fillToConstraints.atMost(maxAvatarSize)
-                        height =
-                            Dimension.fillToConstraints.atMost(maxAvatarSize + activeSpeakerBorderPadding)
-                    },
-                avatar = UserAvatarData(
-                    asset = participantTitleState.avatar,
-                    nameBasedAvatar = NameBasedAvatar(participantTitleState.name, participantTitleState.accentId)
-                ),
-                isOnPiPMode = isOnPiPMode
-            )
-
+        Box(modifier = Modifier.fillMaxSize()) {
+            // Layer 1: Video/Camera background
             if (participantTitleState.isSelfUser) {
                 CameraPreview(
                     isCameraOn = isSelfUserCameraOn,
@@ -165,27 +138,53 @@ fun ParticipantTile(
                 )
             }
 
+            // Layer 2: Avatar centered (only show when video is off)
+            val shouldShowAvatar = if (participantTitleState.isSelfUser) {
+                !isSelfUserCameraOn
+            } else {
+                !participantTitleState.isCameraOn && !participantTitleState.isSharingScreen
+            }
+
+            if (shouldShowAvatar) {
+                AvatarTile(
+                    modifier = Modifier
+                        .alpha(alpha)
+                        .padding(
+                            top = activeSpeakerBorderPadding,
+                            bottom = if (isOnPiPMode) activeSpeakerBorderPadding else 0.dp
+                        )
+                        .align(Alignment.Center)
+                        .sizeIn(
+                            maxWidth = maxAvatarSize,
+                            maxHeight = maxAvatarSize + activeSpeakerBorderPadding
+                        ),
+                    avatar = UserAvatarData(
+                        asset = participantTitleState.avatar,
+                        nameBasedAvatar = NameBasedAvatar(participantTitleState.name, participantTitleState.accentId)
+                    ),
+                    isOnPiPMode = isOnPiPMode
+                )
+            }
+
+            // Layer 3: Bottom row
             if (!isOnPiPMode) {
                 BottomRow(
                     participantTitleState = participantTitleState,
                     isSelfUserMuted = isSelfUserMuted,
                     modifier = Modifier
+                        .align(Alignment.BottomCenter)
                         .padding(
-                            // move by the size of the active speaker border
                             start = dimensions().spacing6x,
                             end = dimensions().spacing6x,
                             bottom = dimensions().spacing6x,
                         )
-                        .constrainAs(bottomRow) {
-                            bottom.linkTo(parent.bottom)
-                            start.linkTo(parent.start)
-                            end.linkTo(parent.end)
-                        }
                 )
             }
 
+            // Layer 4: Reaction emoji (top-left)
             AnimatedVisibility(
                 modifier = Modifier
+                    .align(Alignment.TopStart)
                     .padding(dimensions().spacing12x),
                 visible = recentReaction != null,
                 enter = fadeIn(),
@@ -208,13 +207,10 @@ fun ParticipantTile(
                 }
             }
 
+            // Layer 5: Flip camera button (top-right)
             if (participantTitleState.isSelfUser && isSelfUserCameraOn) {
                 FlipCameraButton(
-                    modifier = Modifier
-                        .constrainAs(cameraButton) {
-                            top.linkTo(parent.top)
-                            end.linkTo(parent.end)
-                        },
+                    modifier = Modifier.align(Alignment.TopEnd),
                     isOnFrontCamera = isOnFrontCamera,
                     flipCamera = flipCamera,
                 )

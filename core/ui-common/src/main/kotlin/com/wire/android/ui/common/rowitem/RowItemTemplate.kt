@@ -24,11 +24,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import com.wire.android.model.Clickable
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.theme.DEFAULT_WEIGHT
 
 @Composable
 fun RowItemTemplate(
@@ -36,19 +38,28 @@ fun RowItemTemplate(
     leadingIcon: @Composable () -> Unit = {},
     title: @Composable () -> Unit = {},
     titleStartPadding: Dp = dimensions().spacing8x,
+    contentTopPadding: Dp = dimensions().spacing8x,
+    contentBottomPadding: Dp = dimensions().spacing8x,
+    actionsEndPadding: Dp = dimensions().spacing8x,
     subtitle: @Composable () -> Unit = {},
-    actions: @Composable () -> Unit = {},
+    actions: @Composable (() -> Unit)? = null,
     wrapTitleContentWidth: Boolean = false,
+    verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
+    backgroundColor: Color = colorsScheme().surface,
+    divider: @Composable () -> Unit = { RowItemDivider() },
     clickable: Clickable = Clickable(false) {}
 ) {
     RowItem(
         clickable = clickable,
-        modifier = modifier
+        modifier = modifier,
+        verticalAlignment = verticalAlignment,
+        divider = divider,
+        backgroundColor = backgroundColor,
     ) {
         leadingIcon()
         Column(
             modifier = Modifier
-                .padding(start = titleStartPadding)
+                .padding(start = titleStartPadding, top = contentTopPadding, bottom = contentBottomPadding)
                 .then(
                     if (wrapTitleContentWidth) Modifier.wrapContentWidth() else Modifier.weight(1f)
                 )
@@ -60,37 +71,14 @@ fun RowItemTemplate(
             // Add a spacer to push the actions to the end of the row when weight is not set
             Spacer(modifier = Modifier.weight(1f))
         }
-        Box(
-            modifier = Modifier
-                .wrapContentWidth()
-                .padding(horizontal = dimensions().spacing8x)
-        ) {
-            actions()
+        actions?.let {
+            Box(
+                modifier = Modifier
+                    .wrapContentWidth()
+                    .padding(start = dimensions().spacing8x, end = actionsEndPadding)
+            ) {
+                actions()
+            }
         }
-    }
-}
-
-@Composable
-fun RowItemTemplate(
-    leadingIcon: @Composable () -> Unit,
-    title: @Composable () -> Unit,
-    clickable: Clickable,
-    modifier: Modifier = Modifier,
-    subTitle: @Composable () -> Unit = {},
-    trailingIcon: @Composable () -> Unit = { }
-) {
-    RowItem(
-        clickable = clickable,
-        modifier = modifier
-    ) {
-        leadingIcon()
-        Column(
-            modifier = Modifier
-                .weight(DEFAULT_WEIGHT),
-        ) {
-            title()
-            subTitle()
-        }
-        trailingIcon()
     }
 }

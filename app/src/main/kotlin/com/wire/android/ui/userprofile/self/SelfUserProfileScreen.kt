@@ -54,6 +54,7 @@ import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import com.wire.android.R
+import com.wire.android.ui.common.R as UICommonR
 import com.wire.android.appLogger
 import com.wire.android.feature.NavigationSwitchAccountActions
 import com.wire.android.model.ClickBlockParams
@@ -84,7 +85,7 @@ import com.wire.android.ui.destinations.MyAccountScreenDestination
 import com.wire.android.ui.destinations.NewLoginScreenDestination
 import com.wire.android.ui.destinations.SelfQRCodeScreenDestination
 import com.wire.android.ui.destinations.WelcomeScreenDestination
-import com.wire.android.ui.home.conversationslist.common.FolderHeader
+import com.wire.android.ui.common.rowitem.SectionHeader
 import com.wire.android.ui.legalhold.banner.LegalHoldPendingBanner
 import com.wire.android.ui.legalhold.banner.LegalHoldSubjectBanner
 import com.wire.android.ui.legalhold.banner.LegalHoldUIState
@@ -292,7 +293,8 @@ private fun SelfUserProfileContent(
                             onUserProfileClick = onChangeUserProfilePicture,
                             editableState = EditableState.IsEditable(onEditClick),
                             onQrCodeClick = onQrCodeClick,
-                            accentId = accentId
+                            accentId = accentId,
+                            showQrCode = state.showQrCode,
                         )
                     }
                     if (state.legalHoldStatus != LegalHoldUIState.None) {
@@ -439,15 +441,15 @@ private fun CurrentSelfUserStatus(
     )
 
     Column(modifier = Modifier.fillMaxWidth()) {
-        FolderHeader(stringResource(R.string.user_profile_status_availability))
+        SectionHeader(stringResource(R.string.user_profile_status_availability))
 
         WireDropDown(
             items = items.map {
                 when (it) {
-                    UserAvailabilityStatus.AVAILABLE -> stringResource(R.string.user_profile_status_available)
-                    UserAvailabilityStatus.BUSY -> stringResource(R.string.user_profile_status_busy)
-                    UserAvailabilityStatus.AWAY -> stringResource(R.string.user_profile_status_away)
-                    UserAvailabilityStatus.NONE -> stringResource(R.string.user_profile_status_none)
+                    UserAvailabilityStatus.AVAILABLE -> stringResource(UICommonR.string.user_profile_status_available)
+                    UserAvailabilityStatus.BUSY -> stringResource(UICommonR.string.user_profile_status_busy)
+                    UserAvailabilityStatus.AWAY -> stringResource(UICommonR.string.user_profile_status_away)
+                    UserAvailabilityStatus.NONE -> stringResource(UICommonR.string.user_profile_status_none)
                 }
             },
             defaultItemIndex = items.indexOf(userStatus),

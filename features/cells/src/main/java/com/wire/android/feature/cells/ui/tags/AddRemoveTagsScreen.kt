@@ -35,6 +35,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.KeyboardActionHandler
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -64,6 +65,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.textfield.WireTextField
+import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.WireTheme
@@ -108,12 +110,14 @@ fun AddRemoveTagsScreen(
                         .padding(horizontal = dimensions().spacing16x)
                         .height(dimensions().groupButtonHeight)
                 ) {
+                    val shouldDisabledSaveButton =
+                        isLoading || addRemoveTagsViewModel.initialTags == addRemoveTagsViewModel.addedTags.collectAsState().value
                     WirePrimaryButton(
                         text = stringResource(R.string.save_label),
                         onClick = {
                             addRemoveTagsViewModel.updateTags()
                         },
-                        state = if (isLoading) WireButtonState.Disabled else WireButtonState.Default,
+                        state = if (shouldDisabledSaveButton) WireButtonState.Disabled else WireButtonState.Default,
                         loading = isLoading,
                         clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
                     )
@@ -133,6 +137,7 @@ fun AddRemoveTagsScreen(
             onRemoveTag = { tag ->
                 addRemoveTagsViewModel.removeTag(tag)
             },
+            isValidTag = { addRemoveTagsViewModel.isValidTag() },
             modifier = Modifier.fillMaxSize()
         )
     }
@@ -158,6 +163,7 @@ fun AddRemoveTagsScreenContent(
     textFieldState: TextFieldState,
     addedTags: Set<String>,
     suggestedTags: Set<String>,
+    isValidTag: () -> Boolean,
     onAddTag: (String) -> Unit,
     onRemoveTag: (String) -> Unit,
     modifier: Modifier = Modifier
@@ -179,6 +185,21 @@ fun AddRemoveTagsScreenContent(
             keyboardOptions = KeyboardOptions.Default.copy(
                 imeAction = ImeAction.Done
             ),
+            onKeyboardAction = KeyboardActionHandler { performDefaultAction ->
+                if (isValidTag() && textFieldState.text.isNotBlank()) {
+                    onAddTag(textFieldState.text.toString())
+                    performDefaultAction()
+                }
+            },
+            state = when {
+                textFieldState.text.isNotBlank() && !isValidTag() ->
+                    WireTextFieldState.Error(
+                        errorText = stringResource(R.string.invalid_tag_name_error),
+                        withStartPadding = true
+                    )
+
+                else -> WireTextFieldState.Default
+            },
             trailingIcon = {
                 WirePrimaryButton(
                     text = stringResource(R.string.add_tag_label),
@@ -189,10 +210,10 @@ fun AddRemoveTagsScreenContent(
                     onClick = {
                         onAddTag(textFieldState.text.toString())
                     },
-                    state = if (textFieldState.text.isEmpty()) {
-                        WireButtonState.Disabled
-                    } else {
+                    state = if (isValidTag() && textFieldState.text.isNotBlank()) {
                         WireButtonState.Default
+                    } else {
+                        WireButtonState.Disabled
                     },
                 )
             },
@@ -299,6 +320,7 @@ fun PreviewAddRemoveTagsScreen() {
             suggestedTags = setOf("Marketing", "Finance", "HR"),
             onAddTag = {},
             onRemoveTag = {},
+            isValidTag = { true },
             modifier = Modifier.fillMaxSize()
         )
     }

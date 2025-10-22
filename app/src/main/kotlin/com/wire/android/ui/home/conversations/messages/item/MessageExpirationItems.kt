@@ -24,19 +24,20 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.inset
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.StatusBox
 import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.home.conversations.SelfDeletionTimerHelper
@@ -99,7 +100,10 @@ fun MessageBubbleExpireFooter(
 ) {
     when (selfDeletionTimerState) {
         is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable -> {
-            Row(modifier) {
+            Row(
+                modifier,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 HorizontalSpace.x8()
                 SelfDeletionTimerIcon(
                     selfDeletionTimerState,
@@ -125,8 +129,7 @@ private fun SelfDeletionTimerIcon(
     messageStyle: MessageStyle,
     accentColor: Color,
     modifier: Modifier = Modifier,
-    size: Dp = 11.dp,
-    discreteSteps: Int? = 8,
+    discreteSteps: Int? = 8
 ) {
 
     val emptyColor = when (messageStyle) {
@@ -141,30 +144,35 @@ private fun SelfDeletionTimerIcon(
 
     Canvas(
         modifier
-            .size(size)
+            .size(dimensions().spacing12x)
             .semantics(mergeDescendants = true) {
                 contentDescription = "Time left ${"%.0f".format(metrics.displayFractionLeft * 100)}%"
             }
     ) {
-        if (metrics.backgroundAlpha > 0f) {
-            drawCircle(color = filledColor.copy(alpha = metrics.backgroundAlpha))
-        }
+        val strokePx = this.size.minDimension * STROKE_WIDTH_FRACTION
+        val insetPx = strokePx / 2f
 
-        drawCircle(color = filledColor)
+        inset(insetPx, insetPx) {
+            if (metrics.backgroundAlpha > 0f) {
+                drawCircle(color = filledColor.copy(alpha = metrics.backgroundAlpha))
+            }
 
-        if (metrics.emptySweepDegrees > 0f) {
-            drawArc(
-                color = emptyColor,
-                startAngle = START_ANGLE_TOP_DEG,
-                sweepAngle = metrics.emptySweepDegrees,
-                useCenter = true
+            drawCircle(color = filledColor)
+
+            if (metrics.emptySweepDegrees > 0f) {
+                drawArc(
+                    color = emptyColor,
+                    startAngle = START_ANGLE_TOP_DEG,
+                    sweepAngle = metrics.emptySweepDegrees,
+                    useCenter = true
+                )
+            }
+
+            drawCircle(
+                color = filledColor,
+                style = Stroke(width = this.size.minDimension * STROKE_WIDTH_FRACTION)
             )
         }
-
-        drawCircle(
-            color = filledColor,
-            style = Stroke(width = this.size.minDimension * STROKE_WIDTH_FRACTION)
-        )
     }
 }
 

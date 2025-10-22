@@ -164,7 +164,8 @@ fun ConversationFilesScreenContent(
                 NavigationCommand(
                     RecycleBinScreenDestination(
                         conversationId = currentNodeUuid?.substringBefore("/"),
-                        isRecycleBin = true
+                        isRecycleBin = true,
+                        breadcrumbs = arrayOf(breadcrumbs?.first() ?: ""),
                     )
                 )
             )
@@ -196,6 +197,7 @@ fun ConversationFilesScreenContent(
                         modifier = Modifier
                             .height(dimensions().spacing40x)
                             .fillMaxWidth(),
+                        isRecycleBin = isRecycleBin,
                         pathSegments = it,
                         onBreadcrumbsFolderClick = onBreadcrumbsFolderClick
                     )
@@ -249,9 +251,8 @@ fun ConversationFilesScreenContent(
                                 conversationId = path,
                                 screenTitle = title,
                                 isRecycleBin = isRecycleBin,
-                                breadcrumbs = if (!isRecycleBin) {
-                                    (breadcrumbs ?: emptyArray()) + title
-                                } else { null }
+                                parentFolderUuid = parentFolderUuid,
+                                breadcrumbs = (breadcrumbs ?: emptyArray()) + title
                             ),
                             BackStackMode.NONE,
                             launchSingleTop = false
@@ -315,7 +316,7 @@ fun PreviewConversationFilesScreen() {
             navigator = PreviewNavigator,
             currentNodeUuid = "conversationId",
             actions = flowOf(),
-            pagingListItems = flowOf(
+            pagingListItems = MutableStateFlow(
                 PagingData.from(
                     listOf(
                         CellNodeUi.File(

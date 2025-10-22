@@ -51,13 +51,13 @@ import com.wire.android.ui.common.selectableBackground
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.conversations.details.options.ArrowType
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsItem
-import com.wire.android.ui.home.conversationslist.common.FolderHeader
+import com.wire.android.ui.common.rowitem.SectionHeader
 import com.wire.android.ui.home.settings.SwitchState
 import com.wire.android.ui.theme.ThemeData
 import com.wire.android.ui.theme.ThemeOption
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.extension.folderWithElements
+import com.wire.android.util.ui.sectionWithElements
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @WireDestination
@@ -104,7 +104,7 @@ fun CustomizationScreenContent(
                 .padding(internalPadding)
                 .fillMaxSize()
         ) {
-            folderWithElements(
+            sectionWithElements(
                 header = context.getString(R.string.settings_appearance_theme_label),
                 items = buildList {
                     add(ThemeData(option = ThemeOption.SYSTEM, selectedOption = state.selectedThemeOption))
@@ -137,7 +137,7 @@ fun CustomizationOptionsContent(
         modifier = modifier
             .fillMaxWidth()
     ) {
-        FolderHeader(stringResource(R.string.customization_options_header_title))
+        SectionHeader(stringResource(R.string.customization_options_header_title))
         GroupConversationOptionsItem(
             title = stringResource(R.string.press_enter_to_send_title),
             switchState = SwitchState.Enabled(value = enterToSendState, onCheckedChange = enterToSendClicked),
@@ -154,12 +154,12 @@ fun CustomizationOptionsContent(
     }
 }
 
-private fun LazyListScope.folderWithElements(
+private fun LazyListScope.sectionWithElements(
     header: String,
     items: List<ThemeData>,
     onItemClicked: (ThemeOption) -> Unit
 ) {
-    folderWithElements(
+    sectionWithElements(
         header = header.uppercase(),
         items = items.associateBy { it.option }
     ) { themeItem ->

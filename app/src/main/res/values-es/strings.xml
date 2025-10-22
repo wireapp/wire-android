@@ -36,9 +36,6 @@
     <string name="label_learn_more">Más información</string>
     <string name="label_removing">Eliminando...</string>
     <string name="label_logging_in">Iniciando sesión…</string>
-    <string name="label_membership_guest">Invitado</string>
-    <string name="label_membership_external">Externo</string>
-    <string name="label_membership_service">Aplicación</string>
     <string name="label_user_deleted">Eliminado</string>
     <string name="label_try_again">Intentar de nuevo</string>
     <string name="label_done">Listo</string>
@@ -62,7 +59,6 @@
     </plurals>
     <string name="label_reset_session">Restablecer la sesión</string>
     <string name="label_reset_session_success">Sesión restablecida con éxito</string>
-    <string name="label_federated_membership">Federado</string>
     <string name="label_update">Actualizar</string>
     <string name="label_close">Cerrar</string>
     <string name="label_download">Descargar</string>
@@ -89,7 +85,6 @@
     <string name="content_description_hide_password">Ocultar contraseña</string>
     <string name="content_description_search_back">Icono de búsqueda atrás</string>
     <string name="content_description_clear_content">Borrar contenido</string>
-    <string name="content_description_user_avatar">Foto de perfil</string>
     <string name="content_description_muted_conversation">Conversación silenciada</string>
     <string name="content_description_check">Marca de verificación</string>
     <string name="content_description_download_icon">Icono de descarga</string>
@@ -423,10 +418,6 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="user_profile_close_description">Cerrar perfil de usuario</string>
     <string name="user_profile_other_accs">Tus otras cuentas</string>
     <string name="user_profile_status_availability">Disponibilidad</string>
-    <string name="user_profile_status_available">Disponible</string>
-    <string name="user_profile_status_busy">Ocupado</string>
-    <string name="user_profile_status_away">Ausente</string>
-    <string name="user_profile_status_none">Ninguno</string>
     <string name="user_profile_details_tab">Detalles</string>
     <string name="user_profile_devices_tab">Dispositivos</string>
     <string name="user_profile_role_change_error">Ocurri&#243; un error al intentar cambiar el rol. Por favor, verifica tu conexi&#243;n a internet e intenta de nuevo.</string>
@@ -1027,5 +1018,6 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="debug_settings_screen_title">Configuraci&#243;n de depuraci&#243;n</string>
     <!--    Personal to team migration screen-->
     <!-- Move to Folder -->
+    <!-- enterprise configurations -->
     <!--    channel not available dialog-->
 </resources>

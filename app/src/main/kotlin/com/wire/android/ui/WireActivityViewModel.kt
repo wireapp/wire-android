@@ -29,6 +29,7 @@ import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.di.IsProfileQRCodeEnabledUseCaseProvider
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.di.ObserveIfE2EIRequiredDuringLoginUseCaseProvider
 import com.wire.android.di.ObserveScreenshotCensoringConfigUseCaseProvider
@@ -121,7 +122,8 @@ class WireActivityViewModel @Inject constructor(
     private val observeScreenshotCensoringConfigUseCaseProviderFactory: ObserveScreenshotCensoringConfigUseCaseProvider.Factory,
     private val globalDataStore: Lazy<GlobalDataStore>,
     private val observeIfE2EIRequiredDuringLoginUseCaseProviderFactory: ObserveIfE2EIRequiredDuringLoginUseCaseProvider.Factory,
-    private val workManager: Lazy<WorkManager>
+    private val workManager: Lazy<WorkManager>,
+    private val isProfileQRCodeEnabledFactory: IsProfileQRCodeEnabledUseCaseProvider.Factory,
 ) : ActionsViewModel<WireActivityViewAction>() {
 
     var globalAppState: GlobalAppState by mutableStateOf(GlobalAppState())
@@ -327,7 +329,7 @@ class WireActivityViewModel @Inject constructor(
 
                 is DeepLinkResult.MigrationLogin -> sendAction(OnMigrationLogin(result))
                 is DeepLinkResult.OpenConversation -> sendAction(OpenConversation(result))
-                is DeepLinkResult.OpenOtherUserProfile -> sendAction(OnOpenUserProfile(result))
+                is DeepLinkResult.OpenOtherUserProfile -> onOpenUserProfileDeepLink(result)
 
                 DeepLinkResult.SharingIntent -> sendAction(OnShowImportMediaScreen)
                 DeepLinkResult.Unknown -> {
@@ -511,6 +513,16 @@ class WireActivityViewModel @Inject constructor(
                         }
                     }
                 }
+        }
+    }
+
+    private fun onOpenUserProfileDeepLink(result: DeepLinkResult.OpenOtherUserProfile) = viewModelScope.launch {
+        observeCurrentValidUserId.first()?.let { userId ->
+            if (isProfileQRCodeEnabledFactory.create(userId).isProfileQRCodeEnabled()) {
+                sendAction(OnOpenUserProfile(result))
+            } else {
+                sendAction(ShowToast(R.string.profile_deeplink_feature_unavailable_title_alert))
+            }
         }
     }
 

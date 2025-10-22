@@ -20,10 +20,11 @@ package com.wire.android.feature.cells.ui.rename
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.wire.android.feature.cells.ui.navArgs
-import com.wire.android.model.DisplayNameState
+import com.wire.kalium.cells.domain.usecase.RenameNodeFailure
 import com.wire.kalium.cells.domain.usecase.RenameNodeUseCase
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.common.functional.Either
+import com.wire.kalium.common.functional.left
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -67,8 +68,8 @@ class RenameNodeViewModelTest {
         advanceUntilIdle()
         viewModel.actions.test {
             with(expectMostRecentItem()) {
-                assertEquals(false, viewModel.displayNameState.loading)
-                assertEquals(DisplayNameState.Completed.Success, viewModel.displayNameState.completed)
+                assertEquals(false, viewModel.viewState.loading)
+                assertEquals(RenameNodeViewState.Completed.Success, viewModel.viewState.completed)
                 assertTrue(this is RenameNodeViewModelAction.Success)
                 coVerify(exactly = 1) { arrangement.renameNodeUseCase(eq(UUID), eq(CURRENT_PATH), eq("newFileName.txt")) }
             }
@@ -78,16 +79,15 @@ class RenameNodeViewModelTest {
     @Test
     fun `given renameNodeUseCase failure, when rename is called, then send failure action`() = runTest {
         val (arrangement, viewModel) = Arrangement()
-            .withRenameNodeUseCaseReturning(Either.Left(CoreFailure.InvalidEventSenderID))
+            .withRenameNodeUseCaseReturning(RenameNodeFailure.Other(CoreFailure.InvalidEventSenderID).left())
             .arrange()
 
         viewModel.renameNode("")
 
         advanceUntilIdle()
+
         viewModel.actions.test {
             with(expectMostRecentItem()) {
-                assertEquals(false, viewModel.displayNameState.loading)
-                assertEquals(DisplayNameState.Completed.Failure, viewModel.displayNameState.completed)
                 assertTrue(this is RenameNodeViewModelAction.Failure)
                 coVerify(exactly = 1) { arrangement.renameNodeUseCase(any(), any(), any()) }
             }
@@ -103,10 +103,10 @@ class RenameNodeViewModelTest {
 
         advanceUntilIdle()
 
-        assertFalse(viewModel.displayNameState.saveEnabled)
+        assertFalse(viewModel.viewState.saveEnabled)
         assertEquals(
-            DisplayNameState.NameError.TextFieldError.InvalidNameError,
-            viewModel.displayNameState.error
+            RenameNodeViewState.RenameError.TextFieldError.InvalidName,
+            viewModel.viewState.error
         )
     }
 
@@ -118,11 +118,10 @@ class RenameNodeViewModelTest {
             .arrange()
 
         advanceUntilIdle()
-
-        assertFalse(viewModel.displayNameState.saveEnabled)
+        assertFalse(viewModel.viewState.saveEnabled)
         assertEquals(
-            DisplayNameState.NameError.TextFieldError.NameEmptyError,
-            viewModel.displayNameState.error
+            RenameNodeViewState.RenameError.TextFieldError.NameEmpty,
+            viewModel.viewState.error
         )
     }
 
@@ -136,10 +135,10 @@ class RenameNodeViewModelTest {
 
         advanceUntilIdle()
 
-        assertFalse(viewModel.displayNameState.saveEnabled)
+        assertFalse(viewModel.viewState.saveEnabled)
         assertEquals(
-            DisplayNameState.NameError.TextFieldError.NameExceedLimitError,
-            viewModel.displayNameState.error
+            RenameNodeViewState.RenameError.TextFieldError.NameExceedLimit,
+            viewModel.viewState.error
         )
     }
 
@@ -150,10 +149,10 @@ class RenameNodeViewModelTest {
 
         advanceUntilIdle()
 
-        assertFalse(viewModel.displayNameState.saveEnabled)
+        assertFalse(viewModel.viewState.saveEnabled)
         assertEquals(
-            DisplayNameState.NameError.None,
-            viewModel.displayNameState.error
+            RenameNodeViewState.RenameError.None,
+            viewModel.viewState.error
         )
     }
 
@@ -177,7 +176,7 @@ class RenameNodeViewModelTest {
             )
             every { savedStateHandle.get<String>("uuid") } returns UUID
             every { savedStateHandle.get<String>("currentPath") } returns CURRENT_PATH
-            every { savedStateHandle.get<Boolean>("isFolder") } returns true
+            every { savedStateHandle.get<Boolean>("isFolder") } returns false
             every { savedStateHandle.get<String>("nodeName") } returns NODE_NAME
         }
 
@@ -188,7 +187,7 @@ class RenameNodeViewModelTest {
             )
         }
 
-        fun withRenameNodeUseCaseReturning(result: Either<CoreFailure, Unit>) = apply {
+        fun withRenameNodeUseCaseReturning(result: Either<RenameNodeFailure, Unit>) = apply {
             coEvery { renameNodeUseCase(any(), any(), any()) } returns result
         }
         fun withNodeNameReturning(name: String) = apply {

@@ -35,11 +35,11 @@ import com.wire.android.model.ItemActionType
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.AddContactButton
 import com.wire.android.ui.common.ArrowRightIcon
-import com.wire.android.ui.common.rowitem.RowItemTemplate
 import com.wire.android.ui.common.UserBadge
-import com.wire.android.ui.common.avatar.UserProfileAvatar
 import com.wire.android.ui.common.WireCheckbox
+import com.wire.android.ui.common.avatar.UserProfileAvatar
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.rowitem.RowItemTemplate
 import com.wire.android.ui.home.conversationslist.common.ConnectPendingRequestBadge
 import com.wire.android.ui.home.conversationslist.common.ConnectRequestBadge
 import com.wire.android.ui.home.conversationslist.model.Membership
@@ -63,7 +63,18 @@ fun InternalContactSearchResultItem(
     modifier: Modifier = Modifier
 ) {
     RowItemTemplate(
-        leadingIcon = { UserProfileAvatar(avatarData) },
+        leadingIcon = {
+            Row(verticalAlignment = CenterVertically) {
+                if (actionType.checkable) {
+                    WireCheckbox(
+                        checked = isSelected,
+                        onCheckedChange = null, // null since we are handling the click on parent
+                        modifier = Modifier.padding(horizontal = dimensions().spacing4x),
+                    )
+                }
+                UserProfileAvatar(avatarData)
+            }
+        },
         titleStartPadding = dimensions().spacing0x,
         title = {
             Row(verticalAlignment = CenterVertically) {
@@ -94,19 +105,14 @@ fun InternalContactSearchResultItem(
                 ) {
                     ArrowRightIcon(Modifier.align(Alignment.TopEnd), R.string.content_description_empty)
                 }
-            } else if (actionType.checkable) {
-                WireCheckbox(
-                    checked = isSelected,
-                    onCheckedChange = null, // null since we are handling the click on parent,
-                )
             }
         },
         clickable =
-        if (actionType.clickable) {
-            clickable
-        } else {
-            onCheckClickable
-        },
+            if (actionType.clickable) {
+                clickable
+            } else {
+                onCheckClickable
+            },
         modifier = modifier
             .padding(start = dimensions().spacing8x)
             .semantics {

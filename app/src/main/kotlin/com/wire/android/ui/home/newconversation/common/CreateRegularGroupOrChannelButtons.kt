@@ -66,7 +66,7 @@ fun CreateRegularGroupOrChannelButtons(
                     state = WireButtonState.Default,
                     leadingIcon = {
                         Image(
-                            painter = painterResource(id = R.drawable.ic_channel),
+                            painter = painterResource(id = com.wire.android.ui.common.R.drawable.ic_channel),
                             contentDescription = null,
                             modifier = Modifier.padding(end = dimensions().spacing12x),
                             colorFilter = ColorFilter.tint(colorsScheme().onPrimaryButtonEnabled)

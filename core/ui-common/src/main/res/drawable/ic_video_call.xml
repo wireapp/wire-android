@@ -1,0 +1,31 @@
+<!--
+  ~ Wire
+  ~ Copyright (C) 2025 Wire Swiss GmbH
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program. If not, see http://www.gnu.org/licenses/.
+  -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:autoMirrored="true"
+    android:width="20dp"
+    android:height="16dp"
+    android:viewportWidth="20"
+    android:viewportHeight="16">
+  <path
+      android:pathData="M0,7.44C0,5.162 0,4.023 0.45,3.156C0.83,2.426 1.426,1.83 2.156,1.45C3.023,1 4.162,1 6.44,1H8.56C10.838,1 11.977,1 12.844,1.45C13.575,1.83 14.17,2.426 14.55,3.156C15,4.023 15,5.162 15,7.44V8.56C15,10.838 15,11.977 14.55,12.844C14.17,13.575 13.575,14.17 12.844,14.55C11.977,15 10.838,15 8.56,15H6.44C4.162,15 3.023,15 2.156,14.55C1.426,14.17 0.83,13.575 0.45,12.844C0,11.977 0,10.838 0,8.56V7.44ZM5.5,9.642C6.903,11.043 8.573,12.5 9.966,12.5C10.592,12.5 11.141,12.282 11.583,11.797C11.84,11.511 12,11.177 12,10.847C12,10.605 11.908,10.372 11.68,10.208L10.189,9.151C9.966,8.996 9.772,8.918 9.597,8.918C9.379,8.918 9.18,9.044 8.956,9.262C8.822,9.394 8.427,9.679 8.427,9.679C7.334,8.943 6.545,8.161 5.811,7.067C5.811,7.067 6.097,6.67 6.228,6.534C6.442,6.311 6.573,6.117 6.573,5.894C6.573,5.72 6.495,5.531 6.33,5.303L5.286,3.834C5.121,3.602 4.879,3.5 4.616,3.5C4.296,3.5 3.966,3.645 3.68,3.922C3.209,4.372 3,4.93 3,5.545C3,6.936 4.097,8.247 5.5,9.642Z"
+      android:fillColor="#000000"
+      android:fillType="evenOdd"/>
+  <path
+      android:pathData="M20,4.098V11.902C20,12.743 19.024,13.209 18.37,12.679L16.3,11V5L18.37,3.321C19.024,2.791 20,3.257 20,4.098Z"
+      android:fillColor="#000000"/>
+</vector>

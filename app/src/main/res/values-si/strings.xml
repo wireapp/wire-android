@@ -36,8 +36,6 @@
     <string name="label_learn_more">තව දැනගන්න</string>
     <string name="label_removing">ඉවත් කෙරෙමින්…</string>
     <string name="label_logging_in">පිවිසෙමින්…</string>
-    <string name="label_membership_guest">අමුත්තා</string>
-    <string name="label_membership_external">බාහිර</string>
     <string name="label_user_deleted">මකා ඇත</string>
     <string name="label_try_again">නැවත උත්සාහ කරන්න</string>
     <string name="label_done">කළා</string>
@@ -61,7 +59,6 @@
     </plurals>
     <string name="label_reset_session">වාරය යළි සකසන්න</string>
     <string name="label_reset_session_success">වාරය සාර්ථකව යළි සැකසිණි</string>
-    <string name="label_federated_membership">ඒකාබද්ධ</string>
     <string name="label_update">යාවත්කාල</string>
     <string name="label_close">වසන්න</string>
     <string name="label_download">බාගන්න</string>
@@ -88,7 +85,6 @@
     <string name="content_description_hide_password">මුරපදය සඟවන්න</string>
     <string name="content_description_search_back">ආපසු සොයන්න නිරූපකය</string>
     <string name="content_description_clear_content">අන්තර්ගතය මකන්න</string>
-    <string name="content_description_user_avatar">පැතිකඩ ඡායාරූපය</string>
     <string name="content_description_muted_conversation">නිහඬ කළ සංවාදය</string>
     <string name="content_description_check">හරි ලකුණ</string>
     <string name="content_description_download_icon">බාගැනීමේ නිරූපකය</string>
@@ -202,8 +198,6 @@
     <string name="content_description_open_label">විවෘත</string>
     <string name="content_description_join_call_label">ඇමතුමකට සම්බන්ධ වන්න</string>
     <string name="content_description_share_label">බෙදාගන්න</string>
-    <string name="content_description_collapse_label">බිඳ වැටීම</string>
-    <string name="content_description_expand_label">පුළුල් කරන්න</string>
     <string name="content_description_edit_label">සංස්කරණය කරන්න</string>
     <string name="content_description_select_label">තෝරන්න</string>
     <string name="content_description_unselect_label">තේරීම ඉවත් කරන්න</string>
@@ -598,10 +592,6 @@
     <string name="user_profile_logout">ඉවත් වන්න</string>
     <string name="user_profile_other_accs">ඔබගේ වෙනත් ගිණුම්</string>
     <string name="user_profile_status_availability">තත්‍වය</string>
-    <string name="user_profile_status_available">සිටිනවා</string>
-    <string name="user_profile_status_busy">කාර්යබහුලයි</string>
-    <string name="user_profile_status_away">නොසිටියි</string>
-    <string name="user_profile_status_none">කිසිවක් නැත</string>
     <string name="user_profile_new_account_text">නව කණ්ඩායම හෝ ගිණුමක් එක් කරන්න</string>
     <string name="user_profile_account_management">කණ්ඩායම කළමනාකරණය කරන්න</string>
     <string name="user_profile_details_tab">විස්තර</string>
@@ -1667,6 +1657,7 @@
     <string name="press_enter_to_send_title">යැවීමට Enter ඔබන්න</string>
     <string name="press_enter_to_send_text">මෙය ක්‍රියාත්මක විට, ඔබට ඔබේ යතුරුපුවරුවේ Enter යතුර භාවිතයෙන් පණිවිඩ යැවිය හැක.</string>
     <string name="customization_options_header_title">විකල්ප</string>
+    <!-- enterprise configurations -->
     <!--    channel not available dialog-->
     <string name="channel_not_available_dialog_title">කණ්ඩායම් සාමාජිකයින් සඳහා නාලිකා තිබේ.</string>
     <string name="channel_not_available_dialog_description">කණ්ඩායමක් සාදා නොමිලේ සහයෝගයෙන් කටයුතු කිරීම ආරම්භ කරන්න!</string>

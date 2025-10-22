@@ -41,7 +41,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.decode.VideoFrameDecoder
 import com.wire.android.R
@@ -113,7 +112,6 @@ internal fun VideoAssetPreview(
                     colorsScheme().surface
                 )
             }
-            .padding(dimensions().spacing8x)
             .applyIf(!messageStyle.isBubble()) {
                 background(
                     color = colorsScheme().primaryButtonSelected,
@@ -124,7 +122,7 @@ internal fun VideoAssetPreview(
                     color = colorsScheme().outline,
                     shape = RoundedCornerShape(dimensions().messageAttachmentCornerSize)
                 )
-                padding(dimensions().spacing6x)
+                padding(dimensions().spacing12x)
             }
             .clip(RoundedCornerShape(dimensions().messageAttachmentCornerSize)),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -132,10 +130,7 @@ internal fun VideoAssetPreview(
     ) {
 
         FileHeaderView(
-            modifier = Modifier.padding(
-                top = dimensions().spacing8x,
-                bottom = dimensions().spacing8x,
-            ),
+            modifier = Modifier.padding(dimensions().spacing8x),
             extension = item.mimeType.substringAfter("/"),
             size = item.assetSize,
             messageStyle = messageStyle
@@ -143,7 +138,9 @@ internal fun VideoAssetPreview(
 
         item.fileName?.let {
             Text(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = dimensions().spacing8x),
                 text = it.substringBeforeLast("."),
                 style = typography().body02,
                 color = fileNameColor,
@@ -154,14 +151,9 @@ internal fun VideoAssetPreview(
 
         Box(
             modifier = Modifier
-                .width(videoSize.width)
+                .fillMaxWidth()
                 .height(videoSize.height)
                 .background(
-                    color = colorsScheme().outline,
-                    shape = RoundedCornerShape(dimensions().messageAttachmentCornerSize)
-                )
-                .border(
-                    width = 1.dp,
                     color = colorsScheme().outline,
                     shape = RoundedCornerShape(dimensions().messageAttachmentCornerSize)
                 )
@@ -178,7 +170,7 @@ internal fun VideoAssetPreview(
                             VideoFrameDecoder(result.source, options)
                         }
                     ),
-                    contentScale = ContentScale.Crop,
+                    contentScale = ContentScale.FillBounds,
                     contentDescription = null,
                 )
             }
@@ -254,7 +246,7 @@ private fun PreviewVideoAsset() {
 
     WireTheme {
         Column(
-            modifier = Modifier.padding(dimensions().spacing8x),
+            modifier = Modifier.padding(dimensions().spacing18x),
             verticalArrangement = Arrangement.spacedBy(dimensions().spacing8x)
         ) {
             Box {

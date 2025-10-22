@@ -51,7 +51,7 @@
     <string name="confirm_delete_file_title">Удалить файл</string>
     <string name="confirm_delete_folder_title">Удалить папку</string>
     <string name="confirm_delete_file_text">Файл %1$s будет перемещен в корзину этой беседы.</string>
-    <string name="confirm_delete_folder_text">Папка %1$s будет перемещена в корзину этой беседы.</string>
+    <string name="confirm_delete_folder_text">Папка%1$s со всеми файлами и подпапками переместится в корзину этого диалога.</string>
     <string name="confirm_permanent_delete_file_text">Это навсегда удалит файл %1$s для всех участников.</string>
     <string name="confirm_permanent_delete_folder_text">Это навсегда удалит папку %1$s для всех участников.</string>
     <string name="reload">Перезагрузить</string>
@@ -127,4 +127,5 @@
     <string name="cells_folder_deleted_message">Папка удалена</string>
     <string name="cells_file_permanently_deleted_message">Файл удален навсегда</string>
     <string name="cells_folder_permanently_deleted_message">Папка удалена навсегда</string>
+    <string name="invalid_tag_name_error">Недопустимое название тега</string>
 </resources>

@@ -80,21 +80,11 @@ fun MultipartAttachmentsView(
             groups.forEach { group ->
                 when (group) {
                     is MultipartAttachmentsViewModel.MultipartAttachmentGroup.Media ->
-                        if (group.attachments.size == 1) {
-                            AssetPreview(
-                                item = group.attachments.first(),
-                                messageStyle = messageStyle,
-                                conversationId = conversationId,
-                                onClick = { viewModel.onClick(group.attachments.first()) },
-                                accent = accent
-                            )
-                        } else {
-                            AttachmentsGrid(
-                                attachments = group.attachments,
-                                messageStyle = messageStyle,
-                                onClick = { viewModel.onClick(it) },
-                            )
-                        }
+                        AttachmentsGrid(
+                            attachments = group.attachments,
+                            messageStyle = messageStyle,
+                            onClick = { viewModel.onClick(it) },
+                        )
 
                     is MultipartAttachmentsViewModel.MultipartAttachmentGroup.Files ->
                         AttachmentsList(
@@ -130,6 +120,7 @@ private fun AttachmentsList(
                 item = it,
                 messageStyle = messageStyle,
                 conversationId = conversationId,
+                showWithPreview = true,
                 onClick = { onClick(it) },
                 modifier = modifier,
                 accent = accent

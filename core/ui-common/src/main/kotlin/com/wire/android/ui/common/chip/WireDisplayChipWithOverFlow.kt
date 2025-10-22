@@ -47,7 +47,7 @@ fun WireDisplayChipWithOverFlow(
     ) {
         Column(
             modifier = Modifier
-                .height(dimensions().spacing16x)
+                .height(dimensions().spacing18x)
                 .background(color = colorsScheme().primaryVariant, shape = RoundedCornerShape(size = dimensions().spacing4x)),
         ) {
             Text(

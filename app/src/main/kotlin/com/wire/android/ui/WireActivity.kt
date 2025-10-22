@@ -61,6 +61,7 @@ import com.wire.android.appLogger
 import com.wire.android.config.CustomUiConfigurationProvider
 import com.wire.android.config.LocalCustomUiConfigurationProvider
 import com.wire.android.datastore.UserDataStore
+import com.wire.android.emm.ManagedConfigurationsManager
 import com.wire.android.feature.NavigationSwitchAccountActions
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.LoginTypeSelector
@@ -72,6 +73,7 @@ import com.wire.android.navigation.rememberNavigator
 import com.wire.android.navigation.startDestination
 import com.wire.android.navigation.style.BackgroundStyle
 import com.wire.android.navigation.style.BackgroundType
+import com.wire.android.notification.broadcastreceivers.DynamicReceiversManager
 import com.wire.android.ui.authentication.login.LoginPasswordPath
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import com.wire.android.ui.calling.getIncomingCallIntent
@@ -148,6 +150,12 @@ class WireActivity : AppCompatActivity() {
     @Inject
     lateinit var loginTypeSelector: LoginTypeSelector
 
+    @Inject
+    lateinit var dynamicReceiversManager: DynamicReceiversManager
+
+    @Inject
+    lateinit var managedConfigurationsManager: ManagedConfigurationsManager
+
     private val viewModel: WireActivityViewModel by viewModels()
     private val featureFlagNotificationViewModel: FeatureFlagNotificationViewModel by viewModels()
     private val callFeedbackViewModel: CallFeedbackViewModel by viewModels()
@@ -201,6 +209,22 @@ class WireActivity : AppCompatActivity() {
 
             handleNewIntent(intent, savedInstanceState)
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        dynamicReceiversManager.registerAll()
+        if (BuildConfig.EMM_SUPPORT_ENABLED) {
+            lifecycleScope.launch(Dispatchers.IO) {
+                managedConfigurationsManager.refreshServerConfig()
+                managedConfigurationsManager.refreshSSOCodeConfig()
+            }
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        dynamicReceiversManager.unregisterAll()
     }
 
     override fun onNewIntent(intent: Intent) {

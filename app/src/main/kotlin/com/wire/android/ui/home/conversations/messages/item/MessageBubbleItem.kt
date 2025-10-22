@@ -27,7 +27,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -36,8 +36,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.graphicsLayer
 import com.wire.android.ui.common.applyIf
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -86,8 +87,7 @@ fun MessageBubbleItem(
             dimensions().spacing0x
         }
         Row(
-            modifier = Modifier
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = if (isSelfMessage) {
                 Arrangement.End
             } else {
@@ -96,7 +96,7 @@ fun MessageBubbleItem(
             verticalAlignment = Alignment.Bottom
         ) {
             if (leading != null) {
-                Box(Modifier.size(leadingPadding), contentAlignment = Alignment.BottomStart) {
+                Box(Modifier.width(leadingPadding), contentAlignment = Alignment.BottomStart) {
                     leading()
                 }
             } else {
@@ -169,7 +169,11 @@ fun MessageBubbleItem(
                     shape = shape,
                     border = borderColor?.let { BorderStroke(dimensions().spacing1x, it) },
                     modifier = bubbleWidthMod
-                        .clip(shape)
+                        .graphicsLayer {
+                            clip = true
+                            this.shape = shape
+                            compositingStrategy = CompositingStrategy.Offscreen
+                        }
                         .interceptCombinedClickable(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = LocalIndication.current,

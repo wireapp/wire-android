@@ -53,7 +53,8 @@ fun AssetPreview(
     conversationId: ConversationId,
     onClick: () -> Unit,
     accent: Accent,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    showWithPreview: Boolean = false
 ) {
     Box(
         modifier = modifier
@@ -72,10 +73,11 @@ fun AssetPreview(
             .clip(RoundedCornerShape(dimensions().messageAttachmentCornerSize))
     ) {
         if (item.transferStatus != AssetTransferStatus.NOT_FOUND) {
-            when (item.assetType) {
-                AttachmentFileType.IMAGE -> ImageAssetPreview(item, messageStyle)
-                AttachmentFileType.VIDEO -> VideoAssetPreview(item, messageStyle, accent)
-                AttachmentFileType.AUDIO -> AudioMessage(
+            when {
+                item.assetType == AttachmentFileType.IMAGE -> ImageAssetPreview(item, messageStyle)
+                item.assetType == AttachmentFileType.VIDEO -> VideoAssetPreview(item, messageStyle, accent)
+                item.assetType == AttachmentFileType.PDF && !showWithPreview -> PdfAssetPreview(item, messageStyle, accent)
+                item.assetType == AttachmentFileType.AUDIO -> AudioMessage(
                     AudioMessageArgs(conversationId, null, item.uuid),
                     (item.metadata as AssetMetadata.Audio).durationMs ?: 0,
                     item.transferStatus,
@@ -83,7 +85,6 @@ fun AssetPreview(
                     item.assetSize ?: 0,
                     messageStyle
                 )
-
                 else -> FileAssetPreview(item, messageStyle, accent)
             }
         } else {

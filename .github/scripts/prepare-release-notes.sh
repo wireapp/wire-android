@@ -51,9 +51,6 @@ MAX_CHARACTERS=500
 # Languages to process
 LANGUAGES=("en-US" "de-DE")
 
-# Track if we found version-specific files
-FOUND_VERSION_SPECIFIC=false
-
 # Process each language
 for LANG in "${LANGUAGES[@]}"; do
     LANG_DIR="$RELEASE_NOTES_DIR/$LANG"
@@ -76,7 +73,6 @@ for LANG in "${LANGUAGES[@]}"; do
         cp "$VERSION_FILE" "$DEFAULT_FILE"
         echo -e "${GREEN}  Copied ${VERSION}.txt to default.txt${NC}"
 
-        FOUND_VERSION_SPECIFIC=true
     else
         echo -e "${RED}✗ Error: Version-specific release notes not found: ${VERSION}.txt${NC}"
         echo -e "${RED}  Release notes for version ${VERSION} must be created before deployment${NC}"
@@ -121,12 +117,7 @@ fi
 
 # Summary
 echo -e "${BLUE}=== Summary ===${NC}"
-if [ "$FOUND_VERSION_SPECIFIC" = true ]; then
-    echo -e "${GREEN}✓ Using version-specific release notes for version ${VERSION}${NC}"
-else
-    echo -e "${YELLOW}⚠ Using default.txt files (no version-specific files found for ${VERSION})${NC}"
-fi
-
+echo -e "${GREEN}✓ Using version-specific release notes for version ${VERSION}${NC}"
 echo ""
 echo -e "${GREEN}Release notes preparation completed successfully!${NC}"
 

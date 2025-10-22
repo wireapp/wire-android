@@ -222,7 +222,6 @@ class ConversationAudioMessagePlayerTest {
             val firstAudioMessageIdWrapper = MessageIdWrapper(conversationId, firstAudioMessageId, testAssetId)
             val secondAudioMessageIdWrapper = MessageIdWrapper(conversationId, secondAudioMessageId, testAssetId)
 
-
             conversationAudioMessagePlayer.observableAudioMessagesState.test {
                 // skip first emit from onStart
                 awaitItem()
@@ -491,7 +490,6 @@ class ConversationAudioMessagePlayerTest {
             val testAssetId = "some-dummy-asset-id"
 
             val messageIdWrapper = MessageIdWrapper(conversationId, testAudioMessageId, testAssetId)
-
 
             conversationAudioMessagePlayer.observableAudioMessagesState.test {
                 // skip first emit from onStart

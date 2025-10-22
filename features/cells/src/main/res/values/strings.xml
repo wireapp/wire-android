@@ -120,6 +120,7 @@
     <string name="no_tags_message">No tags were added yet.</string>
     <string name="tags_edited">Tags were edited</string>
     <string name="failed_edit_tags">Failed to edit tags</string>
+    <string name="no_suggested_tags_label">No matching tags found.</string>
     <string name="create_folder_invalid_name">Use a name without "/" or "."</string>
     <string name="file_list_empty_title">There are no files or folders yet</string>
     <string name="no_results_found_label">No results found</string>

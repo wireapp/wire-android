@@ -28,7 +28,9 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.data.user.type.isAppOrBot
+import com.wire.kalium.logic.data.user.type.isExternal
+import com.wire.kalium.logic.data.user.type.isGuest
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.GetMembersE2EICertificateStatusesUseCase
 import kotlinx.coroutines.flow.Flow
@@ -49,7 +51,7 @@ class ObserveParticipantsForConversationUseCase @Inject constructor(
             .map { memberDetailList ->
                 memberDetailList.sortedBy { it.name }.groupBy {
                     val isAdmin = it.role == Member.Role.Admin
-                    val isService = (it.user as? OtherUser)?.userType == UserType.SERVICE
+                    val isService = (it.user as? OtherUser)?.userType?.isAppOrBot() == true
                     isAdmin && !isService
                 }
             }
@@ -84,8 +86,8 @@ class ObserveParticipantsForConversationUseCase @Inject constructor(
                     allAdminsCount = allAdminsWithoutServices.size,
                     allParticipantsCount = allParticipants.size,
                     isSelfAnAdmin = allAdminsWithoutServices.any { it.user is SelfUser },
-                    isSelfExternalMember = selfUser?.user?.userType == UserType.EXTERNAL,
-                    isSelfGuest = selfUser?.user?.userType == UserType.GUEST,
+                    isSelfExternalMember = selfUser?.user?.userType?.isExternal() == true,
+                    isSelfGuest = selfUser?.user?.userType?.isGuest() == true,
                 ) to mlsVerificationMap
             }
             .drop(1) // ignore the initial value from scan

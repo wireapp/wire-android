@@ -88,6 +88,7 @@ import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.data.user.type.UserTypeInfo
 import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -442,7 +443,7 @@ fun PreviewUserProfileInfoTempUser() {
                     handle = "",
                     accentId = 1,
                     connectionStatus = ConnectionState.ACCEPTED,
-                    userType = UserType.GUEST,
+                    userType = UserTypeInfo.Regular(UserType.GUEST),
                     availabilityStatus = UserAvailabilityStatus.AVAILABLE,
                     completePicture = null,
                     previewPicture = null,

@@ -30,7 +30,7 @@ import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.User
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.data.user.type.isAppOrBot
 
 fun List<User>.findUser(userId: UserId): User? = firstOrNull { it.id == userId }
 fun List<MemberDetails>.findUser(userId: UserId): MemberDetails? = firstOrNull { it.user.id == userId }
@@ -60,7 +60,7 @@ fun User.avatar(connectionState: ConnectionState?): UserAvatarData =
         asset = this.previewAsset(),
         availabilityStatus = availabilityStatus,
         connectionState = connectionState,
-        membership = if (userType == UserType.SERVICE) Membership.Service else Membership.None,
+        membership = if (userType.isAppOrBot()) Membership.Service else Membership.None,
         nameBasedAvatar = NameBasedAvatar(fullName = name, accentColor = accentId)
     )
 

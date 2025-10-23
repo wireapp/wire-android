@@ -49,7 +49,7 @@ import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.data.user.type.isTeamAdmin
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
@@ -180,7 +180,7 @@ class SelfUserProfileViewModel @Inject constructor(
                         // Load user avatar raw image data
                         completePicture?.let { updateUserAvatar(it) }
 
-                        val teamUrl = getTeamUrl().takeIf { userType == UserType.OWNER || userType == UserType.ADMIN }
+                        val teamUrl = getTeamUrl().takeIf { userType.isTeamAdmin() }
 
                         // Update user data state
                         userProfileState = userProfileState.copy(

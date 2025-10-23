@@ -41,6 +41,7 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.CreateConversationParam
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.data.user.type.isExternal
 import com.wire.kalium.logic.feature.channels.ChannelCreationPermission
 import com.wire.kalium.logic.feature.channels.ObserveChannelsCreationPermissionUseCase
 import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
@@ -147,7 +148,7 @@ class NewConversationViewModel @Inject constructor(
         viewModelScope.launch {
             val selfUser = getSelfUser()
             val isSelfTeamMember = selfUser?.teamId != null
-            val isSelfExternalTeamMember = selfUser?.userType == UserType.EXTERNAL
+            val isSelfExternalTeamMember = selfUser?.userType?.isExternal() == true
             newGroupState = newGroupState.copy(
                 isSelfTeamMember = isSelfTeamMember,
                 isGroupCreatingAllowed = !isSelfExternalTeamMember

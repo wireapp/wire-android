@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.home.conversations.call
 
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -35,6 +36,7 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.data.user.type.UserTypeInfo
 import com.wire.kalium.logic.feature.call.usecase.AnswerCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ConferenceCallingResult
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
@@ -81,7 +83,7 @@ class ConversationCallViewModel @Inject constructor(
 
     var conversationCallViewState by mutableStateOf(ConversationCallViewState())
     val shouldInformAboutVerification = mutableStateOf(false)
-    val selfTeamRole = mutableStateOf(UserType.GUEST)
+    val selfTeamRole: MutableState<UserTypeInfo> = mutableStateOf(UserTypeInfo.Regular(UserType.GUEST))
     val callingEnabled = MutableSharedFlow<Unit>(replay = 1)
 
     var establishedCallConversationId: QualifiedID? = null

@@ -27,7 +27,7 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.util.EMPTY
-import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.data.user.type.isTeamAdmin
 import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveArchivedUnreadConversationsCountUseCase
 import com.wire.kalium.logic.feature.server.GetTeamUrlUseCase
@@ -60,21 +60,10 @@ class HomeDrawerViewModel @Inject constructor(
 
     private suspend fun observeTeamManagementUrlForUser(): Flow<String> {
         return observeSelfUser().map {
-            when (it.userType) {
-                UserType.ADMIN,
-                UserType.OWNER -> {
-                    getTeamUrl()
-                }
-
-                UserType.INTERNAL,
-                UserType.EXTERNAL,
-                UserType.FEDERATED,
-                UserType.GUEST,
-                UserType.SERVICE,
-                UserType.NONE -> {
-                    String.EMPTY
-                }
-            }
+            if (it.userType.isTeamAdmin()) {
+                getTeamUrl()
+            } else
+                String.EMPTY
         }
     }
 

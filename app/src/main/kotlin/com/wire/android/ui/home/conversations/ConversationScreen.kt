@@ -194,7 +194,8 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.MessageAssetStatus
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.data.user.type.isInternal
+import com.wire.kalium.logic.data.user.type.isTeamAdmin
 import com.wire.kalium.logic.feature.call.usecase.ConferenceCallingResult
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.coroutines.CoroutineScope
@@ -847,11 +848,10 @@ private fun startCallIfPossible(
 
                 ConferenceCallingResult.Disabled.OngoingCall -> ConversationScreenDialogType.ONGOING_ACTIVE_CALL
                 ConferenceCallingResult.Disabled.Unavailable -> {
-                    when (conversationCallViewModel.selfTeamRole.value) {
-                        UserType.INTERNAL -> ConversationScreenDialogType.CALLING_FEATURE_UNAVAILABLE_TEAM_MEMBER
-                        UserType.OWNER,
-                        UserType.ADMIN -> ConversationScreenDialogType.CALLING_FEATURE_UNAVAILABLE_TEAM_ADMIN
-
+                    val type = conversationCallViewModel.selfTeamRole.value
+                    when {
+                        type.isInternal() -> ConversationScreenDialogType.CALLING_FEATURE_UNAVAILABLE_TEAM_MEMBER
+                        type.isTeamAdmin() -> ConversationScreenDialogType.CALLING_FEATURE_UNAVAILABLE_TEAM_ADMIN
                         else -> ConversationScreenDialogType.CALLING_FEATURE_UNAVAILABLE
                     }
                 }

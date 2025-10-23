@@ -36,13 +36,14 @@ fun SureAboutCallingInDegradedConversationDialog(
         buttonsHorizontalAlignment = false,
         onDismiss = onDialogDismiss,
         optionButton1Properties = WireDialogButtonProperties(
-            text = stringResource(R.string.sure_about_calling_in_degraded_dialog_positiv_button),
-            type = WireDialogButtonType.Primary,
-            onClick = callAnyway
-        ),
-        dismissButtonProperties = WireDialogButtonProperties(
             text = stringResource(R.string.label_cancel),
+            type = WireDialogButtonType.Primary,
             onClick = onDialogDismiss
+        ),
+        optionButton2Properties = WireDialogButtonProperties(
+            text = stringResource(R.string.sure_about_calling_in_degraded_dialog_positiv_button),
+            type = WireDialogButtonType.Secondary,
+            onClick = callAnyway
         )
     )
 }

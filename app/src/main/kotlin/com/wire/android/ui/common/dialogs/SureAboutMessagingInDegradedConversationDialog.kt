@@ -39,13 +39,14 @@ fun SureAboutMessagingInDegradedConversationDialog(
             buttonsHorizontalAlignment = false,
             onDismiss = hideDialog,
             optionButton1Properties = WireDialogButtonProperties(
-                text = stringResource(R.string.sure_about_messaging_dialog_positiv_button),
-                type = WireDialogButtonType.Primary,
-                onClick = sendAnyway,
-            ),
-            dismissButtonProperties = WireDialogButtonProperties(
                 text = stringResource(R.string.label_cancel),
+                type = WireDialogButtonType.Primary,
                 onClick = hideDialog,
+            ),
+            optionButton2Properties = WireDialogButtonProperties(
+                text = stringResource(R.string.sure_about_messaging_dialog_positiv_button),
+                type = WireDialogButtonType.Secondary,
+                onClick = sendAnyway,
             )
         )
     }

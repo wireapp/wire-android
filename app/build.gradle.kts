@@ -267,7 +267,6 @@ dependencies {
     implementation(libs.aboutLibraries.compose.core)
     implementation(libs.aboutLibraries.compose.m3)
     implementation(libs.compose.qr.code)
-    implementation(libs.audio.amplituda)
     implementation(libs.enterprise.feedback)
 
     // screenshot testing

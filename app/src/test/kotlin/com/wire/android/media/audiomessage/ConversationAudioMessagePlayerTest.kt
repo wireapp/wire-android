@@ -43,7 +43,6 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
-import okio.Path
 import okio.Path.Companion.toOkioPath
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -682,7 +681,7 @@ class Arrangement(private val tempDir: File) {
     lateinit var mediaPlayer: MediaPlayer
 
     @MockK
-    lateinit var wavesMaskHelper: AudioWavesMaskHelper
+    lateinit var generateAudioWavesMask: GenerateAudioWavesMaskUseCase
 
     @MockK
     lateinit var servicesManager: ServicesManager
@@ -699,7 +698,7 @@ class Arrangement(private val tempDir: File) {
         ConversationAudioMessagePlayer(
             context = context,
             audioMediaPlayer = mediaPlayer,
-            wavesMaskHelper = wavesMaskHelper,
+            generateAudioWavesMask = generateAudioWavesMask,
             servicesManager = { servicesManager },
             audioFocusHelper = audioFocusHelper,
             coreLogic = coreLogic,
@@ -712,8 +711,7 @@ class Arrangement(private val tempDir: File) {
         MockKAnnotations.init(this, relaxed = true)
 
         every { coreLogic.getSessionScope(any()).messages.getAssetMessage } returns getAssetMessage
-        every { wavesMaskHelper.getWaveMask(any<Path>()) } returns WAVES_MASK
-        every { wavesMaskHelper.clear() } returns Unit
+        coEvery { generateAudioWavesMask.invoke(any()) } returns WAVES_MASK
         every { mediaPlayer.currentPosition } returns 100
 
         every { servicesManager.stopPlayingAudioMessageService() } returns Unit

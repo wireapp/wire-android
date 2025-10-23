@@ -37,6 +37,7 @@ import androidx.paging.compose.itemKey
 import com.wire.android.R
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
+import com.wire.android.ui.common.rowitem.SectionHeader
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.messages.item.MessageClickActions
 import com.wire.android.ui.home.conversations.messages.item.MessageContainerItem
@@ -45,7 +46,6 @@ import com.wire.android.ui.home.conversations.mock.mockAssetAudioMessage
 import com.wire.android.ui.home.conversations.mock.mockAssetMessage
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.usecase.UIPagingItem
-import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -55,8 +55,8 @@ import com.wire.kalium.logic.data.message.MessageAssetStatus
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.datetime.Instant
 
 @Composable
@@ -112,7 +112,7 @@ private fun AssetMessagesListContent(
                             top = if (index == 0) dimensions().spacing0x else dimensions().spacing6x,
                         )
                 ) {
-                    FolderHeader(
+                    SectionHeader(
                         name = uiPagingItem.date.uppercase(),
                         modifier = Modifier
                             .background(MaterialTheme.wireColorScheme.background)
@@ -175,7 +175,7 @@ fun mockAssets(): Pair<Flow<PagingData<UIPagingItem>>, PersistentMap<String, Mes
     val msg4 = mockAssetAudioMessage(assetId = "assset4", messageId = "msg4")
     val msg5 = mockAssetAudioMessage(assetId = "assset5", messageId = "msg5")
     val conversationId = ConversationId("value", "domain")
-    val flowOfAssets = flowOf(
+    val flowOfAssets = MutableStateFlow(
         PagingData.from(
             listOf(
                 UIPagingItem.Label("October"),

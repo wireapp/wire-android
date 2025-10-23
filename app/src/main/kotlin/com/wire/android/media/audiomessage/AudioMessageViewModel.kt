@@ -65,7 +65,13 @@ class AudioMessageViewModelImpl @Inject constructor(
         viewModelScope.launch {
             audioMessagePlayer.observableAudioMessagesState
                 .mapNotNull {
-                    it[ConversationAudioMessagePlayer.MessageIdWrapper(args.conversationId, args.messageId)]
+                    it[
+                        ConversationAudioMessagePlayer.MessageIdWrapper(
+                            conversationId = args.conversationId,
+                            messageId = args.messageId ?: "",
+                            assetId = args.assetId
+                        )
+                    ]
                 }
                 .distinctUntilChanged()
                 .collectLatest {
@@ -86,19 +92,19 @@ class AudioMessageViewModelImpl @Inject constructor(
 
     private fun initWavesMask() {
         viewModelScope.launch {
-            audioMessagePlayer.fetchWavesMask(args.conversationId, args.messageId)
+            audioMessagePlayer.fetchWavesMask(args.conversationId, args.messageId ?: "", args.assetId ?: "")
         }
     }
 
     override fun playAudio() {
         viewModelScope.launch {
-            audioMessagePlayer.playAudio(args.conversationId, args.messageId)
+            audioMessagePlayer.playAudio(conversationId = args.conversationId, args.messageId ?: "", args.assetId ?: "")
         }
     }
 
     override fun changeAudioPosition(position: Float) {
         viewModelScope.launch {
-            audioMessagePlayer.setPosition(args.conversationId, args.messageId, position.toInt())
+            audioMessagePlayer.setPosition(args.conversationId, args.messageId ?: "", args.assetId ?: "", position.toInt())
         }
     }
 
@@ -112,9 +118,10 @@ class AudioMessageViewModelImpl @Inject constructor(
 @Serializable
 data class AudioMessageArgs(
     val conversationId: ConversationId,
-    val messageId: String
+    val messageId: String?,
+    val assetId: String? = null,
 ) : ScopedArgs {
-    override val key = "$ARGS_KEY:$conversationId:$messageId"
+    override val key = "$ARGS_KEY:$conversationId:$messageId$assetId"
 
     companion object {
         const val ARGS_KEY = "AudioMessageArgsKey"

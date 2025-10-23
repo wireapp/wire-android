@@ -27,7 +27,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.unit.dp
-import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.android.ui.theme.WireTheme
+import com.wire.android.util.PreviewMultipleThemes
 
 @Suppress("ArgumentListWrapping")
 @Composable
@@ -231,7 +232,7 @@ fun CustomGroupAvatarDrawing(
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewCustomGroupAvatarDrawing() {
+fun PreviewCustomGroupAvatarDrawing() = WireTheme {
     CustomGroupAvatarDrawing(
         modifier = Modifier.size(300.dp),
         rightSideShapeColor = Color(0xFFC20013),

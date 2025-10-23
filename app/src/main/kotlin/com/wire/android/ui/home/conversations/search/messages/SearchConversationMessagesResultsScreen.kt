@@ -35,7 +35,7 @@ import com.wire.android.ui.home.conversations.mock.mockMessageWithText
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.MutableStateFlow
 
 @Composable
 fun SearchConversationMessagesResultsScreen(
@@ -83,7 +83,7 @@ fun SearchConversationMessagesResultsScreen(
 fun PreviewSearchConversationMessagesResultsScreen() {
     WireTheme {
         SearchConversationMessagesResultsScreen(
-            lazyPagingMessages = flowOf(
+            lazyPagingMessages = MutableStateFlow(
                 PagingData.from(
                     listOf<UIMessage>(
                         mockMessageWithText.copy(header = mockMessageWithText.header.copy(messageId = "1")),

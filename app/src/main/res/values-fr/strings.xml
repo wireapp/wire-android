@@ -547,5 +547,6 @@
     <string name="debug_settings_screen_title">Paramètres de débogage</string>
     <!--    Personal to team migration screen-->
     <!-- Move to Folder -->
+    <!-- enterprise configurations -->
     <!--    channel not available dialog-->
 </resources>

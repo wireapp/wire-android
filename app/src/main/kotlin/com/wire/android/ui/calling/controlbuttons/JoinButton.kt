@@ -19,13 +19,11 @@
 package com.wire.android.ui.calling.controlbuttons
 
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import com.wire.android.R
 import com.wire.android.appLogger
@@ -45,7 +43,6 @@ fun JoinButton(
     modifier: Modifier = Modifier,
     minSize: DpSize = MaterialTheme.wireDimensions.buttonMediumMinSize,
     minClickableSize: DpSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
-    horizontalPadding: Dp = MaterialTheme.wireDimensions.spacing8x
 ) {
     val audioPermissionCheck = AudioPermissionCheckFlow(
         onJoinCall = buttonClick,
@@ -61,9 +58,7 @@ fun JoinButton(
         state = WireButtonState.Positive,
         minSize = minSize,
         minClickableSize = minClickableSize,
-        modifier = modifier.padding(
-            horizontal = horizontalPadding
-        ),
+        modifier = modifier,
         contentPadding = PaddingValues(
             horizontal = dimensions().spacing8x,
             vertical = dimensions().spacing4x

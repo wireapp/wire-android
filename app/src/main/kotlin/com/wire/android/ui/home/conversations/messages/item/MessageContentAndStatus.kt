@@ -287,7 +287,7 @@ private fun MessageContent(
 
         is UIMessageContent.AudioAssetMessage -> {
             AudioMessage(
-                audioMessageArgs = AudioMessageArgs(message.conversationId, message.header.messageId),
+                audioMessageArgs = AudioMessageArgs(message.conversationId, message.header.messageId, ""),
                 audioMessageDurationInMs = messageContent.audioMessageDurationInMs,
                 extension = messageContent.assetExtension,
                 size = messageContent.sizeInBytes,

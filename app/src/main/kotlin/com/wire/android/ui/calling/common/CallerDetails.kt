@@ -94,7 +94,7 @@ fun CallerDetails(
             }
         ) {
             Image(
-                painter = painterResource(id = R.drawable.ic_collapse),
+                painter = painterResource(id = com.wire.android.ui.common.R.drawable.ic_collapse),
                 contentDescription = stringResource(id = R.string.calling_minimize_view),
             )
         }

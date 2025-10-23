@@ -640,5 +640,6 @@
     <string name="personal_to_team_migration_confirmation_step_wire_terms_of_use_accept_label">Jag accepterar</string>
     <string name="personal_to_team_migration_done_step">Grattis %1$s!</string>
     <!-- Move to Folder -->
+    <!-- enterprise configurations -->
     <!--    channel not available dialog-->
 </resources>

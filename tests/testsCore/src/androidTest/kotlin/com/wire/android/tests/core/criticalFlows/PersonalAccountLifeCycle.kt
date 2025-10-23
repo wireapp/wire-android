@@ -135,7 +135,7 @@ class PersonalAccountLifeCycle : KoinTest {
             assertUserNameHelpText()
             setUserName(personalUser?.uniqueUsername.orEmpty())
             clickConfirmButton()
-            waitUntilRegistrationFlowIsComplete()
+            waitUntilRegistrationFlowIsCompleted()
             clickAllowNotificationButton()
             clickDeclineShareDataAlert()
             assertConversationPageVisible()
@@ -200,10 +200,10 @@ class PersonalAccountLifeCycle : KoinTest {
                 assertUnblockUserButtonVisible()
                 tapCloseButtonOnConnectedUserProfilePage()
                 pages.conversationViewPage.apply {
-                    tapBackButtonOnConversationViewPage()
+                    tapBackButtonToCloseConversationViewPage()
                 }
                 pages.conversationListPage.apply {
-                    clickMainMenuButtonOnConversationPage()
+                    clickConversationsMenuEntry()
                     clickSettingsButtonOnMenuEntry()
                 }
                 waitFor(1)

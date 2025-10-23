@@ -155,5 +155,5 @@
     "is_mls_reset_enabled": true,
     "use_strict_mls_filter": true,
     "meetings_enabled": false,
-    "emm_support_enabled": false
+    "emm_support_enabled": true
 }

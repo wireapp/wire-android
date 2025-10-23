@@ -112,7 +112,6 @@
     <string name="apply_label">Применить</string>
     <string name="add_or_remove_tags_title">Добавить или удалить теги</string>
     <string name="tags_description">Все члены вашей команды могут видеть и использовать теги, которые вы создаете.</string>
-    <string name="suggested_tags_label">Предлагаемые теги</string>
     <string name="added_tags_label">Теги добавлены</string>
     <string name="add_tag_label">Добавить тег</string>
     <string name="enter_name_label">Введите название тега</string>
@@ -127,4 +126,5 @@
     <string name="cells_folder_deleted_message">Папка удалена</string>
     <string name="cells_file_permanently_deleted_message">Файл удален навсегда</string>
     <string name="cells_folder_permanently_deleted_message">Папка удалена навсегда</string>
+    <string name="invalid_tag_name_error">Недопустимое название тега</string>
 </resources>

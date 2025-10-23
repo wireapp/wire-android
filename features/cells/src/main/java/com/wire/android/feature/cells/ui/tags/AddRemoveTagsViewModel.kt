@@ -19,6 +19,7 @@ package com.wire.android.feature.cells.ui.tags
 
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.clearText
+import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.feature.cells.ui.navArgs
@@ -32,7 +33,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -54,9 +57,13 @@ class AddRemoveTagsViewModel @Inject constructor(
 
     private val allTags: MutableStateFlow<Set<String>> = MutableStateFlow(emptySet())
 
+    val initialTags: Set<String> = navArgs.tags.toSet()
     private val _addedTags: MutableStateFlow<Set<String>> = MutableStateFlow(navArgs.tags.toSet())
     internal val addedTags = _addedTags.asStateFlow()
 
+    val disallowedChars = listOf(",", ";", "/", "\\", "\"", "\'", "<", ">")
+
+    private val _suggestedTags = MutableStateFlow<Set<String>>(emptySet())
     internal val suggestedTags =
         allTags.combine(addedTags) { all, added ->
             all.filter { it !in added }.toSet()
@@ -67,8 +74,24 @@ class AddRemoveTagsViewModel @Inject constructor(
             getAllTagsUseCase().onSuccess { tags ->
                 allTags.update { tags }
             }
+            launch {
+                snapshotFlow { tagsTextState.text.toString() }
+                    .debounce(TYPING_DEBOUNCE_TIME)
+                    .collectLatest { query ->
+                        val filtered = if (query.isBlank()) {
+                            allTags.value
+                        } else {
+                            allTags.value.filter { it.contains(query, ignoreCase = true) }.toSet()
+                        }
+                        _suggestedTags.value = filtered
+                    }
+            }
         }
     }
+
+    fun isValidTag(): Boolean = disallowedChars.none {
+        it in tagsTextState.text
+    } && tagsTextState.text.length in ALLOWED_LENGTH
 
     fun addTag(tag: String) {
         tag.trim().let { newTag ->
@@ -81,6 +104,12 @@ class AddRemoveTagsViewModel @Inject constructor(
 
     fun removeTag(tag: String) {
         _addedTags.update { it - tag }
+    }
+
+    fun removeLastTag() {
+        _addedTags.value.lastOrNull()?.let { lastTag ->
+            removeTag(lastTag)
+        }
     }
 
     fun updateTags() {
@@ -97,6 +126,12 @@ class AddRemoveTagsViewModel @Inject constructor(
                 .onFailure { sendAction(AddRemoveTagsViewModelAction.Failure) }
                 .also { isLoading.value = false }
         }
+    }
+
+    companion object {
+        val ALLOWED_LENGTH = 1..30
+
+        const val TYPING_DEBOUNCE_TIME = 200L
     }
 }
 

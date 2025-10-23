@@ -31,8 +31,11 @@ import com.wire.android.ui.navArgs
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.data.user.type.UserTypeInfo
+import com.wire.kalium.logic.data.user.type.isAppOrBot
+import com.wire.kalium.logic.data.user.type.isExternal
+import com.wire.kalium.logic.data.user.type.isFederated
+import com.wire.kalium.logic.data.user.type.isGuest
 import com.wire.kalium.logic.feature.conversation.NotifyConversationIsOpenUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -75,11 +78,11 @@ class ConversationBannerViewModel @Inject constructor(
 
     @Suppress("ComplexMethod")
     private fun handleConversationMemberTypes(userTypesInfo: Set<UserTypeInfo>) {
-        val userTypes = userTypesInfo.map { it.type }.toSet()
-        val containsGuests = userTypes.contains(UserType.GUEST)
-        val containsFederated = userTypes.contains(UserType.FEDERATED)
-        val containsExternal = userTypes.contains(UserType.EXTERNAL)
-        val containsService = userTypes.contains(UserType.SERVICE)
+        val containsService = userTypesInfo.any { it.isAppOrBot() }
+        val userTypes = userTypesInfo.filterIsInstance<UserTypeInfo.Regular>()
+        val containsGuests = userTypes.any { it.isGuest() }
+        val containsFederated = userTypes.any { it.isFederated() }
+        val containsExternal = userTypes.any {it.isExternal() }
 
         bannerState = when {
             (containsFederated && containsExternal && containsGuests && containsService)

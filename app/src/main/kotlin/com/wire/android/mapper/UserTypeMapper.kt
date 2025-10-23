@@ -37,8 +37,6 @@ class UserTypeMapper @Inject constructor() {
                 UserType.NONE -> Membership.None
                 UserType.ADMIN -> Membership.Admin
                 UserType.OWNER -> Membership.Owner
-                UserType.SERVICE,
-                UserType.APP -> Membership.Service
             }
         }
     }

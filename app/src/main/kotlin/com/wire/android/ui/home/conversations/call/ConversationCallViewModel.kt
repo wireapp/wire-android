@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.home.conversations.call
 
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -82,7 +83,7 @@ class ConversationCallViewModel @Inject constructor(
 
     var conversationCallViewState by mutableStateOf(ConversationCallViewState())
     val shouldInformAboutVerification = mutableStateOf(false)
-    val selfTeamRole = mutableStateOf(UserType.GUEST)
+    val selfTeamRole: MutableState<UserTypeInfo> = mutableStateOf(UserTypeInfo.Regular(UserType.GUEST))
     val callingEnabled = MutableSharedFlow<Unit>(replay = 1)
 
     var establishedCallConversationId: QualifiedID? = null
@@ -115,7 +116,7 @@ class ConversationCallViewModel @Inject constructor(
     private fun observeSelfTeamRole() {
         viewModelScope.launch {
             observeSelf().collectLatest { self ->
-                selfTeamRole.value = self.userType.type
+                selfTeamRole.value = self.userType
             }
         }
     }

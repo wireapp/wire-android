@@ -40,7 +40,6 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import javax.inject.Named
 import javax.inject.Qualifier
 import javax.inject.Singleton
 
@@ -108,10 +107,6 @@ object AppModule {
     @Provides
     fun provideAudioManager(@ApplicationContext context: Context): AudioManager =
         context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-
-    @Provides
-    @Named("useNewLoginForDefaultBackend")
-    fun provideUseNewLoginForDefaultBackend(): Boolean = BuildConfig.USE_NEW_LOGIN_FOR_DEFAULT_BACKEND
 
     @Provides
     @Singleton

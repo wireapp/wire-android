@@ -59,7 +59,6 @@ import com.wire.android.appLogger
 import com.wire.android.feature.NavigationSwitchAccountActions
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.model.Clickable
-import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireDestination
@@ -84,7 +83,6 @@ import com.wire.android.ui.destinations.AvatarPickerScreenDestination
 import com.wire.android.ui.destinations.MyAccountScreenDestination
 import com.wire.android.ui.destinations.NewLoginScreenDestination
 import com.wire.android.ui.destinations.SelfQRCodeScreenDestination
-import com.wire.android.ui.destinations.WelcomeScreenDestination
 import com.wire.android.ui.common.rowitem.SectionHeader
 import com.wire.android.ui.legalhold.banner.LegalHoldPendingBanner
 import com.wire.android.ui.legalhold.banner.LegalHoldSubjectBanner
@@ -115,7 +113,6 @@ import com.wire.kalium.logic.data.user.UserId
 @SuppressLint("ComposeModifierMissing")
 fun SelfUserProfileScreen(
     navigator: Navigator,
-    loginTypeSelector: LoginTypeSelector,
     avatarPickerResultRecipient: ResultRecipient<AvatarPickerScreenDestination, String?>,
     viewModelSelf: SelfUserProfileViewModel = hiltViewModel(),
     legalHoldRequestedViewModel: LegalHoldRequestedViewModel = hiltViewModel()
@@ -131,7 +128,7 @@ fun SelfUserProfileScreen(
         state = viewModelSelf.userProfileState,
         onCloseClick = navigator::navigateBack,
         logout = {
-            viewModelSelf.logout(it, NavigationSwitchAccountActions(navigator::navigate, loginTypeSelector::canUseNewLogin))
+            viewModelSelf.logout(it, NavigationSwitchAccountActions(navigator::navigate))
         },
         onChangeUserProfilePicture = {
             navigator.navigate(
@@ -143,7 +140,7 @@ fun SelfUserProfileScreen(
         onEditClick = { navigator.navigate(NavigationCommand(AppSettingsScreenDestination)) },
         onStatusClicked = viewModelSelf::changeStatusClick,
         onAddAccountClick = {
-            val destination = if (loginTypeSelector.canUseNewLogin()) NewLoginScreenDestination() else WelcomeScreenDestination()
+            val destination = NewLoginScreenDestination()
             navigator.navigate(NavigationCommand(destination))
         },
         dismissStatusDialog = viewModelSelf::dismissStatusDialog,
@@ -153,7 +150,7 @@ fun SelfUserProfileScreen(
         onLegalHoldAcceptClick = legalHoldRequestedViewModel::show,
         onLegalHoldLearnMoreClick = remember { { legalHoldSubjectDialogState.show(Unit) } },
         onOtherAccountClick = {
-            viewModelSelf.switchAccount(it, NavigationSwitchAccountActions(navigator::navigate, loginTypeSelector::canUseNewLogin))
+            viewModelSelf.switchAccount(it, NavigationSwitchAccountActions(navigator::navigate))
         },
         onQrCodeClick = {
             viewModelSelf.trackQrCodeClick()

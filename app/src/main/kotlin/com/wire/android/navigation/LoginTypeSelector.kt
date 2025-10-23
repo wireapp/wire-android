@@ -17,7 +17,6 @@
  */
 package com.wire.android.navigation
 
-import com.wire.android.config.DefaultServerConfig
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
@@ -25,7 +24,6 @@ import com.wire.kalium.logic.feature.auth.LoginContext
 import dagger.Lazy
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
-import javax.inject.Named
 import javax.inject.Singleton
 
 /**
@@ -35,7 +33,6 @@ import javax.inject.Singleton
 @Singleton
 class LoginTypeSelector @Inject constructor(
     @KaliumCoreLogic private val coreLogic: Lazy<CoreLogic>,
-    @Named("useNewLoginForDefaultBackend") private val useNewLoginForDefaultBackend: Boolean,
 ) {
 
     /**
@@ -51,11 +48,6 @@ class LoginTypeSelector @Inject constructor(
         // if the server links are provided, get the login context for the given server links and check if it's enterprise login
         serverLinks != null -> loginContextFlow(serverLinks).first() == LoginContext.EnterpriseLogin
         // otherwise, use the function for the default server config links to determine if the new login flow can be used
-        else -> canUseNewLogin()
+        else -> true
     }
-
-    /**
-     * Determine if the new login flow can be used for the default [ServerConfig.Links] - [DefaultServerConfig].
-     */
-    fun canUseNewLogin() = useNewLoginForDefaultBackend
 }

@@ -34,7 +34,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.feature.NavigationSwitchAccountActions
 import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireDestination
@@ -71,7 +70,6 @@ import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
 @Composable
 fun E2EIEnrollmentScreen(
     navigator: Navigator,
-    loginTypeSelector: LoginTypeSelector,
     viewModel: E2EIEnrollmentViewModel = hiltViewModel(),
     clearSessionViewModel: ClearSessionViewModel = hiltViewModel(),
 ) {
@@ -99,7 +97,7 @@ fun E2EIEnrollmentScreen(
         onBackButtonClicked = clearSessionViewModel::onBackButtonClicked,
         onCancelEnrollmentClicked = {
             clearSessionViewModel.onCancelLoginClicked(
-                NavigationSwitchAccountActions(navigator::navigate, loginTypeSelector::canUseNewLogin)
+                NavigationSwitchAccountActions(navigator::navigate)
             )
         },
         onProceedEnrollmentClicked = clearSessionViewModel::onProceedLoginClicked,

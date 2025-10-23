@@ -24,7 +24,6 @@ import androidx.compose.ui.platform.LocalContext
 import com.ramcosta.composedestinations.utils.destination
 import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.getBaseRoute
@@ -39,13 +38,13 @@ import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import kotlinx.coroutines.flow.Flow
 
 @Composable
-internal fun HandleViewActions(actions: Flow<WireActivityViewAction>, navigator: Navigator, loginTypeSelector: LoginTypeSelector) {
+internal fun HandleViewActions(actions: Flow<WireActivityViewAction>, navigator: Navigator) {
 
     val context = LocalContext.current
     HandleActions(actions) { action ->
         when (action) {
             is OnAuthorizationNeeded -> onAuthorizationNeeded(context, navigator)
-            is OnMigrationLogin -> onMigration(navigator, loginTypeSelector, action)
+            is OnMigrationLogin -> onMigration(navigator, action)
             is OnOpenUserProfile -> openUserProfile(action, navigator)
             is OnSSOLogin -> openSsoLogin(navigator, action)
             is OnShowImportMediaScreen -> openImportMediaScreen(navigator)
@@ -123,20 +122,13 @@ private fun openUserProfile(action: OnOpenUserProfile, navigator: Navigator) {
 
 private fun onMigration(
     navigator: Navigator,
-    loginTypeSelector: LoginTypeSelector,
     action: OnMigrationLogin
 ) {
     navigator.navigate(
         NavigationCommand(
-            when (loginTypeSelector.canUseNewLogin()) {
-                true -> NewLoginScreenDestination(
-                    userHandle = PreFilledUserIdentifierType.PreFilled(action.result.userHandle)
-                )
-
-                false -> LoginScreenDestination(
-                    userHandle = PreFilledUserIdentifierType.PreFilled(action.result.userHandle)
-                )
-            },
+            NewLoginScreenDestination(
+                userHandle = PreFilledUserIdentifierType.PreFilled(action.result.userHandle)
+            ),
             // if "welcome empty start" screen then switch "start" screen to proper one
             when (navigator.shouldReplaceWelcomeLoginStartDestination()) {
                 true -> BackStackMode.CLEAR_WHOLE

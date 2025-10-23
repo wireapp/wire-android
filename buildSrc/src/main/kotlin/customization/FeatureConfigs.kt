@@ -113,7 +113,6 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     PUBLIC_CHANNELS_ENABLED("public_channels_enabled", ConfigType.BOOLEAN),
     CHANNELS_HISTORY_OPTIONS_ENABLED("channels_history_options_enabled", ConfigType.BOOLEAN),
 
-    USE_NEW_LOGIN_FOR_DEFAULT_BACKEND("use_new_login_for_default_backend", ConfigType.BOOLEAN),
     /**
      * Anonymous Analytics
      */

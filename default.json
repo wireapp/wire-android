@@ -143,7 +143,6 @@
     "should_display_release_notes": true,
     "public_channels_enabled": false,
     "channels_history_options_enabled": false,
-    "use_new_login_for_default_backend": true,
     "enable_crossplatform_backup": true,
     "mls_read_receipts_enabled": false,
     "is_mls_reset_enabled": true,

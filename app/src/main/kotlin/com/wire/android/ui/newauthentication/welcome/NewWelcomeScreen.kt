@@ -25,24 +25,21 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireRootNavGraph
 import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.style.AuthNoNavigationAnimation
 import com.wire.android.ui.destinations.NewLoginScreenDestination
-import com.wire.android.ui.destinations.WelcomeScreenDestination
 
 @WireRootNavGraph(start = true)
 @WireDestination
 @Composable
 fun WelcomeChooserScreen(
     navigator: Navigator,
-    loginTypeSelector: LoginTypeSelector,
 ) {
     LaunchedEffect(Unit) {
-        val destination = if (loginTypeSelector.canUseNewLogin()) NewLoginScreenDestination() else WelcomeScreenDestination()
+        val destination = NewLoginScreenDestination()
         navigator.navigate(NavigationCommand(destination))
     }
 }

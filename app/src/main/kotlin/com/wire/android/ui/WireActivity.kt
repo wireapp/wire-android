@@ -193,13 +193,9 @@ class WireActivity : AppCompatActivity() {
 
             appLogger.i("$TAG start destination")
             val startDestination = when (viewModel.initialAppState()) {
-                InitialAppState.NOT_LOGGED_IN -> when (loginTypeSelector.canUseNewLogin()) {
-                    true -> NewWelcomeEmptyStartScreenDestination
-                    false -> WelcomeScreenDestination
-                }
-
-                InitialAppState.ENROLL_E2EI -> E2EIEnrollmentScreenDestination
                 InitialAppState.LOGGED_IN -> HomeScreenDestination
+                InitialAppState.NOT_LOGGED_IN -> NewWelcomeEmptyStartScreenDestination
+                InitialAppState.ENROLL_E2EI -> E2EIEnrollmentScreenDestination
             }
             appLogger.i("$TAG composable content")
             setComposableContent(startDestination)
@@ -304,7 +300,7 @@ class WireActivity : AppCompatActivity() {
                         SetUpNavigation(navigator)
                         HandleScreenshotCensoring()
                         HandleDialogs(navigator)
-                        HandleViewActions(viewModel.actions, navigator, loginTypeSelector)
+                        HandleViewActions(viewModel.actions, navigator)
                     }
                 }
             }
@@ -404,8 +400,7 @@ class WireActivity : AppCompatActivity() {
                     lifecycleScope.launch(Dispatchers.Main) {
                         navigator.navigate(it)
                     }
-                },
-                loginTypeSelector::canUseNewLogin
+                }
             ).let {
                 switchAccountObserver.register(it)
                 onDispose {
@@ -506,7 +501,7 @@ class WireActivity : AppCompatActivity() {
                     logout = {
                         viewModel.doHardLogout(
                             { UserDataStore(context, it) },
-                            NavigationSwitchAccountActions(navigate, loginTypeSelector::canUseNewLogin)
+                            NavigationSwitchAccountActions(navigate)
                         )
                         logoutOptionsDialogState.dismiss()
                     }
@@ -613,14 +608,14 @@ class WireActivity : AppCompatActivity() {
                 )
                 AccountLoggedOutDialog(
                     viewModel.globalAppState.blockUserUI
-                ) { viewModel.tryToSwitchAccount(NavigationSwitchAccountActions(navigate, loginTypeSelector::canUseNewLogin)) }
+                ) { viewModel.tryToSwitchAccount(NavigationSwitchAccountActions(navigate)) }
                 NewClientDialog(
                     viewModel.globalAppState.newClientDialog,
                     { navigate(NavigationCommand(SelfDevicesScreenDestination)) },
                     {
                         viewModel.switchAccount(
                             userId = it,
-                            actions = NavigationSwitchAccountActions(navigate, loginTypeSelector::canUseNewLogin),
+                            actions = NavigationSwitchAccountActions(navigate),
                             onComplete = { navigate(NavigationCommand(SelfDevicesScreenDestination)) }
                         )
                     },

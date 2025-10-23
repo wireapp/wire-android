@@ -35,35 +35,15 @@ import org.junit.jupiter.api.Test
 class LoginTypeSelectorTest {
 
     @Test
-    fun `given default config with enterprise context, then can use new login`() =
-        runTest {
-            val (_, loginTypeSelector) = Arrangement()
-                .withContextFlowForConfig(DefaultServerConfig, flowOf(LoginContext.EnterpriseLogin))
-                .arrange(true)
-            val result = loginTypeSelector.canUseNewLogin()
-            assertEquals(true, result)
-        }
-
-    @Test
     fun `given custom config with enterprise context, then can use new login`() =
         runTest {
             val config = newServerConfig(1)
             val (_, loginTypeSelector) = Arrangement()
                 .withContextFlowForConfig(DefaultServerConfig, flowOf(LoginContext.FallbackLogin))
                 .withContextFlowForConfig(config.links, flowOf(LoginContext.EnterpriseLogin))
-                .arrange(true)
+                .arrange()
             val result = loginTypeSelector.canUseNewLogin(config.links)
             assertEquals(true, result)
-        }
-
-    @Test
-    fun `given default config with fallback context, then cannot use new login`() =
-        runTest {
-            val (_, loginTypeSelector) = Arrangement()
-                .withContextFlowForConfig(DefaultServerConfig, flowOf(LoginContext.FallbackLogin))
-                .arrange(false)
-            val result = loginTypeSelector.canUseNewLogin()
-            assertEquals(false, result)
         }
 
     @Test
@@ -73,7 +53,7 @@ class LoginTypeSelectorTest {
             val (_, loginTypeSelector) = Arrangement()
                 .withContextFlowForConfig(DefaultServerConfig, flowOf(LoginContext.EnterpriseLogin))
                 .withContextFlowForConfig(config.links, flowOf(LoginContext.FallbackLogin))
-                .arrange(true)
+                .arrange()
             val result = loginTypeSelector.canUseNewLogin(config.links)
             assertEquals(false, result)
         }
@@ -86,7 +66,7 @@ class LoginTypeSelectorTest {
             val (_, loginTypeSelector) = Arrangement()
                 .withContextFlowForConfig(DefaultServerConfig, flowOf(LoginContext.FallbackLogin))
                 .withContextFlowForConfig(config.links, contextFlow)
-                .arrange(true)
+                .arrange()
             val resultBeforeChange = loginTypeSelector.canUseNewLogin(config.links)
             assertEquals(false, resultBeforeChange)
             contextFlow.value = LoginContext.EnterpriseLogin
@@ -102,9 +82,8 @@ class LoginTypeSelectorTest {
             MockKAnnotations.init(this, relaxUnitFun = true)
         }
 
-        fun arrange(useNewLoginForDefaultBackend: Boolean) = this to LoginTypeSelector(
+        fun arrange() = this to LoginTypeSelector(
             coreLogic = { coreLogic },
-            useNewLoginForDefaultBackend = useNewLoginForDefaultBackend
         )
 
         fun withContextFlowForConfig(config: ServerConfig.Links, contextFlow: Flow<LoginContext>) = apply {

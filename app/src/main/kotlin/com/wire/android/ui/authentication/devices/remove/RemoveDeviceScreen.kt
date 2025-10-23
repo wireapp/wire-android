@@ -40,7 +40,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.feature.NavigationSwitchAccountActions
 import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireDestination
@@ -77,7 +76,6 @@ import com.wire.kalium.logic.data.conversation.ClientId
 @Composable
 fun RemoveDeviceScreen(
     navigator: Navigator,
-    loginTypeSelector: LoginTypeSelector,
     viewModel: RemoveDeviceViewModel = hiltViewModel(),
     clearSessionViewModel: ClearSessionViewModel = hiltViewModel(),
 ) {
@@ -113,7 +111,7 @@ fun RemoveDeviceScreen(
                 onBackButtonClicked = clearSessionViewModel::onBackButtonClicked,
                 onCancelLoginClicked = {
                     clearSessionViewModel.onCancelLoginClicked(
-                        NavigationSwitchAccountActions(navigator::navigate, loginTypeSelector::canUseNewLogin)
+                        NavigationSwitchAccountActions(navigator::navigate)
                     )
                 },
                 onProceedLoginClicked = clearSessionViewModel::onProceedLoginClicked

@@ -24,7 +24,6 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.NewLoginScreenDestination
-import com.wire.android.ui.destinations.WelcomeScreenDestination
 import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.user.UserId
@@ -38,7 +37,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -201,11 +199,11 @@ interface SwitchAccountActions {
     fun noOtherAccountToSwitch()
 }
 
-class NavigationSwitchAccountActions(val navigate: (NavigationCommand) -> Unit, val canUseNewLogin: () -> Boolean) : SwitchAccountActions {
+class NavigationSwitchAccountActions(val navigate: (NavigationCommand) -> Unit) : SwitchAccountActions {
     override fun switchedToAnotherAccount() = navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
     override fun noOtherAccountToSwitch() = navigate(
         NavigationCommand(
-            if (canUseNewLogin()) NewLoginScreenDestination() else WelcomeScreenDestination(),
+            NewLoginScreenDestination(),
             BackStackMode.CLEAR_WHOLE
         )
     )

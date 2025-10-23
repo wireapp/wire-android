@@ -379,6 +379,7 @@ class ConversationMessagesViewModelTest {
         val playingAudioMessage = PlayingAudioMessage.Some(
             conversationId = message.conversationId,
             messageId = message.id,
+            assetId = "assetId",
             authorName = UIText.DynamicString("some name"),
             state = AudioState.DEFAULT.copy(currentPositionInMs = audioState.currentPositionInMs)
         )

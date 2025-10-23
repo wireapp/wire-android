@@ -112,10 +112,10 @@
     <string name="apply_label">Apply</string>
     <string name="add_or_remove_tags_title">Add or Remove Tags</string>
     <string name="tags_description">All members of your team can see and use the tags you create.</string>
-    <string name="suggested_tags_label">Suggested tags</string>
     <string name="added_tags_label">Added tags</string>
     <string name="add_tag_label">Add tag</string>
     <string name="enter_name_label">Enter tag name</string>
+    <string name="invalid_tag_name_error">Use a tag without special characters , ; \/ \\ &quot; &apos; &lt; &gt;</string>
     <string name="no_tags_message">No tags were added yet.</string>
     <string name="tags_edited">Tags were edited</string>
     <string name="failed_edit_tags">Failed to edit tags</string>
@@ -127,5 +127,4 @@
     <string name="cells_folder_deleted_message">Folder was deleted</string>
     <string name="cells_file_permanently_deleted_message">File was permanently deleted</string>
     <string name="cells_folder_permanently_deleted_message">Folder was permanently deleted</string>
-    <string name="invalid_tag_name_error">Invalid tag name</string>
 </resources>

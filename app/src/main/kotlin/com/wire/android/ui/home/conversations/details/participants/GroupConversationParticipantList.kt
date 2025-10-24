@@ -26,31 +26,31 @@ import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.divider.WireDivider
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
-import com.wire.android.util.extension.folderWithElements
+import com.wire.android.util.ui.sectionWithElements
 
 fun LazyListScope.participantsFoldersWithElements(
     context: Context,
     state: GroupConversationParticipantsState,
     onRowItemClicked: (UIParticipant) -> Unit
 ) {
-    folderWithElements(
+    sectionWithElements(
         header = context.getString(R.string.conversation_details_conversation_admins, state.data.allAdminsCount),
         items = state.data.admins,
         onRowItemClicked = onRowItemClicked
     )
-    folderWithElements(
+    sectionWithElements(
         header = context.getString(R.string.conversation_details_conversation_members, state.data.allParticipantsCount),
         items = state.data.participants,
         onRowItemClicked = onRowItemClicked
     )
 }
 
-fun LazyListScope.folderWithElements(
+fun LazyListScope.sectionWithElements(
     header: String,
     items: List<UIParticipant>,
     onRowItemClicked: (UIParticipant) -> Unit,
     showRightArrow: Boolean = true
-) = folderWithElements(
+) = sectionWithElements(
     header = header,
     items = items.associateBy { it.id.toString() },
     animateItemPlacement = false,
@@ -65,12 +65,12 @@ fun LazyListScope.folderWithElements(
     divider = { WireDivider() }
 )
 
-fun LazyListScope.folderWithElements(
+fun LazyListScope.sectionWithElements(
     header: String,
     items: Map<String, UIParticipant>,
     onRowItemClicked: (UIParticipant) -> Unit,
     showRightArrow: Boolean = true
-) = folderWithElements(
+) = sectionWithElements(
     header = header,
     items = items,
     animateItemPlacement = false,

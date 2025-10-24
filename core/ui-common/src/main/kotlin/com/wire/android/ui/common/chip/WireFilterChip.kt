@@ -62,6 +62,7 @@ fun WireFilterChip(
         enabled = isEnabled,
         selected = isSelected,
         colors = wireChipColors(),
+        border = null,
         trailingIcon = {
             Icon(
                 modifier = Modifier

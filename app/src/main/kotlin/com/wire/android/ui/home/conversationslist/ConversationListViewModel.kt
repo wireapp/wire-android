@@ -37,10 +37,10 @@ import com.wire.android.ui.common.DEFAULT_SEARCH_QUERY_DEBOUNCE
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
 import com.wire.android.ui.home.HomeSnackBarMessage
 import com.wire.android.ui.home.conversations.usecase.GetConversationsFromSearchUseCase
-import com.wire.android.ui.home.conversationslist.common.previewConversationFoldersFlow
+import com.wire.android.ui.home.conversationslist.common.previewConversationItemsFlow
 import com.wire.android.ui.home.conversationslist.model.BadgeEventType
-import com.wire.android.ui.home.conversationslist.model.ConversationFolder
-import com.wire.android.ui.home.conversationslist.model.ConversationFolderItem
+import com.wire.android.ui.home.conversationslist.model.ConversationSection
+import com.wire.android.ui.home.conversationslist.model.ConversationItemType
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationsSource
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -88,9 +88,9 @@ interface ConversationListViewModel {
 
 @Suppress("TooManyFunctions")
 class ConversationListViewModelPreview(
-    foldersWithConversations: Flow<PagingData<ConversationFolderItem>> = previewConversationFoldersFlow(),
+    sectionsWithConversations: Flow<PagingData<ConversationItemType>> = previewConversationItemsFlow(),
 ) : ConversationListViewModel {
-    override val conversationListState = ConversationListState.Paginated(foldersWithConversations)
+    override val conversationListState = ConversationListState.Paginated(sectionsWithConversations)
 }
 
 @Suppress("MagicNumber", "TooManyFunctions", "LongParameterList")
@@ -138,7 +138,7 @@ class ConversationListViewModelImpl @AssistedInject constructor(
         ConversationsSource.ARCHIVE -> false
     }
 
-    private val conversationsPaginatedFlow: Flow<PagingData<ConversationFolderItem>> = searchQueryFlow
+    private val conversationsPaginatedFlow: Flow<PagingData<ConversationItemType>> = searchQueryFlow
         .debounce { if (it.isEmpty()) 0L else DEFAULT_SEARCH_QUERY_DEBOUNCE }
         .onStart { emit("") }
         .combine(isSelfUserUnderLegalHoldFlow, ::Pair)
@@ -165,15 +165,15 @@ class ConversationListViewModelImpl @AssistedInject constructor(
 
                             before == null && after != null && after.hasNewActivitiesToShow ->
                                 // list starts with items with "new activities"
-                                ConversationFolder.Predefined.NewActivities
+                                ConversationSection.Predefined.NewActivities
 
                             before == null && after != null && !after.hasNewActivitiesToShow ->
                                 // list doesn't contain any items with "new activities"
-                                ConversationFolder.Predefined.Conversations
+                                ConversationSection.Predefined.Conversations
 
                             before != null && before.hasNewActivitiesToShow && after != null && !after.hasNewActivitiesToShow ->
                                 // end of "new activities" section and beginning of "conversations" section
-                                ConversationFolder.Predefined.Conversations
+                                ConversationSection.Predefined.Conversations
 
                             else -> null
                         }
@@ -234,12 +234,12 @@ class ConversationListViewModelImpl @AssistedInject constructor(
                 }
                 .map { (conversationItems, searchQuery) ->
                     if (searchQuery.isEmpty()) {
-                        conversationItems.withFolders(source = conversationsSource).toImmutableMap()
+                        conversationItems.withSections(source = conversationsSource).toImmutableMap()
                     } else {
                         searchConversation(
                             conversationDetails = conversationItems,
                             searchQuery = searchQuery
-                        ).withFolders(source = conversationsSource).toImmutableMap()
+                        ).withSections(source = conversationsSource).toImmutableMap()
                     }
                 }
                 .flowOn(dispatcher.io())
@@ -326,12 +326,12 @@ private fun ConversationItem.hideIndicatorForSelfUserUnderLegalHold(isSelfUserUn
     }
 
 @Suppress("ComplexMethod")
-private fun List<ConversationItem>.withFolders(source: ConversationsSource): Map<ConversationFolder, List<ConversationItem>> {
+private fun List<ConversationItem>.withSections(source: ConversationsSource): Map<ConversationSection, List<ConversationItem>> {
     return when (source) {
         ConversationsSource.ARCHIVE -> {
             buildMap {
-                if (this@withFolders.isNotEmpty()) {
-                    put(ConversationFolder.WithoutHeader, this@withFolders)
+                if (this@withSections.isNotEmpty()) {
+                    put(ConversationSection.WithoutHeader, this@withSections)
                 }
             }
         }
@@ -345,10 +345,10 @@ private fun List<ConversationItem>.withFolders(source: ConversationsSource): Map
             val (unreadConversations, remainingConversations) = unreadToReadConversationsItems()
             buildMap {
                 if (unreadConversations.isNotEmpty()) {
-                    put(ConversationFolder.Predefined.NewActivities, unreadConversations)
+                    put(ConversationSection.Predefined.NewActivities, unreadConversations)
                 }
                 if (remainingConversations.isNotEmpty()) {
-                    put(ConversationFolder.Predefined.Conversations, remainingConversations)
+                    put(ConversationSection.Predefined.Conversations, remainingConversations)
                 }
             }
         }
@@ -356,12 +356,12 @@ private fun List<ConversationItem>.withFolders(source: ConversationsSource): Map
         is ConversationsSource.CHANNELS -> {
             val (unreadConversations, remainingConversations) = unreadToReadConversationsItems()
             buildMap {
-                put(ConversationFolder.Predefined.BrowseChannels, emptyList())
+                put(ConversationSection.Predefined.BrowseChannels, emptyList())
                 if (unreadConversations.isNotEmpty()) {
-                    put(ConversationFolder.Predefined.NewActivities, unreadConversations)
+                    put(ConversationSection.Predefined.NewActivities, unreadConversations)
                 }
                 if (remainingConversations.isNotEmpty()) {
-                    put(ConversationFolder.Predefined.Conversations, remainingConversations)
+                    put(ConversationSection.Predefined.Conversations, remainingConversations)
                 }
             }
         }

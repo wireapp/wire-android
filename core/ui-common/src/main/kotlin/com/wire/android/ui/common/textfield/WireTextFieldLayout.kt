@@ -122,6 +122,11 @@ internal fun WireTextFieldLayout(
                 }
                 .testTag(testTag)
         )
+        val errorStartPadding = if (state is WireTextFieldState.Error && state.withStartPadding) {
+            dimensions().spacing16x
+        } else {
+            dimensions().spacing0x
+        }
 
         val bottomText = when {
             state is WireTextFieldState.Error && state.errorText != null -> state.errorText
@@ -134,7 +139,7 @@ internal fun WireTextFieldLayout(
                 style = MaterialTheme.wireTypography.label04,
                 textAlign = TextAlign.Start,
                 color = colors.descriptionColor(state).value,
-                modifier = Modifier.padding(top = dimensions().spacing4x)
+                modifier = Modifier.padding(top = dimensions().spacing4x, start = errorStartPadding)
             )
         }
     }

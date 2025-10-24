@@ -64,6 +64,15 @@ fun MessageStyle.surface(): Color = when (this) {
 }
 
 @Composable
+fun MessageStyle.onSurface(): Color {
+    return when (this) {
+        MessageStyle.BUBBLE_SELF -> MaterialTheme.wireColorScheme.onPrimary
+        MessageStyle.BUBBLE_OTHER -> MaterialTheme.wireColorScheme.onSurface
+        MessageStyle.NORMAL -> MaterialTheme.wireColorScheme.onSurface
+    }
+}
+
+@Composable
 fun MessageStyle.highlighted(): Color = when (this) {
     MessageStyle.BUBBLE_SELF -> MaterialTheme.wireColorScheme.onPrimary
     MessageStyle.BUBBLE_OTHER -> MaterialTheme.wireColorScheme.primary

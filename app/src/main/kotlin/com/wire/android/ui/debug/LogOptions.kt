@@ -39,7 +39,7 @@ import com.wire.android.ui.common.button.WireSwitch
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.typography
-import com.wire.android.ui.home.conversationslist.common.FolderHeader
+import com.wire.android.ui.common.rowitem.SectionHeader
 import com.wire.android.ui.home.settings.SettingsItem
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -58,7 +58,7 @@ fun LogOptions(
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
-        FolderHeader(stringResource(R.string.label_logs_option_title))
+        SectionHeader(stringResource(R.string.label_logs_option_title))
         EnableLoggingSwitch(
             isEnabled = isLoggingEnabled,
             onCheckedChange = onLoggingEnabledChange

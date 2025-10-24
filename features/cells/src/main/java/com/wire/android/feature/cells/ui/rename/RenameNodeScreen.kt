@@ -34,7 +34,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.rename.RenameNodeViewModel.Companion.NAME_MAX_COUNT
 import com.wire.android.model.ClickBlockParams
-import com.wire.android.model.DisplayNameState
 import com.wire.android.navigation.PreviewNavigator
 import com.wire.android.navigation.WireNavigator
 import com.wire.android.navigation.annotation.features.cells.WireDestination
@@ -69,6 +68,8 @@ fun RenameNodeScreen(
 ) {
     val context = LocalContext.current
 
+    val displayNameState = renameNodeViewModel.viewState
+
     WireScaffold(
         modifier = modifier,
         topBar = {
@@ -88,16 +89,14 @@ fun RenameNodeScreen(
                 color = MaterialTheme.wireColorScheme.background,
                 shadowElevation = MaterialTheme.wireDimensions.bottomNavigationShadowElevation
             ) {
-                with(renameNodeViewModel) {
-                    WirePrimaryButton(
-                        modifier = Modifier.padding(dimensions().spacing16x),
-                        text = stringResource(R.string.rename_label),
-                        onClick = { renameNode(textState.text.toString()) },
-                        state = if (displayNameState.saveEnabled && !displayNameState.loading) Default else Disabled,
-                        clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
-                        loading = displayNameState.loading
-                    )
-                }
+                WirePrimaryButton(
+                    modifier = Modifier.padding(dimensions().spacing16x),
+                    text = stringResource(R.string.rename_label),
+                    onClick = { renameNodeViewModel.renameNode(renameNodeViewModel.textState.text.toString()) },
+                    state = if (displayNameState.saveEnabled && !displayNameState.loading) Default else Disabled,
+                    clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
+                    loading = displayNameState.loading
+                )
             }
         }
     ) { innerPadding ->
@@ -121,7 +120,7 @@ fun RenameNodeScreen(
                         }
                     ),
                     lineLimits = TextFieldLineLimits.SingleLine,
-                    state = computeNameErrorState(renameNodeViewModel.displayNameState.error, renameNodeViewModel.isFolder()),
+                    state = computeNameErrorState(displayNameState.error, renameNodeViewModel.isFolder()),
                     keyboardOptions = KeyboardOptions.DefaultText,
                     onKeyboardAction = { keyboardController?.hide() },
                     modifier = Modifier.padding(
@@ -152,19 +151,20 @@ fun RenameNodeScreen(
 
 @Composable
 private fun computeNameErrorState(
-    error: DisplayNameState.NameError,
+    error: RenameNodeViewState.RenameError,
     isFolder: Boolean?
 ): WireTextFieldState {
     return when (error) {
-        is DisplayNameState.NameError.TextFieldError -> {
+        is RenameNodeViewState.RenameError.TextFieldError -> {
             val messageRes = when (error) {
-                DisplayNameState.NameError.TextFieldError.NameEmptyError ->
+                RenameNodeViewState.RenameError.TextFieldError.NameEmpty ->
                     if (isFolder == true) R.string.rename_enter_folder_name else R.string.rename_enter_file_name
 
-                DisplayNameState.NameError.TextFieldError.NameExceedLimitError ->
+                RenameNodeViewState.RenameError.TextFieldError.NameExceedLimit ->
                     if (isFolder == true) R.string.rename_long_folder_name_error else R.string.rename_long_file_name_error
 
-                DisplayNameState.NameError.TextFieldError.InvalidNameError -> R.string.rename_invalid_name
+                RenameNodeViewState.RenameError.TextFieldError.InvalidName -> R.string.rename_invalid_name
+                RenameNodeViewState.RenameError.TextFieldError.NameAlreadyExist -> R.string.rename_already_exist
             }
             WireTextFieldState.Error(stringResource(id = messageRes))
         }

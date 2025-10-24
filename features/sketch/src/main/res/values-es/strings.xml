@@ -16,4 +16,11 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
-<resources></resources>
+<resources>
+    <string name="content_description_send_button">Enviar</string>
+    <string name="content_description_undo_button">Deshacer</string>
+    <string name="sketch_details_empty_text">Escoge tu color favorito y empieza a dibujar 🎨</string>
+    <string name="content_description_close_button">cerrar</string>
+    <string name="title_color_picker">Color</string>
+    <string name="confirm_changes_title">¿Des?</string>
+</resources>

@@ -75,7 +75,7 @@ import com.wire.android.ui.destinations.E2eiCertificateDetailsScreenDestination
 import com.wire.android.ui.e2eiEnrollment.GetE2EICertificateUI
 import com.wire.android.ui.home.E2EISuccessDialog
 import com.wire.android.ui.home.E2EIUpdateErrorWithDismissDialog
-import com.wire.android.ui.home.conversationslist.common.FolderHeader
+import com.wire.android.ui.common.rowitem.SectionHeader
 import com.wire.android.ui.settings.devices.e2ei.E2EICertificateDetails
 import com.wire.android.ui.settings.devices.model.DeviceDetailsState
 import com.wire.android.ui.theme.WireTheme
@@ -207,7 +207,7 @@ fun DeviceDetailsContent(
                 item {
                     val name = state.mlsCipherSuiteSignature?.let { stringResource(id = R.string.label_mls_signature, it).uppercase() }
                         ?: stringResource(id = R.string.label_mls_no_signature_type)
-                    FolderHeader(
+                    SectionHeader(
                         name = name,
                         modifier = Modifier
                             .background(MaterialTheme.wireColorScheme.background)
@@ -232,7 +232,7 @@ fun DeviceDetailsContent(
                 }
             }
             item {
-                FolderHeader(
+                SectionHeader(
                     name = stringResource(id = R.string.label_proteus_details).uppercase(),
                     modifier = Modifier
                         .background(MaterialTheme.wireColorScheme.background)

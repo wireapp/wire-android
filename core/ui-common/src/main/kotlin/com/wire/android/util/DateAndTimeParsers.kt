@@ -79,6 +79,16 @@ class DateAndTimeParsers private constructor() {
                 this.timeZone = java.util.TimeZone.getDefault()
             }
 
+        private val longDateFormat =
+            java.text.DateFormat.getDateInstance(java.text.DateFormat.LONG, Locale.getDefault()).apply {
+                this.timeZone = java.util.TimeZone.getDefault()
+            }
+
+        private val shortTimeFormat =
+            java.text.DateFormat.getTimeInstance(java.text.DateFormat.SHORT, Locale.getDefault()).apply {
+                this.timeZone = java.util.TimeZone.getDefault()
+            }
+
         private val mediumDateTimeFormat = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.MEDIUM)
             .withZone(ZoneId.systemDefault()).withLocale(Locale.getDefault())
         private val fullDateShortTimeFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.FULL, FormatStyle.SHORT)
@@ -151,5 +161,8 @@ class DateAndTimeParsers private constructor() {
         fun audioMessageTime(timeMs: Long): String = audioMessageTimeFormat.format(java.time.Instant.ofEpochMilli(timeMs))
 
         fun videoMessageTime(timeMs: Long): String = videoMessageTimeFormat.format(java.time.Instant.ofEpochMilli(timeMs))
+
+        fun meetingDate(instant: Instant): String = longDateFormat.format(Date.from(instant.toJavaInstant()))
+        fun meetingTime(instant: Instant): String = shortTimeFormat.format(Date.from(instant.toJavaInstant()))
     }
 }

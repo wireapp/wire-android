@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.userprofile.common
 
-import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
@@ -80,7 +79,6 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.debug.FeatureVisibilityFlags.QRCodeEnabled
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.ifNotEmpty
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -98,7 +96,7 @@ import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
 
-@SuppressLint("ComposeParameterOrder")
+@Suppress("ComposeParameterOrder", "CyclomaticComplexMethod")
 @Composable
 fun UserProfileInfo(
     userId: UserId?,
@@ -117,7 +115,8 @@ fun UserProfileInfo(
     isMLSVerified: Boolean = false,
     expiresAt: Instant? = null,
     onQrCodeClick: (() -> Unit)? = null,
-    accentId: Int = -1
+    accentId: Int = -1,
+    showQrCode: Boolean = true,
 ) {
     Column(
         horizontalAlignment = CenterHorizontally,
@@ -258,7 +257,7 @@ fun UserProfileInfo(
                         bottom.linkTo(displayName.bottom)
                     }
             ) {
-                if (QRCodeEnabled && isLoading.not()) {
+                if (showQrCode && isLoading.not()) {
                     onQrCodeClick?.let { QRCodeIcon(it) }
                 }
             }

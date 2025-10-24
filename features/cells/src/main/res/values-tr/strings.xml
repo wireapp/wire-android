@@ -41,7 +41,6 @@
     <string name="confirm_delete_file_title">Dosyayı sil</string>
     <string name="confirm_delete_folder_title">Klasörü sil</string>
     <string name="confirm_delete_file_text">%1$s dosyası bu konuşmanın geri dönüşüm kutusuna taşınacak.</string>
-    <string name="confirm_delete_folder_text">%1$s klasörü bu konuşmanın geri dönüşüm kutusuna taşınacak.</string>
     <string name="confirm_permanent_delete_file_text">Bu, tüm katılımcılar için %1$s dosyasını kalıcı olarak silecektir.</string>
     <string name="confirm_permanent_delete_folder_text">Bu, tüm katılımcılar için %1$s klasörünü kalıcı olarak silecektir.</string>
     <string name="reload">Tekrar yükle</string>
@@ -88,7 +87,6 @@
     <string name="clear_all_label">Tümünü temizle</string>
     <string name="apply_label">Uygula</string>
     <string name="tags_description">Oluşturduğunuz etiketleri ekibinizdeki herkes görebilir ve kullanabilir.</string>
-    <string name="suggested_tags_label">Önerilen etiketler</string>
     <string name="added_tags_label">Eklenen etiketler</string>
     <string name="add_tag_label">Etiket ekle</string>
     <string name="enter_name_label">Etiket adı girin</string>

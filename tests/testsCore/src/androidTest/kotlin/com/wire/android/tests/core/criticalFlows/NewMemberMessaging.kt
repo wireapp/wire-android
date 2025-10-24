@@ -122,13 +122,13 @@ class NewMemberMessaging : KoinTest {
             clickProceedButtonOnDeeplinkOverlay()
         }
         pages.loginPage.apply {
-            enterTeamOwnerLoggingEmail(member1?.email ?: "")
+            enterTeamMemberLoggingEmail(member1?.email ?: "")
             clickLoginButton()
-            enterTeamOwnerLoggingPassword(member1?.password ?: "")
+            enterTeamMemberLoggingPassword(member1?.password ?: "")
             clickLoginButton()
         }
         pages.registrationPage.apply {
-            waitUntilLoginFlowIsComplete()
+            waitUntilLoginFlowIsCompleted()
             clickAllowNotificationButton()
             clickDeclineShareDataAlert()
         }
@@ -152,7 +152,7 @@ class NewMemberMessaging : KoinTest {
             typeMessageInInputField("Hello Team Owner")
             clickSendButton()
             assertSentMessageIsVisibleInCurrentConversation("Hello Team Owner")
-            tapBackButtonOnConversationViewPage()
+            tapBackButtonToCloseConversationViewPage()
         }
         pages.connectedUserProfilePage.apply {
             tapCloseButtonOnConnectedUserProfilePage()
@@ -182,7 +182,7 @@ class NewMemberMessaging : KoinTest {
         }
 
         pages.conversationViewPage.apply {
-            tapBackButtonOnConversationViewPage()
+            tapBackButtonToCloseConversationViewPage()
         }
 
         pages.conversationListPage.apply {

@@ -798,13 +798,14 @@ class LoginSSOViewModelTest {
         }
 
         fun arrange() = this to LoginSSOViewModel(
-            savedStateHandle,
-            addAuthenticatedUserUseCase,
-            validateEmailUseCase,
-            coreLogic,
-            clientScopeProviderFactory,
-            userDataStoreProvider,
-            ssoExtension
+            savedStateHandle = savedStateHandle,
+            addAuthenticatedUser = addAuthenticatedUserUseCase,
+            validateEmailUseCase = validateEmailUseCase,
+            coreLogic = coreLogic,
+            clientScopeProviderFactory = clientScopeProviderFactory,
+            userDataStoreProvider = userDataStoreProvider,
+            serverConfig = SERVER_CONFIG.links,
+            ssoExtension = ssoExtension,
         )
     }
 

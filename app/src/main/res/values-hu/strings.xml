@@ -198,8 +198,6 @@
     <string name="content_description_open_label">megnyitás</string>
     <string name="content_description_join_call_label">híváshoz csatlakozás</string>
     <string name="content_description_share_label">megosztás</string>
-    <string name="content_description_collapse_label">összecsukás</string>
-    <string name="content_description_expand_label">kinyitás</string>
     <string name="content_description_edit_label">szerkeszt</string>
     <string name="content_description_select_label">kiválaszt</string>
     <string name="content_description_unselect_label">kiválasztás megszüntetése</string>
@@ -1650,6 +1648,7 @@ Kérjük, próbálja meg újra.</string>
     <string name="press_enter_to_send_title">Nyomja meg az Entert a küldéshez</string>
     <string name="press_enter_to_send_text">Ha ez aktív, a billentyűzet Enter gombjával tud üzenetet küldeni.</string>
     <string name="customization_options_header_title">Beállítások</string>
+    <!-- enterprise configurations -->
     <!--    channel not available dialog-->
     <string name="channel_not_available_dialog_title">A csatornák csapattagok számára érhetők el.</string>
     <string name="channel_not_available_dialog_description">Hozzon létre csapatot, és kezdjen együttműködni költségmentesen!</string>
@@ -1657,6 +1656,4 @@ Kérjük, próbálja meg újra.</string>
     <string name="custimization_options_header_title">Beállítások</string>
     <string name="cells_screen_title">Minden fájl</string>
     <string name="cells_screen_search_hint">Fájlok keresése</string>
-    <string name="enable_wire_cell">Wire Cell engedélyezése</string>
-    <string name="enable_wire_cell_switch_description">A beszélgetésben található összes fájl fel lesz töltve a Wire Cell tárhelyre.</string>
 </resources>

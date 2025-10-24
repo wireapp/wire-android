@@ -35,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import coil.compose.AsyncImage
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
@@ -104,13 +105,17 @@ internal fun PdfAssetPreview(
                     shape = RoundedCornerShape(dimensions().messageAttachmentCornerSize)
                 )
             }
-            .clip(RoundedCornerShape(dimensions().buttonCornerSize))
-            .padding(dimensions().spacing10x),
+            .clip(RoundedCornerShape(dimensions().messageAttachmentCornerSize)),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(dimensions().spacing8x)
     ) {
 
         FileHeaderView(
+            modifier = Modifier.padding(
+                start = dimensions().spacing8x,
+                top = dimensions().spacing8x,
+                end = dimensions().spacing8x
+            ),
             extension = item.fileName?.fileExtension() ?: item.mimeType.substringAfter("/"),
             size = item.assetSize,
             messageStyle = messageStyle
@@ -118,7 +123,9 @@ internal fun PdfAssetPreview(
 
         item.fileName?.let {
             Text(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = dimensions().spacing8x, end = dimensions().spacing8x),
                 text = it,
                 style = MaterialTheme.wireTypography.body02,
                 maxLines = 2,
@@ -131,9 +138,9 @@ internal fun PdfAssetPreview(
                 .aspectRatio(aspectRatio(width, height))
                 .background(
                     color = colorsScheme().outline,
-                    shape = RoundedCornerShape(dimensions().buttonCornerSize)
+                    shape = RoundedCornerShape(dimensions().messageAttachmentCornerSize)
                 )
-                .clip(RoundedCornerShape(dimensions().buttonCornerSize)),
+                .clip(RoundedCornerShape(dimensions().messageAttachmentCornerSize)),
             contentAlignment = Alignment.Center
         ) {
 
@@ -147,6 +154,8 @@ internal fun PdfAssetPreview(
                         }
                     ),
                     contentDescription = null,
+                    alignment = Alignment.TopStart,
+                    contentScale = ContentScale.FillWidth
                 )
             }
 
@@ -170,6 +179,8 @@ private fun aspectRatio(width: Int?, height: Int?) =
     when {
         width == null || height == null -> 10f / 14f
         width == 0 || height == 0 -> 10f / 14f
+        // Very long image
+        width.toFloat() / height.toFloat() < 0.7f -> 10f / 14f
         else -> width.toFloat() / height.toFloat()
     }
 

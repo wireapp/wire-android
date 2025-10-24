@@ -201,8 +201,6 @@
     <string name="content_description_open_label">открыть</string>
     <string name="content_description_join_call_label">присоединиться к вызову</string>
     <string name="content_description_share_label">поделиться</string>
-    <string name="content_description_collapse_label">свернуть</string>
-    <string name="content_description_expand_label">развернуть</string>
     <string name="content_description_edit_label">редактировать</string>
     <string name="content_description_select_label">выбрать</string>
     <string name="content_description_unselect_label">отменить выбор</string>
@@ -594,7 +592,7 @@
     <string name="conversation_details_is_not_classified">УРОВЕНЬ БЕЗОПАСНОСТИ: НЕКЛАССИФИЦИРОВАН</string>
     <string name="conversation_options_self_deleting_messages_label">Самоудаляющиеся сообщения</string>
     <string name="conversation_options_self_deleting_messages_description">Если этот параметр включен, все сообщения в этой беседе будут исчезать через определенное время.</string>
-    <string name="conversation_options_self_deleting_messages_cells_description">Самоудаляющиеся сообщения в настоящее время недоступны для бесед с Cells.</string>
+    <string name="conversation_options_self_deleting_messages_cells_description">Функция недоступна для бесед с Cells.</string>
     <string name="conversation_options_guests_label">Гости</string>
     <string name="conversation_details_guest_description">Когда эта опция включена, к беседе могут присоединиться пользователи, не входящие в вашу команду</string>
     <string name="conversation_options_guest_description">Включите эту опцию, чтобы открыть эту беседу для пользователей не из вашей команды, даже если у них нет Wire.</string>
@@ -851,8 +849,9 @@
     <string name="label_system_message_conversation_started_sensitive_information_footer">Пожалуйста, будьте осторожны со всеми с кем делитесь конфиденциальной информацией.</string>
     <string name="label_conversations_details_verified_proteus">Верифицировано (Proteus)</string>
     <string name="label_conversations_details_verified_mls">Верифицировано (сквозная идентификация)</string>
-    <string name="label_system_message_cell_enabled_for_conversation">Cell включен дня всех</string>
-    <string name="label_system_message_cell_self_delete_disabled_for_conversation">Самоудаляющиеся сообщения - это %1$s в беседах с Cells</string>
+    <string name="label_system_message_cell_enabled_for_conversation">Совместная работа с %1$s (Cells)</string>
+    <string name="label_system_message_cell_enabled_for_conversation_bold">вкл</string>
+    <string name="label_system_message_cell_self_delete_disabled_for_conversation">Самоудаляющиеся сообщения - это %1$s в для бесед с Cells</string>
     <string name="label_system_message_cell_self_delete_disabled">отключено</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
@@ -1234,6 +1233,7 @@
     <string name="settings_myaccount_display_name">ИМЯ ПРОФИЛЯ</string>
     <string name="settings_myaccount_username">ПСЕВДОНИМ</string>
     <string name="settings_myaccount_email">EMAIL</string>
+    <string name="settings_myaccount_user_color">ПОЛЬЗОВАТЕЛЬСКИЙ ЦВЕТ</string>
     <string name="settings_myaccount_team">КОМАНДА</string>
     <string name="settings_myaccount_domain">ДОМЕН</string>
     <string name="settings_myaccount_reset_password">Сбросить пароль</string>
@@ -1244,6 +1244,11 @@
     <string name="settings_myaccount_display_name_exceeded_limit_error">Минимум 1 и максимум 64 символа</string>
     <string name="settings_myaccount_display_name_updated">Имя вашего профиля изменено</string>
     <string name="settings_myaccount_handle_updated">Ваш псевдоним изменен</string>
+    <string name="settings_myaccount_user_color_title">Пользовательский цвет</string>
+    <string name="settings_myaccount_user_color_description">Ваш пользовательский цвет используется при навигации по интерфейсу приложения</string>
+    <string name="settings_myaccount_user_color_updated">Ваш цвет изменен</string>
+    <string name="content_description_settings_myaccount_user_color">изменить цвет пользователя</string>
+    <string name="settings_myaccount_user_color_example">ПРИМЕР</string>
     <!--Privacy Settings -->
     <string name="settings_send_read_receipts">Отправлять отчет о прочтении</string>
     <string name="settings_send_read_receipts_description">Если этот параметр включен, другие пользователи могут видеть, прочитали ли вы их сообщения. 
@@ -1876,6 +1881,7 @@
     <string name="press_enter_to_send_title">Нажмите Enter для отправки</string>
     <string name="press_enter_to_send_text">Когда эта опция включена, вы можете отправлять сообщения с помощью клавиши Enter на клавиатуре.</string>
     <string name="customization_options_header_title">Настройки</string>
+    <!-- enterprise configurations -->
     <!--    channel not available dialog-->
     <string name="channel_not_available_dialog_title">Каналы доступны для членов команды.</string>
     <string name="channel_not_available_dialog_description">Создайте команду и начните взаимодействовать бесплатно!</string>
@@ -1883,10 +1889,13 @@
     <string name="custimization_options_header_title">Настройки</string>
     <string name="cells_screen_title">Все файлы</string>
     <string name="cells_screen_search_hint">Поиск файлов</string>
-    <string name="enable_wire_cell">Включить Wire Cell</string>
-    <string name="enable_wire_cell_switch_description">Все файлы в этой беседе будут загружены в хранилище Wire Cell.</string>
+    <string name="enable_wire_cell">Совместная работа с файлами (бета-версия Cells)</string>
+    <string name="enable_wire_cell_switch_description">Предоставьте пользователям возможность управлять своими документами и медиафайлами. Используйте папки, теги и фильтры для более эффективной работы. Это невозможно отменить.</string>
     <string name="failed_attachment_retry_upload">Повторить загрузку</string>
     <string name="failed_attachment_remove">Удалить</string>
     <string name="content_description_apply_filter">Применить фильтр</string>
     <string name="content_description_filter_files">Фильтр файлов</string>
+    <string name="profile_deeplink_feature_unavailable_title_alert">Эта функция недоступна. Пожалуйста, свяжитесь со своим администратором.</string>
+    <string name="conversation_options_file_collaboration_label">Совместная работа с файлами (Cells)</string>
+    <string name="conversation_options_file_collaboration_description">Постоянно для этой беседы.</string>
 </resources>

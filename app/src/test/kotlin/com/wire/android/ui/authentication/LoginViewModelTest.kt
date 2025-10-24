@@ -26,8 +26,8 @@ import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.LoginPasswordPath
 import com.wire.android.ui.authentication.login.LoginViewModel
 import com.wire.android.ui.navArgs
-import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import io.mockk.MockKAnnotations
@@ -63,14 +63,14 @@ class LoginViewModelTest {
         MockKAnnotations.init(this)
         every { qualifiedIdMapper.fromStringToQualifiedID(any()) } returns QualifiedID("", "")
         every { savedStateHandle.navArgs<LoginNavArgs>() } returns LoginNavArgs(
-            loginPasswordPath =
-            LoginPasswordPath(newServerConfig(1).links)
+            loginPasswordPath = LoginPasswordPath(ServerConfig.STAGING)
         )
         loginViewModel = LoginViewModel(
             savedStateHandle,
             clientScopeProviderFactory,
             userDataStoreProvider,
-            coreLogic
+            coreLogic,
+            ServerConfig.STAGING
         )
     }
 }

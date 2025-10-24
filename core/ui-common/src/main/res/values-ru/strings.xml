@@ -37,9 +37,16 @@
     <string name="label_membership_external">Внешний</string>
     <string name="label_membership_service">Приложение</string>
     <string name="label_federated_membership">Федеративный</string>
-	<string name="user_profile_status_available">Доступен</string>
+    <string name="user_profile_status_available">Доступен</string>
     <string name="user_profile_status_busy">Занят</string>
     <string name="user_profile_status_away">Отошел</string>
-    <string name="user_profile_status_none">Отключен</string>
     <string name="content_description_user_avatar">Изображение профиля</string>
+    <string name="content_description_collapse_label">свернуть</string>
+    <string name="content_description_expand_label">развернуть</string>
+    <string name="accent_color_blue">Синий</string>
+    <string name="accent_color_green">Зеленый</string>
+    <string name="accent_color_red">Красный</string>
+    <string name="accent_color_amber">Янтарный</string>
+    <string name="accent_color_petrol">Розовый</string>
+    <string name="accent_color_purple">Фиолетовый</string>
 </resources>

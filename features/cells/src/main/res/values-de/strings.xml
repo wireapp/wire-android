@@ -18,7 +18,6 @@
   -->
 <resources>
     <string name="retry">Wiederholen</string>
-    <string name="file_list_empty_message">Hier finden Sie alle Dateien, die Sie in Ihren Unterhaltungen gemeinsam nutzen.</string>
     <string name="conversation_file_list_empty_message">Hier finden Sie alle Dateien und Ordner, die in dieser Unterhaltung geteilt wurden.</string>
     <string name="file_list_search_empty_message">Versuchen Sie, Ihre Suche anzupassen</string>
     <string name="save_label">Speichern</string>
@@ -41,7 +40,7 @@
     <string name="confirm_delete_file_title">Datei löschen</string>
     <string name="confirm_delete_folder_title">Ordner löschen</string>
     <string name="confirm_delete_file_text">Die Datei %1$s wird in den Papierkorb dieser Unterhaltung verschoben.</string>
-    <string name="confirm_delete_folder_text">Der Ordner %1$s wird in den Papierkorb dieser Unterhaltung verschoben.</string>
+    <string name="confirm_delete_folder_text">Der Ordner %1$s und sein Inhalt werden in den Papierkorb dieser Unterhaltung verschoben.</string>
     <string name="confirm_permanent_delete_file_text">Dies wird die Datei %1$s für alle Teilnehmer endgültig löschen.</string>
     <string name="confirm_permanent_delete_folder_text">Dies wird den Ordner %1$s für alle Teilnehmer endgültig löschen.</string>
     <string name="reload">Neu laden</string>
@@ -74,13 +73,11 @@
     <string name="rename_enter_folder_name">Ordnernamen eingeben</string>
     <string name="rename_file_renamed">Datei wurde umbenannt</string>
     <string name="rename_folder_renamed">Ordner wurde umbenannt</string>
-    <string name="rename_invalid_name">Verwenden Sie einen Namen ohne \"/\" oder \".\"</string>
     <string name="filter_label">Filter</string>
     <string name="tags_label">Tags</string>
     <string name="select_tags_label">Tags auswählen</string>
     <string name="clear_all_label">Alle löschen</string>
     <string name="apply_label">Anwenden</string>
-    <string name="suggested_tags_label">Vorgeschlagene Tags</string>
     <string name="added_tags_label">Hinzugefügte Tags</string>
     <string name="add_tag_label">Tag hinzufügen</string>
     <string name="no_tags_message">Noch keine Tags erstellt.</string>

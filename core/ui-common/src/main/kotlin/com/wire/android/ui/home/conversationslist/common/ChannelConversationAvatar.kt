@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2025 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
-import com.wire.android.R
+import com.wire.android.ui.common.R
 import com.wire.android.ui.common.channelConversationColor
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -53,44 +53,59 @@ fun ChannelConversationAvatar(
     padding: Dp = MaterialTheme.wireDimensions.avatarClickablePadding,
     borderWidth: Dp = dimensions().avatarBorderWidth,
 ) {
-    Box {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = modifier
+    ) {
         val colors = colorsScheme().channelConversationColor(conversationId)
 
         Box(
             contentAlignment = Alignment.Center,
-            modifier = modifier
+            modifier = Modifier
                 .padding(padding)
-                .size(size + borderWidth * 2)
+                .size(size)
                 .border(color = colors.border, width = borderWidth, shape = RoundedCornerShape(cornerRadius + borderWidth))
                 .padding(borderWidth)
                 .background(color = colors.background, shape = RoundedCornerShape(cornerRadius))
         ) {
             Icon(
+                modifier = Modifier.padding(size / 4),
                 painter = painterResource(id = R.drawable.ic_channel),
                 contentDescription = null,
                 tint = colors.icon
             )
         }
         if (isPrivateChannel) {
-            ChannelLock(Modifier.offset(x = size, y = size))
+            val scale = 0.4375f // 14/32
+            val offset = (size - borderWidth * 2) * scale
+            ChannelLock(
+                size = size * scale,
+                cornerRadius = cornerRadius * scale,
+                modifier = Modifier
+                    .offset(x = offset, y = offset)
+            )
         }
     }
 }
 
 @Composable
-private fun ChannelLock(modifier: Modifier = Modifier) {
+private fun ChannelLock(
+    modifier: Modifier = Modifier,
+    cornerRadius: Dp = dimensions().spacing3x,
+    size: Dp = dimensions().spacing14x,
+) {
     Column(
         modifier = modifier
-            .size(dimensions().spacing14x)
-            .clip(RoundedCornerShape(dimensions().spacing3x)) // Apply rounded corners with a radius of 16.dp
+            .size(size)
+            .clip(RoundedCornerShape(cornerRadius))
             .background(color = colorsScheme().inverseSurface)
     ) {
         Icon(
             painter = painterResource(id = R.drawable.ic_lock),
             contentDescription = null,
             modifier = Modifier
-                .size(dimensions().spacing14x)
-                .padding(dimensions().spacing2x),
+                .size(size)
+                .padding(size / 7),
             tint = colorsScheme().inverseOnSurface
         )
     }
@@ -102,7 +117,7 @@ fun PreviewChannelPrivateConversationAvatar() {
     WireTheme {
         ChannelConversationAvatar(
             isPrivateChannel = true,
-            conversationId = ConversationId("value", "domain")
+            conversationId = ConversationId("value", "domain"),
         )
     }
 }
@@ -116,6 +131,19 @@ fun PreviewChannelConversationAvatar() {
             conversationId = ConversationId("value", "domain")
         )
     }
+}
+
+@MultipleThemePreviews
+@Composable
+fun PreviewChannelPrivateConversationAvatarSmall() = WireTheme {
+    ChannelConversationAvatar(
+        conversationId = ConversationId("value", "domain"),
+        isPrivateChannel = true,
+        size = dimensions().spacing18x,
+        borderWidth = dimensions().spacing1x,
+        cornerRadius = dimensions().spacing6x,
+        padding = dimensions().spacing4x,
+    )
 }
 
 @MultipleThemePreviews

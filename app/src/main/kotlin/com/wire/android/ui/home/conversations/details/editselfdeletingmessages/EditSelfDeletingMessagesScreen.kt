@@ -58,7 +58,7 @@ import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.extension.folderWithElements
+import com.wire.android.util.ui.sectionWithElements
 
 @WireDestination(
     navArgsDelegate = EditSelfDeletingMessagesNavArgs::class,
@@ -101,7 +101,7 @@ fun EditSelfDeletingMessagesScreen(
                         .fillMaxSize()
                 ) {
                     if (state.isEnabled) {
-                        folderWithElements(
+                        sectionWithElements(
                             header = context.resources.getString(R.string.self_deleting_messages_folder_timer),
                             items = SelfDeletionDuration.customValues()
                                 .associateBy { it.name },

@@ -57,15 +57,21 @@ sealed class OtherUserProfileInfoMessageType(override val uiText: UIText) : Snac
 
     data class ArchiveConversationError(val isArchiving: Boolean) : OtherUserProfileInfoMessageType(
         UIText.StringResource(
-            if (isArchiving) R.string.error_archiving_conversation
-            else R.string.error_unarchiving_conversation
+            if (isArchiving) {
+                R.string.error_archiving_conversation
+            } else {
+                R.string.error_unarchiving_conversation
+            }
         )
     )
 
     data class ArchiveConversationSuccess(val isArchiving: Boolean) : OtherUserProfileInfoMessageType(
         UIText.StringResource(
-            if (isArchiving) R.string.success_archiving_conversation
-            else R.string.success_unarchiving_conversation
+            if (isArchiving) {
+                R.string.success_archiving_conversation
+            } else {
+                R.string.success_unarchiving_conversation
+            }
         )
     )
 }

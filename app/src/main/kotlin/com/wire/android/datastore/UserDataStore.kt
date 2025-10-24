@@ -114,5 +114,4 @@ class UserDataStore(private val context: Context, userId: UserId) {
         private val ANALYTICS_DIALOG_SEEN = booleanPreferencesKey("analytics_dialog_seen")
         private val IS_CREATE_TEAM_NOTICE_READ = booleanPreferencesKey("is_create_team_notice_read")
     }
-
 }

@@ -66,10 +66,12 @@ class AddMembersToConversationViewModel @Inject constructor(
         if (selected) {
             newGroupState = newGroupState.copy(selectedContacts = (newGroupState.selectedContacts + contact).toImmutableSet())
         } else {
-            newGroupState = newGroupState.copy(selectedContacts = newGroupState.selectedContacts.filterNot {
+            newGroupState = newGroupState.copy(
+                selectedContacts = newGroupState.selectedContacts.filterNot {
                 it.id == contact.id &&
                         it.domain == contact.domain
-            }.toImmutableSet())
+            }.toImmutableSet()
+            )
         }
     }
 }

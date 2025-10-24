@@ -45,9 +45,9 @@ fun ShakeAnimation(
                 targetValue = 0f, // return to the starting position
                 animationSpec = keyframes {
                     durationMillis = duration
-                    offset.value at duration * 1 / 8  // max right offset after 12.5% of animation time
+                    offset.value at duration * 1 / 8 // max right offset after 12.5% of animation time
                     -offset.value at duration * 3 / 8 // max left offset after 37.5% of animation time (passes 0 at 25% of animation time)
-                    offset.value at duration * 5 / 8  // max right offset after 62.5% of animation time (passes 0 at 50% of animation time)
+                    offset.value at duration * 5 / 8 // max right offset after 62.5% of animation time (passes 0 at 50% of animation time)
                     -offset.value at duration * 7 / 8 // max left offset after 87.5% of animation time (passes 0 at 75% of animation time)
                 }
             )

@@ -25,7 +25,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.scan
 
-
 /**
  * An effect taking [scrollPosition] and [onIsScrollingDown] lambda.
  * [scrollPosition] is a "feed" value for the effect, that will call the [onIsScrollingDown]
@@ -39,8 +38,11 @@ inline fun ScrollingDownEffect(scrollPosition: Int, crossinline onIsScrollingDow
     LaunchedEffect(scrollPosition) {
         snapshotFlow { scrollPosition }
             .scan(0 to 0) { prevPair, newScrollIndex ->
-                if (prevPair.second == newScrollIndex || newScrollIndex == prevPair.second + 1) prevPair
-                else prevPair.second to newScrollIndex
+                if (prevPair.second == newScrollIndex || newScrollIndex == prevPair.second + 1) {
+                    prevPair
+                } else {
+                    prevPair.second to newScrollIndex
+                }
             }
             .map { (prevScrollIndex, newScrollIndex) ->
                 newScrollIndex > prevScrollIndex + 1

@@ -230,7 +230,9 @@ class MediaGalleryViewModelTest {
         }
 
         fun withConversationDetails(conversationDetails: ConversationDetails): Arrangement {
-            coEvery { getConversationDetails(any()) } returns flowOf(ObserveConversationDetailsUseCase.Result.Success(conversationDetails))
+            coEvery {
+                getConversationDetails(any())
+            } returns flowOf(ObserveConversationDetailsUseCase.Result.Success(conversationDetails))
             return this
         }
 

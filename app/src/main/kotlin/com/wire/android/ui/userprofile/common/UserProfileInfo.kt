@@ -307,8 +307,11 @@ private fun processFullName(
         val processedFullName = createMiddleEllipsizeIfNeeded(fullName)
         append(
             processedFullName.ifBlank {
-                if (isLoading) ""
-                else UIText.StringResource(R.string.username_unavailable_label).asString()
+                if (isLoading) {
+                    ""
+                } else {
+                    UIText.StringResource(R.string.username_unavailable_label).asString()
+                }
             }
         )
 

@@ -116,13 +116,20 @@ private fun Context.saveFileDataToDownloadsFolder(assetName: String, downloadedD
         FileProvider.getUriForFile(this, authority, destinationFile).also { downloadedUri ->
             resolver.copyFile(downloadedUri, downloadedDataPath)
             downloadManager.addCompletedDownload(
-                /* title = */ availableAssetName,
-                /* description = */ availableAssetName,
-                /* isMediaScannerScannable = */ true,
-                /* mimeType = */ mimeType.orEmpty().ifEmpty { "*/*" },
-                /* path = */ destinationFile.absolutePath,
-                /* length = */ fileSize,
-                /* showNotification = */ false
+                /* title = */
+                availableAssetName,
+                /* description = */
+                availableAssetName,
+                /* isMediaScannerScannable = */
+                true,
+                /* mimeType = */
+                mimeType.orEmpty().ifEmpty { "*/*" },
+                /* path = */
+                destinationFile.absolutePath,
+                /* length = */
+                fileSize,
+                /* showNotification = */
+                false
             )
         }
     }
@@ -259,8 +266,10 @@ private fun Context.getContentFileName(uri: Uri): String? = runCatching {
 fun Context.startFileShareIntent(path: Path, assetName: String?) {
     val assetDisplayName = assetName ?: path.name
     val fileURI = FileProvider.getUriForFile(
-        this, getProviderAuthority(),
-        path.toFile(), assetDisplayName
+        this,
+        getProviderAuthority(),
+        path.toFile(),
+        assetDisplayName
     )
     val shareIntent = Intent(Intent.ACTION_SEND)
     shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
@@ -294,7 +303,8 @@ fun Context.getUrisOfFilesInDirectory(dir: File): ArrayList<Uri> {
 
     dir.listFiles()?.map {
         val uri = FileProvider.getUriForFile(
-            this, getProviderAuthority(),
+            this,
+            getProviderAuthority(),
             it
         )
         files.add(uri)

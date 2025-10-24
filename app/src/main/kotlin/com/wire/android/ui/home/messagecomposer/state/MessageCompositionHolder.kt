@@ -288,8 +288,9 @@ class MessageCompositionHolder(
         }
 
         val (selectionStart, selectionEnd) = if (range.start == range.end) {
-            if (isHeader) Pair(rangeEnd, rangeEnd)
-            else {
+            if (isHeader) {
+                Pair(rangeEnd, rangeEnd)
+            } else {
                 val middleMarkdownRange = rangeEnd - markdownLength
                 Pair(middleMarkdownRange, middleMarkdownRange)
             }

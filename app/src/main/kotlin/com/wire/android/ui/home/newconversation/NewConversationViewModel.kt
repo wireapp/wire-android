@@ -176,10 +176,12 @@ class NewConversationViewModel @Inject constructor(
         if (selected) {
             newGroupState = newGroupState.copy(selectedUsers = (newGroupState.selectedUsers + contact).toImmutableSet())
         } else {
-            newGroupState = newGroupState.copy(selectedUsers = newGroupState.selectedUsers.filterNot {
+            newGroupState = newGroupState.copy(
+                selectedUsers = newGroupState.selectedUsers.filterNot {
                 it.id == contact.id &&
                         it.domain == contact.domain
-            }.toImmutableSet())
+            }.toImmutableSet()
+            )
         }
     }
 

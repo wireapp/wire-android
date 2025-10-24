@@ -56,6 +56,7 @@ class RegularMessageMapper @Inject constructor(
     private val isoFormatter: ISOFormatter,
 ) {
 
+    @Suppress("LongMethod")
     fun mapMessage(
         message: Message.Regular,
         sender: User?,
@@ -84,7 +85,8 @@ class RegularMessageMapper @Inject constructor(
                 UIText.StringResource(messageResourceProvider.memberNameYouTitlecase)
             } else {
                 sender?.name.orUnknownName()
-            }, message.isSelfMessage
+            },
+                message.isSelfMessage
         )
 
         is MessageContent.RestrictedAsset -> toRestrictedAsset(

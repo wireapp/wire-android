@@ -35,11 +35,10 @@ class ObserveConversationMembersByTypesUseCase @Inject constructor(
     suspend operator fun invoke(conversationId: ConversationId): Flow<Set<UserType>> =
         observeConversationMembers(conversationId)
             .map { memberDetails ->
-                memberDetails.map {it.user}
+                memberDetails.map { it.user }
                     .filter { (it is OtherUser) }
                     .map { (it as OtherUser).userType }
                     .toSet()
             }
             .flowOn(dispatchers.io())
-
 }

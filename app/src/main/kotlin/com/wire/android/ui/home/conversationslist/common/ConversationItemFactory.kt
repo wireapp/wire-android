@@ -23,13 +23,9 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -45,11 +41,10 @@ import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.calling.controlbuttons.JoinButton
-import com.wire.android.ui.common.rowitem.RowItemTemplate
 import com.wire.android.ui.common.WireRadioButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.shimmerPlaceholder
+import com.wire.android.ui.common.rowitem.RowItemTemplate
 import com.wire.android.ui.home.conversations.info.ConversationAvatar
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.UILastMessageContent
@@ -337,48 +332,6 @@ fun AudioControlButtons(
             colorFilter = ColorFilter.tint(MaterialTheme.wireColorScheme.onSecondaryButtonEnabled)
         )
     }
-}
-
-@Composable
-fun LoadingConversationItem(modifier: Modifier = Modifier) {
-    RowItemTemplate(
-        modifier = modifier.padding(start = dimensions().spacing8x),
-        leadingIcon = {
-            Box(
-                modifier = Modifier
-                    .padding(dimensions().avatarClickablePadding)
-                    .clip(CircleShape)
-                    .shimmerPlaceholder(visible = true)
-                    .border(dimensions().avatarBorderWidth, colorsScheme().outline)
-                    .size(dimensions().avatarDefaultSize)
-            )
-        },
-        title = {
-            Box(
-                modifier = Modifier
-                    .height(dimensions().spacing16x)
-                    .padding(vertical = dimensions().spacing1x)
-                    .shimmerPlaceholder(visible = true)
-                    .fillMaxWidth(0.75f)
-            )
-        },
-        subtitle = {
-            Box(
-                modifier = Modifier
-                    .padding(top = dimensions().spacing8x)
-                    .shimmerPlaceholder(visible = true)
-                    .fillMaxWidth(0.5f)
-                    .height(dimensions().spacing6x)
-            )
-        },
-        clickable = remember { Clickable(false) },
-    )
-}
-
-@PreviewMultipleThemes
-@Composable
-fun PreviewLoadingConversationItem() = WireTheme {
-    LoadingConversationItem()
 }
 
 @PreviewMultipleThemes

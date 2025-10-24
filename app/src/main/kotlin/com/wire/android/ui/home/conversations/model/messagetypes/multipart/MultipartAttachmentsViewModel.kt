@@ -97,6 +97,7 @@ class MultipartAttachmentsViewModel @Inject constructor(
 
     fun onClick(attachment: MultipartAttachmentUi) {
         when {
+            attachment.assetType == AttachmentFileType.AUDIO -> { /* Do nothing for audio */ }
             attachment.fileNotFound() -> { refreshAssetState(attachment) }
             attachment.localFileAvailable() -> openLocalFile(attachment)
             attachment.canOpenWithUrl() -> openUrl(attachment)

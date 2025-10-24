@@ -64,12 +64,14 @@ class LoginSSOViewModel(
     coreLogic: CoreLogic,
     clientScopeProviderFactory: ClientScopeProvider.Factory,
     userDataStoreProvider: UserDataStoreProvider,
-    private val ssoExtension: LoginSSOViewModelExtension
+    private val ssoExtension: LoginSSOViewModelExtension,
+    serverConfig: ServerConfig.Links
 ) : LoginViewModel(
     savedStateHandle,
     clientScopeProviderFactory,
     userDataStoreProvider,
-    coreLogic
+    coreLogic,
+    serverConfig
 ) {
 
     @Inject
@@ -80,6 +82,7 @@ class LoginSSOViewModel(
         @KaliumCoreLogic coreLogic: CoreLogic,
         clientScopeProviderFactory: ClientScopeProvider.Factory,
         userDataStoreProvider: UserDataStoreProvider,
+        serverConfig: ServerConfig.Links
     ) : this(
         savedStateHandle,
         addAuthenticatedUser,
@@ -87,7 +90,8 @@ class LoginSSOViewModel(
         coreLogic,
         clientScopeProviderFactory,
         userDataStoreProvider,
-        LoginSSOViewModelExtension(addAuthenticatedUser, coreLogic)
+        LoginSSOViewModelExtension(addAuthenticatedUser, coreLogic),
+        serverConfig
     )
 
     var openWebUrl = MutableSharedFlow<Pair<String, ServerConfig.Links>>()

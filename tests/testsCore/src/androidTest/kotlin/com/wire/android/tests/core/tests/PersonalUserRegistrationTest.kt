@@ -94,7 +94,7 @@ class PersonalUserRegistrationTest : KoinTest {
             assertUserNameHelpText()
             setUserName(userInfo.username)
             clickConfirmButton()
-            waitUntilRegistrationFlowIsComplete()
+            waitUntilRegistrationFlowIsCompleted()
             clickAllowNotificationButton()
             clickDeclineShareDataAlert()
             assertConversationPageVisible()

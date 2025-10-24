@@ -21,7 +21,7 @@
     <string name="file_list_load_error">There was an error loading the files list. Please try again</string>
     <string name="file_list_load_network_error_title">Can’t Load Files</string>
     <string name="file_list_load_network_error">Your list of files could not be loaded. Please check your Internet connection and try again.</string>
-    <string name="file_list_empty_message">You\'ll find all files shared across your conversations here.</string>
+    <string name="file_list_empty_message">For conversations that use file collaboration, you\'ll find shared files here.</string>
     <string name="conversation_file_list_empty_message">You\'ll find all files and folders shared in this conversation here.</string>
     <string name="file_list_search_empty_message">Try adjusting your search</string>
     <string name="save_label">Save</string>
@@ -50,7 +50,7 @@
     <string name="confirm_delete_file_title">Delete file</string>
     <string name="confirm_delete_folder_title">Delete folder</string>
     <string name="confirm_delete_file_text">The file %1$s will move to this conversation\'s recycle bin.</string>
-    <string name="confirm_delete_folder_text">The folder %1$s will move to this conversation\'s recycle bin.</string>
+    <string name="confirm_delete_folder_text">The folder %1$s with all files and subfolders will move to this conversation\'s recycle bin.</string>
     <string name="confirm_permanent_delete_file_text">This will permanently delete the file %1$s for all participants.</string>
     <string name="confirm_permanent_delete_folder_text">This will permanently delete the folder %1$s for all participants.</string>
     <string name="reload">Reload</string>
@@ -103,7 +103,8 @@
     <string name="rename_file_renamed">File was renamed</string>
     <string name="rename_folder_renamed">Folder was renamed</string>
     <string name="rename_failure">Failed to rename</string>
-    <string name="rename_invalid_name">Use a name without "/" or "."</string>
+    <string name="rename_invalid_name">Use a name without "/"</string>
+    <string name="rename_already_exist">File with this name already exists</string>
     <string name="filter_label">Filter</string>
     <string name="tags_label">Tags</string>
     <string name="select_tags_label">select tags</string>
@@ -111,10 +112,10 @@
     <string name="apply_label">Apply</string>
     <string name="add_or_remove_tags_title">Add or Remove Tags</string>
     <string name="tags_description">All members of your team can see and use the tags you create.</string>
-    <string name="suggested_tags_label">Suggested tags</string>
     <string name="added_tags_label">Added tags</string>
     <string name="add_tag_label">Add tag</string>
     <string name="enter_name_label">Enter tag name</string>
+    <string name="invalid_tag_name_error">Use a tag without special characters , ; \/ \\ &quot; &apos; &lt; &gt;</string>
     <string name="no_tags_message">No tags were added yet.</string>
     <string name="tags_edited">Tags were edited</string>
     <string name="failed_edit_tags">Failed to edit tags</string>

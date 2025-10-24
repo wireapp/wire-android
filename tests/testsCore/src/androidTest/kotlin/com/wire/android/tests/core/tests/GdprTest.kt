@@ -86,7 +86,7 @@ class GdprTest : KoinTest {
             clickLoginButton()
         }
         pages.registrationPage.apply {
-            waitUntilLoginFlowIsComplete()
+            waitUntilLoginFlowIsCompleted()
             clickAllowNotificationButton()
             setUserName(registeredUser?.uniqueUsername ?: "")
         }
@@ -96,7 +96,7 @@ class GdprTest : KoinTest {
             assertConversationPageVisible()
         }
         pages.conversationListPage.apply {
-            clickMainMenuButtonOnConversationPage()
+            clickConversationsMenuEntry()
             clickSettingsButtonOnMenuEntry()
         }
         pages.settingsPage.apply {

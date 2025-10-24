@@ -18,12 +18,17 @@
 
 package com.wire.android.ui.home.settings.account
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.MaterialTheme
@@ -47,28 +52,34 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.common.Icon
-import com.wire.android.ui.common.rowitem.RowItemTemplate
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.rowitem.RowItemTemplate
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.destinations.ChangeDisplayNameScreenDestination
 import com.wire.android.ui.destinations.ChangeEmailScreenDestination
 import com.wire.android.ui.destinations.ChangeHandleScreenDestination
+import com.wire.android.ui.destinations.ChangeUserColorScreenDestination
 import com.wire.android.ui.home.settings.account.AccountDetailsItem.DisplayName
 import com.wire.android.ui.home.settings.account.AccountDetailsItem.Domain
 import com.wire.android.ui.home.settings.account.AccountDetailsItem.Email
 import com.wire.android.ui.home.settings.account.AccountDetailsItem.Team
+import com.wire.android.ui.home.settings.account.AccountDetailsItem.UserColor
 import com.wire.android.ui.home.settings.account.AccountDetailsItem.Username
 import com.wire.android.ui.home.settings.account.deleteAccount.DeleteAccountDialog
 import com.wire.android.ui.home.settings.account.deleteAccount.DeleteAccountViewModel
+import com.wire.android.ui.theme.resourceId
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
-import com.wire.android.util.extension.folderWithElements
 import com.wire.android.util.toTitleCase
+import com.wire.android.util.ui.UIText
+import com.wire.android.util.ui.sectionWithElements
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
@@ -81,6 +92,7 @@ fun MyAccountScreen(
     navigator: Navigator,
     changeDisplayNameResultRecipient: ResultRecipient<ChangeDisplayNameScreenDestination, Boolean>,
     changeHandleResultRecipient: ResultRecipient<ChangeHandleScreenDestination, Boolean>,
+    changeUserColorResultRecipient: ResultRecipient<ChangeUserColorScreenDestination, Boolean>,
     viewModel: MyAccountViewModel = hiltViewModel(),
     deleteAccountViewModel: DeleteAccountViewModel = hiltViewModel()
 ) {
@@ -92,7 +104,8 @@ fun MyAccountScreen(
                 state = this,
                 navigateToChangeDisplayName = { navigator.navigate(NavigationCommand(ChangeDisplayNameScreenDestination)) },
                 navigateToChangeHandle = { navigator.navigate(NavigationCommand(ChangeHandleScreenDestination)) },
-                navigateToChangeEmail = { navigator.navigate(NavigationCommand(ChangeEmailScreenDestination)) }
+                navigateToChangeEmail = { navigator.navigate(NavigationCommand(ChangeEmailScreenDestination)) },
+                navigateToChangeColor = { navigator.navigate(NavigationCommand(ChangeUserColorScreenDestination)) }
             ),
             forgotPasswordUrl = this.changePasswordUrl,
             canDeleteAccount = viewModel.myAccountState.canDeleteAccount,
@@ -106,8 +119,10 @@ fun MyAccountScreen(
     val tryAgainSnackBarMessage = stringResource(id = R.string.error_unknown_message)
     val successDisplayNameSnackBarMessage = stringResource(id = R.string.settings_myaccount_display_name_updated)
     val successHandleSnackBarMessage = stringResource(id = R.string.settings_myaccount_handle_updated)
+    val successUserColorSnackBarMessage = stringResource(id = R.string.settings_myaccount_user_color_updated)
     HandleNavResult(scope, changeDisplayNameResultRecipient, tryAgainSnackBarMessage, successDisplayNameSnackBarMessage, snackbarHostState)
     HandleNavResult(scope, changeHandleResultRecipient, tryAgainSnackBarMessage, successHandleSnackBarMessage, snackbarHostState)
+    HandleNavResult(scope, changeUserColorResultRecipient, tryAgainSnackBarMessage, successUserColorSnackBarMessage, snackbarHostState)
 }
 
 @Composable
@@ -142,26 +157,43 @@ private fun mapToUISections(
     state: MyAccountState,
     navigateToChangeDisplayName: () -> Unit,
     navigateToChangeHandle: () -> Unit,
-    navigateToChangeEmail: () -> Unit
+    navigateToChangeEmail: () -> Unit,
+    navigateToChangeColor: () -> Unit
 ): ImmutableList<AccountDetailsItem> {
     return with(state) {
         listOfNotNull(
             if (fullName.isNotBlank()) {
-                DisplayName(fullName, clickableActionIfPossible(!state.isEditNameAllowed, navigateToChangeDisplayName))
+                DisplayName(
+                    UIText.DynamicString(fullName),
+                    clickableActionIfPossible(!state.isEditNameAllowed, navigateToChangeDisplayName)
+                )
             } else {
                 null
             },
             if (userName.isNotBlank()) {
-                Username("@$userName", clickableActionIfPossible(!state.isEditHandleAllowed, navigateToChangeHandle))
+                Username(UIText.DynamicString("@$userName"), clickableActionIfPossible(!state.isEditHandleAllowed, navigateToChangeHandle))
             } else {
                 null
             },
-            if (email.isNotBlank()) Email(
-                email,
-                clickableActionIfPossible(!state.isEditEmailAllowed, navigateToChangeEmail)
-            ) else null,
-            if (!teamName.isNullOrBlank()) Team(teamName) else null,
-            if (domain.isNotBlank()) Domain(domain) else null
+            if (email.isNotBlank()) {
+                Email(
+                    UIText.DynamicString(email),
+                    clickableActionIfPossible(!state.isEditEmailAllowed, navigateToChangeEmail)
+                )
+            } else {
+                null
+            },
+            if (accent != null) {
+                UserColor(
+                    UIText.StringResource(accent.resourceId()),
+                    Clickable(onClick = navigateToChangeColor),
+                    accent
+                )
+            } else {
+                null
+            },
+            if (!teamName.isNullOrBlank()) Team(UIText.DynamicString(teamName)) else null,
+            if (domain.isNotBlank()) Domain(UIText.DynamicString(domain)) else null
         ).toImmutableList()
     }
 }
@@ -228,7 +260,7 @@ fun MyAccountContent(
                 .fillMaxSize()
                 .padding(internalPadding)
         ) {
-            folderWithElements(
+            sectionWithElements(
                 header = context.getString(R.string.settings_myaccount_title),
                 items = accountDetailItems.associateBy { it.title.toString() },
                 factory = { item: AccountDetailsItem ->
@@ -243,13 +275,29 @@ fun MyAccountContent(
                             Text(
                                 style = MaterialTheme.wireTypography.body01,
                                 color = MaterialTheme.wireColorScheme.onBackground,
-                                text = item.text,
+                                text = item.text.asString(),
                                 modifier = Modifier.padding(start = dimensions().spacing8x)
                             )
                         },
                         actions = {
-                            if (item.clickable?.enabled == true) {
-                                Icons.Filled.ChevronRight.Icon().invoke()
+                            Row {
+                                if (item is UserColor) {
+                                    Box(
+                                        modifier = Modifier
+                                            .padding(end = dimensions().spacing12x)
+                                            .size(dimensions().spacing24x)
+                                            .background(
+                                                color = colorsScheme().wireAccentColors.getOrDefault(
+                                                    item.accent,
+                                                    colorsScheme().primary,
+                                                ),
+                                                shape = RoundedCornerShape(MaterialTheme.wireDimensions.groupAvatarCornerRadius)
+                                            )
+                                    ) {}
+                                }
+                                if (item.clickable?.enabled == true) {
+                                    Icons.Filled.ChevronRight.Icon().invoke()
+                                }
                             }
                         },
                         clickable = item.clickable ?: Clickable(false)
@@ -265,10 +313,10 @@ fun MyAccountContent(
 fun PreviewMyAccountScreen() {
     MyAccountContent(
         accountDetailItems = persistentListOf(
-            DisplayName("Bob", Clickable(enabled = true) {}),
-            Username("@bob_wire", Clickable(enabled = true) {}),
-            Email("bob@wire.com", Clickable(enabled = true) {}),
-            Team("Wire")
+            DisplayName(UIText.DynamicString("Bob"), Clickable(enabled = true) {}),
+            Username(UIText.DynamicString("@bob_wire"), Clickable(enabled = true) {}),
+            Email(UIText.DynamicString("bob@wire.com"), Clickable(enabled = true) {}),
+            Team(UIText.DynamicString("Wire"))
         ),
         forgotPasswordUrl = "http://wire.com",
         canDeleteAccount = true,

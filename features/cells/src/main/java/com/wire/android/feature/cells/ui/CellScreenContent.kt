@@ -72,7 +72,7 @@ internal fun CellScreenContent(
     actionsFlow: Flow<CellViewAction>,
     pagingListItems: LazyPagingItems<CellNodeUi>,
     sendIntent: (CellViewIntent) -> Unit,
-    onFolderClick: (CellNodeUi.Folder) -> Unit,
+    openFolder: (String, String, String?) -> Unit,
     downloadFileState: StateFlow<CellNodeUi.File?>,
     menuState: Flow<MenuOptions?>,
     showPublicLinkScreen: (PublicLinkScreenData) -> Unit,
@@ -111,18 +111,12 @@ internal fun CellScreenContent(
             isAllFiles = isAllFiles,
             isRecycleBin = isRecycleBin,
             isFiltering = isFiltering,
-            onRetry = { pagingListItems.retry() }
         )
 
         else ->
             CellFilesScreen(
                 cellNodes = pagingListItems,
-                onItemClick = {
-                    when (it) {
-                        is CellNodeUi.File -> sendIntent(CellViewIntent.OnFileClick(it))
-                        is CellNodeUi.Folder -> onFolderClick(it)
-                    }
-                },
+                onItemClick = { sendIntent(CellViewIntent.OnItemClick(it)) },
                 onItemMenuClick = { sendIntent(CellViewIntent.OnItemMenuClick(it)) },
                 isRefreshing = isRefreshing,
                 onRefresh = onRefresh
@@ -191,7 +185,7 @@ internal fun CellScreenContent(
             itemName = it.name ?: "",
             isRestoreInProgress = isRestoreInProgress,
             onConfirm = {
-                sendIntent(CellViewIntent.OnParentFolderRestoreConfirmed(it as CellNodeUi.Folder))
+                sendIntent(CellViewIntent.OnParentFolderRestoreConfirmed(it))
             },
             onDismiss = {
                 restoreParentFolderConfirmation = null
@@ -223,6 +217,7 @@ internal fun CellScreenContent(
             is HideRestoreParentFolderDialog -> restoreParentFolderConfirmation = null
             is HideDeleteConfirmation -> deleteConfirmation = null
             is ShowFileDeletedMessage -> showDeleteConfirmation(context, action.isFile, action.permanently)
+            is OpenFolder -> openFolder(action.path, action.title, action.parentFolderUuid)
         }
     }
 
@@ -291,7 +286,6 @@ private fun EmptyScreen(
     isAllFiles: Boolean = true,
     isRecycleBin: Boolean = false,
     isFiltering: Boolean = false,
-    onRetry: () -> Unit = {},
 ) {
     Column(
         modifier = Modifier
@@ -315,6 +309,7 @@ private fun EmptyScreen(
             style = typography().title01,
             textAlign = TextAlign.Center,
         )
+        Spacer(modifier = Modifier.height(dimensions().spacing24x))
         Text(
             text = when {
                 isFiltering -> stringResource(R.string.filters_try_adjusting_your_filters_label)
@@ -323,6 +318,7 @@ private fun EmptyScreen(
                 isRecycleBin -> stringResource(R.string.empty_recycle_bin)
                 else -> stringResource(R.string.conversation_file_list_empty_message)
             },
+            style = typography().body01,
             textAlign = TextAlign.Center,
         )
 
@@ -331,13 +327,6 @@ private fun EmptyScreen(
                 .fillMaxHeight()
                 .weight(1.5f)
         )
-
-        if (!isSearchResult && isAllFiles && !isFiltering) {
-            WirePrimaryButton(
-                text = stringResource(R.string.reload),
-                onClick = onRetry
-            )
-        }
     }
 }
 
@@ -384,7 +373,6 @@ fun PreviewEmptyScreen() {
         EmptyScreen(
             isSearchResult = false,
             isAllFiles = true,
-            onRetry = {}
         )
     }
 }

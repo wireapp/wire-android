@@ -18,7 +18,6 @@
 package com.wire.android.ui.home.conversations.model.messagetypes.multipart.grid
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -33,7 +32,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.ui.common.applyIf
 import com.wire.android.ui.common.colorsScheme
@@ -62,15 +60,10 @@ internal fun AssetGridPreview(
             .applyIf(messageStyle.isBubble()) {
                 background(
                     color = colorsScheme().surfaceVariant,
-                    shape = RoundedCornerShape(dimensions().messageAttachmentGridCornerSize)
+                    shape = RoundedCornerShape(dimensions().messageAttachmentCornerSize)
                 )
             }
-            .border(
-                width = 1.dp,
-                color = colorsScheme().outline,
-                shape = RoundedCornerShape(dimensions().messageAttachmentGridCornerSize)
-            )
-            .clip(RoundedCornerShape(dimensions().messageAttachmentGridCornerSize))
+            .clip(RoundedCornerShape(dimensions().messageAttachmentCornerSize))
     ) {
 
         if (item.transferStatus != AssetTransferStatus.NOT_FOUND) {
@@ -81,10 +74,6 @@ internal fun AssetGridPreview(
 
                 AttachmentFileType.VIDEO -> {
                     VideoAssetGridPreview(item, messageStyle)
-                }
-
-                AttachmentFileType.PDF -> {
-                    PdfAssetGridPreview(item)
                 }
 
                 else -> {

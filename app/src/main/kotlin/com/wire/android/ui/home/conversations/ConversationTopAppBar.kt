@@ -252,7 +252,6 @@ private fun CallControlButton(
         JoinButton(
             buttonClick = onJoinCallButtonClick,
             onAudioPermissionPermanentlyDenied = onAudioPermissionPermanentlyDenied,
-            horizontalPadding = dimensions().spacing0x,
         )
     } else {
         StartCallButton(

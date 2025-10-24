@@ -27,7 +27,7 @@ import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.media.audiomessage.AudioFocusHelper
 import com.wire.android.media.audiomessage.AudioMediaPlayingState
 import com.wire.android.media.audiomessage.AudioState
-import com.wire.android.media.audiomessage.AudioWavesMaskHelper
+import com.wire.android.media.audiomessage.GenerateAudioWavesMaskUseCase
 import com.wire.android.media.audiomessage.RecordAudioMessagePlayer
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.home.conversations.model.UriAsset
@@ -66,7 +66,7 @@ class RecordAudioViewModel @Inject constructor(
     private val currentScreenManager: CurrentScreenManager,
     private val audioMediaRecorder: AudioMediaRecorder,
     private val globalDataStore: GlobalDataStore,
-    private val audioWavesMaskHelper: AudioWavesMaskHelper,
+    private val generateAudioWavesMask: GenerateAudioWavesMaskUseCase,
     private val audioFocusHelper: AudioFocusHelper,
     private val dispatchers: DispatcherProvider,
     private val kaliumFileSystem: KaliumFileSystem
@@ -219,7 +219,7 @@ class RecordAudioViewModel @Inject constructor(
                                 ).toInt()
                             } ?: 0
                         ),
-                        wavesMask = playableAudioFile?.let { audioWavesMaskHelper.getWaveMask(it) } ?: listOf()
+                        wavesMask = playableAudioFile?.let { generateAudioWavesMask(it.path) } ?: listOf(),
                     )
                 )
             }
@@ -291,9 +291,9 @@ class RecordAudioViewModel @Inject constructor(
             )
 
             val didSucceed = if (state.shouldApplyEffects) {
-                audioMediaRecorder.convertWavToMp4(effectsFile!!.toString())
+                audioMediaRecorder.convertWavToM4a(effectsFile!!.toString())
             } else {
-                audioMediaRecorder.convertWavToMp4(outputFile!!.toString())
+                audioMediaRecorder.convertWavToM4a(outputFile!!.toString())
             }
 
             try {
@@ -318,7 +318,7 @@ class RecordAudioViewModel @Inject constructor(
                 RecordAudioViewActions.Recorded(
                     UriAsset(
                         uri = if (didSucceed) {
-                            context.fromNioPathToContentUri(nioPath = audioMediaRecorder.mp4OutputPath!!.toNioPath())
+                            context.fromNioPathToContentUri(nioPath = audioMediaRecorder.m4aOutputPath!!.toNioPath())
                         } else {
                             if (state.shouldApplyEffects) {
                                 context.fromNioPathToContentUri(nioPath = state.effectsOutputFile!!.toPath())
@@ -407,7 +407,6 @@ class RecordAudioViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
         recordAudioMessagePlayer.close()
-        audioWavesMaskHelper.clear()
     }
 
     companion object {

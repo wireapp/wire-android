@@ -68,7 +68,8 @@ class DebugFeatureFlagsViewModel @Inject constructor(
                             addFeature("Consumable Notifications", consumableNotificationsModel?.status)
                             addFeature("Allowed Global Operations", allowedGlobalOperationsModel?.status, allowedGlobalOperationsModel)
                             addFeature("Wire Cells", cellsModel?.status)
-
+                            addFeature("User Profile QR code", enableUserProfileQRCodeConfigModel?.status)
+                            addFeature("Message bubbles", chatBubblesModel?.status)
                             add(
                                 Feature(
                                     name = "Channels",

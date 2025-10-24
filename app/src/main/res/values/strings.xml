@@ -45,9 +45,6 @@
     <string name="label_learn_more">Learn more</string>
     <string name="label_removing">Removing…</string>
     <string name="label_logging_in">Logging in…</string>
-    <string name="label_membership_guest">Guest</string>
-    <string name="label_membership_external">External</string>
-    <string name="label_membership_service">App</string>
     <string name="label_user_deleted">Deleted</string>
     <string name="label_try_again">Try Again</string>
     <string name="label_done">Done</string>
@@ -71,7 +68,6 @@
     </plurals>
     <string name="label_reset_session">Reset Session</string>
     <string name="label_reset_session_success">Session successfully reset</string>
-    <string name="label_federated_membership">Federated</string>
     <string name="label_update">Update</string>
     <string name="label_close">Close</string>
     <string name="label_download">Download</string>
@@ -98,7 +94,6 @@
     <string name="content_description_hide_password">Hide password</string>
     <string name="content_description_search_back">Search back icon</string>
     <string name="content_description_clear_content">Clear content</string>
-    <string name="content_description_user_avatar">Profile picture</string>
     <string name="content_description_muted_conversation">Muted conversation</string>
     <string name="content_description_check">Check mark</string>
     <string name="content_description_download_icon">Download icon</string>
@@ -126,6 +121,7 @@
     <string name="content_description_conversation_back_btn">Go back to conversation list</string>
     <string name="content_description_conversation_open_details_label">open conversation details</string>
     <string name="content_description_new_conversation">Search for people or create a new conversation</string>
+    <string name="content_description_new_meeting">Start or schedule a new Wire Meeting</string>
     <string name="content_description_back_button">Back button</string>
     <string name="content_description_send_button">Send</string>
     <string name="content_description_timed_message_button">Self-deleting messages, button</string>
@@ -212,8 +208,6 @@
     <string name="content_description_open_label">open</string>
     <string name="content_description_join_call_label">join a call</string>
     <string name="content_description_share_label">share</string>
-    <string name="content_description_collapse_label">collapse</string>
-    <string name="content_description_expand_label">expand</string>
     <string name="content_description_edit_label">edit</string>
     <string name="content_description_select_label">select</string>
     <string name="content_description_unselect_label">unselect</string>
@@ -642,7 +636,7 @@
     <string name="conversation_details_is_not_classified">SECURITY LEVEL: UNCLASSIFIED</string>
     <string name="conversation_options_self_deleting_messages_label">Self-deleting messages</string>
     <string name="conversation_options_self_deleting_messages_description">When this is on, all messages in this conversation will disappear after a certain time.</string>
-    <string name="conversation_options_self_deleting_messages_cells_description">Self-deleting messages are currently not available for conversations with Cells.</string>
+    <string name="conversation_options_self_deleting_messages_cells_description">The feature is not available for conversations with Cells.</string>
     <string name="conversation_options_guests_label">Guests</string>
     <string name="conversation_details_guest_description">When this is ON, people from outside your team can join this conversation</string>
     <string name="conversation_options_guest_description">Turn this option ON to open this conversation to people outside your team, even if they don\'t have Wire.</string>
@@ -702,10 +696,6 @@
     <string name="user_profile_logout">Log out</string>
     <string name="user_profile_other_accs">Your Other Accounts</string>
     <string name="user_profile_status_availability">Availability</string>
-    <string name="user_profile_status_available">Available</string>
-    <string name="user_profile_status_busy">Busy</string>
-    <string name="user_profile_status_away">Away</string>
-    <string name="user_profile_status_none">None</string>
     <string name="user_profile_new_account_text">New Team or Add Account</string>
     <string name="user_profile_account_management">Manage Team</string>
     <string name="user_profile_details_tab">Details</string>
@@ -888,8 +878,9 @@
     <string name="label_system_message_conversation_started_sensitive_information_footer">Please still be careful with who you share sensitive information.</string>
     <string name="label_conversations_details_verified_proteus">Verified (Proteus)</string>
     <string name="label_conversations_details_verified_mls">Verified (End-to-end Identity)</string>
-    <string name="label_system_message_cell_enabled_for_conversation">Cell is on for everyone</string>
-    <string name="label_system_message_cell_self_delete_disabled_for_conversation">Self-deleting messages are %1$s in conversations with Cells</string>
+    <string name="label_system_message_cell_enabled_for_conversation">File collaboration (Cells) is %1$s</string>
+    <string name="label_system_message_cell_enabled_for_conversation_bold">on</string>
+    <string name="label_system_message_cell_self_delete_disabled_for_conversation">Self-deleting messages are %1$s for conversations with Cells</string>
     <string name="label_system_message_cell_self_delete_disabled">off</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
@@ -1246,6 +1237,7 @@
     <string name="settings_myaccount_display_name">PROFILE NAME</string>
     <string name="settings_myaccount_username">USERNAME</string>
     <string name="settings_myaccount_email">EMAIL</string>
+    <string name="settings_myaccount_user_color">USER COLOR</string>
     <string name="settings_myaccount_team">TEAM</string>
     <string name="settings_myaccount_domain">DOMAIN</string>
     <string name="settings_myaccount_reset_password">Reset Password</string>
@@ -1256,6 +1248,11 @@
     <string name="settings_myaccount_display_name_exceeded_limit_error">Minimum of 1 and maximum of 64 characters</string>
     <string name="settings_myaccount_display_name_updated">Your profile name changed</string>
     <string name="settings_myaccount_handle_updated">Your username changed</string>
+    <string name="settings_myaccount_user_color_title">User Color</string>
+    <string name="settings_myaccount_user_color_description">Your user color is used to guide you through the app’s interface</string>
+    <string name="settings_myaccount_user_color_updated">Your color changed</string>
+    <string name="content_description_settings_myaccount_user_color">change user color</string>
+    <string name="settings_myaccount_user_color_example">EXAMPLE</string>
     <!--Privacy Settings -->
     <string name="settings_send_read_receipts">Send read receipts</string>
     <string name="settings_send_read_receipts_description">If this is on, others can see if you read their messages.
@@ -1870,6 +1867,12 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="press_enter_to_send_text">When this is on, you can send messages with the Enter key on your keyboard.</string>
     <string name="customization_options_header_title">Options</string>
 
+    <!-- enterprise configurations -->
+    <string name="restriction_server_urls_title">Server endpoints configuration</string>
+    <string name="restriction_sso_code_title">SSO code configuration</string>
+    <string name="restriction_server_urls_description">JSON value with the server endpoints configuration</string>
+    <string name="restriction_sso_code_description">JSON value with the default SSO code configuration</string>
+
     <!--    channel not available dialog-->
     <string name="channel_not_available_dialog_title">Channels are available for team members.</string>
     <string name="channel_not_available_dialog_description">Create a team and start collaborating for free!</string>
@@ -1877,10 +1880,14 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="custimization_options_header_title">Options</string>
     <string name="cells_screen_title">All files</string>
     <string name="cells_screen_search_hint">Search files</string>
-    <string name="enable_wire_cell">Enable Wire Cell</string>
-    <string name="enable_wire_cell_switch_description">All files in this conversation will be uploaded in Wire Cell storage.</string>
+    <string name="enable_wire_cell">File collaboration (Cells beta version)</string>
+    <string name="enable_wire_cell_switch_description">Enable participants to manage their documents and media files. Use folders, tags, and filters to work more efficiently. This can\’t be undone.</string>
     <string name="failed_attachment_retry_upload">Retry upload</string>
     <string name="failed_attachment_remove">Remove</string>
     <string name="content_description_apply_filter">Apply Filter</string>
     <string name="content_description_filter_files">Filter files</string>
+
+    <string name="profile_deeplink_feature_unavailable_title_alert">This feature is not available. Please contact your administrator.</string>
+    <string name="conversation_options_file_collaboration_label">File collaboration (Cells)</string>
+    <string name="conversation_options_file_collaboration_description">Permanently on for this conversation.</string>
 </resources>

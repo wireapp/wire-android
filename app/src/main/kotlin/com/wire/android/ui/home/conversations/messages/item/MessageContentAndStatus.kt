@@ -91,8 +91,8 @@ internal fun UIMessage.Regular.MessageContentAndStatus(
                 accent = accent
             )
             if (!messageStyle.isBubble()) {
-                (messageContent as PartialDeliverable?)?.deliveryStatus?.let {
-                    PartialDeliveryInformation(it, messageStyle)
+                if (messageContent is PartialDeliverable && messageContent.deliveryStatus.hasAnyFailures) {
+                    PartialDeliveryInformation(messageContent.deliveryStatus, messageStyle)
                 }
             }
         }
@@ -287,7 +287,7 @@ private fun MessageContent(
 
         is UIMessageContent.AudioAssetMessage -> {
             AudioMessage(
-                audioMessageArgs = AudioMessageArgs(message.conversationId, message.header.messageId),
+                audioMessageArgs = AudioMessageArgs(message.conversationId, message.header.messageId, ""),
                 audioMessageDurationInMs = messageContent.audioMessageDurationInMs,
                 extension = messageContent.assetExtension,
                 size = messageContent.sizeInBytes,

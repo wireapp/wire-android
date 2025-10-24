@@ -35,8 +35,6 @@
     <string name="label_learn_more">En savoir plus</string>
     <string name="label_removing">Suppression en cours…</string>
     <string name="label_logging_in">Connexion en cours…</string>
-    <string name="label_membership_guest">Invité.e</string>
-    <string name="label_membership_external">Externe</string>
     <string name="label_user_deleted">Supprimé.e</string>
     <string name="label_message_sent_failure">Le message n\'a pas pu être envoyé en raison de problèmes de connexion.</string>
     <string name="label_message_edit_sent_failure">Le message modifié n\'a pas pu être envoyé en raison de problèmes de connexion.</string>
@@ -54,7 +52,6 @@
     <string name="label_message_partial_delivery_participants_many_deliver_later">%s recevra votre message plus tard</string>
     <string name="label_reset_session">Réinitialiser la session</string>
     <string name="label_reset_session_success">Session réinitialisée avec succès</string>
-    <string name="label_federated_membership">Fédéré</string>
     <string name="label_update">Mettre à jour</string>
     <string name="label_close">Fermer</string>
     <string name="label_download">Télécharger</string>
@@ -81,7 +78,6 @@
     <string name="content_description_hide_password">Cacher le mot de passe</string>
     <string name="content_description_search_back">Icône de retour de recherche</string>
     <string name="content_description_clear_content">Effacer le contenu</string>
-    <string name="content_description_user_avatar">Image de profil</string>
     <string name="content_description_muted_conversation">Conversation en sourdine</string>
     <string name="content_description_check">Cocher la case</string>
     <string name="content_description_download_icon">Icône de téléchargement</string>
@@ -441,10 +437,6 @@
     <string name="user_profile_close_description">Fermer le profil utilisateur</string>
     <string name="user_profile_other_accs">Vos autres comptes</string>
     <string name="user_profile_status_availability">Disponibilité</string>
-    <string name="user_profile_status_available">Disponible</string>
-    <string name="user_profile_status_busy">Occupé(e)</string>
-    <string name="user_profile_status_away">Absent(e)</string>
-    <string name="user_profile_status_none">Aucune</string>
     <string name="user_profile_details_tab">Informations</string>
     <string name="user_profile_devices_tab">Appareils</string>
     <string name="user_profile_role_change_error">Il y a eu une erreur en essayant de modifier le rôle. Veuillez vérifier votre connexion internet et réessayer</string>
@@ -555,5 +547,6 @@
     <string name="debug_settings_screen_title">Paramètres de débogage</string>
     <!--    Personal to team migration screen-->
     <!-- Move to Folder -->
+    <!-- enterprise configurations -->
     <!--    channel not available dialog-->
 </resources>

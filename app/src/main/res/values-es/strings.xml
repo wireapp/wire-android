@@ -36,9 +36,6 @@
     <string name="label_learn_more">Más información</string>
     <string name="label_removing">Eliminando...</string>
     <string name="label_logging_in">Iniciando sesión…</string>
-    <string name="label_membership_guest">Invitado</string>
-    <string name="label_membership_external">Externo</string>
-    <string name="label_membership_service">Aplicación</string>
     <string name="label_user_deleted">Eliminado</string>
     <string name="label_try_again">Intentar de nuevo</string>
     <string name="label_done">Listo</string>
@@ -62,7 +59,6 @@
     </plurals>
     <string name="label_reset_session">Restablecer la sesión</string>
     <string name="label_reset_session_success">Sesión restablecida con éxito</string>
-    <string name="label_federated_membership">Federado</string>
     <string name="label_update">Actualizar</string>
     <string name="label_close">Cerrar</string>
     <string name="label_download">Descargar</string>
@@ -89,7 +85,6 @@
     <string name="content_description_hide_password">Ocultar contraseña</string>
     <string name="content_description_search_back">Icono de búsqueda atrás</string>
     <string name="content_description_clear_content">Borrar contenido</string>
-    <string name="content_description_user_avatar">Foto de perfil</string>
     <string name="content_description_muted_conversation">Conversación silenciada</string>
     <string name="content_description_check">Marca de verificación</string>
     <string name="content_description_download_icon">Icono de descarga</string>
@@ -372,19 +367,20 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="member_name_you_label_titlecase">Tú</string>
     <string name="member_name_you_label_lowercase">tú</string>
     <string name="label_add_participants">A&#241;adir participantes</string>
-    <string name="conversation_details_title">Detalles de la conversaci&#243;n</string>
+    <string name="conversation_details_title">Detalles de la conversación</string>
     <string name="conversation_details_options_tab">OPCIONES</string>
     <string name="conversation_details_participants_tab">PARTICIPANTES</string>
     <string name="conversation_details_options_group_name">NOMBRE DEL GRUPO</string>
     <string name="conversation_details_conversation_admins">ADMINISTRADORES DE LA CONVERSACIÓN (%d)</string>
     <string name="conversation_details_conversation_members">MIEMBROS DE CONVERSACIÓN (%d)</string>
+    <string name="conversation_details_participants_count">%s participantes</string>
     <string name="conversation_details_show_all_participants">Mostrar todos los participantes (%d)</string>
     <string name="conversation_participant_you_label">(Tú)</string>
     <string name="conversation_details_is_classified">NIVEL DE SEGURIDAD: VS-NfD</string>
     <string name="conversation_details_is_not_classified">NIVEL DE SEGURIDAD: NO CLASIFICADO</string>
     <string name="conversation_options_self_deleting_messages_label">Mensajes con auto-borrado</string>
     <string name="conversation_options_guests_label">Invitados</string>
-    <string name="conversation_details_guest_description">Cuando est&#225; activo, personas fuera de su equipo pueden unirse a esta conversaci&#243;n.</string>
+    <string name="conversation_details_guest_description">Cuando esto está activo, personas de fuera de tu equipo pueden unirse a esta conversación</string>
     <string name="conversation_options_guest_description">Active esta opci&#243;n para abrir esta conversaci&#243;n a personas fuera de su equipo, incluso si no tienen Wire.</string>
     <string name="conversation_options_guest_not_editable_description">No se puede desactivar la opci&#243;n de invitados en esta conversaci&#243;n, ya que ha sido creada por alguien de otro equipo.</string>
     <string name="conversation_options_services_label">Aplicaciones</string>
@@ -400,7 +396,7 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="import_media_send_button_title">Enviar</string>
     <string name="export_media_subject_title">Compartiendo multimedia desde Wire</string>
     <!--Read receipts -->
-    <string name="conversation_options_read_receipt_label">Recibos de lectura</string>
+    <string name="conversation_options_read_receipt_label">Confirmación de lectura</string>
     <string name="conversation_options_read_receipt_description">Cuando est&#225; activado, las personas pueden ver cu&#225;ndo se lee su mensaje en esta conversaci&#243;n.</string>
     <!-- Messages -->
     <string name="message_details_title">Detalles del mensaje</string>
@@ -423,10 +419,6 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="user_profile_close_description">Cerrar perfil de usuario</string>
     <string name="user_profile_other_accs">Tus otras cuentas</string>
     <string name="user_profile_status_availability">Disponibilidad</string>
-    <string name="user_profile_status_available">Disponible</string>
-    <string name="user_profile_status_busy">Ocupado</string>
-    <string name="user_profile_status_away">Ausente</string>
-    <string name="user_profile_status_none">Ninguno</string>
     <string name="user_profile_details_tab">Detalles</string>
     <string name="user_profile_devices_tab">Dispositivos</string>
     <string name="user_profile_role_change_error">Ocurri&#243; un error al intentar cambiar el rol. Por favor, verifica tu conexi&#243;n a internet e intenta de nuevo.</string>
@@ -608,7 +600,9 @@ Un mensaje eliminado no puede ser restaurado.</string>
         <item quantity="other">%1$s y %2$d más están escribiendo</item>
     </plurals>
     <!-- Search Messages -->
+    <string name="label_search_button">Buscar</string>
     <!-- Conversation Media -->
+    <string name="label_conversation_media">Multimedia</string>
     <!-- Search Contact-->
     <string name="label_contacts">Contactos</string>
     <string name="label_new_group">Nuevo Grupo</string>
@@ -891,7 +885,7 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="file_sharing_restricted_description_no_users">Necesitas iniciar sesión en Wire antes de poder compartir nada</string>
     <string name="file_sharing_restricted_button_text_no_users">Abrir Wire</string>
     <!-- join conversation dialog -->
-    <string name="join_conversation_dialog_title">&#191;Unirse a la conversaci&#243;n?</string>
+    <string name="join_conversation_dialog_title">¿Unirse a la conversación?</string>
     <string name="join_conversation_dialog_message">Te han invitado a una conversaci&#243;n.
 
 %1$s</string>
@@ -1027,5 +1021,6 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="debug_settings_screen_title">Configuraci&#243;n de depuraci&#243;n</string>
     <!--    Personal to team migration screen-->
     <!-- Move to Folder -->
+    <!-- enterprise configurations -->
     <!--    channel not available dialog-->
 </resources>

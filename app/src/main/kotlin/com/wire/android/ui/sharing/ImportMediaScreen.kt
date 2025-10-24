@@ -96,8 +96,8 @@ import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
 import com.wire.android.ui.home.conversations.selfdeletion.selfDeletionMenuItems
 import com.wire.android.ui.home.conversationslist.common.ConversationList
-import com.wire.android.ui.home.conversationslist.common.previewConversationFolders
-import com.wire.android.ui.home.conversationslist.common.previewConversationFoldersFlow
+import com.wire.android.ui.home.conversationslist.common.previewConversationItems
+import com.wire.android.ui.home.conversationslist.common.previewConversationItemsFlow
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
 import com.wire.android.ui.home.newconversation.common.SendContentButton
@@ -677,7 +677,7 @@ fun PreviewImportMediaScreenRegular() {
     WireTheme {
         ImportMediaRegularContent(
             importMediaAuthenticatedState = ImportMediaAuthenticatedState(
-                conversations = previewConversationFoldersFlow(),
+                conversations = previewConversationItemsFlow(),
                 importedAssets = persistentListOf(
                     ImportedMediaAsset(
                         AssetBundle(
@@ -743,7 +743,7 @@ fun PreviewImportMediaTextScreenRegular() {
     WireTheme {
         ImportMediaRegularContent(
             importMediaAuthenticatedState = ImportMediaAuthenticatedState(
-                conversations = previewConversationFoldersFlow(list = previewConversationFolders(withFolders = false)),
+                conversations = previewConversationItemsFlow(list = previewConversationItems(withSections = false)),
                 importedAssets = persistentListOf(),
                 importedText = "This is a shared text message \n" +
                         "This is a second line with a veeeeeeeeeeeeeeeeeeeeeeeeeeery long shared text message"

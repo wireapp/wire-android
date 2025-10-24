@@ -92,7 +92,7 @@ class LegalHoldRequestedViewModelTest {
 
     @Test
     fun givenPendingLegalHoldRequest_whenGettingState_thenStateShouldBeVisible() = runTest {
-        val fingerprint = "fingerprint".toByteArray()
+        val fingerprint = "fingerprint"
         val (_, viewModel) = Arrangement()
             .withCurrentSessionExists()
             .withLegalHoldRequestResult(ObserveLegalHoldRequestUseCase.Result.LegalHoldRequestAvailable(fingerprint))
@@ -102,12 +102,12 @@ class LegalHoldRequestedViewModelTest {
         val state = viewModel.state
         state shouldBeInstanceOf LegalHoldRequestedState.Visible::class
         state as LegalHoldRequestedState.Visible
-        state.legalHoldDeviceFingerprint shouldBeEqualTo fingerprint.decodeToString()
+        state.legalHoldDeviceFingerprint shouldBeEqualTo fingerprint
     }
 
     @Test
     fun givenPendingLegalHoldRequestAndPasswordRequired_whenGettingState_thenShouldRequirePassword() = runTest {
-        val fingerprint = "fingerprint".toByteArray()
+        val fingerprint: String = "fingerprint"
         val (_, viewModel) = Arrangement()
             .withCurrentSessionExists()
             .withLegalHoldRequestResult(ObserveLegalHoldRequestUseCase.Result.LegalHoldRequestAvailable(fingerprint))
@@ -123,7 +123,7 @@ class LegalHoldRequestedViewModelTest {
 
     @Test
     fun givenPendingLegalHoldRequestAndNoPasswordRequired_whenGettingState_thenShouldNotRequirePassword() = runTest {
-        val fingerprint = "fingerprint".toByteArray()
+        val fingerprint: String = "fingerprint"
         val (_, viewModel) = Arrangement()
             .withCurrentSessionExists()
             .withLegalHoldRequestResult(ObserveLegalHoldRequestUseCase.Result.LegalHoldRequestAvailable(fingerprint))
@@ -139,7 +139,7 @@ class LegalHoldRequestedViewModelTest {
 
     private fun arrangeWithLegalHoldRequest(isPasswordRequired: Boolean = true) = Arrangement()
         .withCurrentSessionExists()
-        .withLegalHoldRequestResult(ObserveLegalHoldRequestUseCase.Result.LegalHoldRequestAvailable("fingerprint".toByteArray()))
+        .withLegalHoldRequestResult(ObserveLegalHoldRequestUseCase.Result.LegalHoldRequestAvailable("fingerprint"))
         .withIsPasswordRequiredResult(IsPasswordRequiredUseCase.Result.Success(isPasswordRequired))
 
     private fun LegalHoldRequestedState.assertStateVisible(assert: (LegalHoldRequestedState.Visible) -> Unit) {

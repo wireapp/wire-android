@@ -17,13 +17,13 @@ import com.wire.android.ui.common.avatar.UserProfileAvatar
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.search.HighlightName
 import com.wire.android.ui.home.conversations.search.HighlightSubtitle
-import com.wire.android.ui.home.conversationslist.common.FolderHeader
+import com.wire.android.ui.common.rowitem.SectionHeader
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.userprofile.self.model.OtherAccount
 
 @Composable
 internal fun OtherAccountsHeader() {
-    FolderHeader(stringResource(id = R.string.user_profile_other_accs))
+    SectionHeader(stringResource(id = R.string.user_profile_other_accs))
 }
 
 @Composable

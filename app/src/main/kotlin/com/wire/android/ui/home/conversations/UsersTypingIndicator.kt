@@ -26,7 +26,6 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -47,18 +46,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.times
 import com.wire.android.R
 import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
-import com.wire.android.ui.common.avatar.UserProfileAvatar
-import com.wire.android.ui.common.avatar.UserProfileAvatarType
+import com.wire.android.ui.common.avatar.UserProfileAvatarsRow
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
@@ -133,29 +129,14 @@ private fun UsersTypingAvatarPreviews(
     modifier: Modifier = Modifier,
     maxPreviewsDisplay: Int = MAX_PREVIEWS_DISPLAY
 ) {
-    val avatarSize = dimensions().spacing16x
-    val borderWidth = dimensions().spacing1x
-    val avatarWithBorderSize = avatarSize + 2 * borderWidth
-    val roundedCornersSize = avatarWithBorderSize / 2
-    val spacedBy = -(avatarSize / 2)
-
-    Row(
+    UserProfileAvatarsRow(
+        avatars = usersTyping.take(maxPreviewsDisplay).map { it.avatarData },
         modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(spacedBy)
-    ) {
-        usersTyping.take(maxPreviewsDisplay).forEach { user ->
-            UserProfileAvatar(
-                avatarData = user.avatarData,
-                size = dimensions().spacing16x,
-                modifier = Modifier
-                    .clip(RoundedCornerShape(roundedCornersSize))
-                    .size(avatarWithBorderSize)
-                    .background(colorsScheme().surfaceVariant),
-                padding = dimensions().spacing0x,
-                type = UserProfileAvatarType.WithoutIndicators,
-            )
-        }
-    }
+        avatarSize = dimensions().spacing16x,
+        overlapSize = dimensions().spacing8x,
+        borderWidth = dimensions().spacing1x,
+        borderColor = colorsScheme().surfaceVariant,
+    )
 }
 
 @Suppress("MagicNumber")

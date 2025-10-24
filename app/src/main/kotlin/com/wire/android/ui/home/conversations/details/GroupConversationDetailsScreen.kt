@@ -25,8 +25,6 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration
@@ -164,7 +162,14 @@ fun GroupConversationDetailsScreen(
 
     val onConversationMediaClick: () -> Unit = {
         if (groupOptions.isWireCellEnabled && groupOptions.isWireCellFeatureEnabled) {
-            navigator.navigate(NavigationCommand(ConversationFilesScreenDestination(viewModel.conversationId.toString())))
+            navigator.navigate(
+                NavigationCommand(
+                    ConversationFilesScreenDestination(
+                        conversationId = viewModel.conversationId.toString(),
+                        breadcrumbs = arrayOf(groupOptions.groupName)
+                    )
+                )
+            )
         } else {
             navigator.navigate(NavigationCommand(ConversationMediaScreenDestination(viewModel.conversationId)))
         }
@@ -384,11 +389,7 @@ private fun GroupConversationDetailsContent(
             AnimatedContent(
                 targetState = isScreenLoading.collectAsState().value,
                 transitionSpec = {
-                    val enter = if (this.targetState) {
-                        slideInVertically(initialOffsetY = { it })
-                    } else {
-                        fadeIn(tween(durationMillis = 500, delayMillis = 100)) + slideInVertically(initialOffsetY = { it / 2 })
-                    }
+                    val enter = fadeIn(tween(durationMillis = 500, delayMillis = 100))
                     val exit = fadeOut()
                     enter.togetherWith(exit)
                 },
@@ -431,8 +432,8 @@ private fun GroupConversationDetailsContent(
                 targetState = currentTabState,
                 label = "Conversation details bottom bar crossfade",
                 transitionSpec = {
-                    val enter = slideInVertically(initialOffsetY = { it })
-                    val exit = slideOutVertically(targetOffsetY = { it })
+                    val enter = fadeIn(tween(durationMillis = 500, delayMillis = 100))
+                    val exit = fadeOut()
                     enter.togetherWith(exit)
                 },
                 modifier = Modifier.fillMaxWidth()
@@ -480,8 +481,6 @@ private fun GroupConversationDetailsContent(
             visible = !isScreenLoading.collectAsState().value,
             enter = fadeIn(
                 animationSpec = tween(durationMillis = 500, delayMillis = 100)
-            ) + slideInVertically(
-                initialOffsetY = { it / 2 }
             ),
             exit = fadeOut()
         ) {

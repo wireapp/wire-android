@@ -36,8 +36,6 @@
     <string name="label_learn_more">Daha fazla bilgi</string>
     <string name="label_removing">Kaldırılıyor…</string>
     <string name="label_logging_in">Oturum açılıyor…</string>
-    <string name="label_membership_guest">Misafir</string>
-    <string name="label_membership_external">Harici</string>
     <string name="label_user_deleted">Silinmiş</string>
     <string name="label_try_again">Yeniden Dene</string>
     <string name="label_done">Tamamlandı</string>
@@ -61,7 +59,6 @@
     </plurals>
     <string name="label_reset_session">Oturumu Sıfırla</string>
     <string name="label_reset_session_success">Oturum başarıyla sıfırlandı</string>
-    <string name="label_federated_membership">Federe</string>
     <string name="label_update">Güncelleme</string>
     <string name="label_close">Kapat</string>
     <string name="label_download">İndir</string>
@@ -88,7 +85,6 @@
     <string name="content_description_hide_password">Parolayı gizle</string>
     <string name="content_description_search_back">Geri arama simgesi</string>
     <string name="content_description_clear_content">İçeriği temizle</string>
-    <string name="content_description_user_avatar">Profil resmi</string>
     <string name="content_description_muted_conversation">Sessize alınmış sohbet</string>
     <string name="content_description_check">Onay işareti</string>
     <string name="content_description_download_icon">İndirme simgesi</string>
@@ -202,8 +198,6 @@
     <string name="content_description_open_label">aç</string>
     <string name="content_description_join_call_label">bir çağrıya katıl</string>
     <string name="content_description_share_label">paylaş</string>
-    <string name="content_description_collapse_label">daralt</string>
-    <string name="content_description_expand_label">genişlet</string>
     <string name="content_description_edit_label">düzenle</string>
     <string name="content_description_select_label">seç</string>
     <string name="content_description_unselect_label">seçimi kaldır</string>
@@ -463,5 +457,6 @@ Yedek dosyayı korumak için güçlü bir şifre seçin.</string>
     <string name="debug_settings_screen_title">Hata Ayıklama Günlüğü Ayarları</string>
     <!--    Personal to team migration screen-->
     <!-- Move to Folder -->
+    <!-- enterprise configurations -->
     <!--    channel not available dialog-->
 </resources>

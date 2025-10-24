@@ -35,8 +35,6 @@
     <string name="label_learn_more">Дізнатися більше</string>
     <string name="label_removing">Видалення...</string>
     <string name="label_logging_in">Вхід...</string>
-    <string name="label_membership_guest">Гість</string>
-    <string name="label_membership_external">Партнер</string>
     <string name="label_message_sent_failure">Не вдалося надіслати повідомлення.</string>
     <string name="label_message_receive_failure">Помилка завантаження</string>
     <string name="label_system_message_self_user_knock">%s надіслали пінг</string>
@@ -45,7 +43,6 @@
     <string name="label_message_partial_delivery_participants_one_deliver_later">%s отримає ваше повідомлення пізніше.</string>
     <string name="label_message_partial_delivery_participants_many_deliver_later">%s отримає ваше повідомлення пізніше.</string>
     <string name="label_reset_session">Скидання сесії</string>
-    <string name="label_federated_membership">Федеративна система</string>
     <string name="label_update">Оновити</string>
     <string name="label_close">Закрити</string>
     <string name="label_download">Завантажити</string>
@@ -69,7 +66,6 @@
     <string name="content_description_reveal_password">Показати пароль</string>
     <string name="content_description_hide_password">Приховати пароль</string>
     <string name="content_description_clear_content">Видалити вміст</string>
-    <string name="content_description_user_avatar">Картинка для профілю</string>
     <string name="content_description_muted_conversation">Вимкнена бесіда</string>
     <string name="content_description_download_icon">Завантажити значок</string>
     <string name="content_description_add_to_favourite">Додати до вподобань</string>
@@ -221,5 +217,6 @@
     <string name="debug_settings_screen_title">Налаштування Debug</string>
     <!--    Personal to team migration screen-->
     <!-- Move to Folder -->
+    <!-- enterprise configurations -->
     <!--    channel not available dialog-->
 </resources>

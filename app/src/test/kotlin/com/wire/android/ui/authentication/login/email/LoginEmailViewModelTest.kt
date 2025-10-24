@@ -862,7 +862,8 @@ class LoginEmailViewModelTest {
             userDataStoreProvider,
             coreLogic,
             countdownTimer,
-            dispatcherProvider
+            dispatcherProvider,
+            ServerConfig.STAGING
         ).also { it.autoLoginWhenFullCodeEntered = true }
 
         fun withLoginReturning(result: AuthenticationResult) = apply {

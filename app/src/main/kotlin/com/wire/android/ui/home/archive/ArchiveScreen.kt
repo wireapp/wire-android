@@ -28,7 +28,7 @@ import com.wire.android.ui.common.search.rememberSearchbarState
 import com.wire.android.ui.home.HomeStateHolder
 import com.wire.android.ui.home.conversationslist.ConversationListViewModelPreview
 import com.wire.android.ui.home.conversationslist.ConversationsScreenContent
-import com.wire.android.ui.home.conversationslist.common.previewConversationFoldersFlow
+import com.wire.android.ui.home.conversationslist.common.previewConversationItemsFlow
 import com.wire.android.ui.home.conversationslist.model.ConversationsSource
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -56,7 +56,7 @@ fun PreviewArchiveEmptyScreen() = WireTheme {
         searchBarState = rememberSearchbarState(),
         conversationsSource = ConversationsSource.ARCHIVE,
         emptyListContent = { ArchiveEmptyContent() },
-        conversationListViewModel = ConversationListViewModelPreview(previewConversationFoldersFlow(list = listOf())),
+        conversationListViewModel = ConversationListViewModelPreview(previewConversationItemsFlow(list = listOf())),
     )
 }
 
@@ -68,7 +68,7 @@ fun PreviewArchiveEmptySearchScreen() = WireTheme {
         searchBarState = rememberSearchbarState(initialIsSearchActive = true, searchQueryTextState = TextFieldState(initialText = "er")),
         conversationsSource = ConversationsSource.ARCHIVE,
         emptyListContent = { ArchiveEmptyContent() },
-        conversationListViewModel = ConversationListViewModelPreview(previewConversationFoldersFlow(searchQuery = "er", list = listOf())),
+        conversationListViewModel = ConversationListViewModelPreview(previewConversationItemsFlow(searchQuery = "er", list = listOf())),
     )
 }
 
@@ -80,6 +80,6 @@ fun PreviewArchiveScreen() = WireTheme {
         searchBarState = rememberSearchbarState(initialIsSearchActive = true, searchQueryTextState = TextFieldState(initialText = "er")),
         conversationsSource = ConversationsSource.ARCHIVE,
         emptyListContent = { ArchiveEmptyContent() },
-        conversationListViewModel = ConversationListViewModelPreview(previewConversationFoldersFlow(searchQuery = "er")),
+        conversationListViewModel = ConversationListViewModelPreview(previewConversationItemsFlow(searchQuery = "er")),
     )
 }

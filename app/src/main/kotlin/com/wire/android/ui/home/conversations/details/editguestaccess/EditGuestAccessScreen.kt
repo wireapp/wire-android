@@ -54,7 +54,7 @@ import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.destinations.CreatePasswordProtectedGuestLinkScreenDestination
 import com.wire.android.ui.home.conversations.details.editguestaccess.createPasswordProtectedGuestLink.CreatePasswordGuestLinkNavArgs
-import com.wire.android.ui.home.conversationslist.common.FolderHeader
+import com.wire.android.ui.common.rowitem.SectionHeader
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -129,7 +129,7 @@ fun EditGuestAccessScreen(
                     }
                 }
                 item {
-                    FolderHeader(
+                    SectionHeader(
                         name = stringResource(id = R.string.folder_label_guest_link),
                         modifier = Modifier
                             .fillMaxWidth()

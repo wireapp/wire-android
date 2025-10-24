@@ -52,7 +52,7 @@ import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.destinations.DebugFeatureFlagsScreenDestination
-import com.wire.android.ui.home.conversationslist.common.FolderHeader
+import com.wire.android.ui.common.rowitem.SectionHeader
 import com.wire.android.ui.home.settings.SettingsItem
 import com.wire.android.ui.home.settings.backup.BackupAndRestoreDialog
 import com.wire.android.ui.home.settings.backup.rememberBackUpAndRestoreStateHolder
@@ -142,7 +142,7 @@ fun DangerOptions(
 ) {
 
     Column(modifier = modifier) {
-        FolderHeader("Danger Zone DO NOT TOUCH")
+        SectionHeader("Danger Zone DO NOT TOUCH")
         @SuppressLint("ComposeViewModelInjection")
         val backupAndRestoreStateHolder = rememberBackUpAndRestoreStateHolder()
 

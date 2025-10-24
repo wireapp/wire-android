@@ -36,8 +36,6 @@
     <string name="label_learn_more">További információ</string>
     <string name="label_removing">Eltávolít…</string>
     <string name="label_logging_in">Bejelentkezés…</string>
-    <string name="label_membership_guest">Vendég</string>
-    <string name="label_membership_external">Külső</string>
     <string name="label_user_deleted">Törölve</string>
     <string name="label_try_again">Próbálja újra</string>
     <string name="label_done">Kész</string>
@@ -61,7 +59,6 @@
     </plurals>
     <string name="label_reset_session">Munkamenet újraindítása</string>
     <string name="label_reset_session_success">Munkamenet sikeresen újraindítva</string>
-    <string name="label_federated_membership">Szövetséges</string>
     <string name="label_update">Frissítés</string>
     <string name="label_close">Bezárás</string>
     <string name="label_download">Letöltés</string>
@@ -88,7 +85,6 @@
     <string name="content_description_hide_password">Jelszó elrejtése</string>
     <string name="content_description_search_back">Keresés vissza ikon</string>
     <string name="content_description_clear_content">Tartalom törlése</string>
-    <string name="content_description_user_avatar">Profilkép</string>
     <string name="content_description_muted_conversation">Némított beszélgetés</string>
     <string name="content_description_check">Pipa jel</string>
     <string name="content_description_download_icon">Letöltés ikon</string>
@@ -202,8 +198,6 @@
     <string name="content_description_open_label">megnyitás</string>
     <string name="content_description_join_call_label">híváshoz csatlakozás</string>
     <string name="content_description_share_label">megosztás</string>
-    <string name="content_description_collapse_label">összecsukás</string>
-    <string name="content_description_expand_label">kinyitás</string>
     <string name="content_description_edit_label">szerkeszt</string>
     <string name="content_description_select_label">kiválaszt</string>
     <string name="content_description_unselect_label">kiválasztás megszüntetése</string>
@@ -605,10 +599,6 @@
     <string name="user_profile_logout">Kijelentkezés</string>
     <string name="user_profile_other_accs">További fiókjai</string>
     <string name="user_profile_status_availability">Elérhetőség</string>
-    <string name="user_profile_status_available">Elérhető</string>
-    <string name="user_profile_status_busy">Elfoglalt</string>
-    <string name="user_profile_status_away">Nincs a gépnél</string>
-    <string name="user_profile_status_none">Semmi</string>
     <string name="user_profile_new_account_text">Új csapat, vagy fiók hozzáadása</string>
     <string name="user_profile_account_management">Csapat kezelése</string>
     <string name="user_profile_details_tab">Részletek</string>
@@ -1658,6 +1648,7 @@ Kérjük, próbálja meg újra.</string>
     <string name="press_enter_to_send_title">Nyomja meg az Entert a küldéshez</string>
     <string name="press_enter_to_send_text">Ha ez aktív, a billentyűzet Enter gombjával tud üzenetet küldeni.</string>
     <string name="customization_options_header_title">Beállítások</string>
+    <!-- enterprise configurations -->
     <!--    channel not available dialog-->
     <string name="channel_not_available_dialog_title">A csatornák csapattagok számára érhetők el.</string>
     <string name="channel_not_available_dialog_description">Hozzon létre csapatot, és kezdjen együttműködni költségmentesen!</string>
@@ -1665,6 +1656,4 @@ Kérjük, próbálja meg újra.</string>
     <string name="custimization_options_header_title">Beállítások</string>
     <string name="cells_screen_title">Minden fájl</string>
     <string name="cells_screen_search_hint">Fájlok keresése</string>
-    <string name="enable_wire_cell">Wire Cell engedélyezése</string>
-    <string name="enable_wire_cell_switch_description">A beszélgetésben található összes fájl fel lesz töltve a Wire Cell tárhelyre.</string>
 </resources>

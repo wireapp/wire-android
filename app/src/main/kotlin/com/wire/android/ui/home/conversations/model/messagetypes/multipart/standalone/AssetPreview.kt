@@ -30,24 +30,31 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
+import com.wire.android.media.audiomessage.AudioMessageArgs
 import com.wire.android.ui.common.applyIf
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
 import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.home.conversations.messages.item.isBubble
+import com.wire.android.ui.home.conversations.model.messagetypes.audio.AudioMessage
 import com.wire.android.ui.theme.Accent
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
+import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.message.AssetContent.AssetMetadata
 import com.wire.kalium.logic.data.message.height
 import com.wire.kalium.logic.data.message.width
+import com.wire.kalium.logic.util.fileExtension
 
 @Composable
 fun AssetPreview(
     item: MultipartAttachmentUi,
     messageStyle: MessageStyle,
+    conversationId: ConversationId,
     onClick: () -> Unit,
     accent: Accent,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    showWithPreview: Boolean = false
 ) {
     Box(
         modifier = modifier
@@ -66,9 +73,18 @@ fun AssetPreview(
             .clip(RoundedCornerShape(dimensions().messageAttachmentCornerSize))
     ) {
         if (item.transferStatus != AssetTransferStatus.NOT_FOUND) {
-            when (item.assetType) {
-                AttachmentFileType.IMAGE -> ImageAssetPreview(item, messageStyle)
-                AttachmentFileType.VIDEO -> VideoAssetPreview(item, messageStyle, accent)
+            when {
+                item.assetType == AttachmentFileType.IMAGE -> ImageAssetPreview(item, messageStyle)
+                item.assetType == AttachmentFileType.VIDEO -> VideoAssetPreview(item, messageStyle, accent)
+                item.assetType == AttachmentFileType.PDF && !showWithPreview -> PdfAssetPreview(item, messageStyle, accent)
+                item.assetType == AttachmentFileType.AUDIO -> AudioMessage(
+                    AudioMessageArgs(conversationId, null, item.uuid),
+                    (item.metadata as AssetMetadata.Audio).durationMs ?: 0,
+                    item.transferStatus,
+                    item.fileName?.fileExtension() ?: "",
+                    item.assetSize ?: 0,
+                    messageStyle
+                )
                 else -> FileAssetPreview(item, messageStyle, accent)
             }
         } else {

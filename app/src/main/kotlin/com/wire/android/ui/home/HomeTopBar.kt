@@ -24,10 +24,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
+import com.wire.android.feature.cells.domain.model.CellsFilter
 import com.wire.android.model.Clickable
 import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
 import com.wire.android.navigation.HomeDestination
+import com.wire.android.navigation.HomeDestination.FilterActionOptions
 import com.wire.android.ui.common.avatar.UserProfileAvatar
 import com.wire.android.ui.common.avatar.UserProfileAvatarType
 import com.wire.android.ui.common.button.WireButtonState
@@ -36,7 +38,6 @@ import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
-import com.wire.android.feature.cells.domain.model.CellsFilter
 import com.wire.kalium.logic.data.conversation.ConversationFilter
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 
@@ -52,7 +53,7 @@ fun HomeTopBar(
     shouldShowCreateTeamUnreadIndicator: Boolean,
     onHamburgerMenuClick: () -> Unit,
     onNavigateToSelfUserProfile: () -> Unit,
-    onOpenConversationFilter: (conversationFilter: ConversationFilter) -> Unit,
+    onOpenConversationFilter: () -> Unit,
     onOpenFilesFilter: () -> Unit,
 ) {
     WireCenterAlignedTopAppBar(
@@ -60,28 +61,22 @@ fun HomeTopBar(
         onNavigationPressed = onHamburgerMenuClick,
         navigationIconType = NavigationIconType.Menu,
         actions = {
-            if (navigationItem.withNewConversationFab) {
+            navigationItem.filterAction?.let { filter ->
                 WireTertiaryIconButton(
-                    iconResource = com.wire.android.ui.common.R.drawable.ic_filter,
-                    contentDescription = R.string.label_filter_conversations,
-                    state = if (currentConversationFilter == ConversationFilter.All) {
-                        WireButtonState.Default
-                    } else {
-                        WireButtonState.Selected
+                    iconResource = filter.icon,
+                    contentDescription = filter.contentDescription,
+                    state = when {
+                        filter == FilterActionOptions.FilterConversations && currentConversationFilter != ConversationFilter.All ->
+                            WireButtonState.Selected
+
+                        filter == FilterActionOptions.FilterCells && currentCellsFilters.isNotEmpty() -> WireButtonState.Selected
+
+                        else -> WireButtonState.Default
                     },
-                    onButtonClicked = { onOpenConversationFilter(currentConversationFilter) }
-                )
-            }
-            if (navigationItem.withFilesFilterIcon) {
-                WireTertiaryIconButton(
-                    iconResource = com.wire.android.ui.common.R.drawable.ic_filter,
-                    contentDescription = R.string.content_description_filter_files,
-                    state = if (currentCellsFilters.isEmpty()) {
-                        WireButtonState.Default
-                    } else {
-                        WireButtonState.Selected
-                    },
-                    onButtonClicked = { onOpenFilesFilter() }
+                    onButtonClicked = when (filter) {
+                        FilterActionOptions.FilterConversations -> onOpenConversationFilter
+                        FilterActionOptions.FilterCells -> onOpenFilesFilter
+                    }
                 )
             }
             if (navigationItem.withUserAvatar) {

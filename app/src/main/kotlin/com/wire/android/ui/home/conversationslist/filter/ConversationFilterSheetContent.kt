@@ -19,55 +19,48 @@ package com.wire.android.ui.home.conversationslist.filter
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import com.wire.android.R
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.ConversationFilter
+import com.wire.kalium.logic.data.conversation.ConversationFolder
 
 @Composable
 fun ConversationFilterSheetContent(
-    filterSheetState: ConversationFilterSheetState,
+    currentFilter: ConversationFilter,
+    folders: List<ConversationFolder>,
     onChangeFilter: (ConversationFilter) -> Unit,
     isBottomSheetVisible: () -> Boolean = { true }
 ) {
-    when (filterSheetState.currentData.tab) {
+    var currentTab: FilterTab by rememberSaveable { mutableStateOf(FilterTab.FILTERS) }
+    val sheetData = ConversationFilterSheetData(currentTab, currentFilter, folders)
+    when (currentTab) {
         FilterTab.FILTERS -> {
             ConversationFiltersSheetContent(
-                sheetData = filterSheetState.currentData,
+                sheetData = sheetData,
                 onChangeFilter = onChangeFilter,
                 showFoldersBottomSheet = {
-                    filterSheetState.toFolders()
+                    currentTab = FilterTab.FOLDERS
                 }
             )
         }
 
         FilterTab.FOLDERS -> {
             ConversationFoldersSheetContent(
-                sheetData = filterSheetState.currentData,
+                sheetData = sheetData,
                 onChangeFolder = onChangeFilter,
                 onBackClick = {
-                    filterSheetState.toFilters()
+                    currentTab = FilterTab.FILTERS
                 }
             )
         }
     }
 
-    BackHandler(
-        filterSheetState.currentData.tab == FilterTab.FOLDERS
-                && isBottomSheetVisible()
-    ) {
-        filterSheetState.toFilters()
-    }
-}
-
-@Composable
-fun rememberFilterSheetState(
-    filterSheetData: ConversationFilterSheetData,
-): ConversationFilterSheetState {
-    return remember(filterSheetData) {
-        ConversationFilterSheetState(
-            conversationFilterSheetData = filterSheetData
-        )
+    BackHandler(currentTab == FilterTab.FOLDERS && isBottomSheetVisible()) {
+        currentTab = FilterTab.FILTERS
     }
 }
 

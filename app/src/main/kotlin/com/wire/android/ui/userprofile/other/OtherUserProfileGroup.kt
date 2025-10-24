@@ -157,7 +157,7 @@ private fun UserRoleInformation(
 fun EditButton(onEditClicked: () -> Unit, modifier: Modifier = Modifier) {
     WireSecondaryIconButton(
         onButtonClicked = onEditClicked,
-        iconResource = R.drawable.ic_edit,
+        iconResource = com.wire.android.ui.common.R.drawable.ic_edit,
         contentDescription = R.string.content_description_user_profile_edit_role_btn,
         modifier = modifier
     )

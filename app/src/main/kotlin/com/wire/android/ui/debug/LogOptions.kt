@@ -82,7 +82,7 @@ fun LogOptions(
 
             SettingsItem(
                 text = stringResource(R.string.label_delete_logs),
-                trailingIcon = R.drawable.ic_delete,
+                trailingIcon = com.wire.android.ui.common.R.drawable.ic_delete,
                 onIconPressed = Clickable(
                     enabled = true,
                     onClick = onDeleteLogs

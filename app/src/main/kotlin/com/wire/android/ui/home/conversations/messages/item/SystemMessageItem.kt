@@ -242,7 +242,7 @@ private fun SystemMessage.buildContent() = when (this) {
     }
 
     is SystemMessage.RenamedConversation -> buildContent(
-        iconResId = R.drawable.ic_edit,
+        iconResId = com.wire.android.ui.common.R.drawable.ic_edit,
         iconTintColor = MaterialTheme.wireColorScheme.onBackground,
     ) {
         stringResource(

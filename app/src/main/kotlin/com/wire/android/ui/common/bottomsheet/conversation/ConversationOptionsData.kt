@@ -26,10 +26,14 @@ import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.ConversationFolder
+import com.wire.kalium.logic.data.conversation.FolderType
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.GroupID
+import com.wire.kalium.logic.data.mls.CipherSuite
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.type.UserType
+import kotlinx.datetime.Instant
 
 data class ConversationOptionsData(
     val title: UIText,
@@ -171,3 +175,28 @@ fun ConversationDetails.toConversationOptionsData(selfUser: SelfUser): Conversat
         is ConversationDetails.Self -> null
         is ConversationDetails.Team -> null
     }
+
+val mockConversationOptionsData = ConversationOptionsData(
+    title = UIText.DynamicString("Conversation Name"),
+    conversationId = ConversationId("conversationId", "domain"),
+    mutingConversationState = MutedConversationStatus.AllAllowed,
+    conversationTypeDetail = ConversationTypeDetail.Group.Regular(
+        conversationId = ConversationId("conversationId", "domain"),
+        isFromTheSameTeam = true,
+    ),
+    selfRole = Conversation.Member.Role.Admin,
+    isTeamConversation = true,
+    isArchived = false,
+    protocol = Conversation.ProtocolInfo.MLS(
+        groupId = GroupID("groupId"),
+        groupState = Conversation.ProtocolInfo.MLSCapable.GroupState.ESTABLISHED,
+        epoch = ULong.MAX_VALUE,
+        keyingMaterialLastUpdate = Instant.DISTANT_FUTURE,
+        cipherSuite = CipherSuite.MLS_128_DHKEMP256_AES128GCM_SHA256_P256
+    ),
+    mlsVerificationStatus = Conversation.VerificationStatus.VERIFIED,
+    proteusVerificationStatus = Conversation.VerificationStatus.VERIFIED,
+    isUnderLegalHold = false,
+    isFavorite = true,
+    folder = ConversationFolder(id = "folderId", name = "Folder Name", type = FolderType.USER)
+)

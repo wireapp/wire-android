@@ -38,18 +38,18 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.times
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
-import com.wire.android.ui.common.collectAsStateLifecycleAware
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.rowitem.SectionHeader
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsViewModel
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
-import com.wire.android.ui.common.rowitem.SectionHeader
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType
 import com.wire.android.ui.home.settings.SwitchState
 import com.wire.android.ui.theme.WireTheme
@@ -73,7 +73,7 @@ fun GroupConversationOptions(
     viewModel: GroupConversationDetailsViewModel = hiltViewModel(),
     onEditGroupName: () -> Unit
 ) {
-    val state by viewModel.groupOptionsState.collectAsStateLifecycleAware()
+    val state by viewModel.groupOptionsState.collectAsStateWithLifecycle()
 
     GroupConversationSettings(
         state = state,

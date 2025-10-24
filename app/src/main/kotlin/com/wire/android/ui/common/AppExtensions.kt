@@ -20,8 +20,6 @@ package com.wire.android.ui.common
 
 import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -34,15 +32,12 @@ import androidx.lifecycle.flowWithLifecycle
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import java.time.format.TextStyle
 import java.util.Locale
-import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.EmptyCoroutineContext
 
 // todo try to move as much as we can to common
 
@@ -75,23 +70,6 @@ fun <T> rememberFlow(
         flow.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
     }
 }
-
-// TODO replace by collectAsStateWithLifecycle() after updating lifecycle version to 2.6.0-alpha01 or newer
-@Composable
-fun <T : R, R> Flow<T>.collectAsStateLifecycleAware(
-    initial: R,
-    context: CoroutineContext = EmptyCoroutineContext
-): State<R> {
-    val lifecycleAwareFlow = rememberFlow(flow = this)
-    return lifecycleAwareFlow.collectAsState(initial = initial, context = context)
-}
-
-// TODO replace by collectAsStateWithLifecycle() after updating lifecycle version to 2.6.0-alpha01 or newer
-@Suppress("StateFlowValueCalledInComposition")
-@Composable
-fun <T> StateFlow<T>.collectAsStateLifecycleAware(
-    context: CoroutineContext = EmptyCoroutineContext
-): State<T> = collectAsStateLifecycleAware(value, context)
 
 fun monthYearHeader(month: Int, year: Int): String {
     val currentYear = Instant.fromEpochMilliseconds(System.currentTimeMillis()).toLocalDateTime(TimeZone.currentSystemDefault()).year

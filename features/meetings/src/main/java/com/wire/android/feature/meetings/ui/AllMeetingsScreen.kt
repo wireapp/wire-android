@@ -31,10 +31,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.zIndex
 import com.wire.android.feature.meetings.R
 import com.wire.android.feature.meetings.ui.list.MeetingList
+import com.wire.android.feature.meetings.ui.options.MeetingOptionsModalSheetLayout
 import com.wire.android.feature.meetings.ui.util.PreviewMultipleThemes
 import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
 import com.wire.android.ui.common.bottomsheet.WireBottomSheetDefaults
+import com.wire.android.ui.common.bottomsheet.WireSheetValue
+import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.calculateCurrentTab
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.theme.WireTheme
@@ -51,6 +54,7 @@ fun AllMeetingsScreen() {
         val scope = rememberCoroutineScope()
         val pagerState = rememberPagerState { MeetingsTabItem.entries.size }
         val lazyListStateProvider = rememberLazyListStateProvider<MeetingsTabItem>()
+        val meetingOptionsSheetState = rememberWireModalSheetState<String>(initialValue = WireSheetValue.Hidden)
 
         Surface(
             color = WireBottomSheetDefaults.WireSheetContainerColor,
@@ -77,9 +81,14 @@ fun AllMeetingsScreen() {
             MeetingList(
                 modifier = Modifier.fillMaxSize(),
                 lazyListState = lazyListState,
-                type = MeetingsTabItem.entries[it]
+                type = MeetingsTabItem.entries[it],
+                openMeetingOptions = { meetingId ->
+                    meetingOptionsSheetState.show(meetingId)
+                }
             )
         }
+
+        MeetingOptionsModalSheetLayout(sheetState = meetingOptionsSheetState)
     }
 }
 

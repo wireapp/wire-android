@@ -23,6 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wire.android.R
 import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
@@ -31,7 +32,6 @@ import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.bottomsheet.WireSheetValue
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
-import com.wire.android.ui.common.collectAsStateLifecycleAware
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
@@ -70,7 +70,7 @@ fun MessageOptionsModalSheetLayout(
     WireModalSheetLayout(
         sheetState = sheetState,
         sheetContent = {
-            when (val state = viewModel.observeMessageStateFlow(it).collectAsStateLifecycleAware().value) {
+            when (val state = viewModel.observeMessageStateFlow(it).collectAsStateWithLifecycle().value) {
                 is MessageOptionsMenuState.Message -> MessageOptionsModalContent( // message state - show the sheet with proper content
                     message = state.message,
                     sheetState = sheetState,

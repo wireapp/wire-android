@@ -373,8 +373,11 @@ private fun painter(
     }
 
     data.asset == null -> {
-        if (showPlaceholderIfNoAsset) getDefaultAvatar(membership = data.membership)
-        else ColorPainter(Color.Transparent)
+        if (showPlaceholderIfNoAsset) {
+            getDefaultAvatar(membership = data.membership)
+        } else {
+            ColorPainter(Color.Transparent)
+        }
     }
 
     else -> {

@@ -112,8 +112,11 @@ internal fun NavDestination.toDestination(): DestinationSpec<*>? =
 
 fun String.getBaseRoute(): String =
     this.indexOfAny(listOf("?", "/")).let {
-        if (it != -1) this.substring(0, it)
-        else this
+        if (it != -1) {
+            this.substring(0, it)
+        } else {
+            this
+        }
     }
 
 fun Direction.handleNavigation(context: Context, handleOtherDirection: (Direction) -> Unit) = when (this) {

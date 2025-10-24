@@ -55,7 +55,8 @@ import com.wire.kalium.logic.data.id.ConversationId
 @Composable
 fun OutgoingCallScreen(
     conversationId: ConversationId,
-    sharedCallingViewModel: SharedCallingViewModel = hiltViewModel<SharedCallingViewModel, SharedCallingViewModel.Factory>(
+    sharedCallingViewModel: SharedCallingViewModel =
+    hiltViewModel<SharedCallingViewModel, SharedCallingViewModel.Factory>(
         key = "shared_$conversationId",
         creationCallback = { factory -> factory.create(conversationId = conversationId) }
     ),

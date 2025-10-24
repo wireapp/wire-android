@@ -79,7 +79,9 @@ private const val TAG_LEARN_MORE = "tag_learn_more"
 fun PreviewTextWithLearnMore() = WireTheme {
     TextWithLearnMore(
         textAnnotatedString = buildAnnotatedString {
-            withStyle(toSpanStyle(typography().body01, colorsScheme().onBackground)) { append("This is text with a learn more link") }
+            withStyle(toSpanStyle(typography().body01, colorsScheme().onBackground)) {
+                append("This is text with a learn more link")
+            }
         },
         learnMoreLink = "https://www.wire.com",
     )

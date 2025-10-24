@@ -73,5 +73,5 @@ enum class BackStackMode {
     POP_CONSECUTIVE_SAME_SCREENS,
 
     // screen will be added to the existing backstack.
-    NONE;
+    NONE
 }

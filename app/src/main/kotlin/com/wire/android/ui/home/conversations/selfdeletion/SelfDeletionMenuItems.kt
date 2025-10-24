@@ -53,8 +53,11 @@ private fun SelfDeletionDurationMenuItem(
             titleStyleUnselected = MaterialTheme.wireTypography.body01,
             titleStyleSelected = MaterialTheme.wireTypography.body01,
             onItemClick = Clickable { onSelfDeletionDurationSelected(duration) },
-            state = if (isSelected) RichMenuItemState.SELECTED
-            else RichMenuItemState.DEFAULT
+            state = if (isSelected) {
+                RichMenuItemState.SELECTED
+            } else {
+                RichMenuItemState.DEFAULT
+            }
         )
     }
 }

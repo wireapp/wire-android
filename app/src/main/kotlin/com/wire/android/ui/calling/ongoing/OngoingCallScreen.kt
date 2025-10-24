@@ -122,7 +122,8 @@ fun OngoingCallScreen(
         key = "ongoing_$conversationId",
         creationCallback = { factory -> factory.create(conversationId = conversationId) }
     ),
-    sharedCallingViewModel: SharedCallingViewModel = hiltViewModel<SharedCallingViewModel, SharedCallingViewModel.Factory>(
+    sharedCallingViewModel: SharedCallingViewModel =
+    hiltViewModel<SharedCallingViewModel, SharedCallingViewModel.Factory>(
         key = "shared_$conversationId",
         creationCallback = { factory -> factory.create(conversationId = conversationId) }
     )
@@ -147,7 +148,8 @@ fun OngoingCallScreen(
                 activity.finishAndRemoveTask()
             }
 
-            OngoingCallState.FlowState.Default -> { /* do nothing */
+            OngoingCallState.FlowState.Default -> {
+                /* do nothing */
             }
         }
     }

@@ -29,15 +29,14 @@ sealed class ConversationLastEvent {
         val callEvent: CallEvent
     ) : ConversationLastEvent()
 
-    data class Mention(val mentionMessage: MentionMessage): ConversationLastEvent()
+    data class Mention(val mentionMessage: MentionMessage) : ConversationLastEvent()
 
     data class Connection(val connectionState: ConnectionState, val userId: UserId) : ConversationLastEvent()
 
     object None : ConversationLastEvent()
-
 }
 
-//TODO: This could be a Long timestamp,
+// TODO: This could be a Long timestamp,
 // waiting for the Kalium back-end to make decision
 data class CallTime(
     val date: String,
@@ -53,9 +52,8 @@ enum class CallEvent(
 ) {
     MissedCall(R.drawable.ic_missed_call),
     OutgoingCall(R.drawable.ic_outgoing_call),
-    NoAnswerCall(R.drawable.ic_no_answer_call);
+    NoAnswerCall(R.drawable.ic_no_answer_call)
 }
-
 
 // We can expand this to show more detailed messages for other cases
 fun ConnectionState.toMessageId(): Int = when (this) {
@@ -63,8 +61,6 @@ fun ConnectionState.toMessageId(): Int = when (this) {
     else -> -1
 }
 
-
 data class MentionMessage(val message: String) {
     fun toQuote(): String = "\"$message\""
 }
-

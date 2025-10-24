@@ -135,8 +135,11 @@ private fun VisibilityIconButton(isVisible: Boolean, onVisibleChange: (Boolean) 
         Icon(
             imageVector = if (isVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
             contentDescription = stringResource(
-                if (isVisible) R.string.content_description_hide_password
-                else R.string.content_description_reveal_password
+                if (isVisible) {
+                    R.string.content_description_hide_password
+                } else {
+                    R.string.content_description_reveal_password
+                }
             ),
             modifier = Modifier
                 .size(dimensions().spacing20x)

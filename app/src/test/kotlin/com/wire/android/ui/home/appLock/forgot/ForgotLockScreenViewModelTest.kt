@@ -78,6 +78,7 @@ class ForgotLockScreenViewModelTest {
             assertEquals("", resultPassword)
             verify(exactly = 0) { arrangement.validatePasswordUseCase(any()) }
         }
+
     @Test
     fun `given password required and valid, when validating password, then return Success with given password`() =
         runTest(dispatcher.default()) {
@@ -89,6 +90,7 @@ class ForgotLockScreenViewModelTest {
             assert(result is ForgotLockScreenViewModel.Result.Success)
             assertEquals("password", resultPassword)
         }
+
     @Test
     fun `given password required but invalid, when validating password, then return InvalidPassword`() =
         runTest(dispatcher.default()) {
@@ -99,6 +101,7 @@ class ForgotLockScreenViewModelTest {
             val (result, _) = viewModel.validatePasswordIfNeeded("password")
             assert(result is ForgotLockScreenViewModel.Result.Failure.InvalidPassword)
         }
+
     @Test
     fun `given password required but not provided, when validating password, then return PasswordRequired`() =
         runTest(dispatcher.default()) {
@@ -109,6 +112,7 @@ class ForgotLockScreenViewModelTest {
             val (result, _) = viewModel.validatePasswordIfNeeded("")
             assert(result is ForgotLockScreenViewModel.Result.Failure.PasswordRequired)
         }
+
     @Test
     fun `given password required returns failure, when validating password, then return failure`() =
         runTest(dispatcher.default()) {
@@ -129,18 +133,21 @@ class ForgotLockScreenViewModelTest {
             val result = viewModel.deleteCurrentClient("password")
             assertEquals(expected, result)
         }
+
     @Test
     fun `given deleting client returns success, when deleting current client, then return Success`() =
         testClientDelete(
             deleteClientResult = DeleteClientResult.Success,
             expected = ForgotLockScreenViewModel.Result.Success
         )
+
     @Test
     fun `given deleting client returns invalid credentials, when deleting current client, then return InvalidPassword`() =
         testClientDelete(
             deleteClientResult = DeleteClientResult.Failure.InvalidCredentials,
             expected = ForgotLockScreenViewModel.Result.Failure.InvalidPassword
         )
+
     @Test
     fun `given deleting client returns failure, when deleting current client, then return failure`() =
         testClientDelete(
@@ -175,6 +182,7 @@ class ForgotLockScreenViewModelTest {
             assertEquals(expected, result)
             arrangement.verifyHardLogoutActions(successActionsCalled, userLogoutActionsCalled)
     }
+
     @Test
     fun `given no sessions, when logging out, then make all required actions other than logout and return success`() =
         testLoggingOut(
@@ -183,6 +191,7 @@ class ForgotLockScreenViewModelTest {
             successActionsCalled = true,
             userLogoutActionsCalled = false
         )
+
     @Test
     fun `given no valid sessions, when logging out, then make all required actions other than logout and return success`() =
         testLoggingOut(
@@ -191,6 +200,7 @@ class ForgotLockScreenViewModelTest {
             successActionsCalled = true,
             userLogoutActionsCalled = false
         )
+
     @Test
     fun `given valid sessions, when logging out, then make all required actions with logout and return success`() =
         testLoggingOut(
@@ -199,6 +209,7 @@ class ForgotLockScreenViewModelTest {
             successActionsCalled = true,
             userLogoutActionsCalled = true
         )
+
     @Test
     fun `given sessions return failure, when hard-logging out sessions, then return failure`() =
         testLoggingOut(
@@ -210,20 +221,35 @@ class ForgotLockScreenViewModelTest {
 
     class Arrangement {
         @MockK lateinit var coreLogic: CoreLogic
+
         @MockK lateinit var userSessionScope: UserSessionScope
+
         @MockK lateinit var logoutUseCase: LogoutUseCase
+
         @MockK lateinit var globalDataStore: GlobalDataStore
+
         @MockK lateinit var userDataStoreProvider: UserDataStoreProvider
+
         @MockK lateinit var userDataStore: UserDataStore
+
         @MockK lateinit var notificationManager: WireNotificationManager
+
         @MockK lateinit var getSelfUserUseCase: GetSelfUserUseCase
+
         @MockK lateinit var isPasswordRequiredUseCase: IsPasswordRequiredUseCase
+
         @MockK lateinit var validatePasswordUseCase: ValidatePasswordUseCase
+
         @MockK lateinit var observeCurrentClientIdUseCase: ObserveCurrentClientIdUseCase
+
         @MockK lateinit var deleteClientUseCase: DeleteClientUseCase
+
         @MockK lateinit var getSessionsUseCase: GetSessionsUseCase
+
         @MockK lateinit var observeEstablishedCallsUseCase: ObserveEstablishedCallsUseCase
+
         @MockK lateinit var endCallUseCase: EndCallUseCase
+
         @MockK lateinit var accountSwitchUseCase: AccountSwitchUseCase
 
         private val viewModel: ForgotLockScreenViewModel by lazy {

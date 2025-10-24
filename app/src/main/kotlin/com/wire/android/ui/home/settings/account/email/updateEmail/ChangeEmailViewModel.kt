@@ -67,19 +67,22 @@ class ChangeEmailViewModel @Inject constructor(
         viewModelScope.launch {
             val email = textState.text.trim().toString()
             when (updateEmail(email)) {
-                UpdateEmailUseCase.Result.Failure.EmailAlreadyInUse -> state =
+                UpdateEmailUseCase.Result.Failure.EmailAlreadyInUse ->
+                    state =
                     state.copy(
                         saveEnabled = false,
                         flowState = ChangeEmailState.FlowState.Error.TextFieldError.AlreadyInUse,
                     )
 
-                UpdateEmailUseCase.Result.Failure.InvalidEmail -> state =
+                UpdateEmailUseCase.Result.Failure.InvalidEmail ->
+                    state =
                     state.copy(
                         saveEnabled = false,
                         flowState = ChangeEmailState.FlowState.Error.TextFieldError.InvalidEmail
                     )
 
-                is UpdateEmailUseCase.Result.Failure.GenericFailure -> state =
+                is UpdateEmailUseCase.Result.Failure.GenericFailure ->
+                    state =
                     state.copy(
                         saveEnabled = false,
                         flowState = ChangeEmailState.FlowState.Error.TextFieldError.Generic

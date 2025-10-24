@@ -377,12 +377,18 @@ private fun MicrophoneIcon(
 ) {
     Icon(
         painter = painterResource(
-            id = if (isMuted) R.drawable.ic_microphone_white_muted
-            else R.drawable.ic_microphone_white
+            id = if (isMuted) {
+                R.drawable.ic_microphone_white_muted
+            } else {
+                R.drawable.ic_microphone_white
+            }
         ),
         contentDescription = stringResource(
-            id = if (isMuted) R.string.content_description_calling_call_muted
-            else R.string.content_description_calling_call_unmuted
+            id = if (isMuted) {
+                R.string.content_description_calling_call_muted
+            } else {
+                R.string.content_description_calling_call_unmuted
+            }
         ),
         tint = tint
     )

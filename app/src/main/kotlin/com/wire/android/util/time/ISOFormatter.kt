@@ -32,5 +32,4 @@ class ISOFormatter @Inject constructor() {
 
         return formatter.format(date)
     }
-
 }

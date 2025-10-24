@@ -185,7 +185,9 @@ class LegalHoldRequestedViewModelTest {
             .arrange()
         advanceUntilIdle()
         viewModel.acceptClicked()
-        viewModel.state.assertStateVisible { it.error shouldBeInstanceOf LegalHoldRequestedError.InvalidCredentialsError::class }
+        viewModel.state.assertStateVisible {
+            it.error shouldBeInstanceOf LegalHoldRequestedError.InvalidCredentialsError::class
+        }
     }
 
     @Test

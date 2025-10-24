@@ -132,7 +132,8 @@ class DeviceDetailsViewModel @Inject constructor(
                             /* no-op */
                         }
 
-                        is GetUserInfoResult.Success -> state =
+                        is GetUserInfoResult.Success ->
+                            state =
                             state.copy(userName = result.otherUser.name)
                     }
                 }

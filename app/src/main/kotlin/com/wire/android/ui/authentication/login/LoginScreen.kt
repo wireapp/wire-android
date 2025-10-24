@@ -95,9 +95,13 @@ fun LoginScreen(
     LoginContent(
         onBackPressed = navigator::navigateBack,
         onSuccess = { initialSyncCompleted, isE2EIRequired ->
-            val destination = if (isE2EIRequired) E2EIEnrollmentScreenDestination
-            else if (initialSyncCompleted) HomeScreenDestination
-            else InitialSyncScreenDestination
+            val destination = if (isE2EIRequired) {
+                E2EIEnrollmentScreenDestination
+            } else if (initialSyncCompleted) {
+                HomeScreenDestination
+            } else {
+                InitialSyncScreenDestination
+            }
 
             navigator.navigate(NavigationCommand(destination, BackStackMode.CLEAR_WHOLE))
         },
@@ -127,7 +131,9 @@ private fun LoginContent(
          */
         AnimatedContent(
             targetState = loginEmailViewModel.secondFactorVerificationCodeState.isCodeInputNecessary,
-            transitionSpec = { TransitionAnimationType.SLIDE.enterTransition.togetherWith(TransitionAnimationType.SLIDE.exitTransition) }
+            transitionSpec = {
+                TransitionAnimationType.SLIDE.enterTransition.togetherWith(TransitionAnimationType.SLIDE.exitTransition)
+            }
         ) { isCodeInputNecessary ->
             if (isCodeInputNecessary) {
                 LoginEmailVerificationCodeScreen(loginEmailViewModel)

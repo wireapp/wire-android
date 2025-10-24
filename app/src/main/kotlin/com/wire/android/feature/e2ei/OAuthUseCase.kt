@@ -76,7 +76,8 @@ class OAuthUseCase(
             _authState.performActionWithFreshTokens(authorizationService) { _, idToken, exception ->
                 if (exception != null) {
                     appLogger.e(
-                        message = "OAuthTokenRefreshManager: Error refreshing tokens, continue with login!", throwable = exception
+                        message = "OAuthTokenRefreshManager: Error refreshing tokens, continue with login!",
+                        throwable = exception
                     )
                     launchLoginFlow(activityResultRegistry, resultHandler)
                 } else {
@@ -96,7 +97,8 @@ class OAuthUseCase(
         resultHandler: (OAuthResult) -> Unit
     ) {
         val resultLauncher = activityResultRegistry.register(
-            OAUTH_ACTIVITY_RESULT_KEY, ActivityResultContracts.StartActivityForResult()
+            OAUTH_ACTIVITY_RESULT_KEY,
+            ActivityResultContracts.StartActivityForResult()
         ) { result ->
             handleActivityResult(result, resultHandler)
         }
@@ -158,7 +160,10 @@ class OAuthUseCase(
     }
 
     private fun getAuthorizationRequest(clientId: String) = AuthorizationRequest.Builder(
-        authServiceConfig, clientId, ResponseTypeValues.CODE, URL_AUTH_REDIRECT
+        authServiceConfig,
+        clientId,
+        ResponseTypeValues.CODE,
+        URL_AUTH_REDIRECT
     ).setCodeVerifier().setScopes(
         AuthorizationRequest.Scope.OPENID,
         AuthorizationRequest.Scope.EMAIL,
@@ -171,7 +176,9 @@ class OAuthUseCase(
     private fun AuthorizationRequest.Builder.setCodeVerifier(): AuthorizationRequest.Builder {
         val codeVerifier = getCodeVerifier()
         setCodeVerifier(
-            codeVerifier, getCodeChallenge(codeVerifier), CODE_VERIFIER_CHALLENGE_METHOD
+            codeVerifier,
+            getCodeChallenge(codeVerifier),
+            CODE_VERIFIER_CHALLENGE_METHOD
         )
         return this
     }

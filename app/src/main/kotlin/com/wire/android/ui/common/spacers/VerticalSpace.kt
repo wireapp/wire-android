@@ -62,5 +62,4 @@ object VerticalSpace {
     fun x32() {
         Spacer(Modifier.height(dimensions().spacing32x))
     }
-
 }

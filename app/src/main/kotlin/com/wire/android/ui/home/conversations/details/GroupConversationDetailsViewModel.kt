@@ -244,7 +244,8 @@ class GroupConversationDetailsViewModel @Inject constructor(
             when (result) {
                 is UpdateConversationAccessRoleUseCase.Result.Failure -> updateState(
                     groupOptionsState.value.copy(
-                        isServicesAllowed = !enableServices, error = GroupConversationOptionsState.Error.UpdateServicesError(result.cause)
+                        isServicesAllowed = !enableServices,
+                        error = GroupConversationOptionsState.Error.UpdateServicesError(result.cause)
                     )
                 )
 

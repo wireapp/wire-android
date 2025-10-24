@@ -52,6 +52,7 @@ class LegalHoldDeactivatedViewModelTest {
         advanceUntilIdle()
         viewModel.state shouldBeInstanceOf LegalHoldDeactivatedState.Hidden::class
     }
+
     @Test
     fun givenSessionReturnsFailure_whenGettingState_thenStateShouldBeHidden() = runTest {
         val (_, viewModel) = Arrangement()
@@ -60,6 +61,7 @@ class LegalHoldDeactivatedViewModelTest {
         advanceUntilIdle()
         viewModel.state shouldBeInstanceOf LegalHoldDeactivatedState.Hidden::class
     }
+
     @Test
     fun givenLegalHoldRequestReturnsFailure_whenGettingState_thenStateShouldBeHidden() = runTest {
         val (_, viewModel) = Arrangement()
@@ -69,6 +71,7 @@ class LegalHoldDeactivatedViewModelTest {
         advanceUntilIdle()
         viewModel.state shouldBeInstanceOf LegalHoldDeactivatedState.Hidden::class
     }
+
     @Test
     fun givenAlreadyNotified_whenGettingState_thenStateShouldBeHidden() = runTest {
         val (_, viewModel) = Arrangement()
@@ -78,6 +81,7 @@ class LegalHoldDeactivatedViewModelTest {
         advanceUntilIdle()
         viewModel.state shouldBeInstanceOf LegalHoldDeactivatedState.Hidden::class
     }
+
     @Test
     fun givenShouldNotify_whenGettingState_thenStateShouldBeVisible() = runTest {
         val legalHoldState = LegalHoldState.Disabled
@@ -88,6 +92,7 @@ class LegalHoldDeactivatedViewModelTest {
         advanceUntilIdle()
         viewModel.state shouldBeInstanceOf LegalHoldDeactivatedState.Visible::class
     }
+
     @Test
     fun givenShouldNotify_whenDismissing_thenStateShouldBeChangedToHidden() = runTest {
         val legalHoldState = LegalHoldState.Disabled

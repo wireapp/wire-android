@@ -62,8 +62,6 @@ class StartupBenchmarkWithLogin {
         }
     }
 
-
-
     private fun MacrobenchmarkScope.login() {
         device.findObject(By.res("loginButton"))?.let {
             it.click()

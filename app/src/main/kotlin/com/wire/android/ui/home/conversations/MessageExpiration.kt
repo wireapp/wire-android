@@ -236,8 +236,11 @@ class SelfDeletionTimerHelper(private val stringResourceProvider: StringResource
                      * and `1L.days` is the same as `1L.toDuration(DurationUnit.DAYS)`.
                      */
                     val timeLeftForDurationUnit = timeLeft - timeLeft.toLong(durationUnit).toDuration(durationUnit)
-                    return if (timeLeftForDurationUnit == ZERO) 1.toDuration(durationUnit)
-                    else timeLeftForDurationUnit
+                    return if (timeLeftForDurationUnit == ZERO) {
+                        1.toDuration(durationUnit)
+                    } else {
+                        timeLeftForDurationUnit
+                    }
                 }
 
                 val timeLeftUpdateInterval = when {

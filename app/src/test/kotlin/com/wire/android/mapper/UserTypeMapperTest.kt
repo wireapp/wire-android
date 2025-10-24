@@ -50,5 +50,4 @@ class UserTypeMapperTest {
         val result = userTypeMapper.toMembership(UserType.INTERNAL)
         assertEquals(Membership.Standard, result)
     }
-
 }

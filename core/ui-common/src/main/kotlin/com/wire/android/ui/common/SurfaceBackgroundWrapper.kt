@@ -41,4 +41,3 @@ fun SurfaceBackgroundWrapper(
         content()
     }
 }
-

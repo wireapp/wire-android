@@ -257,8 +257,11 @@ private fun CreateButton(
         fillMaxWidth = true,
         onClick = onCreateLink,
         loading = isLoading,
-        state = if (!enabled) WireButtonState.Disabled
-        else WireButtonState.Default,
+        state = if (!enabled) {
+            WireButtonState.Disabled
+        } else {
+            WireButtonState.Default
+        },
         modifier = Modifier
             .fillMaxWidth()
             .background(MaterialTheme.wireColorScheme.background)

@@ -49,7 +49,8 @@ class VerifyEmailViewModel @Inject constructor(
                     UpdateEmailUseCase.Result.Failure.EmailAlreadyInUse,
                     is UpdateEmailUseCase.Result.Failure.GenericFailure,
                     UpdateEmailUseCase.Result.Failure.InvalidEmail,
-                    UpdateEmailUseCase.Result.Success.VerificationEmailSent -> { /*no-op*/
+                    UpdateEmailUseCase.Result.Success.VerificationEmailSent -> {
+                        /*no-op*/
                     }
 
                     UpdateEmailUseCase.Result.Success.NoChange -> state = state.copy(noChange = true)

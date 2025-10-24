@@ -56,7 +56,9 @@ class FileManager @Inject constructor(@ApplicationContext private val context: C
         assetMimeType: String,
         dispatcher: DispatcherProvider = DefaultDispatcherProvider()
     ): String? = withContext(dispatcher.io()) {
-        saveFileDataToMediaFolder(assetName, assetDataPath, assetDataSize, assetMimeType, context)?.let { context.getFileName(it) }
+        saveFileDataToMediaFolder(assetName, assetDataPath, assetDataSize, assetMimeType, context)?.let {
+            context.getFileName(it)
+        }
     }
 
     fun openWithExternalApp(assetDataPath: Path, assetName: String?, onError: () -> Unit) {

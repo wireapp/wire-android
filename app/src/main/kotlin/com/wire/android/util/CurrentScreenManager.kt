@@ -98,8 +98,11 @@ class CurrentScreenManager @Inject constructor(
 
     suspend fun observeCurrentScreen(scope: CoroutineScope): StateFlow<CurrentScreen> = isAppVisibleFlow
         .flatMapLatest { isAppVisible ->
-            if (isAppVisible) currentScreenState
-            else flowOf(CurrentScreen.InBackground)
+            if (isAppVisible) {
+                currentScreenState
+            } else {
+                flowOf(CurrentScreen.InBackground)
+            }
         }
         .distinctUntilChanged()
         .stateIn(scope)

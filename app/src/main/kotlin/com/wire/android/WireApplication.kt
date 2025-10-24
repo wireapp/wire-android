@@ -45,7 +45,7 @@ import com.wire.android.util.LogFileWriter
 import com.wire.android.util.getGitBuildId
 import com.wire.android.util.lifecycle.SyncLifecycleManager
 import com.wire.android.workmanager.WireWorkerFactory
-import com.wire.android.workmanager.worker.enqueueAssetUpload
+import com.wire.android.workmanager.worker.enqueueAssetUploadObserver
 import com.wire.kalium.common.logger.CoreLogger
 import com.wire.kalium.logger.KaliumLogLevel
 import com.wire.kalium.logger.KaliumLogger
@@ -155,10 +155,7 @@ class WireApplication : BaseApp() {
             }
             .collect { uploadInProgress ->
                 if (uploadInProgress) {
-                    appLogger.d("Uploading files...")
-                    workManager.enqueueAssetUpload()
-                } else {
-                    appLogger.d("All files uploaded.")
+                    workManager.enqueueAssetUploadObserver()
                 }
             }
     }

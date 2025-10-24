@@ -42,7 +42,11 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 
-class UploadAssetWorker @AssistedInject constructor(
+/**
+ * A Worker that observes asset uploads and only completes when there are no uploads in progress.
+ * This is required to let the network operations running when the app is in the background.
+ */
+class AssetUploadObserverWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParams: WorkerParameters,
     private val coreLogic: CoreLogic,
@@ -52,6 +56,7 @@ class UploadAssetWorker @AssistedInject constructor(
     override suspend fun doWork(): Result {
 
         // Wait until there are no uploads in progress
+        // switching to other user will cancel the observer and stop the worker
         coreLogic.getGlobalScope().session.currentSessionFlow()
             .filterIsInstance<CurrentSessionResult.Success>()
             .map { it.accountInfo.userId }
@@ -84,18 +89,19 @@ class UploadAssetWorker @AssistedInject constructor(
             .setContentIntent(openAppPendingIntent(applicationContext))
             .build()
 
-        return ForegroundInfo(NotificationIds.DELETING_CONVERSATION_NOTIFICATION_ID.ordinal, notification)
+        return ForegroundInfo(NotificationIds.UPLOADING_DATA_NOTIFICATION_ID.ordinal, notification)
     }
 }
 
-fun WorkManager.enqueueAssetUpload() {
-    val workerName = "UploadAssetWorker"
-    val request = OneTimeWorkRequestBuilder<UploadAssetWorker>()
+fun WorkManager.enqueueAssetUploadObserver() {
+    val workerName = "asset_upload_observer_worker"
+    val request = OneTimeWorkRequestBuilder<AssetUploadObserverWorker>()
         .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
         .build()
 
     enqueueUniqueWork(
         workerName,
+        // using APPEND_OR_REPLACE to avoid race condition between finishing and starting new worker
         ExistingWorkPolicy.APPEND_OR_REPLACE,
         request
     )

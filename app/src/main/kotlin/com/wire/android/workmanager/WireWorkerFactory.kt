@@ -29,7 +29,7 @@ import com.wire.android.notification.WireNotificationManager
 import com.wire.android.workmanager.worker.DeleteConversationLocallyWorker
 import com.wire.android.workmanager.worker.NotificationFetchWorker
 import com.wire.android.workmanager.worker.PersistentWebsocketCheckWorker
-import com.wire.android.workmanager.worker.UploadAssetWorker
+import com.wire.android.workmanager.worker.AssetUploadObserverWorker
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.sync.WrapperWorker
 import com.wire.kalium.logic.sync.WrapperWorkerFactory
@@ -63,8 +63,8 @@ class WireWorkerFactory @Inject constructor(
             DeleteConversationLocallyWorker::class.java.canonicalName ->
                 DeleteConversationLocallyWorker(appContext, workerParameters, coreLogic, notificationChannelsManager)
 
-            UploadAssetWorker::class.java.canonicalName ->
-                UploadAssetWorker(appContext, workerParameters, coreLogic, notificationChannelsManager)
+            AssetUploadObserverWorker::class.java.canonicalName ->
+                AssetUploadObserverWorker(appContext, workerParameters, coreLogic, notificationChannelsManager)
 
             else -> null
         }

@@ -22,9 +22,9 @@ import android.os.Build
 import android.view.WindowManager
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import com.wire.android.util.SwitchAccountObserver
 import androidx.lifecycle.lifecycleScope
 import com.wire.android.ui.AppLockActivity
+import com.wire.android.util.SwitchAccountObserver
 import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch

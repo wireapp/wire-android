@@ -67,7 +67,7 @@ class ConversationAudioMessagePlayer
 @Inject constructor(
     @ApplicationContext private val context: Context,
     private val audioMediaPlayer: MediaPlayer,
-    private val generateAudioWavesMask: GenerateAudioWavesMaskUseCase,
+    private val wavesMaskHelper: AudioWavesMaskHelper,
     private val servicesManager: Lazy<ServicesManager>,
     private val audioFocusHelper: AudioFocusHelper,
     @KaliumCoreLogic private val coreLogic: CoreLogic,
@@ -308,9 +308,10 @@ class ConversationAudioMessagePlayer
 
                     audioMessageStateUpdate.emit(
                         AudioMediaPlayerStateUpdate.WaveMaskUpdate(
-                            conversationId = conversationId,
-                            messageId = messageId,
-                            waveMask = generateAudioWavesMask(result.decodedAssetPath.toString()),
+                            conversationId,
+                            messageId,
+                            assetId,
+                            wavesMaskHelper.getWaveMask(result.decodedAssetPath)
                         )
                     )
 
@@ -375,7 +376,7 @@ class ConversationAudioMessagePlayer
                 AudioMediaPlayerStateUpdate.WaveMaskUpdate(
                     conversationId = conversationId,
                     messageId = messageId,
-                    waveMask = generateAudioWavesMask(result.decodedAssetPath.toString()),
+                    waveMask = wavesMaskHelper.getWaveMask(result.decodedAssetPath)
                 )
             )
         }
@@ -533,6 +534,7 @@ class ConversationAudioMessagePlayer
 
     internal fun clear() {
         audioMediaPlayer.reset()
+        wavesMaskHelper.clear()
         currentAudioMessageId = null
         audioMessageStateHistory = emptyMap()
         servicesManager.get().stopPlayingAudioMessageService()

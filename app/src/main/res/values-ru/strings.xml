@@ -461,6 +461,7 @@
     <string name="create_account_email_share_anonymous_data_label">Я согласен делиться анонимными данными об использовании. Все подробности вы найдете в нашей</string>
     <string name="create_account_email_share_anonymous_data_link_label">Политике конфиденциальности</string>
     <string name="create_account_email_share_anonymous_data_optional_label">(Необязательно)</string>
+    <string name="create_account_email_backlink_to_team_label">Хотите сотрудничать в команде?</string>
     <string name="create_account_email_terms_dialog_view_policy">Ознакомиться с Условиями использования и Политикой конфиденциальности</string>
     <string name="create_account_email_already_in_use_error">Указанный вами адрес электронной почты уже зарегистрирован.</string>
     <string name="create_account_email_blacklisted_error">Ваш email был признан недоверенным, например, из-за отклонения спам-фильтром.</string>
@@ -1882,6 +1883,10 @@
     <string name="press_enter_to_send_text">Когда эта опция включена, вы можете отправлять сообщения с помощью клавиши Enter на клавиатуре.</string>
     <string name="customization_options_header_title">Настройки</string>
     <!-- enterprise configurations -->
+    <string name="restriction_server_urls_title">Настройка конечных точек сервера</string>
+    <string name="restriction_sso_code_title">Настройка кода SSO</string>
+    <string name="restriction_server_urls_description">Значение JSON с конфигурацией конечных точек сервера</string>
+    <string name="restriction_sso_code_description">Значение JSON с настройкой кода SSO по умолчанию</string>
     <!--    channel not available dialog-->
     <string name="channel_not_available_dialog_title">Каналы доступны для членов команды.</string>
     <string name="channel_not_available_dialog_description">Создайте команду и начните взаимодействовать бесплатно!</string>

@@ -310,7 +310,6 @@ class ConversationAudioMessagePlayer
                         AudioMediaPlayerStateUpdate.WaveMaskUpdate(
                             conversationId = conversationId,
                             messageId = messageId,
-                            assetId = assetId,
                             waveMask = generateAudioWavesMask(result.decodedAssetPath.toString()),
                         )
                     )
@@ -376,7 +375,6 @@ class ConversationAudioMessagePlayer
                 AudioMediaPlayerStateUpdate.WaveMaskUpdate(
                     conversationId = conversationId,
                     messageId = messageId,
-                    assetId = assetId,
                     waveMask = generateAudioWavesMask(result.decodedAssetPath.toString()),
                 )
             )

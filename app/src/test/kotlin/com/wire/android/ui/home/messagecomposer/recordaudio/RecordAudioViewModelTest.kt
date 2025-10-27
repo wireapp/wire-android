@@ -25,7 +25,7 @@ import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.media.audiomessage.AudioFocusHelper
 import com.wire.android.media.audiomessage.AudioState
-import com.wire.android.media.audiomessage.GenerateAudioWavesMaskUseCase
+import com.wire.android.media.audiomessage.AudioWavesMaskHelper
 import com.wire.android.media.audiomessage.RecordAudioMessagePlayer
 import com.wire.android.ui.home.messagecomposer.recordaudio.RecordAudioViewModelTest.Arrangement.Companion.ASSET_SIZE_LIMIT
 import com.wire.android.util.CurrentScreen
@@ -47,9 +47,11 @@ import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
+import okio.Path
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import java.io.File
 
 @ExtendWith(CoroutineTestExtension::class)
 class RecordAudioViewModelTest {
@@ -375,7 +377,7 @@ class RecordAudioViewModelTest {
         val context = mockk<Context>()
         val dispatchers = TestDispatcherProvider()
         val fakeKaliumFileSystem = FakeKaliumFileSystem()
-        val generateAudioWavesMask = mockk<GenerateAudioWavesMaskUseCase>()
+        val audioWavesMaskHelper = mockk<AudioWavesMaskHelper>()
         val audioFocusHelper = mockk<AudioFocusHelper>()
 
         val viewModel by lazy {
@@ -389,7 +391,7 @@ class RecordAudioViewModelTest {
                 generateAudioFileWithEffects = generateAudioFileWithEffects,
                 globalDataStore = globalDataStore,
                 dispatchers = dispatchers,
-                generateAudioWavesMask = generateAudioWavesMask,
+                audioWavesMaskHelper = audioWavesMaskHelper,
                 kaliumFileSystem = fakeKaliumFileSystem,
                 audioFocusHelper = audioFocusHelper
             )
@@ -425,7 +427,8 @@ class RecordAudioViewModelTest {
 
             coEvery { observeEstablishedCalls() } returns flowOf(listOf())
 
-            coEvery { generateAudioWavesMask.invoke(any()) } returns listOf()
+            every { audioWavesMaskHelper.getWaveMask(any<File>()) } returns listOf()
+            every { audioWavesMaskHelper.getWaveMask(any<Path>()) } returns listOf()
 
             every { audioFocusHelper.requestExclusive() } returns true
             every { audioFocusHelper.abandonExclusive() } returns Unit

@@ -32,7 +32,7 @@ if [ ! -f "$COORDINATES_FILE" ]; then
     exit 1
 fi
 
-VERSION=$(grep -E '^\s*const val versionName\s*=\s*"' "$COORDINATES_FILE" | sed -E 's/.*"(.+)".*/\1/')
+VERSION=$(awk '/^[[:space:]]*const[[:space:]]+val[[:space:]]+versionName[[:space:]]*=[[:space:]]*"/ { match($0, /"([^"]+)"/, arr); print arr[1] }' "$COORDINATES_FILE")
 
 if [ -z "$VERSION" ]; then
     echo -e "${RED}Error: Could not extract version from AndroidCoordinates.kt${NC}"

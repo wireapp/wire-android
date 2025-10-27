@@ -711,7 +711,6 @@ class Arrangement(private val tempDir: File) {
         MockKAnnotations.init(this, relaxed = true)
 
         every { coreLogic.getSessionScope(any()).messages.getAssetMessage } returns getAssetMessage
-        every { coreLogic.getSessionScope(any()).messages.getAudioAssetUseCase } returns getAudioAsset
         coEvery { generateAudioWavesMask.invoke(any()) } returns WAVES_MASK
         every { mediaPlayer.currentPosition } returns 100
 

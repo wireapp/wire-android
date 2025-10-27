@@ -310,7 +310,6 @@ class ConversationAudioMessagePlayer
                         AudioMediaPlayerStateUpdate.WaveMaskUpdate(
                             conversationId,
                             messageId,
-                            assetId,
                             wavesMaskHelper.getWaveMask(result.decodedAssetPath)
                         )
                     )

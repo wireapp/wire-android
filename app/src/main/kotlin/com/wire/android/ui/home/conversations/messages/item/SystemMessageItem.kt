@@ -532,7 +532,11 @@ private fun SystemMessage.buildContent() = when (this) {
         iconResId = R.drawable.ic_files,
         iconTintColor = MaterialTheme.wireColorScheme.onBackground,
     ) {
-        stringResource(R.string.label_system_message_cell_enabled_for_conversation).toMarkdownAnnotatedString()
+        val arg = stringResource(R.string.label_system_message_cell_enabled_for_conversation_bold)
+        stringResource(
+            id = R.string.label_system_message_cell_enabled_for_conversation,
+            formatArgs = arrayOf(arg.markdownBold())
+        ).toMarkdownAnnotatedString()
     }
 
     is SystemMessage.NewConversationWithCellSelfDeleteDisabled -> buildContent(

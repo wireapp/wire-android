@@ -32,7 +32,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.GroupID
 import com.wire.kalium.logic.data.mls.CipherSuite
 import com.wire.kalium.logic.data.user.SelfUser
-import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.data.user.type.isTeamAdmin
 import kotlinx.datetime.Instant
 
 data class ConversationOptionsData(
@@ -110,7 +110,7 @@ fun ConversationDetails.toConversationOptionsData(selfUser: SelfUser): Conversat
                     conversationId = conversation.id,
                     isFromTheSameTeam = conversation.teamId == selfUser.teamId,
                     isPrivate = access == ConversationDetails.Group.Channel.ChannelAccess.PRIVATE,
-                    isSelfUserTeamAdmin = selfUser.userType in arrayOf(UserType.ADMIN, UserType.OWNER),
+                    isSelfUserTeamAdmin = selfUser.userType.isTeamAdmin()
                 )
             } else {
                 ConversationTypeDetail.Group.Regular(

@@ -29,6 +29,7 @@ import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.data.user.type.UserTypeInfo
 
 object TestUser {
     val USER_ID = UserId("value", "domain")
@@ -47,7 +48,7 @@ object TestUser {
         completePicture = UserAssetId("value", "domain"),
         availabilityStatus = UserAvailabilityStatus.AVAILABLE,
         supportedProtocols = setOf(SupportedProtocol.PROTEUS),
-        userType = UserType.INTERNAL,
+        userType = UserTypeInfo.Regular(UserType.INTERNAL),
     )
     val OTHER_USER = OtherUser(
         USER_ID.copy(value = "otherValue"),
@@ -61,7 +62,7 @@ object TestUser {
         previewPicture = UserAssetId("value", "domain"),
         completePicture = UserAssetId("value", "domain"),
         availabilityStatus = UserAvailabilityStatus.AVAILABLE,
-        userType = UserType.INTERNAL,
+        userType = UserTypeInfo.Regular(UserType.INTERNAL),
         botService = null,
         deleted = false,
         defederated = false,

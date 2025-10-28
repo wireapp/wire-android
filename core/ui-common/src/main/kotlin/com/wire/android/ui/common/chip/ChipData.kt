@@ -15,27 +15,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+package com.wire.android.ui.common.chip
 
-package com.wire.android.ui.home.conversationslist.model
+import androidx.compose.runtime.Immutable
+import java.util.UUID
 
-import androidx.annotation.StringRes
-import com.wire.android.ui.common.R
-
-enum class Membership(@StringRes val stringResourceId: Int) {
-    Guest(R.string.label_membership_guest),
-    Federated(R.string.label_federated_membership),
-    External(R.string.label_membership_external),
-
-    /**
-     * Membership for services like bots and apps
-     */
-    Service(R.string.label_membership_service),
-    Owner(-1),
-    Admin(-1),
-    Standard(-1),
-    None(-1)
-}
-
-fun Membership.hasLabel(): Boolean = stringResourceId != -1
-
-fun Membership.allowsRoleEdition() = this != Membership.Federated && this != Membership.Service
+@Immutable
+data class ChipData(
+    val id: String = UUID.randomUUID().toString(),
+    val label: String,
+    val isSelected: Boolean,
+    val isEnabled: Boolean
+)

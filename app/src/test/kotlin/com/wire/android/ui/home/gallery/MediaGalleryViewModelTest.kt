@@ -41,6 +41,7 @@ import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.data.user.type.UserTypeInfo
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
@@ -307,7 +308,7 @@ class MediaGalleryViewModelTest {
                 QualifiedID("other-user-id", "domain-id"),
                 "Test user", null, null, null,
                 1, null, ConnectionState.ACCEPTED, null, null,
-                UserType.INTERNAL,
+                UserTypeInfo.Regular(UserType.INTERNAL),
                 UserAvailabilityStatus.AVAILABLE,
                 setOf(SupportedProtocol.PROTEUS),
                 null,
@@ -315,7 +316,7 @@ class MediaGalleryViewModelTest {
                 defederated = false,
                 isProteusVerified = false
             ),
-            userType = UserType.INTERNAL,
+            userType = UserTypeInfo.Regular(UserType.INTERNAL),
         )
 
     companion object {

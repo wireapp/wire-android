@@ -82,7 +82,12 @@ fun ReactionOption(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                ownReactions.plus(listOf("👍", "🙂", "❤️", "☹️", "👎")).take(5).forEach { emoji ->
+                val topEmojis = if (ownReactions.size >= 5) {
+                    ownReactions.take(5)
+                } else {
+                    (ownReactions + DEFAULT_REACTION_EMOJIS).take(5)
+                }
+                topEmojis.forEach { emoji ->
                     CompositionLocalProvider(
                         LocalMinimumInteractiveComponentSize provides Dp.Unspecified,
                     ) {
@@ -130,6 +135,8 @@ fun ReactionOption(
         }
     )
 }
+
+private val DEFAULT_REACTION_EMOJIS = listOf("👍", "🙂", "❤️", "☹️", "👎")
 
 @PreviewMultipleThemes
 @Composable

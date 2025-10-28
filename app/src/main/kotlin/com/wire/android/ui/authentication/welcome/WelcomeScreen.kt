@@ -258,7 +258,11 @@ private fun WelcomeCarousel(modifier: Modifier = Modifier) {
 
     // adding repeated elements on both edges to have list like: [E A B C D E A] and because of that we can flip to the other side of the
     // list when we reach the end while keeping swipe capability both ways and from the user side it looks like an infinite loop both ways
-    val circularItemsList = listOf<CarouselPageData>().plus(items.last()).plus(items).plus(items.first())
+    val circularItemsList = buildList {
+        add(items.last())
+        addAll(items)
+        add(items.first())
+    }
     val initialPage = 1
     val pagerState = rememberPagerState(initialPage = initialPage, pageCount = { circularItemsList.size })
 

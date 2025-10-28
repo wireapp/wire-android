@@ -36,4 +36,10 @@
     <string name="content_description_user_avatar">Profilbild</string>
     <string name="content_description_collapse_label">Ausblenden</string>
     <string name="content_description_expand_label">anzeigen</string>
+    <string name="accent_color_blue">Blau</string>
+    <string name="accent_color_green">Grün</string>
+    <string name="accent_color_red">Rot</string>
+    <string name="accent_color_amber">Bernstein</string>
+    <string name="accent_color_petrol">Petrol</string>
+    <string name="accent_color_purple">Lila</string>
 </resources>

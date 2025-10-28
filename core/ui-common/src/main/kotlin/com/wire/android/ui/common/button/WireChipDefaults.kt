@@ -24,7 +24,7 @@ import com.wire.android.ui.common.colorsScheme
 
 @Composable
 fun wireChipColors() = SelectableChipColors(
-    containerColor = Color.Transparent,
+    containerColor = colorsScheme().surface,
     labelColor = colorsScheme().onBackground,
     leadingIconColor = colorsScheme().onBackground,
     trailingIconColor = colorsScheme().onBackground,

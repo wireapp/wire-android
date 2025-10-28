@@ -47,6 +47,7 @@ import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import com.wire.kalium.logic.feature.user.SetUserHandleUseCase
+import com.wire.kalium.logic.feature.user.UpdateAccentColorUseCase
 import com.wire.kalium.logic.feature.user.UpdateDisplayNameUseCase
 import com.wire.kalium.logic.feature.user.UpdateEmailUseCase
 import com.wire.kalium.logic.feature.user.UpdateSelfAvailabilityStatusUseCase
@@ -101,6 +102,13 @@ class UserModule {
         userScope: UserScope
     ): UpdateDisplayNameUseCase =
         userScope.updateDisplayName
+
+    @ViewModelScoped
+    @Provides
+    fun provideUpdateAccentColorUseCase(
+        userScope: UserScope
+    ): UpdateAccentColorUseCase =
+        userScope.updateAccentColor
 
     @ViewModelScoped
     @Provides

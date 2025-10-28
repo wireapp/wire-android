@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.inset
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -148,25 +149,30 @@ private fun SelfDeletionTimerIcon(
                 contentDescription = "Time left ${"%.0f".format(metrics.displayFractionLeft * 100)}%"
             }
     ) {
-        if (metrics.backgroundAlpha > 0f) {
-            drawCircle(color = filledColor.copy(alpha = metrics.backgroundAlpha))
-        }
+        val strokePx = this.size.minDimension * STROKE_WIDTH_FRACTION
+        val insetPx = strokePx / 2f
 
-        drawCircle(color = filledColor)
+        inset(insetPx, insetPx) {
+            if (metrics.backgroundAlpha > 0f) {
+                drawCircle(color = filledColor.copy(alpha = metrics.backgroundAlpha))
+            }
 
-        if (metrics.emptySweepDegrees > 0f) {
-            drawArc(
-                color = emptyColor,
-                startAngle = START_ANGLE_TOP_DEG,
-                sweepAngle = metrics.emptySweepDegrees,
-                useCenter = true
+            drawCircle(color = filledColor)
+
+            if (metrics.emptySweepDegrees > 0f) {
+                drawArc(
+                    color = emptyColor,
+                    startAngle = START_ANGLE_TOP_DEG,
+                    sweepAngle = metrics.emptySweepDegrees,
+                    useCenter = true
+                )
+            }
+
+            drawCircle(
+                color = filledColor,
+                style = Stroke(width = this.size.minDimension * STROKE_WIDTH_FRACTION)
             )
         }
-
-        drawCircle(
-            color = filledColor,
-            style = Stroke(width = this.size.minDimension * STROKE_WIDTH_FRACTION)
-        )
     }
 }
 

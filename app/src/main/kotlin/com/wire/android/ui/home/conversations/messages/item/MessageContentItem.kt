@@ -190,6 +190,9 @@ fun MessageContentItem(
                         HorizontalSpace.x12()
                     }
                 }
+                if (useSmallBottomPadding) {
+                    VerticalSpace.x4()
+                }
             }
         }
     }

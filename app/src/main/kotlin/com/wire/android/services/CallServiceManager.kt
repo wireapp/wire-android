@@ -21,7 +21,7 @@ import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.notification.CallNotificationData
 import com.wire.android.services.CallService.Action
-import com.wire.android.util.logIfEmptyUserName
+import com.wire.android.util.logging.logIfEmptyUserName
 import com.wire.kalium.common.functional.Either
 import com.wire.kalium.common.functional.fold
 import com.wire.kalium.common.functional.left

@@ -91,7 +91,7 @@ for LANG in "${LANGUAGES[@]}"; do
     DEFAULT_FILE="$RELEASE_NOTES_DIR/$LANG/default.txt"
 
     if [ -f "$DEFAULT_FILE" ]; then
-        CHAR_COUNT=$(wc -m < "$DEFAULT_FILE" | tr -d ' ')
+        CHAR_COUNT=$(python3 -c "import sys; print(len(sys.stdin.read()))" < "$DEFAULT_FILE")
 
         echo -e "${BLUE}[$LANG]${NC} Character count: ${CHAR_COUNT}/${MAX_CHARACTERS}"
 

@@ -22,7 +22,7 @@
     <string name="file_list_load_error">Произошла ошибка при загрузке списка файлов. Пожалуйста, попробуйте еще раз</string>
     <string name="file_list_load_network_error_title">Невозможно загрузить файлы</string>
     <string name="file_list_load_network_error">Не удалось загрузить список ваших файлов. Пожалуйста, проверьте подключение к интернету и повторите попытку.</string>
-    <string name="file_list_empty_message">Здесь вы найдете все файлы, которыми поделились в ваших беседах.</string>
+    <string name="file_list_empty_message">Для бесед, в которых используется совместная работа с файлами, вы найдете общие файлы здесь.</string>
     <string name="conversation_file_list_empty_message">Здесь вы найдете все файлы и папки, которыми поделились в этой беседе.</string>
     <string name="file_list_search_empty_message">Попробуйте изменить условия поиска</string>
     <string name="save_label">Сохранить</string>
@@ -104,7 +104,8 @@
     <string name="rename_file_renamed">Файл переименован</string>
     <string name="rename_folder_renamed">Папка переименована</string>
     <string name="rename_failure">Не удалось переименовать</string>
-    <string name="rename_invalid_name">Используйте название без \"/\" или \".\"</string>
+    <string name="rename_invalid_name">Используйте название без \"/\"</string>
+    <string name="rename_already_exist">Файл с таким названием уже существует</string>
     <string name="filter_label">Фильтр</string>
     <string name="tags_label">Теги</string>
     <string name="select_tags_label">выбрать теги</string>
@@ -112,10 +113,10 @@
     <string name="apply_label">Применить</string>
     <string name="add_or_remove_tags_title">Добавить или удалить теги</string>
     <string name="tags_description">Все члены вашей команды могут видеть и использовать теги, которые вы создаете.</string>
-    <string name="suggested_tags_label">Предлагаемые теги</string>
     <string name="added_tags_label">Теги добавлены</string>
     <string name="add_tag_label">Добавить тег</string>
     <string name="enter_name_label">Введите название тега</string>
+    <string name="invalid_tag_name_error">Используйте тег без специальных символов , ; \/ \\ &quot; &apos; &lt; &gt;</string>
     <string name="no_tags_message">Теги еще не добавлены.</string>
     <string name="tags_edited">Теги были изменены</string>
     <string name="failed_edit_tags">Не удалось изменить теги</string>
@@ -127,5 +128,4 @@
     <string name="cells_folder_deleted_message">Папка удалена</string>
     <string name="cells_file_permanently_deleted_message">Файл удален навсегда</string>
     <string name="cells_folder_permanently_deleted_message">Папка удалена навсегда</string>
-    <string name="invalid_tag_name_error">Недопустимое название тега</string>
 </resources>

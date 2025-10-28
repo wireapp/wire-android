@@ -20,39 +20,46 @@ package com.wire.android.ui.home.settings.account
 
 import com.wire.android.R
 import com.wire.android.model.Clickable
+import com.wire.android.ui.theme.Accent
 import com.wire.android.util.ui.UIText
 
 sealed class AccountDetailsItem(
     val title: UIText.StringResource,
-    open val text: String,
+    open val text: UIText,
     open val clickable: Clickable?
 ) {
 
-    data class DisplayName(override val text: String, override val clickable: Clickable?) : AccountDetailsItem(
+    data class DisplayName(override val text: UIText, override val clickable: Clickable?) : AccountDetailsItem(
         title = UIText.StringResource(R.string.settings_myaccount_display_name),
         text = text,
         clickable = clickable
     )
 
-    data class Username(override val text: String, override val clickable: Clickable?) : AccountDetailsItem(
+    data class Username(override val text: UIText, override val clickable: Clickable?) : AccountDetailsItem(
         title = UIText.StringResource(R.string.settings_myaccount_username),
         text = text,
         clickable = clickable
     )
 
-    data class Email(override val text: String, override val clickable: Clickable?) : AccountDetailsItem(
+    data class Email(override val text: UIText, override val clickable: Clickable?) : AccountDetailsItem(
         title = UIText.StringResource(R.string.settings_myaccount_email),
         text = text,
         clickable = clickable
     )
 
-    data class Team(override val text: String) : AccountDetailsItem(
+    data class UserColor(override val text: UIText, override val clickable: Clickable?, val accent: Accent) : AccountDetailsItem(
+        title = UIText.StringResource(R.string.settings_myaccount_user_color),
+        text = text,
+        clickable = clickable
+    )
+
+    data class Team(override val text: UIText) : AccountDetailsItem(
         title = UIText.StringResource(R.string.settings_myaccount_team),
         text = text,
         clickable = Clickable(enabled = false) {}
     )
 
-    data class Domain(override val text: String) : AccountDetailsItem(
+    data class Domain(override val text: UIText) : AccountDetailsItem(
         title = UIText.StringResource(R.string.settings_myaccount_domain),
         text = text,
         clickable = Clickable(enabled = false) {}

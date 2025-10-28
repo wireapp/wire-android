@@ -122,7 +122,7 @@ class NewConversationViewModel @Inject constructor(
     private fun getWireCellFeatureState() = viewModelScope.launch {
         if (isWireCellsFeatureEnabled()) {
             groupOptionsState = groupOptionsState.copy(
-                isWireCellsEnabled = true
+                isWireCellsEnabled = false
             )
         }
     }

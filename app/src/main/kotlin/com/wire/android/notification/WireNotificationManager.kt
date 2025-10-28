@@ -28,7 +28,7 @@ import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.lifecycle.SyncLifecycleManager
-import com.wire.android.util.logIfEmptyUserName
+import com.wire.android.util.logging.logIfEmptyUserName
 import com.wire.kalium.logger.obfuscateId
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.ConversationId

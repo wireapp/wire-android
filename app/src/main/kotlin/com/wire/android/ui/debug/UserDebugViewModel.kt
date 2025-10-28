@@ -26,7 +26,7 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.CurrentAccount
 import com.wire.android.util.EMPTY
-import com.wire.android.util.LogFileWriter
+import com.wire.android.util.logging.LogFileWriter
 import com.wire.kalium.common.logger.CoreLogger
 import com.wire.kalium.logger.KaliumLogLevel
 import com.wire.kalium.logic.data.user.UserId
@@ -34,6 +34,8 @@ import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import com.wire.kalium.logic.feature.debug.ChangeProfilingUseCase
 import com.wire.kalium.logic.feature.debug.ObserveDatabaseLoggerStateUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -85,6 +87,12 @@ class UserDebugViewModel
 
     fun deleteLogs() {
         logFileWriter.deleteAllLogFiles()
+    }
+
+    fun flushLogs(): Deferred<Unit> {
+        return viewModelScope.async {
+            logFileWriter.forceFlush()
+        }
     }
 
     fun setLoggingEnabledState(isEnabled: Boolean) {

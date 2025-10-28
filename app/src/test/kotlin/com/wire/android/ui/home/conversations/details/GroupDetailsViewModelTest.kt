@@ -44,6 +44,7 @@ import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.data.user.type.UserTypeInfo
 import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.ArchiveStatusUpdateResult
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateReceiptModeResult
@@ -375,7 +376,7 @@ class GroupDetailsViewModelTest {
         isTeamGroup: Boolean = true,
         isSelfAnAdmin: Boolean = true,
         isSelfAMemberOfGroupOwnerTeam: Boolean = true,
-        selfUserType: UserType = UserType.INTERNAL,
+        selfUserType: UserTypeInfo = UserTypeInfo.Regular(UserType.INTERNAL),
         assertResult: (GroupConversationOptionsState) -> Unit
     ) = runTest {
         val members = buildList {
@@ -406,25 +407,25 @@ class GroupDetailsViewModelTest {
 
     @Test
     fun `given user is admin and external team member, when init group options, then group name update is not allowed`() =
-        testUpdatingAllowedFields(isSelfAnAdmin = true, selfUserType = UserType.EXTERNAL) {
+        testUpdatingAllowedFields(isSelfAnAdmin = true, selfUserType = UserTypeInfo.Regular(UserType.EXTERNAL)) {
             assertEquals(false, it.isUpdatingNameAllowed)
         }
 
     @Test
     fun `given user is admin and internal team member, when init group options, then group name update is allowed`() =
-        testUpdatingAllowedFields(isSelfAnAdmin = true, selfUserType = UserType.INTERNAL) {
+        testUpdatingAllowedFields(isSelfAnAdmin = true, selfUserType = UserTypeInfo.Regular(UserType.INTERNAL)) {
             assertEquals(true, it.isUpdatingNameAllowed)
         }
 
     @Test
     fun `given user is not admin and external team member, when init group options, then group name update is not allowed`() =
-        testUpdatingAllowedFields(isSelfAnAdmin = false, selfUserType = UserType.EXTERNAL) {
+        testUpdatingAllowedFields(isSelfAnAdmin = false, selfUserType = UserTypeInfo.Regular(UserType.EXTERNAL)) {
             assertEquals(false, it.isUpdatingNameAllowed)
         }
 
     @Test
     fun `given user is not admin and internal team member, when init group options, then group name update is not allowed`() =
-        testUpdatingAllowedFields(isSelfAnAdmin = false, selfUserType = UserType.INTERNAL) {
+        testUpdatingAllowedFields(isSelfAnAdmin = false, selfUserType = UserTypeInfo.Regular(UserType.INTERNAL)) {
             assertEquals(false, it.isUpdatingNameAllowed)
         }
 

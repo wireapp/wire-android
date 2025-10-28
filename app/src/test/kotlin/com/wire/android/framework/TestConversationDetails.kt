@@ -22,6 +22,7 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.Conversation.ProtocolInfo
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.data.user.type.UserTypeInfo
 import kotlinx.datetime.Instant
 
 object TestConversationDetails {
@@ -29,7 +30,7 @@ object TestConversationDetails {
     val CONNECTION = ConversationDetails.Connection(
         TestConversation.ID,
         TestUser.OTHER_USER,
-        UserType.EXTERNAL,
+        UserTypeInfo.Regular(UserType.EXTERNAL),
         Instant.parse("2022-03-30T15:36:00.000Z"),
         TestConnection.CONNECTION,
         protocolInfo = ProtocolInfo.Proteus,
@@ -40,7 +41,7 @@ object TestConversationDetails {
     val CONVERSATION_ONE_ONE = ConversationDetails.OneOne(
         TestConversation.ONE_ON_ONE,
         TestUser.OTHER_USER,
-        UserType.EXTERNAL,
+        UserTypeInfo.Regular(UserType.EXTERNAL),
     )
 
     val GROUP = ConversationDetails.Group.Regular(

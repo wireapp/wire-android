@@ -54,6 +54,7 @@ import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.data.user.type.UserTypeInfo
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
 import com.wire.kalium.logic.feature.conversation.IsInteractionAvailableResult
@@ -219,7 +220,7 @@ internal fun withMockConversationDetailsOneOnOne(
         every { deleted } returns false
         every { accentId } returns 0
     },
-    userType = UserType.INTERNAL,
+    userType = UserTypeInfo.Regular(UserType.INTERNAL),
 )
 
 internal fun mockConversationDetailsGroup(

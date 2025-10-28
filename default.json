@@ -69,7 +69,6 @@
             "analytics_app_key": "8ffae535f1836ed5f58fd5c8a11c00eca07c5438",
             "analytics_server_url": "https://wire.count.ly/",
             "enable_new_registration": true,
-            "emm_support_enabled": true,
             "use_async_flush_logging" : true
         },
         "internal": {
@@ -83,7 +82,6 @@
             "analytics_server_url": "https://wire.count.ly/",
             "enable_new_registration": true,
             "use_strict_mls_filter": false,
-            "emm_support_enabled": true,
             "use_async_flush_logging" : true
         },
         "fdroid": {

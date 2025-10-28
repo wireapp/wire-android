@@ -34,6 +34,7 @@ import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.data.user.type.UserTypeInfo
 import io.mockk.MockKAnnotations
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -47,10 +48,10 @@ class UIParticipantMapperTest {
         // Given
         val data: List<MemberDetails> = listOf(
             MemberDetails(testSelfUser(0), Member.Role.Admin),
-            MemberDetails(testOtherUser(1).copy(userType = UserType.INTERNAL), Member.Role.Admin),
-            MemberDetails(testOtherUser(2).copy(userType = UserType.EXTERNAL), Member.Role.Member),
-            MemberDetails(testOtherUser(3).copy(userType = UserType.FEDERATED), Member.Role.Member),
-            MemberDetails(testOtherUser(4).copy(userType = UserType.GUEST), Member.Role.Member)
+            MemberDetails(testOtherUser(1).copy(userType = UserTypeInfo.Regular(UserType.INTERNAL)), Member.Role.Admin),
+            MemberDetails(testOtherUser(2).copy(userType = UserTypeInfo.Regular(UserType.EXTERNAL)), Member.Role.Member),
+            MemberDetails(testOtherUser(3).copy(userType = UserTypeInfo.Regular(UserType.FEDERATED)), Member.Role.Member),
+            MemberDetails(testOtherUser(4).copy(userType = UserTypeInfo.Regular(UserType.GUEST)), Member.Role.Member)
         )
         // When
         val results = data.map { mapper.toUIParticipant(it.user) }
@@ -136,7 +137,7 @@ fun testSelfUser(i: Int): SelfUser = SelfUser(
     completePicture = null,
     availabilityStatus = UserAvailabilityStatus.NONE,
     supportedProtocols = setOf(SupportedProtocol.PROTEUS),
-    userType = UserType.INTERNAL,
+    userType = UserTypeInfo.Regular(UserType.INTERNAL),
 )
 
 fun testOtherUser(i: Int): OtherUser = OtherUser(
@@ -151,7 +152,7 @@ fun testOtherUser(i: Int): OtherUser = OtherUser(
     previewPicture = null,
     completePicture = null,
     availabilityStatus = UserAvailabilityStatus.NONE,
-    userType = UserType.INTERNAL,
+    userType = UserTypeInfo.Regular(UserType.INTERNAL),
     botService = null,
     deleted = false,
     defederated = false,

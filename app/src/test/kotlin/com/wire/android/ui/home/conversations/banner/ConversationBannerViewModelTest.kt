@@ -29,6 +29,7 @@ import com.wire.android.ui.home.conversations.banner.usecase.ObserveConversation
 import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.data.user.type.UserTypeInfo
 import com.wire.kalium.logic.feature.conversation.NotifyConversationIsOpenUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import io.mockk.MockKAnnotations
@@ -55,7 +56,7 @@ class ConversationBannerViewModelTest {
         val qualifiedId = ConversationId("some-dummy-value", "some.dummy.domain")
 
         val (arrangement, viewModel) = Arrangement()
-            .withConversationParticipantsUserTypesUpdate(listOf(UserType.EXTERNAL))
+            .withConversationParticipantsUserTypesUpdate(listOf(UserTypeInfo.Regular(UserType.EXTERNAL)))
             .withGroupConversation()
             .arrange()
         // When
@@ -87,7 +88,12 @@ class ConversationBannerViewModelTest {
         val qualifiedId = ConversationId("some-dummy-value", "some.dummy.domain")
 
         val (arrangement, viewModel) = Arrangement()
-            .withConversationParticipantsUserTypesUpdate(listOf(UserType.INTERNAL, UserType.INTERNAL))
+            .withConversationParticipantsUserTypesUpdate(
+                listOf(
+                    UserTypeInfo.Regular(UserType.INTERNAL),
+                    UserTypeInfo.Regular(UserType.INTERNAL)
+                )
+            )
             .withGroupConversation()
             .arrange()
         // When
@@ -155,7 +161,7 @@ private class Arrangement {
         coEvery { notifyConversationIsOpenUseCase(any()) } returns Unit
     }
 
-    suspend fun withConversationParticipantsUserTypesUpdate(participants: List<UserType>) = apply {
+    suspend fun withConversationParticipantsUserTypesUpdate(participants: List<UserTypeInfo>) = apply {
         coEvery { observeConversationMembersByTypesUseCase(any()) } returns flowOf(participants.toSet())
     }
 

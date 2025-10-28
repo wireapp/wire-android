@@ -4,6 +4,7 @@ import com.wire.android.framework.TestUser.OTHER_USER
 import com.wire.android.ui.userprofile.common.UsernameMapper.fromOtherUser
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.data.user.type.UserTypeInfo
 import kotlinx.datetime.Clock
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -19,7 +20,7 @@ class UsernameMapperTest {
         val expected = "22h"
         val result = fromOtherUser(
             OTHER_USER.copy(
-                userType = UserType.GUEST,
+                userType = UserTypeInfo.Regular(UserType.GUEST),
                 expiresAt = Clock.System.now().plus(22.hours)
             )
         )
@@ -31,7 +32,7 @@ class UsernameMapperTest {
         val expected = "10m"
         val result = fromOtherUser(
             OTHER_USER.copy(
-                userType = UserType.GUEST,
+                userType = UserTypeInfo.Regular(UserType.GUEST),
                 expiresAt = Clock.System.now().plus(10.minutes)
             )
         )
@@ -47,9 +48,9 @@ class UsernameMapperTest {
     companion object {
 
         enum class TestParams(val input: OtherUser, val expected: String) {
-            FEDERATED_USER(OTHER_USER.copy(userType = UserType.FEDERATED, handle = "handle"), "handle@domain"),
-            REGULAR_USER(OTHER_USER.copy(userType = UserType.GUEST, handle = "handle"), "handle"),
-            NO_HANDLE_USER(OTHER_USER.copy(userType = UserType.INTERNAL, handle = null), "")
+            FEDERATED_USER(OTHER_USER.copy(userType = UserTypeInfo.Regular(UserType.FEDERATED), handle = "handle"), "handle@domain"),
+            REGULAR_USER(OTHER_USER.copy(userType = UserTypeInfo.Regular(UserType.GUEST), handle = "handle"), "handle"),
+            NO_HANDLE_USER(OTHER_USER.copy(userType = UserTypeInfo.Regular(UserType.INTERNAL), handle = null), "")
         }
     }
 }

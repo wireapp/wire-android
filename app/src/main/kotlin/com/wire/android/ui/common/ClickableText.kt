@@ -122,12 +122,10 @@ class LinkSpannableString(source: CharSequence) : SpannableString(source) {
     private val spanList = mutableListOf<Data>()
 
     private val linkInfos: List<LinkInfo>
-        get() = spanList.filter { it.what is URLSpan }.map {
-            LinkInfo(
-                (it.what as URLSpan).url,
-                it.start,
-                it.end
-            )
+        get() = spanList.mapNotNull { data ->
+            (data.what as? URLSpan)?.let { urlSpan ->
+                LinkInfo(urlSpan.url, data.start, data.end)
+            }
         }
 
     override fun removeSpan(what: Any?) {

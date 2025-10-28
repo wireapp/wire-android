@@ -106,18 +106,16 @@ fun <T : Node> T.toContent(isParentDocument: Boolean = false): MarkdownNode {
     }
 }
 
-private inline fun <reified T : MarkdownNode> Node.convertChildren(): List<T> {
-    val children = mutableListOf<T>()
-    var child = this.firstChild
+private inline fun <reified T : MarkdownNode> Node.convertChildren(): List<T> = buildList {
+    var child = this@convertChildren.firstChild
     while (child != null) {
-        child.toContent(this.parent is Document).let {
+        child.toContent(this@convertChildren.parent is Document).let {
             if (it is T) {
-                children.add(it)
+                add(it)
             }
         }
         child = child.next
     }
-    return children
 }
 
 fun MarkdownNode.filterNodesContainingQuery(query: String): MarkdownNode? {

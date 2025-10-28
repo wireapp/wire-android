@@ -56,10 +56,10 @@ class Navigator(
     }
 
     override fun navigateBackAndRemoveAllConsecutiveXTimes(currentRoute: String, stepsBack: Int) {
-        var steps = stepsBack
-        while (steps > 0 && navController.currentBackStackEntry?.destination?.route == currentRoute) {
-            navController.popBackStack()
-            steps--
+        repeat(stepsBack) {
+            if (navController.currentBackStackEntry?.destination?.route == currentRoute) {
+                navController.popBackStack()
+            }
         }
     }
 }

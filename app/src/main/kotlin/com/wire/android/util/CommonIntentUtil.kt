@@ -39,10 +39,14 @@ fun launchGeoIntent(
     fallbackUrl: String,
     context: Context
 ) {
-    val geoStringUrl = StringBuilder(String.format(GEO_INTENT_URL, latitude, longitude))
-    if (!placeName.isNullOrEmpty()) geoStringUrl.append("(${Uri.encode(placeName)})")
+    val baseGeoUrl = String.format(GEO_INTENT_URL, latitude, longitude)
+    val geoStringUrl = if (!placeName.isNullOrEmpty()) {
+        "$baseGeoUrl(${Uri.encode(placeName)})"
+    } else {
+        baseGeoUrl
+    }
     try {
-        context.startActivity(Intent(Intent.ACTION_VIEW, geoStringUrl.toString().toUri()))
+        context.startActivity(Intent(Intent.ACTION_VIEW, geoStringUrl.toUri()))
     } catch (e: ActivityNotFoundException) {
         appLogger.e("No activity found to handle geo intent, fallback to url", e)
         context.startActivity(Intent(Intent.ACTION_VIEW, fallbackUrl.toUri()))

@@ -30,14 +30,7 @@ private const val REQUIRED_DISPLAY_LENGTH = 16
 
 @Stable
 fun ClientId.formatAsString(): String {
-    val actualLength = value.length
-
-    val validatedValue = if (actualLength != REQUIRED_DISPLAY_LENGTH) {
-        StringBuilder(value).insert(0, "0".repeat(REQUIRED_DISPLAY_LENGTH - actualLength)).toString()
-    } else {
-        value
-    }
-
+    val validatedValue = value.padStart(REQUIRED_DISPLAY_LENGTH, '0')
     return validatedValue.uppercase().chunked(2).joinToString(separator = " ")
 }
 

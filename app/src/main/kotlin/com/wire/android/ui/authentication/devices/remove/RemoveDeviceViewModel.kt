@@ -111,7 +111,9 @@ class RemoveDeviceViewModel @Inject constructor(
             state = if (selfClientsResult is SelfClientsResult.Success) {
                 state.copy(
                     isLoadingClientsList = false,
-                    deviceList = selfClientsResult.clients.filter { it.type == ClientType.Permanent }.map { Device(it) },
+                    deviceList = selfClientsResult.clients.mapNotNull { client ->
+                        if (client.type == ClientType.Permanent) Device(client) else null
+                    },
                     removeDeviceDialogState = RemoveDeviceDialogState.Hidden
                 )
             } else {

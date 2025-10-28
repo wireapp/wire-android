@@ -45,12 +45,12 @@ class GenerateRandomPasswordUseCase @Inject constructor() {
 
     @VisibleForTesting
     companion object {
-        val lowercase: List<Char> = ('a'..'z').shuffled()
-        val uppercase: List<Char> = ('A'..'Z').shuffled()
-        val digits: List<Char> = ('0'..'9').shuffled()
-        val specialChars: List<Char> = "!@#$%^&*()_+[]{}|;:,.<>?-".toList().shuffled()
+        val lowercase: List<Char> = ('a'..'z').toList()
+        val uppercase: List<Char> = ('A'..'Z').toList()
+        val digits: List<Char> = ('0'..'9').toList()
+        val specialChars: List<Char> = "!@#$%^&*()_+[]{}|;:,.<>?-".toList()
 
-        val allCharacters: List<Char> = (lowercase + uppercase + digits + specialChars).shuffled()
+        val allCharacters: List<Char> = lowercase + uppercase + digits + specialChars
 
         const val MIN_LENGTH = 15
         const val MAX_LENGTH = 20

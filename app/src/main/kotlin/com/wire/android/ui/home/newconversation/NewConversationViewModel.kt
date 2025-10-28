@@ -40,7 +40,6 @@ import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.CreateConversationParam
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.data.user.type.isExternal
 import com.wire.kalium.logic.feature.channels.ChannelCreationPermission
 import com.wire.kalium.logic.feature.channels.ObserveChannelsCreationPermissionUseCase

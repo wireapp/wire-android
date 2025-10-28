@@ -33,7 +33,6 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.SupportedProtocol
-import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.data.user.type.isTeamAdmin
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.SyncConversationCodeUseCase

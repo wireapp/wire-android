@@ -82,19 +82,24 @@ class ConversationBannerViewModel @Inject constructor(
         val userTypes = userTypesInfo.filterIsInstance<UserTypeInfo.Regular>()
         val containsGuests = userTypes.any { it.isGuest() }
         val containsFederated = userTypes.any { it.isFederated() }
-        val containsExternal = userTypes.any {it.isExternal() }
+        val containsExternal = userTypes.any { it.isExternal() }
 
         bannerState = when {
             (containsFederated && containsExternal && containsGuests && containsService)
-            -> UIText.StringResource(R.string.conversation_banner_federated_externals_guests_services_present)
+                -> UIText.StringResource(R.string.conversation_banner_federated_externals_guests_services_present)
+
             (containsFederated && containsExternal && containsGuests)
-            -> UIText.StringResource(R.string.conversation_banner_federated_externals_guests_present)
+                -> UIText.StringResource(R.string.conversation_banner_federated_externals_guests_present)
+
             (containsFederated && containsExternal && containsService)
-            -> UIText.StringResource(R.string.conversation_banner_federated_externals_services_present)
+                -> UIText.StringResource(R.string.conversation_banner_federated_externals_services_present)
+
             (containsFederated && containsGuests && containsService)
-            -> UIText.StringResource(R.string.conversation_banner_federated_guests_services_present)
+                -> UIText.StringResource(R.string.conversation_banner_federated_guests_services_present)
+
             (containsExternal && containsGuests && containsService)
-            -> UIText.StringResource(R.string.conversation_banner_externals_guests_services_present)
+                -> UIText.StringResource(R.string.conversation_banner_externals_guests_services_present)
+
             (containsFederated && containsService) -> UIText.StringResource(R.string.conversation_banner_federated_services_present)
             (containsFederated && containsGuests) -> UIText.StringResource(R.string.conversation_banner_federated_guests_present)
             (containsFederated && containsExternal) -> UIText.StringResource(R.string.conversation_banner_federated_externals_present)

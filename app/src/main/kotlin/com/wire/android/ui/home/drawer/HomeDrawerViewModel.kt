@@ -62,8 +62,9 @@ class HomeDrawerViewModel @Inject constructor(
         return observeSelfUser().map {
             if (it.userType.isTeamAdmin()) {
                 getTeamUrl()
-            } else
+            } else {
                 String.EMPTY
+            }
         }
     }
 

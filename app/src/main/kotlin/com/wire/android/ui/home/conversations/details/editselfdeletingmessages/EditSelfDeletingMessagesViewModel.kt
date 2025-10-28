@@ -32,7 +32,6 @@ import com.wire.android.ui.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.data.user.type.isTeamAdmin
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.messagetimer.UpdateMessageTimerUseCase

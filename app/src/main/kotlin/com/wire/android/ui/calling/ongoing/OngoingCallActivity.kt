@@ -52,6 +52,7 @@ import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_SHOULD_ANSWER_CA
 import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_USER_ID
 import com.wire.android.ui.calling.common.ProximitySensorManager
 import com.wire.android.ui.calling.ongoing.OngoingCallActivity.Companion.TAG
+import com.wire.android.ui.common.setupOrientationForDevice
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.kalium.logic.data.id.ConversationId
@@ -101,6 +102,7 @@ class OngoingCallActivity : CallActivity() {
     @SuppressLint("UnusedContentLambdaTargetStateParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setupOrientationForDevice()
         setUpScreenshotPreventionFlag()
         setUpCallingFlags()
 

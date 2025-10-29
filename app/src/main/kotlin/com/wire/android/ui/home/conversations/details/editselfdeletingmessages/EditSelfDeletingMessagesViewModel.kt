@@ -32,7 +32,7 @@ import com.wire.android.ui.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.data.user.type.isTeamAdmin
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.messagetimer.UpdateMessageTimerUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
@@ -82,7 +82,7 @@ class EditSelfDeletingMessagesViewModel @Inject constructor(
                 }
                 val conversationDetails = conversationDetailsResult.conversationDetails
                 val isChannel = conversationDetails is ConversationDetails.Group.Channel
-                val isTeamAdmin = selfUser.userType in setOf(UserType.ADMIN, UserType.OWNER)
+                val isTeamAdmin = selfUser.userType.isTeamAdmin()
                 val isSelfUserInConversationTeam = selfUser.teamId == conversationDetails.conversation.teamId
                 isSelfAnAdmin || (isChannel && isTeamAdmin && isSelfUserInConversationTeam)
             }

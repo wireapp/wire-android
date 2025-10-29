@@ -25,6 +25,7 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.data.user.type.UserTypeInfo
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -45,7 +46,7 @@ class ObserveConversationMembersByTypesUseCaseTest {
             // Given
             val members = listOf(
                 MemberDetails(
-                    testOtherUser(0).copy(userType = UserType.EXTERNAL),
+                    testOtherUser(0).copy(userType = UserTypeInfo.Regular(UserType.EXTERNAL)),
                     Conversation.Member.Role.Member
                 )
             )
@@ -56,7 +57,7 @@ class ObserveConversationMembersByTypesUseCaseTest {
             // When - Then
             useCase(ConversationId("", "")).test {
                 val data = awaitItem()
-                assert(data.contains(UserType.EXTERNAL))
+                assert(data.contains(UserTypeInfo.Regular(UserType.EXTERNAL)))
             }
         }
 
@@ -66,7 +67,7 @@ class ObserveConversationMembersByTypesUseCaseTest {
             // Given
             val members = listOf(
                 MemberDetails(
-                    testOtherUser(0).copy(userType = UserType.FEDERATED),
+                    testOtherUser(0).copy(userType = UserTypeInfo.Regular(UserType.FEDERATED)),
                     Conversation.Member.Role.Member
                 )
             )
@@ -77,7 +78,7 @@ class ObserveConversationMembersByTypesUseCaseTest {
             // When - Then
             useCase(ConversationId("", "")).test {
                 val data = awaitItem()
-                assert(data.contains(UserType.FEDERATED))
+                assert(data.contains(UserTypeInfo.Regular(UserType.FEDERATED)))
             }
         }
 
@@ -87,7 +88,7 @@ class ObserveConversationMembersByTypesUseCaseTest {
             // Given
             val members = listOf(
                 MemberDetails(
-                    testOtherUser(0).copy(userType = UserType.GUEST),
+                    testOtherUser(0).copy(userType = UserTypeInfo.Regular(UserType.GUEST)),
                     Conversation.Member.Role.Member
                 )
             )
@@ -98,7 +99,7 @@ class ObserveConversationMembersByTypesUseCaseTest {
             // When - Then
             useCase(ConversationId("", "")).test {
                 val data = awaitItem()
-                assert(data.contains(UserType.GUEST))
+                assert(data.contains(UserTypeInfo.Regular(UserType.GUEST)))
             }
         }
 
@@ -108,7 +109,7 @@ class ObserveConversationMembersByTypesUseCaseTest {
             // Given
             val members = listOf(
                 MemberDetails(
-                    testOtherUser(0).copy(userType = UserType.SERVICE),
+                    testOtherUser(0).copy(userType = UserTypeInfo.Bot),
                     Conversation.Member.Role.Member
                 )
             )
@@ -119,7 +120,7 @@ class ObserveConversationMembersByTypesUseCaseTest {
             // When - Then
             useCase(ConversationId("", "")).test {
                 val data = awaitItem()
-                assert(data.contains(UserType.SERVICE))
+                assert(data.contains(UserTypeInfo.Bot))
             }
         }
 

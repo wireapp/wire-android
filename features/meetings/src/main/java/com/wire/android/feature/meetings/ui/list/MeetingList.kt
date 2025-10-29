@@ -49,6 +49,7 @@ fun MeetingList(
     type: MeetingsTabItem,
     modifier: Modifier = Modifier,
     lazyListState: LazyListState = rememberLazyListState(),
+    openMeetingOptions: (meetingId: String) -> Unit = {},
     meetingListViewModel: MeetingListViewModel = when {
         LocalInspectionMode.current -> MeetingListViewModelPreview(CurrentTimeProvider.Preview, type)
         else -> hiltViewModel<MeetingListViewModelImpl, MeetingListViewModelImpl.Factory>(
@@ -79,6 +80,7 @@ fun MeetingList(
                 lazyListState = lazyListState,
                 isShowingAll = isShowingAll,
                 onShowAll = meetingListViewModel::showAll,
+                openMeetingOptions = openMeetingOptions,
                 modifier = modifier,
             )
         }
@@ -91,6 +93,7 @@ private fun MeetingList(
     lazyPagingItems: LazyPagingItems<MeetingListItem>,
     isShowingAll: Boolean,
     onShowAll: () -> Unit,
+    openMeetingOptions: (meetingId: String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     LazyColumn(
@@ -111,8 +114,15 @@ private fun MeetingList(
         ) { index ->
             lazyPagingItems[index]?.let { item ->
                 when (item) {
-                    is MeetingHeader -> MeetingHeader(header = item, modifier = Modifier.animateItem())
-                    is MeetingItem -> MeetingItem(meeting = item, modifier = Modifier.animateItem())
+                    is MeetingHeader -> MeetingHeader(
+                        header = item,
+                        modifier = Modifier.animateItem()
+                    )
+                    is MeetingItem -> MeetingItem(
+                        meeting = item,
+                        modifier = Modifier.animateItem(),
+                        openMeetingOptions = openMeetingOptions
+                    )
                 }
             }
         }

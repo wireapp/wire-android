@@ -87,7 +87,6 @@
     <string name="clear_all_label">Tümünü temizle</string>
     <string name="apply_label">Uygula</string>
     <string name="tags_description">Oluşturduğunuz etiketleri ekibinizdeki herkes görebilir ve kullanabilir.</string>
-    <string name="suggested_tags_label">Önerilen etiketler</string>
     <string name="added_tags_label">Eklenen etiketler</string>
     <string name="add_tag_label">Etiket ekle</string>
     <string name="enter_name_label">Etiket adı girin</string>

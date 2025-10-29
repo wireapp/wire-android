@@ -1,10 +1,7 @@
 New
-- Design for message structure
-- Renaming Services to Apps
-
-Improvements
-- Messaging Layer Security (MLS) protocol robustness
-- Calling connectivity on switching networks
+- Choose profile colour in Settings
+- Support for enterprise device management
 
 Fixes
-- Conference call with a bad connection left people with only one other participant
+- Crash when tapping “Forgot your passcode?” on AppLock screen
+- General stability improvements

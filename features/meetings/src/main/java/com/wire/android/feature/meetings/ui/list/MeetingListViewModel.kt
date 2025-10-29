@@ -60,10 +60,10 @@ class MeetingListViewModelPreview(
     type: MeetingsTabItem,
     showingAll: Boolean = type == MeetingsTabItem.PAST,
 ) : MeetingListViewModel {
-    private val meetingMocksProvider = MeetingMocksProvider(currentTimeProvider, type)
+    private val meetingMocksProvider = MeetingMocksProvider(currentTimeProvider)
     override val isShowingAll: StateFlow<Boolean> = MutableStateFlow(showingAll)
     override val meetings: Flow<PagingData<MeetingListItem>> =
-        MutableStateFlow(PagingData.from(meetingMocksProvider.getItems(showingAll).insertHeaders(type)))
+        MutableStateFlow(PagingData.from(meetingMocksProvider.getItems(showingAll, type).insertHeaders(type)))
 }
 
 @HiltViewModel(assistedFactory = MeetingListViewModelImpl.Factory::class)
@@ -77,20 +77,20 @@ class MeetingListViewModelImpl @AssistedInject constructor(
     }
 
     override val isShowingAll = MutableStateFlow(type == MeetingsTabItem.PAST) // for PAST always show all, for NEXT start with false
-    private val meetingMocksProvider = MeetingMocksProvider(CurrentTimeProvider.Default, type) // TODO replace with real data source
+    private val meetingMocksProvider = MeetingMocksProvider(CurrentTimeProvider.Default) // TODO replace with real data source
     override val meetings: Flow<PagingData<MeetingListItem>> = isShowingAll
         .flatMapLatest { showingAll ->
             @Suppress("MagicNumber")
             flow {
                 if (!showingAll) {
                     delay(1000) // Simulate loading delay
-                    emit(meetingMocksProvider.getItems(showingAll = false).toPagingDataWithLoadState(type = type, appendLoading = false))
+                    emit(meetingMocksProvider.getItems(showingAll = false, type).toPagingDataWithLoadState(type = type, appendLoading = false))
                 } else {
                     if (type == MeetingsTabItem.NEXT) { // For NEXT, first emit a loading state with partial data to simulate loading more
-                        emit(meetingMocksProvider.getItems(showingAll = false).toPagingDataWithLoadState(type = type, appendLoading = true))
+                        emit(meetingMocksProvider.getItems(showingAll = false, type).toPagingDataWithLoadState(type = type, appendLoading = true))
                     }
                     delay(1000) // Simulate loading delay
-                    emit(meetingMocksProvider.getItems(showingAll = true).toPagingDataWithLoadState(type = type, appendLoading = false))
+                    emit(meetingMocksProvider.getItems(showingAll = true, type).toPagingDataWithLoadState(type = type, appendLoading = false))
                 }
             }
         }

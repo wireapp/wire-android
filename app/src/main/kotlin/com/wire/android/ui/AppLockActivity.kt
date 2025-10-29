@@ -26,20 +26,27 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import com.wire.android.appLogger
+import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.navigation.MainNavHost
 import com.wire.android.navigation.rememberNavigator
+import com.wire.android.ui.common.setupOrientationForDevice
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.destinations.AppUnlockWithBiometricsScreenDestination
 import com.wire.android.ui.destinations.EnterLockCodeScreenDestination
 import com.wire.android.ui.destinations.SetLockCodeScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class AppLockActivity : AppCompatActivity() {
 
+    @Inject
+    lateinit var loginTypeSelector: LoginTypeSelector
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setupOrientationForDevice()
         enableEdgeToEdge()
         setContent {
             val snackbarHostState = remember { SnackbarHostState() }
@@ -69,7 +76,7 @@ class AppLockActivity : AppCompatActivity() {
 
                     MainNavHost(
                         navigator = navigator,
-                        loginTypeSelector = null, // LoginTypeSelector is not needed for destinations in AppLockActivity
+                        loginTypeSelector = loginTypeSelector,
                         startDestination = startDestination
                     )
                 }

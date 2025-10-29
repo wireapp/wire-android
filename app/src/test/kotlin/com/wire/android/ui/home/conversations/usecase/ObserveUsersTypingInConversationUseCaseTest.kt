@@ -27,6 +27,7 @@ import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.data.user.type.UserTypeInfo
 import com.wire.kalium.logic.feature.conversation.ObserveUsersTypingUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -53,7 +54,7 @@ class ObserveUsersTypingInConversationUseCaseTest {
             expectedUIParticipant.name,
             expectedUIParticipant.handle,
             null,
-            UserType.NONE,
+            UserTypeInfo.Regular(UserType.NONE),
             false,
             ConnectionState.ACCEPTED,
             UserAvailabilityStatus.AVAILABLE,

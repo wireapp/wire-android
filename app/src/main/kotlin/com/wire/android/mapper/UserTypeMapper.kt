@@ -20,18 +20,24 @@ package com.wire.android.mapper
 
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.data.user.type.UserTypeInfo
 import javax.inject.Inject
 
 class UserTypeMapper @Inject constructor() {
 
-    fun toMembership(userType: UserType) = when (userType) {
-        UserType.GUEST -> Membership.Guest
-        UserType.FEDERATED -> Membership.Federated
-        UserType.EXTERNAL -> Membership.External
-        UserType.INTERNAL -> Membership.Standard
-        UserType.NONE -> Membership.None
-        UserType.SERVICE -> Membership.Service
-        UserType.ADMIN -> Membership.Admin
-        UserType.OWNER -> Membership.Owner
+    fun toMembership(userType: UserTypeInfo) = when (userType) {
+        is UserTypeInfo.App -> Membership.Service
+        is UserTypeInfo.Bot -> Membership.Service
+        is UserTypeInfo.Regular -> {
+            when (userType.type) {
+                UserType.GUEST -> Membership.Guest
+                UserType.FEDERATED -> Membership.Federated
+                UserType.EXTERNAL -> Membership.External
+                UserType.INTERNAL -> Membership.Standard
+                UserType.NONE -> Membership.None
+                UserType.ADMIN -> Membership.Admin
+                UserType.OWNER -> Membership.Owner
+            }
+        }
     }
 }

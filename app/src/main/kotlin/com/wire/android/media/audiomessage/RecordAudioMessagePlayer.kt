@@ -40,7 +40,7 @@ import javax.inject.Inject
 class RecordAudioMessagePlayer @Inject constructor(
     private val context: Context,
     private val audioMediaPlayer: MediaPlayer,
-    private val generateAudioWavesMask: GenerateAudioWavesMaskUseCase,
+    private val wavesMaskHelper: AudioWavesMaskHelper,
     private val audioFocusHelper: AudioFocusHelper,
     @ApplicationScope private val scope: CoroutineScope
 ) {
@@ -184,7 +184,7 @@ class RecordAudioMessagePlayer @Inject constructor(
         audioMediaPlayer.seekTo(position)
         audioMediaPlayer.start()
 
-        generateAudioWavesMask(audioFile.path)?.let { waveMask ->
+        wavesMaskHelper.getWaveMask(audioFile)?.let { waveMask ->
             audioMessageStateUpdate.emit(
                 RecordAudioMediaPlayerStateUpdate.WaveMaskUpdate(
                     waveMask = waveMask

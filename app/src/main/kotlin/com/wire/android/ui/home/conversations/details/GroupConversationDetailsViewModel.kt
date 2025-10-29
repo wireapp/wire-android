@@ -37,7 +37,8 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.data.user.type.isExternal
+import com.wire.kalium.logic.data.user.type.isTeamAdmin
 import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateReceiptModeResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
@@ -122,9 +123,9 @@ class GroupConversationDetailsViewModel @Inject constructor(
                 observeSelfDeletionTimerSettingsForConversation(conversationId, considerSelfUserSettings = false),
             ) { isAppsUsageAllowed, groupDetails, selfDeletionTimer ->
                 val isSelfInTeamThatOwnsConversation = selfTeam?.id != null && selfTeam.id == groupDetails.conversation.teamId?.value
-                val isSelfExternalMember = selfUser?.userType == UserType.EXTERNAL
+                val isSelfExternalMember = selfUser?.userType?.isExternal() == true
                 val isChannel = groupDetails is ConversationDetails.Group.Channel
-                val isSelfTeamAdmin = selfUser?.userType in arrayOf(UserType.ADMIN, UserType.OWNER)
+                val isSelfTeamAdmin = selfUser?.userType?.isTeamAdmin() == true
                 val canPerformChannelAdminTasks = isChannel && isSelfInTeamThatOwnsConversation && isSelfTeamAdmin
                 val isRegularGroupAdmin = groupDetails.selfRole == Conversation.Member.Role.Admin
                 val canSelfPerformAdminTasks = (isRegularGroupAdmin) || (canPerformChannelAdminTasks)

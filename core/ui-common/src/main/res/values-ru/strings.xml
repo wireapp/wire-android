@@ -40,6 +40,7 @@
     <string name="user_profile_status_available">Доступен</string>
     <string name="user_profile_status_busy">Занят</string>
     <string name="user_profile_status_away">Отошел</string>
+    <string name="user_profile_status_none">Отключен</string>
     <string name="content_description_user_avatar">Изображение профиля</string>
     <string name="content_description_collapse_label">свернуть</string>
     <string name="content_description_expand_label">развернуть</string>

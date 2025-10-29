@@ -84,13 +84,22 @@ class MeetingListViewModelImpl @AssistedInject constructor(
             flow {
                 if (!showingAll) {
                     delay(1000) // Simulate loading delay
-                    emit(meetingMocksProvider.getItems(showingAll = false, type).toPagingDataWithLoadState(type = type, appendLoading = false))
+                    emit(
+                        meetingMocksProvider.getItems(showingAll = false, type = type)
+                            .toPagingDataWithLoadState(type = type, appendLoading = false)
+                    )
                 } else {
                     if (type == MeetingsTabItem.NEXT) { // For NEXT, first emit a loading state with partial data to simulate loading more
-                        emit(meetingMocksProvider.getItems(showingAll = false, type).toPagingDataWithLoadState(type = type, appendLoading = true))
+                        emit(
+                            meetingMocksProvider.getItems(showingAll = false, type = type)
+                                .toPagingDataWithLoadState(type = type, appendLoading = true)
+                        )
                     }
                     delay(1000) // Simulate loading delay
-                    emit(meetingMocksProvider.getItems(showingAll = true, type).toPagingDataWithLoadState(type = type, appendLoading = false))
+                    emit(
+                        meetingMocksProvider.getItems(showingAll = true, type = type)
+                            .toPagingDataWithLoadState(type = type, appendLoading = false)
+                    )
                 }
             }
         }

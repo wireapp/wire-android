@@ -31,7 +31,11 @@ import com.wire.android.ui.navArgs
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.data.user.type.UserTypeInfo
+import com.wire.kalium.logic.data.user.type.isAppOrBot
+import com.wire.kalium.logic.data.user.type.isExternal
+import com.wire.kalium.logic.data.user.type.isFederated
+import com.wire.kalium.logic.data.user.type.isGuest
 import com.wire.kalium.logic.feature.conversation.NotifyConversationIsOpenUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -73,23 +77,29 @@ class ConversationBannerViewModel @Inject constructor(
     }
 
     @Suppress("ComplexMethod")
-    private fun handleConversationMemberTypes(userTypes: Set<UserType>) {
-        val containsGuests = userTypes.contains(UserType.GUEST)
-        val containsFederated = userTypes.contains(UserType.FEDERATED)
-        val containsExternal = userTypes.contains(UserType.EXTERNAL)
-        val containsService = userTypes.contains(UserType.SERVICE)
+    private fun handleConversationMemberTypes(userTypesInfo: Set<UserTypeInfo>) {
+        val containsService = userTypesInfo.any { it.isAppOrBot() }
+        val userTypes = userTypesInfo.filterIsInstance<UserTypeInfo.Regular>()
+        val containsGuests = userTypes.any { it.isGuest() }
+        val containsFederated = userTypes.any { it.isFederated() }
+        val containsExternal = userTypes.any { it.isExternal() }
 
         bannerState = when {
             (containsFederated && containsExternal && containsGuests && containsService)
-            -> UIText.StringResource(R.string.conversation_banner_federated_externals_guests_services_present)
+                -> UIText.StringResource(R.string.conversation_banner_federated_externals_guests_services_present)
+
             (containsFederated && containsExternal && containsGuests)
-            -> UIText.StringResource(R.string.conversation_banner_federated_externals_guests_present)
+                -> UIText.StringResource(R.string.conversation_banner_federated_externals_guests_present)
+
             (containsFederated && containsExternal && containsService)
-            -> UIText.StringResource(R.string.conversation_banner_federated_externals_services_present)
+                -> UIText.StringResource(R.string.conversation_banner_federated_externals_services_present)
+
             (containsFederated && containsGuests && containsService)
-            -> UIText.StringResource(R.string.conversation_banner_federated_guests_services_present)
+                -> UIText.StringResource(R.string.conversation_banner_federated_guests_services_present)
+
             (containsExternal && containsGuests && containsService)
-            -> UIText.StringResource(R.string.conversation_banner_externals_guests_services_present)
+                -> UIText.StringResource(R.string.conversation_banner_externals_guests_services_present)
+
             (containsFederated && containsService) -> UIText.StringResource(R.string.conversation_banner_federated_services_present)
             (containsFederated && containsGuests) -> UIText.StringResource(R.string.conversation_banner_federated_guests_present)
             (containsFederated && containsExternal) -> UIText.StringResource(R.string.conversation_banner_federated_externals_present)

@@ -81,6 +81,7 @@ import com.wire.android.ui.calling.getOutgoingCallIntent
 import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.bottomsheet.show
+import com.wire.android.ui.common.setupOrientationForDevice
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topappbar.CommonTopAppBar
 import com.wire.android.ui.common.topappbar.CommonTopAppBarState
@@ -180,6 +181,7 @@ class WireActivity : AppCompatActivity() {
         splashScreen.setKeepOnScreenCondition { shouldKeepSplashOpen }
 
         enableEdgeToEdge()
+        setupOrientationForDevice()
 
         lifecycleScope.launch {
 

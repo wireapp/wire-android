@@ -29,7 +29,7 @@ fun DeleteItemMenuOption(onDeleteItemClick: () -> Unit) {
     MenuBottomSheetItem(
         leading = {
             MenuItemIcon(
-                id = R.drawable.ic_delete,
+                id = com.wire.android.ui.common.R.drawable.ic_delete,
                 contentDescription = stringResource(R.string.content_description_delete_the_message),
             )
         },

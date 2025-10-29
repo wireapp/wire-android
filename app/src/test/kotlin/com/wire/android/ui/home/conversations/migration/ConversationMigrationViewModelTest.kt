@@ -18,6 +18,7 @@
 package com.wire.android.ui.home.conversations.migration
 
 import androidx.lifecycle.SavedStateHandle
+import com.wire.android.assertions.shouldBeEqualTo
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.framework.TestConversation
@@ -27,6 +28,7 @@ import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.data.user.type.UserTypeInfo
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -34,7 +36,6 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
-import com.wire.android.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -49,7 +50,7 @@ class ConversationMigrationViewModelTest {
                 ConversationDetails.OneOne(
                     conversation = TestConversation.ONE_ON_ONE,
                     otherUser = TestUser.OTHER_USER.copy(activeOneOnOneConversationId = conversationId),
-                    userType = UserType.NONE,
+                    userType = UserTypeInfo.Regular(UserType.NONE),
                 )
             )
         }
@@ -65,7 +66,7 @@ class ConversationMigrationViewModelTest {
                 ConversationDetails.OneOne(
                     conversation = TestConversation.ONE_ON_ONE,
                     otherUser = TestUser.OTHER_USER.copy(activeOneOnOneConversationId = expectedActiveOneOnOneId),
-                    userType = UserType.NONE,
+                    userType = UserTypeInfo.Regular(UserType.NONE),
                 )
             )
         }

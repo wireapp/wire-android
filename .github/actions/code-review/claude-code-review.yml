@@ -1,15 +1,14 @@
 name: Claude Code Review
 
 on:
-  issue_comment:
+  pull_request_review_comment:
     types: [created]
 
 jobs:
   claude-review:
-    # Only run on PR comments (not issues), when the comment contains the trigger phrase,
+    # Only run when the comment contains the trigger phrase,
     # and when the commenter is a maintainer/team member
     if: |
-      github.event.issue.pull_request &&
       github.actor != 'dependabot[bot]' &&
       contains(github.event.comment.body, '@claude review') &&
       (
@@ -38,7 +37,7 @@ jobs:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           prompt: |
             REPO: ${{ github.repository }}
-            PR NUMBER: ${{ github.event.issue.number }}
+            PR NUMBER: ${{ github.event.pull_request.number }}
 
             Please review this pull request and provide feedback on:
             - Code quality and best practices

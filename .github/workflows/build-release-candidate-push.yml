@@ -42,12 +42,6 @@ jobs:
             "deployment-targets": [
               {
                 "type": "s3"
-              },
-              {
-                "type": "google-play",
-                "package-name": "com.wire.internal",
-                "track": "production",
-                "status": "completed"
               }
             ]
           }

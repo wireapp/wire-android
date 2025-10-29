@@ -34,6 +34,7 @@ import com.wire.android.ui.home.conversations.model.MessageTime
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.UIAssetMessage
+import com.wire.android.ui.home.conversations.model.messagetypes.image.VisualMediaParams
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.toUIText
@@ -381,11 +382,21 @@ fun mockUIAssetMessage(assetId: String = "asset1", messageId: String = "msg1") =
 )
 
 @Suppress("MagicNumber")
-fun mockedImg() = UIMessageContent.ImageMessage(
+fun mockedImg(width: Int = 800, height: Int = 600) = UIMessageContent.ImageMessage(
     assetId = UserAssetId("a", "domain"),
     asset = mockedPrivateAsset(),
-    width = 800,
-    height = 600
+    params = VisualMediaParams(width, height)
+)
+
+@Suppress("MagicNumber")
+fun mockedVideo(width: Int = 800, height: Int = 600, assetName: String = "video.mp4") = UIMessageContent.VideoMessage(
+    assetId = UserAssetId("a", "domain"),
+    assetSizeInBytes = 123456,
+    assetName = assetName,
+    assetExtension = "mp4",
+    assetDataPath = null,
+    params = VisualMediaParams(width, height),
+    duration = 12412412,
 )
 
 fun mockedPrivateAsset() = ImageAsset.PrivateAsset(
@@ -400,7 +411,9 @@ fun mockedImageUIMessage(
     messageStatus: MessageStatus = MessageStatus(
         flowStatus = MessageFlowStatus.Sent,
         expirationStatus = ExpirationStatus.NotExpirable
-    )
+    ),
+    content: UIMessageContent.Regular = mockedImg(),
+    source: MessageSource = MessageSource.Self
 ) = UIMessage.Regular(
     conversationId = ConversationId("value", "domain"),
     userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
@@ -415,9 +428,9 @@ fun mockedImageUIMessage(
         isSenderDeleted = false,
         isSenderUnavailable = false
     ),
-    messageContent = mockedImg(),
+    messageContent = content,
     messageFooter = mockEmptyFooter,
-    source = MessageSource.Self
+    source = source
 )
 
 @Suppress("LongMethod", "MagicNumber")

@@ -81,9 +81,16 @@ fun MessageStyle.highlighted(): Color = when (this) {
 
 @Composable
 fun MessageStyle.onNodeBackground(): Color = when (this) {
-    MessageStyle.BUBBLE_SELF -> MaterialTheme.wireColorScheme.markdownNodeTextColor
+    MessageStyle.BUBBLE_SELF -> MaterialTheme.wireColorScheme.onScrim
     MessageStyle.BUBBLE_OTHER -> MaterialTheme.wireColorScheme.onBackground
     MessageStyle.NORMAL -> MaterialTheme.wireColorScheme.onBackground
+}
+
+@Composable
+fun MessageStyle.error(): Color = when (this) {
+    MessageStyle.BUBBLE_SELF -> MaterialTheme.wireColorScheme.onPrimary
+    MessageStyle.BUBBLE_OTHER -> MaterialTheme.wireColorScheme.error
+    MessageStyle.NORMAL -> MaterialTheme.wireColorScheme.error
 }
 
 @Composable

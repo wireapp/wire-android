@@ -36,8 +36,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import com.wire.android.ui.common.applyIf
@@ -195,7 +196,11 @@ fun MessageBubbleItem(
                     shape = shape,
                     border = borderColor?.let { BorderStroke(dimensions().spacing1x, it) },
                     modifier = bubbleWidthMod
-                        .clip(shape)
+                        .graphicsLayer {
+                            clip = true
+                            this.shape = shape
+                            compositingStrategy = CompositingStrategy.Offscreen
+                        }
                         .interceptCombinedClickable(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = LocalIndication.current,

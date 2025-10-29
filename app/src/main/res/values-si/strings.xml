@@ -1665,8 +1665,6 @@
     <string name="custimization_options_header_title">විකල්ප</string>
     <string name="cells_screen_title">සියලුම ගොනු</string>
     <string name="cells_screen_search_hint">ගොනු සොයන්න</string>
-    <string name="enable_wire_cell">වයර් කොටුව සබල කරන්න</string>
-    <string name="enable_wire_cell_switch_description">මෙම සංවාදයේ ඇති සියලුම ගොනු Wire Cell ගබඩාවට උඩුගත කෙරේ.</string>
     <string name="failed_attachment_retry_upload">උඩුගත කිරීම නැවත උත්සාහ කරන්න</string>
     <string name="failed_attachment_remove">ඉවත් කරන්න</string>
 </resources>

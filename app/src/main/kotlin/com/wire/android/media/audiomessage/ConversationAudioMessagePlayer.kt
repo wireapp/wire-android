@@ -373,9 +373,9 @@ class ConversationAudioMessagePlayer
         if (result is MessageAssetResult.Success) {
             audioMessageStateUpdate.emit(
                 AudioMediaPlayerStateUpdate.WaveMaskUpdate(
-                    conversationId,
-                    messageId,
-                    wavesMaskHelper.getWaveMask(result.decodedAssetPath)
+                    conversationId = conversationId,
+                    messageId = messageId,
+                    waveMask = wavesMaskHelper.getWaveMask(result.decodedAssetPath)
                 )
             )
         }

@@ -28,6 +28,8 @@ import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.User
 import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.data.user.type.UserTypeInfo
+import com.wire.kalium.logic.data.user.type.isAppOrBot
 import javax.inject.Inject
 
 class UIParticipantMapper @Inject constructor(
@@ -37,7 +39,7 @@ class UIParticipantMapper @Inject constructor(
         val (userType, connectionState, unavailable) = when (this) {
             is OtherUser -> Triple(this.userType, this.connectionStatus, this.isUnavailableUser)
             // TODO(refactor): does self user need a type ? to false
-            is SelfUser -> Triple(UserType.INTERNAL, null, false)
+            is SelfUser -> Triple(UserTypeInfo.Regular(UserType.INTERNAL), null, false)
         }
         UIParticipant(
             id = id,
@@ -45,7 +47,7 @@ class UIParticipantMapper @Inject constructor(
             handle = handle.orEmpty(),
             avatarData = avatar(connectionState),
             isSelf = user is SelfUser,
-            isService = userType == UserType.SERVICE,
+            isService = userType.isAppOrBot(),
             membership = userTypeMapper.toMembership(userType),
             connectionState = connectionState,
             unavailable = unavailable,

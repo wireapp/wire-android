@@ -44,6 +44,7 @@ import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.data.user.type.UserTypeInfo
 import com.wire.kalium.logic.feature.call.usecase.FlipToBackCameraUseCase
 import com.wire.kalium.logic.feature.call.usecase.FlipToFrontCameraUseCase
 import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
@@ -495,7 +496,7 @@ class SharedCallingViewModelTest {
             hasEstablishedAudio = true,
             name = "User Name",
             avatarAssetId = null,
-            userType = UserType.ADMIN,
+            userType = UserTypeInfo.Regular(UserType.ADMIN),
             isSpeaking = false,
             accentId = 0,
         )

@@ -1656,6 +1656,4 @@ Kérjük, próbálja meg újra.</string>
     <string name="custimization_options_header_title">Beállítások</string>
     <string name="cells_screen_title">Minden fájl</string>
     <string name="cells_screen_search_hint">Fájlok keresése</string>
-    <string name="enable_wire_cell">Wire Cell engedélyezése</string>
-    <string name="enable_wire_cell_switch_description">A beszélgetésben található összes fájl fel lesz töltve a Wire Cell tárhelyre.</string>
 </resources>

@@ -1,6 +1,6 @@
 <!--
   ~ Wire
-  ~ Copyright (C) 2024 Wire Swiss GmbH
+  ~ Copyright (C) 2025 Wire Swiss GmbH
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -15,14 +15,13 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
-
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="16dp"
-    android:height="16dp"
-    android:viewportWidth="16"
-    android:viewportHeight="16">
+    android:width="12dp"
+    android:height="12dp"
+    android:viewportWidth="12"
+    android:viewportHeight="12">
   <path
-      android:pathData="M6,2H2.007C1.45,2 1,2.448 1,3V4H15V3C15,2.444 14.549,2 13.993,2H10C10,0.888 9.105,0 8,0C6.888,0 6,0.895 6,2ZM14,6L13.2,14C13.09,15.105 12.113,16 11,16H5C3.895,16 2.911,15.113 2.8,14L2,6H14ZM8.5,8H7.5V13.54H8.5V8Z"
-      android:fillColor="#C20013"
+      android:pathData="M4.5,1.5H1.505C1.087,1.5 0.75,1.836 0.75,2.25V3H11.25V2.25C11.25,1.833 10.912,1.5 10.495,1.5H7.5C7.5,0.666 6.828,0 6,0C5.166,0 4.5,0.672 4.5,1.5ZM1.5,4.5H10.5L9.9,10.5C9.817,11.329 9.084,12 8.25,12H3.75C2.921,12 2.183,11.334 2.1,10.5L1.5,4.5Z"
+      android:fillColor="#000000"
       android:fillType="evenOdd"/>
 </vector>

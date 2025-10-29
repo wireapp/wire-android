@@ -1733,6 +1733,7 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="custimization_options_header_title">Optionen</string>
     <string name="cells_screen_title">Alle Dateien</string>
     <string name="cells_screen_search_hint">Dateien suchen</string>
+    <string name="enable_wire_cell_switch_description">Ermöglichen Sie den Teilnehmern, ihre Dokumente und Mediendateien zu verwalten. Verwenden Sie Ordner, Tags und Filter, um effizienter zu arbeiten. Dieser Vorgang kann nicht rückgängig gemacht werden.</string>
     <string name="failed_attachment_retry_upload">Upload wiederholen</string>
     <string name="failed_attachment_remove">Entfernen</string>
     <string name="content_description_apply_filter">Filter anwenden</string>

@@ -26,10 +26,10 @@ import com.ramcosta.composedestinations.spec.Direction
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.util.EmailComposer
-import com.wire.android.util.LogFileWriter
 import com.wire.android.util.getDeviceIdString
 import com.wire.android.util.getGitBuildId
 import com.wire.android.util.getUrisOfFilesInDirectory
+import com.wire.android.util.logging.LogFileWriter
 import com.wire.android.util.multipleFileSharingIntent
 import com.wire.android.util.sha256
 

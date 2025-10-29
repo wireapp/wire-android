@@ -25,12 +25,12 @@ enum class NodeBottomSheetAction(
     val isHighlighted: Boolean = false
 ) {
     SHARE(R.string.share_label, R.drawable.ic_share),
-    PUBLIC_LINK(R.string.public_link, R.drawable.ic_file_link),
+    PUBLIC_LINK(R.string.public_link, com.wire.android.ui.common.R.drawable.ic_link),
     ADD_REMOVE_TAGS(R.string.add_remove_tags_label, R.drawable.ic_tags),
     MOVE(R.string.move_label, R.drawable.ic_folder),
     RENAME(R.string.rename_label, R.drawable.ic_rename),
     DOWNLOAD(R.string.download_label, R.drawable.ic_save),
     RESTORE(R.string.restore_label, R.drawable.ic_restore),
-    DELETE(R.string.delete_label, R.drawable.ic_delete, true),
-    DELETE_PERMANENTLY(R.string.delete_permanently, R.drawable.ic_delete, true),
+    DELETE(R.string.delete_label, com.wire.android.ui.common.R.drawable.ic_delete, true),
+    DELETE_PERMANENTLY(R.string.delete_permanently, com.wire.android.ui.common.R.drawable.ic_delete, true),
 }

@@ -28,7 +28,7 @@ fun EditMessageMenuOption(onEditItemClick: () -> Unit) {
     MenuBottomSheetItem(
         leading = {
             MenuItemIcon(
-                id = R.drawable.ic_edit,
+                id = com.wire.android.ui.common.R.drawable.ic_edit,
                 contentDescription = stringResource(R.string.content_description_edit_the_message)
             )
         },

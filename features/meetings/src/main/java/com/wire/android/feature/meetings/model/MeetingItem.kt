@@ -34,6 +34,7 @@ data class MeetingItem(
     val belongingType: BelongingType,
     val title: String,
     val status: Status,
+    val selfRole: SelfRole,
 ) : MeetingListItem {
     @Parcelize
     enum class RepeatingInterval(@StringRes val nameResId: Int) : Parcelable {
@@ -77,6 +78,8 @@ data class MeetingItem(
         val currentCallStartedTime: Instant, // time when the current call started (there can be many calls one after another in a meeting)
         val isSelfUserAttending: Boolean // is the current user attending the ongoing call
     )
+
+    enum class SelfRole { Admin, Member }
 }
 
 private const val GROUPLESS_AVATARS_LIMIT = 5

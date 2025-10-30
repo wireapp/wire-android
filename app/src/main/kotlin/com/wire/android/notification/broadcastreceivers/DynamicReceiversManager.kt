@@ -36,17 +36,34 @@ class DynamicReceiversManager @Inject constructor(
     @ApplicationContext val context: Context,
     private val managedConfigurationsReceiver: ManagedConfigurationsReceiver
 ) {
+    @Volatile
+    private var isRegistered = false
+
     fun registerAll() {
         if (EMM_SUPPORT_ENABLED) {
-            appLogger.i("$TAG Registering Runtime ManagedConfigurations Broadcast receiver")
-            context.registerReceiver(managedConfigurationsReceiver, IntentFilter(Intent.ACTION_APPLICATION_RESTRICTIONS_CHANGED))
+            synchronized(this) {
+                if (!isRegistered) {
+                    appLogger.i("$TAG Registering Runtime ManagedConfigurations Broadcast receiver")
+                    context.registerReceiver(managedConfigurationsReceiver, IntentFilter(Intent.ACTION_APPLICATION_RESTRICTIONS_CHANGED))
+                    isRegistered = true
+                } else {
+                    appLogger.w("$TAG Receiver already registered, skipping")
+                }
+            }
         }
     }
 
     fun unregisterAll() {
         if (EMM_SUPPORT_ENABLED) {
-            appLogger.i("$TAG Unregistering Runtime ManagedConfigurations Broadcast receiver")
-            context.unregisterReceiver(managedConfigurationsReceiver)
+            synchronized(this) {
+                if (isRegistered) {
+                    appLogger.i("$TAG Unregistering Runtime ManagedConfigurations Broadcast receiver")
+                    context.unregisterReceiver(managedConfigurationsReceiver)
+                    isRegistered = false
+                } else {
+                    appLogger.w("$TAG Receiver not registered, skipping unregister")
+                }
+            }
         }
     }
 

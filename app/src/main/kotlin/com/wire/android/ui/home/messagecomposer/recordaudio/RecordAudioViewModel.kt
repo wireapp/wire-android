@@ -27,7 +27,7 @@ import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.media.audiomessage.AudioFocusHelper
 import com.wire.android.media.audiomessage.AudioMediaPlayingState
 import com.wire.android.media.audiomessage.AudioState
-import com.wire.android.media.audiomessage.GenerateAudioWavesMaskUseCase
+import com.wire.android.media.audiomessage.AudioWavesMaskHelper
 import com.wire.android.media.audiomessage.RecordAudioMessagePlayer
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.home.conversations.model.UriAsset
@@ -66,7 +66,7 @@ class RecordAudioViewModel @Inject constructor(
     private val currentScreenManager: CurrentScreenManager,
     private val audioMediaRecorder: AudioMediaRecorder,
     private val globalDataStore: GlobalDataStore,
-    private val generateAudioWavesMask: GenerateAudioWavesMaskUseCase,
+    private val audioWavesMaskHelper: AudioWavesMaskHelper,
     private val audioFocusHelper: AudioFocusHelper,
     private val dispatchers: DispatcherProvider,
     private val kaliumFileSystem: KaliumFileSystem
@@ -219,7 +219,7 @@ class RecordAudioViewModel @Inject constructor(
                                 ).toInt()
                             } ?: 0
                         ),
-                        wavesMask = playableAudioFile?.let { generateAudioWavesMask(it.path) } ?: listOf(),
+                        wavesMask = playableAudioFile?.let { audioWavesMaskHelper.getWaveMask(it) } ?: listOf()
                     )
                 )
             }
@@ -407,6 +407,7 @@ class RecordAudioViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
         recordAudioMessagePlayer.close()
+        audioWavesMaskHelper.clear()
     }
 
     companion object {

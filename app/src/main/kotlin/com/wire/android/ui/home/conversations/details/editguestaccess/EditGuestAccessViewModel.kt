@@ -33,7 +33,7 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.SupportedProtocol
-import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.data.user.type.isTeamAdmin
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.SyncConversationCodeUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
@@ -154,7 +154,7 @@ class EditGuestAccessViewModel @Inject constructor(
             ) { conversationDetails, isSelfAnAdmin, selfUser ->
                 Triple(isSelfAnAdmin, conversationDetails, selfUser)
             }.collect { (isSelfAnAdmin, conversationDetails, selfUser) ->
-                val isTeamAdmin = selfUser.userType in setOf(UserType.ADMIN, UserType.OWNER)
+                val isTeamAdmin = selfUser.userType.isTeamAdmin()
                 val isSelfInConversationTeam = selfUser.teamId == conversationDetails.conversation.teamId
                 val isSelfChannelTeamAdmin =
                     (conversationDetails is ConversationDetails.Group.Channel && isTeamAdmin && isSelfInConversationTeam)

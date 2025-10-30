@@ -40,6 +40,6 @@
     <string name="accent_color_green">Grün</string>
     <string name="accent_color_red">Rot</string>
     <string name="accent_color_amber">Bernstein</string>
-    <string name="accent_color_petrol">Türkis</string>
+    <string name="accent_color_petrol">Petrol</string>
     <string name="accent_color_purple">Lila</string>
 </resources>

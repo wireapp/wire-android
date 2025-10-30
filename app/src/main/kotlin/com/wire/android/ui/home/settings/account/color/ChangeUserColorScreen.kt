@@ -166,7 +166,7 @@ fun ChangeUserColorContent(
 
                         WireDropDown(
                             items = items.map { stringResource(it.resourceId()) },
-                            defaultItemIndex = if(accentColor == Accent.Unknown) -1 else items.indexOf(accentColor),
+                            defaultItemIndex = if (accentColor == Accent.Unknown) -1 else items.indexOf(accentColor),
                             label = null,
                             modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing16x),
                             autoUpdateSelection = false,

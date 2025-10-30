@@ -29,6 +29,7 @@ enum class Accent(val accentId: Int) {
     Purple(7),
     Red(4),
     Petrol(6),
+
     // unknown should always be last
     Unknown(0);
 

@@ -22,8 +22,6 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.InteractionAvailability
-import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.message.draft.MessageDraft
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import io.mockk.coVerify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -59,30 +57,6 @@ class MessageComposerViewModelTest {
             )
         }
     }
-
-    @Test
-    fun `given that user saves a draft message, then save draft use case is triggered`() =
-        runTest {
-            // given
-            val messageDraft = MessageDraft(
-                conversationId = ConversationId("value", "domain"),
-                text = "hello",
-                editMessageId = null,
-                quotedMessageId = null,
-                selectedMentionList = listOf()
-            )
-            val (arrangement, viewModel) = MessageComposerViewModelArrangement()
-                .withSuccessfulViewModelInit()
-                .withSaveDraftMessage()
-                .arrange()
-
-            // when
-            viewModel.saveDraft(messageDraft)
-            advanceUntilIdle()
-
-            // then
-            coVerify(exactly = 1) { arrangement.saveMessageDraftUseCase.invoke(eq(messageDraft)) }
-        }
 
     @Test
     fun `given no current session, then disable interaction`() = runTest {

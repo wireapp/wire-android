@@ -176,6 +176,18 @@ internal fun QuotedMessage(
             startContent = startContent,
             clickable = clickable
         )
+
+        is UIQuotedMessage.UIQuotedData.Multipart -> QuotedMultipartMessage(
+            senderName = messageData.senderName,
+            originalDateTimeText = messageData.originalMessageDateDescription,
+            text = quotedContent.text?.asString(),
+            attachments = quotedContent.attachments,
+            accent = messageData.senderAccent,
+            modifier = modifier,
+            style = style,
+            startContent = startContent,
+            clickable = clickable
+        )
     }
 }
 
@@ -216,7 +228,7 @@ fun QuotedMessagePreview(
 
 @Composable
 @Suppress("LongParameterList")
-private fun QuotedMessageContent(
+internal fun QuotedMessageContent(
     senderName: String?,
     style: QuotedMessageStyle,
     accent: Accent,
@@ -424,7 +436,7 @@ private fun QuotedText(
 }
 
 @Composable
-private fun QuotedMessageOriginalDate(
+internal fun QuotedMessageOriginalDate(
     originalDateTimeText: UIText
 ) {
     Text(
@@ -611,7 +623,7 @@ fun QuotedAudioMessage(
 }
 
 @Composable
-private fun MainMarkdownText(text: String, messageStyle: MessageStyle, fontStyle: FontStyle = FontStyle.Normal) {
+internal fun MainMarkdownText(text: String, messageStyle: MessageStyle, fontStyle: FontStyle = FontStyle.Normal) {
     val nodeData = NodeData(
         color = colorsScheme().onSurfaceVariant,
         style = MaterialTheme.wireTypography.subline01.copy(fontStyle = fontStyle),
@@ -640,7 +652,7 @@ private fun MainMarkdownText(text: String, messageStyle: MessageStyle, fontStyle
 }
 
 @Composable
-private fun MainContentText(text: String, fontStyle: FontStyle = FontStyle.Normal) {
+internal fun MainContentText(text: String, fontStyle: FontStyle = FontStyle.Normal) {
     Text(
         text = text,
         style = typography().subline01,

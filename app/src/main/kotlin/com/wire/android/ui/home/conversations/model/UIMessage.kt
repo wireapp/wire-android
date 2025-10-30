@@ -98,6 +98,7 @@ sealed interface UIMessage {
                     messageContent is UIMessageContent.AudioAssetMessage ||
                     messageContent is UIMessageContent.VideoMessage ||
                     messageContent is UIMessageContent.Location ||
+                    messageContent is UIMessageContent.Multipart ||
                     messageContent is UIMessageContent.Regular
 
         /**
@@ -113,8 +114,7 @@ sealed interface UIMessage {
             get() = isReplyableContent &&
                     isTheMessageAvailableToOtherUsers &&
                     !isDeleted &&
-                    header.messageStatus.expirationStatus is ExpirationStatus.NotExpirable &&
-                    !isMultipart
+                    header.messageStatus.expirationStatus is ExpirationStatus.NotExpirable
 
         val isReactionAllowed: Boolean
             get() = !isDeleted &&

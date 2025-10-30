@@ -276,6 +276,7 @@ private fun BaseComposerPreview(
                 messageTextState = messageTextState,
                 onClearDraft = {},
                 onSaveDraft = {},
+                onMessageTextUpdate = {},
                 onSearchMentionQueryChanged = {},
                 onClearMentionSearchResult = {},
                 onTypingEvent = {}

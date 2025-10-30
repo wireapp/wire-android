@@ -158,22 +158,24 @@ fun ChangeUserColorContent(
 
                 VerticalSpace.x24()
 
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    SectionHeader(stringResource(R.string.settings_myaccount_user_color))
+                state.accent?.let { accentColor ->
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        SectionHeader(stringResource(R.string.settings_myaccount_user_color))
 
-                    val items = Accent.entries.filter { accent -> accent != Accent.Unknown }
+                        val items = Accent.entries.filter { accent -> accent != Accent.Unknown }
 
-                    WireDropDown(
-                        items = items.map { stringResource(it.resourceId()) },
-                        defaultItemIndex = items.indexOf(state.accent ?: Accent.Blue),
-                        label = null,
-                        modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing16x),
-                        autoUpdateSelection = false,
-                        showDefaultTextIndicator = false,
-                        leadingCompose = { index -> AccentCircle(items[index]) },
-                        onChangeClickDescription = stringResource(R.string.content_description_settings_myaccount_user_color)
-                    ) { selectedIndex ->
-                        onChangePressed(items[selectedIndex])
+                        WireDropDown(
+                            items = items.map { stringResource(it.resourceId()) },
+                            defaultItemIndex = if(accentColor == Accent.Unknown) -1 else items.indexOf(accentColor),
+                            label = null,
+                            modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing16x),
+                            autoUpdateSelection = false,
+                            showDefaultTextIndicator = false,
+                            leadingCompose = { index -> if (index >= 0) AccentCircle(Accent.entries[index]) else null },
+                            onChangeClickDescription = stringResource(R.string.content_description_settings_myaccount_user_color)
+                        ) { selectedIndex ->
+                            onChangePressed(items[selectedIndex])
+                        }
                     }
                 }
 
@@ -245,6 +247,7 @@ private const val SELF_USER_MESSAGE_TEXT = "Hi team, any news on the pitch deck?
 
 @Composable
 fun AccentCircle(accent: Accent, modifier: Modifier = Modifier) {
+    if (accent == Accent.Unknown) return
     val color = MaterialTheme.wireColorScheme.wireAccentColors.getOrDefault(
         accent,
         MaterialTheme.wireColorScheme.primary

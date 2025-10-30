@@ -50,7 +50,8 @@
     <string name="accent_color_green">Green</string>
     <string name="accent_color_red">Red</string>
     <string name="accent_color_amber">Amber</string>
-    <string name="accent_color_petrol">Petrol</string>
+    <string name="accent_color_petrol">Turquoise</string>
     <string name="accent_color_purple">Purple</string>
+    <string name="accent_color_none">None</string>
 
 </resources>

@@ -36,6 +36,7 @@ class DynamicReceiversManager @Inject constructor(
     @ApplicationContext val context: Context,
     private val managedConfigurationsReceiver: ManagedConfigurationsReceiver
 ) {
+    @Volatile
     private var isRegistered = false
 
     fun registerAll() {

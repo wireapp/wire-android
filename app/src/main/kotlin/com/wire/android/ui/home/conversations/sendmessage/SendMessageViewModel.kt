@@ -294,11 +294,13 @@ class SendMessageViewModel @Inject constructor(
         conversationId: ConversationId,
         attachmentUri: UriAsset
     ) {
-        when (val result = handleUriAsset.invoke(
+        when (
+            val result = handleUriAsset.invoke(
             uri = attachmentUri.uri,
             saveToDeviceIfInvalid = attachmentUri.saveToDeviceIfInvalid,
             specifiedMimeType = attachmentUri.mimeType
-        )) {
+        )
+        ) {
             is HandleUriAssetUseCase.Result.Failure.AssetTooLarge -> {
                 assetTooLargeDialogState = AssetTooLargeDialogState.Visible(
                     assetType = result.assetBundle.assetType,
@@ -494,7 +496,8 @@ class SendMessageViewModel @Inject constructor(
             is SureAboutMessagingDialogState.Visible.ConversationVerificationDegraded ->
                 setUserInformedAboutVerification(conversationId)
 
-            SureAboutMessagingDialogState.Hidden -> { /* do nothing */
+            SureAboutMessagingDialogState.Hidden -> {
+                /* do nothing */
             }
         }
         sureAboutMessagingDialogState = SureAboutMessagingDialogState.Hidden

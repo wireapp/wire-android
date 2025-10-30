@@ -39,8 +39,11 @@ class ShouldStartPersistentWebSocketServiceUseCase @Inject constructor(
                         val res = result.persistentWebSocketStatusListFlow.firstOrNull()
                         res
                     }
-                    if (statusList != null && statusList.map { it.isPersistentWebSocketEnabled }.contains(true)) Result.Success(true)
-                    else Result.Success(false)
+                    if (statusList != null && statusList.map { it.isPersistentWebSocketEnabled }.contains(true)) {
+                        Result.Success(true)
+                    } else {
+                        Result.Success(false)
+                    }
                 }
             }
         }

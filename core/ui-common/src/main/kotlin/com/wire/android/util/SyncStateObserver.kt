@@ -23,7 +23,7 @@ import com.wire.kalium.logic.data.sync.SyncState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
-class SyncStateObserver(private val stateFlow : StateFlow<SyncState?> = MutableStateFlow(null)) {
+class SyncStateObserver(private val stateFlow: StateFlow<SyncState?> = MutableStateFlow(null)) {
     val isSyncing get() = stateFlow.value is SyncState.SlowSync || stateFlow.value is SyncState.GatheringPendingEvents
     val isConnecting get() = stateFlow.value is SyncState.Failed || stateFlow.value is SyncState.Waiting
 }

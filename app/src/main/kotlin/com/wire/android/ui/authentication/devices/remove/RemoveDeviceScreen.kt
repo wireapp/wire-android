@@ -83,9 +83,13 @@ fun RemoveDeviceScreen(
 ) {
     fun navigateAfterSuccess(initialSyncCompleted: Boolean, isE2EIRequired: Boolean) = navigator.navigate(
         NavigationCommand(
-            destination = if (isE2EIRequired) E2EIEnrollmentScreenDestination
-            else if (initialSyncCompleted) HomeScreenDestination
-            else InitialSyncScreenDestination,
+            destination = if (isE2EIRequired) {
+                E2EIEnrollmentScreenDestination
+            } else if (initialSyncCompleted) {
+                HomeScreenDestination
+            } else {
+                InitialSyncScreenDestination
+            },
             backStackMode = BackStackMode.CLEAR_WHOLE
         )
     )

@@ -90,7 +90,8 @@ class PersistentWebsocketCheckWorker
 fun WorkManager.enqueuePeriodicPersistentWebsocketCheckWorker() {
     appLogger.i("${TAG}: Enqueueing periodic work for $TAG")
     enqueueUniquePeriodicWork(
-        NAME, ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE,
+        NAME,
+        ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE,
         PeriodicWorkRequestBuilder<PersistentWebsocketCheckWorker>(WORK_INTERVAL)
             .addTag(TAG) // adds the tag so we can cancel later all related work.
             .build()

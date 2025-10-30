@@ -73,8 +73,9 @@ fun AdditionalOptionButton(
             },
             iconResource = R.drawable.ic_add,
             contentDescription = R.string.content_description_attachment_item,
-            state = if (!viewModel.isFileSharingEnabled()) WireButtonState.Disabled
-            else if (isSelected) WireButtonState.Selected else WireButtonState.Default,
+            state = if (!viewModel.isFileSharingEnabled()) {
+                WireButtonState.Disabled
+            } else if (isSelected) WireButtonState.Selected else WireButtonState.Default,
         )
     }
 }

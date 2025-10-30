@@ -61,9 +61,9 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
+// TODO write more tests
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
-// TODO write more tests
 class ConversationListViewModelTest {
 
     private val dispatcherProvider = TestDispatcherProvider()

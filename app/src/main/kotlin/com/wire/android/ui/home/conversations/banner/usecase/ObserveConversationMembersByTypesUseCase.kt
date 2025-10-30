@@ -41,5 +41,4 @@ class ObserveConversationMembersByTypesUseCase @Inject constructor(
                     .toSet()
             }
             .flowOn(dispatchers.io())
-
 }

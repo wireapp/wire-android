@@ -32,15 +32,18 @@ fun LegalHoldSubjectProfileDialog(
         title = stringResource(id = R.string.legal_hold_subject_dialog_title, userName),
         withDefaultInfo = true,
         cancelText = stringResource(id = R.string.label_close),
-        dialogDismissed = dialogDismissed)
+        dialogDismissed = dialogDismissed
+    )
 }
+
 @Composable
 fun LegalHoldSubjectProfileSelfDialog(dialogDismissed: () -> Unit) {
     LegalHoldSubjectBaseDialog(
         title = stringResource(id = R.string.legal_hold_subject_self_dialog_title),
         withDefaultInfo = true,
         cancelText = stringResource(id = R.string.label_close),
-        dialogDismissed = dialogDismissed)
+        dialogDismissed = dialogDismissed
+    )
 }
 
 @Composable
@@ -50,6 +53,7 @@ fun PreviewLegalHoldSubjectProfileDialog() {
         LegalHoldSubjectProfileDialog("username", {})
     }
 }
+
 @Composable
 @PreviewMultipleThemes
 fun PreviewLegalHoldSubjectProfileSelfDialog() {

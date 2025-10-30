@@ -174,9 +174,13 @@ fun MessageButtonsContent(
 
             val isPending = viewModel.pendingButtonId == button.id
 
-            val state = if (button.isSelected) WireButtonState.Selected
-            else if (viewModel.pendingButtonId != null) WireButtonState.Disabled
-            else WireButtonState.Default
+            val state = if (button.isSelected) {
+                WireButtonState.Selected
+            } else if (viewModel.pendingButtonId != null) {
+                WireButtonState.Disabled
+            } else {
+                WireButtonState.Default
+            }
 
             WireSecondaryButton(
                 loading = isPending,
@@ -277,7 +281,8 @@ fun MediaAssetImage(
             .padding(top = MaterialTheme.wireDimensions.spacing2x)
             .clip(shape = RoundedCornerShape(dimensions().messageAssetBorderRadius))
             .background(
-                color = MaterialTheme.wireColorScheme.onPrimary, shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
+                color = MaterialTheme.wireColorScheme.onPrimary,
+                shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
             )
             .border(
                 width = dimensions().spacing1x,

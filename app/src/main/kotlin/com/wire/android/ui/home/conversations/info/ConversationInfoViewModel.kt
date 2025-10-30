@@ -80,7 +80,7 @@ class ConversationInfoViewModel @Inject constructor(
         [MessageComposerViewModel] handles the navigating back after removing a group and here it would navigate to home if the group
         is removed without back params indicating that the user actually have just done that. The info about the group being removed
         could appear before the back navigation params. That's why it's being observed in the `LaunchedEffect` in the Composable.
-    */
+     */
     suspend fun observeConversationDetails() {
         observeConversationDetails(conversationId)
             .collect { it.handleConversationDetailsResult() }
@@ -106,7 +106,8 @@ class ConversationInfoViewModel @Inject constructor(
 
     private suspend fun handleConversationDetails(conversationDetails: ConversationDetails) {
         val (isConversationUnavailable, _) = when (conversationDetails) {
-            is ConversationDetails.OneOne -> conversationDetails.otherUser
+            is ConversationDetails.OneOne ->
+                conversationDetails.otherUser
                 .run { isUnavailableUser to (connectionStatus == ConnectionState.BLOCKED) }
 
             else -> false to false

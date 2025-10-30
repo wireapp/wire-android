@@ -243,7 +243,8 @@ private fun GetE2EICertificateSwitch(
 ) {
     Column {
         SectionHeader(stringResource(R.string.debug_settings_e2ei_enrollment_title))
-        RowItemTemplate(modifier = Modifier.wrapContentWidth(),
+        RowItemTemplate(
+            modifier = Modifier.wrapContentWidth(),
             title = {
                 Text(
                     style = MaterialTheme.wireTypography.body01,

@@ -36,6 +36,7 @@ fun RevokeGuestConfirmationDialog(onConfirm: () -> Unit, onDialogDismiss: () -> 
         onDismiss = onDialogDismiss
     )
 }
+
 @Composable
 fun DisableGuestConfirmationDialog(onConfirm: () -> Unit, onDialogDismiss: () -> Unit) {
     DisableConformationDialog(

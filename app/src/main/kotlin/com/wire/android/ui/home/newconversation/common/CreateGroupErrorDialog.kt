@@ -107,6 +107,7 @@ private fun PreviewCreateGroupErrorDialogLackingConnection() {
         CreateGroupErrorDialog(CreateGroupState.Error.LackingConnection, {}, {}, {})
     }
 }
+
 @PreviewMultipleThemes
 @Composable
 private fun PreviewCreateGroupErrorDialogUnknown() {
@@ -114,6 +115,7 @@ private fun PreviewCreateGroupErrorDialogUnknown() {
         CreateGroupErrorDialog(CreateGroupState.Error.Unknown, {}, {}, {})
     }
 }
+
 @PreviewMultipleThemes
 @Composable
 private fun PreviewCreateGroupErrorDialogConflictedBackends() {

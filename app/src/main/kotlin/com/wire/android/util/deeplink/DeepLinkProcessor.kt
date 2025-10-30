@@ -196,8 +196,11 @@ class DeepLinkProcessor @Inject constructor(
 
     private fun getOpenMigrationLoginDeepLinkResult(uri: Uri): DeepLinkResult =
         uri.lastPathSegment?.let {
-            if (it == MIGRATION_LOGIN_HOST) DeepLinkResult.MigrationLogin(String.EMPTY)
-            else DeepLinkResult.MigrationLogin(it)
+            if (it == MIGRATION_LOGIN_HOST) {
+                DeepLinkResult.MigrationLogin(String.EMPTY)
+            } else {
+                DeepLinkResult.MigrationLogin(it)
+            }
         } ?: DeepLinkResult.Unknown
 
     private fun getCustomServerConfigDeepLinkResult(uri: Uri) =

@@ -132,14 +132,22 @@ class MarkdownHelperTest {
     @Test
     fun `given table block, when toContent is called, then it should return Block Table`() {
         val tableBlockNode = TableBlock()
-        tableBlockNode.appendChild(TableHead().apply {
-            appendChild(TableRow()
-                .apply { appendChild(TableCell().apply { appendChild(Text("Header")) }) })
-        })
-        tableBlockNode.appendChild(TableBody().apply {
-            appendChild(TableRow()
-                .apply { appendChild(TableCell().apply { appendChild(Text("Cell")) }) })
-        })
+        tableBlockNode.appendChild(
+            TableHead().apply {
+            appendChild(
+                TableRow()
+                .apply { appendChild(TableCell().apply { appendChild(Text("Header")) }) }
+            )
+        }
+        )
+        tableBlockNode.appendChild(
+            TableBody().apply {
+            appendChild(
+                TableRow()
+                .apply { appendChild(TableCell().apply { appendChild(Text("Cell")) }) }
+            )
+        }
+        )
 
         val result = tableBlockNode.toContent()
 

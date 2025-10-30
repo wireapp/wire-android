@@ -52,7 +52,8 @@ class ObserveImageAssetMessagesFromConversationUseCaseTest {
                 listOf(
                     assetMessage("asset1", Instant.parse("2023-10-12T10:00:00.671Z")),
                     assetMessage(
-                        "asset2", Instant.parse("2023-11-12T10:00:00.671Z")
+                        "asset2",
+                        Instant.parse("2023-11-12T10:00:00.671Z")
                     )
                 )
             )
@@ -80,7 +81,10 @@ class ObserveImageAssetMessagesFromConversationUseCaseTest {
 
         private val useCase: ObserveImageAssetMessagesFromConversationUseCase by lazy {
             ObserveImageAssetMessagesFromConversationUseCase(
-                getAssetMessages, UIAssetMapper(), TestDispatcherProvider(), timeZoneProvider,
+                getAssetMessages,
+                UIAssetMapper(),
+                TestDispatcherProvider(),
+                timeZoneProvider,
             )
         }
 

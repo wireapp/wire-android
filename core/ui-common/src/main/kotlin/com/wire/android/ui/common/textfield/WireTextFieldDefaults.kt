@@ -63,7 +63,8 @@ fun wireTextFieldColors(
         when (state) {
             is WireTextFieldState.Error -> errorColor
             else -> descriptionColor
-        })
+        }
+    )
 
     @Composable
     override fun iconColor(state: WireTextFieldState): State<Color> = animateColorAsState(
@@ -72,7 +73,8 @@ fun wireTextFieldColors(
             is WireTextFieldState.Error -> errorColor
             WireTextFieldState.Success -> successColor
             else -> textColor
-        })
+        }
+    )
 
     @Composable
     override fun labelColor(state: WireTextFieldState, interactionSource: InteractionSource): State<Color> {
@@ -83,7 +85,8 @@ fun wireTextFieldColors(
                 state is WireTextFieldState.Success -> successColor
                 focused -> focusColor
                 else -> labelColor
-            })
+            }
+        )
     }
 
     @Composable
@@ -95,7 +98,8 @@ fun wireTextFieldColors(
                 state is WireTextFieldState.Success -> successColor
                 focused -> focusColor
                 else -> borderColor
-            })
+            }
+        )
     }
 
     @Composable
@@ -132,4 +136,3 @@ interface WireTextFieldColors {
     @Composable
     fun cursorColor(state: WireTextFieldState): State<Color>
 }
-

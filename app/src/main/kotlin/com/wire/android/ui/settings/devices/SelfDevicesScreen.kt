@@ -66,7 +66,9 @@ fun SelfDevicesScreen(
     SelfDevicesScreenContent(
         state = viewModel.state,
         onNavigateBack = navigator::navigateBack,
-        onDeviceClick = { navigator.navigate(NavigationCommand(DeviceDetailsScreenDestination(viewModel.currentAccountId, it.clientId))) }
+        onDeviceClick = {
+            navigator.navigate(NavigationCommand(DeviceDetailsScreenDestination(viewModel.currentAccountId, it.clientId)))
+        }
     )
 }
 

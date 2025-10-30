@@ -74,7 +74,8 @@ fun IncomingCallScreen(
         key = "incoming_$conversationId",
         creationCallback = { factory -> factory.create(conversationId = conversationId) }
     ),
-    sharedCallingViewModel: SharedCallingViewModel = hiltViewModel<SharedCallingViewModel, SharedCallingViewModel.Factory>(
+    sharedCallingViewModel: SharedCallingViewModel =
+    hiltViewModel<SharedCallingViewModel, SharedCallingViewModel.Factory>(
         key = "shared_$conversationId",
         creationCallback = { factory -> factory.create(conversationId = conversationId) }
     ),
@@ -116,7 +117,8 @@ fun IncomingCallScreen(
                 onCallAccepted()
             }
 
-            is IncomingCallState.FlowState.Default -> { /* do nothing */
+            is IncomingCallState.FlowState.Default -> {
+                /* do nothing */
             }
         }
     }

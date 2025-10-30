@@ -43,8 +43,11 @@ fun CreateGuestLinkButton(
         fillMaxWidth = true,
         onClick = onCreateLink,
         loading = isLoading,
-        state = if (!enabled) WireButtonState.Disabled
-        else WireButtonState.Default,
+        state = if (!enabled) {
+            WireButtonState.Disabled
+        } else {
+            WireButtonState.Default
+        },
         modifier = modifier
             .fillMaxWidth()
             .padding(MaterialTheme.wireDimensions.spacing16x)

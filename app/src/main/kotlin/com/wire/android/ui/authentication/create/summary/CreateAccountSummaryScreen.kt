@@ -60,7 +60,9 @@ fun CreateAccountSummaryScreen(
 ) {
     SummaryContent(
         state = viewModel.summaryState,
-        onContinuePressed = { navigator.navigate(NavigationCommand(CreateAccountUsernameScreenDestination, BackStackMode.CLEAR_WHOLE)) }
+        onContinuePressed = {
+            navigator.navigate(NavigationCommand(CreateAccountUsernameScreenDestination, BackStackMode.CLEAR_WHOLE))
+        }
     )
 }
 

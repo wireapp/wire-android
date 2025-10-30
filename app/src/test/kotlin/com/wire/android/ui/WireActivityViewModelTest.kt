@@ -780,7 +780,9 @@ class WireActivityViewModelTest {
             coEvery { observeScreenshotCensoringConfigUseCase() } returns flowOf(ObserveScreenshotCensoringConfigResult.Disabled)
             coEvery { currentScreenManager.observeCurrentScreen(any()) } returns MutableStateFlow(CurrentScreen.SomeOther())
             coEvery { globalDataStore.selectedThemeOptionFlow() } returns flowOf(ThemeOption.LIGHT)
-            coEvery { observeIfE2EIRequiredDuringLoginUseCaseProviderFactory.create(any()).observeIfE2EIIsRequiredDuringLogin() } returns
+            coEvery {
+                observeIfE2EIRequiredDuringLoginUseCaseProviderFactory.create(any()).observeIfE2EIIsRequiredDuringLogin()
+            } returns
                     flowOf(false)
             every { workManager.cancelAllWorkByTag(any()) } returns OperationImpl()
             every { workManager.enqueueUniquePeriodicWork(any(), any(), any()) } returns OperationImpl()

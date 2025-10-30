@@ -60,5 +60,4 @@ sealed interface EmailComposer {
         ------------------
         """
     }
-
 }

@@ -70,7 +70,9 @@ class TypingIndicatorViewModelTest {
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
-            every { savedStateHandle.scopedArgs<TypingIndicatorArgs>() } returns TypingIndicatorArgs(conversationId = TestConversation.ID)
+            every {
+                savedStateHandle.scopedArgs<TypingIndicatorArgs>()
+            } returns TypingIndicatorArgs(conversationId = TestConversation.ID)
             coEvery { observeUsersTypingInConversation(eq(TestConversation.ID)) } returns flowOf(emptyList())
         }
 

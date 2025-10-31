@@ -15,6 +15,9 @@ concurrency:
 jobs:
   validate-release:
     runs-on: ubuntu-latest
+    # Skip if this is a pre-release (tag contains -rc, -alpha, -beta, etc.)
+    # Pre-release tags should use dedicated workflows (e.g., build-rc.yml)
+    if: ${{ !contains(github.event.release.tag_name, '-') }}
     steps:
       - name: Get latest release tag
         id: get_latest_release

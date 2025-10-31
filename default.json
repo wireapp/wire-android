@@ -82,7 +82,9 @@
             "analytics_server_url": "https://wire.count.ly/",
             "enable_new_registration": true,
             "use_strict_mls_filter": false,
-            "use_async_flush_logging" : true
+            "use_async_flush_logging" : true,
+            "background_notification_retry_enabled": true,
+            "background_notification_stay_alive_seconds": 5
         },
         "fdroid": {
             "application_id": "com.wire",
@@ -153,5 +155,7 @@
     "is_mls_reset_enabled": true,
     "use_strict_mls_filter": true,
     "meetings_enabled": false,
-    "emm_support_enabled": true
+    "emm_support_enabled": true,
+    "background_notification_retry_enabled": false,
+    "background_notification_stay_alive_seconds": 1
 }

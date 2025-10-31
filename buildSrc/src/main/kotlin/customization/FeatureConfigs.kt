@@ -125,4 +125,16 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     MEETINGS_ENABLED("meetings_enabled", ConfigType.BOOLEAN),
 
     USE_ASYNC_FLUSH_LOGGING("use_async_flush_logging", ConfigType.BOOLEAN),
+
+    /**
+     * Background notification retry logic
+     * Enables retry with exponential backoff for background notification sync failures
+     */
+    BACKGROUND_NOTIFICATION_RETRY_ENABLED("background_notification_retry_enabled", ConfigType.BOOLEAN),
+
+    /**
+     * Extended stay-alive duration (in seconds) when background notification retry is enabled
+     * Controls how long the sync connection stays alive after receiving a push notification
+     */
+    BACKGROUND_NOTIFICATION_STAY_ALIVE_SECONDS("background_notification_stay_alive_seconds", ConfigType.INT),
 }

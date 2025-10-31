@@ -90,9 +90,9 @@ class WireFirebaseMessagingService : FirebaseMessagingService() {
                 .setRequiredNetworkType(NetworkType.CONNECTED)
                 .build()
             requestBuilder.setConstraints(constraints)
-            appLogger.d("$TAG: Enqueued NotificationFetchWorker for user=$userId with network constraints")
+            appLogger.d("$TAG: Enqueued NotificationFetchWorker with network constraints")
         } else {
-            appLogger.d("$TAG: Enqueued NotificationFetchWorker for user=$userId without network constraints")
+            appLogger.d("$TAG: Enqueued NotificationFetchWorker without network constraints")
         }
 
         val request = requestBuilder.build()

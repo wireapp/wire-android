@@ -50,4 +50,9 @@
     <string name="meetings_empty_title_past">No past meetings yet</string>
     <string name="meetings_empty_text_next">"Start a meeting with team members, guests or external parties."</string>
     <string name="meetings_empty_text_past">Previous meetings will be listed here.</string>
+    <string name="new_meeting_title">New Meeting</string>
+    <string name="new_meeting_now">Meet Now</string>
+    <string name="new_meeting_schedule">Schedule a Meeting</string>
+    <string name="content_description_new_meeting_now_icon">Meet now icon</string>
+    <string name="content_description_new_meeting_schedule_icon">Schedule a Meeting icon</string>
 </resources>

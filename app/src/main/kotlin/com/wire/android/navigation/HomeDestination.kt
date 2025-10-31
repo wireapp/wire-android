@@ -35,17 +35,18 @@ import com.wire.android.util.ui.UIText
 sealed class HomeDestination(
     val title: UIText,
     @DrawableRes val icon: Int,
-    val withNewConversationFab: Boolean = false,
     val withUserAvatar: Boolean = true,
-    val withFilesFilterIcon: Boolean = false,
     val direction: Direction,
     val searchBar: SearchBarOptions? = null,
+    val fab: FabOptions? = null,
+    val filterAction: FilterActionOptions? = null,
 ) {
     data object Conversations : HomeDestination(
         title = UIText.StringResource(R.string.conversations_screen_title),
         icon = R.drawable.ic_conversation,
         searchBar = SearchBarOptions(),
-        withNewConversationFab = true,
+        fab = FabOptions.NewConversation,
+        filterAction = FilterActionOptions.FilterConversations,
         direction = AllConversationsScreenDestination
     )
 
@@ -91,20 +92,52 @@ sealed class HomeDestination(
         title = UIText.StringResource(R.string.cells_screen_title),
         icon = R.drawable.ic_files,
         searchBar = SearchBarOptions(R.string.cells_screen_search_hint),
-        withFilesFilterIcon = true,
+        filterAction = FilterActionOptions.FilterCells,
         direction = GlobalCellsScreenDestination
     )
 
     data object Meetings : HomeDestination(
         title = UIText.StringResource(R.string.meetings_screen_title),
         icon = com.wire.android.ui.common.R.drawable.ic_video_call,
-        direction = MeetingsScreenDestination
+        direction = MeetingsScreenDestination,
+        fab = FabOptions.NewMeeting,
     )
 
     data class SearchBarOptions(
         @StringRes
         val hint: Int = R.string.search_bar_conversations_hint
     )
+
+    enum class FabOptions(
+        @DrawableRes val icon: Int,
+        @StringRes val contentDescription: Int,
+        @StringRes val text: Int,
+    ) {
+        NewConversation(
+            icon = R.drawable.ic_conversation,
+            contentDescription = R.string.content_description_new_conversation,
+            text = R.string.label_new,
+        ),
+        NewMeeting(
+            icon = com.wire.android.ui.common.R.drawable.ic_video_call,
+            contentDescription = R.string.content_description_new_meeting,
+            text = R.string.label_new,
+        ),
+    }
+
+    enum class FilterActionOptions(
+        @DrawableRes val icon: Int,
+        @StringRes val contentDescription: Int,
+    ) {
+        FilterConversations(
+            icon = com.wire.android.ui.common.R.drawable.ic_filter,
+            contentDescription = R.string.label_filter_conversations
+        ),
+        FilterCells(
+            icon = com.wire.android.ui.common.R.drawable.ic_filter,
+            contentDescription = R.string.content_description_filter_files
+        ),
+    }
 
     val itemName: String get() = ITEM_NAME_PREFIX + this
 

@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import io.github.esentsov.PackagePrivate
+import kotlin.Float
 
 @Immutable
 data class WireDimensions(
@@ -80,7 +81,9 @@ data class WireDimensions(
     val messageImageMaxWidth: Dp,
     val messageImageMinHeight: Dp,
     val messageImageMaxHeight: Dp,
-    val bubbleMaxWidth: Dp,
+    val messageVisualMaxFractionWidth: Float,
+    val messageVisualMaxFractionHeight: Float,
+    val bubbleMessageMaxFractionWidth: Float,
     val messageQuoteBorderWidth: Dp,
     val messageQuoteBorderRadius: Dp,
     val messageQuoteIconSize: Dp,
@@ -276,7 +279,9 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     messageImageMaxWidth = 310.dp,
     messageImageMinHeight = 220.dp,
     messageImageMaxHeight = 310.dp,
-    bubbleMaxWidth = 270.dp,
+    messageVisualMaxFractionWidth = 0.7F,
+    messageVisualMaxFractionHeight = 0.4F,
+    bubbleMessageMaxFractionWidth = 0.75F,
     messageQuoteBorderWidth = 1.dp,
     messageQuoteBorderRadius = 1.dp,
     messageQuoteIconSize = 10.dp,

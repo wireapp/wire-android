@@ -97,7 +97,7 @@ class WireColorScheme(
     // custom
     val emojiBackgroundColor: Color,
     val defaultSelectedItemInLoadingState: Color,
-    val markdownNodeTextColor: Color
+    val onScrim: Color
 
     ) {
     fun toColorScheme(): ColorScheme = ColorScheme(
@@ -243,7 +243,7 @@ private val LightWireColorScheme = WireColorScheme(
     // custom
     emojiBackgroundColor = Color.White,
     defaultSelectedItemInLoadingState = WireColorPalette.LightBlue100,
-    markdownNodeTextColor = Color.White
+    onScrim = Color.White
 )
 
 // Dark WireColorScheme
@@ -361,7 +361,7 @@ private val DarkWireColorScheme = WireColorScheme(
     },
     emojiBackgroundColor = Color.Black,
     defaultSelectedItemInLoadingState = WireColorPalette.DarkBlue800,
-    markdownNodeTextColor = Color.White
+    onScrim = Color.White
 )
 
 @PackagePrivate

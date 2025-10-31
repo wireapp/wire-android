@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
@@ -36,13 +37,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.decode.VideoFrameDecoder
@@ -54,10 +55,12 @@ import com.wire.android.ui.common.attachmentdraft.ui.FileHeaderView
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
+import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.home.conversations.messages.item.isBubble
-import com.wire.android.ui.home.conversations.messages.item.onSurface
+import com.wire.android.ui.home.conversations.model.messagetypes.image.VisualMediaParams
+import com.wire.android.ui.home.conversations.model.messagetypes.image.NormalizedSize
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.DateAndTimeParsers
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -69,30 +72,20 @@ fun VideoMessage(
     assetName: String,
     assetExtension: String,
     assetDataPath: String?,
-    width: Int?,
-    height: Int?,
+    params: VisualMediaParams,
     duration: Long?,
     transferStatus: AssetTransferStatus,
     onVideoClick: Clickable,
     messageStyle: MessageStyle,
     modifier: Modifier = Modifier,
 ) {
-    val context = LocalContext.current
 
-    val maxWidth = if (width != null && height != null) {
-        if (width < height) {
-            240.dp
-        } else {
-            Dp.Unspecified
-        }
-    } else {
-        Dp.Unspecified
-    }
+    val normalizedSize = params.normalizedSize()
 
     Column(
         modifier = modifier
             .applyIf(!messageStyle.isBubble()) {
-                widthIn(max = maxWidth)
+                widthIn(max = normalizedSize.width)
                     .background(color = colorsScheme().surface, shape = RoundedCornerShape(dimensions().buttonCornerSize))
                     .border(
                         width = dimensions().spacing1x,
@@ -130,18 +123,17 @@ fun VideoMessage(
 
         Box(
             modifier = Modifier
+                .aspectRatio(aspectRatio(normalizedSize))
+                .background(
+                    color = colorsScheme().scrim,
+                    shape = RoundedCornerShape(dimensions().buttonCornerSize)
+                )
                 .applyIf(!messageStyle.isBubble()) {
-                    fillMaxWidth(widthFraction(width, height))
-                        .aspectRatio(aspectRatio(width, height))
-                        .background(
-                            color = colorsScheme().scrim,
-                            shape = RoundedCornerShape(dimensions().buttonCornerSize)
-                        )
-                        .border(
-                            width = 1.dp,
-                            color = colorsScheme().outline,
-                            shape = RoundedCornerShape(dimensions().buttonCornerSize)
-                        )
+                    border(
+                        width = 1.dp,
+                        color = colorsScheme().outline,
+                        shape = RoundedCornerShape(dimensions().buttonCornerSize)
+                    )
                 }
                 .clip(RoundedCornerShape(dimensions().buttonCornerSize))
                 .clickable { onVideoClick.onClick() },
@@ -149,52 +141,56 @@ fun VideoMessage(
         ) {
 
             assetDataPath?.let {
-                val model = ImageRequest.Builder(context)
-                    .data(it)
-                    .decoderFactory { result, options, _ ->
-                        VideoFrameDecoder(result.source, options)
-                    }
-                    .build()
-
-                AsyncImage(
-                    modifier = Modifier.fillMaxSize(),
-                    model = model,
-                    contentScale = ContentScale.Crop,
-                    contentDescription = null,
+                VideoThumbnail(
+                    assetDataPath = it,
+                    duration = duration,
+                    durationModifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.BottomCenter)
                 )
-                duration?.let {
-                    Text(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .align(Alignment.BottomEnd)
-                            .background(color = colorsScheme().scrim)
-                            .padding(dimensions().spacing4x),
-                        text = DateAndTimeParsers.videoMessageTime(duration),
-                        style = typography().subline01,
-                        color = Color.White,
-                        textAlign = TextAlign.Center
-                    )
-                }
             }
 
             when (transferStatus) {
                 AssetTransferStatus.NOT_DOWNLOADED ->
                     Text(
                         text = stringResource(R.string.asset_message_tap_to_download_text),
-                        color = messageStyle.onSurface(),
+                        color = colorsScheme().onScrim,
                         style = typography().subline01,
                     )
 
-                AssetTransferStatus.DOWNLOAD_IN_PROGRESS ->
-                    WireCircularProgressIndicator(
-                        modifier = Modifier.size(dimensions().spacing32x),
-                        progressColor = messageStyle.onSurface()
-                    )
+                AssetTransferStatus.DOWNLOAD_IN_PROGRESS, AssetTransferStatus.UPLOAD_IN_PROGRESS -> {
+                    val inProgressText = when (transferStatus) {
+                        AssetTransferStatus.UPLOAD_IN_PROGRESS -> R.string.asset_message_upload_in_progress_text
+                        AssetTransferStatus.DOWNLOAD_IN_PROGRESS -> R.string.asset_message_download_in_progress_text
+                        else -> null
+                    }
+
+                    Column(
+                        Modifier
+                            .background(colorsScheme().scrim)
+                            .fillMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        inProgressText?.let { stringRes ->
+                            Text(
+                                text = stringResource(stringRes),
+                                color = colorsScheme().onScrim,
+                                style = typography().subline01,
+                            )
+                            VerticalSpace.x8()
+                        }
+                        WireCircularProgressIndicator(
+                            modifier = Modifier.size(dimensions().spacing16x),
+                            progressColor = colorsScheme().onScrim
+                        )
+                    }
+                }
 
                 AssetTransferStatus.FAILED_DOWNLOAD ->
                     Text(
                         text = stringResource(R.string.asset_message_failed_download_text),
-                        color = messageStyle.onSurface(),
+                        color = colorsScheme().onScrim,
                         style = typography().subline01,
                     )
 
@@ -212,24 +208,55 @@ fun VideoMessage(
     }
 }
 
-@Suppress("MagicNumber")
-private fun widthFraction(width: Int?, height: Int?) =
-    if (width != null && height != null) {
-        if (width < height) {
-            0.5f
-        } else {
-            1f
+@Composable
+private fun VideoThumbnail(assetDataPath: String, duration: Long?, durationModifier: Modifier = Modifier) {
+    val context = LocalContext.current
+
+    val model = ImageRequest.Builder(context)
+        .data(assetDataPath)
+        .decoderFactory { result, options, _ ->
+            VideoFrameDecoder(result.source, options)
         }
-    } else {
-        1f
+        .build()
+
+    AsyncImage(
+        modifier = Modifier.fillMaxSize(),
+        model = model,
+        contentScale = ContentScale.Crop,
+        contentDescription = null,
+    )
+    duration?.let {
+        Column(
+            modifier = durationModifier
+                .height(dimensions().spacing40x)
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            Color.Black.copy(alpha = 0f),
+                            Color.Black.copy(alpha = 1f),
+                        ),
+                    )
+                )
+                .padding(horizontal = dimensions().spacing4x),
+            verticalArrangement = Arrangement.Bottom,
+            horizontalAlignment = Alignment.End
+        ) {
+            Text(
+                text = DateAndTimeParsers.videoMessageTime(duration),
+                modifier = Modifier.padding(all = dimensions().spacing8x),
+                style = typography().subline01,
+                color = Color.White,
+                textAlign = TextAlign.End
+            )
+        }
     }
+}
 
 @Suppress("MagicNumber")
-private fun aspectRatio(width: Int?, height: Int?) =
+private fun aspectRatio(size: NormalizedSize) =
     when {
-        width == null || height == null -> 16f / 9f
-        width == 0 || height == 0 -> 16f / 9f
-        else -> width.toFloat() / height.toFloat()
+        size.isPortrait -> 9f / 16f
+        else -> 16F / 9F
     }
 
 @PreviewMultipleThemes
@@ -245,8 +272,10 @@ private fun PreviewVideoMessage() {
                 assetName = "video.mp4",
                 assetExtension = "mp4",
                 assetDataPath = "",
-                width = 1920,
-                height = 1080,
+                params = VisualMediaParams(
+                    1920,
+                    1080,
+                ),
                 duration = 1231231,
                 transferStatus = AssetTransferStatus.NOT_DOWNLOADED,
                 messageStyle = MessageStyle.NORMAL,
@@ -258,8 +287,10 @@ private fun PreviewVideoMessage() {
                 assetExtension = "mp4",
                 assetDataPath = "",
                 transferStatus = AssetTransferStatus.DOWNLOAD_IN_PROGRESS,
-                width = null,
-                height = null,
+                params = VisualMediaParams(
+                    0,
+                    0,
+                ),
                 duration = 1231231,
                 messageStyle = MessageStyle.NORMAL,
                 onVideoClick = Clickable {},
@@ -270,8 +301,10 @@ private fun PreviewVideoMessage() {
                 assetExtension = "mp4",
                 assetDataPath = "",
                 transferStatus = AssetTransferStatus.SAVED_INTERNALLY,
-                width = 1920,
-                height = 1080,
+                params = VisualMediaParams(
+                    1920,
+                    1080,
+                ),
                 duration = 234000,
                 messageStyle = MessageStyle.NORMAL,
                 onVideoClick = Clickable { },
@@ -294,8 +327,10 @@ private fun PreviewVideoMessageError() {
                 assetExtension = "mp4",
                 assetDataPath = null,
                 transferStatus = AssetTransferStatus.FAILED_DOWNLOAD,
-                width = null,
-                height = null,
+                params = VisualMediaParams(
+                    0,
+                    0,
+                ),
                 duration = 123123,
                 messageStyle = MessageStyle.NORMAL,
                 onVideoClick = Clickable {},
@@ -318,10 +353,118 @@ private fun PreviewVideoMessageVertical() {
                 assetExtension = "mp4",
                 assetDataPath = null,
                 transferStatus = AssetTransferStatus.SAVED_INTERNALLY,
-                width = 1080,
-                height = 1920,
+                params = VisualMediaParams(
+                    1080,
+                    1920
+                ),
                 duration = 12412412,
                 messageStyle = MessageStyle.NORMAL,
+                onVideoClick = Clickable {},
+            )
+        }
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+private fun PreviewBubbleVideoMessage() {
+    WireTheme {
+        Column(
+            modifier = Modifier.padding(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            VideoMessage(
+                assetSize = 123456,
+                assetName = "video.mp4",
+                assetExtension = "mp4",
+                assetDataPath = "",
+                params = VisualMediaParams(
+                    1920,
+                    1080
+                ),
+                duration = 1231231,
+                transferStatus = AssetTransferStatus.NOT_DOWNLOADED,
+                messageStyle = MessageStyle.BUBBLE_SELF,
+                onVideoClick = Clickable {},
+            )
+            VideoMessage(
+                assetSize = 123456,
+                assetName = "video.mp4",
+                assetExtension = "mp4",
+                assetDataPath = "",
+                transferStatus = AssetTransferStatus.DOWNLOAD_IN_PROGRESS,
+                params = VisualMediaParams(
+                    0,
+                    0
+                ),
+                duration = 1231231,
+                messageStyle = MessageStyle.BUBBLE_OTHER,
+                onVideoClick = Clickable {},
+            )
+            VideoMessage(
+                assetSize = 123456,
+                assetName = "video.mp4",
+                assetExtension = "mp4",
+                assetDataPath = "",
+                transferStatus = AssetTransferStatus.SAVED_INTERNALLY,
+                params = VisualMediaParams(
+                    1080,
+                    1920
+                ),
+                duration = 234000,
+                messageStyle = MessageStyle.BUBBLE_SELF,
+                onVideoClick = Clickable { },
+            )
+        }
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+private fun PreviewBubbleVideoMessageError() {
+    WireTheme {
+        Column(
+            modifier = Modifier.padding(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            VideoMessage(
+                assetSize = 123456,
+                assetName = "video.mp4",
+                assetExtension = "mp4",
+                assetDataPath = null,
+                transferStatus = AssetTransferStatus.FAILED_DOWNLOAD,
+                params = VisualMediaParams(
+                    0,
+                    0
+                ),
+                duration = 123123,
+                messageStyle = MessageStyle.BUBBLE_SELF,
+                onVideoClick = Clickable {},
+            )
+        }
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+private fun PreviewBubbleVideoMessageVertical() {
+    WireTheme {
+        Column(
+            modifier = Modifier.padding(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            VideoMessage(
+                assetSize = 123456,
+                assetName = "video.mp4",
+                assetExtension = "mp4",
+                assetDataPath = null,
+                transferStatus = AssetTransferStatus.SAVED_INTERNALLY,
+                params = VisualMediaParams(
+                    1080,
+                    1920
+                ),
+                duration = 12412412,
+                messageStyle = MessageStyle.BUBBLE_SELF,
                 onVideoClick = Clickable {},
             )
         }

@@ -35,7 +35,7 @@ import io.github.esentsov.PackagePrivate
 
 @Suppress("LongParameterList")
 @Immutable
-class WireColorScheme(
+data class WireColorScheme(
     val useDarkSystemBarIcons: Boolean,
     val connectivityBarShouldUseDarkIcons: Boolean,
 
@@ -62,9 +62,6 @@ class WireColorScheme(
     val surfaceContainer: Color,
     val surfaceContainerHigh: Color,
     val surfaceContainerHighest: Color,
-    val defaultBubbleContainerBackgroundColor: Color,
-    val bubbleContainerAccentBackgroundColor: WireAccentColors,
-    val accentVariantColors: WireAccentColors,
 
     // buttons
     val primaryButtonEnabled: Color, val onPrimaryButtonEnabled: Color,
@@ -93,13 +90,24 @@ class WireColorScheme(
     val groupAvatarColors: List<GroupAvatarColors>,
     val channelAvatarColors: List<ChannelAvatarColors>,
     val wireAccentColors: WireAccentColors,
+    val wireAccentPrimaryColors: WireAccentColors,
+    val wireAccentSecondaryColors: WireAccentColors,
+    val wireAccentPrimaryOnSecondaryColors: WireAccentColors,
+    val wireAccentPrimaryOnSecondaryVariantColors: WireAccentColors,
 
     // custom
     val emojiBackgroundColor: Color,
     val defaultSelectedItemInLoadingState: Color,
-    val markdownNodeTextColor: Color
+    val markdownNodeTextColor: Color,
 
-    ) {
+    // message bubbles
+    val bubblesBackground: Color,
+    val defaultBubbleContainerBackgroundColor: Color,
+    val bubbleContainerAccentBackgroundColor: WireAccentColors,
+    val selfBubble: BubbleColors,
+    val otherBubble: BubbleColors
+
+) {
     fun toColorScheme(): ColorScheme = ColorScheme(
         primary = primary, onPrimary = onPrimary,
         primaryContainer = primaryVariant, onPrimaryContainer = onPrimaryVariant,
@@ -167,33 +175,66 @@ private val LightWireColorScheme = WireColorScheme(
             Accent.Unknown -> WireColorPalette.LightBlue400
         }
     },
-    accentVariantColors = WireAccentColors {
+    wireAccentPrimaryColors = WireAccentColors {
         when (it) {
-            Accent.Amber -> WireColorPalette.LightAmber50
-            Accent.Blue -> WireColorPalette.LightBlue50
-            Accent.Green -> WireColorPalette.LightGreen50
-            Accent.Purple -> WireColorPalette.LightPurple50
-            Accent.Red -> WireColorPalette.LightRed50
-            Accent.Petrol -> WireColorPalette.LightPetrol50
-            Accent.Unknown -> WireColorPalette.LightBlue50
+            Accent.Amber -> WireColorPalette.LightAmber500
+            Accent.Blue -> WireColorPalette.LightBlue500
+            Accent.Green -> WireColorPalette.LightGreen500
+            Accent.Purple -> WireColorPalette.LightPurple500
+            Accent.Red -> WireColorPalette.LightRed500
+            Accent.Petrol -> WireColorPalette.LightPetrol500
+            Accent.Unknown -> WireColorPalette.LightBlue500
+        }
+    },
+    wireAccentSecondaryColors = WireAccentColors {
+        when (it) {
+            Accent.Amber -> WireColorPalette.LightAmber600
+            Accent.Blue -> WireColorPalette.LightBlue600
+            Accent.Green -> WireColorPalette.LightGreen600
+            Accent.Purple -> WireColorPalette.LightPurple600
+            Accent.Red -> WireColorPalette.LightRed600
+            Accent.Petrol -> WireColorPalette.LightPetrol600
+            Accent.Unknown -> WireColorPalette.LightBlue600
+        }
+    },
+    wireAccentPrimaryOnSecondaryColors = WireAccentColors {
+        when (it) {
+            Accent.Amber -> WireColorPalette.LightAmber200
+            Accent.Blue -> WireColorPalette.LightBlue200
+            Accent.Green -> WireColorPalette.LightGreen200
+            Accent.Purple -> WireColorPalette.LightPurple200
+            Accent.Red -> WireColorPalette.LightRed200
+            Accent.Petrol -> WireColorPalette.LightPetrol200
+            Accent.Unknown -> WireColorPalette.LightBlue200
+        }
+    },
+    wireAccentPrimaryOnSecondaryVariantColors = WireAccentColors {
+        when (it) {
+            Accent.Amber -> WireColorPalette.LightAmber500
+            Accent.Blue -> WireColorPalette.LightBlue500
+            Accent.Green -> WireColorPalette.LightGreen500
+            Accent.Purple -> WireColorPalette.LightPurple500
+            Accent.Red -> WireColorPalette.LightRed500
+            Accent.Petrol -> WireColorPalette.LightPetrol500
+            Accent.Unknown -> WireColorPalette.LightBlue500
         }
     },
 
     // buttons
     primaryButtonEnabled = WireColorPalette.LightBlue500, onPrimaryButtonEnabled = Color.White,
-    primaryButtonDisabled = WireColorPalette.Gray50, onPrimaryButtonDisabled = WireColorPalette.Gray80,
+    primaryButtonDisabled = WireColorPalette.Gray50, onPrimaryButtonDisabled = Gray80,
     primaryButtonSelected = WireColorPalette.LightBlue700, onPrimaryButtonSelected = Color.White,
     primaryButtonRipple = Color.Black,
     secondaryButtonEnabled = Color.White, onSecondaryButtonEnabled = Color.Black,
     secondaryButtonEnabledOutline = WireColorPalette.Gray40,
     secondaryButtonDisabled = WireColorPalette.Gray20, onSecondaryButtonDisabled = WireColorPalette.Gray70,
     secondaryButtonDisabledOutline = WireColorPalette.Gray40,
-    secondaryButtonSelected = WireColorPalette.LightBlue50, onSecondaryButtonSelected = WireColorPalette.LightBlue500,
+    secondaryButtonSelected = LightBlue50, onSecondaryButtonSelected = WireColorPalette.LightBlue500,
     secondaryButtonSelectedOutline = WireColorPalette.LightBlue300,
     secondaryButtonRipple = Color.Black,
     tertiaryButtonEnabled = Color.Transparent, onTertiaryButtonEnabled = Color.Black,
     tertiaryButtonDisabled = Color.Transparent, onTertiaryButtonDisabled = WireColorPalette.Gray60,
-    tertiaryButtonSelected = WireColorPalette.LightBlue50, onTertiaryButtonSelected = WireColorPalette.LightBlue500,
+    tertiaryButtonSelected = LightBlue50, onTertiaryButtonSelected = WireColorPalette.LightBlue500,
     tertiaryButtonSelectedOutline = WireColorPalette.LightBlue300,
     tertiaryButtonRipple = Color.Black,
 
@@ -243,7 +284,20 @@ private val LightWireColorScheme = WireColorScheme(
     // custom
     emojiBackgroundColor = Color.White,
     defaultSelectedItemInLoadingState = WireColorPalette.LightBlue100,
-    markdownNodeTextColor = Color.White
+    markdownNodeTextColor = Color.White,
+    bubblesBackground = Color.White,
+    selfBubble = BubbleColors(
+        primary = WireColorPalette.LightBlue500,
+        secondary = WireColorPalette.LightBlue600,
+        onPrimary = Color.White,
+        onSecondary = Color.White,
+    ),
+    otherBubble = BubbleColors(
+        primary = WireColorPalette.Gray20,
+        secondary = Color.White,
+        onPrimary = Color.Black,
+        onSecondary = Color.Black,
+    ),
 )
 
 // Dark WireColorScheme
@@ -272,7 +326,7 @@ private val DarkWireColorScheme = WireColorScheme(
     surfaceContainerLowest = WireColorPalette.Gray100,
     surfaceContainerLow = WireColorPalette.Gray95,
     surfaceContainer = WireColorPalette.Gray90,
-    surfaceContainerHigh = WireColorPalette.Gray80,
+    surfaceContainerHigh = Gray80,
     surfaceContainerHighest = WireColorPalette.Gray70,
     defaultBubbleContainerBackgroundColor = WireColorPalette.DarkBlue400,
     bubbleContainerAccentBackgroundColor = WireAccentColors {
@@ -286,7 +340,7 @@ private val DarkWireColorScheme = WireColorScheme(
             Accent.Unknown -> WireColorPalette.DarkBlue400
         }
     },
-    accentVariantColors = WireAccentColors {
+    wireAccentPrimaryColors = WireAccentColors {
         when (it) {
             Accent.Amber -> WireColorPalette.DarkAmber800
             Accent.Blue -> WireColorPalette.DarkBlue800
@@ -297,10 +351,43 @@ private val DarkWireColorScheme = WireColorScheme(
             Accent.Unknown -> WireColorPalette.DarkBlue800
         }
     },
+    wireAccentSecondaryColors = WireAccentColors {
+        when (it) {
+            Accent.Amber -> WireColorPalette.DarkAmber900
+            Accent.Blue -> WireColorPalette.DarkBlue900
+            Accent.Green -> WireColorPalette.DarkGreen900
+            Accent.Purple -> WireColorPalette.DarkPurple900
+            Accent.Red -> WireColorPalette.DarkRed900
+            Accent.Petrol -> WireColorPalette.DarkPetrol900
+            Accent.Unknown -> WireColorPalette.DarkBlue900
+        }
+    },
+    wireAccentPrimaryOnSecondaryColors = WireAccentColors {
+        when (it) {
+            Accent.Amber -> WireColorPalette.DarkAmber400
+            Accent.Blue -> WireColorPalette.DarkBlue400
+            Accent.Green -> WireColorPalette.DarkGreen400
+            Accent.Purple -> WireColorPalette.DarkPurple400
+            Accent.Red -> WireColorPalette.DarkRed400
+            Accent.Petrol -> WireColorPalette.DarkPetrol400
+            Accent.Unknown -> WireColorPalette.DarkBlue400
+        }
+    },
+    wireAccentPrimaryOnSecondaryVariantColors = WireAccentColors {
+        when (it) {
+            Accent.Amber -> WireColorPalette.DarkAmber500
+            Accent.Blue -> WireColorPalette.DarkBlue500
+            Accent.Green -> WireColorPalette.DarkGreen500
+            Accent.Purple -> WireColorPalette.DarkPurple500
+            Accent.Red -> WireColorPalette.DarkRed500
+            Accent.Petrol -> WireColorPalette.DarkPetrol500
+            Accent.Unknown -> WireColorPalette.DarkBlue500
+        }
+    },
 
     // buttons
     primaryButtonEnabled = WireColorPalette.DarkBlue500, onPrimaryButtonEnabled = Color.Black,
-    primaryButtonDisabled = WireColorPalette.Gray80, onPrimaryButtonDisabled = WireColorPalette.Gray50,
+    primaryButtonDisabled = Gray80, onPrimaryButtonDisabled = WireColorPalette.Gray50,
     primaryButtonSelected = WireColorPalette.DarkBlue400, onPrimaryButtonSelected = Color.Black,
     primaryButtonRipple = Color.White,
     secondaryButtonEnabled = WireColorPalette.Gray90, onSecondaryButtonEnabled = Color.White,
@@ -361,11 +448,31 @@ private val DarkWireColorScheme = WireColorScheme(
     },
     emojiBackgroundColor = Color.Black,
     defaultSelectedItemInLoadingState = WireColorPalette.DarkBlue800,
-    markdownNodeTextColor = Color.White
+    markdownNodeTextColor = Color.White,
+    bubblesBackground = WireColorPalette.Gray100,
+    selfBubble = BubbleColors(
+        primary = WireColorPalette.LightBlue800,
+        secondary = WireColorPalette.LightBlue900,
+        onPrimary = Color.White,
+        onSecondary = Color.White,
+    ),
+    otherBubble = BubbleColors(
+        primary = WireColorPalette.Gray90,
+        secondary = WireColorPalette.Gray95,
+        onPrimary = Color.White,
+        onSecondary = Color.White,
+    ),
 )
 
 @PackagePrivate
 val WireColorSchemeTypes: ThemeDependent<WireColorScheme> = ThemeDependent(
     light = LightWireColorScheme,
     dark = DarkWireColorScheme
+)
+
+data class BubbleColors(
+    val primary: Color,
+    val secondary: Color,
+    val onPrimary: Color,
+    val onSecondary: Color,
 )

@@ -116,8 +116,8 @@ fun VideoMessage(
         )
 
         val textColor = when (messageStyle) {
-            MessageStyle.BUBBLE_SELF -> colorsScheme().onPrimary
-            MessageStyle.BUBBLE_OTHER -> colorsScheme().onBackground
+            MessageStyle.BUBBLE_SELF -> colorsScheme().selfBubble.onPrimary
+            MessageStyle.BUBBLE_OTHER -> colorsScheme().otherBubble.onPrimary
             MessageStyle.NORMAL -> colorsScheme().onSurfaceVariant
         }
 

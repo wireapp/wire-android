@@ -117,121 +117,123 @@ fun ChangeUserColorContent(
 ) {
     val scrollState = rememberScrollState()
     with(state) {
-        WireScaffold(
-            modifier = modifier,
-            topBar = {
-                WireCenterAlignedTopAppBar(
-                    elevation = scrollState.rememberTopBarElevationState().value,
-                    onNavigationPressed = onBackPressed,
-                    title = stringResource(id = R.string.settings_myaccount_user_color_title)
-                )
-            },
-            bottomBar = {
-                Box(modifier = Modifier.padding(MaterialTheme.wireDimensions.spacing16x)) {
-                    WirePrimaryButton(
-                        text = stringResource(R.string.label_save),
-                        onClick = onSavePressed,
-                        fillMaxWidth = true,
-                        trailingIcon = Icons.Filled.ChevronRight.Icon(),
-                        state = if (state.accent != null) Default else Disabled,
-                        loading = state.isPerformingAction,
-                        modifier = Modifier.fillMaxWidth()
+        WireTheme(accent = state.accent ?: Accent.Unknown) {
+            WireScaffold(
+                modifier = modifier,
+                topBar = {
+                    WireCenterAlignedTopAppBar(
+                        elevation = scrollState.rememberTopBarElevationState().value,
+                        onNavigationPressed = onBackPressed,
+                        title = stringResource(id = R.string.settings_myaccount_user_color_title)
                     )
-                }
-            }
-        ) { internalPadding ->
-            Column(
-                modifier = Modifier
-                    .padding(internalPadding)
-                    .fillMaxSize()
-            ) {
-                Text(
-                    text = stringResource(id = R.string.settings_myaccount_user_color_description),
-                    style = MaterialTheme.wireTypography.body01,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(
-                            horizontal = MaterialTheme.wireDimensions.spacing16x,
-                            vertical = MaterialTheme.wireDimensions.spacing16x
+                },
+                bottomBar = {
+                    Box(modifier = Modifier.padding(MaterialTheme.wireDimensions.spacing16x)) {
+                        WirePrimaryButton(
+                            text = stringResource(R.string.label_save),
+                            onClick = onSavePressed,
+                            fillMaxWidth = true,
+                            trailingIcon = Icons.Filled.ChevronRight.Icon(),
+                            state = if (state.accent != null) Default else Disabled,
+                            loading = state.isPerformingAction,
+                            modifier = Modifier.fillMaxWidth()
                         )
-                )
-
-                VerticalSpace.x24()
-
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    SectionHeader(stringResource(R.string.settings_myaccount_user_color))
-
-                    val items = Accent.entries.filter { accent -> accent != Accent.Unknown }
-
-                    WireDropDown(
-                        items = items.map { stringResource(it.resourceId()) },
-                        defaultItemIndex = items.indexOf(state.accent ?: Accent.Blue),
-                        label = null,
-                        modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing16x),
-                        autoUpdateSelection = false,
-                        showDefaultTextIndicator = false,
-                        leadingCompose = { index -> AccentCircle(items[index]) },
-                        onChangeClickDescription = stringResource(R.string.content_description_settings_myaccount_user_color)
-                    ) { selectedIndex ->
-                        onChangePressed(items[selectedIndex])
                     }
                 }
-
-                VerticalSpace.x24()
-                if (state.isMessageBubbleEnabled) {
-                    SectionHeader(stringResource(R.string.settings_myaccount_user_color_example))
-                    VerticalSpace.x4()
-
-                    Column(
+            ) { internalPadding ->
+                Column(
+                    modifier = Modifier
+                        .padding(internalPadding)
+                        .fillMaxSize()
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.settings_myaccount_user_color_description),
+                        style = MaterialTheme.wireTypography.body01,
                         modifier = Modifier
-                            .weight(weight = 1f, fill = true)
                             .fillMaxWidth()
-                            .verticalScroll(scrollState)
-                    ) {
-
-                        Column(modifier = Modifier.background(colorsScheme().surface)) {
-
-                            VerticalSpace.x12()
-
-                            RegularMessageItem(
-                                message = mockMessageWithTextContent(SELF_USER_MESSAGE_TEXT).copy(
-                                    header = mockMessageWithText.header.copy(
-                                        username = UIText.DynamicString(
-                                            "Paul Nagel"
-                                        ),
-                                        accent = state.accent ?: Accent.Blue
-                                    ),
-                                    messageFooter = mockEmptyFooter,
-                                ),
-                                conversationDetailsData = ConversationDetailsData.Group(null, QualifiedID("value", "domain")),
-                                clickActions = MessageClickActions.Content(),
-                                isBubbleUiEnabled = true,
+                            .padding(
+                                horizontal = MaterialTheme.wireDimensions.spacing16x,
+                                vertical = MaterialTheme.wireDimensions.spacing16x
                             )
+                    )
 
-                            RegularMessageItem(
-                                message = mockMessageWithTextContent("Have a look here: www.wire.com").copy(
-                                    source = MessageSource.OtherUser,
-                                    header = mockHeader.copy(
-                                        username = UIText.DynamicString(
-                                            "Paul Nagel"
-                                        ),
-                                        membership = Membership.Standard
-                                    ),
-                                    messageFooter = MessageFooter(
-                                        messageId = "messageId",
-                                        reactions = mapOf(
-                                            "👍" to 16,
-                                            "❤️" to 12,
-                                        ),
-                                        ownReactions = setOf("👍"),
-                                    ),
-                                ),
-                                conversationDetailsData = ConversationDetailsData.Group(null, QualifiedID("value", "domain")),
-                                clickActions = MessageClickActions.Content(),
-                                isBubbleUiEnabled = true,
-                            )
+                    VerticalSpace.x24()
 
-                            VerticalSpace.x24()
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        SectionHeader(stringResource(R.string.settings_myaccount_user_color))
+
+                        val items = Accent.entries.filter { accent -> accent != Accent.Unknown }
+
+                        WireDropDown(
+                            items = items.map { stringResource(it.resourceId()) },
+                            defaultItemIndex = items.indexOf(state.accent ?: Accent.Blue),
+                            label = null,
+                            modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing16x),
+                            autoUpdateSelection = false,
+                            showDefaultTextIndicator = false,
+                            leadingCompose = { index -> AccentCircle(items[index]) },
+                            onChangeClickDescription = stringResource(R.string.content_description_settings_myaccount_user_color)
+                        ) { selectedIndex ->
+                            onChangePressed(items[selectedIndex])
+                        }
+                    }
+
+                    VerticalSpace.x24()
+                    if (state.isMessageBubbleEnabled) {
+                        SectionHeader(stringResource(R.string.settings_myaccount_user_color_example))
+                        VerticalSpace.x4()
+
+                        Column(
+                            modifier = Modifier
+                                .weight(weight = 1f, fill = true)
+                                .fillMaxWidth()
+                                .verticalScroll(scrollState)
+                        ) {
+
+                            Column(modifier = Modifier.background(colorsScheme().surface)) {
+
+                                VerticalSpace.x12()
+
+                                RegularMessageItem(
+                                    message = mockMessageWithTextContent(SELF_USER_MESSAGE_TEXT).copy(
+                                        header = mockMessageWithText.header.copy(
+                                            username = UIText.DynamicString(
+                                                "Paul Nagel"
+                                            ),
+                                            accent = state.accent ?: Accent.Blue
+                                        ),
+                                        messageFooter = mockEmptyFooter,
+                                    ),
+                                    conversationDetailsData = ConversationDetailsData.Group(null, QualifiedID("value", "domain")),
+                                    clickActions = MessageClickActions.Content(),
+                                    isBubbleUiEnabled = true,
+                                )
+
+                                RegularMessageItem(
+                                    message = mockMessageWithTextContent("Have a look here: www.wire.com").copy(
+                                        source = MessageSource.OtherUser,
+                                        header = mockHeader.copy(
+                                            username = UIText.DynamicString(
+                                                "Paul Nagel"
+                                            ),
+                                            membership = Membership.Standard
+                                        ),
+                                        messageFooter = MessageFooter(
+                                            messageId = "messageId",
+                                            reactions = mapOf(
+                                                "👍" to 16,
+                                                "❤️" to 12,
+                                            ),
+                                            ownReactions = setOf("👍"),
+                                        ),
+                                    ),
+                                    conversationDetailsData = ConversationDetailsData.Group(null, QualifiedID("value", "domain")),
+                                    clickActions = MessageClickActions.Content(),
+                                    isBubbleUiEnabled = true,
+                                )
+
+                                VerticalSpace.x24()
+                            }
                         }
                     }
                 }
@@ -263,5 +265,5 @@ fun PreviewChangeUserColor() = WireTheme {
 @PreviewMultipleThemes
 @Composable
 fun PreviewChangeUserColorWithExample() = WireTheme {
-    ChangeUserColorContent(AccentActionState(Accent.Blue, isMessageBubbleEnabled = true), {}, {}, {})
+    ChangeUserColorContent(AccentActionState(Accent.Green, isMessageBubbleEnabled = true), {}, {}, {})
 }

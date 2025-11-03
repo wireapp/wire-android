@@ -195,7 +195,8 @@ private fun MessageContent(
                     buttonList = null,
                     messageId = message.header.messageId,
                     onLinkClick = onLinkClick,
-                    messageStyle = messageStyle
+                    messageStyle = messageStyle,
+                    accent = accent
                 )
             }
         }
@@ -232,7 +233,8 @@ private fun MessageContent(
                     buttonList = messageContent.buttonList,
                     messageId = message.header.messageId,
                     onLinkClick = onLinkClick,
-                    messageStyle = messageStyle
+                    messageStyle = messageStyle,
+                    accent = accent
                 )
             }
         }
@@ -321,7 +323,8 @@ private fun MessageContent(
                         buttonList = null,
                         messageId = message.header.messageId,
                         onLinkClick = onLinkClick,
-                        messageStyle = messageStyle
+                        messageStyle = messageStyle,
+                        accent = accent
                     )
                     Spacer(modifier = Modifier.height(dimensions().spacing8x))
                 }

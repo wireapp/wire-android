@@ -98,7 +98,7 @@ data class WireColorScheme(
     // custom
     val emojiBackgroundColor: Color,
     val defaultSelectedItemInLoadingState: Color,
-    val markdownNodeTextColor: Color,
+    val onScrim: Color,
 
     // message bubbles
     val bubblesBackground: Color,
@@ -284,7 +284,7 @@ private val LightWireColorScheme = WireColorScheme(
     // custom
     emojiBackgroundColor = Color.White,
     defaultSelectedItemInLoadingState = WireColorPalette.LightBlue100,
-    markdownNodeTextColor = Color.White,
+    onScrim = Color.White,
     bubblesBackground = Color.White,
     selfBubble = BubbleColors(
         primary = WireColorPalette.LightBlue500,
@@ -448,7 +448,7 @@ private val DarkWireColorScheme = WireColorScheme(
     },
     emojiBackgroundColor = Color.Black,
     defaultSelectedItemInLoadingState = WireColorPalette.DarkBlue800,
-    markdownNodeTextColor = Color.White,
+    onScrim = Color.White,
     bubblesBackground = WireColorPalette.Gray100,
     selfBubble = BubbleColors(
         primary = WireColorPalette.LightBlue800,

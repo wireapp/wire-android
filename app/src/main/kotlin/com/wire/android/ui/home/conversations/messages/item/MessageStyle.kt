@@ -90,6 +90,13 @@ fun MessageStyle.onNodeBackground(): Color = when (this) {
 }
 
 @Composable
+fun MessageStyle.error(): Color = when (this) {
+    MessageStyle.BUBBLE_SELF -> MaterialTheme.wireColorScheme.onPrimary
+    MessageStyle.BUBBLE_OTHER -> MaterialTheme.wireColorScheme.error
+    MessageStyle.NORMAL -> MaterialTheme.wireColorScheme.error
+}
+
+@Composable
 fun MessageStyle.errorTextStyle(): TextStyle {
     return when (this) {
         MessageStyle.BUBBLE_SELF -> MaterialTheme.typography.bodySmall

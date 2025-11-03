@@ -413,11 +413,7 @@ fun mockedImageUIMessage(
         expirationStatus = ExpirationStatus.NotExpirable
     ),
     content: UIMessageContent.Regular = mockedImg(),
-    source: MessageSource = MessageSource.Self
-) = UIMessage.Regular(
-    conversationId = ConversationId("value", "domain"),
-    userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
-    header = MessageHeader(
+    header: MessageHeader = MessageHeader(
         username = UIText.DynamicString("John Doe"),
         membership = Membership.External,
         showLegalHoldIndicator = false,
@@ -428,6 +424,11 @@ fun mockedImageUIMessage(
         isSenderDeleted = false,
         isSenderUnavailable = false
     ),
+    source: MessageSource = MessageSource.Self
+) = UIMessage.Regular(
+    conversationId = ConversationId("value", "domain"),
+    userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
+    header = header,
     messageContent = content,
     messageFooter = mockEmptyFooter,
     source = source

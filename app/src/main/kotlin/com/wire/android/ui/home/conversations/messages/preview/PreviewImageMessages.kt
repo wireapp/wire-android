@@ -25,18 +25,20 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.messages.item.MessageClickActions
 import com.wire.android.ui.home.conversations.messages.item.RegularMessageItem
+import com.wire.android.ui.home.conversations.mock.mockHeader
 import com.wire.android.ui.home.conversations.mock.mockedImageUIMessage
 import com.wire.android.ui.home.conversations.mock.mockedImg
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.util.ui.PreviewMultipleScreens
-import com.wire.android.util.ui.WireScrollableTheme
+import com.wire.android.util.ui.UIText
+import com.wire.android.util.ui.WireScrollableThemePreview
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.id.QualifiedID
 
 @PreviewMultipleScreens
 @Composable
 fun PreviewImageMessagesPhotoLandscape() {
-    WireScrollableTheme {
+    WireScrollableThemePreview {
         Column(Modifier.background(colorsScheme().surface)) {
             RegularMessageItem(
                 message = mockedImageUIMessage(
@@ -73,7 +75,7 @@ fun PreviewImageMessagesPhotoLandscape() {
 @PreviewMultipleScreens
 @Composable
 fun PreviewImageMessagesPhotoPortrait() {
-    WireScrollableTheme {
+    WireScrollableThemePreview {
         Column(Modifier.background(colorsScheme().surface)) {
             RegularMessageItem(
                 message = mockedImageUIMessage(
@@ -110,7 +112,7 @@ fun PreviewImageMessagesPhotoPortrait() {
 @PreviewMultipleScreens
 @Composable
 fun PreviewImageMessagesSquarePhoto() {
-    WireScrollableTheme {
+    WireScrollableThemePreview {
         Column(Modifier.background(colorsScheme().surface)) {
             RegularMessageItem(
                 message = mockedImageUIMessage(
@@ -147,7 +149,7 @@ fun PreviewImageMessagesSquarePhoto() {
 @PreviewMultipleScreens
 @Composable
 fun PreviewImageMessagesMediumLandscape() {
-    WireScrollableTheme {
+    WireScrollableThemePreview {
         Column(Modifier.background(colorsScheme().surface)) {
             RegularMessageItem(
                 message = mockedImageUIMessage(
@@ -184,7 +186,7 @@ fun PreviewImageMessagesMediumLandscape() {
 @PreviewMultipleScreens
 @Composable
 fun PreviewImageMessagesUltraWideBanner() {
-    WireScrollableTheme {
+    WireScrollableThemePreview {
         Column(Modifier.background(colorsScheme().surface)) {
             RegularMessageItem(
                 message = mockedImageUIMessage(
@@ -221,7 +223,7 @@ fun PreviewImageMessagesUltraWideBanner() {
 @PreviewMultipleScreens
 @Composable
 fun PreviewImageMessagesUltraTallScreenshot() {
-    WireScrollableTheme {
+    WireScrollableThemePreview {
         Column(Modifier.background(colorsScheme().surface)) {
             RegularMessageItem(
                 message = mockedImageUIMessage(
@@ -258,7 +260,7 @@ fun PreviewImageMessagesUltraTallScreenshot() {
 @PreviewMultipleScreens
 @Composable
 fun PreviewImageMessagesUltraSmall() {
-    WireScrollableTheme {
+    WireScrollableThemePreview {
         Column(Modifier.background(colorsScheme().surface)) {
             RegularMessageItem(
                 message = mockedImageUIMessage(
@@ -276,12 +278,13 @@ fun PreviewImageMessagesUltraSmall() {
             )
             RegularMessageItem(
                 message = mockedImageUIMessage(
-                    "assetMessageId",
+                    messageId = "assetMessageId",
                     source = MessageSource.OtherUser,
                     content = mockedImg(
-                        height = 1,
+                        height = 2,
                         width = 1
-                    )
+                    ),
+                    header = mockHeader.copy(username = UIText.DynamicString("Long user nameeeeeeeeeeeeeeeeeeeeeeeeeee"))
                 ),
                 conversationDetailsData = ConversationDetailsData.Group(null, QualifiedID("value", "domain")),
                 assetStatus = AssetTransferStatus.SAVED_INTERNALLY,

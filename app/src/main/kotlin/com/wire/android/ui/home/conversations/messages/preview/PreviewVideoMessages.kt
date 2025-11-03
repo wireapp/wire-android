@@ -29,14 +29,14 @@ import com.wire.android.ui.home.conversations.mock.mockedImageUIMessage
 import com.wire.android.ui.home.conversations.mock.mockedVideo
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.util.ui.PreviewMultipleScreens
-import com.wire.android.util.ui.WireScrollableTheme
+import com.wire.android.util.ui.WireScrollableThemePreview
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.id.QualifiedID
 
 @PreviewMultipleScreens
 @Composable
 fun PreviewVideoMessagesPhotoLandscape() {
-    WireScrollableTheme {
+    WireScrollableThemePreview {
         Column(Modifier.background(colorsScheme().surface)) {
             RegularMessageItem(
                 message = mockedImageUIMessage(
@@ -73,7 +73,7 @@ fun PreviewVideoMessagesPhotoLandscape() {
 @PreviewMultipleScreens
 @Composable
 fun PreviewVideoMessagesPhotoPortrait() {
-    WireScrollableTheme {
+    WireScrollableThemePreview {
         Column(Modifier.background(colorsScheme().surface)) {
             RegularMessageItem(
                 message = mockedImageUIMessage(
@@ -110,7 +110,7 @@ fun PreviewVideoMessagesPhotoPortrait() {
 @PreviewMultipleScreens
 @Composable
 fun PreviewVideoMessagesSquarePhoto() {
-    WireScrollableTheme {
+    WireScrollableThemePreview {
         Column(Modifier.background(colorsScheme().surface)) {
             RegularMessageItem(
                 message = mockedImageUIMessage(
@@ -147,7 +147,7 @@ fun PreviewVideoMessagesSquarePhoto() {
 @PreviewMultipleScreens
 @Composable
 fun PreviewVideoMessagesMediumLandscape() {
-    WireScrollableTheme {
+    WireScrollableThemePreview {
         Column(Modifier.background(colorsScheme().surface)) {
             RegularMessageItem(
                 message = mockedImageUIMessage(
@@ -184,7 +184,7 @@ fun PreviewVideoMessagesMediumLandscape() {
 @PreviewMultipleScreens
 @Composable
 fun PreviewVideoMessagesUltraWideBanner() {
-    WireScrollableTheme {
+    WireScrollableThemePreview {
         Column(Modifier.background(colorsScheme().surface)) {
             RegularMessageItem(
                 message = mockedImageUIMessage(
@@ -221,7 +221,7 @@ fun PreviewVideoMessagesUltraWideBanner() {
 @PreviewMultipleScreens
 @Composable
 fun PreviewVideoMessagesUltraTallScreenshot() {
-    WireScrollableTheme {
+    WireScrollableThemePreview {
         RegularMessageItem(
             message = mockedImageUIMessage(
                 "assetMessageId",

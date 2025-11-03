@@ -46,7 +46,7 @@ import com.wire.android.ui.theme.WireTheme
  * @PreviewMultipleScreens
  * @Composable
  * fun PreviewTallMessages() {
- *     WireScrollableTheme {
+ *     WireScrollableThemePreview {
  *         RegularMessageItem(...)
  *         RegularMessageItem(...)
  *     }
@@ -55,7 +55,7 @@ import com.wire.android.ui.theme.WireTheme
  */
 @SuppressLint("ComposeModifierMissing")
 @Composable
-fun WireScrollableTheme(
+fun WireScrollableThemePreview(
     content: @Composable ColumnScope.() -> Unit = {},
 ) {
     WireTheme {

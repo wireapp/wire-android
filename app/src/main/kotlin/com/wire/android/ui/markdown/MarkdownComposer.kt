@@ -267,7 +267,7 @@ fun appendLinksAndMentions(
 
     val linkAndMentionColor = when (nodeData.messageStyle) {
         MessageStyle.BUBBLE_SELF -> if (nodeData.isAccentBackground) {
-            nodeData.colorScheme.markdownNodeTextColor
+            nodeData.colorScheme.onScrim
         } else {
             nodeData.colorScheme.onPrimary
         }

@@ -46,19 +46,23 @@ import com.wire.android.ui.common.applyIf
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.clickable
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversations.CompositeMessageViewModel
 import com.wire.android.ui.home.conversations.CompositeMessageViewModelImpl
 import com.wire.android.ui.home.conversations.messages.item.MessageStyle
+import com.wire.android.ui.home.conversations.messages.item.error
 import com.wire.android.ui.home.conversations.messages.item.highlighted
 import com.wire.android.ui.home.conversations.messages.item.isBubble
+import com.wire.android.ui.home.conversations.messages.item.textColor
 import com.wire.android.ui.home.conversations.mock.mockedPrivateAsset
 import com.wire.android.ui.home.conversations.model.messagetypes.image.AsyncImageMessage
 import com.wire.android.ui.home.conversations.model.messagetypes.image.DisplayableImageMessage
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageFailed
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageInProgress
-import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageParams
+import com.wire.android.ui.home.conversations.model.messagetypes.image.VisualMediaParams
+import com.wire.android.ui.home.conversations.model.messagetypes.image.size
 import com.wire.android.ui.markdown.DisplayMention
 import com.wire.android.ui.markdown.MarkdownConstants.MENTION_MARK
 import com.wire.android.ui.markdown.MarkdownDocument
@@ -76,6 +80,7 @@ import com.wire.kalium.logic.data.asset.AssetTransferStatus.FAILED_DOWNLOAD
 import com.wire.kalium.logic.data.asset.AssetTransferStatus.FAILED_UPLOAD
 import com.wire.kalium.logic.data.asset.AssetTransferStatus.NOT_FOUND
 import com.wire.kalium.logic.data.asset.AssetTransferStatus.UPLOAD_IN_PROGRESS
+import com.wire.kalium.logic.data.asset.isSaved
 import kotlinx.collections.immutable.PersistentList
 import okio.Path
 
@@ -195,7 +200,7 @@ fun MessageButtonsContent(
 @Composable
 fun MessageImage(
     asset: ImageAsset.Remote?,
-    imgParams: ImageMessageParams,
+    imgParams: VisualMediaParams,
     messageStyle: MessageStyle,
     transferStatus: AssetTransferStatus,
     onImageClick: Clickable,
@@ -221,42 +226,62 @@ fun MessageImage(
                 enabled = onImageClick.enabled,
                 onClick = onImageClick.onClick,
                 onLongClick = onImageClick.onLongClick,
-            )
+            ),
+        contentAlignment = Alignment.Center
     ) {
         val alignCenterModifier = Modifier.align(Alignment.Center)
-        // TODO Kubaz make progress in box, but then remember to not load image with isIncompleteImage
-        when {
-            // Trying to upload the asset
-            transferStatus == UPLOAD_IN_PROGRESS || transferStatus == DOWNLOAD_IN_PROGRESS -> {
-                ImageMessageInProgress(
-                    size = imgParams.normalizedSize(),
-                    isDownloading = transferStatus == DOWNLOAD_IN_PROGRESS,
-                    messageStyle = messageStyle,
-                    modifier = alignCenterModifier
-                )
-            }
-
-            transferStatus == NOT_FOUND -> {
-                ImageMessageFailed(
-                    size = imgParams.normalizedSize(),
-                    isDownloadFailure = true,
-                    modifier = alignCenterModifier
-                )
-            }
-
-            // TODO check on both styles
-            asset != null -> DisplayableImageMessage(
-                imageData = asset,
-                size = imgParams.normalizedSize(),
+        asset?.let {
+            DisplayableImageMessage(
+                imageData = it,
+                size = imgParams.normalizedSize().size(),
+                messageStyle = messageStyle,
                 modifier = alignCenterModifier
             )
-            // Show error placeholder
-            transferStatus == FAILED_UPLOAD || transferStatus == FAILED_DOWNLOAD -> {
-                ImageMessageFailed(
-                    size = imgParams.normalizedSize(),
-                    isDownloadFailure = transferStatus == FAILED_DOWNLOAD,
-                    modifier = alignCenterModifier
-                )
+        }
+
+        val shouldAddScrimBg = asset != null && transferStatus.isSaved()
+        Box(
+            Modifier
+                .applyIf(shouldAddScrimBg) {
+                    background(colorsScheme().scrim)
+                },
+            contentAlignment = Alignment.Center
+        ) {
+            when (transferStatus) {
+                UPLOAD_IN_PROGRESS, DOWNLOAD_IN_PROGRESS -> {
+                    ImageMessageInProgress(
+                        size = imgParams.normalizedSize().size(),
+                        isDownloading = transferStatus == DOWNLOAD_IN_PROGRESS,
+                        color = colorsScheme().onScrim,
+                    )
+                }
+
+                NOT_FOUND -> {
+                    ImageMessageFailed(
+                        size = imgParams.normalizedSize().size(),
+                        isDownloadFailure = true,
+                        errorColor = if (shouldAddScrimBg) {
+                            colorsScheme().onScrim
+                        } else {
+                            messageStyle.error()
+                        }
+                    )
+                }
+
+                // Show error placeholder
+                FAILED_UPLOAD, FAILED_DOWNLOAD -> {
+                    ImageMessageFailed(
+                        size = imgParams.normalizedSize().size(),
+                        isDownloadFailure = transferStatus == FAILED_DOWNLOAD,
+                        errorColor = if (shouldAddScrimBg) {
+                            colorsScheme().onScrim
+                        } else {
+                            messageStyle.error()
+                        }
+                    )
+                }
+
+                else -> {}
             }
         }
     }
@@ -294,13 +319,17 @@ fun MediaAssetImage(
                     size = size,
                     isDownloading = true,
                     showText = false,
-                    messageStyle = messageStyle,
+                    color = messageStyle.textColor(),
                     modifier = Modifier.align(Alignment.Center)
                 )
             }
 
             LocalInspectionMode.current -> { // preview
-                DisplayableImageMessage(mockedPrivateAsset(), size)
+                DisplayableImageMessage(
+                    imageData = mockedPrivateAsset(),
+                    size = size,
+                    messageStyle = messageStyle,
+                )
             }
 
             assetPath != null -> {
@@ -308,21 +337,27 @@ fun MediaAssetImage(
             }
 
             asset != null -> {
-                DisplayableImageMessage(asset, size)
+                DisplayableImageMessage(
+                    imageData = asset,
+                    size = size,
+                    messageStyle = messageStyle,
+                )
             }
 
             // Show error placeholder
             transferStatus == FAILED_DOWNLOAD -> {
                 ImageMessageFailed(
                     size = size,
-                    isDownloadFailure = true
+                    isDownloadFailure = true,
+                    errorColor = colorsScheme().error
                 )
             }
 
             transferStatus == NOT_FOUND -> {
                 ImageMessageFailed(
                     size = size,
-                    isDownloadFailure = true
+                    isDownloadFailure = true,
+                    errorColor = colorsScheme().error
                 )
             }
         }

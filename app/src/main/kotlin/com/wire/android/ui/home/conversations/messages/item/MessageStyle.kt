@@ -23,8 +23,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import com.wire.android.ui.common.colorsScheme
-import com.wire.android.ui.theme.Accent
-import com.wire.android.ui.theme.secondary
 import com.wire.android.ui.theme.wireColorScheme
 
 enum class MessageStyle {
@@ -60,8 +58,8 @@ fun MessageStyle.onBackground(): Color {
 }
 
 @Composable
-fun MessageStyle.surface(accent: Accent): Color = when (this) {
-    MessageStyle.BUBBLE_SELF -> accent.secondary()
+fun MessageStyle.surface(): Color = when (this) {
+    MessageStyle.BUBBLE_SELF -> colorsScheme().selfBubble.secondary
     MessageStyle.BUBBLE_OTHER -> colorsScheme().otherBubble.secondary
     MessageStyle.NORMAL -> MaterialTheme.wireColorScheme.outline
 }

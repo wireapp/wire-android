@@ -40,7 +40,7 @@ fun MarkdownIndentedCodeBlock(indentedCodeBlock: MarkdownNode.Block.IntendedCode
         modifier = modifier
             .fillMaxWidth()
             .padding(vertical = dimensions().spacing4x)
-            .background(nodeData.messageStyle.surface(nodeData.accent), shape = RoundedCornerShape(dimensions().spacing16x))
+            .background(nodeData.messageStyle.surface(), shape = RoundedCornerShape(dimensions().spacing16x))
             .padding(dimensions().spacing8x)
     )
 }
@@ -54,7 +54,7 @@ fun MarkdownFencedCodeBlock(fencedCodeBlock: MarkdownNode.Block.FencedCode, node
         modifier = modifier
             .fillMaxWidth()
             .padding(vertical = dimensions().spacing4x)
-            .background(nodeData.messageStyle.surface(nodeData.accent), shape = RoundedCornerShape(dimensions().spacing16x))
+            .background(nodeData.messageStyle.surface(), shape = RoundedCornerShape(dimensions().spacing16x))
             .padding(dimensions().spacing8x)
     )
 }

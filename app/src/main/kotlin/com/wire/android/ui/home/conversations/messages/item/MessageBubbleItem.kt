@@ -52,7 +52,6 @@ import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.messagetypes.image.MaxBounds
 import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.color
-import com.wire.android.ui.theme.primary
 import com.wire.android.ui.theme.wireColorScheme
 
 @Suppress("CyclomaticComplexMethod")
@@ -131,7 +130,7 @@ fun MessageBubbleItem(
                         colorsScheme().surface
                     }
 
-                    isSelfMessage -> accent.primary()
+                    isSelfMessage -> colorsScheme().selfBubble.primary
 
                     else -> {
                         bubbleColorOther

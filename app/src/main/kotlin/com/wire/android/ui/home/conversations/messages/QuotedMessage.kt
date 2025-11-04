@@ -69,9 +69,6 @@ import com.wire.android.ui.markdown.NodeData
 import com.wire.android.ui.markdown.getFirstInlines
 import com.wire.android.ui.markdown.toMarkdownDocument
 import com.wire.android.ui.theme.Accent
-import com.wire.android.ui.theme.primaryOnSecondary
-import com.wire.android.ui.theme.primaryOnSecondaryVariant
-import com.wire.android.ui.theme.secondary
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.UIText
@@ -130,7 +127,6 @@ internal fun QuotedMessage(
             senderName = messageData.senderName,
             asset = quotedContent.displayable,
             originalDateTimeText = messageData.originalMessageDateDescription,
-            accent = messageData.senderAccent,
             modifier = modifier,
             style = style,
             startContent = startContent,
@@ -226,7 +222,7 @@ private fun QuotedMessageContent(
 ) {
     val quoteOutlineShape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
     val background = when (style.messageStyle) {
-        MessageStyle.BUBBLE_SELF -> style.selfAccent.secondary()
+        MessageStyle.BUBBLE_SELF -> colorsScheme().selfBubble.secondary
         MessageStyle.BUBBLE_OTHER -> colorsScheme().otherBubble.secondary
         MessageStyle.NORMAL -> MaterialTheme.wireColorScheme.surfaceVariant
     }
@@ -267,8 +263,7 @@ private fun QuotedMessageContent(
             QuotedMessageTopRow(
                 senderName,
                 displayReplyArrow = style.quotedStyle == QuotedStyle.COMPLETE,
-                messageStyle = style.messageStyle,
-                accent = style.selfAccent
+                messageStyle = style.messageStyle
             )
             Row(horizontalArrangement = Arrangement.spacedBy(dimensions().spacing4x)) {
                 Column(
@@ -301,13 +296,12 @@ private fun QuotedMessageContent(
 private fun QuotedMessageTopRow(
     senderName: String?,
     displayReplyArrow: Boolean,
-    messageStyle: MessageStyle,
-    accent: Accent
+    messageStyle: MessageStyle
 ) {
 
     val authorColor = when (messageStyle) {
-        MessageStyle.BUBBLE_SELF -> accent.primaryOnSecondary()
-        MessageStyle.BUBBLE_OTHER -> accent.primaryOnSecondaryVariant()
+        MessageStyle.BUBBLE_SELF -> colorsScheme().selfBubble.primaryOnSecondary
+        MessageStyle.BUBBLE_OTHER -> colorsScheme().otherBubble.primaryOnSecondary
         MessageStyle.NORMAL -> colorsScheme().onSurfaceVariant
     }
 
@@ -439,7 +433,6 @@ private fun QuotedImage(
     asset: ImageAsset.PrivateAsset,
     originalDateTimeText: UIText,
     style: QuotedMessageStyle,
-    accent: Accent,
     clickable: Clickable?,
     modifier: Modifier = Modifier,
     startContent: @Composable () -> Unit = {}
@@ -505,8 +498,7 @@ private fun QuotedImage(
                 QuotedMessageTopRow(
                     senderName = senderName.asString(),
                     displayReplyArrow = true,
-                    messageStyle = style.messageStyle,
-                    accent = accent
+                    messageStyle = style.messageStyle
                 )
                 MainContentText(stringResource(R.string.notification_shared_picture))
                 QuotedMessageOriginalDate(originalDateTimeText, style)

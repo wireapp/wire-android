@@ -285,5 +285,13 @@ fun WireColorScheme.withAccent(accent: Accent, isDark: Boolean): WireColorScheme
         onTertiaryButtonSelected = swatch[roles.onTertiaryButtonSelected],
         tertiaryButtonSelectedOutline = swatch[roles.tertiaryButtonSelectedOutline],
         tertiaryButtonRipple = swatch[roles.tertiaryButtonFocusOutline],
+        selfBubble = selfBubble.copy(
+            primary = swatch[roles.bubbleSelfPrimary],
+            secondary = swatch[roles.bubbleSelfSecondary],
+            primaryOnSecondary = swatch[roles.bubbleSelfPrimaryOnSecondary]
+        ),
+        otherBubble = otherBubble.copy(
+            primaryOnSecondary = swatch[roles.bubbleOtherPrimaryOnSecondary]
+        )
     )
 }

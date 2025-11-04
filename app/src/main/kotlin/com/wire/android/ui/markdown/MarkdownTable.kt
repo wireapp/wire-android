@@ -70,7 +70,7 @@ fun MarkdownTable(
         modifier = modifier
             .padding(bottom = dimensions().spacing8x)
             .background(
-                nodeData.messageStyle.surface(nodeData.accent),
+                nodeData.messageStyle.surface(),
                 shape = RoundedCornerShape(dimensions().spacing16x)
             )
     ) {

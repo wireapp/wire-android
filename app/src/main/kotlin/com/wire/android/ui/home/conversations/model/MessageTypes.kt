@@ -70,6 +70,7 @@ import com.wire.android.ui.markdown.MessageColors
 import com.wire.android.ui.markdown.NodeActions
 import com.wire.android.ui.markdown.NodeData
 import com.wire.android.ui.markdown.toMarkdownDocument
+import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -91,6 +92,7 @@ internal fun MessageBody(
     messageId: String,
     messageBody: MessageBody?,
     isAvailable: Boolean,
+    accent: Accent,
     onOpenProfile: (String) -> Unit,
     buttonList: PersistentList<MessageButton>?,
     onLinkClick: (String) -> Unit,
@@ -103,9 +105,9 @@ internal fun MessageBody(
     } ?: Pair(emptyList(), null)
 
     val color = when (messageStyle) {
-        MessageStyle.BUBBLE_SELF -> MaterialTheme.wireColorScheme.onPrimary
+        MessageStyle.BUBBLE_SELF -> colorsScheme().selfBubble.onPrimary
         MessageStyle.BUBBLE_OTHER -> when {
-            isAvailable -> MaterialTheme.colorScheme.onBackground
+            isAvailable -> colorsScheme().otherBubble.onPrimary
             else -> MaterialTheme.wireColorScheme.secondaryText
         }
 
@@ -130,7 +132,8 @@ internal fun MessageBody(
             onLinkClick = onLinkClick
         ),
         messageStyle = messageStyle,
-        messageColors = MessageColors(highlighted = messageStyle.highlighted())
+        messageColors = MessageColors(highlighted = messageStyle.highlighted()),
+        accent = accent
     )
 
     val markdownDocument = remember(text) {

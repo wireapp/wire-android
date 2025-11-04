@@ -51,6 +51,7 @@ import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.messagetypes.image.MaxBounds
 import com.wire.android.ui.theme.Accent
+import com.wire.android.ui.theme.color
 import com.wire.android.ui.theme.wireColorScheme
 
 @Suppress("CyclomaticComplexMethod")
@@ -120,21 +121,16 @@ fun MessageBubbleItem(
                 val shape = RoundedCornerShape(dimensions().corner16x)
 
                 val bubbleColorOther: Color = if (messageStatus.isDeleted) {
-                    MaterialTheme.colorScheme.surface
+                    colorsScheme().surface
                 } else {
-                    MaterialTheme.colorScheme.background
+                    colorsScheme().otherBubble.primary
                 }
                 val bubbleColor = when {
                     messageStatus.isDeleted || message.decryptionFailed -> {
-                        MaterialTheme.colorScheme.surface
+                        colorsScheme().surface
                     }
 
-                    isSelfMessage -> {
-                        MaterialTheme.wireColorScheme.wireAccentColors.getOrDefault(
-                            accent,
-                            MaterialTheme.wireColorScheme.primary
-                        )
-                    }
+                    isSelfMessage -> colorsScheme().selfBubble.primary
 
                     else -> {
                         bubbleColorOther
@@ -144,10 +140,7 @@ fun MessageBubbleItem(
                 val borderColor = when {
                     message.decryptionFailed -> MaterialTheme.wireColorScheme.outline
                     messageStatus.isDeleted -> if (isSelfMessage) {
-                        MaterialTheme.wireColorScheme.wireAccentColors.getOrDefault(
-                            accent,
-                            MaterialTheme.wireColorScheme.primary
-                        )
+                        accent.color(MaterialTheme.wireColorScheme.primary)
                     } else {
                         colorsScheme().outline
                     }

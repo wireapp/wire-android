@@ -22,6 +22,7 @@
     <string name="label_new">Ny</string>
     <string name="label_login">Logga in</string>
     <string name="label_ok">OK</string>
+    <string name="label_open">Öppna</string>
     <string name="label_cancel">Avbryt</string>
     <string name="label_confirm">Bekräfta</string>
     <string name="label_continue">Fortsätt</string>
@@ -36,6 +37,7 @@
     <string name="label_removing">Tar bort…</string>
     <string name="label_logging_in">Loggar in…</string>
     <string name="label_user_deleted">Togs bort</string>
+    <string name="label_done">Klar</string>
     <string name="label_message_sent_failure">Message could not be sent.</string>
     <string name="label_message_edit_sent_failure">Det redigerade meddelandet kunde inte skickas till följd av problem med anslutningen.</string>
     <string name="label_message_receive_failure">Hämtningsfel</string>
@@ -115,6 +117,7 @@
     <string name="content_description_calling_turn_speaker_on">Sätt igång högtalaren</string>
     <string name="content_description_calling_turn_speaker_off">Stäng av högtalaren</string>
     <string name="content_description_reply_to_messge">Svara på meddelandet</string>
+    <string name="content_description_copy">Kopiera</string>
     <string name="content_description_edit">Redigera</string>
     <string name="content_description_record_audio_button_send">Skicka ljudmeddelande</string>
     <string name="content_description_conversation_details_more_btn">Öppna konversationsalternativ</string>
@@ -124,6 +127,7 @@
     <string name="content_description_user_profile_copy_phone_btn">Kopiera telefon</string>
     <string name="content_description_user_profile_copy_email_btn">Kopiera e-postadress</string>
     <string name="content_description_home_profile_btn">Din profil</string>
+    <string name="content_description_open_label">öppna</string>
     <string name="content_description_self_profile_heading">Din profil</string>
     <string name="content_description_self_profile_avatar">Din profilbild</string>
     <string name="content_description_self_profile_profile_name">Profilnamn, %s</string>

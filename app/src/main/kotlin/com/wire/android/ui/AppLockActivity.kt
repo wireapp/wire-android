@@ -29,6 +29,7 @@ import com.wire.android.appLogger
 import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.navigation.MainNavHost
 import com.wire.android.navigation.rememberNavigator
+import com.wire.android.ui.common.setupOrientationForDevice
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.destinations.AppUnlockWithBiometricsScreenDestination
 import com.wire.android.ui.destinations.EnterLockCodeScreenDestination
@@ -45,6 +46,7 @@ class AppLockActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setupOrientationForDevice()
         enableEdgeToEdge()
         setContent {
             val snackbarHostState = remember { SnackbarHostState() }

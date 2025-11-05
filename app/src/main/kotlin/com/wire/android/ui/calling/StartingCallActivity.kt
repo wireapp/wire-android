@@ -45,6 +45,7 @@ import com.wire.android.ui.calling.common.ProximitySensorManager
 import com.wire.android.ui.calling.incoming.IncomingCallScreen
 import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
 import com.wire.android.ui.calling.outgoing.OutgoingCallScreen
+import com.wire.android.ui.common.setupOrientationForDevice
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.theme.WireTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -90,6 +91,7 @@ class StartingCallActivity : CallActivity() {
     @Suppress("LongMethod")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setupOrientationForDevice()
 
         setUpScreenshotPreventionFlag()
         setUpCallingFlags()

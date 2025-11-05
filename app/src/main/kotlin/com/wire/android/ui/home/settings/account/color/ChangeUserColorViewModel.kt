@@ -25,6 +25,7 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.theme.Accent
+import com.wire.kalium.logic.feature.client.IsChatBubblesEnabledUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.UpdateAccentColorResult
 import com.wire.kalium.logic.feature.user.UpdateAccentColorUseCase
@@ -37,6 +38,7 @@ import javax.inject.Inject
 class ChangeUserColorViewModel @Inject constructor(
     private val getSelf: GetSelfUserUseCase,
     private val updateAccentColor: UpdateAccentColorUseCase,
+    private val isChatBubblesEnabled: IsChatBubblesEnabledUseCase,
     private val globalDataStore: GlobalDataStore
 ) : ActionsViewModel<ChangeUserColorAction>() {
 
@@ -55,7 +57,7 @@ class ChangeUserColorViewModel @Inject constructor(
     }
 
     private suspend fun isBubbleUiEnabled() = (globalDataStore.observeIsBubbleUI().firstOrNull() ?: false)
-//            || isChatBubblesEnabledUseCase() // TODO uncomment when production ready
+            || isChatBubblesEnabled()
 
     fun changeAccentColor(accent: Accent) {
         accentState = accentState.copy(accent)

@@ -33,6 +33,7 @@ import com.wire.android.di.IsProfileQRCodeEnabledUseCaseProvider
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.di.ObserveIfE2EIRequiredDuringLoginUseCaseProvider
 import com.wire.android.di.ObserveScreenshotCensoringConfigUseCaseProvider
+import com.wire.android.di.ObserveSelfUserUseCaseProvider
 import com.wire.android.di.ObserveSyncStateUseCaseProvider
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountActions
@@ -45,6 +46,7 @@ import com.wire.android.ui.common.dialogs.CustomServerDetailsDialogState
 import com.wire.android.ui.common.dialogs.CustomServerDialogState
 import com.wire.android.ui.common.dialogs.CustomServerNoNetworkDialogState
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
+import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.ThemeOption
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
@@ -87,6 +89,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
@@ -124,6 +127,7 @@ class WireActivityViewModel @Inject constructor(
     private val observeIfE2EIRequiredDuringLoginUseCaseProviderFactory: ObserveIfE2EIRequiredDuringLoginUseCaseProvider.Factory,
     private val workManager: Lazy<WorkManager>,
     private val isProfileQRCodeEnabledFactory: IsProfileQRCodeEnabledUseCaseProvider.Factory,
+    private val observeSelfUserFactory: ObserveSelfUserUseCaseProvider.Factory,
 ) : ActionsViewModel<WireActivityViewAction>() {
 
     var globalAppState: GlobalAppState by mutableStateOf(GlobalAppState())
@@ -154,6 +158,7 @@ class WireActivityViewModel @Inject constructor(
         observeNewClientState()
         observeScreenshotCensoringConfigState()
         observeAppThemeState()
+        observeSelectedAccent()
         observeLogoutState()
         resetNewRegistrationAnalyticsState()
     }
@@ -169,6 +174,22 @@ class WireActivityViewModel @Inject constructor(
                 .distinctUntilChanged()
                 .collect {
                     globalAppState = globalAppState.copy(themeOption = it)
+                }
+        }
+    }
+
+    private fun observeSelectedAccent() {
+        viewModelScope.launch(dispatchers.io()) {
+            observeCurrentValidUserId.flatMapLatest {
+                it?.let {
+                    observeSelfUserFactory.create(it).observeSelfUser().map { user ->
+                        Accent.fromAccentId(user.accentId)
+                    }
+                } ?: flowOf(Accent.Unknown)
+            }
+                .distinctUntilChanged()
+                .collectLatest {
+                    globalAppState = globalAppState.copy(userAccent = it)
                 }
         }
     }
@@ -606,7 +627,8 @@ data class GlobalAppState(
     val conversationJoinedDialog: JoinConversationViaCodeState? = null,
     val newClientDialog: NewClientsData? = null,
     val screenshotCensoringEnabled: Boolean = true,
-    val themeOption: ThemeOption = ThemeOption.SYSTEM
+    val themeOption: ThemeOption = ThemeOption.SYSTEM,
+    val userAccent: Accent = Accent.Unknown
 )
 
 enum class InitialAppState {

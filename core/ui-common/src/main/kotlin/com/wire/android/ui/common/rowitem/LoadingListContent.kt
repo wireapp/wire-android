@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2025 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.home.conversationslist
+package com.wire.android.ui.common.rowitem
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,12 +25,11 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import com.wire.android.ui.home.conversationslist.common.LoadingConversationItem
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.android.util.PreviewMultipleThemes
 
 @Composable
-fun ConversationListLoadingContent(
+fun LoadingListContent(
     lazyListState: LazyListState,
     modifier: Modifier = Modifier,
 ) {
@@ -42,7 +41,7 @@ fun ConversationListLoadingContent(
             val halfItemsCount = LOADING_PLACEHOLDER_ITEMS_COUNT / 2
             val alpha = if (index < halfItemsCount) 1f else 1f - ((index - halfItemsCount + 1).toFloat() / (halfItemsCount + 1))
             Box(modifier = Modifier.alpha(alpha)) {
-                LoadingConversationItem()
+                LoadingRowItem()
             }
         }
     }
@@ -52,6 +51,6 @@ private const val LOADING_PLACEHOLDER_ITEMS_COUNT = 6
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewConversationListLoadingContent() = WireTheme {
-    ConversationListLoadingContent(lazyListState = rememberLazyListState())
+fun PreviewLoadingListContent() = WireTheme {
+    LoadingListContent(lazyListState = rememberLazyListState())
 }

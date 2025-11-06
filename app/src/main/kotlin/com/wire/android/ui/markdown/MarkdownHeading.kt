@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextAlign
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.messages.item.onBackground
 
@@ -47,6 +48,7 @@ fun MarkdownHeading(heading: MarkdownNode.Block.Heading, nodeData: NodeData, mod
         }
         MarkdownText(
             annotatedString = text,
+            textAlign = TextAlign.Start,
             style = style.copy(color = nodeData.messageStyle.onBackground()),
             onLongClick = nodeData.actions?.onLongClick,
             onOpenProfile = nodeData.actions?.onOpenProfile

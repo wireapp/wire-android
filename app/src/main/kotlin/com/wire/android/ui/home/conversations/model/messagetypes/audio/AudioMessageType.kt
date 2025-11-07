@@ -402,7 +402,9 @@ private fun AudioMessageSlider(
         val totalMs = if (totalTimeInMs is AudioState.TotalTimeInMs.Known) totalTimeInMs.value.toFloat() else 0f
         val waves by remember(waveMask, constraints.maxWidth) {
             derivedStateOf {
-                val wavesAmount = with(density) { (constraints.maxWidth.toDp() / 3.dp).toInt() } // each wave should take 2dp + spacer 1dp
+                val wavesAmount = with(density) {
+                    (constraints.maxWidth.toDp() / 3.dp).toInt() // each wave should take 2dp + spacer 1dp
+                }
                 when {
                     wavesAmount <= 0 -> emptyList()
                     waveMask.isNullOrEmpty() -> getDefaultWaveMask(wavesAmount)
@@ -423,9 +425,6 @@ private fun AudioMessageSlider(
                 )
             },
             track = { sliderState: SliderState ->
-                val percent =
-                    (sliderState.value - sliderState.valueRange.start) /
-                        (sliderState.valueRange.endInclusive - sliderState.valueRange.start)
                 AudioMessageSliderTrack(sliderState, waves, messageStyle)
             },
             colors = SliderDefaults.colors(

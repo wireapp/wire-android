@@ -36,6 +36,7 @@ fun List<Int>.equalizedWavesMask(
     }
 }
 
+@Suppress("ReturnCount")
 fun List<Int>.sampledWavesMask(amount: Int): List<Int> {
     if (this.isEmpty() || amount <= 0) return listOf()
     if (amount >= this.size) return this

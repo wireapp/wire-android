@@ -372,6 +372,7 @@ class ConversationAudioMessagePlayer
      * @param messageId The ID of the message.
      * @param assetPath Optional path to the decoded asset. If not provided, it will be fetched.
      */
+    @Suppress("ReturnCount")
     suspend fun getOrBuildWavesMask(conversationId: ConversationId, messageId: String, assetPath: Path? = null) {
         val currentAccountResult = coreLogic.getGlobalScope().session.currentSession()
         if (currentAccountResult is CurrentSessionResult.Failure) return

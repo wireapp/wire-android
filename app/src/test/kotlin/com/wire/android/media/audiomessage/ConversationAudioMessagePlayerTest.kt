@@ -481,7 +481,6 @@ class ConversationAudioMessagePlayerTest {
                 .withGetMessageByIdReturningSuccess(testAudioMessageId, conversationId)
                 .arrange()
 
-
             conversationAudioMessagePlayer.observableAudioMessagesState.test {
                 // skip first emit from onStart
                 awaitItem()
@@ -614,7 +613,6 @@ class ConversationAudioMessagePlayerTest {
             .withCurrentSession()
             .withGetMessageByIdReturningSuccess(audioMessageId, conversationId)
             .arrange()
-
 
         conversationAudioMessagePlayer.playAudio(conversationId, audioMessageId) // play the first time
         conversationAudioMessagePlayer.forceToStopCurrentAudioMessage() // mock the completion of the audio media player

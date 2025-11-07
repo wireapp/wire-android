@@ -403,11 +403,13 @@ private fun AllowGuestsDialog(
             onClick = onNotAllowGuestsClicked,
             text = stringResource(id = R.string.disable_guests_dialog_button),
             type = WireDialogButtonType.Primary
-        ), optionButton2Properties = WireDialogButtonProperties(
+        ),
+        optionButton2Properties = WireDialogButtonProperties(
             text = stringResource(R.string.allow_guests),
             onClick = onAllowGuestsClicked,
             type = WireDialogButtonType.Primary
-        ), dismissButtonProperties = WireDialogButtonProperties(
+        ),
+        dismissButtonProperties = WireDialogButtonProperties(
             text = stringResource(R.string.label_cancel),
             onClick = onAllowGuestsDialogDismissed
         )

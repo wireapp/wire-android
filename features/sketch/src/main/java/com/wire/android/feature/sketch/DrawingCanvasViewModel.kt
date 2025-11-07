@@ -198,5 +198,4 @@ class DrawingCanvasViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
     companion object {
         private const val QUALITY = 50
     }
-
 }

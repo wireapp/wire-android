@@ -122,9 +122,11 @@ class WireActivityViewModel @Inject constructor(
     private val observeNewClients: Lazy<ObserveNewClientsUseCase>,
     private val clearNewClientsForUser: Lazy<ClearNewClientsForUserUseCase>,
     private val currentScreenManager: Lazy<CurrentScreenManager>,
-    private val observeScreenshotCensoringConfigUseCaseProviderFactory: ObserveScreenshotCensoringConfigUseCaseProvider.Factory,
+    private val observeScreenshotCensoringConfigUseCaseProviderFactory:
+    ObserveScreenshotCensoringConfigUseCaseProvider.Factory,
     private val globalDataStore: Lazy<GlobalDataStore>,
-    private val observeIfE2EIRequiredDuringLoginUseCaseProviderFactory: ObserveIfE2EIRequiredDuringLoginUseCaseProvider.Factory,
+    private val observeIfE2EIRequiredDuringLoginUseCaseProviderFactory:
+    ObserveIfE2EIRequiredDuringLoginUseCaseProvider.Factory,
     private val workManager: Lazy<WorkManager>,
     private val isProfileQRCodeEnabledFactory: IsProfileQRCodeEnabledUseCaseProvider.Factory,
     private val observeSelfUserFactory: ObserveSelfUserUseCaseProvider.Factory,
@@ -487,7 +489,8 @@ class WireActivityViewModel @Inject constructor(
                         }
                     }
 
-                    is CheckConversationInviteCodeUseCase.Result.Failure -> globalAppState =
+                    is CheckConversationInviteCodeUseCase.Result.Failure ->
+                        globalAppState =
                         globalAppState.copy(
                             conversationJoinedDialog = JoinConversationViaCodeState.Error(result)
                         )

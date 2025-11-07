@@ -242,9 +242,13 @@ fun ConversationsScreenContent(
         sheetState = sheetState,
         openConversationFolders = { navigator.navigate(NavigationCommand(ConversationFoldersScreenDestination(it))) },
         openConversationDebugMenu = { conversationId ->
-            navigator.navigate(NavigationCommand(DebugConversationScreenDestination(
+            navigator.navigate(
+                NavigationCommand(
+                    DebugConversationScreenDestination(
                 navArgs = DebugConversationScreenNavArgs(conversationId)
-            )))
+            )
+                )
+            )
         },
     )
 

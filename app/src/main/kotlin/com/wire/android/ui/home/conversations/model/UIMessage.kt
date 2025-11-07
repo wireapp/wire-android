@@ -98,6 +98,7 @@ sealed interface UIMessage {
                     messageContent is UIMessageContent.AudioAssetMessage ||
                     messageContent is UIMessageContent.VideoMessage ||
                     messageContent is UIMessageContent.Location ||
+                    messageContent is UIMessageContent.Multipart ||
                     messageContent is UIMessageContent.Regular
 
         /**
@@ -113,8 +114,7 @@ sealed interface UIMessage {
             get() = isReplyableContent &&
                     isTheMessageAvailableToOtherUsers &&
                     !isDeleted &&
-                    header.messageStatus.expirationStatus is ExpirationStatus.NotExpirable &&
-                    !isMultipart
+                    header.messageStatus.expirationStatus is ExpirationStatus.NotExpirable
 
         val isReactionAllowed: Boolean
             get() = !isDeleted &&
@@ -631,7 +631,9 @@ sealed interface DeliveryStatusContent {
         val hasFailures: Boolean
             get() = totalUsersWithFailures > 0
 
-        val filteredRecipientsFailure by lazy { failedRecipients.filter { it !in noClients.values.flatten() }.toImmutableList() }
+        val filteredRecipientsFailure by lazy {
+            failedRecipients.filter { it !in noClients.values.flatten() }.toImmutableList()
+        }
         val isSingleUserFailure by lazy { totalUsersWithFailures == 1 }
         val totalUsersWithFailures by lazy { (failedRecipients.size + noClients.values.distinct().sumOf { it.size }) }
     }

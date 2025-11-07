@@ -286,7 +286,9 @@ class SystemMessageContentMapper @Inject constructor(
         UIMessageContent.SystemMessage.ConversationVerified(protocol)
 
     fun mapMemberName(user: User?, type: SelfNameType = SelfNameType.NameOrDeleted): UIText = when (user) {
-        is OtherUser -> user.name?.let { UIText.DynamicString(it) } ?: UIText.StringResource(messageResourceProvider.memberNameDeleted)
+        is OtherUser -> user.name?.let {
+            UIText.DynamicString(it)
+        } ?: UIText.StringResource(messageResourceProvider.memberNameDeleted)
         is SelfUser -> when (type) {
             SelfNameType.ResourceLowercase -> UIText.StringResource(messageResourceProvider.memberNameYouLowercase)
             SelfNameType.ResourceTitleCase -> UIText.StringResource(messageResourceProvider.memberNameYouTitlecase)
@@ -308,8 +310,11 @@ class SystemMessageContentMapper @Inject constructor(
             self: () -> UIMessageContent.SystemMessage.LegalHold,
             others: (List<UIText>) -> UIMessageContent.SystemMessage.LegalHold
         ): UIMessageContent.SystemMessage.LegalHold =
-            if (members.size == 1 && senderUserId == members.first()) self()
-            else others(members.map { mapMemberName(user = userList.findUser(userId = it), type = SelfNameType.ResourceLowercase) })
+            if (members.size == 1 && senderUserId == members.first()) {
+                self()
+            } else {
+                others(members.map { mapMemberName(user = userList.findUser(userId = it), type = SelfNameType.ResourceLowercase) })
+            }
 
         return when (content) {
             MessageContent.LegalHold.ForConversation.Disabled -> UIMessageContent.SystemMessage.LegalHold.Disabled.Conversation

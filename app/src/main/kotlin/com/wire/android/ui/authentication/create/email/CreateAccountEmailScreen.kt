@@ -174,8 +174,11 @@ private fun EmailContent(
                 textState = emailTextState,
                 placeholderText = stringResource(R.string.create_account_email_placeholder),
                 labelText = stringResource(R.string.create_account_email_label),
-                state = if (state.error is CreateAccountEmailViewState.EmailError.None) WireTextFieldState.Default
-                else WireTextFieldState.Error(),
+                state = if (state.error is CreateAccountEmailViewState.EmailError.None) {
+                    WireTextFieldState.Default
+                } else {
+                    WireTextFieldState.Error()
+                },
                 keyboardOptions = KeyboardOptions.DefaultEmailDone,
                 onKeyboardAction = { keyboardController?.hide() },
                 modifier = Modifier
@@ -214,7 +217,8 @@ private fun EmailErrorText(error: CreateAccountEmailViewState.EmailError) {
     val learnMoreText = stringResource(id = R.string.label_learn_more)
     val annotatedText = buildAnnotatedString {
         append(
-            if (error is CreateAccountEmailViewState.EmailError.TextFieldError) when (error) {
+            if (error is CreateAccountEmailViewState.EmailError.TextFieldError) {
+                when (error) {
                 CreateAccountEmailViewState.EmailError.TextFieldError.AlreadyInUseError ->
                     stringResource(R.string.create_account_email_already_in_use_error)
 
@@ -226,7 +230,10 @@ private fun EmailErrorText(error: CreateAccountEmailViewState.EmailError) {
 
                 CreateAccountEmailViewState.EmailError.TextFieldError.InvalidEmailError ->
                     stringResource(R.string.create_account_email_invalid_error)
-            } else ""
+            }
+            } else {
+                ""
+            }
         )
         if (error is CreateAccountEmailViewState.EmailError.TextFieldError.AlreadyInUseError) {
             append(" ")

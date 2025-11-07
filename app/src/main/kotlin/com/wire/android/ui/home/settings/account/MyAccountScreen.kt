@@ -235,7 +235,8 @@ fun MyAccountContent(
                 if (!forgotPasswordUrl.isNullOrBlank()) {
                     WirePrimaryButton(
                         text = stringResource(R.string.settings_myaccount_reset_password).toTitleCase(),
-                        onClick = { CustomTabsHelper.launchUrl(context, forgotPasswordUrl) })
+                        onClick = { CustomTabsHelper.launchUrl(context, forgotPasswordUrl) }
+                    )
                 }
 
                 if (canDeleteAccount) {

@@ -296,9 +296,9 @@ fun SuccessfulAudioMessageContent(
             )
 
             val currentTimeColor = when (messageStyle) {
-                MessageStyle.BUBBLE_SELF -> MaterialTheme.wireColorScheme.onPrimary
-                MessageStyle.BUBBLE_OTHER -> MaterialTheme.wireColorScheme.primary
-                MessageStyle.NORMAL -> MaterialTheme.wireColorScheme.primary
+                MessageStyle.BUBBLE_SELF -> colorsScheme().selfBubble.onPrimary
+                MessageStyle.BUBBLE_OTHER -> colorsScheme().otherBubble.onPrimary
+                MessageStyle.NORMAL -> colorsScheme().primary
             }
 
             Row {
@@ -441,8 +441,8 @@ private fun AudioMessageSliderTrack(state: SliderState, waves: List<Int>, messag
     val progressPercentage = (state.value - state.valueRange.start) / (state.valueRange.endInclusive - state.valueRange.start)
     val activatedColor = messageStyle.highlighted()
     val disabledColor = when (messageStyle) {
-        MessageStyle.BUBBLE_SELF -> colorsScheme().onPrimary.copy(alpha = 0.7F)
-        MessageStyle.BUBBLE_OTHER -> colorsScheme().onTertiaryButtonDisabled
+        MessageStyle.BUBBLE_SELF -> colorsScheme().selfBubble.onPrimary.copy(alpha = 0.7F)
+        MessageStyle.BUBBLE_OTHER -> colorsScheme().otherBubble.onPrimary.copy(alpha = 0.7F)
         MessageStyle.NORMAL -> colorsScheme().onTertiaryButtonDisabled
     }
     Row(

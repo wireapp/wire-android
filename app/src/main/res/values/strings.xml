@@ -1889,4 +1889,8 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="profile_deeplink_feature_unavailable_title_alert">This feature is not available. Please contact your administrator.</string>
     <string name="conversation_options_file_collaboration_label">File collaboration (Cells)</string>
     <string name="conversation_options_file_collaboration_description">Permanently on for this conversation.</string>
+    <plurals name="reply_multiple_files">
+        <item quantity="one">%1$d file</item>
+        <item quantity="other">%1$d files</item>
+    </plurals>
 </resources>

@@ -261,7 +261,8 @@ fun ConversationScreen(
         messageComposerViewState = messageComposerViewState,
         draftMessageComposition = messageDraftViewModel.state.value,
         onClearDraft = messageDraftViewModel::clearDraft,
-        onSaveDraft = messageComposerViewModel::saveDraft,
+        onSaveDraft = messageDraftViewModel::saveDraft,
+        onMessageTextUpdate = messageDraftViewModel::onMessageTextUpdate,
         onSearchMentionQueryChanged = messageComposerViewModel::searchMembersToMention,
         onTypingEvent = messageComposerViewModel::sendTypingEvent,
         onClearMentionSearchResult = messageComposerViewModel::clearMentionSearchResult
@@ -314,12 +315,13 @@ fun ConversationScreen(
     LaunchedEffect(messageDraftViewModel.state.value.editMessageId) {
         val compositionState = messageDraftViewModel.state.value
         if (compositionState.editMessageId != null) {
+            messageDraftViewModel.clearDraft()
             messageComposerStateHolder.toEdit(
                 messageId = compositionState.editMessageId,
                 editMessageText = messageDraftViewModel.state.value.draftText,
                 mentions = compositionState.selectedMentions.map {
                     it.intoMessageMention()
-                }
+                },
             )
         }
     }
@@ -1618,6 +1620,7 @@ fun PreviewConversationScreen() = WireTheme {
         draftMessageComposition = messageCompositionState.value,
         onClearDraft = {},
         onSaveDraft = {},
+        onMessageTextUpdate = {},
         onTypingEvent = {},
         onSearchMentionQueryChanged = {},
         onClearMentionSearchResult = {},

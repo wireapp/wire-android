@@ -170,6 +170,18 @@ internal fun QuotedMessage(
             startContent = startContent,
             clickable = clickable
         )
+
+        is UIQuotedMessage.UIQuotedData.Multipart -> QuotedMultipartMessage(
+            senderName = messageData.senderName,
+            originalDateTimeText = messageData.originalMessageDateDescription,
+            text = quotedContent.text?.asString(),
+            attachments = quotedContent.attachments,
+            accent = messageData.senderAccent,
+            modifier = modifier,
+            style = style,
+            startContent = startContent,
+            clickable = clickable
+        )
     }
 }
 
@@ -210,7 +222,7 @@ fun QuotedMessagePreview(
 
 @Composable
 @Suppress("LongParameterList")
-private fun QuotedMessageContent(
+internal fun QuotedMessageContent(
     senderName: String?,
     style: QuotedMessageStyle,
     modifier: Modifier = Modifier,
@@ -411,7 +423,7 @@ private fun QuotedText(
 }
 
 @Composable
-private fun QuotedMessageOriginalDate(
+internal fun QuotedMessageOriginalDate(
     originalDateTimeText: UIText,
     style: QuotedMessageStyle
 ) {
@@ -602,14 +614,13 @@ fun QuotedAudioMessage(
 }
 
 @Composable
-private fun MainMarkdownText(text: String, messageStyle: MessageStyle, accent: Accent, fontStyle: FontStyle = FontStyle.Normal) {
+internal fun MainMarkdownText(text: String, messageStyle: MessageStyle, accent: Accent, fontStyle: FontStyle = FontStyle.Normal) {
 
     val color = when (messageStyle) {
         MessageStyle.BUBBLE_SELF -> colorsScheme().selfBubble.onSecondary
         MessageStyle.BUBBLE_OTHER -> colorsScheme().otherBubble.onSecondary
         MessageStyle.NORMAL -> colorsScheme().onSurfaceVariant
     }
-
     val nodeData = NodeData(
         color = color,
         style = MaterialTheme.wireTypography.subline01.copy(fontStyle = fontStyle),
@@ -639,7 +650,7 @@ private fun MainMarkdownText(text: String, messageStyle: MessageStyle, accent: A
 }
 
 @Composable
-private fun MainContentText(text: String, fontStyle: FontStyle = FontStyle.Normal) {
+internal fun MainContentText(text: String, fontStyle: FontStyle = FontStyle.Normal) {
     Text(
         text = text,
         style = typography().subline01,

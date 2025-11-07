@@ -17,7 +17,7 @@
  */
 package com.wire.android.feature.meetings.ui.list
 
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -25,17 +25,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
+import com.wire.android.feature.meetings.R
 import com.wire.android.feature.meetings.model.MeetingHeader
 import com.wire.android.feature.meetings.model.MeetingItem
 import com.wire.android.feature.meetings.model.MeetingListItem
 import com.wire.android.feature.meetings.ui.MeetingsTabItem
 import com.wire.android.feature.meetings.ui.util.CurrentTimeProvider
 import com.wire.android.feature.meetings.ui.util.PreviewMultipleThemes
+import com.wire.android.ui.common.rowitem.EmptyListArrowFooter
+import com.wire.android.ui.common.rowitem.EmptyListContent
+import com.wire.android.ui.common.rowitem.LoadingListContent
 import com.wire.android.ui.theme.WireTheme
 
 @Composable
@@ -56,14 +62,29 @@ fun MeetingList(
 ) {
     val lazyPagingItems = meetingListViewModel.meetings.collectAsLazyPagingItems()
     val isShowingAll = meetingListViewModel.isShowingAll.collectAsState().value
-    MeetingList(
-        lazyListState = lazyListState,
-        lazyPagingItems = lazyPagingItems,
-        isShowingAll = isShowingAll,
-        onShowAll = meetingListViewModel::showAll,
-        openMeetingOptions = openMeetingOptions,
-        modifier = modifier,
-    )
+    val showLoading = lazyPagingItems.loadState.refresh == LoadState.Loading && lazyPagingItems.itemCount == 0
+    AnimatedContent(targetState = showLoading to (lazyPagingItems.itemCount == 0)) { (loading, emptyList) ->
+        when {
+            loading -> LoadingListContent(
+                lazyListState = lazyListState,
+                modifier = modifier
+            )
+
+            emptyList -> EmptyMeetingListContent(
+                type = type,
+                modifier = modifier
+            )
+
+            else -> MeetingList(
+                lazyPagingItems = lazyPagingItems,
+                lazyListState = lazyListState,
+                isShowingAll = isShowingAll,
+                onShowAll = meetingListViewModel::showAll,
+                openMeetingOptions = openMeetingOptions,
+                modifier = modifier,
+            )
+        }
+    }
 }
 
 @Composable
@@ -77,7 +98,7 @@ private fun MeetingList(
 ) {
     LazyColumn(
         state = lazyListState,
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier,
     ) {
         items(
             count = lazyPagingItems.itemCount,
@@ -105,15 +126,48 @@ private fun MeetingList(
                 }
             }
         }
-        if (!isShowingAll) {
-            item(
-                key = "footer_show_all",
-                contentType = "footer_show_all",
-            ) {
+        val endOfPaginationReached = (lazyPagingItems.loadState.append as? LoadState.NotLoading)?.endOfPaginationReached ?: false
+        val isLoadingMore = lazyPagingItems.loadState.append == LoadState.Loading
+        when {
+            isLoadingMore && !endOfPaginationReached -> item(key = "footer_load_more", contentType = "footer_load_more") {
+                MeetingLoadMoreFooter()
+            }
+
+            endOfPaginationReached && !isShowingAll -> item(key = "footer_show_all", contentType = "footer_show_all") {
                 MeetingShowAllFooter(onShowAll = onShowAll)
             }
         }
     }
+}
+
+@Composable
+private fun EmptyMeetingListContent(type: MeetingsTabItem, modifier: Modifier = Modifier) {
+    EmptyListContent(
+        title = when (type) {
+            MeetingsTabItem.NEXT -> stringResource(R.string.meetings_empty_title_next)
+            MeetingsTabItem.PAST -> stringResource(R.string.meetings_empty_title_past)
+        },
+        text = when (type) {
+            MeetingsTabItem.NEXT -> stringResource(R.string.meetings_empty_text_next)
+            MeetingsTabItem.PAST -> stringResource(R.string.meetings_empty_text_past)
+        },
+        footer = {
+            if (type == MeetingsTabItem.NEXT) EmptyListArrowFooter()
+        },
+        modifier = modifier,
+    )
+}
+
+@PreviewMultipleThemes
+@Composable
+fun MeetingListNextEmptyPreview() = WireTheme {
+    EmptyMeetingListContent(type = MeetingsTabItem.NEXT)
+}
+
+@PreviewMultipleThemes
+@Composable
+fun MeetingListPastEmptyPreview() = WireTheme {
+    EmptyMeetingListContent(type = MeetingsTabItem.PAST)
 }
 
 @PreviewMultipleThemes

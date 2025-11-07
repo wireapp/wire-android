@@ -39,6 +39,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.unit.dp
 import com.wire.android.ui.common.applyIf
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -46,7 +48,10 @@ import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
+import com.wire.android.ui.home.conversations.model.UIMessageContent
+import com.wire.android.ui.home.conversations.model.messagetypes.image.MaxBounds
 import com.wire.android.ui.theme.Accent
+import com.wire.android.ui.theme.color
 import com.wire.android.ui.theme.wireColorScheme
 
 @Suppress("CyclomaticComplexMethod")
@@ -68,6 +73,7 @@ fun MessageBubbleItem(
     content: @Composable (inner: PaddingValues) -> Unit
 ) {
     val isSelfMessage = source == MessageSource.Self
+    val configuration = LocalConfiguration.current
 
     Column(
         modifier = modifier
@@ -104,7 +110,7 @@ fun MessageBubbleItem(
             }
             Column(
                 modifier = Modifier.applyIf(!message.decryptionFailed) {
-                    widthIn(max = dimensions().bubbleMaxWidth)
+                    widthIn(max = (configuration.screenWidthDp * dimensions().bubbleMessageMaxFractionWidth).dp)
                 },
                 horizontalAlignment = if (isSelfMessage) {
                     Alignment.End
@@ -115,21 +121,16 @@ fun MessageBubbleItem(
                 val shape = RoundedCornerShape(dimensions().corner16x)
 
                 val bubbleColorOther: Color = if (messageStatus.isDeleted) {
-                    MaterialTheme.colorScheme.surface
+                    colorsScheme().surface
                 } else {
-                    MaterialTheme.colorScheme.background
+                    colorsScheme().otherBubble.primary
                 }
                 val bubbleColor = when {
                     messageStatus.isDeleted || message.decryptionFailed -> {
-                        MaterialTheme.colorScheme.surface
+                        colorsScheme().surface
                     }
 
-                    isSelfMessage -> {
-                        MaterialTheme.wireColorScheme.wireAccentColors.getOrDefault(
-                            accent,
-                            MaterialTheme.wireColorScheme.primary
-                        )
-                    }
+                    isSelfMessage -> colorsScheme().selfBubble.primary
 
                     else -> {
                         bubbleColorOther
@@ -139,10 +140,7 @@ fun MessageBubbleItem(
                 val borderColor = when {
                     message.decryptionFailed -> MaterialTheme.wireColorScheme.outline
                     messageStatus.isDeleted -> if (isSelfMessage) {
-                        MaterialTheme.wireColorScheme.wireAccentColors.getOrDefault(
-                            accent,
-                            MaterialTheme.wireColorScheme.primary
-                        )
+                        accent.color(MaterialTheme.wireColorScheme.primary)
                     } else {
                         colorsScheme().outline
                     }
@@ -154,9 +152,31 @@ fun MessageBubbleItem(
 
                 val bubbleWidthMod = when {
                     !message.decryptionFailed -> {
-                        message.assetParams?.normalizedSize()?.width
-                            ?.let { Modifier.widthIn(max = it) }
-                            ?: Modifier
+                        when (message.messageContent) {
+                            is UIMessageContent.VideoMessage -> {
+                                val normalizedSize = message.messageContent.params.normalizedSize(
+                                    maxBounds = MaxBounds.ScreenFraction(
+                                        maxWFraction = dimensions().messageVisualMaxFractionWidth,
+                                        maxHFraction = dimensions().messageVisualMaxFractionHeight
+                                    )
+                                )
+                                Modifier.width(normalizedSize.width)
+                            }
+
+                            is UIMessageContent.ImageMessage -> {
+                                val normalizedSize = message.messageContent.params.normalizedSize(
+                                    maxBounds = MaxBounds.ScreenFraction(
+                                        maxWFraction = dimensions().messageVisualMaxFractionWidth,
+                                        maxHFraction = dimensions().messageVisualMaxFractionHeight
+                                    )
+                                )
+                                Modifier.width(normalizedSize.width)
+                            }
+
+                            else -> {
+                                Modifier
+                            }
+                        }
                     }
 
                     else -> {

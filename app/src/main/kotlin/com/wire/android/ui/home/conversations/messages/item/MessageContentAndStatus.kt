@@ -34,7 +34,6 @@ import com.wire.android.ui.home.conversations.model.messagetypes.asset.MessageAs
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.RestrictedAssetMessage
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.RestrictedGenericFileMessage
 import com.wire.android.ui.home.conversations.model.messagetypes.audio.AudioMessage
-import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageParams
 import com.wire.android.ui.home.conversations.model.messagetypes.location.LocationMessageContent
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.MultipartAttachmentsView
 import com.wire.android.ui.home.conversations.model.messagetypes.video.VideoMessage
@@ -139,7 +138,7 @@ private fun MessageContent(
         is UIMessageContent.ImageMessage -> {
             MessageImage(
                 asset = messageContent.asset,
-                imgParams = ImageMessageParams(messageContent.width, messageContent.height, allowUpscale = true),
+                imgParams = messageContent.params,
                 transferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
                 onImageClick = onImageClick,
                 messageStyle = messageStyle
@@ -152,8 +151,7 @@ private fun MessageContent(
                 assetName = messageContent.assetName,
                 assetExtension = messageContent.assetExtension,
                 assetDataPath = messageContent.assetDataPath,
-                width = messageContent.width,
-                height = messageContent.height,
+                params = messageContent.params,
                 duration = messageContent.duration,
                 transferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
                 onVideoClick = onAssetClick,
@@ -195,7 +193,8 @@ private fun MessageContent(
                     buttonList = null,
                     messageId = message.header.messageId,
                     onLinkClick = onLinkClick,
-                    messageStyle = messageStyle
+                    messageStyle = messageStyle,
+                    accent = accent
                 )
             }
         }
@@ -232,7 +231,8 @@ private fun MessageContent(
                     buttonList = messageContent.buttonList,
                     messageId = message.header.messageId,
                     onLinkClick = onLinkClick,
-                    messageStyle = messageStyle
+                    messageStyle = messageStyle,
+                    accent = accent
                 )
             }
         }
@@ -321,7 +321,8 @@ private fun MessageContent(
                         buttonList = null,
                         messageId = message.header.messageId,
                         onLinkClick = onLinkClick,
-                        messageStyle = messageStyle
+                        messageStyle = messageStyle,
+                        accent = accent
                     )
                     Spacer(modifier = Modifier.height(dimensions().spacing8x))
                 }

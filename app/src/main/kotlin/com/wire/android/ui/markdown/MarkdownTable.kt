@@ -32,7 +32,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.home.conversations.messages.item.onNodeBackground
 import com.wire.android.ui.home.conversations.messages.item.surface
 
@@ -113,7 +112,7 @@ private fun parseRowCells(
                 inlineNodeChildren(
                     child.children,
                     this,
-                    nodeData.copy(isAccentBackground = nodeData.messageStyle == MessageStyle.BUBBLE_SELF)
+                    nodeData
                 )
             )
         }

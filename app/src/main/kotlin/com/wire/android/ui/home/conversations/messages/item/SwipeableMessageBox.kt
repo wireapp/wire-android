@@ -43,7 +43,6 @@ import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.theme.Accent
 import kotlin.math.absoluteValue
 import kotlin.math.min
 

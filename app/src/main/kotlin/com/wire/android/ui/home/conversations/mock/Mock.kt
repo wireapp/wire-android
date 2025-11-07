@@ -475,7 +475,8 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             showLegalHoldIndicator = true,
             messageTime = mockMessageTime,
             messageStatus = MessageStatus(
-                flowStatus = MessageFlowStatus.Delivered, isDeleted = true,
+                flowStatus = MessageFlowStatus.Delivered,
+                isDeleted = true,
                 expirationStatus = ExpirationStatus.NotExpirable
             ),
             messageId = "2",

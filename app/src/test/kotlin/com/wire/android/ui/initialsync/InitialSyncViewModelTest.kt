@@ -77,8 +77,10 @@ class InitialSyncViewModelTest {
 
         @MockK
         lateinit var observeSyncState: ObserveSyncStateUseCase
+
         @MockK
         lateinit var userDataStoreProvider: UserDataStoreProvider
+
         @MockK
         lateinit var userDataStore: UserDataStore
         val userId = UserId("id", "domain")

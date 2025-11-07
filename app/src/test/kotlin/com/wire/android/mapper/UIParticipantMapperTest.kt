@@ -100,12 +100,14 @@ class UIParticipantMapperTest {
         userTypeMapper: UserTypeMapper
     ): Boolean {
         val connectionState = if (uiParticipant.isSelf) null else ConnectionState.NOT_CONNECTED
-        return (memberDetails.userId == uiParticipant.id
+        return (
+            memberDetails.userId == uiParticipant.id
                 && memberDetails.name == uiParticipant.name
                 && memberDetails.handle == uiParticipant.handle
                 && memberDetails.user.avatar(connectionState) == uiParticipant.avatarData
                 && userTypeMapper.toMembership(memberDetails.user.userType) == uiParticipant.membership
-                && memberDetails.user is SelfUser == uiParticipant.isSelf)
+                && memberDetails.user is SelfUser == uiParticipant.isSelf
+        )
     }
 
     private class Arrangement {

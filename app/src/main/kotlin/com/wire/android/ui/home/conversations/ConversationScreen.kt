@@ -235,7 +235,8 @@ private const val MAX_GROUP_SIZE_FOR_PING = 3
 @Composable
 fun ConversationScreen(
     navigator: Navigator,
-    groupDetailsScreenResultRecipient: ResultRecipient<GroupConversationDetailsScreenDestination, GroupConversationDetailsNavBackArgs>,
+    groupDetailsScreenResultRecipient:
+    ResultRecipient<GroupConversationDetailsScreenDestination, GroupConversationDetailsNavBackArgs>,
     mediaGalleryScreenResultRecipient: ResultRecipient<MediaGalleryScreenDestination, MediaGalleryNavBackArgs>,
     imagePreviewScreenResultRecipient: ResultRecipient<ImagesPreviewScreenDestination, ImagesPreviewNavBackArgs>,
     drawingCanvasScreenResultRecipient: OpenResultRecipient<DrawingCanvasNavBackArgs>,
@@ -485,9 +486,12 @@ fun ConversationScreen(
         onOpenProfile = {
             with(conversationInfoViewModel) {
                 val (mentionUserId: UserId, isSelfUser: Boolean) = mentionedUserData(it)
-                if (isSelfUser) navigator.navigate(NavigationCommand(SelfUserProfileScreenDestination))
-                else (conversationInfoViewState.conversationDetailsData as? ConversationDetailsData.Group)?.conversationId.let {
+                if (isSelfUser) {
+                    navigator.navigate(NavigationCommand(SelfUserProfileScreenDestination))
+                } else {
+                    (conversationInfoViewState.conversationDetailsData as? ConversationDetailsData.Group)?.conversationId.let {
                     navigator.navigate(NavigationCommand(OtherUserProfileScreenDestination(mentionUserId, it)))
+                }
                 }
             }
         },
@@ -589,7 +593,8 @@ fun ConversationScreen(
                     is ConversationDetailsData.Group ->
                         navigator.navigate(NavigationCommand(GroupConversationDetailsScreenDestination(conversationId)))
 
-                    is ConversationDetailsData.None -> { /* do nothing */
+                    is ConversationDetailsData.None -> {
+                        /* do nothing */
                     }
                 }
             }

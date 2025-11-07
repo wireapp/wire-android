@@ -196,8 +196,11 @@ private fun InnerButtonBox(
             modifier = Modifier
                 .padding(horizontal = borderItemsMaxWidth)
                 .let {
-                    if (fillMaxWidth) it.fillMaxWidth()
-                    else it.wrapContentWidth()
+                    if (fillMaxWidth) {
+                        it.fillMaxWidth()
+                    } else {
+                        it.wrapContentWidth()
+                    }
                 },
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically,
@@ -215,7 +218,8 @@ private fun InnerButtonBox(
             if (trailingIconAlignment == IconAlignment.Center) trailingItem()
         }
 
-        Box(modifier = Modifier
+        Box(
+            modifier = Modifier
             .align(Alignment.CenterEnd)
             .onGloballyPositioned { endItemWidth = it.size.width }
         ) { if (trailingIconAlignment == IconAlignment.Border) trailingItem() }

@@ -362,7 +362,8 @@ internal class AssetImageFetcherTest {
 
         fun arrange() = this to AssetImageFetcher(
             assetFetcherParameters = AssetFetcherParameters(
-                data = imageData, options ?: Options(
+                data = imageData,
+                    options ?: Options(
                     context = mockContext,
                     parameters = Parameters.Builder().set(key = OPTION_PARAMETER_RETRY_KEY, value = 0, memoryCacheKey = null).build()
                 )

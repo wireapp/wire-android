@@ -105,7 +105,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun HomeScreen(
     navigator: Navigator,
-    groupDetailsScreenResultRecipient: ResultRecipient<ConversationScreenDestination, GroupConversationDetailsNavBackArgs>,
+    groupDetailsScreenResultRecipient:
+    ResultRecipient<ConversationScreenDestination, GroupConversationDetailsNavBackArgs>,
     otherUserProfileScreenResultRecipient: ResultRecipient<OtherUserProfileScreenDestination, String>,
     conversationFoldersScreenResultRecipient:
     ResultRecipient<ConversationFoldersScreenDestination, ConversationFoldersNavBackArgs>,

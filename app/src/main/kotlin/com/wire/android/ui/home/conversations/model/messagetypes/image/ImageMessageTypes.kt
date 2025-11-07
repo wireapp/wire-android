@@ -132,8 +132,11 @@ fun ImageMessageInProgress(
             Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.spacing8x))
             Text(
                 text = stringResource(
-                    id = if (isDownloading) R.string.asset_message_download_in_progress_text
-                    else R.string.asset_message_upload_in_progress_text
+                    id = if (isDownloading) {
+                        R.string.asset_message_download_in_progress_text
+                    } else {
+                        R.string.asset_message_upload_in_progress_text
+                    }
                 ),
                 style = MaterialTheme.wireTypography.subline01.copy(color = color),
                 overflow = TextOverflow.Ellipsis,
@@ -161,8 +164,11 @@ fun ImageMessageFailed(size: DpSize, isDownloadFailure: Boolean, errorColor: Col
         Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.spacing8x))
         Text(
             text = stringResource(
-                id = if (isDownloadFailure) R.string.error_downloading_image_message
-                else R.string.error_uploading_image_message
+                id = if (isDownloadFailure) {
+                    R.string.error_downloading_image_message
+                } else {
+                    R.string.error_uploading_image_message
+                }
             ),
             textAlign = TextAlign.Center,
             style = MaterialTheme.wireTypography.subline01.copy(color = errorColor)

@@ -217,7 +217,9 @@ fun PreviewGroupConversationOptionsWithTitleAndSubtitleAndSwitchAndFooterButton(
         title = "Guests",
         subtitle = "Turn this option ON to open this conversation to people outside your team, even if they don't have Wire.",
         switchState = SwitchState.Disabled(false),
-        footer = { WireSecondaryButton(text = "Copy link", onClick = {}, modifier = Modifier.height(32.dp), fillMaxWidth = false) },
+        footer = {
+            WireSecondaryButton(text = "Copy link", onClick = {}, modifier = Modifier.height(32.dp), fillMaxWidth = false)
+        },
         arrowType = ArrowType.TITLE_ALIGNED
     )
 }

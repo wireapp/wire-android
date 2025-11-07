@@ -131,7 +131,5 @@ class ScreenStateObserverTest {
         }
 
         fun arrange() = this to screenStateObserver
-
     }
-
 }

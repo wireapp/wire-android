@@ -478,6 +478,77 @@ style J fill:#BBDEFB
                 </div>
             </div>
             
+            <div class="panel panel-default">
+                <div class="panel-heading adr-accepted">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" href="#collapse9">9. Automated Release Notes Management for Play Store Deployments</a>
+
+                        
+                        <i class="adr-icon fas fa-fw fa-check"></i>
+                        
+
+                    </h4>
+                </div>
+                <div id="collapse9" class="panel-collapse collapse">
+                    <div class="panel-body"><h1>9. Automated Release Notes Management for Play Store Deployments</h1>
+<p>Date: 2025-11-07</p>
+<h2>Status</h2>
+<p>Accepted</p>
+<h2>Context</h2>
+<p>Previously, managing release notes for Play Store deployments was a manual and error-prone process. The workflow lacked automation for:</p>
+<ul>
+<li>Validating that version-specific release notes exist before deployment</li>
+<li>Ensuring release notes comply with Play Store's 500 character limit</li>
+<li>Copying version-specific release notes to the default.txt files required for deployment</li>
+<li>Providing clear feedback about which release notes will be published</li>
+</ul>
+<p>This manual process increased the risk of deploying with incorrect or missing release notes, and made it difficult to catch validation errors early in the CI/CD pipeline.</p>
+<h2>Decision</h2>
+<p>We introduced an automated release notes preparation script (<code>scripts/prepare-release-notes.sh</code>) that is integrated into our CI/CD workflows. The script:</p>
+<ol>
+<li><strong>Extracts the current version</strong> from <code>AndroidCoordinates.kt</code> to determine which release notes to use</li>
+<li><strong>Validates version-specific files exist</strong> - fails the build if <code>app/src/main/play/release-notes/{lang}/{version}.txt</code> files are missing</li>
+<li><strong>Copies version files to default.txt</strong> - automatically prepares the files needed for Play Store deployment</li>
+<li><strong>Validates character counts</strong> - ensures release notes don't exceed Play Store's 500 character limit</li>
+<li><strong>Provides preview</strong> - displays the exact release notes that will be deployed</li>
+</ol>
+<p>The script is integrated into:</p>
+<ul>
+<li><code>build-production.yml</code> workflow for production releases</li>
+<li><code>build-main-push.yml</code> workflow for main branch deployments</li>
+<li><code>build-develop-push.yml</code> workflow for develop branch deployments</li>
+<li><code>deploy.yml</code> workflow for general deployments</li>
+</ul>
+<h2>Consequences</h2>
+<p><strong>Positive:</strong></p>
+<ul>
+<li>Release notes validation happens early in CI/CD, preventing deployment of apps with missing or invalid release notes</li>
+<li>Character limit validation prevents Play Store submission failures</li>
+<li>Automated copying eliminates manual file management errors</li>
+<li>Clear preview output ensures visibility into what will be deployed</li>
+<li>Version-specific release notes files create a historical record of all releases</li>
+<li>Consistent process across all deployment workflows</li>
+</ul>
+<p><strong>Considerations:</strong></p>
+<ul>
+<li>Release notes must be created as version-specific files (e.g., <code>4.16.0.txt</code>) before deployment</li>
+<li>The script requires Python 3 for character counting functionality</li>
+<li>Failed validation blocks the entire CI/CD pipeline (by design, to prevent bad deployments)</li>
+<li>Changes to version naming in <code>AndroidCoordinates.kt</code> must be reflected in release notes file naming</li>
+</ul>
+<p><strong>File Structure:</strong></p>
+<pre><code>app/src/main/play/release-notes/
+├── en-US/
+│   ├── 4.16.0.txt    (version-specific)
+│   └── default.txt   (auto-generated)
+└── de-DE/
+    ├── 4.16.0.txt    (version-specific)
+    └── default.txt   (auto-generated)
+</code></pre>
+</div>
+                </div>
+            </div>
+            
         </div>
         <footer>
             Generated with &lt;3 using ADR Viewer

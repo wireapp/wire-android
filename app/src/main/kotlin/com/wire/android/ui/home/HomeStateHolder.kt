@@ -57,7 +57,9 @@ class HomeStateHolder(
     val navController: NavHostController,
     val drawerState: DrawerState,
     val searchBarState: SearchBarState,
+    val conversationsFilterBottomSheetState: WireModalSheetState<Unit>,
     val cellsFilterBottomSheetState: WireModalSheetState<Unit>,
+    val newMeetingBottomSheetState: WireModalSheetState<Unit>,
     val navigator: Navigator,
     private val currentNavigationItemState: State<HomeDestination>,
     private val conversationFilterState: ConversationFilterState,
@@ -129,8 +131,10 @@ fun rememberHomeScreenState(
     }
 
     val conversationFilterState = rememberConversationFilterState()
+    val conversationsFilterBottomSheetState = rememberWireModalSheetState<Unit>()
     val cellsFilterState = rememberCellsFilterState()
     val cellsFilterBottomSheetState = rememberWireModalSheetState<Unit>(WireSheetValue.Hidden)
+    val newMeetingBottomSheetState = rememberWireModalSheetState<Unit>()
     val lazyListStateProvider = rememberLazyListStateProvider<String>()
 
     return remember {
@@ -139,7 +143,9 @@ fun rememberHomeScreenState(
             navController = navController,
             drawerState = drawerState,
             searchBarState = searchBarState,
+            conversationsFilterBottomSheetState = conversationsFilterBottomSheetState,
             cellsFilterBottomSheetState = cellsFilterBottomSheetState,
+            newMeetingBottomSheetState = newMeetingBottomSheetState,
             navigator = navigator,
             currentNavigationItemState = currentNavigationItemState,
             conversationFilterState = conversationFilterState,

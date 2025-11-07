@@ -851,9 +851,6 @@
     <string name="label_conversations_details_verified_proteus">Верифицировано (Proteus)</string>
     <string name="label_conversations_details_verified_mls">Верифицировано (сквозная идентификация)</string>
     <string name="label_system_message_cell_enabled_for_conversation">Совместная работа с %1$s (Cells)</string>
-    <string name="label_system_message_cell_enabled_for_conversation_bold">вкл</string>
-    <string name="label_system_message_cell_self_delete_disabled_for_conversation">Самоудаляющиеся сообщения - это %1$s в для бесед с Cells</string>
-    <string name="label_system_message_cell_self_delete_disabled">отключено</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
         <item quantity="one">Вы добавили 1 пользователя в беседу</item>

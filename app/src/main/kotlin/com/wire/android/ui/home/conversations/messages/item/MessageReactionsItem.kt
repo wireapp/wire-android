@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.messages.ReactionPill
 import com.wire.android.ui.home.conversations.model.MessageFooter
+import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 
@@ -73,7 +74,7 @@ fun MessageReactionsItem(
 
 @PreviewMultipleThemes
 @Composable
-fun LongMessageReactionsItemPreview() = WireTheme {
+fun LongMessageReactionsItemPreview() = WireTheme(accent = Accent.Green) {
     Box(modifier = Modifier.width(300.dp)) {
         MessageReactionsItem(
             messageStyle = MessageStyle.NORMAL,
@@ -97,7 +98,7 @@ fun LongMessageReactionsItemPreview() = WireTheme {
 
 @PreviewMultipleThemes
 @Composable
-fun LongMessageReactionsBubbleItemPreview() = WireTheme {
+fun LongMessageReactionsBubbleItemPreview() = WireTheme(accent = Accent.Petrol) {
     Box(modifier = Modifier.width(300.dp)) {
         MessageReactionsItem(
             messageStyle = MessageStyle.BUBBLE_OTHER,

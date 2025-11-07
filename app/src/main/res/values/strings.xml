@@ -878,10 +878,8 @@
     <string name="label_system_message_conversation_started_sensitive_information_footer">Please still be careful with who you share sensitive information.</string>
     <string name="label_conversations_details_verified_proteus">Verified (Proteus)</string>
     <string name="label_conversations_details_verified_mls">Verified (End-to-end Identity)</string>
-    <string name="label_system_message_cell_enabled_for_conversation">File collaboration (Cells) is %1$s</string>
-    <string name="label_system_message_cell_enabled_for_conversation_bold">on</string>
-    <string name="label_system_message_cell_self_delete_disabled_for_conversation">Self-deleting messages are %1$s for conversations with Cells</string>
-    <string name="label_system_message_cell_self_delete_disabled">off</string>
+    <string name="label_system_message_cell_enabled_for_conversation">File collaboration (Cells) is **on**</string>
+    <string name="label_system_message_cell_self_delete_disabled_for_conversation">Self-deleting messages are **off** for conversations with Cells</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
         <item quantity="one">You added 1 person to the conversation</item>
@@ -1089,6 +1087,7 @@
     <string name="notification_outgoing_call_tap_to_return">Tap to return to call - Calling...</string>
     <string name="notification_audio_message_body">Audio message</string>
     <string name="notification_deleting_conversation">Deleting conversation…</string>
+    <string name="notification_uploading_files">Uploading files…</string>
     <!-- Calling-->
     <string name="calling_constant_bit_rate_indication">Constant Bit Rate</string>
     <string name="calling_button_label_microphone">Microphone</string>

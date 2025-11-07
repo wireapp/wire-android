@@ -40,6 +40,7 @@ import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.button.wireSecondaryButtonColors
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.messages.item.interceptCombinedClickable
+import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
@@ -115,11 +116,22 @@ fun ReactionPill(
 
 @PreviewMultipleThemes
 @Composable
-fun ReactionPillPreview() = WireTheme {
+fun ReactionPillPreview() = WireTheme(accent = Accent.Unknown) {
     ReactionPill(
         emoji = "👍",
         count = 5,
         isOwn = false,
+        onTap = {}
+    )
+}
+
+@PreviewMultipleThemes
+@Composable
+fun ReactionOwnPillPreview() = WireTheme(accent = Accent.Amber) {
+    ReactionPill(
+        emoji = "👍",
+        count = 5,
+        isOwn = true,
         onTap = {}
     )
 }

@@ -47,7 +47,7 @@ class QuotedMultipartMessageViewModelTest {
             )
             .arrange()
 
-        viewModel.observeMultipartMessage("message_id").test {
+        viewModel.observeMultipartMessage(conversationId, "message_id").test {
             val data = awaitItem()
 
             assertNull(data.fileAttachment)
@@ -69,7 +69,7 @@ class QuotedMultipartMessageViewModelTest {
             )
             .arrange()
 
-        viewModel.observeMultipartMessage("message_id").test {
+        viewModel.observeMultipartMessage(conversationId, "message_id").test {
             val data = awaitItem()
 
             assertNull(data.fileAttachment)
@@ -91,7 +91,7 @@ class QuotedMultipartMessageViewModelTest {
             )
             .arrange()
 
-        viewModel.observeMultipartMessage("message_id").test {
+        viewModel.observeMultipartMessage(conversationId, "message_id").test {
             val data = awaitItem()
 
             assertNull(data.mediaAttachment)
@@ -112,7 +112,7 @@ class QuotedMultipartMessageViewModelTest {
             )
             .arrange()
 
-        viewModel.observeMultipartMessage("message_id").test {
+        viewModel.observeMultipartMessage(conversationId, "message_id").test {
             awaitComplete()
         }
     }
@@ -144,8 +144,6 @@ class QuotedMultipartMessageViewModelTest {
 
         fun arrange(): Pair<Arrangement, QuotedMultipartMessageViewModel> {
             val viewModel = QuotedMultipartMessageViewModel(
-                conversationId = QualifiedID("convo-id", "convo.domain"),
-                messageId = "test_message_id",
                 observeQuotedMessage = observeQuotedMessage
             )
             return this to viewModel
@@ -153,6 +151,9 @@ class QuotedMultipartMessageViewModelTest {
     }
 
     private companion object {
+
+        val conversationId = QualifiedID("convo-id", "convo.domain")
+
         val videoAttachment = UIMultipartQuotedContent(
             name = "video1.mp4",
             localPath = null,

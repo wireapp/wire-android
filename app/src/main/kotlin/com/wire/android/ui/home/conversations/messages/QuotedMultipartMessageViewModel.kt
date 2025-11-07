@@ -25,28 +25,19 @@ import com.wire.android.ui.home.conversations.model.UIMultipartQuotedContent
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
 import com.wire.android.ui.home.conversations.usecase.ObserveQuoteMessageForConversationUseCase
 import com.wire.kalium.logic.data.id.ConversationId
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
+import javax.inject.Inject
 
-@HiltViewModel(assistedFactory = QuotedMultipartMessageViewModel.Factory::class)
-class QuotedMultipartMessageViewModel @AssistedInject constructor(
-    @Assisted val conversationId: ConversationId,
-    @Assisted val messageId: String,
+@HiltViewModel
+class QuotedMultipartMessageViewModel @Inject constructor(
     private val observeQuotedMessage: ObserveQuoteMessageForConversationUseCase,
 ) : ViewModel() {
 
-    @AssistedFactory
-    interface Factory {
-        fun create(messageId: String, conversationId: ConversationId): QuotedMultipartMessageViewModel
-    }
-
-    suspend fun observeMultipartMessage(quotedMessageId: String): Flow<UIQuotedMultipartMessage> =
+    suspend fun observeMultipartMessage(conversationId: ConversationId, quotedMessageId: String): Flow<UIQuotedMultipartMessage> =
         observeQuotedMessage(conversationId, quotedMessageId)
             .mapNotNull { result -> (result as? UIQuotedMessage.UIQuotedData)?.quotedContent }
             .filterIsInstance<UIQuotedMessage.UIQuotedData.Multipart>()

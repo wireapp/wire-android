@@ -74,20 +74,14 @@ fun QuotedMultipartMessage(
     accent: Accent,
     clickable: Clickable?,
     modifier: Modifier = Modifier,
-    viewModel: QuotedMultipartMessageViewModel =
-        hiltViewModel<QuotedMultipartMessageViewModel, QuotedMultipartMessageViewModel.Factory>(
-            key = conversationId.toString(),
-            creationCallback = { factory ->
-                factory.create(quotedMessageId, conversationId)
-            }
-        ),
+    viewModel: QuotedMultipartMessageViewModel = hiltViewModel(key = conversationId.toString()),
     startContent: @Composable () -> Unit = {}
 ) {
 
     var quotedMultipartMessage by remember { mutableStateOf(UIQuotedMultipartMessage()) }
 
     LaunchedEffect(quotedMessageId) {
-        viewModel.observeMultipartMessage(quotedMessageId)
+        viewModel.observeMultipartMessage(conversationId, quotedMessageId)
             .collect {
                 quotedMultipartMessage = it
             }

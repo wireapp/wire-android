@@ -188,8 +188,9 @@ class WireNotificationManager @Inject constructor(
      * This is critical for background notifications during Doze mode where network
      * may not be immediately available despite WorkManager constraints.
      */
+    @Suppress("TooGenericExceptionCaught")
     private suspend fun retrySync(userId: UserId, stayAliveDuration: Duration) {
-        val maxRetries = 3
+        val maxRetries = MAX_SYNC_RETRY
         var attempt = 0
         var lastException: Exception? = null
 
@@ -587,5 +588,6 @@ class WireNotificationManager @Inject constructor(
 
     companion object {
         private const val TAG = "WireNotificationManager"
+        private const val MAX_SYNC_RETRY = 3
     }
 }

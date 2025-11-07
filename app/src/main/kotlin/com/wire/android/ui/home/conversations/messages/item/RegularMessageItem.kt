@@ -265,21 +265,15 @@ fun RegularMessageItem(
         }
     }
 
-    when (swipeableMessageConfiguration) {
-        is SwipeableMessageConfiguration.Swipeable -> {
-            SwipeableMessageBox(
-                configuration = swipeableMessageConfiguration,
-                messageStyle = messageStyle,
-                accentColor = MaterialTheme.wireColorScheme.wireAccentColors.getOrDefault(
-                    swipeableMessageConfiguration.selfUserAccent,
-                    MaterialTheme.wireColorScheme.primary
-                )
-            ) {
-                messageContent()
-            }
-        }
-
-        SwipeableMessageConfiguration.NotSwipeable -> messageContent()
+    SwipeableMessageBox(
+        configuration = swipeableMessageConfiguration,
+        messageStyle = messageStyle,
+        accentColor = MaterialTheme.wireColorScheme.wireAccentColors.getOrDefault(
+            (swipeableMessageConfiguration as? SwipeableMessageConfiguration.Swipeable)?.selfUserAccent ?: header.accent,
+            MaterialTheme.wireColorScheme.primary
+        )
+    ) {
+        messageContent()
     }
 }
 

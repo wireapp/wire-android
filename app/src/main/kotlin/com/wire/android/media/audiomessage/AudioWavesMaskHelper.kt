@@ -17,81 +17,37 @@
  */
 package com.wire.android.media.audiomessage
 
-import android.content.Context
-import dagger.Reusable
-import dagger.hilt.android.qualifiers.ApplicationContext
-import linc.com.amplituda.Amplituda
-import linc.com.amplituda.Cache
-import okio.Path
-import java.io.File
-import javax.inject.Inject
 import kotlin.math.roundToInt
 
-@Reusable
-class AudioWavesMaskHelper @Inject constructor(
-    @ApplicationContext private val appContext: Context,
-) {
+const val WAVE_MAX = 32
 
-    companion object {
-        private const val WAVES_AMOUNT = 75
-        private const val WAVE_MAX = 32
-    }
-
-    @Suppress("TooGenericExceptionCaught")
-    private val amplituda: Lazy<Amplituda?> = lazy {
-        try {
-            Amplituda(appContext)
-        } catch (e: Throwable) {
-            null
-        }
-    }
-
-    @Suppress("TooGenericExceptionCaught")
-    private fun getAmplituda(): Amplituda? = amplituda.value
-
-    fun getWaveMask(decodedAssetPath: Path): List<Int>? = getWaveMask(File(decodedAssetPath.toString()))
-
-    fun getWaveMask(file: File): List<Int>? = getAmplituda()
-        ?.processAudio(file, Cache.withParams(Cache.REUSE))
-        ?.get()
-        ?.amplitudesAsList()
-        ?.averageWavesMask()
-        ?.equalizeWavesMask()
-
-    private fun List<Double>.equalizeWavesMask(): List<Int> {
-        if (this.isEmpty()) return listOf()
-
-        val divider = max() / (WAVE_MAX - 1)
-
-        return if (divider == 0.0) {
-            map { 1 }
-        } else {
-            map { (it / divider).roundToInt() + 1 }
-        }
-    }
-
-    private fun List<Int>.averageWavesMask(): List<Double> {
-        val wavesSize = size
-        val sectionSize = (wavesSize.toFloat() / WAVES_AMOUNT).roundToInt()
-
-        if (wavesSize < WAVES_AMOUNT || sectionSize == 1) return map { it.toDouble() }
-
-        val averagedWaves = mutableListOf<Double>()
-        for (i in 0..<(wavesSize / sectionSize)) {
-            val startIndex = (i * sectionSize)
-            if (startIndex >= wavesSize) continue
-            val endIndex = (startIndex + sectionSize).coerceAtMost(wavesSize - 1)
-            averagedWaves.add(subList(startIndex, endIndex).averageInt())
-        }
-        return averagedWaves
-    }
-
-    private fun List<Int>.averageInt(): Double {
-        if (isEmpty()) return 0.0
-        return sum().toDouble() / size
-    }
-
-    fun clear() {
-        getAmplituda()?.clearCache()
+fun List<Int>.equalizedWavesMask(
+    newMaxValue: Int = WAVE_MAX,
+    currentMaxValue: Int = UByte.MAX_VALUE.toInt(), // normalized loudness can be up to 255 (UByte.MAX_VALUE)
+    startFrom1: Boolean = true, // whether the minimum value should be 1 or 0
+): List<Int> {
+    if (this.isEmpty()) return listOf()
+    val adjustedValue = if (startFrom1) 1 else 0
+    val divider = currentMaxValue.toDouble() / (newMaxValue - adjustedValue)
+    return if (divider == 0.0) {
+        map { adjustedValue }
+    } else {
+        map { (it / divider).roundToInt() + adjustedValue }
     }
 }
+
+fun List<Int>.sampledWavesMask(amount: Int): List<Int> {
+    if (this.isEmpty() || amount <= 0) return listOf()
+    if (amount >= this.size) return this
+    val res = MutableList(size = amount) { 1 }
+    for (i in 0..amount - 2) {
+        val index = i * (size - 1) / (amount - 1)
+        val p = i * (size - 1) % (amount - 1)
+        res[i] = ((p * this[index + 1]) + (((amount - 1) - p) * this[index])) / (amount - 1)
+    }
+    res[amount - 1] = this[size - 1] // done outside of loop to avoid out of bound access (0 * this[size])
+    return res
+}
+
+fun ByteArray.toWavesMask(): List<Int> = this.map { it.toUByte().toInt() }.toList()
+fun List<Int>.toNormalizedLoudness(): ByteArray = this.map { it.toUByte().toByte() }.toByteArray()

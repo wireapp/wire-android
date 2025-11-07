@@ -70,7 +70,7 @@ data class SwipeAction(
 
 @Composable
 internal fun SwipeableMessageBox(
-    configuration: SwipeableMessageConfiguration.Swipeable,
+    configuration: SwipeableMessageConfiguration,
     messageStyle: MessageStyle,
     accentColor: Color,
     modifier: Modifier = Modifier,
@@ -80,13 +80,13 @@ internal fun SwipeableMessageBox(
         messageStyle = messageStyle,
         accentColor = accentColor,
         modifier = modifier,
-        onSwipeRight = configuration.onSwipedRight?.let {
+        onSwipeRight = (configuration as? SwipeableMessageConfiguration.Swipeable)?.onSwipedRight?.let {
             SwipeAction(
                 icon = R.drawable.ic_reply,
                 action = it,
             )
         },
-        onSwipeLeft = configuration.onSwipedLeft?.let {
+        onSwipeLeft = (configuration as? SwipeableMessageConfiguration.Swipeable)?.onSwipedLeft?.let {
             SwipeAction(
                 icon = R.drawable.ic_react,
                 action = it,
@@ -137,7 +137,7 @@ private fun SwipeableBox(
     }
 
     CompositionLocalProvider(LocalViewConfiguration provides scopedViewConfiguration) {
-        val dragState = remember {
+        val dragState = remember(onSwipeLeft, onSwipeRight) {
             AnchoredDraggableState(
                 initialValue = SwipeAnchor.CENTERED,
                 positionalThreshold = { dragWidth },

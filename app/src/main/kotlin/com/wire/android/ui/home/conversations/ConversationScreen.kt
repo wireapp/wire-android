@@ -532,9 +532,9 @@ fun ConversationScreen(
             }
         },
         onAudioRecorded = {
+            messageComposerStateHolder.messageCompositionInputStateHolder.showAttachments(false)
             if (conversationInfoViewModel.conversationInfoViewState.isWireCellEnabled) {
-                messageAttachmentsViewModel.onFilesSelected(listOf(it.uri))
-                messageComposerStateHolder.messageCompositionInputStateHolder.showAttachments(false)
+                messageAttachmentsViewModel.onAudioRecorded(it.uri, it.audioWavesMask)
             } else {
                 val bundle = ComposableMessageBundle.AudioMessageBundle(conversationInfoViewModel.conversationId, it)
                 sendMessageViewModel.trySendMessage(bundle)

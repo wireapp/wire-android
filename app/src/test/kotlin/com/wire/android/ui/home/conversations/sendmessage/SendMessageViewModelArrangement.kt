@@ -33,8 +33,8 @@ import com.wire.android.util.ImageUtil
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.sync.SyncState
-import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageResult
-import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
+import com.wire.kalium.logic.feature.asset.upload.ScheduleNewAssetMessageResult
+import com.wire.kalium.logic.feature.asset.upload.ScheduleNewAssetMessageUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationUnderLegalHoldNotifiedUseCase
@@ -196,16 +196,7 @@ internal class SendMessageViewModelArrangement {
 
     fun withSendAttachmentMessageResult(result: ScheduleNewAssetMessageResult) = apply {
         coEvery {
-            sendAssetMessage(
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-                any()
-            )
+            sendAssetMessage(any())
         } returns result
     }
 
@@ -256,7 +247,7 @@ internal class SendMessageViewModelArrangement {
     }
 
     fun withHandleUriAsset(result: HandleUriAssetUseCase.Result) = apply {
-        coEvery { handleUriAssetUseCase.invoke(any(), any(), any()) } returns result
+        coEvery { handleUriAssetUseCase.invoke(any(), any(), any(), any()) } returns result
     }
 
     fun withInformAboutVerificationBeforeMessagingFlag(flag: Boolean) = apply {

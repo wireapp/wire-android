@@ -30,6 +30,7 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.asset.AudioNormalizedLoudnessBuilder
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
@@ -43,7 +44,6 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
-import okio.Path
 import okio.Path.Companion.toOkioPath
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -682,7 +682,7 @@ class Arrangement(private val tempDir: File) {
     lateinit var mediaPlayer: MediaPlayer
 
     @MockK
-    lateinit var wavesMaskHelper: AudioWavesMaskHelper
+    lateinit var audioNormalizedLoudnessBuilder: AudioNormalizedLoudnessBuilder
 
     @MockK
     lateinit var servicesManager: ServicesManager
@@ -699,7 +699,7 @@ class Arrangement(private val tempDir: File) {
         ConversationAudioMessagePlayer(
             context = context,
             audioMediaPlayer = mediaPlayer,
-            wavesMaskHelper = wavesMaskHelper,
+            audioNormalizedLoudnessBuilder = audioNormalizedLoudnessBuilder,
             servicesManager = { servicesManager },
             audioFocusHelper = audioFocusHelper,
             coreLogic = coreLogic,
@@ -712,8 +712,7 @@ class Arrangement(private val tempDir: File) {
         MockKAnnotations.init(this, relaxed = true)
 
         every { coreLogic.getSessionScope(any()).messages.getAssetMessage } returns getAssetMessage
-        every { wavesMaskHelper.getWaveMask(any<Path>()) } returns WAVES_MASK
-        every { wavesMaskHelper.clear() } returns Unit
+        coEvery { audioNormalizedLoudnessBuilder(any<String>()) } returns WAVES_MASK
         every { mediaPlayer.currentPosition } returns 100
 
         every { servicesManager.stopPlayingAudioMessageService() } returns Unit
@@ -775,6 +774,6 @@ class Arrangement(private val tempDir: File) {
     fun arrange() = this to conversationAudioMessagePlayer
 
     companion object {
-        val WAVES_MASK = listOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 0)
+        val WAVES_MASK = byteArrayOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 0)
     }
 }

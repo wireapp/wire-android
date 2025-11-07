@@ -33,6 +33,7 @@ import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.data.user.type.UserTypeInfo
 import com.wire.kalium.logic.feature.channels.ChannelCreationPermission
 import com.wire.kalium.logic.feature.channels.ObserveChannelsCreationPermissionUseCase
 import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
@@ -129,7 +130,7 @@ internal class NewConversationViewModelArrangement {
             previewPicture = UserAssetId("value", "domain"),
             completePicture = UserAssetId("value", "domain"),
             availabilityStatus = UserAvailabilityStatus.AVAILABLE,
-            userType = UserType.FEDERATED,
+            userType = UserTypeInfo.Regular(UserType.FEDERATED),
             botService = null,
             deleted = false,
             defederated = false,
@@ -149,7 +150,7 @@ internal class NewConversationViewModelArrangement {
             previewPicture = UserAssetId("value", "domain"),
             completePicture = UserAssetId("value", "domain"),
             availabilityStatus = UserAvailabilityStatus.AVAILABLE,
-            userType = UserType.FEDERATED,
+            userType = UserTypeInfo.Regular(UserType.FEDERATED),
             botService = null,
             deleted = false,
             defederated = false,
@@ -169,7 +170,7 @@ internal class NewConversationViewModelArrangement {
             previewPicture = UserAssetId("value", "domain"),
             completePicture = UserAssetId("value", "domain"),
             availabilityStatus = UserAvailabilityStatus.AVAILABLE,
-            userType = UserType.INTERNAL,
+            userType = UserTypeInfo.Regular(UserType.INTERNAL),
             supportedProtocols = setOf(SupportedProtocol.PROTEUS),
         )
     }
@@ -195,7 +196,7 @@ internal class NewConversationViewModelArrangement {
     fun withGetSelfUser(isTeamMember: Boolean, userType: UserType = UserType.INTERNAL) = apply {
         coEvery { getSelf() } returns SELF_USER.copy(
             teamId = if (isTeamMember) TeamId("teamId") else null,
-            userType = userType,
+            userType = UserTypeInfo.Regular(userType),
         )
     }
 

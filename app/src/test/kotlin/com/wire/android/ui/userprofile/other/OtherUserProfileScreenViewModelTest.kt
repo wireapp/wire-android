@@ -36,6 +36,7 @@ import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.data.user.type.UserTypeInfo
 import com.wire.kalium.logic.feature.conversation.GetOneToOneConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleResult
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
@@ -186,7 +187,7 @@ class OtherUserProfileScreenViewModelTest {
             connectionStatus = ConnectionState.NOT_CONNECTED,
             previewPicture = null,
             completePicture = null,
-            userType = UserType.INTERNAL,
+            userType = UserTypeInfo.Regular(UserType.INTERNAL),
             availabilityStatus = UserAvailabilityStatus.AVAILABLE,
             botService = null,
             deleted = false,
@@ -223,7 +224,7 @@ class OtherUserProfileScreenViewModelTest {
         val CONVERSATION_ONE_ONE = ConversationDetails.OneOne(
             CONVERSATION,
             OTHER_USER,
-            UserType.EXTERNAL,
+            UserTypeInfo.Regular(UserType.EXTERNAL),
         )
 
         val CONVERSATION_ROLE_DATA = ConversationRoleData(

@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import com.wire.android.ui.home.conversations.messages.item.MessageStyle
+import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.WireColorScheme
 import com.wire.android.ui.theme.WireTypography
 import com.wire.kalium.logic.data.user.UserId
@@ -28,7 +29,6 @@ import com.wire.kalium.logic.data.user.UserId
 data class NodeData(
     val modifier: Modifier = Modifier,
     val color: Color = Color.Unspecified,
-    val isAccentBackground: Boolean = false,
     val style: TextStyle,
     val colorScheme: WireColorScheme,
     val typography: WireTypography,
@@ -37,7 +37,8 @@ data class NodeData(
     val disableLinks: Boolean = false,
     val actions: NodeActions? = null,
     val messageStyle: MessageStyle = MessageStyle.NORMAL,
-    val messageColors: MessageColors
+    val messageColors: MessageColors,
+    val accent: Accent
 )
 
 data class MessageColors(val highlighted: Color)

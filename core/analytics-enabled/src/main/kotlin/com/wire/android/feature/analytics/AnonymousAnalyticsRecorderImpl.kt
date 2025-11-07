@@ -55,9 +55,6 @@ class AnonymousAnalyticsRecorderImpl(
             setApplication(context.applicationContext as Application)
             enableTemporaryDeviceIdMode() // Nothing is sent until a proper ID is placed
             setLoggingEnabled(analyticsSettings.enableDebugLogging)
-            crashes.apply {
-                enableCrashReporting()
-            }
         }
 
         Countly.sharedInstance()?.init(countlyConfig)

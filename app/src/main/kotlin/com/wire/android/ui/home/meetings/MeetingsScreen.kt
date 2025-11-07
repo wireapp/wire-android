@@ -19,12 +19,24 @@ package com.wire.android.ui.home.meetings
 
 import androidx.compose.runtime.Composable
 import com.wire.android.feature.meetings.ui.AllMeetingsScreen
+import com.wire.android.feature.meetings.ui.NewMeetingBottomSheet
 import com.wire.android.navigation.HomeNavGraph
 import com.wire.android.navigation.annotation.app.WireDestination
+import com.wire.android.ui.home.HomeStateHolder
 
 @HomeNavGraph
 @WireDestination
 @Composable
-fun MeetingsScreen() {
+fun MeetingsScreen(homeStateHolder: HomeStateHolder) {
     AllMeetingsScreen()
+
+    NewMeetingBottomSheet(
+        sheetState = homeStateHolder.newMeetingBottomSheetState,
+        onMeetNowClick = {
+            // TODO to be implemented later
+        },
+        onScheduleClick = {
+            // TODO to be implemented later
+        }
+    )
 }

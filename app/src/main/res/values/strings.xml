@@ -878,9 +878,8 @@
     <string name="label_system_message_conversation_started_sensitive_information_footer">Please still be careful with who you share sensitive information.</string>
     <string name="label_conversations_details_verified_proteus">Verified (Proteus)</string>
     <string name="label_conversations_details_verified_mls">Verified (End-to-end Identity)</string>
-    <string name="label_system_message_cell_enabled_for_conversation">Cell is on for everyone</string>
-    <string name="label_system_message_cell_self_delete_disabled_for_conversation">Self-deleting messages are %1$s in conversations with Cells</string>
-    <string name="label_system_message_cell_self_delete_disabled">off</string>
+    <string name="label_system_message_cell_enabled_for_conversation">File collaboration (Cells) is **on**</string>
+    <string name="label_system_message_cell_self_delete_disabled_for_conversation">Self-deleting messages are **off** for conversations with Cells</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
         <item quantity="one">You added 1 person to the conversation</item>

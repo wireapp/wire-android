@@ -1,0 +1,92 @@
+name: Claude Code Review
+
+on:
+  issue_comment:
+    types: [created]
+  pull_request_review_comment:
+    types: [created]
+
+jobs:
+  claude-review:
+    # Only run when the comment contains the trigger phrase,
+    # and when the commenter is a maintainer/team member,
+    # and when it's on a pull request (not an issue)
+    if: |
+      github.event.issue.pull_request &&
+      github.actor != 'dependabot[bot]' &&
+      contains(github.event.comment.body, '@claude review') &&
+      (
+        github.event.comment.author_association == 'OWNER' ||
+        github.event.comment.author_association == 'MEMBER' ||
+        github.event.comment.author_association == 'COLLABORATOR'
+      )
+
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Get PR number
+        id: pr-info
+        run: |
+          # For issue_comment events, use github.event.issue.number
+          # For pull_request_review_comment events, use github.event.pull_request.number
+          if [ "${{ github.event.issue.number }}" != "" ]; then
+            echo "pr_number=${{ github.event.issue.number }}" >> $GITHUB_OUTPUT
+          else
+            echo "pr_number=${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Post initial comment
+        id: initial-comment
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          COMMENT_ID=$(gh api repos/${{ github.repository }}/issues/${{ steps.pr-info.outputs.pr_number }}/comments \
+            -f body="🤖 Beep boop! Claude is putting on their reading glasses and diving into your code...
+
+          ⏳ This comment will be updated with the review results once I'm done pondering the mysteries of your implementation.
+
+          _In the meantime, feel free to grab a coffee ☕ - reviewing code is serious business!_" \
+            --jq '.id')
+          echo "comment_id=$COMMENT_ID" >> $GITHUB_OUTPUT
+
+      - name: Run Claude Code Review
+        id: claude-review
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            REPO: ${{ github.repository }}
+            PR NUMBER: ${{ steps.pr-info.outputs.pr_number }}
+            INITIAL COMMENT ID: ${{ steps.initial-comment.outputs.comment_id }}
+
+            I've already posted a comment (ID: ${{ steps.initial-comment.outputs.comment_id }}) letting everyone know the review is in progress.
+
+            Please review this pull request and provide feedback on:
+            - Code quality and best practices
+            - Potential bugs or issues
+            - Performance considerations
+            - Security concerns
+            - Test coverage
+
+            Use the repository's CLAUDE.md for guidance on style and conventions. Be constructive and helpful in your feedback.
+
+            IMPORTANT: Instead of creating a NEW comment, UPDATE the existing comment (ID: ${{ steps.initial-comment.outputs.comment_id }}) with your review results.
+
+            Use this command to update the comment:
+            gh api repos/${{ github.repository }}/issues/comments/${{ steps.initial-comment.outputs.comment_id }} \
+              -X PATCH \
+              -f body="<your review content here>"
+
+          # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
+          # or https://docs.claude.com/en/docs/claude-code/sdk#command-line for available options
+          claude_args: '--allowed-tools "Bash(gh api:*),Bash(gh issue view:*),Bash(gh search:*),Bash(gh issue list:*),Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh pr list:*)"'

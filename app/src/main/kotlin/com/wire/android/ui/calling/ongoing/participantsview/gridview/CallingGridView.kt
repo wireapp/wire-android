@@ -53,7 +53,6 @@ import com.wire.kalium.logic.data.user.UserId
 fun GroupCallGrid(
     gridParams: CallingGridParams,
     participants: List<UICallParticipant>,
-    pageIndex: Int,
     isSelfUserMuted: Boolean,
     isSelfUserCameraOn: Boolean,
     contentHeight: Dp,
@@ -86,11 +85,13 @@ fun GroupCallGrid(
 
         items(
             items = participants,
-            key = { it.id.toString() + it.clientId + pageIndex },
+            key = { it.id.value + it.clientId },
             contentType = { getContentType(it.isCameraOn, it.isSharingScreen) }
         ) { participant ->
             ParticipantTile(
                 modifier = Modifier
+                    .height(tileHeight)
+                    .animateItem()
                     .pointerInput(Unit) {
                         detectTapGestures(
                             onDoubleTap = {
@@ -103,9 +104,7 @@ fun GroupCallGrid(
                                 )
                             }
                         )
-                    }
-                    .height(tileHeight)
-                    .animateItem(),
+                    },
                 participantTitleState = participant,
                 isOnPiPMode = isInPictureInPictureMode,
                 isSelfUserMuted = isSelfUserMuted,
@@ -132,7 +131,6 @@ private fun PreviewGroupCallGrid(participants: List<UICallParticipant>, modifier
             GroupCallGrid(
                 gridParams = CallingGridParams.fromScreenDimensions(maxWidth, maxHeight),
                 participants = participants,
-                pageIndex = 0,
                 isSelfUserMuted = false,
                 isSelfUserCameraOn = false,
                 contentHeight = maxHeight,

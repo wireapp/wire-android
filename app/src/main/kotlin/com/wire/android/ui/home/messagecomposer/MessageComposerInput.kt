@@ -263,13 +263,16 @@ private fun InputContent(
                     UsersTypingIndicatorForConversation(conversationId = conversationId)
                 }
             }
-            MessageSendActions(
-                onSendButtonClicked = onSendButtonClicked,
-                sendButtonEnabled = canSendMessage,
-                selfDeletionTimer = viewModel.state(),
-                onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
-                modifier = Modifier.padding(end = dimensions().spacing8x)
-            )
+            // Only show send button when not in editing mode
+            if (inputType !is InputType.Editing) {
+                MessageSendActions(
+                    onSendButtonClicked = onSendButtonClicked,
+                    sendButtonEnabled = canSendMessage,
+                    selfDeletionTimer = viewModel.state(),
+                    onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
+                    modifier = Modifier.padding(end = dimensions().spacing8x)
+                )
+            }
         }
     }
 }

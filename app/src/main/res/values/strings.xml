@@ -1087,6 +1087,7 @@
     <string name="notification_outgoing_call_tap_to_return">Tap to return to call - Calling...</string>
     <string name="notification_audio_message_body">Audio message</string>
     <string name="notification_deleting_conversation">Deleting conversation…</string>
+    <string name="notification_uploading_files">Uploading files…</string>
     <!-- Calling-->
     <string name="calling_constant_bit_rate_indication">Constant Bit Rate</string>
     <string name="calling_button_label_microphone">Microphone</string>

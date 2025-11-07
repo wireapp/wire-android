@@ -297,7 +297,9 @@ class BackupAndRestoreViewModel @Inject constructor(
             if (this@BackupAndRestoreViewModel::latestImportedBackupTempPath.isInitialized && kaliumFileSystem.exists(
                     latestImportedBackupTempPath
                 )
-            ) kaliumFileSystem.delete(latestImportedBackupTempPath)
+            ) {
+                kaliumFileSystem.delete(latestImportedBackupTempPath)
+            }
         }
     }
 

@@ -46,7 +46,8 @@ import com.wire.android.ui.theme.wireTypography
 fun WireItemLabel(
     text: String,
     modifier: Modifier = Modifier,
-    contentPadding: PaddingValues = PaddingValues(horizontal = dimensions().spacing6x, vertical = dimensions().spacing2x),
+    contentPadding: PaddingValues =
+    PaddingValues(horizontal = dimensions().spacing6x, vertical = dimensions().spacing2x),
     shape: Shape = RoundedCornerShape(dimensions().spacing6x),
     contentDescription: String = text
 ) = Box(

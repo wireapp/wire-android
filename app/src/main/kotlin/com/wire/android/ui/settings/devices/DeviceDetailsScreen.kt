@@ -600,8 +600,11 @@ private fun DeviceDetailSectionContent(
                 Text(
                     text = sectionText,
                     style = MaterialTheme.wireTypography.body01,
-                    color = if (enabled) MaterialTheme.wireColorScheme.onBackground
-                    else MaterialTheme.wireColorScheme.secondaryText,
+                    color = if (enabled) {
+                        MaterialTheme.wireColorScheme.onBackground
+                    } else {
+                        MaterialTheme.wireColorScheme.secondaryText
+                    },
                     modifier = Modifier.weight(weight = 1f, fill = true)
                 )
 

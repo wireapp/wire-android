@@ -28,7 +28,8 @@ internal class DrawableResultWrapper {
 
     internal fun toFetchResult(assetPath: Path): FetchResult {
         return SourceResult(
-            source = ImageSource(file = assetPath, diskCacheKey = assetPath.name), mimeType = null,
+            source = ImageSource(file = assetPath, diskCacheKey = assetPath.name),
+            mimeType = null,
             dataSource = DataSource.DISK
         )
     }

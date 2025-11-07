@@ -50,7 +50,7 @@ import com.wire.kalium.logic.feature.message.SendMultipartMessageUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
 import com.wire.kalium.logic.feature.message.composite.SendButtonActionMessageUseCase
-import com.wire.kalium.logic.feature.message.draft.GetMessageDraftUseCase
+import com.wire.kalium.logic.feature.message.draft.ObserveMessageDraftUseCase
 import com.wire.kalium.logic.feature.message.draft.RemoveMessageDraftUseCase
 import com.wire.kalium.logic.feature.message.draft.SaveMessageDraftUseCase
 import com.wire.kalium.logic.feature.message.ephemeral.EnqueueMessageSelfDeletionUseCase
@@ -219,8 +219,8 @@ class MessageModule {
 
     @ViewModelScoped
     @Provides
-    fun provideGetMessageDraftUseCase(messageScope: MessageScope): GetMessageDraftUseCase =
-        messageScope.getMessageDraftUseCase
+    fun provideObserveMessageDraftUseCase(messageScope: MessageScope): ObserveMessageDraftUseCase =
+        messageScope.observeMessageDraftUseCase
 
     @ViewModelScoped
     @Provides

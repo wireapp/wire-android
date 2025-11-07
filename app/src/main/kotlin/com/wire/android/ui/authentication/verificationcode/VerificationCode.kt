@@ -64,10 +64,13 @@ fun VerificationCode(
         modifier = modifier.fillMaxWidth(),
     ) {
 
-        val state = if (isCurrentCodeInvalid) WireTextFieldState.Error(
+        val state = if (isCurrentCodeInvalid) {
+            WireTextFieldState.Error(
             stringResource(id = R.string.second_factor_code_error)
         )
-        else WireTextFieldState.Default
+        } else {
+            WireTextFieldState.Default
+        }
 
         CodeTextField(
             codeLength = codeLength,

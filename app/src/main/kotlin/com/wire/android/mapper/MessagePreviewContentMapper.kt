@@ -123,8 +123,11 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
                         UILastMessageContent.SenderWithMessage(
                             userUIText,
                             UIText.StringResource(
-                                if (isSelfMessage) R.string.last_message_self_user_shared_image
-                                else R.string.last_message_other_user_shared_image
+                                if (isSelfMessage) {
+                                    R.string.last_message_self_user_shared_image
+                                } else {
+                                    R.string.last_message_other_user_shared_image
+                                }
                             )
                         )
 
@@ -132,16 +135,23 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
                         UILastMessageContent.SenderWithMessage(
                             userUIText,
                             UIText.StringResource(
-                                if (isSelfMessage) R.string.last_message_self_user_shared_video
-                                else R.string.last_message_other_user_shared_video
+                                if (isSelfMessage) {
+                                    R.string.last_message_self_user_shared_video
+                                } else {
+                                    R.string.last_message_other_user_shared_video
+                                }
                             )
                         )
 
                     AssetType.GENERIC_ASSET ->
                         UILastMessageContent.SenderWithMessage(
-                            userUIText, UIText.StringResource(
-                                if (isSelfMessage) R.string.last_message_self_user_shared_asset
-                                else R.string.last_message_other_user_shared_asset
+                            userUIText,
+                            UIText.StringResource(
+                                if (isSelfMessage) {
+                                    R.string.last_message_self_user_shared_asset
+                                } else {
+                                    R.string.last_message_other_user_shared_asset
+                                }
                             )
                         )
                 }
@@ -149,32 +159,44 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
                 is WithUser.ConversationNameChange -> UILastMessageContent.SenderWithMessage(
                     userUIText,
                     UIText.StringResource(
-                        if (isSelfMessage) R.string.last_message_self_changed_conversation_name
-                        else R.string.last_message_other_changed_conversation_name
+                        if (isSelfMessage) {
+                            R.string.last_message_self_changed_conversation_name
+                        } else {
+                            R.string.last_message_other_changed_conversation_name
+                        }
                     )
                 )
 
                 is WithUser.Knock -> UILastMessageContent.SenderWithMessage(
                     userUIText,
                     UIText.StringResource(
-                        if (isSelfMessage) R.string.last_message_self_user_knock
-                        else R.string.last_message_other_user_knock
+                        if (isSelfMessage) {
+                            R.string.last_message_self_user_knock
+                        } else {
+                            R.string.last_message_other_user_knock
+                        }
                     )
                 )
 
                 is WithUser.MemberJoined -> UILastMessageContent.SenderWithMessage(
                     userUIText,
                     UIText.StringResource(
-                        if (isSelfMessage) R.string.last_message_self_user_joined_conversation
-                        else R.string.last_message_other_user_joined_conversation
+                        if (isSelfMessage) {
+                            R.string.last_message_self_user_joined_conversation
+                        } else {
+                            R.string.last_message_other_user_joined_conversation
+                        }
                     )
                 )
 
                 is WithUser.MemberLeft -> UILastMessageContent.SenderWithMessage(
                     userUIText,
                     UIText.StringResource(
-                        if (isSelfMessage) R.string.last_message_self_user_left_conversation
-                        else R.string.last_message_other_user_left_conversation
+                        if (isSelfMessage) {
+                            R.string.last_message_self_user_left_conversation
+                        } else {
+                            R.string.last_message_other_user_left_conversation
+                        }
                     )
                 )
 
@@ -278,8 +300,11 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
                 is WithUser.Location -> UILastMessageContent.SenderWithMessage(
                     userUIText,
                     UIText.StringResource(
-                        if (isSelfMessage) R.string.last_message_self_user_shared_location
-                        else R.string.last_message_other_user_shared_location
+                        if (isSelfMessage) {
+                            R.string.last_message_self_user_shared_location
+                        } else {
+                            R.string.last_message_other_user_shared_location
+                        }
                     )
                 )
 

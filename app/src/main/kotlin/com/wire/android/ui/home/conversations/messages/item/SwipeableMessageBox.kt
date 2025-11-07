@@ -126,8 +126,8 @@ private fun SwipeableBox(
     }
 
     val tintColor = when (messageStyle) {
-        MessageStyle.BUBBLE_SELF -> colorsScheme().selfBubble.primary
-        MessageStyle.BUBBLE_OTHER -> colorsScheme().otherBubble.primary
+        MessageStyle.BUBBLE_SELF -> colorsScheme().primary
+        MessageStyle.BUBBLE_OTHER -> colorsScheme().primary
         MessageStyle.NORMAL -> colorsScheme().onPrimary
     }
 

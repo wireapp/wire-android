@@ -22,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
+import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.DefaultWireFixedColorScheme
 import com.wire.android.ui.theme.WireColorScheme
 import com.wire.android.ui.theme.WireColorSchemeTypes
@@ -47,6 +48,7 @@ fun WireTestTheme(
                 wireFixedColorScheme,
                 wireTypography,
                 wireDimensions,
+                Accent.Unknown,
                 content
             )
         }

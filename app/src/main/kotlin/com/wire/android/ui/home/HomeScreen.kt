@@ -24,6 +24,8 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
@@ -42,7 +44,10 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.RectangleShape
@@ -66,6 +71,7 @@ import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.navigation.AdjustDestinationStylesForTablets
 import com.wire.android.navigation.HomeDestination
+import com.wire.android.navigation.HomeDestination.FabOptions
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireDestination
@@ -74,8 +80,6 @@ import com.wire.android.ui.NavGraphs
 import com.wire.android.ui.analytics.AnalyticsUsageViewModel
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.HandleActions
-import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
-import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.button.FloatingActionButton
 import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
 import com.wire.android.ui.common.dimensions
@@ -91,19 +95,10 @@ import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogS
 import com.wire.android.ui.home.conversations.details.GroupConversationActionType
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsNavBackArgs
 import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavBackArgs
-import com.wire.android.ui.home.conversations.folder.ConversationFoldersStateArgs
-import com.wire.android.ui.home.conversations.folder.ConversationFoldersVM
-import com.wire.android.ui.home.conversations.folder.ConversationFoldersVMImpl
-import com.wire.android.ui.home.conversationslist.filter.ConversationFilterSheetContent
-import com.wire.android.ui.home.conversationslist.filter.ConversationFilterSheetData
-import com.wire.android.ui.home.conversationslist.filter.rememberFilterSheetState
 import com.wire.android.ui.home.drawer.HomeDrawer
 import com.wire.android.ui.home.drawer.HomeDrawerState
 import com.wire.android.ui.home.drawer.HomeDrawerViewModel
 import com.wire.android.util.permission.rememberShowNotificationsPermissionFlow
-import com.wire.kalium.logic.data.conversation.ConversationFolder
-import kotlinx.collections.immutable.PersistentList
-import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.launch
 
 @WireDestination
@@ -119,10 +114,6 @@ fun HomeScreen(
     appSyncViewModel: AppSyncViewModel = hiltViewModel(),
     homeDrawerViewModel: HomeDrawerViewModel = hiltViewModel(),
     analyticsUsageViewModel: AnalyticsUsageViewModel = hiltViewModel(),
-    foldersViewModel: ConversationFoldersVM =
-        hiltViewModel<ConversationFoldersVMImpl, ConversationFoldersVMImpl.Factory>(
-            creationCallback = { it.create(ConversationFoldersStateArgs(null)) }
-        )
 ) {
     val context = LocalContext.current
 
@@ -189,7 +180,6 @@ fun HomeScreen(
             // homeViewModel.sendOpenProfileEvent()
             navigator.navigate(NavigationCommand(SelfUserProfileScreenDestination))
         },
-        folders = foldersViewModel.state().folders
     )
 
     BackHandler(homeScreenState.drawerState.isOpen) {
@@ -271,10 +261,8 @@ fun HomeContent(
     onNewConversationClick: () -> Unit,
     onSelfUserClick: () -> Unit,
     modifier: Modifier = Modifier,
-    folders: PersistentList<ConversationFolder> = persistentListOf()
 ) {
     val context = LocalContext.current
-    val filterSheetState = rememberWireModalSheetState<ConversationFilterSheetData>()
 
     with(homeStateHolder) {
         fun openHomeDestination(item: HomeDestination) {
@@ -338,12 +326,7 @@ fun HomeContent(
                                 onHamburgerMenuClick = ::openDrawer,
                                 onNavigateToSelfUserProfile = onSelfUserClick,
                                 onOpenConversationFilter = {
-                                    filterSheetState.show(
-                                        ConversationFilterSheetData(
-                                            currentFilter = it,
-                                            folders = folders
-                                        )
-                                    )
+                                    homeStateHolder.conversationsFilterBottomSheetState.show(Unit)
                                 },
                                 onOpenFilesFilter = {
                                     homeStateHolder.cellsFilterBottomSheetState.show(Unit)
@@ -397,43 +380,37 @@ fun HomeContent(
                     },
                     floatingActionButton = {
                         AnimatedVisibility(
-                            visible = currentNavigationItem.withNewConversationFab && !searchBarState.isSearchActive,
-                            enter = fadeIn(),
-                            exit = fadeOut(),
+                            visible = currentNavigationItem.fab != null && !searchBarState.isSearchActive,
+                            enter = scaleIn(),
+                            exit = scaleOut(),
                         ) {
+                            var currentFab by remember { mutableStateOf(currentNavigationItem.fab ?: FabOptions.NewConversation) }
+                            // to keep the fab during the exit animation, we need to keep last known (non-null) fab data
+                            if (currentNavigationItem.fab != null) currentFab = currentNavigationItem.fab!!
+
                             FloatingActionButton(
-                                text = stringResource(R.string.label_new),
+                                text = stringResource(currentFab.text),
                                 icon = {
                                     Image(
-                                        painter = painterResource(id = R.drawable.ic_conversation),
-                                        contentDescription = stringResource(R.string.content_description_new_conversation),
+                                        painter = painterResource(currentFab.icon),
+                                        contentDescription = stringResource(currentFab.contentDescription),
                                         contentScale = ContentScale.FillBounds,
                                         colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary),
                                         modifier = Modifier
-                                            .padding(
-                                                start = dimensions().spacing4x,
-                                                top = dimensions().spacing2x
-                                            )
+                                            .padding(start = dimensions().spacing4x, top = dimensions().spacing2x)
                                             .size(dimensions().fabIconSize)
                                     )
                                 },
-                                onClick = onNewConversationClick
+                                onClick = {
+                                    when (currentNavigationItem.fab) {
+                                        FabOptions.NewConversation -> onNewConversationClick()
+                                        FabOptions.NewMeeting -> homeStateHolder.newMeetingBottomSheetState.show(Unit)
+                                        else -> { /* no-op */ }
+                                    }
+                                }
                             )
                         }
                     }
-                )
-            }
-        )
-        WireModalSheetLayout(
-            sheetState = filterSheetState,
-            sheetContent = { sheetData ->
-                val sheetContentState = rememberFilterSheetState(sheetData)
-                ConversationFilterSheetContent(
-                    onChangeFilter = { filter ->
-                        filterSheetState.hide()
-                        homeStateHolder.changeConversationFilter(filter)
-                    },
-                    filterSheetState = sheetContentState
                 )
             }
         )

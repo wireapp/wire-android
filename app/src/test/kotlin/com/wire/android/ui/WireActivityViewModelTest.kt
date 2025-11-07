@@ -33,10 +33,12 @@ import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.IsProfileQRCodeEnabledUseCaseProvider
 import com.wire.android.di.ObserveIfE2EIRequiredDuringLoginUseCaseProvider
 import com.wire.android.di.ObserveScreenshotCensoringConfigUseCaseProvider
+import com.wire.android.di.ObserveSelfUserUseCaseProvider
 import com.wire.android.di.ObserveSyncStateUseCaseProvider
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.framework.TestClient
 import com.wire.android.framework.TestUser
+import com.wire.android.framework.TestUser.SELF_USER
 import com.wire.android.services.ServicesManager
 import com.wire.android.ui.common.dialogs.CustomServerDetailsDialogState
 import com.wire.android.ui.common.dialogs.CustomServerNoNetworkDialogState
@@ -76,6 +78,7 @@ import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistUseCase
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.ObserveSessionsUseCase
+import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.feature.user.screenshotCensoring.ObserveScreenshotCensoringConfigResult
 import com.wire.kalium.logic.feature.user.screenshotCensoring.ObserveScreenshotCensoringConfigUseCase
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
@@ -786,6 +789,9 @@ class WireActivityViewModelTest {
                     flowOf(false)
             every { workManager.cancelAllWorkByTag(any()) } returns OperationImpl()
             every { workManager.enqueueUniquePeriodicWork(any(), any(), any()) } returns OperationImpl()
+            val observeSelfUserUseCase = mockk<ObserveSelfUserUseCase>()
+            every { observeSelfUserFactory.create(any()).observeSelfUser } returns observeSelfUserUseCase
+            coEvery { observeSelfUserUseCase() } returns flowOf(SELF_USER)
         }
 
         @MockK
@@ -851,6 +857,9 @@ class WireActivityViewModelTest {
         @MockK
         lateinit var isProfileQRCodeEnabledFactory: IsProfileQRCodeEnabledUseCaseProvider.Factory
 
+        @MockK
+        lateinit var observeSelfUserFactory: ObserveSelfUserUseCaseProvider.Factory
+
         private val viewModel by lazy {
             WireActivityViewModel(
                 coreLogic = { coreLogic },
@@ -872,6 +881,7 @@ class WireActivityViewModelTest {
                 observeIfE2EIRequiredDuringLoginUseCaseProviderFactory = observeIfE2EIRequiredDuringLoginUseCaseProviderFactory,
                 workManager = { workManager },
                 isProfileQRCodeEnabledFactory = isProfileQRCodeEnabledFactory,
+                observeSelfUserFactory = observeSelfUserFactory
             )
         }
 

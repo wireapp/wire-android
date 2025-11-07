@@ -66,5 +66,5 @@
     <string name="move_here">Move Here</string>
     <string name="no_subfolders_message">There are no subfolders in this folder.</string>
     <string name="item_move_success">Item was moved to folder.</string>
-    <string name="item_move_failure">Failed to move the Item.</string>
+    <string name="item_move_failure">Unable to move the Item.</string>
 </resources>

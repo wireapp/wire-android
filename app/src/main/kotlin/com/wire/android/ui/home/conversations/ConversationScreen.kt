@@ -922,6 +922,11 @@ private fun ConversationScreen(
     Box(modifier = Modifier) {
         // only here we will use normal Scaffold because of specific behaviour of message composer
         Scaffold(
+            contentColor = if (conversationInfoViewState.isBubbleUiEnabled) {
+                colorsScheme().primary
+            } else {
+                colorsScheme().background
+            },
             topBar = {
                 Column {
                     ConversationScreenTopAppBar(
@@ -1265,7 +1270,13 @@ fun MessageList(
         contentAlignment = Alignment.BottomEnd,
         modifier = modifier
             .fillMaxSize()
-            .background(color = colorsScheme().surfaceContainerLow),
+            .background(
+                color = if (isBubbleUiEnabled) {
+                    colorsScheme().bubblesBackground
+                } else {
+                    colorsScheme().surfaceContainerLow
+                }
+            ),
         content = {
             LazyColumn(
                 state = lazyListState,

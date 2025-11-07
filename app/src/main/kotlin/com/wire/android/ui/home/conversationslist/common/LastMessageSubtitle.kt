@@ -29,6 +29,7 @@ import com.wire.android.ui.markdown.MessageColors
 import com.wire.android.ui.markdown.NodeData
 import com.wire.android.ui.markdown.getFirstInlines
 import com.wire.android.ui.markdown.toMarkdownDocument
+import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.UIText
@@ -59,7 +60,8 @@ private fun LastMessageMarkdown(text: String, leadingText: String = "") {
         searchQuery = "",
         mentions = listOf(),
         disableLinks = true,
-        messageColors = MessageColors(highlighted = MaterialTheme.wireColorScheme.primary,)
+        messageColors = MessageColors(highlighted = MaterialTheme.wireColorScheme.primary,),
+        accent = Accent.Unknown
     )
 
     val markdownPreview = remember(text) {

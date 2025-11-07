@@ -23,6 +23,7 @@ import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.theme.Accent
 import com.wire.kalium.common.error.StorageFailure
+import com.wire.kalium.logic.feature.client.IsChatBubblesEnabledUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.UpdateAccentColorResult
 import com.wire.kalium.logic.feature.user.UpdateAccentColorUseCase
@@ -126,11 +127,15 @@ class ChangeUserColorViewModelTest {
         @MockK
         lateinit var globalDataStore: GlobalDataStore
 
+        @MockK
+        lateinit var isChatBubblesEnabled: IsChatBubblesEnabledUseCase
+
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             coEvery { getSelfUserUseCase() } returns TestUser.SELF_USER
             coEvery { updateAccentColor(any()) } returns UpdateAccentColorResult.Success
             coEvery { globalDataStore.observeIsBubbleUI() }.returns(flowOf(true))
+            coEvery { isChatBubblesEnabled() } returns false
         }
 
         fun withUpdateAccentResult(result: UpdateAccentColorResult) = apply {
@@ -140,6 +145,7 @@ class ChangeUserColorViewModelTest {
         fun arrange() = this to ChangeUserColorViewModel(
             getSelf = getSelfUserUseCase,
             updateAccentColor = updateAccentColor,
+            isChatBubblesEnabled = isChatBubblesEnabled,
             globalDataStore
         )
     }

@@ -27,7 +27,7 @@ import com.wire.android.mapper.groupedUIMessageDateTime
 import com.wire.android.mapper.shouldDisplayDatesDifferenceDivider
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.UserAvatarData
-import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageParams
+import com.wire.android.ui.home.conversations.model.messagetypes.image.VisualMediaParams
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
 import com.wire.android.ui.markdown.MarkdownConstants
@@ -84,16 +84,9 @@ sealed interface UIMessage {
                 || messageContent is UIMessageContent.ImageMessage
                 || messageContent is UIMessageContent.AudioAssetMessage
 
-        val assetParams: ImageMessageParams? = when (messageContent) {
-            is UIMessageContent.ImageMessage -> ImageMessageParams(messageContent.width, messageContent.height)
-            is UIMessageContent.VideoMessage -> {
-                if (messageContent.width != null && messageContent.height != null) {
-                    ImageMessageParams(messageContent.width, messageContent.height)
-                } else {
-                    null
-                }
-            }
-
+        val assetParams: VisualMediaParams? = when (messageContent) {
+            is UIMessageContent.ImageMessage -> messageContent.params
+            is UIMessageContent.VideoMessage -> messageContent.params
             else -> null
         }
 
@@ -369,8 +362,7 @@ sealed interface UIMessageContent {
     data class ImageMessage(
         val assetId: AssetId,
         val asset: ImageAsset.PrivateAsset?,
-        val width: Int,
-        val height: Int,
+        val params: VisualMediaParams,
         override val deliveryStatus: DeliveryStatusContent = DeliveryStatusContent.CompleteDelivery
     ) : Regular, PartialDeliverable
 
@@ -381,8 +373,7 @@ sealed interface UIMessageContent {
         val assetId: AssetId,
         val assetSizeInBytes: Long,
         val assetDataPath: String?,
-        val width: Int?,
-        val height: Int?,
+        val params: VisualMediaParams,
         val duration: Long?,
         override val deliveryStatus: DeliveryStatusContent = DeliveryStatusContent.CompleteDelivery
     ) : Regular, PartialDeliverable

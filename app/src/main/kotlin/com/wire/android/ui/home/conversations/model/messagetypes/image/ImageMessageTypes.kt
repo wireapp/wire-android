@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
@@ -33,6 +34,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -42,10 +44,11 @@ import androidx.compose.ui.unit.DpSize
 import coil.compose.SubcomposeAsyncImage
 import com.wire.android.R
 import com.wire.android.model.ImageAsset
+import com.wire.android.ui.common.applyIf
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.home.conversations.messages.item.MessageStyle
-import com.wire.android.ui.home.conversations.messages.item.textColor
+import com.wire.android.ui.home.conversations.messages.item.isBubble
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -55,6 +58,7 @@ import okio.Path
 fun DisplayableImageMessage(
     imageData: ImageAsset.Remote,
     size: DpSize,
+    messageStyle: MessageStyle,
     modifier: Modifier = Modifier
 ) {
 
@@ -65,7 +69,14 @@ fun DisplayableImageMessage(
         Image(
             painter = imageData.paint(),
             contentDescription = stringResource(R.string.content_description_image_message),
-            modifier = modifier.requiredSize(size),
+            modifier = modifier
+                .applyIf(messageStyle.isBubble()) {
+                    fillMaxWidth()
+                        .height(size.height)
+                }
+                .applyIf(!messageStyle.isBubble()) {
+                    requiredSize(size)
+                },
             alignment = Alignment.Center,
             contentScale = ContentScale.Crop
         )
@@ -102,7 +113,7 @@ fun AsyncImageMessage(
 fun ImageMessageInProgress(
     size: DpSize,
     isDownloading: Boolean,
-    messageStyle: MessageStyle,
+    color: Color,
     modifier: Modifier = Modifier,
     showText: Boolean = true
 ) {
@@ -114,7 +125,7 @@ fun ImageMessageInProgress(
             .padding(MaterialTheme.wireDimensions.spacing8x)
     ) {
         WireCircularProgressIndicator(
-            progressColor = messageStyle.textColor(),
+            progressColor = color,
             size = MaterialTheme.wireDimensions.spacing24x
         )
         if (showText) {
@@ -127,7 +138,7 @@ fun ImageMessageInProgress(
                         R.string.asset_message_upload_in_progress_text
                     }
                 ),
-                style = MaterialTheme.wireTypography.subline01.copy(color = messageStyle.textColor()),
+                style = MaterialTheme.wireTypography.subline01.copy(color = color),
                 overflow = TextOverflow.Ellipsis,
                 maxLines = 1
             )
@@ -136,7 +147,7 @@ fun ImageMessageInProgress(
 }
 
 @Composable
-fun ImageMessageFailed(size: DpSize, isDownloadFailure: Boolean, modifier: Modifier = Modifier) {
+fun ImageMessageFailed(size: DpSize, isDownloadFailure: Boolean, errorColor: Color, modifier: Modifier = Modifier) {
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -147,7 +158,7 @@ fun ImageMessageFailed(size: DpSize, isDownloadFailure: Boolean, modifier: Modif
         Icon(
             painter = painterResource(id = R.drawable.ic_gallery),
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.error,
+            tint = errorColor,
             modifier = Modifier
         )
         Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.spacing8x))
@@ -160,7 +171,7 @@ fun ImageMessageFailed(size: DpSize, isDownloadFailure: Boolean, modifier: Modif
                 }
             ),
             textAlign = TextAlign.Center,
-            style = MaterialTheme.wireTypography.subline01.copy(color = MaterialTheme.wireColorScheme.error)
+            style = MaterialTheme.wireTypography.subline01.copy(color = errorColor)
         )
     }
 }

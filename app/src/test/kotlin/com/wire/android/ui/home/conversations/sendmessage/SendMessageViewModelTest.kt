@@ -36,7 +36,8 @@ import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.failure.LegalHoldEnabledForConversationFailure
-import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageResult
+import com.wire.kalium.logic.feature.asset.upload.AssetUploadParams
+import com.wire.kalium.logic.feature.asset.upload.ScheduleNewAssetMessageResult
 import io.mockk.coVerify
 import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
@@ -94,16 +95,7 @@ class SendMessageViewModelTest {
             advanceUntilIdle()
             // Then
             coVerify(exactly = 1) {
-                arrangement.sendAssetMessage.invoke(
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any()
-                )
+                arrangement.sendAssetMessage.invoke(any())
             }
 
             verify(exactly = 1) {
@@ -144,16 +136,7 @@ class SendMessageViewModelTest {
             advanceUntilIdle()
             // Then
             coVerify(exactly = 1) {
-                arrangement.sendAssetMessage.invoke(
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any()
-                )
+                arrangement.sendAssetMessage.invoke(any())
             }
 
             verify(exactly = 1) {
@@ -180,16 +163,7 @@ class SendMessageViewModelTest {
 
             advanceUntilIdle()
             coVerify(inverse = true) {
-                arrangement.sendAssetMessage.invoke(
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any()
-                )
+                arrangement.sendAssetMessage.invoke(any())
             }
 
             verify(exactly = 0) {
@@ -226,16 +200,7 @@ class SendMessageViewModelTest {
             advanceUntilIdle()
             // Then
             coVerify(inverse = true) {
-                arrangement.sendAssetMessage.invoke(
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any()
-                )
+                arrangement.sendAssetMessage.invoke(any())
             }
             assert(viewModel.assetTooLargeDialogState is AssetTooLargeDialogState.Visible)
             verify(exactly = 0) {
@@ -272,16 +237,7 @@ class SendMessageViewModelTest {
             advanceUntilIdle()
             // Then
             coVerify(inverse = true) {
-                arrangement.sendAssetMessage.invoke(
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any()
-                )
+                arrangement.sendAssetMessage.invoke(any())
             }
             assert(viewModel.assetTooLargeDialogState is AssetTooLargeDialogState.Visible)
             verify(exactly = 0) {
@@ -310,16 +266,7 @@ class SendMessageViewModelTest {
                 advanceUntilIdle()
                 // Then
                 coVerify(inverse = true) {
-                    arrangement.sendAssetMessage.invoke(
-                        any(),
-                        any(),
-                        any(),
-                        any(),
-                        any(),
-                        any(),
-                        any(),
-                        any()
-                    )
+                    arrangement.sendAssetMessage.invoke(any())
                 }
                 assertEquals(ConversationSnackbarMessages.ErrorPickingAttachment, awaitItem())
                 verify(exactly = 0) {
@@ -383,16 +330,7 @@ class SendMessageViewModelTest {
             advanceUntilIdle()
             // Then
             coVerify(exactly = 1) {
-                arrangement.sendAssetMessage.invoke(
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any()
-                )
+                arrangement.sendAssetMessage.invoke(any())
             }
             verify(exactly = 1) {
                 arrangement.analyticsManager.sendEvent(
@@ -723,16 +661,7 @@ class SendMessageViewModelTest {
 
                 // Then
                 coVerify(exactly = 1) {
-                    arrangement.sendAssetMessage.invoke(
-                        any(),
-                        any(),
-                        any(),
-                        any(),
-                        any(),
-                        any(),
-                        any(),
-                        any()
-                    )
+                    arrangement.sendAssetMessage.invoke(any())
                 }
                 assertEquals(ConversationSnackbarMessages.ErrorAssetRestriction, awaitItem())
                 verify(exactly = 0) {
@@ -771,16 +700,7 @@ class SendMessageViewModelTest {
 
                 // Then
                 coVerify(exactly = 1) {
-                    arrangement.sendAssetMessage.invoke(
-                        any(),
-                        any(),
-                        any(),
-                        any(),
-                        any(),
-                        any(),
-                        any(),
-                        any()
-                    )
+                    arrangement.sendAssetMessage.invoke(any())
                 }
                 assertEquals(ConversationSnackbarMessages.ErrorAssetRestriction, awaitItem())
                 verify(exactly = 0) {
@@ -841,14 +761,16 @@ class SendMessageViewModelTest {
         assetBundles.forEach { bundle ->
             coVerify {
                 arrangement.sendAssetMessage(
-                    any(),
-                    eq(bundle.dataPath),
-                    eq(bundle.dataSize),
-                    eq(bundle.fileName),
-                    eq(bundle.mimeType),
-                    any(),
-                    any(),
-                    any()
+                    AssetUploadParams(
+                        conversationId = conversationId,
+                        assetDataPath = bundle.dataPath,
+                        assetDataSize = bundle.dataSize,
+                        assetName = bundle.fileName,
+                        assetMimeType = bundle.mimeType,
+                        assetWidth = null,
+                        assetHeight = null,
+                        audioLengthInMs = 0L,
+                    )
                 )
             }
             verify {

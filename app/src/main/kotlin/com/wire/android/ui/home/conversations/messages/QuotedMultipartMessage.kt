@@ -32,6 +32,11 @@ import androidx.compose.material.Text
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -40,12 +45,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.decode.VideoFrameDecoder
 import coil.request.ImageRequest
 import com.wire.android.R
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
-import com.wire.android.feature.cells.domain.model.AttachmentFileType.IMAGE
 import com.wire.android.feature.cells.domain.model.AttachmentFileType.VIDEO
 import com.wire.android.feature.cells.domain.model.icon
 import com.wire.android.model.Clickable
@@ -55,64 +60,43 @@ import com.wire.android.ui.home.conversations.model.UIMultipartQuotedContent
 import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.util.fileExtension
 
 @Composable
 fun QuotedMultipartMessage(
+    conversationId: ConversationId,
+    quotedMessageId: String,
     senderName: UIText,
     originalDateTimeText: UIText,
     text: String?,
-    attachments: List<UIMultipartQuotedContent>,
     style: QuotedMessageStyle,
     accent: Accent,
     clickable: Clickable?,
     modifier: Modifier = Modifier,
+    viewModel: QuotedMultipartMessageViewModel = hiltViewModel(key = conversationId.toString()),
     startContent: @Composable () -> Unit = {}
 ) {
-    QuotedMessageContent(
-        senderName = senderName.asString(),
+
+    var quotedMultipartMessage by remember { mutableStateOf(UIQuotedMultipartMessage()) }
+
+    LaunchedEffect(quotedMessageId) {
+        viewModel.observeMultipartMessage(conversationId, quotedMessageId)
+            .collect {
+                quotedMultipartMessage = it
+            }
+    }
+
+    QuotedMultipartMessageContent(
+        quotedMultipartMessage = quotedMultipartMessage,
+        senderName = senderName,
+        originalDateTimeText = originalDateTimeText,
+        text = text,
         style = style,
+        accent = accent,
+        clickable = clickable,
         modifier = modifier,
-        centerContent = {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(
-                    dimensions().spacing4x,
-                    Alignment.CenterVertically
-                ),
-            ) {
-
-                // Message text or file name
-                when {
-                    text?.isNotEmpty() == true -> MainMarkdownText(
-                        text = text,
-                        messageStyle = style.messageStyle,
-                        accent = accent,
-                    )
-                    attachments.isSingleMediaAttachment() ->
-                        if (attachments.first().assetAvailable) {
-                            MainContentText(attachments.first().name)
-                        } else {
-                            MainContentText(stringResource(R.string.asset_message_failed_download_text))
-                        }
-                }
-
-                when {
-                    attachments.size > 1 -> MultipleAttachmentsLabel(attachments.size)
-                    attachments.isSingleFileAttachment() -> FileIconAndNameRow(attachments.first())
-                }
-            }
-        },
-        startContent = {
-            startContent()
-        },
-        endContent = {
-            if (attachments.isSingleMediaAttachment()) {
-                MediaAttachmentThumbnail(attachments.first())
-            }
-        },
-        footerContent = { QuotedMessageOriginalDate(originalDateTimeText, style) },
-        clickable = clickable
+        startContent = startContent
     )
 }
 
@@ -199,6 +183,70 @@ private fun FileIconAndNameRow(file: UIMultipartQuotedContent) {
 }
 
 @Composable
+fun QuotedMultipartMessageContent(
+    quotedMultipartMessage: UIQuotedMultipartMessage,
+    senderName: UIText,
+    originalDateTimeText: UIText,
+    text: String?,
+    style: QuotedMessageStyle,
+    accent: Accent,
+    clickable: Clickable?,
+    modifier: Modifier = Modifier,
+    startContent: @Composable () -> Unit = {}
+) {
+    QuotedMessageContent(
+        senderName = senderName.asString(),
+        style = style,
+        modifier = modifier,
+        centerContent = {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(
+                    dimensions().spacing4x,
+                    Alignment.CenterVertically
+                ),
+            ) {
+
+                // Message text or file name
+                if (text?.isNotEmpty() == true) {
+                    MainMarkdownText(
+                        text = text,
+                        messageStyle = style.messageStyle,
+                        accent = accent,
+                    )
+                } else {
+                    quotedMultipartMessage.mediaAttachment?.let { mediaAttachment ->
+                        if (mediaAttachment.assetAvailable) {
+                            MainContentText(mediaAttachment.name)
+                        } else {
+                            MainContentText(stringResource(R.string.asset_message_failed_download_text))
+                        }
+                    }
+                }
+
+                if (quotedMultipartMessage.attachmentsCount > 1) {
+                    MultipleAttachmentsLabel(quotedMultipartMessage.attachmentsCount)
+                }
+
+                quotedMultipartMessage.fileAttachment?.let { fileAttachment ->
+                    FileIconAndNameRow(fileAttachment)
+                }
+            }
+        },
+        startContent = {
+            startContent()
+        },
+        endContent = {
+            quotedMultipartMessage.mediaAttachment?.let { mediaAttachment ->
+                MediaAttachmentThumbnail(mediaAttachment)
+            }
+        },
+        footerContent = { QuotedMessageOriginalDate(originalDateTimeText, style) },
+        clickable = clickable
+    )
+}
+
+@Composable
 private fun UIMultipartQuotedContent.imageModel(): ImageRequest {
 
     val builder = ImageRequest.Builder(LocalContext.current)
@@ -215,15 +263,3 @@ private fun UIMultipartQuotedContent.imageModel(): ImageRequest {
 
     return builder.build()
 }
-
-private fun UIMultipartQuotedContent.isMediaAttachment() =
-    when (AttachmentFileType.fromMimeType(mimeType)) {
-        IMAGE, VIDEO -> true
-        else -> false
-    }
-
-private fun List<UIMultipartQuotedContent>.isSingleMediaAttachment() =
-    size == 1 && first().isMediaAttachment()
-
-private fun List<UIMultipartQuotedContent>.isSingleFileAttachment() =
-    size == 1 && !first().isMediaAttachment()

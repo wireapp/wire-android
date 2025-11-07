@@ -125,6 +125,7 @@ fun ActiveMessageComposerInput(
             VerticalSpace.x4()
             Box(modifier = Modifier.padding(horizontal = dimensions().spacing8x)) {
                 QuotedMessagePreview(
+                    conversationId = conversationId,
                     quotedMessageData = quotedMessage,
                     onCancelReply = onCancelReply
                 )

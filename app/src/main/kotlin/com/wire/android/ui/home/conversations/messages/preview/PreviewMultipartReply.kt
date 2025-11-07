@@ -22,8 +22,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.messages.QuotedMessageStyle
-import com.wire.android.ui.home.conversations.messages.QuotedMultipartMessage
+import com.wire.android.ui.home.conversations.messages.QuotedMultipartMessageContent
 import com.wire.android.ui.home.conversations.messages.QuotedStyle
+import com.wire.android.ui.home.conversations.messages.UIQuotedMultipartMessage
 import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.home.conversations.model.UIMultipartQuotedContent
 import com.wire.android.ui.theme.Accent
@@ -32,18 +33,18 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 
 @Composable
-private fun PreviewMultipartMessage(text: String?, attachments: List<UIMultipartQuotedContent>) {
-    QuotedMultipartMessage(
+private fun PreviewMultipartMessage(text: String?, message: UIQuotedMultipartMessage) {
+    QuotedMultipartMessageContent(
         senderName = UIText.DynamicString("Compose UI Tester"),
         originalDateTimeText = UIText.DynamicString(""),
         text = text,
-        attachments = attachments,
         style = QuotedMessageStyle(
             messageStyle = MessageStyle.NORMAL,
             quotedStyle = QuotedStyle.PREVIEW,
             selfAccent = Accent.Blue,
         ),
         accent = Accent.Blue,
+        quotedMultipartMessage = message,
         clickable = null,
     )
 }
@@ -57,8 +58,20 @@ private fun PreviewReplies() {
         ) {
             PreviewMultipartMessage(
                 text = null,
-                attachments = listOf(
-                    UIMultipartQuotedContent(
+                message = UIQuotedMultipartMessage(
+                    mediaAttachment = UIMultipartQuotedContent(
+                        name = "Test File.mp4",
+                        localPath = null,
+                        previewUrl = "https://images.unsplash.com/photo-1503023345310-bd7c1de61c7d",
+                        mimeType = "video/mp4",
+                        assetAvailable = true,
+                    )
+                )
+            )
+            PreviewMultipartMessage(
+                text = "Testing multipart quoted message with text and image attachment.",
+                message = UIQuotedMultipartMessage(
+                    fileAttachment = UIMultipartQuotedContent(
                         name = "Test File.pdf",
                         localPath = null,
                         previewUrl = "https://images.unsplash.com/photo-1503023345310-bd7c1de61c7d",
@@ -69,53 +82,9 @@ private fun PreviewReplies() {
             )
             PreviewMultipartMessage(
                 text = "Testing multipart quoted message with text and image attachment.",
-                attachments = listOf(
-                    UIMultipartQuotedContent(
-                        name = "Test File.pdf",
-                        localPath = null,
-                        previewUrl = "https://images.unsplash.com/photo-1503023345310-bd7c1de61c7d",
-                        mimeType = "application/pdf",
-                        assetAvailable = true,
-                    )
-                ),
-            )
-            PreviewMultipartMessage(
-                text = "Testing multipart quoted message with text and image attachment.",
-                attachments = listOf(
-                    UIMultipartQuotedContent(
-                        name = "Test File.pdf",
-                        localPath = null,
-                        previewUrl = "https://images.unsplash.com/photo-1503023345310-bd7c1de61c7d",
-                        mimeType = "application/pdf",
-                        assetAvailable = true,
-                    ),
-                    UIMultipartQuotedContent(
-                        name = "Test File.pdf",
-                        localPath = null,
-                        previewUrl = "https://images.unsplash.com/photo-1503023345310-bd7c1de61c7d",
-                        mimeType = "application/pdf",
-                        assetAvailable = true,
-                    ),
-                ),
-            )
-            PreviewMultipartMessage(
-                text = null,
-                attachments = listOf(
-                    UIMultipartQuotedContent(
-                        name = "Test File.pdf",
-                        localPath = null,
-                        previewUrl = "https://images.unsplash.com/photo-1503023345310-bd7c1de61c7d",
-                        mimeType = "application/pdf",
-                        assetAvailable = true,
-                    ),
-                    UIMultipartQuotedContent(
-                        name = "Test File.pdf",
-                        localPath = null,
-                        previewUrl = "https://images.unsplash.com/photo-1503023345310-bd7c1de61c7d",
-                        mimeType = "application/pdf",
-                        assetAvailable = true,
-                    ),
-                ),
+                message = UIQuotedMultipartMessage(
+                    attachmentsCount = 2
+                )
             )
         }
     }

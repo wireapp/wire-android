@@ -53,7 +53,6 @@ sealed interface SwipeableMessageConfiguration {
     class Swipeable(
         val onSwipedRight: (() -> Unit)? = null,
         val onSwipedLeft: (() -> Unit)? = null,
-        val selfUserAccent: Accent
     ) : SwipeableMessageConfiguration
 }
 
@@ -70,23 +69,21 @@ data class SwipeAction(
 
 @Composable
 internal fun SwipeableMessageBox(
-    configuration: SwipeableMessageConfiguration.Swipeable,
+    configuration: SwipeableMessageConfiguration,
     messageStyle: MessageStyle,
-    accentColor: Color,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
     SwipeableBox(
         messageStyle = messageStyle,
-        accentColor = accentColor,
         modifier = modifier,
-        onSwipeRight = configuration.onSwipedRight?.let {
+        onSwipeRight = (configuration as? SwipeableMessageConfiguration.Swipeable)?.onSwipedRight?.let {
             SwipeAction(
                 icon = R.drawable.ic_reply,
                 action = it,
             )
         },
-        onSwipeLeft = configuration.onSwipedLeft?.let {
+        onSwipeLeft = (configuration as? SwipeableMessageConfiguration.Swipeable)?.onSwipedLeft?.let {
             SwipeAction(
                 icon = R.drawable.ic_react,
                 action = it,
@@ -101,7 +98,6 @@ internal fun SwipeableMessageBox(
 @Composable
 private fun SwipeableBox(
     messageStyle: MessageStyle,
-    accentColor: Color,
     modifier: Modifier = Modifier,
     onSwipeRight: SwipeAction? = null,
     onSwipeLeft: SwipeAction? = null,
@@ -125,19 +121,19 @@ private fun SwipeableBox(
     }
 
     val backgroundColor: Color = when (messageStyle) {
-        MessageStyle.BUBBLE_SELF -> colorsScheme().surfaceContainerLow
-        MessageStyle.BUBBLE_OTHER -> colorsScheme().surfaceContainerLow
+        MessageStyle.BUBBLE_SELF -> colorsScheme().bubblesBackground
+        MessageStyle.BUBBLE_OTHER -> colorsScheme().bubblesBackground
         MessageStyle.NORMAL -> colorsScheme().primary
     }
 
     val tintColor = when (messageStyle) {
-        MessageStyle.BUBBLE_SELF -> accentColor
-        MessageStyle.BUBBLE_OTHER -> accentColor
+        MessageStyle.BUBBLE_SELF -> colorsScheme().selfBubble.primary
+        MessageStyle.BUBBLE_OTHER -> colorsScheme().otherBubble.primary
         MessageStyle.NORMAL -> colorsScheme().onPrimary
     }
 
     CompositionLocalProvider(LocalViewConfiguration provides scopedViewConfiguration) {
-        val dragState = remember {
+        val dragState = remember(onSwipeLeft, onSwipeRight) {
             AnchoredDraggableState(
                 initialValue = SwipeAnchor.CENTERED,
                 positionalThreshold = { dragWidth },

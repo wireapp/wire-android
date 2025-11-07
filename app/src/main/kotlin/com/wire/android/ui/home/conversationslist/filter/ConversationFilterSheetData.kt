@@ -17,29 +17,9 @@
  */
 package com.wire.android.ui.home.conversationslist.filter
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import com.wire.kalium.logic.data.conversation.ConversationFilter
 import com.wire.kalium.logic.data.conversation.ConversationFolder
 import kotlinx.serialization.Serializable
-
-class ConversationFilterSheetState(
-    conversationFilterSheetData: ConversationFilterSheetData = ConversationFilterSheetData(
-        currentFilter = ConversationFilter.All,
-        folders = listOf()
-    )
-) {
-    var currentData: ConversationFilterSheetData by mutableStateOf(conversationFilterSheetData)
-
-    fun toFolders() {
-        currentData = currentData.copy(tab = FilterTab.FOLDERS)
-    }
-
-    fun toFilters() {
-        currentData = currentData.copy(tab = FilterTab.FILTERS)
-    }
-}
 
 @Serializable
 data class ConversationFilterSheetData(

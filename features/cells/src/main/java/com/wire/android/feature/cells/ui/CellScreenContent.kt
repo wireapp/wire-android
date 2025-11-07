@@ -274,7 +274,7 @@ private fun ErrorScreen(error: Throwable?, onRetry: () -> Unit) {
         )
 
         WirePrimaryButton(
-            text = stringResource(R.string.retry),
+            text = stringResource(R.string.reload),
             onClick = { onRetry() }
         )
     }

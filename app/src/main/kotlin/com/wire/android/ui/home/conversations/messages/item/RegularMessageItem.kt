@@ -22,7 +22,6 @@ import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -35,7 +34,6 @@ import com.wire.android.ui.home.conversations.model.MessageFlowStatus
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent.PartialDeliverable
-import com.wire.android.ui.theme.wireColorScheme
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 
 // TODO: a definite candidate for a refactor and cleanup WPB-14390
@@ -268,10 +266,6 @@ fun RegularMessageItem(
     SwipeableMessageBox(
         configuration = swipeableMessageConfiguration,
         messageStyle = messageStyle,
-        accentColor = MaterialTheme.wireColorScheme.wireAccentColors.getOrDefault(
-            (swipeableMessageConfiguration as? SwipeableMessageConfiguration.Swipeable)?.selfUserAccent ?: header.accent,
-            MaterialTheme.wireColorScheme.primary
-        )
     ) {
         messageContent()
     }

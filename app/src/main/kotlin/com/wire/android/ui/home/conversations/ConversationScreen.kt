@@ -175,11 +175,9 @@ import com.wire.android.ui.home.messagecomposer.model.Ping
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.rememberMessageComposerStateHolder
 import com.wire.android.ui.legalhold.dialog.subject.LegalHoldSubjectMessageDialog
-import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.ui.userprofile.self.SelfUserAccentViewModel
 import com.wire.android.util.DateAndTimeParsers
 import com.wire.android.util.normalizeLink
 import com.wire.android.util.serverDate
@@ -250,7 +248,6 @@ fun ConversationScreen(
     conversationMigrationViewModel: ConversationMigrationViewModel = hiltViewModel(),
     messageDraftViewModel: MessageDraftViewModel = hiltViewModel(),
     messageAttachmentsViewModel: MessageAttachmentsViewModel = hiltViewModel(),
-    selfUserAccentViewModel: SelfUserAccentViewModel = hiltViewModel()
 ) {
     val coroutineScope = rememberCoroutineScope()
     val uriHandler = LocalUriHandler.current
@@ -484,7 +481,6 @@ fun ConversationScreen(
         conversationInfoViewState = conversationInfoViewModel.conversationInfoViewState,
         conversationMessagesViewState = conversationMessagesViewModel.conversationViewState,
         attachments = messageAttachmentsViewModel.attachments,
-        selfUserAccent = selfUserAccentViewModel.accentState,
         onOpenProfile = {
             with(conversationInfoViewModel) {
                 val (mentionUserId: UserId, isSelfUser: Boolean) = mentionedUserData(it)
@@ -880,7 +876,6 @@ private fun ConversationScreen(
     conversationMessagesViewState: ConversationMessagesViewState,
     attachments: List<AttachmentDraftUi>,
     bottomSheetVisible: Boolean,
-    selfUserAccent: Accent,
     onOpenProfile: (String) -> Unit,
     onMessageDetailsClick: (messageId: String, isSelfMessage: Boolean) -> Unit,
     onSendMessage: (MessageBundle) -> Unit,
@@ -1016,7 +1011,6 @@ private fun ConversationScreen(
                         onAttachmentMenuClick = onAttachmentMenuClick,
                         showHistoryLoadingIndicator = conversationInfoViewState.showHistoryLoadingIndicator,
                         isBubbleUiEnabled = conversationInfoViewState.isBubbleUiEnabled,
-                        selfUserAccent = selfUserAccent
                     )
                 }
             }
@@ -1070,7 +1064,6 @@ private fun ConversationScreenContent(
     messageComposerStateHolder: MessageComposerStateHolder,
     attachments: List<AttachmentDraftUi>,
     messages: Flow<PagingData<UIMessage>>,
-    selfUserAccent: Accent,
     onSendMessage: (MessageBundle) -> Unit,
     onPingOptionClicked: () -> Unit,
     onImagesPicked: (List<Uri>, Boolean) -> Unit,
@@ -1147,7 +1140,6 @@ private fun ConversationScreenContent(
                 currentTimeInMillisFlow = currentTimeInMillisFlow,
                 showHistoryLoadingIndicator = showHistoryLoadingIndicator,
                 isBubbleUiEnabled = isBubbleUiEnabled,
-                selfUserAccent = selfUserAccent
             )
         },
         onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
@@ -1217,7 +1209,6 @@ fun MessageList(
     lastUnreadMessageInstant: Instant?,
     playingAudioMessage: PlayingAudioMessage,
     assetStatuses: PersistentMap<String, MessageAssetStatus>,
-    selfUserAccent: Accent,
     onUpdateConversationReadDate: (String) -> Unit,
     onSwipedToReply: (UIMessage.Regular) -> Unit,
     onSwipedToReact: (UIMessage.Regular) -> Unit,
@@ -1337,7 +1328,6 @@ fun MessageList(
                     val swipeableConfiguration = remember(message) {
                         if (message is UIMessage.Regular && message.isSwipeable) {
                             SwipeableMessageConfiguration.Swipeable(
-                                selfUserAccent = selfUserAccent,
                                 onSwipedRight = { onSwipedToReply(message) }.takeIf { message.isReplyable },
                                 onSwipedLeft = { onSwipedToReact(message) }.takeIf { message.isReactionAllowed },
                             )
@@ -1636,7 +1626,6 @@ fun PreviewConversationScreen() = WireTheme {
         ),
         conversationMessagesViewState = ConversationMessagesViewState(),
         attachments = emptyList(),
-        selfUserAccent = Accent.Unknown,
         onOpenProfile = { },
         onMessageDetailsClick = { _, _ -> },
         onSendMessage = { },

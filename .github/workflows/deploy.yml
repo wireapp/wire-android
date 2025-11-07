@@ -44,7 +44,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Download build artifacts
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: ${{ inputs.build-flavor }}-${{ inputs.build-variant }}-artifacts
           path: ${{ inputs.artifacts-path }}

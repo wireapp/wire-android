@@ -58,7 +58,7 @@ jobs:
       - name: Prepare release notes
         if: matrix.target.type == 'google-play'
         run: |
-          bash .github/scripts/prepare-release-notes.sh
+          bash scripts/prepare-release-notes.sh
 
       - name: Deploy to S3
         if: matrix.target.type == 's3'

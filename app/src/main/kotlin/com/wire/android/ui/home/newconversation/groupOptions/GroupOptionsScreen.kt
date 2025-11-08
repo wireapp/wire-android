@@ -25,13 +25,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import com.wire.android.BuildConfig
@@ -46,14 +44,13 @@ import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
-import com.wire.android.ui.common.card.WireOutlinedCard
-import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.groupname.GroupMetadataState
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.typography
+import com.wire.android.ui.common.upgradetoapps.UpgradeToGetAppsBanner
 import com.wire.android.ui.destinations.ChannelAccessOnCreateScreenDestination
 import com.wire.android.ui.destinations.ChannelHistoryScreenDestination
 import com.wire.android.ui.destinations.ConversationScreenDestination
@@ -342,23 +339,7 @@ private fun GroupOptionState.AllowAppsOptions(onAllowServicesChanged: (Boolean) 
     )
 
     if (!isTeamAllowedToUseApps) {
-        WireOutlinedCard(
-            title = stringResource(R.string.apps_upgrade_teams_for_apps_banner_title),
-            textContent = stringResource(R.string.apps_upgrade_teams_for_apps_banner_content),
-            trailingIcon = {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_info),
-                    contentDescription = null,
-                    tint = colorsScheme().onBackground
-                )
-            },
-            modifier = Modifier.padding(
-                start = MaterialTheme.wireDimensions.spacing8x,
-                end = MaterialTheme.wireDimensions.spacing8x,
-                top = MaterialTheme.wireDimensions.spacing8x,
-                bottom = MaterialTheme.wireDimensions.spacing16x,
-            )
-        )
+        UpgradeToGetAppsBanner()
     } else {
         Text(
             text = stringResource(R.string.allow_apps_switch_description),

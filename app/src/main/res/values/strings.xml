@@ -1187,9 +1187,10 @@
     <string name="change">Change</string>
     <string name="allow_guests">Allow guests</string>
     <string name="allow_guest_switch_description">Open this conversation to people outside your team. You can always change it later.</string>
+    <string name="allow_guest_switch_channel_description">Open this conversation to people outside your team or to apps. You can always change it later.</string>
     <string name="allow_services">Allow apps</string>
     <string name="allow_services_regular_group_description">Open this conversation to apps. You can always change it later.</string>
-    <string name="allow_services_channel_description">Open this conversation to people outside your team or to apps. You can always change it later.</string>
+    <string name="allow_apps_switch_description">Open this conversation to apps.</string>
     <string name="service_details_label">App</string>
     <string name="service_details_add_service_label">Add To Conversation</string>
     <string name="service_details_remove_service_label">Remove From Conversation</string>
@@ -1893,4 +1894,8 @@ In group conversations, the group admin can overwrite this setting.</string>
         <item quantity="one">%1$d file</item>
         <item quantity="other">%1$d files</item>
     </plurals>
+
+    <!-- Apps-->
+    <string name="apps_upgrade_teams_for_apps_banner_title">Your team doesn\'t use apps yet</string>
+    <string name="apps_upgrade_teams_for_apps_banner_content">To improve your workflow with apps, your team needs configuration. Please contact your team admin.</string>
 </resources>

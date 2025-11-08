@@ -1092,9 +1092,9 @@
     <string name="change">Ändern</string>
     <string name="allow_guests">Gäste zulassen</string>
     <string name="allow_guest_switch_description">Öffnen Sie diese Unterhaltung für Personen außerhalb Ihres Teams. Diese Einstellung kann später jederzeit geändert werden.</string>
+    <string name="allow_guest_switch_channel_description">Öffnen Sie diese Unterhaltung für Personen außerhalb Ihres Teams oder für Apps. Diese Einstellung kann später jederzeit geändert werden.</string>
     <string name="allow_services">Apps zulassen</string>
     <string name="allow_services_regular_group_description">Öffnen Sie diese Unterhaltung für Apps. Diese Einstellung kann später jederzeit geändert werden.</string>
-    <string name="allow_services_channel_description">Öffnen Sie diese Unterhaltung für Personen außerhalb Ihres Teams oder für Apps. Diese Einstellung kann später jederzeit geändert werden.</string>
     <string name="service_details_label">App</string>
     <string name="service_details_add_service_label">Zur Unterhaltung hinzufügen</string>
     <string name="service_details_remove_service_label">Aus Unterhaltung entfernen</string>

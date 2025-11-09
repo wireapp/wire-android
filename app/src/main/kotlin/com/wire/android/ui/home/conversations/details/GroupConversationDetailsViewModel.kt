@@ -35,14 +35,12 @@ import com.wire.android.util.ui.UIText
 import com.wire.kalium.common.functional.getOrNull
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
-import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.type.isExternal
 import com.wire.kalium.logic.data.user.type.isTeamAdmin
 import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateReceiptModeResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
-import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReceiptModeUseCase
 import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageUseCase
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
@@ -71,7 +69,6 @@ class GroupConversationDetailsViewModel @Inject constructor(
     private val dispatcher: DispatcherProvider,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     observeConversationMembers: ObserveParticipantsForConversationUseCase,
-    private val updateConversationAccessRole: UpdateConversationAccessRoleUseCase,
     private val getSelfTeam: GetUpdatedSelfTeamUseCase,
     private val getSelfUser: GetSelfUserUseCase,
     private val updateConversationReceiptMode: UpdateConversationReceiptModeUseCase,
@@ -203,59 +200,10 @@ class GroupConversationDetailsViewModel @Inject constructor(
         updateState(groupOptionsState.value.copy(channelAddPermissionType = channelAddPermissionType))
     }
 
-    // todo (ym) move to update apps access view model
-    fun onServicesUpdate(enableServices: Boolean) {
-        updateState(groupOptionsState.value.copy(loadingServicesOption = true, isServicesAllowed = enableServices))
-        when (enableServices) {
-            true -> updateServicesRemoteRequest(enableServices)
-            false -> updateState(groupOptionsState.value.copy(changeServiceOptionConfirmationRequired = true))
-        }
-    }
-
     fun onReadReceiptUpdate(enableReadReceipt: Boolean) {
         appLogger.i("[$TAG][onReadReceiptUpdate] - enableReadReceipt: $enableReadReceipt")
         updateState(groupOptionsState.value.copy(loadingReadReceiptOption = true, isReadReceiptAllowed = enableReadReceipt))
         updateReadReceiptRemoteRequest(enableReadReceipt)
-    }
-
-    fun onServiceDialogDismiss() {
-        updateState(
-            groupOptionsState.value.copy(
-                loadingServicesOption = false,
-                changeServiceOptionConfirmationRequired = false,
-                isServicesAllowed = !groupOptionsState.value.isServicesAllowed
-            )
-        )
-    }
-
-    fun onServiceDialogConfirm() {
-        updateState(groupOptionsState.value.copy(changeServiceOptionConfirmationRequired = false, loadingServicesOption = true))
-        updateServicesRemoteRequest(false)
-    }
-
-    private fun updateServicesRemoteRequest(enableServices: Boolean) {
-        viewModelScope.launch {
-            val result = withContext(dispatcher.io()) {
-                updateConversationAccess(
-                    enableGuestAndNonTeamMember = groupOptionsState.value.isGuestAllowed,
-                    enableServices = enableServices,
-                    conversationId = conversationId
-                )
-            }
-
-            when (result) {
-                is UpdateConversationAccessRoleUseCase.Result.Failure -> updateState(
-                    groupOptionsState.value.copy(
-                        isServicesAllowed = !enableServices,
-                        error = GroupConversationOptionsState.Error.UpdateServicesError(result.cause)
-                    )
-                )
-
-                is UpdateConversationAccessRoleUseCase.Result.Success -> Unit
-            }
-
-            updateState(groupOptionsState.value.copy(loadingServicesOption = false))
-        }
     }
 
     private fun updateReadReceiptRemoteRequest(enableReadReceipt: Boolean) {
@@ -283,31 +231,6 @@ class GroupConversationDetailsViewModel @Inject constructor(
 
             updateState(groupOptionsState.value.copy(loadingReadReceiptOption = false))
         }
-    }
-
-    private suspend fun updateConversationAccess(
-        enableGuestAndNonTeamMember: Boolean,
-        enableServices: Boolean,
-        conversationId: ConversationId
-    ): UpdateConversationAccessRoleUseCase.Result {
-
-        val accessRoles = Conversation
-            .accessRolesFor(
-                guestAllowed = enableGuestAndNonTeamMember,
-                servicesAllowed = enableServices,
-                nonTeamMembersAllowed = enableGuestAndNonTeamMember
-            )
-
-        val access = Conversation
-            .accessFor(
-                guestsAllowed = enableGuestAndNonTeamMember
-            )
-
-        return updateConversationAccessRole(
-            conversationId = conversationId,
-            accessRoles = accessRoles,
-            access = access
-        )
     }
 
     fun updateState(newState: GroupConversationOptionsState) {

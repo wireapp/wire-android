@@ -36,6 +36,8 @@ import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.common.upgradetoapps.UpgradeToGetAppsBanner
+import com.wire.android.ui.home.conversations.details.options.DisableConformationDialog
 import com.wire.android.ui.home.conversations.details.options.GroupOptionWithSwitch
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
@@ -52,6 +54,9 @@ fun UpdateAppsAccessScreen(
 ) {
     UpdateAppsAccessContent(
         onNavigateBack = navigator::navigateBack,
+        onChangeAppAccess = updateAppsAccessViewModel::onServicesUpdate,
+        onDisableAppsConfirm = updateAppsAccessViewModel::onServiceDialogConfirm,
+        onDisableAppsDismiss = updateAppsAccessViewModel::onServiceDialogDismiss,
         state = updateAppsAccessViewModel.updateAppsAccessState,
     )
 }
@@ -59,6 +64,9 @@ fun UpdateAppsAccessScreen(
 @Composable
 private fun UpdateAppsAccessContent(
     onNavigateBack: () -> Unit,
+    onChangeAppAccess: (Boolean) -> Unit,
+    onDisableAppsConfirm: () -> Unit,
+    onDisableAppsDismiss: () -> Unit,
     state: UpdateAppsAccessState,
     modifier: Modifier = Modifier
 ) {
@@ -89,34 +97,76 @@ private fun UpdateAppsAccessContent(
                             switchClickable = isUpdatingServicesAllowed,
                             switchVisible = true,
                             switchState = isServicesAllowed,
-                            onClick = { },
-                            isLoading = isUpdatingServicesAllowed,
+                            onClick = onChangeAppAccess,
+                            isLoading = loadingServicesOption,
                             title = R.string.conversation_options_services_label,
-                            subTitle = if (isUpdatingServicesAllowed) {
-                                R.string.conversation_options_services_description
-                            } else {
-                                null
-                            }
+                            subTitle = R.string.conversation_options_services_description
                         )
+                    }
+                }
+                if (!state.isUpdatingServicesAllowed) {
+                    item {
+                        UpgradeToGetAppsBanner()
                     }
                 }
             }
         }
     }
+
+    if (state.shouldShowDisableServicesConfirmationDialog) {
+        DisableServicesConfirmationDialog(
+            onConfirm = onDisableAppsConfirm,
+            onDialogDismiss = onDisableAppsDismiss
+        )
+    }
+
+    if (state.isCompleted) {
+        onNavigateBack()
+    }
 }
 
+@Composable
+private fun DisableServicesConfirmationDialog(onConfirm: () -> Unit, onDialogDismiss: () -> Unit) {
+    DisableConformationDialog(
+        title = R.string.disable_services_dialog_title,
+        text = R.string.disable_services_dialog_text,
+        onDismiss = onDialogDismiss,
+        onConfirm = onConfirm
+    )
+}
 
 @PreviewMultipleThemes
 @Composable
-fun UpdateAppsAccessContentPreview() = WireTheme {
+fun UpdateAppsAccessEnabledPreview() = WireTheme {
     UpdateAppsAccessContent(
         onNavigateBack = {},
+        onChangeAppAccess = {},
+        onDisableAppsConfirm = {},
+        onDisableAppsDismiss = {},
         state = UpdateAppsAccessState(
             isServicesAllowed = true,
             isUpdatingServicesAllowed = true,
             loadingServicesOption = false,
             shouldShowDisableServicesConfirmationDialog = false,
             isCompleted = false,
-        )
+        ),
+    )
+}
+
+@PreviewMultipleThemes
+@Composable
+fun UpdateAppsAccessDisabledPreview() = WireTheme {
+    UpdateAppsAccessContent(
+        onNavigateBack = {},
+        onChangeAppAccess = {},
+        onDisableAppsConfirm = {},
+        onDisableAppsDismiss = {},
+        state = UpdateAppsAccessState(
+            isServicesAllowed = true,
+            isUpdatingServicesAllowed = false,
+            loadingServicesOption = false,
+            shouldShowDisableServicesConfirmationDialog = false,
+            isCompleted = false,
+        ),
     )
 }

@@ -57,8 +57,6 @@ data class GroupConversationOptionsState(
     val isUpdatingChannelAccessAllowed: Boolean = false,
     val shouldShowAddParticipantsButtonForChannel: Boolean = false,
     val changeGuestOptionConfirmationRequired: Boolean = false,
-    val changeServiceOptionConfirmationRequired: Boolean = false,
-    val loadingServicesOption: Boolean = false,
     val loadingReadReceiptOption: Boolean = false,
     val isChannel: Boolean = false,
     val isSelfTeamAdmin: Boolean = false,
@@ -74,7 +72,6 @@ data class GroupConversationOptionsState(
 
     sealed interface Error {
         data object None : Error
-        class UpdateServicesError(val cause: CoreFailure) : Error
         class UpdateReadReceiptError(val cause: CoreFailure) : Error
     }
 

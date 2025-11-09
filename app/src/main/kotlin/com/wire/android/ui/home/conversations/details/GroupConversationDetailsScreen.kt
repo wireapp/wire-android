@@ -231,8 +231,7 @@ fun GroupConversationDetailsScreen(
                         viewModel.conversationId,
                         UpdateAppsAccessParams(
                             isGuestAccessAllowed = groupOptions.isGuestAllowed,
-                            isAppsAccessAllowed = groupOptions.isServicesAllowed,
-                            isUpdatingServicesAllowed = groupOptions.isUpdatingGuestAllowed
+                            isAppsAccessAllowed = groupOptions.isServicesAllowed
                         )
                     )
                 )

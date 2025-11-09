@@ -23,4 +23,5 @@ data class UpdateAppsAccessState(
     val loadingServicesOption: Boolean,
     val shouldShowDisableServicesConfirmationDialog: Boolean,
     val isCompleted: Boolean,
+    val hasErrorOnUpdateAppAccess: Boolean = false
 )

@@ -23,5 +23,4 @@ import kotlinx.serialization.Serializable
 data class UpdateAppsAccessParams(
     val isGuestAccessAllowed: Boolean,
     val isAppsAccessAllowed: Boolean,
-    val isUpdatingServicesAllowed: Boolean
 )

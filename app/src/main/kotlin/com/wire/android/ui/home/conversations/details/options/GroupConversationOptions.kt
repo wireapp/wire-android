@@ -86,13 +86,6 @@ fun GroupConversationOptions(
         lazyListState = lazyListState,
         onEditGroupName = onEditGroupName,
     )
-
-    if (state.changeServiceOptionConfirmationRequired) {
-        DisableServicesConfirmationDialog(
-            onConfirm = viewModel::onServiceDialogConfirm,
-            onDialogDismiss = viewModel::onServiceDialogDismiss
-        )
-    }
 }
 
 @Composable
@@ -333,24 +326,6 @@ private fun ProtocolDetails(label: UIText, text: UIText) {
 }
 
 @Composable
-private fun ServicesOption(
-    isSwitchEnabledAndVisible: Boolean,
-    switchState: Boolean,
-    isLoading: Boolean,
-    onCheckedChange: (Boolean) -> Unit
-) {
-    GroupOptionWithSwitch(
-        switchClickable = isSwitchEnabledAndVisible,
-        switchVisible = isSwitchEnabledAndVisible,
-        switchState = switchState,
-        isLoading = isLoading,
-        onClick = onCheckedChange,
-        title = R.string.conversation_options_services_label,
-        subTitle = if (isSwitchEnabledAndVisible) R.string.conversation_options_services_description else null
-    )
-}
-
-@Composable
 private fun ReadReceiptOption(
     isSwitchEnabled: Boolean,
     switchState: Boolean,
@@ -389,16 +364,6 @@ fun GroupOptionWithSwitch(
         arrowType = ArrowType.NONE
     )
     HorizontalDivider(thickness = Dp.Hairline, color = MaterialTheme.wireColorScheme.divider)
-}
-
-@Composable
-private fun DisableServicesConfirmationDialog(onConfirm: () -> Unit, onDialogDismiss: () -> Unit) {
-    DisableConformationDialog(
-        title = R.string.disable_services_dialog_title,
-        text = R.string.disable_services_dialog_text,
-        onDismiss = onDialogDismiss,
-        onConfirm = onConfirm
-    )
 }
 
 @Composable

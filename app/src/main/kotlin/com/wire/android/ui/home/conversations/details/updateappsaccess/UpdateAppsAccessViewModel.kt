@@ -105,12 +105,6 @@ class UpdateAppsAccessViewModel @Inject constructor(
                     (conversationDetails is ConversationDetails.Group.Channel && isTeamAdmin && isSelfInConversationTeam)
                 val canSelfPerformAdminActions = isSelfAnAdmin || isSelfChannelTeamAdmin
 
-                println("==============================")
-                println("isSelfAnAdmin: $isSelfAnAdmin")
-                println("isTeamAdmin: $isTeamAdmin")
-                println("canSelfPerformAdminActions: $canSelfPerformAdminActions")
-                println("isTeamAllowedToUseApps: $isTeamAllowedToUseApps")
-                println("==============================")
                 updateAppsAccessState = updateAppsAccessState.copy(
                     isServicesAllowed = conversationDetails.conversation.isServicesAllowed() && isTeamAllowedToUseApps,
                     isUpdatingServicesAllowed = canSelfPerformAdminActions && isTeamAllowedToUseApps,

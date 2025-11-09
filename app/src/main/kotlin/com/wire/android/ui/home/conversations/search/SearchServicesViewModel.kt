@@ -26,6 +26,7 @@ import com.wire.android.mapper.ContactMapper
 import com.wire.android.ui.common.DEFAULT_SEARCH_QUERY_DEBOUNCE
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.EMPTY
+import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageUseCase
 import com.wire.kalium.logic.feature.service.ObserveAllServicesUseCase
 import com.wire.kalium.logic.feature.service.SearchServicesByNameUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -45,6 +46,7 @@ class SearchServicesViewModel @Inject constructor(
     private val getAllServices: ObserveAllServicesUseCase,
     private val contactMapper: ContactMapper,
     private val searchServicesByName: SearchServicesByNameUseCase,
+    private val isAppsAllowedForUsage: ObserveIsAppsAllowedForUsageUseCase
 ) : ViewModel() {
     private val searchQueryTextFlow = MutableStateFlow(String.EMPTY)
     var state: SearchServicesState by mutableStateOf(SearchServicesState(isLoading = true))

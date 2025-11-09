@@ -20,6 +20,5 @@ package com.wire.android.ui.home.conversations.search
 import com.wire.kalium.logic.data.id.ConversationId
 
 data class AddMembersSearchNavArgs(
-    val conversationId: ConversationId,
-    val isAppsUsageAllowed: Boolean
+    val conversationId: ConversationId
 )

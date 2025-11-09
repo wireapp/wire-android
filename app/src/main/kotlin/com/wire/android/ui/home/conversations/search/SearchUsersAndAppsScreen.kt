@@ -68,19 +68,19 @@ import kotlinx.coroutines.launch
 @Suppress("ComplexMethod")
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun SearchUsersAndServicesScreen(
+fun SearchUsersAndAppsScreen(
     searchTitle: String,
     selectedContacts: ImmutableSet<Contact>,
     onContactChecked: (Boolean, Contact) -> Unit,
     onOpenUserProfile: (Contact) -> Unit,
-    onServiceClicked: (Contact) -> Unit,
+    onAppClicked: (Contact) -> Unit,
     onClose: () -> Unit,
     screenType: SearchPeopleScreenType,
     shouldShowChannelPromotion: Boolean,
     isUserAllowedToCreateChannels: Boolean,
     modifier: Modifier = Modifier,
     isGroupSubmitVisible: Boolean = true,
-    isAppDiscoveryAllowed: Boolean = false,
+    isAppsTabVisible: Boolean = false,
     initialPage: SearchPeopleTabItem = SearchPeopleTabItem.PEOPLE,
     onContinue: () -> Unit = {},
     onCreateNewGroup: () -> Unit = {},
@@ -88,8 +88,8 @@ fun SearchUsersAndServicesScreen(
 ) {
     val searchBarState = rememberSearchbarState()
     val scope = rememberCoroutineScope()
-    val tabs = remember(isAppDiscoveryAllowed) {
-        if (isAppDiscoveryAllowed) SearchPeopleTabItem.entries else listOf(SearchPeopleTabItem.PEOPLE)
+    val tabs = remember(isAppsTabVisible) {
+        if (isAppsTabVisible) SearchPeopleTabItem.entries else listOf(SearchPeopleTabItem.PEOPLE)
     }
     val pagerState = rememberPagerState(
         initialPage = tabs.indexOf(initialPage),
@@ -104,7 +104,7 @@ fun SearchUsersAndServicesScreen(
         rememberLazyListState()
     }
 
-    val searchBarTitle = if (isAppDiscoveryAllowed) {
+    val searchBarTitle = if (isAppsTabVisible) {
         stringResource(R.string.label_search_people_or_apps)
     } else {
         stringResource(R.string.label_search_people)
@@ -147,7 +147,7 @@ fun SearchUsersAndServicesScreen(
             )
         },
         topBarFooter = {
-            if (isAppDiscoveryAllowed) {
+            if (isAppsTabVisible) {
                 WireTabRow(
                     tabs = SearchPeopleTabItem.entries,
                     selectedTabIndex = currentTabState,
@@ -186,7 +186,7 @@ fun SearchUsersAndServicesScreen(
                         SearchPeopleTabItem.SERVICES -> {
                             SearchAllServicesScreen(
                                 searchQuery = searchBarState.searchQueryTextState.text.toString(),
-                                onServiceClicked = onServiceClicked,
+                                onServiceClicked = onAppClicked,
                                 lazyListState = lazyListStates[pageIndex],
                             )
                         }

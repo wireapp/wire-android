@@ -202,10 +202,7 @@ fun GroupConversationDetailsScreen(
         onAddParticipantsPressed = {
             navigator.navigate(
                 NavigationCommand(
-                    AddMembersSearchScreenDestination(
-                        viewModel.conversationId,
-                        groupOptions.isServicesAllowed
-                    )
+                    AddMembersSearchScreenDestination(viewModel.conversationId)
                 )
             )
         },

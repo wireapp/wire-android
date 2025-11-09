@@ -28,7 +28,7 @@ import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.destinations.ServiceDetailsScreenDestination
 import com.wire.android.ui.home.conversations.search.AddMembersSearchNavArgs
 import com.wire.android.ui.home.conversations.search.SearchPeopleScreenType
-import com.wire.android.ui.home.conversations.search.SearchUsersAndServicesScreen
+import com.wire.android.ui.home.conversations.search.SearchUsersAndAppsScreen
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.BotService
@@ -45,7 +45,7 @@ fun AddMembersSearchScreen(
     if (addMembersToConversationViewModel.newGroupState.isCompleted) {
         navigator.navigateBack()
     }
-    SearchUsersAndServicesScreen(
+    SearchUsersAndAppsScreen(
         searchTitle = stringResource(id = R.string.label_add_participants),
         onOpenUserProfile = { contact: Contact ->
             OtherUserProfileScreenDestination(QualifiedID(contact.id, contact.domain))
@@ -55,13 +55,13 @@ fun AddMembersSearchScreen(
         onContinue = addMembersToConversationViewModel::addMembersToConversation,
         isGroupSubmitVisible = true,
         onClose = navigator::navigateBack,
-        onServiceClicked = { contact: Contact ->
+        onAppClicked = { contact: Contact ->
             ServiceDetailsScreenDestination(BotService(contact.id, contact.domain), navArgs.conversationId)
                 .let { navigator.navigate(NavigationCommand(it)) }
         },
         screenType = SearchPeopleScreenType.CONVERSATION_DETAILS,
         selectedContacts = addMembersToConversationViewModel.newGroupState.selectedContacts,
-        isAppDiscoveryAllowed = navArgs.isAppsUsageAllowed,
+        isAppsTabVisible = true,
         isUserAllowedToCreateChannels = false,
         shouldShowChannelPromotion = false,
     )

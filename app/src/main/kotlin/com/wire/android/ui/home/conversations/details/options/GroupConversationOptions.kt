@@ -68,6 +68,7 @@ import kotlin.time.Duration.Companion.days
 fun GroupConversationOptions(
     lazyListState: LazyListState,
     onEditGuestAccess: () -> Unit,
+    onAppsAccessItemClicked: () -> Unit,
     onChannelAccessItemClicked: () -> Unit,
     onEditSelfDeletingMessages: () -> Unit,
     viewModel: GroupConversationDetailsViewModel = hiltViewModel(),
@@ -78,9 +79,9 @@ fun GroupConversationOptions(
     GroupConversationSettings(
         state = state,
         onGuestItemClicked = onEditGuestAccess,
+        onAppsAccessItemClicked = onAppsAccessItemClicked,
         onSelfDeletingClicked = onEditSelfDeletingMessages,
         onChannelAccessItemClicked = onChannelAccessItemClicked,
-        onServiceSwitchClicked = viewModel::onServicesUpdate,
         onReadReceiptSwitchClicked = viewModel::onReadReceiptUpdate,
         lazyListState = lazyListState,
         onEditGroupName = onEditGroupName,
@@ -99,8 +100,8 @@ fun GroupConversationSettings(
     state: GroupConversationOptionsState,
     onChannelAccessItemClicked: () -> Unit,
     onGuestItemClicked: () -> Unit,
+    onAppsAccessItemClicked: () -> Unit,
     onSelfDeletingClicked: () -> Unit,
-    onServiceSwitchClicked: (Boolean) -> Unit,
     onReadReceiptSwitchClicked: (Boolean) -> Unit,
     onEditGroupName: () -> Unit,
     modifier: Modifier = Modifier,
@@ -152,11 +153,16 @@ fun GroupConversationSettings(
                         )
                     }
                     add {
-                        ServicesOption(
-                            isSwitchEnabledAndVisible = state.isUpdatingServicesAllowed,
-                            switchState = state.isServicesAllowed,
-                            isLoading = state.loadingServicesOption,
-                            onCheckedChange = onServiceSwitchClicked
+                        GroupConversationOptionsItem(
+                            title = stringResource(id = R.string.conversation_options_services_label),
+                            subtitle = stringResource(id = R.string.conversation_options_services_description),
+                            switchState = SwitchState.TextOnly(value = state.isServicesAllowed),
+                            arrowType = if (state.isUpdatingServicesAllowed) ArrowType.TITLE_ALIGNED else ArrowType.NONE,
+                            clickable = Clickable(
+                                enabled = state.isUpdatingGuestAllowed,
+                                onClick = onAppsAccessItemClicked,
+                                onClickDescription = stringResource(id = R.string.content_description_conversation_details_apps_action)
+                            ),
                         )
                     }
                     addIf(state.isWireCellEnabled) {
@@ -448,12 +454,12 @@ private fun PreviewGroupConversationOptions(state: GroupConversationOptionsState
         onChannelAccessItemClicked = {},
         onGuestItemClicked = {},
         onSelfDeletingClicked = {},
-        onServiceSwitchClicked = {},
+        onAppsAccessItemClicked = {},
         onReadReceiptSwitchClicked = {},
         onEditGroupName = {},
         modifier = Modifier,
         lazyListState = rememberLazyListState(),
-        mlsReadReceiptsEnabled = false,
+        mlsReadReceiptsEnabled = false
     )
 }
 

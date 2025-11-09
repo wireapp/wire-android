@@ -1898,4 +1898,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <!-- Apps-->
     <string name="apps_upgrade_teams_for_apps_banner_title">Your team doesn\'t use apps yet</string>
     <string name="apps_upgrade_teams_for_apps_banner_content">To improve your workflow with apps, your team needs configuration. Please contact your team admin.</string>
+    <string name="apps_edit_apps_option_title">Apps</string>
+    <string name="content_description_edit_apps_option_back_btn">Go back to conversation details</string>
+    <string name="content_description_conversation_details_apps_action">adjust apps access</string>
 </resources>

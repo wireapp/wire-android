@@ -147,7 +147,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
                         isUpdatingGuestAllowed = canSelfPerformAdminTasks && isSelfInTeamThatOwnsConversation,
                         isUpdatingChannelAccessAllowed = canSelfPerformAdminTasks && isSelfInTeamThatOwnsConversation,
                         isServicesAllowed = groupDetails.conversation.isServicesAllowed() && isAppsUsageAllowed,
-                        isUpdatingServicesAllowed = canSelfPerformAdminTasks && isAppsUsageAllowed,
+                        isUpdatingServicesAllowed = canSelfPerformAdminTasks && isSelfInTeamThatOwnsConversation,
                         isUpdatingReadReceiptAllowed = canSelfPerformAdminTasks && groupDetails.conversation.isTeamGroup(),
                         isUpdatingSelfDeletingAllowed = canSelfPerformAdminTasks,
                         mlsEnabled = isMLSEnabled(),
@@ -203,6 +203,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
         updateState(groupOptionsState.value.copy(channelAddPermissionType = channelAddPermissionType))
     }
 
+    // todo (ym) move to update apps access view model
     fun onServicesUpdate(enableServices: Boolean) {
         updateState(groupOptionsState.value.copy(loadingServicesOption = true, isServicesAllowed = enableServices))
         when (enableServices) {

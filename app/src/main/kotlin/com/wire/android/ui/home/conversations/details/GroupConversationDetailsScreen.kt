@@ -103,6 +103,7 @@ import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.destinations.SearchConversationMessagesScreenDestination
 import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
 import com.wire.android.ui.destinations.ServiceDetailsScreenDestination
+import com.wire.android.ui.destinations.UpdateAppsAccessScreenDestination
 import com.wire.android.ui.home.conversations.details.editguestaccess.EditGuestAccessParams
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptions
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsState
@@ -110,6 +111,7 @@ import com.wire.android.ui.home.conversations.details.options.LoadingGroupConver
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipants
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipantsState
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
+import com.wire.android.ui.home.conversations.details.updateappsaccess.UpdateAppsAccessParams
 import com.wire.android.ui.home.conversations.details.updatechannelaccess.UpdateChannelAccessArgs
 import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavArgs
 import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavBackArgs
@@ -222,6 +224,20 @@ fun GroupConversationDetailsScreen(
                 )
             )
         },
+        onAppsAccessItemClicked = {
+            navigator.navigate(
+                NavigationCommand(
+                    UpdateAppsAccessScreenDestination(
+                        viewModel.conversationId,
+                        UpdateAppsAccessParams(
+                            isGuestAccessAllowed = groupOptions.isGuestAllowed,
+                            isAppsAccessAllowed = groupOptions.isServicesAllowed,
+                            isUpdatingServicesAllowed = groupOptions.isUpdatingGuestAllowed
+                        )
+                    )
+                )
+            )
+        },
         onChannelAccessItemClicked = {
             navigator.navigate(
                 NavigationCommand(
@@ -327,11 +343,12 @@ private fun GroupConversationDetailsContent(
     onProfilePressed: (UIParticipant) -> Unit,
     onAddParticipantsPressed: () -> Unit,
     onEditGuestAccess: () -> Unit,
+    onAppsAccessItemClicked: () -> Unit,
     onChannelAccessItemClicked: () -> Unit,
     onEditSelfDeletingMessages: () -> Unit,
     onEditGroupName: () -> Unit,
     groupParticipantsState: GroupConversationParticipantsState,
-    showAllowUserToAddParticipants: () -> (Boolean),
+    showAllowUserToAddParticipants: () -> Boolean,
     isAbandonedOneOnOneConversation: Boolean,
     isWireCellEnabled: Boolean,
     onSearchConversationMessagesClick: () -> Unit,
@@ -493,6 +510,7 @@ private fun GroupConversationDetailsContent(
                         GroupConversationDetailsTabItem.OPTIONS -> GroupConversationOptions(
                             lazyListState = lazyListStates[pageIndex],
                             onEditGuestAccess = onEditGuestAccess,
+                            onAppsAccessItemClicked = onAppsAccessItemClicked,
                             onChannelAccessItemClicked = onChannelAccessItemClicked,
                             onEditSelfDeletingMessages = onEditSelfDeletingMessages,
                             onEditGroupName = onEditGroupName
@@ -595,25 +613,26 @@ enum class GroupConversationDetailsTabItem(@StringRes val titleResId: Int) : Tab
 fun PreviewGroupConversationDetails() {
     WireTheme {
         GroupConversationDetailsContent(
-            sheetState = rememberWireModalSheetState(),
-            initialPageIndex = GroupConversationDetailsTabItem.PARTICIPANTS,
             groupConversationOptionsState = GroupConversationOptionsState(ConversationId("v", "d")),
-            showAllowUserToAddParticipants = { true },
+            sheetState = rememberWireModalSheetState(),
             onBackPressed = {},
             onProfilePressed = {},
             onAddParticipantsPressed = {},
-            groupParticipantsState = GroupConversationParticipantsState.PREVIEW,
-            onEditGroupName = {},
-            onEditSelfDeletingMessages = {},
             onEditGuestAccess = {},
+            onAppsAccessItemClicked = {},
             onChannelAccessItemClicked = {},
-            onSearchConversationMessagesClick = {},
-            onConversationMediaClick = {},
+            onEditSelfDeletingMessages = {},
+            onEditGroupName = {},
+            groupParticipantsState = GroupConversationParticipantsState.PREVIEW,
+            showAllowUserToAddParticipants = { true },
             isAbandonedOneOnOneConversation = false,
             isWireCellEnabled = false,
+            onSearchConversationMessagesClick = {},
+            onConversationMediaClick = {},
             onMoveToFolder = {},
             onLeftConversation = {},
             onDeletedConversation = {},
+            initialPageIndex = GroupConversationDetailsTabItem.PARTICIPANTS
         )
     }
 }

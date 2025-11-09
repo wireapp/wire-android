@@ -37,6 +37,7 @@ import com.wire.android.ui.destinations.NewConversationFolderScreenDestination
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
 import com.wire.android.ui.destinations.ServiceDetailsScreenDestination
+import com.wire.android.ui.destinations.UpdateAppsAccessScreenDestination
 import com.wire.android.ui.theme.isTablet
 
 @Suppress("CyclomaticComplexMethod")
@@ -53,6 +54,7 @@ fun AdjustDestinationStylesForTablets() {
     GroupConversationDetailsScreenDestination.style = if (isTablet) DialogNavigation else PopUpNavigationAnimation
     EditConversationNameScreenDestination.style = if (isTablet) DialogNavigation else SlideNavigationAnimation
     EditGuestAccessScreenDestination.style = if (isTablet) DialogNavigation else SlideNavigationAnimation
+    UpdateAppsAccessScreenDestination.style = if (isTablet) DialogNavigation else SlideNavigationAnimation
     ChannelAccessOnUpdateScreenDestination.style = if (isTablet) DialogNavigation else SlideNavigationAnimation
     EditSelfDeletingMessagesScreenDestination.style = if (isTablet) DialogNavigation else SlideNavigationAnimation
     ConversationFoldersScreenDestination.style = if (isTablet) DialogNavigation else SlideNavigationAnimation

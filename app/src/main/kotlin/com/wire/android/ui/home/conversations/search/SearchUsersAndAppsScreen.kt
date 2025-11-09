@@ -184,7 +184,7 @@ fun SearchUsersAndAppsScreen(
                         }
 
                         SearchPeopleTabItem.SERVICES -> {
-                            SearchAllServicesScreen(
+                            SearchAllAppsScreen(
                                 searchQuery = searchBarState.searchQueryTextState.text.toString(),
                                 onServiceClicked = onAppClicked,
                                 lazyListState = lazyListStates[pageIndex],

@@ -999,9 +999,7 @@
     <string name="label_search_people_or_apps">Search people or apps</string>
     <string name="label_public_wire">Public Wire</string>
     <string name="label_search_people_instruction">Search for people by their profile name or @username</string>
-    <string name="label_search_apps_instruction">Improve productivity with apps.</string>
     <string name="label_learn_more_searching_user">Learn more</string>
-    <string name="label_learn_more_searching_app">How to add apps to your team</string>
     <string name="label_no_results_found">No results could be found. Please try again.</string>
     <string name="label_general_error">Something went wrong</string>
     <string name="label_add_member_people">People</string>
@@ -1901,4 +1899,8 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="apps_edit_apps_option_title">Apps</string>
     <string name="content_description_edit_apps_option_back_btn">Go back to conversation details</string>
     <string name="content_description_conversation_details_apps_action">adjust apps access</string>
+    <string name="search_results_apps_empty_title">Your team hasn\'t added apps yet</string>
+    <string name="search_results_apps_empty_description_team_admin">Apps are helpers that can improve your workflow. As a team admin, you can add them in team management.</string>
+    <string name="search_results_apps_empty_description_non_team_admin">Apps are helpers that can improve your workflow. To use them, ask your team admin.</string>
+    <string name="search_results_apps_empty_description_disabled_for_conversation">Apps are disabled in this conversation. Enable them in the conversation options.</string>
 </resources>

@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.home.conversations.search
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -35,6 +36,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -96,30 +99,67 @@ private fun SearchAllAppsContent(
     isSelfATeamAdmin: Boolean,
     lazyListState: LazyListState = rememberLazyListState()
 ) {
-    when {
-        isLoading -> CenteredCircularProgressBarIndicator()
-
-        !isTeamAllowedToUseApps -> {
-            UpgradeToGetAppsBanner()
+    val contentState by remember(isLoading, isTeamAllowedToUseApps, searchQuery, result) {
+        derivedStateOf {
+            when {
+                isLoading -> ContentState.Loading
+                !isTeamAllowedToUseApps -> ContentState.TeamNotAllowed
+                searchQuery.isBlank() && result.isEmpty() -> ContentState.EmptyInitial
+                searchQuery.isNotBlank() && result.isEmpty() -> ContentState.EmptySearch
+                else -> ContentState.ShowResults
+            }
         }
-
-        // todo check when coming from a conversation, if the convo config has apps enabled or not.
-        // todo then show right empty state: Apps are disabled in this conversation. Enable them in the conversation options...
-
-        searchQuery.isBlank() && result.isEmpty() -> {
-            EmptySearchAppsScreen(isSelfATeamAdmin = isSelfATeamAdmin)
-        }
-
-        searchQuery.isNotBlank() && result.isEmpty() ->
-            SearchFailureBox(R.string.label_no_results_found)
-
-        else -> AppsList(
-            searchQuery = searchQuery,
-            onServiceClicked = onServiceClicked,
-            apps = result,
-            lazyListState = lazyListState
-        )
     }
+
+    // Reset scroll position only when search query changes (not on loading/state changes)
+    LaunchedEffect(searchQuery) {
+        if (searchQuery.isNotBlank()) {
+            lazyListState.scrollToItem(0)
+        }
+    }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        Crossfade(
+            targetState = contentState,
+            label = "SearchAppsContentTransition",
+            modifier = Modifier.fillMaxSize()
+        ) { state ->
+            when (state) {
+                ContentState.Loading -> {
+                    CenteredCircularProgressBarIndicator()
+                }
+
+                ContentState.TeamNotAllowed -> {
+                    UpgradeToGetAppsBanner()
+                }
+
+                ContentState.EmptyInitial -> {
+                    EmptySearchAppsScreen(isSelfATeamAdmin = isSelfATeamAdmin)
+                }
+
+                ContentState.EmptySearch -> {
+                    SearchFailureBox(R.string.label_no_results_found)
+                }
+
+                ContentState.ShowResults -> {
+                    AppsList(
+                        searchQuery = searchQuery,
+                        onServiceClicked = onServiceClicked,
+                        apps = result,
+                        lazyListState = lazyListState
+                    )
+                }
+            }
+        }
+    }
+}
+
+private enum class ContentState {
+    Loading,
+    TeamNotAllowed,
+    EmptyInitial,
+    EmptySearch,
+    ShowResults
 }
 
 @Composable

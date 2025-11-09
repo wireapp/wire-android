@@ -40,6 +40,8 @@ import com.wire.android.ui.destinations.ServiceDetailsScreenDestination
 import com.wire.android.ui.destinations.UpdateAppsAccessScreenDestination
 import com.wire.android.ui.theme.isTablet
 
+// Todo(docs): Add ADR about this change introduced in navigation styles for tablets, which requires
+//  adjusting navigation styles for certain destinations when on tablets when using DestinationStyle.Runtime
 @Suppress("CyclomaticComplexMethod")
 @Composable
 fun AdjustDestinationStylesForTablets() {

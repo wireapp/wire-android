@@ -102,6 +102,8 @@ private fun SearchAllAppsContent(
     val contentState by remember(isLoading, isTeamAllowedToUseApps, searchQuery, result) {
         derivedStateOf {
             when {
+                // todo check when coming from a conversation, if the convo config has apps enabled or not.
+                // todo then show right empty state: Apps are disabled in this conversation. Enable them in the conversation options...
                 isLoading -> ContentState.Loading
                 !isTeamAllowedToUseApps -> ContentState.TeamNotAllowed
                 searchQuery.isBlank() && result.isEmpty() -> ContentState.EmptyInitial

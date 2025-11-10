@@ -49,6 +49,7 @@ class AddMembersToConversationViewModel @Inject constructor(
 
     var newGroupState: AddMembersToConversationState by mutableStateOf(AddMembersToConversationState())
         private set
+
     fun addMembersToConversation() {
         viewModelScope.launch {
             withContext(dispatchers.io()) {
@@ -63,14 +64,14 @@ class AddMembersToConversationViewModel @Inject constructor(
     }
 
     fun updateSelectedContacts(selected: Boolean, contact: Contact) {
-        if (selected) {
-            newGroupState = newGroupState.copy(selectedContacts = (newGroupState.selectedContacts + contact).toImmutableSet())
+        newGroupState = if (selected) {
+            newGroupState.copy(selectedContacts = (newGroupState.selectedContacts + contact).toImmutableSet())
         } else {
-            newGroupState = newGroupState.copy(
+            newGroupState.copy(
                 selectedContacts = newGroupState.selectedContacts.filterNot {
-                it.id == contact.id &&
-                        it.domain == contact.domain
-            }.toImmutableSet()
+                    it.id == contact.id &&
+                            it.domain == contact.domain
+                }.toImmutableSet()
             )
         }
     }

@@ -57,6 +57,7 @@ import com.wire.android.ui.common.search.rememberSearchbarState
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
+import com.wire.android.ui.home.conversations.search.apps.SearchAppsScreen
 import com.wire.android.ui.home.newconversation.common.ContinueButton
 import com.wire.android.ui.home.newconversation.common.CreateRegularGroupOrChannelButtons
 import com.wire.android.ui.home.newconversation.model.Contact
@@ -81,10 +82,11 @@ fun SearchUsersAndAppsScreen(
     modifier: Modifier = Modifier,
     isGroupSubmitVisible: Boolean = true,
     isAppsTabVisible: Boolean = false,
+    isConversationWithAppsEnabled: Boolean = true,
     initialPage: SearchPeopleTabItem = SearchPeopleTabItem.PEOPLE,
     onContinue: () -> Unit = {},
     onCreateNewGroup: () -> Unit = {},
-    onCreateNewChannel: () -> Unit = {}
+    onCreateNewChannel: () -> Unit = {},
 ) {
     val searchBarState = rememberSearchbarState()
     val scope = rememberCoroutineScope()
@@ -184,10 +186,11 @@ fun SearchUsersAndAppsScreen(
                         }
 
                         SearchPeopleTabItem.SERVICES -> {
-                            SearchAllAppsScreen(
+                            SearchAppsScreen(
                                 searchQuery = searchBarState.searchQueryTextState.text.toString(),
                                 onServiceClicked = onAppClicked,
                                 lazyListState = lazyListStates[pageIndex],
+                                isConversationWithAppsEnabled = isConversationWithAppsEnabled,
                             )
                         }
                     }

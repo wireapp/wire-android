@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2025 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,25 +15,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.home.conversations.search
+package com.wire.android.ui.home.conversations.search.apps
 
 import androidx.compose.animation.Crossfade
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -42,7 +35,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.model.Clickable
@@ -53,11 +45,11 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.CenteredCircularProgressBarIndicator
 import com.wire.android.ui.common.rowitem.RowItemTemplate
 import com.wire.android.ui.common.upgradetoapps.UpgradeToGetAppsBanner
+import com.wire.android.ui.home.conversations.search.HighlightName
 import com.wire.android.ui.home.conversations.search.widget.SearchFailureBox
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.sectionWithElements
 import com.wire.kalium.logic.data.user.ConnectionState
@@ -66,11 +58,12 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
 
 @Composable
-fun SearchAllAppsScreen(
+fun SearchAppsScreen(
     searchQuery: String,
     onServiceClicked: (Contact) -> Unit,
+    isConversationWithAppsEnabled: Boolean,
     searchAppsViewModel: SearchAppsViewModel = hiltViewModel(),
-    lazyListState: LazyListState = rememberLazyListState(),
+    lazyListState: LazyListState = rememberLazyListState()
 ) {
     LaunchedEffect(key1 = searchQuery) {
         searchAppsViewModel.searchQueryChanged(searchQuery)
@@ -84,7 +77,8 @@ fun SearchAllAppsScreen(
             isLoading = state.isLoading,
             isTeamAllowedToUseApps = state.isTeamAllowedToUseApps,
             isSelfATeamAdmin = state.isSelfATeamAdmin,
-            lazyListState = lazyListState
+            lazyListState = lazyListState,
+            isConversationWithAppsEnabled = isConversationWithAppsEnabled
         )
     }
 }
@@ -97,18 +91,18 @@ private fun SearchAllAppsContent(
     onServiceClicked: (Contact) -> Unit,
     isTeamAllowedToUseApps: Boolean,
     isSelfATeamAdmin: Boolean,
+    isConversationWithAppsEnabled: Boolean,
     lazyListState: LazyListState = rememberLazyListState()
 ) {
-    val contentState by remember(isLoading, isTeamAllowedToUseApps, searchQuery, result) {
+    val appsContentState by remember(isLoading, isTeamAllowedToUseApps, searchQuery, result) {
         derivedStateOf {
             when {
-                // todo check when coming from a conversation, if the convo config has apps enabled or not.
-                // todo then show right empty state: Apps are disabled in this conversation. Enable them in the conversation options...
-                isLoading -> ContentState.Loading
-                !isTeamAllowedToUseApps -> ContentState.TeamNotAllowed
-                searchQuery.isBlank() && result.isEmpty() -> ContentState.EmptyInitial
-                searchQuery.isNotBlank() && result.isEmpty() -> ContentState.EmptySearch
-                else -> ContentState.ShowResults
+                !isConversationWithAppsEnabled -> AppsContentState.APPS_NOT_ENABLED_FOR_CONVERSATION
+                isLoading -> AppsContentState.LOADING
+                !isTeamAllowedToUseApps -> AppsContentState.TEAM_NOT_ALLOWED
+                searchQuery.isBlank() && result.isEmpty() -> AppsContentState.EMPTY_INITIAL
+                searchQuery.isNotBlank() && result.isEmpty() -> AppsContentState.EMPTY_SEARCH
+                else -> AppsContentState.SHOW_RESULTS
             }
         }
     }
@@ -122,28 +116,32 @@ private fun SearchAllAppsContent(
 
     Box(modifier = Modifier.fillMaxSize()) {
         Crossfade(
-            targetState = contentState,
+            targetState = appsContentState,
             label = "SearchAppsContentTransition",
             modifier = Modifier.fillMaxSize()
         ) { state ->
             when (state) {
-                ContentState.Loading -> {
+                AppsContentState.LOADING -> {
                     CenteredCircularProgressBarIndicator()
                 }
 
-                ContentState.TeamNotAllowed -> {
+                AppsContentState.APPS_NOT_ENABLED_FOR_CONVERSATION -> {
+                    EmptySearchDisabledByConversationContent()
+                }
+
+                AppsContentState.TEAM_NOT_ALLOWED -> {
                     UpgradeToGetAppsBanner()
                 }
 
-                ContentState.EmptyInitial -> {
-                    EmptySearchAppsScreen(isSelfATeamAdmin = isSelfATeamAdmin)
+                AppsContentState.EMPTY_INITIAL -> {
+                    EmptySearchAppsContent(isSelfATeamAdmin = isSelfATeamAdmin)
                 }
 
-                ContentState.EmptySearch -> {
+                AppsContentState.EMPTY_SEARCH -> {
                     SearchFailureBox(R.string.label_no_results_found)
                 }
 
-                ContentState.ShowResults -> {
+                AppsContentState.SHOW_RESULTS -> {
                     AppsList(
                         searchQuery = searchQuery,
                         onServiceClicked = onServiceClicked,
@@ -153,51 +151,6 @@ private fun SearchAllAppsContent(
                 }
             }
         }
-    }
-}
-
-private enum class ContentState {
-    Loading,
-    TeamNotAllowed,
-    EmptyInitial,
-    EmptySearch,
-    ShowResults
-}
-
-@Composable
-private fun EmptySearchAppsScreen(
-    isSelfATeamAdmin: Boolean
-) {
-    val (title, description) = if (isSelfATeamAdmin) {
-        Pair(
-            stringResource(R.string.search_results_apps_empty_title),
-            stringResource(R.string.search_results_apps_empty_description_team_admin)
-        )
-    } else {
-        Pair(
-            stringResource(R.string.search_results_apps_empty_title),
-            stringResource(R.string.search_results_apps_empty_description_non_team_admin)
-        )
-    }
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-            .padding(dimensions().spacing16x),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-    ) {
-        Text(
-            text = title,
-            style = MaterialTheme.wireTypography.body02,
-            textAlign = TextAlign.Center
-        )
-        Spacer(modifier = Modifier.height(dimensions().spacing16x))
-        Text(
-            text = description,
-            style = MaterialTheme.wireTypography.body01,
-            textAlign = TextAlign.Center
-        )
     }
 }
 
@@ -267,7 +220,8 @@ fun PreviewSearchAllServicesScreen_Loading() = WireTheme {
         isLoading = true,
         onServiceClicked = {},
         isTeamAllowedToUseApps = true,
-        isSelfATeamAdmin = true
+        isSelfATeamAdmin = true,
+        isConversationWithAppsEnabled = true
     )
 }
 
@@ -280,7 +234,8 @@ fun PreviewSearchAllServicesScreen_TeamNotEnabledForApps() = WireTheme {
         isLoading = false,
         onServiceClicked = {},
         isTeamAllowedToUseApps = false,
-        isSelfATeamAdmin = true
+        isSelfATeamAdmin = true,
+        isConversationWithAppsEnabled = true
     )
 }
 
@@ -293,7 +248,8 @@ fun PreviewSearchAllServicesScreen_InitialResults() = WireTheme {
         isLoading = false,
         onServiceClicked = {},
         isTeamAllowedToUseApps = true,
-        isSelfATeamAdmin = true
+        isSelfATeamAdmin = true,
+        isConversationWithAppsEnabled = true
     )
 }
 
@@ -306,7 +262,8 @@ fun PreviewSearchAllServicesScreen_EmptyInitialResults_TeamAdmin() = WireTheme {
         isLoading = false,
         onServiceClicked = {},
         isTeamAllowedToUseApps = true,
-        isSelfATeamAdmin = true
+        isSelfATeamAdmin = true,
+        isConversationWithAppsEnabled = true
     )
 }
 
@@ -319,7 +276,8 @@ fun PreviewSearchAllServicesScreen_EmptyInitialResults_NonTeamAdmin() = WireThem
         isLoading = false,
         onServiceClicked = {},
         isTeamAllowedToUseApps = true,
-        isSelfATeamAdmin = false
+        isSelfATeamAdmin = false,
+        isConversationWithAppsEnabled = true
     )
 }
 
@@ -332,7 +290,8 @@ fun PreviewSearchAllServicesScreen_SearchResults() = WireTheme {
         isLoading = false,
         onServiceClicked = {},
         isTeamAllowedToUseApps = true,
-        isSelfATeamAdmin = true
+        isSelfATeamAdmin = true,
+        isConversationWithAppsEnabled = true
     )
 }
 
@@ -345,7 +304,22 @@ fun PreviewSearchAllServicesScreen_EmptySearchResults() = WireTheme {
         isLoading = false,
         onServiceClicked = {},
         isTeamAllowedToUseApps = true,
-        isSelfATeamAdmin = true
+        isSelfATeamAdmin = true,
+        isConversationWithAppsEnabled = true
+    )
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewSearchAllServicesScreen_EmptySearchResultsDisabledInConversation() = WireTheme {
+    SearchAllAppsContent(
+        searchQuery = "Serv",
+        result = persistentListOf(),
+        isLoading = false,
+        onServiceClicked = {},
+        isTeamAllowedToUseApps = true,
+        isSelfATeamAdmin = true,
+        isConversationWithAppsEnabled = false
     )
 }
 

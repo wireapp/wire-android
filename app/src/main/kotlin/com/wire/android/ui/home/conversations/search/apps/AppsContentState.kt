@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2025 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,11 +15,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.home.conversations.search
+package com.wire.android.ui.home.conversations.search.apps
 
-import com.wire.kalium.logic.data.id.ConversationId
-
-data class AddMembersSearchNavArgs(
-    val conversationId: ConversationId,
-    val isConversationWithAppsEnabled: Boolean
-)
+/**
+ * Represents the different states of the apps content tab in the add members search screen.
+ */
+enum class AppsContentState {
+    LOADING,
+    TEAM_NOT_ALLOWED,
+    EMPTY_INITIAL,
+    EMPTY_SEARCH,
+    SHOW_RESULTS,
+    APPS_NOT_ENABLED_FOR_CONVERSATION
+}

@@ -64,5 +64,6 @@ fun AddMembersSearchScreen(
         isAppsTabVisible = true,
         isUserAllowedToCreateChannels = false,
         shouldShowChannelPromotion = false,
+        isConversationWithAppsEnabled = navArgs.isConversationWithAppsEnabled,
     )
 }

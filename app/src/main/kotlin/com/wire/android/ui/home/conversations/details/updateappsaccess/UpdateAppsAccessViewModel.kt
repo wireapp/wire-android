@@ -65,11 +65,10 @@ class UpdateAppsAccessViewModel @Inject constructor(
 
     var updateAppsAccessState by mutableStateOf(
         UpdateAppsAccessState(
-            isServicesAllowed = false,
-            isUpdatingServicesAllowed = false,
-            loadingServicesOption = false,
-            shouldShowDisableServicesConfirmationDialog = false,
-            isCompleted = false
+            isAppAccessAllowed = false,
+            isUpdatingAppAccessAllowed = false,
+            isLoadingAppsOption = false,
+            shouldShowDisableAppsConfirmationDialog = false
         )
     )
 
@@ -107,10 +106,10 @@ class UpdateAppsAccessViewModel @Inject constructor(
                 val canSelfPerformAdminActions = isSelfAnAdmin || isSelfChannelTeamAdmin
 
                 updateAppsAccessState = updateAppsAccessState.copy(
-                    isServicesAllowed = conversationDetails.conversation.isServicesAllowed() && isTeamAllowedToUseApps,
-                    isUpdatingServicesAllowed = canSelfPerformAdminActions && isTeamAllowedToUseApps,
-                    loadingServicesOption = false,
-                    shouldShowDisableServicesConfirmationDialog = false
+                    isAppAccessAllowed = conversationDetails.conversation.isServicesAllowed() && isTeamAllowedToUseApps,
+                    isUpdatingAppAccessAllowed = canSelfPerformAdminActions && isTeamAllowedToUseApps,
+                    isLoadingAppsOption = false,
+                    shouldShowDisableAppsConfirmationDialog = false
                 )
             }
         }
@@ -124,10 +123,10 @@ class UpdateAppsAccessViewModel @Inject constructor(
     )
 
     fun onServicesUpdate(shouldEnableAppsAccess: Boolean) {
-        updateState(updateAppsAccessState.copy(loadingServicesOption = true, isServicesAllowed = shouldEnableAppsAccess))
+        updateState(updateAppsAccessState.copy(isLoadingAppsOption = true, isAppAccessAllowed = shouldEnableAppsAccess))
         when (shouldEnableAppsAccess) {
             true -> updateAppsAccessRemotely(true)
-            false -> updateState(updateAppsAccessState.copy(shouldShowDisableServicesConfirmationDialog = true))
+            false -> updateState(updateAppsAccessState.copy(shouldShowDisableAppsConfirmationDialog = true))
         }
     }
 
@@ -145,18 +144,17 @@ class UpdateAppsAccessViewModel @Inject constructor(
                 is UpdateConversationAccessRoleUseCase.Result.Failure ->
                     updateState(
                         updateAppsAccessState.copy(
-                            isServicesAllowed = !shouldEnableAppsAccess,
+                            isAppAccessAllowed = !shouldEnableAppsAccess,
                             hasErrorOnUpdateAppAccess = true,
-                            loadingServicesOption = false
+                            isLoadingAppsOption = false
                         )
                     )
 
                 is UpdateConversationAccessRoleUseCase.Result.Success -> updateState(
                     updateAppsAccessState.copy(
-                        isServicesAllowed = shouldEnableAppsAccess,
+                        isAppAccessAllowed = shouldEnableAppsAccess,
                         hasErrorOnUpdateAppAccess = false,
-                        loadingServicesOption = false,
-                        isCompleted = true
+                        isLoadingAppsOption = false,
                     )
                 )
             }
@@ -186,16 +184,16 @@ class UpdateAppsAccessViewModel @Inject constructor(
     }
 
     fun onServiceDialogConfirm() {
-        updateState(updateAppsAccessState.copy(shouldShowDisableServicesConfirmationDialog = false, loadingServicesOption = true))
+        updateState(updateAppsAccessState.copy(shouldShowDisableAppsConfirmationDialog = false, isLoadingAppsOption = true))
         updateAppsAccessRemotely(false)
     }
 
     fun onServiceDialogDismiss() {
         updateState(
             updateAppsAccessState.copy(
-                loadingServicesOption = false,
-                shouldShowDisableServicesConfirmationDialog = false,
-                isServicesAllowed = !updateAppsAccessState.isServicesAllowed
+                isLoadingAppsOption = false,
+                shouldShowDisableAppsConfirmationDialog = false,
+                isAppAccessAllowed = !updateAppsAccessState.isAppAccessAllowed
             )
         )
     }

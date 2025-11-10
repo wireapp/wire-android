@@ -18,10 +18,9 @@
 package com.wire.android.ui.home.conversations.details.updateappsaccess
 
 data class UpdateAppsAccessState(
-    val isServicesAllowed: Boolean,
-    val isUpdatingServicesAllowed: Boolean,
-    val loadingServicesOption: Boolean,
-    val shouldShowDisableServicesConfirmationDialog: Boolean,
-    val isCompleted: Boolean,
+    val isAppAccessAllowed: Boolean,
+    val isUpdatingAppAccessAllowed: Boolean,
+    val isLoadingAppsOption: Boolean,
+    val shouldShowDisableAppsConfirmationDialog: Boolean,
     val hasErrorOnUpdateAppAccess: Boolean = false
 )

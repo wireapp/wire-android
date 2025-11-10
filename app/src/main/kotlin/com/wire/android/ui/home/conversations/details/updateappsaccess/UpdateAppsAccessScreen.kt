@@ -94,17 +94,17 @@ private fun UpdateAppsAccessContent(
                 item {
                     with(state) {
                         GroupOptionWithSwitch(
-                            switchClickable = isUpdatingServicesAllowed,
+                            switchClickable = isUpdatingAppAccessAllowed,
                             switchVisible = true,
-                            switchState = isServicesAllowed,
+                            switchState = isAppAccessAllowed,
                             onClick = onChangeAppAccess,
-                            isLoading = loadingServicesOption,
+                            isLoading = isLoadingAppsOption,
                             title = R.string.conversation_options_services_label,
                             subTitle = R.string.conversation_options_services_description
                         )
                     }
                 }
-                if (!state.isUpdatingServicesAllowed) {
+                if (!state.isUpdatingAppAccessAllowed) {
                     item {
                         UpgradeToGetAppsBanner()
                     }
@@ -113,15 +113,11 @@ private fun UpdateAppsAccessContent(
         }
     }
 
-    if (state.shouldShowDisableServicesConfirmationDialog) {
+    if (state.shouldShowDisableAppsConfirmationDialog) {
         DisableServicesConfirmationDialog(
             onConfirm = onDisableAppsConfirm,
             onDialogDismiss = onDisableAppsDismiss
         )
-    }
-
-    if (state.isCompleted) {
-        onNavigateBack()
     }
 }
 
@@ -144,11 +140,10 @@ fun UpdateAppsAccessEnabledPreview() = WireTheme {
         onDisableAppsConfirm = {},
         onDisableAppsDismiss = {},
         state = UpdateAppsAccessState(
-            isServicesAllowed = true,
-            isUpdatingServicesAllowed = true,
-            loadingServicesOption = false,
-            shouldShowDisableServicesConfirmationDialog = false,
-            isCompleted = false,
+            isAppAccessAllowed = true,
+            isUpdatingAppAccessAllowed = true,
+            isLoadingAppsOption = false,
+            shouldShowDisableAppsConfirmationDialog = false
         ),
     )
 }
@@ -162,11 +157,10 @@ fun UpdateAppsAccessDisabledPreview() = WireTheme {
         onDisableAppsConfirm = {},
         onDisableAppsDismiss = {},
         state = UpdateAppsAccessState(
-            isServicesAllowed = true,
-            isUpdatingServicesAllowed = false,
-            loadingServicesOption = false,
-            shouldShowDisableServicesConfirmationDialog = false,
-            isCompleted = false,
+            isAppAccessAllowed = true,
+            isUpdatingAppAccessAllowed = false,
+            isLoadingAppsOption = false,
+            shouldShowDisableAppsConfirmationDialog = false
         ),
     )
 }

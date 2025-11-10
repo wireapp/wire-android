@@ -29,6 +29,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -94,7 +95,7 @@ private fun SearchAllAppsContent(
     isConversationWithAppsEnabled: Boolean,
     lazyListState: LazyListState = rememberLazyListState()
 ) {
-    val appsContentState = rememberAppsContentState(
+    val appsContentState by rememberAppsContentState(
         isConversationWithAppsEnabled = isConversationWithAppsEnabled,
         isLoading = isLoading,
         isTeamAllowedToUseApps = isTeamAllowedToUseApps,
@@ -155,20 +156,17 @@ private fun rememberAppsContentState(
     isTeamAllowedToUseApps: Boolean,
     searchQuery: String,
     result: ImmutableList<Contact>
-): AppsContentState {
-    val appsContentState by remember(isConversationWithAppsEnabled, isLoading, isTeamAllowedToUseApps, searchQuery, result) {
-        derivedStateOf {
-            when {
-                isLoading -> AppsContentState.LOADING
-                !isTeamAllowedToUseApps -> AppsContentState.TEAM_NOT_ALLOWED
-                !isConversationWithAppsEnabled -> AppsContentState.APPS_NOT_ENABLED_FOR_CONVERSATION
-                searchQuery.isBlank() && result.isEmpty() -> AppsContentState.EMPTY_INITIAL
-                searchQuery.isNotBlank() && result.isEmpty() -> AppsContentState.EMPTY_SEARCH
-                else -> AppsContentState.SHOW_RESULTS
-            }
+): State<AppsContentState> = remember(isConversationWithAppsEnabled, isLoading, isTeamAllowedToUseApps, searchQuery, result) {
+    derivedStateOf {
+        when {
+            isLoading -> AppsContentState.LOADING
+            !isTeamAllowedToUseApps -> AppsContentState.TEAM_NOT_ALLOWED
+            !isConversationWithAppsEnabled -> AppsContentState.APPS_NOT_ENABLED_FOR_CONVERSATION
+            searchQuery.isBlank() && result.isEmpty() -> AppsContentState.EMPTY_INITIAL
+            searchQuery.isNotBlank() && result.isEmpty() -> AppsContentState.EMPTY_SEARCH
+            else -> AppsContentState.SHOW_RESULTS
         }
     }
-    return appsContentState
 }
 
 @Composable

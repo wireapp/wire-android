@@ -777,9 +777,9 @@
     <string name="profile_image_change_image_button_label">Change Picture…</string>
     <!--Conversation-->
     <string name="label_message_details">Message Details</string>
-    <string name="label_copy">Copy</string>
+    <string name="label_copy">Copy text</string>
     <string name="label_share">Share</string>
-    <string name="label_edit">Edit</string>
+    <string name="label_edit">Edit text</string>
     <string name="label_delete">Delete</string>
     <string name="info_message_copied">Message copied</string>
     <string name="conversation_banner_federated">federated users</string>

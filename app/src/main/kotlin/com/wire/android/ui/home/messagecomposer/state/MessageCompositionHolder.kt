@@ -58,7 +58,7 @@ class MessageCompositionHolder(
     var messageTextState: TextFieldState,
     val onClearDraft: () -> Unit,
     private val onSaveDraft: (MessageDraft) -> Unit,
-    private val onMessageTextUpdate: (String) -> Unit,
+    private val onMessageTextUpdate: (MessageDraft) -> Unit,
     private val onSearchMentionQueryChanged: (String) -> Unit,
     private val onClearMentionSearchResult: () -> Unit,
     private val onTypingEvent: (TypingIndicatorMode) -> Unit,
@@ -120,7 +120,7 @@ class MessageCompositionHolder(
                 updateTypingEvent(messageText.toString())
                 updateMentionsIfNeeded(messageText.toString())
                 requestMentionSuggestionIfNeeded(messageText.toString(), selection)
-                onMessageTextUpdate(messageText.toString())
+                onMessageTextUpdate(messageComposition.value.toDraft(messageText = messageText.toString()))
             }
     }
 
@@ -242,7 +242,7 @@ class MessageCompositionHolder(
         onSaveDraft(messageComposition.value.toDraft(resultText))
     }
 
-    fun setEditText(messageId: String, editMessageText: String, mentions: List<MessageMention>) {
+    fun setEditText(messageId: String, editMessageText: String, mentions: List<MessageMention>, isMultipart: Boolean) {
         messageTextState.setTextAndPlaceCursorAtEnd(editMessageText)
         messageComposition.update {
             it.copy(
@@ -250,6 +250,7 @@ class MessageCompositionHolder(
                 editMessageId = messageId,
                 quotedMessage = null,
                 quotedMessageId = null,
+                isMultipart = isMultipart,
             )
         }
         onSaveDraft(messageComposition.value.toDraft(editMessageText))

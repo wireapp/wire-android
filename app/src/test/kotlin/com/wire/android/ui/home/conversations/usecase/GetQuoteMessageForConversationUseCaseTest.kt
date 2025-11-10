@@ -33,6 +33,7 @@ import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.ui.theme.Accent
 import com.wire.android.util.ui.toUIText
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.data.id.ConversationId
@@ -76,7 +77,18 @@ class GetQuoteMessageForConversationUseCaseTest {
 
         val result = useCase(CONVERSATION_ID, QUOTED_MESSAGE_ID)
 
-        assertEquals(UIQuotedMessage.UnavailableData, result)
+        assertEquals(
+            UIQuotedMessage.UIQuotedData(
+                messageId = "message_id",
+                senderId = USER_ID,
+                senderName = "User".toUIText(),
+                senderAccent = Accent.Unknown,
+                originalMessageDateDescription = "".toUIText(),
+                editedTimeDescription = "".toUIText(),
+                quotedContent = UIQuotedMessage.UIQuotedData.Text("Hello".toUIText())
+            ),
+            result
+        )
     }
 
     @Test
@@ -221,6 +233,7 @@ class GetQuoteMessageForConversationUseCaseTest {
             coEvery { messageMapper.toUIMessage(any(), any()) } returns UIMessage.Regular(
                 conversationId = CONVERSATION_ID,
                 header = MessageHeader(
+                    userId = USER_ID,
                     username = "User".toUIText(),
                     membership = Membership.Standard,
                     showLegalHoldIndicator = false,

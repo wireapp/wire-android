@@ -495,7 +495,6 @@ fun PreviewGroupOptionScreen_AppsDisabled_Group() = PreviewGroupOptionScreen(
     withAppsEnabled = false
 )
 
-
 @Composable
 @PreviewMultipleThemes
 fun PreviewGroupOptionScreen_AppsEnabled_Group() = PreviewGroupOptionScreen(

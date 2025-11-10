@@ -271,7 +271,6 @@ fun PreviewSearchAllServicesScreen_Loading() = WireTheme {
     )
 }
 
-
 @PreviewMultipleThemes
 @Composable
 fun PreviewSearchAllServicesScreen_TeamNotEnabledForApps() = WireTheme {

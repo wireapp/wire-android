@@ -77,6 +77,7 @@ class UpdateAppsAccessViewModel @Inject constructor(
         observeConversationDetails()
     }
 
+    @Suppress("DestructuringDeclarationWithTooManyEntries")
     private fun observeConversationDetails() {
         viewModelScope.launch {
             val conversationDetailsFlow = observeConversationDetails(conversationId)

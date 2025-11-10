@@ -26,13 +26,13 @@ import com.wire.android.config.mockUri
 import com.wire.android.framework.TestConversation
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
-import com.wire.android.ui.home.conversations.usecase.ObserveQuoteMessageForConversationUseCase
+import com.wire.android.ui.home.conversations.usecase.GetQuoteMessageForConversationUseCase
 import com.wire.android.ui.navArgs
 import com.wire.android.ui.theme.Accent
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.message.draft.MessageDraft
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.message.draft.ObserveMessageDraftUseCase
+import com.wire.kalium.logic.feature.message.draft.GetMessageDraftUseCase
 import com.wire.kalium.logic.feature.message.draft.SaveMessageDraftUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -40,7 +40,6 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -71,7 +70,7 @@ class MessageDraftViewModelTest {
         // then
         assertEquals(messageDraft.text, viewModel.state.value.draftText)
         coVerify(exactly = 1) {
-            arrangement.observeMessageDraft(any())
+            arrangement.getMessageDraft(any())
         }
     }
 
@@ -88,7 +87,7 @@ class MessageDraftViewModelTest {
         // then
         assertEquals(true, viewModel.state.value.draftText.isEmpty())
         coVerify(exactly = 1) {
-            arrangement.observeMessageDraft(any())
+            arrangement.getMessageDraft(any())
         }
     }
 
@@ -125,10 +124,10 @@ class MessageDraftViewModelTest {
         assertEquals(quotedData, viewModel.state.value.quotedMessage)
 
         coVerify(exactly = 1) {
-            arrangement.observeMessageDraft(any())
+            arrangement.getMessageDraft(any())
         }
         coVerify(exactly = 1) {
-            arrangement.observeQuoteMessageForConversation(any(), any())
+            arrangement.getQuoteMessageForConversation(any(), any())
         }
     }
 
@@ -157,10 +156,10 @@ class MessageDraftViewModelTest {
         assertEquals(null, viewModel.state.value.quotedMessageId)
 
         coVerify(exactly = 1) {
-            arrangement.observeMessageDraft(any())
+            arrangement.getMessageDraft(any())
         }
         coVerify(exactly = 1) {
-            arrangement.observeQuoteMessageForConversation(any(), any())
+            arrangement.getQuoteMessageForConversation(any(), any())
         }
     }
 
@@ -179,33 +178,33 @@ class MessageDraftViewModelTest {
         private lateinit var savedStateHandle: SavedStateHandle
 
         @MockK
-        lateinit var observeMessageDraft: ObserveMessageDraftUseCase
+        lateinit var getMessageDraft: GetMessageDraftUseCase
 
         @MockK
         lateinit var saveMessageDraft: SaveMessageDraftUseCase
 
         @MockK
-        lateinit var observeQuoteMessageForConversation: ObserveQuoteMessageForConversationUseCase
+        lateinit var getQuoteMessageForConversation: GetQuoteMessageForConversationUseCase
 
         private val viewModel by lazy {
             MessageDraftViewModel(
                 savedStateHandle,
-                observeMessageDraft,
-                observeQuoteMessageForConversation,
+                getMessageDraft,
+                getQuoteMessageForConversation,
                 saveMessageDraft,
             )
         }
 
         fun withNoMessageDraft() = apply {
-            coEvery { observeMessageDraft(any()) } returns flowOf()
+            coEvery { getMessageDraft(any()) } returns null
         }
 
         fun withMessageDraft(messageDraft: MessageDraft) = apply {
-            coEvery { observeMessageDraft(any()) } returns flowOf(messageDraft)
+            coEvery { getMessageDraft(any()) } returns messageDraft
         }
 
         fun withQuotedMessage(quotedMessage: UIQuotedMessage) = apply {
-            coEvery { observeQuoteMessageForConversation(any(), any()) } returns flowOf(quotedMessage)
+            coEvery { getQuoteMessageForConversation(any(), any()) } returns quotedMessage
         }
 
         fun arrange() = this to viewModel

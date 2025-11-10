@@ -122,7 +122,7 @@ class UpdateAppsAccessViewModel @Inject constructor(
         val selfUser: SelfUser
     )
 
-    fun onServicesUpdate(shouldEnableAppsAccess: Boolean) {
+    fun onAppsAccessUpdate(shouldEnableAppsAccess: Boolean) {
         updateState(updateAppsAccessState.copy(isLoadingAppsOption = true, isAppAccessAllowed = shouldEnableAppsAccess))
         when (shouldEnableAppsAccess) {
             true -> updateAppsAccessRemotely(true)
@@ -188,7 +188,7 @@ class UpdateAppsAccessViewModel @Inject constructor(
         updateAppsAccessRemotely(false)
     }
 
-    fun onServiceDialogDismiss() {
+    fun onAppsDialogDismiss() {
         updateState(
             updateAppsAccessState.copy(
                 isLoadingAppsOption = false,

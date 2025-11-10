@@ -53,7 +53,8 @@ class AddMembersToConversationViewModelTest {
                 withAddMembersSearchNavArgs(
                     AddMembersSearchNavArgs(
                         conversationId = ConversationId("conversationId", "domain"),
-                        isAppsUsageAllowed = false
+                        isConversationWithAppsEnabled = false,
+                        isSelfPartOfATeam = true
                     )
                 )
             }
@@ -81,7 +82,8 @@ class AddMembersToConversationViewModelTest {
                 withAddMembersSearchNavArgs(
                     AddMembersSearchNavArgs(
                         conversationId = ConversationId("conversationId", "domain"),
-                        isAppsUsageAllowed = false
+                        isConversationWithAppsEnabled = false,
+                        isSelfPartOfATeam = true
                     )
                 )
             }
@@ -111,7 +113,8 @@ class AddMembersToConversationViewModelTest {
                 withAddMembersSearchNavArgs(
                     AddMembersSearchNavArgs(
                         conversationId = ConversationId("conversationId", "domain"),
-                        isAppsUsageAllowed = false
+                        isConversationWithAppsEnabled = false,
+                        isSelfPartOfATeam = true
                     )
                 )
                 withAddMemberToConversationUseCase(AddMemberToConversationUseCase.Result.Success)

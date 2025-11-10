@@ -54,9 +54,9 @@ fun UpdateAppsAccessScreen(
 ) {
     UpdateAppsAccessContent(
         onNavigateBack = navigator::navigateBack,
-        onChangeAppAccess = updateAppsAccessViewModel::onServicesUpdate,
+        onChangeAppAccess = updateAppsAccessViewModel::onAppsAccessUpdate,
         onDisableAppsConfirm = updateAppsAccessViewModel::onServiceDialogConfirm,
-        onDisableAppsDismiss = updateAppsAccessViewModel::onServiceDialogDismiss,
+        onDisableAppsDismiss = updateAppsAccessViewModel::onAppsDialogDismiss,
         state = updateAppsAccessViewModel.updateAppsAccessState,
     )
 }

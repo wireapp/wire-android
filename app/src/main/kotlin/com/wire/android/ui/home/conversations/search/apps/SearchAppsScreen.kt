@@ -94,19 +94,13 @@ private fun SearchAllAppsContent(
     isConversationWithAppsEnabled: Boolean,
     lazyListState: LazyListState = rememberLazyListState()
 ) {
-    val appsContentState by remember(isConversationWithAppsEnabled, isLoading, isTeamAllowedToUseApps, searchQuery, result) {
-        derivedStateOf {
-            when {
-                isLoading -> AppsContentState.LOADING
-                !isTeamAllowedToUseApps -> AppsContentState.TEAM_NOT_ALLOWED
-                !isConversationWithAppsEnabled -> AppsContentState.APPS_NOT_ENABLED_FOR_CONVERSATION
-                searchQuery.isBlank() && result.isEmpty() -> AppsContentState.EMPTY_INITIAL
-                searchQuery.isNotBlank() && result.isEmpty() -> AppsContentState.EMPTY_SEARCH
-                else -> AppsContentState.SHOW_RESULTS
-            }
-        }
-    }
-
+    val appsContentState = rememberAppsContentState(
+        isConversationWithAppsEnabled = isConversationWithAppsEnabled,
+        isLoading = isLoading,
+        isTeamAllowedToUseApps = isTeamAllowedToUseApps,
+        searchQuery = searchQuery,
+        result = result
+    )
     // Reset scroll position only when search query changes (not on loading/state changes)
     LaunchedEffect(searchQuery) {
         if (searchQuery.isNotBlank()) {
@@ -152,6 +146,29 @@ private fun SearchAllAppsContent(
             }
         }
     }
+}
+
+@Composable
+private fun rememberAppsContentState(
+    isConversationWithAppsEnabled: Boolean,
+    isLoading: Boolean,
+    isTeamAllowedToUseApps: Boolean,
+    searchQuery: String,
+    result: ImmutableList<Contact>
+): AppsContentState {
+    val appsContentState by remember(isConversationWithAppsEnabled, isLoading, isTeamAllowedToUseApps, searchQuery, result) {
+        derivedStateOf {
+            when {
+                isLoading -> AppsContentState.LOADING
+                !isTeamAllowedToUseApps -> AppsContentState.TEAM_NOT_ALLOWED
+                !isConversationWithAppsEnabled -> AppsContentState.APPS_NOT_ENABLED_FOR_CONVERSATION
+                searchQuery.isBlank() && result.isEmpty() -> AppsContentState.EMPTY_INITIAL
+                searchQuery.isNotBlank() && result.isEmpty() -> AppsContentState.EMPTY_SEARCH
+                else -> AppsContentState.SHOW_RESULTS
+            }
+        }
+    }
+    return appsContentState
 }
 
 @Composable
@@ -209,20 +226,6 @@ private fun AppsList(
             }
         }
     }
-}
-
-@PreviewMultipleThemes
-@Composable
-fun PreviewSearchAllServicesScreen_Loading() = WireTheme {
-    SearchAllAppsContent(
-        searchQuery = "",
-        result = persistentListOf(),
-        isLoading = true,
-        onServiceClicked = {},
-        isTeamAllowedToUseApps = true,
-        isSelfATeamAdmin = true,
-        isConversationWithAppsEnabled = true
-    )
 }
 
 @PreviewMultipleThemes

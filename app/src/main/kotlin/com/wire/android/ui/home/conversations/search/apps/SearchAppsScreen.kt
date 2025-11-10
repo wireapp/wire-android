@@ -94,12 +94,12 @@ private fun SearchAllAppsContent(
     isConversationWithAppsEnabled: Boolean,
     lazyListState: LazyListState = rememberLazyListState()
 ) {
-    val appsContentState by remember(isLoading, isTeamAllowedToUseApps, searchQuery, result) {
+    val appsContentState by remember(isConversationWithAppsEnabled, isLoading, isTeamAllowedToUseApps, searchQuery, result) {
         derivedStateOf {
             when {
-                !isConversationWithAppsEnabled -> AppsContentState.APPS_NOT_ENABLED_FOR_CONVERSATION
                 isLoading -> AppsContentState.LOADING
                 !isTeamAllowedToUseApps -> AppsContentState.TEAM_NOT_ALLOWED
+                !isConversationWithAppsEnabled -> AppsContentState.APPS_NOT_ENABLED_FOR_CONVERSATION
                 searchQuery.isBlank() && result.isEmpty() -> AppsContentState.EMPTY_INITIAL
                 searchQuery.isNotBlank() && result.isEmpty() -> AppsContentState.EMPTY_SEARCH
                 else -> AppsContentState.SHOW_RESULTS

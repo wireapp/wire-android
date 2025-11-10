@@ -154,6 +154,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
                         loadingWireCellState = false,
                         isWireCellEnabled = groupDetails.wireCell != null,
                         isWireCellFeatureEnabled = isWireCellsEnabled(),
+                        isSelfPartOfATeam = selfTeam != null,
                     )
                 )
             }.collect {}

@@ -68,6 +68,7 @@ data class GroupConversationOptionsState(
     val loadingWireCellState: Boolean = false,
     val isWireCellFeatureEnabled: Boolean = false,
     val isWireCellEnabled: Boolean = false,
+    val isSelfPartOfATeam: Boolean = false,
 ) {
 
     sealed interface Error {

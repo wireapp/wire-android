@@ -204,7 +204,8 @@ fun GroupConversationDetailsScreen(
                 NavigationCommand(
                     AddMembersSearchScreenDestination(
                         conversationId = viewModel.conversationId,
-                        isConversationWithAppsEnabled = groupOptions.isServicesAllowed
+                        isConversationWithAppsEnabled = groupOptions.isServicesAllowed,
+                        isSelfPartOfATeam = groupOptions.isSelfPartOfATeam
                     )
                 )
             )

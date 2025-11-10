@@ -115,6 +115,7 @@ private fun SearchAllAppsContent(
             label = "SearchAppsContentTransition",
             modifier = Modifier.fillMaxSize()
         ) { state ->
+            // order here matters for Crossfade animation and priority of states
             when (state) {
                 AppsContentState.LOADING -> {
                     CenteredCircularProgressBarIndicator()

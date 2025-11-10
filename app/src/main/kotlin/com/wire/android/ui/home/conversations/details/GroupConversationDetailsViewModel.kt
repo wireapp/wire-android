@@ -42,7 +42,6 @@ import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateReceiptModeResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReceiptModeUseCase
-import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageUseCase
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.team.GetUpdatedSelfTeamUseCase
@@ -77,7 +76,6 @@ class GroupConversationDetailsViewModel @Inject constructor(
     private val isMLSEnabled: IsMLSEnabledUseCase,
     refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase,
     private val isWireCellsEnabled: IsWireCellsEnabledUseCase,
-    private val observeIsAppsAllowedForUsage: ObserveIsAppsAllowedForUsageUseCase,
 ) : GroupConversationParticipantsViewModel(savedStateHandle, observeConversationMembers, refreshUsersWithoutMetadata),
     ActionsManager<GroupConversationDetailsViewAction> by ActionsManagerImpl() {
 
@@ -115,10 +113,9 @@ class GroupConversationDetailsViewModel @Inject constructor(
             val selfUser = getSelfUser()
 
             combine(
-                observeIsAppsAllowedForUsage(),
                 groupDetailsFlow,
                 observeSelfDeletionTimerSettingsForConversation(conversationId, considerSelfUserSettings = false),
-            ) { isAppsUsageAllowed, groupDetails, selfDeletionTimer ->
+            ) { groupDetails, selfDeletionTimer ->
                 val isSelfInTeamThatOwnsConversation = selfTeam?.id != null && selfTeam.id == groupDetails.conversation.teamId?.value
                 val isSelfExternalMember = selfUser?.userType?.isExternal() == true
                 val isChannel = groupDetails is ConversationDetails.Group.Channel
@@ -236,8 +233,6 @@ class GroupConversationDetailsViewModel @Inject constructor(
     fun updateState(newState: GroupConversationOptionsState) {
         _groupOptionsState.value = newState
     }
-
-    private fun onMessage(text: UIText) = sendAction(GroupConversationDetailsViewAction.Message(text))
 
     companion object {
         const val TAG = "GroupConversationDetailsViewModel"

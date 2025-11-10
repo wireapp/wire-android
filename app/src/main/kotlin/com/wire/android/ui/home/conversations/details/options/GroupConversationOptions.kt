@@ -152,7 +152,7 @@ fun GroupConversationSettings(
                             switchState = SwitchState.TextOnly(value = state.isServicesAllowed),
                             arrowType = if (state.isUpdatingServicesAllowed) ArrowType.TITLE_ALIGNED else ArrowType.NONE,
                             clickable = Clickable(
-                                enabled = state.isUpdatingGuestAllowed,
+                                enabled = state.isUpdatingServicesAllowed,
                                 onClick = onAppsAccessItemClicked,
                                 onClickDescription = stringResource(id = R.string.content_description_conversation_details_apps_action)
                             ),
@@ -367,7 +367,7 @@ fun GroupOptionWithSwitch(
 }
 
 @Composable
-fun DisableConformationDialog(@StringRes title: Int, @StringRes text: Int, onConfirm: () -> Unit, onDismiss: () -> Unit) {
+fun DisableConfirmationDialog(@StringRes title: Int, @StringRes text: Int, onConfirm: () -> Unit, onDismiss: () -> Unit) {
     WireDialog(
         title = stringResource(id = title),
         text = stringResource(id = text),

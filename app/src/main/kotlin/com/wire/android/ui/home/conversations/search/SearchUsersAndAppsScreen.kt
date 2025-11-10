@@ -82,7 +82,7 @@ fun SearchUsersAndAppsScreen(
     modifier: Modifier = Modifier,
     isGroupSubmitVisible: Boolean = true,
     isAppsTabVisible: Boolean = false,
-    isConversationWithAppsEnabled: Boolean = true,
+    isConversationAppsEnabled: Boolean = true,
     initialPage: SearchPeopleTabItem = SearchPeopleTabItem.PEOPLE,
     onContinue: () -> Unit = {},
     onCreateNewGroup: () -> Unit = {},
@@ -190,7 +190,7 @@ fun SearchUsersAndAppsScreen(
                                 searchQuery = searchBarState.searchQueryTextState.text.toString(),
                                 onServiceClicked = onAppClicked,
                                 lazyListState = lazyListStates[pageIndex],
-                                isConversationWithAppsEnabled = isConversationWithAppsEnabled,
+                                isConversationAppsEnabled = isConversationAppsEnabled,
                             )
                         }
                     }

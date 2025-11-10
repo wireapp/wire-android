@@ -134,7 +134,7 @@ class UpdateAppsAccessViewModel @Inject constructor(
         viewModelScope.launch {
             val result = withContext(dispatcher.io()) {
                 updateConversationAccess(
-                    enableGuestAndNonTeamMember = currentAccessParams.isGuestAccessAllowed,
+                    enableGuestAndNonTeamMember = currentAccessParams.isGuestAllowed,
                     enableServices = shouldEnableAppsAccess,
                     conversationId = conversationId
                 )

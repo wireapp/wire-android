@@ -204,7 +204,7 @@ fun GroupConversationDetailsScreen(
                 NavigationCommand(
                     AddMembersSearchScreenDestination(
                         conversationId = viewModel.conversationId,
-                        isConversationWithAppsEnabled = groupOptions.isServicesAllowed,
+                        isConversationAppsEnabled = groupOptions.isAppsAllowed,
                         isSelfPartOfATeam = groupOptions.isSelfPartOfATeam
                     )
                 )
@@ -218,7 +218,7 @@ fun GroupConversationDetailsScreen(
                         viewModel.conversationId,
                         EditGuestAccessParams(
                             groupOptions.isGuestAllowed,
-                            groupOptions.isServicesAllowed,
+                            groupOptions.isAppsAllowed,
                             groupOptions.isUpdatingGuestAllowed
                         )
                     )
@@ -231,8 +231,8 @@ fun GroupConversationDetailsScreen(
                     UpdateAppsAccessScreenDestination(
                         viewModel.conversationId,
                         UpdateAppsAccessParams(
-                            isGuestAccessAllowed = groupOptions.isGuestAllowed,
-                            isAppsAccessAllowed = groupOptions.isServicesAllowed
+                            isGuestAllowed = groupOptions.isGuestAllowed,
+                            isAppsAllowed = groupOptions.isAppsAllowed
                         )
                     )
                 )

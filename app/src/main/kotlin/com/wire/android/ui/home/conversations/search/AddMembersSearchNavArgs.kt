@@ -21,6 +21,6 @@ import com.wire.kalium.logic.data.id.ConversationId
 
 data class AddMembersSearchNavArgs(
     val conversationId: ConversationId,
-    val isConversationWithAppsEnabled: Boolean,
+    val isConversationAppsEnabled: Boolean,
     val isSelfPartOfATeam: Boolean
 )

@@ -168,7 +168,7 @@ class GroupDetailsViewModelTest {
             details.conversation.teamId?.value == selfTeam.id,
             viewModel.groupOptionsState.value.isUpdatingGuestAllowed
         )
-        assertEquals(true, viewModel.groupOptionsState.value.isUpdatingServicesAllowed)
+        assertEquals(true, viewModel.groupOptionsState.value.isUpdatingAppsAllowed)
         assertEquals(true, viewModel.groupOptionsState.value.isUpdatingSelfDeletingAllowed)
         assertEquals(
             details.conversation.isTeamGroup(),

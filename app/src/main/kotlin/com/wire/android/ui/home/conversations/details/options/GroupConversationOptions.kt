@@ -149,10 +149,10 @@ fun GroupConversationSettings(
                         GroupConversationOptionsItem(
                             title = stringResource(id = R.string.conversation_options_services_label),
                             subtitle = stringResource(id = R.string.conversation_options_services_description),
-                            switchState = SwitchState.TextOnly(value = state.isServicesAllowed),
-                            arrowType = if (state.isUpdatingServicesAllowed) ArrowType.TITLE_ALIGNED else ArrowType.NONE,
+                            switchState = SwitchState.TextOnly(value = state.isAppsAllowed),
+                            arrowType = if (state.isUpdatingAppsAllowed) ArrowType.TITLE_ALIGNED else ArrowType.NONE,
                             clickable = Clickable(
-                                enabled = state.isUpdatingServicesAllowed,
+                                enabled = state.isUpdatingAppsAllowed,
                                 onClick = onAppsAccessItemClicked,
                                 onClickDescription = stringResource(id = R.string.content_description_conversation_details_apps_action)
                             ),
@@ -390,7 +390,7 @@ private val StateMember = GroupConversationOptionsState(
     groupName = "Conversation Name",
     areAccessOptionsAvailable = true,
     isGuestAllowed = true,
-    isServicesAllowed = true,
+    isAppsAllowed = true,
     isReadReceiptAllowed = true,
 )
 
@@ -398,7 +398,7 @@ private val StateAdmin = StateMember.copy(
     isUpdatingNameAllowed = true,
     isUpdatingGuestAllowed = true,
     isUpdatingChannelAccessAllowed = true,
-    isUpdatingServicesAllowed = true,
+    isUpdatingAppsAllowed = true,
     isUpdatingSelfDeletingAllowed = true,
     isUpdatingReadReceiptAllowed = true,
 )

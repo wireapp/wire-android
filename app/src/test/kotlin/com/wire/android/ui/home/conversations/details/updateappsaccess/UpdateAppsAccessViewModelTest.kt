@@ -369,8 +369,8 @@ internal class UpdateAppsAccessViewModelArrangement {
         every { savedStateHandle.navArgs<UpdateAppsAccessNavArgs>() } returns UpdateAppsAccessNavArgs(
             conversationId = conversationId,
             updateAppsAccessParams = UpdateAppsAccessParams(
-                isGuestAccessAllowed = true,
-                isAppsAccessAllowed = true
+                isGuestAllowed = true,
+                isAppsAllowed = true
             )
         )
 
@@ -385,8 +385,8 @@ internal class UpdateAppsAccessViewModelArrangement {
         every { savedStateHandle.navArgs<UpdateAppsAccessNavArgs>() } returns UpdateAppsAccessNavArgs(
             conversationId = conversationId,
             updateAppsAccessParams = UpdateAppsAccessParams(
-                isGuestAccessAllowed = false,
-                isAppsAccessAllowed = true
+                isGuestAllowed = false,
+                isAppsAllowed = true
             )
         )
     }

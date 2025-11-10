@@ -62,7 +62,7 @@ import kotlinx.collections.immutable.toPersistentList
 fun SearchAppsScreen(
     searchQuery: String,
     onServiceClicked: (Contact) -> Unit,
-    isConversationWithAppsEnabled: Boolean,
+    isConversationAppsEnabled: Boolean,
     searchAppsViewModel: SearchAppsViewModel = hiltViewModel(),
     lazyListState: LazyListState = rememberLazyListState()
 ) {
@@ -79,7 +79,7 @@ fun SearchAppsScreen(
             isTeamAllowedToUseApps = state.isTeamAllowedToUseApps,
             isSelfATeamAdmin = state.isSelfATeamAdmin,
             lazyListState = lazyListState,
-            isConversationWithAppsEnabled = isConversationWithAppsEnabled
+            isConversationAppsEnabled = isConversationAppsEnabled
         )
     }
 }
@@ -92,11 +92,11 @@ private fun SearchAllAppsContent(
     onServiceClicked: (Contact) -> Unit,
     isTeamAllowedToUseApps: Boolean,
     isSelfATeamAdmin: Boolean,
-    isConversationWithAppsEnabled: Boolean,
+    isConversationAppsEnabled: Boolean,
     lazyListState: LazyListState = rememberLazyListState()
 ) {
     val appsContentState by rememberAppsContentState(
-        isConversationWithAppsEnabled = isConversationWithAppsEnabled,
+        isConversationAppsEnabled = isConversationAppsEnabled,
         isLoading = isLoading,
         isTeamAllowedToUseApps = isTeamAllowedToUseApps,
         searchQuery = searchQuery,
@@ -152,17 +152,17 @@ private fun SearchAllAppsContent(
 
 @Composable
 private fun rememberAppsContentState(
-    isConversationWithAppsEnabled: Boolean,
+    isConversationAppsEnabled: Boolean,
     isLoading: Boolean,
     isTeamAllowedToUseApps: Boolean,
     searchQuery: String,
     result: ImmutableList<Contact>
-): State<AppsContentState> = remember(isConversationWithAppsEnabled, isLoading, isTeamAllowedToUseApps, searchQuery, result) {
+): State<AppsContentState> = remember(isConversationAppsEnabled, isLoading, isTeamAllowedToUseApps, searchQuery, result) {
     derivedStateOf {
         when {
             isLoading -> AppsContentState.LOADING
             !isTeamAllowedToUseApps -> AppsContentState.TEAM_NOT_ALLOWED
-            !isConversationWithAppsEnabled -> AppsContentState.APPS_NOT_ENABLED_FOR_CONVERSATION
+            !isConversationAppsEnabled -> AppsContentState.APPS_NOT_ENABLED_FOR_CONVERSATION
             searchQuery.isBlank() && result.isEmpty() -> AppsContentState.EMPTY_INITIAL
             searchQuery.isNotBlank() && result.isEmpty() -> AppsContentState.EMPTY_SEARCH
             else -> AppsContentState.SHOW_RESULTS
@@ -237,7 +237,7 @@ fun PreviewSearchAllServicesScreen_TeamNotEnabledForApps() = WireTheme {
         onServiceClicked = {},
         isTeamAllowedToUseApps = false,
         isSelfATeamAdmin = true,
-        isConversationWithAppsEnabled = true
+        isConversationAppsEnabled = true
     )
 }
 
@@ -251,7 +251,7 @@ fun PreviewSearchAllServicesScreen_InitialResults() = WireTheme {
         onServiceClicked = {},
         isTeamAllowedToUseApps = true,
         isSelfATeamAdmin = true,
-        isConversationWithAppsEnabled = true
+        isConversationAppsEnabled = true
     )
 }
 
@@ -265,7 +265,7 @@ fun PreviewSearchAllServicesScreen_EmptyInitialResults_TeamAdmin() = WireTheme {
         onServiceClicked = {},
         isTeamAllowedToUseApps = true,
         isSelfATeamAdmin = true,
-        isConversationWithAppsEnabled = true
+        isConversationAppsEnabled = true
     )
 }
 
@@ -279,7 +279,7 @@ fun PreviewSearchAllServicesScreen_EmptyInitialResults_NonTeamAdmin() = WireThem
         onServiceClicked = {},
         isTeamAllowedToUseApps = true,
         isSelfATeamAdmin = false,
-        isConversationWithAppsEnabled = true
+        isConversationAppsEnabled = true
     )
 }
 
@@ -293,7 +293,7 @@ fun PreviewSearchAllServicesScreen_SearchResults() = WireTheme {
         onServiceClicked = {},
         isTeamAllowedToUseApps = true,
         isSelfATeamAdmin = true,
-        isConversationWithAppsEnabled = true
+        isConversationAppsEnabled = true
     )
 }
 
@@ -307,7 +307,7 @@ fun PreviewSearchAllServicesScreen_EmptySearchResults() = WireTheme {
         onServiceClicked = {},
         isTeamAllowedToUseApps = true,
         isSelfATeamAdmin = true,
-        isConversationWithAppsEnabled = true
+        isConversationAppsEnabled = true
     )
 }
 
@@ -321,7 +321,7 @@ fun PreviewSearchAllServicesScreen_EmptySearchResultsDisabledInConversation() = 
         onServiceClicked = {},
         isTeamAllowedToUseApps = true,
         isSelfATeamAdmin = true,
-        isConversationWithAppsEnabled = false
+        isConversationAppsEnabled = false
     )
 }
 

@@ -60,7 +60,7 @@ jobs:
           echo "{}" > ./package.json
           npx generate-changelog@1.8.0 -t "$PREVIOUS_TAG...$CURRENT_TAG"
 
-      - name: 'Attach changelog to tag'
+      - name: 'Create release with changelog'
         uses: softprops/action-gh-release@v2.4.1
         env:
           GITHUB_TOKEN: ${{ secrets.ANDROID_BOB_GH_TOKEN }}
@@ -68,5 +68,6 @@ jobs:
           tag_name: ${{env.CURRENT_TAG}}
           name: ${{env.CURRENT_TAG}}
           body_path: ./CHANGELOG.md
-          draft: true
+          draft: false
           prerelease: false
+          make_latest: false

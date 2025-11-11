@@ -46,7 +46,7 @@ internal fun UIMessage.Regular.MessageContentAndStatus(
     searchQuery: String,
     messageStyle: MessageStyle,
     onAssetClicked: (String) -> Unit,
-    onImageClicked: (UIMessage.Regular, Boolean) -> Unit,
+    onImageClicked: (UIMessage.Regular, Boolean, String?) -> Unit,
     onProfileClicked: (String) -> Unit,
     onLinkClicked: (String) -> Unit,
     onReplyClicked: (UIMessage.Regular) -> Unit,
@@ -60,11 +60,19 @@ internal fun UIMessage.Regular.MessageContentAndStatus(
             onAssetClicked(header.messageId)
         })
     }
+
     val onImageClickable = remember(message) {
         Clickable(enabled = isAvailable, onClick = {
-            onImageClicked(message, source == MessageSource.Self)
+            onImageClicked(message, source == MessageSource.Self, null)
         })
     }
+
+    val onMultipartImageClickable: (String) -> Unit = remember(message) {
+        {
+            onImageClicked(message, source == MessageSource.Self, it)
+        }
+    }
+
     val onReplyClickable = remember(message) {
         Clickable {
             onReplyClicked(message)
@@ -80,37 +88,38 @@ internal fun UIMessage.Regular.MessageContentAndStatus(
             assetStatus = assetStatus,
             onAssetClick = onAssetClickable,
             onImageClick = onImageClickable,
-            onOpenProfile = onProfileClicked,
-            onLinkClick = onLinkClicked,
-            onReplyClick = onReplyClickable,
-            messageStyle = messageStyle,
-            accent = accent
-        )
-        if (!messageStyle.isBubble()) {
-            if (messageContent is PartialDeliverable && messageContent.deliveryStatus.hasAnyFailures) {
-                PartialDeliveryInformation(messageContent.deliveryStatus, messageStyle)
+            onMultipartImageClick = onMultipartImageClickable,
+                onOpenProfile = onProfileClicked,
+                onLinkClick = onLinkClicked,
+                onReplyClick = onReplyClickable,
+                messageStyle = messageStyle,
+                accent = accent
+            )
+            if (!messageStyle.isBubble()) {
+                if (messageContent is PartialDeliverable && messageContent.deliveryStatus.hasAnyFailures) {
+                    PartialDeliveryInformation(messageContent.deliveryStatus, messageStyle)
+                }
             }
         }
-    }
-    if (!messageStyle.isBubble()) {
-        if (isMyMessage && shouldDisplayMessageStatus) {
-            MessageStatusIndicator(
-                status = message.header.messageStatus.flowStatus,
-                isGroupConversation = conversationDetailsData is ConversationDetailsData.Group,
-                messageStyle = messageStyle,
-                modifier = Modifier.padding(
-                    top = if (message.isTextContentWithoutQuote) dimensions().spacing2x else dimensions().spacing4x,
-                    start = dimensions().spacing8x
+        if (!messageStyle.isBubble()) {
+            if (isMyMessage && shouldDisplayMessageStatus) {
+                MessageStatusIndicator(
+                    status = message.header.messageStatus.flowStatus,
+                    isGroupConversation = conversationDetailsData is ConversationDetailsData.Group,
+                    messageStyle = messageStyle,
+                    modifier = Modifier.padding(
+                        top = if (message.isTextContentWithoutQuote) dimensions().spacing2x else dimensions().spacing4x,
+                        start = dimensions().spacing8x
+                    )
                 )
-            )
+            } else {
+                HorizontalSpace.x24()
+            }
         } else {
-            HorizontalSpace.x24()
-        }
-    } else {
-        if (message.isTextContentWithoutQuote) {
-            VerticalSpace.x2()
-        } else {
-            VerticalSpace.x4()
+            if (message.isTextContentWithoutQuote) {
+                VerticalSpace.x2()
+            } else {
+                VerticalSpace.x4()
         }
     }
 }
@@ -125,6 +134,7 @@ private fun MessageContent(
     assetStatus: AssetTransferStatus?,
     onAssetClick: Clickable,
     onImageClick: Clickable,
+    onMultipartImageClick: (String) -> Unit,
     onOpenProfile: (String) -> Unit,
     onLinkClick: (String) -> Unit,
     onReplyClick: Clickable,
@@ -359,6 +369,7 @@ private fun MessageContent(
                     attachments = messageContent.attachments,
                     messageStyle = messageStyle,
                     accent = accent,
+                    onImageAttachmentClick = onMultipartImageClick
                 )
             }
 

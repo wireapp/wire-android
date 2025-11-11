@@ -20,7 +20,7 @@
     <string name="file_list_load_error_title">Error</string>
     <string name="file_list_load_error">The list of files couldn\'t be loaded. Please try again.</string>
     <string name="file_list_page_load_error">Something went wrong loading the list of files. Please try again.</string>
-    <string name="file_list_load_network_error_title">Can’t Load Files</string>
+    <string name="file_list_load_network_error_title">Can’t load files</string>
     <string name="file_list_load_network_error">Your list of files could not be loaded. Please check your Internet connection and try again.</string>
     <string name="file_list_empty_message">For conversations that use file collaboration, you\'ll find shared files here.</string>
     <string name="conversation_file_list_empty_message">You\'ll find all files and folders shared in this conversation here.</string>
@@ -32,7 +32,7 @@
     <string name="delete_permanently">Delete permanently</string>
     <string name="restore_label">Restore</string>
     <string name="add_remove_tags_label">Add or Remove Tags</string>
-    <string name="move_label">Move to Folder</string>
+    <string name="move_label">Move to folder</string>
     <string name="download_label">Download</string>
     <string name="copy_link">Copy Link</string>
     <string name="share_link">Share Link</string>
@@ -61,7 +61,7 @@
     <string name="cell_files_download_failure_message">Download failed.</string>
     <string name="download_file_message">This file is not downloaded yet. Do you want to download it now?</string>
     <string name="download">Download</string>
-    <string name="downloading_file_message">This file is being downloaded…</string>
+    <string name="downloading_file_message">Downloading file…</string>
     <string name="error_share_link">Unable to share link.</string>
     <string name="conversation_files_title">Files</string>
     <string name="creating_link">Creating public link…</string>
@@ -70,12 +70,12 @@
     <string name="cells_create_folder">Create Folder</string>
     <string name="cells_folder_name">Folder Name</string>
     <string name="loading_files">Loading files…</string>
-    <string name="create_folder_error">There was an error while creating a new folder. Please try again</string>
-    <string name="move_to_folder">Move to Folder</string>
+    <string name="create_folder_error">Unable to create folder. Please try again</string>
+    <string name="move_to_folder">Move to folder</string>
     <string name="move_here">Move Here</string>
     <string name="no_subfolders_message">There are no subfolders in this folder.</string>
     <string name="item_move_success">Item was moved to folder.</string>
-    <string name="item_move_failure">Unable to move the Item.</string>
+    <string name="item_move_failure">Unable to move the item.</string>
     <string name="content_description_conversation_files_more_button">Open files options</string>
     <string name="recycle_bin">Recycle Bin</string>
     <string name="open_recycle_bin">Open Recycle Bin</string>
@@ -111,7 +111,7 @@
     <string name="select_tags_label">select tags</string>
     <string name="clear_all_label">Clear All</string>
     <string name="apply_label">Apply</string>
-    <string name="add_or_remove_tags_title">Add or Remove Tags</string>
+    <string name="add_or_remove_tags_title">Add or remove tags</string>
     <string name="tags_description">All members of your team can see and use those tags.</string>
     <string name="added_tags_label">Added tags</string>
     <string name="add_tag_label">Add tag</string>

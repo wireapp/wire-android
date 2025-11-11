@@ -912,7 +912,6 @@
     <string name="label_search_people">Personen suchen</string>
     <string name="label_search_people_or_apps">Personen oder Apps suchen</string>
     <string name="label_search_people_instruction">Nach Personen anhand ihres Profilnamens oder @Benutzernamens suchen</string>
-    <string name="label_search_apps_instruction">Steigern Sie die Produktivität mit Apps.</string>
     <string name="label_learn_more_searching_user">Mehr erfahren</string>
     <string name="label_no_results_found">Keine Ergebnisse, bitte erneut versuchen.</string>
     <string name="label_general_error">Ein Fehler ist aufgetreten</string>

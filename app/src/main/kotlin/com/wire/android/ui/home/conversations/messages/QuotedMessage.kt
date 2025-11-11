@@ -72,6 +72,7 @@ import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.id.ConversationId
 
 private const val TEXT_QUOTE_MAX_LINES = 7
 
@@ -103,6 +104,7 @@ enum class QuotedStyle {
 
 @Composable
 internal fun QuotedMessage(
+    conversationId: ConversationId,
     messageData: UIQuotedMessage.UIQuotedData,
     clickable: Clickable?,
     style: QuotedMessageStyle,
@@ -172,10 +174,11 @@ internal fun QuotedMessage(
         )
 
         is UIQuotedMessage.UIQuotedData.Multipart -> QuotedMultipartMessage(
+            conversationId = conversationId,
+            quotedMessageId = messageData.messageId,
             senderName = messageData.senderName,
             originalDateTimeText = messageData.originalMessageDateDescription,
             text = quotedContent.text?.asString(),
-            attachments = quotedContent.attachments,
             accent = messageData.senderAccent,
             modifier = modifier,
             style = style,
@@ -187,11 +190,13 @@ internal fun QuotedMessage(
 
 @Composable
 fun QuotedMessagePreview(
+    conversationId: ConversationId,
     quotedMessageData: UIQuotedMessage.UIQuotedData,
     onCancelReply: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     QuotedMessage(
+        conversationId = conversationId,
         modifier = modifier,
         messageData = quotedMessageData,
         clickable = null,

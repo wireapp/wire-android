@@ -239,6 +239,11 @@ class RegularMessageMapper @Inject constructor(
                     quotedContent.locationName.orEmpty()
                 )
 
+                is MessageContent.QuotedMessageDetails.Multipart -> UIQuotedMessage.UIQuotedData.Multipart(
+                    text = quotedContent.text?.let { UIText.DynamicString(it) },
+                    attachments = emptyList()
+                )
+
                 MessageContent.QuotedMessageDetails.Deleted -> UIQuotedMessage.UIQuotedData.Deleted
                 MessageContent.QuotedMessageDetails.Invalid -> UIQuotedMessage.UIQuotedData.Invalid
             }

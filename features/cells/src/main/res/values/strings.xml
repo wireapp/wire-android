@@ -73,6 +73,7 @@
     <string name="create_folder_error">Unable to create folder. Please try again</string>
     <string name="move_to_folder">Move to folder</string>
     <string name="move_here">Move Here</string>
+    <string name="no_folders_message">You don’t have any folders yet.\nCreate one to move this item.</string>
     <string name="no_subfolders_message">There are no subfolders in this folder.</string>
     <string name="item_move_success">Item was moved to folder.</string>
     <string name="item_move_failure">Unable to move the item.</string>

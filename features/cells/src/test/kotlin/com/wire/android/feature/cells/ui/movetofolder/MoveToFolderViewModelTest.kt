@@ -19,6 +19,8 @@ package com.wire.android.feature.cells.ui.movetofolder
 
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
+import com.wire.android.config.NavigationTestExtension
+import com.wire.android.feature.cells.ui.model.toUiModel
 import com.wire.android.feature.cells.ui.navArgs
 import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.usecase.GetFoldersUseCase
@@ -31,7 +33,6 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
@@ -40,7 +41,9 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 
+@ExtendWith(NavigationTestExtension::class)
 class MoveToFolderViewModelTest {
 
     private val dispatcher = StandardTestDispatcher()
@@ -56,7 +59,7 @@ class MoveToFolderViewModelTest {
     }
 
     @Test
-    fun `given getCellFilesUseCase success, when loadFiles is called, then emit nodes and update state to Success`() = runTest {
+    fun `given getCellFilesUseCase success, when view model created, then emit nodes and update state to Success`() = runTest {
         val (_, viewModel) = Arrangement()
             .withGetFoldersUseCaseReturning(
                 Either.Right(
@@ -75,55 +78,113 @@ class MoveToFolderViewModelTest {
             )
             .arrange()
 
-        viewModel.loadFolders()
-
-        advanceUntilIdle()
-        assertEquals(MoveToFolderScreenState.SUCCESS, viewModel.state.value)
-        assertTrue(viewModel.folders.value.isNotEmpty())
+        viewModel.state.test {
+            skipItems(1)
+            val state = awaitItem()
+            assertEquals(MoveToFolderScreenState.SUCCESS, state.screenState)
+            assertTrue(state.folders.isNotEmpty())
+        }
     }
 
     @Test
-    fun `given getCellFilesUseCase failure, when loadFiles is called, then update state to Failure`() = runTest {
+    fun `given getCellFilesUseCase failure, when view model created, then update state to Failure`() = runTest {
         val (_, viewModel) = Arrangement()
             .withGetFoldersUseCaseReturning(Either.Left(CoreFailure.InvalidEventSenderID))
             .arrange()
 
-        viewModel.loadFolders()
-
-        advanceUntilIdle()
-        assertEquals(MoveToFolderScreenState.ERROR, viewModel.state.value)
+        viewModel.state.test {
+            skipItems(1)
+            assertEquals(MoveToFolderScreenState.ERROR, awaitItem().screenState)
+        }
     }
 
     @Test
-    fun `given moveNodeUseCase success, when moveHere is called, then send success action`() = runTest {
+    fun `given moveNodeUseCase success, when moveToFolder is called, then send success action`() = runTest {
         val (_, viewModel) = Arrangement()
             .withGetFoldersUseCaseReturning(Either.Right(listOf()))
             .withMoveNodeUseCaseReturning(Either.Right(Unit))
             .arrange()
 
-        viewModel.moveHere()
-
-        advanceUntilIdle()
         viewModel.actions.test {
-            with(expectMostRecentItem()) {
+            viewModel.onMoveToFolderClick()
+            with(awaitItem()) {
                 assertTrue(this is MoveToFolderViewAction.Success)
             }
         }
     }
 
     @Test
-    fun `given moveNodeUseCase failure, when moveHere is called, then send failure action`() = runTest {
+    fun `given moveNodeUseCase failure, when moveToFolder is called, then send failure action`() = runTest {
         val (_, viewModel) = Arrangement()
             .withGetFoldersUseCaseReturning(Either.Right(listOf()))
             .withMoveNodeUseCaseReturning(Either.Left(CoreFailure.InvalidEventSenderID))
             .arrange()
 
-        viewModel.moveHere()
-
-        advanceUntilIdle()
         viewModel.actions.test {
-            with(expectMostRecentItem()) {
+            viewModel.onMoveToFolderClick()
+            with(awaitItem()) {
                 assertTrue(this is MoveToFolderViewAction.Failure)
+            }
+        }
+    }
+
+    @Test
+    fun `when onCreateFolderClick is called, then send open create folder action`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withGetFoldersUseCaseReturning(Either.Right(listOf()))
+            .arrange()
+
+        viewModel.actions.test {
+            viewModel.onCreateFolderClick()
+            with(awaitItem()) {
+                assertTrue(this is MoveToFolderViewAction.OpenCreateFolderScreen)
+                assertEquals(CURRENT_PATH, (this as MoveToFolderViewAction.OpenCreateFolderScreen).currentPath)
+            }
+        }
+    }
+
+    @Test
+    fun `when onBreadcrumbClick is called, then send navigate to breadcrumb action`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withGetFoldersUseCaseReturning(Either.Right(listOf()))
+            .arrange()
+
+        viewModel.actions.test {
+            viewModel.onBreadcrumbClick(2)
+            with(awaitItem()) {
+                assertTrue(this is MoveToFolderViewAction.NavigateToBreadcrumb)
+                assertEquals(0, (this as MoveToFolderViewAction.NavigateToBreadcrumb).steps)
+            }
+        }
+    }
+
+    @Test
+    fun `when onFolderClick is called, then send navigate to folder action`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withGetFoldersUseCaseReturning(Either.Right(listOf()))
+            .arrange()
+        val folder = Node.Folder(
+            name = "folderName",
+            userName = "userName",
+            conversationName = "conversationName",
+            uuid = "uuid",
+            modifiedTime = 0L,
+            remotePath = "",
+            size = 12434,
+        ).toUiModel()
+
+        viewModel.actions.test {
+            viewModel.onFolderClick(folder)
+            with(awaitItem()) {
+                assertTrue(this is MoveToFolderViewAction.OpenFolder)
+                assertEquals(
+                    "$CURRENT_PATH/${folder.name}",
+                    (this as MoveToFolderViewAction.OpenFolder).path
+                )
+                assertEquals(
+                    NODE_TO_MOVE_PATH,
+                    this.nodePath
+                )
             }
         }
     }
@@ -147,11 +208,8 @@ class MoveToFolderViewModelTest {
                 currentPath = CURRENT_PATH,
                 nodeToMovePath = NODE_TO_MOVE_PATH,
                 uuid = UUID,
+                breadcrumbs = BREADCRUMBS
             )
-            every { savedStateHandle.get<String>("currentPath") } returns CURRENT_PATH
-            every { savedStateHandle.get<String>("nodeToMovePath") } returns NODE_TO_MOVE_PATH
-            every { savedStateHandle.get<String>("uuid") } returns UUID
-            every { savedStateHandle.get<String>("screenName") } returns "screenName"
         }
 
         private val viewModel by lazy {
@@ -177,5 +235,6 @@ class MoveToFolderViewModelTest {
         const val CURRENT_PATH = "currentPath"
         const val NODE_TO_MOVE_PATH = "nodeToMovePath"
         const val UUID = "uuid"
+        val BREADCRUMBS = arrayOf("Folder1", "Folder2", "Folder3")
     }
 }

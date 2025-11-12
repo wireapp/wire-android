@@ -30,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
+import com.wire.android.ui.common.applyIf
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.common.spacers.VerticalSpace
@@ -41,7 +42,6 @@ import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.theme.Accent
-import com.wire.android.ui.theme.wireColorScheme
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 
 @Suppress("CyclomaticComplexMethod")
@@ -102,6 +102,10 @@ fun MessageContentItem(
                     shouldDisplayMessageStatus = shouldDisplayMessageStatus,
                     conversationDetailsData = conversationDetailsData,
                     onReplyClicked = clickActions.onReplyClicked,
+                    modifier = Modifier
+                        .applyIf(!messageStyle.isBubble()) {
+                            weight(1F)
+                        }
                 )
                 if (shouldDisplayFooter && !messageStyle.isBubble()) {
                     VerticalSpace.x4()
@@ -162,19 +166,19 @@ fun MessageContentItem(
                     if (header.messageStatus.editStatus is MessageEditStatus.Edited) {
                         HorizontalSpace.x8()
                         MessageSmallLabel(
-                            text = "• " + stringResource(R.string.label_message_status_edited),
+                            text = "•",
                             messageStyle = messageStyle
                         )
                         HorizontalSpace.x8()
+                        MessageSmallLabel(
+                            text = stringResource(R.string.label_message_status_edited),
+                            messageStyle = messageStyle
+                        )
                     }
 
                     MessageBubbleExpireFooter(
                         messageStyle = messageStyle,
-                        selfDeletionTimerState = selfDeletionTimerState,
-                        accentColor = MaterialTheme.wireColorScheme.wireAccentColors.getOrDefault(
-                            header.accent,
-                            MaterialTheme.wireColorScheme.primary
-                        )
+                        selfDeletionTimerState = selfDeletionTimerState
                     )
 
                     if (isMyMessage && shouldDisplayMessageStatus) {

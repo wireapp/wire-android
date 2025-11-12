@@ -47,6 +47,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.FloatingActionButtonDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -125,6 +126,7 @@ import com.wire.android.ui.common.error.CoreFailureErrorDialog
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.snackbar.SwipeableSnackbar
+import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.GroupConversationDetailsScreenDestination
@@ -175,11 +177,9 @@ import com.wire.android.ui.home.messagecomposer.model.Ping
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.rememberMessageComposerStateHolder
 import com.wire.android.ui.legalhold.dialog.subject.LegalHoldSubjectMessageDialog
-import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.ui.userprofile.self.SelfUserAccentViewModel
 import com.wire.android.util.DateAndTimeParsers
 import com.wire.android.util.normalizeLink
 import com.wire.android.util.serverDate
@@ -248,8 +248,7 @@ fun ConversationScreen(
     sendMessageViewModel: SendMessageViewModel = hiltViewModel(),
     conversationMigrationViewModel: ConversationMigrationViewModel = hiltViewModel(),
     messageDraftViewModel: MessageDraftViewModel = hiltViewModel(),
-    messageAttachmentsViewModel: MessageAttachmentsViewModel = hiltViewModel(),
-    selfUserAccentViewModel: SelfUserAccentViewModel = hiltViewModel()
+    messageAttachmentsViewModel: MessageAttachmentsViewModel = hiltViewModel()
 ) {
     val coroutineScope = rememberCoroutineScope()
     val uriHandler = LocalUriHandler.current
@@ -481,7 +480,6 @@ fun ConversationScreen(
         conversationInfoViewState = conversationInfoViewModel.conversationInfoViewState,
         conversationMessagesViewState = conversationMessagesViewModel.conversationViewState,
         attachments = messageAttachmentsViewModel.attachments,
-        selfUserAccent = selfUserAccentViewModel.accentState,
         onOpenProfile = {
             with(conversationInfoViewModel) {
                 val (mentionUserId: UserId, isSelfUser: Boolean) = mentionedUserData(it)
@@ -873,7 +871,6 @@ private fun ConversationScreen(
     conversationMessagesViewState: ConversationMessagesViewState,
     attachments: List<AttachmentDraftUi>,
     bottomSheetVisible: Boolean,
-    selfUserAccent: Accent,
     onOpenProfile: (String) -> Unit,
     onMessageDetailsClick: (messageId: String, isSelfMessage: Boolean) -> Unit,
     onSendMessage: (MessageBundle) -> Unit,
@@ -938,6 +935,9 @@ private fun ConversationScreen(
                         },
                         isInteractionEnabled = messageComposerViewState.interactionAvailability == InteractionAvailability.ENABLED
                     )
+
+                    HorizontalDivider(color = colorsScheme().outline)
+
                     ConversationBanner(
                         bannerMessage = bannerMessage,
                         spannedTexts = listOf(
@@ -1008,8 +1008,7 @@ private fun ConversationScreen(
                         onAttachmentClick = onAttachmentClick,
                         onAttachmentMenuClick = onAttachmentMenuClick,
                         showHistoryLoadingIndicator = conversationInfoViewState.showHistoryLoadingIndicator,
-                        isBubbleUiEnabled = conversationInfoViewState.isBubbleUiEnabled,
-                        selfUserAccent = selfUserAccent
+                        isBubbleUiEnabled = conversationInfoViewState.isBubbleUiEnabled
                     )
                 }
             }
@@ -1063,7 +1062,6 @@ private fun ConversationScreenContent(
     messageComposerStateHolder: MessageComposerStateHolder,
     attachments: List<AttachmentDraftUi>,
     messages: Flow<PagingData<UIMessage>>,
-    selfUserAccent: Accent,
     onSendMessage: (MessageBundle) -> Unit,
     onPingOptionClicked: () -> Unit,
     onImagesPicked: (List<Uri>, Boolean) -> Unit,
@@ -1139,8 +1137,7 @@ private fun ConversationScreenContent(
                 interactionAvailability = messageComposerStateHolder.messageComposerViewState.value.interactionAvailability,
                 currentTimeInMillisFlow = currentTimeInMillisFlow,
                 showHistoryLoadingIndicator = showHistoryLoadingIndicator,
-                isBubbleUiEnabled = isBubbleUiEnabled,
-                selfUserAccent = selfUserAccent
+                isBubbleUiEnabled = isBubbleUiEnabled
             )
         },
         onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
@@ -1210,7 +1207,6 @@ fun MessageList(
     lastUnreadMessageInstant: Instant?,
     playingAudioMessage: PlayingAudioMessage,
     assetStatuses: PersistentMap<String, MessageAssetStatus>,
-    selfUserAccent: Accent,
     onUpdateConversationReadDate: (String) -> Unit,
     onSwipedToReply: (UIMessage.Regular) -> Unit,
     onSwipedToReact: (UIMessage.Regular) -> Unit,
@@ -1321,7 +1317,8 @@ fun MessageList(
                                 MessageGroupDateTime(
                                     messageDateTime = serverDate,
                                     messageDateTimeGroup = previousGroup,
-                                    now = currentTime
+                                    now = currentTime,
+                                    isBubbleUiEnabled = isBubbleUiEnabled
                                 )
                             }
                         }
@@ -1330,7 +1327,6 @@ fun MessageList(
                     val swipeableConfiguration = remember(message) {
                         if (message is UIMessage.Regular && message.isSwipeable) {
                             SwipeableMessageConfiguration.Swipeable(
-                                selfUserAccent = selfUserAccent,
                                 onSwipedRight = { onSwipedToReply(message) }.takeIf { message.isReplyable },
                                 onSwipedLeft = { onSwipedToReact(message) }.takeIf { message.isReactionAllowed },
                             )
@@ -1361,7 +1357,8 @@ fun MessageList(
                             MessageGroupDateTime(
                                 messageDateTime = serverDate,
                                 messageDateTimeGroup = currentGroup,
-                                now = currentTime
+                                now = currentTime,
+                                isBubbleUiEnabled = isBubbleUiEnabled
                             )
                         }
                     }
@@ -1416,7 +1413,8 @@ fun MessageList(
 private fun MessageGroupDateTime(
     now: Long,
     messageDateTime: Date,
-    messageDateTimeGroup: MessageDateTimeGroup?
+    messageDateTimeGroup: MessageDateTimeGroup?,
+    isBubbleUiEnabled: Boolean
 ) {
     val context = LocalContext.current
 
@@ -1462,25 +1460,45 @@ private fun MessageGroupDateTime(
         null -> ""
     }
 
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .padding(
-                top = dimensions().spacing4x,
-                bottom = dimensions().spacing8x
+    if (isBubbleUiEnabled) {
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .padding(dimensions().spacing16x),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            HorizontalDivider(modifier = Modifier.weight(1F), color = colorsScheme().outline)
+            HorizontalSpace.x4()
+            Text(
+                text = timeString.uppercase(Locale.getDefault()),
+                maxLines = 1,
+                color = colorsScheme().onBackground,
+                style = MaterialTheme.wireTypography.label02,
             )
-            .background(color = colorsScheme().divider)
-            .padding(
-                top = dimensions().spacing6x,
-                bottom = dimensions().spacing6x,
-                start = dimensions().spacing56x
+            HorizontalSpace.x4()
+            HorizontalDivider(modifier = Modifier.weight(1F), color = colorsScheme().outline)
+        }
+    } else {
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .padding(
+                    top = dimensions().spacing4x,
+                    bottom = dimensions().spacing8x
+                )
+                .background(color = colorsScheme().divider)
+                .padding(
+                    top = dimensions().spacing6x,
+                    bottom = dimensions().spacing6x,
+                    start = dimensions().spacing56x
+                )
+        ) {
+            Text(
+                text = timeString.uppercase(Locale.getDefault()),
+                color = colorsScheme().secondaryText,
+                style = MaterialTheme.wireTypography.title03,
             )
-    ) {
-        Text(
-            text = timeString.uppercase(Locale.getDefault()),
-            color = colorsScheme().secondaryText,
-            style = MaterialTheme.wireTypography.title03,
-        )
+        }
     }
 }
 
@@ -1628,7 +1646,6 @@ fun PreviewConversationScreen() = WireTheme {
         ),
         conversationMessagesViewState = ConversationMessagesViewState(),
         attachments = emptyList(),
-        selfUserAccent = Accent.Unknown,
         onOpenProfile = { },
         onMessageDetailsClick = { _, _ -> },
         onSendMessage = { },

@@ -1,7 +1,6 @@
 package com.wire.android.ui.home.conversations.messages.item
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -13,7 +12,6 @@ import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.media.audiomessage.AudioMessageArgs
 import com.wire.android.model.Clickable
-import com.wire.android.ui.common.applyIf
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.common.spacers.VerticalSpace
@@ -54,6 +52,7 @@ internal fun UIMessage.Regular.MessageContentAndStatus(
     onReplyClicked: (UIMessage.Regular) -> Unit,
     shouldDisplayMessageStatus: Boolean,
     conversationDetailsData: ConversationDetailsData,
+    modifier: Modifier = Modifier,
     accent: Accent = Accent.Unknown,
 ) {
     val onAssetClickable = remember(message) {
@@ -71,50 +70,47 @@ internal fun UIMessage.Regular.MessageContentAndStatus(
             onReplyClicked(message)
         }
     }
-    Row {
-        Column(
-            Modifier
-                .applyIf(!messageStyle.isBubble()) { weight(1F) }
-        ) {
-            MessageContent(
-                message = message,
-                messageContent = messageContent,
-                searchQuery = searchQuery,
-                assetStatus = assetStatus,
-                onAssetClick = onAssetClickable,
-                onImageClick = onImageClickable,
-                onOpenProfile = onProfileClicked,
-                onLinkClick = onLinkClicked,
-                onReplyClick = onReplyClickable,
-                messageStyle = messageStyle,
-                accent = accent
-            )
-            if (!messageStyle.isBubble()) {
-                if (messageContent is PartialDeliverable && messageContent.deliveryStatus.hasAnyFailures) {
-                    PartialDeliveryInformation(messageContent.deliveryStatus, messageStyle)
-                }
+    Column(
+        modifier
+    ) {
+        MessageContent(
+            message = message,
+            messageContent = messageContent,
+            searchQuery = searchQuery,
+            assetStatus = assetStatus,
+            onAssetClick = onAssetClickable,
+            onImageClick = onImageClickable,
+            onOpenProfile = onProfileClicked,
+            onLinkClick = onLinkClicked,
+            onReplyClick = onReplyClickable,
+            messageStyle = messageStyle,
+            accent = accent
+        )
+        if (!messageStyle.isBubble()) {
+            if (messageContent is PartialDeliverable && messageContent.deliveryStatus.hasAnyFailures) {
+                PartialDeliveryInformation(messageContent.deliveryStatus, messageStyle)
             }
         }
-        if (!messageStyle.isBubble()) {
-            if (isMyMessage && shouldDisplayMessageStatus) {
-                MessageStatusIndicator(
-                    status = message.header.messageStatus.flowStatus,
-                    isGroupConversation = conversationDetailsData is ConversationDetailsData.Group,
-                    messageStyle = messageStyle,
-                    modifier = Modifier.padding(
-                        top = if (message.isTextContentWithoutQuote) dimensions().spacing2x else dimensions().spacing4x,
-                        start = dimensions().spacing8x
-                    )
+    }
+    if (!messageStyle.isBubble()) {
+        if (isMyMessage && shouldDisplayMessageStatus) {
+            MessageStatusIndicator(
+                status = message.header.messageStatus.flowStatus,
+                isGroupConversation = conversationDetailsData is ConversationDetailsData.Group,
+                messageStyle = messageStyle,
+                modifier = Modifier.padding(
+                    top = if (message.isTextContentWithoutQuote) dimensions().spacing2x else dimensions().spacing4x,
+                    start = dimensions().spacing8x
                 )
-            } else {
-                HorizontalSpace.x24()
-            }
+            )
         } else {
-            if (message.isTextContentWithoutQuote) {
-                VerticalSpace.x2()
-            } else {
-                VerticalSpace.x4()
-            }
+            HorizontalSpace.x24()
+        }
+    } else {
+        if (message.isTextContentWithoutQuote) {
+            VerticalSpace.x2()
+        } else {
+            VerticalSpace.x4()
         }
     }
 }
@@ -170,7 +166,8 @@ private fun MessageContent(
                             style = QuotedMessageStyle(
                                 quotedStyle = QuotedStyle.COMPLETE,
                                 messageStyle = messageStyle,
-                                selfAccent = accent
+                                selfAccent = accent,
+                                senderAccent = it.senderAccent
                             ),
                             clickable = onReplyClick
                         )
@@ -179,7 +176,8 @@ private fun MessageContent(
                             style = QuotedMessageStyle(
                                 quotedStyle = QuotedStyle.COMPLETE,
                                 messageStyle = messageStyle,
-                                selfAccent = accent
+                                selfAccent = accent,
+                                senderAccent = Accent.Unknown
                             )
                         )
                     }
@@ -209,7 +207,8 @@ private fun MessageContent(
                             style = QuotedMessageStyle(
                                 quotedStyle = QuotedStyle.COMPLETE,
                                 messageStyle = messageStyle,
-                                selfAccent = accent
+                                selfAccent = accent,
+                                senderAccent = it.senderAccent
                             ),
                             clickable = onReplyClick
                         )
@@ -218,7 +217,8 @@ private fun MessageContent(
                             style = QuotedMessageStyle(
                                 quotedStyle = QuotedStyle.COMPLETE,
                                 messageStyle = messageStyle,
-                                selfAccent = accent
+                                selfAccent = accent,
+                                senderAccent = Accent.Unknown
                             )
                         )
                     }

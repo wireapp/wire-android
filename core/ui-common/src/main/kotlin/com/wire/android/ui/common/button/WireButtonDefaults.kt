@@ -57,11 +57,16 @@ fun wireSendPrimaryButtonColors() = wirePrimaryButtonColors().copy(
 )
 
 @Composable
-fun wireSecondaryButtonColors() = wireButtonColors(
-    enabled = MaterialTheme.wireColorScheme.secondaryButtonEnabled,
-    onEnabled = MaterialTheme.wireColorScheme.onSecondaryButtonEnabled,
-    enabledOutline = MaterialTheme.wireColorScheme.secondaryButtonEnabledOutline,
-    enabledRipple = MaterialTheme.wireColorScheme.secondaryButtonRipple,
+fun wireSecondaryButtonColors(
+    enabled: Color = MaterialTheme.wireColorScheme.secondaryButtonEnabled,
+    onEnabled: Color = MaterialTheme.wireColorScheme.onSecondaryButtonEnabled,
+    enabledOutline: Color = MaterialTheme.wireColorScheme.secondaryButtonEnabledOutline,
+    enabledRipple: Color = MaterialTheme.wireColorScheme.secondaryButtonRipple,
+) = wireButtonColors(
+    enabled = enabled,
+    onEnabled = onEnabled,
+    enabledOutline = enabledOutline,
+    enabledRipple = enabledRipple,
     disabled = MaterialTheme.wireColorScheme.secondaryButtonDisabled,
     onDisabled = MaterialTheme.wireColorScheme.onSecondaryButtonDisabled,
     disabledOutline = MaterialTheme.wireColorScheme.secondaryButtonDisabledOutline,

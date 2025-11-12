@@ -56,12 +56,14 @@ import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset
 import com.wire.android.ui.common.StatusBox
+import com.wire.android.ui.common.applyIf
 import com.wire.android.ui.common.clickable
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.home.conversations.messages.item.highlighted
+import com.wire.android.ui.home.conversations.messages.item.isBubble
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
 import com.wire.android.ui.markdown.MarkdownInline
 import com.wire.android.ui.markdown.MessageColors
@@ -78,7 +80,8 @@ private const val TEXT_QUOTE_MAX_LINES = 7
 data class QuotedMessageStyle(
     val quotedStyle: QuotedStyle,
     val messageStyle: MessageStyle,
-    val selfAccent: Accent
+    val selfAccent: Accent,
+    val senderAccent: Accent
 )
 
 /**
@@ -183,7 +186,7 @@ fun QuotedMessagePreview(
         modifier = modifier,
         messageData = quotedMessageData,
         clickable = null,
-        style = QuotedMessageStyle(QuotedStyle.PREVIEW, MessageStyle.NORMAL, Accent.Unknown)
+        style = QuotedMessageStyle(QuotedStyle.PREVIEW, MessageStyle.NORMAL, Accent.Unknown, quotedMessageData.senderAccent)
     ) {
         Box(
             modifier = Modifier
@@ -234,11 +237,13 @@ private fun QuotedMessageContent(
                 color = background,
                 shape = quoteOutlineShape
             )
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.wireColorScheme.outline,
-                shape = quoteOutlineShape
-            )
+            .applyIf(!style.messageStyle.isBubble()) {
+                border(
+                    width = 1.dp,
+                    color = MaterialTheme.wireColorScheme.outline,
+                    shape = quoteOutlineShape
+                )
+            }
             .padding(dimensions().spacing4x)
             .fillMaxWidth()
             .height(IntrinsicSize.Min)
@@ -263,7 +268,7 @@ private fun QuotedMessageContent(
             QuotedMessageTopRow(
                 senderName,
                 displayReplyArrow = style.quotedStyle == QuotedStyle.COMPLETE,
-                messageStyle = style.messageStyle
+                quotedMessageStyle = style
             )
             Row(horizontalArrangement = Arrangement.spacedBy(dimensions().spacing4x)) {
                 Column(
@@ -296,12 +301,16 @@ private fun QuotedMessageContent(
 private fun QuotedMessageTopRow(
     senderName: String?,
     displayReplyArrow: Boolean,
-    messageStyle: MessageStyle
+    quotedMessageStyle: QuotedMessageStyle
 ) {
 
+    val messageStyle = quotedMessageStyle.messageStyle
+
+    val accentScheme = colorsScheme(quotedMessageStyle.senderAccent)
+
     val authorColor = when (messageStyle) {
-        MessageStyle.BUBBLE_SELF -> colorsScheme().selfBubble.primaryOnSecondary
-        MessageStyle.BUBBLE_OTHER -> colorsScheme().otherBubble.primaryOnSecondary
+        MessageStyle.BUBBLE_SELF -> accentScheme.selfBubble.primaryOnSecondary
+        MessageStyle.BUBBLE_OTHER -> accentScheme.primary
         MessageStyle.NORMAL -> colorsScheme().onSurfaceVariant
     }
 
@@ -498,7 +507,7 @@ private fun QuotedImage(
                 QuotedMessageTopRow(
                     senderName = senderName.asString(),
                     displayReplyArrow = true,
-                    messageStyle = style.messageStyle
+                    quotedMessageStyle = style
                 )
                 MainContentText(stringResource(R.string.notification_shared_picture))
                 QuotedMessageOriginalDate(originalDateTimeText, style)

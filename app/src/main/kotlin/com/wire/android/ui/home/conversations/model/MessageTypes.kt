@@ -45,6 +45,7 @@ import com.wire.android.model.ImageAsset
 import com.wire.android.ui.common.applyIf
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
+import com.wire.android.ui.common.button.wireSecondaryButtonColors
 import com.wire.android.ui.common.clickable
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -152,6 +153,7 @@ internal fun MessageBody(
         MessageButtonsContent(
             messageId = messageId,
             buttonList = it,
+            messageStyle = messageStyle
         )
     }
 }
@@ -160,6 +162,7 @@ internal fun MessageBody(
 fun MessageButtonsContent(
     messageId: String,
     buttonList: List<MessageButton>,
+    messageStyle: MessageStyle,
     modifier: Modifier = Modifier,
     viewModel: CompositeMessageViewModel =
         hiltViewModelScoped<CompositeMessageViewModelImpl, CompositeMessageViewModel, CompositeMessageArgs>(
@@ -190,7 +193,16 @@ fun MessageButtonsContent(
                 loading = isPending,
                 text = button.text,
                 onClick = onCLick,
-                state = state
+                state = state,
+                colors = if (messageStyle.isBubble()) {
+                    wireSecondaryButtonColors(
+                        enabled = colorsScheme().otherBubble.secondary,
+                        onEnabled = colorsScheme().otherBubble.onSecondary,
+                        enabledOutline = colorsScheme().otherBubble.primary,
+                    )
+                } else {
+                    wireSecondaryButtonColors()
+                }
             )
             if (index != buttonList.lastIndex) {
                 Spacer(modifier = Modifier.padding(top = dimensions().spacing8x))

@@ -73,7 +73,6 @@ import com.wire.android.ui.markdown.NodeActions
 import com.wire.android.ui.markdown.NodeData
 import com.wire.android.ui.markdown.toMarkdownDocument
 import com.wire.android.ui.theme.Accent
-import com.wire.android.ui.theme.BubbleColors
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography

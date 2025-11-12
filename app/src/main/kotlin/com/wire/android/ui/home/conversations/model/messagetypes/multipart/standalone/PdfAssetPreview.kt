@@ -47,6 +47,7 @@ import com.wire.android.ui.common.multipart.AssetSource
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
 import com.wire.android.ui.common.progress.WireLinearProgressIndicator
 import com.wire.android.ui.home.conversations.messages.item.MessageStyle
+import com.wire.android.ui.home.conversations.messages.item.textColor
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.previewAvailable
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.previewImageModel
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.transferProgressColor
@@ -128,6 +129,7 @@ internal fun PdfAssetPreview(
                     .padding(start = dimensions().spacing8x, end = dimensions().spacing8x),
                 text = it,
                 style = MaterialTheme.wireTypography.body02,
+                color = messageStyle.textColor(),
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )

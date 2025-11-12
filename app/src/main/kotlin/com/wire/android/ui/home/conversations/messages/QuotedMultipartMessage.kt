@@ -54,8 +54,8 @@ import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.feature.cells.domain.model.AttachmentFileType.VIDEO
 import com.wire.android.feature.cells.domain.model.icon
 import com.wire.android.model.Clickable
-import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.home.conversations.messages.item.textColor
 import com.wire.android.ui.home.conversations.model.UIMultipartQuotedContent
 import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.wireColorScheme
@@ -141,24 +141,24 @@ private fun MediaAttachmentThumbnail(attachment: UIMultipartQuotedContent) {
 }
 
 @Composable
-private fun MultipleAttachmentsLabel(count: Int) {
+private fun MultipleAttachmentsLabel(style: QuotedMessageStyle, count: Int) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(dimensions().spacing4x)
     ) {
         Icon(
             painter = painterResource(R.drawable.ic_multiple_files),
             contentDescription = null,
-            tint = colorsScheme().secondaryText
+            tint = style.messageStyle.textColor(),
         )
         Text(
             text = pluralStringResource(R.plurals.reply_multiple_files, count, count),
-            color = colorsScheme().secondaryText
+            color = style.messageStyle.textColor(),
         )
     }
 }
 
 @Composable
-private fun FileIconAndNameRow(file: UIMultipartQuotedContent) {
+private fun FileIconAndNameRow(style: QuotedMessageStyle, file: UIMultipartQuotedContent) {
 
     val name = file.name
     val attachmentFileType = name.fileExtension()?.let { AttachmentFileType.fromExtension(it) } ?: AttachmentFileType.OTHER
@@ -177,7 +177,7 @@ private fun FileIconAndNameRow(file: UIMultipartQuotedContent) {
         )
         Text(
             text = if (file.assetAvailable) name else stringResource(R.string.asset_message_failed_download_text),
-            color = colorsScheme().secondaryText
+            color = style.messageStyle.textColor(),
         )
     }
 }
@@ -217,19 +217,25 @@ fun QuotedMultipartMessageContent(
                 } else {
                     quotedMultipartMessage.mediaAttachment?.let { mediaAttachment ->
                         if (mediaAttachment.assetAvailable) {
-                            MainContentText(mediaAttachment.name)
+                            MainContentText(
+                                text = mediaAttachment.name,
+                                color = style.messageStyle.textColor()
+                            )
                         } else {
-                            MainContentText(stringResource(R.string.asset_message_failed_download_text))
+                            MainContentText(
+                                text = stringResource(R.string.asset_message_failed_download_text),
+                                color = style.messageStyle.textColor()
+                            )
                         }
                     }
                 }
 
                 if (quotedMultipartMessage.attachmentsCount > 1) {
-                    MultipleAttachmentsLabel(quotedMultipartMessage.attachmentsCount)
+                    MultipleAttachmentsLabel(style, quotedMultipartMessage.attachmentsCount)
                 }
 
                 quotedMultipartMessage.fileAttachment?.let { fileAttachment ->
-                    FileIconAndNameRow(fileAttachment)
+                    FileIconAndNameRow(style, fileAttachment)
                 }
             }
         },

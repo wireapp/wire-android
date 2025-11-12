@@ -43,6 +43,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -664,13 +665,13 @@ internal fun MainMarkdownText(text: String, messageStyle: MessageStyle, accent: 
 }
 
 @Composable
-internal fun MainContentText(text: String, fontStyle: FontStyle = FontStyle.Normal) {
+internal fun MainContentText(text: String, fontStyle: FontStyle = FontStyle.Normal, color: Color = colorsScheme().onSurfaceVariant) {
     Text(
         text = text,
         style = typography().subline01,
         maxLines = TEXT_QUOTE_MAX_LINES,
         overflow = TextOverflow.Ellipsis,
-        color = colorsScheme().onSurfaceVariant,
+        color = color,
         fontStyle = fontStyle
     )
 }

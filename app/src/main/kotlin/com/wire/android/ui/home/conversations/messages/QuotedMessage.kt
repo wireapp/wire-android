@@ -244,6 +244,11 @@ internal fun QuotedMessageContent(
         MessageStyle.BUBBLE_OTHER -> colorsScheme().otherBubble.secondary
         MessageStyle.NORMAL -> MaterialTheme.wireColorScheme.surfaceVariant
     }
+    val quoteOutlineColor = when (style.messageStyle) {
+        MessageStyle.BUBBLE_SELF -> colorsScheme().selfBubble.secondary
+        MessageStyle.BUBBLE_OTHER -> colorsScheme().otherBubble.secondary
+        MessageStyle.NORMAL -> colorsScheme().outline
+    }
 
     Row(
         horizontalArrangement = Arrangement.spacedBy(dimensions().spacing4x),
@@ -254,7 +259,7 @@ internal fun QuotedMessageContent(
             )
             .border(
                 width = 1.dp,
-                color = MaterialTheme.wireColorScheme.outline,
+                color = quoteOutlineColor,
                 shape = quoteOutlineShape
             )
             .padding(dimensions().spacing4x)

@@ -874,7 +874,9 @@
     <string name="label_system_message_conversation_verified_mls">All devices are verified (end-to-end identity)</string>
     <string name="label_system_message_conversation_verified_proteus">All fingerprints are verified (Proteus)</string>
     <string name="label_system_message_conversation_started_sensitive_information_header">**Communication in Wire is always end-to-end encrypted.**</string>
+    <string name="label_system_message_conversation_started_sensitive_information_header_with_cells_on">**Communication in Wire is always secured.**</string>
     <string name="label_system_message_conversation_started_sensitive_information_message">Everything you send and receive in this conversation is only accessible to you and other conversation participants.</string>
+    <string name="label_system_message_conversation_started_sensitive_information_message_with_cells_on">Messages and calls are always end-to-end encrypted, whereas files and folders are secured in transit and encrypted at rest. </string>
     <string name="label_system_message_conversation_started_sensitive_information_footer">Please still be careful with who you share sensitive information.</string>
     <string name="label_conversations_details_verified_proteus">Verified (Proteus)</string>
     <string name="label_conversations_details_verified_mls">Verified (End-to-end Identity)</string>

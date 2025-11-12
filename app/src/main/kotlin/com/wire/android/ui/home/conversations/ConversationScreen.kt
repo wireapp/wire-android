@@ -47,6 +47,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.FloatingActionButtonDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -125,6 +126,7 @@ import com.wire.android.ui.common.error.CoreFailureErrorDialog
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.snackbar.SwipeableSnackbar
+import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.GroupConversationDetailsScreenDestination
@@ -940,6 +942,9 @@ private fun ConversationScreen(
                         },
                         isInteractionEnabled = messageComposerViewState.interactionAvailability == InteractionAvailability.ENABLED
                     )
+
+                    HorizontalDivider(color = colorsScheme().outline)
+
                     ConversationBanner(
                         bannerMessage = bannerMessage,
                         spannedTexts = listOf(
@@ -1319,7 +1324,8 @@ fun MessageList(
                                 MessageGroupDateTime(
                                     messageDateTime = serverDate,
                                     messageDateTimeGroup = previousGroup,
-                                    now = currentTime
+                                    now = currentTime,
+                                    isBubbleUiEnabled = isBubbleUiEnabled
                                 )
                             }
                         }
@@ -1358,7 +1364,8 @@ fun MessageList(
                             MessageGroupDateTime(
                                 messageDateTime = serverDate,
                                 messageDateTimeGroup = currentGroup,
-                                now = currentTime
+                                now = currentTime,
+                                isBubbleUiEnabled = isBubbleUiEnabled
                             )
                         }
                     }
@@ -1413,7 +1420,8 @@ fun MessageList(
 private fun MessageGroupDateTime(
     now: Long,
     messageDateTime: Date,
-    messageDateTimeGroup: MessageDateTimeGroup?
+    messageDateTimeGroup: MessageDateTimeGroup?,
+    isBubbleUiEnabled: Boolean
 ) {
     val context = LocalContext.current
 
@@ -1459,25 +1467,45 @@ private fun MessageGroupDateTime(
         null -> ""
     }
 
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .padding(
-                top = dimensions().spacing4x,
-                bottom = dimensions().spacing8x
+    if (isBubbleUiEnabled) {
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .padding(dimensions().spacing16x),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            HorizontalDivider(modifier = Modifier.weight(1F), color = colorsScheme().outline)
+            HorizontalSpace.x4()
+            Text(
+                text = timeString.uppercase(Locale.getDefault()),
+                maxLines = 1,
+                color = colorsScheme().onBackground,
+                style = MaterialTheme.wireTypography.label02,
             )
-            .background(color = colorsScheme().divider)
-            .padding(
-                top = dimensions().spacing6x,
-                bottom = dimensions().spacing6x,
-                start = dimensions().spacing56x
+            HorizontalSpace.x4()
+            HorizontalDivider(modifier = Modifier.weight(1F), color = colorsScheme().outline)
+        }
+    } else {
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .padding(
+                    top = dimensions().spacing4x,
+                    bottom = dimensions().spacing8x
+                )
+                .background(color = colorsScheme().divider)
+                .padding(
+                    top = dimensions().spacing6x,
+                    bottom = dimensions().spacing6x,
+                    start = dimensions().spacing56x
+                )
+        ) {
+            Text(
+                text = timeString.uppercase(Locale.getDefault()),
+                color = colorsScheme().secondaryText,
+                style = MaterialTheme.wireTypography.title03,
             )
-    ) {
-        Text(
-            text = timeString.uppercase(Locale.getDefault()),
-            color = colorsScheme().secondaryText,
-            style = MaterialTheme.wireTypography.title03,
-        )
+        }
     }
 }
 

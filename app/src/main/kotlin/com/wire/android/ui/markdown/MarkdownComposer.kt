@@ -96,7 +96,7 @@ fun MarkdownNodeBlockChildren(
                     }
                 )
 
-                is MarkdownNode.Block.ThematicBreak -> MarkdownThematicBreak()
+                is MarkdownNode.Block.ThematicBreak -> MarkdownThematicBreak(nodeData.messageStyle)
 
                 // Not used Blocks here
                 is MarkdownNode.Block.TableContent.Body -> {}

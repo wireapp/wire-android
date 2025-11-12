@@ -103,6 +103,7 @@ class UriUtilTest {
         val actual = URI(url).findParameterValue("wire_client")
         assertEquals(null, actual)
     }
+
     @Test
     fun givenLinkWithoutParams_whenCallingFindParameterValue_thenReturnsParamValue() {
         val url = "https://example.com"

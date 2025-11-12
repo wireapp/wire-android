@@ -61,4 +61,3 @@ class ScreenStateObserver @Inject constructor(@ApplicationContext val context: C
         const val TAG = "ScreenStateObserver"
     }
 }
-

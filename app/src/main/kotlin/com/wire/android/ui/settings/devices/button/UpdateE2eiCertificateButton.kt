@@ -40,8 +40,11 @@ fun UpdateE2eiCertificateButton(
         fillMaxWidth = true,
         onClick = onUpdateCertificateClicked,
         loading = isLoading,
-        state = if (!enabled) WireButtonState.Disabled
-        else WireButtonState.Default,
+        state = if (!enabled) {
+            WireButtonState.Disabled
+        } else {
+            WireButtonState.Default
+        },
         modifier = modifier
             .fillMaxWidth()
             .padding(top = dimensions().spacing8x)

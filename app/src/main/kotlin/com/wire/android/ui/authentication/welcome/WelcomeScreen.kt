@@ -310,8 +310,11 @@ private suspend fun autoScrollCarousel(
         }
     }.collect { (scrollToPage, animate) ->
         if (pageState.pageCount != 0) {
-            if (animate) pageState.animateScrollToPage(scrollToPage)
-            else pageState.scrollToPage(scrollToPage)
+            if (animate) {
+                pageState.animateScrollToPage(scrollToPage)
+            } else {
+                pageState.scrollToPage(scrollToPage)
+            }
         }
     }
 
@@ -421,7 +424,8 @@ fun PreviewWelcomeScreen() {
             maxAccountsReached = false,
             state = ServerConfig.DEFAULT,
             navigateBack = {},
-            navigate = {})
+            navigate = {}
+        )
     }
 }
 

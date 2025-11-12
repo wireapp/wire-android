@@ -231,7 +231,11 @@ class ConversationMessagesViewModelArrangement {
     ) = apply {
         val assetBundle = AssetBundle(
             "key",
-            assetMimeType, assetDataPath, assetSize, assetName, AttachmentType.fromMimeTypeString(assetMimeType)
+            assetMimeType,
+            assetDataPath,
+            assetSize,
+            assetName,
+            AttachmentType.fromMimeTypeString(assetMimeType)
         )
         viewModel.showOnAssetDownloadedDialog(assetBundle, messageId)
         coEvery { fileManager.saveToExternalStorage(any(), any(), any(), any(), any()) }.answers {

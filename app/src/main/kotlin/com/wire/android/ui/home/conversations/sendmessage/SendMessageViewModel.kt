@@ -56,8 +56,9 @@ import com.wire.kalium.logic.data.conversation.Conversation.TypingIndicatorMode
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.failure.LegalHoldEnabledForConversationFailure
-import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageResult
-import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
+import com.wire.kalium.logic.feature.asset.upload.AssetUploadParams
+import com.wire.kalium.logic.feature.asset.upload.ScheduleNewAssetMessageResult
+import com.wire.kalium.logic.feature.asset.upload.ScheduleNewAssetMessageUseCase
 import com.wire.kalium.logic.feature.client.IsWireCellsEnabledForConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationUnderLegalHoldNotifiedUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveDegradedConversationNotifiedUseCase
@@ -294,11 +295,13 @@ class SendMessageViewModel @Inject constructor(
         conversationId: ConversationId,
         attachmentUri: UriAsset
     ) {
-        when (val result = handleUriAsset.invoke(
+        when (
+            val result = handleUriAsset.invoke(
             uri = attachmentUri.uri,
             saveToDeviceIfInvalid = attachmentUri.saveToDeviceIfInvalid,
             specifiedMimeType = attachmentUri.mimeType
-        )) {
+        )
+        ) {
             is HandleUriAssetUseCase.Result.Failure.AssetTooLarge -> {
                 assetTooLargeDialogState = AssetTooLargeDialogState.Visible(
                     assetType = result.assetBundle.assetType,
@@ -328,16 +331,7 @@ class SendMessageViewModel @Inject constructor(
                                     kaliumFileSystem,
                                     attachmentBundle.dataPath
                                 )
-                                sendAssetMessage(
-                                    conversationId = conversationId,
-                                    assetDataPath = dataPath,
-                                    assetName = fileName,
-                                    assetWidth = imgWidth,
-                                    assetHeight = imgHeight,
-                                    assetDataSize = dataSize,
-                                    assetMimeType = mimeType,
-                                    audioLengthInMs = 0L
-                                )
+                                sendAssetMessage(attachmentBundle.uploadParams(imgHeight, imgWidth))
                                     .handleLegalHoldFailureAfterSendingMessage(conversationId)
                                     .handleAssetContributionEvent(assetType)
                             } else {
@@ -351,19 +345,13 @@ class SendMessageViewModel @Inject constructor(
                         AttachmentType.AUDIO -> {
                             try {
                                 sendAssetMessage(
-                                    conversationId = conversationId,
-                                    assetDataPath = dataPath,
-                                    assetName = fileName,
-                                    assetMimeType = mimeType,
-                                    assetDataSize = dataSize,
-                                    assetHeight = null,
-                                    assetWidth = null,
-                                    audioLengthInMs = getAudioLengthInMs(
-                                        dataPath = dataPath,
-                                        mimeType = mimeType
+                                    attachmentBundle.uploadParams(
+                                        audioLengthInMs = getAudioLengthInMs(
+                                            dataPath = dataPath,
+                                            mimeType = mimeType
+                                        )
                                     )
-                                )
-                                    .handleLegalHoldFailureAfterSendingMessage(conversationId)
+                                ).handleLegalHoldFailureAfterSendingMessage(conversationId)
                                     .handleAssetContributionEvent(assetType)
                             } catch (e: OutOfMemoryError) {
                                 appLogger.e("There was an OutOfMemory error while uploading the asset")
@@ -494,11 +482,27 @@ class SendMessageViewModel @Inject constructor(
             is SureAboutMessagingDialogState.Visible.ConversationVerificationDegraded ->
                 setUserInformedAboutVerification(conversationId)
 
-            SureAboutMessagingDialogState.Hidden -> { /* do nothing */
+            SureAboutMessagingDialogState.Hidden -> {
+                /* do nothing */
             }
         }
         sureAboutMessagingDialogState = SureAboutMessagingDialogState.Hidden
     }
+
+    private fun AssetBundle.uploadParams(
+        assetHeight: Int? = null,
+        assetWidth: Int? = null,
+        audioLengthInMs: Long = 0L,
+    ) = AssetUploadParams(
+        conversationId = conversationId,
+        assetDataPath = dataPath,
+        assetName = fileName,
+        assetMimeType = mimeType,
+        assetDataSize = dataSize,
+        assetHeight = assetHeight,
+        assetWidth = assetWidth,
+        audioLengthInMs = audioLengthInMs,
+    )
 
     private companion object {
         const val MAX_LIMIT_MESSAGE_SEND = 20

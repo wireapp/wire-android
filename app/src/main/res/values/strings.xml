@@ -1087,6 +1087,7 @@
     <string name="notification_outgoing_call_tap_to_return">Tap to return to call - Calling...</string>
     <string name="notification_audio_message_body">Audio message</string>
     <string name="notification_deleting_conversation">Deleting conversation…</string>
+    <string name="notification_uploading_files">Uploading files…</string>
     <!-- Calling-->
     <string name="calling_constant_bit_rate_indication">Constant Bit Rate</string>
     <string name="calling_button_label_microphone">Microphone</string>
@@ -1888,4 +1889,8 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="profile_deeplink_feature_unavailable_title_alert">This feature is not available. Please contact your administrator.</string>
     <string name="conversation_options_file_collaboration_label">File collaboration (Cells)</string>
     <string name="conversation_options_file_collaboration_description">Permanently on for this conversation.</string>
+    <plurals name="reply_multiple_files">
+        <item quantity="one">%1$d file</item>
+        <item quantity="other">%1$d files</item>
+    </plurals>
 </resources>

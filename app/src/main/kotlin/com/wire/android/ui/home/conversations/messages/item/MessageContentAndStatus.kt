@@ -162,6 +162,7 @@ private fun MessageContent(
                     VerticalSpace.x4()
                     when (it) {
                         is UIQuotedMessage.UIQuotedData -> QuotedMessage(
+                            conversationId = message.conversationId,
                             messageData = it,
                             style = QuotedMessageStyle(
                                 quotedStyle = QuotedStyle.COMPLETE,
@@ -203,6 +204,7 @@ private fun MessageContent(
                     VerticalSpace.x4()
                     when (it) {
                         is UIQuotedMessage.UIQuotedData -> QuotedMessage(
+                            conversationId = message.conversationId,
                             messageData = it,
                             style = QuotedMessageStyle(
                                 quotedStyle = QuotedStyle.COMPLETE,
@@ -312,6 +314,32 @@ private fun MessageContent(
 
         is UIMessageContent.Multipart ->
             Column {
+                messageContent.messageBody?.quotedMessage?.let {
+                    VerticalSpace.x4()
+                    when (it) {
+                        is UIQuotedMessage.UIQuotedData -> QuotedMessage(
+                            conversationId = message.conversationId,
+                            messageData = it,
+                            style = QuotedMessageStyle(
+                                quotedStyle = QuotedStyle.COMPLETE,
+                                messageStyle = messageStyle,
+                                selfAccent = accent,
+                                senderAccent = it.senderAccent
+                            ),
+                            clickable = onReplyClick
+                        )
+
+                        UIQuotedMessage.UnavailableData -> QuotedUnavailable(
+                            style = QuotedMessageStyle(
+                                quotedStyle = QuotedStyle.COMPLETE,
+                                messageStyle = messageStyle,
+                                selfAccent = accent,
+                                senderAccent = Accent.Unknown
+                            )
+                        )
+                    }
+                    VerticalSpace.x4()
+                }
                 if (messageContent.messageBody?.message?.asString()?.isNotEmpty() == true) {
                     MessageBody(
                         messageBody = messageContent.messageBody,

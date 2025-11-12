@@ -26,11 +26,14 @@ import com.wire.android.ui.home.conversations.model.UIQuotedMessage
 import com.wire.android.ui.home.conversations.model.toUiMention
 import com.wire.android.ui.home.conversations.usecase.GetQuoteMessageForConversationUseCase
 import com.wire.android.ui.home.messagecomposer.model.MessageComposition
+import com.wire.android.ui.home.messagecomposer.model.toDraft
 import com.wire.android.ui.home.messagecomposer.model.update
 import com.wire.android.ui.navArgs
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.message.draft.MessageDraft
 import com.wire.kalium.logic.feature.message.draft.GetMessageDraftUseCase
+import com.wire.kalium.logic.feature.message.draft.SaveMessageDraftUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -40,6 +43,7 @@ class MessageDraftViewModel @Inject constructor(
     val savedStateHandle: SavedStateHandle,
     private val getMessageDraft: GetMessageDraftUseCase,
     private val getQuotedMessage: GetQuoteMessageForConversationUseCase,
+    private val saveMessageDraft: SaveMessageDraftUseCase,
 ) : ViewModel() {
 
     private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
@@ -54,33 +58,51 @@ class MessageDraftViewModel @Inject constructor(
 
     fun clearDraft() {
         viewModelScope.launch {
-            state.update {
-                MessageComposition(conversationId, String.EMPTY)
+            if (state.value.quotedMessageId != null) {
+                state.update { messageComposition ->
+                    messageComposition.copy(
+                        quotedMessageId = null,
+                        quotedMessage = null,
+                        draftText = String.EMPTY,
+                    )
+                }
+                saveDraft(state.value.toDraft(""))
             }
         }
     }
 
-    private fun loadMessageDraft() {
-        viewModelScope.launch {
-            val draftResult = getMessageDraft(conversationId)
+    private fun loadMessageDraft() = viewModelScope.launch {
+        getMessageDraft(conversationId)?.let { draft ->
 
-            draftResult?.let { draft ->
-                val quotedData = draftResult.quotedMessageId?.let { quotedMessageId ->
-                    when (val quotedData = getQuotedMessage(conversationId, quotedMessageId)) {
-                        is UIQuotedMessage.UIQuotedData -> quotedData
-                        UIQuotedMessage.UnavailableData -> null
-                    }
-                }
-                state.update { messageComposition ->
-                    messageComposition.copy(
-                        draftText = draft.text,
-                        selectedMentions = draft.selectedMentionList.mapNotNull { it.toUiMention(draft.text) },
-                        editMessageId = draft.editMessageId,
-                        quotedMessage = quotedData,
-                        quotedMessageId = quotedData?.messageId
-                    )
-                }
+            val quotedMessage = draft.quotedMessageId?.let { quotedMessageId ->
+                getQuotedMessage(conversationId, quotedMessageId)
             }
+
+            state.update { messageComposition ->
+                messageComposition.copy(
+                    draftText = draft.text,
+                    selectedMentions = draft.selectedMentionList.mapNotNull { it.toUiMention(draft.text) },
+                    editMessageId = draft.editMessageId,
+                    quotedMessage = quotedMessage as? UIQuotedMessage.UIQuotedData,
+                    quotedMessageId = (quotedMessage as? UIQuotedMessage.UIQuotedData)?.messageId,
+                )
+            }
+        } ?: run {
+            state.update { messageComposition ->
+                MessageComposition(conversationId = conversationId)
+            }
+        }
+    }
+
+    fun saveDraft(messageDraft: MessageDraft) {
+        viewModelScope.launch {
+            saveMessageDraft(messageDraft)
+        }
+    }
+
+    fun onMessageTextUpdate(newText: String) {
+        if (state.value.draftText != newText) {
+            saveDraft(state.value.toDraft(newText))
         }
     }
 }

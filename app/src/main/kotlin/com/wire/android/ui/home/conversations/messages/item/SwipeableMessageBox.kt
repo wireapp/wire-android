@@ -51,7 +51,7 @@ sealed interface SwipeableMessageConfiguration {
     data object NotSwipeable : SwipeableMessageConfiguration
     class Swipeable(
         val onSwipedRight: (() -> Unit)? = null,
-        val onSwipedLeft: (() -> Unit)? = null
+        val onSwipedLeft: (() -> Unit)? = null,
     ) : SwipeableMessageConfiguration
 }
 
@@ -68,7 +68,7 @@ data class SwipeAction(
 
 @Composable
 internal fun SwipeableMessageBox(
-    configuration: SwipeableMessageConfiguration.Swipeable,
+    configuration: SwipeableMessageConfiguration,
     messageStyle: MessageStyle,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
@@ -76,13 +76,13 @@ internal fun SwipeableMessageBox(
     SwipeableBox(
         messageStyle = messageStyle,
         modifier = modifier,
-        onSwipeRight = configuration.onSwipedRight?.let {
+        onSwipeRight = (configuration as? SwipeableMessageConfiguration.Swipeable)?.onSwipedRight?.let {
             SwipeAction(
                 icon = R.drawable.ic_reply,
                 action = it,
             )
         },
-        onSwipeLeft = configuration.onSwipedLeft?.let {
+        onSwipeLeft = (configuration as? SwipeableMessageConfiguration.Swipeable)?.onSwipedLeft?.let {
             SwipeAction(
                 icon = R.drawable.ic_react,
                 action = it,
@@ -126,13 +126,13 @@ private fun SwipeableBox(
     }
 
     val tintColor = when (messageStyle) {
-        MessageStyle.BUBBLE_SELF -> colorsScheme().selfBubble.primary
-        MessageStyle.BUBBLE_OTHER -> colorsScheme().selfBubble.primary
+        MessageStyle.BUBBLE_SELF -> colorsScheme().primary
+        MessageStyle.BUBBLE_OTHER -> colorsScheme().primary
         MessageStyle.NORMAL -> colorsScheme().onPrimary
     }
 
     CompositionLocalProvider(LocalViewConfiguration provides scopedViewConfiguration) {
-        val dragState = remember {
+        val dragState = remember(onSwipeLeft, onSwipeRight) {
             AnchoredDraggableState(
                 initialValue = SwipeAnchor.CENTERED,
                 positionalThreshold = { dragWidth },

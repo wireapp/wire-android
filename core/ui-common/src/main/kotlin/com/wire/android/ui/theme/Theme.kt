@@ -51,7 +51,9 @@ fun WireTheme(
         LocalContentColor provides wireColorScheme.onBackground,
         *if (isPreview) {
             arrayOf(LocalSnackbarHostState provides remember { SnackbarHostState() })
-        } else emptyArray(),
+        } else {
+            emptyArray()
+        },
     ) {
         MaterialTheme(
             colorScheme = wireColorScheme.toColorScheme(),

@@ -26,7 +26,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 
 @Composable
-fun <Saveable: Any> rememberVisibilityState(saveable: Saveable? = null): VisibilityState<Saveable> {
+fun <Saveable : Any> rememberVisibilityState(saveable: Saveable? = null): VisibilityState<Saveable> {
     val searchBarState = rememberSaveable(
         saver = VisibilityState.saver(saveable)
     ) {
@@ -36,7 +36,7 @@ fun <Saveable: Any> rememberVisibilityState(saveable: Saveable? = null): Visibil
     return searchBarState
 }
 
-class VisibilityState<Saveable: Any>(isVisible: Boolean = false, saveable: Saveable? = null) {
+class VisibilityState<Saveable : Any>(isVisible: Boolean = false, saveable: Saveable? = null) {
 
     var isVisible by mutableStateOf(isVisible)
         private set
@@ -60,12 +60,12 @@ class VisibilityState<Saveable: Any>(isVisible: Boolean = false, saveable: Savea
     }
 
     companion object {
-        fun <Saveable: Any> saver(saveable: Saveable?): Saver<VisibilityState<Saveable>, *> = Saver(
+        fun <Saveable : Any> saver(saveable: Saveable?): Saver<VisibilityState<Saveable>, *> = Saver(
             save = {
                 listOf(it.isVisible, saveable)
             },
             restore = {
-                VisibilityState(isVisible = it[0] as Boolean, saveable= it[1] as Saveable?)
+                VisibilityState(isVisible = it[0] as Boolean, saveable = it[1] as Saveable?)
             }
         )
     }

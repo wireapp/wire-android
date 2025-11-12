@@ -33,7 +33,6 @@ import javax.inject.Singleton
 @Qualifier
 annotation class ApplicationScope
 
-
 @Retention(AnnotationRetention.RUNTIME)
 @Qualifier
 annotation class DefaultDispatcher
@@ -49,7 +48,6 @@ annotation class MainDispatcher
 @Retention(AnnotationRetention.BINARY)
 @Qualifier
 annotation class MainImmediateDispatcher
-
 
 @InstallIn(SingletonComponent::class)
 @Module

@@ -74,6 +74,7 @@ import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.id.ConversationId
 
 private const val TEXT_QUOTE_MAX_LINES = 7
 
@@ -106,6 +107,7 @@ enum class QuotedStyle {
 
 @Composable
 internal fun QuotedMessage(
+    conversationId: ConversationId,
     messageData: UIQuotedMessage.UIQuotedData,
     clickable: Clickable?,
     style: QuotedMessageStyle,
@@ -173,16 +175,31 @@ internal fun QuotedMessage(
             startContent = startContent,
             clickable = clickable
         )
+
+        is UIQuotedMessage.UIQuotedData.Multipart -> QuotedMultipartMessage(
+            conversationId = conversationId,
+            quotedMessageId = messageData.messageId,
+            senderName = messageData.senderName,
+            originalDateTimeText = messageData.originalMessageDateDescription,
+            text = quotedContent.text?.asString(),
+            accent = messageData.senderAccent,
+            modifier = modifier,
+            style = style,
+            startContent = startContent,
+            clickable = clickable
+        )
     }
 }
 
 @Composable
 fun QuotedMessagePreview(
+    conversationId: ConversationId,
     quotedMessageData: UIQuotedMessage.UIQuotedData,
     onCancelReply: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     QuotedMessage(
+        conversationId = conversationId,
         modifier = modifier,
         messageData = quotedMessageData,
         clickable = null,
@@ -213,7 +230,7 @@ fun QuotedMessagePreview(
 
 @Composable
 @Suppress("LongParameterList")
-private fun QuotedMessageContent(
+internal fun QuotedMessageContent(
     senderName: String?,
     style: QuotedMessageStyle,
     modifier: Modifier = Modifier,
@@ -420,7 +437,7 @@ private fun QuotedText(
 }
 
 @Composable
-private fun QuotedMessageOriginalDate(
+internal fun QuotedMessageOriginalDate(
     originalDateTimeText: UIText,
     style: QuotedMessageStyle
 ) {
@@ -611,14 +628,13 @@ fun QuotedAudioMessage(
 }
 
 @Composable
-private fun MainMarkdownText(text: String, messageStyle: MessageStyle, accent: Accent, fontStyle: FontStyle = FontStyle.Normal) {
+internal fun MainMarkdownText(text: String, messageStyle: MessageStyle, accent: Accent, fontStyle: FontStyle = FontStyle.Normal) {
 
     val color = when (messageStyle) {
         MessageStyle.BUBBLE_SELF -> colorsScheme().selfBubble.onSecondary
         MessageStyle.BUBBLE_OTHER -> colorsScheme().otherBubble.onSecondary
         MessageStyle.NORMAL -> colorsScheme().onSurfaceVariant
     }
-
     val nodeData = NodeData(
         color = color,
         style = MaterialTheme.wireTypography.subline01.copy(fontStyle = fontStyle),
@@ -648,7 +664,7 @@ private fun MainMarkdownText(text: String, messageStyle: MessageStyle, accent: A
 }
 
 @Composable
-private fun MainContentText(text: String, fontStyle: FontStyle = FontStyle.Normal) {
+internal fun MainContentText(text: String, fontStyle: FontStyle = FontStyle.Normal) {
     Text(
         text = text,
         style = typography().subline01,

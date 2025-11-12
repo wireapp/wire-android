@@ -273,5 +273,5 @@ private fun calculateAnchors(isSwipeable: Boolean, collapsingHeight: Int) = Drag
 
 private enum class State {
     EXPANDED,
-    COLLAPSED;
+    COLLAPSED
 }

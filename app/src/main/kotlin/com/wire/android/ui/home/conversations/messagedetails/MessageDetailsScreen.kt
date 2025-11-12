@@ -120,7 +120,9 @@ private fun MessageDetailsScreenContent(
     val pagerState = rememberPagerState(initialPage = initialPageIndex, pageCount = { tabItems.size })
     val maxAppBarElevation = MaterialTheme.wireDimensions.topBarShadowElevation
     val currentTabState by remember { derivedStateOf { pagerState.calculateCurrentTab() } }
-    val elevationState by remember { derivedStateOf { lazyListStates[currentTabState].topBarElevation(maxAppBarElevation) } }
+    val elevationState by remember {
+        derivedStateOf { lazyListStates[currentTabState].topBarElevation(maxAppBarElevation) }
+    }
 
     WireScaffold(
         topBar = {

@@ -235,7 +235,8 @@ private const val MAX_GROUP_SIZE_FOR_PING = 3
 @Composable
 fun ConversationScreen(
     navigator: Navigator,
-    groupDetailsScreenResultRecipient: ResultRecipient<GroupConversationDetailsScreenDestination, GroupConversationDetailsNavBackArgs>,
+    groupDetailsScreenResultRecipient:
+    ResultRecipient<GroupConversationDetailsScreenDestination, GroupConversationDetailsNavBackArgs>,
     mediaGalleryScreenResultRecipient: ResultRecipient<MediaGalleryScreenDestination, MediaGalleryNavBackArgs>,
     imagePreviewScreenResultRecipient: ResultRecipient<ImagesPreviewScreenDestination, ImagesPreviewNavBackArgs>,
     drawingCanvasScreenResultRecipient: OpenResultRecipient<DrawingCanvasNavBackArgs>,
@@ -248,7 +249,7 @@ fun ConversationScreen(
     sendMessageViewModel: SendMessageViewModel = hiltViewModel(),
     conversationMigrationViewModel: ConversationMigrationViewModel = hiltViewModel(),
     messageDraftViewModel: MessageDraftViewModel = hiltViewModel(),
-    messageAttachmentsViewModel: MessageAttachmentsViewModel = hiltViewModel()
+    messageAttachmentsViewModel: MessageAttachmentsViewModel = hiltViewModel(),
 ) {
     val coroutineScope = rememberCoroutineScope()
     val uriHandler = LocalUriHandler.current
@@ -259,7 +260,8 @@ fun ConversationScreen(
         messageComposerViewState = messageComposerViewState,
         draftMessageComposition = messageDraftViewModel.state.value,
         onClearDraft = messageDraftViewModel::clearDraft,
-        onSaveDraft = messageComposerViewModel::saveDraft,
+        onSaveDraft = messageDraftViewModel::saveDraft,
+        onMessageTextUpdate = messageDraftViewModel::onMessageTextUpdate,
         onSearchMentionQueryChanged = messageComposerViewModel::searchMembersToMention,
         onTypingEvent = messageComposerViewModel::sendTypingEvent,
         onClearMentionSearchResult = messageComposerViewModel::clearMentionSearchResult
@@ -312,12 +314,13 @@ fun ConversationScreen(
     LaunchedEffect(messageDraftViewModel.state.value.editMessageId) {
         val compositionState = messageDraftViewModel.state.value
         if (compositionState.editMessageId != null) {
+            messageDraftViewModel.clearDraft()
             messageComposerStateHolder.toEdit(
                 messageId = compositionState.editMessageId,
                 editMessageText = messageDraftViewModel.state.value.draftText,
                 mentions = compositionState.selectedMentions.map {
                     it.intoMessageMention()
-                }
+                },
             )
         }
     }
@@ -483,9 +486,12 @@ fun ConversationScreen(
         onOpenProfile = {
             with(conversationInfoViewModel) {
                 val (mentionUserId: UserId, isSelfUser: Boolean) = mentionedUserData(it)
-                if (isSelfUser) navigator.navigate(NavigationCommand(SelfUserProfileScreenDestination))
-                else (conversationInfoViewState.conversationDetailsData as? ConversationDetailsData.Group)?.conversationId.let {
+                if (isSelfUser) {
+                    navigator.navigate(NavigationCommand(SelfUserProfileScreenDestination))
+                } else {
+                    (conversationInfoViewState.conversationDetailsData as? ConversationDetailsData.Group)?.conversationId.let {
                     navigator.navigate(NavigationCommand(OtherUserProfileScreenDestination(mentionUserId, it)))
+                }
                 }
             }
         },
@@ -587,7 +593,8 @@ fun ConversationScreen(
                     is ConversationDetailsData.Group ->
                         navigator.navigate(NavigationCommand(GroupConversationDetailsScreenDestination(conversationId)))
 
-                    is ConversationDetailsData.None -> { /* do nothing */
+                    is ConversationDetailsData.None -> {
+                        /* do nothing */
                     }
                 }
             }
@@ -1008,7 +1015,7 @@ private fun ConversationScreen(
                         onAttachmentClick = onAttachmentClick,
                         onAttachmentMenuClick = onAttachmentMenuClick,
                         showHistoryLoadingIndicator = conversationInfoViewState.showHistoryLoadingIndicator,
-                        isBubbleUiEnabled = conversationInfoViewState.isBubbleUiEnabled
+                        isBubbleUiEnabled = conversationInfoViewState.isBubbleUiEnabled,
                     )
                 }
             }
@@ -1137,7 +1144,7 @@ private fun ConversationScreenContent(
                 interactionAvailability = messageComposerStateHolder.messageComposerViewState.value.interactionAvailability,
                 currentTimeInMillisFlow = currentTimeInMillisFlow,
                 showHistoryLoadingIndicator = showHistoryLoadingIndicator,
-                isBubbleUiEnabled = isBubbleUiEnabled
+                isBubbleUiEnabled = isBubbleUiEnabled,
             )
         },
         onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
@@ -1631,6 +1638,7 @@ fun PreviewConversationScreen() = WireTheme {
         draftMessageComposition = messageCompositionState.value,
         onClearDraft = {},
         onSaveDraft = {},
+        onMessageTextUpdate = {},
         onTypingEvent = {},
         onSearchMentionQueryChanged = {},
         onClearMentionSearchResult = {},

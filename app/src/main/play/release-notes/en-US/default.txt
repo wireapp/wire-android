@@ -1,7 +1,3 @@
 New
-- Choose profile colour in Settings
-- Support for enterprise device management
 
 Fixes
-- Crash when tapping “Forgot your passcode?” on AppLock screen
-- General stability improvements

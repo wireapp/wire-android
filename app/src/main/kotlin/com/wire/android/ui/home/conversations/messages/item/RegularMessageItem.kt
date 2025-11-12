@@ -263,17 +263,11 @@ fun RegularMessageItem(
         }
     }
 
-    when (swipeableMessageConfiguration) {
-        is SwipeableMessageConfiguration.Swipeable -> {
-            SwipeableMessageBox(
-                configuration = swipeableMessageConfiguration,
-                messageStyle = messageStyle
-            ) {
-                messageContent()
-            }
-        }
-
-        SwipeableMessageConfiguration.NotSwipeable -> messageContent()
+    SwipeableMessageBox(
+        configuration = swipeableMessageConfiguration,
+        messageStyle = messageStyle,
+    ) {
+        messageContent()
     }
 }
 

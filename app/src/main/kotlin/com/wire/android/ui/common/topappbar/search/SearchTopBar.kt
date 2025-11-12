@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.common.topappbar.search
 
-
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background

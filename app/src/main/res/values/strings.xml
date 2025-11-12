@@ -1903,4 +1903,9 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="search_results_apps_empty_description_team_admin">Apps are helpers that can improve your workflow. As a team admin, you can add them in team management.</string>
     <string name="search_results_apps_empty_description_non_team_admin">Apps are helpers that can improve your workflow. To use them, ask your team admin.</string>
     <string name="search_results_apps_empty_description_disabled_for_conversation">Apps are disabled in this conversation. Enable them in the conversation options.</string>
+
+    <string name="label_system_message_apps_access_changed_enabled">enabled</string>
+    <string name="label_system_message_apps_access_changed_disabled">disabled</string>
+    <string name="label_system_message_apps_access_changed_by_self">%1$s %2$s **apps** for this conversation</string>
+    <string name="label_system_message_apps_access_changed_by_other">%1$s %2$s **apps** for this conversation</string>
 </resources>

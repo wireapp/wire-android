@@ -45,6 +45,7 @@ import com.wire.android.model.ImageAsset
 import com.wire.android.ui.common.applyIf
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
+import com.wire.android.ui.common.button.secondaryButtonColors
 import com.wire.android.ui.common.button.wireSecondaryButtonColors
 import com.wire.android.ui.common.clickable
 import com.wire.android.ui.common.colorsScheme
@@ -72,6 +73,7 @@ import com.wire.android.ui.markdown.NodeActions
 import com.wire.android.ui.markdown.NodeData
 import com.wire.android.ui.markdown.toMarkdownDocument
 import com.wire.android.ui.theme.Accent
+import com.wire.android.ui.theme.BubbleColors
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -199,11 +201,7 @@ fun MessageButtonsContent(
                 onClick = onCLick,
                 state = state,
                 colors = if (messageStyle.isBubble()) {
-                    wireSecondaryButtonColors(
-                        enabled = colorsScheme().otherBubble.secondary,
-                        onEnabled = colorsScheme().otherBubble.onSecondary,
-                        enabledOutline = colorsScheme().otherBubble.primary,
-                    )
+                    colorsScheme().otherBubble.secondaryButtonColors()
                 } else {
                     wireSecondaryButtonColors()
                 }

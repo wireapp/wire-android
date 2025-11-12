@@ -24,6 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.ui.graphics.Color
+import com.wire.android.ui.theme.BubbleColors
 import com.wire.android.ui.theme.wireColorScheme
 
 @Composable
@@ -57,16 +58,11 @@ fun wireSendPrimaryButtonColors() = wirePrimaryButtonColors().copy(
 )
 
 @Composable
-fun wireSecondaryButtonColors(
-    enabled: Color = MaterialTheme.wireColorScheme.secondaryButtonEnabled,
-    onEnabled: Color = MaterialTheme.wireColorScheme.onSecondaryButtonEnabled,
-    enabledOutline: Color = MaterialTheme.wireColorScheme.secondaryButtonEnabledOutline,
-    enabledRipple: Color = MaterialTheme.wireColorScheme.secondaryButtonRipple,
-) = wireButtonColors(
-    enabled = enabled,
-    onEnabled = onEnabled,
-    enabledOutline = enabledOutline,
-    enabledRipple = enabledRipple,
+fun wireSecondaryButtonColors() = wireButtonColors(
+    enabled = MaterialTheme.wireColorScheme.secondaryButtonEnabled,
+    onEnabled = MaterialTheme.wireColorScheme.onSecondaryButtonEnabled,
+    enabledOutline = MaterialTheme.wireColorScheme.secondaryButtonEnabledOutline,
+    enabledRipple = MaterialTheme.wireColorScheme.secondaryButtonRipple,
     disabled = MaterialTheme.wireColorScheme.secondaryButtonDisabled,
     onDisabled = MaterialTheme.wireColorScheme.onSecondaryButtonDisabled,
     disabledOutline = MaterialTheme.wireColorScheme.secondaryButtonDisabledOutline,
@@ -107,6 +103,13 @@ fun wireTertiaryButtonColors() = wireButtonColors(
     onPositive = MaterialTheme.wireColorScheme.positive,
     positiveOutline = MaterialTheme.wireColorScheme.tertiaryButtonEnabled,
     positiveRipple = MaterialTheme.wireColorScheme.tertiaryButtonRipple,
+)
+
+@Composable
+fun BubbleColors.secondaryButtonColors() = wireSecondaryButtonColors().copy(
+    enabled = secondary,
+    onEnabled = onSecondary,
+    enabledOutline = primary
 )
 
 @Suppress("ParameterListWrapping")

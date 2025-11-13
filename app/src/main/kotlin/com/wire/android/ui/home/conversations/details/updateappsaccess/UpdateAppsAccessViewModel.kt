@@ -34,6 +34,7 @@ import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.type.isTeamAdmin
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
+import com.wire.kalium.logic.feature.conversation.apps.ChangeAccessForAppsInConversationUseCase
 import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -55,7 +56,7 @@ class UpdateAppsAccessViewModel @Inject constructor(
     private val observeConversationMembers: ObserveParticipantsForConversationUseCase,
     private val observeIsAppsAllowedForUsage: ObserveIsAppsAllowedForUsageUseCase,
     private val selfUser: ObserveSelfUserUseCase,
-    private val updateConversationAccessRole: UpdateConversationAccessRoleUseCase,
+    private val changeAccessForAppsInConversation: ChangeAccessForAppsInConversationUseCase,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -176,7 +177,7 @@ class UpdateAppsAccessViewModel @Inject constructor(
 
         val access = Conversation.accessFor(guestsAllowed = enableGuestAndNonTeamMember)
 
-        return updateConversationAccessRole(
+        return changeAccessForAppsInConversation(
             conversationId = conversationId,
             accessRoles = accessRoles,
             access = access

@@ -5,7 +5,7 @@ on:
 
 permissions:
   contents: read
-  pull-requests: write
+  pull-requests: read
 
 jobs:
   jira-link:
@@ -16,13 +16,35 @@ jobs:
         if: github.actor == 'dependabot[bot]' || github.actor == 'AndroidBob'
         run: echo "PR created by Dependabot or AndroidBob, exiting successfully" && exit 0
 
-      - uses: cleartax/jira-lint@v0.0.1
-        name: Validate and Link Jira Ticket
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          jira-token: ${{ secrets.JIRA_TOKEN }}
-          jira-base-url: https://wearezeta.atlassian.net
-          skip-branches: '^(production-release|main|master|release\/v\d+)$'
-          fail-on-error: true
-          skip-pr-update: true
-          pr-threshold: 1
+      - name: Extract Jira ticket and create remote link
+        env:
+          JIRA_BASE_URL: https://wearezeta.atlassian.net
+          JIRA_TOKEN: ${{ secrets.JIRA_TOKEN }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO_NAME: ${{ github.repository }}
+        run: |
+          # Extract Jira ticket ID from PR title (matches WPB-12345, SQPIT-123, etc.)
+          JIRA_KEY=$(echo "$PR_TITLE" | grep -oE '[A-Z]+-[0-9]+' | head -n 1)
+
+          if [ -z "$JIRA_KEY" ]; then
+            echo "No Jira ticket found in PR title: $PR_TITLE"
+            exit 0
+          fi
+
+          echo "Found Jira ticket: $JIRA_KEY"
+
+          # Create remote link in Jira
+          curl -X POST \
+            -H "Authorization: Bearer $JIRA_TOKEN" \
+            -H "Content-Type: application/json" \
+            "${JIRA_BASE_URL}/rest/api/3/issue/${JIRA_KEY}/remotelink" \
+            -d "{
+              \"object\": {
+                \"url\": \"${PR_URL}\",
+                \"title\": \"PR #${PR_NUMBER}: ${PR_TITLE}\"
+              }
+            }"
+
+          echo "Remote link created successfully for $JIRA_KEY"

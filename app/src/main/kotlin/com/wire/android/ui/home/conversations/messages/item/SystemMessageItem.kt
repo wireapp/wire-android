@@ -545,21 +545,6 @@ private fun SystemMessage.buildContent() = when (this) {
             id = R.string.label_system_message_cell_self_delete_disabled_for_conversation,
         ).toMarkdownAnnotatedString()
     }
-
-    is SystemMessage.ConversationAppsEnabledChanged -> buildContent(
-        iconResId = R.drawable.ic_app,
-        iconTintColor = MaterialTheme.wireColorScheme.onBackground,
-    ) {
-        stringResource(
-            id = when {
-                isAuthorSelfUser -> R.string.label_system_message_apps_access_changed_by_self
-                else -> R.string.label_system_message_apps_access_changed_by_other
-            },
-            formatArgs = arrayOf(
-                author.asString().markdownBold(), accessMode.asString()
-            )
-        ).toMarkdownAnnotatedString()
-    }
 }
 
 private fun AnnotatedString.Builder.appendVerticalSpace() = withStyle(ParagraphStyle()) { append(" ") }

@@ -470,19 +470,3 @@ fun PreviewSystemMessageConversationMessageCreatedUnverifiedWarning() {
         )
     }
 }
-
-@PreviewMultipleThemes
-@Composable
-fun PreviewSystemMessageConversationMessageAppsAccessEnabled() {
-    WireTheme {
-        SystemMessageItem(
-            message = mockMessageWithKnock.copy(
-                messageContent = UIMessageContent.SystemMessage.ConversationAppsEnabledChanged(
-                    UIText.DynamicString("Barbara Cotolina"),
-                    UIText.DynamicString("disabled"),
-                    true
-                )
-            )
-        )
-    }
-}

@@ -478,9 +478,9 @@ fun PreviewSystemMessageConversationMessageAppsAccessEnabled() {
         SystemMessageItem(
             message = mockMessageWithKnock.copy(
                 messageContent = UIMessageContent.SystemMessage.ConversationAppsEnabledChanged(
-                    UIText.DynamicString("Barbara Cotolina"),
-                    UIText.DynamicString("enabled"),
-                    true
+                    author = UIText.DynamicString("Barbara Cotolina"),
+                    isAuthorSelfUser = true,
+                    isAccessEnabled = true
                 )
             )
         )

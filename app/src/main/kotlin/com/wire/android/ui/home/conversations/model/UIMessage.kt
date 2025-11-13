@@ -595,8 +595,8 @@ sealed interface UIMessageContent {
         @Serializable
         data class ConversationAppsEnabledChanged(
             val author: UIText,
-            val accessMode: UIText,
-            val isAuthorSelfUser: Boolean = false
+            val isAuthorSelfUser: Boolean = false,
+            val isAccessEnabled: Boolean
         ) : SystemMessage
     }
 }

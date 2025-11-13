@@ -97,11 +97,8 @@ class SystemMessageContentMapper @Inject constructor(
         )
         return UIMessageContent.SystemMessage.ConversationAppsEnabledChanged(
             author = authorName,
-            accessMode = when (content.isEnabled) {
-                true -> UIText.StringResource(R.string.label_system_message_apps_access_changed_enabled)
-                else -> UIText.StringResource(R.string.label_system_message_apps_access_changed_disabled)
-            },
-            isAuthorSelfUser = sender is SelfUser
+            isAuthorSelfUser = sender is SelfUser,
+            isAccessEnabled = content.isEnabled
         )
     }
 

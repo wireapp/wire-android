@@ -21,11 +21,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.divider.WireDivider
+import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.theme.wireColorScheme
 
 @Composable
-fun MarkdownThematicBreak(modifier: Modifier = Modifier) {
-    WireDivider(modifier = modifier.padding(vertical = dimensions().spacing8x), color = MaterialTheme.wireColorScheme.outline)
+fun MarkdownThematicBreak(messageStyle: MessageStyle, modifier: Modifier = Modifier) {
+    val color = when (messageStyle) {
+        MessageStyle.BUBBLE_SELF -> colorsScheme().selfBubble.onPrimary
+        MessageStyle.BUBBLE_OTHER -> colorsScheme().otherBubble.onPrimary
+        MessageStyle.NORMAL -> MaterialTheme.wireColorScheme.outline
+    }
+    WireDivider(modifier = modifier.padding(vertical = dimensions().spacing8x), color = color)
 }

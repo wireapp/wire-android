@@ -25,3 +25,4 @@ jobs:
           skip-branches: '^(production-release|main|master|release\/v\d+)$'
           fail-on-error: true
           skip-pr-update: true
+          pr-threshold: 1

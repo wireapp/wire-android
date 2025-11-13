@@ -1,0 +1,27 @@
+name: Link PR to Jira Ticket
+on:
+  pull_request:
+    types: [opened, edited, synchronize]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  jira-link:
+    runs-on: ubuntu-latest
+    if: ${{ github.repository_owner == 'wireapp' }}
+    steps:
+      - name: Check for Dependabot
+        if: github.actor == 'dependabot[bot]' || github.actor == 'AndroidBob'
+        run: echo "PR created by Dependabot or AndroidBob, exiting successfully" && exit 0
+
+      - uses: cleartax/jira-lint@v1
+        name: Validate and Link Jira Ticket
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          jira-token: ${{ secrets.JIRA_TOKEN }}
+          jira-base-url: https://wearezeta.atlassian.net
+          skip-branches: '^(production-release|main|master|release\/v\d+)$'
+          fail-on-error: true
+          skip-pr-update: true

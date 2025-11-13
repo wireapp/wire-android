@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   link-jira:
-    uses: wireapp/.github/.github/workflows/jira-link-pr-reusable.yml@mo/ci/jira-linking-gh-action
+    uses: mohamadjaara/jira-description-action@master
     with:
       jira-base-url: https://wearezeta.atlassian.net
       jira-ticket-regex: '[A-Z]+-[0-9]+'

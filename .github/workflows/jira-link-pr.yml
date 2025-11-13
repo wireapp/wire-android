@@ -16,7 +16,7 @@ jobs:
         if: github.actor == 'dependabot[bot]' || github.actor == 'AndroidBob'
         run: echo "PR created by Dependabot or AndroidBob, exiting successfully" && exit 0
 
-      - uses: cleartax/jira-lint@v1
+      - uses: cleartax/jira-lint@v0.0.1
         name: Validate and Link Jira Ticket
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}

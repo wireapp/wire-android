@@ -479,7 +479,7 @@ fun PreviewSystemMessageConversationMessageAppsAccessEnabled() {
             message = mockMessageWithKnock.copy(
                 messageContent = UIMessageContent.SystemMessage.ConversationAppsEnabledChanged(
                     UIText.DynamicString("Barbara Cotolina"),
-                    UIText.DynamicString("disabled"),
+                    UIText.DynamicString("enabled"),
                     true
                 )
             )

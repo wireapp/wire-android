@@ -550,7 +550,8 @@ private fun SystemMessage.buildContent() = when (this) {
         iconResId = R.drawable.ic_app,
         iconTintColor = MaterialTheme.wireColorScheme.onBackground,
     ) {
-        stringResource(
+        val markdownTextStyle = DefaultMarkdownTextStyle.copy(normalColor = MaterialTheme.wireColorScheme.primary)
+        val content = stringResource(
             id = when {
                 isAuthorSelfUser -> R.string.label_system_message_apps_access_changed_by_self
                 else -> R.string.label_system_message_apps_access_changed_by_other
@@ -558,7 +559,13 @@ private fun SystemMessage.buildContent() = when (this) {
             formatArgs = arrayOf(
                 author.asString().markdownBold(), accessMode.asString()
             )
-        ).toMarkdownAnnotatedString()
+        )
+        val footer = stringResource(R.string.label_system_message_apps_access_enabled_disclaimer)
+        buildAnnotatedString {
+            append(content.toMarkdownAnnotatedString())
+            appendVerticalSpace()
+            append(footer.toMarkdownAnnotatedString(markdownTextStyle))
+        }
     }
 }
 

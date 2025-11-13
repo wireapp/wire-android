@@ -1908,4 +1908,5 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="label_system_message_apps_access_changed_disabled">disabled</string>
     <string name="label_system_message_apps_access_changed_by_self">%1$s %2$s **apps** for this conversation</string>
     <string name="label_system_message_apps_access_changed_by_other">%1$s %2$s **apps** for this conversation</string>
+    <string name="label_system_message_apps_access_enabled_disclaimer">Added apps have access to the content of this conversation.</string>
 </resources>

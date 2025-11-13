@@ -25,3 +25,4 @@ jobs:
           jira-base-url: https://wearezeta.atlassian.net
           skip-branches: '^(production-release|main|master|release\/v\d+)$' #optional
           fail-when-jira-issue-not-found: true
+          skip-ticket-title: tue

@@ -398,12 +398,14 @@ private fun AudioMessageSlider(
     onSliderPositionChange: (Float) -> Unit,
 ) {
     val density = LocalDensity.current
+    val waveWidth = dimensions().spacing2x
+    val spaceBetweenWaves = dimensions().spacing1x
     BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
         val totalMs = if (totalTimeInMs is AudioState.TotalTimeInMs.Known) totalTimeInMs.value.toFloat() else 0f
         val waves by remember(waveMask, constraints.maxWidth) {
             derivedStateOf {
                 val wavesAmount = with(density) {
-                    (constraints.maxWidth.toDp() / 3.dp).toInt() // each wave should take 2dp + spacer 1dp
+                    (constraints.maxWidth.toDp() / (waveWidth + spaceBetweenWaves)).toInt()
                 }
                 when {
                     wavesAmount <= 0 -> emptyList()

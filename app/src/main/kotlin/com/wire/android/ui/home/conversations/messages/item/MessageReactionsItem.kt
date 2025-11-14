@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.messages.ReactionPill
 import com.wire.android.ui.home.conversations.model.MessageFooter
+import com.wire.android.ui.home.conversations.model.Reaction
 import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -46,24 +47,22 @@ fun MessageReactionsItem(
     onLongClick: (() -> Unit)? = null,
 ) {
     // to eliminate adding unnecessary paddings when the list is empty
-    if (messageFooter.reactions.entries.isNotEmpty()) {
+    if (messageFooter.reactionList.isNotEmpty()) {
         FlowRow(
             modifier = modifier,
             horizontalArrangement = Arrangement.spacedBy(dimensions().spacing4x, itemsAlignment),
             verticalArrangement = Arrangement.spacedBy(dimensions().spacing6x, Alignment.Top),
             maxItemsInEachRow = if (messageStyle.isBubble()) BUBBLE_MAX_REACTIONS_IN_ROW else Int.MAX_VALUE,
         ) {
-            messageFooter.reactions.entries
-                .sortedBy { it.key }
-                .forEach {
-                    val reaction = it.key
-                    val count = it.value
+            messageFooter.reactionList
+                .sortedBy { it.emoji }
+                .forEach { reaction ->
                     ReactionPill(
-                        emoji = reaction,
-                        count = count,
-                        isOwn = messageFooter.ownReactions.contains(reaction),
+                        emoji = reaction.emoji,
+                        count = reaction.count,
+                        isOwn = reaction.isSelf,
                         onTap = {
-                            onReactionClicked(messageFooter.messageId, reaction)
+                            onReactionClicked(messageFooter.messageId, reaction.emoji)
                         },
                         onLongClick = onLongClick
                     )
@@ -80,16 +79,16 @@ fun LongMessageReactionsItemPreview() = WireTheme(accent = Accent.Green) {
             messageStyle = MessageStyle.NORMAL,
             messageFooter = MessageFooter(
                 messageId = "messageId",
-                reactions = mapOf(
-                    "👍" to 1,
-                    "👎" to 2,
-                    "👏" to 3,
-                    "🤔" to 4,
-                    "🤷" to 5,
-                    "🤦" to 6,
-                    "🤢" to 7
+                reactionList = listOf(
+                    Reaction("👍",1, isSelf = false),
+                    Reaction("👎",2, isSelf = false),
+                    Reaction("👏",3, isSelf = false),
+                    Reaction("🤔",4, isSelf = false),
+                    Reaction("🤷",5, isSelf = false),
+                    Reaction("🤦",6, isSelf = false),
+                    Reaction("🤢",7, isSelf = false),
+                    Reaction("👍",1, isSelf = true),
                 ),
-                ownReactions = setOf("👍"),
             ),
             onReactionClicked = { _, _ -> }
         )
@@ -104,16 +103,16 @@ fun LongMessageReactionsBubbleItemPreview() = WireTheme(accent = Accent.Petrol) 
             messageStyle = MessageStyle.BUBBLE_OTHER,
             messageFooter = MessageFooter(
                 messageId = "messageId",
-                reactions = mapOf(
-                    "👍" to 1,
-                    "👎" to 2,
-                    "👏" to 3,
-                    "🤔" to 4,
-                    "🤷" to 5,
-                    "🤦" to 6,
-                    "🤢" to 7
+                reactionList = listOf(
+                    Reaction("👍", 1, isSelf = false),
+                    Reaction("👎", 2, isSelf = false),
+                    Reaction("👏", 3, isSelf = false),
+                    Reaction("🤔", 4, isSelf = false),
+                    Reaction("🤷", 5, isSelf = false),
+                    Reaction("🤦", 6, isSelf = false),
+                    Reaction("🤢", 7, isSelf = false),
+                    Reaction("👍", 1, isSelf = true),
                 ),
-                ownReactions = setOf("👍"),
             ),
             onReactionClicked = { _, _ -> }
         )

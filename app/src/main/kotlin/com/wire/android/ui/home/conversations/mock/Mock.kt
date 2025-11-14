@@ -31,6 +31,7 @@ import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.MessageTime
+import com.wire.android.ui.home.conversations.model.Reaction
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.UIAssetMessage
@@ -47,22 +48,22 @@ import kotlinx.datetime.Instant
 import okio.Path.Companion.toPath
 
 private const val MOCK_TIME_IN_SECONDS: Long = 1729837498
-val mockFooter = MessageFooter("", mapOf("👍" to 1), setOf("👍"))
+val mockFooter = MessageFooter("", listOf(Reaction("👍", 1, isSelf = false), Reaction("👍", count = 2, isSelf = true)))
 
 val mockFooterWithMultipleReactions = MessageFooter(
     messageId = "messageId",
-    reactions = mapOf(
-        "👍" to 1,
-        "👎" to 2,
-        "👏" to 3,
-        "🤔" to 4,
-        "🤷" to 5,
-        "🤦" to 6,
-        "🤢" to 7
+    reactionList = listOf(
+        Reaction("👍", 1, isSelf = false),
+        Reaction("👎", 2, isSelf = false),
+        Reaction("👏", 3, isSelf = false),
+        Reaction("🤔", 4, isSelf = false),
+        Reaction("🤷", 5, isSelf = false),
+        Reaction("🤦", 6, isSelf = false),
+        Reaction("🤢", 7, isSelf = false),
+        Reaction("👍", 1, isSelf = true),
     ),
-    ownReactions = setOf("👍"),
 )
-val mockEmptyFooter = MessageFooter("", emptyMap(), emptySet())
+val mockEmptyFooter = MessageFooter("", emptyList())
 val mockMessageTime = MessageTime(Instant.fromEpochSeconds(MOCK_TIME_IN_SECONDS))
 
 val mockHeader = MessageHeader(

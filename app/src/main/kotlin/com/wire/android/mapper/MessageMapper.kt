@@ -30,6 +30,7 @@ import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.MessageTime
+import com.wire.android.ui.home.conversations.model.Reaction
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.previewAsset
@@ -85,9 +86,14 @@ class MessageMapper @Inject constructor(
 
         val footer = if (message is Message.Regular) {
             MessageFooter(
-                message.id,
-                message.reactions.totalReactions,
-                message.reactions.selfUserReactions
+                messageId = message.id,
+                reactionList = message.reactions.reactions.map { reaction ->
+                    Reaction(
+                        emoji = reaction.emoji,
+                        count = reaction.count,
+                        isSelf = reaction.isSelf
+                    )
+                }
             )
         } else {
             MessageFooter(message.id)

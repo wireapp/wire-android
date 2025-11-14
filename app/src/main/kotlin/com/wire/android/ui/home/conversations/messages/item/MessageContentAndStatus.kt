@@ -48,7 +48,7 @@ internal fun UIMessage.Regular.MessageContentAndStatus(
     searchQuery: String,
     messageStyle: MessageStyle,
     onAssetClicked: (String) -> Unit,
-    onImageClicked: (UIMessage.Regular, Boolean) -> Unit,
+    onImageClicked: (UIMessage.Regular, Boolean, String?) -> Unit,
     onProfileClicked: (String) -> Unit,
     onLinkClicked: (String) -> Unit,
     onReplyClicked: (UIMessage.Regular) -> Unit,
@@ -61,21 +61,26 @@ internal fun UIMessage.Regular.MessageContentAndStatus(
             onAssetClicked(header.messageId)
         })
     }
+
     val onImageClickable = remember(message) {
         Clickable(enabled = isAvailable, onClick = {
-            onImageClicked(message, source == MessageSource.Self)
+            onImageClicked(message, source == MessageSource.Self, null)
         })
     }
+
+    val onMultipartImageClickable: (String) -> Unit = remember(message) {
+        {
+            onImageClicked(message, source == MessageSource.Self, it)
+        }
+    }
+
     val onReplyClickable = remember(message) {
         Clickable {
             onReplyClicked(message)
         }
     }
     Row {
-        Column(
-            Modifier
-                .applyIf(!messageStyle.isBubble()) { weight(1F) }
-        ) {
+        Column(Modifier.applyIf(!messageStyle.isBubble()) { weight(1F) }) {
             MessageContent(
                 message = message,
                 messageContent = messageContent,
@@ -83,6 +88,7 @@ internal fun UIMessage.Regular.MessageContentAndStatus(
                 assetStatus = assetStatus,
                 onAssetClick = onAssetClickable,
                 onImageClick = onImageClickable,
+                onMultipartImageClick = onMultipartImageClickable,
                 onOpenProfile = onProfileClicked,
                 onLinkClick = onLinkClicked,
                 onReplyClick = onReplyClickable,
@@ -129,6 +135,7 @@ private fun MessageContent(
     assetStatus: AssetTransferStatus?,
     onAssetClick: Clickable,
     onImageClick: Clickable,
+    onMultipartImageClick: (String) -> Unit,
     onOpenProfile: (String) -> Unit,
     onLinkClick: (String) -> Unit,
     onReplyClick: Clickable,
@@ -171,7 +178,8 @@ private fun MessageContent(
                             style = QuotedMessageStyle(
                                 quotedStyle = QuotedStyle.COMPLETE,
                                 messageStyle = messageStyle,
-                                selfAccent = accent
+                                selfAccent = accent,
+                                senderAccent = it.senderAccent
                             ),
                             clickable = onReplyClick
                         )
@@ -180,7 +188,8 @@ private fun MessageContent(
                             style = QuotedMessageStyle(
                                 quotedStyle = QuotedStyle.COMPLETE,
                                 messageStyle = messageStyle,
-                                selfAccent = accent
+                                selfAccent = accent,
+                                senderAccent = Accent.Unknown
                             )
                         )
                     }
@@ -211,7 +220,8 @@ private fun MessageContent(
                             style = QuotedMessageStyle(
                                 quotedStyle = QuotedStyle.COMPLETE,
                                 messageStyle = messageStyle,
-                                selfAccent = accent
+                                selfAccent = accent,
+                                senderAccent = it.senderAccent
                             ),
                             clickable = onReplyClick
                         )
@@ -220,7 +230,8 @@ private fun MessageContent(
                             style = QuotedMessageStyle(
                                 quotedStyle = QuotedStyle.COMPLETE,
                                 messageStyle = messageStyle,
-                                selfAccent = accent
+                                selfAccent = accent,
+                                senderAccent = Accent.Unknown
                             )
                         )
                     }
@@ -323,7 +334,8 @@ private fun MessageContent(
                             style = QuotedMessageStyle(
                                 quotedStyle = QuotedStyle.COMPLETE,
                                 messageStyle = messageStyle,
-                                selfAccent = accent
+                                selfAccent = accent,
+                                senderAccent = it.senderAccent
                             ),
                             clickable = onReplyClick
                         )
@@ -332,7 +344,8 @@ private fun MessageContent(
                             style = QuotedMessageStyle(
                                 quotedStyle = QuotedStyle.COMPLETE,
                                 messageStyle = messageStyle,
-                                selfAccent = accent
+                                selfAccent = accent,
+                                senderAccent = Accent.Unknown
                             )
                         )
                     }
@@ -357,6 +370,7 @@ private fun MessageContent(
                     attachments = messageContent.attachments,
                     messageStyle = messageStyle,
                     accent = accent,
+                    onImageAttachmentClick = onMultipartImageClick
                 )
             }
 

@@ -41,7 +41,8 @@ data class AssetBundle(
     val dataPath: Path,
     val dataSize: Long,
     val fileName: String,
-    val assetType: AttachmentType
+    val assetType: AttachmentType,
+    val audioWavesMask: List<Int>? = null,
 ) : Parcelable {
 
     @Stable
@@ -68,7 +69,8 @@ data class AssetBundle(
 data class UriAsset(
     val uri: Uri,
     val saveToDeviceIfInvalid: Boolean = false,
-    val mimeType: String? = null
+    val mimeType: String? = null,
+    val audioWavesMask: List<Int>? = null,
 )
 
 object PathParceler : Parceler<Path> {

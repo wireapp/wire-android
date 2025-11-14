@@ -122,13 +122,6 @@ jobs:
 
             This is a **pre-release** for testing purposes.
 
-            ### Artifacts
-            - **Prod flavor** (com.wire) - Production build for testing
-
-            ### Distribution
-            - GitHub: Manual APK download from this release
-            - Google Play: Beta track for com.wire
-
             **Note**: This is not a final release. Use for testing only.
           prerelease: true
           draft: false

@@ -42,6 +42,7 @@ private fun PreviewMultipartMessage(text: String?, message: UIQuotedMultipartMes
             messageStyle = MessageStyle.NORMAL,
             quotedStyle = QuotedStyle.PREVIEW,
             selfAccent = Accent.Blue,
+            senderAccent = Accent.Amber
         ),
         accent = Accent.Blue,
         quotedMultipartMessage = message,

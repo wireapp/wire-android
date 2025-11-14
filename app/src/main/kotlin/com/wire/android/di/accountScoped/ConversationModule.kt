@@ -59,6 +59,7 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUs
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReceiptModeUseCase
+import com.wire.kalium.logic.feature.conversation.apps.ChangeAccessForAppsInConversationUseCase
 import com.wire.kalium.logic.feature.conversation.createconversation.CreateChannelUseCase
 import com.wire.kalium.logic.feature.conversation.createconversation.CreateRegularGroupUseCase
 import com.wire.kalium.logic.feature.conversation.delete.MarkConversationAsDeletedLocallyUseCase
@@ -385,4 +386,11 @@ class ConversationModule {
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
     ): FetchConversationUseCase = coreLogic.getSessionScope(currentAccount).fetchConversationUseCase
+
+    @ViewModelScoped
+    @Provides
+    fun provideChangeAccessForAppsInConversationUseCase(
+        conversationScope: ConversationScope
+    ): ChangeAccessForAppsInConversationUseCase =
+        conversationScope.changeAccessForAppsInConversation
 }

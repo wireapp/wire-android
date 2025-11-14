@@ -739,9 +739,9 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="change">Cambiar</string>
     <string name="allow_guests">Permitir invitados</string>
     <string name="allow_guest_switch_description">Abra esta conversaci&#243;n a personas fuera de su equipo. Siempre puede cambiarlo m&#225;s tarde.</string>
+    <string name="allow_guest_switch_channel_description">Abrir la conversación a personas externas a tu equipo o a aplicaciones. Siempre puedes cambiar esta opción más adelante.</string>
     <string name="allow_services">Permitir aplicaciones</string>
     <string name="allow_services_regular_group_description">Abrir la conversación a aplicaciones. Siempre puedes cambiar esta opción más adelante.</string>
-    <string name="allow_services_channel_description">Abrir la conversación a personas externas a tu equipo o a aplicaciones. Siempre puedes cambiar esta opción más adelante.</string>
     <string name="service_details_label">Aplicación</string>
     <string name="service_details_add_service_label">Añadir a la Conversación</string>
     <string name="service_details_remove_service_label">Remover de la Conversación</string>

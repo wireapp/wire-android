@@ -18,9 +18,16 @@
 
 package com.wire.android.ui.home.gallery
 
+import com.wire.android.model.ImageAsset
+
 data class MediaGalleryViewState(
+    val imageAsset: MediaGalleryImage? = null,
     val screenTitle: String? = null,
-    val isEphemeral: Boolean = false,
-    val messageBottomSheetOptionsEnabled: Boolean,
-    val messageDeleted: Boolean = false,
+    val menuItems: List<MediaGalleryMenuItem> = emptyList(),
 )
+
+sealed interface MediaGalleryImage {
+    data class PrivateAsset(val asset: ImageAsset.PrivateAsset) : MediaGalleryImage
+    data class LocalAsset(val path: String) : MediaGalleryImage
+    data class UrlAsset(val url: String, val placeholder: String?, val contentHash: String?) : MediaGalleryImage
+}

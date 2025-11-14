@@ -34,6 +34,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
+import com.wire.kalium.logic.feature.conversation.apps.ChangeAccessForAppsInConversationUseCase
 import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import io.mockk.MockKAnnotations
@@ -107,7 +108,7 @@ class UpdateAppsAccessViewModelTest {
 
         // Then
         coVerify(exactly = 1) {
-            arrangement.updateConversationAccessRoleUseCase(
+            arrangement.changeAccessForAppsInConversationUseCase(
                 conversationId = details.conversation.id,
                 accessRoles = Conversation
                     .defaultGroupAccessRoles
@@ -151,7 +152,7 @@ class UpdateAppsAccessViewModelTest {
         // Then
         assertEquals(false, viewModel.updateAppsAccessState.shouldShowDisableAppsConfirmationDialog)
         coVerify(exactly = 1) {
-            arrangement.updateConversationAccessRoleUseCase(
+            arrangement.changeAccessForAppsInConversationUseCase(
                 conversationId = details.conversation.id,
                 accessRoles = Conversation.defaultGroupAccessRoles.toMutableSet().apply {
                     remove(Conversation.AccessRole.NON_TEAM_MEMBER)
@@ -335,7 +336,7 @@ internal class UpdateAppsAccessViewModelArrangement {
     lateinit var observeParticipantsForConversationUseCase: ObserveParticipantsForConversationUseCase
 
     @MockK
-    lateinit var updateConversationAccessRoleUseCase: UpdateConversationAccessRoleUseCase
+    lateinit var changeAccessForAppsInConversationUseCase: ChangeAccessForAppsInConversationUseCase
 
     @MockK
     lateinit var observeIsAppsAllowedForUsage: ObserveIsAppsAllowedForUsageUseCase
@@ -353,7 +354,7 @@ internal class UpdateAppsAccessViewModelArrangement {
             dispatcher = TestDispatcherProvider(),
             observeConversationDetails = observeConversationDetails,
             observeConversationMembers = observeParticipantsForConversationUseCase,
-            updateConversationAccessRole = updateConversationAccessRoleUseCase,
+            changeAccessForAppsInConversation = changeAccessForAppsInConversationUseCase,
             observeIsAppsAllowedForUsage = observeIsAppsAllowedForUsage,
             selfUser = observeSelfUser,
             savedStateHandle = savedStateHandle
@@ -407,7 +408,7 @@ internal class UpdateAppsAccessViewModelArrangement {
     }
 
     suspend fun withUpdateConversationAccessUseCaseReturns(result: UpdateConversationAccessRoleUseCase.Result) = apply {
-        coEvery { updateConversationAccessRoleUseCase(any(), any(), any()) } returns result
+        coEvery { changeAccessForAppsInConversationUseCase(any(), any(), any()) } returns result
     }
 
     fun arrange() = this to viewModel

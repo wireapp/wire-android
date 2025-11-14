@@ -998,9 +998,7 @@
     <string name="label_search_people_or_apps">Поиск людей или приложений</string>
     <string name="label_public_wire">Wire Public</string>
     <string name="label_search_people_instruction">Поиск пользователей по названию их профиля или @псевдониму</string>
-    <string name="label_search_apps_instruction">Повышайте производительность с помощью приложений.</string>
     <string name="label_learn_more_searching_user">Подробнее</string>
-    <string name="label_learn_more_searching_app">Как добавить приложения в вашу команду</string>
     <string name="label_no_results_found">Результатов не найдено. Пожалуйста, попробуйте еще раз.</string>
     <string name="label_general_error">Что-то пошло не так</string>
     <string name="label_add_member_people">Контакты</string>
@@ -1182,9 +1180,9 @@
     <string name="change">Изменить</string>
     <string name="allow_guests">Разрешить гостей</string>
     <string name="allow_guest_switch_description">Открыть эту беседу для пользователей не из вашей команды. Вы всегда сможете изменить это позже.</string>
+    <string name="allow_guest_switch_channel_description">Откройте эту беседу для людей, не из вашей команды или приложений. Вы всегда сможете изменить это позже.</string>
     <string name="allow_services">Разрешить приложения</string>
     <string name="allow_services_regular_group_description">Открыть эту беседу для приложений. Вы всегда сможете изменить это позже.</string>
-    <string name="allow_services_channel_description">Откройте эту беседу для людей, не из вашей команды или приложений. Вы всегда сможете изменить это позже.</string>
     <string name="service_details_label">Приложение</string>
     <string name="service_details_add_service_label">Добавить в беседу</string>
     <string name="service_details_remove_service_label">Удалить из беседы</string>

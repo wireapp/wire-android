@@ -102,7 +102,7 @@ class SearchUserViewModelTest {
 
             val conversationId = ConversationId("id", "domain")
             val (arrangement, viewModel) = Arrangement()
-                .withAddMembersSearchNavArgs(AddMembersSearchNavArgs(conversationId, true))
+                .withAddMembersSearchNavArgs(AddMembersSearchNavArgs(conversationId, true, true))
                 .withSearchResult(
                     SearchUserResult(
                         connected = listOf(),
@@ -138,7 +138,7 @@ class SearchUserViewModelTest {
         runTest {
             val conversationId = ConversationId("id", "domain")
             val (_, viewModel) = Arrangement()
-                .withAddMembersSearchNavArgs(AddMembersSearchNavArgs(conversationId, true))
+                .withAddMembersSearchNavArgs(AddMembersSearchNavArgs(conversationId, true, true))
                 .withIsFederationSearchAllowedResult(false)
                 .withIsValidHandleResult(ValidateUserHandleResult.Valid(""))
                 .withFederatedSearchParserResult(
@@ -163,7 +163,7 @@ class SearchUserViewModelTest {
         runTest {
             val conversationId = ConversationId("id", "domain")
             val (_, viewModel) = Arrangement()
-                .withAddMembersSearchNavArgs(AddMembersSearchNavArgs(conversationId, true))
+                .withAddMembersSearchNavArgs(AddMembersSearchNavArgs(conversationId, true, true))
                 .withIsFederationSearchAllowedResult(false)
                 .withIsValidHandleResult(ValidateUserHandleResult.Valid(""))
                 .withFederatedSearchParserResult(
@@ -188,7 +188,7 @@ class SearchUserViewModelTest {
         runTest {
             val conversationId = ConversationId("id", "domain")
             val (_, viewModel) = Arrangement()
-                .withAddMembersSearchNavArgs(AddMembersSearchNavArgs(conversationId, true))
+                .withAddMembersSearchNavArgs(AddMembersSearchNavArgs(conversationId, true, true))
                 .withIsFederationSearchAllowedResult(true)
                 .withIsValidHandleResult(ValidateUserHandleResult.Valid(""))
                 .withFederatedSearchParserResult(

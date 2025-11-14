@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2025 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,9 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.userprofile.self
+package com.wire.android.ui.common.upgradetoapps
 
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -25,19 +27,15 @@ import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.ui.common.card.WireOutlinedCard
 import com.wire.android.ui.common.colorsScheme
-import com.wire.android.ui.theme.WireTheme
-import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.android.ui.theme.wireDimensions
 
 @Composable
-fun CreateTeamInfoCard(
-    onCreateAccount: () -> Unit,
+fun UpgradeToGetAppsBanner(
     modifier: Modifier = Modifier
 ) {
     WireOutlinedCard(
-        title = stringResource(R.string.user_profile_create_team_card),
-        textContent = stringResource(R.string.user_profile_create_team_description_card),
-        mainActionButtonText = stringResource(R.string.user_profile_create_team_card_button),
-        onMainActionClick = onCreateAccount,
+        title = stringResource(R.string.apps_upgrade_teams_for_apps_banner_title),
+        textContent = stringResource(R.string.apps_upgrade_teams_for_apps_banner_content),
         trailingIcon = {
             Icon(
                 painter = painterResource(id = R.drawable.ic_info),
@@ -45,12 +43,11 @@ fun CreateTeamInfoCard(
                 tint = colorsScheme().onBackground
             )
         },
-        modifier = modifier
+        modifier = modifier.padding(
+            start = MaterialTheme.wireDimensions.spacing8x,
+            end = MaterialTheme.wireDimensions.spacing8x,
+            top = MaterialTheme.wireDimensions.spacing8x,
+            bottom = MaterialTheme.wireDimensions.spacing16x,
+        )
     )
-}
-
-@PreviewMultipleThemes
-@Composable
-fun PreviewCreateTeamInfoCard() = WireTheme {
-    CreateTeamInfoCard({ })
 }

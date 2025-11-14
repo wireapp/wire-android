@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2025 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,12 +15,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.home.conversations.search
+package com.wire.android.ui.home.conversations.details.updateappsaccess
 
-import com.wire.kalium.logic.data.id.ConversationId
+import kotlinx.serialization.Serializable
 
-data class AddMembersSearchNavArgs(
-    val conversationId: ConversationId,
-    val isConversationAppsEnabled: Boolean,
-    val isSelfPartOfATeam: Boolean
+@Serializable
+data class UpdateAppsAccessParams(
+    val isGuestAllowed: Boolean,
+    val isAppsAllowed: Boolean,
 )

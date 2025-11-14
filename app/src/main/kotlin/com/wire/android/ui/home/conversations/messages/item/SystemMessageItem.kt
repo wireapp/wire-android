@@ -545,6 +545,35 @@ private fun SystemMessage.buildContent() = when (this) {
             id = R.string.label_system_message_cell_self_delete_disabled_for_conversation,
         ).toMarkdownAnnotatedString()
     }
+
+    is SystemMessage.ConversationAppsEnabledChanged -> buildContent(
+        iconResId = R.drawable.ic_app,
+        iconTintColor = MaterialTheme.wireColorScheme.onBackground,
+    ) {
+        val markdownTextStyle = DefaultMarkdownTextStyle.copy(normalColor = MaterialTheme.wireColorScheme.primary)
+        val content = stringResource(
+            id = when {
+                isAuthorSelfUser -> R.string.label_system_message_apps_access_changed_by_self
+                else -> R.string.label_system_message_apps_access_changed_by_other
+            },
+            formatArgs = arrayOf(
+                author.asString().markdownBold(),
+                if (isAccessEnabled) {
+                    stringResource(R.string.label_system_message_apps_access_changed_enabled)
+                } else {
+                    stringResource(R.string.label_system_message_apps_access_changed_disabled)
+                }
+            )
+        )
+        val footer = stringResource(R.string.label_system_message_apps_access_enabled_disclaimer)
+        buildAnnotatedString {
+            append(content.toMarkdownAnnotatedString())
+            if (isAccessEnabled) {
+                appendLine()
+                append(footer.toMarkdownAnnotatedString(markdownTextStyle))
+            }
+        }
+    }
 }
 
 private fun AnnotatedString.Builder.appendVerticalSpace() = withStyle(ParagraphStyle()) { append(" ") }

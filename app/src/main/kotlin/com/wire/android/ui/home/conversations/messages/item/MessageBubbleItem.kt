@@ -44,7 +44,6 @@ import androidx.compose.ui.unit.dp
 import com.wire.android.ui.common.applyIf
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
@@ -90,7 +89,7 @@ fun MessageBubbleItem(
         val leadingPadding = if (leading != null) {
             dimensions().spacing48x
         } else {
-            dimensions().spacing0x
+            dimensions().spacing12x
         }
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -101,12 +100,10 @@ fun MessageBubbleItem(
             },
             verticalAlignment = Alignment.Bottom
         ) {
-            if (leading != null) {
-                Box(Modifier.width(leadingPadding), contentAlignment = Alignment.BottomStart) {
+            Box(Modifier.width(leadingPadding), contentAlignment = Alignment.BottomStart) {
+                if (leading != null) {
                     leading()
                 }
-            } else {
-                HorizontalSpace.x12()
             }
             Column(
                 modifier = Modifier.applyIf(!message.decryptionFailed) {

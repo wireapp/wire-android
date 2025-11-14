@@ -25,6 +25,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -34,6 +36,7 @@ import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.scaffold.WireScaffold
+import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.upgradetoapps.UpgradeToGetAppsBanner
@@ -42,6 +45,7 @@ import com.wire.android.ui.home.conversations.details.options.GroupOptionWithSwi
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.ui.PreviewMultipleThemes
+import kotlinx.coroutines.launch
 
 @WireDestination(
     navArgsDelegate = UpdateAppsAccessNavArgs::class,
@@ -70,6 +74,8 @@ private fun UpdateAppsAccessContent(
     state: UpdateAppsAccessState,
     modifier: Modifier = Modifier
 ) {
+    val snackbarHostState = LocalSnackbarHostState.current
+    val coroutineScope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
     WireScaffold(
         modifier = modifier,
@@ -118,6 +124,15 @@ private fun UpdateAppsAccessContent(
             onConfirm = onDisableAppsConfirm,
             onDialogDismiss = onDisableAppsDismiss
         )
+    }
+
+    if (state.hasErrorOnUpdateAppAccess) {
+        val errorMessage = stringResource(R.string.label_general_error)
+        LaunchedEffect(true) {
+            coroutineScope.launch {
+                snackbarHostState.showSnackbar(errorMessage)
+            }
+        }
     }
 }
 

@@ -532,7 +532,7 @@ class CellViewModel @Inject constructor(
     }
 
     suspend fun loadTags() {
-        getAllTagsUseCase().onSuccess { updated -> _tags.update { updated } }
+        getAllTagsUseCase().onSuccess { updated -> _tags.update { updated.sorted().toSet() } }
         // apply delay to avoid too frequent requests
         delay(30.seconds)
     }

@@ -66,7 +66,7 @@ class AddRemoveTagsViewModel @Inject constructor(
     private val _suggestedTags = MutableStateFlow<Set<String>>(emptySet())
     internal val suggestedTags =
         allTags.combine(addedTags) { all, added ->
-            all.filter { it !in added }.toSet()
+            all.filter { it !in added }.toSet().sorted()
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptySet())
 
     init {

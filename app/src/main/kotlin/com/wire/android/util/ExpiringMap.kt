@@ -28,17 +28,25 @@ import java.util.concurrent.ConcurrentHashMap
  */
 class ExpiringMap<K, V>(
     private val scope: CoroutineScope,
-    private val expiration: Long,
+    private val expirationMs: Long,
     private val delegate: MutableMap<K, V>,
+    private val onEntryExpired: ((key: K, value: V?) -> Unit)? = null,
     private val currentTime: () -> Long = { System.currentTimeMillis() },
 ) : MutableMap<K, V> by delegate {
 
     private val timestamps: MutableMap<K, Long> = ConcurrentHashMap<K, Long>()
     private var cleanupJob: Job? = null
 
+    fun putWithExpireAt(key: K, value: V, expireAt: Long): V? {
+        return delegate.put(key, value).also {
+            timestamps.put(key, expireAt)
+            scheduleCleanup()
+        }
+    }
+
     override fun put(key: K, value: V): V? {
         return delegate.put(key, value).also {
-            timestamps.put(key, currentTime() + expiration)
+            timestamps.put(key, currentTime() + expirationMs)
             scheduleCleanup()
         }
     }
@@ -65,7 +73,8 @@ class ExpiringMap<K, V>(
         val now = currentTime()
         timestamps.entries.onEach { (key, expiration) ->
             if (expiration <= now) {
-                delegate.remove(key)
+                val value = delegate.remove(key)
+                onEntryExpired?.invoke(key, value)
             }
         }
         timestamps.entries.removeAll { it.value <= now }

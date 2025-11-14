@@ -30,6 +30,7 @@ import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.UserBadge
 import com.wire.android.ui.common.applyIf
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.typography
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.wireColorScheme
@@ -106,7 +107,7 @@ fun MessageSmallLabel(
 ) {
     Text(
         text = text,
-        style = MaterialTheme.typography.labelSmall.copy(color = messageStyle.textColor()),
+        style = typography().subline01.copy(color = messageStyle.textColor()),
         maxLines = 1,
         modifier = modifier.alpha(messageStyle.alpha())
     )

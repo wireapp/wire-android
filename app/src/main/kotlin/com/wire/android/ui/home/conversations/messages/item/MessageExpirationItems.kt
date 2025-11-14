@@ -94,7 +94,6 @@ fun MessageBubbleEphemeralItem(
 @Composable
 fun MessageBubbleExpireFooter(
     messageStyle: MessageStyle,
-    accentColor: Color,
     selfDeletionTimerState: SelfDeletionTimerHelper.SelfDeletionTimerState,
     modifier: Modifier = Modifier,
 ) {
@@ -108,7 +107,6 @@ fun MessageBubbleExpireFooter(
                 SelfDeletionTimerIcon(
                     selfDeletionTimerState,
                     messageStyle,
-                    accentColor,
                     modifier = Modifier.alpha(messageStyle.alpha())
                 )
                 HorizontalSpace.x4()
@@ -127,13 +125,12 @@ fun MessageBubbleExpireFooter(
 private fun SelfDeletionTimerIcon(
     state: SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable,
     messageStyle: MessageStyle,
-    accentColor: Color,
     modifier: Modifier = Modifier,
     discreteSteps: Int? = 8
 ) {
 
     val emptyColor = when (messageStyle) {
-        MessageStyle.BUBBLE_SELF -> accentColor
+        MessageStyle.BUBBLE_SELF -> colorsScheme().selfBubble.primary
         MessageStyle.BUBBLE_OTHER -> colorsScheme().background
         MessageStyle.NORMAL -> colorsScheme().background
     }

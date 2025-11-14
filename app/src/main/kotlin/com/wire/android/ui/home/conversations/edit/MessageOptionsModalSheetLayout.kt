@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.home.conversations.edit
 
+import android.R.id.message
 import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -56,7 +57,7 @@ fun MessageOptionsModalSheetLayout(
     onReactionClick: (messageId: String, reactionEmoji: String) -> Unit,
     onDetailsClick: (messageId: String, isSelfMessage: Boolean) -> Unit,
     onReplyClick: (UIMessage.Regular) -> Unit,
-    onEditClick: (messageId: String, messageBody: String, mentions: List<MessageMention>) -> Unit,
+    onEditClick: (messageId: String, messageBody: String, mentions: List<MessageMention>, isMultipart: Boolean) -> Unit,
     onShareAssetClick: (messageId: String) -> Unit,
     onDownloadAssetClick: (messageId: String) -> Unit,
     onOpenAssetClick: (messageId: String) -> Unit,
@@ -110,7 +111,7 @@ private fun MessageOptionsModalContent(
     onReactionClick: (messageId: String, reactionEmoji: String) -> Unit,
     onDetailsClick: (messageId: String, isSelfMessage: Boolean) -> Unit,
     onReplyClick: (UIMessage.Regular) -> Unit,
-    onEditClick: (messageId: String, messageBody: String, mentions: List<MessageMention>) -> Unit,
+    onEditClick: (messageId: String, messageBody: String, mentions: List<MessageMention>, isMultipart: Boolean) -> Unit,
     onShareAssetClick: (messageId: String) -> Unit,
     onDownloadAssetClick: (messageId: String) -> Unit,
     onOpenAssetClick: (messageId: String) -> Unit,
@@ -129,7 +130,7 @@ private fun MessageOptionsModalContent(
             isComposite = message.messageContent is UIMessageContent.Composite,
             isEphemeral = isEphemeral,
             isEditable = !isUploading && !isDeleted && (message.messageContent?.isEditable() ?: false) && isMyMessage,
-            isCopyable = !isUploading && !isDeleted && !isEphemeral && message.messageContent is Copyable,
+            isCopyable = message.isCopyable(),
             isOpenable = true,
             onCopyClick = remember(message.messageContent) {
                 (message.messageContent as? Copyable)?.textToCopy(context.resources)?.let {
@@ -179,7 +180,8 @@ private fun MessageOptionsModalContent(
                                 onEditClick(
                                     message.header.messageId,
                                     message.messageContent.messageBody.message.asString(context.resources),
-                                    (message.messageContent.messageBody.message as? UIText.DynamicString)?.mentions ?: listOf()
+                                    (message.messageContent.messageBody.message as? UIText.DynamicString)?.mentions ?: listOf(),
+                                    false,
                                 )
                             }
 
@@ -189,7 +191,8 @@ private fun MessageOptionsModalContent(
                                     onEditClick(
                                         message.header.messageId,
                                         this?.message?.asString(context.resources) ?: "",
-                                        (this?.message as? UIText.DynamicString)?.mentions ?: listOf()
+                                        (this?.message as? UIText.DynamicString)?.mentions ?: listOf(),
+                                        true,
                                     )
                                 }
                             }
@@ -223,6 +226,24 @@ private fun MessageOptionsModalContent(
     )
 }
 
+private fun UIMessage.Regular.isCopyable() =
+    when {
+        isPending -> false
+        isDeleted -> false
+        header.messageStatus.expirationStatus is ExpirationStatus.Expirable -> false
+        messageContent !is Copyable -> false
+        messageContent.isEmptyMultipartText() -> false
+        else -> true
+    }
+
+private fun UIMessageContent.Regular?.isEmptyMultipartText() =
+    (this as? UIMessageContent.Multipart)?.messageBody?.message?.let { message ->
+        when (message) {
+            is UIText.DynamicString -> message.value.isEmpty()
+            else -> false
+        }
+    } ?: false
+
 @PreviewMultipleThemes
 @Composable
 fun PreviewMessageOptionsModalSheetLayout() = WireTheme {
@@ -234,7 +255,7 @@ fun PreviewMessageOptionsModalSheetLayout() = WireTheme {
         onReactionClick = { _, _ -> },
         onDetailsClick = { _, _ -> },
         onReplyClick = { },
-        onEditClick = { _, _, _ -> },
+        onEditClick = { _, _, _, _ -> },
         onShareAssetClick = { },
         onDownloadAssetClick = { },
         onOpenAssetClick = { }

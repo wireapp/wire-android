@@ -261,9 +261,9 @@ private val DarkRoles = AccentRoleMap(
     bubbleOtherPrimaryOnSecondary = Tone.T500,
 )
 
-fun WireColorScheme.withAccent(accent: Accent, isDark: Boolean): WireColorScheme {
-    val swatch = accent.asSwatch().let { if (isDark) it.dark else it.light }
-    val roles = if (isDark) DarkRoles else LightRoles
+fun WireColorScheme.withAccent(accent: Accent): WireColorScheme {
+    val swatch = accent.asSwatch().let { if (useDarkSystemBarIcons) it.light else it.dark }
+    val roles = if (useDarkSystemBarIcons) LightRoles else DarkRoles
 
     return copy(
         primary = swatch[roles.primary],

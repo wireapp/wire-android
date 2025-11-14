@@ -36,3 +36,17 @@ fun ShareAssetMenuOption(onShareAsset: () -> Unit) {
         onItemClick = onShareAsset
     )
 }
+
+@Composable
+fun SharePublicLinkMenuOption(onShareAsset: () -> Unit) {
+    MenuBottomSheetItem(
+        leading = {
+            MenuItemIcon(
+                id = com.wire.android.ui.common.R.drawable.ic_link,
+                contentDescription = stringResource(R.string.content_description_share_the_file),
+            )
+        },
+        title = stringResource(com.wire.android.feature.cells.R.string.public_link),
+        onItemClick = onShareAsset
+    )
+}

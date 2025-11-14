@@ -47,22 +47,22 @@ fun MessageReactionsItem(
     onLongClick: (() -> Unit)? = null,
 ) {
     // to eliminate adding unnecessary paddings when the list is empty
-    if (messageFooter.reactionList.isNotEmpty()) {
+    if (messageFooter.reactionMap.isNotEmpty()) {
         FlowRow(
             modifier = modifier,
             horizontalArrangement = Arrangement.spacedBy(dimensions().spacing4x, itemsAlignment),
             verticalArrangement = Arrangement.spacedBy(dimensions().spacing6x, Alignment.Top),
             maxItemsInEachRow = if (messageStyle.isBubble()) BUBBLE_MAX_REACTIONS_IN_ROW else Int.MAX_VALUE,
         ) {
-            messageFooter.reactionList
-                .sortedBy { it.emoji }
-                .forEach { reaction ->
+            messageFooter.reactionMap
+                .toSortedMap()
+                .forEach { (emoji, reaction) ->
                     ReactionPill(
-                        emoji = reaction.emoji,
+                        emoji = emoji,
                         count = reaction.count,
                         isOwn = reaction.isSelf,
                         onTap = {
-                            onReactionClicked(messageFooter.messageId, reaction.emoji)
+                            onReactionClicked(messageFooter.messageId, emoji)
                         },
                         onLongClick = onLongClick
                     )
@@ -79,15 +79,14 @@ fun LongMessageReactionsItemPreview() = WireTheme(accent = Accent.Green) {
             messageStyle = MessageStyle.NORMAL,
             messageFooter = MessageFooter(
                 messageId = "messageId",
-                reactionList = listOf(
-                    Reaction("👍",1, isSelf = false),
-                    Reaction("👎",2, isSelf = false),
-                    Reaction("👏",3, isSelf = false),
-                    Reaction("🤔",4, isSelf = false),
-                    Reaction("🤷",5, isSelf = false),
-                    Reaction("🤦",6, isSelf = false),
-                    Reaction("🤢",7, isSelf = false),
-                    Reaction("👍",1, isSelf = true),
+                reactionMap = mapOf(
+                    "👍" to Reaction(1, isSelf = false),
+                    "👎" to Reaction(2, isSelf = false),
+                    "👏" to Reaction(3, isSelf = false),
+                    "🤔" to Reaction(4, isSelf = false),
+                    "🤷" to Reaction(5, isSelf = false),
+                    "🤦" to Reaction(6, isSelf = false),
+                    "🤢" to Reaction(7, isSelf = true),
                 ),
             ),
             onReactionClicked = { _, _ -> }
@@ -103,15 +102,14 @@ fun LongMessageReactionsBubbleItemPreview() = WireTheme(accent = Accent.Petrol) 
             messageStyle = MessageStyle.BUBBLE_OTHER,
             messageFooter = MessageFooter(
                 messageId = "messageId",
-                reactionList = listOf(
-                    Reaction("👍", 1, isSelf = false),
-                    Reaction("👎", 2, isSelf = false),
-                    Reaction("👏", 3, isSelf = false),
-                    Reaction("🤔", 4, isSelf = false),
-                    Reaction("🤷", 5, isSelf = false),
-                    Reaction("🤦", 6, isSelf = false),
-                    Reaction("🤢", 7, isSelf = false),
-                    Reaction("👍", 1, isSelf = true),
+                reactionMap = mapOf(
+                    "👍" to Reaction(1, isSelf = false),
+                    "👎" to Reaction(2, isSelf = false),
+                    "👏" to Reaction(3, isSelf = false),
+                    "🤔" to Reaction(4, isSelf = false),
+                    "🤷" to Reaction(5, isSelf = false),
+                    "🤦" to Reaction(6, isSelf = false),
+                    "🤢" to Reaction(7, isSelf = true),
                 ),
             ),
             onReactionClicked = { _, _ -> }

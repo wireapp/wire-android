@@ -87,9 +87,8 @@ class MessageMapper @Inject constructor(
         val footer = if (message is Message.Regular) {
             MessageFooter(
                 messageId = message.id,
-                reactionList = message.reactions.reactions.map { reaction ->
+                reactionMap = message.reactions.reactions.mapValues { (_, reaction) ->
                     Reaction(
-                        emoji = reaction.emoji,
                         count = reaction.count,
                         isSelf = reaction.isSelf
                     )

@@ -167,22 +167,21 @@ data class MessageHeader(
 @Serializable
 data class MessageFooter(
     val messageId: String,
-    val reactionList: List<Reaction> = emptyList()
+    val reactionMap: Map<String, Reaction> = emptyMap()
 ) {
     // Backward-compatible properties for gradual migration
-    @Deprecated("Use reactionList instead", ReplaceWith("reactionList.associate { it.emoji to it.count }"))
+    @Deprecated("Use reactionMap instead", ReplaceWith("reactionMap.mapValues { it.value.count }"))
     val reactions: Map<String, Int>
-        get() = reactionList.associate { it.emoji to it.count }
+        get() = reactionMap.mapValues { it.value.count }
 
-    @Deprecated("Use reactionList instead", ReplaceWith("reactionList.filter { it.isSelf }.map { it.emoji }.toSet()"))
+    @Deprecated("Use reactionMap instead", ReplaceWith("reactionMap.filter { it.value.isSelf }.keys"))
     val ownReactions: Set<String>
-        get() = reactionList.filter { it.isSelf }.map { it.emoji }.toSet()
+        get() = reactionMap.filter { it.value.isSelf }.keys
 }
 
 @Stable
 @Serializable
 data class Reaction(
-    val emoji: String,
     val count: Int,
     val isSelf: Boolean
 )

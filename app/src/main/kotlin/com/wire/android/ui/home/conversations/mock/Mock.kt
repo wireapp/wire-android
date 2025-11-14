@@ -48,22 +48,27 @@ import kotlinx.datetime.Instant
 import okio.Path.Companion.toPath
 
 private const val MOCK_TIME_IN_SECONDS: Long = 1729837498
-val mockFooter = MessageFooter("", listOf(Reaction("👍", 1, isSelf = false), Reaction("👍", count = 2, isSelf = true)))
+val mockFooter = MessageFooter(
+    "",
+    mapOf(
+        "👍" to Reaction( 1, isSelf = false),
+        "👍" to Reaction( count = 2, isSelf = true)
+    )
+)
 
 val mockFooterWithMultipleReactions = MessageFooter(
     messageId = "messageId",
-    reactionList = listOf(
-        Reaction("👍", 1, isSelf = false),
-        Reaction("👎", 2, isSelf = false),
-        Reaction("👏", 3, isSelf = false),
-        Reaction("🤔", 4, isSelf = false),
-        Reaction("🤷", 5, isSelf = false),
-        Reaction("🤦", 6, isSelf = false),
-        Reaction("🤢", 7, isSelf = false),
-        Reaction("👍", 1, isSelf = true),
+    reactionMap = mapOf(
+        "👍" to Reaction(1, isSelf = true),
+        "👎" to Reaction(2, isSelf = false),
+        "👏" to Reaction(3, isSelf = false),
+        "🤔" to Reaction(4, isSelf = false),
+        "🤷" to Reaction(5, isSelf = false),
+        "🤦" to Reaction(6, isSelf = false),
+        "🤢" to Reaction(7, isSelf = false),
     ),
 )
-val mockEmptyFooter = MessageFooter("", emptyList())
+val mockEmptyFooter = MessageFooter("", emptyMap())
 val mockMessageTime = MessageTime(Instant.fromEpochSeconds(MOCK_TIME_IN_SECONDS))
 
 val mockHeader = MessageHeader(

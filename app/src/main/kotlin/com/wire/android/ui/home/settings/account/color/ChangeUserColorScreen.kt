@@ -223,9 +223,9 @@ fun ChangeUserColorContent(
                                         ),
                                         messageFooter = MessageFooter(
                                             messageId = "messageId",
-                                            reactionList = listOf(
-                                                Reaction("👍" ,16, isSelf = true),
-                                                Reaction("👎" ,16, isSelf = false),
+                                            reactionMap = mapOf(
+                                                "👍" to Reaction(16, isSelf = true),
+                                                "👎" to Reaction(16, isSelf = false),
                                             ),
                                         ),
                                     ),

@@ -82,7 +82,6 @@
     <string name="add_tag_label">Tag hinzufügen</string>
     <string name="no_tags_message">Noch keine Tags erstellt.</string>
     <string name="tags_edited">Tags wurden bearbeitet</string>
-    <string name="create_folder_invalid_name">Verwenden Sie einen Namen ohne \"/\" oder \".\"</string>
     <string name="file_list_empty_title">Es gibt noch keine Dateien oder Ordner</string>
     <string name="no_results_found_label">Keine Ergebnisse gefunden</string>
     <string name="filters_try_adjusting_your_filters_label">Versuchen Sie, Ihre Filter anzupassen.</string>

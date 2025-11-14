@@ -120,7 +120,6 @@
     <string name="no_tags_message">Теги еще не добавлены.</string>
     <string name="tags_edited">Теги были изменены</string>
     <string name="failed_edit_tags">Не удалось изменить теги</string>
-    <string name="create_folder_invalid_name">Используйте название без \"/\" или \".\"</string>
     <string name="file_list_empty_title">Файлов и папок пока нет</string>
     <string name="no_results_found_label">Ничего не найдено</string>
     <string name="filters_try_adjusting_your_filters_label">Попробуйте изменить фильтры.</string>

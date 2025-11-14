@@ -626,6 +626,7 @@
     <string name="conversation_details_options_group_name">GROUP NAME</string>
     <string name="conversation_details_conversation_admins">CONVERSATION ADMINS (%d)</string>
     <string name="conversation_details_conversation_members">CONVERSATION MEMBERS (%d)</string>
+    <string name="conversation_details_conversation_apps">CONVERSATION APPS (%d)</string>
     <string name="conversation_details_participants_info">This conversation has %s participants.\nUp to 500 people can join a conversation.</string>
     <string name="conversation_details_participants_count">%s participants</string>
     <string name="conversation_details_show_all_participants">Show all participants (%d)</string>
@@ -1903,4 +1904,10 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="search_results_apps_empty_description_team_admin">Apps are helpers that can improve your workflow. As a team admin, you can add them in team management.</string>
     <string name="search_results_apps_empty_description_non_team_admin">Apps are helpers that can improve your workflow. To use them, ask your team admin.</string>
     <string name="search_results_apps_empty_description_disabled_for_conversation">Apps are disabled in this conversation. Enable them in the conversation options.</string>
+
+    <string name="label_system_message_apps_access_changed_enabled">enabled</string>
+    <string name="label_system_message_apps_access_changed_disabled">disabled</string>
+    <string name="label_system_message_apps_access_changed_by_self">%1$s %2$s **apps** for this conversation</string>
+    <string name="label_system_message_apps_access_changed_by_other">%1$s %2$s **apps** for this conversation</string>
+    <string name="label_system_message_apps_access_enabled_disclaimer">Added apps have access to the content of this conversation.</string>
 </resources>

@@ -64,7 +64,7 @@ fun WireOutlinedCard(
             Text(
                 modifier = Modifier.padding(start = dimensions().spacing8x),
                 text = title,
-                style = MaterialTheme.wireTypography.label02,
+                style = MaterialTheme.wireTypography.body02,
                 color = colorsScheme().onBackground
             )
         }
@@ -75,7 +75,7 @@ fun WireOutlinedCard(
                 end = dimensions().spacing8x
             ),
             text = textContent,
-            style = MaterialTheme.wireTypography.subline01,
+            style = MaterialTheme.wireTypography.body01,
             color = colorsScheme().onBackground
         )
 

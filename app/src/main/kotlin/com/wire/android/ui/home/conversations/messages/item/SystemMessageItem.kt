@@ -569,7 +569,7 @@ private fun SystemMessage.buildContent() = when (this) {
         buildAnnotatedString {
             append(content.toMarkdownAnnotatedString())
             if (isAccessEnabled) {
-                appendVerticalSpace()
+                appendLine()
                 append(footer.toMarkdownAnnotatedString(markdownTextStyle))
             }
         }

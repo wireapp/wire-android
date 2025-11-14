@@ -81,36 +81,37 @@ internal fun UIMessage.Regular.MessageContentAndStatus(
                 onAssetClick = onAssetClickable,
                 onImageClick = onImageClickable,
                 onOpenProfile = onProfileClicked,
-            onLinkClick = onLinkClicked,
-            onReplyClick = onReplyClickable,
-            messageStyle = messageStyle,
-            accent = accent
-        )
-        if (!messageStyle.isBubble()) {
-            if (messageContent is PartialDeliverable && messageContent.deliveryStatus.hasAnyFailures) {
-                PartialDeliveryInformation(messageContent.deliveryStatus, messageStyle)
+                onLinkClick = onLinkClicked,
+                onReplyClick = onReplyClickable,
+                messageStyle = messageStyle,
+                accent = accent
+            )
+            if (!messageStyle.isBubble()) {
+                if (messageContent is PartialDeliverable && messageContent.deliveryStatus.hasAnyFailures) {
+                    PartialDeliveryInformation(messageContent.deliveryStatus, messageStyle)
+                }
             }
         }
-    }
-    if (!messageStyle.isBubble()) {
-        if (isMyMessage && shouldDisplayMessageStatus) {
-            MessageStatusIndicator(
-                status = message.header.messageStatus.flowStatus,
-                isGroupConversation = conversationDetailsData is ConversationDetailsData.Group,
-                messageStyle = messageStyle,
-                modifier = Modifier.padding(
-                    top = if (message.isTextContentWithoutQuote) dimensions().spacing2x else dimensions().spacing4x,
-                    start = dimensions().spacing8x
+        if (!messageStyle.isBubble()) {
+            if (isMyMessage && shouldDisplayMessageStatus) {
+                MessageStatusIndicator(
+                    status = message.header.messageStatus.flowStatus,
+                    isGroupConversation = conversationDetailsData is ConversationDetailsData.Group,
+                    messageStyle = messageStyle,
+                    modifier = Modifier.padding(
+                        top = if (message.isTextContentWithoutQuote) dimensions().spacing2x else dimensions().spacing4x,
+                        start = dimensions().spacing8x
+                    )
                 )
-            )
+            } else {
+                HorizontalSpace.x24()
+            }
         } else {
-            HorizontalSpace.x24()
-        }
-    } else {
-        if (message.isTextContentWithoutQuote) {
-            VerticalSpace.x2()
-        } else {
-            VerticalSpace.x4()}
+            if (message.isTextContentWithoutQuote) {
+                VerticalSpace.x2()
+            } else {
+                VerticalSpace.x4()
+            }
         }
     }
 }

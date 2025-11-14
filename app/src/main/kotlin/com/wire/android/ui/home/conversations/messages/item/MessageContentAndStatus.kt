@@ -1,6 +1,7 @@
 package com.wire.android.ui.home.conversations.messages.item
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -12,6 +13,7 @@ import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.media.audiomessage.AudioMessageArgs
 import com.wire.android.model.Clickable
+import com.wire.android.ui.common.applyIf
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.common.spacers.VerticalSpace
@@ -46,13 +48,12 @@ internal fun UIMessage.Regular.MessageContentAndStatus(
     searchQuery: String,
     messageStyle: MessageStyle,
     onAssetClicked: (String) -> Unit,
-    onImageClicked: (UIMessage.Regular, Boolean) -> Unit,
+    onImageClicked: (UIMessage.Regular, Boolean, String?) -> Unit,
     onProfileClicked: (String) -> Unit,
     onLinkClicked: (String) -> Unit,
     onReplyClicked: (UIMessage.Regular) -> Unit,
     shouldDisplayMessageStatus: Boolean,
     conversationDetailsData: ConversationDetailsData,
-    modifier: Modifier = Modifier,
     accent: Accent = Accent.Unknown,
 ) {
     val onAssetClickable = remember(message) {
@@ -60,57 +61,66 @@ internal fun UIMessage.Regular.MessageContentAndStatus(
             onAssetClicked(header.messageId)
         })
     }
+
     val onImageClickable = remember(message) {
         Clickable(enabled = isAvailable, onClick = {
-            onImageClicked(message, source == MessageSource.Self)
+            onImageClicked(message, source == MessageSource.Self, null)
         })
     }
+
+    val onMultipartImageClickable: (String) -> Unit = remember(message) {
+        {
+            onImageClicked(message, source == MessageSource.Self, it)
+        }
+    }
+
     val onReplyClickable = remember(message) {
         Clickable {
             onReplyClicked(message)
         }
     }
-    Column(
-        modifier
-    ) {
-        MessageContent(
-            message = message,
-            messageContent = messageContent,
-            searchQuery = searchQuery,
-            assetStatus = assetStatus,
-            onAssetClick = onAssetClickable,
-            onImageClick = onImageClickable,
-            onOpenProfile = onProfileClicked,
-            onLinkClick = onLinkClicked,
-            onReplyClick = onReplyClickable,
-            messageStyle = messageStyle,
-            accent = accent
-        )
-        if (!messageStyle.isBubble()) {
-            if (messageContent is PartialDeliverable && messageContent.deliveryStatus.hasAnyFailures) {
-                PartialDeliveryInformation(messageContent.deliveryStatus, messageStyle)
+    Row {
+        Column(Modifier.applyIf(!messageStyle.isBubble()) { weight(1F) }) {
+            MessageContent(
+                message = message,
+                messageContent = messageContent,
+                searchQuery = searchQuery,
+                assetStatus = assetStatus,
+                onAssetClick = onAssetClickable,
+                onImageClick = onImageClickable,
+                onMultipartImageClick = onMultipartImageClickable,
+                onOpenProfile = onProfileClicked,
+                onLinkClick = onLinkClicked,
+                onReplyClick = onReplyClickable,
+                messageStyle = messageStyle,
+                accent = accent
+            )
+            if (!messageStyle.isBubble()) {
+                if (messageContent is PartialDeliverable && messageContent.deliveryStatus.hasAnyFailures) {
+                    PartialDeliveryInformation(messageContent.deliveryStatus, messageStyle)
+                }
             }
         }
-    }
-    if (!messageStyle.isBubble()) {
-        if (isMyMessage && shouldDisplayMessageStatus) {
-            MessageStatusIndicator(
-                status = message.header.messageStatus.flowStatus,
-                isGroupConversation = conversationDetailsData is ConversationDetailsData.Group,
-                messageStyle = messageStyle,
-                modifier = Modifier.padding(
-                    top = if (message.isTextContentWithoutQuote) dimensions().spacing2x else dimensions().spacing4x,
-                    start = dimensions().spacing8x
+        if (!messageStyle.isBubble()) {
+            if (isMyMessage && shouldDisplayMessageStatus) {
+                MessageStatusIndicator(
+                    status = message.header.messageStatus.flowStatus,
+                    isGroupConversation = conversationDetailsData is ConversationDetailsData.Group,
+                    messageStyle = messageStyle,
+                    modifier = Modifier.padding(
+                        top = if (message.isTextContentWithoutQuote) dimensions().spacing2x else dimensions().spacing4x,
+                        start = dimensions().spacing8x
+                    )
                 )
-            )
+            } else {
+                HorizontalSpace.x24()
+            }
         } else {
-            HorizontalSpace.x24()
-        }
-    } else {
-        if (message.isTextContentWithoutQuote) {
-            VerticalSpace.x2()
-        } else {
-            VerticalSpace.x4()
+            if (message.isTextContentWithoutQuote) {
+                VerticalSpace.x2()
+            } else {
+                VerticalSpace.x4()
+            }
         }
     }
 }
@@ -125,6 +135,7 @@ private fun MessageContent(
     assetStatus: AssetTransferStatus?,
     onAssetClick: Clickable,
     onImageClick: Clickable,
+    onMultipartImageClick: (String) -> Unit,
     onOpenProfile: (String) -> Unit,
     onLinkClick: (String) -> Unit,
     onReplyClick: Clickable,
@@ -359,6 +370,7 @@ private fun MessageContent(
                     attachments = messageContent.attachments,
                     messageStyle = messageStyle,
                     accent = accent,
+                    onImageAttachmentClick = onMultipartImageClick
                 )
             }
 

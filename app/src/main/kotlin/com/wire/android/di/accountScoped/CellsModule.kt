@@ -27,7 +27,9 @@ import com.wire.kalium.cells.domain.usecase.CreateFolderUseCase
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
 import com.wire.kalium.cells.domain.usecase.DownloadCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
+import com.wire.kalium.cells.domain.usecase.GetCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.GetFoldersUseCase
+import com.wire.kalium.cells.domain.usecase.GetMessageAttachmentUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedNodesUseCase
 import com.wire.kalium.cells.domain.usecase.IsAtLeastOneCellAvailableUseCase
@@ -164,6 +166,13 @@ class CellsModule {
     @Provides
     fun provideCellAvailableUseCase(cellsScope: CellsScope): IsAtLeastOneCellAvailableUseCase = cellsScope.isCellAvailable
 
+    @ViewModelScoped
+    @Provides
+    fun provideGetAttachmentUseCase(cellsScope: CellsScope): GetMessageAttachmentUseCase = cellsScope.getMessageAttachmentUseCase
+
     @Provides
     fun provideFileNameResolver(): FileNameResolver = FileNameResolver()
+
+    @Provides
+    fun provideGetCellNodeUseCase(cellsScope: CellsScope): GetCellFileUseCase = cellsScope.getCellFileUseCase
 }

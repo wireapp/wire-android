@@ -549,7 +549,7 @@ fun ConversationScreen(
                 .show(DeleteMessageDialogState(deleteForEveryone, messageId, conversationMessagesViewModel.conversationId))
         },
         onAssetItemClicked = conversationMessagesViewModel::openOrFetchAsset,
-        onImageFullScreenMode = { message, isSelfMessage ->
+        onImageFullScreenMode = { message, isSelfMessage, cellAssetId ->
             with(conversationMessagesViewModel) {
                 navigator.navigate(
                     NavigationCommand(
@@ -558,7 +558,8 @@ fun ConversationScreen(
                             messageId = message.header.messageId,
                             isSelfAsset = isSelfMessage,
                             isEphemeral = message.header.messageStatus.expirationStatus is ExpirationStatus.Expirable,
-                            messageOptionsEnabled = true
+                            messageOptionsEnabled = true,
+                            cellAssetId = cellAssetId,
                         )
                     )
                 )
@@ -887,7 +888,7 @@ private fun ConversationScreen(
     onAudioRecorded: (UriAsset) -> Unit,
     onDeleteMessage: (String, Boolean) -> Unit,
     onAssetItemClicked: (String) -> Unit,
-    onImageFullScreenMode: (UIMessage.Regular, Boolean) -> Unit,
+    onImageFullScreenMode: (UIMessage.Regular, Boolean, String?) -> Unit,
     onStartCall: () -> Unit,
     onJoinCall: () -> Unit,
     onReactionClick: (messageId: String, reactionEmoji: String) -> Unit,
@@ -1075,7 +1076,7 @@ private fun ConversationScreenContent(
     onAttachmentPicked: (UriAsset) -> Unit,
     onAudioRecorded: (UriAsset) -> Unit,
     onAssetItemClicked: (String) -> Unit,
-    onImageFullScreenMode: (UIMessage.Regular, Boolean) -> Unit,
+    onImageFullScreenMode: (UIMessage.Regular, Boolean, String?) -> Unit,
     onReactionClicked: (String, String) -> Unit,
     onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
     onOpenProfile: (String) -> Unit,
@@ -1660,7 +1661,7 @@ fun PreviewConversationScreen() = WireTheme {
         onPingOptionClicked = { },
         onDeleteMessage = { _, _ -> },
         onAssetItemClicked = { },
-        onImageFullScreenMode = { _, _ -> },
+        onImageFullScreenMode = { _, _, _ -> },
         onStartCall = { },
         onJoinCall = { },
         onReactionClick = { _, _ -> },

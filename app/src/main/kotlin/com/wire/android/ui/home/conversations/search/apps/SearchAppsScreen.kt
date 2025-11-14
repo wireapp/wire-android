@@ -19,7 +19,6 @@ package com.wire.android.ui.home.conversations.search.apps
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -177,52 +176,48 @@ private fun AppsList(
     onServiceClicked: (Contact) -> Unit,
     lazyListState: LazyListState = rememberLazyListState(),
 ) {
-    Column(
-        modifier = Modifier.fillMaxSize()
+    LazyColumn(
+        state = lazyListState,
+        modifier = Modifier
+
     ) {
-        LazyColumn(
-            state = lazyListState,
-            modifier = Modifier
-                .weight(1f)
+        sectionWithElements(
+            items = apps.associateBy { it.id }
         ) {
-            sectionWithElements(
-                items = apps.associateBy { it.id }
-            ) {
-                val clickDescription = stringResource(id = R.string.content_description_open_service_label)
-                RowItemTemplate(
-                    leadingIcon = {
-                        Row {
-                            UserProfileAvatar(it.avatarData)
-                        }
-                    },
-                    titleStartPadding = dimensions().spacing0x,
-                    title = {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            HighlightName(
-                                name = it.name,
-                                searchQuery = searchQuery,
-                                modifier = Modifier.weight(weight = 1f, fill = false)
-                            )
-                            UserBadge(
-                                membership = it.membership,
-                                connectionState = it.connectionState,
-                                startPadding = dimensions().spacing8x
-                            )
-                        }
-                    },
-                    actions = {
-                        Box(
-                            modifier = Modifier
-                                .wrapContentWidth()
-                                .padding(end = dimensions().spacing4x)
-                        ) {
-                            ArrowRightIcon(Modifier.align(Alignment.TopEnd), R.string.content_description_empty)
-                        }
-                    },
-                    clickable = remember(it) { Clickable(onClickDescription = clickDescription) { onServiceClicked(it) } },
-                    modifier = Modifier.padding(start = dimensions().spacing8x)
-                )
-            }
+            val clickDescription = stringResource(id = R.string.content_description_open_service_label)
+            RowItemTemplate(
+                leadingIcon = {
+                    Row {
+                        UserProfileAvatar(it.avatarData)
+                    }
+                },
+                titleStartPadding = dimensions().spacing0x,
+                title = {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        HighlightName(
+                            name = it.name,
+                            searchQuery = searchQuery,
+                            modifier = Modifier.weight(weight = 1f, fill = false)
+                        )
+                        UserBadge(
+                            membership = it.membership,
+                            connectionState = it.connectionState,
+                            startPadding = dimensions().spacing8x
+                        )
+                    }
+                },
+                actions = {
+                    Box(
+                        modifier = Modifier
+                            .wrapContentWidth()
+                            .padding(end = dimensions().spacing4x)
+                    ) {
+                        ArrowRightIcon(Modifier.align(Alignment.TopEnd), R.string.content_description_empty)
+                    }
+                },
+                clickable = remember(it) { Clickable(onClickDescription = clickDescription) { onServiceClicked(it) } },
+                modifier = Modifier.padding(start = dimensions().spacing8x)
+            )
         }
     }
 }

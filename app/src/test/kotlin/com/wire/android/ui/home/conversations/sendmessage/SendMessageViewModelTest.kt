@@ -770,6 +770,7 @@ class SendMessageViewModelTest {
                         assetWidth = null,
                         assetHeight = null,
                         audioLengthInMs = 0L,
+                        audioNormalizedLoudness = null
                     )
                 )
             }

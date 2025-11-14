@@ -27,6 +27,7 @@ import com.wire.kalium.logic.feature.asset.GetPaginatedFlowOfAssetMessageByConve
 import com.wire.kalium.logic.feature.asset.ObserveAssetStatusesUseCase
 import com.wire.kalium.logic.feature.asset.ObservePaginatedAssetImageMessages
 import com.wire.kalium.logic.feature.asset.UpdateAssetMessageTransferStatusUseCase
+import com.wire.kalium.logic.feature.asset.UpdateAudioMessageNormalizedLoudnessUseCase
 import com.wire.kalium.logic.feature.asset.upload.ScheduleNewAssetMessageUseCase
 import com.wire.kalium.logic.feature.incallreaction.SendInCallReactionUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
@@ -240,4 +241,9 @@ class MessageModule {
     @Provides
     fun provideSendMultipartMessageUseCase(messageScope: MessageScope): SendMultipartMessageUseCase =
         messageScope.sendMultipartMessage
+
+    @ViewModelScoped
+    @Provides
+    fun provideUpdateAudioMessageNormalizedLoudnessUseCase(messageScope: MessageScope): UpdateAudioMessageNormalizedLoudnessUseCase =
+        messageScope.updateAudioMessageNormalizedLoudnessUseCase
 }

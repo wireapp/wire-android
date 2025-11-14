@@ -321,6 +321,7 @@ fun ConversationScreen(
                 mentions = compositionState.selectedMentions.map {
                     it.intoMessageMention()
                 },
+                isMultipart = compositionState.isMultipart,
             )
         }
     }

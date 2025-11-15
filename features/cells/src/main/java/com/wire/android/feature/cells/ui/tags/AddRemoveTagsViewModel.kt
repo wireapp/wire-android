@@ -63,28 +63,24 @@ class AddRemoveTagsViewModel @Inject constructor(
 
     val disallowedChars = listOf(",", ";", "/", "\\", "\"", "\'", "<", ">")
 
-    private val _suggestedTags = MutableStateFlow<Set<String>>(emptySet())
-    internal val suggestedTags =
-        allTags.combine(addedTags) { all, added ->
-            all.filter { it !in added }.toSet()
-        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptySet())
+    private val tagQuery = MutableStateFlow("")
+
+    internal val suggestedTags = combine(allTags, addedTags, tagQuery) { all, added, query ->
+        val filtered = if (query.isBlank()) all else all.filter { it.contains(query, ignoreCase = true) }
+        filtered.filter { it !in added }.toSet()
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptySet())
 
     init {
+
+        viewModelScope.launch {
+            snapshotFlow { tagsTextState.text.toString() }
+                .debounce(TYPING_DEBOUNCE_TIME)
+                .collectLatest { tagQuery.value = it }
+        }
+
         viewModelScope.launch {
             getAllTagsUseCase().onSuccess { tags ->
                 allTags.update { tags }
-            }
-            launch {
-                snapshotFlow { tagsTextState.text.toString() }
-                    .debounce(TYPING_DEBOUNCE_TIME)
-                    .collectLatest { query ->
-                        val filtered = if (query.isBlank()) {
-                            allTags.value
-                        } else {
-                            allTags.value.filter { it.contains(query, ignoreCase = true) }.toSet()
-                        }
-                        _suggestedTags.value = filtered
-                    }
             }
         }
     }

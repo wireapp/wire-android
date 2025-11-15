@@ -85,7 +85,7 @@ fun ConversationOptionsModalSheetLayout(
     )
     ArchiveConversationDialog(
         dialogState = viewModel.archiveConversationDialogState,
-        onArchiveButtonClicked = { viewModel.moveToArchive(it.conversationId, !it.isArchived, !it.isMember) }
+        onArchiveButtonClicked = { viewModel.moveToArchive(it.conversationId, !it.isArchived, it.isMember) }
     )
     HandleActions(viewModel.actions) { action ->
         when (action) {
@@ -119,7 +119,7 @@ fun ConversationOptionsModalSheetLayout(
                     updateConversationArchiveStatus = {
                         sheetState.hide {
                             when {
-                                it.isArchived -> viewModel.moveToArchive(it.conversationId, false, !it.isMember)
+                                it.isArchived -> viewModel.moveToArchive(it.conversationId, false, it.isMember)
                                 else -> viewModel.archiveConversationDialogState.show(it)
                             }
                         }

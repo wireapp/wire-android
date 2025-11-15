@@ -259,6 +259,44 @@ class ConversationOptionsMenuViewModelTest {
     }
 
     @Test
+    fun `given user is not a member, when moving to archive, then archive only locally`() = runTest(dispatcherProvider.main()) {
+        val (arrangement, viewModel) = Arrangement()
+            .withUpdateArchivedStatus(ArchiveStatusUpdateResult.Success)
+            .arrange()
+
+        viewModel.actions.test {
+            viewModel.moveToArchive(conversationId, true, false)
+
+            coVerify(exactly = 1) { arrangement.updateConversationArchivedStatus(conversationId, true, true, any()) }
+            assertIs<ConversationOptionsMenuViewAction.Message>(awaitItem()).also {
+                assertIs<HomeSnackBarMessage.UpdateArchivingStatusSuccess>(it.message).also {
+                    assertEquals(true, it.isArchiving)
+                }
+            }
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun `given user is not a member, when removing from archive, then unarchive only locally`() = runTest(dispatcherProvider.main()) {
+        val (arrangement, viewModel) = Arrangement()
+            .withUpdateArchivedStatus(ArchiveStatusUpdateResult.Success)
+            .arrange()
+
+        viewModel.actions.test {
+            viewModel.moveToArchive(conversationId, false, false)
+
+            coVerify(exactly = 1) { arrangement.updateConversationArchivedStatus(conversationId, false, true, any()) }
+            assertIs<ConversationOptionsMenuViewAction.Message>(awaitItem()).also {
+                assertIs<HomeSnackBarMessage.UpdateArchivingStatusSuccess>(it.message).also {
+                    assertEquals(false, it.isArchiving)
+                }
+            }
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
     fun `given success, when changing muted state, then call proper action`() = runTest(dispatcherProvider.main()) {
         val (arrangement, viewModel) = Arrangement()
             .withUpdateConversationMutedStatus(ConversationUpdateStatusResult.Success)

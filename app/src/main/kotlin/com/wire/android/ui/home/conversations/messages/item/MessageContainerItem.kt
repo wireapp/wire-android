@@ -47,7 +47,8 @@ fun MessageContainerItem(
     isSelectedMessage: Boolean = false,
     failureInteractionAvailable: Boolean = true,
     defaultBackgroundColor: Color = colorsScheme().surfaceContainerLow,
-    isBubbleUiEnabled: Boolean = false
+    isBubbleUiEnabled: Boolean = false,
+    isWireCellsEnabled: Boolean = false,
 ) {
     val selfDeletionTimerState = rememberSelfDeletionTimer(message.header.messageStatus.expirationStatus)
     if (
@@ -76,6 +77,7 @@ fun MessageContainerItem(
         when (message) {
             is UIMessage.System -> SystemMessageItem(
                 message = message,
+                isWireCellsEnabled = isWireCellsEnabled,
                 onFailedMessageCancelClicked = clickActions.onFailedMessageCancelClicked,
                 onFailedMessageRetryClicked = clickActions.onFailedMessageRetryClicked,
                 failureInteractionAvailable = failureInteractionAvailable,

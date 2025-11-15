@@ -583,6 +583,7 @@
     <string name="conversation_details_options_group_name">НАЗВАНИЕ ГРУППЫ</string>
     <string name="conversation_details_conversation_admins">АДМИНИСТРАТОРЫ БЕСЕДЫ (%d)</string>
     <string name="conversation_details_conversation_members">УЧАСТНИКИ БЕСЕДЫ (%d)</string>
+    <string name="conversation_details_conversation_apps">ПРИЛОЖЕНИЙ ДЛЯ БЕСЕД (%d)</string>
     <string name="conversation_details_participants_info">В этой беседе %s участника(-ов).\nК беседе могут присоединиться до 500 человек.</string>
     <string name="conversation_details_participants_count">%s участников</string>
     <string name="conversation_details_show_all_participants">Показать всех участников (%d)</string>
@@ -1180,8 +1181,10 @@
     <string name="change">Изменить</string>
     <string name="allow_guests">Разрешить гостей</string>
     <string name="allow_guest_switch_description">Открыть эту беседу для пользователей не из вашей команды. Вы всегда сможете изменить это позже.</string>
+    <string name="allow_guest_switch_channel_description">Откройте эту беседу для людей, не из вашей команды или приложений. Вы всегда сможете изменить это позже.</string>
     <string name="allow_services">Разрешить приложения</string>
     <string name="allow_services_regular_group_description">Открыть эту беседу для приложений. Вы всегда сможете изменить это позже.</string>
+    <string name="allow_apps_switch_description">Открыть эту беседу для приложений.</string>
     <string name="service_details_label">Приложение</string>
     <string name="service_details_add_service_label">Добавить в беседу</string>
     <string name="service_details_remove_service_label">Удалить из беседы</string>
@@ -1904,4 +1907,18 @@
         <item quantity="other">%1$d файлов</item>
     </plurals>
     <!-- Apps-->
+    <string name="apps_upgrade_teams_for_apps_banner_title">Ваша команда еще не использует приложения</string>
+    <string name="apps_upgrade_teams_for_apps_banner_content">Для улучшения рабочего процесса с приложениями, вашей команде требуется настройка. Пожалуйста, свяжитесь с администратором вашей команды.</string>
+    <string name="apps_edit_apps_option_title">Приложения</string>
+    <string name="content_description_edit_apps_option_back_btn">Вернуться к сведениям о беседе</string>
+    <string name="content_description_conversation_details_apps_action">настройка доступа к приложениям</string>
+    <string name="search_results_apps_empty_title">Ваша команда еще не добавила приложения</string>
+    <string name="search_results_apps_empty_description_team_admin">Приложения - это помощники, которые могут улучшить ваш рабочий процесс. Как администратор команды, вы можете добавить их в управлении командой.</string>
+    <string name="search_results_apps_empty_description_non_team_admin">Приложения - это помощники, которые могут улучшить ваш рабочий процесс. Чтобы воспользоваться ими, обратитесь к администратору вашей команды.</string>
+    <string name="search_results_apps_empty_description_disabled_for_conversation">В этой беседе приложения отключены. Включите их в настройках беседы.</string>
+    <string name="label_system_message_apps_access_changed_enabled">включены</string>
+    <string name="label_system_message_apps_access_changed_disabled">отключены</string>
+    <string name="label_system_message_apps_access_changed_by_self">%1$s %2$s ** приложений** для этой беседы</string>
+    <string name="label_system_message_apps_access_changed_by_other">%1$s %2$s ** приложений** для этой беседы</string>
+    <string name="label_system_message_apps_access_enabled_disclaimer">Добавленные приложения имеют доступ к содержимому этой беседы.</string>
 </resources>

@@ -18,23 +18,17 @@
   -->
 <resources>
     <string name="retry">නැවත</string>
-    <string name="file_list_load_error">ගොනු ලැයිස්තුව පූරණය කිරීමේදී දෝෂයක් ඇති විය. කරුණාකර නැවත උත්සාහ කරන්න.</string>
     <string name="copied_to_clipboard_message">සබැඳිය පසුරු පුවරුවට පිටපත් කරන ලදී</string>
     <string name="file_subtitle">%2$sකින් %1$s</string>
     <string name="file_subtitle_modified">%1$s %2$sවිසින්</string>
     <string name="share_file_via_link">සබැඳිය හරහා ගොනුව බෙදා ගන්න</string>
     <string name="no_app_found">ගොනුව විවෘත කිරීමට යෙදුමක් හමු නොවීය.</string>
-    <string name="cell_files_load_failure_message">පූරණය කිරීමට අසමත් විය. කරුණාකර පසුව නැවත උත්සාහ කරන්න.</string>
     <string name="action_failed">ක්‍රියාව අසාර්ථක විය.</string>
     <string name="cancel">අවලංගු කරන්න</string>
     <string name="reload">නැවත පූරණය කරන්න</string>
-    <string name="error_delete_public_link">පොදු සබැඳිය ඉවත් කිරීමට අසමත් විය.</string>
-    <string name="error_load_public_link">පොදු සබැඳිය පූරණය කිරීමට අසමත් විය.</string>
-    <string name="error_create_public_link">පොදු සබැඳිය නිර්මාණය කිරීමට අසමත් විය.</string>
     <string name="cell_files_download_failure_message">බාගැනීම අසාර්ථක විය.</string>
     <string name="download_file_message">මෙම ගොනුව තවම බාගත කර නැත. ඔබට එය දැන් බාගත කිරීමට අවශ්‍යද?</string>
     <string name="download">බාගත කරන්න</string>
-    <string name="error_share_link">සබැඳිය බෙදා ගැනීමට අසමත් විය.</string>
     <string name="conversation_files_title">ගොනු</string>
     <string name="creating_link">පොදු සබැඳියක් නිර්මාණය කිරීම…</string>
     <string name="cells_new_label">අලුත්</string>

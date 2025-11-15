@@ -17,7 +17,7 @@ jobs:
         if: github.actor == 'dependabot[bot]' || github.actor == 'AndroidBob'
         run: echo "PR created by Dependabot or AndroidBob, exiting successfully" && exit 0
 
-      - uses: cakeinpanic/jira-description-action@v0.9.0
+      - uses: mohamadjaara/jira-description-action@master
         name: jira-description-action
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -25,3 +25,4 @@ jobs:
           jira-base-url: https://wearezeta.atlassian.net
           skip-branches: '^(production-release|main|master|release\/v\d+)$' #optional
           fail-when-jira-issue-not-found: true
+          skip-ticket-title: true

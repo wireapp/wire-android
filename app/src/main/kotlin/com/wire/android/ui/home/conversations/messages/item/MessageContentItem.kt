@@ -29,7 +29,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
-import com.wire.android.ui.common.applyIf
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.common.spacers.VerticalSpace
@@ -101,10 +100,6 @@ fun MessageContentItem(
                     shouldDisplayMessageStatus = shouldDisplayMessageStatus,
                     conversationDetailsData = conversationDetailsData,
                     onReplyClicked = clickActions.onReplyClicked,
-                    modifier = Modifier
-                        .applyIf(!messageStyle.isBubble()) {
-                            weight(1F)
-                        }
                 )
                 if (shouldDisplayFooter && !messageStyle.isBubble()) {
                     VerticalSpace.x4()

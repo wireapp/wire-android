@@ -247,7 +247,7 @@ internal class SendMessageViewModelArrangement {
     }
 
     fun withHandleUriAsset(result: HandleUriAssetUseCase.Result) = apply {
-        coEvery { handleUriAssetUseCase.invoke(any(), any(), any()) } returns result
+        coEvery { handleUriAssetUseCase.invoke(any(), any(), any(), any()) } returns result
     }
 
     fun withInformAboutVerificationBeforeMessagingFlag(flag: Boolean) = apply {

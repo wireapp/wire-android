@@ -735,9 +735,9 @@
     <string name="profile_image_change_image_button_label">Изменить изображение…</string>
     <!--Conversation-->
     <string name="label_message_details">Сведения о сообщении</string>
-    <string name="label_copy">Скопировать</string>
+    <string name="label_copy">Скопировать текст</string>
     <string name="label_share">Поделиться</string>
-    <string name="label_edit">Изменить</string>
+    <string name="label_edit">Изменить текст</string>
     <string name="label_delete">Удалить</string>
     <string name="info_message_copied">Сообщение скопировано</string>
     <string name="conversation_banner_federated">федеративные пользователи</string>
@@ -850,7 +850,6 @@
     <string name="label_system_message_conversation_started_sensitive_information_footer">Пожалуйста, будьте осторожны со всеми с кем делитесь конфиденциальной информацией.</string>
     <string name="label_conversations_details_verified_proteus">Верифицировано (Proteus)</string>
     <string name="label_conversations_details_verified_mls">Верифицировано (сквозная идентификация)</string>
-    <string name="label_system_message_cell_enabled_for_conversation">Совместная работа с %1$s (Cells)</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
         <item quantity="one">Вы добавили 1 пользователя в беседу</item>
@@ -998,9 +997,7 @@
     <string name="label_search_people_or_apps">Поиск людей или приложений</string>
     <string name="label_public_wire">Wire Public</string>
     <string name="label_search_people_instruction">Поиск пользователей по названию их профиля или @псевдониму</string>
-    <string name="label_search_apps_instruction">Повышайте производительность с помощью приложений.</string>
     <string name="label_learn_more_searching_user">Подробнее</string>
-    <string name="label_learn_more_searching_app">Как добавить приложения в вашу команду</string>
     <string name="label_no_results_found">Результатов не найдено. Пожалуйста, попробуйте еще раз.</string>
     <string name="label_general_error">Что-то пошло не так</string>
     <string name="label_add_member_people">Контакты</string>
@@ -1083,6 +1080,7 @@
     <string name="notification_outgoing_call_tap_to_return">Нажмите, чтобы вернуться к вызову - Вызов...</string>
     <string name="notification_audio_message_body">Аудиосообщение</string>
     <string name="notification_deleting_conversation">Удаление беседы…</string>
+    <string name="notification_uploading_files">Выгрузка файлов…</string>
     <!-- Calling-->
     <string name="calling_constant_bit_rate_indication">Постоянный битрейт</string>
     <string name="calling_button_label_microphone">Микрофон</string>
@@ -1184,7 +1182,6 @@
     <string name="allow_guest_switch_description">Открыть эту беседу для пользователей не из вашей команды. Вы всегда сможете изменить это позже.</string>
     <string name="allow_services">Разрешить приложения</string>
     <string name="allow_services_regular_group_description">Открыть эту беседу для приложений. Вы всегда сможете изменить это позже.</string>
-    <string name="allow_services_channel_description">Откройте эту беседу для людей, не из вашей команды или приложений. Вы всегда сможете изменить это позже.</string>
     <string name="service_details_label">Приложение</string>
     <string name="service_details_add_service_label">Добавить в беседу</string>
     <string name="service_details_remove_service_label">Удалить из беседы</string>
@@ -1900,4 +1897,11 @@
     <string name="profile_deeplink_feature_unavailable_title_alert">Эта функция недоступна. Пожалуйста, свяжитесь со своим администратором.</string>
     <string name="conversation_options_file_collaboration_label">Совместная работа с файлами (Cells)</string>
     <string name="conversation_options_file_collaboration_description">Постоянно для этой беседы.</string>
+    <plurals name="reply_multiple_files">
+        <item quantity="one">%1$d файл</item>
+        <item quantity="few">%1$d файла</item>
+        <item quantity="many">%1$d файлов</item>
+        <item quantity="other">%1$d файлов</item>
+    </plurals>
+    <!-- Apps-->
 </resources>

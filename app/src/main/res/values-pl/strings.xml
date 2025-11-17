@@ -399,9 +399,7 @@ Usuni&#281;ta wiadomo&#347;&#263; nie mo&#380;e zosta&#263; przywr&#243;cona.</s
     <string name="profile_image_change_image_button_label">Zmie&#324; zdj&#281;cie...</string>
     <!--Conversation-->
     <string name="label_message_details">Szczeg&#243;&#322;y wiadomo&#347;ci</string>
-    <string name="label_copy">Kopiuj</string>
     <string name="label_share">Udost&#281;pnij</string>
-    <string name="label_edit">Edytuj</string>
     <string name="label_delete">Usu&#324;</string>
     <string name="info_message_copied">Wiadomo&#347;&#263; skopiowana</string>
     <string name="conversation_banner_federated_externals_guests_present">Obecni s&#261; u&#380;ytkownicy federowani, zewn&#281;trzni oraz go&#347;cie.</string>
@@ -830,4 +828,5 @@ Prosimy u&#380;y&#263; zarz&#261;dzania zespo&#322;ami (%1$s) na tym &#347;rodow
     <!-- Move to Folder -->
     <!-- enterprise configurations -->
     <!--    channel not available dialog-->
+    <!-- Apps-->
 </resources>

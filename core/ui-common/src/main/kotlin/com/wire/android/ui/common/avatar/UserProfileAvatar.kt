@@ -68,7 +68,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.toSize
-import com.google.common.primitives.Floats.min
 import com.wire.android.model.Clickable
 import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
@@ -86,6 +85,7 @@ import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlin.math.absoluteValue
+import kotlin.math.min
 import kotlin.math.sqrt
 import kotlin.time.Duration.Companion.hours
 

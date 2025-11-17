@@ -28,6 +28,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -44,6 +45,7 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
 import com.wire.android.ui.destinations.ServiceDetailsScreenDestination
+import com.wire.android.ui.home.conversations.details.participants.model.ParticipantsExpansionState
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.theme.WireTheme
 
@@ -64,6 +66,7 @@ fun GroupConversationAllParticipantsScreen(
                 participant.isSelf -> navigator.navigate(NavigationCommand(SelfUserProfileScreenDestination))
                 participant.isService && participant.botService != null ->
                     navigator.navigate(NavigationCommand(ServiceDetailsScreenDestination(participant.botService, navArgs.conversationId)))
+
                 else -> navigator.navigate(NavigationCommand(OtherUserProfileScreenDestination(participant.id, navArgs.conversationId)))
             }
         },
@@ -78,6 +81,7 @@ private fun GroupConversationAllParticipantsContent(
     groupParticipantsState: GroupConversationParticipantsState
 ) {
     val lazyListState: LazyListState = rememberLazyListState()
+    val participantsExpansionState = remember { ParticipantsExpansionState() }
     WireScaffold(
         topBar = {
             WireCenterAlignedTopAppBar(
@@ -95,9 +99,16 @@ private fun GroupConversationAllParticipantsContent(
             val context = LocalContext.current
             LazyColumn(
                 state = lazyListState,
-                modifier = Modifier.fillMaxWidth().padding(internalPadding)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(internalPadding)
             ) {
-                participantsFoldersWithElements(context, groupParticipantsState, onProfilePressed)
+                participantsFoldersWithElements(
+                    context,
+                    groupParticipantsState,
+                    onProfilePressed,
+                    participantsExpansionState
+                )
             }
         }
     }

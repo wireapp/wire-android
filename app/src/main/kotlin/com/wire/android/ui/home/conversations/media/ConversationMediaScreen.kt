@@ -101,7 +101,7 @@ fun ConversationMediaScreen(
     Content(
         state = state,
         onNavigationPressed = { navigator.navigateBack() },
-        onImageFullScreenMode = { conversationId, messageId, isSelfAsset ->
+        onImageFullScreenMode = { conversationId, messageId, isSelfAsset, cellAssetId ->
             navigator.navigate(
                 NavigationCommand(
                     MediaGalleryScreenDestination(
@@ -109,7 +109,8 @@ fun ConversationMediaScreen(
                         messageId = messageId,
                         isSelfAsset = isSelfAsset,
                         isEphemeral = false,
-                        messageOptionsEnabled = false
+                        messageOptionsEnabled = false,
+                        cellAssetId = cellAssetId,
                     )
                 )
             )
@@ -167,7 +168,8 @@ fun ConversationMediaScreen(
 private fun Content(
     state: ConversationAssetMessagesViewState,
     initialPage: ConversationMediaScreenTabItem = ConversationMediaScreenTabItem.PICTURES,
-    onImageFullScreenMode: (conversationId: ConversationId, messageId: String, isSelfAsset: Boolean) -> Unit = { _, _, _ -> },
+    onImageFullScreenMode:
+        (conversationId: ConversationId, messageId: String, isSelfAsset: Boolean, cellAssetId: String?) -> Unit = { _, _, _, _ -> },
     onAssetItemClicked: (String) -> Unit = {},
     onOpenAssetOptions: (messageId: String, isMyMessage: Boolean) -> Unit = { _, _ -> },
     onNavigationPressed: () -> Unit = {},
@@ -216,7 +218,9 @@ private fun Content(
                     ConversationMediaScreenTabItem.PICTURES -> ImageAssetsContent(
                         imageMessageList = state.imageMessages,
                         assetStatuses = state.assetStatuses,
-                        onImageClicked = onImageFullScreenMode,
+                        onImageClicked = { conversationId, messageId, isSelfAsset ->
+                            onImageFullScreenMode(conversationId, messageId, isSelfAsset, null)
+                        },
                         onImageLongClicked = onOpenAssetOptions
                     )
 

@@ -467,9 +467,7 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="profile_image_change_image_button_label">Cambiar imagen...</string>
     <!--Conversation-->
     <string name="label_message_details">Detalles del mensaje</string>
-    <string name="label_copy">Copiar</string>
     <string name="label_share">Compartir</string>
-    <string name="label_edit">Editar</string>
     <string name="label_delete">Eliminar</string>
     <string name="info_message_copied">Mensaje copiado</string>
     <string name="conversation_banner_services">aplicaciones</string>
@@ -741,7 +739,6 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="allow_guest_switch_description">Abra esta conversaci&#243;n a personas fuera de su equipo. Siempre puede cambiarlo m&#225;s tarde.</string>
     <string name="allow_services">Permitir aplicaciones</string>
     <string name="allow_services_regular_group_description">Abrir la conversación a aplicaciones. Siempre puedes cambiar esta opción más adelante.</string>
-    <string name="allow_services_channel_description">Abrir la conversación a personas externas a tu equipo o a aplicaciones. Siempre puedes cambiar esta opción más adelante.</string>
     <string name="service_details_label">Aplicación</string>
     <string name="service_details_add_service_label">Añadir a la Conversación</string>
     <string name="service_details_remove_service_label">Remover de la Conversación</string>
@@ -1023,4 +1020,5 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <!-- Move to Folder -->
     <!-- enterprise configurations -->
     <!--    channel not available dialog-->
+    <!-- Apps-->
 </resources>

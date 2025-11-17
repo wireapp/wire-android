@@ -548,6 +548,7 @@
     <string name="conversation_details_options_group_name">GRUPPENNAME</string>
     <string name="conversation_details_conversation_admins">ADMINS (%d)</string>
     <string name="conversation_details_conversation_members">MITGLIEDER (%d)</string>
+    <string name="conversation_details_conversation_apps">APPS (%d)</string>
     <string name="conversation_details_participants_info">Diese Unterhaltung hat %s Teilnehmer.\nBis zu 500 Personen können an einer Unterhaltung teilnehmen.</string>
     <string name="conversation_details_participants_count">%s Teilnehmer</string>
     <string name="conversation_details_show_all_participants">Alle Teilnehmer anzeigen (%d)</string>
@@ -1096,8 +1097,10 @@
     <string name="change">Ändern</string>
     <string name="allow_guests">Gäste zulassen</string>
     <string name="allow_guest_switch_description">Öffnen Sie diese Unterhaltung für Personen außerhalb Ihres Teams. Diese Einstellung kann später jederzeit geändert werden.</string>
+    <string name="allow_guest_switch_channel_description">Öffnen Sie diese Unterhaltung für Personen außerhalb Ihres Teams oder für Apps. Diese Einstellung kann später jederzeit geändert werden.</string>
     <string name="allow_services">Apps zulassen</string>
     <string name="allow_services_regular_group_description">Öffnen Sie diese Unterhaltung für Apps. Diese Einstellung kann später jederzeit geändert werden.</string>
+    <string name="allow_apps_switch_description">Öffnen Sie diese Unterhaltung für Apps.</string>
     <string name="service_details_label">App</string>
     <string name="service_details_add_service_label">Zur Unterhaltung hinzufügen</string>
     <string name="service_details_remove_service_label">Aus Unterhaltung entfernen</string>
@@ -1751,4 +1754,17 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
         <item quantity="other">%1$d Dateien</item>
     </plurals>
     <!-- Apps-->
+    <string name="apps_upgrade_teams_for_apps_banner_title">Ihr Team verwendet noch keine Apps</string>
+    <string name="apps_upgrade_teams_for_apps_banner_content">Um Ihren Workflow mit Apps zu verbessern, muss Ihr Team angepasst werden. Bitte wenden Sie sich an Ihren Team-Admin.</string>
+    <string name="apps_edit_apps_option_title">Apps</string>
+    <string name="content_description_edit_apps_option_back_btn">Zurück zu Unterhaltungsdetails</string>
+    <string name="search_results_apps_empty_title">Ihr Team hat noch keine Apps hinzugefügt</string>
+    <string name="search_results_apps_empty_description_team_admin">Apps sind Helfer, die Ihren Workflow verbessern können. Als Team-Admin können Sie diese im Team-Management hinzufügen.</string>
+    <string name="search_results_apps_empty_description_non_team_admin">Apps sind Helfer, die Ihren Workflow verbessern können. Um sie zu verwenden, fragen Sie bitte Ihren Team-Admin.</string>
+    <string name="search_results_apps_empty_description_disabled_for_conversation">Apps sind in dieser Unterhaltung deaktiviert. Aktivieren Sie sie in den Unterhaltungsoptionen.</string>
+    <string name="label_system_message_apps_access_enabled_by_self">%1$s haben **Apps** für diese Unterhaltung aktiviert</string>
+    <string name="label_system_message_apps_access_disabled_by_self">%1$s haben **Apps** für diese Unterhaltung deaktiviert</string>
+    <string name="label_system_message_apps_access_enabled_by_other">%1$s hat **Apps** für diese Unterhaltung aktiviert</string>
+    <string name="label_system_message_apps_access_disabled_by_other">%1$s hat **Apps** für diese Unterhaltung deaktiviert</string>
+    <string name="label_system_message_apps_access_enabled_disclaimer">Hinzugefügte Apps haben Zugriff auf den Inhalt dieser Unterhaltung.</string>
 </resources>

@@ -624,8 +624,8 @@
     <string name="conversation_details_options_tab">OPTIONS</string>
     <string name="conversation_details_participants_tab">PARTICIPANTS</string>
     <string name="conversation_details_options_group_name">GROUP NAME</string>
-    <string name="conversation_details_conversation_admins">CONVERSATION ADMINS (%d)</string>
-    <string name="conversation_details_conversation_members">CONVERSATION MEMBERS (%d)</string>
+    <string name="conversation_details_conversation_admins">ADMINS (%d)</string>
+    <string name="conversation_details_conversation_members">MEMBERS (%d)</string>
     <string name="conversation_details_conversation_apps">APPS (%d)</string>
     <string name="conversation_details_participants_info">This conversation has %s participants.\nUp to 500 people can join a conversation.</string>
     <string name="conversation_details_participants_count">%s participants</string>

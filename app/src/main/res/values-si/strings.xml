@@ -671,9 +671,7 @@
     <string name="profile_image_change_image_button_label">රූපය සංශෝධනය…</string>
     <!--Conversation-->
     <string name="label_message_details">පණිවිඩයේ විස්තර</string>
-    <string name="label_copy">පිටපතක්</string>
     <string name="label_share">බෙදාගන්න</string>
-    <string name="label_edit">සංස්කරණය</string>
     <string name="label_delete">මකන්න</string>
     <string name="info_message_copied">පණිවිඩය පිටපත් විය</string>
     <string name="conversation_banner_federated">ඒකාබද්ධ පරිශීලකයින්</string>
@@ -1667,4 +1665,5 @@
     <string name="cells_screen_search_hint">ගොනු සොයන්න</string>
     <string name="failed_attachment_retry_upload">උඩුගත කිරීම නැවත උත්සාහ කරන්න</string>
     <string name="failed_attachment_remove">ඉවත් කරන්න</string>
+    <!-- Apps-->
 </resources>

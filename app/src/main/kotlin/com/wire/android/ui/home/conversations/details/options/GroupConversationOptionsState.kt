@@ -47,18 +47,16 @@ data class GroupConversationOptionsState(
     val legalHoldStatus: Conversation.LegalHoldStatus = Conversation.LegalHoldStatus.DISABLED,
     val areAccessOptionsAvailable: Boolean = false,
     val isGuestAllowed: Boolean = false,
-    val isServicesAllowed: Boolean = false,
+    val isAppsAllowed: Boolean = false,
     val isReadReceiptAllowed: Boolean = false,
     val isUpdatingNameAllowed: Boolean = false,
     val isUpdatingGuestAllowed: Boolean = false,
-    val isUpdatingServicesAllowed: Boolean = false,
+    val isUpdatingAppsAllowed: Boolean = false,
     val isUpdatingSelfDeletingAllowed: Boolean = false,
     val isUpdatingReadReceiptAllowed: Boolean = false,
     val isUpdatingChannelAccessAllowed: Boolean = false,
     val shouldShowAddParticipantsButtonForChannel: Boolean = false,
     val changeGuestOptionConfirmationRequired: Boolean = false,
-    val changeServiceOptionConfirmationRequired: Boolean = false,
-    val loadingServicesOption: Boolean = false,
     val loadingReadReceiptOption: Boolean = false,
     val isChannel: Boolean = false,
     val isSelfTeamAdmin: Boolean = false,
@@ -70,11 +68,11 @@ data class GroupConversationOptionsState(
     val loadingWireCellState: Boolean = false,
     val isWireCellFeatureEnabled: Boolean = false,
     val isWireCellEnabled: Boolean = false,
+    val isSelfPartOfATeam: Boolean = false,
 ) {
 
     sealed interface Error {
         data object None : Error
-        class UpdateServicesError(val cause: CoreFailure) : Error
         class UpdateReadReceiptError(val cause: CoreFailure) : Error
     }
 

@@ -606,6 +606,13 @@ sealed interface UIMessageContent {
 
         @Serializable
         data object NewConversationWithCellSelfDeleteDisabled : SystemMessage
+
+        @Serializable
+        data class ConversationAppsEnabledChanged(
+            val author: UIText,
+            val isAuthorSelfUser: Boolean = false,
+            val isAccessEnabled: Boolean
+        ) : SystemMessage
     }
 }
 

@@ -678,9 +678,7 @@
     <string name="profile_image_change_image_button_label">Kép megváltoztatása…</string>
     <!--Conversation-->
     <string name="label_message_details">Üzenet részletei</string>
-    <string name="label_copy">Másolás</string>
     <string name="label_share">Megosztás</string>
-    <string name="label_edit">Szerkesztés</string>
     <string name="label_delete">Törlés</string>
     <string name="info_message_copied">Üzenet másolva</string>
     <string name="conversation_banner_federated">szövetséges felhasználók</string>
@@ -1656,4 +1654,5 @@ Kérjük, próbálja meg újra.</string>
     <string name="custimization_options_header_title">Beállítások</string>
     <string name="cells_screen_title">Minden fájl</string>
     <string name="cells_screen_search_hint">Fájlok keresése</string>
+    <!-- Apps-->
 </resources>

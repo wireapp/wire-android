@@ -636,9 +636,7 @@ Uma mensagem excluída não pode ser restaurada.</string>
     <string name="profile_image_change_image_button_label">Mudar foto…</string>
     <!--Conversation-->
     <string name="label_message_details">Detalhes da mensagem</string>
-    <string name="label_copy">Copiar</string>
     <string name="label_share">Compartilhar</string>
-    <string name="label_edit">Editar</string>
     <string name="label_delete">Excluir</string>
     <string name="info_message_copied">Mensagem copiada</string>
     <string name="conversation_banner_federated">usuários federados</string>
@@ -1591,4 +1589,5 @@ registrado. Tente novamente.</string>
     <string name="channel_not_available_dialog_title">Canais estão disponíveis para os membros da equipe.</string>
     <string name="channel_not_available_dialog_description">Crie uma equipe e comece a colaborar gratuitamente!</string>
     <string name="channel_not_available_dialog_create_team_button">Criar Equipe Wire</string>
+    <!-- Apps-->
 </resources>

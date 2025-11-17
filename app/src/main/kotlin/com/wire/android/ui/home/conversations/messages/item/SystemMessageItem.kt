@@ -553,12 +553,18 @@ private fun SystemMessage.buildContent() = when (this) {
         val markdownTextStyle = DefaultMarkdownTextStyle.copy(normalColor = MaterialTheme.wireColorScheme.primary)
         val contentResId = when {
             isAccessEnabled -> {
-                if (isAuthorSelfUser) R.string.label_system_message_apps_access_enabled_by_self
-                else R.string.label_system_message_apps_access_enabled_by_other
+                if (isAuthorSelfUser) {
+                    R.string.label_system_message_apps_access_enabled_by_self
+                } else {
+                    R.string.label_system_message_apps_access_enabled_by_other
+                }
             }
             else -> {
-                if (isAuthorSelfUser) R.string.label_system_message_apps_access_disabled_by_self
-                else R.string.label_system_message_apps_access_disabled_by_other
+                if (isAuthorSelfUser) {
+                    R.string.label_system_message_apps_access_disabled_by_self
+                } else {
+                    R.string.label_system_message_apps_access_disabled_by_other
+                }
             }
         }
         val content = stringResource(id = contentResId, formatArgs = arrayOf(author.asString().markdownBold()))

@@ -17,6 +17,12 @@ jobs:
         if: github.actor == 'dependabot[bot]' || github.actor == 'AndroidBob'
         run: echo "PR created by Dependabot or AndroidBob, exiting successfully" && exit 0
 
+      - name: Get version name from source
+        id: version
+        run: |
+          VERSION=$(curl -s https://raw.githubusercontent.com/${{ github.repository }}/${{ github.head_ref || github.ref_name }}/build-logic/plugins/src/main/kotlin/AndroidCoordinates.kt | grep 'const val versionName' | sed -E 's/.*"([^"]+)".*/\1/')
+          echo "version_name=$VERSION" >> $GITHUB_OUTPUT
+
       - uses: mohamadjaara/jira-description-action@master
         name: jira-description-action
         with:
@@ -26,3 +32,5 @@ jobs:
           skip-branches: '^(production-release|main|master|release\/v\d+)$' #optional
           fail-when-jira-issue-not-found: true
           skip-ticket-title: true
+          compare-fix-version: ${{ steps.version.outputs.version_name }}
+          fix-version-regex: '(?:^|[\s\-_])(v?\d+\.\d+(?:\.\d+)?(?:[\-\+][\w\.\-]*)?)'

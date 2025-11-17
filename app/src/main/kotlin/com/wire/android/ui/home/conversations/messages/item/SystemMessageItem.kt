@@ -551,20 +551,23 @@ private fun SystemMessage.buildContent() = when (this) {
         iconTintColor = MaterialTheme.wireColorScheme.onBackground,
     ) {
         val markdownTextStyle = DefaultMarkdownTextStyle.copy(normalColor = MaterialTheme.wireColorScheme.primary)
-        val content = stringResource(
-            id = when {
-                isAuthorSelfUser -> R.string.label_system_message_apps_access_changed_by_self
-                else -> R.string.label_system_message_apps_access_changed_by_other
-            },
-            formatArgs = arrayOf(
-                author.asString().markdownBold(),
-                if (isAccessEnabled) {
-                    stringResource(R.string.label_system_message_apps_access_changed_enabled)
+        val contentResId = when {
+            isAccessEnabled -> {
+                if (isAuthorSelfUser) {
+                    R.string.label_system_message_apps_access_enabled_by_self
                 } else {
-                    stringResource(R.string.label_system_message_apps_access_changed_disabled)
+                    R.string.label_system_message_apps_access_enabled_by_other
                 }
-            )
-        )
+            }
+            else -> {
+                if (isAuthorSelfUser) {
+                    R.string.label_system_message_apps_access_disabled_by_self
+                } else {
+                    R.string.label_system_message_apps_access_disabled_by_other
+                }
+            }
+        }
+        val content = stringResource(id = contentResId, formatArgs = arrayOf(author.asString().markdownBold()))
         val footer = stringResource(R.string.label_system_message_apps_access_enabled_disclaimer)
         buildAnnotatedString {
             append(content.toMarkdownAnnotatedString())

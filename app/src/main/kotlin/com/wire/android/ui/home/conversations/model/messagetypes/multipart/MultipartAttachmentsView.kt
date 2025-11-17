@@ -68,11 +68,10 @@ fun MultipartAttachmentsView(
                 messageStyle = messageStyle,
                 accent = accent,
                 onClick = {
-                    if (it.mimeType.startsWith("image/")) {
-                        onImageAttachmentClick(it.uuid)
-                    } else {
-                        viewModel.onClick(it)
-                    }
+                    viewModel.onClick(
+                        attachment = it,
+                        openInImageViewer = onImageAttachmentClick,
+                    )
                 },
             )
         }
@@ -90,11 +89,10 @@ fun MultipartAttachmentsView(
                             attachments = group.attachments,
                             messageStyle = messageStyle,
                             onClick = {
-                                if (it.mimeType.startsWith("image/")) {
-                                    onImageAttachmentClick(it.uuid)
-                                } else {
-                                    viewModel.onClick(it)
-                                }
+                                viewModel.onClick(
+                                    attachment = it,
+                                    openInImageViewer = onImageAttachmentClick,
+                                )
                             },
                         )
 
@@ -102,7 +100,12 @@ fun MultipartAttachmentsView(
                         AttachmentsList(
                             attachments = group.attachments,
                             messageStyle = messageStyle,
-                            onClick = { viewModel.onClick(it) },
+                            onClick = {
+                                viewModel.onClick(
+                                    attachment = it,
+                                    openInImageViewer = onImageAttachmentClick,
+                                )
+                            },
                             accent = accent
                         )
                 }

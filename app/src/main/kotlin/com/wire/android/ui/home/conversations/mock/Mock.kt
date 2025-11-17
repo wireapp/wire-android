@@ -51,8 +51,8 @@ private const val MOCK_TIME_IN_SECONDS: Long = 1729837498
 val mockFooter = MessageFooter(
     "",
     mapOf(
-        "👍" to Reaction( 1, isSelf = false),
-        "👍" to Reaction( count = 2, isSelf = true)
+        "👍" to Reaction(1, isSelf = false),
+        "👍" to Reaction(count = 2, isSelf = true)
     )
 )
 

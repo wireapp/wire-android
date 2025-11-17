@@ -23,7 +23,7 @@ jobs:
           VERSION=$(curl -s https://raw.githubusercontent.com/${{ github.repository }}/${{ github.head_ref || github.ref_name }}/build-logic/plugins/src/main/kotlin/AndroidCoordinates.kt | grep 'const val versionName' | sed -E 's/.*"([^"]+)".*/\1/')
           echo "version_name=$VERSION" >> $GITHUB_OUTPUT
 
-      - uses: mohamadjaara/jira-description-action@master
+      - uses: mohamadjaara/jira-description-action@feat/option-to-fail-based-on-fix-version
         name: jira-description-action
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}

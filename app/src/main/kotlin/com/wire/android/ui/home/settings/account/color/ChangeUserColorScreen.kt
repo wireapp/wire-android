@@ -63,6 +63,7 @@ import com.wire.android.ui.home.conversations.mock.mockMessageWithText
 import com.wire.android.ui.home.conversations.mock.mockMessageWithTextContent
 import com.wire.android.ui.home.conversations.model.MessageFooter
 import com.wire.android.ui.home.conversations.model.MessageSource
+import com.wire.android.ui.home.conversations.model.Reaction
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.WireTheme
@@ -222,11 +223,10 @@ fun ChangeUserColorContent(
                                         ),
                                         messageFooter = MessageFooter(
                                             messageId = "messageId",
-                                            reactions = mapOf(
-                                                "👍" to 16,
-                                                "❤️" to 12,
+                                            reactionMap = mapOf(
+                                                "👍" to Reaction(16, isSelf = true),
+                                                "👎" to Reaction(16, isSelf = false),
                                             ),
-                                            ownReactions = setOf("👍"),
                                         ),
                                     ),
                                     conversationDetailsData = ConversationDetailsData.Group(null, QualifiedID("value", "domain")),

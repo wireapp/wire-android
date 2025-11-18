@@ -532,8 +532,6 @@
     <string name="conversation_details_options_tab">LEHETŐSÉGEK</string>
     <string name="conversation_details_participants_tab">RÉSZTVEVŐK</string>
     <string name="conversation_details_options_group_name">CSOPORT NEVE</string>
-    <string name="conversation_details_conversation_admins">A BESZÉLGETÉS ADMINJAI (%d)</string>
-    <string name="conversation_details_conversation_members">A BESZÉLGETÉS RÉSZTVEVŐI (%d)</string>
     <string name="conversation_details_participants_info">A beszélgetésnek %s résztvevője van.\nAkár 500 fő is csatlakozhat egy beszélgetéshez.</string>
     <string name="conversation_details_participants_count">%s résztvevő</string>
     <string name="conversation_details_show_all_participants">Mutassa az összes résztvevőt (%d)</string>

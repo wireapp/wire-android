@@ -60,7 +60,7 @@ screenshot = "0.0.1-alpha10"
 compose-edgetoedge-preview = "0.3.0" # update after changing target sdk to 35 and androidx-core to 1.15.0
 
 # Hilt
-hilt = "2.53"
+hilt = "2.55"
 hilt-composeNavigation = "1.2.0"
 hilt-work = "1.2.0"
 

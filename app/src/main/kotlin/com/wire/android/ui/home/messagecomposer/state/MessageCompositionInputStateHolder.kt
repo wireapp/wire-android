@@ -70,8 +70,11 @@ class MessageCompositionInputStateHolder(
             )
 
             is CompositionState.Editing -> InputType.Editing(
-                isEditButtonEnabled = messageTextState.text != state.originalMessageText &&
-                        messageTextState.text.isNotMarkdownBlank()
+                isEditButtonEnabled = when {
+                    messageTextState.text.isNotMarkdownBlank() && messageTextState.text != state.originalMessageText -> true
+                    !messageTextState.text.isNotMarkdownBlank() && state.allowEmptyText -> true
+                    else -> false
+                }
             )
         }
     }
@@ -104,8 +107,8 @@ class MessageCompositionInputStateHolder(
         optionsVisible = showOptions
     }
 
-    fun toEdit(editMessageText: String) {
-        compositionState = CompositionState.Editing(editMessageText)
+    fun toEdit(editMessageText: String, isMultipart: Boolean) {
+        compositionState = CompositionState.Editing(editMessageText, isMultipart)
         requestFocus()
     }
 
@@ -211,7 +214,7 @@ class MessageCompositionInputStateHolder(
 
 private sealed class CompositionState {
     data object Composing : CompositionState()
-    data class Editing(val originalMessageText: String) : CompositionState()
+    data class Editing(val originalMessageText: String, val allowEmptyText: Boolean) : CompositionState()
 }
 
 sealed class InputType {

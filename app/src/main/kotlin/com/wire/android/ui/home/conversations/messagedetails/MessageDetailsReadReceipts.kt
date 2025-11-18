@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.ui.common.preview.MultipleThemePreviews
+import com.wire.android.ui.home.conversations.details.participants.model.MemberSectionActions
 import com.wire.android.ui.home.conversations.details.participants.sectionWithElements
 import com.wire.android.ui.home.conversations.messagedetails.model.MessageDetailsReadReceiptsData
 import com.wire.android.ui.theme.WireTheme
@@ -58,7 +59,8 @@ fun MessageDetailsReadReceipts(
                     header = "",
                     items = readReceiptsData.readReceipts,
                     onRowItemClicked = { },
-                    showRightArrow = false
+                    showRightArrow = false,
+                    sectionActions = MemberSectionActions.NoActions
                 )
             }
         }

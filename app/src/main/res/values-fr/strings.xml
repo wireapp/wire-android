@@ -481,9 +481,7 @@
     <string name="profile_image_change_image_button_label">Changez votre image de profil…</string>
     <!--Conversation-->
     <string name="label_message_details">Détails du Message</string>
-    <string name="label_copy">Copier</string>
     <string name="label_share">Partager</string>
-    <string name="label_edit">Modifier</string>
     <string name="label_delete">Supprimer</string>
     <!-- System messages -->
     <string name="label_system_message_conversation_history_lost">Vous n’avez pas utilisé cet appareil pendant un certain temps. Il est possible que certains messages n\'apparaissent pas ici.</string>
@@ -549,4 +547,5 @@
     <!-- Move to Folder -->
     <!-- enterprise configurations -->
     <!--    channel not available dialog-->
+    <!-- Apps-->
 </resources>

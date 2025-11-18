@@ -128,4 +128,11 @@
     <string name="cells_folder_deleted_message">Folder was deleted</string>
     <string name="cells_file_permanently_deleted_message">File was permanently deleted</string>
     <string name="cells_folder_permanently_deleted_message">Folder was permanently deleted</string>
+    <string name="public_link_settings">Link settings</string>
+    <string name="label_on">ON</string>
+    <string name="label_off">OFF</string>
+    <string name="public_link_setting_password_title">Password secured</string>
+    <string name="public_link_setting_password_subtitle">Set password to restrict access</string>
+    <string name="public_link_setting_expiration_title">Expiration date</string>
+    <string name="public_link_setting_expiration_subtitle">Link expires on a selected date</string>
 </resources>

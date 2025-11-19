@@ -63,6 +63,7 @@ class SearchAppsViewModel @Inject constructor(
                 isAppsAllowedForUsage(),
                 searchQueryTextFlow.onStart { emit(String.EMPTY) }
             ) { selfUser, isEnabled, query ->
+                // todo: WPB-21835: ignoring feature flag, and based on protocol until there is finalized apps support.
                 Triple(selfUser, true, query)
             }.debounce(DEFAULT_SEARCH_QUERY_DEBOUNCE).collectLatest { (selfUser, isEnabled, query) ->
                 state = state.copy(isTeamAllowedToUseApps = isEnabled, isSelfATeamAdmin = selfUser.userType.isTeamAdmin())

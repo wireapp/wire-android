@@ -160,6 +160,7 @@ private fun rememberAppsContentState(
     derivedStateOf {
         when {
             isLoading -> AppsContentState.LOADING
+            // todo: WPB-21835: ignoring feature flag, and based on protocol until there is finalized apps support.
 //            !isTeamAllowedToUseApps -> AppsContentState.TEAM_NOT_ALLOWED
 //            !isConversationAppsEnabled -> AppsContentState.APPS_NOT_ENABLED_FOR_CONVERSATION
             searchQuery.isBlank() && result.isEmpty() -> AppsContentState.EMPTY_SEARCH

@@ -87,6 +87,7 @@ class LogFileWriterV2Impl(
             return
         }
         ensureLogDirectoryAndFileExistence()
+        cleanupOrphanedTempFiles()
         val waitInitializationJob = Job()
 
         writingJob = fileWriterCoroutineScope.launch {
@@ -102,7 +103,16 @@ class LogFileWriterV2Impl(
                 bufferMutex.withLock {
                     flushBuffer()
                 }
-                launch { compressAsync() }
+                // Copy the file to a temp location with timestamped name, then compress the copy asynchronously
+                val compressedFileName = compressedFileName()
+                val tempFile = copyActiveLogFileToTemp(compressedFileName)
+                launch {
+                    try {
+                        compressFileAsync(tempFile, compressedFileName)
+                    } finally {
+                        tempFile.delete()
+                    }
+                }
                 clearActiveLoggingFileContent()
                 deleteOldCompressedFiles()
             }
@@ -122,7 +132,7 @@ class LogFileWriterV2Impl(
                         }
                     }
                 } catch (e: TimeoutCancellationException) {
-                    appLogger.w("Periodic flush timed out, buffer may be locked by another operation")
+                    appLogger.w("Periodic flush timed out, buffer may be locked by another operation", e)
                 } catch (e: Exception) {
                     appLogger.e("Error during periodic flush", e)
                 }
@@ -313,7 +323,9 @@ class LogFileWriterV2Impl(
         }?.forEach { it.delete() }
     }
 
-    private fun getCompressedFilesList() = (logsDirectory.listFiles() ?: emptyArray()).filter { it != activeLoggingFile }
+    private fun getCompressedFilesList() = (logsDirectory.listFiles() ?: emptyArray()).filter {
+        it != activeLoggingFile && !it.name.endsWith(".tmp")
+    }
 
     private fun compressedFileName(): String {
         val currentDate = logFileTimeFormat.format(Date())
@@ -327,19 +339,54 @@ class LogFileWriterV2Impl(
             it.delete()
         }
 
-    private suspend fun compressAsync() = withContext(Dispatchers.IO) {
+    private fun cleanupOrphanedTempFiles() {
         try {
-            val compressedFile = File(logsDirectory, compressedFileName())
+            logsDirectory.listFiles()?.filter { it.name.endsWith(".tmp") }?.forEach { tempFile ->
+                appLogger.i("Found orphaned temp file: ${tempFile.name}, attempting to compress before cleanup")
+                try {
+                    // Try to salvage the data by compressing it
+                    // The temp file already has the timestamped name, just remove .tmp extension
+                    val compressedFileName = tempFile.name.removeSuffix(".tmp")
+                    val compressedFile = File(logsDirectory, compressedFileName)
+                    GZIPOutputStream(compressedFile.outputStream().buffered()).use { gzipOut ->
+                        tempFile.inputStream().buffered().use { input ->
+                            input.copyTo(gzipOut, config.bufferSizeBytes)
+                        }
+                    }
+                    appLogger.i("Successfully salvaged orphaned temp file: ${tempFile.name} -> ${compressedFile.name}")
+                } catch (e: Exception) {
+                    appLogger.w("Failed to compress orphaned temp file: ${tempFile.name}, will delete it", e)
+                } finally {
+                    // Always delete the temp file after attempting compression
+                    tempFile.delete()
+                }
+            }
+        } catch (e: Exception) {
+            appLogger.e("Error cleaning up orphaned temp files", e)
+        }
+    }
+
+    private fun copyActiveLogFileToTemp(compressedFileName: String): File {
+        // Temp file has the same name as final compressed file, but with .tmp extension
+        val tempFile = File(logsDirectory, "$compressedFileName.tmp")
+        activeLoggingFile.copyTo(tempFile, overwrite = true)
+        return tempFile
+    }
+
+    private suspend fun compressFileAsync(sourceFile: File, compressedFileName: String) = withContext(Dispatchers.IO) {
+        try {
+            // Just remove .tmp extension from temp file name to get final compressed filename
+            val compressedFile = File(logsDirectory, compressedFileName)
 
             GZIPOutputStream(compressedFile.outputStream().buffered()).use { gzipOut ->
-                activeLoggingFile.inputStream().buffered().use { input ->
+                sourceFile.inputStream().buffered().use { input ->
                     input.copyTo(gzipOut, config.bufferSizeBytes)
                 }
             }
 
-            appLogger.i("Log file compressed: ${activeLoggingFile.name} -> ${compressedFile.name}")
+            appLogger.i("Log file compressed: ${sourceFile.name} -> ${compressedFile.name}")
         } catch (e: Exception) {
-            appLogger.e("Failed to compress log file: ${activeLoggingFile.name}", e)
+            appLogger.e("Failed to compress log file: ${sourceFile.name}", e)
         }
     }
 

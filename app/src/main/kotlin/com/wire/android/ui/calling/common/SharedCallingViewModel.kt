@@ -338,7 +338,7 @@ class SharedCallingViewModel @AssistedInject constructor(
     private fun recentInCallReactionMap(): MutableMap<UserId, String> =
         ExpiringMap<UserId, String>(
             scope = viewModelScope,
-            expiration = InCallReactions.recentReactionShowDurationMs,
+            expirationMs = InCallReactions.recentReactionShowDurationMs,
             delegate = mutableStateMapOf<UserId, String>()
         )
 

@@ -63,7 +63,7 @@ class SearchAppsViewModel @Inject constructor(
                 isAppsAllowedForUsage(),
                 searchQueryTextFlow.onStart { emit(String.EMPTY) }
             ) { selfUser, isEnabled, query ->
-                Triple(selfUser, isEnabled, query)
+                Triple(selfUser, true, query)
             }.debounce(DEFAULT_SEARCH_QUERY_DEBOUNCE).collectLatest { (selfUser, isEnabled, query) ->
                 state = state.copy(isTeamAllowedToUseApps = isEnabled, isSelfATeamAdmin = selfUser.userType.isTeamAdmin())
                 if (isEnabled) {

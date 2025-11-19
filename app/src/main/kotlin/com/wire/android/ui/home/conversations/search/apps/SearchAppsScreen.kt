@@ -160,9 +160,9 @@ private fun rememberAppsContentState(
     derivedStateOf {
         when {
             isLoading -> AppsContentState.LOADING
-            !isTeamAllowedToUseApps -> AppsContentState.TEAM_NOT_ALLOWED
-            !isConversationAppsEnabled -> AppsContentState.APPS_NOT_ENABLED_FOR_CONVERSATION
-            searchQuery.isBlank() && result.isEmpty() -> AppsContentState.EMPTY_INITIAL
+//            !isTeamAllowedToUseApps -> AppsContentState.TEAM_NOT_ALLOWED
+//            !isConversationAppsEnabled -> AppsContentState.APPS_NOT_ENABLED_FOR_CONVERSATION
+            searchQuery.isBlank() && result.isEmpty() -> AppsContentState.EMPTY_SEARCH
             searchQuery.isNotBlank() && result.isEmpty() -> AppsContentState.EMPTY_SEARCH
             else -> AppsContentState.SHOW_RESULTS
         }

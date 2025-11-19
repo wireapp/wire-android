@@ -82,7 +82,6 @@ class NewConversationViewModel @Inject constructor(
     var groupOptionsState: GroupOptionState by mutableStateOf(GroupOptionState())
     var isChannelCreationPossible: Boolean by mutableStateOf(true)
     var isFreemiumAccount: Boolean by mutableStateOf(false) // TODO: implement logic to determine if the account is freemium
-
     var createGroupState: CreateGroupState by mutableStateOf(CreateGroupState.Default)
 
     init {
@@ -96,9 +95,10 @@ class NewConversationViewModel @Inject constructor(
         viewModelScope.launch {
             observeIsAppsAllowedForUsage()
                 .collectLatest { appsAllowed ->
+                    val isMLS = newGroupState.groupProtocol == CreateConversationParam.Protocol.MLS
                     groupOptionsState = groupOptionsState.copy(
-                        isTeamAllowedToUseApps = appsAllowed,
-                        isAllowAppsEnabled = appsAllowed
+                        isTeamAllowedToUseApps = !isMLS,
+                        isAllowAppsEnabled = !isMLS
                     )
                 }
         }

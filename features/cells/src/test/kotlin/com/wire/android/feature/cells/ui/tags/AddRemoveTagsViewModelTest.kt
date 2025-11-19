@@ -315,5 +315,6 @@ class AddRemoveTagsViewModelTest {
                 removeNodeTagsUseCase = removeNodeTagsUseCase,
             )
             return this to viewModel
-        }    }
+        }
+    }
 }

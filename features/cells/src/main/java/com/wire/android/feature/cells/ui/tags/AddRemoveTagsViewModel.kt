@@ -70,7 +70,7 @@ class AddRemoveTagsViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             allTags = getAllTagsUseCase().getOrElse { emptySet() }
-            updateSuggestions("")   // initial state
+            updateSuggestions("") // initial state
         }
 
         viewModelScope.launch {

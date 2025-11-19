@@ -52,16 +52,30 @@ class ObserveParticipantsForConversationUseCase @Inject constructor(
                 memberDetailList.sortedBy { it.name }.groupBy {
                     val isAdmin = it.role == Member.Role.Admin
                     val isService = (it.user as? OtherUser)?.userType?.isAppOrBot() == true
-                    isAdmin && !isService
+                    when {
+                        isService -> {
+                            MemberSectionType.APP
+                        }
+
+                        isAdmin && !isService -> {
+                            MemberSectionType.ADMIN
+                        }
+
+                        else -> {
+                            MemberSectionType.PARTICIPANT
+                        }
+                    }
                 }
             }
             .scan(
                 ConversationParticipantsData() to emptyMap<UserId, Boolean>()
             ) { (_, previousMlsVerificationMap), sortedMemberList ->
-                val allAdminsWithoutServices = sortedMemberList.getOrDefault(true, listOf())
+                val allAdminsWithoutServices = sortedMemberList.getOrDefault(MemberSectionType.ADMIN, listOf())
                 val visibleAdminsWithoutServices = allAdminsWithoutServices.limit(limit)
-                val allParticipants = sortedMemberList.getOrDefault(false, listOf())
+                val allParticipants = sortedMemberList.getOrDefault(MemberSectionType.PARTICIPANT, listOf())
                 val visibleParticipants = allParticipants.limit(limit)
+                val allApps = sortedMemberList.getOrDefault(MemberSectionType.APP, listOf())
+                val visibleApps = allApps.limit(limit)
 
                 val visibleUserIds = visibleParticipants.map { it.userId }
                     .plus(visibleAdminsWithoutServices.map { it.userId })
@@ -76,15 +90,17 @@ class ObserveParticipantsForConversationUseCase @Inject constructor(
                     }
                 )
 
-                val selfUser = (allParticipants + allAdminsWithoutServices).firstOrNull { it.user is SelfUser }
+                val selfUser = (allParticipants + allAdminsWithoutServices + allApps).firstOrNull { it.user is SelfUser }
 
                 ConversationParticipantsData(
                     admins = visibleAdminsWithoutServices
                         .map { uiParticipantMapper.toUIParticipant(it.user, mlsVerificationMap[it.user.id] ?: false) },
                     participants = visibleParticipants
                         .map { uiParticipantMapper.toUIParticipant(it.user, mlsVerificationMap[it.user.id] ?: false) },
+                    apps = visibleApps.map { uiParticipantMapper.toUIParticipant(it.user, mlsVerificationMap[it.user.id] ?: false) },
                     allAdminsCount = allAdminsWithoutServices.size,
                     allParticipantsCount = allParticipants.size,
+                    allAppsCount = allApps.size,
                     isSelfAnAdmin = allAdminsWithoutServices.any { it.user is SelfUser },
                     isSelfExternalMember = selfUser?.user?.userType?.isExternal() == true,
                     isSelfGuest = selfUser?.user?.userType?.isGuest() == true,
@@ -98,5 +114,11 @@ class ObserveParticipantsForConversationUseCase @Inject constructor(
         limit > 0 -> this.take(limit)
         limit == 0 -> listOf()
         else -> this
+    }
+
+    enum class MemberSectionType {
+        ADMIN,
+        PARTICIPANT,
+        APP
     }
 }

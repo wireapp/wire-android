@@ -28,7 +28,7 @@ import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.destinations.NewGroupNameScreenDestination
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.home.conversations.search.SearchPeopleScreenType
-import com.wire.android.ui.home.conversations.search.SearchUsersAndServicesScreen
+import com.wire.android.ui.home.conversations.search.SearchUsersAndAppsScreen
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
 import com.wire.android.ui.home.newconversation.common.NewConversationNavGraph
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -55,7 +55,7 @@ fun NewGroupConversationSearchPeopleScreen(
     } else {
         stringResource(id = R.string.label_new_group)
     }
-    SearchUsersAndServicesScreen(
+    SearchUsersAndAppsScreen(
         searchTitle = screenTitle,
         onOpenUserProfile = { contact ->
             OtherUserProfileScreenDestination(QualifiedID(contact.id, contact.domain))
@@ -67,9 +67,9 @@ fun NewGroupConversationSearchPeopleScreen(
         onContinue = { navigator.navigate(NavigationCommand(NewGroupNameScreenDestination)) },
         isGroupSubmitVisible = newConversationViewModel.newGroupState.isGroupCreatingAllowed == true,
         onClose = onBackClicked,
-        onServiceClicked = { },
         screenType = SearchPeopleScreenType.NEW_GROUP_CONVERSATION,
         selectedContacts = newConversationViewModel.newGroupState.selectedUsers,
-        isAppDiscoveryAllowed = false
+        onAppClicked = { },
+        isAppsTabVisible = false
     )
 }

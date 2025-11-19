@@ -57,6 +57,7 @@ import com.wire.android.ui.common.search.rememberSearchbarState
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
+import com.wire.android.ui.home.conversations.search.apps.SearchAppsScreen
 import com.wire.android.ui.home.newconversation.common.ContinueButton
 import com.wire.android.ui.home.newconversation.common.CreateRegularGroupOrChannelButtons
 import com.wire.android.ui.home.newconversation.model.Contact
@@ -68,28 +69,29 @@ import kotlinx.coroutines.launch
 @Suppress("ComplexMethod")
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun SearchUsersAndServicesScreen(
+fun SearchUsersAndAppsScreen(
     searchTitle: String,
     selectedContacts: ImmutableSet<Contact>,
     onContactChecked: (Boolean, Contact) -> Unit,
     onOpenUserProfile: (Contact) -> Unit,
-    onServiceClicked: (Contact) -> Unit,
+    onAppClicked: (Contact) -> Unit,
     onClose: () -> Unit,
     screenType: SearchPeopleScreenType,
     shouldShowChannelPromotion: Boolean,
     isUserAllowedToCreateChannels: Boolean,
     modifier: Modifier = Modifier,
     isGroupSubmitVisible: Boolean = true,
-    isAppDiscoveryAllowed: Boolean = false,
+    isAppsTabVisible: Boolean = false,
+    isConversationAppsEnabled: Boolean = true,
     initialPage: SearchPeopleTabItem = SearchPeopleTabItem.PEOPLE,
     onContinue: () -> Unit = {},
     onCreateNewGroup: () -> Unit = {},
-    onCreateNewChannel: () -> Unit = {}
+    onCreateNewChannel: () -> Unit = {},
 ) {
     val searchBarState = rememberSearchbarState()
     val scope = rememberCoroutineScope()
-    val tabs = remember(isAppDiscoveryAllowed) {
-        if (isAppDiscoveryAllowed) SearchPeopleTabItem.entries else listOf(SearchPeopleTabItem.PEOPLE)
+    val tabs = remember(isAppsTabVisible) {
+        if (isAppsTabVisible) SearchPeopleTabItem.entries else listOf(SearchPeopleTabItem.PEOPLE)
     }
     val pagerState = rememberPagerState(
         initialPage = tabs.indexOf(initialPage),
@@ -104,7 +106,7 @@ fun SearchUsersAndServicesScreen(
         rememberLazyListState()
     }
 
-    val searchBarTitle = if (isAppDiscoveryAllowed) {
+    val searchBarTitle = if (isAppsTabVisible) {
         stringResource(R.string.label_search_people_or_apps)
     } else {
         stringResource(R.string.label_search_people)
@@ -147,7 +149,7 @@ fun SearchUsersAndServicesScreen(
             )
         },
         topBarFooter = {
-            if (isAppDiscoveryAllowed) {
+            if (isAppsTabVisible) {
                 WireTabRow(
                     tabs = SearchPeopleTabItem.entries,
                     selectedTabIndex = currentTabState,
@@ -184,10 +186,11 @@ fun SearchUsersAndServicesScreen(
                         }
 
                         SearchPeopleTabItem.SERVICES -> {
-                            SearchAllServicesScreen(
+                            SearchAppsScreen(
                                 searchQuery = searchBarState.searchQueryTextState.text.toString(),
-                                onServiceClicked = onServiceClicked,
+                                onServiceClicked = onAppClicked,
                                 lazyListState = lazyListStates[pageIndex],
+                                isConversationAppsEnabled = isConversationAppsEnabled,
                             )
                         }
                     }

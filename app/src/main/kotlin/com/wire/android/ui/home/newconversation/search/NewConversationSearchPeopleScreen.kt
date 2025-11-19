@@ -30,7 +30,7 @@ import com.wire.android.ui.NavGraphs
 import com.wire.android.ui.destinations.NewGroupConversationSearchPeopleScreenDestination
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.home.conversations.search.SearchPeopleScreenType
-import com.wire.android.ui.home.conversations.search.SearchUsersAndServicesScreen
+import com.wire.android.ui.home.conversations.search.SearchUsersAndAppsScreen
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
 import com.wire.android.ui.home.newconversation.common.NewConversationNavGraph
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -47,7 +47,7 @@ fun NewConversationSearchPeopleScreen(
     val isSelfTeamMember = newConversationViewModel.newGroupState.isSelfTeamMember ?: false
     val shouldShowChannelPromotion = !isSelfTeamMember
     val showCreateTeamDialog = remember { mutableStateOf(false) }
-    SearchUsersAndServicesScreen(
+    SearchUsersAndAppsScreen(
         searchTitle = stringResource(id = R.string.label_new_conversation),
         shouldShowChannelPromotion = shouldShowChannelPromotion,
         isUserAllowedToCreateChannels = newConversationViewModel.isChannelCreationPossible,
@@ -70,10 +70,10 @@ fun NewConversationSearchPeopleScreen(
         },
         isGroupSubmitVisible = newConversationViewModel.newGroupState.isGroupCreatingAllowed == true,
         onClose = navigator::navigateBack,
-        onServiceClicked = { },
         screenType = SearchPeopleScreenType.NEW_CONVERSATION,
         selectedContacts = newConversationViewModel.newGroupState.selectedUsers,
-        isAppDiscoveryAllowed = newConversationViewModel.groupOptionsState.isTeamAllowedToUseApps
+        isAppsTabVisible = false,
+        onAppClicked = { }
     )
 
     if (showCreateTeamDialog.value) {

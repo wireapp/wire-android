@@ -121,7 +121,7 @@
     <string name="no_tags_message">No tags were added yet.</string>
     <string name="tags_edited">Tags were edited</string>
     <string name="failed_edit_tags">Unable to add or remove tags</string>
-    <string name="create_folder_invalid_name">Use a name without "/" or "."</string>
+    <string name="create_folder_invalid_name">Use a name without "/"</string>
     <string name="file_list_empty_title">There are no files or folders yet</string>
     <string name="no_results_found_label">No results found</string>
     <string name="filters_try_adjusting_your_filters_label">Try adjusting your filters.</string>

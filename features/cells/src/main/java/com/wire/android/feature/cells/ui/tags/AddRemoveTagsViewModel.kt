@@ -19,6 +19,9 @@ package com.wire.android.feature.cells.ui.tags
 
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.clearText
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
@@ -27,16 +30,13 @@ import com.wire.android.ui.common.ActionsViewModel
 import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
 import com.wire.kalium.cells.domain.usecase.RemoveNodeTagsUseCase
 import com.wire.kalium.cells.domain.usecase.UpdateNodeTagsUseCase
+import com.wire.kalium.common.functional.getOrElse
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -55,33 +55,43 @@ class AddRemoveTagsViewModel @Inject constructor(
 
     val tagsTextState = TextFieldState()
 
-    private val allTags: MutableStateFlow<Set<String>> = MutableStateFlow(emptySet())
-
     val initialTags: Set<String> = navArgs.tags.toSet()
-    private val _addedTags: MutableStateFlow<Set<String>> = MutableStateFlow(navArgs.tags.toSet())
-    internal val addedTags = _addedTags.asStateFlow()
 
     val disallowedChars = listOf(",", ";", "/", "\\", "\"", "\'", "<", ">")
 
-    private val tagQuery = MutableStateFlow("")
+    var allTags: Set<String> = emptySet()
+        private set
 
-    internal val suggestedTags = combine(allTags, addedTags, tagQuery) { all, added, query ->
-        val filtered = if (query.isBlank()) all else all.filter { it.contains(query, ignoreCase = true) }
-        filtered.filter { it !in added }.toSet()
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptySet())
+    val addedTags: MutableStateFlow<Set<String>> = MutableStateFlow(navArgs.tags.toSet())
+
+    var suggestedTags by mutableStateOf<Set<String>>(emptySet())
+        private set
 
     init {
         viewModelScope.launch {
-            snapshotFlow { tagsTextState.text.toString() }
-                .debounce(TYPING_DEBOUNCE_TIME)
-                .collectLatest { tagQuery.value = it }
+            allTags = getAllTagsUseCase().getOrElse { emptySet() }
+            updateSuggestions("")   // initial state
         }
 
         viewModelScope.launch {
-            getAllTagsUseCase().onSuccess { tags ->
-                allTags.update { tags }
-            }
+            snapshotFlow { tagsTextState.text.toString() }
+                .debounce(TYPING_DEBOUNCE_TIME)
+                .collectLatest {
+                    onQueryChanged(it)
+                }
         }
+    }
+
+    fun onQueryChanged(query: String) {
+        updateSuggestions(query)
+    }
+
+    private fun updateSuggestions(query: String) {
+        suggestedTags = allTags
+            .asSequence()
+            .filter { query.isBlank() || it.contains(query, ignoreCase = true) }
+            .filter { it !in addedTags.value }
+            .toSet()
     }
 
     fun isValidTag(): Boolean = disallowedChars.none {
@@ -90,19 +100,21 @@ class AddRemoveTagsViewModel @Inject constructor(
 
     fun addTag(tag: String) {
         tag.trim().let { newTag ->
-            if (newTag.isNotBlank() && newTag !in _addedTags.value) {
-                _addedTags.update { it + newTag }
+            if (newTag.isNotBlank() && newTag !in addedTags.value) {
+                addedTags.update { it + newTag }
+                updateSuggestions("")
                 tagsTextState.clearText()
             }
         }
     }
 
     fun removeTag(tag: String) {
-        _addedTags.update { it - tag }
+        addedTags.update { it - tag }
+        updateSuggestions("")
     }
 
     fun removeLastTag() {
-        _addedTags.value.lastOrNull()?.let { lastTag ->
+        addedTags.value.lastOrNull()?.let { lastTag ->
             removeTag(lastTag)
         }
     }
@@ -110,10 +122,10 @@ class AddRemoveTagsViewModel @Inject constructor(
     fun updateTags() {
         viewModelScope.launch {
             isLoading.value = true
-            val result = if (_addedTags.value.isEmpty()) {
+            val result = if (addedTags.value.isEmpty()) {
                 removeNodeTagsUseCase(navArgs.uuid)
             } else {
-                updateNodeTagsUseCase(navArgs.uuid, _addedTags.value)
+                updateNodeTagsUseCase(navArgs.uuid, addedTags.value)
             }
 
             result

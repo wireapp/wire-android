@@ -75,10 +75,11 @@ fun SystemMessageItem(
     message: UIMessage.System,
     modifier: Modifier = Modifier,
     initiallyExpanded: Boolean = false,
+    isWireCellsEnabled: Boolean = false,
     failureInteractionAvailable: Boolean = true,
     onFailedMessageRetryClicked: (String, ConversationId) -> Unit = { _, _ -> },
     onFailedMessageCancelClicked: (String) -> Unit = {},
-) = with(message.messageContent.buildContent()) {
+) = with(message.messageContent.buildContent(isWireCellsEnabled)) {
     val textStyle = MaterialTheme.wireTypography.body01
     val lineHeightDp: Dp = with(LocalDensity.current) { textStyle.lineHeight.toDp() }
     MessageItemTemplate(
@@ -148,7 +149,7 @@ fun SystemMessageItem(
 
 @Suppress("LongParameterList", "SpreadOperator", "ComplexMethod", "LongMethod")
 @Composable
-private fun SystemMessage.buildContent() = when (this) {
+private fun SystemMessage.buildContent(isWireCellsEnabled: Boolean) = when (this) {
     is SystemMessage.MemberAdded -> buildContent(
         iconResId = R.drawable.ic_add,
         iconTintColor = MaterialTheme.wireColorScheme.onBackground,
@@ -514,8 +515,16 @@ private fun SystemMessage.buildContent() = when (this) {
             normalColor = MaterialTheme.wireColorScheme.onSurface,
             boldColor = MaterialTheme.wireColorScheme.onPositiveVariant
         )
-        val header = stringResource(R.string.label_system_message_conversation_started_sensitive_information_header)
-        val message = stringResource(R.string.label_system_message_conversation_started_sensitive_information_message)
+        val header = if (isWireCellsEnabled) {
+            stringResource(R.string.label_system_message_conversation_started_sensitive_information_header_with_cells_on)
+        } else {
+            stringResource(R.string.label_system_message_conversation_started_sensitive_information_header)
+        }
+        val message = if (isWireCellsEnabled) {
+            stringResource(R.string.label_system_message_conversation_started_sensitive_information_message_with_cells_on)
+        } else {
+            stringResource(R.string.label_system_message_conversation_started_sensitive_information_message)
+        }
         val footer = stringResource(R.string.label_system_message_conversation_started_sensitive_information_footer)
         buildAnnotatedString {
             append(header.toMarkdownAnnotatedString(markdownTextStyle))
@@ -544,6 +553,38 @@ private fun SystemMessage.buildContent() = when (this) {
         stringResource(
             id = R.string.label_system_message_cell_self_delete_disabled_for_conversation,
         ).toMarkdownAnnotatedString()
+    }
+
+    is SystemMessage.ConversationAppsEnabledChanged -> buildContent(
+        iconResId = R.drawable.ic_app,
+        iconTintColor = MaterialTheme.wireColorScheme.onBackground,
+    ) {
+        val markdownTextStyle = DefaultMarkdownTextStyle.copy(normalColor = MaterialTheme.wireColorScheme.primary)
+        val contentResId = when {
+            isAccessEnabled -> {
+                if (isAuthorSelfUser) {
+                    R.string.label_system_message_apps_access_enabled_by_self
+                } else {
+                    R.string.label_system_message_apps_access_enabled_by_other
+                }
+            }
+            else -> {
+                if (isAuthorSelfUser) {
+                    R.string.label_system_message_apps_access_disabled_by_self
+                } else {
+                    R.string.label_system_message_apps_access_disabled_by_other
+                }
+            }
+        }
+        val content = stringResource(id = contentResId, formatArgs = arrayOf(author.asString().markdownBold()))
+        val footer = stringResource(R.string.label_system_message_apps_access_enabled_disclaimer)
+        buildAnnotatedString {
+            append(content.toMarkdownAnnotatedString())
+            if (isAccessEnabled) {
+                appendLine()
+                append(footer.toMarkdownAnnotatedString(markdownTextStyle))
+            }
+        }
     }
 }
 

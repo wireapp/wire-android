@@ -414,9 +414,7 @@
     <string name="profile_image_change_image_button_label">Promijeni sliku…</string>
     <!--Conversation-->
     <string name="label_message_details">Detalji o poruci</string>
-    <string name="label_copy">Kopiraj</string>
     <string name="label_share">Podijeli</string>
-    <string name="label_edit">Uredi</string>
     <string name="label_delete">Izbriši</string>
     <string name="info_message_copied">Poruka kopirana</string>
     <!-- System messages -->
@@ -561,4 +559,5 @@
     <!-- Move to Folder -->
     <!-- enterprise configurations -->
     <!--    channel not available dialog-->
+    <!-- Apps-->
 </resources>

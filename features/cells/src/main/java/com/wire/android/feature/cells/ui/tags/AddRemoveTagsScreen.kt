@@ -94,17 +94,17 @@ fun AddRemoveTagsScreen(
         },
         bottomBar = {
             val isLoading = addRemoveTagsViewModel.isLoading.collectAsState().value
-            val tags = addRemoveTagsViewModel.suggestedTags.collectAsState()
+            val tags = addRemoveTagsViewModel.suggestedTags
             Column(
                 modifier = Modifier.background(colorsScheme().background)
             ) {
-                if (tags.value.isNotEmpty()) {
+                if (tags.isNotEmpty()) {
                     LazyRow(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(start = dimensions().spacing16x, end = dimensions().spacing16x)
                     ) {
-                        tags.value.forEach { tag ->
+                        tags.forEach { tag ->
                             item {
                                 WireFilterChip(
                                     modifier = Modifier.padding(

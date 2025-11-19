@@ -63,7 +63,7 @@ class ImportMediaAuthenticatedViewModelTest {
                     fromArchive = false,
                     newActivitiesOnTop = false,
                     onlyInteractionEnabled = true,
-                    useStrictMlsFilter = true
+                    useStrictMlsFilter = false,
                 )
             }
             cancelAndIgnoreRemainingEvents()

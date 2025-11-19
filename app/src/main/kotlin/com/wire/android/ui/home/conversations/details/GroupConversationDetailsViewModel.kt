@@ -36,7 +36,6 @@ import com.wire.kalium.common.functional.getOrNull
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.type.isExternal
 import com.wire.kalium.logic.data.user.type.isTeamAdmin
 import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
@@ -46,7 +45,6 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationReceiptModeU
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.team.GetUpdatedSelfTeamUseCase
-import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -78,7 +76,6 @@ class GroupConversationDetailsViewModel @Inject constructor(
     private val isMLSEnabled: IsMLSEnabledUseCase,
     refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase,
     private val isWireCellsEnabled: IsWireCellsEnabledUseCase,
-    private val getDefaultProtocol: GetDefaultProtocolUseCase,
 ) : GroupConversationParticipantsViewModel(savedStateHandle, observeConversationMembers, refreshUsersWithoutMetadata),
     ActionsManager<GroupConversationDetailsViewAction> by ActionsManagerImpl() {
 
@@ -128,9 +125,9 @@ class GroupConversationDetailsViewModel @Inject constructor(
                 val canSelfPerformAdminTasks = (isRegularGroupAdmin) || (canPerformChannelAdminTasks)
                 val channelPermissionType = groupDetails.getChannelPermissionType()
                 val channelAccessType = groupDetails.getChannelAccessType()
-                val isMLSConversation = groupDetails.conversation.protocol is Conversation.ProtocolInfo.MLS
-                val isMLSTeam = getDefaultProtocol() == SupportedProtocol.MLS
 
+                // todo: WPB-21835: ignoring apps conditions flag, now based solely on protocol until there is finalized apps support.
+                val isMLSConversation = groupDetails.conversation.protocol is Conversation.ProtocolInfo.MLS
                 _isFetchingInitialData.value = false
 
                 updateState(

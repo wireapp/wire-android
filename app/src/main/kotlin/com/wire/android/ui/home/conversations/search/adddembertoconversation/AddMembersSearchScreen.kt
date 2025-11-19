@@ -61,7 +61,9 @@ fun AddMembersSearchScreen(
         },
         screenType = SearchPeopleScreenType.CONVERSATION_DETAILS,
         selectedContacts = addMembersToConversationViewModel.newGroupState.selectedContacts,
-        isAppsTabVisible = navArgs.isSelfPartOfATeam,
+        // todo: WPB-21835: ignoring apps conditions flag, now based solely on protocol until there is finalized apps support.
+        // // isSelfPartOfATeam should be consider then.
+        isAppsTabVisible = navArgs.isConversationAppsEnabled,
         isUserAllowedToCreateChannels = false,
         shouldShowChannelPromotion = false,
         isConversationAppsEnabled = navArgs.isConversationAppsEnabled,

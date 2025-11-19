@@ -96,6 +96,7 @@ class NewConversationViewModel @Inject constructor(
         viewModelScope.launch {
             observeIsAppsAllowedForUsage()
                 .collectLatest { appsAllowed ->
+                    // todo: WPB-21835: ignoring feature flag, and based on protocol until there is finalized apps support.
                     val isMLS = newGroupState.groupProtocol == CreateConversationParam.Protocol.MLS
                     groupOptionsState = groupOptionsState.copy(
                         isTeamAllowedToUseApps = !isMLS,

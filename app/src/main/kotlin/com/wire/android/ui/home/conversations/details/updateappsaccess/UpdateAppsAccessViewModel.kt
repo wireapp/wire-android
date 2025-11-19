@@ -25,6 +25,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.ui.navArgs
+import com.wire.android.util.debug.FeatureVisibilityFlags
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
@@ -106,18 +107,52 @@ class UpdateAppsAccessViewModel @Inject constructor(
                     (conversationDetails is ConversationDetails.Group.Channel && isTeamAdmin && isSelfInConversationTeam)
                 val canSelfPerformAdminActions = isSelfAnAdmin || isSelfChannelTeamAdmin
 
-                // todo: WPB-21835: ignoring apps conditions flag, now based solely on protocol until there is finalized apps support.
-                // isTeamAllowedToUseApps should be consider then with smarter logic to involve bots and apps.
+                // WPB-21835: Apps availability logic controlled by feature flag
                 val isMLSConversation = conversationDetails.conversation.protocol is Conversation.ProtocolInfo.MLS
+                val isAppAccessAllowed = computeAppsEnabledStatus(conversationDetails, isMLSConversation, isTeamAllowedToUseApps)
+                val isUpdatingAppAccessAllowed =
+                    computeAppsAllowedStatus(canSelfPerformAdminActions, isMLSConversation, isTeamAllowedToUseApps)
 
                 updateAppsAccessState = updateAppsAccessState.copy(
-                    isAppAccessAllowed = conversationDetails.conversation.isServicesAllowed() && !isMLSConversation,
-                    isUpdatingAppAccessAllowed = canSelfPerformAdminActions && !isMLSConversation,
+                    isAppAccessAllowed = isAppAccessAllowed,
+                    isUpdatingAppAccessAllowed = isUpdatingAppAccessAllowed,
                     isLoadingAppsOption = false,
                     shouldShowDisableAppsConfirmationDialog = false
                 )
             }
         }
+    }
+
+    /**
+     * Determine apps visibility based on feature flag and team settings
+     * Or just should be protocol based in case of current logic
+     */
+    private fun computeAppsEnabledStatus(
+        conversationDetails: ConversationDetails,
+        isMLSConversation: Boolean,
+        isTeamAllowedToUseApps: Boolean
+    ) = if (FeatureVisibilityFlags.AppsBasedOnProtocol) {
+        // New logic: based on protocol (apps disabled for MLS)o
+        conversationDetails.conversation.isServicesAllowed() && !isMLSConversation
+    } else {
+        // Old logic: based on team settings and feature flags
+        conversationDetails.conversation.isServicesAllowed() && isTeamAllowedToUseApps
+    }
+
+    /**
+     * Determine apps visibility based on feature flag and team settings
+     * Or just should be protocol based in case of current logic
+     */
+    private fun computeAppsAllowedStatus(
+        canSelfPerformAdminActions: Boolean,
+        isMLSConversation: Boolean,
+        isTeamAllowedToUseApps: Boolean
+    ) = if (FeatureVisibilityFlags.AppsBasedOnProtocol) {
+        // New logic: based on protocol
+        canSelfPerformAdminActions && !isMLSConversation
+    } else {
+        // Old logic: based on permissions and team settings
+        canSelfPerformAdminActions && isTeamAllowedToUseApps
     }
 
     private data class CombineFour(

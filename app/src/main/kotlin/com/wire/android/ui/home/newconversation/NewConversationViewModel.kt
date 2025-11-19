@@ -37,6 +37,7 @@ import com.wire.android.ui.home.newconversation.channelhistory.ChannelHistoryTyp
 import com.wire.android.ui.home.newconversation.common.CreateGroupState
 import com.wire.android.ui.home.newconversation.groupOptions.GroupOptionState
 import com.wire.android.ui.home.newconversation.model.Contact
+import com.wire.android.util.debug.FeatureVisibilityFlags
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.CreateConversationParam
 import com.wire.kalium.logic.data.user.UserId
@@ -95,14 +96,26 @@ class NewConversationViewModel @Inject constructor(
         viewModelScope.launch {
             observeIsAppsAllowedForUsage()
                 .collectLatest { appsAllowed ->
-                    // todo: WPB-21835: ignoring feature flag, and based on protocol until there is finalized apps support.
                     val isMLS = newGroupState.groupProtocol == CreateConversationParam.Protocol.MLS
+                    val isAppsAllowed = computeAppsAllowedStatus(isMLS, appsAllowed)
                     groupOptionsState = groupOptionsState.copy(
-                        isTeamAllowedToUseApps = !isMLS,
-                        isAllowAppsEnabled = !isMLS
+                        isTeamAllowedToUseApps = isAppsAllowed,
+                        isAllowAppsEnabled = isAppsAllowed
                     )
                 }
         }
+    }
+
+    /**
+     * Determine apps visibility based on feature flag and team settings
+     * Or just should be protocol based in case of current logic
+     */
+    private fun computeAppsAllowedStatus(isMLS: Boolean, appsAllowed: Boolean) = if (FeatureVisibilityFlags.AppsBasedOnProtocol) {
+        // current logic: based on protocol (apps disabled for MLS)
+        !isMLS
+    } else {
+        // new logic: based on feature flags
+        appsAllowed
     }
 
     fun resetState() {
@@ -179,9 +192,9 @@ class NewConversationViewModel @Inject constructor(
         } else {
             newGroupState = newGroupState.copy(
                 selectedUsers = newGroupState.selectedUsers.filterNot {
-                it.id == contact.id &&
-                        it.domain == contact.domain
-            }.toImmutableSet()
+                    it.id == contact.id &&
+                            it.domain == contact.domain
+                }.toImmutableSet()
             )
         }
     }

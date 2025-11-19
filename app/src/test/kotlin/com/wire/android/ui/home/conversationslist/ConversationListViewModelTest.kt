@@ -83,7 +83,7 @@ class ConversationListViewModelTest {
                         fromArchive = false,
                         newActivitiesOnTop = true,
                         onlyInteractionEnabled = false,
-                        useStrictMlsFilter = true,
+                        useStrictMlsFilter = false,
                     )
                 }
                 cancelAndIgnoreRemainingEvents()
@@ -109,7 +109,7 @@ class ConversationListViewModelTest {
                         fromArchive = false,
                         newActivitiesOnTop = true,
                         onlyInteractionEnabled = false,
-                        useStrictMlsFilter = true,
+                        useStrictMlsFilter = false,
                     )
                 }
                 cancelAndIgnoreRemainingEvents()
@@ -135,7 +135,7 @@ class ConversationListViewModelTest {
                         fromArchive = true,
                         newActivitiesOnTop = false,
                         onlyInteractionEnabled = false,
-                        useStrictMlsFilter = true
+                        useStrictMlsFilter = false
                     )
                 }
                 cancelAndIgnoreRemainingEvents()

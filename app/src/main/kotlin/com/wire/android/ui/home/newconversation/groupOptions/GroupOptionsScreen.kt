@@ -50,6 +50,7 @@ import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.typography
+import com.wire.android.ui.common.upgradetoapps.UpgradeToGetAppsBanner
 import com.wire.android.ui.destinations.ChannelAccessOnCreateScreenDestination
 import com.wire.android.ui.destinations.ChannelHistoryScreenDestination
 import com.wire.android.ui.destinations.ConversationScreenDestination
@@ -219,7 +220,7 @@ private fun GroupOptionState.GroupOptionsScreenMainContent(
                 }
             }
             AllowGuestsOptions(groupMetadataState.isChannel, onAllowGuestChanged)
-            AllowServicesOptions(groupMetadataState.isChannel, onAllowServicesChanged)
+            AllowAppsOptions(onAllowServicesChanged)
             if (groupMetadataState.groupProtocol != CreateConversationParam.Protocol.MLS || mlsReadReceiptsEnabled) {
                 ReadReceiptsOptions(groupMetadataState.isChannel, onReadReceiptChanged)
             }
@@ -250,38 +251,6 @@ private fun GroupOptionState.ReadReceiptsOptions(isChannel: Boolean, onReadRecei
         R.string.read_receipts_channel_description
     } else {
         R.string.read_receipts_regular_group_description
-    }
-    Text(
-        text = stringResource(description),
-        color = MaterialTheme.wireColorScheme.secondaryText,
-        modifier = Modifier.padding(MaterialTheme.wireDimensions.spacing16x),
-        textAlign = TextAlign.Left,
-        style = typography().body01,
-    )
-}
-
-@Composable
-private fun GroupOptionState.AllowServicesOptions(isChannel: Boolean, onAllowServicesChanged: (Boolean) -> Unit) {
-    if (!isTeamAllowedToUseApps) return
-
-    GroupConversationOptionsItem(
-        title = stringResource(R.string.allow_services),
-        switchState = SwitchState.Enabled(
-            value = isAllowAppsEnabled,
-            isOnOffVisible = false,
-            onCheckedChange = onAllowServicesChanged,
-        ),
-        arrowType = ArrowType.NONE,
-        clickable = Clickable(enabled = false, onClick = {}),
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surface)
-    )
-
-    val description = if (isChannel) {
-        R.string.allow_services_channel_description
-    } else {
-        R.string.allow_services_regular_group_description
     }
     Text(
         text = stringResource(description),
@@ -332,9 +301,48 @@ private fun GroupOptionState.AllowGuestsOptions(isChannel: Boolean, onAllowGuest
         modifier = Modifier.background(MaterialTheme.colorScheme.surface)
     )
 
-    if (!isChannel) {
+    val description = if (isChannel) {
+        R.string.allow_guest_switch_channel_description
+    } else {
+        R.string.allow_guest_switch_description
+    }
+    Text(
+        text = stringResource(description),
+        color = MaterialTheme.wireColorScheme.secondaryText,
+        modifier = Modifier.padding(MaterialTheme.wireDimensions.spacing16x),
+        textAlign = TextAlign.Left,
+        style = typography().body01,
+    )
+}
+
+@Composable
+private fun GroupOptionState.AllowAppsOptions(onAllowServicesChanged: (Boolean) -> Unit) {
+    GroupConversationOptionsItem(
+        title = stringResource(R.string.allow_services),
+        switchState = when (isTeamAllowedToUseApps) {
+            true -> SwitchState.Enabled(
+                value = isAllowAppsEnabled,
+                isOnOffVisible = false,
+                onCheckedChange = onAllowServicesChanged
+            )
+
+            false -> SwitchState.Disabled(
+                value = false,
+                isOnOffVisible = false,
+            )
+        },
+        arrowType = ArrowType.NONE,
+        clickable = Clickable(enabled = false, onClick = {}),
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.surface)
+    )
+
+    if (!isTeamAllowedToUseApps) {
+        UpgradeToGetAppsBanner()
+    } else {
         Text(
-            text = stringResource(R.string.allow_guest_switch_description),
+            text = stringResource(R.string.allow_apps_switch_description),
             color = MaterialTheme.wireColorScheme.secondaryText,
             modifier = Modifier.padding(MaterialTheme.wireDimensions.spacing16x),
             textAlign = TextAlign.Left,
@@ -421,9 +429,10 @@ private fun PreviewGroupOptionScreen(
     groupMetadataState: GroupMetadataState,
     channelsHistoryOptionsEnabled: Boolean = BuildConfig.CHANNELS_HISTORY_OPTIONS_ENABLED,
     mlsReadReceiptsEnabled: Boolean = BuildConfig.MLS_READ_RECEIPTS_ENABLED,
+    withAppsEnabled: Boolean = true,
 ) = WireTheme {
     GroupOptionScreenContent(
-        groupOptionState = GroupOptionState(),
+        groupOptionState = GroupOptionState(isTeamAllowedToUseApps = withAppsEnabled),
         createGroupState = CreateGroupState.Default,
         groupMetadataState = groupMetadataState,
         onAccessClicked = {},
@@ -473,4 +482,48 @@ fun PreviewGroupOptionScreen_MlsGroupWithMlsReadReceiptsDisabled() = PreviewGrou
         groupProtocol = CreateConversationParam.Protocol.MLS,
     ),
     mlsReadReceiptsEnabled = false,
+)
+
+@Composable
+@PreviewMultipleThemes
+fun PreviewGroupOptionScreen_AppsDisabled_Group() = PreviewGroupOptionScreen(
+    groupMetadataState = GroupMetadataState(
+        isChannel = false,
+        groupProtocol = CreateConversationParam.Protocol.MLS,
+    ),
+    mlsReadReceiptsEnabled = false,
+    withAppsEnabled = false
+)
+
+@Composable
+@PreviewMultipleThemes
+fun PreviewGroupOptionScreen_AppsEnabled_Group() = PreviewGroupOptionScreen(
+    groupMetadataState = GroupMetadataState(
+        isChannel = false,
+        groupProtocol = CreateConversationParam.Protocol.MLS,
+    ),
+    mlsReadReceiptsEnabled = false,
+    withAppsEnabled = false
+)
+
+@Composable
+@PreviewMultipleThemes
+fun PreviewGroupOptionScreen_AppsDisabled_Channel() = PreviewGroupOptionScreen(
+    groupMetadataState = GroupMetadataState(
+        isChannel = true,
+        groupProtocol = CreateConversationParam.Protocol.MLS,
+    ),
+    mlsReadReceiptsEnabled = false,
+    withAppsEnabled = false
+)
+
+@Composable
+@PreviewMultipleThemes
+fun PreviewGroupOptionScreen_AppsEnabled_Channel() = PreviewGroupOptionScreen(
+    groupMetadataState = GroupMetadataState(
+        isChannel = true,
+        groupProtocol = CreateConversationParam.Protocol.MLS,
+    ),
+    mlsReadReceiptsEnabled = false,
+    withAppsEnabled = true
 )

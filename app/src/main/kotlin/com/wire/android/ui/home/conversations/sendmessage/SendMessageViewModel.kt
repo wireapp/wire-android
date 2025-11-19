@@ -29,6 +29,7 @@ import com.wire.android.appLogger
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.media.PingRinger
+import com.wire.android.media.audiomessage.toNormalizedLoudness
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.ui.home.conversations.AssetTooLargeDialogState
 import com.wire.android.ui.home.conversations.ConversationNavArgs
@@ -297,10 +298,11 @@ class SendMessageViewModel @Inject constructor(
     ) {
         when (
             val result = handleUriAsset.invoke(
-            uri = attachmentUri.uri,
-            saveToDeviceIfInvalid = attachmentUri.saveToDeviceIfInvalid,
-            specifiedMimeType = attachmentUri.mimeType
-        )
+                uri = attachmentUri.uri,
+                saveToDeviceIfInvalid = attachmentUri.saveToDeviceIfInvalid,
+                specifiedMimeType = attachmentUri.mimeType,
+                audioWavesMask = attachmentUri.audioWavesMask,
+            )
         ) {
             is HandleUriAssetUseCase.Result.Failure.AssetTooLarge -> {
                 assetTooLargeDialogState = AssetTooLargeDialogState.Visible(
@@ -502,6 +504,7 @@ class SendMessageViewModel @Inject constructor(
         assetHeight = assetHeight,
         assetWidth = assetWidth,
         audioLengthInMs = audioLengthInMs,
+        audioNormalizedLoudness = audioWavesMask?.toNormalizedLoudness()
     )
 
     private companion object {

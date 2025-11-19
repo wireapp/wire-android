@@ -86,7 +86,7 @@ class AudioMessageViewModelImpl @Inject constructor(
 
     private fun initWavesMask() {
         viewModelScope.launch {
-            audioMessagePlayer.fetchWavesMask(args.conversationId, args.messageId)
+            audioMessagePlayer.getOrBuildWavesMask(args.conversationId, args.messageId)
         }
     }
 

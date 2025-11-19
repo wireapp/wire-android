@@ -83,6 +83,7 @@ class MessageDraftViewModel @Inject constructor(
                     draftText = draft.text,
                     selectedMentions = draft.selectedMentionList.mapNotNull { it.toUiMention(draft.text) },
                     editMessageId = draft.editMessageId,
+                    isMultipart = draft.isMultipartEdit,
                     quotedMessage = quotedMessage as? UIQuotedMessage.UIQuotedData,
                     quotedMessageId = (quotedMessage as? UIQuotedMessage.UIQuotedData)?.messageId,
                 )
@@ -100,9 +101,7 @@ class MessageDraftViewModel @Inject constructor(
         }
     }
 
-    fun onMessageTextUpdate(newText: String) {
-        if (state.value.draftText != newText) {
-            saveDraft(state.value.toDraft(newText))
-        }
+    fun onMessageTextUpdate(messageDraft: MessageDraft) {
+        saveDraft(messageDraft)
     }
 }

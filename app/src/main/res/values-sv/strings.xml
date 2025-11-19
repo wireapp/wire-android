@@ -346,9 +346,7 @@
     <string name="profile_image_choose_from_gallery_menu_item">Välj från galleri</string>
     <string name="profile_image_take_a_picture_menu_item">Ta en bild</string>
     <!--Conversation-->
-    <string name="label_copy">Kopiera</string>
     <string name="label_share">Dela</string>
-    <string name="label_edit">Redigera</string>
     <string name="label_delete">Radera</string>
     <string name="conversation_banner_guests">gäster</string>
     <!-- System messages -->
@@ -646,4 +644,5 @@
     <!-- Move to Folder -->
     <!-- enterprise configurations -->
     <!--    channel not available dialog-->
+    <!-- Apps-->
 </resources>

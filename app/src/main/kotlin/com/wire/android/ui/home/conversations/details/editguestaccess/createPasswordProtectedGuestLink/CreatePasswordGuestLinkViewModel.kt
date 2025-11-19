@@ -25,13 +25,13 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.feature.GenerateRandomPasswordUseCase
 import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import com.wire.kalium.logic.feature.conversation.guestroomlink.GenerateGuestRoomLinkResult
 import com.wire.kalium.logic.feature.conversation.guestroomlink.GenerateGuestRoomLinkUseCase
+import com.wire.kalium.logic.util.RandomPassword
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
@@ -43,7 +43,7 @@ import javax.inject.Inject
 class CreatePasswordGuestLinkViewModel @Inject constructor(
     private val generateGuestRoomLink: GenerateGuestRoomLinkUseCase,
     private val validatePassword: ValidatePasswordUseCase,
-    private val generateRandomPasswordUseCase: GenerateRandomPasswordUseCase,
+    private val randomPassword: RandomPassword,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -100,7 +100,7 @@ class CreatePasswordGuestLinkViewModel @Inject constructor(
     }
 
     fun onGenerateRandomPassword() {
-        val password = generateRandomPasswordUseCase()
+        val password = randomPassword()
         state.passwordTextState.setTextAndPlaceCursorAtEnd(password)
         state.confirmPasswordTextState.setTextAndPlaceCursorAtEnd(password)
     }

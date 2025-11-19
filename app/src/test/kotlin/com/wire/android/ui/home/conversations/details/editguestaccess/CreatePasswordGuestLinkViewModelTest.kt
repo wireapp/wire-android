@@ -330,7 +330,7 @@ class CreatePasswordGuestLinkViewModelTest {
             CreatePasswordGuestLinkViewModel(
                 generateGuestRoomLink = generateGuestRoomLink,
                 validatePassword = validatePassword,
-                generateRandomPasswordUseCase = generateRandomPasswordUseCase,
+                randomPassword = generateRandomPasswordUseCase,
                 savedStateHandle = savedStateHandle
             )
         }

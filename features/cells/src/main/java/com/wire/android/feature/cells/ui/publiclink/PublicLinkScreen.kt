@@ -24,6 +24,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -103,8 +104,8 @@ fun PublicLinkScreen(
             EnableLinkSection(
                 checked = state.isEnabled,
                 isFolder = state.isFolder,
-                onCheckChange = {
-                    viewModel.onEnabled(it)
+                onCheckClick = {
+                    viewModel.onEnabledClick()
                 }
             )
 
@@ -117,9 +118,7 @@ fun PublicLinkScreen(
                     state.settings?.let {
                         PublicLinkSettingsSection(
                             settings = it,
-                            onPasswordClick = {
-                                navigator.navigate(NavigationCommand(PublicLinkPasswordScreenDestination()))
-                            },
+                            onPasswordClick = viewModel::onPasswordClick,
                             onExpirationClick = {
                                 navigator.navigate(NavigationCommand(PublicLinkExpirationScreenDestination()))
                             },
@@ -151,13 +150,21 @@ fun PublicLinkScreen(
                 clipboardManager.setText(AnnotatedString(action.url))
                 showLinkCopiedToast(context)
             }
+
+            is OpenPasswordSettings ->
+                navigator.navigate(
+                    NavigationCommand(
+                        PublicLinkPasswordScreenDestination(
+                            linkUuid = action.linkUuid,
+                            passwordEnabled = action.isPasswordEnabled,
+                        )
+                    )
+                )
         }
     }
 
     onPasswordChange.handleNavResult { result ->
-        if (result) {
-            viewModel.onPasswordUpdate()
-        }
+        viewModel.onPasswordUpdate(result)
     }
 
     onExpirationChange.handleNavResult { result ->
@@ -171,12 +178,13 @@ fun PublicLinkScreen(
 private fun EnableLinkSection(
     checked: Boolean,
     isFolder: Boolean,
-    onCheckChange: (Boolean) -> Unit
+    onCheckClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .background(colorsScheme().surface)
+            .clickable { onCheckClick() }
             .padding(dimensions().spacing16x)
     ) {
 
@@ -193,7 +201,7 @@ private fun EnableLinkSection(
             WireSwitch(
                 checked = checked,
                 onCheckedChange = {
-                    onCheckChange(it)
+                    onCheckClick()
                 }
             )
         }
@@ -240,7 +248,7 @@ private fun PreviewCreatePublicLinkScreen() {
             EnableLinkSection(
                 checked = true,
                 isFolder = false,
-                onCheckChange = {}
+                onCheckClick = {}
             )
             PublicLinkSection(
                 state = PublicLinkState.READY,

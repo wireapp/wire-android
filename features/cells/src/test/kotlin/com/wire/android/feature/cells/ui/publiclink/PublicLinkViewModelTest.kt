@@ -120,7 +120,7 @@ class PublicLinkViewModelTest {
 
         viewModel.state.test {
 
-            viewModel.onEnabled(false)
+            viewModel.onEnabledClick()
 
             with(expectMostRecentItem()) {
                 assertFalse(isEnabled)
@@ -139,7 +139,7 @@ class PublicLinkViewModelTest {
 
         viewModel.actions.test {
 
-            viewModel.onEnabled(false)
+            viewModel.onEnabledClick()
 
             with(expectMostRecentItem()) {
                 assertTrue(this is ShowError)
@@ -157,7 +157,7 @@ class PublicLinkViewModelTest {
 
         viewModel.state.test {
 
-            viewModel.onEnabled(true)
+            viewModel.onEnabledClick()
 
             with(expectMostRecentItem()) {
                 assertTrue(isEnabled)
@@ -175,7 +175,7 @@ class PublicLinkViewModelTest {
 
         viewModel.actions.test {
 
-            viewModel.onEnabled(true)
+            viewModel.onEnabledClick()
 
             with(expectMostRecentItem()) {
                 assertTrue(this is ShowError)

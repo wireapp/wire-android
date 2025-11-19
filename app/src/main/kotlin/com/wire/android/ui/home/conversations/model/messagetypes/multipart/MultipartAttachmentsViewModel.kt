@@ -108,8 +108,9 @@ class MultipartAttachmentsViewModel @Inject constructor(
         data class Files(val attachments: List<MultipartAttachmentUi>) : MultipartAttachmentGroup
     }
 
-    fun onClick(attachment: MultipartAttachmentUi) {
+    fun onClick(attachment: MultipartAttachmentUi, openInImageViewer: (String) -> Unit) {
         when {
+            attachment.isImage() && !attachment.fileNotFound() -> openInImageViewer(attachment.uuid)
             attachment.fileNotFound() -> { refreshAssetState(attachment) }
             attachment.localFileAvailable() -> openLocalFile(attachment)
             attachment.canOpenWithUrl() -> openUrl(attachment)
@@ -190,6 +191,8 @@ private fun MessageAttachment.mimeType() =
         is AssetContent -> mimeType
         is CellAssetContent -> mimeType
     }
+
+private fun MultipartAttachmentUi.isImage() = AttachmentFileType.fromMimeType(mimeType) == IMAGE
 
 private fun MessageAttachment.isMediaAttachment() =
     when (AttachmentFileType.fromMimeType(mimeType())) {

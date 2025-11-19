@@ -47,6 +47,7 @@ import com.wire.android.ui.common.rowitem.RowItemTemplate
 import com.wire.android.ui.common.upgradetoapps.UpgradeToGetAppsBanner
 import com.wire.android.ui.home.conversations.search.HighlightName
 import com.wire.android.ui.home.conversations.search.widget.SearchFailureBox
+import com.wire.android.util.debug.FeatureVisibilityFlags
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.theme.WireTheme
@@ -158,11 +159,17 @@ private fun rememberAppsContentState(
     result: ImmutableList<Contact>
 ): State<AppsContentState> = remember(isConversationAppsEnabled, isLoading, isTeamAllowedToUseApps, searchQuery, result) {
     derivedStateOf {
+        // WPB-21835: Apps availability checks controlled by feature flag
+        if (!FeatureVisibilityFlags.AppsBasedOnProtocol) {
+            // new logic: check team and conversation settings first
+            if (!isTeamAllowedToUseApps) return@derivedStateOf AppsContentState.TEAM_NOT_ALLOWED
+            if (!isConversationAppsEnabled) return@derivedStateOf AppsContentState.APPS_NOT_ENABLED_FOR_CONVERSATION
+        }
+        // current logic: protocol-based, skip the above checks (screen shouldn't be accessible if apps disabled)
+
         when {
             isLoading -> AppsContentState.LOADING
-            !isTeamAllowedToUseApps -> AppsContentState.TEAM_NOT_ALLOWED
-            !isConversationAppsEnabled -> AppsContentState.APPS_NOT_ENABLED_FOR_CONVERSATION
-            searchQuery.isBlank() && result.isEmpty() -> AppsContentState.EMPTY_INITIAL
+            searchQuery.isBlank() && result.isEmpty() -> AppsContentState.EMPTY_SEARCH
             searchQuery.isNotBlank() && result.isEmpty() -> AppsContentState.EMPTY_SEARCH
             else -> AppsContentState.SHOW_RESULTS
         }

@@ -30,6 +30,7 @@ import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAddPermissionType
 import com.wire.android.ui.home.newconversation.channelaccess.toUiEnum
 import com.wire.android.ui.navArgs
+import com.wire.android.util.debug.FeatureVisibilityFlags
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.common.functional.getOrNull
@@ -126,6 +127,12 @@ class GroupConversationDetailsViewModel @Inject constructor(
                 val channelPermissionType = groupDetails.getChannelPermissionType()
                 val channelAccessType = groupDetails.getChannelAccessType()
 
+                // WPB-21835: Apps availability logic controlled by feature flag
+                val isMLSConversation = groupDetails.conversation.protocol is Conversation.ProtocolInfo.MLS
+                val isAppsAllowedForConversation = computeAppsEnabledStatus(groupDetails, isMLSConversation)
+                val isUpdatingAppsAllowedForConversation =
+                    computeAppsAllowedStatus(canSelfPerformAdminTasks, isSelfInTeamThatOwnsConversation, isMLSConversation)
+
                 _isFetchingInitialData.value = false
 
                 updateState(
@@ -140,8 +147,8 @@ class GroupConversationDetailsViewModel @Inject constructor(
                         isUpdatingNameAllowed = canSelfPerformAdminTasks && !isSelfExternalMember,
                         isUpdatingGuestAllowed = canSelfPerformAdminTasks && isSelfInTeamThatOwnsConversation,
                         isUpdatingChannelAccessAllowed = canSelfPerformAdminTasks && isSelfInTeamThatOwnsConversation,
-                        isAppsAllowed = groupDetails.conversation.isServicesAllowed(),
-                        isUpdatingAppsAllowed = canSelfPerformAdminTasks && isSelfInTeamThatOwnsConversation,
+                        isAppsAllowed = isAppsAllowedForConversation,
+                        isUpdatingAppsAllowed = isUpdatingAppsAllowedForConversation,
                         isUpdatingReadReceiptAllowed = canSelfPerformAdminTasks && groupDetails.conversation.isTeamGroup(),
                         isUpdatingSelfDeletingAllowed = canSelfPerformAdminTasks,
                         mlsEnabled = isMLSEnabled(),
@@ -159,6 +166,37 @@ class GroupConversationDetailsViewModel @Inject constructor(
                 )
             }.collect {}
         }
+    }
+
+    /**
+     * Determine apps visibility based on feature flag and team settings
+     * Or just should be protocol based in case of current logic
+     */
+    private fun computeAppsAllowedStatus(
+        canSelfPerformAdminTasks: Boolean,
+        isSelfInTeamThatOwnsConversation: Boolean,
+        isMLSConversation: Boolean
+    ) = if (FeatureVisibilityFlags.AppsBasedOnProtocol) {
+        // current logic: based on protocol
+        canSelfPerformAdminTasks && isSelfInTeamThatOwnsConversation && !isMLSConversation
+    } else {
+        // new logic: based on permissions
+        canSelfPerformAdminTasks && isSelfInTeamThatOwnsConversation
+    }
+
+    /**
+     * Determine apps visibility based on feature flag and team settings
+     * Or just should be protocol based in case of current logic
+     */
+    private fun computeAppsEnabledStatus(
+        groupDetails: ConversationDetails.Group,
+        isMLSConversation: Boolean
+    ) = if (FeatureVisibilityFlags.AppsBasedOnProtocol) {
+        // current logic: based on protocol (apps disabled for MLS)
+        groupDetails.conversation.isServicesAllowed() && !isMLSConversation
+    } else {
+        // new logic: based on feature flags
+        groupDetails.conversation.isServicesAllowed()
     }
 
     fun shouldShowAddParticipantButton(): Boolean {

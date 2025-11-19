@@ -66,7 +66,7 @@ class NewConversationViewModel @Inject constructor(
     private val getSelfUser: GetSelfUserUseCase,
     private val getDefaultProtocol: GetDefaultProtocolUseCase,
     private val isWireCellsFeatureEnabled: IsWireCellsEnabledUseCase,
-    private val observeIsAppsAllowedForUsage: ObserveIsAppsAllowedForUsageUseCase
+    private val observeIsAppsAllowedForUsage: ObserveIsAppsAllowedForUsageUseCase,
 ) : ViewModel() {
 
     var newGroupNameTextState: TextFieldState = TextFieldState()
@@ -96,9 +96,11 @@ class NewConversationViewModel @Inject constructor(
         viewModelScope.launch {
             observeIsAppsAllowedForUsage()
                 .collectLatest { appsAllowed ->
+                    // todo: WPB-21835: ignoring feature flag, and based on protocol until there is finalized apps support.
+                    val isMLS = newGroupState.groupProtocol == CreateConversationParam.Protocol.MLS
                     groupOptionsState = groupOptionsState.copy(
-                        isTeamAllowedToUseApps = appsAllowed,
-                        isAllowAppsEnabled = appsAllowed
+                        isTeamAllowedToUseApps = !isMLS,
+                        isAllowAppsEnabled = !isMLS
                     )
                 }
         }

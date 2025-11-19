@@ -366,15 +366,15 @@ class NewConversationViewModelTest {
     }
 
     @Test
-    fun `given apps are not allowed, when initializing viewModel, then state should reflect that`() = runTest {
+    fun `given apps are not allowed, when initializing, then state should ignore the feature flag and based on protocol`() = runTest {
         // Given
         val (_, viewModel) = NewConversationViewModelArrangement()
             .withGetSelfUser(isTeamMember = true)
             .withAppsAllowedResult(false)
             .arrange()
 
-        assertFalse(viewModel.groupOptionsState.isTeamAllowedToUseApps)
-        assertFalse(viewModel.groupOptionsState.isAllowAppsEnabled)
+        assertTrue(viewModel.groupOptionsState.isTeamAllowedToUseApps)
+        assertTrue(viewModel.groupOptionsState.isAllowAppsEnabled)
     }
 
     @Test

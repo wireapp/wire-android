@@ -80,7 +80,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
     private val isMLSEnabled: IsMLSEnabledUseCase,
     refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase,
     private val isWireCellsEnabled: IsWireCellsEnabledUseCase,
-    private val observeIsAppsAllowedForUsage: ObserveIsAppsAllowedForUsageUseCase,
+    private val observeIsAppsAllowedForUsage: ObserveIsAppsAllowedForUsageUseCase
 ) : GroupConversationParticipantsViewModel(savedStateHandle, observeConversationMembers, refreshUsersWithoutMetadata),
     ActionsManager<GroupConversationDetailsViewAction> by ActionsManagerImpl() {
 
@@ -132,6 +132,10 @@ class GroupConversationDetailsViewModel @Inject constructor(
                 val channelPermissionType = groupDetails.getChannelPermissionType()
                 val channelAccessType = groupDetails.getChannelAccessType()
 
+                // todo: WPB-21835: ignoring feature flag, and based on protocol until there is finalized apps support.
+                // isAppsUsageAllowed should be consider then.
+                val isMLSConversation = groupDetails.conversation.protocol is Conversation.ProtocolInfo.MLS
+
                 _isFetchingInitialData.value = false
 
                 updateState(
@@ -146,8 +150,8 @@ class GroupConversationDetailsViewModel @Inject constructor(
                         isUpdatingNameAllowed = canSelfPerformAdminTasks && !isSelfExternalMember,
                         isUpdatingGuestAllowed = canSelfPerformAdminTasks && isSelfInTeamThatOwnsConversation,
                         isUpdatingChannelAccessAllowed = canSelfPerformAdminTasks && isSelfInTeamThatOwnsConversation,
-                        isServicesAllowed = groupDetails.conversation.isServicesAllowed() && isAppsUsageAllowed,
-                        isUpdatingServicesAllowed = canSelfPerformAdminTasks && isAppsUsageAllowed,
+                        isServicesAllowed = groupDetails.conversation.isServicesAllowed() && !isMLSConversation,
+                        isUpdatingServicesAllowed = canSelfPerformAdminTasks && isSelfInTeamThatOwnsConversation && !isMLSConversation,
                         isUpdatingReadReceiptAllowed = canSelfPerformAdminTasks && groupDetails.conversation.isTeamGroup(),
                         isUpdatingSelfDeletingAllowed = canSelfPerformAdminTasks,
                         mlsEnabled = isMLSEnabled(),

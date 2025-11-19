@@ -31,13 +31,11 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.SelfUser
-import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.type.isTeamAdmin
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
 import com.wire.kalium.logic.feature.conversation.apps.ChangeAccessForAppsInConversationUseCase
 import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageUseCase
-import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -59,7 +57,6 @@ class UpdateAppsAccessViewModel @Inject constructor(
     private val observeIsAppsAllowedForUsage: ObserveIsAppsAllowedForUsageUseCase,
     private val selfUser: ObserveSelfUserUseCase,
     private val changeAccessForAppsInConversation: ChangeAccessForAppsInConversationUseCase,
-    private val getDefaultProtocol: GetDefaultProtocolUseCase,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -109,7 +106,8 @@ class UpdateAppsAccessViewModel @Inject constructor(
                     (conversationDetails is ConversationDetails.Group.Channel && isTeamAdmin && isSelfInConversationTeam)
                 val canSelfPerformAdminActions = isSelfAnAdmin || isSelfChannelTeamAdmin
 
-                val isMLSTeam = getDefaultProtocol() == SupportedProtocol.MLS
+                // todo: WPB-21835: ignoring apps conditions flag, now based solely on protocol until there is finalized apps support.
+                // isTeamAllowedToUseApps should be consider then with smarter logic to involve bots and apps.
                 val isMLSConversation = conversationDetails.conversation.protocol is Conversation.ProtocolInfo.MLS
 
                 updateAppsAccessState = updateAppsAccessState.copy(

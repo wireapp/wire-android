@@ -37,6 +37,7 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.type.isExternal
 import com.wire.kalium.logic.data.user.type.isTeamAdmin
 import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
@@ -48,6 +49,7 @@ import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageU
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.team.GetUpdatedSelfTeamUseCase
+import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -81,6 +83,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
     refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase,
     private val isWireCellsEnabled: IsWireCellsEnabledUseCase,
     private val observeIsAppsAllowedForUsage: ObserveIsAppsAllowedForUsageUseCase,
+    private val getDefaultProtocol: GetDefaultProtocolUseCase,
 ) : GroupConversationParticipantsViewModel(savedStateHandle, observeConversationMembers, refreshUsersWithoutMetadata),
     ActionsManager<GroupConversationDetailsViewAction> by ActionsManagerImpl() {
 
@@ -132,6 +135,9 @@ class GroupConversationDetailsViewModel @Inject constructor(
                 val channelPermissionType = groupDetails.getChannelPermissionType()
                 val channelAccessType = groupDetails.getChannelAccessType()
 
+                val isMLSTeam = getDefaultProtocol() == SupportedProtocol.MLS
+                val isMLSConversation = groupDetails.conversation.protocol is Conversation.ProtocolInfo.MLS
+
                 _isFetchingInitialData.value = false
 
                 updateState(
@@ -146,8 +152,8 @@ class GroupConversationDetailsViewModel @Inject constructor(
                         isUpdatingNameAllowed = canSelfPerformAdminTasks && !isSelfExternalMember,
                         isUpdatingGuestAllowed = canSelfPerformAdminTasks && isSelfInTeamThatOwnsConversation,
                         isUpdatingChannelAccessAllowed = canSelfPerformAdminTasks && isSelfInTeamThatOwnsConversation,
-                        isServicesAllowed = groupDetails.conversation.isServicesAllowed() && isAppsUsageAllowed,
-                        isUpdatingServicesAllowed = canSelfPerformAdminTasks && isAppsUsageAllowed,
+                        isServicesAllowed = groupDetails.conversation.isServicesAllowed() && !isMLSConversation,
+                        isUpdatingServicesAllowed = canSelfPerformAdminTasks && isSelfInTeamThatOwnsConversation && !isMLSConversation,
                         isUpdatingReadReceiptAllowed = canSelfPerformAdminTasks && groupDetails.conversation.isTeamGroup(),
                         isUpdatingSelfDeletingAllowed = canSelfPerformAdminTasks,
                         mlsEnabled = isMLSEnabled(),

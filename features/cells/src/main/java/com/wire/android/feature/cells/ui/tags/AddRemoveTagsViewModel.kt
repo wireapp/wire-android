@@ -71,7 +71,6 @@ class AddRemoveTagsViewModel @Inject constructor(
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptySet())
 
     init {
-
         viewModelScope.launch {
             snapshotFlow { tagsTextState.text.toString() }
                 .debounce(TYPING_DEBOUNCE_TIME)

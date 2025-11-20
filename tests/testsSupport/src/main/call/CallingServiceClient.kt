@@ -34,9 +34,6 @@ class CallingServiceClient {
 
     companion object {
         private const val TRACE = false
-
-        //        private fun getApiRoot(): String =
-//            Config.common().getCallingServiceUrl(CallingServiceClient::class.java)
         private fun getApiRoot(): String = "https://qa-callingservice-wire.runs.onstackit.cloud"
     }
 

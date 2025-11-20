@@ -340,29 +340,34 @@ class LogFileWriterV2Impl(
         }
 
     private fun cleanupOrphanedTempFiles() {
-        try {
-            logsDirectory.listFiles()?.filter { it.name.endsWith(".tmp") }?.forEach { tempFile ->
-                appLogger.i("Found orphaned temp file: ${tempFile.name}, attempting to compress before cleanup")
-                try {
-                    // Try to salvage the data by compressing it
-                    // The temp file already has the timestamped name, just remove .tmp extension
-                    val compressedFileName = tempFile.name.removeSuffix(".tmp")
-                    val compressedFile = File(logsDirectory, compressedFileName)
-                    GZIPOutputStream(compressedFile.outputStream().buffered()).use { gzipOut ->
-                        tempFile.inputStream().buffered().use { input ->
-                            input.copyTo(gzipOut, config.bufferSizeBytes)
-                        }
+        getListOfOrphanedTempFiles().forEach { tempFile ->
+            appLogger.i("Found orphaned temp file: ${tempFile.name}, attempting to compress before cleanup")
+            try {
+                // Try to salvage the data by compressing it
+                // The temp file already has the timestamped name, just remove .tmp extension
+                val compressedFileName = tempFile.name.removeSuffix(".tmp")
+                val compressedFile = File(logsDirectory, compressedFileName)
+                GZIPOutputStream(compressedFile.outputStream().buffered()).use { gzipOut ->
+                    tempFile.inputStream().buffered().use { input ->
+                        input.copyTo(gzipOut, config.bufferSizeBytes)
                     }
-                    appLogger.i("Successfully salvaged orphaned temp file: ${tempFile.name} -> ${compressedFile.name}")
-                } catch (e: Exception) {
-                    appLogger.w("Failed to compress orphaned temp file: ${tempFile.name}, will delete it", e)
-                } finally {
-                    // Always delete the temp file after attempting compression
-                    tempFile.delete()
                 }
+                appLogger.i("Successfully salvaged orphaned temp file: ${tempFile.name} -> ${compressedFile.name}")
+            } catch (e: Exception) {
+                appLogger.w("Failed to compress orphaned temp file: ${tempFile.name}, will delete it", e)
+            } finally {
+                // Always delete the temp file after attempting compression
+                tempFile.delete()
             }
-        } catch (e: Exception) {
+        }
+    }
+
+    private fun getListOfOrphanedTempFiles(): List<File> {
+        return try {
+            logsDirectory.listFiles()?.filter { it.name.endsWith(".tmp") } ?: emptyList()
+        } catch (e: SecurityException) {
             appLogger.e("Error cleaning up orphaned temp files", e)
+            emptyList()
         }
     }
 

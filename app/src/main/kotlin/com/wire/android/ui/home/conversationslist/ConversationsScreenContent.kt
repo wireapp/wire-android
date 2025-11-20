@@ -43,6 +43,7 @@ import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetStat
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
 import com.wire.android.ui.common.dialogs.calling.JoinAnywayDialog
+import com.wire.android.ui.common.rowitem.LoadingListContent
 import com.wire.android.ui.common.search.SearchBarState
 import com.wire.android.ui.common.search.rememberSearchbarState
 import com.wire.android.ui.common.visbility.rememberVisibilityState
@@ -75,7 +76,7 @@ fun ConversationsScreenContent(
     searchBarState: SearchBarState,
     emptyListContent: @Composable (domain: String) -> Unit = {},
     lazyListState: LazyListState = rememberLazyListState(),
-    loadingListContent: @Composable (LazyListState) -> Unit = { ConversationListLoadingContent(it) },
+    loadingListContent: @Composable (LazyListState) -> Unit = { LoadingListContent(it) },
     conversationsSource: ConversationsSource = ConversationsSource.MAIN,
     conversationListViewModel: ConversationListViewModel = when {
         LocalInspectionMode.current -> ConversationListViewModelPreview()
@@ -241,9 +242,13 @@ fun ConversationsScreenContent(
         sheetState = sheetState,
         openConversationFolders = { navigator.navigate(NavigationCommand(ConversationFoldersScreenDestination(it))) },
         openConversationDebugMenu = { conversationId ->
-            navigator.navigate(NavigationCommand(DebugConversationScreenDestination(
+            navigator.navigate(
+                NavigationCommand(
+                    DebugConversationScreenDestination(
                 navArgs = DebugConversationScreenNavArgs(conversationId)
-            )))
+            )
+                )
+            )
         },
     )
 

@@ -37,10 +37,11 @@ import com.wire.android.ui.home.newconversation.channelhistory.ChannelHistoryTyp
 import com.wire.android.ui.home.newconversation.common.CreateGroupState
 import com.wire.android.ui.home.newconversation.groupOptions.GroupOptionState
 import com.wire.android.ui.home.newconversation.model.Contact
+import com.wire.android.util.debug.FeatureVisibilityFlags
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.CreateConversationParam
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.data.user.type.isExternal
 import com.wire.kalium.logic.feature.channels.ChannelCreationPermission
 import com.wire.kalium.logic.feature.channels.ObserveChannelsCreationPermissionUseCase
 import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
@@ -82,7 +83,6 @@ class NewConversationViewModel @Inject constructor(
     var groupOptionsState: GroupOptionState by mutableStateOf(GroupOptionState())
     var isChannelCreationPossible: Boolean by mutableStateOf(true)
     var isFreemiumAccount: Boolean by mutableStateOf(false) // TODO: implement logic to determine if the account is freemium
-
     var createGroupState: CreateGroupState by mutableStateOf(CreateGroupState.Default)
 
     init {
@@ -96,12 +96,26 @@ class NewConversationViewModel @Inject constructor(
         viewModelScope.launch {
             observeIsAppsAllowedForUsage()
                 .collectLatest { appsAllowed ->
+                    val isMLS = newGroupState.groupProtocol == CreateConversationParam.Protocol.MLS
+                    val isAppsAllowed = computeAppsAllowedStatus(isMLS, appsAllowed)
                     groupOptionsState = groupOptionsState.copy(
-                        isTeamAllowedToUseApps = appsAllowed,
-                        isAllowAppsEnabled = appsAllowed
+                        isTeamAllowedToUseApps = isAppsAllowed,
+                        isAllowAppsEnabled = isAppsAllowed
                     )
                 }
         }
+    }
+
+    /**
+     * Determine apps visibility based on feature flag and team settings
+     * Or just should be protocol based in case of current logic
+     */
+    private fun computeAppsAllowedStatus(isMLS: Boolean, appsAllowed: Boolean) = if (FeatureVisibilityFlags.AppsBasedOnProtocol) {
+        // current logic: based on protocol (apps disabled for MLS)
+        !isMLS
+    } else {
+        // new logic: based on feature flags
+        appsAllowed
     }
 
     fun resetState() {
@@ -122,7 +136,7 @@ class NewConversationViewModel @Inject constructor(
     private fun getWireCellFeatureState() = viewModelScope.launch {
         if (isWireCellsFeatureEnabled()) {
             groupOptionsState = groupOptionsState.copy(
-                isWireCellsEnabled = true
+                isWireCellsEnabled = false
             )
         }
     }
@@ -147,7 +161,7 @@ class NewConversationViewModel @Inject constructor(
         viewModelScope.launch {
             val selfUser = getSelfUser()
             val isSelfTeamMember = selfUser?.teamId != null
-            val isSelfExternalTeamMember = selfUser?.userType == UserType.EXTERNAL
+            val isSelfExternalTeamMember = selfUser?.userType?.isExternal() == true
             newGroupState = newGroupState.copy(
                 isSelfTeamMember = isSelfTeamMember,
                 isGroupCreatingAllowed = !isSelfExternalTeamMember
@@ -176,10 +190,12 @@ class NewConversationViewModel @Inject constructor(
         if (selected) {
             newGroupState = newGroupState.copy(selectedUsers = (newGroupState.selectedUsers + contact).toImmutableSet())
         } else {
-            newGroupState = newGroupState.copy(selectedUsers = newGroupState.selectedUsers.filterNot {
-                it.id == contact.id &&
-                        it.domain == contact.domain
-            }.toImmutableSet())
+            newGroupState = newGroupState.copy(
+                selectedUsers = newGroupState.selectedUsers.filterNot {
+                    it.id == contact.id &&
+                            it.domain == contact.domain
+                }.toImmutableSet()
+            )
         }
     }
 

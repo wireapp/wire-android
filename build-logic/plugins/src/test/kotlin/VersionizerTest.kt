@@ -35,7 +35,6 @@ class VersionizerTest {
         assertEquals(Versionizer(projectRoot, dateTime).versionCode, Versionizer(projectRoot, dateTime).versionCode)
     }
 
-
     @Test
     fun `given version generator when I generate a version I should get the same version number on the current Android project`() {
         val dateTime = LocalDateTime.of(2021, 6, 23, 13, 54, 28)

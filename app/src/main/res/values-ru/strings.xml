@@ -461,6 +461,7 @@
     <string name="create_account_email_share_anonymous_data_label">Я согласен делиться анонимными данными об использовании. Все подробности вы найдете в нашей</string>
     <string name="create_account_email_share_anonymous_data_link_label">Политике конфиденциальности</string>
     <string name="create_account_email_share_anonymous_data_optional_label">(Необязательно)</string>
+    <string name="create_account_email_backlink_to_team_label">Хотите сотрудничать в команде?</string>
     <string name="create_account_email_terms_dialog_view_policy">Ознакомиться с Условиями использования и Политикой конфиденциальности</string>
     <string name="create_account_email_already_in_use_error">Указанный вами адрес электронной почты уже зарегистрирован.</string>
     <string name="create_account_email_blacklisted_error">Ваш email был признан недоверенным, например, из-за отклонения спам-фильтром.</string>
@@ -580,8 +581,9 @@
     <string name="conversation_details_options_tab">ПАРАМЕТРЫ</string>
     <string name="conversation_details_participants_tab">УЧАСТНИКИ</string>
     <string name="conversation_details_options_group_name">НАЗВАНИЕ ГРУППЫ</string>
-    <string name="conversation_details_conversation_admins">АДМИНИСТРАТОРЫ БЕСЕДЫ (%d)</string>
-    <string name="conversation_details_conversation_members">УЧАСТНИКИ БЕСЕДЫ (%d)</string>
+    <string name="conversation_details_conversation_admins">АДМИНИСТРАТОРЫ (%d)</string>
+    <string name="conversation_details_conversation_members">УЧАСТНИКИ (%d)</string>
+    <string name="conversation_details_conversation_apps">ПРИЛОЖЕНИЯ (%d)</string>
     <string name="conversation_details_participants_info">В этой беседе %s участника(-ов).\nК беседе могут присоединиться до 500 человек.</string>
     <string name="conversation_details_participants_count">%s участников</string>
     <string name="conversation_details_show_all_participants">Показать всех участников (%d)</string>
@@ -734,9 +736,9 @@
     <string name="profile_image_change_image_button_label">Изменить изображение…</string>
     <!--Conversation-->
     <string name="label_message_details">Сведения о сообщении</string>
-    <string name="label_copy">Скопировать</string>
+    <string name="label_copy">Скопировать текст</string>
     <string name="label_share">Поделиться</string>
-    <string name="label_edit">Изменить</string>
+    <string name="label_edit">Изменить текст</string>
     <string name="label_delete">Удалить</string>
     <string name="info_message_copied">Сообщение скопировано</string>
     <string name="conversation_banner_federated">федеративные пользователи</string>
@@ -849,9 +851,6 @@
     <string name="label_system_message_conversation_started_sensitive_information_footer">Пожалуйста, будьте осторожны со всеми с кем делитесь конфиденциальной информацией.</string>
     <string name="label_conversations_details_verified_proteus">Верифицировано (Proteus)</string>
     <string name="label_conversations_details_verified_mls">Верифицировано (сквозная идентификация)</string>
-    <string name="label_system_message_cell_enabled_for_conversation">Cell включен дня всех</string>
-    <string name="label_system_message_cell_self_delete_disabled_for_conversation">Самоудаляющиеся сообщения - это %1$s в беседах с Cells</string>
-    <string name="label_system_message_cell_self_delete_disabled">отключено</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
         <item quantity="one">Вы добавили 1 пользователя в беседу</item>
@@ -999,9 +998,7 @@
     <string name="label_search_people_or_apps">Поиск людей или приложений</string>
     <string name="label_public_wire">Wire Public</string>
     <string name="label_search_people_instruction">Поиск пользователей по названию их профиля или @псевдониму</string>
-    <string name="label_search_apps_instruction">Повышайте производительность с помощью приложений.</string>
     <string name="label_learn_more_searching_user">Подробнее</string>
-    <string name="label_learn_more_searching_app">Как добавить приложения в вашу команду</string>
     <string name="label_no_results_found">Результатов не найдено. Пожалуйста, попробуйте еще раз.</string>
     <string name="label_general_error">Что-то пошло не так</string>
     <string name="label_add_member_people">Контакты</string>
@@ -1084,6 +1081,7 @@
     <string name="notification_outgoing_call_tap_to_return">Нажмите, чтобы вернуться к вызову - Вызов...</string>
     <string name="notification_audio_message_body">Аудиосообщение</string>
     <string name="notification_deleting_conversation">Удаление беседы…</string>
+    <string name="notification_uploading_files">Выгрузка файлов…</string>
     <!-- Calling-->
     <string name="calling_constant_bit_rate_indication">Постоянный битрейт</string>
     <string name="calling_button_label_microphone">Микрофон</string>
@@ -1183,9 +1181,10 @@
     <string name="change">Изменить</string>
     <string name="allow_guests">Разрешить гостей</string>
     <string name="allow_guest_switch_description">Открыть эту беседу для пользователей не из вашей команды. Вы всегда сможете изменить это позже.</string>
+    <string name="allow_guest_switch_channel_description">Откройте эту беседу для людей, не из вашей команды или приложений. Вы всегда сможете изменить это позже.</string>
     <string name="allow_services">Разрешить приложения</string>
     <string name="allow_services_regular_group_description">Открыть эту беседу для приложений. Вы всегда сможете изменить это позже.</string>
-    <string name="allow_services_channel_description">Откройте эту беседу для людей, не из вашей команды или приложений. Вы всегда сможете изменить это позже.</string>
+    <string name="allow_apps_switch_description">Открыть эту беседу для приложений.</string>
     <string name="service_details_label">Приложение</string>
     <string name="service_details_add_service_label">Добавить в беседу</string>
     <string name="service_details_remove_service_label">Удалить из беседы</string>
@@ -1232,6 +1231,7 @@
     <string name="settings_myaccount_display_name">ИМЯ ПРОФИЛЯ</string>
     <string name="settings_myaccount_username">ПСЕВДОНИМ</string>
     <string name="settings_myaccount_email">EMAIL</string>
+    <string name="settings_myaccount_user_color">ПОЛЬЗОВАТЕЛЬСКИЙ ЦВЕТ</string>
     <string name="settings_myaccount_team">КОМАНДА</string>
     <string name="settings_myaccount_domain">ДОМЕН</string>
     <string name="settings_myaccount_reset_password">Сбросить пароль</string>
@@ -1242,6 +1242,11 @@
     <string name="settings_myaccount_display_name_exceeded_limit_error">Минимум 1 и максимум 64 символа</string>
     <string name="settings_myaccount_display_name_updated">Имя вашего профиля изменено</string>
     <string name="settings_myaccount_handle_updated">Ваш псевдоним изменен</string>
+    <string name="settings_myaccount_user_color_title">Пользовательский цвет</string>
+    <string name="settings_myaccount_user_color_description">Ваш пользовательский цвет используется при навигации по интерфейсу приложения</string>
+    <string name="settings_myaccount_user_color_updated">Ваш цвет изменен</string>
+    <string name="content_description_settings_myaccount_user_color">изменить цвет пользователя</string>
+    <string name="settings_myaccount_user_color_example">ПРИМЕР</string>
     <!--Privacy Settings -->
     <string name="settings_send_read_receipts">Отправлять отчет о прочтении</string>
     <string name="settings_send_read_receipts_description">Если этот параметр включен, другие пользователи могут видеть, прочитали ли вы их сообщения. 
@@ -1875,6 +1880,10 @@
     <string name="press_enter_to_send_text">Когда эта опция включена, вы можете отправлять сообщения с помощью клавиши Enter на клавиатуре.</string>
     <string name="customization_options_header_title">Настройки</string>
     <!-- enterprise configurations -->
+    <string name="restriction_server_urls_title">Настройка конечных точек сервера</string>
+    <string name="restriction_sso_code_title">Настройка кода SSO</string>
+    <string name="restriction_server_urls_description">Значение JSON с конфигурацией конечных точек сервера</string>
+    <string name="restriction_sso_code_description">Значение JSON с настройкой кода SSO по умолчанию</string>
     <!--    channel not available dialog-->
     <string name="channel_not_available_dialog_title">Каналы доступны для членов команды.</string>
     <string name="channel_not_available_dialog_description">Создайте команду и начните взаимодействовать бесплатно!</string>
@@ -1882,8 +1891,8 @@
     <string name="custimization_options_header_title">Настройки</string>
     <string name="cells_screen_title">Все файлы</string>
     <string name="cells_screen_search_hint">Поиск файлов</string>
-    <string name="enable_wire_cell">Включить Wire Cell</string>
-    <string name="enable_wire_cell_switch_description">Все файлы в этой беседе будут загружены в хранилище Wire Cell.</string>
+    <string name="enable_wire_cell">Совместная работа с файлами (бета-версия Cells)</string>
+    <string name="enable_wire_cell_switch_description">Предоставьте пользователям возможность управлять своими документами и медиафайлами. Используйте папки, теги и фильтры для более эффективной работы. Это невозможно отменить.</string>
     <string name="failed_attachment_retry_upload">Повторить загрузку</string>
     <string name="failed_attachment_remove">Удалить</string>
     <string name="content_description_apply_filter">Применить фильтр</string>
@@ -1891,4 +1900,25 @@
     <string name="profile_deeplink_feature_unavailable_title_alert">Эта функция недоступна. Пожалуйста, свяжитесь со своим администратором.</string>
     <string name="conversation_options_file_collaboration_label">Совместная работа с файлами (Cells)</string>
     <string name="conversation_options_file_collaboration_description">Постоянно для этой беседы.</string>
+    <plurals name="reply_multiple_files">
+        <item quantity="one">%1$d файл</item>
+        <item quantity="few">%1$d файла</item>
+        <item quantity="many">%1$d файлов</item>
+        <item quantity="other">%1$d файлов</item>
+    </plurals>
+    <!-- Apps-->
+    <string name="apps_upgrade_teams_for_apps_banner_title">Ваша команда еще не использует приложения</string>
+    <string name="apps_upgrade_teams_for_apps_banner_content">Для улучшения рабочего процесса с приложениями, вашей команде требуется настройка. Пожалуйста, свяжитесь с администратором вашей команды.</string>
+    <string name="apps_edit_apps_option_title">Приложения</string>
+    <string name="content_description_edit_apps_option_back_btn">Вернуться к сведениям о беседе</string>
+    <string name="content_description_conversation_details_apps_action">настройка доступа к приложениям</string>
+    <string name="search_results_apps_empty_title">Ваша команда еще не добавила приложения</string>
+    <string name="search_results_apps_empty_description_team_admin">Приложения - это помощники, которые могут улучшить ваш рабочий процесс. Как администратор команды, вы можете добавить их в управлении командой.</string>
+    <string name="search_results_apps_empty_description_non_team_admin">Приложения - это помощники, которые могут улучшить ваш рабочий процесс. Чтобы воспользоваться ими, обратитесь к администратору вашей команды.</string>
+    <string name="search_results_apps_empty_description_disabled_for_conversation">В этой беседе приложения отключены. Включите их в настройках беседы.</string>
+    <string name="label_system_message_apps_access_enabled_by_self">%1$s ** приложений** включено для этой беседы</string>
+    <string name="label_system_message_apps_access_disabled_by_self">%1$s ** приложений** отключено для этой беседы</string>
+    <string name="label_system_message_apps_access_enabled_by_other">%1$s ** приложений** включено для этой беседы</string>
+    <string name="label_system_message_apps_access_disabled_by_other">%1$s ** приложений** отключено для этой беседы</string>
+    <string name="label_system_message_apps_access_enabled_disclaimer">Добавленные приложения имеют доступ к содержимому этой беседы.</string>
 </resources>

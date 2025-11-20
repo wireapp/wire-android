@@ -25,31 +25,46 @@ import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.divider.WireDivider
+import com.wire.android.ui.home.conversations.details.participants.model.MemberSectionActions
+import com.wire.android.ui.home.conversations.details.participants.model.ParticipantsExpansionState
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
+import com.wire.android.util.ui.FolderType
 import com.wire.android.util.ui.sectionWithElements
 
 fun LazyListScope.participantsFoldersWithElements(
     context: Context,
     state: GroupConversationParticipantsState,
-    onRowItemClicked: (UIParticipant) -> Unit
+    onRowItemClicked: (UIParticipant) -> Unit,
+    participantsExpansionState: ParticipantsExpansionState
 ) {
     sectionWithElements(
         header = context.getString(R.string.conversation_details_conversation_admins, state.data.allAdminsCount),
         items = state.data.admins,
-        onRowItemClicked = onRowItemClicked
+        onRowItemClicked = onRowItemClicked,
+        sectionActions = participantsExpansionState.adminsActions
     )
     sectionWithElements(
         header = context.getString(R.string.conversation_details_conversation_members, state.data.allParticipantsCount),
         items = state.data.participants,
-        onRowItemClicked = onRowItemClicked
+        onRowItemClicked = onRowItemClicked,
+        sectionActions = participantsExpansionState.membersActions
     )
+    if (state.data.allAppsCount > 0) {
+        sectionWithElements(
+            header = context.getString(R.string.conversation_details_conversation_apps, state.data.allAppsCount),
+            items = state.data.apps,
+            onRowItemClicked = onRowItemClicked,
+            sectionActions = participantsExpansionState.appsActions
+        )
+    }
 }
 
 fun LazyListScope.sectionWithElements(
     header: String,
     items: List<UIParticipant>,
     onRowItemClicked: (UIParticipant) -> Unit,
-    showRightArrow: Boolean = true
+    showRightArrow: Boolean = true,
+    sectionActions: MemberSectionActions
 ) = sectionWithElements(
     header = header,
     items = items.associateBy { it.id.toString() },
@@ -61,6 +76,15 @@ fun LazyListScope.sectionWithElements(
             clickable = remember { Clickable(enabled = true, onClickDescription = onClickDescription) { onRowItemClicked(it) } },
             showRightArrow = showRightArrow
         )
+    },
+    folderType = when (sectionActions) {
+        MemberSectionActions.NoActions -> FolderType.Regular
+        is MemberSectionActions.WithSectionActions -> {
+            FolderType.Collapsing(
+                expanded = sectionActions.expanded.value,
+                onChanged = sectionActions.onExpansionChanged
+            )
+        }
     },
     divider = { WireDivider() }
 )

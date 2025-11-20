@@ -20,7 +20,6 @@ package com.wire.android.util
 
 import android.content.Context
 import android.net.Uri
-import android.webkit.MimeTypeMap
 import com.wire.android.appLogger
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.util.dispatchers.DefaultDispatcherProvider
@@ -56,7 +55,9 @@ class FileManager @Inject constructor(@ApplicationContext private val context: C
         assetMimeType: String,
         dispatcher: DispatcherProvider = DefaultDispatcherProvider()
     ): String? = withContext(dispatcher.io()) {
-        saveFileDataToMediaFolder(assetName, assetDataPath, assetDataSize, assetMimeType, context)?.let { context.getFileName(it) }
+        saveFileDataToMediaFolder(assetName, assetDataPath, assetDataSize, assetMimeType, context)?.let {
+            context.getFileName(it)
+        }
     }
 
     fun openWithExternalApp(assetDataPath: Path, assetName: String?, onError: () -> Unit) {
@@ -101,26 +102,6 @@ class FileManager @Inject constructor(@ApplicationContext private val context: C
         return@withContext getTempWritableAttachmentUri(context, tempVideoPath)
     }
 
-    fun getExtensionFromUri(uri: Uri): String? {
-        var extension: String? = null
-
-        // Get MIME type
-        val mimeType = context.contentResolver.getType(uri)
-        if (mimeType != null) {
-            extension = MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType)
-        } else {
-            // If MIME type is null, try to get file extension from URI path
-            val path = uri.path
-            if (path != null) {
-                val lastDot = path.lastIndexOf('.')
-                if (lastDot != -1) {
-                    extension = path.substring(lastDot + 1)
-                }
-            }
-        }
-        return extension
-    }
-
     suspend fun getTempWritableImageUri(
         tempCachePath: Path,
         dispatcher: DispatcherProvider = DefaultDispatcherProvider(),
@@ -135,6 +116,7 @@ class FileManager @Inject constructor(@ApplicationContext private val context: C
         attachmentUri: Uri,
         assetDestinationPath: Path,
         specifiedMimeType: String? = null, // specify a particular mimetype, otherwise it will be taken from the uri / file extension
+        audioWavesMask: List<Int>? = null,
         dispatcher: DispatcherProvider = DefaultDispatcherProvider(),
     ): AssetBundle? = withContext(dispatcher.io()) {
         try {
@@ -154,7 +136,7 @@ class FileManager @Inject constructor(@ApplicationContext private val context: C
                 //  of video assets hitting the max limit.
                 copyToPath(attachmentUri, assetDestinationPath)
             }
-            AssetBundle(assetKey, mimeType, assetDestinationPath, assetSize, assetFileName, attachmentType)
+            AssetBundle(assetKey, mimeType, assetDestinationPath, assetSize, assetFileName, attachmentType, audioWavesMask)
         } catch (e: IOException) {
             appLogger.e("There was an error while obtaining the file from disk", e)
             null

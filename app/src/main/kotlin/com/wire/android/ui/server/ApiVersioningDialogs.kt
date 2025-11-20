@@ -48,7 +48,7 @@ private fun ApiVersioningDialog(
         properties = wireDialogPropertiesBuilder(
             dismissOnBackPress = true,
             dismissOnClickOutside = false,
-            usePlatformDefaultWidth = isPreview  // for some reason, @Preview doesn't work well with width other than platform default
+            usePlatformDefaultWidth = isPreview // for some reason, @Preview doesn't work well with width other than platform default
         )
     )
 }

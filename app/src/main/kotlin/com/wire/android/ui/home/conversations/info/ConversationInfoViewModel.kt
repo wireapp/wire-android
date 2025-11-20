@@ -39,6 +39,7 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.client.IsChatBubblesEnabledUseCase
 import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.FetchConversationMLSVerificationStatusUseCase
@@ -56,7 +57,7 @@ class ConversationInfoViewModel @Inject constructor(
     private val globalDataStore: GlobalDataStore,
     private val fetchConversationMLSVerificationStatus: FetchConversationMLSVerificationStatusUseCase,
     private val isWireCellFeatureEnabled: IsWireCellsEnabledUseCase,
-//    private val isChatBubblesEnabledUseCase: IsChatBubblesEnabledUseCase,
+    private val isChatBubblesEnabledUseCase: IsChatBubblesEnabledUseCase,
     @CurrentAccount private val selfUserId: UserId,
 ) : ViewModel() {
 
@@ -80,7 +81,7 @@ class ConversationInfoViewModel @Inject constructor(
         [MessageComposerViewModel] handles the navigating back after removing a group and here it would navigate to home if the group
         is removed without back params indicating that the user actually have just done that. The info about the group being removed
         could appear before the back navigation params. That's why it's being observed in the `LaunchedEffect` in the Composable.
-    */
+     */
     suspend fun observeConversationDetails() {
         observeConversationDetails(conversationId)
             .collect { it.handleConversationDetailsResult() }
@@ -106,7 +107,8 @@ class ConversationInfoViewModel @Inject constructor(
 
     private suspend fun handleConversationDetails(conversationDetails: ConversationDetails) {
         val (isConversationUnavailable, _) = when (conversationDetails) {
-            is ConversationDetails.OneOne -> conversationDetails.otherUser
+            is ConversationDetails.OneOne ->
+                conversationDetails.otherUser
                 .run { isUnavailableUser to (connectionStatus == ConnectionState.BLOCKED) }
 
             else -> false to false
@@ -130,7 +132,7 @@ class ConversationInfoViewModel @Inject constructor(
     }
 
     private suspend fun isBubbleUiEnabled() = (globalDataStore.observeIsBubbleUI().firstOrNull() ?: false)
-//            || isChatBubblesEnabledUseCase() // TODO uncomment when production ready
+            || isChatBubblesEnabledUseCase()
 
     private fun getAccentId(conversationDetails: ConversationDetails): Int {
         return if (conversationDetails is ConversationDetails.OneOne) {

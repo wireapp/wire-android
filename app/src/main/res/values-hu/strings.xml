@@ -532,8 +532,6 @@
     <string name="conversation_details_options_tab">LEHETŐSÉGEK</string>
     <string name="conversation_details_participants_tab">RÉSZTVEVŐK</string>
     <string name="conversation_details_options_group_name">CSOPORT NEVE</string>
-    <string name="conversation_details_conversation_admins">A BESZÉLGETÉS ADMINJAI (%d)</string>
-    <string name="conversation_details_conversation_members">A BESZÉLGETÉS RÉSZTVEVŐI (%d)</string>
     <string name="conversation_details_participants_info">A beszélgetésnek %s résztvevője van.\nAkár 500 fő is csatlakozhat egy beszélgetéshez.</string>
     <string name="conversation_details_participants_count">%s résztvevő</string>
     <string name="conversation_details_show_all_participants">Mutassa az összes résztvevőt (%d)</string>
@@ -678,9 +676,7 @@
     <string name="profile_image_change_image_button_label">Kép megváltoztatása…</string>
     <!--Conversation-->
     <string name="label_message_details">Üzenet részletei</string>
-    <string name="label_copy">Másolás</string>
     <string name="label_share">Megosztás</string>
-    <string name="label_edit">Szerkesztés</string>
     <string name="label_delete">Törlés</string>
     <string name="info_message_copied">Üzenet másolva</string>
     <string name="conversation_banner_federated">szövetséges felhasználók</string>
@@ -1656,6 +1652,5 @@ Kérjük, próbálja meg újra.</string>
     <string name="custimization_options_header_title">Beállítások</string>
     <string name="cells_screen_title">Minden fájl</string>
     <string name="cells_screen_search_hint">Fájlok keresése</string>
-    <string name="enable_wire_cell">Wire Cell engedélyezése</string>
-    <string name="enable_wire_cell_switch_description">A beszélgetésben található összes fájl fel lesz töltve a Wire Cell tárhelyre.</string>
+    <!-- Apps-->
 </resources>

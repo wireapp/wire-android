@@ -125,6 +125,7 @@ fun ActiveMessageComposerInput(
             VerticalSpace.x4()
             Box(modifier = Modifier.padding(horizontal = dimensions().spacing8x)) {
                 QuotedMessagePreview(
+                    conversationId = conversationId,
                     quotedMessageData = quotedMessage,
                     onCancelReply = onCancelReply
                 )
@@ -263,13 +264,16 @@ private fun InputContent(
                     UsersTypingIndicatorForConversation(conversationId = conversationId)
                 }
             }
-            MessageSendActions(
-                onSendButtonClicked = onSendButtonClicked,
-                sendButtonEnabled = canSendMessage,
-                selfDeletionTimer = viewModel.state(),
-                onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
-                modifier = Modifier.padding(end = dimensions().spacing8x)
-            )
+            // Only show send button when not in editing mode
+            if (inputType !is InputType.Editing) {
+                MessageSendActions(
+                    onSendButtonClicked = onSendButtonClicked,
+                    sendButtonEnabled = canSendMessage,
+                    selfDeletionTimer = viewModel.state(),
+                    onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
+                    modifier = Modifier.padding(end = dimensions().spacing8x)
+                )
+            }
         }
     }
 }

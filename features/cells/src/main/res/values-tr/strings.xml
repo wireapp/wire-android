@@ -18,7 +18,6 @@
   -->
 <resources>
     <string name="retry">Yeniden dene</string>
-    <string name="file_list_load_error">Dosya listesi yüklenirken bir hata oluştu. Lütfen tekrar deneyin.</string>
     <string name="save_label">Kaydet</string>
     <string name="share_label">Paylaş</string>
     <string name="delete_label">Sil</string>
@@ -30,12 +29,10 @@
     <string name="copied_to_clipboard_message">Bağlantı panoya kopyalandı</string>
     <string name="file_subtitle">%2$s içinden %1$s</string>
     <string name="file_subtitle_modified">%2$s tarafından %1$s</string>
-    <string name="public_link_message_folder">Klasörünüzü genel bir bağlantı aracılığıyla yükleyin ve paylaşın. Tüm alıcılar görüntüleyebilir ve indirebilir.</string>
     <string name="create_public_link">Genel bağlantı oluştur</string>
     <string name="share_file_via_link">Dosyayı bağlantı yoluyla paylaş</string>
     <string name="share_folder_via_link">Klasörü bağlantı yoluyla paylaş</string>
     <string name="no_app_found">Dosyayı açacak bir uygulama bulunamadı.</string>
-    <string name="cell_files_load_failure_message">Yüklenemedi. Lütfen daha sonra tekrar deneyin.</string>
     <string name="action_failed">İşlem başarısız oldu.</string>
     <string name="cancel">İptal</string>
     <string name="confirm_delete_file_title">Dosyayı sil</string>
@@ -44,14 +41,9 @@
     <string name="confirm_permanent_delete_file_text">Bu, tüm katılımcılar için %1$s dosyasını kalıcı olarak silecektir.</string>
     <string name="confirm_permanent_delete_folder_text">Bu, tüm katılımcılar için %1$s klasörünü kalıcı olarak silecektir.</string>
     <string name="reload">Tekrar yükle</string>
-    <string name="error_delete_public_link">Genel bağlantı kaldırılamadı.</string>
-    <string name="error_load_public_link">Genel bağlantı yüklenemedi.</string>
-    <string name="error_create_public_link">Genel bağlantı oluşturulamadı.</string>
     <string name="cell_files_download_failure_message">İndirme başarısız oldu.</string>
     <string name="download_file_message">Bu dosya henüz indirilmedi. Şimdi indirmek ister misiniz?</string>
     <string name="download">İndir</string>
-    <string name="downloading_file_message">Bu dosya indiriliyor…</string>
-    <string name="error_share_link">Bağlantı paylaşımı başarısız oldu.</string>
     <string name="conversation_files_title">Dosyalar</string>
     <string name="creating_link">Genel bağlantı oluşturuluyor…</string>
     <string name="cells_new_label">Yeni</string>
@@ -59,12 +51,9 @@
     <string name="cells_create_folder">Klasör oluştur</string>
     <string name="cells_folder_name">Klasör ismi</string>
     <string name="loading_files">Dosyalar yükleniyor…</string>
-    <string name="create_folder_error">Yeni bir klasör oluşturulurken bir hata oluştu. Lütfen tekrar deneyin.</string>
-    <string name="move_to_folder">Klasöre taşı</string>
     <string name="move_here">Buraya taşı</string>
     <string name="no_subfolders_message">Bu klasörde alt klasör bulunmamaktadır.</string>
     <string name="item_move_success">Öğe klasöre taşındı.</string>
-    <string name="item_move_failure">Öğe taşınamadı.</string>
     <string name="content_description_conversation_files_more_button">Dosya seçeneklerini aç</string>
     <string name="recycle_bin">Geri dönüşüm kutusu</string>
     <string name="open_recycle_bin">Geri Dönüşüm Kutusunu Aç</string>
@@ -80,16 +69,13 @@
     <string name="rename_enter_folder_name">Bir klasör adı girin</string>
     <string name="rename_file_renamed">Dosya yeniden adlandırıldı</string>
     <string name="rename_folder_renamed">Klasör yeniden adlandırıldı</string>
-    <string name="rename_failure">Yeniden adlandırılamadı</string>
     <string name="filter_label">Filtre</string>
     <string name="tags_label">Etiketler</string>
     <string name="select_tags_label">etiketleri seç</string>
     <string name="clear_all_label">Tümünü temizle</string>
     <string name="apply_label">Uygula</string>
-    <string name="tags_description">Oluşturduğunuz etiketleri ekibinizdeki herkes görebilir ve kullanabilir.</string>
     <string name="added_tags_label">Eklenen etiketler</string>
     <string name="add_tag_label">Etiket ekle</string>
     <string name="enter_name_label">Etiket adı girin</string>
     <string name="tags_edited">Etiketler düzenlendi</string>
-    <string name="failed_edit_tags">Etiketler düzenlenemedi</string>
 </resources>

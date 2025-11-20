@@ -26,7 +26,8 @@ data class MediaGalleryNavArgs(
     val messageId: String,
     val isSelfAsset: Boolean,
     val isEphemeral: Boolean,
-    val messageOptionsEnabled: Boolean
+    val messageOptionsEnabled: Boolean,
+    val cellAssetId: String?,
 )
 
 @Parcelize
@@ -34,7 +35,8 @@ data class MediaGalleryNavBackArgs(
     val messageId: String,
     val emoji: String? = null,
     val isSelfAsset: Boolean = false,
-    val mediaGalleryActionType: MediaGalleryActionType
+    val mediaGalleryActionType: MediaGalleryActionType,
+    val cellAssetId: String? = null,
 ) : Parcelable
 
 enum class MediaGalleryActionType {

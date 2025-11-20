@@ -525,8 +525,6 @@
     <string name="conversation_details_options_tab">විකල්ප</string>
     <string name="conversation_details_participants_tab">සහභාගීන්</string>
     <string name="conversation_details_options_group_name">සමූහයේ නම</string>
-    <string name="conversation_details_conversation_admins">සංවාද ඇඩ්මින්වරු (%d)</string>
-    <string name="conversation_details_conversation_members">සංවාද සාමාජිකයින් (%d)</string>
     <string name="conversation_details_participants_info">මෙම සංවාදයට %s සහභාගිවන්නන් සිටී.\nසංවාදයකට පුද්ගලයින් 500ක් දක්වා සම්බන්ධ විය හැක.</string>
     <string name="conversation_details_participants_count">සහභාගීන් %s</string>
     <string name="conversation_details_show_all_participants">සියළු සහභාගීන් පෙන්වන්න (%d)</string>
@@ -671,9 +669,7 @@
     <string name="profile_image_change_image_button_label">රූපය සංශෝධනය…</string>
     <!--Conversation-->
     <string name="label_message_details">පණිවිඩයේ විස්තර</string>
-    <string name="label_copy">පිටපතක්</string>
     <string name="label_share">බෙදාගන්න</string>
-    <string name="label_edit">සංස්කරණය</string>
     <string name="label_delete">මකන්න</string>
     <string name="info_message_copied">පණිවිඩය පිටපත් විය</string>
     <string name="conversation_banner_federated">ඒකාබද්ධ පරිශීලකයින්</string>
@@ -1665,8 +1661,7 @@
     <string name="custimization_options_header_title">විකල්ප</string>
     <string name="cells_screen_title">සියලුම ගොනු</string>
     <string name="cells_screen_search_hint">ගොනු සොයන්න</string>
-    <string name="enable_wire_cell">වයර් කොටුව සබල කරන්න</string>
-    <string name="enable_wire_cell_switch_description">මෙම සංවාදයේ ඇති සියලුම ගොනු Wire Cell ගබඩාවට උඩුගත කෙරේ.</string>
     <string name="failed_attachment_retry_upload">උඩුගත කිරීම නැවත උත්සාහ කරන්න</string>
     <string name="failed_attachment_remove">ඉවත් කරන්න</string>
+    <!-- Apps-->
 </resources>

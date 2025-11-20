@@ -22,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.theme.wireColorScheme
 
 enum class MessageStyle {
@@ -33,16 +34,16 @@ enum class MessageStyle {
 fun MessageStyle.isBubble(): Boolean = this != MessageStyle.NORMAL
 
 fun MessageStyle.alpha() = when (this) {
-    MessageStyle.BUBBLE_SELF -> SELF_BUBBLE_OPACITY
-    MessageStyle.BUBBLE_OTHER -> 1F
+    MessageStyle.BUBBLE_SELF -> BUBBLE_OPACITY
+    MessageStyle.BUBBLE_OTHER -> BUBBLE_OPACITY
     MessageStyle.NORMAL -> 1F
 }
 
 @Composable
 fun MessageStyle.textColor(): Color {
     return when (this) {
-        MessageStyle.BUBBLE_SELF -> MaterialTheme.wireColorScheme.onPrimary
-        MessageStyle.BUBBLE_OTHER -> MaterialTheme.wireColorScheme.secondaryText
+        MessageStyle.BUBBLE_SELF -> colorsScheme().selfBubble.onPrimary
+        MessageStyle.BUBBLE_OTHER -> colorsScheme().otherBubble.onPrimary
         MessageStyle.NORMAL -> MaterialTheme.wireColorScheme.secondaryText
     }
 }
@@ -50,40 +51,47 @@ fun MessageStyle.textColor(): Color {
 @Composable
 fun MessageStyle.onBackground(): Color {
     return when (this) {
-        MessageStyle.BUBBLE_SELF -> MaterialTheme.wireColorScheme.onPrimary
-        MessageStyle.BUBBLE_OTHER -> MaterialTheme.wireColorScheme.onBackground
+        MessageStyle.BUBBLE_SELF -> colorsScheme().selfBubble.onPrimary
+        MessageStyle.BUBBLE_OTHER -> colorsScheme().otherBubble.onPrimary
         MessageStyle.NORMAL -> MaterialTheme.wireColorScheme.onBackground
     }
 }
 
 @Composable
 fun MessageStyle.surface(): Color = when (this) {
-    MessageStyle.BUBBLE_SELF -> MaterialTheme.wireColorScheme.scrim
-    MessageStyle.BUBBLE_OTHER -> MaterialTheme.wireColorScheme.surfaceVariant
+    MessageStyle.BUBBLE_SELF -> colorsScheme().selfBubble.secondary
+    MessageStyle.BUBBLE_OTHER -> colorsScheme().otherBubble.secondary
     MessageStyle.NORMAL -> MaterialTheme.wireColorScheme.outline
 }
 
 @Composable
 fun MessageStyle.onSurface(): Color {
     return when (this) {
-        MessageStyle.BUBBLE_SELF -> MaterialTheme.wireColorScheme.onPrimary
-        MessageStyle.BUBBLE_OTHER -> MaterialTheme.wireColorScheme.onSurface
+        MessageStyle.BUBBLE_SELF -> colorsScheme().selfBubble.onSecondary
+        MessageStyle.BUBBLE_OTHER -> colorsScheme().otherBubble.onSecondary
         MessageStyle.NORMAL -> MaterialTheme.wireColorScheme.onSurface
     }
 }
 
 @Composable
 fun MessageStyle.highlighted(): Color = when (this) {
-    MessageStyle.BUBBLE_SELF -> MaterialTheme.wireColorScheme.onPrimary
-    MessageStyle.BUBBLE_OTHER -> MaterialTheme.wireColorScheme.primary
+    MessageStyle.BUBBLE_SELF -> colorsScheme().selfBubble.onPrimary
+    MessageStyle.BUBBLE_OTHER -> colorsScheme().otherBubble.onPrimary
     MessageStyle.NORMAL -> MaterialTheme.wireColorScheme.primary
 }
 
 @Composable
 fun MessageStyle.onNodeBackground(): Color = when (this) {
-    MessageStyle.BUBBLE_SELF -> MaterialTheme.wireColorScheme.markdownNodeTextColor
-    MessageStyle.BUBBLE_OTHER -> MaterialTheme.wireColorScheme.onBackground
+    MessageStyle.BUBBLE_SELF -> colorsScheme().selfBubble.onSecondary
+    MessageStyle.BUBBLE_OTHER -> colorsScheme().otherBubble.onSecondary
     MessageStyle.NORMAL -> MaterialTheme.wireColorScheme.onBackground
+}
+
+@Composable
+fun MessageStyle.error(): Color = when (this) {
+    MessageStyle.BUBBLE_SELF -> MaterialTheme.wireColorScheme.onPrimary
+    MessageStyle.BUBBLE_OTHER -> MaterialTheme.wireColorScheme.error
+    MessageStyle.NORMAL -> MaterialTheme.wireColorScheme.error
 }
 
 @Composable
@@ -104,4 +112,4 @@ fun MessageStyle.textAlign(): TextAlign {
     }
 }
 
-private const val SELF_BUBBLE_OPACITY = 0.5F
+private const val BUBBLE_OPACITY = 0.5F

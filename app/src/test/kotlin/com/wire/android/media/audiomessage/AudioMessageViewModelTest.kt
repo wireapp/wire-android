@@ -86,11 +86,11 @@ class AudioMessageViewModelTest {
     fun `given audio message, when initializing, then fetch waves mask only once`() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .arrange()
-        val (conversationId, messageId, assetId) = arrangement.audioMessageArgs
+        val (conversationId, messageId) = arrangement.audioMessageArgs
         advanceUntilIdle()
 
         coVerify(exactly = 1) {
-            arrangement.audioMessagePlayer.fetchWavesMask(conversationId, messageId!!, assetId!!)
+            arrangement.audioMessagePlayer.getOrBuildWavesMask(conversationId, messageId)
         }
     }
 
@@ -98,13 +98,13 @@ class AudioMessageViewModelTest {
     fun `given audio message, when play audio executed, then call proper action`() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .arrange()
-        val (conversationId, messageId, assetId) = arrangement.audioMessageArgs
+        val (conversationId, messageId) = arrangement.audioMessageArgs
         advanceUntilIdle()
 
         viewModel.playAudio()
 
         coVerify(exactly = 1) {
-            arrangement.audioMessagePlayer.playAudio(conversationId, messageId!!, assetId!!)
+            arrangement.audioMessagePlayer.playAudio(conversationId, messageId)
         }
     }
 
@@ -112,14 +112,14 @@ class AudioMessageViewModelTest {
     fun `given audio message, when audio position changed, then call proper action`() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .arrange()
-        val (conversationId, messageId, assetId) = arrangement.audioMessageArgs
+        val (conversationId, messageId) = arrangement.audioMessageArgs
         val position = 10f
         advanceUntilIdle()
 
         viewModel.changeAudioPosition(position)
 
         coVerify(exactly = 1) {
-            arrangement.audioMessagePlayer.setPosition(conversationId, messageId!!, assetId!!, position.toInt())
+            arrangement.audioMessagePlayer.setPosition(conversationId, messageId, position.toInt())
         }
     }
 
@@ -145,7 +145,7 @@ class AudioMessageViewModelTest {
         @MockK
         lateinit var savedStateHandle: SavedStateHandle
 
-        val audioMessageArgs = AudioMessageArgs(ConversationId("convId", "domain"), "msgId", "assetId")
+        val audioMessageArgs = AudioMessageArgs(ConversationId("convId", "domain"), "msgId")
 
         init {
             MockKAnnotations.init(this, relaxed = true)
@@ -164,4 +164,4 @@ class AudioMessageViewModelTest {
     }
 }
 
-private fun AudioMessageArgs.toMessageIdWrapper() = MessageIdWrapper(conversationId, messageId!!, assetId)
+private fun AudioMessageArgs.toMessageIdWrapper() = MessageIdWrapper(conversationId, messageId)

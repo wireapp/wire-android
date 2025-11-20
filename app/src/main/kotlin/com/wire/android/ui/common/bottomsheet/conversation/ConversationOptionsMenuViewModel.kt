@@ -88,7 +88,7 @@ interface ConversationOptionsMenuViewModel : ActionsManager<ConversationOptionsM
     val archiveConversationDialogState: VisibilityState<DialogState> get() = VisibilityState()
 
     fun observeConversationStateFlow(conversationId: ConversationId): StateFlow<ConversationOptionsMenuState> =
-        MutableStateFlow(ConversationOptionsMenuState.Loading)
+        MutableStateFlow(ConversationOptionsMenuState.Conversation(mockConversationOptionsData))
 
     fun changeFavoriteState(conversationId: ConversationId, conversationName: String, addToFavorite: Boolean) {}
     fun removeFromFolder(conversationId: ConversationId, conversationName: String, folder: ConversationFolder) {}

@@ -204,9 +204,7 @@
     <string name="profile_image_change_image_button_label">Muuda pilti…</string>
     <!--Conversation-->
     <string name="label_message_details">Sõnumi üksikasjad</string>
-    <string name="label_copy">Kopeeri</string>
     <string name="label_share">Jaga</string>
-    <string name="label_edit">Muuda</string>
     <string name="label_delete">Kustuta</string>
     <string name="info_message_copied">Sõnum kopeeritud</string>
     <!-- System messages -->
@@ -445,4 +443,5 @@
     <!-- Move to Folder -->
     <!-- enterprise configurations -->
     <!--    channel not available dialog-->
+    <!-- Apps-->
 </resources>

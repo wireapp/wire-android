@@ -56,7 +56,7 @@ import com.wire.android.ui.common.progress.WireLinearProgressIndicator
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.home.conversations.messages.item.isBubble
-import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageParams
+import com.wire.android.ui.home.conversations.model.messagetypes.image.VisualMediaParams
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.previewAvailable
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.previewImageModel
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.transferProgressColor
@@ -78,10 +78,9 @@ internal fun VideoAssetPreview(
     accent: Accent = Accent.Unknown
 ) {
 
-    val videoSize = ImageMessageParams(
-        realImgWidth = item.metadata?.width() ?: 0,
-        realImgHeight = item.metadata?.height() ?: 0,
-        allowUpscale = true
+    val videoSize = VisualMediaParams(
+        realMediaWidth = item.metadata?.width() ?: 0,
+        realMediaHeight = item.metadata?.height() ?: 0
     ).normalizedSize()
 
     val maxWidth = calculateMaxMediaAssetWidth(

@@ -72,6 +72,7 @@ import com.wire.android.ui.home.settings.account.AccountDetailsItem.UserColor
 import com.wire.android.ui.home.settings.account.AccountDetailsItem.Username
 import com.wire.android.ui.home.settings.account.deleteAccount.DeleteAccountDialog
 import com.wire.android.ui.home.settings.account.deleteAccount.DeleteAccountViewModel
+import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.resourceId
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -234,7 +235,8 @@ fun MyAccountContent(
                 if (!forgotPasswordUrl.isNullOrBlank()) {
                     WirePrimaryButton(
                         text = stringResource(R.string.settings_myaccount_reset_password).toTitleCase(),
-                        onClick = { CustomTabsHelper.launchUrl(context, forgotPasswordUrl) })
+                        onClick = { CustomTabsHelper.launchUrl(context, forgotPasswordUrl) }
+                    )
                 }
 
                 if (canDeleteAccount) {
@@ -281,7 +283,7 @@ fun MyAccountContent(
                         },
                         actions = {
                             Row {
-                                if (item is UserColor) {
+                                if (item is UserColor && item.accent != Accent.Unknown) {
                                     Box(
                                         modifier = Modifier
                                             .padding(end = dimensions().spacing12x)

@@ -39,16 +39,18 @@ class HandleUriAssetUseCase @Inject constructor(
         uri: Uri,
         saveToDeviceIfInvalid: Boolean = false,
         specifiedMimeType: String? = null, // specify a particular mimetype, otherwise it will be taken from the uri / file extension
+        audioWavesMask: List<Int>? = null,
     ): Result = withContext(dispatchers.io()) {
         if (!isValidUriSchema(uri)) {
             return@withContext Result.Failure.Unknown
         }
-        val extension = fileManager.getExtensionFromUri(uri)
-        val tempAssetPath = kaliumFileSystem.tempFilePath("${UUID.randomUUID()}.$extension")
+
+        val tempAssetPath = kaliumFileSystem.tempFilePath(UUID.randomUUID().toString())
         val assetBundle = fileManager.getAssetBundleFromUri(
             attachmentUri = uri,
             assetDestinationPath = tempAssetPath,
             specifiedMimeType = specifiedMimeType,
+            audioWavesMask = audioWavesMask,
         )
         if (assetBundle != null) {
             // The max limit for sending assets changes between user and asset types.

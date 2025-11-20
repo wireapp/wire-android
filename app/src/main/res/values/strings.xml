@@ -624,8 +624,9 @@
     <string name="conversation_details_options_tab">OPTIONS</string>
     <string name="conversation_details_participants_tab">PARTICIPANTS</string>
     <string name="conversation_details_options_group_name">GROUP NAME</string>
-    <string name="conversation_details_conversation_admins">CONVERSATION ADMINS (%d)</string>
-    <string name="conversation_details_conversation_members">CONVERSATION MEMBERS (%d)</string>
+    <string name="conversation_details_conversation_admins">ADMINS (%d)</string>
+    <string name="conversation_details_conversation_members">MEMBERS (%d)</string>
+    <string name="conversation_details_conversation_apps">APPS (%d)</string>
     <string name="conversation_details_participants_info">This conversation has %s participants.\nUp to 500 people can join a conversation.</string>
     <string name="conversation_details_participants_count">%s participants</string>
     <string name="conversation_details_show_all_participants">Show all participants (%d)</string>
@@ -777,9 +778,9 @@
     <string name="profile_image_change_image_button_label">Change Picture…</string>
     <!--Conversation-->
     <string name="label_message_details">Message Details</string>
-    <string name="label_copy">Copy</string>
+    <string name="label_copy">Copy text</string>
     <string name="label_share">Share</string>
-    <string name="label_edit">Edit</string>
+    <string name="label_edit">Edit text</string>
     <string name="label_delete">Delete</string>
     <string name="info_message_copied">Message copied</string>
     <string name="conversation_banner_federated">federated users</string>
@@ -874,14 +875,14 @@
     <string name="label_system_message_conversation_verified_mls">All devices are verified (end-to-end identity)</string>
     <string name="label_system_message_conversation_verified_proteus">All fingerprints are verified (Proteus)</string>
     <string name="label_system_message_conversation_started_sensitive_information_header">**Communication in Wire is always end-to-end encrypted.**</string>
+    <string name="label_system_message_conversation_started_sensitive_information_header_with_cells_on">**Communication in Wire is always secured.**</string>
     <string name="label_system_message_conversation_started_sensitive_information_message">Everything you send and receive in this conversation is only accessible to you and other conversation participants.</string>
+    <string name="label_system_message_conversation_started_sensitive_information_message_with_cells_on">Messages and calls are always end-to-end encrypted, whereas files and folders are secured in transit and encrypted at rest. </string>
     <string name="label_system_message_conversation_started_sensitive_information_footer">Please still be careful with who you share sensitive information.</string>
     <string name="label_conversations_details_verified_proteus">Verified (Proteus)</string>
     <string name="label_conversations_details_verified_mls">Verified (End-to-end Identity)</string>
-    <string name="label_system_message_cell_enabled_for_conversation">File collaboration (Cells) is %1$s</string>
-    <string name="label_system_message_cell_enabled_for_conversation_bold">on</string>
-    <string name="label_system_message_cell_self_delete_disabled_for_conversation">Self-deleting messages are %1$s for conversations with Cells</string>
-    <string name="label_system_message_cell_self_delete_disabled">off</string>
+    <string name="label_system_message_cell_enabled_for_conversation">File collaboration (Cells) is **on**</string>
+    <string name="label_system_message_cell_self_delete_disabled_for_conversation">Self-deleting messages are **off** for conversations with Cells</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
         <item quantity="one">You added 1 person to the conversation</item>
@@ -1001,9 +1002,7 @@
     <string name="label_search_people_or_apps">Search people or apps</string>
     <string name="label_public_wire">Public Wire</string>
     <string name="label_search_people_instruction">Search for people by their profile name or @username</string>
-    <string name="label_search_apps_instruction">Improve productivity with apps.</string>
     <string name="label_learn_more_searching_user">Learn more</string>
-    <string name="label_learn_more_searching_app">How to add apps to your team</string>
     <string name="label_no_results_found">No results could be found. Please try again.</string>
     <string name="label_general_error">Something went wrong</string>
     <string name="label_add_member_people">People</string>
@@ -1089,6 +1088,7 @@
     <string name="notification_outgoing_call_tap_to_return">Tap to return to call - Calling...</string>
     <string name="notification_audio_message_body">Audio message</string>
     <string name="notification_deleting_conversation">Deleting conversation…</string>
+    <string name="notification_uploading_files">Uploading files…</string>
     <!-- Calling-->
     <string name="calling_constant_bit_rate_indication">Constant Bit Rate</string>
     <string name="calling_button_label_microphone">Microphone</string>
@@ -1188,9 +1188,10 @@
     <string name="change">Change</string>
     <string name="allow_guests">Allow guests</string>
     <string name="allow_guest_switch_description">Open this conversation to people outside your team. You can always change it later.</string>
+    <string name="allow_guest_switch_channel_description">Open this conversation to people outside your team or to apps. You can always change it later.</string>
     <string name="allow_services">Allow apps</string>
     <string name="allow_services_regular_group_description">Open this conversation to apps. You can always change it later.</string>
-    <string name="allow_services_channel_description">Open this conversation to people outside your team or to apps. You can always change it later.</string>
+    <string name="allow_apps_switch_description">Open this conversation to apps.</string>
     <string name="service_details_label">App</string>
     <string name="service_details_add_service_label">Add To Conversation</string>
     <string name="service_details_remove_service_label">Remove From Conversation</string>
@@ -1890,4 +1891,25 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="profile_deeplink_feature_unavailable_title_alert">This feature is not available. Please contact your administrator.</string>
     <string name="conversation_options_file_collaboration_label">File collaboration (Cells)</string>
     <string name="conversation_options_file_collaboration_description">Permanently on for this conversation.</string>
+    <plurals name="reply_multiple_files">
+        <item quantity="one">%1$d file</item>
+        <item quantity="other">%1$d files</item>
+    </plurals>
+
+    <!-- Apps-->
+    <string name="apps_upgrade_teams_for_apps_banner_title">Your team doesn\'t use apps yet</string>
+    <string name="apps_upgrade_teams_for_apps_banner_content">To improve your workflow with apps, your team needs configuration. Please contact your team admin.</string>
+    <string name="apps_edit_apps_option_title">Apps</string>
+    <string name="content_description_edit_apps_option_back_btn">Go back to conversation details</string>
+    <string name="content_description_conversation_details_apps_action">adjust apps access</string>
+    <string name="search_results_apps_empty_title">Your team hasn\'t added apps yet</string>
+    <string name="search_results_apps_empty_description_team_admin">Apps are helpers that can improve your workflow. As a team admin, you can add them in team management.</string>
+    <string name="search_results_apps_empty_description_non_team_admin">Apps are helpers that can improve your workflow. To use them, ask your team admin.</string>
+    <string name="search_results_apps_empty_description_disabled_for_conversation">Apps are disabled in this conversation. Enable them in the conversation options.</string>
+
+    <string name="label_system_message_apps_access_enabled_by_self">%1$s enabled **apps** for this conversation</string>
+    <string name="label_system_message_apps_access_disabled_by_self">%1$s disabled **apps** for this conversation</string>
+    <string name="label_system_message_apps_access_enabled_by_other">%1$s enabled **apps** for this conversation</string>
+    <string name="label_system_message_apps_access_disabled_by_other">%1$s disabled **apps** for this conversation</string>
+    <string name="label_system_message_apps_access_enabled_disclaimer">Added apps have access to the content of this conversation.</string>
 </resources>

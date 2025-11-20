@@ -54,6 +54,7 @@ fun MultipartAttachmentsView(
     conversationId: ConversationId,
     attachments: List<MessageAttachment>,
     messageStyle: MessageStyle,
+    onImageAttachmentClick: (String) -> Unit,
     modifier: Modifier = Modifier,
     accent: Accent = Accent.Unknown,
     viewModel: MultipartAttachmentsViewModel = hiltViewModel<MultipartAttachmentsViewModel>(key = conversationId.value),
@@ -65,9 +66,13 @@ fun MultipartAttachmentsView(
             AssetPreview(
                 item = it,
                 messageStyle = messageStyle,
-                conversationId = conversationId,
                 accent = accent,
-                onClick = { viewModel.onClick(it) },
+                onClick = {
+                    viewModel.onClick(
+                        attachment = it,
+                        openInImageViewer = onImageAttachmentClick,
+                    )
+                },
             )
         }
     } else {
@@ -83,15 +88,24 @@ fun MultipartAttachmentsView(
                         AttachmentsGrid(
                             attachments = group.attachments,
                             messageStyle = messageStyle,
-                            onClick = { viewModel.onClick(it) },
+                            onClick = {
+                                viewModel.onClick(
+                                    attachment = it,
+                                    openInImageViewer = onImageAttachmentClick,
+                                )
+                            },
                         )
 
                     is MultipartAttachmentsViewModel.MultipartAttachmentGroup.Files ->
                         AttachmentsList(
                             attachments = group.attachments,
                             messageStyle = messageStyle,
-                            conversationId = conversationId,
-                            onClick = { viewModel.onClick(it) },
+                            onClick = {
+                                viewModel.onClick(
+                                    attachment = it,
+                                    openInImageViewer = onImageAttachmentClick,
+                                )
+                            },
                             accent = accent
                         )
                 }
@@ -107,7 +121,6 @@ fun MultipartAttachmentsView(
 private fun AttachmentsList(
     attachments: List<MultipartAttachmentUi>,
     messageStyle: MessageStyle,
-    conversationId: ConversationId,
     accent: Accent,
     onClick: (MultipartAttachmentUi) -> Unit,
     modifier: Modifier = Modifier,
@@ -119,7 +132,6 @@ private fun AttachmentsList(
             AssetPreview(
                 item = it,
                 messageStyle = messageStyle,
-                conversationId = conversationId,
                 showWithPreview = true,
                 onClick = { onClick(it) },
                 modifier = modifier,

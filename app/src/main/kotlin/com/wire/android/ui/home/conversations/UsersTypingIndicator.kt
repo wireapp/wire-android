@@ -74,7 +74,8 @@ private const val ANIMATION_SPEED_MILLIS = 1_500
 @Composable
 fun UsersTypingIndicatorForConversation(
     conversationId: ConversationId,
-    viewModel: TypingIndicatorViewModel = hiltViewModelScoped<TypingIndicatorViewModelImpl, TypingIndicatorViewModel, TypingIndicatorArgs>(
+    viewModel: TypingIndicatorViewModel =
+    hiltViewModelScoped<TypingIndicatorViewModelImpl, TypingIndicatorViewModel, TypingIndicatorArgs>(
         TypingIndicatorArgs(conversationId)
     )
 ) {
@@ -146,7 +147,8 @@ private fun HorizontalBouncingWritingPen(
 ) {
     Row(modifier = Modifier.fillMaxHeight()) {
         val position by infiniteTransition.animateFloat(
-            initialValue = -10f, targetValue = -2f,
+            initialValue = -10f,
+            targetValue = -2f,
             animationSpec = infiniteRepeatable(
                 animation = tween(ANIMATION_SPEED_MILLIS, easing = FastOutSlowInEasing),
                 repeatMode = RepeatMode.Reverse

@@ -101,7 +101,7 @@ fun ConversationMediaScreen(
     Content(
         state = state,
         onNavigationPressed = { navigator.navigateBack() },
-        onImageFullScreenMode = { conversationId, messageId, isSelfAsset ->
+        onImageFullScreenMode = { conversationId, messageId, isSelfAsset, cellAssetId ->
             navigator.navigate(
                 NavigationCommand(
                     MediaGalleryScreenDestination(
@@ -109,7 +109,8 @@ fun ConversationMediaScreen(
                         messageId = messageId,
                         isSelfAsset = isSelfAsset,
                         isEphemeral = false,
-                        messageOptionsEnabled = false
+                        messageOptionsEnabled = false,
+                        cellAssetId = cellAssetId,
                     )
                 )
             )
@@ -167,7 +168,8 @@ fun ConversationMediaScreen(
 private fun Content(
     state: ConversationAssetMessagesViewState,
     initialPage: ConversationMediaScreenTabItem = ConversationMediaScreenTabItem.PICTURES,
-    onImageFullScreenMode: (conversationId: ConversationId, messageId: String, isSelfAsset: Boolean) -> Unit = { _, _, _ -> },
+    onImageFullScreenMode:
+        (conversationId: ConversationId, messageId: String, isSelfAsset: Boolean, cellAssetId: String?) -> Unit = { _, _, _, _ -> },
     onAssetItemClicked: (String) -> Unit = {},
     onOpenAssetOptions: (messageId: String, isMyMessage: Boolean) -> Unit = { _, _ -> },
     onNavigationPressed: () -> Unit = {},
@@ -175,10 +177,14 @@ private fun Content(
     val scope = rememberCoroutineScope()
     val lazyListStates: List<LazyListState> = ConversationMediaScreenTabItem.entries.map { rememberLazyListState() }
     val initialPageIndex = initialPage.ordinal
-    val pagerState = rememberPagerState(initialPage = initialPageIndex, pageCount = { ConversationMediaScreenTabItem.entries.size })
+    val pagerState = rememberPagerState(initialPage = initialPageIndex, pageCount = {
+        ConversationMediaScreenTabItem.entries.size
+    })
     val maxAppBarElevation = MaterialTheme.wireDimensions.topBarShadowElevation
     val currentTabState by remember { derivedStateOf { pagerState.calculateCurrentTab() } }
-    val elevationState by remember { derivedStateOf { lazyListStates[currentTabState].topBarElevation(maxAppBarElevation) } }
+    val elevationState by remember {
+        derivedStateOf { lazyListStates[currentTabState].topBarElevation(maxAppBarElevation) }
+    }
 
     WireScaffold(
         modifier = Modifier
@@ -212,7 +218,9 @@ private fun Content(
                     ConversationMediaScreenTabItem.PICTURES -> ImageAssetsContent(
                         imageMessageList = state.imageMessages,
                         assetStatuses = state.assetStatuses,
-                        onImageClicked = onImageFullScreenMode,
+                        onImageClicked = { conversationId, messageId, isSelfAsset ->
+                            onImageFullScreenMode(conversationId, messageId, isSelfAsset, null)
+                        },
                         onImageLongClicked = onOpenAssetOptions
                     )
 

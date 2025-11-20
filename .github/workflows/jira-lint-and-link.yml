@@ -1,6 +1,5 @@
 name: Link and Lint PR with Jira Ticket Number
 on:
-  merge_group:
   pull_request:
     types: [opened, edited, synchronize]
 
@@ -19,9 +18,7 @@ jobs:
       - name: Get version name from source
         id: version
         run: |
-          VERSION=$(curl -s https://raw.githubusercontent.com/${{ github.repository }}/${{ 
-          github.head_ref || github.ref_name }}/build-logic/plugins/src/main/kotlin/AndroidCoordinates.kt |
-          grep 'const val versionName' | sed -E 's/.*"([^"]+)".*/\1/')
+          VERSION=$(curl -s https://raw.githubusercontent.com/${{ github.repository }}/${{ github.head_ref || github.ref_name }}/build-logic/plugins/src/main/kotlin/AndroidCoordinates.kt | grep 'const val versionName' | sed -E 's/.*"([^"]+)".*/\1/')
           echo "version_name=$VERSION" >> $GITHUB_OUTPUT
 
   add-jira-description:

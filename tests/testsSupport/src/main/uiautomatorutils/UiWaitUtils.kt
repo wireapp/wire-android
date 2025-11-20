@@ -19,6 +19,7 @@ package uiautomatorutils
 
 import android.graphics.Rect
 import android.os.SystemClock
+import android.util.Log
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.BySelector
@@ -28,6 +29,7 @@ import androidx.test.uiautomator.UiObject2
 import androidx.test.uiautomator.UiSelector
 import androidx.test.uiautomator.Until
 import java.io.IOException
+import java.util.jar.Manifest
 
 private const val TIMEOUT_IN_MILLISECONDS = 10000L
 

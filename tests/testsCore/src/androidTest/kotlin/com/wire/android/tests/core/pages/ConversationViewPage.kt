@@ -34,14 +34,14 @@ import kotlin.test.assertEquals
 
 data class ConversationViewPage(private val device: UiDevice) {
     private fun displayedUserName(userName: String) = UiSelectorParams(text = userName)
-
     private val typeMessageField = UiSelectorParams(description = " Type a message")
-
+    private val sentQRImage = UiSelectorParams(description = "Image message")
+    private val attachNewFileButton = UiSelectorParams(description = "Attach new item to conversation")
     private val audioSeekBar = UiSelectorParams(className = "android.widget.SeekBar")
     private val audioInitialTime = UiSelectorParams(text = "00:00")
-
     private val playAudioButton = UiSelectorParams(description = "Play audio")
 
+    private val startCallButton = UiSelectorParams(description = "Start audio call")
     private val pauseAudioButton = UiSelectorParams(description = "Pause audio")
     private val downloadButton = UiSelectorParams(text = "Download")
 
@@ -75,6 +75,9 @@ data class ConversationViewPage(private val device: UiDevice) {
         return UiSelectorParams(text = label, className = "android.widget.TextView")
     }
 
+    private fun sharingOption(label: String): UiSelectorParams {
+        return UiSelectorParams(text = label, className = "android.widget.TextView")
+    }
     private fun fileWithName(name: String): UiSelectorParams {
         return UiSelectorParams(text = name)
     }
@@ -342,6 +345,11 @@ data class ConversationViewPage(private val device: UiDevice) {
         element.click()
     }
 
+    fun tapSharingOption(label: String) {
+        val element = UiWaitUtils.waitElement(sharingOption(label))
+        element.click()
+    }
+
     fun assertSelfDeletingMessageLabelVisible() {
         try {
             UiWaitUtils.waitElement(selfDeletingMessageLabel)
@@ -390,4 +398,35 @@ data class ConversationViewPage(private val device: UiDevice) {
 
         return this
     }
+
+    fun iTapStartCallButton(): ConversationViewPage {
+        UiWaitUtils.waitElement(startCallButton).click()
+        return this
+    }
+
+    fun iTapFileSharingButton(): ConversationViewPage {
+        UiWaitUtils.waitElement(attachNewFileButton).click()
+        return this
+    }
+
+    fun assertSharingOptionVisible(label: String) {
+        try {
+            UiWaitUtils.waitElement(sharingOption(label))
+        } catch (e: AssertionError) {
+            throw AssertionError("Sharing option '$label' is not visible", e)
+        }
+    }
+
+    fun iSeeSentQrCodeImageInCurrentConversation(): ConversationViewPage {
+
+        try {
+            UiWaitUtils.waitElement(sentQRImage)
+        } catch (e: AssertionError) {
+            throw AssertionError("Sent qrCodeImage is not visible in current conversation", e)
+        }
+        return this
+    }
+
 }
+
+

@@ -347,11 +347,7 @@ class LogFileWriterV2Impl(
                 // The temp file already has the timestamped name, just remove .tmp extension
                 val compressedFileName = tempFile.name.removeSuffix(".tmp")
                 val compressedFile = File(logsDirectory, compressedFileName)
-                GZIPOutputStream(compressedFile.outputStream().buffered()).use { gzipOut ->
-                    tempFile.inputStream().buffered().use { input ->
-                        input.copyTo(gzipOut, config.bufferSizeBytes)
-                    }
-                }
+                compressFileToGzip(tempFile, compressedFile)
                 appLogger.i("Successfully salvaged orphaned temp file: ${tempFile.name} -> ${compressedFile.name}")
             } catch (e: Exception) {
                 appLogger.w("Failed to compress orphaned temp file: ${tempFile.name}, will delete it", e)
@@ -382,16 +378,19 @@ class LogFileWriterV2Impl(
         try {
             // Just remove .tmp extension from temp file name to get final compressed filename
             val compressedFile = File(logsDirectory, compressedFileName)
-
-            GZIPOutputStream(compressedFile.outputStream().buffered()).use { gzipOut ->
-                sourceFile.inputStream().buffered().use { input ->
-                    input.copyTo(gzipOut, config.bufferSizeBytes)
-                }
-            }
+            compressFileToGzip(sourceFile, compressedFile)
 
             appLogger.i("Log file compressed: ${sourceFile.name} -> ${compressedFile.name}")
         } catch (e: Exception) {
             appLogger.e("Failed to compress log file: ${sourceFile.name}", e)
+        }
+    }
+
+    private fun compressFileToGzip(sourceFile: File, targetGzipFile: File) {
+        GZIPOutputStream(targetGzipFile.outputStream().buffered()).use { gzipOut ->
+            sourceFile.inputStream().buffered().use { input ->
+                input.copyTo(gzipOut, config.bufferSizeBytes)
+            }
         }
     }
 

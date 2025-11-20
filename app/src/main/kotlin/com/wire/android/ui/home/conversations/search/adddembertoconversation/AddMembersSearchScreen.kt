@@ -30,6 +30,7 @@ import com.wire.android.ui.home.conversations.search.AddMembersSearchNavArgs
 import com.wire.android.ui.home.conversations.search.SearchPeopleScreenType
 import com.wire.android.ui.home.conversations.search.SearchUsersAndAppsScreen
 import com.wire.android.ui.home.newconversation.model.Contact
+import com.wire.android.util.debug.FeatureVisibilityFlags
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.BotService
 
@@ -45,6 +46,10 @@ fun AddMembersSearchScreen(
     if (addMembersToConversationViewModel.newGroupState.isCompleted) {
         navigator.navigateBack()
     }
+
+    // WPB-21835: Apps tab visibility controlled by feature flag
+    val isAppsTabVisible = computeAppsVisible(navArgs)
+
     SearchUsersAndAppsScreen(
         searchTitle = stringResource(id = R.string.label_add_participants),
         onOpenUserProfile = { contact: Contact ->
@@ -61,9 +66,19 @@ fun AddMembersSearchScreen(
         },
         screenType = SearchPeopleScreenType.CONVERSATION_DETAILS,
         selectedContacts = addMembersToConversationViewModel.newGroupState.selectedContacts,
-        isAppsTabVisible = navArgs.isSelfPartOfATeam,
+        isAppsTabVisible = isAppsTabVisible,
         isUserAllowedToCreateChannels = false,
         shouldShowChannelPromotion = false,
         isConversationAppsEnabled = navArgs.isConversationAppsEnabled,
     )
 }
+
+@Composable
+private fun computeAppsVisible(navArgs: AddMembersSearchNavArgs) =
+    if (FeatureVisibilityFlags.AppsBasedOnProtocol) {
+        // current logic: based on protocol (isConversationAppsEnabled represents non-MLS)
+        navArgs.isConversationAppsEnabled
+    } else {
+        // new logic: based on team membership
+        navArgs.isSelfPartOfATeam
+    }

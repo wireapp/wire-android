@@ -73,6 +73,7 @@
     <string name="create_folder_error">Unable to create folder. Please try again</string>
     <string name="move_to_folder">Move to folder</string>
     <string name="move_here">Move Here</string>
+    <string name="no_folders_message">You don’t have any folders yet.\nCreate one to move this item.</string>
     <string name="no_subfolders_message">There are no subfolders in this folder.</string>
     <string name="item_move_success">Item was moved to folder.</string>
     <string name="item_move_failure">Unable to move the item.</string>
@@ -120,6 +121,7 @@
     <string name="no_tags_message">No tags were added yet.</string>
     <string name="tags_edited">Tags were edited</string>
     <string name="failed_edit_tags">Unable to add or remove tags</string>
+    <string name="create_folder_invalid_name">Use a name without "/"</string>
     <string name="file_list_empty_title">There are no files or folders yet</string>
     <string name="no_results_found_label">No results found</string>
     <string name="filters_try_adjusting_your_filters_label">Try adjusting your filters.</string>

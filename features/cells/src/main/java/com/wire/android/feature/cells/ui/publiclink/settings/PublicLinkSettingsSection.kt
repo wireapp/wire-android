@@ -99,7 +99,6 @@ internal fun LinkSettingsOption(
         ) {
             Text(
                 modifier = Modifier
-                    .fillMaxWidth()
                     .weight(1f),
                 text = title,
                 style = typography().body02,

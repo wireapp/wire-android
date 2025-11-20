@@ -24,12 +24,12 @@ jobs:
   add-jira-description:
     needs: get-version
     uses:
-      wireapp/.github/.github/workflows/jira-link-pr-reusable.yml@eda36420c35b975c3b876fc16b04906643a9650f
+      wireapp/.github/.github/workflows/jira-link-pr-reusable.yml@mo/ci/jira-linking-gh-action # TODO: replace with commit hash
     with:
       skip-branches: '^(production-release|main|master|release\/v\d+)$'
       skip-actors: 'dependabot[bot],AndroidBob'
       version-name: ${{ needs.get-version.outputs.version_name }}
       fix-version-regex: '(?:^|[\s\-_])(v?\d+\.\d+(?:\.\d+)?(?:[\-\+][\w\.\-]*)?)'
     secrets:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       JIRA_TOKEN: ${{ secrets.JIRA_TOKEN }}

@@ -7,30 +7,32 @@ on:
 permissions:
   contents: read
   pull-requests: write
+
 jobs:
-  add-jira-description:
+  get-version:
     runs-on: ubuntu-latest
     # Run only if the PR is not from a Fork / external contributor
     if: ${{ github.repository_owner == 'wireapp' }}
+    outputs:
+      version_name: ${{ steps.version.outputs.version_name }}
     steps:
-      - name: Check for Dependabot
-        if: github.actor == 'dependabot[bot]' || github.actor == 'AndroidBob'
-        run: echo "PR created by Dependabot or AndroidBob, exiting successfully" && exit 0
-
       - name: Get version name from source
         id: version
         run: |
-          VERSION=$(curl -s https://raw.githubusercontent.com/${{ github.repository }}/${{ github.head_ref || github.ref_name }}/build-logic/plugins/src/main/kotlin/AndroidCoordinates.kt | grep 'const val versionName' | sed -E 's/.*"([^"]+)".*/\1/')
+          VERSION=$(curl -s https://raw.githubusercontent.com/${{ github.repository }}/${{ 
+          github.head_ref || github.ref_name }}/build-logic/plugins/src/main/kotlin/AndroidCoordinates.kt |
+          grep 'const val versionName' | sed -E 's/.*"([^"]+)".*/\1/')
           echo "version_name=$VERSION" >> $GITHUB_OUTPUT
 
-      - uses: mohamadjaara/jira-description-action@feat/option-to-fail-based-on-fix-version
-        name: jira-description-action
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          jira-token: ${{ secrets.JIRA_TOKEN }}
-          jira-base-url: https://wearezeta.atlassian.net
-          skip-branches: '^(production-release|main|master|release\/v\d+)$' #optional
-          fail-when-jira-issue-not-found: true
-          skip-ticket-title: true
-          compare-fix-version: ${{ steps.version.outputs.version_name }}
-          fix-version-regex: '(?:^|[\s\-_])(v?\d+\.\d+(?:\.\d+)?(?:[\-\+][\w\.\-]*)?)'
+  add-jira-description:
+    needs: get-version
+    uses:
+      wireapp/.github/.github/workflows/jira-link-pr-reusable.yml@eda36420c35b975c3b876fc16b04906643a9650f
+    with:
+      skip-branches: '^(production-release|main|master|release\/v\d+)$'
+      skip-actors: 'dependabot[bot],AndroidBob'
+      version-name: ${{ needs.get-version.outputs.version_name }}
+      fix-version-regex: '(?:^|[\s\-_])(v?\d+\.\d+(?:\.\d+)?(?:[\-\+][\w\.\-]*)?)'
+    secrets:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      JIRA_TOKEN: ${{ secrets.JIRA_TOKEN }}

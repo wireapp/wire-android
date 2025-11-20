@@ -18,14 +18,10 @@
 package com.wire.android.tests.core.pages
 
 import androidx.test.uiautomator.UiDevice
-import androidx.test.uiautomator.UiObjectNotFoundException
-import kotlinx.coroutines.runBlocking
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 
 data class CallingPage(private val device: UiDevice) {
-
-
     private val hangUpCallButton = UiSelectorParams(description = "Hang up call")
 
     private val minimiseCallButton = UiSelectorParams(description = "Drop down arrow")

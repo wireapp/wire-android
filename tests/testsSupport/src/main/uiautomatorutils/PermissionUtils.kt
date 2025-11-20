@@ -17,19 +17,10 @@
  */
 package uiautomatorutils
 
-import android.graphics.Bitmap
-import android.os.Environment
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
-import com.google.zxing.BarcodeFormat
-import com.google.zxing.qrcode.QRCodeWriter
-import com.google.zxing.qrcode.encoder.QRCode
-import java.io.File
-import java.io.FileOutputStream
-import android.graphics.Color
 
-
-object TestPermissionUtils {
+object PermissionUtils {
 
     fun grantRuntimePermsForForegroundApp(device: UiDevice, vararg permissions: String) {
         val inst = InstrumentationRegistry.getInstrumentation()
@@ -41,5 +32,3 @@ object TestPermissionUtils {
         }
     }
 }
-
-

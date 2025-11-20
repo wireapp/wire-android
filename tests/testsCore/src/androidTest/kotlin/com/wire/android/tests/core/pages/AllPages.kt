@@ -45,5 +45,4 @@ class AllPages(val device: UiDevice) {
     val callingPage = CallingPage(device)
 
     val documentsUIPage = DocumentsUIPage(device)
-
 }

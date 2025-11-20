@@ -426,7 +426,4 @@ data class ConversationViewPage(private val device: UiDevice) {
         }
         return this
     }
-
 }
-
-

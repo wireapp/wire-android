@@ -29,8 +29,6 @@ import androidx.test.uiautomator.UiObject2
 import androidx.test.uiautomator.UiSelector
 import androidx.test.uiautomator.Until
 import java.io.IOException
-import java.util.jar.Manifest
-
 private const val TIMEOUT_IN_MILLISECONDS = 10000L
 
 data class UiSelectorParams(

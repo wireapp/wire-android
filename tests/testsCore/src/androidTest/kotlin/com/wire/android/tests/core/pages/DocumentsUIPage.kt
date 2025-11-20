@@ -20,10 +20,7 @@ package com.wire.android.tests.core.pages
 import androidx.test.uiautomator.UiDevice
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
-
-
 data class DocumentsUIPage(private val device: UiDevice) {
-
     private val qrCodeImage = UiSelectorParams(text = "my-test-qr.png")
 
     private val sendButton = UiSelectorParams(text = "Send")

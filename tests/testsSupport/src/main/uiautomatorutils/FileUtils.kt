@@ -35,10 +35,10 @@ fun deleteDownloadedFilesContaining(keyword: String, dir: String = DOWNLOAD_DIR)
     } catch (e: IOException) {
         println("Error while deleting files: ${e.message}")
     }
-
 }
-    object QrCodeTestUtils {
 
+@Suppress("MagicNumber")
+    object QrCodeTestUtils {
         fun createQrImageInDeviceDownloadsFolder(text: String): File {
             val size = 500
 
@@ -71,4 +71,3 @@ fun deleteDownloadedFilesContaining(keyword: String, dir: String = DOWNLOAD_DIR)
             return file
         }
     }
-

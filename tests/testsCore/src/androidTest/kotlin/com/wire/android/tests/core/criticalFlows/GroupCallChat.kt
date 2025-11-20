@@ -42,7 +42,7 @@ import org.koin.test.KoinTest
 import org.koin.test.KoinTestRule
 import org.koin.test.inject
 import service.TestServiceHelper
-import uiautomatorutils.TestPermissionUtils.grantRuntimePermsForForegroundApp
+import uiautomatorutils.PermissionUtils.grantRuntimePermsForForegroundApp
 import user.usermanager.ClientUserManager
 import user.utils.ClientUser
 import kotlin.getValue
@@ -92,7 +92,6 @@ class GroupCallChat : KoinTest {
         // To delete team
         teamOwner?.deleteTeam(backendClient!!)
         deleteDownloadedFilesContaining("my-test-qr.png")
-
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
@@ -138,7 +137,6 @@ class GroupCallChat : KoinTest {
                 "user2Name, user3Name",
                 "Chrome"
             )
-
         }
 
         pages.registrationPage.apply {
@@ -166,13 +164,11 @@ class GroupCallChat : KoinTest {
 
         runBlocking {
             callHelper.userXAcceptsNextIncomingCallAutomatically("user2Name, user3Name")
-            //waitFor(10)
             pages.conversationViewPage.apply {
                 iTapStartCallButton()
             }
 
             callHelper.userVerifiesCallStatusToUserY("user2Name, user3Name", "active", 90)
-            //waitFor(5)
             pages.callingPage.apply {
                 iSeeOngoingGroupCall()
             }
@@ -211,8 +207,6 @@ class GroupCallChat : KoinTest {
                 }
                 pages.conversationViewPage.apply {
                     iSeeSentQrCodeImageInCurrentConversation()
-
-
                     pages.callingPage.apply {
                         iRestoreOngoingCall()
                         iSeeOngoingGroupCall()
@@ -223,4 +217,3 @@ class GroupCallChat : KoinTest {
         }
     }
 }
-

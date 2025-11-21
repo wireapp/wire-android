@@ -40,9 +40,7 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
-import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -76,8 +74,8 @@ class PublicLinkViewModelTest {
 
         viewModel.state.test {
             with(expectMostRecentItem()) {
-                assertFalse(enabled)
-                assertNull(url)
+                assertFalse(isEnabled)
+                assertFalse(isLinkAvailable)
             }
         }
     }
@@ -91,8 +89,8 @@ class PublicLinkViewModelTest {
 
         viewModel.state.test {
             with(expectMostRecentItem()) {
-                assertTrue(enabled)
-                assertEquals(testLink.url, url)
+                assertTrue(isEnabled)
+                assertTrue(isLinkAvailable)
             }
         }
     }
@@ -125,8 +123,8 @@ class PublicLinkViewModelTest {
             viewModel.onEnabled(false)
 
             with(expectMostRecentItem()) {
-                assertFalse(enabled)
-                assertNull(url)
+                assertFalse(isEnabled)
+                assertFalse(isLinkAvailable)
             }
         }
     }
@@ -162,8 +160,8 @@ class PublicLinkViewModelTest {
             viewModel.onEnabled(true)
 
             with(expectMostRecentItem()) {
-                assertTrue(enabled)
-                assertEquals(testLink.url, url)
+                assertTrue(isEnabled)
+                assertTrue(isLinkAvailable)
             }
         }
     }
@@ -193,7 +191,7 @@ class PublicLinkViewModelTest {
             .withLoadSuccess()
             .arrange()
 
-        viewModel.shareLink(testLink.url)
+        viewModel.shareLink()
 
         coVerify(exactly = 1) { arrangement.fileHelper.shareUrlChooser(any(), any()) }
     }

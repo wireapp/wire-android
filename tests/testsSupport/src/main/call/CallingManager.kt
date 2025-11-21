@@ -15,11 +15,21 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+@file:Suppress(
+    "TooGenericExceptionCaught",
+    "LargeClass",
+    "NoWildcardImports",
+    "LongParameterList",
+    "TooManyFunctions",
+    "TooGenericExceptionThrown",
+    "MagicNumber",
+    "WildcardImport"
+)
+
 package call
 
 import android.graphics.Bitmap
 import user.usermanager.ClientUserManager
-
 import android.util.Base64
 import android.util.Log
 import call.models.*
@@ -51,7 +61,6 @@ class CallingManager(private val usersManager: ClientUserManager) {
     companion object {
         private const val POLL_INTERVAL_MS = 2000L
         private const val TIMEOUT_INSTANCE_START = 190_000L
-        private const val TIMEOUT_INSTANCE_DESTROY = 30_000L
         private const val TIMEOUT_POSITIVE_FLOWCHECK = 30_000L
         private const val TIMEOUT_NEGATIVE_FLOWCHECK = 20_000L
         private const val TIMEOUT_PEER_CONNECTIONS = 20_000L
@@ -68,9 +77,6 @@ class CallingManager(private val usersManager: ClientUserManager) {
     private val client = CallingServiceClient()
     private val instances = ConcurrentHashMap<String, Instance>()
     private val calls = ConcurrentHashMap<String, Call>()
-
-    // region === Instance Management ===
-
 
     suspend fun startInstances(
         calleeNames: List<String>,
@@ -125,8 +131,6 @@ class CallingManager(private val usersManager: ClientUserManager) {
     fun getInstance(user: ClientUser): Instance =
         instances[user.email.orEmpty()]
             ?: error("No instance for user '${user.name}', call startInstance first")
-
-
     suspend fun callConversation(callerName: String, conversationName: String) {
         val user = usersManager.findUserByNameOrNameAlias(callerName)
         val convId = getConversationId(user, conversationName)
@@ -223,21 +227,22 @@ class CallingManager(private val usersManager: ClientUserManager) {
     private fun callStatusesListToObject(expectedStatuses: String): List<CallStatus> {
         val result = mutableListOf<CallStatus>()
         val allStatuses = expectedStatuses.split(",")
-
         for (status in allStatuses) {
             var clearedStatus = status.trim().uppercase()
             if (clearedStatus == "READY") {
                 clearedStatus = "DESTROYED"
                 // READY could mean DESTROYED or NON_EXISTENT so we add both
                 result.add(CallStatus.NON_EXISTENT)
-                println("WARNING: Please use DESTROYED or NON_EXISTENT instead of READY to check the state of a call! READY will be removed in future versions.")
+                println(
+                    "WARNING: Please use DESTROYED or" +
+                        " NON_EXISTENT instead of READY to check the state of " +
+                        "a call! READY will be removed in future versions."
+                )
             }
             result.add(CallStatus.valueOf(clearedStatus))
         }
-
         return result
     }
-
 
     private suspend fun waitForExpectedCallStatuses(
         instance: Instance,
@@ -261,7 +266,6 @@ class CallingManager(private val usersManager: ClientUserManager) {
                     "has not been changed to '$expectedStatuses' after $secondsTimeout second(s) timeout"
         )
     }
-
 
     suspend fun <T> withTimeout(
         timeoutMs: Long,
@@ -389,24 +393,21 @@ class CallingManager(private val usersManager: ClientUserManager) {
             val user = usersManager.findUserByNameOrNameAlias(name)
             val flowsBefore = safeGetFlows(user)
             check(flowsBefore.isNotEmpty()) { "No flows found for $name" }
-
             for (flowBefore in flowsBefore)
                 assertPositiveFlowChange(user, flowBefore, audioSent = true, audioRecv = true)
         }
     }
 
-
     suspend fun verifySendAndReceiveAudio(callees: String) {
         for (callee in usersManager.splitAliases(callees)) {
-            val userAs = usersManager.findUserByNameOrNameAlias(callee);
+            val userAs = usersManager.findUserByNameOrNameAlias(callee)
             val flowsBefore = getFlows(callee)
             assertThat("Found no flows for $callee", flowsBefore, not(emptyIterable()))
             for (flowBefore in flowsBefore) {
-                assertPositiveFlowChange(userAs,flowBefore,true, true, false, false)
+                assertPositiveFlowChange(userAs, flowBefore, true, true, false, false)
             }
         }
     }
-
 
     suspend fun verifyReceiveAudio(userNames: List<String>) {
         userNames.forEach { name ->
@@ -540,9 +541,10 @@ class CallingManager(private val usersManager: ClientUserManager) {
                 client.getFlows(getInstance(user))
             }
         }
+
     private suspend fun getFlows(user: String): List<CallFlow> =
         withContext(Dispatchers.IO) {
-            val userAs = usersManager.findUserByNameOrNameAlias(user);
+            val userAs = usersManager.findUserByNameOrNameAlias(user)
             val flows = client.getFlows(getInstance(userAs)).filter { !it.isEmptyFlow() }
             flows.ifEmpty {
                 delay(2000)
@@ -664,7 +666,6 @@ class CallingManager(private val usersManager: ClientUserManager) {
         }
     }
 
-
     suspend fun maximiseCall(userNames: List<String>) {
         userNames.forEach { name ->
             val user = usersManager.findUserByNameOrNameAlias(name)
@@ -684,7 +685,4 @@ class CallingManager(private val usersManager: ClientUserManager) {
         val instance = getInstance(moderator)
         client.getCurrentCall(instance)?.let { client.muteAllOthers(instance, it, participantName) }
     }
-
 }
-
-

@@ -53,7 +53,7 @@ class PersonalUserRegistrationTest : KoinTest {
     @Before
     fun setUp() {
         // device = UiAutomatorSetup.start(UiAutomatorSetup.APP_DEV)
-        device = UiAutomatorSetup.start(UiAutomatorSetup.APP_STAGING)
+        device = UiAutomatorSetup.start(UiAutomatorSetup.APP_INTERNAL)
     }
 
     @After

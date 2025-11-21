@@ -15,18 +15,26 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+@file:Suppress(
+    "TooGenericExceptionCaught",
+    "LargeClass",
+    "LongParameterList",
+    "NestedBlockDepth",
+    "MagicNumber",
+    "TooManyFunctions",
+    "TooGenericExceptionThrown"
+)
+
 package call
 
 import backendUtils.BackendClient
-import backendUtils.team.TeamHelper
 import backendUtils.team.getTeamByName
 import call.pinger.UiAutomatorPinger
-import kotlinx.coroutines.delay
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 import user.usermanager.ClientUserManager
 
-class CallHelper() {
+class CallHelper {
     lateinit var usersManager: ClientUserManager
     lateinit var callingManager: CallingManager
 
@@ -50,20 +58,23 @@ class CallHelper() {
         UiAutomatorPinger.startPinging()
         callingManager.startInstances(
             usersManager.splitAliases(callees),
-            callingServiceBackend, "Android", "Testing"
+            callingServiceBackend,
+            "Android",
+            "Testing"
         )
         UiAutomatorPinger.stopPinging()
     }
 
     suspend fun userXAcceptsNextIncomingCallAutomatically(callees: String) {
-        callingManager.acceptNextCall(usersManager.splitAliases(callees));
+        callingManager.acceptNextCall(usersManager.splitAliases(callees))
     }
 
     suspend fun userVerifiesCallStatusToUserY(callees: String, expectedStatuses: String, timeoutSeconds: Int) {
         UiAutomatorPinger.startPinging()
         callingManager.verifyAcceptingCallStatus(
             usersManager.splitAliases(callees),
-            expectedStatuses, timeoutSeconds
+            expectedStatuses,
+            timeoutSeconds
         )
         UiAutomatorPinger.stopPinging()
     }
@@ -88,7 +99,6 @@ class CallHelper() {
     }
 
     suspend fun userVerifiesAudio(callees: String) {
-        callingManager.verifySendAndReceiveAudio(callees);
+        callingManager.verifySendAndReceiveAudio(callees)
     }
-    }
-
+}

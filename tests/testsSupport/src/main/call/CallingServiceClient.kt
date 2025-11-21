@@ -15,8 +15,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+@file:Suppress(
+    "TooGenericExceptionCaught",
+    "LargeClass",
+    "LongParameterList",
+    "NestedBlockDepth",
+    "MagicNumber",
+    "TooManyFunctions",
+    "TooGenericExceptionThrown"
+)
 package call
-
 
 import android.graphics.Bitmap
 import backendUtils.BackendClient
@@ -33,11 +41,10 @@ import user.utils.ClientUser
 class CallingServiceClient {
 
     companion object {
-        private const val TRACE = false
-        private fun getApiRoot(): String = "https://qa-callingservice-wire.runs.onstackit.cloud"
+        const val API_ROOT = "https://qa-callingservice-wire.runs.onstackit.cloud"
     }
 
-    private val callingService = CallingService(getApiRoot(), TRACE)
+    private val callingService = CallingService(API_ROOT)
 
     fun startInstance(
         user: ClientUser,
@@ -49,7 +56,6 @@ class CallingServiceClient {
         val callingServiceEnv = "custom"
 
         var backendDTO = BackendDTO.fromBackend(BackendClient.loadBackend(user.backendName.orEmpty()))
-
 
         val request = InstanceRequest(
             email = user.email.orEmpty(),

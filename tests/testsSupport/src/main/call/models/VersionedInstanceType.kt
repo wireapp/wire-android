@@ -31,12 +31,12 @@ data class VersionedInstanceType(
                 name.contains("chrome", ignoreCase = true) ->
                     "/$name/Contents/MacOS/Google Chrome"
 
-                else -> "/${name}-${version}/zcall"
+                else -> "/$name-$version/zcall"
             }
         } else {
             when (name.lowercase()) {
-                "chrome" -> "/${name}-${version}/google-chrome"
-                else -> "/${name}-${version}/$name"
+                "chrome" -> "/$name-$version/google-chrome"
+                else -> "/$name-$version/$name"
             }
         }
     }

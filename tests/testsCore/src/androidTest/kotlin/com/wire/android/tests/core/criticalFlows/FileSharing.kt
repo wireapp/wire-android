@@ -64,7 +64,6 @@ class FileSharing : KoinTest {
     @Before
     fun setUp() {
         context = InstrumentationRegistry.getInstrumentation().context
-        // device = UiAutomatorSetup.start(UiAutomatorSetup.APP_DEV)
         device = UiAutomatorSetup.start(UiAutomatorSetup.APP_INTERNAL)
         // device = UiAutomatorSetup.start(UiAutomatorSetup.APP_STAGING)
         backendClient = BackendClient.loadBackend("STAGING")

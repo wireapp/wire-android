@@ -19,7 +19,6 @@ package uiautomatorutils
 
 import android.graphics.Rect
 import android.os.SystemClock
-import android.util.Log
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.BySelector

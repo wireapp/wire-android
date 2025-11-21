@@ -34,4 +34,3 @@ data class CallRequest(
         return "CallRequest(conversationId=$conversationId, timeout=$timeout)"
     }
 }
-

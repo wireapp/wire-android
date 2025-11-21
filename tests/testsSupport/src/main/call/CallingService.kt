@@ -1,5 +1,13 @@
+@file:Suppress(
+    "TooGenericExceptionCaught",
+    "LargeClass",
+    "LongParameterList",
+    "NestedBlockDepth",
+    "MagicNumber",
+    "TooManyFunctions",
+    "TooGenericExceptionThrown"
+)
 package call
-
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Base64
@@ -18,14 +26,18 @@ import java.io.IOException
 import java.net.HttpCookie
 import java.net.HttpURLConnection
 import java.net.MalformedURLException
+import java.net.URI
 import java.net.URL
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.ConcurrentHashMap
 
 class CallingService(
-    private val callingServiceAddress: String,
-    trace: Boolean = false
+    private val callingServiceAddress: String
 ) {
+
+    val applicationJson = "application/json"
+    val contentTypeString = "Content-Type"
+
     private val gson = Gson()
     private val cookies = ConcurrentHashMap<String, HttpCookie>()
     private var basicAuthUser: String? = null
@@ -33,9 +45,9 @@ class CallingService(
 
     private fun getBasicAuthentication(): String {
         if (basicAuthUser == null) basicAuthUser = "qa"
-        if (basicAuthPassword == null)
+        if (basicAuthPassword == null) {
             basicAuthPassword = BuildConfig.CALLINGSERVICE_BASIC_AUTH_PASSWORD
-
+        }
         val auth = "$basicAuthUser:$basicAuthPassword"
         val encodedAuth = Base64.encodeToString(auth.toByteArray(StandardCharsets.UTF_8), Base64.NO_WRAP)
         return "Basic $encodedAuth"
@@ -43,7 +55,7 @@ class CallingService(
 
     private fun getUrl(path: String): URL {
         return try {
-            URL(callingServiceAddress + path)
+            URI(callingServiceAddress + path).toURL()
         } catch (e: MalformedURLException) {
             throw RuntimeException(e)
         }
@@ -52,13 +64,13 @@ class CallingService(
     private fun buildRequestForInstance(
         instanceId: String?,
         path: String,
-        contentType: String? = "application/json",
-        accept: String? = "application/json"
+        contentType: String? = applicationJson,
+        accept: String? = applicationJson
     ): HttpURLConnection {
         val url = getUrl(path)
         val conn = (url.openConnection() as HttpURLConnection)
         conn.setRequestProperty("Authorization", getBasicAuthentication())
-        contentType?.let { conn.setRequestProperty("Content-Type", it) }
+        contentType?.let { conn.setRequestProperty(contentTypeString, it) }
         accept?.let { conn.setRequestProperty("Accept", it) }
         cookies[instanceId]?.let {
             if (it.name == "SERVERID") conn.setRequestProperty("Cookie", "${it.name}=${it.value}")
@@ -69,27 +81,26 @@ class CallingService(
     private fun buildRequestForCertainInstance(
         serverId: String,
         path: String,
-        contentType: String? = "application/json",
-        accept: String? = "application/json"
+        contentType: String? = applicationJson,
+        accept: String? = applicationJson
     ): HttpURLConnection {
         val url = getUrl(path)
         val conn = (url.openConnection() as HttpURLConnection)
         conn.setRequestProperty("Authorization", getBasicAuthentication())
-        contentType?.let { conn.setRequestProperty("Content-Type", it) }
+        contentType?.let { conn.setRequestProperty(contentTypeString, it) }
         accept?.let { conn.setRequestProperty("Accept", it) }
         conn.setRequestProperty("Cookie", "SERVERID=$serverId")
         return conn
     }
 
-    // region INSTANCE APIs
 
     fun createInstance(request: InstanceRequest): Instance {
         return try {
             val url = getUrl("/api/v1/instance/create")
             val conn = (url.openConnection() as HttpURLConnection)
             conn.setRequestProperty("Authorization", getBasicAuthentication())
-            conn.setRequestProperty("Content-Type", "application/json")
-            conn.setRequestProperty("Accept", "application/json")
+            conn.setRequestProperty(contentTypeString, applicationJson)
+            conn.setRequestProperty("Accept", applicationJson)
 
             val response = httpPost(conn, gson.toJson(request), intArrayOf(HttpURLConnection.HTTP_OK))
             val instance = gson.fromJson(response, Instance::class.java)

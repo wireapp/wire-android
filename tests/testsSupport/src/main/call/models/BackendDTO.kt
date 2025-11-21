@@ -19,7 +19,6 @@ package call.models
 
 import backendUtils.BackendClient
 
-
 data class BackendDTO(
     var name: String,
     val webappUrl: String,

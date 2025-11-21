@@ -201,6 +201,7 @@ class GroupCallChat : KoinTest {
                 createQrImageInDeviceDownloadsFolder("my-test-qr")
                 tapSharingOption("File")
                 pages.documentsUIPage.apply {
+                    Thread.sleep(5000)
                     iSeeQrCodeImage()
                     iOpenDisplayedQrCodeImage()
                     iTapSendButtonOnPreviewImage()

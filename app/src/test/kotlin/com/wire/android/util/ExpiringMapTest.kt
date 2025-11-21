@@ -52,7 +52,7 @@ class ExpiringMapTest {
     }
 
     @Test
-    fun `check item can not be obtained before expiration`() = runTest {
+    fun `check item can be obtained before expiration`() = runTest {
         // given
         val map = withTestExpiringMap()
 
@@ -107,9 +107,22 @@ class ExpiringMapTest {
         assertEquals(null, map["testKey"])
     }
 
-    private fun TestScope.withTestExpiringMap(): MutableMap<String, String> = ExpiringMap<String, String>(
+    @Test
+    fun `check item can be put with custom expiration`() = runTest {
+        // given
+        val map = withTestExpiringMap()
+
+        // when
+        map.putWithExpireAt("testKey", "testValue", currentTime + 500)
+        advanceTimeBy(301) // advance past default expiration
+
+        // then
+        assertEquals("testValue", map["testKey"])
+    }
+
+    private fun TestScope.withTestExpiringMap(): ExpiringMap<String, String> = ExpiringMap<String, String>(
         scope = this.backgroundScope,
-        expiration = 300,
+        expirationMs = 300,
         delegate = mutableMapOf(),
         currentTime = { currentTime }
     )

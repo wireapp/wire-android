@@ -25,6 +25,8 @@ import com.wire.android.feature.cells.ui.destinations.ConversationFilesScreenDes
 import com.wire.android.feature.cells.ui.destinations.ConversationFilesWithSlideInTransitionScreenDestination
 import com.wire.android.feature.cells.ui.destinations.CreateFolderScreenDestination
 import com.wire.android.feature.cells.ui.destinations.MoveToFolderScreenDestination
+import com.wire.android.feature.cells.ui.destinations.PublicLinkExpirationScreenDestination
+import com.wire.android.feature.cells.ui.destinations.PublicLinkPasswordScreenDestination
 import com.wire.android.feature.cells.ui.destinations.PublicLinkScreenDestination
 import com.wire.android.feature.cells.ui.destinations.RecycleBinScreenDestination
 import com.wire.android.feature.cells.ui.destinations.RenameNodeScreenDestination
@@ -44,6 +46,8 @@ object WireMainNavGraph : NavGraphSpec {
         .plus(RecycleBinScreenDestination)
         .plus(RenameNodeScreenDestination)
         .plus(AddRemoveTagsScreenDestination)
+        .plus(PublicLinkPasswordScreenDestination)
+        .plus(PublicLinkExpirationScreenDestination)
     override val destinationsByRoute = destinations.associateBy { it.route }
     override val nestedNavGraphs = NavGraphs.wireRoot.nestedNavGraphs
 }

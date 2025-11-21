@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.home.conversations.details.editguestaccess.createPasswordProtectedGuestLink
+package com.wire.android.ui.common.button
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Icon
@@ -26,13 +26,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
-import com.wire.android.R
-import com.wire.android.ui.common.button.IconAlignment
-import com.wire.android.ui.common.button.WireButtonState
-import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.ui.common.R
 
 @Composable
 fun GeneratePasswordButton(

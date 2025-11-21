@@ -20,7 +20,9 @@
 
 package com.wire.android.ui.common.spacers
 
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -62,4 +64,9 @@ object VerticalSpace {
     fun x32() {
         Spacer(Modifier.height(dimensions().spacing32x))
     }
+}
+
+@Composable
+fun ColumnScope.fillVerticalSpace() {
+    Spacer(Modifier.fillMaxHeight().weight(1f))
 }

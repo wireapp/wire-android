@@ -44,9 +44,11 @@ import com.wire.kalium.cells.domain.usecase.RenameNodeUseCase
 import com.wire.kalium.cells.domain.usecase.RestoreNodeFromRecycleBinUseCase
 import com.wire.kalium.cells.domain.usecase.RetryAttachmentUploadUseCase
 import com.wire.kalium.cells.domain.usecase.UpdateNodeTagsUseCase
+import com.wire.kalium.cells.domain.usecase.publiclink.CreatePublicLinkPasswordUseCase
 import com.wire.kalium.cells.domain.usecase.publiclink.CreatePublicLinkUseCase
 import com.wire.kalium.cells.domain.usecase.publiclink.DeletePublicLinkUseCase
 import com.wire.kalium.cells.domain.usecase.publiclink.GetPublicLinkUseCase
+import com.wire.kalium.cells.domain.usecase.publiclink.UpdatePublicLinkPasswordUseCase
 import com.wire.kalium.cells.paginatedFilesFlowUseCase
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
@@ -175,4 +177,12 @@ class CellsModule {
 
     @Provides
     fun provideGetCellNodeUseCase(cellsScope: CellsScope): GetCellFileUseCase = cellsScope.getCellFileUseCase
+
+    @Provides
+    fun provideCreatePublicLinkPasswordUseCase(cellsScope: CellsScope): CreatePublicLinkPasswordUseCase =
+        cellsScope.createPublicLinkPasswordUseCase
+
+    @Provides
+    fun provideUpdatePublicLinkPasswordUseCase(cellsScope: CellsScope): UpdatePublicLinkPasswordUseCase =
+        cellsScope.updatePublicLinkPasswordUseCase
 }

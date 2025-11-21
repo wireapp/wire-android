@@ -53,7 +53,7 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.ramcosta.composedestinations.spec.Route
+import com.ramcosta.composedestinations.spec.TypedRoute
 import com.ramcosta.composedestinations.utils.destination
 import com.ramcosta.composedestinations.utils.route
 import com.wire.android.BuildConfig
@@ -194,7 +194,7 @@ class WireActivity : AppCompatActivity() {
             appLogger.i("$TAG init login type selector")
 
             appLogger.i("$TAG start destination")
-            val startDestination: Direction = when (viewModel.initialAppState()) {
+            val startDestination: TypedRoute<*> = when (viewModel.initialAppState()) {
                 InitialAppState.NOT_LOGGED_IN -> when (loginTypeSelector.canUseNewLogin()) {
                     true -> NewWelcomeEmptyStartScreenDestination
                     false -> WelcomeScreenDestination
@@ -245,7 +245,7 @@ class WireActivity : AppCompatActivity() {
     }
 
     @Suppress("LongMethod")
-    private fun setComposableContent(startDestination: Route) {
+    private fun setComposableContent(startDestination: TypedRoute<*>) {
         setContent {
             val snackbarHostState = remember { SnackbarHostState() }
 

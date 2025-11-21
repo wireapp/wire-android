@@ -28,6 +28,7 @@ import com.ramcosta.composedestinations.navigation.require
 import com.ramcosta.composedestinations.scope.resultBackNavigator
 import com.ramcosta.composedestinations.scope.resultRecipient
 import com.ramcosta.composedestinations.spec.Direction
+import com.ramcosta.composedestinations.spec.TypedRoute
 import com.wire.android.ui.NavGraphs
 import com.wire.android.ui.navtype.groupConversationDetailsNavBackArgsNavType
 import com.wire.android.ui.navtype.imagesPreviewNavBackArgsNavType
@@ -40,14 +41,14 @@ import com.wire.android.ui.home.conversations.ConversationScreen
 fun MainNavHost(
     navigator: Navigator,
     loginTypeSelector: LoginTypeSelector?,
-    startDestination: Direction,
+    startDestination: TypedRoute<*>,
     modifier: Modifier = Modifier,
 ) {
     AdjustDestinationStylesForTablets()
     DestinationsNavHost(
         modifier = modifier,
         navGraph = NavGraphs.wireRoot,
-        start = startDestination,
+        start = startDestination as Direction,
         navController = navigator.navController,
         dependenciesContainerBuilder = {
             // 👇 To make Navigator available to all destinations as a non-navigation parameter

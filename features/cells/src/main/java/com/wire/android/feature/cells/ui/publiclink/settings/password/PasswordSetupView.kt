@@ -17,6 +17,7 @@
  */
 package com.wire.android.feature.cells.ui.publiclink.settings.password
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -43,6 +44,7 @@ import com.wire.android.ui.common.textfield.DefaultPassword
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.theme.WireTheme
 
+@SuppressLint("ComposeModifierMissing")
 @Composable
 fun ColumnScope.PasswordSetupView(
     isPasswordValid: Boolean,

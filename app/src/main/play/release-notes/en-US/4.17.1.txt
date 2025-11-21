@@ -1,3 +1,8 @@
 New
+- Add initial support for team-managed channels
+
+Improvements
+- Improved performance when navigating to a conversation
 
 Fixes
+

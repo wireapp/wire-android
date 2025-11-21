@@ -22,9 +22,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.ramcosta.composedestinations.generated.cells.destinations.AddRemoveTagsScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.PublicLinkScreenDestination
+import com.wire.android.ui.cells.destinations.AddRemoveTagsScreenDestination
+import com.wire.android.ui.cells.destinations.ConversationFilesScreenDestination
+import com.wire.android.ui.cells.destinations.PublicLinkScreenDestination
 import com.wire.android.feature.cells.domain.model.CellsFilter
 import com.wire.android.feature.cells.ui.filter.FilterBottomSheet
 import com.wire.android.navigation.NavigationCommand

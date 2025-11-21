@@ -25,9 +25,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesWithSlideInTransitionScreenDestination
+import com.wire.android.ui.cells.destinations.ConversationFilesWithSlideInTransitionScreenDestination
 import com.wire.android.feature.cells.R
-import com.ramcosta.composedestinations.generated.cells.destinations.RecycleBinScreenDestination
+import com.wire.android.ui.cells.destinations.RecycleBinScreenDestination
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.WireNavigator

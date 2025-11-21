@@ -26,6 +26,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import com.wire.android.R
+import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
@@ -34,7 +35,7 @@ import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessScree
 
 @Destination<WireRootNavGraph>(
     navArgs = UpdateChannelAccessArgs::class,
-    style = DestinationStyle.Runtime::class, // default should be SlideNavigationAnimation
+    style = SlideNavigationAnimation::class,
 )
 @Composable
 fun ChannelAccessOnUpdateScreen(

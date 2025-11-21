@@ -44,8 +44,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.generated.cells.destinations.CreateFolderScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.MoveToFolderScreenDestination
+import com.wire.android.ui.cells.destinations.CreateFolderScreenDestination
+import com.wire.android.ui.cells.destinations.MoveToFolderScreenDestination
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.feature.cells.R

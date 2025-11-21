@@ -45,6 +45,7 @@ import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.rememberNavigator
+import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.bottomsheet.show
 import com.wire.android.ui.common.dimensions
@@ -65,7 +66,7 @@ import com.wire.android.util.shareViaIntent
 @Suppress("ComplexMethod")
 @Destination<WireRootNavGraph>(
     navArgs = EditGuestAccessNavArgs::class,
-    style = DestinationStyle.Runtime::class, // default should be SlideNavigationAnimation
+    style = SlideNavigationAnimation::class,
 )
 @Composable
 fun EditGuestAccessScreen(

@@ -42,6 +42,7 @@ import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.WireDropDown
@@ -77,7 +78,7 @@ import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.id.QualifiedID
 
 @Destination<WireRootNavGraph>(
-    style = DestinationStyle.Runtime::class, // default should be SlideNavigationAnimation
+    style = SlideNavigationAnimation::class,
 )
 @Composable
 fun ChangeUserColorScreen(

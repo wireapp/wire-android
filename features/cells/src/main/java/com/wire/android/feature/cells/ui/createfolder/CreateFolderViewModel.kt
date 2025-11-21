@@ -24,7 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.cells.navArgs
+import com.wire.android.ui.cells.navArgs
 import com.wire.android.feature.cells.ui.rename.RenameNodeViewModel.Companion.NAME_MAX_COUNT
 import com.wire.android.model.DisplayNameState
 import com.wire.android.ui.common.textfield.textAsFlow

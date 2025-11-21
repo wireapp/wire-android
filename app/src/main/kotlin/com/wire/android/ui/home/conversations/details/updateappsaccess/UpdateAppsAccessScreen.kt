@@ -35,6 +35,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
@@ -50,7 +51,7 @@ import kotlinx.coroutines.launch
 
 @Destination<WireRootNavGraph>(
     navArgs = UpdateAppsAccessNavArgs::class,
-    style = DestinationStyle.Runtime::class,
+    style = SlideNavigationAnimation::class,
 )
 @Composable
 fun UpdateAppsAccessScreen(

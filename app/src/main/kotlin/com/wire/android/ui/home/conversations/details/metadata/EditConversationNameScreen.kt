@@ -27,6 +27,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.ui.common.groupname.GroupMetadataState
 import com.wire.android.ui.common.groupname.GroupNameMode
 import com.wire.android.ui.common.groupname.GroupNameScreen
@@ -35,7 +36,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Destination<WireRootNavGraph>(
     navArgs = EditConversationNameNavArgs::class,
-    style = DestinationStyle.Runtime::class, // default should be SlideNavigationAnimation
+    style = SlideNavigationAnimation::class,
 )
 @Composable
 fun EditConversationNameScreen(

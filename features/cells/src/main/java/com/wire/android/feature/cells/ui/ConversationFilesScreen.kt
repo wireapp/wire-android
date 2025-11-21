@@ -45,13 +45,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.ramcosta.composedestinations.generated.cells.destinations.AddRemoveTagsScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesWithSlideInTransitionScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.CreateFolderScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.MoveToFolderScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.PublicLinkScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.RecycleBinScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.RenameNodeScreenDestination
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.feature.cells.ui.common.Breadcrumbs
@@ -72,6 +65,13 @@ import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.cells.destinations.AddRemoveTagsScreenDestination
+import com.wire.android.ui.cells.destinations.ConversationFilesWithSlideInTransitionScreenDestination
+import com.wire.android.ui.cells.destinations.CreateFolderScreenDestination
+import com.wire.android.ui.cells.destinations.MoveToFolderScreenDestination
+import com.wire.android.ui.cells.destinations.PublicLinkScreenDestination
+import com.wire.android.ui.cells.destinations.RecycleBinScreenDestination
+import com.wire.android.ui.cells.destinations.RenameNodeScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow

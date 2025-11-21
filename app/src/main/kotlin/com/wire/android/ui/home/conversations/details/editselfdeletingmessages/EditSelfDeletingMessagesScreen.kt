@@ -46,6 +46,7 @@ import com.ramcosta.composedestinations.spec.DestinationStyle
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.rememberNavigator
+import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.ui.common.button.WireButton
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.divider.WireDivider
@@ -63,7 +64,7 @@ import com.wire.android.util.ui.sectionWithElements
 
 @Destination<WireRootNavGraph>(
     navArgs = EditSelfDeletingMessagesNavArgs::class,
-    style = DestinationStyle.Runtime::class, // default should be SlideNavigationAnimation
+    style = SlideNavigationAnimation::class,
 )
 @Composable
 fun EditSelfDeletingMessagesScreen(

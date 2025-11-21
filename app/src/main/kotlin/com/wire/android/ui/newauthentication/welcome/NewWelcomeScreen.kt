@@ -34,8 +34,7 @@ import com.wire.android.navigation.style.AuthNoNavigationAnimation
 import com.wire.android.ui.destinations.NewLoginScreenDestination
 import com.wire.android.ui.destinations.WelcomeScreenDestination
 
-@WireRootNavGraph(start = true)
-@Destination<WireRootNavGraph>
+@Destination<WireRootNavGraph>(start = true)
 @Composable
 fun WelcomeChooserScreen(
     navigator: Navigator,

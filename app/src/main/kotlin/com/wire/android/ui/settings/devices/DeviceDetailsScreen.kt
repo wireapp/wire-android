@@ -18,7 +18,7 @@
 package com.wire.android.ui.settings.devices
 import com.ramcosta.composedestinations.annotation.Destination
 import com.wire.android.navigation.WireRootNavGraph
-
+import com.wire.android.navigation.style.SlideNavigationAnimation
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -47,7 +47,6 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.spec.DestinationStyle
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
@@ -105,7 +104,7 @@ import kotlinx.datetime.Instant
 
 @Destination<WireRootNavGraph>(
     navArgs = DeviceDetailsNavArgs::class,
-    style = DestinationStyle.Runtime::class, // default should be SlideNavigationAnimation
+    style = SlideNavigationAnimation::class,
 )
 @Composable
 fun DeviceDetailsScreen(

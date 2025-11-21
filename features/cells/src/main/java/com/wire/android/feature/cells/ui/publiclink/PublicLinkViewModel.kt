@@ -19,7 +19,7 @@ package com.wire.android.feature.cells.ui.publiclink
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.cells.navArgs
+import com.wire.android.ui.cells.navArgs
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.util.FileHelper
 import com.wire.android.ui.common.ActionsViewModel

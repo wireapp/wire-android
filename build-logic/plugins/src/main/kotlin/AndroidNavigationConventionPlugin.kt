@@ -63,6 +63,19 @@ class AndroidNavigationConventionPlugin : Plugin<Project> {
         project.kotlinExtension.sourceSets.configureEach { kotlin.srcDir(dstPath) }
 
         // add the package name suffix to the KSP arguments so that it can be used in the generated code
-        project.extensions.getByType<KspExtension>().arg("packageNameSuffix", packageNameSuffix)
+        project.extensions.getByType<KspExtension>().apply {
+            arg("packageNameSuffix", packageNameSuffix)
+            // Configure Compose Destinations v2 to use v1-style package structure per module
+            // For :app -> com.wire.android.ui.destinations
+            // For :features:cells -> com.wire.android.ui.cells.destinations
+            val destinationPackage = if (project.path == ":app") {
+                "com.wire.android.ui"
+            } else {
+                // Extract module name from path like ":features:cells" -> "cells"
+                val moduleName = project.path.split(":").lastOrNull() ?: "destinations"
+                "com.wire.android.ui.$moduleName"
+            }
+            arg("compose-destinations.codeGenPackageName", destinationPackage)
+        }
     }
 }

@@ -64,6 +64,7 @@ import com.wire.android.model.Clickable
 import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.NavGraphs
 import com.wire.android.ui.common.VisibilityState
 import com.wire.android.ui.common.WireDropDown
@@ -110,7 +111,7 @@ import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 
 @Destination<WireRootNavGraph>(
-    style = DestinationStyle.Runtime::class, // default should be PopUpNavigationAnimation
+    style = PopUpNavigationAnimation::class,
 )
 @Composable
 @SuppressLint("ComposeModifierMissing")

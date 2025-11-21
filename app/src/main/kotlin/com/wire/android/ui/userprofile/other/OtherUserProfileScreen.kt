@@ -59,6 +59,7 @@ import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.HandleActions
@@ -113,7 +114,7 @@ import kotlinx.datetime.Instant
 
 @Destination<WireRootNavGraph>(
     navArgs = OtherUserProfileNavArgs::class,
-    style = DestinationStyle.Runtime::class, // default should be PopUpNavigationAnimation
+    style = PopUpNavigationAnimation::class,
 )
 @Composable
 fun OtherUserProfileScreen(

@@ -17,8 +17,6 @@
  */
 
 package com.wire.android.ui.home.settings
-import com.ramcosta.composedestinations.annotation.Destination
-import com.wire.android.navigation.WireRootNavGraph
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
@@ -30,6 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ramcosta.composedestinations.annotation.Destination
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.appLogger
@@ -47,8 +46,7 @@ import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.ui.sectionWithElements
 import com.wire.android.util.ui.PreviewMultipleThemes
 
-@HomeNavGraph
-@Destination<WireRootNavGraph>
+@Destination<HomeNavGraph>
 @Composable
 fun SettingsScreen(
     homeStateHolder: HomeStateHolder,

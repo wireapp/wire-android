@@ -17,8 +17,6 @@
  */
 
 package com.wire.android.ui.home
-import com.ramcosta.composedestinations.annotation.Destination
-import com.wire.android.navigation.WireRootNavGraph
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
@@ -42,9 +40,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -63,19 +63,17 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import com.ramcosta.composedestinations.DestinationsNavHost
-import com.ramcosta.composedestinations.navigation.dependency
+import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.R
 import com.wire.android.appLogger
-import com.wire.android.navigation.AdjustDestinationStylesForTablets
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.navigation.HomeDestination.FabOptions
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.WireRootNavGraph
 import com.wire.android.navigation.handleNavigation
-import com.wire.android.ui.NavGraphs
 import com.wire.android.ui.analytics.AnalyticsUsageViewModel
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.HandleActions
@@ -99,6 +97,8 @@ import com.wire.android.ui.home.drawer.HomeDrawerState
 import com.wire.android.ui.home.drawer.HomeDrawerViewModel
 import com.wire.android.util.permission.rememberShowNotificationsPermissionFlow
 import kotlinx.coroutines.launch
+
+val LocalHomeStateHolder = compositionLocalOf<HomeStateHolder?> { null }
 
 @Destination<WireRootNavGraph>
 @Composable
@@ -169,17 +169,19 @@ fun HomeScreen(
         )
     }
 
-    HomeContent(
-        homeState = homeState,
-        homeDrawerState = homeDrawerViewModel.drawerState,
-        homeStateHolder = homeScreenState,
-        onNewConversationClick = { navigator.navigate(NavigationCommand(NewConversationSearchPeopleScreenDestination)) },
-        onSelfUserClick = {
-            // Temporarily stopping sending ui.clicked-profile event
-            // homeViewModel.sendOpenProfileEvent()
-            navigator.navigate(NavigationCommand(SelfUserProfileScreenDestination))
-        },
-    )
+    CompositionLocalProvider(LocalHomeStateHolder provides homeScreenState) {
+        HomeContent(
+            homeState = homeState,
+            homeDrawerState = homeDrawerViewModel.drawerState,
+            homeStateHolder = homeScreenState,
+            onNewConversationClick = { navigator.navigate(NavigationCommand(NewConversationSearchPeopleScreenDestination)) },
+            onSelfUserClick = {
+                // Temporarily stopping sending ui.clicked-profile event
+                // homeViewModel.sendOpenProfileEvent()
+                navigator.navigate(NavigationCommand(SelfUserProfileScreenDestination))
+            },
+        )
+    }
 
     BackHandler(homeScreenState.drawerState.isOpen) {
         homeScreenState.coroutineScope.launch {
@@ -352,25 +354,8 @@ fun HomeContent(
                     collapsingEnabled = !searchBarState.isSearchActive,
                     contentLazyListState = homeStateHolder.lazyListStateFor(currentNavigationItem, currentConversationFilter),
                     content = {
-                        /**
-                         * This "if" is a workaround, otherwise it can crash because of the SubcomposeLayout's nature.
-                         * We need to communicate to the sub-compositions when they are to be disposed by the parent and ignore
-                         * compositions in the round they are to be disposed. More here:
-                         * https://github.com/google/accompanist/issues/1487
-                         * https://issuetracker.google.com/issues/268422136
-                         * https://issuetracker.google.com/issues/254645321
-                         */
-                        val lifecycleState by LocalLifecycleOwner.current.lifecycle.currentStateFlow.collectAsState()
-                        if (lifecycleState != Lifecycle.State.DESTROYED) {
-                            AdjustDestinationStylesForTablets()
-                            DestinationsNavHost(
-                                navGraph = NavGraphs.wireRoot,
-                                navController = navController,
-                                dependenciesContainerBuilder = {
-                                    dependency(homeStateHolder)
-                                }
-                            )
-                        }
+                        // Home section screens are now rendered directly within MainNavHost.
+                        // HomeStateHolder is provided via LocalHomeStateHolder composition local.
                     },
                     floatingActionButton = {
                         AnimatedVisibility(

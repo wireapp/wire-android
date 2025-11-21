@@ -17,16 +17,14 @@
  */
 
 package com.wire.android.ui.home.vault
-import com.ramcosta.composedestinations.annotation.Destination
-import com.wire.android.navigation.WireRootNavGraph
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import com.ramcosta.composedestinations.annotation.Destination
 import com.wire.android.navigation.HomeNavGraph
 import com.wire.android.ui.common.UnderConstructionScreen
 
-@HomeNavGraph
-@Destination<WireRootNavGraph>
+@Destination<HomeNavGraph>
 @Composable
 fun VaultScreen() {
     UnderConstructionScreen(screenName = "VaultScreen")

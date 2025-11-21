@@ -24,31 +24,28 @@ import androidx.compose.ui.Modifier
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.manualcomposablecalls.composable
 import com.ramcosta.composedestinations.navigation.dependency
-import com.ramcosta.composedestinations.navigation.require
 import com.ramcosta.composedestinations.scope.resultBackNavigator
 import com.ramcosta.composedestinations.scope.resultRecipient
-import com.ramcosta.composedestinations.spec.Direction
-import com.ramcosta.composedestinations.spec.TypedRoute
 import com.wire.android.ui.NavGraphs
+import com.wire.android.ui.destinations.ConversationScreenDestination
+import com.wire.android.ui.destinations.HomeScreenDestination
+import com.wire.android.ui.home.conversations.ConversationScreen
 import com.wire.android.ui.navtype.groupConversationDetailsNavBackArgsNavType
 import com.wire.android.ui.navtype.imagesPreviewNavBackArgsNavType
 import com.wire.android.ui.navtype.mediaGalleryNavBackArgsNavType
-import com.wire.android.ui.destinations.ConversationScreenDestination
-import com.wire.android.ui.home.conversations.ConversationScreen
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun MainNavHost(
     navigator: Navigator,
     loginTypeSelector: LoginTypeSelector?,
-    startDestination: TypedRoute<*>,
+    startDestination: Any,
     modifier: Modifier = Modifier,
 ) {
     AdjustDestinationStylesForTablets()
     DestinationsNavHost(
         modifier = modifier,
         navGraph = NavGraphs.wireRoot,
-        start = startDestination as Direction,
         navController = navigator.navController,
         dependenciesContainerBuilder = {
             // 👇 To make Navigator available to all destinations as a non-navigation parameter
@@ -69,14 +66,22 @@ fun MainNavHost(
              * https://github.com/raamcosta/compose-destinations/issues/508#issuecomment-1883166574
              */
             composable(ConversationScreenDestination) {
-                val dependencyContainer = buildDependencies()
                 ConversationScreen(
                     navigator = navigator,
                     groupDetailsScreenResultRecipient = resultRecipient(groupConversationDetailsNavBackArgsNavType),
                     mediaGalleryScreenResultRecipient = resultRecipient(mediaGalleryNavBackArgsNavType),
                     imagePreviewScreenResultRecipient = resultRecipient(imagesPreviewNavBackArgsNavType),
-                    drawingCanvasScreenResultRecipient = dependencyContainer.require(),
+                    drawingCanvasScreenResultRecipient = resultRecipient(),
                     resultNavigator = resultBackNavigator(groupConversationDetailsNavBackArgsNavType),
+                )
+            }
+
+            composable(HomeScreenDestination) {
+                HomeScreen(
+                    navigator = navigator,
+                    groupDetailsScreenResultRecipient = resultRecipient(groupConversationDetailsNavBackArgsNavType),
+                    otherUserProfileScreenResultRecipient = resultRecipient(),
+                    conversationFoldersScreenResultRecipient = resultRecipient(),
                 )
             }
         }

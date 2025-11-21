@@ -17,13 +17,12 @@
  */
 
 package com.wire.android.ui.home.conversationslist.all
-import com.ramcosta.composedestinations.annotation.Destination
-import com.wire.android.navigation.WireRootNavGraph
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ramcosta.composedestinations.annotation.Destination
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.navigation.HomeNavGraph
 import com.wire.android.navigation.rememberNavigator
@@ -42,16 +41,15 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.conversation.ConversationFilter
 
-@HomeNavGraph(start = true)
-@Destination<WireRootNavGraph>
+@Destination<HomeNavGraph>(start = true)
 @Composable
 fun AllConversationsScreen(
-    homeStateHolder: HomeStateHolder,
     foldersViewModel: ConversationFoldersVM =
         hiltViewModel<ConversationFoldersVMImpl, ConversationFoldersVMImpl.Factory>(
             creationCallback = { it.create(ConversationFoldersStateArgs(null)) }
         ),
 ) {
+    val homeStateHolder = com.wire.android.ui.home.LocalHomeStateHolder.current!!
     with(homeStateHolder) {
         Crossfade(
             targetState = homeStateHolder.currentConversationFilter,

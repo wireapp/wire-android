@@ -19,16 +19,15 @@ package com.wire.android.navigation
 
 import com.ramcosta.composedestinations.annotation.ExternalDestination
 import com.ramcosta.composedestinations.annotation.NavHostGraph
-import com.ramcosta.composedestinations.generated.cells.destinations.AddRemoveTagsScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesWithSlideInTransitionScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.CreateFolderScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.MoveToFolderScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.PublicLinkScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.RecycleBinScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.RenameNodeScreenDestination
-import com.ramcosta.composedestinations.generated.sketch.destinations.DrawingCanvasScreenDestination
-import com.wire.android.ui.destinations.RenameNodeScreenDestination
+import com.wire.android.ui.cells.destinations.AddRemoveTagsScreenDestination
+import com.wire.android.ui.cells.destinations.ConversationFilesScreenDestination
+import com.wire.android.ui.cells.destinations.ConversationFilesWithSlideInTransitionScreenDestination
+import com.wire.android.ui.cells.destinations.CreateFolderScreenDestination
+import com.wire.android.ui.cells.destinations.MoveToFolderScreenDestination
+import com.wire.android.ui.cells.destinations.PublicLinkScreenDestination
+import com.wire.android.ui.cells.destinations.RecycleBinScreenDestination
+import com.wire.android.ui.cells.destinations.RenameNodeScreenDestination
+import com.wire.android.ui.sketch.destinations.DrawingCanvasScreenDestination
 
 // TODO: Update this to use v2 approach with @ExternalDestination annotations
 // For now, commenting out until all @WireDestination usages are migrated to @Destination

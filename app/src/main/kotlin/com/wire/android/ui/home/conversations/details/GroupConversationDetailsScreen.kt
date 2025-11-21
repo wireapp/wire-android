@@ -65,13 +65,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
-import com.ramcosta.composedestinations.spec.DestinationStyle
 import com.wire.android.R
 import com.wire.android.appLogger
-import com.wire.android.feature.cells.ui.destinations.ConversationFilesScreenDestination
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.style.PopUpNavigationAnimation
+import com.wire.android.ui.cells.destinations.ConversationFilesScreenDestination
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.LoadingWireTabRow

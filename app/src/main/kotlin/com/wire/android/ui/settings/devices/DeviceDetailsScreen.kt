@@ -71,7 +71,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.WireTopAppBarTitle
-import com.wire.android.ui.destinations.E2eiCertificateDetailsScreenDestination
+import com.wire.android.ui.destinations.E2EiCertificateDetailsScreenDestination
 import com.wire.android.ui.e2eiEnrollment.GetE2EICertificateUI
 import com.wire.android.ui.home.E2EISuccessDialog
 import com.wire.android.ui.home.E2EIUpdateErrorWithDismissDialog
@@ -128,7 +128,7 @@ fun DeviceDetailsScreen(
             onNavigateToE2eiCertificateDetailsScreen = {
                 navigator.navigate(
                     NavigationCommand(
-                        E2eiCertificateDetailsScreenDestination(
+                        E2EiCertificateDetailsScreenDestination(
                             E2EICertificateDetails.AfterLoginCertificateDetails(it)
                         )
                     )

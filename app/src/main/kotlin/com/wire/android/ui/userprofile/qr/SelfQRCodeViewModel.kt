@@ -59,7 +59,7 @@ class SelfQRCodeViewModel @Inject constructor(
     var selfQRCodeState by mutableStateOf(
         SelfQRCodeState(
             selfUserId,
-            handle = selfQrCodeNavArgs.handle,
+            handle = selfQrCodeNavArgs.userHandle,
             isTeamMember = selfQrCodeNavArgs.isTeamMember
         )
     )

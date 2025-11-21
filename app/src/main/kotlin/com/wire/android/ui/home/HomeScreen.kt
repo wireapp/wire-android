@@ -64,7 +64,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.ramcosta.composedestinations.DestinationsNavHost
-import com.ramcosta.composedestinations.animations.rememberNavHostEngine
 import com.ramcosta.composedestinations.navigation.dependency
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
@@ -363,12 +362,9 @@ fun HomeContent(
                          */
                         val lifecycleState by LocalLifecycleOwner.current.lifecycle.currentStateFlow.collectAsState()
                         if (lifecycleState != Lifecycle.State.DESTROYED) {
-                            val navHostEngine = rememberNavHostEngine()
-
                             AdjustDestinationStylesForTablets()
                             DestinationsNavHost(
-                                navGraph = NavGraphs.home,
-                                engine = navHostEngine,
+                                navGraph = NavGraphs.wireRoot,
                                 navController = navController,
                                 dependenciesContainerBuilder = {
                                     dependency(homeStateHolder)

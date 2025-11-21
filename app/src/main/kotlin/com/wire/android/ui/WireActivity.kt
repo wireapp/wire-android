@@ -88,7 +88,7 @@ import com.wire.android.ui.common.topappbar.CommonTopAppBarState
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.E2EIEnrollmentScreenDestination
-import com.wire.android.ui.destinations.E2eiCertificateDetailsScreenDestination
+import com.wire.android.ui.destinations.E2EiCertificateDetailsScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.LoginScreenDestination
 import com.wire.android.ui.destinations.NewLoginScreenDestination
@@ -194,7 +194,7 @@ class WireActivity : AppCompatActivity() {
             appLogger.i("$TAG init login type selector")
 
             appLogger.i("$TAG start destination")
-            val startDestination = when (viewModel.initialAppState()) {
+            val startDestination: Direction = when (viewModel.initialAppState()) {
                 InitialAppState.NOT_LOGGED_IN -> when (loginTypeSelector.canUseNewLogin()) {
                     true -> NewWelcomeEmptyStartScreenDestination
                     false -> WelcomeScreenDestination
@@ -551,7 +551,7 @@ class WireActivity : AppCompatActivity() {
                         openCertificateDetails = {
                             navigate(
                                 NavigationCommand(
-                                    E2eiCertificateDetailsScreenDestination(
+                                    E2EiCertificateDetailsScreenDestination(
                                         E2EICertificateDetails.DuringLoginCertificateDetails(it)
                                     )
                                 )

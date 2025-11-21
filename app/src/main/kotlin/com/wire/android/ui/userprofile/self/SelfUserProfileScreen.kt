@@ -84,6 +84,7 @@ import com.wire.android.ui.common.wireDialogPropertiesBuilder
 import com.wire.android.ui.destinations.AppSettingsScreenDestination
 import com.wire.android.ui.destinations.AvatarPickerScreenDestination
 import com.wire.android.ui.destinations.MyAccountScreenDestination
+import com.wire.android.ui.destinations.TeamMigrationTeamPlanStepScreenDestination
 import com.wire.android.ui.destinations.NewLoginScreenDestination
 import com.wire.android.ui.destinations.SelfQRCodeScreenDestination
 import com.wire.android.ui.destinations.WelcomeScreenDestination
@@ -169,7 +170,7 @@ fun SelfUserProfileScreen(
             )
         },
         onCreateAccount = {
-            navigator.navigate(NavigationCommand(NavGraphs.personalToTeamMigration))
+            navigator.navigate(NavigationCommand(TeamMigrationTeamPlanStepScreenDestination))
         },
         onAccountDetailsClick = { navigator.navigate(NavigationCommand(MyAccountScreenDestination)) },
         isUserInCall = viewModelSelf::isUserInCall,

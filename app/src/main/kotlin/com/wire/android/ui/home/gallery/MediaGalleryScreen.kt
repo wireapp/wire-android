@@ -37,10 +37,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.annotation.ExperimentalCoilApi
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.R
-import com.wire.android.feature.cells.ui.destinations.PublicLinkScreenDestination
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.style.PopUpNavigationAnimation
+import com.wire.android.ui.cells.destinations.PublicLinkScreenDestination
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.bottomsheet.WireMenuModalSheetContent
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout

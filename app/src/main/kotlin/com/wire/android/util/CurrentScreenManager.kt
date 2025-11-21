@@ -42,7 +42,7 @@ import com.wire.android.ui.destinations.CreateAccountVerificationCodeScreenDesti
 import com.wire.android.ui.destinations.CreatePersonalAccountOverviewScreenDestination
 import com.wire.android.ui.destinations.CreateTeamAccountOverviewScreenDestination
 import com.wire.android.ui.destinations.E2EIEnrollmentScreenDestination
-import com.wire.android.ui.destinations.E2eiCertificateDetailsScreenDestination
+import com.wire.android.ui.destinations.E2EiCertificateDetailsScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.ImportMediaScreenDestination
 import com.wire.android.ui.destinations.InitialSyncScreenDestination
@@ -231,7 +231,7 @@ sealed class CurrentScreen {
     companion object {
         @SuppressLint("RestrictedApi")
         @Suppress("ComplexMethod")
-        fun fromDestination(destination: DestinationSpec<*>?, arguments: Bundle?, isAppVisible: Boolean): CurrentScreen {
+        fun fromDestination(destination: DestinationSpec?, arguments: Bundle?, isAppVisible: Boolean): CurrentScreen {
             if (!isAppVisible) {
                 return InBackground
             }
@@ -261,15 +261,15 @@ sealed class CurrentScreen {
                 is CreateAccountSummaryScreenDestination,
                 is InitialSyncScreenDestination,
                 is E2EIEnrollmentScreenDestination,
-                is E2eiCertificateDetailsScreenDestination,
+                is E2EiCertificateDetailsScreenDestination,
                 is RegisterDeviceScreenDestination,
                 is CreateAccountUsernameScreenDestination,
                 is CreateAccountVerificationCodeScreenDestination,
                 is CreateAccountDataDetailScreenDestination,
                 is CreateAccountSelectorScreenDestination,
-                is RemoveDeviceScreenDestination -> AuthRelated(destination.baseRoute)
+                is RemoveDeviceScreenDestination -> AuthRelated(destination.route)
 
-                else -> SomeOther(destination?.baseRoute)
+                else -> SomeOther(destination?.route)
             }
         }
     }

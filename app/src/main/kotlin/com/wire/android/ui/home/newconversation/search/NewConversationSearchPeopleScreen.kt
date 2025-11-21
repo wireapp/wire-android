@@ -85,7 +85,7 @@ fun NewConversationSearchPeopleScreen(
             },
             onCreateTeam = {
                 showCreateTeamDialog.value = false
-                navigator.navigate(NavigationCommand(NavGraphs.personalToTeamMigration))
+                navigator.navigate(NavigationCommand(NavGraphs.wireRoot))
             }
         )
     }

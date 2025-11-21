@@ -23,20 +23,20 @@ import com.wire.android.navigation.WireRootNavGraph
 
 @Deprecated("These destinations belongs to the old registration flow, please use the new one [CreateAccountNavGraph]")
 @WireRootNavGraph
-@NavGraph
+@NavGraph<WireRootNavGraph>
 annotation class CreatePersonalAccountNavGraph(
     val start: Boolean = false
 )
 
 @Deprecated("These destinations belongs to the old registration flow, please use the new one [CreateAccountNavGraph]")
 @WireRootNavGraph
-@NavGraph
+@NavGraph<WireRootNavGraph>
 annotation class CreateTeamAccountNavGraph(
     val start: Boolean = false
 )
 
 @WireRootNavGraph
-@NavGraph
+@NavGraph<WireRootNavGraph>
 annotation class CreateAccountNavGraph(
     val start: Boolean = false
 )

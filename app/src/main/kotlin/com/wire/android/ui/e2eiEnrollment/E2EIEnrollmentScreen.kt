@@ -53,7 +53,7 @@ import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
-import com.wire.android.ui.destinations.E2eiCertificateDetailsScreenDestination
+import com.wire.android.ui.destinations.E2EiCertificateDetailsScreenDestination
 import com.wire.android.ui.destinations.InitialSyncScreenDestination
 import com.wire.android.ui.home.E2EIEnrollmentErrorWithDismissDialog
 import com.wire.android.ui.home.E2EISuccessDialog
@@ -91,7 +91,7 @@ fun E2EIEnrollmentScreen(
         openCertificateDetails = {
             navigator.navigate(
                 NavigationCommand(
-                    E2eiCertificateDetailsScreenDestination(
+                    E2EiCertificateDetailsScreenDestination(
                         E2EICertificateDetails.DuringLoginCertificateDetails(state.certificate)
                     )
                 )

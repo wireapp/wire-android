@@ -93,7 +93,6 @@ import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
 import com.wire.android.feature.analytics.model.AnalyticsEvent
-import com.wire.android.feature.sketch.destinations.DrawingCanvasScreenDestination
 import com.wire.android.feature.sketch.model.DrawingCanvasNavArgs
 import com.wire.android.feature.sketch.model.DrawingCanvasNavBackArgs
 import com.wire.android.mapper.MessageDateTimeGroup
@@ -178,6 +177,7 @@ import com.wire.android.ui.home.messagecomposer.model.Ping
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.rememberMessageComposerStateHolder
 import com.wire.android.ui.legalhold.dialog.subject.LegalHoldSubjectMessageDialog
+import com.wire.android.ui.sketch.destinations.DrawingCanvasScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography

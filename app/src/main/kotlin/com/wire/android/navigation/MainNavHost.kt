@@ -24,13 +24,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.DestinationsNavHost
-import com.ramcosta.composedestinations.animations.rememberNavHostEngine
 import com.ramcosta.composedestinations.manualcomposablecalls.composable
 import com.ramcosta.composedestinations.navigation.dependency
 import com.ramcosta.composedestinations.scope.resultBackNavigator
 import com.ramcosta.composedestinations.scope.resultRecipient
-import com.ramcosta.composedestinations.spec.Route
-import com.wire.android.feature.sketch.destinations.DrawingCanvasScreenDestination
+import com.ramcosta.composedestinations.spec.Direction
+import com.wire.android.ui.sketch.destinations.DrawingCanvasScreenDestination
 import com.wire.android.feature.sketch.model.DrawingCanvasNavBackArgs
 import com.wire.android.ui.NavGraphs
 import com.wire.android.ui.authentication.login.email.LoginEmailViewModel
@@ -47,17 +46,14 @@ import com.wire.android.ui.userprofile.teammigration.TeamMigrationViewModel
 fun MainNavHost(
     navigator: Navigator,
     loginTypeSelector: LoginTypeSelector?,
-    startDestination: Route,
+    startDestination: Direction,
     modifier: Modifier = Modifier,
 ) {
-    val navHostEngine = rememberNavHostEngine()
-
     AdjustDestinationStylesForTablets()
     DestinationsNavHost(
         modifier = modifier,
-        navGraph = WireMainNavGraph,
-        engine = navHostEngine,
-        startRoute = startDestination,
+        navGraph = NavGraphs.wireRoot,
+        start = startDestination,
         navController = navigator.navController,
         dependenciesContainerBuilder = {
             // 👇 To make Navigator available to all destinations as a non-navigation parameter
@@ -66,45 +62,9 @@ fun MainNavHost(
             // 👇 To make LoginTypeSelector available to all destinations as a non-navigation parameter if provided
             if (loginTypeSelector != null) dependency(loginTypeSelector)
 
-            // 👇 To tie NewConversationViewModel to nested NewConversationNavGraph, making it shared between all screens that belong to it
-            dependency(NavGraphs.newConversation) {
-                val parentEntry = remember(navBackStackEntry) {
-                    navController.getBackStackEntry(NavGraphs.newConversation.route)
-                }
-                hiltViewModel<NewConversationViewModel>(parentEntry)
-            }
-
-            // 👇 To reuse LoginEmailViewModel from NewLoginPasswordScreen on NewLoginVerificationCodeScreen
-            dependency(NewLoginVerificationCodeScreenDestination) {
-                val loginPasswordEntry = remember(navBackStackEntry) {
-                    navController.getBackStackEntry(NewLoginPasswordScreenDestination.route)
-                }
-                hiltViewModel<LoginEmailViewModel>(loginPasswordEntry)
-            }
-
-            // 👇 To tie SSOUrlConfigHolder to nested LoginNavGraph, making it shared between all screens that belong to it
-            dependency(NavGraphs.login) {
-                val parentEntry = remember(navBackStackEntry) {
-                    navController.getBackStackEntry(NavGraphs.login.route)
-                }
-                SSOUrlConfigHolderImpl(parentEntry.savedStateHandle)
-            }
-
-            // 👇 To tie SSOUrlConfigHolder to nested NewLoginNavGraph, making it shared between all screens that belong to it
-            dependency(NavGraphs.newLogin) {
-                val parentEntry = remember(navBackStackEntry) {
-                    navController.getBackStackEntry(NavGraphs.newLogin.route)
-                }
-                SSOUrlConfigHolderImpl(parentEntry.savedStateHandle)
-            }
-
-            // 👇 To tie TeamMigrationViewModel to PersonalToTeamMigrationNavGraph, making it shared between all screens that belong to it
-            dependency(NavGraphs.personalToTeamMigration) {
-                val parentEntry = remember(navBackStackEntry) {
-                    navController.getBackStackEntry(NavGraphs.personalToTeamMigration.route)
-                }
-                hiltViewModel<TeamMigrationViewModel>(parentEntry)
-            }
+            // Note: In v2, graph-scoped dependencies are handled differently.
+            // ViewModels are automatically scoped to their nav graph back stack entries.
+            // Manual scoping is done in the destination composables themselves using hiltViewModel(parentEntry).
         },
         manualComposableCallsBuilder = {
             /**

@@ -128,7 +128,7 @@ fun MyAccountScreen(
 }
 
 @Composable
-private fun <T : DestinationSpec<*>> HandleNavResult(
+private fun <T : DestinationSpec> HandleNavResult(
     scope: CoroutineScope,
     resultRecipient: ResultRecipient<T, Boolean>,
     tryAgainSnackBarMessage: String,

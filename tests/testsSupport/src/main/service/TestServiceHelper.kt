@@ -28,6 +28,7 @@ import kotlinx.coroutines.runBlocking
 import network.HttpRequestException
 import service.enums.LegalHoldStatus
 import service.models.Conversation
+import service.models.SendLocationParams
 import service.models.SendTextParams
 import user.usermanager.ClientUserManager
 import user.utils.ClientUser
@@ -398,6 +399,7 @@ class TestServiceHelper {
     fun toClientUser(nameAlias: String): ClientUser {
         return usersManager.findUserByNameOrNameAlias(nameAlias)
     }
+
     fun userSendMessageToConversation(
         senderAlias: String,
         msg: String,
@@ -420,6 +422,29 @@ class TestServiceHelper {
         val clientUser = toClientUser(senderAlias)
         val conversation = toConvoObjPersonal(clientUser, dstConvoName)
         sendMessageInternal(clientUser, conversation, msg, deviceName, isSelfDeleting)
+    }
+
+    fun userXSharesLocationTo(
+        senderAlias: String,
+        convoName: String,
+        deviceName: String,
+        isSelfDeleting: Boolean
+    ) {
+        val clientUser = toClientUser(senderAlias)
+        val conversation = toConvoObjPersonal(clientUser, convoName)
+        testServiceClient.sendLocation(
+            SendLocationParams(
+                owner = clientUser,
+                deviceName = deviceName,
+                convoId = conversation.id,
+                convoDomain = conversation.qualifiedID.domain,
+                timeout = if (isSelfDeleting) Duration.ofSeconds(1000) else Duration.ZERO,
+                longitude = 0f,
+                latitude = 0f,
+                locationName = "location",
+                zoom = 1
+            )
+        )
     }
 
     private fun sendMessageInternal(

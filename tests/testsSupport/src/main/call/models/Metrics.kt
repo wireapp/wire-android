@@ -22,13 +22,13 @@ package call.models
 
 data class Metrics(
     val success: Boolean,
-    val estab_time_ms: Long,
-    val setup_time_ms: Long,
-    val avg_rate_u: Long,
-    val avg_rate_d: Long
+    val estabTimeMs: Long,
+    val setupTimeMs: Long,
+    val avgRateU: Long,
+    val avgRateD: Long
 ) {
     override fun toString(): String {
-        return "Metrics(success=$success, estab_time_ms=$estab_time_ms, " +
-                "setup_time_ms=$setup_time_ms, avg_rate_u=$avg_rate_u, avg_rate_d=$avg_rate_d)"
+        return "Metrics(success=$success, estab_time_ms=$estabTimeMs, " +
+                "setup_time_ms=$setupTimeMs, avg_rate_u=$avgRateU, avg_rate_d=$avgRateD)"
     }
 }

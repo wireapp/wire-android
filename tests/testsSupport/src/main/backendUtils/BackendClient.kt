@@ -52,6 +52,7 @@ import java.net.HttpURLConnection
 import java.net.InetSocketAddress
 import java.net.PasswordAuthentication
 import java.net.Proxy
+import java.net.URI
 import java.net.URL
 import java.net.URLEncoder
 
@@ -624,7 +625,7 @@ class BackendClient(
 
     suspend fun unlockConferenceCallingFeature(team: Team) {
         val teamId = Uri.encode(team.id)
-        val url = URL("i/teams/$teamId/features/conferenceCalling/unlocked".composeCompleteUrl())
+        val url = URI("i/teams/$teamId/features/conferenceCalling/unlocked".composeCompleteUrl()).toURL()
 
         val headers = defaultheaders.toMutableMap().apply {
             put("Authorization", basicAuth.getEncoded())
@@ -643,7 +644,7 @@ class BackendClient(
 
     suspend fun enableConferenceCallingBackdoorViaBackendTeam(team: Team) {
         val teamId = Uri.encode(team.id)
-        val url = URL("i/teams/$teamId/features/conferenceCalling".composeCompleteUrl())
+        val url = URI("i/teams/$teamId/features/conferenceCalling".composeCompleteUrl()).toURL()
 
         val headers = defaultheaders.toMutableMap().apply {
             put("Authorization", basicAuth.getEncoded())
@@ -666,7 +667,7 @@ class BackendClient(
 
     suspend fun disableConferenceCallingBackdoorViaBackendTeam(team: Team) {
         val teamId = Uri.encode(team.id)
-        val url = URL("i/teams/$teamId/features/conferenceCalling".composeCompleteUrl())
+        val url = URI("i/teams/$teamId/features/conferenceCalling".composeCompleteUrl()).toURL()
 
         val headers = defaultheaders.toMutableMap().apply {
             put("Authorization", basicAuth.getEncoded())
@@ -689,7 +690,7 @@ class BackendClient(
 
     suspend fun enableConferenceCallingViaBackendPersonalUser(personalUser: ClientUser) {
         val userId = Uri.encode(personalUser.id)
-        val url = URL("i/users/$userId/features/conferenceCalling".composeCompleteUrl())
+        val url = URI("i/users/$userId/features/conferenceCalling".composeCompleteUrl()).toURL()
 
         val headers = defaultheaders.toMutableMap().apply {
             put("Authorization", basicAuth.getEncoded())
@@ -715,7 +716,7 @@ class BackendClient(
     }
 
     suspend fun getCallConfig(): JSONObject {
-        val url = URL("calls/config/v2".composeCompleteUrl())
+        val url = URI("calls/config/v2".composeCompleteUrl()).toURL()
 
         val headers = defaultheaders.toMutableMap().apply {
             put("Authorization", basicAuth.getEncoded())
@@ -735,7 +736,7 @@ class BackendClient(
 
     suspend fun getPropertyValues(user: ClientUser): JSONObject {
         val token = getAuthToken(user)
-        val url = URL("properties-values".composeCompleteUrl())
+        val url = URI("properties-values".composeCompleteUrl()).toURL()
 
         val headers = defaultheaders.toMutableMap().apply {
             put("Authorization", "${token?.type} ${token?.value}")

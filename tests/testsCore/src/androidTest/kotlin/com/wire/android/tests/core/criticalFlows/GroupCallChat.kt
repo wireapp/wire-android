@@ -208,12 +208,13 @@ class GroupCallChat : KoinTest {
                 }
                 pages.conversationViewPage.apply {
                     iSeeSentQrCodeImageInCurrentConversation()
-                    pages.callingPage.apply {
-                        iRestoreOngoingCall()
-                        iSeeOngoingGroupCall()
-                    }
-                    callHelper.iSeeParticipantsInGroupCall("user2Name, user3Name")
                 }
+                testServiceHelper.userXSharesLocationTo("user2Name", "GroupCallChat", "Device1", false)
+                pages.callingPage.apply {
+                    iRestoreOngoingCall()
+                    iSeeOngoingGroupCall()
+                }
+                callHelper.iSeeParticipantsInGroupCall("user2Name, user3Name")
             }
         }
     }

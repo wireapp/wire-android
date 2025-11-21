@@ -20,32 +20,51 @@ package com.wire.android.navigation
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.manualcomposablecalls.composable
 import com.ramcosta.composedestinations.navigation.dependency
 import com.ramcosta.composedestinations.scope.resultBackNavigator
 import com.ramcosta.composedestinations.scope.resultRecipient
+import com.ramcosta.composedestinations.navargs.primitives.stringNavType
+import com.ramcosta.composedestinations.spec.Direction
 import com.wire.android.ui.NavGraphs
+import com.wire.android.ui.authentication.login.sso.SSOUrlConfigHolder
+import com.wire.android.ui.authentication.login.sso.SSOUrlConfigHolderPreview
+import com.wire.android.ui.destinations.ChannelAccessOnCreateScreenDestination
+import com.wire.android.ui.destinations.ChannelHistoryScreenDestination
 import com.wire.android.ui.destinations.ConversationScreenDestination
+import com.wire.android.ui.destinations.GroupOptionScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination
+import com.wire.android.ui.destinations.NewConversationSearchPeopleScreenDestination
+import com.wire.android.ui.destinations.NewGroupConversationSearchPeopleScreenDestination
+import com.wire.android.ui.destinations.NewGroupNameScreenDestination
+import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.home.conversations.ConversationScreen
+import com.wire.android.ui.home.newconversation.NewConversationViewModel
+import com.wire.android.ui.navtype.channelHistoryCustomNavBackArgsNavType
+import com.wire.android.ui.navtype.conversationFoldersNavBackArgsNavType
 import com.wire.android.ui.navtype.groupConversationDetailsNavBackArgsNavType
 import com.wire.android.ui.navtype.imagesPreviewNavBackArgsNavType
 import com.wire.android.ui.navtype.mediaGalleryNavBackArgsNavType
+import com.wire.android.ui.sketch.destinations.DrawingCanvasScreenDestination
+import com.wire.android.ui.sketch.navtype.drawingCanvasNavBackArgsNavType
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun MainNavHost(
     navigator: Navigator,
     loginTypeSelector: LoginTypeSelector?,
-    startDestination: Any,
+    startDestination: Direction,
     modifier: Modifier = Modifier,
 ) {
     AdjustDestinationStylesForTablets()
     DestinationsNavHost(
         modifier = modifier,
         navGraph = NavGraphs.wireRoot,
+        start = startDestination,
         navController = navigator.navController,
         dependenciesContainerBuilder = {
             // 👇 To make Navigator available to all destinations as a non-navigation parameter
@@ -53,6 +72,10 @@ fun MainNavHost(
 
             // 👇 To make LoginTypeSelector available to all destinations as a non-navigation parameter if provided
             if (loginTypeSelector != null) dependency(loginTypeSelector)
+
+            // 👇 Provide SSOUrlConfigHolder for login screens
+            // Using a simple implementation that provides default config
+            dependency(SSOUrlConfigHolderPreview as SSOUrlConfigHolder)
 
             // Note: In v2, graph-scoped dependencies are handled differently.
             // ViewModels are automatically scoped to their nav graph back stack entries.
@@ -71,17 +94,84 @@ fun MainNavHost(
                     groupDetailsScreenResultRecipient = resultRecipient(groupConversationDetailsNavBackArgsNavType),
                     mediaGalleryScreenResultRecipient = resultRecipient(mediaGalleryNavBackArgsNavType),
                     imagePreviewScreenResultRecipient = resultRecipient(imagesPreviewNavBackArgsNavType),
-                    drawingCanvasScreenResultRecipient = resultRecipient(),
+                    drawingCanvasScreenResultRecipient = resultRecipient<DrawingCanvasScreenDestination, _>(drawingCanvasNavBackArgsNavType),
                     resultNavigator = resultBackNavigator(groupConversationDetailsNavBackArgsNavType),
                 )
             }
 
             composable(HomeScreenDestination) {
-                HomeScreen(
+                com.wire.android.ui.home.HomeScreen(
                     navigator = navigator,
                     groupDetailsScreenResultRecipient = resultRecipient(groupConversationDetailsNavBackArgsNavType),
-                    otherUserProfileScreenResultRecipient = resultRecipient(),
-                    conversationFoldersScreenResultRecipient = resultRecipient(),
+                    otherUserProfileScreenResultRecipient = resultRecipient<OtherUserProfileScreenDestination, String>(stringNavType),
+                    conversationFoldersScreenResultRecipient = resultRecipient(conversationFoldersNavBackArgsNavType),
+                )
+            }
+
+            // NewConversation flow screens - manual composable calls needed for shared ViewModel scoping
+            // The ViewModel is scoped to the first screen's backstack entry (NewConversationSearchPeopleScreen)
+            // which acts as the parent for this flow
+            composable(NewConversationSearchPeopleScreenDestination) {
+                val viewModel: NewConversationViewModel = hiltViewModel()
+                com.wire.android.ui.home.newconversation.search.NewConversationSearchPeopleScreen(
+                    navigator = navigator,
+                    newConversationViewModel = viewModel,
+                )
+            }
+
+            composable(NewGroupConversationSearchPeopleScreenDestination) {
+                val parentEntry = remember(navController) {
+                    navController.getBackStackEntry(NewConversationSearchPeopleScreenDestination.route)
+                }
+                val viewModel: NewConversationViewModel = hiltViewModel(parentEntry)
+                com.wire.android.ui.home.newconversation.groupsearch.NewGroupConversationSearchPeopleScreen(
+                    navigator = navigator,
+                    newConversationViewModel = viewModel,
+                )
+            }
+
+            composable(NewGroupNameScreenDestination) {
+                val parentEntry = remember(navController) {
+                    navController.getBackStackEntry(NewConversationSearchPeopleScreenDestination.route)
+                }
+                val viewModel: NewConversationViewModel = hiltViewModel(parentEntry)
+                com.wire.android.ui.home.newconversation.groupname.NewGroupNameScreen(
+                    navigator = navigator,
+                    newConversationViewModel = viewModel,
+                )
+            }
+
+            composable(GroupOptionScreenDestination) {
+                val parentEntry = remember(navController) {
+                    navController.getBackStackEntry(NewConversationSearchPeopleScreenDestination.route)
+                }
+                val viewModel: NewConversationViewModel = hiltViewModel(parentEntry)
+                com.wire.android.ui.home.newconversation.groupOptions.GroupOptionScreen(
+                    navigator = navigator,
+                    newConversationViewModel = viewModel,
+                )
+            }
+
+            composable(ChannelHistoryScreenDestination) {
+                val parentEntry = remember(navController) {
+                    navController.getBackStackEntry(NewConversationSearchPeopleScreenDestination.route)
+                }
+                val viewModel: NewConversationViewModel = hiltViewModel(parentEntry)
+                com.wire.android.ui.home.newconversation.channelhistory.ChannelHistoryScreen(
+                    navigator = navigator,
+                    customResultRecipient = resultRecipient(channelHistoryCustomNavBackArgsNavType),
+                    newConversationViewModel = viewModel,
+                )
+            }
+
+            composable(ChannelAccessOnCreateScreenDestination) {
+                val parentEntry = remember(navController) {
+                    navController.getBackStackEntry(NewConversationSearchPeopleScreenDestination.route)
+                }
+                val viewModel: NewConversationViewModel = hiltViewModel(parentEntry)
+                com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessOnCreateScreen(
+                    navigator = navigator,
+                    newConversationViewModel = viewModel,
                 )
             }
         }

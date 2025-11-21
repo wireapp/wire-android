@@ -367,12 +367,33 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
         MessagePreviewContent.VerificationChanged.DegradedProteus ->
             UILastMessageContent.VerificationChanged(R.string.last_message_conversations_verification_degraded_proteus)
 
-        is MessagePreviewContent.Draft -> UILastMessageContent.SenderWithMessage(
-            UIText.StringResource(R.string.label_draft),
-            (content as MessagePreviewContent.Draft).message.toUIText(),
-            separator = ":${MarkdownConstants.NON_BREAKING_SPACE}"
-        )
+        is MessagePreviewContent.Draft -> {
+            with(content as MessagePreviewContent.Draft) {
+                val messageUiText = if (attachmentsCount > 0) {
+                    val pluralId = attachmentPlural(attachmentType)
+                    UIText.PluralResource(pluralId, attachmentsCount, attachmentsCount)
+                } else {
+                    message?.toUIText() ?: "".toUIText()
+                }
+
+                UILastMessageContent.SenderWithMessage(
+                    sender = UIText.StringResource(R.string.label_draft),
+                    message = messageUiText,
+                    separator = ":${MarkdownConstants.NON_BREAKING_SPACE}"
+                )
+            }
+        }
 
         Unknown -> UILastMessageContent.None
     }
 }
+
+private fun attachmentPlural(type: String?): Int =
+    when {
+        type == null -> R.plurals.draft_files_count
+        "image/" in type -> R.plurals.draft_image_count
+        "video/" in type -> R.plurals.draft_video_count
+        "audio/" in type -> R.plurals.draft_audio_count
+        else -> R.plurals.draft_files_count
+    }
+

@@ -37,6 +37,7 @@ class AndroidNavigationConventionPlugin : Plugin<Project> {
             add("implementation", findLibrary("compose.navigation"))
             add("implementation", findLibrary("compose.destinations.core"))
             add("implementation", findLibrary("compose-destinations-bottomsheet"))
+            add("implementation", findLibrary("hilt.navigation"))
             add("ksp", findLibrary("compose.destinations.ksp"))
         }
 

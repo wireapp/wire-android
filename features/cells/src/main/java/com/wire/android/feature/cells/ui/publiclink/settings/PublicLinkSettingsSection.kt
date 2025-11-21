@@ -58,7 +58,7 @@ internal fun PublicLinkSettingsSection(
         )
 
         LinkSettingsOption(
-            isEnabled = settings.passwordSettings != null,
+            isEnabled = settings.passwordSettings?.passwordEnabled == true,
             title = stringResource(R.string.public_link_setting_password_title),
             subtitle = stringResource(R.string.public_link_setting_password_subtitle),
             onClick = onPasswordClick,
@@ -130,7 +130,7 @@ private fun PreviewSettingsOption() {
     WireTheme {
         PublicLinkSettingsSection(
             PublicLinkSettings(
-                passwordSettings = PublicLinkPassword("preview"),
+                passwordSettings = PublicLinkPassword(true),
                 expirationSettings = null,
             ),
             onPasswordClick = {},

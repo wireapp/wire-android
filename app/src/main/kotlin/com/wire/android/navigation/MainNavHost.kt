@@ -20,26 +20,20 @@ package com.wire.android.navigation
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.manualcomposablecalls.composable
 import com.ramcosta.composedestinations.navigation.dependency
+import com.ramcosta.composedestinations.navigation.require
 import com.ramcosta.composedestinations.scope.resultBackNavigator
 import com.ramcosta.composedestinations.scope.resultRecipient
 import com.ramcosta.composedestinations.spec.Direction
-import com.wire.android.ui.sketch.destinations.DrawingCanvasScreenDestination
-import com.wire.android.feature.sketch.model.DrawingCanvasNavBackArgs
 import com.wire.android.ui.NavGraphs
-import com.wire.android.ui.authentication.login.email.LoginEmailViewModel
-import com.wire.android.ui.authentication.login.sso.SSOUrlConfigHolderImpl
+import com.wire.android.ui.navtype.groupConversationDetailsNavBackArgsNavType
+import com.wire.android.ui.navtype.imagesPreviewNavBackArgsNavType
+import com.wire.android.ui.navtype.mediaGalleryNavBackArgsNavType
 import com.wire.android.ui.destinations.ConversationScreenDestination
-import com.wire.android.ui.destinations.NewLoginPasswordScreenDestination
-import com.wire.android.ui.destinations.NewLoginVerificationCodeScreenDestination
 import com.wire.android.ui.home.conversations.ConversationScreen
-import com.wire.android.ui.home.newconversation.NewConversationViewModel
-import com.wire.android.ui.userprofile.teammigration.TeamMigrationViewModel
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
@@ -74,13 +68,14 @@ fun MainNavHost(
              * https://github.com/raamcosta/compose-destinations/issues/508#issuecomment-1883166574
              */
             composable(ConversationScreenDestination) {
+                val dependencyContainer = buildDependencies()
                 ConversationScreen(
                     navigator = navigator,
-                    groupDetailsScreenResultRecipient = resultRecipient(),
-                    mediaGalleryScreenResultRecipient = resultRecipient(),
-                    imagePreviewScreenResultRecipient = resultRecipient(),
-                    drawingCanvasScreenResultRecipient = resultRecipient<DrawingCanvasScreenDestination, DrawingCanvasNavBackArgs>(),
-                    resultNavigator = resultBackNavigator(),
+                    groupDetailsScreenResultRecipient = resultRecipient(groupConversationDetailsNavBackArgsNavType),
+                    mediaGalleryScreenResultRecipient = resultRecipient(mediaGalleryNavBackArgsNavType),
+                    imagePreviewScreenResultRecipient = resultRecipient(imagesPreviewNavBackArgsNavType),
+                    drawingCanvasScreenResultRecipient = dependencyContainer.require(),
+                    resultNavigator = resultBackNavigator(groupConversationDetailsNavBackArgsNavType),
                 )
             }
         }

@@ -16,6 +16,8 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 package com.wire.android.feature.cells.ui.createfolder
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
@@ -42,7 +44,6 @@ import com.wire.android.model.DisplayNameState
 import com.wire.android.navigation.PreviewNavigator
 import com.wire.android.navigation.PreviewResultBackNavigator
 import com.wire.android.navigation.WireNavigator
-import com.wire.android.navigation.annotation.features.cells.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
@@ -61,9 +62,9 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import java.util.Locale
 
-@WireDestination(
+@Destination<ExternalModuleGraph>(
     style = PopUpNavigationAnimation::class,
-    navArgsDelegate = CreateFolderScreenNavArgs::class,
+    navArgs = CreateFolderScreenNavArgs::class,
 )
 @Composable
 fun CreateFolderScreen(

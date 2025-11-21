@@ -16,6 +16,8 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 package com.wire.android.ui.home.appLock.unlock
+import com.ramcosta.composedestinations.annotation.Destination
+import com.wire.android.navigation.WireRootNavGraph
 
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -40,12 +42,11 @@ import com.wire.android.biometric.showBiometricPrompt
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.destinations.EnterLockCodeScreenDestination
 
-@WireDestination
+@Destination<WireRootNavGraph>
 @Composable
 fun AppUnlockWithBiometricsScreen(
     navigator: Navigator,

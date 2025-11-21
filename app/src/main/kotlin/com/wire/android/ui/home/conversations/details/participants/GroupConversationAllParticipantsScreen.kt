@@ -17,6 +17,8 @@
  */
 
 package com.wire.android.ui.home.conversations.details.participants
+import com.ramcosta.composedestinations.annotation.Destination
+import com.wire.android.navigation.WireRootNavGraph
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration
@@ -37,7 +39,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
@@ -49,8 +50,8 @@ import com.wire.android.ui.home.conversations.details.participants.model.Partici
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.theme.WireTheme
 
-@WireDestination(
-    navArgsDelegate = GroupConversationAllParticipantsNavArgs::class
+@Destination<WireRootNavGraph>(
+    navArgs = GroupConversationAllParticipantsNavArgs::class
 )
 @Composable
 fun GroupConversationAllParticipantsScreen(

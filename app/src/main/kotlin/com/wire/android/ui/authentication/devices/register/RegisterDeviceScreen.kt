@@ -17,6 +17,8 @@
  */
 
 package com.wire.android.ui.authentication.devices.register
+import com.ramcosta.composedestinations.annotation.Destination
+import com.wire.android.navigation.WireRootNavGraph
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
@@ -45,7 +47,6 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.navigation.style.TransitionAnimationType
 import com.wire.android.ui.authentication.devices.common.ClearSessionState
@@ -73,7 +74,7 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 
-@WireDestination(
+@Destination<WireRootNavGraph>(
     style = PopUpNavigationAnimation::class,
 )
 @Composable

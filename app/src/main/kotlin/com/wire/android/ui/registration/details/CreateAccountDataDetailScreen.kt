@@ -17,6 +17,8 @@
  */
 
 package com.wire.android.ui.registration.details
+import com.ramcosta.composedestinations.annotation.Destination
+import com.wire.android.navigation.WireRootNavGraph
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Arrangement
@@ -56,7 +58,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.style.AuthPopUpNavigationAnimation
 import com.wire.android.ui.authentication.create.common.CreateAccountDataNavArgs
 import com.wire.android.ui.authentication.create.common.CreateAccountNavGraph
@@ -90,8 +91,8 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.configuration.server.ServerConfig
 
 @CreateAccountNavGraph
-@WireDestination(
-    navArgsDelegate = CreateAccountDataNavArgs::class,
+@Destination<WireRootNavGraph>(
+    navArgs = CreateAccountDataNavArgs::class,
     style = AuthPopUpNavigationAnimation::class
 )
 @Composable

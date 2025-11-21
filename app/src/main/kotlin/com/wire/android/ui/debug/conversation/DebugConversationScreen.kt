@@ -16,6 +16,8 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 package com.wire.android.ui.debug.conversation
+import com.ramcosta.composedestinations.annotation.Destination
+import com.wire.android.navigation.WireRootNavGraph
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
@@ -35,7 +37,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.rowitem.RowItemTemplate
 import com.wire.android.ui.common.button.WirePrimaryButton
@@ -51,8 +52,8 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 
-@WireDestination(
-    navArgsDelegate = DebugConversationScreenNavArgs::class,
+@Destination<WireRootNavGraph>(
+    navArgs = DebugConversationScreenNavArgs::class,
 )
 @Composable
 fun DebugConversationScreen(

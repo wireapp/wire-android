@@ -17,6 +17,8 @@
  */
 
 package com.wire.android.ui.authentication.create.overview
+import com.ramcosta.composedestinations.annotation.Destination
+import com.wire.android.navigation.WireRootNavGraph
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -43,7 +45,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
 import com.wire.android.ui.authentication.create.common.CreatePersonalAccountNavGraph
@@ -62,7 +63,7 @@ import com.wire.android.util.CustomTabsHelper
 import com.wire.kalium.logic.configuration.server.ServerConfig
 
 @CreatePersonalAccountNavGraph(start = true)
-@WireDestination(navArgsDelegate = CreateAccountOverviewNavArgs::class)
+@Destination<WireRootNavGraph>(navArgs = CreateAccountOverviewNavArgs::class)
 @Composable
 fun CreatePersonalAccountOverviewScreen(
     navigator: Navigator,
@@ -72,7 +73,7 @@ fun CreatePersonalAccountOverviewScreen(
 }
 
 @CreateTeamAccountNavGraph(start = true)
-@WireDestination(navArgsDelegate = CreateAccountOverviewNavArgs::class)
+@Destination<WireRootNavGraph>(navArgs = CreateAccountOverviewNavArgs::class)
 @Composable
 fun CreateTeamAccountOverviewScreen(
     navigator: Navigator,

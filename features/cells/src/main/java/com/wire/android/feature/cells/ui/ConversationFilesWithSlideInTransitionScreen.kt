@@ -16,6 +16,8 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 package com.wire.android.feature.cells.ui
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -23,18 +25,17 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
+import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesWithSlideInTransitionScreenDestination
 import com.wire.android.feature.cells.R
-import com.wire.android.feature.cells.ui.destinations.ConversationFilesWithSlideInTransitionScreenDestination
-import com.wire.android.feature.cells.ui.destinations.RecycleBinScreenDestination
+import com.ramcosta.composedestinations.generated.cells.destinations.RecycleBinScreenDestination
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.WireNavigator
-import com.wire.android.navigation.annotation.features.cells.WireDestination
 import com.wire.android.navigation.style.SlideNavigationAnimation
 
-@WireDestination(
+@Destination<ExternalModuleGraph>(
     style = SlideNavigationAnimation::class,
-    navArgsDelegate = CellFilesNavArgs::class,
+    navArgs = CellFilesNavArgs::class,
 )
 @Composable
 fun ConversationFilesWithSlideInTransitionScreen(

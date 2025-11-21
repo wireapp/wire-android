@@ -17,12 +17,13 @@
  */
 
 package com.wire.android.ui.home.archive
+import com.ramcosta.composedestinations.annotation.Destination
+import com.wire.android.navigation.WireRootNavGraph
 
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Composable
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.navigation.HomeNavGraph
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.rememberNavigator
 import com.wire.android.ui.common.search.rememberSearchbarState
 import com.wire.android.ui.home.HomeStateHolder
@@ -34,7 +35,7 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @HomeNavGraph
-@WireDestination
+@Destination<WireRootNavGraph>
 @Composable
 fun ArchiveScreen(homeStateHolder: HomeStateHolder) {
     with(homeStateHolder) {

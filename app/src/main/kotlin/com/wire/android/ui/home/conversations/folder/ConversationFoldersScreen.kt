@@ -16,6 +16,8 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 package com.wire.android.ui.home.conversations.folder
+import com.ramcosta.composedestinations.annotation.Destination
+import com.wire.android.navigation.WireRootNavGraph
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -43,7 +45,6 @@ import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.common.bottomsheet.RichMenuItemState
 import com.wire.android.ui.common.bottomsheet.SelectableMenuBottomSheetItem
 import com.wire.android.ui.common.button.WireButton
@@ -60,8 +61,8 @@ import com.wire.android.ui.destinations.NewConversationFolderScreenDestination
 import com.wire.kalium.logic.data.conversation.ConversationFolder
 import com.wire.kalium.logic.data.conversation.FolderType
 
-@WireDestination(
-    navArgsDelegate = ConversationFoldersNavArgs::class,
+@Destination<WireRootNavGraph>(
+    navArgs = ConversationFoldersNavArgs::class,
     style = DestinationStyle.Runtime::class, // default should be PopUpNavigationAnimation
 )
 @Composable

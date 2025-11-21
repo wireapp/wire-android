@@ -17,6 +17,8 @@
  */
 
 package com.wire.android.ui.home.settings.account
+import com.ramcosta.composedestinations.annotation.Destination
+import com.wire.android.navigation.WireRootNavGraph
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -50,7 +52,6 @@ import com.wire.android.appLogger
 import com.wire.android.model.Clickable
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
@@ -87,7 +88,7 @@ import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-@WireDestination
+@Destination<WireRootNavGraph>
 @Composable
 fun MyAccountScreen(
     navigator: Navigator,

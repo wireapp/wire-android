@@ -17,6 +17,8 @@
  */
 
 package com.wire.android.ui.authentication.create.details
+import com.ramcosta.composedestinations.annotation.Destination
+import com.wire.android.navigation.WireRootNavGraph
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -47,7 +49,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
@@ -74,7 +75,7 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 
 @CreatePersonalAccountNavGraph
 @CreateTeamAccountNavGraph
-@WireDestination(navArgsDelegate = CreateAccountNavArgs::class)
+@Destination<WireRootNavGraph>(navArgs = CreateAccountNavArgs::class)
 @Composable
 fun CreateAccountDetailsScreen(
     navigator: Navigator,

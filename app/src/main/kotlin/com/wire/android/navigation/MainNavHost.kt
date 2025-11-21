@@ -24,7 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.DestinationsNavHost
-import com.ramcosta.composedestinations.animations.rememberAnimatedNavHostEngine
+import com.ramcosta.composedestinations.animations.rememberNavHostEngine
 import com.ramcosta.composedestinations.manualcomposablecalls.composable
 import com.ramcosta.composedestinations.navigation.dependency
 import com.ramcosta.composedestinations.scope.resultBackNavigator
@@ -32,8 +32,6 @@ import com.ramcosta.composedestinations.scope.resultRecipient
 import com.ramcosta.composedestinations.spec.Route
 import com.wire.android.feature.sketch.destinations.DrawingCanvasScreenDestination
 import com.wire.android.feature.sketch.model.DrawingCanvasNavBackArgs
-import com.wire.android.navigation.style.DefaultNestedNavGraphAnimations
-import com.wire.android.navigation.style.DefaultRootNavGraphAnimations
 import com.wire.android.ui.NavGraphs
 import com.wire.android.ui.authentication.login.email.LoginEmailViewModel
 import com.wire.android.ui.authentication.login.sso.SSOUrlConfigHolderImpl
@@ -52,14 +50,7 @@ fun MainNavHost(
     startDestination: Route,
     modifier: Modifier = Modifier,
 ) {
-    val navHostEngine = rememberAnimatedNavHostEngine(
-        rootDefaultAnimations = DefaultRootNavGraphAnimations,
-        defaultAnimationsForNestedNavGraph = mapOf(
-            NavGraphs.createPersonalAccount to DefaultNestedNavGraphAnimations,
-            NavGraphs.createTeamAccount to DefaultNestedNavGraphAnimations,
-            NavGraphs.newConversation to DefaultNestedNavGraphAnimations,
-        )
-    )
+    val navHostEngine = rememberNavHostEngine()
 
     AdjustDestinationStylesForTablets()
     DestinationsNavHost(
@@ -117,10 +108,9 @@ fun MainNavHost(
         },
         manualComposableCallsBuilder = {
             /**
-             * In compose-destinations v1 it's not possible for code generation to use destination generated in another module,
-             * that's why it's necessary to use "open" approach and manually call the composable function for the destination.
-             * In v2 this will be possible, so that we will be able to use regular `ResultRecipient` instead of `OpenResultRecipient`
-             * and provide it directly inside the destination's composable without the need to passing it manually.
+             * Manual composable call is needed here to pass ResultRecipients from different modules.
+             * This approach allows us to handle results from destinations in other modules
+             * without requiring those modules to have direct dependencies on each other.
              * https://github.com/raamcosta/compose-destinations/issues/508#issuecomment-1883166574
              */
             composable(ConversationScreenDestination) {

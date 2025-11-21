@@ -16,6 +16,8 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 package com.wire.android.ui.userprofile.teammigration.step2
+import com.ramcosta.composedestinations.annotation.Destination
+import com.wire.android.navigation.WireRootNavGraph
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -34,7 +36,6 @@ import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.style.AuthSlideNavigationAnimation
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -49,7 +50,7 @@ import com.wire.android.ui.userprofile.teammigration.common.TeamMigrationContain
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @PersonalToTeamMigrationNavGraph
-@WireDestination(
+@Destination<WireRootNavGraph>(
     style = AuthSlideNavigationAnimation::class
 )
 @Composable

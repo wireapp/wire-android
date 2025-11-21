@@ -17,6 +17,8 @@
  */
 
 package com.wire.android.ui.debug
+import com.ramcosta.composedestinations.annotation.Destination
+import com.wire.android.navigation.WireRootNavGraph
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -47,7 +49,6 @@ import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.model.Clickable
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
@@ -68,7 +69,7 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.launch
 import java.io.File
 
-@WireDestination
+@Destination<WireRootNavGraph>
 @Composable
 fun DebugScreen(
     navigator: Navigator,

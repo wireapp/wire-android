@@ -17,6 +17,8 @@
  */
 
 package com.wire.android.ui.home.gallery
+import com.ramcosta.composedestinations.annotation.Destination
+import com.wire.android.navigation.WireRootNavGraph
 
 import android.content.Context
 import android.widget.Toast
@@ -38,7 +40,6 @@ import com.wire.android.R
 import com.wire.android.feature.cells.ui.destinations.PublicLinkScreenDestination
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.bottomsheet.WireMenuModalSheetContent
@@ -69,8 +70,8 @@ import com.wire.android.util.ui.SnackBarMessageHandler
 import com.wire.android.util.ui.openDownloadFolder
 
 @OptIn(ExperimentalCoilApi::class)
-@WireDestination(
-    navArgsDelegate = MediaGalleryNavArgs::class,
+@Destination<WireRootNavGraph>(
+    navArgs = MediaGalleryNavArgs::class,
     style = PopUpNavigationAnimation::class,
 )
 @Composable

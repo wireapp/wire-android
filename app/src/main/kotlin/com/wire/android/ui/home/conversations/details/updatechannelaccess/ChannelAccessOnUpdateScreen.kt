@@ -16,6 +16,8 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 package com.wire.android.ui.home.conversations.details.updatechannelaccess
+import com.ramcosta.composedestinations.annotation.Destination
+import com.wire.android.navigation.WireRootNavGraph
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
@@ -24,15 +26,14 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import com.wire.android.R
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessScreenContent
 
-@WireDestination(
-    navArgsDelegate = UpdateChannelAccessArgs::class,
+@Destination<WireRootNavGraph>(
+    navArgs = UpdateChannelAccessArgs::class,
     style = DestinationStyle.Runtime::class, // default should be SlideNavigationAnimation
 )
 @Composable

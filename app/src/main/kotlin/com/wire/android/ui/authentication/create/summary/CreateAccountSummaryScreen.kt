@@ -17,6 +17,8 @@
  */
 
 package com.wire.android.ui.authentication.create.summary
+import com.ramcosta.composedestinations.annotation.Destination
+import com.wire.android.navigation.WireRootNavGraph
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
@@ -39,7 +41,6 @@ import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.authentication.create.common.CreatePersonalAccountNavGraph
 import com.wire.android.ui.authentication.create.common.CreateTeamAccountNavGraph
@@ -52,7 +53,7 @@ import com.wire.android.ui.theme.wireTypography
 
 @CreatePersonalAccountNavGraph
 @CreateTeamAccountNavGraph
-@WireDestination(navArgsDelegate = CreateAccountSummaryNavArgs::class)
+@Destination<WireRootNavGraph>(navArgs = CreateAccountSummaryNavArgs::class)
 @Composable
 fun CreateAccountSummaryScreen(
     navigator: Navigator,

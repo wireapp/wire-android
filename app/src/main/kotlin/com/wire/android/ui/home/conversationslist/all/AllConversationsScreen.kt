@@ -17,6 +17,8 @@
  */
 
 package com.wire.android.ui.home.conversationslist.all
+import com.ramcosta.composedestinations.annotation.Destination
+import com.wire.android.navigation.WireRootNavGraph
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.text.input.TextFieldState
@@ -24,7 +26,6 @@ import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.navigation.HomeNavGraph
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.rememberNavigator
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.search.rememberSearchbarState
@@ -42,7 +43,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.conversation.ConversationFilter
 
 @HomeNavGraph(start = true)
-@WireDestination
+@Destination<WireRootNavGraph>
 @Composable
 fun AllConversationsScreen(
     homeStateHolder: HomeStateHolder,

@@ -19,6 +19,8 @@
 @file:Suppress("TooManyFunctions")
 
 package com.wire.android.ui.authentication.welcome
+import com.ramcosta.composedestinations.annotation.Destination
+import com.wire.android.navigation.WireRootNavGraph
 
 import android.content.res.TypedArray
 import androidx.annotation.ArrayRes
@@ -71,7 +73,6 @@ import com.wire.android.R
 import com.wire.android.config.LocalCustomUiConfigurationProvider
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.authentication.create.common.CreateAccountDataNavArgs
 import com.wire.android.ui.authentication.create.common.ServerTitle
@@ -104,9 +105,9 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.scan
 
-@WireDestination(
+@Destination<WireRootNavGraph>(
     style = PopUpNavigationAnimation::class,
-    navArgsDelegate = WelcomeNavArgs::class
+    navArgs = WelcomeNavArgs::class
 )
 @Composable
 fun WelcomeScreen(

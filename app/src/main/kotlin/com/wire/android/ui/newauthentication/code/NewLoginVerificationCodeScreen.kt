@@ -16,6 +16,8 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 package com.wire.android.ui.newauthentication.login.code
+import com.ramcosta.composedestinations.annotation.Destination
+import com.wire.android.navigation.WireRootNavGraph
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -28,7 +30,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.style.AuthSlideNavigationAnimation
 import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.LoginState
@@ -52,8 +53,8 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 
 // has to be navigated to after NewLoginPasswordScreen, otherwise there will be illegal state because it needs to reuse view model from it
 @NewLoginNavGraph
-@WireDestination(
-    navArgsDelegate = LoginNavArgs::class,
+@Destination<WireRootNavGraph>(
+    navArgs = LoginNavArgs::class,
     style = AuthSlideNavigationAnimation::class,
 )
 @Composable

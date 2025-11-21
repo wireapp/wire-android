@@ -17,6 +17,8 @@
  */
 
 package com.wire.android.ui.home.conversations.details
+import com.ramcosta.composedestinations.annotation.Destination
+import com.wire.android.navigation.WireRootNavGraph
 
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedContent
@@ -69,7 +71,6 @@ import com.wire.android.appLogger
 import com.wire.android.feature.cells.ui.destinations.ConversationFilesScreenDestination
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.LoadingWireTabRow
@@ -132,8 +133,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 @Suppress("CyclomaticComplexMethod")
-@WireDestination(
-    navArgsDelegate = GroupConversationDetailsNavArgs::class,
+@Destination<WireRootNavGraph>(
+    navArgs = GroupConversationDetailsNavArgs::class,
     style = DestinationStyle.Runtime::class, // default should be PopUpNavigationAnimation
 )
 @Composable

@@ -20,15 +20,22 @@ package com.wire.android.navigation.annotation
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.Destination.Companion.COMPOSABLE_NAME
 import com.ramcosta.composedestinations.spec.DestinationStyle
-import com.wire.android.navigation.wrapper.TabletDialogWrapper
-import com.wire.android.navigation.wrapper.WaitUntilTransitionEndsWrapper
 import kotlin.reflect.KClass
 
-@Destination(
-    wrappers = [WaitUntilTransitionEndsWrapper::class, TabletDialogWrapper::class],
-)
-internal annotation class WireDestination(
+/**
+ * Wire's custom destination annotation that wraps @Destination.
+ *
+ * Usage: @WireDestination<YourGraph>
+ * where YourGraph is the navigation graph annotation (e.g., HomeNavGraph, WireRootNavGraph)
+ *
+ * Note: Wrappers (TabletDialogWrapper, WaitUntilTransitionEndsWrapper) have been temporarily removed
+ * until DestinationWrapper is available in compose-destinations v2.
+ * TODO: Re-add wrappers when upgrading to a version that supports them.
+ */
+@Target(AnnotationTarget.FUNCTION)
+@Retention(AnnotationRetention.BINARY)
+annotation class WireDestination<T : Annotation>(
     val route: String = COMPOSABLE_NAME,
-    val navArgsDelegate: KClass<*> = Nothing::class,
+    val navArgs: KClass<*> = Nothing::class,
     val style: KClass<out DestinationStyle> = DestinationStyle.Default::class,
 )

@@ -16,6 +16,8 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 package com.wire.android.feature.cells.ui.publiclink
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
 
 import android.content.Context
 import android.os.Build
@@ -41,10 +43,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.result.ResultBackNavigator
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.util.PreviewMultipleThemes
-import com.wire.android.navigation.annotation.features.cells.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.button.WireSecondaryButton
@@ -57,13 +58,13 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.theme.WireTheme
 
-@WireDestination(
-    navArgsDelegate = PublicLinkNavArgs::class,
+@Destination<ExternalModuleGraph>(
+    navArgs = PublicLinkNavArgs::class,
     style = PopUpNavigationAnimation::class,
 )
 @Composable
 fun PublicLinkScreen(
-    resultNavigator: ResultBackNavigator<Unit>,
+    navigator: DestinationsNavigator,
     modifier: Modifier = Modifier,
     viewModel: PublicLinkViewModel = hiltViewModel(),
 ) {
@@ -76,7 +77,7 @@ fun PublicLinkScreen(
         modifier = modifier,
         topBar = {
             WireCenterAlignedTopAppBar(
-                onNavigationPressed = { resultNavigator.navigateBack() },
+                onNavigationPressed = { navigator.navigateUp() },
                 title = if (viewModel.isFolder()) {
                     stringResource(R.string.share_folder_via_link)
                 } else {
@@ -128,7 +129,7 @@ fun PublicLinkScreen(
                 Toast.makeText(context, action.message, Toast.LENGTH_SHORT).show()
 
                 if (action.closeScreen) {
-                    resultNavigator.navigateBack()
+                    navigator.navigateUp()
                 }
             }
         }

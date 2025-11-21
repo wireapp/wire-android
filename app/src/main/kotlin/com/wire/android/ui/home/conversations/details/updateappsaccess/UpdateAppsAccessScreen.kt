@@ -16,6 +16,8 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 package com.wire.android.ui.home.conversations.details.updateappsaccess
+import com.ramcosta.composedestinations.annotation.Destination
+import com.wire.android.navigation.WireRootNavGraph
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -33,7 +35,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
@@ -47,8 +48,8 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 import kotlinx.coroutines.launch
 
-@WireDestination(
-    navArgsDelegate = UpdateAppsAccessNavArgs::class,
+@Destination<WireRootNavGraph>(
+    navArgs = UpdateAppsAccessNavArgs::class,
     style = DestinationStyle.Runtime::class,
 )
 @Composable

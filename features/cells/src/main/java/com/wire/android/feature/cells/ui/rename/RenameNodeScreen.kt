@@ -16,6 +16,8 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 package com.wire.android.feature.cells.ui.rename
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Box
@@ -36,7 +38,6 @@ import com.wire.android.feature.cells.ui.rename.RenameNodeViewModel.Companion.NA
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.navigation.PreviewNavigator
 import com.wire.android.navigation.WireNavigator
-import com.wire.android.navigation.annotation.features.cells.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.animation.ShakeAnimation
@@ -56,9 +57,9 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 
-@WireDestination(
+@Destination<ExternalModuleGraph>(
     style = PopUpNavigationAnimation::class,
-    navArgsDelegate = RenameNodeNavArgs::class,
+    navArgs = RenameNodeNavArgs::class,
 )
 @Composable
 fun RenameNodeScreen(

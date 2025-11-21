@@ -17,6 +17,8 @@
  */
 
 package com.wire.android.ui.home.settings.appearance
+import com.ramcosta.composedestinations.annotation.Destination
+import com.wire.android.navigation.WireRootNavGraph
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -44,7 +46,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.selectableBackground
@@ -60,7 +61,7 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.sectionWithElements
 import com.wire.android.util.ui.PreviewMultipleThemes
 
-@WireDestination
+@Destination<WireRootNavGraph>
 @Composable
 fun CustomizationScreen(
     navigator: Navigator,

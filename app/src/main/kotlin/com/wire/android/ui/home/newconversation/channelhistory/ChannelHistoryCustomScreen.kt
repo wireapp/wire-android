@@ -16,6 +16,8 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 package com.wire.android.ui.home.newconversation.channelhistory
+import com.ramcosta.composedestinations.annotation.Destination
+import com.wire.android.navigation.WireRootNavGraph
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
@@ -38,7 +40,6 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.R
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.ui.common.WireDropDown
 import com.wire.android.ui.common.dimensions
@@ -53,8 +54,8 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @NewConversationNavGraph
-@WireDestination(
-    navArgsDelegate = ChannelHistoryCustomArgs::class,
+@Destination<WireRootNavGraph>(
+    navArgs = ChannelHistoryCustomArgs::class,
     style = SlideNavigationAnimation::class,
 )
 @Composable

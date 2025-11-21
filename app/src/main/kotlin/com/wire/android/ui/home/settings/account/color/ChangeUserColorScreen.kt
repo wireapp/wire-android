@@ -17,6 +17,8 @@
  */
 
 package com.wire.android.ui.home.settings.account.color
+import com.ramcosta.composedestinations.annotation.Destination
+import com.wire.android.navigation.WireRootNavGraph
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -40,7 +42,6 @@ import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.WireDropDown
@@ -75,7 +76,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.id.QualifiedID
 
-@WireDestination(
+@Destination<WireRootNavGraph>(
     style = DestinationStyle.Runtime::class, // default should be SlideNavigationAnimation
 )
 @Composable

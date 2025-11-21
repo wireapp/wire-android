@@ -17,6 +17,8 @@
  */
 
 package com.wire.android.ui.registration.selector
+import com.ramcosta.composedestinations.annotation.Destination
+import com.wire.android.navigation.WireRootNavGraph
 
 import android.annotation.SuppressLint
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -51,7 +53,6 @@ import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.style.AuthPopUpNavigationAnimation
 import com.wire.android.ui.authentication.create.common.CreateAccountDataNavArgs
 import com.wire.android.ui.authentication.create.common.CreateAccountNavGraph
@@ -76,8 +77,8 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.configuration.server.ServerConfig
 
 @CreateAccountNavGraph(start = true)
-@WireDestination(
-    navArgsDelegate = CreateAccountSelectorNavArgs::class,
+@Destination<WireRootNavGraph>(
+    navArgs = CreateAccountSelectorNavArgs::class,
     style = AuthPopUpNavigationAnimation::class
 )
 @Composable

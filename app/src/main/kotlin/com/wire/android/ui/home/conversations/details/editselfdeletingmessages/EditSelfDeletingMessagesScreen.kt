@@ -17,6 +17,8 @@
  */
 
 package com.wire.android.ui.home.conversations.details.editselfdeletingmessages
+import com.ramcosta.composedestinations.annotation.Destination
+import com.wire.android.navigation.WireRootNavGraph
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
@@ -43,7 +45,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.rememberNavigator
 import com.wire.android.ui.common.button.WireButton
 import com.wire.android.ui.common.button.WireButtonState
@@ -60,8 +61,8 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.sectionWithElements
 
-@WireDestination(
-    navArgsDelegate = EditSelfDeletingMessagesNavArgs::class,
+@Destination<WireRootNavGraph>(
+    navArgs = EditSelfDeletingMessagesNavArgs::class,
     style = DestinationStyle.Runtime::class, // default should be SlideNavigationAnimation
 )
 @Composable

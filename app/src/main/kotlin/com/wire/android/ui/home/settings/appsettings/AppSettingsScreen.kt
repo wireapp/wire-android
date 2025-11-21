@@ -17,6 +17,8 @@
  */
 
 package com.wire.android.ui.home.settings.appsettings
+import com.ramcosta.composedestinations.annotation.Destination
+import com.wire.android.navigation.WireRootNavGraph
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -32,9 +34,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.wire.android.navigation.annotation.app.WireDestination
 
-@WireDestination
+@Destination<WireRootNavGraph>
 @Composable
 fun AppSettingsScreen() {
     Column(

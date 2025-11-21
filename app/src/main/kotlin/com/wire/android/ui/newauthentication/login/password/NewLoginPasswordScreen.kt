@@ -17,6 +17,8 @@
  */
 
 package com.wire.android.ui.newauthentication.login.password
+import com.ramcosta.composedestinations.annotation.Destination
+import com.wire.android.navigation.WireRootNavGraph
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
@@ -52,7 +54,6 @@ import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.style.AuthSlideNavigationAnimation
 import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.authentication.login.DomainClaimedByOrg
@@ -99,8 +100,8 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.configuration.server.ServerConfig
 
 @NewLoginNavGraph
-@WireDestination(
-    navArgsDelegate = LoginNavArgs::class,
+@Destination<WireRootNavGraph>(
+    navArgs = LoginNavArgs::class,
     style = AuthSlideNavigationAnimation::class,
 )
 @Composable

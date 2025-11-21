@@ -17,6 +17,8 @@
  */
 
 package com.wire.android.ui.home.whatsnew
+import com.ramcosta.composedestinations.annotation.Destination
+import com.wire.android.navigation.WireRootNavGraph
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
@@ -36,14 +38,13 @@ import com.wire.android.model.Clickable
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.navigation.HomeNavGraph
 import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.handleNavigation
 import com.wire.android.ui.home.HomeStateHolder
 import com.wire.android.util.ui.sectionWithElements
 import com.wire.android.util.ui.UIText
 
 @HomeNavGraph
-@WireDestination
+@Destination<WireRootNavGraph>
 @Composable
 fun WhatsNewScreen(
     homeStateHolder: HomeStateHolder,

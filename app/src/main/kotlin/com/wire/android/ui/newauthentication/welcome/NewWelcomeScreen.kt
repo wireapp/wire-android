@@ -19,6 +19,7 @@
 @file:Suppress("TooManyFunctions")
 
 package com.wire.android.ui.newauthentication.welcome
+import com.ramcosta.composedestinations.annotation.Destination
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -29,13 +30,12 @@ import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireRootNavGraph
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.style.AuthNoNavigationAnimation
 import com.wire.android.ui.destinations.NewLoginScreenDestination
 import com.wire.android.ui.destinations.WelcomeScreenDestination
 
 @WireRootNavGraph(start = true)
-@WireDestination
+@Destination<WireRootNavGraph>
 @Composable
 fun WelcomeChooserScreen(
     navigator: Navigator,
@@ -48,7 +48,7 @@ fun WelcomeChooserScreen(
 }
 
 // this is completely empty initial screen that allows to show just BackgroundType.Auth until any potential deep link is handled
-@WireDestination(
+@Destination<WireRootNavGraph>(
     style = AuthNoNavigationAnimation::class,
 )
 @Composable

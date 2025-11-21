@@ -16,7 +16,8 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 package com.wire.android.feature.cells.ui.tags
-
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -49,7 +50,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.feature.cells.R
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.navigation.WireNavigator
-import com.wire.android.navigation.annotation.features.cells.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.button.WireButtonState
@@ -68,8 +68,8 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import kotlinx.coroutines.launch
 
-@WireDestination(
-    navArgsDelegate = AddRemoveTagsNavArgs::class,
+@Destination<ExternalModuleGraph>(
+    navArgs = AddRemoveTagsNavArgs::class,
     style = PopUpNavigationAnimation::class,
 )
 @Composable

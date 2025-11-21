@@ -17,6 +17,8 @@
  */
 
 package com.wire.android.ui.authentication.create.code
+import com.ramcosta.composedestinations.annotation.Destination
+import com.wire.android.navigation.WireRootNavGraph
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
@@ -45,7 +47,6 @@ import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
 import com.wire.android.ui.authentication.create.common.CreatePersonalAccountNavGraph
@@ -75,7 +76,7 @@ import kotlinx.coroutines.job
 
 @CreatePersonalAccountNavGraph
 @CreateTeamAccountNavGraph
-@WireDestination(navArgsDelegate = CreateAccountNavArgs::class)
+@Destination<WireRootNavGraph>(navArgs = CreateAccountNavArgs::class)
 @Composable
 fun CreateAccountCodeScreen(
     navigator: Navigator,

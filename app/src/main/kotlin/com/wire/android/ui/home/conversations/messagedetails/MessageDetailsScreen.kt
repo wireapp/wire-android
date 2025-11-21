@@ -17,6 +17,8 @@
  */
 
 package com.wire.android.ui.home.conversations.messagedetails
+import com.ramcosta.composedestinations.annotation.Destination
+import com.wire.android.navigation.WireRootNavGraph
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -46,7 +48,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
@@ -60,8 +61,8 @@ import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.ui.UIText
 import kotlinx.coroutines.launch
 
-@WireDestination(
-    navArgsDelegate = MessageDetailsNavArgs::class,
+@Destination<WireRootNavGraph>(
+    navArgs = MessageDetailsNavArgs::class,
     style = PopUpNavigationAnimation::class,
 )
 @Composable

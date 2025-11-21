@@ -16,6 +16,8 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 package com.wire.android.ui.settings.devices
+import com.ramcosta.composedestinations.annotation.Destination
+import com.wire.android.navigation.WireRootNavGraph
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -50,7 +52,6 @@ import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.authentication.devices.model.lastActiveDescription
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceDialog
@@ -102,8 +103,8 @@ import com.wire.kalium.logic.feature.e2ei.X509Identity
 import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
 import kotlinx.datetime.Instant
 
-@WireDestination(
-    navArgsDelegate = DeviceDetailsNavArgs::class,
+@Destination<WireRootNavGraph>(
+    navArgs = DeviceDetailsNavArgs::class,
     style = DestinationStyle.Runtime::class, // default should be SlideNavigationAnimation
 )
 @Composable

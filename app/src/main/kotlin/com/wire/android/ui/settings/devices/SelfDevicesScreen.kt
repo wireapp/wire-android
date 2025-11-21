@@ -17,6 +17,8 @@
  */
 
 package com.wire.android.ui.settings.devices
+import com.ramcosta.composedestinations.annotation.Destination
+import com.wire.android.navigation.WireRootNavGraph
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
@@ -38,7 +40,6 @@ import androidx.lifecycle.Lifecycle
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.authentication.devices.DeviceItem
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.common.ArrowRightIcon
@@ -52,7 +53,7 @@ import com.wire.android.util.ui.sectionWithElements
 import com.wire.android.util.lifecycle.rememberLifecycleEvent
 import com.wire.kalium.logic.data.conversation.ClientId
 
-@WireDestination
+@Destination<WireRootNavGraph>
 @Composable
 fun SelfDevicesScreen(
     navigator: Navigator,

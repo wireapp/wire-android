@@ -19,6 +19,8 @@
 @file:Suppress("TooManyFunctions")
 
 package com.wire.android.ui.newauthentication.login
+import com.ramcosta.composedestinations.annotation.Destination
+import com.wire.android.navigation.WireRootNavGraph
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -51,7 +53,6 @@ import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.style.AuthPopUpNavigationAnimation
 import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.authentication.login.LoginErrorDialog
@@ -89,9 +90,9 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.configuration.server.ServerConfig
 
 @NewLoginNavGraph(start = true)
-@WireDestination(
+@Destination<WireRootNavGraph>(
     style = AuthPopUpNavigationAnimation::class,
-    navArgsDelegate = LoginNavArgs::class,
+    navArgs = LoginNavArgs::class,
 )
 @Composable
 fun NewLoginScreen(

@@ -17,6 +17,8 @@
  */
 
 package com.wire.android.ui.home.settings
+import com.ramcosta.composedestinations.annotation.Destination
+import com.wire.android.navigation.WireRootNavGraph
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
@@ -36,7 +38,6 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.navigation.HomeNavGraph
 import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.handleNavigation
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.SetLockCodeScreenDestination
@@ -47,7 +48,7 @@ import com.wire.android.util.ui.sectionWithElements
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @HomeNavGraph
-@WireDestination
+@Destination<WireRootNavGraph>
 @Composable
 fun SettingsScreen(
     homeStateHolder: HomeStateHolder,

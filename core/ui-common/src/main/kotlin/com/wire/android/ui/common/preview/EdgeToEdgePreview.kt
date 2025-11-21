@@ -43,8 +43,6 @@ fun EdgeToEdgePreview(
             cameraCutoutMode = CameraCutoutMode.Middle,
             isInvertedOrientation = false,
             showInsetsBorder = false,
-            isNavigationBarVisible = true,
-            isStatusBarVisible = true,
             content = content,
         )
     }

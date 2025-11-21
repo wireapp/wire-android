@@ -17,6 +17,8 @@
  */
 
 package com.wire.android.ui.home
+import com.ramcosta.composedestinations.annotation.Destination
+import com.wire.android.navigation.WireRootNavGraph
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
@@ -62,8 +64,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.ramcosta.composedestinations.DestinationsNavHost
-import com.ramcosta.composedestinations.animations.defaults.RootNavGraphDefaultAnimations
-import com.ramcosta.composedestinations.animations.rememberAnimatedNavHostEngine
+import com.ramcosta.composedestinations.animations.rememberNavHostEngine
 import com.ramcosta.composedestinations.navigation.dependency
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
@@ -74,7 +75,6 @@ import com.wire.android.navigation.HomeDestination
 import com.wire.android.navigation.HomeDestination.FabOptions
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.handleNavigation
 import com.wire.android.ui.NavGraphs
 import com.wire.android.ui.analytics.AnalyticsUsageViewModel
@@ -101,7 +101,7 @@ import com.wire.android.ui.home.drawer.HomeDrawerViewModel
 import com.wire.android.util.permission.rememberShowNotificationsPermissionFlow
 import kotlinx.coroutines.launch
 
-@WireDestination
+@Destination<WireRootNavGraph>
 @Composable
 fun HomeScreen(
     navigator: Navigator,
@@ -363,9 +363,7 @@ fun HomeContent(
                          */
                         val lifecycleState by LocalLifecycleOwner.current.lifecycle.currentStateFlow.collectAsState()
                         if (lifecycleState != Lifecycle.State.DESTROYED) {
-                            val navHostEngine = rememberAnimatedNavHostEngine(
-                                rootDefaultAnimations = RootNavGraphDefaultAnimations.ACCOMPANIST_FADING
-                            )
+                            val navHostEngine = rememberNavHostEngine()
 
                             AdjustDestinationStylesForTablets()
                             DestinationsNavHost(

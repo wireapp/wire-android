@@ -18,6 +18,8 @@
 @file:Suppress("TooManyFunctions")
 
 package com.wire.android.ui.home.newconversation.groupOptions
+import com.ramcosta.composedestinations.annotation.Destination
+import com.wire.android.navigation.WireRootNavGraph
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -38,7 +40,6 @@ import com.wire.android.model.Clickable
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
@@ -74,7 +75,7 @@ import com.wire.kalium.logic.data.conversation.CreateConversationParam
 import com.wire.kalium.logic.data.id.ConversationId
 
 @NewConversationNavGraph
-@WireDestination
+@Destination<WireRootNavGraph>
 @Composable
 fun GroupOptionScreen(
     navigator: Navigator,

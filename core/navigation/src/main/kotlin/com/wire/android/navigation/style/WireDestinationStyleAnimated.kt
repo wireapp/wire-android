@@ -30,22 +30,22 @@ import com.ramcosta.composedestinations.utils.destination
  * Chooses the right transition animation to be used depending on the recently opened destination's style.
  * Thanks to that animations are consistent and not mixed when both destinations involved in the transition use different styles.
  */
-internal interface WireDestinationStyleAnimated : DestinationStyle.Animated {
-    fun animationType(): TransitionAnimationType = TransitionAnimationType.SLIDE
-    private fun DestinationSpec<*>.getAnimationTypeStyle() =
+abstract class WireDestinationStyleAnimated : DestinationStyle.Animated() {
+    open fun animationType(): TransitionAnimationType = TransitionAnimationType.SLIDE
+    private fun DestinationSpec.getAnimationTypeStyle() =
         (this.style as? WireDestinationStyleAnimated)?.animationType() ?: animationType()
 
-    override fun AnimatedContentTransitionScope<NavBackStackEntry>.enterTransition() =
-        targetState.destination().getAnimationTypeStyle().enterTransition
+    override val enterTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition
+        get() = { targetState.destination().getAnimationTypeStyle().enterTransition }
 
-    override fun AnimatedContentTransitionScope<NavBackStackEntry>.exitTransition() =
-        targetState.destination().getAnimationTypeStyle().exitTransition
+    override val exitTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition
+        get() = { targetState.destination().getAnimationTypeStyle().exitTransition }
 
-    override fun AnimatedContentTransitionScope<NavBackStackEntry>.popEnterTransition() =
-        initialState.destination().getAnimationTypeStyle().popEnterTransition
+    override val popEnterTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition
+        get() = { initialState.destination().getAnimationTypeStyle().popEnterTransition }
 
-    override fun AnimatedContentTransitionScope<NavBackStackEntry>.popExitTransition(): ExitTransition =
-        initialState.destination().getAnimationTypeStyle().popExitTransition
+    override val popExitTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition
+        get() = { initialState.destination().getAnimationTypeStyle().popExitTransition }
 }
 
 /**

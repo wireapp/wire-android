@@ -17,6 +17,8 @@
  */
 
 package com.wire.android.ui.home.conversations.details.editguestaccess
+import com.ramcosta.composedestinations.annotation.Destination
+import com.wire.android.navigation.WireRootNavGraph
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -42,7 +44,6 @@ import com.ramcosta.composedestinations.spec.DestinationStyle
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.rememberNavigator
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.bottomsheet.show
@@ -62,8 +63,8 @@ import com.wire.android.util.copyLinkToClipboard
 import com.wire.android.util.shareViaIntent
 
 @Suppress("ComplexMethod")
-@WireDestination(
-    navArgsDelegate = EditGuestAccessNavArgs::class,
+@Destination<WireRootNavGraph>(
+    navArgs = EditGuestAccessNavArgs::class,
     style = DestinationStyle.Runtime::class, // default should be SlideNavigationAnimation
 )
 @Composable

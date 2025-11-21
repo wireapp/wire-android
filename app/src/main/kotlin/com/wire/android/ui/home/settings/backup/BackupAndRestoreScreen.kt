@@ -17,6 +17,8 @@
  */
 
 package com.wire.android.ui.home.settings.backup
+import com.ramcosta.composedestinations.annotation.Destination
+import com.wire.android.navigation.WireRootNavGraph
 
 import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
@@ -42,7 +44,6 @@ import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
 import com.wire.android.ui.common.scaffold.WireScaffold
@@ -60,7 +61,7 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.time.convertTimestampToDateTime
 import com.wire.android.util.ui.PreviewMultipleThemes
 
-@WireDestination
+@Destination<WireRootNavGraph>
 @Composable
 fun BackupAndRestoreScreen(
     navigator: Navigator,

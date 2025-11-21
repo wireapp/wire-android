@@ -16,6 +16,8 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 package com.wire.android.ui.home.conversations.details.editguestaccess.createPasswordProtectedGuestLink
+import com.ramcosta.composedestinations.annotation.Destination
+import com.wire.android.navigation.WireRootNavGraph
 
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -48,7 +50,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
@@ -66,8 +67,8 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 import kotlinx.coroutines.launch
 
-@WireDestination(
-    navArgsDelegate = CreatePasswordGuestLinkNavArgs::class
+@Destination<WireRootNavGraph>(
+    navArgs = CreatePasswordGuestLinkNavArgs::class
 )
 @Composable
 fun CreatePasswordProtectedGuestLinkScreen(

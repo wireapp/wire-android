@@ -17,6 +17,8 @@
  */
 
 package com.wire.android.ui.userprofile.other
+import com.ramcosta.composedestinations.annotation.Destination
+import com.wire.android.navigation.WireRootNavGraph
 
 import android.annotation.SuppressLint
 import androidx.annotation.StringRes
@@ -57,7 +59,6 @@ import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.HandleActions
@@ -110,8 +111,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 
-@WireDestination(
-    navArgsDelegate = OtherUserProfileNavArgs::class,
+@Destination<WireRootNavGraph>(
+    navArgs = OtherUserProfileNavArgs::class,
     style = DestinationStyle.Runtime::class, // default should be PopUpNavigationAnimation
 )
 @Composable

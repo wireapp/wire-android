@@ -112,7 +112,7 @@ fun DebugConversationScreen(
                     onUpdate = { viewModel.updateConversation() },
                     onReset = { viewModel.resetMLSConversation() },
                 )
-                if (BuildConfig.PRIVATE_BUILD) {
+                if (BuildConfig.CONVERSATION_FEEDER_ENABLED) {
                     SectionHeader("Feeders / performance config")
                     ConversationFeedConfigView(
                         config = state.feedConfig,

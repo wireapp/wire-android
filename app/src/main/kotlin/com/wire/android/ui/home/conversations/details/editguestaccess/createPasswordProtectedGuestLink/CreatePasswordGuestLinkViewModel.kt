@@ -43,7 +43,7 @@ import javax.inject.Inject
 class CreatePasswordGuestLinkViewModel @Inject constructor(
     private val generateGuestRoomLink: GenerateGuestRoomLinkUseCase,
     private val validatePassword: ValidatePasswordUseCase,
-    private val randomPassword: RandomPassword,
+    private val generatePassword: RandomPassword,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -100,7 +100,7 @@ class CreatePasswordGuestLinkViewModel @Inject constructor(
     }
 
     fun onGenerateRandomPassword() {
-        val password = randomPassword()
+        val password = generatePassword()
         state.passwordTextState.setTextAndPlaceCursorAtEnd(password)
         state.confirmPasswordTextState.setTextAndPlaceCursorAtEnd(password)
     }

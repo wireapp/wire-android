@@ -63,9 +63,13 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.dependency
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
+import com.ramcosta.composedestinations.spec.NavGraphSpec
+import com.wire.android.ui.navgraphs.HomeGraph
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.navigation.HomeDestination
@@ -354,8 +358,9 @@ fun HomeContent(
                     collapsingEnabled = !searchBarState.isSearchActive,
                     contentLazyListState = homeStateHolder.lazyListStateFor(currentNavigationItem, currentConversationFilter),
                     content = {
-                        // Home section screens are now rendered directly within MainNavHost.
-                        // HomeStateHolder is provided via LocalHomeStateHolder composition local.
+                        // In the absence of nested NavHost support in v2, directly render AllConversationsScreen
+                        // as the default content when HomeScreen is shown
+                        com.wire.android.ui.home.conversationslist.all.AllConversationsScreen()
                     },
                     floatingActionButton = {
                         AnimatedVisibility(

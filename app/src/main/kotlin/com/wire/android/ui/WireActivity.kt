@@ -54,6 +54,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.ramcosta.composedestinations.spec.Direction
+import com.ramcosta.composedestinations.spec.Route
 import com.ramcosta.composedestinations.spec.TypedRoute
 import com.ramcosta.composedestinations.utils.destination
 import com.ramcosta.composedestinations.utils.route
@@ -88,6 +89,7 @@ import com.wire.android.ui.common.topappbar.CommonTopAppBar
 import com.wire.android.ui.common.topappbar.CommonTopAppBarState
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
 import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.destinations.AllConversationsScreenDestination
 import com.wire.android.ui.destinations.E2EIEnrollmentScreenDestination
 import com.wire.android.ui.destinations.E2EiCertificateDetailsScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination

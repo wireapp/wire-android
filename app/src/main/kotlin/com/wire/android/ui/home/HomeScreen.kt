@@ -63,12 +63,14 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.dependency
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
-import com.ramcosta.composedestinations.spec.NavGraphSpec
+import com.ramcosta.composedestinations.spec.NavHostGraphSpec
+import com.wire.android.ui.NavGraphs
 import com.wire.android.ui.navgraphs.HomeGraph
 import com.wire.android.R
 import com.wire.android.appLogger
@@ -358,9 +360,27 @@ fun HomeContent(
                     collapsingEnabled = !searchBarState.isSearchActive,
                     contentLazyListState = homeStateHolder.lazyListStateFor(currentNavigationItem, currentConversationFilter),
                     content = {
-                        // In the absence of nested NavHost support in v2, directly render AllConversationsScreen
-                        // as the default content when HomeScreen is shown
-                        com.wire.android.ui.home.conversationslist.all.AllConversationsScreen()
+                        /**
+                         * This "if" is a workaround, otherwise it can crash because of the SubcomposeLayout's nature.
+                         * We need to communicate to the sub-compositions when they are to be disposed by the parent and ignore
+                         * compositions in the round they are to be disposed. More here:
+                         * https://github.com/google/accompanist/issues/1487
+                         * https://issuetracker.google.com/issues/268422136
+                         * https://issuetracker.google.com/issues/254645321
+                         */
+                        val lifecycleState by LocalLifecycleOwner.current.lifecycle.currentStateFlow.collectAsStateWithLifecycle()
+                        if (lifecycleState != Lifecycle.State.DESTROYED) {
+                            // Render HomeGraph destinations using DestinationsNavHost
+                            // We use NavGraphs.wireRoot as the graph but start at HomeGraph
+                            DestinationsNavHost(
+                                navGraph = NavGraphs.wireRoot as NavHostGraphSpec,
+                                start = HomeGraph,
+                                navController = navController,
+                                dependenciesContainerBuilder = {
+                                    dependency(homeStateHolder)
+                                }
+                            )
+                        }
                     },
                     floatingActionButton = {
                         AnimatedVisibility(

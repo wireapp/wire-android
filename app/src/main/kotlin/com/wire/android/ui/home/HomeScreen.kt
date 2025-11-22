@@ -69,7 +69,6 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.dependency
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
-import com.ramcosta.composedestinations.spec.NavHostGraphSpec
 import com.wire.android.ui.NavGraphs
 import com.wire.android.ui.navgraphs.HomeGraph
 import com.wire.android.R
@@ -277,11 +276,8 @@ fun HomeContent(
                 context = context,
                 handleOtherDirection = { direction ->
                     navController.navigate(direction.route) {
-                        navController.graph.startDestinationRoute?.let { route ->
-                            popUpTo(route) {
-                                saveState = true
-                            }
-                        }
+                        // Don't pop the back stack when navigating within HomeGraph
+                        // This ensures proper back navigation to the home/conversations screen
                         launchSingleTop = true
                         restoreState = true
                     }
@@ -373,7 +369,7 @@ fun HomeContent(
                             // Render HomeGraph destinations using DestinationsNavHost
                             // We use NavGraphs.wireRoot as the graph but start at HomeGraph
                             DestinationsNavHost(
-                                navGraph = NavGraphs.wireRoot as NavHostGraphSpec,
+                                navGraph = NavGraphs.wireRoot,
                                 start = HomeGraph,
                                 navController = navController,
                                 dependenciesContainerBuilder = {

@@ -29,12 +29,13 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
 @ViewModelScopedPreview
 interface SelfDeletingMessageActionViewModel {
@@ -42,12 +43,16 @@ interface SelfDeletingMessageActionViewModel {
 }
 
 @Suppress("LongParameterList", "TooManyFunctions")
-@HiltViewModel
-class SelfDeletingMessageActionViewModelImpl @Inject constructor(
+class SelfDeletingMessageActionViewModelImpl @AssistedInject constructor(
     private val dispatchers: DispatcherProvider,
     private val observeSelfDeletingMessages: ObserveSelfDeletionTimerSettingsForConversationUseCase,
-    savedStateHandle: SavedStateHandle
+    @Assisted savedStateHandle: SavedStateHandle
 ) : SelfDeletingMessageActionViewModel, ViewModel() {
+
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): SelfDeletingMessageActionViewModelImpl
+    }
 
     private val args: SelfDeletingMessageActionArgs = savedStateHandle.scopedArgs()
     private val conversationId: QualifiedID = args.conversationId

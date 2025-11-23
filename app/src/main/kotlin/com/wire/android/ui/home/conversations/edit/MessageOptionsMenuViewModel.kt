@@ -27,7 +27,9 @@ import com.wire.android.ui.home.conversations.mock.mockMessageWithText
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.usecase.ObserveMessageForConversationUseCase
 import com.wire.kalium.logic.data.id.QualifiedID
-import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -39,7 +41,6 @@ import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.serialization.Serializable
 import java.util.concurrent.ConcurrentHashMap
-import javax.inject.Inject
 
 @ViewModelScopedPreview
 interface MessageOptionsMenuViewModel {
@@ -47,11 +48,16 @@ interface MessageOptionsMenuViewModel {
         MutableStateFlow(MessageOptionsMenuState.Message(mockMessageWithText))
 }
 
-@HiltViewModel
-class MessageOptionsMenuViewModelImpl @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+class MessageOptionsMenuViewModelImpl @AssistedInject constructor(
+    @Assisted savedStateHandle: SavedStateHandle,
     private val observeMessageForConversation: ObserveMessageForConversationUseCase,
 ) : MessageOptionsMenuViewModel, ViewModel() {
+
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): MessageOptionsMenuViewModelImpl
+    }
+
     private val args: MessageOptionsMenuArgs = savedStateHandle.scopedArgs()
     private val messageStateFlow: ConcurrentHashMap<String, StateFlow<MessageOptionsMenuState>> = ConcurrentHashMap()
 

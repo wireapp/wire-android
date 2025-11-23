@@ -24,6 +24,7 @@ import androidx.compose.foundation.text.input.clearText
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
@@ -39,7 +40,9 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.feature.backup.CreateBackupResult
 import com.wire.kalium.logic.feature.backup.CreateObfuscatedCopyUseCase
 import com.wire.kalium.util.DelicateKaliumApi
-import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
@@ -59,11 +62,11 @@ interface ExportObfuscatedCopyViewModel {
     fun cancelBackupCreation() {}
 }
 
-@HiltViewModel
-class ExportObfuscatedCopyViewModelImpl @OptIn(DelicateKaliumApi::class) @Inject constructor(
+class ExportObfuscatedCopyViewModelImpl @OptIn(DelicateKaliumApi::class) @AssistedInject constructor(
     private val createUnencryptedCopy: CreateObfuscatedCopyUseCase,
     private val dispatcher: DispatcherProvider = DefaultDispatcherProvider(),
     private val fileManager: FileManager,
+    @Assisted private val savedStateHandle: SavedStateHandle,
 ) : ViewModel(), ExportObfuscatedCopyViewModel {
 
     override var state by mutableStateOf(BackupAndRestoreState.INITIAL_STATE)
@@ -124,6 +127,11 @@ class ExportObfuscatedCopyViewModelImpl @OptIn(DelicateKaliumApi::class) @Inject
         viewModelScope.launch(dispatcher.main()) {
             createBackupPasswordState.clearText()
         }
+    }
+
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): ExportObfuscatedCopyViewModelImpl
     }
 }
 

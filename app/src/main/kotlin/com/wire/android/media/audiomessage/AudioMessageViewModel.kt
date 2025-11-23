@@ -28,13 +28,14 @@ import com.wire.android.di.ScopedArgs
 import com.wire.android.di.ViewModelScopedPreview
 import com.wire.android.di.scopedArgs
 import com.wire.kalium.logic.data.id.ConversationId
-import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
-import javax.inject.Inject
 
 @ViewModelScopedPreview
 interface AudioMessageViewModel {
@@ -44,11 +45,15 @@ interface AudioMessageViewModel {
     fun changeAudioSpeed(audioSpeed: AudioSpeed) {}
 }
 
-@HiltViewModel
-class AudioMessageViewModelImpl @Inject constructor(
+class AudioMessageViewModelImpl @AssistedInject constructor(
     private val audioMessagePlayer: ConversationAudioMessagePlayer,
-    savedStateHandle: SavedStateHandle,
+    @Assisted savedStateHandle: SavedStateHandle,
 ) : ViewModel(), AudioMessageViewModel {
+
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): AudioMessageViewModelImpl
+    }
 
     private val args: AudioMessageArgs = savedStateHandle.scopedArgs()
 

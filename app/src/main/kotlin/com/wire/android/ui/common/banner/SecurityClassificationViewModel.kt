@@ -31,21 +31,26 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.ObserveOtherUserSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
-import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @ViewModelScopedPreview
 interface SecurityClassificationViewModel {
     fun state(): SecurityClassificationType = SecurityClassificationType.NONE
 }
 
-@HiltViewModel
-class SecurityClassificationViewModelImpl @Inject constructor(
+class SecurityClassificationViewModelImpl @AssistedInject constructor(
     private val observeSecurityClassificationLabel: ObserveSecurityClassificationLabelUseCase,
     private val observeOtherUserSecurityClassificationLabel: ObserveOtherUserSecurityClassificationLabelUseCase,
-    savedStateHandle: SavedStateHandle
+    @Assisted savedStateHandle: SavedStateHandle
 ) : SecurityClassificationViewModel, ViewModel() {
+
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): SecurityClassificationViewModelImpl
+    }
 
     private val args: SecurityClassificationArgs = savedStateHandle.scopedArgs()
 

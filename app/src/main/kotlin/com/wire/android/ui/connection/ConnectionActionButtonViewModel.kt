@@ -47,13 +47,14 @@ import com.wire.kalium.logic.feature.connection.UnblockUserResult
 import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
 import com.wire.kalium.logic.feature.conversation.CreateConversationResult
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
 @ViewModelScopedPreview
 interface ConnectionActionButtonViewModel : ActionsManager<ConnectionButtonAction> {
@@ -69,8 +70,7 @@ interface ConnectionActionButtonViewModel : ActionsManager<ConnectionButtonActio
 }
 
 @Suppress("LongParameterList", "TooManyFunctions")
-@HiltViewModel
-internal class ConnectionActionButtonViewModelImpl @Inject constructor(
+internal class ConnectionActionButtonViewModelImpl @AssistedInject constructor(
     private val dispatchers: DispatcherProvider,
     private val sendConnectionRequest: SendConnectionRequestUseCase,
     private val cancelConnectionRequest: CancelConnectionRequestUseCase,
@@ -78,8 +78,13 @@ internal class ConnectionActionButtonViewModelImpl @Inject constructor(
     private val ignoreConnectionRequest: IgnoreConnectionRequestUseCase,
     private val unblockUser: UnblockUserUseCase,
     private val getOrCreateOneToOneConversation: GetOrCreateOneToOneConversationUseCase,
-    savedStateHandle: SavedStateHandle
+    @Assisted savedStateHandle: SavedStateHandle
 ) : ConnectionActionButtonViewModel, ActionsViewModel<ConnectionButtonAction>() {
+
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): ConnectionActionButtonViewModelImpl
+    }
 
     private val args: ConnectionActionButtonArgs = savedStateHandle.scopedArgs()
     private val userId: QualifiedID = args.userId

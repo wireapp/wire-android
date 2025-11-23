@@ -42,7 +42,7 @@ fun AddContactButton(
     userName: String,
     modifier: Modifier = Modifier,
     viewModel: ConnectionActionButtonViewModel =
-        hiltViewModelScoped<ConnectionActionButtonViewModelImpl, ConnectionActionButtonViewModel, ConnectionActionButtonArgs>(
+        hiltViewModelScoped<ConnectionActionButtonViewModelImpl, ConnectionActionButtonViewModel, ConnectionActionButtonViewModelImpl.Factory, ConnectionActionButtonArgs>(
             ConnectionActionButtonArgs(userId, userName)
         ),
 ) {

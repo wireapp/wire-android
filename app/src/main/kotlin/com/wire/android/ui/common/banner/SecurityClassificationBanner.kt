@@ -53,7 +53,7 @@ fun SecurityClassificationBannerForConversation(
     conversationId: ConversationId,
     modifier: Modifier = Modifier,
     viewModel: SecurityClassificationViewModel =
-        hiltViewModelScoped<SecurityClassificationViewModelImpl, SecurityClassificationViewModel, SecurityClassificationArgs>(
+        hiltViewModelScoped<SecurityClassificationViewModelImpl, SecurityClassificationViewModel, SecurityClassificationViewModelImpl.Factory, SecurityClassificationArgs>(
             SecurityClassificationArgs.Conversation(id = conversationId)
         )
 ) {
@@ -68,7 +68,7 @@ fun SecurityClassificationBannerForUser(
     userId: UserId,
     modifier: Modifier = Modifier,
     viewModel: SecurityClassificationViewModel =
-        hiltViewModelScoped<SecurityClassificationViewModelImpl, SecurityClassificationViewModel, SecurityClassificationArgs>(
+        hiltViewModelScoped<SecurityClassificationViewModelImpl, SecurityClassificationViewModel, SecurityClassificationViewModelImpl.Factory, SecurityClassificationArgs>(
             SecurityClassificationArgs.User(id = userId)
         )
 ) {

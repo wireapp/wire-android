@@ -144,7 +144,7 @@ internal fun UserDebugContent(
 fun DangerOptions(
     modifier: Modifier = Modifier,
     exportObfuscatedCopyViewModel: ExportObfuscatedCopyViewModel =
-        hiltViewModelScoped<ExportObfuscatedCopyViewModelImpl, ExportObfuscatedCopyViewModel, ExportObfuscatedCopyArgs>(
+        hiltViewModelScoped<ExportObfuscatedCopyViewModelImpl, ExportObfuscatedCopyViewModel, ExportObfuscatedCopyViewModelImpl.Factory, ExportObfuscatedCopyArgs>(
             ExportObfuscatedCopyArgs
         ),
 ) {

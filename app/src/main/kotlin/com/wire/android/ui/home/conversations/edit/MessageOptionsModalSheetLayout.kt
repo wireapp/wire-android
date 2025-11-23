@@ -62,7 +62,7 @@ fun MessageOptionsModalSheetLayout(
     onDownloadAssetClick: (messageId: String) -> Unit,
     onOpenAssetClick: (messageId: String) -> Unit,
     viewModel: MessageOptionsMenuViewModel =
-        hiltViewModelScoped<MessageOptionsMenuViewModelImpl, MessageOptionsMenuViewModel, MessageOptionsMenuArgs>(
+        hiltViewModelScoped<MessageOptionsMenuViewModelImpl, MessageOptionsMenuViewModel, MessageOptionsMenuViewModelImpl.Factory, MessageOptionsMenuArgs>(
             MessageOptionsMenuArgs(conversationId)
         )
 ) {

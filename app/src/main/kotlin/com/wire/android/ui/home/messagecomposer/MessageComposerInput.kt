@@ -193,7 +193,7 @@ private fun InputContent(
     onTextCollapse: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SelfDeletingMessageActionViewModel =
-        hiltViewModelScoped<SelfDeletingMessageActionViewModelImpl, SelfDeletingMessageActionViewModel, SelfDeletingMessageActionArgs>(
+        hiltViewModelScoped<SelfDeletingMessageActionViewModelImpl, SelfDeletingMessageActionViewModel, SelfDeletingMessageActionViewModelImpl.Factory, SelfDeletingMessageActionArgs>(
             SelfDeletingMessageActionArgs(conversationId = conversationId)
         ),
     onClearFocus: () -> Unit = { }

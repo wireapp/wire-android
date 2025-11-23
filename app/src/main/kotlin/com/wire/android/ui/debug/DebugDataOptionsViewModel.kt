@@ -52,7 +52,10 @@ import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import com.wire.kalium.logic.sync.periodic.UpdateApiVersionsScheduler
 import com.wire.kalium.logic.sync.slow.RestartSlowSyncProcessForRecoveryUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
+import androidx.lifecycle.SavedStateHandle
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -79,9 +82,8 @@ interface DebugDataOptionsViewModel {
 }
 
 @Suppress("LongParameterList", "TooManyFunctions")
-@HiltViewModel
 class DebugDataOptionsViewModelImpl
-@Inject constructor(
+@AssistedInject constructor(
     @ApplicationContext private val context: Context,
     @CurrentAccount val currentAccount: UserId,
     private val updateApiVersions: UpdateApiVersionsScheduler,
@@ -95,6 +97,7 @@ class DebugDataOptionsViewModelImpl
     private val getDefaultProtocolUseCase: GetDefaultProtocolUseCase,
     private val observeAsyncNotificationsEnabled: ObserveIsConsumableNotificationsEnabledUseCase,
     private val startUsingAsyncNotifications: StartUsingAsyncNotificationsUseCase,
+    @Assisted private val savedStateHandle: SavedStateHandle,
 ) : ViewModel(), DebugDataOptionsViewModel {
 
     override var state by mutableStateOf(
@@ -298,6 +301,11 @@ class DebugDataOptionsViewModelImpl
         }
     }
     //endregion
+
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): DebugDataOptionsViewModelImpl
+    }
 }
 //endregion
 

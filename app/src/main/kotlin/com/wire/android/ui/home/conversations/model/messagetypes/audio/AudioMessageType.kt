@@ -177,7 +177,7 @@ private fun UploadedAudioMessage(
     modifier: Modifier = Modifier,
 ) {
     val viewModel: AudioMessageViewModel =
-        hiltViewModelScoped<AudioMessageViewModelImpl, AudioMessageViewModel, AudioMessageArgs>(audioMessageArgs)
+        hiltViewModelScoped<AudioMessageViewModelImpl, AudioMessageViewModel, AudioMessageViewModelImpl.Factory, AudioMessageArgs>(audioMessageArgs)
     val sanitizedAudioState by remember(viewModel.state.audioState, audioMessageDurationInMs) {
         derivedStateOf {
             viewModel.state.audioState.copy(totalTimeInMs = viewModel.state.audioState.sanitizeTotalTime(audioMessageDurationInMs.toInt()))

@@ -21,12 +21,15 @@ package com.wire.android.ui.home.messagecomposer.attachments
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.di.ViewModelScopedPreview
 import com.wire.kalium.logic.configuration.FileSharingStatus
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -35,9 +38,9 @@ interface IsFileSharingEnabledViewModel {
     fun isFileSharingEnabled(): Boolean = true
 }
 
-@HiltViewModel
-class IsFileSharingEnabledViewModelImpl @Inject constructor(
+class IsFileSharingEnabledViewModelImpl @AssistedInject constructor(
     private val isFileSharingEnabledUseCase: IsFileSharingEnabledUseCase,
+    @Assisted private val savedStateHandle: SavedStateHandle,
 ) : IsFileSharingEnabledViewModel, ViewModel() {
 
     private var state by mutableStateOf(true)
@@ -56,5 +59,10 @@ class IsFileSharingEnabledViewModelImpl @Inject constructor(
                 FileSharingStatus.Value.Disabled -> false
             }
         }
+    }
+
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): IsFileSharingEnabledViewModelImpl
     }
 }

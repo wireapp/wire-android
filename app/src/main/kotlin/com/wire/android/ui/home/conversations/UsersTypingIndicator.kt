@@ -75,7 +75,7 @@ private const val ANIMATION_SPEED_MILLIS = 1_500
 fun UsersTypingIndicatorForConversation(
     conversationId: ConversationId,
     viewModel: TypingIndicatorViewModel =
-    hiltViewModelScoped<TypingIndicatorViewModelImpl, TypingIndicatorViewModel, TypingIndicatorArgs>(
+    hiltViewModelScoped<TypingIndicatorViewModelImpl, TypingIndicatorViewModel, TypingIndicatorViewModelImpl.Factory, TypingIndicatorArgs>(
         TypingIndicatorArgs(conversationId)
     )
 ) {

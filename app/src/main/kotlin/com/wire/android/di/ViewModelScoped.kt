@@ -51,19 +51,33 @@ fun <R : ScopedArgs> scopedArgs(argsClass: KClass<R>, argsContainer: SavedStateH
  * and provides them into scoped [ViewModel] converting it automatically to [Bundle] using [Bundlizer].
  *
  * [ViewModel] needs to implement an interface annotated with [ViewModelScopedPreview] and with default
- * implementations.
+ * implementations, and use @AssistedInject with an @AssistedFactory.
  *
  * Proper key will be taken from the [ScopedArgs.key] property.
  *
  * @param arguments The arguments that will be provided to the [ViewModel], must implement [ScopedArgs] and be serializable
+ * @param F The factory type that creates the ViewModel with assisted injection
  */
 @OptIn(InternalSerializationApi::class)
 @Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER")
 @Composable
-inline fun <reified T, reified S, reified R : ScopedArgs> hiltViewModelScoped(arguments: R): S where T : ViewModel, T : S = when {
+inline fun <reified T, reified S, reified F, reified R : ScopedArgs> hiltViewModelScoped(arguments: R): S where T : ViewModel, T : S = when {
     LocalInspectionMode.current -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
     espresso -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
-    else -> hiltViewModelScoped<T>(key = arguments.key, defaultArguments = Bundlizer.bundle(R::class.serializer(), arguments))
+    else -> {
+        val bundle = Bundlizer.bundle(R::class.serializer(), arguments)
+        val savedStateHandle = SavedStateHandle.createHandle(null, bundle)
+        hiltViewModelScoped<T, F>(
+            key = arguments.key,
+            creationCallback = { factory: F ->
+                // Use reflection to find and invoke the create method on the factory
+                val createMethod = factory!!::class.java.methods.find {
+                    it.name == "create" && it.parameterCount == 1
+                }
+                createMethod?.invoke(factory, savedStateHandle) as T
+            }
+        )
+    }
 }
 
 /**

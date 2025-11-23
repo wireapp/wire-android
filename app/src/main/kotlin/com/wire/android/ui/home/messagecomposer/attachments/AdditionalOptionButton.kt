@@ -52,7 +52,7 @@ fun AdditionalOptionButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: IsFileSharingEnabledViewModel =
-        hiltViewModelScoped<IsFileSharingEnabledViewModelImpl, IsFileSharingEnabledViewModel, IsFileSharingEnabledArgs>(
+        hiltViewModelScoped<IsFileSharingEnabledViewModelImpl, IsFileSharingEnabledViewModel, IsFileSharingEnabledViewModelImpl.Factory, IsFileSharingEnabledArgs>(
             IsFileSharingEnabledArgs
         )
 ) {

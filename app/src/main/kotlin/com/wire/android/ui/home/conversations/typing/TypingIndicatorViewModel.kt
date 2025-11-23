@@ -28,6 +28,9 @@ import com.wire.android.di.ViewModelScopedPreview
 import com.wire.android.di.scopedArgs
 import com.wire.android.ui.home.conversations.usecase.ObserveUsersTypingInConversationUseCase
 import com.wire.kalium.logic.data.id.QualifiedID
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
@@ -38,11 +41,15 @@ interface TypingIndicatorViewModel {
     fun state(): UsersTypingViewState = UsersTypingViewState()
 }
 
-@HiltViewModel
-class TypingIndicatorViewModelImpl @Inject constructor(
+class TypingIndicatorViewModelImpl @AssistedInject constructor(
     private val observeUsersTypingInConversation: ObserveUsersTypingInConversationUseCase,
-    savedStateHandle: SavedStateHandle,
+    @Assisted savedStateHandle: SavedStateHandle,
 ) : TypingIndicatorViewModel, ViewModel() {
+
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): TypingIndicatorViewModelImpl
+    }
 
     private val args: TypingIndicatorArgs = savedStateHandle.scopedArgs()
     val conversationId: QualifiedID = args.conversationId

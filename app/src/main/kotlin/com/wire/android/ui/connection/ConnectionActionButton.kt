@@ -73,7 +73,7 @@ fun ConnectionActionButton(
     onConnectionRequestIgnored: (String) -> Unit = {},
     onOpenConversation: (ConversationId) -> Unit = {},
     viewModel: ConnectionActionButtonViewModel =
-        hiltViewModelScoped<ConnectionActionButtonViewModelImpl, ConnectionActionButtonViewModel, ConnectionActionButtonArgs>(
+        hiltViewModelScoped<ConnectionActionButtonViewModelImpl, ConnectionActionButtonViewModel, ConnectionActionButtonViewModelImpl.Factory, ConnectionActionButtonArgs>(
             ConnectionActionButtonArgs(userId, userName)
         ),
 ) {

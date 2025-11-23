@@ -60,7 +60,7 @@ fun DebugDataOptions(
     onCopyText: (String) -> Unit,
     onShowFeatureFlags: () -> Unit,
     viewModel: DebugDataOptionsViewModel =
-        hiltViewModelScoped<DebugDataOptionsViewModelImpl, DebugDataOptionsViewModel, DebugDataOptions>(DebugDataOptions),
+        hiltViewModelScoped<DebugDataOptionsViewModelImpl, DebugDataOptionsViewModel, DebugDataOptionsViewModelImpl.Factory, DebugDataOptions>(DebugDataOptions),
 ) {
     LocalSnackbarHostState.current.collectAndShowSnackbar(snackbarFlow = viewModel.infoMessage)
     DebugDataOptionsContent(

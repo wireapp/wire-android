@@ -23,7 +23,7 @@ android-gradlePlugin = "8.10.1"
 desugaring = "2.1.5"
 firebaseBOM = "33.6.0"
 fragment = "1.5.6"
-resaca = "3.0.0"
+resaca = "4.6.4"
 bundlizer = "0.8.0"
 squareup-javapoet = "1.13.0"
 visibilityModifiers = "1.1.0"
@@ -163,8 +163,8 @@ coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", ve
 android-desugarJdkLibs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugaring" }
 squareup-javapoet = { module = "com.squareup:javapoet", version.ref = "squareup-javapoet" }
 visibilityModifiers = { module = "io.github.esentsov:kotlin-visibility", version.ref = "visibilityModifiers" }
-resaca-core = { module = "com.github.sebaslogen.resaca:resaca", version.ref = "resaca" }
-resaca-hilt = { module = "com.github.sebaslogen.resaca:resacahilt", version.ref = "resaca" }
+resaca-core = { module = "io.github.sebaslogen:resaca", version.ref = "resaca" }
+resaca-hilt = { module = "io.github.sebaslogen:resacahilt", version.ref = "resaca" }
 bundlizer-core = { module = "dev.ahmedmourad.bundlizer:bundlizer-core", version.ref = "bundlizer" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBOM" }
 firebase-fcm = { module = "com.google.firebase:firebase-messaging-ktx" }

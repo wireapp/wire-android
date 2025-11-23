@@ -31,9 +31,10 @@ import com.wire.android.di.ViewModelScopedPreview
 import com.wire.kalium.logic.data.id.MessageButtonId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.feature.message.composite.SendButtonActionMessageUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @ViewModelScopedPreview
 interface CompositeMessageViewModel {
@@ -42,11 +43,15 @@ interface CompositeMessageViewModel {
     fun sendButtonActionMessage(buttonId: String) {}
 }
 
-@HiltViewModel
-class CompositeMessageViewModelImpl @Inject constructor(
+class CompositeMessageViewModelImpl @AssistedInject constructor(
     private val sendButtonActionMessageUseCase: SendButtonActionMessageUseCase,
-    savedStateHandle: SavedStateHandle,
+    @Assisted savedStateHandle: SavedStateHandle,
 ) : CompositeMessageViewModel, ViewModel() {
+
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): CompositeMessageViewModelImpl
+    }
 
     private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
     val conversationId: QualifiedID = conversationNavArgs.conversationId

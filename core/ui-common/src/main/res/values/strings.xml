@@ -54,4 +54,6 @@
     <string name="accent_color_purple">Purple</string>
     <string name="accent_color_none">None</string>
 
+    <string name="generate_password_button_text">Generate Password</string>
+
 </resources>

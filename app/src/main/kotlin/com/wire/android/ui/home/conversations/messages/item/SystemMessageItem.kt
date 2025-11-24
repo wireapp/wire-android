@@ -68,6 +68,7 @@ import com.wire.android.util.ui.markdownBold
 import com.wire.android.util.ui.markdownText
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.android.ui.common.R as commonR
 
 @Suppress("ComplexMethod")
 @Composable
@@ -505,7 +506,7 @@ private fun SystemMessage.buildContent(isWireCellsEnabled: Boolean) = when (this
     }
 
     is SystemMessage.ConversationMessageCreatedUnverifiedWarning -> buildContent(
-        iconResId = R.drawable.ic_shield_holo,
+        iconResId = commonR.drawable.ic_shield_holo,
         iconTintColor = MaterialTheme.wireColorScheme.onPositiveVariant,
         backgroundColor = MaterialTheme.wireColorScheme.positiveVariant,
         additionalVerticalPaddings = MaterialTheme.wireDimensions.spacing12x,

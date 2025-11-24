@@ -373,8 +373,10 @@ class NewConversationViewModelTest {
             .withAppsAllowedResult(false)
             .arrange()
 
-        assertFalse(viewModel.groupOptionsState.isTeamAllowedToUseApps)
-        assertFalse(viewModel.groupOptionsState.isAllowAppsEnabled)
+        // then
+        // WPB-21835: even if team does not allow apps, we still allow enabling/disabling apps based on protocol, later this will change
+        assertTrue(viewModel.groupOptionsState.isTeamAllowedToUseApps)
+        assertTrue(viewModel.groupOptionsState.isAllowAppsEnabled)
     }
 
     @Test

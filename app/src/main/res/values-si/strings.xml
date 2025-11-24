@@ -525,8 +525,6 @@
     <string name="conversation_details_options_tab">විකල්ප</string>
     <string name="conversation_details_participants_tab">සහභාගීන්</string>
     <string name="conversation_details_options_group_name">සමූහයේ නම</string>
-    <string name="conversation_details_conversation_admins">සංවාද ඇඩ්මින්වරු (%d)</string>
-    <string name="conversation_details_conversation_members">සංවාද සාමාජිකයින් (%d)</string>
     <string name="conversation_details_participants_info">මෙම සංවාදයට %s සහභාගිවන්නන් සිටී.\nසංවාදයකට පුද්ගලයින් 500ක් දක්වා සම්බන්ධ විය හැක.</string>
     <string name="conversation_details_participants_count">සහභාගීන් %s</string>
     <string name="conversation_details_show_all_participants">සියළු සහභාගීන් පෙන්වන්න (%d)</string>

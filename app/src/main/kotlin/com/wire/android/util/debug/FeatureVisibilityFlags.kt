@@ -56,6 +56,13 @@ object FeatureVisibilityFlags {
     const val MessageEditIcon = true
     const val SearchConversationMessages = true
     const val DrawingIcon = true
+
+    /**
+     * WPB-21835: Controls how apps availability is determined.
+     * When true: Apps are allowed based on protocol (disabled for MLS conversations)
+     * When false: Apps are allowed based on feature flags (original logic with team settings)
+     */
+    const val AppsBasedOnProtocol = true
 }
 
 val LocalFeatureVisibilityFlags = staticCompositionLocalOf { FeatureVisibilityFlags }

@@ -220,7 +220,9 @@ private fun GroupOptionState.GroupOptionsScreenMainContent(
                 }
             }
             AllowGuestsOptions(groupMetadataState.isChannel, onAllowGuestChanged)
-            AllowAppsOptions(onAllowServicesChanged)
+            if (isTeamAllowedToUseApps) {
+                AllowAppsOptions(onAllowServicesChanged)
+            }
             if (groupMetadataState.groupProtocol != CreateConversationParam.Protocol.MLS || mlsReadReceiptsEnabled) {
                 ReadReceiptsOptions(groupMetadataState.isChannel, onReadReceiptChanged)
             }

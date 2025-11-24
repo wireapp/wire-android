@@ -33,6 +33,7 @@ import com.wire.android.ui.home.conversations.search.SearchPeopleScreenType
 import com.wire.android.ui.home.conversations.search.SearchUsersAndAppsScreen
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
 import com.wire.android.ui.home.newconversation.common.NewConversationNavGraph
+import com.wire.kalium.logic.data.conversation.CreateConversationParam
 import com.wire.kalium.logic.data.id.QualifiedID
 
 @NewConversationNavGraph(start = true)
@@ -72,7 +73,7 @@ fun NewConversationSearchPeopleScreen(
         onClose = navigator::navigateBack,
         screenType = SearchPeopleScreenType.NEW_CONVERSATION,
         selectedContacts = newConversationViewModel.newGroupState.selectedUsers,
-        isAppsTabVisible = false,
+        isAppsTabVisible = newConversationViewModel.newGroupState.groupProtocol != CreateConversationParam.Protocol.MLS,
         onAppClicked = { }
     )
 

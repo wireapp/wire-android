@@ -253,8 +253,9 @@ class UpdateAppsAccessViewModelTest {
         advanceUntilIdle()
 
         // Then
-        assertEquals(false, viewModel.updateAppsAccessState.isUpdatingAppAccessAllowed)
-        assertEquals(false, viewModel.updateAppsAccessState.isAppAccessAllowed)
+        // WPB-21835: even if team does not allow apps, we still allow enabling/disabling apps based on protocol, later this will change
+        assertEquals(true, viewModel.updateAppsAccessState.isUpdatingAppAccessAllowed)
+        assertEquals(true, viewModel.updateAppsAccessState.isAppAccessAllowed)
     }
 
     @Test

@@ -371,8 +371,9 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="conversation_details_options_tab">OPCIONES</string>
     <string name="conversation_details_participants_tab">PARTICIPANTES</string>
     <string name="conversation_details_options_group_name">NOMBRE DEL GRUPO</string>
-    <string name="conversation_details_conversation_admins">ADMINISTRADORES DE LA CONVERSACIÓN (%d)</string>
-    <string name="conversation_details_conversation_members">MIEMBROS DE CONVERSACIÓN (%d)</string>
+    <string name="conversation_details_conversation_admins">ADMINISTRADORES (%d)</string>
+    <string name="conversation_details_conversation_members">MIEMBROS (%d)</string>
+    <string name="conversation_details_conversation_apps">APLICACIONES (%d)</string>
     <string name="conversation_details_participants_count">%s participantes</string>
     <string name="conversation_details_show_all_participants">Mostrar todos los participantes (%d)</string>
     <string name="conversation_participant_you_label">(Tú)</string>
@@ -610,10 +611,12 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <!-- Search Channels -->
     <string name="label_new_conversation">Nueva Conversaci&#243;n</string>
     <string name="label_search_people">Buscar Personas</string>
+    <string name="label_search_people_or_apps">Buscar personas o aplicaciones</string>
     <string name="label_search_people_instruction">Busca personas por su nombre de perfil o @nombredeusuario</string>
     <string name="label_learn_more_searching_user">Aprende m&#225;s</string>
     <string name="label_no_results_found">No se encontraron resultados. Por favor intenta nuevamente.</string>
     <string name="label_general_error">Algo sali&#243; mal</string>
+    <string name="label_add_member_services">Aplicaciones</string>
     <string name="label_empty_contacts_list">Buscar personas por su nombre o nombre de usuario para iniciar una conversación 🔍</string>
     <!-- Snackbar messages -->
     <string name="error_unknown_title">Algo sali&#243; mal</string>
@@ -737,8 +740,10 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="change">Cambiar</string>
     <string name="allow_guests">Permitir invitados</string>
     <string name="allow_guest_switch_description">Abra esta conversaci&#243;n a personas fuera de su equipo. Siempre puede cambiarlo m&#225;s tarde.</string>
+    <string name="allow_guest_switch_channel_description">Abre esta conversación a personas fuera de tu equipo o a aplicaciones. Siempre puedes cambiarla más tarde.</string>
     <string name="allow_services">Permitir aplicaciones</string>
     <string name="allow_services_regular_group_description">Abrir la conversación a aplicaciones. Siempre puedes cambiar esta opción más adelante.</string>
+    <string name="allow_apps_switch_description">Abrir esta conversación a aplicaciones.</string>
     <string name="service_details_label">Aplicación</string>
     <string name="service_details_add_service_label">Añadir a la Conversación</string>
     <string name="service_details_remove_service_label">Remover de la Conversación</string>
@@ -1021,4 +1026,18 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <!-- enterprise configurations -->
     <!--    channel not available dialog-->
     <!-- Apps-->
+    <string name="apps_upgrade_teams_for_apps_banner_title">Tu equipo aún no utiliza aplicaciones</string>
+    <string name="apps_upgrade_teams_for_apps_banner_content">Para mejorar tu flujo de trabajo con las aplicaciones, tu equipo necesita configuración. Por favor, contacta al administrador de tu equipo.</string>
+    <string name="apps_edit_apps_option_title">Aplicaciones</string>
+    <string name="content_description_edit_apps_option_back_btn">Volver a los detalles de la conversación</string>
+    <string name="content_description_conversation_details_apps_action">ajustar acceso a aplicaciones</string>
+    <string name="search_results_apps_empty_title">Tu equipo aún no ha añadido aplicaciones</string>
+    <string name="search_results_apps_empty_description_team_admin">Las aplicaciones son de ayuda para mejorar tu flujo de trabajo. Como administrador del equipo, puedes añadirlas en las configuraciones del equipo.</string>
+    <string name="search_results_apps_empty_description_non_team_admin">Las aplicaciones son de ayuda para mejorar tu flujo de trabajo. Para usarlas, póngase en contacto con el administrador del equipo.</string>
+    <string name="search_results_apps_empty_description_disabled_for_conversation">Las aplicaciones están desactivadas en esta conversación. Puedes habilitarlas en las opciones de conversación.</string>
+    <string name="label_system_message_apps_access_enabled_by_self">%1$s has habilitado las **aplicaciones** para esta conversación</string>
+    <string name="label_system_message_apps_access_disabled_by_self">%1$s has deshabilitado las **aplicaciones** para esta conversación</string>
+    <string name="label_system_message_apps_access_enabled_by_other">%1$s ha habilitado las **aplicaciones** para esta conversación</string>
+    <string name="label_system_message_apps_access_disabled_by_other">%1$s ha deshabilitado las **aplicaciones** para esta conversación</string>
+    <string name="label_system_message_apps_access_enabled_disclaimer">Las aplicaciones añadidas tienen acceso al contenido de esta conversación.</string>
 </resources>

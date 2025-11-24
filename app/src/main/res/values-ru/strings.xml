@@ -847,7 +847,9 @@
     <string name="label_system_message_conversation_verified_mls">Все устройства верифицированы (сквозная идентификация)</string>
     <string name="label_system_message_conversation_verified_proteus">Все отпечатки верифицированы (Proteus)</string>
     <string name="label_system_message_conversation_started_sensitive_information_header">**Коммуникации в Wire всегда зашифрованы сквозным шифрованием.**</string>
+    <string name="label_system_message_conversation_started_sensitive_information_header_with_cells_on">**Коммуникации в Wire всегда защищены.**</string>
     <string name="label_system_message_conversation_started_sensitive_information_message">Все, что вы отправляете и получаете в этой беседе, доступно только вам и другим участникам беседы.</string>
+    <string name="label_system_message_conversation_started_sensitive_information_message_with_cells_on">Сообщения и звонки всегда зашифрованы сквозным шифрованием, при этом файлы и папки защищены в состоянии передачи и зашифрованы в состоянии покоя. </string>
     <string name="label_system_message_conversation_started_sensitive_information_footer">Пожалуйста, будьте осторожны со всеми с кем делитесь конфиденциальной информацией.</string>
     <string name="label_conversations_details_verified_proteus">Верифицировано (Proteus)</string>
     <string name="label_conversations_details_verified_mls">Верифицировано (сквозная идентификация)</string>

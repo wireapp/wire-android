@@ -69,6 +69,7 @@
     <string name="create_folder_error">Ordner kann nicht erstellt werden. Bitte versuchen Sie es erneut</string>
     <string name="move_to_folder">In Ordner verschieben</string>
     <string name="move_here">Hierhin verschieben</string>
+    <string name="no_folders_message">Sie haben noch keine Ordner.\nErstellen Sie einen, um dieses Objekt zu verschieben.</string>
     <string name="no_subfolders_message">Es gibt keine Unterordner in diesem Ordner.</string>
     <string name="item_move_success">Objekt wurde in Ordner verschoben.</string>
     <string name="item_move_failure">Objekt kann nicht verschoben werden.</string>
@@ -113,6 +114,7 @@
     <string name="no_tags_message">Noch keine Tags erstellt.</string>
     <string name="tags_edited">Tags wurden bearbeitet</string>
     <string name="failed_edit_tags">Tags konnten nicht hinzugefügt oder entfernt werden</string>
+    <string name="create_folder_invalid_name">Verwenden Sie einen Namen ohne \"/\"</string>
     <string name="file_list_empty_title">Es gibt noch keine Dateien oder Ordner</string>
     <string name="no_results_found_label">Keine Ergebnisse gefunden</string>
     <string name="filters_try_adjusting_your_filters_label">Versuchen Sie, Ihre Filter anzupassen.</string>
@@ -120,4 +122,11 @@
     <string name="cells_folder_deleted_message">Ordner wurde gelöscht</string>
     <string name="cells_file_permanently_deleted_message">Datei wurde dauerhaft gelöscht</string>
     <string name="cells_folder_permanently_deleted_message">Ordner wurde dauerhaft gelöscht</string>
+    <string name="public_link_settings">Link-Einstellungen</string>
+    <string name="label_on">EIN</string>
+    <string name="label_off">AUS</string>
+    <string name="public_link_setting_password_title">Passwortgesichert</string>
+    <string name="public_link_setting_password_subtitle">Passwort festlegen, um den Zugriff zu beschränken</string>
+    <string name="public_link_setting_expiration_title">Ablaufdatum</string>
+    <string name="public_link_setting_expiration_subtitle">Link läuft an einem bestimmten Datum ab</string>
 </resources>

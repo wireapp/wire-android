@@ -88,7 +88,7 @@ jobs:
 
       - name: Deploy to GitHub Release
         if: matrix.target.type == 'github-release'
-        uses: softprops/action-gh-release@v2.4.1
+        uses: softprops/action-gh-release@v2.4.2
         with:
           files: |
             ${{ inputs.artifacts-path }}apk/${{ steps.lowercase.outputs.build-flavour }}/${{ steps.lowercase.outputs.build-variant }}/*.apk

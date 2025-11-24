@@ -1,0 +1,7 @@
+Verbessert
+- Dunkler Hintergrund
+- Anrufzuverlässigkeit
+- Leistung
+
+Behoben
+- Beim Bearbeiten einer Nachricht gab es zwei Optionen zum Senden

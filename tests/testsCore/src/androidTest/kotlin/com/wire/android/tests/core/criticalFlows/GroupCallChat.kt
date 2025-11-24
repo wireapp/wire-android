@@ -201,7 +201,6 @@ class GroupCallChat : KoinTest {
                 createQrImageInDeviceDownloadsFolder("my-test-qr")
                 tapSharingOption("File")
                 pages.documentsUIPage.apply {
-                    Thread.sleep(5000)
                     iSeeQrCodeImage()
                     iOpenDisplayedQrCodeImage()
                     iTapSendButtonOnPreviewImage()
@@ -209,7 +208,10 @@ class GroupCallChat : KoinTest {
                 pages.conversationViewPage.apply {
                     iSeeSentQrCodeImageInCurrentConversation()
                 }
-                testServiceHelper.userXSharesLocationTo("user2Name", "GroupCallChat", "Device1", false)
+                testServiceHelper.userXSharesLocationTo("user3Name", "GroupCallChat", "Device1", false)
+                pages.conversationViewPage.apply {
+                    iSeeLocationMapContainer()
+                }
                 pages.callingPage.apply {
                     iRestoreOngoingCall()
                     iSeeOngoingGroupCall()

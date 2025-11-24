@@ -36,6 +36,8 @@ data class ConversationViewPage(private val device: UiDevice) {
     private fun displayedUserName(userName: String) = UiSelectorParams(text = userName)
     private val typeMessageField = UiSelectorParams(description = " Type a message")
     private val sentQRImage = UiSelectorParams(description = "Image message")
+
+    private val sharedLocationContainer = UiSelectorParams(description = "Location item")
     private val attachNewFileButton = UiSelectorParams(description = "Attach new item to conversation")
     private val audioSeekBar = UiSelectorParams(className = "android.widget.SeekBar")
     private val audioInitialTime = UiSelectorParams(text = "00:00")
@@ -423,6 +425,16 @@ data class ConversationViewPage(private val device: UiDevice) {
             UiWaitUtils.waitElement(sentQRImage)
         } catch (e: AssertionError) {
             throw AssertionError("Sent qrCodeImage is not visible in current conversation", e)
+        }
+        return this
+    }
+
+    fun iSeeLocationMapContainer(): ConversationViewPage {
+
+        try {
+            UiWaitUtils.waitElement(sharedLocationContainer)
+        } catch (e: AssertionError) {
+            throw AssertionError("Location map container is not visible", e)
         }
         return this
     }

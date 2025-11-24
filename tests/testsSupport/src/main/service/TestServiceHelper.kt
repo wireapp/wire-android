@@ -431,7 +431,7 @@ class TestServiceHelper {
         isSelfDeleting: Boolean
     ) {
         val clientUser = toClientUser(senderAlias)
-        val conversation = toConvoObjPersonal(clientUser, convoName)
+        val conversation = toConvoObj(clientUser, convoName)
         testServiceClient.sendLocation(
             SendLocationParams(
                 owner = clientUser,

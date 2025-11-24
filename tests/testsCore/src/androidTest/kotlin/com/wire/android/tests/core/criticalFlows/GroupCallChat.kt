@@ -77,8 +77,10 @@ class GroupCallChat : KoinTest {
         backendClient = BackendClient.loadBackend("STAGING")
         teamHelper = TeamHelper()
 
-        callHelper.init(teamHelper!!.usersManager)
-        callingManager = callHelper.callingManager
+        teamHelper?.let {
+            callHelper.init(it.usersManager)
+            callingManager = callHelper.callingManager
+        } ?: throw IllegalArgumentException("Team Helper not initialized")
 
         grantRuntimePermsForForegroundApp(
             device,

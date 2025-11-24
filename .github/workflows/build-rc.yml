@@ -113,7 +113,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Create GitHub Pre-Release
-        uses: softprops/action-gh-release@v2.4.1
+        uses: softprops/action-gh-release@v2.4.2
         with:
           tag_name: ${{ github.ref_name }}
           name: "Release Candidate ${{ github.ref_name }}"

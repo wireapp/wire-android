@@ -36,6 +36,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ClipEntry
@@ -72,6 +75,8 @@ internal fun PublicLinkPasswordScreen(
     val state by viewModel.state.collectAsState()
     val clipboardManager = LocalClipboardManager.current
 
+    var showMissingPasswordDialog by remember { mutableStateOf(false) }
+
     BackHandler {
         resultNavigator.navigateBack(viewModel.isPasswordCreated)
     }
@@ -107,8 +112,19 @@ internal fun PublicLinkPasswordScreen(
                     resultNavigator.navigateBack(true)
                 }
                 is ShowError -> Toast.makeText(context, action.message, Toast.LENGTH_SHORT).show()
+                ShowMissingPasswordDialog -> showMissingPasswordDialog = true
             }
         }
+    }
+
+    if (showMissingPasswordDialog) {
+        PasswordNotAvailableDialog(
+            onResetPassword = {
+                showMissingPasswordDialog = false
+                viewModel.resetPassword()
+            },
+            onDismiss = { showMissingPasswordDialog = false },
+        )
     }
 }
 
@@ -199,7 +215,11 @@ private fun PasswordSettingsContent(
                     onCopyPassword = onCopyPassword,
                 )
             PasswordScreenState.NOT_AVAILABLE -> {
-                // TODO: Show dialog
+                PasswordActionsView(
+                    isCopyActionEnabled = false,
+                    onResetPassword = onResetPassword,
+                    onCopyPassword = onCopyPassword,
+                )
             }
         }
     }
@@ -222,7 +242,6 @@ private fun EnablePasswordSection(
         ) {
             Text(
                 modifier = Modifier
-                    .fillMaxWidth()
                     .weight(1f),
                 text = stringResource(R.string.public_link_setting_password_title),
                 style = typography().body02

@@ -11,7 +11,16 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+# Detect OS and set echo command accordingly
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # macOS
+    ECHO_CMD="echo"
+else
+    # Linux and others
+    ECHO_CMD="echo -e"
+fi
 
 # Colors for output
 RED='\033[0;31m'
@@ -20,7 +29,7 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-echo -e "${BLUE}=== Wire Android Release Notes Preparation ===${NC}"
+$ECHO_CMD "${BLUE}=== Wire Android Release Notes Preparation ===${NC}"
 echo ""
 
 # Path to AndroidCoordinates.kt
@@ -28,18 +37,18 @@ COORDINATES_FILE="$PROJECT_ROOT/build-logic/plugins/src/main/kotlin/AndroidCoord
 
 # Extract version name from AndroidCoordinates.kt
 if [ ! -f "$COORDINATES_FILE" ]; then
-    echo -e "${RED}Error: AndroidCoordinates.kt not found at $COORDINATES_FILE${NC}"
+    $ECHO_CMD "${RED}Error: AndroidCoordinates.kt not found at $COORDINATES_FILE${NC}"
     exit 1
 fi
 
-VERSION=$(awk '/^[[:space:]]*const[[:space:]]+val[[:space:]]+versionName[[:space:]]*=[[:space:]]*"/ { match($0, /"([^"]+)"/, arr); print arr[1] }' "$COORDINATES_FILE")
+VERSION=$(grep -E '^\s*const\s+val\s+versionName\s*=\s*"' "$COORDINATES_FILE" | sed -E 's/.*"([^"]+)".*/\1/')
 
 if [ -z "$VERSION" ]; then
-    echo -e "${RED}Error: Could not extract version from AndroidCoordinates.kt${NC}"
+    $ECHO_CMD "${RED}Error: Could not extract version from AndroidCoordinates.kt${NC}"
     exit 1
 fi
 
-echo -e "${GREEN}Detected version: ${VERSION}${NC}"
+$ECHO_CMD "${GREEN}Detected version: ${VERSION}${NC}"
 echo ""
 
 # Release notes directory
@@ -51,40 +60,52 @@ MAX_CHARACTERS=500
 # Languages to process
 LANGUAGES=("en-US" "de-DE")
 
+# Track if we're using version-specific release notes
+USING_VERSION_SPECIFIC=true
+
 # Process each language
 for LANG in "${LANGUAGES[@]}"; do
     LANG_DIR="$RELEASE_NOTES_DIR/$LANG"
     VERSION_FILE="$LANG_DIR/${VERSION}.txt"
     DEFAULT_FILE="$LANG_DIR/default.txt"
 
-    echo -e "${BLUE}Processing $LANG...${NC}"
+    $ECHO_CMD "${BLUE}Processing $LANG...${NC}"
 
     if [ ! -d "$LANG_DIR" ]; then
-        echo -e "${YELLOW}Warning: Language directory not found: $LANG_DIR${NC}"
-        echo -e "${YELLOW}Skipping $LANG${NC}"
+        $ECHO_CMD "${YELLOW}Warning: Language directory not found: $LANG_DIR${NC}"
+        $ECHO_CMD "${YELLOW}Skipping $LANG${NC}"
         echo ""
         continue
     fi
 
     if [ -f "$VERSION_FILE" ]; then
-        echo -e "${GREEN}✓ Found version-specific release notes: ${VERSION}.txt${NC}"
+        $ECHO_CMD "${GREEN}✓ Found version-specific release notes: ${VERSION}.txt${NC}"
 
         # Copy version-specific file to default.txt
         cp "$VERSION_FILE" "$DEFAULT_FILE"
-        echo -e "${GREEN}  Copied ${VERSION}.txt to default.txt${NC}"
+        $ECHO_CMD "${GREEN}  Copied ${VERSION}.txt to default.txt${NC}"
 
     else
-        echo -e "${RED}✗ Error: Version-specific release notes not found: ${VERSION}.txt${NC}"
-        echo -e "${RED}  Release notes for version ${VERSION} must be created before deployment${NC}"
-        echo -e "${RED}  Expected file: $VERSION_FILE${NC}"
-        exit 1
+        $ECHO_CMD "${YELLOW}⚠ Warning: Version-specific release notes not found: ${VERSION}.txt${NC}"
+        USING_VERSION_SPECIFIC=false
+
+        if [ -f "$DEFAULT_FILE" ]; then
+            $ECHO_CMD "${YELLOW}  Using existing default.txt as fallback${NC}"
+            $ECHO_CMD "${YELLOW}  Expected file: $VERSION_FILE${NC}"
+        else
+            $ECHO_CMD "${RED}✗ Error: Neither version-specific nor default release notes found${NC}"
+            $ECHO_CMD "${RED}  Expected files:${NC}"
+            $ECHO_CMD "${RED}    - $VERSION_FILE${NC}"
+            $ECHO_CMD "${RED}    - $DEFAULT_FILE${NC}"
+            exit 1
+        fi
     fi
 
     echo ""
 done
 
 # Validate character counts
-echo -e "${BLUE}=== Validating Character Counts ===${NC}"
+$ECHO_CMD "${BLUE}=== Validating Character Counts ===${NC}"
 VALIDATION_FAILED=false
 
 for LANG in "${LANGUAGES[@]}"; do
@@ -93,42 +114,46 @@ for LANG in "${LANGUAGES[@]}"; do
     if [ -f "$DEFAULT_FILE" ]; then
         CHAR_COUNT=$(python3 -c "import sys; print(len(sys.stdin.read()))" < "$DEFAULT_FILE")
 
-        echo -e "${BLUE}[$LANG]${NC} Character count: ${CHAR_COUNT}/${MAX_CHARACTERS}"
+        $ECHO_CMD "${BLUE}[$LANG]${NC} Character count: ${CHAR_COUNT}/${MAX_CHARACTERS}"
 
         if [ "$CHAR_COUNT" -gt "$MAX_CHARACTERS" ]; then
             OVERFLOW=$((CHAR_COUNT - MAX_CHARACTERS))
-            echo -e "${RED}✗ FAILED: Exceeds limit by ${OVERFLOW} characters${NC}"
+            $ECHO_CMD "${RED}✗ FAILED: Exceeds limit by ${OVERFLOW} characters${NC}"
             VALIDATION_FAILED=true
         elif [ "$CHAR_COUNT" -eq "$MAX_CHARACTERS" ]; then
-            echo -e "${YELLOW}⚠ WARNING: Exactly at character limit${NC}"
+            $ECHO_CMD "${YELLOW}⚠ WARNING: Exactly at character limit${NC}"
         else
             REMAINING=$((MAX_CHARACTERS - CHAR_COUNT))
-            echo -e "${GREEN}✓ PASSED: ${REMAINING} characters remaining${NC}"
+            $ECHO_CMD "${GREEN}✓ PASSED: ${REMAINING} characters remaining${NC}"
         fi
         echo ""
     fi
 done
 
 if [ "$VALIDATION_FAILED" = true ]; then
-    echo -e "${RED}Error: One or more release notes exceed the Play Store ${MAX_CHARACTERS} character limit${NC}"
-    echo -e "${RED}Please reduce the content and try again${NC}"
+    $ECHO_CMD "${RED}Error: One or more release notes exceed the Play Store ${MAX_CHARACTERS} character limit${NC}"
+    $ECHO_CMD "${RED}Please reduce the content and try again${NC}"
     exit 1
 fi
 
 # Summary
-echo -e "${BLUE}=== Summary ===${NC}"
-echo -e "${GREEN}✓ Using version-specific release notes for version ${VERSION}${NC}"
+$ECHO_CMD "${BLUE}=== Summary ===${NC}"
+if [ "$USING_VERSION_SPECIFIC" = true ]; then
+    $ECHO_CMD "${GREEN}✓ Using version-specific release notes for version ${VERSION}${NC}"
+else
+    $ECHO_CMD "${YELLOW}⚠ Using fallback release notes (version-specific notes for ${VERSION} not found)${NC}"
+fi
 echo ""
-echo -e "${GREEN}Release notes preparation completed successfully!${NC}"
+$ECHO_CMD "${GREEN}Release notes preparation completed successfully!${NC}"
 
 # Display the release notes that will be used
 echo ""
-echo -e "${BLUE}=== Release Notes Preview ===${NC}"
+$ECHO_CMD "${BLUE}=== Release Notes Preview ===${NC}"
 for LANG in "${LANGUAGES[@]}"; do
     DEFAULT_FILE="$RELEASE_NOTES_DIR/$LANG/default.txt"
     if [ -f "$DEFAULT_FILE" ]; then
         echo ""
-        echo -e "${BLUE}[$LANG]${NC}"
+        $ECHO_CMD "${BLUE}[$LANG]${NC}"
         echo "---"
         cat "$DEFAULT_FILE"
         echo "---"

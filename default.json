@@ -153,7 +153,7 @@
     "enable_crossplatform_backup": true,
     "mls_read_receipts_enabled": false,
     "is_mls_reset_enabled": true,
-    "use_strict_mls_filter": true,
+    "use_strict_mls_filter": false,
     "meetings_enabled": false,
     "emm_support_enabled": true,
     "background_notification_retry_enabled": false,

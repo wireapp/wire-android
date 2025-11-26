@@ -50,4 +50,6 @@
     <string name="accent_color_amber">Янтарный</string>
     <string name="accent_color_petrol">Розовый</string>
     <string name="accent_color_purple">Фиолетовый</string>
+    <string name="accent_color_none">Нет</string>
+    <string name="generate_password_button_text">Сгенерировать пароль</string>
 </resources>

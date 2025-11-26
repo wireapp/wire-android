@@ -29,6 +29,7 @@ import com.wire.android.appLogger
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.media.PingRinger
+import com.wire.android.media.audiomessage.toNormalizedLoudness
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.ui.home.conversations.AssetTooLargeDialogState
 import com.wire.android.ui.home.conversations.ConversationNavArgs
@@ -295,11 +296,14 @@ class SendMessageViewModel @Inject constructor(
         conversationId: ConversationId,
         attachmentUri: UriAsset
     ) {
-        when (val result = handleUriAsset.invoke(
-            uri = attachmentUri.uri,
-            saveToDeviceIfInvalid = attachmentUri.saveToDeviceIfInvalid,
-            specifiedMimeType = attachmentUri.mimeType
-        )) {
+        when (
+            val result = handleUriAsset.invoke(
+                uri = attachmentUri.uri,
+                saveToDeviceIfInvalid = attachmentUri.saveToDeviceIfInvalid,
+                specifiedMimeType = attachmentUri.mimeType,
+                audioWavesMask = attachmentUri.audioWavesMask,
+            )
+        ) {
             is HandleUriAssetUseCase.Result.Failure.AssetTooLarge -> {
                 assetTooLargeDialogState = AssetTooLargeDialogState.Visible(
                     assetType = result.assetBundle.assetType,
@@ -480,7 +484,8 @@ class SendMessageViewModel @Inject constructor(
             is SureAboutMessagingDialogState.Visible.ConversationVerificationDegraded ->
                 setUserInformedAboutVerification(conversationId)
 
-            SureAboutMessagingDialogState.Hidden -> { /* do nothing */
+            SureAboutMessagingDialogState.Hidden -> {
+                /* do nothing */
             }
         }
         sureAboutMessagingDialogState = SureAboutMessagingDialogState.Hidden
@@ -499,6 +504,7 @@ class SendMessageViewModel @Inject constructor(
         assetHeight = assetHeight,
         assetWidth = assetWidth,
         audioLengthInMs = audioLengthInMs,
+        audioNormalizedLoudness = audioWavesMask?.toNormalizedLoudness()
     )
 
     private companion object {

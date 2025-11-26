@@ -45,8 +45,11 @@ internal fun MutingOptionsSheetContent(
         ),
         menuItems = listOf(
             {
-                val state = if (mutingConversationState == MutedConversationStatus.AllAllowed) RichMenuItemState.SELECTED
-                else RichMenuItemState.DEFAULT
+                val state = if (mutingConversationState == MutedConversationStatus.AllAllowed) {
+                    RichMenuItemState.SELECTED
+                } else {
+                    RichMenuItemState.DEFAULT
+                }
                 SelectableMenuBottomSheetItem(
                     title = stringResource(id = R.string.muting_option_all_allowed_title),
                     subLine = stringResource(id = R.string.muting_option_all_allowed_text),
@@ -60,8 +63,11 @@ internal fun MutingOptionsSheetContent(
                 )
             },
             {
-                val state = if (mutingConversationState == MutedConversationStatus.OnlyMentionsAndRepliesAllowed) RichMenuItemState.SELECTED
-                else RichMenuItemState.DEFAULT
+                val state = if (mutingConversationState == MutedConversationStatus.OnlyMentionsAndRepliesAllowed) {
+                    RichMenuItemState.SELECTED
+                } else {
+                    RichMenuItemState.DEFAULT
+                }
                 SelectableMenuBottomSheetItem(
                     title = stringResource(id = R.string.muting_option_only_mentions_title),
                     subLine = stringResource(id = R.string.muting_option_only_mentions_text),
@@ -75,8 +81,11 @@ internal fun MutingOptionsSheetContent(
                 )
             },
             {
-                val state = if (mutingConversationState == MutedConversationStatus.AllMuted) RichMenuItemState.SELECTED
-                else RichMenuItemState.DEFAULT
+                val state = if (mutingConversationState == MutedConversationStatus.AllMuted) {
+                    RichMenuItemState.SELECTED
+                } else {
+                    RichMenuItemState.DEFAULT
+                }
                 SelectableMenuBottomSheetItem(
                     title = stringResource(id = R.string.muting_option_all_muted_title),
                     subLine = stringResource(id = R.string.muting_option_all_muted_text),

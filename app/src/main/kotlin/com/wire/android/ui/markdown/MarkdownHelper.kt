@@ -120,6 +120,7 @@ private inline fun <reified T : MarkdownNode> Node.convertChildren(): List<T> {
     return children
 }
 
+@Suppress("LongMethod")
 fun MarkdownNode.filterNodesContainingQuery(query: String): MarkdownNode? {
     return when (this) {
         is MarkdownNode.Document,
@@ -176,7 +177,11 @@ fun MarkdownNode.filterNodesContainingQuery(query: String): MarkdownNode? {
 
         is MarkdownNode.Inline.Image -> if (title?.contains(query, ignoreCase = true) == true
             || destination.contains(query, ignoreCase = true)
-        ) this else null
+        ) {
+            this
+        } else {
+            null
+        }
 
         is MarkdownNode.Block.ThematicBreak -> null
         is MarkdownNode.Inline.Break -> this

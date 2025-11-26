@@ -117,7 +117,11 @@ class SendMessageViewModelTest {
             val assetSize = 1L
             val mockedAttachment = AssetBundle(
                 "key",
-                "image/jpeg", assetPath, assetSize, assetName, AttachmentType.IMAGE
+                "image/jpeg",
+                assetPath,
+                assetSize,
+                assetName,
+                AttachmentType.IMAGE
             )
             val (arrangement, viewModel) = SendMessageViewModelArrangement()
                 .withSuccessfulViewModelInit()
@@ -307,7 +311,11 @@ class SendMessageViewModelTest {
             val assetSize = 1L
             val mockedAttachment = AssetBundle(
                 "key",
-                "audio/mp4", assetPath, assetSize, assetName, AttachmentType.AUDIO
+                "audio/mp4",
+                assetPath,
+                assetSize,
+                assetName,
+                AttachmentType.AUDIO
             )
             val (arrangement, viewModel) = SendMessageViewModelArrangement()
                 .withSuccessfulViewModelInit()
@@ -762,6 +770,7 @@ class SendMessageViewModelTest {
                         assetWidth = null,
                         assetHeight = null,
                         audioLengthInMs = 0L,
+                        audioNormalizedLoudness = null
                     )
                 )
             }

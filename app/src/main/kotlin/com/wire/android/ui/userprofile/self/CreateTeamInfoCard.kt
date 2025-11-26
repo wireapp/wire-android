@@ -17,26 +17,15 @@
  */
 package com.wire.android.ui.userprofile.self
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Icon
-import androidx.compose.material.Text
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
-import com.wire.android.ui.common.button.WireSecondaryButton
+import com.wire.android.ui.common.card.WireOutlinedCard
 import com.wire.android.ui.common.colorsScheme
-import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
@@ -44,57 +33,24 @@ fun CreateTeamInfoCard(
     onCreateAccount: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    OutlinedCard(
-        modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = colorsScheme().secondaryButtonSelected
-        ),
-        border = BorderStroke(dimensions().spacing1x, colorsScheme().secondaryButtonSelectedOutline),
-    ) {
-        Row(
-            modifier = Modifier.padding(
-                start = dimensions().spacing8x,
-                top = dimensions().spacing8x,
-                end = dimensions().spacing8x
-            )
-        ) {
+    WireOutlinedCard(
+        title = stringResource(R.string.user_profile_create_team_card),
+        textContent = stringResource(R.string.user_profile_create_team_description_card),
+        mainActionButtonText = stringResource(R.string.user_profile_create_team_card_button),
+        onMainActionClick = onCreateAccount,
+        trailingIcon = {
             Icon(
                 painter = painterResource(id = R.drawable.ic_info),
                 contentDescription = null,
                 tint = colorsScheme().onBackground
             )
-            Text(
-                modifier = Modifier.padding(start = dimensions().spacing8x),
-                text = stringResource(R.string.user_profile_create_team_card),
-                style = MaterialTheme.wireTypography.label02,
-                color = colorsScheme().onBackground
-            )
-        }
-        Text(
-            modifier = Modifier.padding(
-                start = dimensions().spacing8x,
-                top = dimensions().spacing4x,
-                end = dimensions().spacing8x
-            ),
-            text = stringResource(R.string.user_profile_create_team_description_card),
-            style = MaterialTheme.wireTypography.subline01,
-            color = colorsScheme().onBackground
-        )
-        WireSecondaryButton(
-            modifier = Modifier
-                .padding(dimensions().spacing8x)
-                .height(dimensions().createTeamInfoCardButtonHeight),
-            text = stringResource(R.string.user_profile_create_team_card_button),
-            onClick = onCreateAccount,
-            fillMaxWidth = false,
-            minSize = dimensions().buttonSmallMinSize,
-            minClickableSize = dimensions().buttonMinClickableSize,
-        )
-    }
+        },
+        modifier = modifier
+    )
 }
 
 @PreviewMultipleThemes
 @Composable
 fun PreviewCreateTeamInfoCard() = WireTheme {
-        CreateTeamInfoCard({ })
+    CreateTeamInfoCard({ })
 }

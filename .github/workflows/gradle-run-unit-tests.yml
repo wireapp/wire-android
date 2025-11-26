@@ -56,14 +56,14 @@ jobs:
           zip -r unit-tests-android_${{ env.COMMIT_HASH }}.zip **/build/test-results/**/*.xml **/build/outputs/androidTest-results/**/*.xml
 
       - name: Upload zipped test results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: unit-tests-android_${{ env.COMMIT_HASH }}-${{ inputs.artifact-suffix }}
           path: unit-tests-android_${{ env.COMMIT_HASH }}.zip
 
       # Uploads test results as GitHub artifacts, so publish-test-results can find them later.
       - name: Upload Test Results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: always()
         with:
           name: test-results-${{ inputs.artifact-suffix }}
@@ -72,13 +72,13 @@ jobs:
             **/build/outputs/androidTest-results/**/*.xml
 
       - name: Generate report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: report-${{ inputs.artifact-suffix }}
           path: app/build/reports/kover
 
       - name: Download Test Reports Folder
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: report-${{ inputs.artifact-suffix }}
           path: app/build/reports/kover

@@ -62,7 +62,6 @@ import com.wire.kalium.logic.feature.conversation.MembersToMentionUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationInteractionAvailabilityUseCase
 import com.wire.kalium.logic.feature.conversation.SendTypingEventUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
-import com.wire.kalium.logic.feature.message.draft.SaveMessageDraftUseCase
 import com.wire.kalium.logic.feature.message.ephemeral.EnqueueMessageSelfDeletionUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletionTimerUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
@@ -140,9 +139,6 @@ internal class MessageComposerViewModelArrangement {
     lateinit var sendTypingEvent: SendTypingEventUseCase
 
     @MockK
-    lateinit var saveMessageDraftUseCase: SaveMessageDraftUseCase
-
-    @MockK
     lateinit var fileManager: FileManager
 
     @MockK
@@ -168,7 +164,6 @@ internal class MessageComposerViewModelArrangement {
             enqueueMessageSelfDeletion = enqueueMessageSelfDeletionUseCase,
             persistNewSelfDeletingStatus = persistSelfDeletionStatus,
             sendTypingEvent = sendTypingEvent,
-            saveMessageDraft = saveMessageDraftUseCase,
             kaliumFileSystem = fakeKaliumFileSystem,
             fileManager = fileManager,
             currentSessionFlowUseCase = currentSessionFlowUseCase,
@@ -189,10 +184,6 @@ internal class MessageComposerViewModelArrangement {
             )
         )
         coEvery { globalDataStore.enterToSendFlow() } returns flowOf(enterToSend)
-    }
-
-    fun withSaveDraftMessage() = apply {
-        coEvery { saveMessageDraftUseCase(any()) } returns Unit
     }
 
     fun withCurrentSessionFlowResult(resultFlow: Flow<CurrentSessionResult>) = apply {

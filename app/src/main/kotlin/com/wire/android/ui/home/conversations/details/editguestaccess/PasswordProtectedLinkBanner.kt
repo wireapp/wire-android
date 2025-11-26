@@ -42,6 +42,7 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.android.ui.common.R as commonR
 
 @Composable
 fun PasswordProtectedLinkBanner(modifier: Modifier = Modifier) {
@@ -70,7 +71,7 @@ fun PasswordProtectedLinkBanner(modifier: Modifier = Modifier) {
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Icon(
-                    painter = painterResource(id = R.drawable.ic_shield_holo),
+                    painter = painterResource(id = commonR.drawable.ic_shield_holo),
                     modifier = Modifier
                         .width(16.dp)
                         .height(16.dp),

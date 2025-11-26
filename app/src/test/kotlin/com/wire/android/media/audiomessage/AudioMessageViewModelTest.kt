@@ -90,7 +90,7 @@ class AudioMessageViewModelTest {
         advanceUntilIdle()
 
         coVerify(exactly = 1) {
-            arrangement.audioMessagePlayer.fetchWavesMask(conversationId, messageId)
+            arrangement.audioMessagePlayer.getOrBuildWavesMask(conversationId, messageId)
         }
     }
 

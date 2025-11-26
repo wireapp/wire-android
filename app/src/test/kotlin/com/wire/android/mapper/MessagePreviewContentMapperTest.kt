@@ -148,7 +148,8 @@ class MessagePreviewContentMapperTest {
     @Test
     fun givenLastAssetImageConversationMessage_whenMappingToUILastMessageContent_thenCorrectContentShouldBeReturned() = runTest {
         val messagePreview = TestMessage.PREVIEW.copy(
-            content = MessagePreviewContent.WithUser.Asset("admin", AssetType.IMAGE), isSelfMessage = true
+            content = MessagePreviewContent.WithUser.Asset("admin", AssetType.IMAGE),
+            isSelfMessage = true
         )
 
         val senderWithMessage = messagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.SenderWithMessage>()
@@ -157,7 +158,8 @@ class MessagePreviewContentMapperTest {
         result.resId shouldBeEqualTo R.string.last_message_self_user_shared_image
 
         val otherUserPreview = TestMessage.PREVIEW.copy(
-            content = MessagePreviewContent.WithUser.Asset("admin", AssetType.IMAGE), isSelfMessage = false
+            content = MessagePreviewContent.WithUser.Asset("admin", AssetType.IMAGE),
+            isSelfMessage = false
         )
 
         val otherUserWithMessage = otherUserPreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.SenderWithMessage>()
@@ -170,7 +172,8 @@ class MessagePreviewContentMapperTest {
     fun givenSelfUserSharedLastAssetVideoConversationMessage_whenMappingToUILastMessageContent_thenCorrectContentShouldBeReturned() =
         runTest {
             val messagePreview = TestMessage.PREVIEW.copy(
-                content = MessagePreviewContent.WithUser.Asset("admin", AssetType.VIDEO), isSelfMessage = true
+                content = MessagePreviewContent.WithUser.Asset("admin", AssetType.VIDEO),
+                isSelfMessage = true
             )
 
             val senderWithMessage = messagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.SenderWithMessage>()
@@ -194,10 +197,12 @@ class MessagePreviewContentMapperTest {
     @Test
     fun givenLastConversationKnockMessage_whenMappingToUILastMessageContent_thenCorrectContentShouldBeReturned() = runTest {
         val selfUserMessagePreview = TestMessage.PREVIEW.copy(
-            content = MessagePreviewContent.WithUser.Knock("admin"), isSelfMessage = true
+            content = MessagePreviewContent.WithUser.Knock("admin"),
+            isSelfMessage = true
         )
         val otherUserMessagePreview = TestMessage.PREVIEW.copy(
-            content = MessagePreviewContent.WithUser.Knock("admin"), isSelfMessage = false
+            content = MessagePreviewContent.WithUser.Knock("admin"),
+            isSelfMessage = false
         )
 
         val selfUserMessage = selfUserMessagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.SenderWithMessage>()
@@ -212,10 +217,12 @@ class MessagePreviewContentMapperTest {
     @Test
     fun givenUserLeftConversationMessage_whenMappingToUILastMessageContent_thenCorrectContentShouldBeReturned() = runTest {
         val selfUserMessagePreview = TestMessage.PREVIEW.copy(
-            content = MessagePreviewContent.WithUser.MemberLeft("user"), isSelfMessage = true
+            content = MessagePreviewContent.WithUser.MemberLeft("user"),
+            isSelfMessage = true
         )
         val otherUserMessagePreview = TestMessage.PREVIEW.copy(
-            content = MessagePreviewContent.WithUser.MemberLeft("user"), isSelfMessage = false
+            content = MessagePreviewContent.WithUser.MemberLeft("user"),
+            isSelfMessage = false
         )
 
         val selfSenderWithMessage =

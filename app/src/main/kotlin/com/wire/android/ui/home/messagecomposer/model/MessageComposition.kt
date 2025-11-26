@@ -32,6 +32,7 @@ data class MessageComposition(
     val quotedMessage: UIQuotedMessage.UIQuotedData? = null,
     val quotedMessageId: String? = null,
     val selectedMentions: List<UIMention> = emptyList(),
+    val isMultipart: Boolean = false,
 ) {
     fun getSelectedMentions(newMessageText: String): List<UIMention> {
         val result = mutableSetOf<UIMention>()

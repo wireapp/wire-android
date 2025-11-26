@@ -29,10 +29,10 @@ import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.spacers.HorizontalSpace
+import com.wire.android.ui.common.typography
 import com.wire.android.ui.home.conversations.model.MessageFlowStatus
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
-import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
@@ -92,7 +92,7 @@ fun MessageStatusIndicator(
                     HorizontalSpace.x2()
                     Text(
                         text = status.count.toString(),
-                        style = MaterialTheme.wireTypography.label03.copy(color = defaultTint)
+                        style = typography().subline01.copy(color = defaultTint)
                     )
                 }
             }

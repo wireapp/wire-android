@@ -57,6 +57,7 @@ class RegularMessageMapper @Inject constructor(
     private val isoFormatter: ISOFormatter,
 ) {
 
+    @Suppress("LongMethod")
     fun mapMessage(
         message: Message.Regular,
         sender: User?,
@@ -85,7 +86,8 @@ class RegularMessageMapper @Inject constructor(
                 UIText.StringResource(messageResourceProvider.memberNameYouTitlecase)
             } else {
                 sender?.name.orUnknownName()
-            }, message.isSelfMessage
+            },
+                message.isSelfMessage
         )
 
         is MessageContent.RestrictedAsset -> toRestrictedAsset(
@@ -235,6 +237,11 @@ class RegularMessageMapper @Inject constructor(
                 is MessageContent.QuotedMessageDetails.Text -> UIQuotedMessage.UIQuotedData.Text(UIText.DynamicString(quotedContent.value))
                 is MessageContent.QuotedMessageDetails.Location -> UIQuotedMessage.UIQuotedData.Location(
                     quotedContent.locationName.orEmpty()
+                )
+
+                is MessageContent.QuotedMessageDetails.Multipart -> UIQuotedMessage.UIQuotedData.Multipart(
+                    text = quotedContent.text?.let { UIText.DynamicString(it) },
+                    attachments = emptyList()
                 )
 
                 MessageContent.QuotedMessageDetails.Deleted -> UIQuotedMessage.UIQuotedData.Deleted

@@ -55,9 +55,13 @@ fun SettingsScreen(
 ) {
     val turnAppLockOffDialogState = rememberVisibilityState<Unit>()
     val onAppLockSwitchClicked: (Boolean) -> Unit = remember {
-        { isChecked ->
-            if (isChecked) homeStateHolder.navigator.navigate(NavigationCommand(SetLockCodeScreenDestination, BackStackMode.NONE))
-            else turnAppLockOffDialogState.show(Unit)
+        {
+            isChecked ->
+            if (isChecked) {
+                homeStateHolder.navigator.navigate(NavigationCommand(SetLockCodeScreenDestination, BackStackMode.NONE))
+            } else {
+                turnAppLockOffDialogState.show(Unit)
+            }
         }
     }
 
@@ -122,9 +126,12 @@ fun SettingsScreenContent(
                     }
                     add(SettingsItem.NetworkSettings)
 
-                    appLogger.d("AppLockConfig " +
-                            "isAppLockEditable: ${settingsState.isAppLockEditable} isAppLockEnabled: ${settingsState.isAppLockEnabled}")
-                    add(SettingsItem.AppLock(
+                    appLogger.d(
+                        "AppLockConfig " +
+                            "isAppLockEditable: ${settingsState.isAppLockEditable} isAppLockEnabled: ${settingsState.isAppLockEnabled}"
+                    )
+                    add(
+                        SettingsItem.AppLock(
                         when (settingsState.isAppLockEditable) {
                             true -> {
                                 SwitchState.Enabled(
@@ -140,7 +147,8 @@ fun SettingsScreenContent(
                                 )
                             }
                         }
-                    ))
+                    )
+                    )
                 },
                 onItemClicked = onItemClicked
             )

@@ -18,8 +18,6 @@
 
 package com.wire.android.ui.theme
 
-//import com.wire.android.navigation.rememberNavigator
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
@@ -40,8 +38,7 @@ fun WireTheme(
     content: @Composable () -> Unit
 ) {
     val isPreview = LocalInspectionMode.current
-    val isDarkTheme = isSystemInDarkTheme()
-    val wireColorScheme = remember(baseColorScheme, accent) { baseColorScheme.withAccent(accent, isDarkTheme) }
+    val wireColorScheme = remember(baseColorScheme, accent) { baseColorScheme.withAccent(accent) }
     @Suppress("SpreadOperator")
     CompositionLocalProvider(
         LocalWireColors provides wireColorScheme,
@@ -53,7 +50,9 @@ fun WireTheme(
         LocalContentColor provides wireColorScheme.onBackground,
         *if (isPreview) {
             arrayOf(LocalSnackbarHostState provides remember { SnackbarHostState() })
-        } else emptyArray(),
+        } else {
+            emptyArray()
+        },
     ) {
         MaterialTheme(
             colorScheme = wireColorScheme.toColorScheme(),

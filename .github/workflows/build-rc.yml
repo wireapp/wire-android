@@ -113,7 +113,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Create GitHub Pre-Release
-        uses: softprops/action-gh-release@v2.4.1
+        uses: softprops/action-gh-release@v2.4.2
         with:
           tag_name: ${{ github.ref_name }}
           name: "Release Candidate ${{ github.ref_name }}"
@@ -121,13 +121,6 @@ jobs:
             ## Release Candidate for ${{ github.ref_name }}
 
             This is a **pre-release** for testing purposes.
-
-            ### Artifacts
-            - **Prod flavor** (com.wire) - Production build for testing
-
-            ### Distribution
-            - GitHub: Manual APK download from this release
-            - Google Play: Beta track for com.wire
 
             **Note**: This is not a final release. Use for testing only.
           prerelease: true

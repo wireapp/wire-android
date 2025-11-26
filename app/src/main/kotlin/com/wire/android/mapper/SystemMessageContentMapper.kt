@@ -77,6 +77,29 @@ class SystemMessageContentMapper @Inject constructor(
         is MessageContent.NewConversationWithCellMessage -> UIMessageContent.SystemMessage.NewConversationWithCellStarted
         is MessageContent.NewConversationWithCellSelfDeleteDisabledMessage ->
             UIMessageContent.SystemMessage.NewConversationWithCellSelfDeleteDisabled
+
+        is MessageContent.ConversationAppsEnabledChanged -> mapConversationConversationAppsAccessChanged(
+            message.senderUserId,
+            content,
+            members
+        )
+    }
+
+    private fun mapConversationConversationAppsAccessChanged(
+        senderUserId: UserId,
+        content: MessageContent.ConversationAppsEnabledChanged,
+        members: List<User>
+    ): UIMessageContent.SystemMessage {
+        val sender = members.findUser(userId = senderUserId)
+        val authorName = mapMemberName(
+            user = sender,
+            type = SelfNameType.ResourceTitleCase
+        )
+        return UIMessageContent.SystemMessage.ConversationAppsEnabledChanged(
+            author = authorName,
+            isAuthorSelfUser = sender is SelfUser,
+            isAccessEnabled = content.isEnabled
+        )
     }
 
     private fun mapConversationCreated(senderUserId: UserId, date: Instant, userList: List<User>): UIMessageContent.SystemMessage {
@@ -252,7 +275,7 @@ class SystemMessageContentMapper @Inject constructor(
                     FailedToAdd.Type.LegalHold -> UIMessageContent.SystemMessage.MemberFailedToAdd.Type.LegalHold
                     FailedToAdd.Type.Unknown -> UIMessageContent.SystemMessage.MemberFailedToAdd.Type.Unknown
                 }
-                )
+            )
 
             is MemberChange.FederationRemoved -> UIMessageContent.SystemMessage.FederationMemberRemoved(
                 memberNames = memberNameList
@@ -286,7 +309,10 @@ class SystemMessageContentMapper @Inject constructor(
         UIMessageContent.SystemMessage.ConversationVerified(protocol)
 
     fun mapMemberName(user: User?, type: SelfNameType = SelfNameType.NameOrDeleted): UIText = when (user) {
-        is OtherUser -> user.name?.let { UIText.DynamicString(it) } ?: UIText.StringResource(messageResourceProvider.memberNameDeleted)
+        is OtherUser -> user.name?.let {
+            UIText.DynamicString(it)
+        } ?: UIText.StringResource(messageResourceProvider.memberNameDeleted)
+
         is SelfUser -> when (type) {
             SelfNameType.ResourceLowercase -> UIText.StringResource(messageResourceProvider.memberNameYouLowercase)
             SelfNameType.ResourceTitleCase -> UIText.StringResource(messageResourceProvider.memberNameYouTitlecase)
@@ -308,8 +334,11 @@ class SystemMessageContentMapper @Inject constructor(
             self: () -> UIMessageContent.SystemMessage.LegalHold,
             others: (List<UIText>) -> UIMessageContent.SystemMessage.LegalHold
         ): UIMessageContent.SystemMessage.LegalHold =
-            if (members.size == 1 && senderUserId == members.first()) self()
-            else others(members.map { mapMemberName(user = userList.findUser(userId = it), type = SelfNameType.ResourceLowercase) })
+            if (members.size == 1 && senderUserId == members.first()) {
+                self()
+            } else {
+                others(members.map { mapMemberName(user = userList.findUser(userId = it), type = SelfNameType.ResourceLowercase) })
+            }
 
         return when (content) {
             MessageContent.LegalHold.ForConversation.Disabled -> UIMessageContent.SystemMessage.LegalHold.Disabled.Conversation

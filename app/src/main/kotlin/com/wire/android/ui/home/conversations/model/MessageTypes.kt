@@ -45,6 +45,8 @@ import com.wire.android.model.ImageAsset
 import com.wire.android.ui.common.applyIf
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
+import com.wire.android.ui.common.button.secondaryButtonColors
+import com.wire.android.ui.common.button.wireSecondaryButtonColors
 import com.wire.android.ui.common.clickable
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -152,6 +154,7 @@ internal fun MessageBody(
         MessageButtonsContent(
             messageId = messageId,
             buttonList = it,
+            messageStyle = messageStyle
         )
     }
 }
@@ -160,6 +163,7 @@ internal fun MessageBody(
 fun MessageButtonsContent(
     messageId: String,
     buttonList: List<MessageButton>,
+    messageStyle: MessageStyle,
     modifier: Modifier = Modifier,
     viewModel: CompositeMessageViewModel =
         hiltViewModelScoped<CompositeMessageViewModelImpl, CompositeMessageViewModel, CompositeMessageArgs>(
@@ -182,15 +186,24 @@ fun MessageButtonsContent(
 
             val isPending = viewModel.pendingButtonId == button.id
 
-            val state = if (button.isSelected) WireButtonState.Selected
-            else if (viewModel.pendingButtonId != null) WireButtonState.Disabled
-            else WireButtonState.Default
+            val state = if (button.isSelected) {
+                WireButtonState.Selected
+            } else if (viewModel.pendingButtonId != null) {
+                WireButtonState.Disabled
+            } else {
+                WireButtonState.Default
+            }
 
             WireSecondaryButton(
                 loading = isPending,
                 text = button.text,
                 onClick = onCLick,
-                state = state
+                state = state,
+                colors = if (messageStyle.isBubble()) {
+                    colorsScheme().otherBubble.secondaryButtonColors()
+                } else {
+                    wireSecondaryButtonColors()
+                }
             )
             if (index != buttonList.lastIndex) {
                 Spacer(modifier = Modifier.padding(top = dimensions().spacing8x))
@@ -305,7 +318,8 @@ fun MediaAssetImage(
             .padding(top = MaterialTheme.wireDimensions.spacing2x)
             .clip(shape = RoundedCornerShape(dimensions().messageAssetBorderRadius))
             .background(
-                color = MaterialTheme.wireColorScheme.onPrimary, shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
+                color = MaterialTheme.wireColorScheme.onPrimary,
+                shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
             )
             .border(
                 width = dimensions().spacing1x,

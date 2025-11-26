@@ -30,18 +30,44 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
-import com.wire.android.model.ImageAsset
+import androidx.compose.ui.platform.LocalContext
+import coil.compose.rememberAsyncImagePainter
+import coil.request.CachePolicy
+import coil.request.ImageRequest
 
 @Composable
-fun ZoomableImage(imageAsset: ImageAsset.Remote, contentDescription: String, modifier: Modifier = Modifier) {
+fun ZoomableImage(image: MediaGalleryImage, contentDescription: String, modifier: Modifier = Modifier) {
     var offsetX by remember { mutableStateOf(0f) }
     var offsetY by remember { mutableStateOf(0f) }
     var zoom by remember { mutableStateOf(1f) }
     val minScale = 1.0f
     val maxScale = 3f
 
+    val painter = when (image) {
+        is MediaGalleryImage.PrivateAsset -> image.asset.paint()
+        is MediaGalleryImage.LocalAsset -> rememberAsyncImagePainter(image.path)
+        is MediaGalleryImage.UrlAsset -> rememberAsyncImagePainter(
+            ImageRequest.Builder(LocalContext.current)
+                .data(image.url)
+                .diskCacheKey(image.contentHash)
+                .memoryCacheKey(image.contentHash)
+                .diskCachePolicy(CachePolicy.ENABLED)
+                .build(),
+            placeholder = image.placeholder?.let {
+                rememberAsyncImagePainter(
+                    ImageRequest.Builder(LocalContext.current)
+                        .diskCacheKey(image.contentHash)
+                        .memoryCacheKey(image.contentHash)
+                        .data(it)
+                        .crossfade(true)
+                        .build()
+                )
+            }
+        )
+    }
+
     Image(
-        painter = imageAsset.paint(),
+        painter = painter,
         contentDescription = contentDescription,
         modifier = modifier
             .graphicsLayer(

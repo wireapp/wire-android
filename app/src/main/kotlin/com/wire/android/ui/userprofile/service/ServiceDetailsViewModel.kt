@@ -140,7 +140,9 @@ class ServiceDetailsViewModel @Inject constructor(
                     serviceAvatarAsset = serviceAvatarAsset,
                     serviceDetails = service
                 )
-            } else serviceNotFound()
+            } else {
+                serviceNotFound()
+            }
         }
 
     private suspend fun observeGroupInfo(): Flow<ServiceDetailsGroupState> {

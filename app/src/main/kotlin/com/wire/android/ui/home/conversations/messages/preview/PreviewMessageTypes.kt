@@ -162,7 +162,7 @@ fun PreviewFailedSendMessage() {
                             expirationStatus = ExpirationStatus.NotExpirable
                         )
                     ),
-                    messageFooter = mockFooter.copy(reactions = emptyMap(), ownReactions = emptySet())
+                    messageFooter = mockFooter.copy(reactionMap = emptyMap())
                 )
             },
             conversationDetailsData = ConversationDetailsData.None(null),
@@ -184,7 +184,7 @@ fun PreviewFailedDecryptionMessage() {
                             expirationStatus = ExpirationStatus.NotExpirable
                         )
                     ),
-                    messageFooter = mockFooter.copy(reactions = emptyMap(), ownReactions = emptySet())
+                    messageFooter = mockFooter.copy(reactionMap = emptyMap())
                 )
             },
             conversationDetailsData = ConversationDetailsData.None(null),

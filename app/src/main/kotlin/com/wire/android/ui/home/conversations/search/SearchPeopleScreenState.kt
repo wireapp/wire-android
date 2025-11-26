@@ -18,8 +18,6 @@
 
 package com.wire.android.ui.home.conversations.search
 
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -29,7 +27,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import com.wire.android.ui.home.newconversation.model.Contact
 import kotlinx.coroutines.CoroutineScope
-
 
 @Composable
 fun rememberSearchPeopleScreenState(
@@ -73,5 +70,4 @@ class SearchPeopleScreenState(
     fun removeContactFromGroup(contact: Contact) {
         newGroupContacts.remove(contact)
     }
-
 }

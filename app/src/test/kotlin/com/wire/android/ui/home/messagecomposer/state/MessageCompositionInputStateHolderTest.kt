@@ -113,7 +113,22 @@ class MessageCompositionInputStateHolderTest {
         val initialText = "Hello"
         val newText = "Hello World"
         val (state, _) = Arrangement().withText(initialText).arrange()
-        state.toEdit(newText)
+        state.toEdit(newText, false)
+
+        // When
+        val result = state.inputType as InputType.Editing
+
+        // Then
+        result.isEditButtonEnabled shouldBeEqualTo true
+    }
+
+    @Test
+    fun `given text has changed and is blank when transitioning to editing state then edit button is enabled for multipart`() = runTest {
+        // Given
+        val initialText = "Hello"
+        val newText = ""
+        val (state, _) = Arrangement().withText(initialText).arrange()
+        state.toEdit(newText, true)
 
         // When
         val result = state.inputType as InputType.Editing
@@ -195,7 +210,7 @@ class MessageCompositionInputStateHolderTest {
         val (state, _) = Arrangement().withText(messageText).arrange()
 
         // When
-        state.toEdit(messageText)
+        state.toEdit(messageText, false)
 
         // Then
         state.inputType.shouldBeInstanceOf<InputType.Editing>().isEditButtonEnabled shouldBeEqualTo false

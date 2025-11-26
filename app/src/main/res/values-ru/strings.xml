@@ -581,8 +581,9 @@
     <string name="conversation_details_options_tab">ПАРАМЕТРЫ</string>
     <string name="conversation_details_participants_tab">УЧАСТНИКИ</string>
     <string name="conversation_details_options_group_name">НАЗВАНИЕ ГРУППЫ</string>
-    <string name="conversation_details_conversation_admins">АДМИНИСТРАТОРЫ БЕСЕДЫ (%d)</string>
-    <string name="conversation_details_conversation_members">УЧАСТНИКИ БЕСЕДЫ (%d)</string>
+    <string name="conversation_details_conversation_admins">АДМИНИСТРАТОРЫ (%d)</string>
+    <string name="conversation_details_conversation_members">УЧАСТНИКИ (%d)</string>
+    <string name="conversation_details_conversation_apps">ПРИЛОЖЕНИЯ (%d)</string>
     <string name="conversation_details_participants_info">В этой беседе %s участника(-ов).\nК беседе могут присоединиться до 500 человек.</string>
     <string name="conversation_details_participants_count">%s участников</string>
     <string name="conversation_details_show_all_participants">Показать всех участников (%d)</string>
@@ -735,9 +736,9 @@
     <string name="profile_image_change_image_button_label">Изменить изображение…</string>
     <!--Conversation-->
     <string name="label_message_details">Сведения о сообщении</string>
-    <string name="label_copy">Скопировать</string>
+    <string name="label_copy">Скопировать текст</string>
     <string name="label_share">Поделиться</string>
-    <string name="label_edit">Изменить</string>
+    <string name="label_edit">Изменить текст</string>
     <string name="label_delete">Удалить</string>
     <string name="info_message_copied">Сообщение скопировано</string>
     <string name="conversation_banner_federated">федеративные пользователи</string>
@@ -846,11 +847,12 @@
     <string name="label_system_message_conversation_verified_mls">Все устройства верифицированы (сквозная идентификация)</string>
     <string name="label_system_message_conversation_verified_proteus">Все отпечатки верифицированы (Proteus)</string>
     <string name="label_system_message_conversation_started_sensitive_information_header">**Коммуникации в Wire всегда зашифрованы сквозным шифрованием.**</string>
+    <string name="label_system_message_conversation_started_sensitive_information_header_with_cells_on">**Коммуникации в Wire всегда защищены.**</string>
     <string name="label_system_message_conversation_started_sensitive_information_message">Все, что вы отправляете и получаете в этой беседе, доступно только вам и другим участникам беседы.</string>
+    <string name="label_system_message_conversation_started_sensitive_information_message_with_cells_on">Сообщения и звонки всегда зашифрованы сквозным шифрованием, при этом файлы и папки защищены в состоянии передачи и зашифрованы в состоянии покоя. </string>
     <string name="label_system_message_conversation_started_sensitive_information_footer">Пожалуйста, будьте осторожны со всеми с кем делитесь конфиденциальной информацией.</string>
     <string name="label_conversations_details_verified_proteus">Верифицировано (Proteus)</string>
     <string name="label_conversations_details_verified_mls">Верифицировано (сквозная идентификация)</string>
-    <string name="label_system_message_cell_enabled_for_conversation">Совместная работа с %1$s (Cells)</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
         <item quantity="one">Вы добавили 1 пользователя в беседу</item>
@@ -998,9 +1000,7 @@
     <string name="label_search_people_or_apps">Поиск людей или приложений</string>
     <string name="label_public_wire">Wire Public</string>
     <string name="label_search_people_instruction">Поиск пользователей по названию их профиля или @псевдониму</string>
-    <string name="label_search_apps_instruction">Повышайте производительность с помощью приложений.</string>
     <string name="label_learn_more_searching_user">Подробнее</string>
-    <string name="label_learn_more_searching_app">Как добавить приложения в вашу команду</string>
     <string name="label_no_results_found">Результатов не найдено. Пожалуйста, попробуйте еще раз.</string>
     <string name="label_general_error">Что-то пошло не так</string>
     <string name="label_add_member_people">Контакты</string>
@@ -1083,6 +1083,7 @@
     <string name="notification_outgoing_call_tap_to_return">Нажмите, чтобы вернуться к вызову - Вызов...</string>
     <string name="notification_audio_message_body">Аудиосообщение</string>
     <string name="notification_deleting_conversation">Удаление беседы…</string>
+    <string name="notification_uploading_files">Выгрузка файлов…</string>
     <!-- Calling-->
     <string name="calling_constant_bit_rate_indication">Постоянный битрейт</string>
     <string name="calling_button_label_microphone">Микрофон</string>
@@ -1182,9 +1183,10 @@
     <string name="change">Изменить</string>
     <string name="allow_guests">Разрешить гостей</string>
     <string name="allow_guest_switch_description">Открыть эту беседу для пользователей не из вашей команды. Вы всегда сможете изменить это позже.</string>
+    <string name="allow_guest_switch_channel_description">Откройте эту беседу для людей, не из вашей команды или приложений. Вы всегда сможете изменить это позже.</string>
     <string name="allow_services">Разрешить приложения</string>
     <string name="allow_services_regular_group_description">Открыть эту беседу для приложений. Вы всегда сможете изменить это позже.</string>
-    <string name="allow_services_channel_description">Откройте эту беседу для людей, не из вашей команды или приложений. Вы всегда сможете изменить это позже.</string>
+    <string name="allow_apps_switch_description">Открыть эту беседу для приложений.</string>
     <string name="service_details_label">Приложение</string>
     <string name="service_details_add_service_label">Добавить в беседу</string>
     <string name="service_details_remove_service_label">Удалить из беседы</string>
@@ -1900,4 +1902,25 @@
     <string name="profile_deeplink_feature_unavailable_title_alert">Эта функция недоступна. Пожалуйста, свяжитесь со своим администратором.</string>
     <string name="conversation_options_file_collaboration_label">Совместная работа с файлами (Cells)</string>
     <string name="conversation_options_file_collaboration_description">Постоянно для этой беседы.</string>
+    <plurals name="reply_multiple_files">
+        <item quantity="one">%1$d файл</item>
+        <item quantity="few">%1$d файла</item>
+        <item quantity="many">%1$d файлов</item>
+        <item quantity="other">%1$d файлов</item>
+    </plurals>
+    <!-- Apps-->
+    <string name="apps_upgrade_teams_for_apps_banner_title">Ваша команда еще не использует приложения</string>
+    <string name="apps_upgrade_teams_for_apps_banner_content">Для улучшения рабочего процесса с приложениями, вашей команде требуется настройка. Пожалуйста, свяжитесь с администратором вашей команды.</string>
+    <string name="apps_edit_apps_option_title">Приложения</string>
+    <string name="content_description_edit_apps_option_back_btn">Вернуться к сведениям о беседе</string>
+    <string name="content_description_conversation_details_apps_action">настройка доступа к приложениям</string>
+    <string name="search_results_apps_empty_title">Ваша команда еще не добавила приложения</string>
+    <string name="search_results_apps_empty_description_team_admin">Приложения - это помощники, которые могут улучшить ваш рабочий процесс. Как администратор команды, вы можете добавить их в управлении командой.</string>
+    <string name="search_results_apps_empty_description_non_team_admin">Приложения - это помощники, которые могут улучшить ваш рабочий процесс. Чтобы воспользоваться ими, обратитесь к администратору вашей команды.</string>
+    <string name="search_results_apps_empty_description_disabled_for_conversation">В этой беседе приложения отключены. Включите их в настройках беседы.</string>
+    <string name="label_system_message_apps_access_enabled_by_self">%1$s ** приложений** включено для этой беседы</string>
+    <string name="label_system_message_apps_access_disabled_by_self">%1$s ** приложений** отключено для этой беседы</string>
+    <string name="label_system_message_apps_access_enabled_by_other">%1$s ** приложений** включено для этой беседы</string>
+    <string name="label_system_message_apps_access_disabled_by_other">%1$s ** приложений** отключено для этой беседы</string>
+    <string name="label_system_message_apps_access_enabled_disclaimer">Добавленные приложения имеют доступ к содержимому этой беседы.</string>
 </resources>

@@ -150,5 +150,4 @@ class ObserveConversationMembersByTypesUseCaseTest {
 
         fun arrange() = this to useCase
     }
-
 }

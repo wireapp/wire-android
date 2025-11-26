@@ -68,6 +68,7 @@ import kotlin.time.Duration.Companion.days
 fun GroupConversationOptions(
     lazyListState: LazyListState,
     onEditGuestAccess: () -> Unit,
+    onAppsAccessItemClicked: () -> Unit,
     onChannelAccessItemClicked: () -> Unit,
     onEditSelfDeletingMessages: () -> Unit,
     viewModel: GroupConversationDetailsViewModel = hiltViewModel(),
@@ -78,20 +79,13 @@ fun GroupConversationOptions(
     GroupConversationSettings(
         state = state,
         onGuestItemClicked = onEditGuestAccess,
+        onAppsAccessItemClicked = onAppsAccessItemClicked,
         onSelfDeletingClicked = onEditSelfDeletingMessages,
         onChannelAccessItemClicked = onChannelAccessItemClicked,
-        onServiceSwitchClicked = viewModel::onServicesUpdate,
         onReadReceiptSwitchClicked = viewModel::onReadReceiptUpdate,
         lazyListState = lazyListState,
         onEditGroupName = onEditGroupName,
     )
-
-    if (state.changeServiceOptionConfirmationRequired) {
-        DisableServicesConfirmationDialog(
-            onConfirm = viewModel::onServiceDialogConfirm,
-            onDialogDismiss = viewModel::onServiceDialogDismiss
-        )
-    }
 }
 
 @Composable
@@ -99,8 +93,8 @@ fun GroupConversationSettings(
     state: GroupConversationOptionsState,
     onChannelAccessItemClicked: () -> Unit,
     onGuestItemClicked: () -> Unit,
+    onAppsAccessItemClicked: () -> Unit,
     onSelfDeletingClicked: () -> Unit,
-    onServiceSwitchClicked: (Boolean) -> Unit,
     onReadReceiptSwitchClicked: (Boolean) -> Unit,
     onEditGroupName: () -> Unit,
     modifier: Modifier = Modifier,
@@ -152,11 +146,16 @@ fun GroupConversationSettings(
                         )
                     }
                     add {
-                        ServicesOption(
-                            isSwitchEnabledAndVisible = state.isUpdatingServicesAllowed,
-                            switchState = state.isServicesAllowed,
-                            isLoading = state.loadingServicesOption,
-                            onCheckedChange = onServiceSwitchClicked
+                        GroupConversationOptionsItem(
+                            title = stringResource(id = R.string.conversation_options_services_label),
+                            subtitle = stringResource(id = R.string.conversation_details_apps_description),
+                            switchState = SwitchState.TextOnly(value = state.isAppsAllowed),
+                            arrowType = if (state.isUpdatingAppsAllowed) ArrowType.TITLE_ALIGNED else ArrowType.NONE,
+                            clickable = Clickable(
+                                enabled = state.isUpdatingAppsAllowed,
+                                onClick = onAppsAccessItemClicked,
+                                onClickDescription = stringResource(id = R.string.content_description_conversation_details_apps_action)
+                            ),
                         )
                     }
                     addIf(state.isWireCellEnabled) {
@@ -327,24 +326,6 @@ private fun ProtocolDetails(label: UIText, text: UIText) {
 }
 
 @Composable
-private fun ServicesOption(
-    isSwitchEnabledAndVisible: Boolean,
-    switchState: Boolean,
-    isLoading: Boolean,
-    onCheckedChange: (Boolean) -> Unit
-) {
-    GroupOptionWithSwitch(
-        switchClickable = isSwitchEnabledAndVisible,
-        switchVisible = isSwitchEnabledAndVisible,
-        switchState = switchState,
-        isLoading = isLoading,
-        onClick = onCheckedChange,
-        title = R.string.conversation_options_services_label,
-        subTitle = if (isSwitchEnabledAndVisible) R.string.conversation_options_services_description else null
-    )
-}
-
-@Composable
 private fun ReadReceiptOption(
     isSwitchEnabled: Boolean,
     switchState: Boolean,
@@ -386,17 +367,7 @@ fun GroupOptionWithSwitch(
 }
 
 @Composable
-private fun DisableServicesConfirmationDialog(onConfirm: () -> Unit, onDialogDismiss: () -> Unit) {
-    DisableConformationDialog(
-        title = R.string.disable_services_dialog_title,
-        text = R.string.disable_services_dialog_text,
-        onDismiss = onDialogDismiss,
-        onConfirm = onConfirm
-    )
-}
-
-@Composable
-fun DisableConformationDialog(@StringRes title: Int, @StringRes text: Int, onConfirm: () -> Unit, onDismiss: () -> Unit) {
+fun DisableConfirmationDialog(@StringRes title: Int, @StringRes text: Int, onConfirm: () -> Unit, onDismiss: () -> Unit) {
     WireDialog(
         title = stringResource(id = title),
         text = stringResource(id = text),
@@ -419,7 +390,7 @@ private val StateMember = GroupConversationOptionsState(
     groupName = "Conversation Name",
     areAccessOptionsAvailable = true,
     isGuestAllowed = true,
-    isServicesAllowed = true,
+    isAppsAllowed = true,
     isReadReceiptAllowed = true,
 )
 
@@ -427,7 +398,7 @@ private val StateAdmin = StateMember.copy(
     isUpdatingNameAllowed = true,
     isUpdatingGuestAllowed = true,
     isUpdatingChannelAccessAllowed = true,
-    isUpdatingServicesAllowed = true,
+    isUpdatingAppsAllowed = true,
     isUpdatingSelfDeletingAllowed = true,
     isUpdatingReadReceiptAllowed = true,
 )
@@ -448,12 +419,12 @@ private fun PreviewGroupConversationOptions(state: GroupConversationOptionsState
         onChannelAccessItemClicked = {},
         onGuestItemClicked = {},
         onSelfDeletingClicked = {},
-        onServiceSwitchClicked = {},
+        onAppsAccessItemClicked = {},
         onReadReceiptSwitchClicked = {},
         onEditGroupName = {},
         modifier = Modifier,
         lazyListState = rememberLazyListState(),
-        mlsReadReceiptsEnabled = false,
+        mlsReadReceiptsEnabled = false
     )
 }
 

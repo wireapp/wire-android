@@ -44,6 +44,7 @@ fun rememberMessageComposerStateHolder(
     draftMessageComposition: MessageComposition,
     onClearDraft: () -> Unit,
     onSaveDraft: (MessageDraft) -> Unit,
+    onMessageTextUpdate: (MessageDraft) -> Unit,
     onSearchMentionQueryChanged: (String) -> Unit,
     onClearMentionSearchResult: () -> Unit,
     onTypingEvent: (Conversation.TypingIndicatorMode) -> Unit,
@@ -63,6 +64,7 @@ fun rememberMessageComposerStateHolder(
                 messageTextState = messageTextState,
                 onClearDraft = onClearDraft,
                 onSaveDraft = onSaveDraft,
+                onMessageTextUpdate = onMessageTextUpdate,
                 onSearchMentionQueryChanged = onSearchMentionQueryChanged,
                 onClearMentionSearchResult = onClearMentionSearchResult,
                 onTypingEvent = onTypingEvent,
@@ -138,9 +140,9 @@ class MessageComposerStateHolder(
 ) {
     val messageComposition = messageCompositionHolder.value.messageComposition
 
-    fun toEdit(messageId: String, editMessageText: String, mentions: List<MessageMention>) {
-        messageCompositionHolder.value.setEditText(messageId, editMessageText, mentions)
-        messageCompositionInputStateHolder.toEdit(editMessageText)
+    fun toEdit(messageId: String, editMessageText: String, mentions: List<MessageMention>, isMultipart: Boolean) {
+        messageCompositionHolder.value.setEditText(messageId, editMessageText, mentions, isMultipart)
+        messageCompositionInputStateHolder.toEdit(editMessageText, isMultipart)
     }
 
     fun toReply(message: UIMessage.Regular) {

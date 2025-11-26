@@ -109,8 +109,11 @@ class AccountSwitchUseCase @Inject constructor(
                     }?.userId
             }
         }
-        if (nextSessionId == null) appLogger.i("$TAG No next account to switch to")
-        else appLogger.i("$TAG Switching to next account: ${nextSessionId.toLogString()}")
+        if (nextSessionId == null) {
+            appLogger.i("$TAG No next account to switch to")
+        } else {
+            appLogger.i("$TAG Switching to next account: ${nextSessionId.toLogString()}")
+        }
         return switch(nextSessionId, current)
     }
 

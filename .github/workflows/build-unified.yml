@@ -29,8 +29,7 @@ jobs:
   # Inline simple quality check jobs for better check names
   lint:
     runs-on: buildjet-4vcpu-ubuntu-2204
-    # Use --no-daemon to avoid daemon crashes, and override JVM args from gradle.properties
-    # which sets 10GB heap (too much for parallel workers in CI)
+    # Override JVM args from gradle.properties which sets 10GB heap
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -46,8 +45,10 @@ jobs:
       - name: Validate Gradle wrapper
         uses: gradle/actions/wrapper-validation@v5
       - name: Run Linter
+        env:
+          GRADLE_OPTS: "-Xmx8G -XX:+UseParallelGC -XX:MaxMetaspaceSize=512m"
         run: |
-          ./gradlew lint --no-daemon -Dorg.gradle.jvmargs="-Xmx8G -XX:+UseParallelGC -XX:MaxMetaspaceSize=1g" -Porg.gradle.workers.max=2
+          ./gradlew lint --no-daemon --no-configuration-cache
       - name: Cleanup Gradle Cache
         # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.
         # Restoring these files from a GitHub Actions cache might cause problems for future builds.

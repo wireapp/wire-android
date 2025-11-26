@@ -48,7 +48,7 @@ jobs:
         env:
           GRADLE_OPTS: "-Xmx6G -XX:+UseParallelGC -XX:MaxMetaspaceSize=2g"
         run: |
-          ./gradlew lint --no-daemon --no-configuration-cache
+          ./gradlew lint --no-daemon --no-configuration-cache -Pskip.aboutlibraries=true
       - name: Cleanup Gradle Cache
         # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.
         # Restoring these files from a GitHub Actions cache might cause problems for future builds.

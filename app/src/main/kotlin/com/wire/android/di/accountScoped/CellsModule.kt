@@ -49,6 +49,7 @@ import com.wire.kalium.cells.domain.usecase.publiclink.CreatePublicLinkUseCase
 import com.wire.kalium.cells.domain.usecase.publiclink.DeletePublicLinkUseCase
 import com.wire.kalium.cells.domain.usecase.publiclink.GetPublicLinkPasswordUseCase
 import com.wire.kalium.cells.domain.usecase.publiclink.GetPublicLinkUseCase
+import com.wire.kalium.cells.domain.usecase.publiclink.SetPublicLinkExpirationUseCase
 import com.wire.kalium.cells.domain.usecase.publiclink.UpdatePublicLinkPasswordUseCase
 import com.wire.kalium.cells.paginatedFilesFlowUseCase
 import com.wire.kalium.logic.CoreLogic
@@ -190,4 +191,8 @@ class CellsModule {
     @Provides
     fun provideGetPublicLinkPasswordUseCase(cellsScope: CellsScope): GetPublicLinkPasswordUseCase =
         cellsScope.getPublicLinkPassword
+
+    @Provides
+    fun provideSetPublicLinkExpirationUseCase(cellsScope: CellsScope): SetPublicLinkExpirationUseCase =
+        cellsScope.setPublicLinkExpiration
 }

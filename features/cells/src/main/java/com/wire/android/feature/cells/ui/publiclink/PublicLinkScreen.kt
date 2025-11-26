@@ -54,6 +54,7 @@ import com.wire.android.feature.cells.ui.destinations.PublicLinkExpirationScreen
 import com.wire.android.feature.cells.ui.destinations.PublicLinkPasswordScreenDestination
 import com.wire.android.feature.cells.ui.publiclink.settings.PublicLinkSettingsSection
 import com.wire.android.feature.cells.ui.publiclink.settings.RemovePublicLinkDialog
+import com.wire.android.feature.cells.ui.publiclink.settings.expiration.PublicLinkExpirationResult
 import com.wire.android.feature.cells.ui.util.PreviewMultipleThemes
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.WireNavigator
@@ -68,6 +69,8 @@ import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.util.uiLinkExpirationDate
+import com.wire.android.util.uiLinkExpirationTime
 
 @WireDestination(
     navArgsDelegate = PublicLinkNavArgs::class,
@@ -78,7 +81,7 @@ fun PublicLinkScreen(
     navigator: WireNavigator,
     resultNavigator: ResultBackNavigator<Unit>,
     onPasswordChange: ResultRecipient<PublicLinkPasswordScreenDestination, Boolean>,
-    onExpirationChange: ResultRecipient<PublicLinkExpirationScreenDestination, Boolean>,
+    onExpirationChange: ResultRecipient<PublicLinkExpirationScreenDestination, PublicLinkExpirationResult>,
     modifier: Modifier = Modifier,
     viewModel: PublicLinkViewModel = hiltViewModel(),
 ) {
@@ -126,14 +129,17 @@ fun PublicLinkScreen(
                         PublicLinkSettingsSection(
                             settings = it,
                             onPasswordClick = viewModel::onPasswordClick,
-                            onExpirationClick = {
-                                navigator.navigate(NavigationCommand(PublicLinkExpirationScreenDestination()))
-                            },
+                            onExpirationClick = viewModel::onExpirationClick,
                         )
                     }
 
                     PublicLinkSection(
                         state = state.linkState,
+                        expirationError = if (state.settings?.isExpired == true) {
+                            state.settings?.formattedExpirationError()
+                        } else {
+                            null
+                        },
                         onShareLink = viewModel::shareLink,
                         onCopyLink = viewModel::copyLink,
                     )
@@ -186,6 +192,16 @@ fun PublicLinkScreen(
                     )
                 )
 
+            is OpenExpirationSettings ->
+                navigator.navigate(
+                    NavigationCommand(
+                        PublicLinkExpirationScreenDestination(
+                            linkUuid = action.linkUuid,
+                            expiresAt = action.expiresAt,
+                        )
+                    )
+                )
+
             ShowRemoveConfirmation -> showRemoveConfirmationDialog = true
 
             is ShowErrorDialog -> showErrorDialog = action.error
@@ -197,9 +213,7 @@ fun PublicLinkScreen(
     }
 
     onExpirationChange.handleNavResult { result ->
-        if (result) {
-            viewModel.onExpirationUpdate()
-        }
+        viewModel.onExpirationUpdate(result)
     }
 }
 
@@ -269,6 +283,12 @@ private fun <D : DestinationSpec<*>, R> ResultRecipient<D, R>.handleNavResult(bl
     }
 }
 
+@Composable
+private fun PublicLinkSettings.formattedExpirationError() =
+    expiresAt?.let {
+        stringResource(R.string.link_expired, it.uiLinkExpirationDate(), it.uiLinkExpirationTime())
+    }
+
 @PreviewMultipleThemes
 @Composable
 private fun PreviewCreatePublicLinkScreen() {
@@ -281,6 +301,7 @@ private fun PreviewCreatePublicLinkScreen() {
             )
             PublicLinkSection(
                 state = PublicLinkState.READY,
+                expirationError = null,
                 onShareLink = {},
                 onCopyLink = {}
             )

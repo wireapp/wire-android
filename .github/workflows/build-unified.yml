@@ -46,7 +46,7 @@ jobs:
         uses: gradle/actions/wrapper-validation@v5
       - name: Run Linter
         env:
-          GRADLE_OPTS: "-Xmx8G -XX:+UseParallelGC -XX:MaxMetaspaceSize=2g"
+          GRADLE_OPTS: "-Xmx6G -XX:+UseParallelGC -XX:MaxMetaspaceSize=2g"
         run: |
           ./gradlew lint --no-daemon --no-configuration-cache
       - name: Cleanup Gradle Cache

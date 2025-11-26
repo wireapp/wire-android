@@ -51,8 +51,8 @@ import kotlinx.datetime.toLocalDateTime
 fun WireTimePickerDialog(
     title: String,
     selectedTime: TimePickerResult?,
-    onTimeSelected: (TimePickerResult) -> Unit,
-    onDismiss: () -> Unit
+    onTimeSelected: (TimePickerResult) -> Unit = {},
+    onDismiss: () -> Unit = {},
 ) {
     WireDialog(
         title = null,

@@ -57,8 +57,8 @@ fun WireDatePickerDialog(
     title: String,
     selectedDateMillis: Long?,
     selectableDates: SelectableDates = DatePickerDefaults.AllDates,
-    onDateSelected: (Long?) -> Unit,
-    onDismiss: () -> Unit
+    onDateSelected: (Long?) -> Unit = {},
+    onDismiss: () -> Unit = {},
 ) {
     WireDialog(
         title = null,

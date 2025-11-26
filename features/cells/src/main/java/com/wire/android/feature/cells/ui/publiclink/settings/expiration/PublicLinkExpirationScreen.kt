@@ -169,9 +169,9 @@ private fun ExpirationScreenContent(
     state: PublicLinkExpirationScreenViewState,
     modifier: Modifier = Modifier,
     onEnableClick: () -> Unit = {},
-    onDateClick: () -> Unit,
-    onTimeClick: () -> Unit,
-    onSetClick: () -> Unit,
+    onDateClick: () -> Unit = {},
+    onTimeClick: () -> Unit = {},
+    onSetClick: () -> Unit = {},
 ) {
     Column(modifier = modifier) {
 
@@ -301,10 +301,6 @@ private fun PreviewExpirationScreenContent() {
     WireTheme {
         ExpirationScreenContent(
             state = PublicLinkExpirationScreenViewState(isEnabled = true),
-            onEnableClick = {},
-            onDateClick = {},
-            onTimeClick = {},
-            onSetClick = {},
         )
     }
 }

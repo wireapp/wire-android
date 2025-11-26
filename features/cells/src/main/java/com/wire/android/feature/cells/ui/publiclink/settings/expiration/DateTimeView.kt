@@ -51,12 +51,13 @@ import com.wire.android.feature.cells.R
 fun DateTimeView(
     date: String?,
     time: String?,
-    onDateClick: () -> Unit,
-    onTimeClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    onDateClick: () -> Unit = {},
+    onTimeClick: () -> Unit = {},
 ) {
 
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .height(dimensions().spacing48x)
             .background(
@@ -154,14 +155,10 @@ private fun PreviewDateTimeView() {
             DateTimeView(
                 date = null,
                 time = null,
-                onDateClick = {},
-                onTimeClick = {},
             )
             DateTimeView(
                 date = "Tuesday, March 27",
                 time = "11:30 AM",
-                onDateClick = {},
-                onTimeClick = {},
             )
         }
     }

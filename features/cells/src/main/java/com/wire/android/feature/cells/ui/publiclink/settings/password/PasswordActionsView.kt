@@ -27,6 +27,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.util.PreviewMultipleThemes
+import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
@@ -34,12 +35,14 @@ import com.wire.android.ui.theme.WireTheme
 
 @Composable
 internal fun PasswordActionsView(
-    onCopyPassword: () -> Unit,
-    onResetPassword: () -> Unit,
+    isCopyActionEnabled: Boolean = true,
+    onCopyPassword: () -> Unit = {},
+    onResetPassword: () -> Unit = {},
 ) {
     ActionButton(
         text = R.string.public_link_set_password_copy_password,
         icon = R.drawable.ic_password_copy,
+        enabled = isCopyActionEnabled,
         onClick = onCopyPassword,
     )
     VerticalSpace.x12()
@@ -51,7 +54,7 @@ internal fun PasswordActionsView(
 }
 
 @Composable
-private fun ActionButton(text: Int, icon: Int, onClick: () -> Unit) {
+private fun ActionButton(text: Int, icon: Int, enabled: Boolean = true, onClick: () -> Unit) {
     WireSecondaryButton(
         leadingIcon = {
             Box(
@@ -63,6 +66,7 @@ private fun ActionButton(text: Int, icon: Int, onClick: () -> Unit) {
                 )
             }
         },
+        state = if (enabled) WireButtonState.Default else WireButtonState.Disabled,
         text = stringResource(text),
         onClick = onClick,
     )
@@ -73,10 +77,7 @@ private fun ActionButton(text: Int, icon: Int, onClick: () -> Unit) {
 private fun PreviewPasswordActionsView() {
     WireTheme {
         Column {
-            PasswordActionsView(
-                onCopyPassword = {},
-                onResetPassword = {},
-            )
+            PasswordActionsView()
         }
     }
 }

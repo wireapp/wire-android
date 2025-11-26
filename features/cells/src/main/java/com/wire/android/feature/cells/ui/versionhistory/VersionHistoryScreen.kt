@@ -48,7 +48,7 @@ fun VersionHistoryScreen(
     versionHistoryViewModel: VersionHistoryViewModel = hiltViewModel()
 ) {
     VersionHistoryScreenContent(
-        versionsGroupedByTime = versionHistoryViewModel.getVersionsGroupedByDate(),
+        versionsGroupedByTime = versionHistoryViewModel.versionsGroupedByTime,
         modifier = modifier,
         navigateBack = { navigator.navigateBack() }
     )

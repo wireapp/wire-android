@@ -17,17 +17,41 @@
  */
 package com.wire.android.feature.cells.ui.versionhistory
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.wire.android.feature.cells.ui.navArgs
+import com.wire.kalium.cells.domain.usecase.versioning.GetNodeVersionsUseCase
+import com.wire.kalium.common.functional.onSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class VersionHistoryViewModel @Inject constructor(
     val savedStateHandle: SavedStateHandle,
+    val getNodeVersionsUseCase: GetNodeVersionsUseCase,
 ) : ViewModel() {
 
-    fun getVersionsGroupedByDate(): Map<String, List<CellVersion>> {
+    private val navArgs: VersionHistoryNavArgs = savedStateHandle.navArgs()
+
+    var versionsGroupedByTime: Map<String, List<CellVersion>> = mapOf()
+        private set
+
+    init {
+
+        viewModelScope.launch {
+            getNodeVersionsGroupedByDate()
+        }
+    }
+    suspend fun getNodeVersionsGroupedByDate(): Map<String, List<CellVersion>> {
+        navArgs.uuid?.let {
+            val result = getNodeVersionsUseCase(navArgs.uuid)
+            result.onSuccess {
+                Log.d("Versions", "getNodeVersionsGroupedByDate: $result")
+            }
+        }
         // todo: implement real logic to get versions in next PR
         return mapOf("1 Dec 2025" to listOf())
     }

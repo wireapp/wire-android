@@ -378,10 +378,10 @@ class CellViewModel @Inject constructor(
                     }
                     add(NodeBottomSheetAction.PUBLIC_LINK)
                     add(NodeBottomSheetAction.DOWNLOAD)
-                    // to be enabled in next PR
-//                    if (cellNode is CellNodeUi.File) {
-//                        add(NodeBottomSheetAction.VERSION_HISTORY) // todo add feature flag
-//                    }
+                    // todo add feature flag
+                    if (cellNode is CellNodeUi.File) {
+                        add(NodeBottomSheetAction.VERSION_HISTORY)
+                    }
                     add(NodeBottomSheetAction.ADD_REMOVE_TAGS)
                     add(NodeBottomSheetAction.MOVE)
                     add(NodeBottomSheetAction.RENAME)

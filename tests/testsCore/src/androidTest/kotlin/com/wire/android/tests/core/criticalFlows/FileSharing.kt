@@ -42,14 +42,13 @@ import org.koin.test.inject
 import service.TestServiceHelper
 import user.usermanager.ClientUserManager
 import user.utils.ClientUser
+import com.wire.android.tests.core.BaseUiTest
+import com.wire.android.tests.support.tags.Category
+import com.wire.android.tests.support.tags.TestCaseId
+
 
 @RunWith(AndroidJUnit4::class)
-class FileSharing : KoinTest {
-
-    @get:Rule
-    val koinTestRule = KoinTestRule.Companion.create {
-        modules(testModule)
-    }
+class FileSharing : BaseUiTest() {
     private val pages: AllPages by inject()
     private lateinit var device: UiDevice
     lateinit var context: Context
@@ -80,6 +79,8 @@ class FileSharing : KoinTest {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
+    @TestCaseId("TC-8603")
+    @Category("criticalFlow")
     @Test
     fun givenUserInAnotherTeam_whenFileIsSent_thenRecipientCanReceivePlayAndDownloadIt() {
 

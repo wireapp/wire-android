@@ -4,6 +4,10 @@ plugins {
 }
 
 android {
+    defaultConfig {
+        // tell Android to use your custom runner
+        testInstrumentationRunner = "com.wire.android.tests.support.suite.TaggedTestRunner"
+    }
     sourceSets {
         getByName("androidTest") {
             kotlin.srcDirs("src/androidTest/kotlin")

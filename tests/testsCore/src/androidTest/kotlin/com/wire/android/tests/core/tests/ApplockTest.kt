@@ -38,14 +38,14 @@ import org.koin.test.KoinTestRule
 import org.koin.test.inject
 import user.usermanager.ClientUserManager
 import user.utils.ClientUser
+import com.wire.android.tests.core.BaseUiTest
+import com.wire.android.tests.support.tags.Category
+import com.wire.android.tests.support.tags.TestCaseId
+
 
 @RunWith(AndroidJUnit4::class)
-class ApplockTest : KoinTest {
+class ApplockTest : BaseUiTest(){
 
-    @get:Rule
-    val koinTestRule = KoinTestRule.create {
-        modules(testModule)
-    }
     private val pages: AllPages by inject()
     private lateinit var device: UiDevice
     lateinit var context: Context
@@ -71,6 +71,8 @@ class ApplockTest : KoinTest {
         registeredUser?.deleteTeam(backendClient!!)
     }
 
+    @TestCaseId("TC-8143")
+    @Category("applock", "regression")
     @Test
     fun givenUserEnablesAppLock_whenAppIsBackgroundedForOneMinute_thenAppRequiresUnlockOnReturn() {
 

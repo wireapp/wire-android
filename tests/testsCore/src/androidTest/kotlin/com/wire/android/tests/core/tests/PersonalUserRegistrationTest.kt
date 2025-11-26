@@ -36,24 +36,23 @@ import org.koin.test.KoinTestRule
 import org.koin.test.inject
 import uiautomatorutils.UiWaitUtils.closeKeyBoardIfOpened
 import user.UserClient
+import com.wire.android.tests.core.BaseUiTest
+import com.wire.android.tests.support.tags.Category
+import com.wire.android.tests.support.tags.TestCaseId
+
 
 /*
 This test works on the following conditions:
 1) The dev/staging app is installed on the device/emulator.
 */
 @RunWith(AndroidJUnit4::class)
-@RC("RC", "regression", "@TC-8694", "@registration")
-class PersonalUserRegistrationTest : KoinTest {
-    @get:Rule
-    val koinTestRule = KoinTestRule.create {
-        modules(testModule)
-    }
+class PersonalUserRegistrationTest : BaseUiTest() {
+
     private val pages: AllPages by inject()
     private lateinit var device: UiDevice
 
     @Before
     fun setUp() {
-        // device = UiAutomatorSetup.start(UiAutomatorSetup.APP_DEV)
         device = UiAutomatorSetup.start(UiAutomatorSetup.APP_INTERNAL)
     }
 
@@ -62,6 +61,8 @@ class PersonalUserRegistrationTest : KoinTest {
         //  UiAutomatorSetup.stopApp()
     }
 
+    @TestCaseId("TC-8694")
+    @Category("applock", "regression", "RC", "registration")
     @Test
     fun givenUserWantsToRegister_whenTheyProvideValidDetails_thenAccountIsCreatedSuccessfully() {
         val userInfo = UserClient.generateUniqueUserInfo()

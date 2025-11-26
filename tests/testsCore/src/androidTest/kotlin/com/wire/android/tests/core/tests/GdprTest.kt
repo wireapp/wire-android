@@ -35,19 +35,17 @@ import org.koin.test.KoinTest
 import org.koin.test.KoinTestRule
 import org.koin.test.inject
 import user.utils.ClientUser
+import com.wire.android.tests.core.BaseUiTest
+import com.wire.android.tests.support.tags.Category
+import com.wire.android.tests.support.tags.TestCaseId
 
 /*
 This test works on the following conditions:
 1) The dev/staging app is installed on the device/emulator.
 */
 @RunWith(AndroidJUnit4::class)
-@RC("RC", "regression", "@TC-8694", "@registration")
-class GdprTest : KoinTest {
+class GdprTest : BaseUiTest() {
 
-    @get:Rule
-    val koinTestRule = KoinTestRule.create {
-        modules(testModule)
-    }
     private lateinit var device: UiDevice
     private val pages: AllPages by inject()
     var registeredUser: ClientUser? = null
@@ -68,6 +66,8 @@ class GdprTest : KoinTest {
         }
     }
 
+    @TestCaseId("TC-8705")
+    @Category("applock", "regression")
     @Test
     fun givenTeamUserAcceptsAnonymousDataSharing_whenConsentIsGiven_thenAnalyticsIdentifierIsVisibleInDebugSettings() {
         val clientUser = ClientUser()

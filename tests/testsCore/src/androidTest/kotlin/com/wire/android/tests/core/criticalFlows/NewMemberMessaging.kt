@@ -41,14 +41,12 @@ import service.userSendsGenericMessageToConversation
 import user.usermanager.ClientUserManager
 import user.utils.ClientUser
 import kotlin.getValue
+import com.wire.android.tests.core.BaseUiTest
+import com.wire.android.tests.support.tags.Category
+import com.wire.android.tests.support.tags.TestCaseId
 
 @RunWith(AndroidJUnit4::class)
-class NewMemberMessaging : KoinTest {
-
-    @get:Rule
-    val koinTestRule = KoinTestRule.Companion.create {
-        modules(testModule)
-    }
+class NewMemberMessaging : BaseUiTest() {
     private val pages: AllPages by inject()
     private lateinit var device: UiDevice
 
@@ -80,6 +78,8 @@ class NewMemberMessaging : KoinTest {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
+    @TestCaseId("TC-8605")
+    @Category("criticalFlow")
     @Test
     fun givenUserJoinsNewTeam_whenMessagingAndMentionedInGroup_thenReceivesMessagesAndMentions() {
         teamHelper.usersManager!!.createTeamOwnerByAlias(

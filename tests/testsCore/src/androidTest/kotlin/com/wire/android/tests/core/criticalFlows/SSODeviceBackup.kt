@@ -46,17 +46,14 @@ import uiautomatorutils.UiWaitUtils.WaitUtils.waitFor
 import user.usermanager.ClientUserManager
 import user.utils.ClientUser
 import kotlin.getValue
+import com.wire.android.tests.core.BaseUiTest
+import com.wire.android.tests.support.tags.Category
+import com.wire.android.tests.support.tags.TestCaseId
 
 @RunWith(AndroidJUnit4::class)
-class SSODeviceBackup : KoinTest {
-
-    @get:Rule
-    val koinTestRule = KoinTestRule.Companion.create {
-        modules(testModule)
-    }
+class SSODeviceBackup : BaseUiTest() {
     private val pages: AllPages by inject()
     private lateinit var device: UiDevice
-
     lateinit var context: Context
     var teamOwner: ClientUser? = null
     var member1: ClientUser? = null
@@ -86,6 +83,8 @@ class SSODeviceBackup : KoinTest {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
+    @TestCaseId("TC-8604")
+    @Category("criticalFlow")
     @Test
     fun givenSSOTeamWithOkta_whenSettingUpNewDeviceAndRestoringBackup_thenMessageIsRestored() {
 

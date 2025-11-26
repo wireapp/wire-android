@@ -125,4 +125,6 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     MEETINGS_ENABLED("meetings_enabled", ConfigType.BOOLEAN),
 
     USE_ASYNC_FLUSH_LOGGING("use_async_flush_logging", ConfigType.BOOLEAN),
+
+    IS_BUBBLE_UI_ENABLED("is_bubble_ui_enabled", ConfigType.BOOLEAN),
 }

@@ -73,8 +73,6 @@ class ChangeUserColorViewModel @Inject constructor(
     }
 }
 
-const val IS_BUBBLE_UI_ENABLED = true
-
 data class AccentActionState(
     val accent: Accent?,
     val isPerformingAction: Boolean = false,

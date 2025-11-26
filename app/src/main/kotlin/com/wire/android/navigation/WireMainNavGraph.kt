@@ -30,6 +30,7 @@ import com.wire.android.feature.cells.ui.destinations.PublicLinkPasswordScreenDe
 import com.wire.android.feature.cells.ui.destinations.PublicLinkScreenDestination
 import com.wire.android.feature.cells.ui.destinations.RecycleBinScreenDestination
 import com.wire.android.feature.cells.ui.destinations.RenameNodeScreenDestination
+import com.wire.android.feature.cells.ui.destinations.VersionHistoryScreenDestination
 import com.wire.android.feature.sketch.destinations.DrawingCanvasScreenDestination
 import com.wire.android.ui.NavGraphs
 
@@ -48,6 +49,7 @@ object WireMainNavGraph : NavGraphSpec {
         .plus(AddRemoveTagsScreenDestination)
         .plus(PublicLinkPasswordScreenDestination)
         .plus(PublicLinkExpirationScreenDestination)
+        .plus(VersionHistoryScreenDestination)
     override val destinationsByRoute = destinations.associateBy { it.route }
     override val nestedNavGraphs = NavGraphs.wireRoot.nestedNavGraphs
 }

@@ -36,6 +36,7 @@
     <string name="download_label">Download</string>
     <string name="copy_link">Copy Link</string>
     <string name="share_link">Share Link</string>
+    <string name="see_version_history_bottom_sheet">See version history</string>
     <string name="copied_to_clipboard_message">Link copied to clipboard</string>
     <string name="file_subtitle">%1$s in %2$s</string>
     <string name="file_subtitle_modified">%1$s by %2$s</string>
@@ -144,4 +145,5 @@
     <string name="public_link_set_password_reset_password">Reset Password</string>
     <string name="public_link_set_password_text_field_label">Password</string>
     <string name="public_link_set_password_text_field_placeholder">Enter password</string>
+    <string name="version_history_top_appbar_title">Version history</string>
 </resources>

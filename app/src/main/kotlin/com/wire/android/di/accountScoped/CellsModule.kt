@@ -47,6 +47,7 @@ import com.wire.kalium.cells.domain.usecase.UpdateNodeTagsUseCase
 import com.wire.kalium.cells.domain.usecase.publiclink.CreatePublicLinkPasswordUseCase
 import com.wire.kalium.cells.domain.usecase.publiclink.CreatePublicLinkUseCase
 import com.wire.kalium.cells.domain.usecase.publiclink.DeletePublicLinkUseCase
+import com.wire.kalium.cells.domain.usecase.publiclink.GetPublicLinkPasswordUseCase
 import com.wire.kalium.cells.domain.usecase.publiclink.GetPublicLinkUseCase
 import com.wire.kalium.cells.domain.usecase.publiclink.UpdatePublicLinkPasswordUseCase
 import com.wire.kalium.cells.domain.usecase.versioning.GetNodeVersionsUseCase
@@ -186,6 +187,10 @@ class CellsModule {
     @Provides
     fun provideUpdatePublicLinkPasswordUseCase(cellsScope: CellsScope): UpdatePublicLinkPasswordUseCase =
         cellsScope.updatePublicLinkPasswordUseCase
+
+    @Provides
+    fun provideGetPublicLinkPasswordUseCase(cellsScope: CellsScope): GetPublicLinkPasswordUseCase =
+        cellsScope.getPublicLinkPassword
 
     @ViewModelScoped
     @Provides

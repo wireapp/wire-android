@@ -29,11 +29,8 @@ jobs:
   # Inline simple quality check jobs for better check names
   lint:
     runs-on: buildjet-4vcpu-ubuntu-2204
-    # Add a bit more Metaspace size as it tends to fail on GH runner when running linter,
-    # Reduce a bit the memory allocation pool, as the 8GB set in gradle.properties is too much for CI
-    # AboutLibraries seems to go crazy when running lint checks. So we explicitly don't run it.
-    env:
-      GRADLE_OPTS: '-Dorg.gradle.jvmargs="-XX:MaxMetaspaceSize=1g -Xmx4G"'
+    # Use --no-daemon to avoid daemon crashes, and override JVM args from gradle.properties
+    # which sets 10GB heap (too much for parallel workers in CI)
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -50,7 +47,7 @@ jobs:
         uses: gradle/actions/wrapper-validation@v5
       - name: Run Linter
         run: |
-          ./gradlew lint
+          ./gradlew lint --no-daemon -Dorg.gradle.jvmargs="-Xmx8G -XX:+UseParallelGC -XX:MaxMetaspaceSize=1g" -Porg.gradle.workers.max=2
       - name: Cleanup Gradle Cache
         # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.
         # Restoring these files from a GitHub Actions cache might cause problems for future builds.

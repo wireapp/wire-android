@@ -643,6 +643,7 @@
     <string name="conversation_options_guest_description">Turn this option ON to open this conversation to people outside your team, even if they don\'t have Wire.</string>
     <string name="conversation_options_guest_not_editable_description">You cannot disable the guest option in this conversation, since it has been created by someone from another team.</string>
     <string name="conversation_options_services_label">Apps</string>
+    <string name="conversation_details_apps_description">When this is ON, you open this conversation to apps.</string>
     <string name="conversation_options_services_description">Turn this option ON to open this conversation to apps.</string>
     <string name="conversation_options_renamed">Conversation renamed</string>
     <string name="disable_guest_dialog_title">Disable guest access?</string>

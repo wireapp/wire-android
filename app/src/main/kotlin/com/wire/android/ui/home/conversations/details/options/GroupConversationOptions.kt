@@ -148,7 +148,7 @@ fun GroupConversationSettings(
                     add {
                         GroupConversationOptionsItem(
                             title = stringResource(id = R.string.conversation_options_services_label),
-                            subtitle = stringResource(id = R.string.conversation_options_services_description),
+                            subtitle = stringResource(id = R.string.conversation_details_apps_description),
                             switchState = SwitchState.TextOnly(value = state.isAppsAllowed),
                             arrowType = if (state.isUpdatingAppsAllowed) ArrowType.TITLE_ALIGNED else ArrowType.NONE,
                             clickable = Clickable(

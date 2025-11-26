@@ -12,7 +12,7 @@ jobs:
     # Reduce a bit the memory allocation pool, as the 8GB set in gradle.properties is too much for CI
     # AboutLibraries seems to go crazy when running lint checks. So we explicitly don't run it.
     env:
-      GRADLE_OPTS: '-Dorg.gradle.jvmargs="-XX:MaxMetaspaceSize=1g -Xmx2G"'
+      GRADLE_OPTS: '-Dorg.gradle.jvmargs="-XX:MaxMetaspaceSize=1g -Xmx4G"'
     steps:
         - name: Checkout
           uses: actions/checkout@v4
@@ -30,7 +30,7 @@ jobs:
 
         - name: Run Linter
           run: |
-              ./gradlew lint
+              ./gradlew lint -Porg.gradle.workers.max=2 -Pandroid.lint.jvmargs="-Xmx5G -XX:MaxMetaspaceSize=1g"
         - name: Cleanup Gradle Cache
             # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.
             # Restoring these files from a GitHub Actions cache might cause problems for future builds.

@@ -182,7 +182,7 @@ fun ChangeUserColorContent(
                     }
 
                     VerticalSpace.x24()
-                    if (state.isMessageBubbleEnabled) {
+                    if (IS_BUBBLE_UI_ENABLED) {
                         SectionHeader(stringResource(R.string.settings_myaccount_user_color_example))
                         VerticalSpace.x4()
 
@@ -268,5 +268,5 @@ fun PreviewChangeUserColor() = WireTheme {
 @PreviewMultipleThemes
 @Composable
 fun PreviewChangeUserColorWithExample() = WireTheme {
-    ChangeUserColorContent(AccentActionState(Accent.Green, isMessageBubbleEnabled = true), {}, {}, {})
+    ChangeUserColorContent(AccentActionState(Accent.Green), {}, {}, {})
 }

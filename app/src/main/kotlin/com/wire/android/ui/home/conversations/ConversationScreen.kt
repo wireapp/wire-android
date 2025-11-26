@@ -176,6 +176,7 @@ import com.wire.android.ui.home.messagecomposer.model.MessageComposition
 import com.wire.android.ui.home.messagecomposer.model.Ping
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.rememberMessageComposerStateHolder
+import com.wire.android.ui.home.settings.account.color.IS_BUBBLE_UI_ENABLED
 import com.wire.android.ui.legalhold.dialog.subject.LegalHoldSubjectMessageDialog
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
@@ -925,7 +926,7 @@ private fun ConversationScreen(
     Box(modifier = Modifier) {
         // only here we will use normal Scaffold because of specific behaviour of message composer
         Scaffold(
-            contentColor = if (conversationInfoViewState.isBubbleUiEnabled) {
+            contentColor = if (IS_BUBBLE_UI_ENABLED) {
                 colorsScheme().primary
             } else {
                 colorsScheme().background
@@ -1019,7 +1020,7 @@ private fun ConversationScreen(
                         onAttachmentClick = onAttachmentClick,
                         onAttachmentMenuClick = onAttachmentMenuClick,
                         showHistoryLoadingIndicator = conversationInfoViewState.showHistoryLoadingIndicator,
-                        isBubbleUiEnabled = conversationInfoViewState.isBubbleUiEnabled,
+                        isBubbleUiEnabled = IS_BUBBLE_UI_ENABLED,
                         isWireCellsEnabled = isWireCellsEnabled,
                     )
                 }

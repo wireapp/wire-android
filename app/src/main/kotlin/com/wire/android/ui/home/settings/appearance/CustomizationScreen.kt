@@ -41,7 +41,6 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireDestination
@@ -73,7 +72,6 @@ fun CustomizationScreen(
         onThemeOptionChanged = viewModel::selectThemeOption,
         onBackPressed = navigator::navigateBack,
         onEnterToSendClicked = viewModel::selectPressEnterToSendOption,
-        onMessageBubbleClicked = viewModel::selectBubbleUI
     )
 }
 
@@ -83,7 +81,6 @@ fun CustomizationScreenContent(
     onThemeOptionChanged: (ThemeOption) -> Unit,
     onBackPressed: () -> Unit,
     onEnterToSendClicked: (Boolean) -> Unit,
-    onMessageBubbleClicked: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     lazyListState: LazyListState = rememberLazyListState()
 ) {
@@ -116,9 +113,7 @@ fun CustomizationScreenContent(
             item {
                 CustomizationOptionsContent(
                     enterToSendState = state.pressEnterToSentState,
-                    isBubbleUiEnabled = state.isBubbleUiEnabled,
                     enterToSendClicked = onEnterToSendClicked,
-                    onMessageBubbleClicked = onMessageBubbleClicked
                 )
             }
         }
@@ -128,9 +123,7 @@ fun CustomizationScreenContent(
 @Composable
 fun CustomizationOptionsContent(
     enterToSendState: Boolean,
-    isBubbleUiEnabled: Boolean,
     enterToSendClicked: (Boolean) -> Unit,
-    onMessageBubbleClicked: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -144,13 +137,6 @@ fun CustomizationOptionsContent(
             arrowType = ArrowType.NONE,
             subtitle = stringResource(id = R.string.press_enter_to_send_text)
         )
-        if (BuildConfig.PRIVATE_BUILD) {
-            GroupConversationOptionsItem(
-                title = "Message bubbles",
-                switchState = SwitchState.Enabled(value = isBubbleUiEnabled, onCheckedChange = onMessageBubbleClicked),
-                arrowType = ArrowType.NONE,
-            )
-        }
     }
 }
 
@@ -217,6 +203,5 @@ fun PreviewSettingsScreen() {
         {},
         {},
         {},
-        {}
     )
 }

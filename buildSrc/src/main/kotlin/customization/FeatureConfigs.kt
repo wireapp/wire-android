@@ -137,4 +137,6 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
      * Controls how long the sync connection stays alive after receiving a push notification
      */
     BACKGROUND_NOTIFICATION_STAY_ALIVE_SECONDS("background_notification_stay_alive_seconds", ConfigType.INT),
+
+    IS_BUBBLE_UI_ENABLED("is_bubble_ui_enabled", ConfigType.BOOLEAN),
 }

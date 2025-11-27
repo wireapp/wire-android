@@ -22,15 +22,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
-import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.theme.Accent
-import com.wire.kalium.logic.feature.client.IsChatBubblesEnabledUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.UpdateAccentColorResult
 import com.wire.kalium.logic.feature.user.UpdateAccentColorUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -38,8 +35,6 @@ import javax.inject.Inject
 class ChangeUserColorViewModel @Inject constructor(
     private val getSelf: GetSelfUserUseCase,
     private val updateAccentColor: UpdateAccentColorUseCase,
-    private val isChatBubblesEnabled: IsChatBubblesEnabledUseCase,
-    private val globalDataStore: GlobalDataStore
 ) : ActionsViewModel<ChangeUserColorAction>() {
 
     var accentState: AccentActionState by mutableStateOf(AccentActionState(null))
@@ -49,18 +44,14 @@ class ChangeUserColorViewModel @Inject constructor(
         viewModelScope.launch {
             getSelf()?.accentId.let { accentId ->
                 accentState = AccentActionState(
-                    accent = Accent.fromAccentId(accentId),
-                    isMessageBubbleEnabled = isBubbleUiEnabled()
+                    accent = Accent.fromAccentId(accentId)
                 )
             }
         }
     }
 
-    private suspend fun isBubbleUiEnabled() = (globalDataStore.observeIsBubbleUI().firstOrNull() ?: false)
-            || isChatBubblesEnabled()
-
     fun changeAccentColor(accent: Accent) {
-        accentState = accentState.copy(accent)
+        accentState = accentState.copy(accent = accent)
     }
 
     fun saveAccentColor() {
@@ -85,7 +76,6 @@ class ChangeUserColorViewModel @Inject constructor(
 data class AccentActionState(
     val accent: Accent?,
     val isPerformingAction: Boolean = false,
-    val isMessageBubbleEnabled: Boolean = false
 )
 
 enum class ChangeUserColorAction {

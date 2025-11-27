@@ -27,6 +27,7 @@ import com.wire.android.feature.cells.ui.navArgs
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.kalium.cells.domain.usecase.publiclink.CreatePublicLinkPasswordUseCase
+import com.wire.kalium.cells.domain.usecase.publiclink.GetPublicLinkPasswordUseCase
 import com.wire.kalium.cells.domain.usecase.publiclink.UpdatePublicLinkPasswordUseCase
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
@@ -44,6 +45,7 @@ internal class PublicLinkPasswordScreenViewModel @Inject constructor(
     private val generateRandomPassword: RandomPassword,
     private val createPassword: CreatePublicLinkPasswordUseCase,
     private val updatePassword: UpdatePublicLinkPasswordUseCase,
+    private val getPublicLinkPassword: GetPublicLinkPasswordUseCase,
     val savedStateHandle: SavedStateHandle,
 ) : ActionsViewModel<PublicLinkPasswordScreenAction>() {
 
@@ -89,8 +91,16 @@ internal class PublicLinkPasswordScreenViewModel @Inject constructor(
         } else {
             updateState { copy(isEnabled = false) }
             if (isPasswordCreated) {
-                removePassword()
+                sendAction(ShowRemoveConfirmationDialog)
             }
+        }
+    }
+
+    fun onConfirmPasswordRemoval(confirmed: Boolean) {
+        if (confirmed) {
+            removePassword()
+        } else {
+            updateState { copy(isEnabled = true) }
         }
     }
 
@@ -112,7 +122,7 @@ internal class PublicLinkPasswordScreenViewModel @Inject constructor(
                 sendAction(CopyPasswordAndClose(password))
             }
             .onFailure {
-                sendAction(ShowError(R.string.public_link_set_password_error))
+                sendAction(ShowPasswordError(PasswordError.SetFailure))
                 updateState { copy(isUpdating = false) }
             }
     }
@@ -125,6 +135,16 @@ internal class PublicLinkPasswordScreenViewModel @Inject constructor(
             )
         }
         passwordTextState.clearText()
+    }
+
+    fun retryError(error: PasswordError) {
+        when (error) {
+            is PasswordError.SetFailure -> setPassword()
+            is PasswordError.RemoveFailure -> {
+                updateState { copy(isEnabled = false) }
+                removePassword()
+            }
+        }
     }
 
     private fun removePassword() = viewModelScope.launch {
@@ -140,20 +160,22 @@ internal class PublicLinkPasswordScreenViewModel @Inject constructor(
                 passwordTextState.clearText()
             }
             .onFailure {
-                sendAction(ShowError(R.string.public_link_remove_password_error))
+                sendAction(ShowPasswordError(PasswordError.RemoveFailure))
                 updateState { copy(isEnabled = true) }
             }
     }
 
-    private fun loadPasswordFromLocalStorage() {
-        // TODO: implement saving/loading password in database
-        updateState {
-            copy(
-                isPasswordValid = false,
-                screenState = PasswordScreenState.AVAILABLE,
-            )
+    private fun loadPasswordFromLocalStorage() = viewModelScope.launch {
+
+        val password = getPublicLinkPassword(navArgs.linkUuid)
+
+        if (password.isNullOrEmpty()) {
+            updateState { copy(screenState = PasswordScreenState.NOT_AVAILABLE) }
+            sendAction(ShowMissingPasswordDialog)
+        } else {
+            updateState { copy(screenState = PasswordScreenState.AVAILABLE,) }
+            passwordTextState.setTextAndPlaceCursorAtEnd(password)
         }
-        passwordTextState.setTextAndPlaceCursorAtEnd("test_password_placeholder")
     }
 
     private fun updateState(block: PublicLinkPasswordScreenViewState.() -> PublicLinkPasswordScreenViewState) {
@@ -167,7 +189,9 @@ internal class PublicLinkPasswordScreenViewModel @Inject constructor(
 
 internal sealed interface PublicLinkPasswordScreenAction
 internal data class CopyPasswordAndClose(val password: String) : PublicLinkPasswordScreenAction
-internal data class ShowError(val message: Int) : PublicLinkPasswordScreenAction
+internal data object ShowMissingPasswordDialog : PublicLinkPasswordScreenAction
+internal data object ShowRemoveConfirmationDialog : PublicLinkPasswordScreenAction
+internal data class ShowPasswordError(val error: PasswordError) : PublicLinkPasswordScreenAction
 
 internal data class PublicLinkPasswordScreenViewState(
     val isEnabled: Boolean = false,
@@ -175,6 +199,17 @@ internal data class PublicLinkPasswordScreenViewState(
     val isUpdating: Boolean = false,
     val screenState: PasswordScreenState = PasswordScreenState.INITIAL,
 )
+
+internal sealed class PasswordError(
+    val title: Int? = null,
+    val message: Int? = null,
+) {
+    internal object SetFailure : PasswordError(
+        R.string.public_link_password_create_failure_dialog_title,
+        R.string.public_link_password_create_failure_dialog_message,
+    )
+    internal object RemoveFailure : PasswordError()
+}
 
 internal enum class PasswordScreenState {
     INITIAL, SETUP_PASSWORD, AVAILABLE, NOT_AVAILABLE

@@ -24,6 +24,7 @@ import com.wire.android.config.NavigationTestExtension
 import com.wire.android.feature.cells.ui.navArgs
 import com.wire.kalium.cells.domain.model.PublicLink
 import com.wire.kalium.cells.domain.usecase.publiclink.CreatePublicLinkPasswordUseCase
+import com.wire.kalium.cells.domain.usecase.publiclink.GetPublicLinkPasswordUseCase
 import com.wire.kalium.cells.domain.usecase.publiclink.UpdatePublicLinkPasswordUseCase
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.common.functional.left
@@ -73,6 +74,7 @@ class PublicLinkPasswordScreenViewModelTest {
     fun `given link password enabled when view model is created then correct initial state is emitted`() = runTest {
         val (_, viewModel) = Arrangement()
             .withPasswordEnabled(true)
+            .withLocalPassword()
             .arrange()
 
         viewModel.state.test {
@@ -84,6 +86,7 @@ class PublicLinkPasswordScreenViewModelTest {
     fun `given link password disabled when view model is created then correct initial state is emitted`() = runTest {
         val (_, viewModel) = Arrangement()
             .withPasswordEnabled(false)
+            .withLocalPassword()
             .arrange()
 
         viewModel.state.test {
@@ -95,6 +98,7 @@ class PublicLinkPasswordScreenViewModelTest {
     fun `given link password disabled when enabled then correct state is emitted`() = runTest {
         val (_, viewModel) = Arrangement()
             .withPasswordEnabled(false)
+            .withLocalPassword()
             .arrange()
 
         viewModel.state.test {
@@ -108,13 +112,28 @@ class PublicLinkPasswordScreenViewModelTest {
     }
 
     @Test
-    fun `given link password enabled when disabled then remove use case called`() = runTest {
+    fun `given link password enabled when disabled then confirmation dialog is shown`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withPasswordEnabled(true)
+            .withPasswordRemoveSuccess()
+            .withLocalPassword("test")
+            .arrange()
+
+        viewModel.actions.test {
+            viewModel.onEnableClick()
+            assertEquals(ShowRemoveConfirmationDialog, awaitItem())
+        }
+    }
+
+    @Test
+    fun `given link password enabled when disable confirmed then remove use case called`() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .withPasswordEnabled(true)
             .withPasswordRemoveSuccess()
+            .withLocalPassword()
             .arrange()
 
-        viewModel.onEnableClick()
+        viewModel.onConfirmPasswordRemoval(true)
 
         coVerify(exactly = 1) {
             arrangement.updatePassword(
@@ -125,10 +144,11 @@ class PublicLinkPasswordScreenViewModelTest {
     }
 
     @Test
-    fun `given link password disabled when enabled and disabled then remove use case not called`() = runTest {
+    fun `given no link password when enabled and disabled then remove use case not called`() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .withPasswordEnabled(false)
             .withPasswordRemoveSuccess()
+            .withLocalPassword()
             .arrange()
 
         viewModel.onEnableClick()
@@ -144,12 +164,12 @@ class PublicLinkPasswordScreenViewModelTest {
         val (_, viewModel) = Arrangement()
             .withPasswordEnabled(true)
             .withPasswordRemoveSuccess()
+            .withLocalPassword()
             .arrange()
 
         viewModel.state.test {
             skipItems(1)
-            viewModel.onEnableClick()
-            skipItems(1)
+            viewModel.onConfirmPasswordRemoval(true)
             val state = awaitItem()
             assertFalse(state.isEnabled)
             assertEquals(PasswordScreenState.SETUP_PASSWORD, state.screenState)
@@ -163,27 +183,27 @@ class PublicLinkPasswordScreenViewModelTest {
         val (_, viewModel) = Arrangement()
             .withPasswordEnabled(true)
             .withPasswordRemoveFailure()
+            .withLocalPassword()
             .arrange()
 
         viewModel.state.test {
-            skipItems(1)
-            viewModel.onEnableClick()
-            skipItems(1)
+            viewModel.onConfirmPasswordRemoval(true)
             val state = awaitItem()
             assertTrue(state.isEnabled)
         }
     }
 
     @Test
-    fun `given remove password failure when disabled then error message is shown`() = runTest {
+    fun `given failure when remove password then error message is shown`() = runTest {
         val (_, viewModel) = Arrangement()
             .withPasswordEnabled(true)
             .withPasswordRemoveFailure()
+            .withLocalPassword("test")
             .arrange()
 
         viewModel.actions.test {
-            viewModel.onEnableClick()
-            assertTrue(awaitItem() is ShowError)
+            viewModel.onConfirmPasswordRemoval(true)
+            assertEquals(ShowPasswordError(PasswordError.RemoveFailure), awaitItem())
         }
     }
 
@@ -191,6 +211,7 @@ class PublicLinkPasswordScreenViewModelTest {
     fun `given random password when password generated then use case is called and text updated`() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .withPasswordEnabled(true)
+            .withLocalPassword()
             .arrange()
 
         viewModel.generatePassword()
@@ -204,6 +225,7 @@ class PublicLinkPasswordScreenViewModelTest {
         val (_, viewModel) = Arrangement()
             .withPasswordEnabled(true)
             .withPasswordUpdateSuccess()
+            .withLocalPassword()
             .arrange()
 
         viewModel.state.test {
@@ -218,6 +240,7 @@ class PublicLinkPasswordScreenViewModelTest {
         val (arrangement, viewModel) = Arrangement()
             .withPasswordEnabled(true)
             .withPasswordUpdateSuccess()
+            .withLocalPassword()
             .arrange()
 
         viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("test")
@@ -250,6 +273,7 @@ class PublicLinkPasswordScreenViewModelTest {
         val (_, viewModel) = Arrangement()
             .withPasswordEnabled(true)
             .withPasswordUpdateSuccess()
+            .withLocalPassword("test")
             .arrange()
 
         viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("test")
@@ -267,6 +291,7 @@ class PublicLinkPasswordScreenViewModelTest {
         val (_, viewModel) = Arrangement()
             .withPasswordEnabled(true)
             .withPasswordUpdateFailure()
+            .withLocalPassword()
             .arrange()
 
         viewModel.state.test {
@@ -276,15 +301,16 @@ class PublicLinkPasswordScreenViewModelTest {
     }
 
     @Test
-    fun `given password update failure when applying password then error message is shown`() = runTest {
+    fun `given password update failure when disabling password then error message is shown`() = runTest {
         val (_, viewModel) = Arrangement()
             .withPasswordEnabled(true)
             .withPasswordUpdateFailure()
+            .withLocalPassword("test")
             .arrange()
 
         viewModel.actions.test {
-            viewModel.onEnableClick()
-            assertTrue(awaitItem() is ShowError)
+            viewModel.onConfirmPasswordRemoval(true)
+            assertEquals(ShowPasswordError(PasswordError.RemoveFailure), awaitItem())
         }
     }
 
@@ -293,6 +319,7 @@ class PublicLinkPasswordScreenViewModelTest {
         val (_, viewModel) = Arrangement()
             .withPasswordEnabled(true)
             .withPasswordUpdateFailure()
+            .withLocalPassword()
             .arrange()
 
         viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("test")
@@ -304,6 +331,45 @@ class PublicLinkPasswordScreenViewModelTest {
             assertFalse(state.isPasswordValid)
             assertEquals(PasswordScreenState.SETUP_PASSWORD, state.screenState)
             assertEquals("", viewModel.passwordTextState.text)
+        }
+    }
+
+    @Test
+    fun `given password is set and local password available when initializing then correct state is emitted`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withPasswordEnabled(true)
+            .withLocalPassword("local_password")
+            .arrange()
+
+        viewModel.state.test {
+            val state = awaitItem()
+            assertEquals(PasswordScreenState.AVAILABLE, state.screenState)
+            assertEquals("local_password", viewModel.passwordTextState.text)
+        }
+    }
+
+    @Test
+    fun `given password is set and local password not available when initializing then correct state is emitted`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withPasswordEnabled(true)
+            .withLocalPassword(null)
+            .arrange()
+
+        viewModel.state.test {
+            val state = awaitItem()
+            assertEquals(PasswordScreenState.NOT_AVAILABLE, state.screenState)
+        }
+    }
+
+    @Test
+    fun `given password is set and local password not available when initializing then dialog is shown`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withPasswordEnabled(true)
+            .withLocalPassword(null)
+            .arrange()
+
+        viewModel.actions.test {
+            assertEquals(ShowMissingPasswordDialog, awaitItem())
         }
     }
 
@@ -348,6 +414,10 @@ class PublicLinkPasswordScreenViewModelTest {
                     CoreFailure.Unknown(IllegalStateException("Test")).left()
         }
 
+        fun withLocalPassword(password: String? = null) = apply {
+            coEvery { getLocalPassword(any()) } returns password
+        }
+
         @MockK
         lateinit var generateRandomPassword: RandomPassword
 
@@ -356,6 +426,9 @@ class PublicLinkPasswordScreenViewModelTest {
 
         @MockK
         lateinit var updatePassword: UpdatePublicLinkPasswordUseCase
+
+        @MockK
+        lateinit var getLocalPassword: GetPublicLinkPasswordUseCase
 
         @MockK
         lateinit var savedStateHandle: SavedStateHandle
@@ -368,6 +441,7 @@ class PublicLinkPasswordScreenViewModelTest {
                 generateRandomPassword = generateRandomPassword,
                 createPassword = createPassword,
                 updatePassword = updatePassword,
+                getPublicLinkPassword = getLocalPassword,
                 savedStateHandle = savedStateHandle
             )
         }

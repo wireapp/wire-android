@@ -600,6 +600,7 @@
     <string name="conversation_options_guest_description">Включите эту опцию, чтобы открыть эту беседу для пользователей не из вашей команды, даже если у них нет Wire.</string>
     <string name="conversation_options_guest_not_editable_description">Вы не можете отключить опцию гостя в этой беседе, поскольку она была создана кем-то из другой команды.</string>
     <string name="conversation_options_services_label">Приложения</string>
+    <string name="conversation_details_apps_description">При включении беседа будет открыта в приложении.</string>
     <string name="conversation_options_services_description">Включите эту опцию, чтобы открыть эту беседу для приложений.</string>
     <string name="conversation_options_renamed">Беседа переименована</string>
     <string name="disable_guest_dialog_title">Отключить доступ гостей?</string>

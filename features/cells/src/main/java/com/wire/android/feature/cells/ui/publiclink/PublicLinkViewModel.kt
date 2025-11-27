@@ -27,9 +27,9 @@ import com.wire.kalium.cells.domain.model.PublicLink
 import com.wire.kalium.cells.domain.usecase.publiclink.CreatePublicLinkUseCase
 import com.wire.kalium.cells.domain.usecase.publiclink.DeletePublicLinkUseCase
 import com.wire.kalium.cells.domain.usecase.publiclink.GetPublicLinkUseCase
-import com.wire.kalium.cells.domain.usecase.publiclink.SECURE_PUBLIC_LINK_ENABLED
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
+import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -44,6 +44,7 @@ class PublicLinkViewModel @Inject constructor(
     private val getPublicLinkUseCase: GetPublicLinkUseCase,
     private val deletePublicLinkUseCase: DeletePublicLinkUseCase,
     private val fileHelper: FileHelper,
+    private val config: KaliumConfigs,
 ) : ActionsViewModel<PublicLinkViewAction>() {
 
     private val navArgs: PublicLinkNavArgs = savedStateHandle.navArgs()
@@ -78,7 +79,7 @@ class PublicLinkViewModel @Inject constructor(
             }
         } else {
             publicLink?.let {
-                deletePublicLink(it.uuid)
+                sendAction(ShowRemoveConfirmation)
             }
         }
     }
@@ -95,6 +96,18 @@ class PublicLinkViewModel @Inject constructor(
         }
     }
 
+    fun onConfirmRemoval(confirmed: Boolean) {
+        if (confirmed) {
+            publicLink?.let {
+                deletePublicLink(it.uuid)
+            }
+        } else {
+            _state.update {
+                it.copy(isEnabled = true)
+            }
+        }
+    }
+
     private fun createPublicLink() = viewModelScope.launch {
 
         _state.update { it.copy(isEnabled = true) }
@@ -108,7 +121,7 @@ class PublicLinkViewModel @Inject constructor(
                         linkState = PublicLinkState.READY
                     )
                 }
-                if (SECURE_PUBLIC_LINK_ENABLED) {
+                if (config.securePublicLinkSettings) {
                     _state.update {
                         it.copy(
                             settings = PublicLinkSettings()
@@ -117,7 +130,7 @@ class PublicLinkViewModel @Inject constructor(
                 }
             }
             .onFailure {
-                sendAction(ShowError(R.string.error_create_public_link))
+                sendAction(ShowErrorDialog(PublicLinkError.Create))
                 _state.update { it.copy(isEnabled = false) }
             }
     }
@@ -129,7 +142,7 @@ class PublicLinkViewModel @Inject constructor(
 
                 _state.update { it.copy(linkState = PublicLinkState.READY) }
 
-                if (SECURE_PUBLIC_LINK_ENABLED) {
+                if (config.securePublicLinkSettings) {
                     _state.update {
                         it.copy(
                             settings = PublicLinkSettings(
@@ -159,7 +172,7 @@ class PublicLinkViewModel @Inject constructor(
                 }
             }
             .onFailure {
-                sendAction(ShowError(R.string.error_delete_public_link))
+                sendAction(ShowErrorDialog(PublicLinkError.Remove))
                 _state.update { it.copy(isEnabled = true) }
             }
     }
@@ -188,6 +201,13 @@ class PublicLinkViewModel @Inject constructor(
                     passwordSettings = PublicLinkPassword(passwordEnabled = isPasswordEnabled)
                 )
             )
+        }
+    }
+
+    internal fun retryError(error: PublicLinkError) {
+        when (error) {
+            PublicLinkError.Create -> createPublicLink()
+            PublicLinkError.Remove -> onConfirmRemoval(true)
         }
     }
 
@@ -224,5 +244,11 @@ internal data class PublicLinkExpiration(
 
 sealed interface PublicLinkViewAction
 internal data class ShowError(val message: Int, val closeScreen: Boolean = false) : PublicLinkViewAction
+internal data class ShowErrorDialog(val error: PublicLinkError) : PublicLinkViewAction
 internal data class CopyLink(val url: String) : PublicLinkViewAction
 internal data class OpenPasswordSettings(val linkUuid: String, val isPasswordEnabled: Boolean) : PublicLinkViewAction
+internal data object ShowRemoveConfirmation : PublicLinkViewAction
+
+internal enum class PublicLinkError {
+    Create, Remove
+}

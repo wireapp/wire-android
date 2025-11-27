@@ -20,6 +20,7 @@ package com.wire.android.ui.theme
 import androidx.annotation.StringRes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.Color
 import com.wire.android.ui.common.R
 
@@ -36,6 +37,7 @@ enum class Accent(val accentId: Int) {
     Unknown(0);
 
     companion object {
+        @Stable
         fun fromAccentId(accentId: Int?): Accent = accentId?.let { entries.firstOrNull { it.accentId == accentId } } ?: Unknown
     }
 }

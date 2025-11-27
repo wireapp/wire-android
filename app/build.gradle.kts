@@ -137,9 +137,12 @@ android {
     }
 }
 
-aboutLibraries {
-    android.registerAndroidTasks = true
-    export.excludeFields.add("generated")
+// Skip AboutLibraries configuration when running lint to reduce memory usage
+if (!project.hasProperty("skip.aboutlibraries")) {
+    aboutLibraries {
+        android.registerAndroidTasks = true
+        export.excludeFields.add("generated")
+    }
 }
 
 dependencies {

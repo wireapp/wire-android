@@ -36,7 +36,9 @@
             "channels_history_options_enabled": true,
             "meetings_enabled": true,
             "use_async_flush_logging": true,
-            "conversation_feeder_enabled": true
+            "conversation_feeder_enabled": true,
+            "secure_public_link_settings": true,
+            "collabora_integration": true
         },
         "staging": {
             "application_id": "com.waz.zclient.dev",
@@ -70,7 +72,8 @@
             "analytics_app_key": "8ffae535f1836ed5f58fd5c8a11c00eca07c5438",
             "analytics_server_url": "https://wire.count.ly/",
             "enable_new_registration": true,
-            "use_async_flush_logging": true
+            "use_async_flush_logging": true,
+            "secure_public_link_settings": true
         },
         "internal": {
             "application_id": "com.wire.internal",
@@ -86,7 +89,8 @@
             "use_async_flush_logging": true,
             "conversation_feeder_enabled": true,
             "background_notification_retry_enabled": true,
-            "background_notification_stay_alive_seconds": 5
+            "background_notification_stay_alive_seconds": 5,
+            "secure_public_link_settings": true
         },
         "fdroid": {
             "application_id": "com.wire",
@@ -161,5 +165,7 @@
     "conversation_feeder_enabled": false,
     "background_notification_retry_enabled": false,
     "background_notification_stay_alive_seconds": 1,
-    "is_bubble_ui_enabled": true
+    "is_bubble_ui_enabled": true,
+    "secure_public_link_settings": false,
+    "collabora_integration": false
 }

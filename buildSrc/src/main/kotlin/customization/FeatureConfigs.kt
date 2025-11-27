@@ -140,4 +140,7 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     BACKGROUND_NOTIFICATION_STAY_ALIVE_SECONDS("background_notification_stay_alive_seconds", ConfigType.INT),
 
     IS_BUBBLE_UI_ENABLED("is_bubble_ui_enabled", ConfigType.BOOLEAN),
+
+    SECURE_PUBLIC_LINK_SETTINGS("secure_public_link_settings", ConfigType.BOOLEAN),
+    COLLABORA_INTEGRATION_ENABLED("collabora_integration", ConfigType.BOOLEAN),
 }

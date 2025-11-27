@@ -112,14 +112,28 @@ class PublicLinkPasswordScreenViewModelTest {
     }
 
     @Test
-    fun `given link password enabled when disabled then remove use case called`() = runTest {
+    fun `given link password enabled when disabled then confirmation dialog is shown`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withPasswordEnabled(true)
+            .withPasswordRemoveSuccess()
+            .withLocalPassword("test")
+            .arrange()
+
+        viewModel.actions.test {
+            viewModel.onEnableClick()
+            assertEquals(ShowRemoveConfirmationDialog, awaitItem())
+        }
+    }
+
+    @Test
+    fun `given link password enabled when disable confirmed then remove use case called`() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .withPasswordEnabled(true)
             .withPasswordRemoveSuccess()
             .withLocalPassword()
             .arrange()
 
-        viewModel.onEnableClick()
+        viewModel.onConfirmPasswordRemoval(true)
 
         coVerify(exactly = 1) {
             arrangement.updatePassword(
@@ -130,7 +144,7 @@ class PublicLinkPasswordScreenViewModelTest {
     }
 
     @Test
-    fun `given link password disabled when enabled and disabled then remove use case not called`() = runTest {
+    fun `given no link password when enabled and disabled then remove use case not called`() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .withPasswordEnabled(false)
             .withPasswordRemoveSuccess()
@@ -155,8 +169,7 @@ class PublicLinkPasswordScreenViewModelTest {
 
         viewModel.state.test {
             skipItems(1)
-            viewModel.onEnableClick()
-            skipItems(1)
+            viewModel.onConfirmPasswordRemoval(true)
             val state = awaitItem()
             assertFalse(state.isEnabled)
             assertEquals(PasswordScreenState.SETUP_PASSWORD, state.screenState)
@@ -174,16 +187,14 @@ class PublicLinkPasswordScreenViewModelTest {
             .arrange()
 
         viewModel.state.test {
-            skipItems(1)
-            viewModel.onEnableClick()
-            skipItems(1)
+            viewModel.onConfirmPasswordRemoval(true)
             val state = awaitItem()
             assertTrue(state.isEnabled)
         }
     }
 
     @Test
-    fun `given remove password failure when disabled then error message is shown`() = runTest {
+    fun `given failure when remove password then error message is shown`() = runTest {
         val (_, viewModel) = Arrangement()
             .withPasswordEnabled(true)
             .withPasswordRemoveFailure()
@@ -191,8 +202,8 @@ class PublicLinkPasswordScreenViewModelTest {
             .arrange()
 
         viewModel.actions.test {
-            viewModel.onEnableClick()
-            assertTrue(awaitItem() is ShowError)
+            viewModel.onConfirmPasswordRemoval(true)
+            assertEquals(ShowPasswordError(PasswordError.RemoveFailure), awaitItem())
         }
     }
 
@@ -298,8 +309,8 @@ class PublicLinkPasswordScreenViewModelTest {
             .arrange()
 
         viewModel.actions.test {
-            viewModel.onEnableClick()
-            assertTrue(awaitItem() is ShowError)
+            viewModel.onConfirmPasswordRemoval(true)
+            assertEquals(ShowPasswordError(PasswordError.RemoveFailure), awaitItem())
         }
     }
 

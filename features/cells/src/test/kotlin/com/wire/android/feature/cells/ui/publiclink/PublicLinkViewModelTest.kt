@@ -40,6 +40,7 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
@@ -111,7 +112,21 @@ class PublicLinkViewModelTest {
     }
 
     @Test
-    fun `given public link available and loaded when disabled then link is deleted`() = runTest {
+    fun `given public link available and loaded when disabled then confirmation is shown`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withPublicLink()
+            .withLoadSuccess()
+            .withDeleteSuccess()
+            .arrange()
+
+        viewModel.actions.test {
+            viewModel.onEnabledClick()
+            assertEquals(ShowRemoveConfirmation, awaitItem())
+        }
+    }
+
+    @Test
+    fun `given public link available and loaded when disable confirmed then link is deleted`() = runTest {
         val (_, viewModel) = Arrangement()
             .withPublicLink()
             .withLoadSuccess()
@@ -120,7 +135,7 @@ class PublicLinkViewModelTest {
 
         viewModel.state.test {
 
-            viewModel.onEnabledClick()
+            viewModel.onConfirmRemoval(true)
 
             with(expectMostRecentItem()) {
                 assertFalse(isEnabled)
@@ -138,13 +153,8 @@ class PublicLinkViewModelTest {
             .arrange()
 
         viewModel.actions.test {
-
-            viewModel.onEnabledClick()
-
-            with(expectMostRecentItem()) {
-                assertTrue(this is ShowError)
-                assertFalse((this as ShowError).closeScreen)
-            }
+            viewModel.onConfirmRemoval(true)
+            assertEquals(ShowErrorDialog(PublicLinkError.Remove), awaitItem())
         }
     }
 
@@ -174,13 +184,8 @@ class PublicLinkViewModelTest {
             .arrange()
 
         viewModel.actions.test {
-
             viewModel.onEnabledClick()
-
-            with(expectMostRecentItem()) {
-                assertTrue(this is ShowError)
-                assertFalse((this as ShowError).closeScreen)
-            }
+            assertEquals(ShowErrorDialog(PublicLinkError.Create), awaitItem())
         }
     }
 

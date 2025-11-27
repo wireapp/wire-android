@@ -35,6 +35,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
@@ -50,6 +53,7 @@ import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.destinations.PublicLinkExpirationScreenDestination
 import com.wire.android.feature.cells.ui.destinations.PublicLinkPasswordScreenDestination
 import com.wire.android.feature.cells.ui.publiclink.settings.PublicLinkSettingsSection
+import com.wire.android.feature.cells.ui.publiclink.settings.RemovePublicLinkDialog
 import com.wire.android.feature.cells.ui.util.PreviewMultipleThemes
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.WireNavigator
@@ -82,6 +86,9 @@ fun PublicLinkScreen(
     val context = LocalContext.current
     val clipboardManager = LocalClipboardManager.current
     val state by viewModel.state.collectAsState()
+
+    var showRemoveConfirmationDialog by remember { mutableStateOf(false) }
+    var showErrorDialog by remember { mutableStateOf<PublicLinkError?>(null) }
 
     WireScaffold(
         modifier = modifier,
@@ -135,6 +142,24 @@ fun PublicLinkScreen(
         }
     }
 
+    if (showRemoveConfirmationDialog) {
+        RemovePublicLinkDialog(
+            onResult = { confirmed ->
+                showRemoveConfirmationDialog = false
+                viewModel.onConfirmRemoval(confirmed)
+            }
+        )
+    }
+
+    showErrorDialog?.let { error ->
+        PublicLinkErrorDialog(
+            onResult = { tryAgain ->
+                showErrorDialog = null
+                if (tryAgain) viewModel.retryError(error)
+            }
+        )
+    }
+
     HandleActions(viewModel.actions) { action ->
         when (action) {
             is ShowError -> {
@@ -160,6 +185,10 @@ fun PublicLinkScreen(
                         )
                     )
                 )
+
+            ShowRemoveConfirmation -> showRemoveConfirmationDialog = true
+
+            is ShowErrorDialog -> showErrorDialog = action.error
         }
     }
 

@@ -86,7 +86,8 @@ internal fun CellScreenContent(
     isAllFiles: Boolean,
     isRecycleBin: Boolean,
     isSearchResult: Boolean = false,
-    isFiltering: Boolean = false
+    isFiltering: Boolean = false,
+    showVersionHistoryScreen: (String) -> Unit = {}
 ) {
 
     val context = LocalContext.current
@@ -106,6 +107,7 @@ internal fun CellScreenContent(
             error = (pagingListItems.loadState.refresh as? LoadState.Error)?.error,
             onRetry = { pagingListItems.retry() }
         )
+
         pagingListItems.itemCount == 0 -> EmptyScreen(
             isSearchResult = isSearchResult,
             isAllFiles = isAllFiles,
@@ -210,6 +212,7 @@ internal fun CellScreenContent(
             is ShowRenameScreen -> showRenameScreen(action.cellNode)
             is ShowMoveToFolderScreen -> showMoveToFolderScreen(action.currentPath, action.nodeToMovePath, action.uuid)
             is ShowAddRemoveTagsScreen -> showAddRemoveTagsScreen(action.cellNode)
+            is ShowVersionHistoryScreen -> showVersionHistoryScreen(action.uuid)
             is RefreshData -> pagingListItems.refresh()
             is ShowUnableToRestoreDialog -> showRestoreError = action
             is ShowRestoreParentFolderDialog -> restoreParentFolderConfirmation = action.cellNode

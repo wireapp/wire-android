@@ -216,6 +216,7 @@ class CellViewModel @Inject constructor(
                 is CellNodeUi.File -> onFileClick(intent.file)
                 is CellNodeUi.Folder -> onFolderClick(intent.file)
             }
+
             is CellViewIntent.OnItemMenuClick -> onItemMenuClick(intent.cellNode)
             is CellViewIntent.OnMenuItemActionSelected -> onMenuItemAction(intent.node, intent.action)
             is CellViewIntent.OnFileDownloadConfirmed -> downloadNode(intent.file)
@@ -225,6 +226,7 @@ class CellViewModel @Inject constructor(
             is CellViewIntent.OnParentFolderRestoreConfirmed -> restoreNodeFromRecycleBin(intent.node)
         }
     }
+
     internal fun currentNodeUuid(): String? = navArgs.conversationId
     internal fun isRecycleBin(): Boolean = navArgs.isRecycleBin ?: false
     private fun isSearching(): Boolean = searchQueryFlow.value.isNotEmpty()
@@ -249,6 +251,7 @@ class CellViewModel @Inject constructor(
             } else {
                 "${currentNodeUuid()}/recycle_bin/${cellNode.name}"
             }
+
             isConversationFiles() -> "${currentNodeUuid()}/${cellNode.name}"
             else -> cellNode.remotePath
         } ?: run {
@@ -375,6 +378,10 @@ class CellViewModel @Inject constructor(
                     }
                     add(NodeBottomSheetAction.PUBLIC_LINK)
                     add(NodeBottomSheetAction.DOWNLOAD)
+                    // to be enabled in next PR
+//                    if (cellNode is CellNodeUi.File) {
+//                        add(NodeBottomSheetAction.VERSION_HISTORY) // todo add feature flag
+//                    }
                     add(NodeBottomSheetAction.ADD_REMOVE_TAGS)
                     add(NodeBottomSheetAction.MOVE)
                     add(NodeBottomSheetAction.RENAME)
@@ -429,6 +436,10 @@ class CellViewModel @Inject constructor(
 
             NodeBottomSheetAction.RENAME -> sendAction(ShowRenameScreen(node))
             NodeBottomSheetAction.DOWNLOAD -> downloadNode(node)
+            NodeBottomSheetAction.VERSION_HISTORY -> {
+                sendAction(ShowVersionHistoryScreen(node.uuid))
+            }
+
             NodeBottomSheetAction.RESTORE -> {
                 if (navArgs.parentFolderUuid != null) {
                     sendAction(ShowRestoreParentFolderDialog(node))
@@ -571,6 +582,7 @@ internal data class ShowPublicLinkScreen(val cellNode: CellNodeUi) : CellViewAct
 internal data class ShowRenameScreen(val cellNode: CellNodeUi) : CellViewAction
 internal data class ShowAddRemoveTagsScreen(val cellNode: CellNodeUi) : CellViewAction
 internal data class ShowMoveToFolderScreen(val currentPath: String, val nodeToMovePath: String, val uuid: String) : CellViewAction
+internal data class ShowVersionHistoryScreen(val uuid: String) : CellViewAction
 internal data class ShowUnableToRestoreDialog(val isFolder: Boolean) : CellViewAction
 internal data class ShowRestoreParentFolderDialog(val cellNode: CellNodeUi) : CellViewAction
 internal data object HideRestoreParentFolderDialog : CellViewAction

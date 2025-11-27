@@ -138,4 +138,15 @@
     <string name="public_link_missing_password_dialog_title">Kein Zugriff auf vorhandenes Passwort</string>
     <string name="public_link_missing_password_dialog_message">Nach der Neuinstallation von Wire können Sie das festgelegte Passwort nicht kopieren. Es ist jedoch weiterhin gültig.\n Wenn Sie das Passwort nicht gespeichert haben, ändern Sie es und teilen Sie den aktualisierten Link erneut.</string>
     <string name="public_link_missing_password_dialog_message_action">Passwort ändern</string>
+    <string name="public_link_password_remove_dialog_title">Passwort entfernen?</string>
+    <string name="public_link_password_remove_dialog_message">Jeder kann mit dem Link die Datei öffnen und deren Inhalt ansehen.</string>
+    <string name="public_link_password_remove_dialog_action">Entfernen</string>
+    <string name="public_link_remove_dialog_title">Öffentlichen Link deaktivieren?</string>
+    <string name="public_link_remove_dialog_message">Niemand kann mehr auf die Inhalte zugreifen.</string>
+    <string name="public_link_remove_dialog_action">Deaktivieren</string>
+    <string name="public_link_common_failure_dialog_title">Ein Fehler ist aufgetreten</string>
+    <string name="public_link_common_failure_dialog_message">Bitte versuchen Sie es erneut.\n\nWenn dieser Fehler weiterhin besteht, kontaktieren Sie Ihren Team-Admin.</string>
+    <string name="public_link_password_create_failure_dialog_title">Passwortgesicherter Link kann nicht erstellt werden</string>
+    <string name="public_link_password_create_failure_dialog_message">Bitte versuchen Sie es erneut.\n\nWenn dieser Fehler weiterhin besteht, kontaktieren Sie Ihren Team-Admin.</string>
+    <string name="error_try_again_button_title">Erneut versuchen</string>
 </resources>

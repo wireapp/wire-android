@@ -87,6 +87,7 @@ import com.ramcosta.composedestinations.result.NavResult.Value
 import com.ramcosta.composedestinations.result.OpenResultRecipient
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
+import com.wire.android.BuildConfig.IS_BUBBLE_UI_ENABLED
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
@@ -662,6 +663,7 @@ fun ConversationScreen(
         currentTimeInMillisFlow = conversationMessagesViewModel.currentTimeInMillisFlow,
         onAttachmentClick = messageAttachmentsViewModel::onAttachmentClicked,
         onAttachmentMenuClick = messageAttachmentsViewModel::onAttachmentMenuClicked,
+        isWireCellsEnabled = conversationInfoViewModel.conversationInfoViewState.isWireCellEnabled,
     )
     BackHandler { conversationScreenOnBackButtonClick(messageComposerViewModel, messageComposerStateHolder, navigator) }
     DeleteMessageDialog(
@@ -917,13 +919,14 @@ private fun ConversationScreen(
     onAttachmentClick: (AttachmentDraftUi) -> Unit,
     onAttachmentMenuClick: (AttachmentDraftUi) -> Unit,
     currentTimeInMillisFlow: Flow<Long> = flow { },
+    isWireCellsEnabled: Boolean = false,
 ) {
     val context = LocalContext.current
     val snackbarHostState = LocalSnackbarHostState.current
     Box(modifier = Modifier) {
         // only here we will use normal Scaffold because of specific behaviour of message composer
         Scaffold(
-            contentColor = if (conversationInfoViewState.isBubbleUiEnabled) {
+            contentColor = if (IS_BUBBLE_UI_ENABLED) {
                 colorsScheme().primary
             } else {
                 colorsScheme().background
@@ -1017,7 +1020,8 @@ private fun ConversationScreen(
                         onAttachmentClick = onAttachmentClick,
                         onAttachmentMenuClick = onAttachmentMenuClick,
                         showHistoryLoadingIndicator = conversationInfoViewState.showHistoryLoadingIndicator,
-                        isBubbleUiEnabled = conversationInfoViewState.isBubbleUiEnabled,
+                        isBubbleUiEnabled = IS_BUBBLE_UI_ENABLED,
+                        isWireCellsEnabled = isWireCellsEnabled,
                     )
                 }
             }
@@ -1101,7 +1105,8 @@ private fun ConversationScreenContent(
     onAttachmentMenuClick: (AttachmentDraftUi) -> Unit,
     currentTimeInMillisFlow: Flow<Long> = flow {},
     showHistoryLoadingIndicator: Boolean = false,
-    isBubbleUiEnabled: Boolean = false
+    isBubbleUiEnabled: Boolean = false,
+    isWireCellsEnabled: Boolean = false,
 ) {
     val lazyPagingMessages = messages.collectAsLazyPagingItems()
 
@@ -1147,6 +1152,7 @@ private fun ConversationScreenContent(
                 currentTimeInMillisFlow = currentTimeInMillisFlow,
                 showHistoryLoadingIndicator = showHistoryLoadingIndicator,
                 isBubbleUiEnabled = isBubbleUiEnabled,
+                isWireCellsEnabled = isWireCellsEnabled,
             )
         },
         onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
@@ -1227,7 +1233,8 @@ fun MessageList(
     modifier: Modifier = Modifier,
     currentTimeInMillisFlow: Flow<Long> = flow { },
     showHistoryLoadingIndicator: Boolean = false,
-    isBubbleUiEnabled: Boolean = false
+    isBubbleUiEnabled: Boolean = false,
+    isWireCellsEnabled: Boolean = false,
 ) {
     val prevItemCount = remember { mutableStateOf(lazyPagingMessages.itemCount) }
     val readLastMessageAtStartTriggered = remember { mutableStateOf(false) }
@@ -1355,7 +1362,8 @@ fun MessageList(
                         onSelfDeletingMessageRead = onSelfDeletingMessageRead,
                         isSelectedMessage = (message.header.messageId == selectedMessageId),
                         failureInteractionAvailable = interactionAvailability == InteractionAvailability.ENABLED,
-                        isBubbleUiEnabled = isBubbleUiEnabled
+                        isBubbleUiEnabled = isBubbleUiEnabled,
+                        isWireCellsEnabled = isWireCellsEnabled,
                     )
 
                     val isTheOnlyItem = index == 0 && lazyPagingMessages.itemCount == 1

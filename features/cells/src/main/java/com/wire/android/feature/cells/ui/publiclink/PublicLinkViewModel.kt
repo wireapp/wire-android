@@ -27,6 +27,7 @@ import com.wire.kalium.cells.domain.model.PublicLink
 import com.wire.kalium.cells.domain.usecase.publiclink.CreatePublicLinkUseCase
 import com.wire.kalium.cells.domain.usecase.publiclink.DeletePublicLinkUseCase
 import com.wire.kalium.cells.domain.usecase.publiclink.GetPublicLinkUseCase
+import com.wire.kalium.cells.domain.usecase.publiclink.SECURE_PUBLIC_LINK_ENABLED
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -47,29 +48,28 @@ class PublicLinkViewModel @Inject constructor(
 
     private val navArgs: PublicLinkNavArgs = savedStateHandle.navArgs()
 
-    private val _state = MutableStateFlow(PublicLinkViewState())
+    private val _state = MutableStateFlow(
+        PublicLinkViewState(
+            isEnabled = navArgs.publicLinkId != null,
+            isFolder = navArgs.isFolder,
+            isLinkAvailable = navArgs.publicLinkId != null,
+        )
+    )
     internal val state = _state.asStateFlow()
     private var publicLink: PublicLink? = null
 
     init {
-
         navArgs.publicLinkId?.let { linkUuid ->
-            _state.update {
-                it.copy(enabled = true)
-            }
-
             loadPublicLink(linkUuid)
         }
     }
 
-    fun isFolder(): Boolean = navArgs.isFolder
+    fun onEnabledClick() {
 
-    fun onEnabled(enabled: Boolean) {
+        val enabled = !_state.value.isEnabled
+
         _state.update {
-            it.copy(
-                enabled = enabled,
-                url = publicLink?.url
-            )
+            it.copy(isEnabled = enabled)
         }
 
         if (enabled) {
@@ -83,15 +83,42 @@ class PublicLinkViewModel @Inject constructor(
         }
     }
 
+    fun onPasswordClick() {
+        publicLink?.let { link ->
+            val isPasswordEnabled = _state.value.settings?.passwordSettings?.passwordEnabled == true
+            sendAction(
+                OpenPasswordSettings(
+                    linkUuid = link.uuid,
+                    isPasswordEnabled = isPasswordEnabled,
+                )
+            )
+        }
+    }
+
     private fun createPublicLink() = viewModelScope.launch {
+
+        _state.update { it.copy(isEnabled = true) }
+
         createPublicLink(navArgs.assetId, navArgs.fileName)
             .onSuccess { link ->
                 publicLink = link
-                _state.update { it.copy(url = link.url) }
+                _state.update {
+                    it.copy(
+                        isLinkAvailable = true,
+                        linkState = PublicLinkState.READY
+                    )
+                }
+                if (SECURE_PUBLIC_LINK_ENABLED) {
+                    _state.update {
+                        it.copy(
+                            settings = PublicLinkSettings()
+                        )
+                    }
+                }
             }
             .onFailure {
                 sendAction(ShowError(R.string.error_create_public_link))
-                _state.update { it.copy(enabled = false) }
+                _state.update { it.copy(isEnabled = false) }
             }
     }
 
@@ -99,44 +126,103 @@ class PublicLinkViewModel @Inject constructor(
         getPublicLinkUseCase(linkUuid)
             .onSuccess { link ->
                 publicLink = link
-                _state.update { it.copy(url = link.url) }
+
+                _state.update { it.copy(linkState = PublicLinkState.READY) }
+
+                if (SECURE_PUBLIC_LINK_ENABLED) {
+                    _state.update {
+                        it.copy(
+                            settings = PublicLinkSettings(
+                                passwordSettings = PublicLinkPassword(
+                                    passwordEnabled = link.passwordRequired,
+                                )
+                            )
+                        )
+                    }
+                }
             }
             .onFailure {
                 sendAction(ShowError(R.string.error_load_public_link, true))
-                _state.update { it.copy(enabled = false) }
+                _state.update { it.copy(linkState = PublicLinkState.ERROR) }
             }
     }
 
     private fun deletePublicLink(linkUuid: String) = viewModelScope.launch {
+        _state.update { it.copy(isEnabled = false) }
         deletePublicLinkUseCase(linkUuid)
             .onSuccess {
                 publicLink = null
                 _state.update {
                     it.copy(
-                        url = null
+                        isLinkAvailable = false
                     )
                 }
             }
             .onFailure {
                 sendAction(ShowError(R.string.error_delete_public_link))
-                _state.update { it.copy(enabled = true) }
+                _state.update { it.copy(isEnabled = true) }
             }
     }
 
-    fun shareLink(url: String) {
-        fileHelper.shareUrlChooser(
-            url = url,
-            onError = {
-                sendAction(ShowError(R.string.error_share_link))
-            }
-        )
+    fun shareLink() {
+        publicLink?.url?.let { url ->
+            fileHelper.shareUrlChooser(
+                url = url,
+                onError = {
+                    sendAction(ShowError(R.string.error_share_link))
+                }
+            )
+        }
+    }
+
+    fun copyLink() {
+        publicLink?.url?.let { url ->
+            sendAction(CopyLink(url))
+        }
+    }
+
+    fun onPasswordUpdate(isPasswordEnabled: Boolean) {
+        _state.update {
+            it.copy(
+                settings = it.settings?.copy(
+                    passwordSettings = PublicLinkPassword(passwordEnabled = isPasswordEnabled)
+                )
+            )
+        }
+    }
+
+    fun onExpirationUpdate() {
+        // TODO: Update state
     }
 }
 
 internal data class PublicLinkViewState(
-    val enabled: Boolean = false,
-    val url: String? = null,
+    val isEnabled: Boolean = false,
+    val isLinkAvailable: Boolean = false,
+    val linkState: PublicLinkState = PublicLinkState.LOADING,
+    val isFolder: Boolean = false,
+    val isExpired: Boolean = false,
+    val settings: PublicLinkSettings? = null,
+)
+
+internal enum class PublicLinkState {
+    READY, LOADING, ERROR
+}
+
+internal data class PublicLinkSettings(
+    val passwordSettings: PublicLinkPassword? = null,
+    val expirationSettings: PublicLinkExpiration? = null,
+)
+
+internal data class PublicLinkPassword(
+    val passwordEnabled: Boolean,
+)
+
+internal data class PublicLinkExpiration(
+    val expiresAt: Long? = null,
 )
 
 sealed interface PublicLinkViewAction
 internal data class ShowError(val message: Int, val closeScreen: Boolean = false) : PublicLinkViewAction
+internal data class CopyLink(val url: String) : PublicLinkViewAction
+internal data class OpenPasswordSettings(val linkUuid: String, val isPasswordEnabled: Boolean) : PublicLinkViewAction

@@ -43,17 +43,23 @@ class MoveToFolderViewModel @Inject constructor(
 
     private val navArgs: MoveToFolderNavArgs = savedStateHandle.navArgs()
 
-    private val _state: MutableStateFlow<MoveToFolderScreenState> =
-        MutableStateFlow(MoveToFolderScreenState.LOADING_CONTENT)
+    private val currentPath: String = navArgs.currentPath
+    private val nodeToMovePath: String = navArgs.nodeToMovePath
+    private val nodeUuid: String = navArgs.uuid
+
+    private fun isMoveAllowedToCurrentPath(): Boolean {
+        val nodePath = nodeToMovePath.substringBeforeLast("/")
+        return currentPath != nodePath
+    }
+
+    private val _state: MutableStateFlow<MoveToFolderViewState> = MutableStateFlow(
+        MoveToFolderViewState(
+            isAllowedToMoveToCurrentPath = isMoveAllowedToCurrentPath(),
+            breadcrumbs = navArgs.breadcrumbs.toList(),
+            isInRootFolder = !currentPath.contains("/")
+        )
+    )
     internal val state = _state.asStateFlow()
-
-    private val _folders: MutableStateFlow<List<CellNodeUi.Folder>> = MutableStateFlow(listOf())
-    internal val folders = _folders.asStateFlow()
-
-    fun currentPath(): String = navArgs.currentPath
-    fun nodeToMovePath(): String = navArgs.nodeToMovePath
-    fun nodeUuid(): String = navArgs.uuid
-    fun breadcrumbs(): Array<String> = navArgs.breadcrumbs
 
     init {
         loadFolders()
@@ -61,38 +67,83 @@ class MoveToFolderViewModel @Inject constructor(
 
     fun loadFolders() {
         viewModelScope.launch {
-            getFoldersUseCase(currentPath())
+            getFoldersUseCase(currentPath)
                 .onSuccess { folders ->
-                    _folders.emit(folders.map { it.toUiModel() })
-                    _state.update { MoveToFolderScreenState.SUCCESS }
+                    updateState {
+                        copy(
+                            screenState = MoveToFolderScreenState.SUCCESS,
+                            folders = folders.map { it.toUiModel() },
+                            isAllowedToMoveToCurrentPath = isMoveAllowedToCurrentPath(),
+                        )
+                    }
                 }
                 .onFailure { _ ->
-                    _state.update { MoveToFolderScreenState.ERROR }
+                    updateState {
+                        copy(
+                            screenState = MoveToFolderScreenState.ERROR,
+                        )
+                    }
                 }
         }
     }
 
-    fun moveHere() {
-        viewModelScope.launch {
-            _state.update { MoveToFolderScreenState.LOADING_IN_FULL_SCREEN }
-            moveNodeUseCase(nodeUuid(), nodeToMovePath(), currentPath())
-                .onSuccess {
-                    _state.update { MoveToFolderScreenState.SUCCESS }
-                    sendAction(MoveToFolderViewAction.Success)
-                }
-                .onFailure {
-                    _state.update { MoveToFolderScreenState.ERROR }
-                    sendAction(MoveToFolderViewAction.Failure)
-                }
+    fun onMoveToFolderClick() = viewModelScope.launch {
+        updateState { copy(screenState = MoveToFolderScreenState.LOADING_IN_FULL_SCREEN) }
+        moveNodeUseCase(nodeUuid, nodeToMovePath, currentPath)
+            .onSuccess {
+                updateState { copy(screenState = MoveToFolderScreenState.SUCCESS) }
+                sendAction(MoveToFolderViewAction.Success)
+            }
+            .onFailure {
+                updateState { copy(screenState = MoveToFolderScreenState.ERROR) }
+                sendAction(MoveToFolderViewAction.Failure)
+            }
+    }
+
+    private fun updateState(block: MoveToFolderViewState.() -> MoveToFolderViewState) {
+        _state.update { currentState ->
+            block(currentState)
         }
     }
 
-    companion object {
-        const val ALL_FOLDERS = ""
+    fun onBreadcrumbClick(index: Int) {
+        val steps = state.value.breadcrumbs.size - index - 1
+        sendAction(MoveToFolderViewAction.NavigateToBreadcrumb(steps))
+    }
+
+    fun onCreateFolderClick() {
+        sendAction(MoveToFolderViewAction.OpenCreateFolderScreen(currentPath))
+    }
+
+    fun onFolderClick(folder: CellNodeUi.Folder) {
+        sendAction(
+            MoveToFolderViewAction.OpenFolder(
+                path = "$currentPath/${folder.name}",
+                nodePath = nodeToMovePath,
+                nodeUuid = nodeUuid,
+                breadcrumbs = folder.name?.let { state.value.breadcrumbs + it } ?: emptyList(),
+            )
+        )
     }
 }
+
+data class MoveToFolderViewState(
+    val screenState: MoveToFolderScreenState = MoveToFolderScreenState.LOADING_CONTENT,
+    val folders: List<CellNodeUi.Folder> = emptyList(),
+    val breadcrumbs: List<String> = emptyList(),
+    val isAllowedToMoveToCurrentPath: Boolean = false,
+    val isInRootFolder: Boolean = false,
+)
 
 sealed interface MoveToFolderViewAction {
     data object Success : MoveToFolderViewAction
     data object Failure : MoveToFolderViewAction
+    data class NavigateToBreadcrumb(val steps: Int) : MoveToFolderViewAction
+    data class OpenCreateFolderScreen(val currentPath: String) : MoveToFolderViewAction
+    data class OpenFolder(
+        val path: String,
+        val nodePath: String,
+        val nodeUuid: String,
+        val breadcrumbs: List<String>
+    ) : MoveToFolderViewAction
 }

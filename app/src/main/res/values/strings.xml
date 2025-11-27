@@ -624,9 +624,9 @@
     <string name="conversation_details_options_tab">OPTIONS</string>
     <string name="conversation_details_participants_tab">PARTICIPANTS</string>
     <string name="conversation_details_options_group_name">GROUP NAME</string>
-    <string name="conversation_details_conversation_admins">CONVERSATION ADMINS (%d)</string>
-    <string name="conversation_details_conversation_members">CONVERSATION MEMBERS (%d)</string>
-    <string name="conversation_details_conversation_apps">CONVERSATION APPS (%d)</string>
+    <string name="conversation_details_conversation_admins">ADMINS (%d)</string>
+    <string name="conversation_details_conversation_members">MEMBERS (%d)</string>
+    <string name="conversation_details_conversation_apps">APPS (%d)</string>
     <string name="conversation_details_participants_info">This conversation has %s participants.\nUp to 500 people can join a conversation.</string>
     <string name="conversation_details_participants_count">%s participants</string>
     <string name="conversation_details_show_all_participants">Show all participants (%d)</string>
@@ -643,6 +643,7 @@
     <string name="conversation_options_guest_description">Turn this option ON to open this conversation to people outside your team, even if they don\'t have Wire.</string>
     <string name="conversation_options_guest_not_editable_description">You cannot disable the guest option in this conversation, since it has been created by someone from another team.</string>
     <string name="conversation_options_services_label">Apps</string>
+    <string name="conversation_details_apps_description">When this is ON, you open this conversation to apps.</string>
     <string name="conversation_options_services_description">Turn this option ON to open this conversation to apps.</string>
     <string name="conversation_options_renamed">Conversation renamed</string>
     <string name="disable_guest_dialog_title">Disable guest access?</string>
@@ -875,7 +876,9 @@
     <string name="label_system_message_conversation_verified_mls">All devices are verified (end-to-end identity)</string>
     <string name="label_system_message_conversation_verified_proteus">All fingerprints are verified (Proteus)</string>
     <string name="label_system_message_conversation_started_sensitive_information_header">**Communication in Wire is always end-to-end encrypted.**</string>
+    <string name="label_system_message_conversation_started_sensitive_information_header_with_cells_on">**Communication in Wire is always secured.**</string>
     <string name="label_system_message_conversation_started_sensitive_information_message">Everything you send and receive in this conversation is only accessible to you and other conversation participants.</string>
+    <string name="label_system_message_conversation_started_sensitive_information_message_with_cells_on">Messages and calls are always end-to-end encrypted, whereas files and folders are secured in transit and encrypted at rest. </string>
     <string name="label_system_message_conversation_started_sensitive_information_footer">Please still be careful with who you share sensitive information.</string>
     <string name="label_conversations_details_verified_proteus">Verified (Proteus)</string>
     <string name="label_conversations_details_verified_mls">Verified (End-to-end Identity)</string>
@@ -1905,9 +1908,9 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="search_results_apps_empty_description_non_team_admin">Apps are helpers that can improve your workflow. To use them, ask your team admin.</string>
     <string name="search_results_apps_empty_description_disabled_for_conversation">Apps are disabled in this conversation. Enable them in the conversation options.</string>
 
-    <string name="label_system_message_apps_access_changed_enabled">enabled</string>
-    <string name="label_system_message_apps_access_changed_disabled">disabled</string>
-    <string name="label_system_message_apps_access_changed_by_self">%1$s %2$s **apps** for this conversation</string>
-    <string name="label_system_message_apps_access_changed_by_other">%1$s %2$s **apps** for this conversation</string>
+    <string name="label_system_message_apps_access_enabled_by_self">%1$s enabled **apps** for this conversation</string>
+    <string name="label_system_message_apps_access_disabled_by_self">%1$s disabled **apps** for this conversation</string>
+    <string name="label_system_message_apps_access_enabled_by_other">%1$s enabled **apps** for this conversation</string>
+    <string name="label_system_message_apps_access_disabled_by_other">%1$s disabled **apps** for this conversation</string>
     <string name="label_system_message_apps_access_enabled_disclaimer">Added apps have access to the content of this conversation.</string>
 </resources>

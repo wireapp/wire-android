@@ -36,6 +36,8 @@ import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.WireTheme
+import kotlinx.collections.immutable.ImmutableMap
+import kotlinx.collections.immutable.persistentMapOf
 
 @WireDestination(
     style = PopUpNavigationAnimation::class,
@@ -56,7 +58,7 @@ fun VersionHistoryScreen(
 
 @Composable
 private fun VersionHistoryScreenContent(
-    versionsGroupedByTime: Map<String, List<CellVersion>>,
+    versionsGroupedByTime: ImmutableMap<String, List<CellVersion>>,
     modifier: Modifier = Modifier,
     navigateBack: () -> Unit = {}
 ) {
@@ -99,7 +101,7 @@ private fun VersionHistoryScreenContent(
 fun PreviewVersionHistoryScreenContent() {
     WireTheme {
         VersionHistoryScreenContent(
-            versionsGroupedByTime = mapOf(
+            versionsGroupedByTime = persistentMapOf(
                 "Today, 3 Dec 2025" to listOf(
                     CellVersion("1:46 PM", "Deniz Agha", 200L),
                     CellVersion("11:20 AM", "Alice Smith", 150L),

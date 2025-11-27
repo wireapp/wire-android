@@ -20,6 +20,8 @@ package com.wire.android.feature.cells.ui.versionhistory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.ImmutableMap
+import kotlinx.collections.immutable.persistentMapOf
 import javax.inject.Inject
 
 @HiltViewModel
@@ -27,8 +29,8 @@ class VersionHistoryViewModel @Inject constructor(
     val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
-    fun getVersionsGroupedByDate(): Map<String, List<CellVersion>> {
+    fun getVersionsGroupedByDate(): ImmutableMap<String, List<CellVersion>> {
         // todo: implement real logic to get versions in next PR
-        return mapOf("1 Dec 2025" to listOf())
+        return persistentMapOf("1 Dec 2025" to listOf())
     }
 }

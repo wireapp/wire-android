@@ -79,7 +79,7 @@ class PublicLinkViewModel @Inject constructor(
             }
         } else {
             publicLink?.let {
-                deletePublicLink(it.uuid)
+                sendAction(ShowRemoveConfirmation)
             }
         }
     }
@@ -93,6 +93,18 @@ class PublicLinkViewModel @Inject constructor(
                     isPasswordEnabled = isPasswordEnabled,
                 )
             )
+        }
+    }
+
+    fun onConfirmRemoval(confirmed: Boolean) {
+        if (confirmed) {
+            publicLink?.let {
+                deletePublicLink(it.uuid)
+            }
+        } else {
+            _state.update {
+                it.copy(isEnabled = true)
+            }
         }
     }
 
@@ -118,7 +130,7 @@ class PublicLinkViewModel @Inject constructor(
                 }
             }
             .onFailure {
-                sendAction(ShowError(R.string.error_create_public_link))
+                sendAction(ShowErrorDialog(PublicLinkError.Create))
                 _state.update { it.copy(isEnabled = false) }
             }
     }
@@ -160,7 +172,7 @@ class PublicLinkViewModel @Inject constructor(
                 }
             }
             .onFailure {
-                sendAction(ShowError(R.string.error_delete_public_link))
+                sendAction(ShowErrorDialog(PublicLinkError.Remove))
                 _state.update { it.copy(isEnabled = true) }
             }
     }
@@ -189,6 +201,13 @@ class PublicLinkViewModel @Inject constructor(
                     passwordSettings = PublicLinkPassword(passwordEnabled = isPasswordEnabled)
                 )
             )
+        }
+    }
+
+    internal fun retryError(error: PublicLinkError) {
+        when (error) {
+            PublicLinkError.Create -> createPublicLink()
+            PublicLinkError.Remove -> onConfirmRemoval(true)
         }
     }
 
@@ -225,5 +244,11 @@ internal data class PublicLinkExpiration(
 
 sealed interface PublicLinkViewAction
 internal data class ShowError(val message: Int, val closeScreen: Boolean = false) : PublicLinkViewAction
+internal data class ShowErrorDialog(val error: PublicLinkError) : PublicLinkViewAction
 internal data class CopyLink(val url: String) : PublicLinkViewAction
 internal data class OpenPasswordSettings(val linkUuid: String, val isPasswordEnabled: Boolean) : PublicLinkViewAction
+internal data object ShowRemoveConfirmation : PublicLinkViewAction
+
+internal enum class PublicLinkError {
+    Create, Remove
+}

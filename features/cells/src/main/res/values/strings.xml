@@ -148,6 +148,17 @@
     <string name="public_link_missing_password_dialog_title">No access to existing password</string>
     <string name="public_link_missing_password_dialog_message">After reinstalling Wire, you can’t copy the set password. Yet, it is still valid.\nIf you didn’t save the password, change it and reshare the updated link.</string>
     <string name="public_link_missing_password_dialog_message_action">Change password</string>
+    <string name="public_link_password_remove_dialog_title">Remove password?</string>
+    <string name="public_link_password_remove_dialog_message">Anyone with the link can open the file and view its contents.</string>
+    <string name="public_link_password_remove_dialog_action">Remove</string>
+    <string name="public_link_remove_dialog_title">Disable public link?</string>
+    <string name="public_link_remove_dialog_message">People can’t access the content anymore.</string>
+    <string name="public_link_remove_dialog_action">Disable</string>
+    <string name="public_link_common_failure_dialog_title">Something went wrong</string>
+    <string name="public_link_common_failure_dialog_message">Please try again.\n\nIf this error persists, contact your team administrator.</string>
+    <string name="public_link_password_create_failure_dialog_title">Unable to create password-secured link</string>
+    <string name="public_link_password_create_failure_dialog_message">Please try again.\n\nIf this error persists, contact your team administrator.</string>
+    <string name="error_try_again_button_title">Try again</string>
     <string name="version_history_top_appbar_title">Version history</string>
     <string name="unit_b">B</string>
     <string name="unit_kb">KB</string>

@@ -62,6 +62,8 @@ class KaliumConfigsModule {
             maxRemoteSearchResultCount = BuildConfig.MAX_REMOTE_SEARCH_RESULT_COUNT,
             limitTeamMembersFetchDuringSlowSync = BuildConfig.LIMIT_TEAM_MEMBERS_FETCH_DURING_SLOW_SYNC,
             isMlsResetEnabled = BuildConfig.IS_MLS_RESET_ENABLED,
+            securePublicLinkSettings = BuildConfig.SECURE_PUBLIC_LINK_SETTINGS,
+            collaboraIntegration = BuildConfig.COLLABORA_INTEGRATION_ENABLED,
         )
     }
 }

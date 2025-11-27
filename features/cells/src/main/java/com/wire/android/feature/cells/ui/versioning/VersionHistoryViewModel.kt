@@ -82,12 +82,12 @@ class VersionHistoryViewModel @Inject constructor(
             .map { (date, items) ->
                 val dateLabel = when (date) {
                     today -> "${resourceProvider.getString(R.string.today_label)}, " +
-                            "${date.format(DateTimeFormatter.ofPattern("d MMM yyyy"))}"
+                            "${date.format(DateTimeFormatter.ofPattern(DATE_PATTERN))}"
 
                     yesterday -> "${resourceProvider.getString(R.string.yesterday_label)}, " +
-                            "${date.format(DateTimeFormatter.ofPattern("d MMM yyyy"))}"
+                            "${date.format(DateTimeFormatter.ofPattern(DATE_PATTERN))}"
 
-                    else -> date.format(DateTimeFormatter.ofPattern("d MMM yyyy"))
+                    else -> date.format(DateTimeFormatter.ofPattern(DATE_PATTERN))
                 }
 
                 val uiItems = items.map { apiItem ->
@@ -97,7 +97,7 @@ class VersionHistoryViewModel @Inject constructor(
                         modifiedAt = Instant.ofEpochSecond(apiItem.modifiedTime?.toLong() ?: 0L)
                             .atZone(ZoneId.systemDefault())
                             .toLocalTime()
-                            .format(DateTimeFormatter.ofPattern("HH:mm"))
+                            .format(DateTimeFormatter.ofPattern(TIME_PATTERN))
                     )
                 }
                 VersionGroup(dateLabel, uiItems)
@@ -121,5 +121,10 @@ class VersionHistoryViewModel @Inject constructor(
             index++
         }
         return String.format("%.2f %s", size, units[index])
+    }
+
+    companion object {
+        const val DATE_PATTERN = "d MMM yyyy"
+        const val TIME_PATTERN = "HH:mm"
     }
 }

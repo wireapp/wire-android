@@ -27,9 +27,9 @@ import com.wire.kalium.cells.domain.model.PublicLink
 import com.wire.kalium.cells.domain.usecase.publiclink.CreatePublicLinkUseCase
 import com.wire.kalium.cells.domain.usecase.publiclink.DeletePublicLinkUseCase
 import com.wire.kalium.cells.domain.usecase.publiclink.GetPublicLinkUseCase
-import com.wire.kalium.cells.domain.usecase.publiclink.SECURE_PUBLIC_LINK_ENABLED
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
+import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -44,6 +44,7 @@ class PublicLinkViewModel @Inject constructor(
     private val getPublicLinkUseCase: GetPublicLinkUseCase,
     private val deletePublicLinkUseCase: DeletePublicLinkUseCase,
     private val fileHelper: FileHelper,
+    private val config: KaliumConfigs,
 ) : ActionsViewModel<PublicLinkViewAction>() {
 
     private val navArgs: PublicLinkNavArgs = savedStateHandle.navArgs()
@@ -108,7 +109,7 @@ class PublicLinkViewModel @Inject constructor(
                         linkState = PublicLinkState.READY
                     )
                 }
-                if (SECURE_PUBLIC_LINK_ENABLED) {
+                if (config.securePublicLinkSettings) {
                     _state.update {
                         it.copy(
                             settings = PublicLinkSettings()
@@ -129,7 +130,7 @@ class PublicLinkViewModel @Inject constructor(
 
                 _state.update { it.copy(linkState = PublicLinkState.READY) }
 
-                if (SECURE_PUBLIC_LINK_ENABLED) {
+                if (config.securePublicLinkSettings) {
                     _state.update {
                         it.copy(
                             settings = PublicLinkSettings(

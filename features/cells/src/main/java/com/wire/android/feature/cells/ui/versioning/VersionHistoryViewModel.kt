@@ -107,11 +107,11 @@ class VersionHistoryViewModel @Inject constructor(
     @Suppress("MagicNumber")
     private fun formatSize(bytes: Long): String {
         val units = arrayOf(
-            resourceProvider.getString(R.string.unit_b),
-            resourceProvider.getString(R.string.unit_kb),
-            resourceProvider.getString(R.string.unit_mb),
-            resourceProvider.getString(R.string.unit_gb),
-            resourceProvider.getString(R.string.unit_tb)
+            resourceProvider.getString(R.string.unit_bytes),
+            resourceProvider.getString(R.string.size_unit_kilobytes),
+            resourceProvider.getString(R.string.size_unit_megabytes),
+            resourceProvider.getString(R.string.size_unit_gigabytes),
+            resourceProvider.getString(R.string.size_unit_terabytes)
         )
         var size = bytes.toDouble()
         var index = 0

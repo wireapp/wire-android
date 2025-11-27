@@ -63,11 +63,11 @@ class VersionHistoryViewModelTest {
 
         every { resourceProvider.getString(R.string.today_label) } returns "Today"
         every { resourceProvider.getString(R.string.yesterday_label) } returns "Yesterday"
-        every { resourceProvider.getString(R.string.unit_b) } returns "B"
-        every { resourceProvider.getString(R.string.unit_kb) } returns "KB"
-        every { resourceProvider.getString(R.string.unit_mb) } returns "MB"
-        every { resourceProvider.getString(R.string.unit_gb) } returns "GB"
-        every { resourceProvider.getString(R.string.unit_tb) } returns "TB"
+        every { resourceProvider.getString(R.string.unit_bytes) } returns "B"
+        every { resourceProvider.getString(R.string.size_unit_kilobytes) } returns "KB"
+        every { resourceProvider.getString(R.string.size_unit_megabytes) } returns "MB"
+        every { resourceProvider.getString(R.string.size_unit_gigabytes) } returns "GB"
+        every { resourceProvider.getString(R.string.size_unit_terabytes) } returns "TB"
     }
 
     @AfterEach

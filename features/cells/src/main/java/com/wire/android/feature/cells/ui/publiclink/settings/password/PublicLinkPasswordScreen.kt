@@ -19,7 +19,6 @@ package com.wire.android.feature.cells.ui.publiclink.settings.password
 
 import android.content.ClipData
 import android.os.PersistableBundle
-import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -44,11 +43,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.LocalClipboardManager
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.feature.cells.R
+import com.wire.android.feature.cells.ui.publiclink.PublicLinkErrorDialog
+import com.wire.android.feature.cells.ui.publiclink.settings.RemovePasswordDialog
 import com.wire.android.feature.cells.ui.util.PreviewMultipleThemes
 import com.wire.android.navigation.annotation.features.cells.WireDestination
 import com.wire.android.ui.common.HandleActions
@@ -71,11 +71,12 @@ internal fun PublicLinkPasswordScreen(
     modifier: Modifier = Modifier,
     viewModel: PublicLinkPasswordScreenViewModel = hiltViewModel(),
 ) {
-    val context = LocalContext.current
     val state by viewModel.state.collectAsState()
     val clipboardManager = LocalClipboardManager.current
 
+    var showRemoveConfirmationDialog by remember { mutableStateOf(false) }
     var showMissingPasswordDialog by remember { mutableStateOf(false) }
+    var passwordError by remember { mutableStateOf<PasswordError?>(null) }
 
     BackHandler {
         resultNavigator.navigateBack(viewModel.isPasswordCreated)
@@ -104,17 +105,6 @@ internal fun PublicLinkPasswordScreen(
             onGeneratePasswordClick = viewModel::generatePassword,
             modifier = Modifier.padding(innerPadding),
         )
-
-        HandleActions(viewModel.actions) { action ->
-            when (action) {
-                is CopyPasswordAndClose -> {
-                    copyPassword(clipboardManager, action.password)
-                    resultNavigator.navigateBack(true)
-                }
-                is ShowError -> Toast.makeText(context, action.message, Toast.LENGTH_SHORT).show()
-                ShowMissingPasswordDialog -> showMissingPasswordDialog = true
-            }
-        }
     }
 
     if (showMissingPasswordDialog) {
@@ -125,6 +115,38 @@ internal fun PublicLinkPasswordScreen(
             },
             onDismiss = { showMissingPasswordDialog = false },
         )
+    }
+
+    if (showRemoveConfirmationDialog) {
+        RemovePasswordDialog(
+            onResult = { confirmed ->
+                showRemoveConfirmationDialog = false
+                viewModel.onConfirmPasswordRemoval(confirmed)
+            },
+        )
+    }
+
+    passwordError?.let { error ->
+        PublicLinkErrorDialog(
+            title = error.title?.let { stringResource(it) },
+            message = error.message?.let { stringResource(it) },
+            onResult = { tryAgain ->
+                passwordError = null
+                if (tryAgain) viewModel.retryError(error)
+            }
+        )
+    }
+
+    HandleActions(viewModel.actions) { action ->
+        when (action) {
+            is CopyPasswordAndClose -> {
+                copyPassword(clipboardManager, action.password)
+                resultNavigator.navigateBack(true)
+            }
+            ShowMissingPasswordDialog -> showMissingPasswordDialog = true
+            ShowRemoveConfirmationDialog -> showRemoveConfirmationDialog = true
+            is ShowPasswordError -> passwordError = action.error
+        }
     }
 }
 

@@ -380,7 +380,7 @@ class CellViewModel @Inject constructor(
                     }
                     add(NodeBottomSheetAction.PUBLIC_LINK)
                     add(NodeBottomSheetAction.DOWNLOAD)
-                    if (kaliumConfigs.collaboraIntegration && cellNode is CellNodeUi.File) {
+                    if (kaliumConfigs.collaboraIntegration && cellNode is CellNodeUi.File) { // TODO check if edit is supported
                         add(NodeBottomSheetAction.VERSION_HISTORY)
                     }
                     add(NodeBottomSheetAction.ADD_REMOVE_TAGS)

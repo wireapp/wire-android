@@ -258,7 +258,7 @@ class WireActivity : AppCompatActivity() {
                 LocalSnackbarHostState provides snackbarHostState,
                 LocalActivity provides this
             ) {
-                WireTheme {
+                WireTheme(accent = viewModel.globalAppState.userAccent) {
                     val navigator = rememberNavigator(
                         finish = this@WireActivity::finish,
                         isAllowedToNavigate = { navigationCommand ->

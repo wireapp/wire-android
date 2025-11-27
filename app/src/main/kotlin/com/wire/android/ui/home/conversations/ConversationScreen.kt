@@ -47,6 +47,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.FloatingActionButtonDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -86,6 +87,7 @@ import com.ramcosta.composedestinations.result.NavResult.Value
 import com.ramcosta.composedestinations.result.OpenResultRecipient
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
+import com.wire.android.BuildConfig.IS_BUBBLE_UI_ENABLED
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
@@ -125,6 +127,7 @@ import com.wire.android.ui.common.error.CoreFailureErrorDialog
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.snackbar.SwipeableSnackbar
+import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.GroupConversationDetailsScreenDestination
@@ -175,11 +178,9 @@ import com.wire.android.ui.home.messagecomposer.model.Ping
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.rememberMessageComposerStateHolder
 import com.wire.android.ui.legalhold.dialog.subject.LegalHoldSubjectMessageDialog
-import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.ui.userprofile.self.SelfUserAccentViewModel
 import com.wire.android.util.DateAndTimeParsers
 import com.wire.android.util.normalizeLink
 import com.wire.android.util.serverDate
@@ -194,7 +195,8 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.MessageAssetStatus
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.data.user.type.isInternal
+import com.wire.kalium.logic.data.user.type.isTeamAdmin
 import com.wire.kalium.logic.feature.call.usecase.ConferenceCallingResult
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.coroutines.CoroutineScope
@@ -234,7 +236,8 @@ private const val MAX_GROUP_SIZE_FOR_PING = 3
 @Composable
 fun ConversationScreen(
     navigator: Navigator,
-    groupDetailsScreenResultRecipient: ResultRecipient<GroupConversationDetailsScreenDestination, GroupConversationDetailsNavBackArgs>,
+    groupDetailsScreenResultRecipient:
+    ResultRecipient<GroupConversationDetailsScreenDestination, GroupConversationDetailsNavBackArgs>,
     mediaGalleryScreenResultRecipient: ResultRecipient<MediaGalleryScreenDestination, MediaGalleryNavBackArgs>,
     imagePreviewScreenResultRecipient: ResultRecipient<ImagesPreviewScreenDestination, ImagesPreviewNavBackArgs>,
     drawingCanvasScreenResultRecipient: OpenResultRecipient<DrawingCanvasNavBackArgs>,
@@ -248,7 +251,6 @@ fun ConversationScreen(
     conversationMigrationViewModel: ConversationMigrationViewModel = hiltViewModel(),
     messageDraftViewModel: MessageDraftViewModel = hiltViewModel(),
     messageAttachmentsViewModel: MessageAttachmentsViewModel = hiltViewModel(),
-    selfUserAccentViewModel: SelfUserAccentViewModel = hiltViewModel()
 ) {
     val coroutineScope = rememberCoroutineScope()
     val uriHandler = LocalUriHandler.current
@@ -259,7 +261,8 @@ fun ConversationScreen(
         messageComposerViewState = messageComposerViewState,
         draftMessageComposition = messageDraftViewModel.state.value,
         onClearDraft = messageDraftViewModel::clearDraft,
-        onSaveDraft = messageComposerViewModel::saveDraft,
+        onSaveDraft = messageDraftViewModel::saveDraft,
+        onMessageTextUpdate = messageDraftViewModel::onMessageTextUpdate,
         onSearchMentionQueryChanged = messageComposerViewModel::searchMembersToMention,
         onTypingEvent = messageComposerViewModel::sendTypingEvent,
         onClearMentionSearchResult = messageComposerViewModel::clearMentionSearchResult
@@ -312,12 +315,14 @@ fun ConversationScreen(
     LaunchedEffect(messageDraftViewModel.state.value.editMessageId) {
         val compositionState = messageDraftViewModel.state.value
         if (compositionState.editMessageId != null) {
+            messageDraftViewModel.clearDraft()
             messageComposerStateHolder.toEdit(
                 messageId = compositionState.editMessageId,
                 editMessageText = messageDraftViewModel.state.value.draftText,
                 mentions = compositionState.selectedMentions.map {
                     it.intoMessageMention()
-                }
+                },
+                isMultipart = compositionState.isMultipart,
             )
         }
     }
@@ -480,13 +485,15 @@ fun ConversationScreen(
         conversationInfoViewState = conversationInfoViewModel.conversationInfoViewState,
         conversationMessagesViewState = conversationMessagesViewModel.conversationViewState,
         attachments = messageAttachmentsViewModel.attachments,
-        selfUserAccent = selfUserAccentViewModel.accentState,
         onOpenProfile = {
             with(conversationInfoViewModel) {
                 val (mentionUserId: UserId, isSelfUser: Boolean) = mentionedUserData(it)
-                if (isSelfUser) navigator.navigate(NavigationCommand(SelfUserProfileScreenDestination))
-                else (conversationInfoViewState.conversationDetailsData as? ConversationDetailsData.Group)?.conversationId.let {
+                if (isSelfUser) {
+                    navigator.navigate(NavigationCommand(SelfUserProfileScreenDestination))
+                } else {
+                    (conversationInfoViewState.conversationDetailsData as? ConversationDetailsData.Group)?.conversationId.let {
                     navigator.navigate(NavigationCommand(OtherUserProfileScreenDestination(mentionUserId, it)))
+                }
                 }
             }
         },
@@ -531,9 +538,9 @@ fun ConversationScreen(
             }
         },
         onAudioRecorded = {
+            messageComposerStateHolder.messageCompositionInputStateHolder.showAttachments(false)
             if (conversationInfoViewModel.conversationInfoViewState.isWireCellEnabled) {
-                messageAttachmentsViewModel.onFilesSelected(listOf(it.uri))
-                messageComposerStateHolder.messageCompositionInputStateHolder.showAttachments(false)
+                messageAttachmentsViewModel.onAudioRecorded(it.uri, it.audioWavesMask)
             } else {
                 val bundle = ComposableMessageBundle.AudioMessageBundle(conversationInfoViewModel.conversationId, it)
                 sendMessageViewModel.trySendMessage(bundle)
@@ -544,7 +551,7 @@ fun ConversationScreen(
                 .show(DeleteMessageDialogState(deleteForEveryone, messageId, conversationMessagesViewModel.conversationId))
         },
         onAssetItemClicked = conversationMessagesViewModel::openOrFetchAsset,
-        onImageFullScreenMode = { message, isSelfMessage ->
+        onImageFullScreenMode = { message, isSelfMessage, cellAssetId ->
             with(conversationMessagesViewModel) {
                 navigator.navigate(
                     NavigationCommand(
@@ -553,7 +560,8 @@ fun ConversationScreen(
                             messageId = message.header.messageId,
                             isSelfAsset = isSelfMessage,
                             isEphemeral = message.header.messageStatus.expirationStatus is ExpirationStatus.Expirable,
-                            messageOptionsEnabled = true
+                            messageOptionsEnabled = true,
+                            cellAssetId = cellAssetId,
                         )
                     )
                 )
@@ -588,7 +596,8 @@ fun ConversationScreen(
                     is ConversationDetailsData.Group ->
                         navigator.navigate(NavigationCommand(GroupConversationDetailsScreenDestination(conversationId)))
 
-                    is ConversationDetailsData.None -> { /* do nothing */
+                    is ConversationDetailsData.None -> {
+                        /* do nothing */
                     }
                 }
             }
@@ -654,6 +663,7 @@ fun ConversationScreen(
         currentTimeInMillisFlow = conversationMessagesViewModel.currentTimeInMillisFlow,
         onAttachmentClick = messageAttachmentsViewModel::onAttachmentClicked,
         onAttachmentMenuClick = messageAttachmentsViewModel::onAttachmentMenuClicked,
+        isWireCellsEnabled = conversationInfoViewModel.conversationInfoViewState.isWireCellEnabled,
     )
     BackHandler { conversationScreenOnBackButtonClick(messageComposerViewModel, messageComposerStateHolder, navigator) }
     DeleteMessageDialog(
@@ -847,11 +857,10 @@ private fun startCallIfPossible(
 
                 ConferenceCallingResult.Disabled.OngoingCall -> ConversationScreenDialogType.ONGOING_ACTIVE_CALL
                 ConferenceCallingResult.Disabled.Unavailable -> {
-                    when (conversationCallViewModel.selfTeamRole.value) {
-                        UserType.INTERNAL -> ConversationScreenDialogType.CALLING_FEATURE_UNAVAILABLE_TEAM_MEMBER
-                        UserType.OWNER,
-                        UserType.ADMIN -> ConversationScreenDialogType.CALLING_FEATURE_UNAVAILABLE_TEAM_ADMIN
-
+                    val type = conversationCallViewModel.selfTeamRole.value
+                    when {
+                        type.isInternal() -> ConversationScreenDialogType.CALLING_FEATURE_UNAVAILABLE_TEAM_MEMBER
+                        type.isTeamAdmin() -> ConversationScreenDialogType.CALLING_FEATURE_UNAVAILABLE_TEAM_ADMIN
                         else -> ConversationScreenDialogType.CALLING_FEATURE_UNAVAILABLE
                     }
                 }
@@ -873,7 +882,6 @@ private fun ConversationScreen(
     conversationMessagesViewState: ConversationMessagesViewState,
     attachments: List<AttachmentDraftUi>,
     bottomSheetVisible: Boolean,
-    selfUserAccent: Accent,
     onOpenProfile: (String) -> Unit,
     onMessageDetailsClick: (messageId: String, isSelfMessage: Boolean) -> Unit,
     onSendMessage: (MessageBundle) -> Unit,
@@ -883,7 +891,7 @@ private fun ConversationScreen(
     onAudioRecorded: (UriAsset) -> Unit,
     onDeleteMessage: (String, Boolean) -> Unit,
     onAssetItemClicked: (String) -> Unit,
-    onImageFullScreenMode: (UIMessage.Regular, Boolean) -> Unit,
+    onImageFullScreenMode: (UIMessage.Regular, Boolean, String?) -> Unit,
     onStartCall: () -> Unit,
     onJoinCall: () -> Unit,
     onReactionClick: (messageId: String, reactionEmoji: String) -> Unit,
@@ -911,12 +919,18 @@ private fun ConversationScreen(
     onAttachmentClick: (AttachmentDraftUi) -> Unit,
     onAttachmentMenuClick: (AttachmentDraftUi) -> Unit,
     currentTimeInMillisFlow: Flow<Long> = flow { },
+    isWireCellsEnabled: Boolean = false,
 ) {
     val context = LocalContext.current
     val snackbarHostState = LocalSnackbarHostState.current
     Box(modifier = Modifier) {
         // only here we will use normal Scaffold because of specific behaviour of message composer
         Scaffold(
+            contentColor = if (IS_BUBBLE_UI_ENABLED) {
+                colorsScheme().primary
+            } else {
+                colorsScheme().background
+            },
             topBar = {
                 Column {
                     ConversationScreenTopAppBar(
@@ -933,6 +947,9 @@ private fun ConversationScreen(
                         },
                         isInteractionEnabled = messageComposerViewState.interactionAvailability == InteractionAvailability.ENABLED
                     )
+
+                    HorizontalDivider(color = colorsScheme().outline)
+
                     ConversationBanner(
                         bannerMessage = bannerMessage,
                         spannedTexts = listOf(
@@ -1003,8 +1020,8 @@ private fun ConversationScreen(
                         onAttachmentClick = onAttachmentClick,
                         onAttachmentMenuClick = onAttachmentMenuClick,
                         showHistoryLoadingIndicator = conversationInfoViewState.showHistoryLoadingIndicator,
-                        isBubbleUiEnabled = conversationInfoViewState.isBubbleUiEnabled,
-                        selfUserAccent = selfUserAccent
+                        isBubbleUiEnabled = IS_BUBBLE_UI_ENABLED,
+                        isWireCellsEnabled = isWireCellsEnabled,
                     )
                 }
             }
@@ -1058,14 +1075,13 @@ private fun ConversationScreenContent(
     messageComposerStateHolder: MessageComposerStateHolder,
     attachments: List<AttachmentDraftUi>,
     messages: Flow<PagingData<UIMessage>>,
-    selfUserAccent: Accent,
     onSendMessage: (MessageBundle) -> Unit,
     onPingOptionClicked: () -> Unit,
     onImagesPicked: (List<Uri>, Boolean) -> Unit,
     onAttachmentPicked: (UriAsset) -> Unit,
     onAudioRecorded: (UriAsset) -> Unit,
     onAssetItemClicked: (String) -> Unit,
-    onImageFullScreenMode: (UIMessage.Regular, Boolean) -> Unit,
+    onImageFullScreenMode: (UIMessage.Regular, Boolean, String?) -> Unit,
     onReactionClicked: (String, String) -> Unit,
     onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
     onOpenProfile: (String) -> Unit,
@@ -1089,7 +1105,8 @@ private fun ConversationScreenContent(
     onAttachmentMenuClick: (AttachmentDraftUi) -> Unit,
     currentTimeInMillisFlow: Flow<Long> = flow {},
     showHistoryLoadingIndicator: Boolean = false,
-    isBubbleUiEnabled: Boolean = false
+    isBubbleUiEnabled: Boolean = false,
+    isWireCellsEnabled: Boolean = false,
 ) {
     val lazyPagingMessages = messages.collectAsLazyPagingItems()
 
@@ -1135,7 +1152,7 @@ private fun ConversationScreenContent(
                 currentTimeInMillisFlow = currentTimeInMillisFlow,
                 showHistoryLoadingIndicator = showHistoryLoadingIndicator,
                 isBubbleUiEnabled = isBubbleUiEnabled,
-                selfUserAccent = selfUserAccent
+                isWireCellsEnabled = isWireCellsEnabled,
             )
         },
         onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
@@ -1205,7 +1222,6 @@ fun MessageList(
     lastUnreadMessageInstant: Instant?,
     playingAudioMessage: PlayingAudioMessage,
     assetStatuses: PersistentMap<String, MessageAssetStatus>,
-    selfUserAccent: Accent,
     onUpdateConversationReadDate: (String) -> Unit,
     onSwipedToReply: (UIMessage.Regular) -> Unit,
     onSwipedToReact: (UIMessage.Regular) -> Unit,
@@ -1217,7 +1233,8 @@ fun MessageList(
     modifier: Modifier = Modifier,
     currentTimeInMillisFlow: Flow<Long> = flow { },
     showHistoryLoadingIndicator: Boolean = false,
-    isBubbleUiEnabled: Boolean = false
+    isBubbleUiEnabled: Boolean = false,
+    isWireCellsEnabled: Boolean = false,
 ) {
     val prevItemCount = remember { mutableStateOf(lazyPagingMessages.itemCount) }
     val readLastMessageAtStartTriggered = remember { mutableStateOf(false) }
@@ -1260,7 +1277,13 @@ fun MessageList(
         contentAlignment = Alignment.BottomEnd,
         modifier = modifier
             .fillMaxSize()
-            .background(color = colorsScheme().surfaceContainerLow),
+            .background(
+                color = if (isBubbleUiEnabled) {
+                    colorsScheme().bubblesBackground
+                } else {
+                    colorsScheme().surfaceContainerLow
+                }
+            ),
         content = {
             LazyColumn(
                 state = lazyListState,
@@ -1310,7 +1333,8 @@ fun MessageList(
                                 MessageGroupDateTime(
                                     messageDateTime = serverDate,
                                     messageDateTimeGroup = previousGroup,
-                                    now = currentTime
+                                    now = currentTime,
+                                    isBubbleUiEnabled = isBubbleUiEnabled
                                 )
                             }
                         }
@@ -1319,7 +1343,6 @@ fun MessageList(
                     val swipeableConfiguration = remember(message) {
                         if (message is UIMessage.Regular && message.isSwipeable) {
                             SwipeableMessageConfiguration.Swipeable(
-                                selfUserAccent = selfUserAccent,
                                 onSwipedRight = { onSwipedToReply(message) }.takeIf { message.isReplyable },
                                 onSwipedLeft = { onSwipedToReact(message) }.takeIf { message.isReactionAllowed },
                             )
@@ -1339,7 +1362,8 @@ fun MessageList(
                         onSelfDeletingMessageRead = onSelfDeletingMessageRead,
                         isSelectedMessage = (message.header.messageId == selectedMessageId),
                         failureInteractionAvailable = interactionAvailability == InteractionAvailability.ENABLED,
-                        isBubbleUiEnabled = isBubbleUiEnabled
+                        isBubbleUiEnabled = isBubbleUiEnabled,
+                        isWireCellsEnabled = isWireCellsEnabled,
                     )
 
                     val isTheOnlyItem = index == 0 && lazyPagingMessages.itemCount == 1
@@ -1350,7 +1374,8 @@ fun MessageList(
                             MessageGroupDateTime(
                                 messageDateTime = serverDate,
                                 messageDateTimeGroup = currentGroup,
-                                now = currentTime
+                                now = currentTime,
+                                isBubbleUiEnabled = isBubbleUiEnabled
                             )
                         }
                     }
@@ -1405,7 +1430,8 @@ fun MessageList(
 private fun MessageGroupDateTime(
     now: Long,
     messageDateTime: Date,
-    messageDateTimeGroup: MessageDateTimeGroup?
+    messageDateTimeGroup: MessageDateTimeGroup?,
+    isBubbleUiEnabled: Boolean
 ) {
     val context = LocalContext.current
 
@@ -1451,25 +1477,45 @@ private fun MessageGroupDateTime(
         null -> ""
     }
 
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .padding(
-                top = dimensions().spacing4x,
-                bottom = dimensions().spacing8x
+    if (isBubbleUiEnabled) {
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .padding(dimensions().spacing16x),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            HorizontalDivider(modifier = Modifier.weight(1F), color = colorsScheme().outline)
+            HorizontalSpace.x4()
+            Text(
+                text = timeString.uppercase(Locale.getDefault()),
+                maxLines = 1,
+                color = colorsScheme().onBackground,
+                style = MaterialTheme.wireTypography.label02,
             )
-            .background(color = colorsScheme().divider)
-            .padding(
-                top = dimensions().spacing6x,
-                bottom = dimensions().spacing6x,
-                start = dimensions().spacing56x
+            HorizontalSpace.x4()
+            HorizontalDivider(modifier = Modifier.weight(1F), color = colorsScheme().outline)
+        }
+    } else {
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .padding(
+                    top = dimensions().spacing4x,
+                    bottom = dimensions().spacing8x
+                )
+                .background(color = colorsScheme().divider)
+                .padding(
+                    top = dimensions().spacing6x,
+                    bottom = dimensions().spacing6x,
+                    start = dimensions().spacing56x
+                )
+        ) {
+            Text(
+                text = timeString.uppercase(Locale.getDefault()),
+                color = colorsScheme().secondaryText,
+                style = MaterialTheme.wireTypography.title03,
             )
-    ) {
-        Text(
-            text = timeString.uppercase(Locale.getDefault()),
-            color = colorsScheme().secondaryText,
-            style = MaterialTheme.wireTypography.title03,
-        )
+        }
     }
 }
 
@@ -1602,6 +1648,7 @@ fun PreviewConversationScreen() = WireTheme {
         draftMessageComposition = messageCompositionState.value,
         onClearDraft = {},
         onSaveDraft = {},
+        onMessageTextUpdate = {},
         onTypingEvent = {},
         onSearchMentionQueryChanged = {},
         onClearMentionSearchResult = {},
@@ -1617,14 +1664,13 @@ fun PreviewConversationScreen() = WireTheme {
         ),
         conversationMessagesViewState = ConversationMessagesViewState(),
         attachments = emptyList(),
-        selfUserAccent = Accent.Unknown,
         onOpenProfile = { },
         onMessageDetailsClick = { _, _ -> },
         onSendMessage = { },
         onPingOptionClicked = { },
         onDeleteMessage = { _, _ -> },
         onAssetItemClicked = { },
-        onImageFullScreenMode = { _, _ -> },
+        onImageFullScreenMode = { _, _, _ -> },
         onStartCall = { },
         onJoinCall = { },
         onReactionClick = { _, _ -> },

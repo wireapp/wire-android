@@ -38,6 +38,7 @@ import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.data.user.type.UserTypeInfo
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import io.mockk.MockKAnnotations
@@ -265,7 +266,7 @@ class RegularMessageContentMapperTest {
             previewPicture = null,
             completePicture = null,
             availabilityStatus = UserAvailabilityStatus.NONE,
-            userType = UserType.FEDERATED,
+            userType = UserTypeInfo.Regular(UserType.FEDERATED),
             botService = null,
             deleted = false,
             defederated = false,

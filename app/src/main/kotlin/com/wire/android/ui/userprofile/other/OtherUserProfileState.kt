@@ -76,12 +76,14 @@ data class OtherUserProfileState(
 
     fun isTemporaryUser() = expiresAt != null
 
-    fun shouldShowSearchButton(): Boolean = (groupState == null
+    fun shouldShowSearchButton(): Boolean = (
+        groupState == null
             && connectionState in listOf(
         ConnectionState.ACCEPTED,
         ConnectionState.BLOCKED,
         ConnectionState.MISSING_LEGALHOLD_CONSENT
-    ))
+    )
+    )
 
     fun isRoleEditable() = membership.allowsRoleEdition() && !isMetadataEmpty() && !isTemporaryUser()
 }

@@ -44,7 +44,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Download build artifacts
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: ${{ inputs.build-flavor }}-${{ inputs.build-variant }}-artifacts
           path: ${{ inputs.artifacts-path }}
@@ -54,6 +54,11 @@ jobs:
         run: |
           echo "build-flavour=$(echo '${{ inputs.build-flavor }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
           echo "build-variant=$(echo '${{ inputs.build-variant }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+
+      - name: Prepare release notes
+        if: matrix.target.type == 'google-play'
+        run: |
+          bash scripts/prepare-release-notes.sh
 
       - name: Deploy to S3
         if: matrix.target.type == 's3'
@@ -79,10 +84,11 @@ jobs:
           releaseFiles: ${{ inputs.artifacts-path }}bundle/${{ steps.lowercase.outputs.build-flavour }}${{ inputs.build-variant }}/*.aab
           track: ${{ matrix.target.track }}
           status: ${{ matrix.target.status || 'completed' }}
+          whatsNewDirectory: app/src/main/play/release-notes
 
       - name: Deploy to GitHub Release
         if: matrix.target.type == 'github-release'
-        uses: softprops/action-gh-release@v2.4.1
+        uses: softprops/action-gh-release@v2.4.2
         with:
           files: |
             ${{ inputs.artifacts-path }}apk/${{ steps.lowercase.outputs.build-flavour }}/${{ steps.lowercase.outputs.build-variant }}/*.apk

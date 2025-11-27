@@ -46,7 +46,9 @@ object AuthorHeaderHelper {
                 currentMessage.header.messageTime.utcISO,
             )
             difference > AGGREGATION_TIME_WINDOW
-        } else currentMessage is UIMessage.Regular
+        } else {
+            currentMessage is UIMessage.Regular
+        }
 
     @Composable
     internal fun rememberShouldShowHeader(
@@ -75,7 +77,9 @@ object AuthorHeaderHelper {
                 messageBelow.header.messageTime.utcISO
             )
             difference < AGGREGATION_TIME_WINDOW
-        } else false
+        } else {
+            false
+        }
 
     @Composable
     internal fun rememberShouldHaveSmallBottomPadding(

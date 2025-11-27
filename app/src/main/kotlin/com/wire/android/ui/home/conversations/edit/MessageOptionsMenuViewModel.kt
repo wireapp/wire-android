@@ -23,6 +23,7 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.di.ScopedArgs
 import com.wire.android.di.ViewModelScopedPreview
 import com.wire.android.di.scopedArgs
+import com.wire.android.ui.home.conversations.mock.mockMessageWithText
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.usecase.ObserveMessageForConversationUseCase
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -42,7 +43,8 @@ import javax.inject.Inject
 
 @ViewModelScopedPreview
 interface MessageOptionsMenuViewModel {
-    fun observeMessageStateFlow(messageId: String): StateFlow<MessageOptionsMenuState> = MutableStateFlow(MessageOptionsMenuState.Loading)
+    fun observeMessageStateFlow(messageId: String): StateFlow<MessageOptionsMenuState> =
+        MutableStateFlow(MessageOptionsMenuState.Message(mockMessageWithText))
 }
 
 @HiltViewModel

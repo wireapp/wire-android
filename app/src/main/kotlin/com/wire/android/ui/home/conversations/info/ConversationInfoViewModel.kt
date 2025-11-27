@@ -26,7 +26,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.appLogger
-import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.CurrentAccount
 import com.wire.android.model.ImageAsset
 import com.wire.android.ui.home.conversations.ConversationNavArgs
@@ -43,7 +42,6 @@ import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.FetchConversationMLSVerificationStatusUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -53,10 +51,8 @@ class ConversationInfoViewModel @Inject constructor(
     private val qualifiedIdMapper: QualifiedIdMapper,
     val savedStateHandle: SavedStateHandle,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
-    private val globalDataStore: GlobalDataStore,
     private val fetchConversationMLSVerificationStatus: FetchConversationMLSVerificationStatusUseCase,
     private val isWireCellFeatureEnabled: IsWireCellsEnabledUseCase,
-//    private val isChatBubblesEnabledUseCase: IsChatBubblesEnabledUseCase,
     @CurrentAccount private val selfUserId: UserId,
 ) : ViewModel() {
 
@@ -80,7 +76,7 @@ class ConversationInfoViewModel @Inject constructor(
         [MessageComposerViewModel] handles the navigating back after removing a group and here it would navigate to home if the group
         is removed without back params indicating that the user actually have just done that. The info about the group being removed
         could appear before the back navigation params. That's why it's being observed in the `LaunchedEffect` in the Composable.
-    */
+     */
     suspend fun observeConversationDetails() {
         observeConversationDetails(conversationId)
             .collect { it.handleConversationDetailsResult() }
@@ -106,7 +102,8 @@ class ConversationInfoViewModel @Inject constructor(
 
     private suspend fun handleConversationDetails(conversationDetails: ConversationDetails) {
         val (isConversationUnavailable, _) = when (conversationDetails) {
-            is ConversationDetails.OneOne -> conversationDetails.otherUser
+            is ConversationDetails.OneOne ->
+                conversationDetails.otherUser
                 .run { isUnavailableUser to (connectionStatus == ConnectionState.BLOCKED) }
 
             else -> false to false
@@ -125,12 +122,8 @@ class ConversationInfoViewModel @Inject constructor(
             legalHoldStatus = conversationDetails.conversation.legalHoldStatus,
             accentId = getAccentId(conversationDetails),
             isWireCellEnabled = isWireCellFeatureEnabled() && (conversationDetails as? ConversationDetails.Group)?.wireCell != null,
-            isBubbleUiEnabled = isBubbleUiEnabled()
         )
     }
-
-    private suspend fun isBubbleUiEnabled() = (globalDataStore.observeIsBubbleUI().firstOrNull() ?: false)
-//            || isChatBubblesEnabledUseCase() // TODO uncomment when production ready
 
     private fun getAccentId(conversationDetails: ConversationDetails): Int {
         return if (conversationDetails is ConversationDetails.OneOne) {

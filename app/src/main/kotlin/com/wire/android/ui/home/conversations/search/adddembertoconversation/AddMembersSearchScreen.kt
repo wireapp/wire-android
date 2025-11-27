@@ -28,8 +28,9 @@ import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.destinations.ServiceDetailsScreenDestination
 import com.wire.android.ui.home.conversations.search.AddMembersSearchNavArgs
 import com.wire.android.ui.home.conversations.search.SearchPeopleScreenType
-import com.wire.android.ui.home.conversations.search.SearchUsersAndServicesScreen
+import com.wire.android.ui.home.conversations.search.SearchUsersAndAppsScreen
 import com.wire.android.ui.home.newconversation.model.Contact
+import com.wire.android.util.debug.FeatureVisibilityFlags
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.BotService
 
@@ -45,7 +46,11 @@ fun AddMembersSearchScreen(
     if (addMembersToConversationViewModel.newGroupState.isCompleted) {
         navigator.navigateBack()
     }
-    SearchUsersAndServicesScreen(
+
+    // WPB-21835: Apps tab visibility controlled by feature flag
+    val isAppsTabVisible = computeAppsVisible(navArgs)
+
+    SearchUsersAndAppsScreen(
         searchTitle = stringResource(id = R.string.label_add_participants),
         onOpenUserProfile = { contact: Contact ->
             OtherUserProfileScreenDestination(QualifiedID(contact.id, contact.domain))
@@ -55,14 +60,25 @@ fun AddMembersSearchScreen(
         onContinue = addMembersToConversationViewModel::addMembersToConversation,
         isGroupSubmitVisible = true,
         onClose = navigator::navigateBack,
-        onServiceClicked = { contact: Contact ->
+        onAppClicked = { contact: Contact ->
             ServiceDetailsScreenDestination(BotService(contact.id, contact.domain), navArgs.conversationId)
                 .let { navigator.navigate(NavigationCommand(it)) }
         },
         screenType = SearchPeopleScreenType.CONVERSATION_DETAILS,
         selectedContacts = addMembersToConversationViewModel.newGroupState.selectedContacts,
-        isAppDiscoveryAllowed = navArgs.isAppsUsageAllowed,
+        isAppsTabVisible = isAppsTabVisible,
         isUserAllowedToCreateChannels = false,
         shouldShowChannelPromotion = false,
+        isConversationAppsEnabled = navArgs.isConversationAppsEnabled,
     )
 }
+
+@Composable
+private fun computeAppsVisible(navArgs: AddMembersSearchNavArgs) =
+    if (FeatureVisibilityFlags.AppsBasedOnProtocol) {
+        // current logic: based on protocol (isConversationAppsEnabled represents non-MLS)
+        navArgs.isConversationAppsEnabled
+    } else {
+        // new logic: based on team membership
+        navArgs.isSelfPartOfATeam
+    }

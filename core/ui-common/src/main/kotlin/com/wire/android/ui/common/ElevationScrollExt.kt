@@ -30,14 +30,20 @@ import androidx.compose.ui.unit.dp
 import com.wire.android.ui.theme.wireDimensions
 
 fun LazyListState.topBarElevation(maxElevation: Dp): Dp =
-    if (firstVisibleItemIndex == 0) minOf(firstVisibleItemScrollOffset.toFloat().dp, maxElevation)
-    else maxElevation
+    if (firstVisibleItemIndex == 0) {
+        minOf(firstVisibleItemScrollOffset.toFloat().dp, maxElevation)
+    } else {
+        maxElevation
+    }
 
 fun ScrollState.topBarElevation(maxElevation: Dp): Dp = minOf(value.dp, maxElevation)
 
 fun LazyListState.bottomBarElevation(maxElevation: Dp): Dp = layoutInfo.visibleItemsInfo.lastOrNull()?.let {
-    if (it.index == layoutInfo.totalItemsCount - 1) minOf((it.offset + it.size - layoutInfo.viewportEndOffset).dp, maxElevation)
-    else maxElevation
+    if (it.index == layoutInfo.totalItemsCount - 1) {
+        minOf((it.offset + it.size - layoutInfo.viewportEndOffset).dp, maxElevation)
+    } else {
+        maxElevation
+    }
 } ?: maxElevation
 
 fun ScrollState.bottomBarElevation(maxElevation: Dp): Dp = minOf((maxValue - value).dp, maxElevation)

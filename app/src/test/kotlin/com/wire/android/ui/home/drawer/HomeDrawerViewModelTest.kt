@@ -22,6 +22,7 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.framework.TestUser
 import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.data.user.type.UserTypeInfo
 import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveArchivedUnreadConversationsCountUseCase
 import com.wire.kalium.logic.feature.server.GetTeamUrlUseCase
@@ -119,7 +120,7 @@ class HomeDrawerViewModelTest {
         }
 
         fun withSelfUserType(type: UserType = UserType.INTERNAL) = apply {
-            coEvery { observeSelfUserUseCase() } returns flowOf(TestUser.SELF_USER.copy(userType = type))
+            coEvery { observeSelfUserUseCase() } returns flowOf(TestUser.SELF_USER.copy(userType = UserTypeInfo.Regular(type)))
         }
 
         fun arrange() = this to HomeDrawerViewModel(

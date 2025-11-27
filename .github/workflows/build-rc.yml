@@ -1,0 +1,165 @@
+name: "Release Candidate"
+
+on:
+  push:
+    tags:
+      # More restrictive pattern: v{major}.{minor}.{patch}-rc.{number}
+      # Examples: v4.5.0-rc.1, v4.5.0-rc.10
+      - 'v[0-9]+.[0-9]+.[0-9]+-rc.[0-9]+'
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  # Include tag name for better visibility in GitHub Actions UI
+  group: ${{ github.workflow }}-rc-${{ github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  validate-rc-tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get latest release tag
+        id: get_latest_release
+        run: |
+          # Fetch latest release with error handling
+          response=$(curl -s -w "\n%{http_code}" https://api.github.com/repos/${{ github.repository }}/releases/latest)
+          http_code=$(echo "$response" | tail -n1)
+          body=$(echo "$response" | sed '$d')
+
+          # Check if API call was successful
+          if [[ "$http_code" != "200" ]]; then
+            echo "Failed to fetch latest release (HTTP $http_code)"
+            if [[ "$http_code" == "404" ]]; then
+              echo "No releases found - this appears to be the first release"
+              echo "latest_tag=none" >> $GITHUB_OUTPUT
+              exit 0
+            else
+              echo "API error occurred"
+              exit 1
+            fi
+          fi
+
+          latest_tag=$(echo "$body" | jq -r '.tag_name')
+
+          # Validate we got a valid tag
+          if [[ -z "$latest_tag" || "$latest_tag" == "null" ]]; then
+            echo "Could not extract tag from API response"
+            echo "latest_tag=none" >> $GITHUB_OUTPUT
+          else
+            echo "Latest release tag: $latest_tag"
+            echo "latest_tag=$latest_tag" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Compare versions
+        run: |
+          current_tag="${{ github.ref_name }}"
+          latest_tag="${{ steps.get_latest_release.outputs.latest_tag }}"
+
+          # Skip comparison if no previous releases exist
+          if [[ "$latest_tag" == "none" ]]; then
+            echo "No previous releases found. Proceeding with RC creation for $current_tag"
+            exit 0
+          fi
+
+          # Extract base version without 'v' prefix and any pre-release suffix
+          # Handles: -rc.X, -alpha.X, -beta.X, etc.
+          cur_ver="${current_tag#v}"
+          cur_ver="${cur_ver%%-*}"  # Remove everything after first hyphen
+
+          lat_ver="${latest_tag#v}"
+          lat_ver="${lat_ver%%-*}"  # Remove everything after first hyphen
+
+          echo "Current RC base version: $cur_ver"
+          echo "Latest release base version: $lat_ver"
+
+          # Compare versions using sort -V (version sort)
+          highest="$(printf '%s\n%s' "$cur_ver" "$lat_ver" | sort -V | tail -n1)"
+
+          # Fail if RC is for an older version than the latest release
+          # This prevents accidentally creating RCs for outdated versions
+          if [[ "$cur_ver" != "$lat_ver" && "$highest" != "$cur_ver" ]]; then
+            echo "❌ ERROR: RC tag ($current_tag) base version ($cur_ver) is lower than latest release ($latest_tag) base version ($lat_ver)"
+            echo ""
+            echo "If you intentionally want to create an RC for an older version (e.g., for a backport),"
+            echo "please update this workflow to allow it or create the release manually."
+            exit 1
+          else
+            echo "✅ RC tag ($current_tag) base version is equal or higher than latest release ($latest_tag)"
+          fi
+
+  validate-config:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate required variables
+        run: |
+          # Check if PROD_APP_RC_TRACK variable is set
+          if [[ -z "${{ vars.PROD_APP_RC_TRACK }}" ]]; then
+            echo "❌ ERROR: Required repository variable 'PROD_APP_RC_TRACK' is not set"
+            echo ""
+            echo "This variable defines the Google Play track for RC deployments (e.g., 'beta', 'internal')."
+            echo "Please configure it in your repository settings:"
+            echo "  Settings > Secrets and variables > Actions > Variables"
+            echo ""
+            echo "Recommended value: 'beta' or 'internal'"
+            exit 1
+          fi
+
+          echo "✅ PROD_APP_RC_TRACK is set to: ${{ vars.PROD_APP_RC_TRACK }}"
+
+  create-github-release:
+    needs: [validate-rc-tag, validate-config]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create GitHub Pre-Release
+        uses: softprops/action-gh-release@v2.4.2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: "Release Candidate ${{ github.ref_name }}"
+          body: |
+            ## Release Candidate for ${{ github.ref_name }}
+
+            This is a **pre-release** for testing purposes.
+
+            **Note**: This is not a final release. Use for testing only.
+          prerelease: true
+          draft: false
+
+  build-rc:
+    needs: create-github-release
+    uses: ./.github/workflows/build-unified.yml
+    with:
+      concurrency-group-suffix: rc
+      # Build configuration for Release Candidate
+      # - Prod flavor: Production app configuration (com.wire package)
+      # - Compatrelease: Release variant with backward compatibility
+      # - public keystore: Production signing for real-world testing
+      # - both: Generates both APK (GitHub) and AAB (Google Play)
+      # - version file: Creates version.txt for tracking
+      build-config: |
+        [
+          {
+            "flavor": "Prod",
+            "variant": "Compatrelease",
+            "keystore-type": "public",
+            "build-type": "both",
+            "generate-version-file": true,
+            "deployment-targets": [
+              {
+                "type": "s3"
+              },
+              {
+                "type": "google-play",
+                "package-name": "com.wire",
+                "track": "${{ vars.PROD_APP_RC_TRACK }}"
+              },
+              {
+                "type": "github-release",
+                "additional-files": "app/build/outputs/version.txt"
+              }
+            ]
+          }
+        ]
+      enable-deployment: true
+    secrets: inherit

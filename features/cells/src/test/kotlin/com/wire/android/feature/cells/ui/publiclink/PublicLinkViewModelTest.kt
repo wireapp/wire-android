@@ -42,7 +42,6 @@ import kotlinx.coroutines.test.setMain
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
-import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -76,8 +75,8 @@ class PublicLinkViewModelTest {
 
         viewModel.state.test {
             with(expectMostRecentItem()) {
-                assertFalse(enabled)
-                assertNull(url)
+                assertFalse(isEnabled)
+                assertFalse(isLinkAvailable)
             }
         }
     }
@@ -91,8 +90,8 @@ class PublicLinkViewModelTest {
 
         viewModel.state.test {
             with(expectMostRecentItem()) {
-                assertTrue(enabled)
-                assertEquals(testLink.url, url)
+                assertTrue(isEnabled)
+                assertTrue(isLinkAvailable)
             }
         }
     }
@@ -113,7 +112,21 @@ class PublicLinkViewModelTest {
     }
 
     @Test
-    fun `given public link available and loaded when disabled then link is deleted`() = runTest {
+    fun `given public link available and loaded when disabled then confirmation is shown`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withPublicLink()
+            .withLoadSuccess()
+            .withDeleteSuccess()
+            .arrange()
+
+        viewModel.actions.test {
+            viewModel.onEnabledClick()
+            assertEquals(ShowRemoveConfirmation, awaitItem())
+        }
+    }
+
+    @Test
+    fun `given public link available and loaded when disable confirmed then link is deleted`() = runTest {
         val (_, viewModel) = Arrangement()
             .withPublicLink()
             .withLoadSuccess()
@@ -122,11 +135,11 @@ class PublicLinkViewModelTest {
 
         viewModel.state.test {
 
-            viewModel.onEnabled(false)
+            viewModel.onConfirmRemoval(true)
 
             with(expectMostRecentItem()) {
-                assertFalse(enabled)
-                assertNull(url)
+                assertFalse(isEnabled)
+                assertFalse(isLinkAvailable)
             }
         }
     }
@@ -140,13 +153,8 @@ class PublicLinkViewModelTest {
             .arrange()
 
         viewModel.actions.test {
-
-            viewModel.onEnabled(false)
-
-            with(expectMostRecentItem()) {
-                assertTrue(this is ShowError)
-                assertFalse((this as ShowError).closeScreen)
-            }
+            viewModel.onConfirmRemoval(true)
+            assertEquals(ShowErrorDialog(PublicLinkError.Remove), awaitItem())
         }
     }
 
@@ -159,11 +167,11 @@ class PublicLinkViewModelTest {
 
         viewModel.state.test {
 
-            viewModel.onEnabled(true)
+            viewModel.onEnabledClick()
 
             with(expectMostRecentItem()) {
-                assertTrue(enabled)
-                assertEquals(testLink.url, url)
+                assertTrue(isEnabled)
+                assertTrue(isLinkAvailable)
             }
         }
     }
@@ -176,13 +184,8 @@ class PublicLinkViewModelTest {
             .arrange()
 
         viewModel.actions.test {
-
-            viewModel.onEnabled(true)
-
-            with(expectMostRecentItem()) {
-                assertTrue(this is ShowError)
-                assertFalse((this as ShowError).closeScreen)
-            }
+            viewModel.onEnabledClick()
+            assertEquals(ShowErrorDialog(PublicLinkError.Create), awaitItem())
         }
     }
 
@@ -193,7 +196,7 @@ class PublicLinkViewModelTest {
             .withLoadSuccess()
             .arrange()
 
-        viewModel.shareLink(testLink.url)
+        viewModel.shareLink()
 
         coVerify(exactly = 1) { arrangement.fileHelper.shareUrlChooser(any(), any()) }
     }

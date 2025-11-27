@@ -528,6 +528,8 @@
     <string name="asset_message_saved_externally_text">Gespeichert</string>
     <string name="asset_message_failed_download_text">Datei nicht verfügbar</string>
     <string name="asset_message_failed_upload_text">Hochladen der Datei fehlgeschlagen</string>
+    <string name="asset_download_not_available_text">Datei ist nicht mehr verfügbar</string>
+    <string name="asset_download_deleted_text">Sie können diese Datei nicht herunterladen, da sie gelöscht wurde.</string>
     <string name="asset_download_dialog_text">Möchten Sie die Datei öffnen oder
         im Download-Ordner Ihres Geräts speichern?
  </string>
@@ -546,6 +548,7 @@
     <string name="conversation_details_options_group_name">GRUPPENNAME</string>
     <string name="conversation_details_conversation_admins">ADMINS (%d)</string>
     <string name="conversation_details_conversation_members">MITGLIEDER (%d)</string>
+    <string name="conversation_details_conversation_apps">APPS (%d)</string>
     <string name="conversation_details_participants_info">Diese Unterhaltung hat %s Teilnehmer.\nBis zu 500 Personen können an einer Unterhaltung teilnehmen.</string>
     <string name="conversation_details_participants_count">%s Teilnehmer</string>
     <string name="conversation_details_show_all_participants">Alle Teilnehmer anzeigen (%d)</string>
@@ -562,6 +565,7 @@
     <string name="conversation_options_guest_description">Aktivieren Sie diese Option, um die Unterhaltung für Personen außerhalb Ihres Teams zu öffnen – auch wenn diese Wire nicht nutzen.</string>
     <string name="conversation_options_guest_not_editable_description">Sie können die Gast-Option in dieser Unterhaltung nicht deaktivieren, da sie von jemandem aus einem anderen Team erstellt wurde.</string>
     <string name="conversation_options_services_label">Apps</string>
+    <string name="conversation_details_apps_description">Wenn diese Option aktiviert ist, öffnen Sie die Unterhaltung für Apps.</string>
     <string name="conversation_options_services_description">Aktivieren Sie diese Option, um die Unterhaltung für Apps zu öffnen.</string>
     <string name="conversation_options_renamed">Unterhaltung umbenannt</string>
     <string name="disable_guest_dialog_title">Gastzugang deaktivieren?</string>
@@ -695,9 +699,9 @@
     <string name="profile_image_change_image_button_label">Bild ändern…</string>
     <!--Conversation-->
     <string name="label_message_details">Nachrichtendetails</string>
-    <string name="label_copy">Kopieren</string>
+    <string name="label_copy">Text kopieren</string>
     <string name="label_share">Teilen</string>
-    <string name="label_edit">Bearbeiten</string>
+    <string name="label_edit">Text bearbeiten</string>
     <string name="label_delete">Löschen</string>
     <string name="info_message_copied">Nachricht kopiert</string>
     <string name="conversation_banner_federated">Föderierte Benutzer</string>
@@ -795,6 +799,8 @@
     <string name="label_system_message_conversation_started_sensitive_information_footer">Bitte seien Sie dennoch vorsichtig, mit wem Sie vertrauliche Informationen teilen.</string>
     <string name="label_conversations_details_verified_proteus">Überprüft (Proteus)</string>
     <string name="label_conversations_details_verified_mls">Überprüft (Ende-zu-Ende-Identität)</string>
+    <string name="label_system_message_cell_enabled_for_conversation">Dateiverwaltung (Cells) aktiv</string>
+    <string name="label_system_message_cell_self_delete_disabled_for_conversation">Selbstlöschende Nachrichten sind für Unterhaltungen mit Cells deaktiviert</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
         <item quantity="one">Sie haben 1 Person zur Unterhaltung hinzugefügt</item>
@@ -912,7 +918,6 @@
     <string name="label_search_people">Personen suchen</string>
     <string name="label_search_people_or_apps">Personen oder Apps suchen</string>
     <string name="label_search_people_instruction">Nach Personen anhand ihres Profilnamens oder @Benutzernamens suchen</string>
-    <string name="label_search_apps_instruction">Steigern Sie die Produktivität mit Apps.</string>
     <string name="label_learn_more_searching_user">Mehr erfahren</string>
     <string name="label_no_results_found">Keine Ergebnisse, bitte erneut versuchen.</string>
     <string name="label_general_error">Ein Fehler ist aufgetreten</string>
@@ -993,6 +998,7 @@
     <string name="notification_call_default_group_name">Eingehender Gruppenanruf</string>
     <string name="notification_audio_message_body">Audionachricht</string>
     <string name="notification_deleting_conversation">Unterhaltung wird gelöscht…</string>
+    <string name="notification_uploading_files">Dateien werden hochgeladen…</string>
     <!-- Calling-->
     <string name="calling_constant_bit_rate_indication">Konstante Bitrate</string>
     <string name="calling_button_label_microphone">Mikrofon</string>
@@ -1092,9 +1098,10 @@
     <string name="change">Ändern</string>
     <string name="allow_guests">Gäste zulassen</string>
     <string name="allow_guest_switch_description">Öffnen Sie diese Unterhaltung für Personen außerhalb Ihres Teams. Diese Einstellung kann später jederzeit geändert werden.</string>
+    <string name="allow_guest_switch_channel_description">Öffnen Sie diese Unterhaltung für Personen außerhalb Ihres Teams oder für Apps. Diese Einstellung kann später jederzeit geändert werden.</string>
     <string name="allow_services">Apps zulassen</string>
     <string name="allow_services_regular_group_description">Öffnen Sie diese Unterhaltung für Apps. Diese Einstellung kann später jederzeit geändert werden.</string>
-    <string name="allow_services_channel_description">Öffnen Sie diese Unterhaltung für Personen außerhalb Ihres Teams oder für Apps. Diese Einstellung kann später jederzeit geändert werden.</string>
+    <string name="allow_apps_switch_description">Öffnen Sie diese Unterhaltung für Apps.</string>
     <string name="service_details_label">App</string>
     <string name="service_details_add_service_label">Zur Unterhaltung hinzufügen</string>
     <string name="service_details_remove_service_label">Aus Unterhaltung entfernen</string>
@@ -1151,6 +1158,8 @@
     <string name="settings_myaccount_display_name_exceeded_limit_error">Mindestens ein und höchstens 64 Zeichen</string>
     <string name="settings_myaccount_display_name_updated">Ihr Profilname wurde geändert</string>
     <string name="settings_myaccount_handle_updated">Ihr Benutzername wurde geändert</string>
+    <string name="settings_myaccount_user_color_updated">Profilfarbe geändert</string>
+    <string name="settings_myaccount_user_color_example">BEISPIEL</string>
     <!--Privacy Settings -->
     <string name="settings_send_read_receipts">Lesebestätigungen senden</string>
     <string name="settings_send_read_receipts_description">Wenn diese Option aktiviert ist, können andere sehen, ob Sie ihre Nachrichten lesen. 
@@ -1733,10 +1742,30 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="custimization_options_header_title">Optionen</string>
     <string name="cells_screen_title">Alle Dateien</string>
     <string name="cells_screen_search_hint">Dateien suchen</string>
+    <string name="enable_wire_cell">Dateiverwaltung (Cells Beta-Version)</string>
     <string name="enable_wire_cell_switch_description">Ermöglichen Sie den Teilnehmern, ihre Dokumente und Mediendateien zu verwalten. Verwenden Sie Ordner, Tags und Filter, um effizienter zu arbeiten. Dieser Vorgang kann nicht rückgängig gemacht werden.</string>
     <string name="failed_attachment_retry_upload">Upload wiederholen</string>
     <string name="failed_attachment_remove">Entfernen</string>
     <string name="content_description_apply_filter">Filter anwenden</string>
     <string name="content_description_filter_files">Dateien filtern</string>
+    <string name="conversation_options_file_collaboration_label">Dateiverwaltung (Cells)</string>
     <string name="conversation_options_file_collaboration_description">Dauerhaft aktiv für diese Unterhaltung.</string>
+    <plurals name="reply_multiple_files">
+        <item quantity="one">%1$d Datei</item>
+        <item quantity="other">%1$d Dateien</item>
+    </plurals>
+    <!-- Apps-->
+    <string name="apps_upgrade_teams_for_apps_banner_title">Ihr Team verwendet noch keine Apps</string>
+    <string name="apps_upgrade_teams_for_apps_banner_content">Um Ihren Workflow mit Apps zu verbessern, muss Ihr Team angepasst werden. Bitte wenden Sie sich an Ihren Team-Admin.</string>
+    <string name="apps_edit_apps_option_title">Apps</string>
+    <string name="content_description_edit_apps_option_back_btn">Zurück zu Unterhaltungsdetails</string>
+    <string name="search_results_apps_empty_title">Ihr Team hat noch keine Apps hinzugefügt</string>
+    <string name="search_results_apps_empty_description_team_admin">Apps sind Helfer, die Ihren Workflow verbessern können. Als Team-Admin können Sie diese im Team-Management hinzufügen.</string>
+    <string name="search_results_apps_empty_description_non_team_admin">Apps sind Helfer, die Ihren Workflow verbessern können. Um sie zu verwenden, fragen Sie bitte Ihren Team-Admin.</string>
+    <string name="search_results_apps_empty_description_disabled_for_conversation">Apps sind in dieser Unterhaltung deaktiviert. Aktivieren Sie sie in den Unterhaltungsoptionen.</string>
+    <string name="label_system_message_apps_access_enabled_by_self">%1$s haben **Apps** für diese Unterhaltung aktiviert</string>
+    <string name="label_system_message_apps_access_disabled_by_self">%1$s haben **Apps** für diese Unterhaltung deaktiviert</string>
+    <string name="label_system_message_apps_access_enabled_by_other">%1$s hat **Apps** für diese Unterhaltung aktiviert</string>
+    <string name="label_system_message_apps_access_disabled_by_other">%1$s hat **Apps** für diese Unterhaltung deaktiviert</string>
+    <string name="label_system_message_apps_access_enabled_disclaimer">Hinzugefügte Apps haben Zugriff auf den Inhalt dieser Unterhaltung.</string>
 </resources>

@@ -37,15 +37,17 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
+import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun EmptySearchQueryScreen(
+    modifier: Modifier = Modifier,
     text: String = stringResource(R.string.label_search_people_instruction),
     learnMoreTextToLink: Pair<String, String> = Pair(
         stringResource(R.string.label_learn_more_searching_user),
@@ -54,7 +56,7 @@ fun EmptySearchQueryScreen(
 ) {
     val context = LocalContext.current
     val (learnMoreText, learnMoreUrl) = learnMoreTextToLink
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .align(Alignment.Center)
@@ -82,8 +84,8 @@ fun EmptySearchQueryScreen(
     }
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
-fun EmptySearchQueryScreenPreview() {
+fun EmptySearchUserScreenPreview() = WireTheme {
     EmptySearchQueryScreen()
 }

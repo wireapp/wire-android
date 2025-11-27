@@ -19,7 +19,6 @@ package com.wire.android.ui.home.settings.account.color
 
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.SnapshotExtension
-import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.theme.Accent
 import com.wire.kalium.common.error.StorageFailure
@@ -32,7 +31,6 @@ import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -123,14 +121,10 @@ class ChangeUserColorViewModelTest {
         @MockK
         lateinit var updateAccentColor: UpdateAccentColorUseCase
 
-        @MockK
-        lateinit var globalDataStore: GlobalDataStore
-
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             coEvery { getSelfUserUseCase() } returns TestUser.SELF_USER
             coEvery { updateAccentColor(any()) } returns UpdateAccentColorResult.Success
-            coEvery { globalDataStore.observeIsBubbleUI() }.returns(flowOf(true))
         }
 
         fun withUpdateAccentResult(result: UpdateAccentColorResult) = apply {
@@ -140,7 +134,6 @@ class ChangeUserColorViewModelTest {
         fun arrange() = this to ChangeUserColorViewModel(
             getSelf = getSelfUserUseCase,
             updateAccentColor = updateAccentColor,
-            globalDataStore
         )
     }
 }

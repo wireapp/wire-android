@@ -162,8 +162,11 @@ fun TeamAppLockFeatureFlagDialog(
 ) {
     val text: String =
         stringResource(
-            id = if (isTeamAppLockEnabled) R.string.team_app_lock_enabled
-            else R.string.team_app_lock_disabled
+            id = if (isTeamAppLockEnabled) {
+                R.string.team_app_lock_enabled
+            } else {
+                R.string.team_app_lock_disabled
+            }
         )
 
     WireDialog(
@@ -553,7 +556,8 @@ fun PreviewJoinConversationDialogWithPassword() {
     WireTheme {
         JoinConversationDialog(
             JoinConversationViaCodeState.Show("convName", "code", "key", "domain", true),
-            {}) {}
+            {}
+        ) {}
     }
 }
 
@@ -563,7 +567,8 @@ fun PreviewJoinConversationDialogWithoutPassword() {
     WireTheme {
         JoinConversationDialog(
             JoinConversationViaCodeState.Show("convName", "code", "key", "domain", false),
-            {}) {}
+            {}
+        ) {}
     }
 }
 
@@ -573,7 +578,8 @@ fun PreviewJoinConversationDialogError() {
     WireTheme {
         JoinConversationDialog(
             JoinConversationViaCodeState.Error(CheckConversationInviteCodeUseCase.Result.Failure.InvalidCodeOrKey),
-            {}) {}
+            {}
+        ) {}
     }
 }
 
@@ -620,7 +626,10 @@ fun PreviewNewClientDialog() {
     WireTheme {
         NewClientDialog(
             NewClientsData.CurrentUser(listOf(NewClientInfo("date", UIText.DynamicString("name"))), UserId("id", "domain")),
-            {}, {}, {})
+            {},
+            {},
+            {}
+        )
     }
 }
 

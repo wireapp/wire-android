@@ -24,7 +24,7 @@ import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.data.user.type.isTeamAdmin
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
@@ -51,11 +51,15 @@ class ObserveConversationRoleForUserUseCase @Inject constructor(
             observeConversationMembers(conversationId)
         ) { selfUser: SelfUser, conversationDetails: ConversationDetails, memberDetailsList: List<MemberDetails> ->
             val regularSelfRole = memberDetailsList.firstOrNull { it.user.id == selfUser.id }?.role
-            val isSelfTeamAdmin = selfUser.userType in setOf(UserType.ADMIN, UserType.OWNER)
+            val isSelfTeamAdmin = selfUser.userType.isTeamAdmin()
             val isConversationInSameTeamAsSelfUser = selfUser.teamId == conversationDetails.conversation.teamId
             val isChannel = conversationDetails is ConversationDetails.Group.Channel
             val isSelfChannelAdmin = isChannel && isSelfTeamAdmin && isConversationInSameTeamAsSelfUser
-            val selfRole = if (isSelfChannelAdmin) { Conversation.Member.Role.Admin } else { regularSelfRole }
+            val selfRole = if (isSelfChannelAdmin) {
+                Conversation.Member.Role.Admin
+            } else {
+                regularSelfRole
+            }
             ConversationRoleData(
                 conversationName = conversationDetails.conversation.name.orEmpty(),
                 userRole = memberDetailsList.firstOrNull { it.user.id == userId }?.role,

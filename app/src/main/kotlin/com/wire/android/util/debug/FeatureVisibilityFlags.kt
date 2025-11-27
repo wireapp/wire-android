@@ -20,26 +20,26 @@ package com.wire.android.util.debug
 
 import androidx.compose.runtime.staticCompositionLocalOf
 
-//As a Beta user I don’t want to press on buttons that don’t have functions yet,
+// As a Beta user I don’t want to press on buttons that don’t have functions yet,
 // because then I will think something is not working in the app.
 //
-//ACCEPTANCE CRITERIA
+// ACCEPTANCE CRITERIA
 //
-//Buttons to remove from the UI:
-//Settings → App settings entry
-//Settings → Backup and restore information entry
-//Conversation view → + icon → Audio messages
-//Conversation View → + icon → share location
-//Conversation View → Aa icon
-//Conversation View → :smile: icon
-//Conversation View → GIF icon
-//Conversation View → @ icon
-//Conversation View → ping icon
-//Conversation View → search icon
-//User Profile → Edit icon
-//long press on text → edit entry
-//long press on images → edit
-//long press on images → copy
+// Buttons to remove from the UI:
+// Settings → App settings entry
+// Settings → Backup and restore information entry
+// Conversation view → + icon → Audio messages
+// Conversation View → + icon → share location
+// Conversation View → Aa icon
+// Conversation View → :smile: icon
+// Conversation View → GIF icon
+// Conversation View → @ icon
+// Conversation View → ping icon
+// Conversation View → search icon
+// User Profile → Edit icon
+// long press on text → edit entry
+// long press on images → edit
+// long press on images → copy
 
 // Those flags can be removed once we set all flags to true :)
 object FeatureVisibilityFlags {
@@ -56,6 +56,13 @@ object FeatureVisibilityFlags {
     const val MessageEditIcon = true
     const val SearchConversationMessages = true
     const val DrawingIcon = true
+
+    /**
+     * WPB-21835: Controls how apps availability is determined.
+     * When true: Apps are allowed based on protocol (disabled for MLS conversations)
+     * When false: Apps are allowed based on feature flags (original logic with team settings)
+     */
+    const val AppsBasedOnProtocol = true
 }
 
 val LocalFeatureVisibilityFlags = staticCompositionLocalOf { FeatureVisibilityFlags }

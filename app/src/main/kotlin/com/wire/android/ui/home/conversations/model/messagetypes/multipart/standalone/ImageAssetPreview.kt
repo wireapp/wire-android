@@ -37,7 +37,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
 import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.home.conversations.messages.item.isBubble
-import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageParams
+import com.wire.android.ui.home.conversations.model.messagetypes.image.VisualMediaParams
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.previewAvailable
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.previewImageModel
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
@@ -50,10 +50,9 @@ internal fun ImageAssetPreview(
     messageStyle: MessageStyle
 ) {
 
-    val imageSize = ImageMessageParams(
-        realImgWidth = item.metadata?.width() ?: 0,
-        realImgHeight = item.metadata?.height() ?: 0,
-        allowUpscale = true
+    val imageSize = VisualMediaParams(
+        realMediaWidth = item.metadata?.width() ?: 0,
+        realMediaHeight = item.metadata?.height() ?: 0
     ).normalizedSize()
 
     Box(

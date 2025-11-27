@@ -177,7 +177,7 @@ private fun computeNameErrorState(
                     R.string.rename_long_folder_name_error
 
                 DisplayNameState.NameError.TextFieldError.InvalidNameError ->
-                    R.string.create_folder_invalid_name
+                    R.string.rename_invalid_name
             }
             WireTextFieldState.Error(stringResource(id = messageRes))
         }

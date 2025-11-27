@@ -84,6 +84,7 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
 
     URL_SUPPORT("url_support", ConfigType.STRING),
     URL_RSS_RELEASE_NOTES("url_rss_release_notes", ConfigType.STRING),
+    CONVERSATION_FEEDER_ENABLED("conversation_feeder_enabled", ConfigType.BOOLEAN),
 
     /**
      * In runtime, will use these values to determine which backend to use.
@@ -123,4 +124,23 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     IS_MLS_RESET_ENABLED("is_mls_reset_enabled", ConfigType.BOOLEAN),
     USE_STRICT_MLS_FILTER("use_strict_mls_filter", ConfigType.BOOLEAN),
     MEETINGS_ENABLED("meetings_enabled", ConfigType.BOOLEAN),
+
+    USE_ASYNC_FLUSH_LOGGING("use_async_flush_logging", ConfigType.BOOLEAN),
+
+    /**
+     * Background notification retry logic
+     * Enables retry with exponential backoff for background notification sync failures
+     */
+    BACKGROUND_NOTIFICATION_RETRY_ENABLED("background_notification_retry_enabled", ConfigType.BOOLEAN),
+
+    /**
+     * Extended stay-alive duration (in seconds) when background notification retry is enabled
+     * Controls how long the sync connection stays alive after receiving a push notification
+     */
+    BACKGROUND_NOTIFICATION_STAY_ALIVE_SECONDS("background_notification_stay_alive_seconds", ConfigType.INT),
+
+    IS_BUBBLE_UI_ENABLED("is_bubble_ui_enabled", ConfigType.BOOLEAN),
+
+    SECURE_PUBLIC_LINK_SETTINGS("secure_public_link_settings", ConfigType.BOOLEAN),
+    COLLABORA_INTEGRATION_ENABLED("collabora_integration", ConfigType.BOOLEAN),
 }

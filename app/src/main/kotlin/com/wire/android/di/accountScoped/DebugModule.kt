@@ -77,4 +77,9 @@ class DebugModule {
     @ViewModelScoped
     @Provides
     fun provideFeatureConfigUseCase(debugScope: DebugScope): GetFeatureConfigUseCase = debugScope.getFeatureConfig
+
+    @ViewModelScoped
+    @Provides
+    fun provideDebugFeedConversationUseCase(debugScope: DebugScope) =
+        debugScope.debugFeedConversationUseCase
 }

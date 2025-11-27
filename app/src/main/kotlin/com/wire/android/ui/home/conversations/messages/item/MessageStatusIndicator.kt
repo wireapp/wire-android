@@ -27,11 +27,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.spacers.HorizontalSpace
+import com.wire.android.ui.common.typography
 import com.wire.android.ui.home.conversations.model.MessageFlowStatus
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
-import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
@@ -42,14 +43,14 @@ fun MessageStatusIndicator(
     isGroupConversation: Boolean = false
 ) {
     val defaultTint = when (messageStyle) {
-        MessageStyle.BUBBLE_SELF -> MaterialTheme.wireColorScheme.onPrimary
-        MessageStyle.BUBBLE_OTHER -> MaterialTheme.wireColorScheme.secondaryText
+        MessageStyle.BUBBLE_SELF -> colorsScheme().selfBubble.onPrimary
+        MessageStyle.BUBBLE_OTHER -> colorsScheme().otherBubble.onPrimary
         MessageStyle.NORMAL -> MaterialTheme.wireColorScheme.onTertiaryButtonDisabled
     }
 
     val errorTint = when (messageStyle) {
-        MessageStyle.BUBBLE_SELF -> MaterialTheme.wireColorScheme.onPrimary
-        MessageStyle.BUBBLE_OTHER -> MaterialTheme.wireColorScheme.error
+        MessageStyle.BUBBLE_SELF -> colorsScheme().selfBubble.onPrimary
+        MessageStyle.BUBBLE_OTHER -> colorsScheme().otherBubble.onPrimary
         MessageStyle.NORMAL -> MaterialTheme.wireColorScheme.error
     }
 
@@ -91,7 +92,7 @@ fun MessageStatusIndicator(
                     HorizontalSpace.x2()
                     Text(
                         text = status.count.toString(),
-                        style = MaterialTheme.wireTypography.label03.copy(color = defaultTint)
+                        style = typography().subline01.copy(color = defaultTint)
                     )
                 }
             }

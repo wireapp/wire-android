@@ -31,12 +31,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import com.wire.android.BuildConfig
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireLinearProgressIndicator
+import com.wire.android.ui.home.conversations.details.participants.model.ParticipantsExpansionState
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
@@ -53,6 +55,7 @@ fun GroupConversationParticipants(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
+    val participantsExpansionState = remember { ParticipantsExpansionState() }
     Column(modifier = modifier) {
         LazyColumn(
             state = lazyListState,
@@ -77,7 +80,7 @@ fun GroupConversationParticipants(
                     }
                 }
             }
-            participantsFoldersWithElements(context, groupParticipantsState, onProfilePressed)
+            participantsFoldersWithElements(context, groupParticipantsState, onProfilePressed, participantsExpansionState)
         }
     }
 }

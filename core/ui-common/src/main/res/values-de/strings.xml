@@ -25,6 +25,7 @@
     <string name="content_description_close">Schließen</string>
     <string name="content_description_menu_button">Hauptnavigation</string>
     <string name="content_description_pending_connection_badge">Ausstehende Genehmigung der Kontaktanfrage</string>
+    <string name="content_description_show_more_options">Weitere Optionen anzeigen</string>
     <string name="label_membership_guest">Gast</string>
     <string name="label_membership_external">Extern</string>
     <string name="label_membership_service">App</string>
@@ -42,4 +43,6 @@
     <string name="accent_color_amber">Bernstein</string>
     <string name="accent_color_petrol">Petrol</string>
     <string name="accent_color_purple">Lila</string>
+    <string name="accent_color_none">Keine Profilfarbe</string>
+    <string name="generate_password_button_text">Passwort generieren</string>
 </resources>

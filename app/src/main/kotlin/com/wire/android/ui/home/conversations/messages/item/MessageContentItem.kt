@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -41,7 +40,6 @@ import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.theme.Accent
-import com.wire.android.ui.theme.wireColorScheme
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 
 @Suppress("CyclomaticComplexMethod")
@@ -162,19 +160,19 @@ fun MessageContentItem(
                     if (header.messageStatus.editStatus is MessageEditStatus.Edited) {
                         HorizontalSpace.x8()
                         MessageSmallLabel(
-                            text = "• " + stringResource(R.string.label_message_status_edited),
+                            text = "•",
                             messageStyle = messageStyle
                         )
                         HorizontalSpace.x8()
+                        MessageSmallLabel(
+                            text = stringResource(R.string.label_message_status_edited),
+                            messageStyle = messageStyle
+                        )
                     }
 
                     MessageBubbleExpireFooter(
                         messageStyle = messageStyle,
-                        selfDeletionTimerState = selfDeletionTimerState,
-                        accentColor = MaterialTheme.wireColorScheme.wireAccentColors.getOrDefault(
-                            header.accent,
-                            MaterialTheme.wireColorScheme.primary
-                        )
+                        selfDeletionTimerState = selfDeletionTimerState
                     )
 
                     if (isMyMessage && shouldDisplayMessageStatus) {

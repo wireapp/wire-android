@@ -248,7 +248,9 @@ class AvatarPickerViewModelTest {
         }
 
         fun withErrorUploadResponse(): Arrangement {
-            coEvery { uploadUserAvatarUseCase(any(), any()) } returns UploadAvatarResult.Failure(Unknown(RuntimeException("some error")))
+            coEvery {
+                uploadUserAvatarUseCase(any(), any())
+            } returns UploadAvatarResult.Failure(Unknown(RuntimeException("some error")))
 
             return this
         }

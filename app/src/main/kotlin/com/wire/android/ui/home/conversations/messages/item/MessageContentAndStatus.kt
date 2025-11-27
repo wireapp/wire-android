@@ -34,7 +34,6 @@ import com.wire.android.ui.home.conversations.model.messagetypes.asset.MessageAs
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.RestrictedAssetMessage
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.RestrictedGenericFileMessage
 import com.wire.android.ui.home.conversations.model.messagetypes.audio.AudioMessage
-import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageParams
 import com.wire.android.ui.home.conversations.model.messagetypes.location.LocationMessageContent
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.MultipartAttachmentsView
 import com.wire.android.ui.home.conversations.model.messagetypes.video.VideoMessage
@@ -49,7 +48,7 @@ internal fun UIMessage.Regular.MessageContentAndStatus(
     searchQuery: String,
     messageStyle: MessageStyle,
     onAssetClicked: (String) -> Unit,
-    onImageClicked: (UIMessage.Regular, Boolean) -> Unit,
+    onImageClicked: (UIMessage.Regular, Boolean, String?) -> Unit,
     onProfileClicked: (String) -> Unit,
     onLinkClicked: (String) -> Unit,
     onReplyClicked: (UIMessage.Regular) -> Unit,
@@ -62,21 +61,26 @@ internal fun UIMessage.Regular.MessageContentAndStatus(
             onAssetClicked(header.messageId)
         })
     }
+
     val onImageClickable = remember(message) {
         Clickable(enabled = isAvailable, onClick = {
-            onImageClicked(message, source == MessageSource.Self)
+            onImageClicked(message, source == MessageSource.Self, null)
         })
     }
+
+    val onMultipartImageClickable: (String) -> Unit = remember(message) {
+        {
+            onImageClicked(message, source == MessageSource.Self, it)
+        }
+    }
+
     val onReplyClickable = remember(message) {
         Clickable {
             onReplyClicked(message)
         }
     }
     Row {
-        Column(
-            Modifier
-                .applyIf(!messageStyle.isBubble()) { weight(1F) }
-        ) {
+        Column(Modifier.applyIf(!messageStyle.isBubble()) { weight(1F) }) {
             MessageContent(
                 message = message,
                 messageContent = messageContent,
@@ -84,6 +88,7 @@ internal fun UIMessage.Regular.MessageContentAndStatus(
                 assetStatus = assetStatus,
                 onAssetClick = onAssetClickable,
                 onImageClick = onImageClickable,
+                onMultipartImageClick = onMultipartImageClickable,
                 onOpenProfile = onProfileClicked,
                 onLinkClick = onLinkClicked,
                 onReplyClick = onReplyClickable,
@@ -130,6 +135,7 @@ private fun MessageContent(
     assetStatus: AssetTransferStatus?,
     onAssetClick: Clickable,
     onImageClick: Clickable,
+    onMultipartImageClick: (String) -> Unit,
     onOpenProfile: (String) -> Unit,
     onLinkClick: (String) -> Unit,
     onReplyClick: Clickable,
@@ -139,7 +145,7 @@ private fun MessageContent(
         is UIMessageContent.ImageMessage -> {
             MessageImage(
                 asset = messageContent.asset,
-                imgParams = ImageMessageParams(messageContent.width, messageContent.height, allowUpscale = true),
+                imgParams = messageContent.params,
                 transferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
                 onImageClick = onImageClick,
                 messageStyle = messageStyle
@@ -152,8 +158,7 @@ private fun MessageContent(
                 assetName = messageContent.assetName,
                 assetExtension = messageContent.assetExtension,
                 assetDataPath = messageContent.assetDataPath,
-                width = messageContent.width,
-                height = messageContent.height,
+                params = messageContent.params,
                 duration = messageContent.duration,
                 transferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
                 onVideoClick = onAssetClick,
@@ -168,11 +173,13 @@ private fun MessageContent(
                     VerticalSpace.x4()
                     when (it) {
                         is UIQuotedMessage.UIQuotedData -> QuotedMessage(
+                            conversationId = message.conversationId,
                             messageData = it,
                             style = QuotedMessageStyle(
                                 quotedStyle = QuotedStyle.COMPLETE,
                                 messageStyle = messageStyle,
-                                selfAccent = accent
+                                selfAccent = accent,
+                                senderAccent = it.senderAccent
                             ),
                             clickable = onReplyClick
                         )
@@ -181,7 +188,8 @@ private fun MessageContent(
                             style = QuotedMessageStyle(
                                 quotedStyle = QuotedStyle.COMPLETE,
                                 messageStyle = messageStyle,
-                                selfAccent = accent
+                                selfAccent = accent,
+                                senderAccent = Accent.Unknown
                             )
                         )
                     }
@@ -195,7 +203,8 @@ private fun MessageContent(
                     buttonList = null,
                     messageId = message.header.messageId,
                     onLinkClick = onLinkClick,
-                    messageStyle = messageStyle
+                    messageStyle = messageStyle,
+                    accent = accent
                 )
             }
         }
@@ -206,11 +215,13 @@ private fun MessageContent(
                     VerticalSpace.x4()
                     when (it) {
                         is UIQuotedMessage.UIQuotedData -> QuotedMessage(
+                            conversationId = message.conversationId,
                             messageData = it,
                             style = QuotedMessageStyle(
                                 quotedStyle = QuotedStyle.COMPLETE,
                                 messageStyle = messageStyle,
-                                selfAccent = accent
+                                selfAccent = accent,
+                                senderAccent = it.senderAccent
                             ),
                             clickable = onReplyClick
                         )
@@ -219,7 +230,8 @@ private fun MessageContent(
                             style = QuotedMessageStyle(
                                 quotedStyle = QuotedStyle.COMPLETE,
                                 messageStyle = messageStyle,
-                                selfAccent = accent
+                                selfAccent = accent,
+                                senderAccent = Accent.Unknown
                             )
                         )
                     }
@@ -232,7 +244,8 @@ private fun MessageContent(
                     buttonList = messageContent.buttonList,
                     messageId = message.header.messageId,
                     onLinkClick = onLinkClick,
-                    messageStyle = messageStyle
+                    messageStyle = messageStyle,
+                    accent = accent
                 )
             }
         }
@@ -312,6 +325,32 @@ private fun MessageContent(
 
         is UIMessageContent.Multipart ->
             Column {
+                messageContent.messageBody?.quotedMessage?.let {
+                    VerticalSpace.x4()
+                    when (it) {
+                        is UIQuotedMessage.UIQuotedData -> QuotedMessage(
+                            conversationId = message.conversationId,
+                            messageData = it,
+                            style = QuotedMessageStyle(
+                                quotedStyle = QuotedStyle.COMPLETE,
+                                messageStyle = messageStyle,
+                                selfAccent = accent,
+                                senderAccent = it.senderAccent
+                            ),
+                            clickable = onReplyClick
+                        )
+
+                        UIQuotedMessage.UnavailableData -> QuotedUnavailable(
+                            style = QuotedMessageStyle(
+                                quotedStyle = QuotedStyle.COMPLETE,
+                                messageStyle = messageStyle,
+                                selfAccent = accent,
+                                senderAccent = Accent.Unknown
+                            )
+                        )
+                    }
+                    VerticalSpace.x4()
+                }
                 if (messageContent.messageBody?.message?.asString()?.isNotEmpty() == true) {
                     MessageBody(
                         messageBody = messageContent.messageBody,
@@ -321,7 +360,8 @@ private fun MessageContent(
                         buttonList = null,
                         messageId = message.header.messageId,
                         onLinkClick = onLinkClick,
-                        messageStyle = messageStyle
+                        messageStyle = messageStyle,
+                        accent = accent
                     )
                     Spacer(modifier = Modifier.height(dimensions().spacing8x))
                 }
@@ -330,6 +370,7 @@ private fun MessageContent(
                     attachments = messageContent.attachments,
                     messageStyle = messageStyle,
                     accent = accent,
+                    onImageAttachmentClick = onMultipartImageClick
                 )
             }
 

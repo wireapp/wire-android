@@ -28,6 +28,8 @@ import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.data.user.type.UserTypeInfo
+import com.wire.kalium.logic.data.user.type.isTeamAdmin
 import com.wire.kalium.logic.feature.call.usecase.AnswerCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.IsEligibleToStartCallUseCase
@@ -48,6 +50,7 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -120,9 +123,7 @@ class ConversationCallViewModelTest {
             .withSelfAsAdmin()
             .arrange()
 
-        val role = viewModel.selfTeamRole
-
-        assertEquals(UserType.ADMIN, role.value)
+        assertTrue(viewModel.selfTeamRole.value.isTeamAdmin())
     }
 
     @Test
@@ -212,7 +213,11 @@ class ConversationCallViewModelTest {
         }
 
         suspend fun withSelfAsAdmin() = apply {
-            coEvery { observeSelfUserUseCase.invoke() } returns flowOf(TestUser.SELF_USER.copy(userType = UserType.ADMIN))
+            coEvery { observeSelfUserUseCase.invoke() } returns flowOf(
+                TestUser.SELF_USER.copy(
+                    userType = UserTypeInfo.Regular(UserType.ADMIN)
+                )
+            )
         }
 
         suspend fun withConferenceCallingEnabledResponse() = apply {

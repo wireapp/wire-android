@@ -159,7 +159,7 @@ private fun ErrorFooter(onRetry: () -> Unit) {
     ) {
 
         Text(
-            text = stringResource(R.string.file_list_load_error),
+            text = stringResource(R.string.file_list_page_load_error),
             style = typography().label03,
             color = colorsScheme().error,
             textAlign = TextAlign.Center,
@@ -167,7 +167,7 @@ private fun ErrorFooter(onRetry: () -> Unit) {
 
         WireSecondaryButton(
             modifier = Modifier.height(dimensions().spacing32x),
-            text = stringResource(R.string.retry),
+            text = stringResource(R.string.reload),
             onClick = onRetry,
             fillMaxWidth = false,
         )

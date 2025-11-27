@@ -151,17 +151,24 @@ class ConversationMessagesViewModel @Inject constructor(
         )
 
     fun navigateToReplyOriginalMessage(message: UIMessage) {
-        if (message.messageContent is UIMessageContent.TextMessage) {
-            val originalMessageId =
-                ((message.messageContent as UIMessageContent.TextMessage)
-                    .messageBody.quotedMessage as UIQuotedMessage.UIQuotedData)
-                    .messageId
+        getOriginalMessageId(message)?.let { originalMessageId ->
             conversationViewState = conversationViewState.copy(
                 searchedMessageId = originalMessageId
             )
             loadPaginatedMessages()
         }
     }
+
+    private fun getOriginalMessageId(message: UIMessage) =
+        when (val content = message.messageContent) {
+            is UIMessageContent.TextMessage ->
+                (content.messageBody.quotedMessage as UIQuotedMessage.UIQuotedData).messageId
+
+            is UIMessageContent.Multipart ->
+                (content.messageBody?.quotedMessage as? UIQuotedMessage.UIQuotedData)?.messageId
+
+            else -> null
+        }
 
     private fun clearOrphanedTypingEvents() {
         viewModelScope.launch { clearUsersTypingEvents() }
@@ -188,10 +195,12 @@ class ConversationMessagesViewModel @Inject constructor(
 
     private fun loadPaginatedMessages() = viewModelScope.launch {
         val lastReadIndex = conversationViewState.searchedMessageId?.let { messageId ->
-            when (val result = getSearchedConversationMessagePosition(
+            when (
+                val result = getSearchedConversationMessagePosition(
                 conversationId = conversationId,
                 messageId = messageId
-            )) {
+            )
+            ) {
                 is GetSearchedConversationMessagePositionUseCase.Result.Success -> result.position
                 is GetSearchedConversationMessagePositionUseCase.Result.Failure -> 0
             }

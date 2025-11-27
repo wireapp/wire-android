@@ -35,6 +35,7 @@ import com.wire.kalium.logic.data.publicuser.model.UserSearchDetails
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.data.user.type.UserTypeInfo
 import com.wire.kalium.logic.feature.auth.ValidateUserHandleResult
 import com.wire.kalium.logic.feature.auth.ValidateUserHandleUseCase
 import com.wire.kalium.logic.feature.search.FederatedSearchParser
@@ -101,7 +102,7 @@ class SearchUserViewModelTest {
 
             val conversationId = ConversationId("id", "domain")
             val (arrangement, viewModel) = Arrangement()
-                .withAddMembersSearchNavArgs(AddMembersSearchNavArgs(conversationId, true))
+                .withAddMembersSearchNavArgs(AddMembersSearchNavArgs(conversationId, true, true))
                 .withSearchResult(
                     SearchUserResult(
                         connected = listOf(),
@@ -137,7 +138,7 @@ class SearchUserViewModelTest {
         runTest {
             val conversationId = ConversationId("id", "domain")
             val (_, viewModel) = Arrangement()
-                .withAddMembersSearchNavArgs(AddMembersSearchNavArgs(conversationId, true))
+                .withAddMembersSearchNavArgs(AddMembersSearchNavArgs(conversationId, true, true))
                 .withIsFederationSearchAllowedResult(false)
                 .withIsValidHandleResult(ValidateUserHandleResult.Valid(""))
                 .withFederatedSearchParserResult(
@@ -162,7 +163,7 @@ class SearchUserViewModelTest {
         runTest {
             val conversationId = ConversationId("id", "domain")
             val (_, viewModel) = Arrangement()
-                .withAddMembersSearchNavArgs(AddMembersSearchNavArgs(conversationId, true))
+                .withAddMembersSearchNavArgs(AddMembersSearchNavArgs(conversationId, true, true))
                 .withIsFederationSearchAllowedResult(false)
                 .withIsValidHandleResult(ValidateUserHandleResult.Valid(""))
                 .withFederatedSearchParserResult(
@@ -187,7 +188,7 @@ class SearchUserViewModelTest {
         runTest {
             val conversationId = ConversationId("id", "domain")
             val (_, viewModel) = Arrangement()
-                .withAddMembersSearchNavArgs(AddMembersSearchNavArgs(conversationId, true))
+                .withAddMembersSearchNavArgs(AddMembersSearchNavArgs(conversationId, true, true))
                 .withIsFederationSearchAllowedResult(true)
                 .withIsValidHandleResult(ValidateUserHandleResult.Valid(""))
                 .withFederatedSearchParserResult(
@@ -217,7 +218,7 @@ class SearchUserViewModelTest {
                         id = UserId("connected", "domain"),
                         name = "connected",
                         completeAssetId = null,
-                        type = UserType.INTERNAL,
+                        type = UserTypeInfo.Regular(UserType.INTERNAL),
                         connectionStatus = ConnectionState.ACCEPTED,
                         previewAssetId = null,
                         handle = "handle"
@@ -228,7 +229,7 @@ class SearchUserViewModelTest {
                         id = UserId("notconnected", "domain"),
                         name = "notconnected",
                         completeAssetId = null,
-                        type = UserType.INTERNAL,
+                        type = UserTypeInfo.Regular(UserType.INTERNAL),
                         connectionStatus = ConnectionState.BLOCKED,
                         previewAssetId = null,
                         handle = "handle"
@@ -308,7 +309,7 @@ class SearchUserViewModelTest {
             id = UserId("id", "domain"),
             name = "name",
             completeAssetId = null,
-            type = UserType.INTERNAL,
+            type = UserTypeInfo.Regular(UserType.INTERNAL),
             connectionStatus = ConnectionState.ACCEPTED,
             previewAssetId = null,
             handle = "handle"
@@ -366,6 +367,7 @@ class SearchUserViewModelTest {
             withIsFederationSearchAllowedResult(false)
         }
 
+        @Suppress("CyclomaticComplexMethod")
         fun fromSearchUserResult(user: UserSearchDetails): Contact {
             with(user) {
                 return Contact(
@@ -375,15 +377,20 @@ class SearchUserViewModelTest {
                     handle = handle ?: String.EMPTY,
                     label = user.handle ?: String.EMPTY,
                     avatarData = UserAvatarData(asset = null),
-                    membership = when (user.type) {
-                        UserType.GUEST -> Membership.Guest
-                        UserType.FEDERATED -> Membership.Federated
-                        UserType.EXTERNAL -> Membership.External
-                        UserType.INTERNAL -> Membership.Standard
-                        UserType.NONE -> Membership.None
-                        UserType.SERVICE -> Membership.Service
-                        UserType.ADMIN -> Membership.Admin
-                        UserType.OWNER -> Membership.Owner
+                    membership = when (val type = user.type) {
+                        UserTypeInfo.App -> Membership.Service
+                        UserTypeInfo.Bot -> Membership.Service
+                        is UserTypeInfo.Regular -> {
+                            when (type.type) {
+                                UserType.FEDERATED -> Membership.Federated
+                                UserType.EXTERNAL -> Membership.External
+                                UserType.INTERNAL -> Membership.Standard
+                                UserType.NONE -> Membership.None
+                                UserType.ADMIN -> Membership.Admin
+                                UserType.OWNER -> Membership.Owner
+                                UserType.GUEST -> Membership.Guest
+                            }
+                        }
                     },
                     connectionState = connectionStatus
                 )

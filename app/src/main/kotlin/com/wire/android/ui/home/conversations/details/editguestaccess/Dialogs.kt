@@ -25,20 +25,21 @@ import com.wire.android.R
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
-import com.wire.android.ui.home.conversations.details.options.DisableConformationDialog
+import com.wire.android.ui.home.conversations.details.options.DisableConfirmationDialog
 
 @Composable
 fun RevokeGuestConfirmationDialog(onConfirm: () -> Unit, onDialogDismiss: () -> Unit) {
-    DisableConformationDialog(
+    DisableConfirmationDialog(
         text = R.string.revoke_guest__room_link_dialog_text,
         title = R.string.revoke_guest__room_link_dialog_title,
         onConfirm = onConfirm,
         onDismiss = onDialogDismiss
     )
 }
+
 @Composable
 fun DisableGuestConfirmationDialog(onConfirm: () -> Unit, onDialogDismiss: () -> Unit) {
-    DisableConformationDialog(
+    DisableConfirmationDialog(
         text = R.string.disable_guest_dialog_text,
         title = R.string.disable_guest_dialog_title,
         onConfirm = onConfirm,

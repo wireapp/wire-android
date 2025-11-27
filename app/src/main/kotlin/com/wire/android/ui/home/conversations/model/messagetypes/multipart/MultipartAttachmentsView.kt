@@ -54,6 +54,7 @@ fun MultipartAttachmentsView(
     conversationId: ConversationId,
     attachments: List<MessageAttachment>,
     messageStyle: MessageStyle,
+    onImageAttachmentClick: (String) -> Unit,
     modifier: Modifier = Modifier,
     accent: Accent = Accent.Unknown,
     viewModel: MultipartAttachmentsViewModel = hiltViewModel<MultipartAttachmentsViewModel>(key = conversationId.value),
@@ -66,7 +67,12 @@ fun MultipartAttachmentsView(
                 item = it,
                 messageStyle = messageStyle,
                 accent = accent,
-                onClick = { viewModel.onClick(it) },
+                onClick = {
+                    viewModel.onClick(
+                        attachment = it,
+                        openInImageViewer = onImageAttachmentClick,
+                    )
+                },
             )
         }
     } else {
@@ -82,14 +88,24 @@ fun MultipartAttachmentsView(
                         AttachmentsGrid(
                             attachments = group.attachments,
                             messageStyle = messageStyle,
-                            onClick = { viewModel.onClick(it) },
+                            onClick = {
+                                viewModel.onClick(
+                                    attachment = it,
+                                    openInImageViewer = onImageAttachmentClick,
+                                )
+                            },
                         )
 
                     is MultipartAttachmentsViewModel.MultipartAttachmentGroup.Files ->
                         AttachmentsList(
                             attachments = group.attachments,
                             messageStyle = messageStyle,
-                            onClick = { viewModel.onClick(it) },
+                            onClick = {
+                                viewModel.onClick(
+                                    attachment = it,
+                                    openInImageViewer = onImageAttachmentClick,
+                                )
+                            },
                             accent = accent
                         )
                 }

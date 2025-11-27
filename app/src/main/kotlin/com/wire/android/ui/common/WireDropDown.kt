@@ -248,8 +248,11 @@ private fun SelectionField(
                 .align(Alignment.CenterVertically),
             text = text,
             style = MaterialTheme.wireTypography.body01,
-            color = if (selectedIndex != -1) MaterialTheme.wireColorScheme.onSecondaryButtonEnabled
-            else MaterialTheme.wireColorScheme.secondaryText
+            color = if (selectedIndex != -1) {
+                MaterialTheme.wireColorScheme.onSecondaryButtonEnabled
+            } else {
+                MaterialTheme.wireColorScheme.secondaryText
+            }
         )
         Icon(
             imageVector = Icons.Filled.ExpandMore,
@@ -282,8 +285,11 @@ private fun DropdownItem(
                 text = text,
                 modifier = Modifier.fillMaxWidth(),
                 style = if (isSelected) MaterialTheme.wireTypography.body02 else MaterialTheme.wireTypography.body01,
-                color = if (isSelected) MaterialTheme.wireColorScheme.onSecondaryButtonSelected
-                else MaterialTheme.wireColorScheme.onSecondaryButtonEnabled
+                color = if (isSelected) {
+                    MaterialTheme.wireColorScheme.onSecondaryButtonSelected
+                } else {
+                    MaterialTheme.wireColorScheme.onSecondaryButtonEnabled
+                }
             )
         },
         leadingIcon = leadingCompose,
@@ -303,8 +309,11 @@ private fun DropdownItem(
                 }
             }
             .background(
-                color = if (isSelected) MaterialTheme.wireColorScheme.secondaryButtonSelected
-                else MaterialTheme.wireColorScheme.tertiaryButtonEnabled
+                color = if (isSelected) {
+                    MaterialTheme.wireColorScheme.secondaryButtonSelected
+                } else {
+                    MaterialTheme.wireColorScheme.tertiaryButtonEnabled
+                }
             )
     )
 }

@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.feature.cells.ui.versionhistory
+package com.wire.android.feature.cells.ui.versioning
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -48,7 +48,7 @@ fun VersionHistoryScreen(
     versionHistoryViewModel: VersionHistoryViewModel = hiltViewModel()
 ) {
     VersionHistoryScreenContent(
-        versionsGroupedByTime = versionHistoryViewModel.versionsGroupedByTime,
+        versionsGroupedByTime = versionHistoryViewModel.versionsGroupedByTime.value,
         modifier = modifier,
         navigateBack = { navigator.navigateBack() }
     )
@@ -56,7 +56,7 @@ fun VersionHistoryScreen(
 
 @Composable
 private fun VersionHistoryScreenContent(
-    versionsGroupedByTime: Map<String, List<CellVersion>>,
+    versionsGroupedByTime: List<VersionGroup>,
     modifier: Modifier = Modifier,
     navigateBack: () -> Unit = {}
 ) {
@@ -72,16 +72,16 @@ private fun VersionHistoryScreenContent(
         },
     ) { innerPadding ->
         LazyColumn(Modifier.padding(innerPadding)) {
-            versionsGroupedByTime.forEach { date, versions ->
+            versionsGroupedByTime.forEach { group ->
                 item {
-                    VersionTimeHeaderItem(date)
+                    VersionTimeHeaderItem(group.dateLabel)
                 }
-                versions.forEach { version ->
+                group.uiItems.forEach {
                     item {
                         VersionItem(
-                            modifiedAt = version.modifiedAt,
-                            modifiedBy = version.modifiedBy,
-                            fileSize = version.fileSize,
+                            modifiedAt = it.modifiedAt,
+                            modifiedBy = it.modifiedBy,
+                            fileSize = it.fileSize,
                         )
                         WireDivider(
                             modifier = Modifier.fillMaxWidth(),
@@ -99,17 +99,23 @@ private fun VersionHistoryScreenContent(
 fun PreviewVersionHistoryScreenContent() {
     WireTheme {
         VersionHistoryScreenContent(
-            versionsGroupedByTime = mapOf(
-                "Today, 3 Dec 2025" to listOf(
-                    CellVersion("1:46 PM", "Deniz Agha", 200L),
-                    CellVersion("11:20 AM", "Alice Smith", 150L),
-                    CellVersion("09:15 AM", "John Doe", 100L),
-                    CellVersion("08:00 AM", "Eve Davis", 120L),
-                    CellVersion("07:30 AM", "Frank Miller", 180L),
+            versionsGroupedByTime = listOf(
+                VersionGroup(
+                    dateLabel = "Today, 3 Dec 2025",
+                    uiItems = listOf(
+                        CellVersion("1:46 PM", "Deniz Agha", "200MB"),
+                        CellVersion("11:20 AM", "Alice Smith", "150MB"),
+                        CellVersion("09:15 AM", "John Doe", "100KB"),
+                        CellVersion("08:00 AM", "Eve Davis", "340KB"),
+                        CellVersion("07:30 AM", "Frank Miller", "1GB"),
+                    )
                 ),
-                "1 Dec 2025" to listOf(
-                    CellVersion("3:15 PM", "Bob Johnson", 300L),
-                    CellVersion("10:05 AM", "Charlie Brown", 250L),
+                VersionGroup(
+                    dateLabel = "1 Dec 2025",
+                    uiItems = listOf(
+                        CellVersion("3:15 PM", "Bob Johnson", "300MB"),
+                        CellVersion("10:05 AM", "Charlie Brown", "250KB"),
+                    )
                 )
             )
         )

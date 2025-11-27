@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.feature.cells.ui.versionhistory
+package com.wire.android.feature.cells.ui.versioning
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -48,7 +48,7 @@ import com.wire.android.ui.theme.WireTheme
 fun VersionItem(
     modifiedAt: String,
     modifiedBy: String,
-    fileSize: Long,
+    fileSize: String,
     modifier: Modifier = Modifier,
     onActionClick: () -> Unit = {}
 ) {
@@ -87,7 +87,7 @@ fun VersionItem(
                 )
                 Row {
                     Text(
-                        text = "$modifiedBy · $fileSize MB",
+                        text = "$modifiedBy · $fileSize",
                         style = typography().label04,
                         color = colorsScheme().secondaryText,
                     )
@@ -100,7 +100,7 @@ fun VersionItem(
             contentDescription = null,
             tint = colorsScheme().secondaryText,
             modifier = Modifier
-                .padding(end = dimensions().spacing8x)
+                .padding(end = dimensions().spacing16x)
                 .clickable(
                     onClick = { onActionClick },
                     interactionSource = interactionSource,
@@ -147,7 +147,7 @@ fun VersionItemPreview() {
         VersionItem(
             modifiedAt = "1:46 PM",
             modifiedBy = "Deniz Agha",
-            fileSize = 200L,
+            fileSize = "200MB",
         )
     }
 }

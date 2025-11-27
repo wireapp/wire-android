@@ -15,10 +15,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.feature.cells.ui.versionhistory
+package com.wire.android.di
 
-data class CellVersion(
-    val modifiedAt: String,
-    val modifiedBy: String,
-    val fileSize: Long
-)
+import android.content.Context
+import com.wire.android.navigation.di.ResourceProvider
+import javax.inject.Inject
+
+class ResourceProviderImpl @Inject constructor(
+    private val context: Context,
+) : ResourceProvider {
+    override fun getString(id: Int): String = context.getString(id)
+}

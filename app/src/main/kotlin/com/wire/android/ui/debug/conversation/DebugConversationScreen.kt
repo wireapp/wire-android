@@ -22,6 +22,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -30,15 +32,21 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.common.HandleActions
+import com.wire.android.ui.common.WireDialog
+import com.wire.android.ui.common.WireDialogButtonProperties
+import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.rowitem.RowItemTemplate
 import com.wire.android.ui.common.button.WirePrimaryButton
+import com.wire.android.ui.common.button.WireSwitch
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
@@ -62,6 +70,7 @@ fun DebugConversationScreen(
 ) {
 
     val context = LocalContext.current
+    val scrollState = rememberScrollState()
 
     WireScaffold(
         topBar = {
@@ -86,6 +95,7 @@ fun DebugConversationScreen(
             Column(
                 modifier = modifier
                     .fillMaxSize()
+                    .verticalScroll(scrollState)
                     .padding(paddingValues),
             ) {
                 SectionHeader("Conversation details")
@@ -102,6 +112,18 @@ fun DebugConversationScreen(
                     onUpdate = { viewModel.updateConversation() },
                     onReset = { viewModel.resetMLSConversation() },
                 )
+                if (BuildConfig.CONVERSATION_FEEDER_ENABLED) {
+                    SectionHeader("Feeders / performance config")
+                    ConversationFeedConfigView(
+                        config = state.feedConfig,
+                        onMessagesToggle = { enabled -> viewModel.onMessagesFeederToggle(enabled) },
+                        onReactionsToggle = { enabled -> viewModel.onReactionsFeederToggle(enabled) },
+                        onUnreadEventsToggle = { enabled -> viewModel.onUnreadEventsFeederToggle(enabled) },
+                        onMentionsToggle = { enabled -> viewModel.onMentionsFeederToggle(enabled) },
+                        onShowDialog = { show -> viewModel.showFeedersDialog(show) },
+                        onRunFeeders = { viewModel.runFeedersForConversation() }
+                    )
+                }
             }
         }
     )
@@ -229,6 +251,132 @@ private fun MlsDetailsView(mlsProtocolInfo: Conversation.ProtocolInfo.MLS) {
     SettingsItem(
         title = "Epoch",
         text = mlsProtocolInfo.epoch.toString(),
+    )
+}
+
+@Composable
+private fun ConversationFeedConfigView(
+    config: DebugFeedConfigUiState,
+    onMessagesToggle: (Boolean) -> Unit,
+    onReactionsToggle: (Boolean) -> Unit,
+    onUnreadEventsToggle: (Boolean) -> Unit,
+    onMentionsToggle: (Boolean) -> Unit,
+    onShowDialog: (Boolean) -> Unit,
+    onRunFeeders: () -> Unit,
+) {
+    if (config.showDialog) {
+        WireDialog(
+            title = "Warning: Irreversible Debug Operation",
+            text = "Using feeders will permanently modify this conversation’s data.\n" +
+                    "Synthetic messages, mentions, reactions or unread events cannot be undone.\n" +
+                    "\n" +
+                    "This action is for internal testing only. Do NOT use on real conversations.",
+            onDismiss = {
+                onShowDialog(false)
+            },
+            optionButton1Properties = WireDialogButtonProperties(
+                onClick = {
+                    onShowDialog(false)
+                },
+                text = stringResource(R.string.label_cancel),
+                type = WireDialogButtonType.Secondary,
+            ),
+            optionButton2Properties = WireDialogButtonProperties(
+                onClick = {
+                    onRunFeeders()
+                },
+                text = "Run feeders",
+                loading = config.isProcessing,
+                type = WireDialogButtonType.Primary,
+            )
+        )
+    }
+
+    RowItemTemplate(
+        title = {
+            Text(
+                text = "Feed messages",
+                style = MaterialTheme.wireTypography.body01,
+                color = MaterialTheme.wireColorScheme.onBackground,
+                modifier = Modifier.padding(start = dimensions().spacing8x)
+            )
+        },
+        actions = {
+            WireSwitch(
+                checked = config.messagesEnabled,
+                onCheckedChange = onMessagesToggle
+            )
+        }
+    )
+
+    RowItemTemplate(
+        title = {
+            Text(
+                text = "Feed reactions",
+                style = MaterialTheme.wireTypography.body01,
+                color = MaterialTheme.wireColorScheme.onBackground,
+                modifier = Modifier.padding(start = dimensions().spacing8x)
+            )
+        },
+        actions = {
+            WireSwitch(
+                checked = config.reactionsEnabled,
+                onCheckedChange = onReactionsToggle
+            )
+        }
+    )
+
+    RowItemTemplate(
+        title = {
+            Text(
+                text = "Feed unread events",
+                style = MaterialTheme.wireTypography.body01,
+                color = MaterialTheme.wireColorScheme.onBackground,
+                modifier = Modifier.padding(start = dimensions().spacing8x)
+            )
+        },
+        actions = {
+            WireSwitch(
+                checked = config.unreadEventsEnabled,
+                onCheckedChange = onUnreadEventsToggle
+            )
+        }
+    )
+
+    RowItemTemplate(
+        title = {
+            Text(
+                text = "Feed mentions",
+                style = MaterialTheme.wireTypography.body01,
+                color = MaterialTheme.wireColorScheme.onBackground,
+                modifier = Modifier.padding(start = dimensions().spacing8x)
+            )
+        },
+        actions = {
+            WireSwitch(
+                checked = config.mentionsEnabled,
+                onCheckedChange = onMentionsToggle
+            )
+        }
+    )
+
+    RowItemTemplate(
+        title = {
+            Text(
+                text = "Run selected feeders",
+                style = MaterialTheme.wireTypography.body01,
+                color = MaterialTheme.wireColorScheme.onBackground,
+                modifier = Modifier.padding(start = dimensions().spacing8x)
+            )
+        },
+        actions = {
+            WirePrimaryButton(
+                loading = config.isProcessing,
+                onClick = { onShowDialog(true) },
+                text = "Run feeders",
+                fillMaxWidth = false
+            )
+        }
     )
 }
 

@@ -84,6 +84,7 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
 
     URL_SUPPORT("url_support", ConfigType.STRING),
     URL_RSS_RELEASE_NOTES("url_rss_release_notes", ConfigType.STRING),
+    CONVERSATION_FEEDER_ENABLED("conversation_feeder_enabled", ConfigType.BOOLEAN),
 
     /**
      * In runtime, will use these values to determine which backend to use.

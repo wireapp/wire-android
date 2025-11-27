@@ -292,7 +292,6 @@ private fun ConversationFeedConfigView(
         )
     }
 
-
     RowItemTemplate(
         title = {
             Text(

@@ -46,6 +46,7 @@ import com.wire.kalium.cells.domain.usecase.RestoreNodeFromRecycleBinUseCase
 import com.wire.kalium.common.functional.fold
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
+import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.coroutines.delay
@@ -83,7 +84,8 @@ class CellViewModel @Inject constructor(
     private val download: DownloadCellFileUseCase,
     private val isCellAvailable: IsAtLeastOneCellAvailableUseCase,
     private val fileHelper: FileHelper,
-    private val fileNameResolver: FileNameResolver
+    private val fileNameResolver: FileNameResolver,
+    private val kaliumConfigs: KaliumConfigs
 ) : ActionsViewModel<CellViewAction>() {
 
     private val navArgs: CellFilesNavArgs = savedStateHandle.navArgs()
@@ -378,8 +380,7 @@ class CellViewModel @Inject constructor(
                     }
                     add(NodeBottomSheetAction.PUBLIC_LINK)
                     add(NodeBottomSheetAction.DOWNLOAD)
-                    // todo add feature flag
-                    if (cellNode is CellNodeUi.File) {
+                    if (kaliumConfigs.collaboraIntegration && cellNode is CellNodeUi.File) {
                         add(NodeBottomSheetAction.VERSION_HISTORY)
                     }
                     add(NodeBottomSheetAction.ADD_REMOVE_TAGS)

@@ -25,6 +25,5 @@ data class CellVersion(
 
 data class VersionGroup(
     val dateLabel: String,
-    val uiItems: List<CellVersion>
+    val versions: List<CellVersion>
 )
-

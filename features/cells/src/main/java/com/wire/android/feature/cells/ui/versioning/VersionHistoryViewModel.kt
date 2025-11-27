@@ -48,6 +48,9 @@ class VersionHistoryViewModel @Inject constructor(
     var versionsGroupedByTime: MutableState<List<VersionGroup>> = mutableStateOf(listOf())
         private set
 
+    var isFetchingContent: MutableState<Boolean> = mutableStateOf(true)
+        private set
+
     init {
         viewModelScope.launch {
             fetchNodeVersionsGroupedByDate()
@@ -55,35 +58,16 @@ class VersionHistoryViewModel @Inject constructor(
     }
 
     suspend fun fetchNodeVersionsGroupedByDate() {
+        isFetchingContent.value = true
         navArgs.uuid?.let {
-            val result = getNodeVersionsUseCase(navArgs.uuid)
-            result.onSuccess {
+            getNodeVersionsUseCase(navArgs.uuid).onSuccess {
                 versionsGroupedByTime.value = it.groupByDay()
             }
         }
+        isFetchingContent.value = false
     }
 
-    private fun formatSize(bytes: Long): String {
-        val units = arrayOf(
-            resourceProvider.getString(R.string.unit_b),
-            resourceProvider.getString(R.string.unit_kb),
-            resourceProvider.getString(R.string.unit_mb),
-            resourceProvider.getString(R.string.unit_gb),
-            resourceProvider.getString(R.string.unit_tb)
-        )
-        var size = bytes.toDouble()
-        var index = 0
-
-        while (size >= 1024 && index < units.size - 1) {
-            size /= 1024
-            index++
-        }
-
-        return String.format("%.2f %s", size, units[index])
-    }
-
-
-    fun List<NodeVersion>.groupByDay(): List<VersionGroup> {
+    private fun List<NodeVersion>.groupByDay(): List<VersionGroup> {
         val today = LocalDate.now()
         val yesterday = today.minusDays(1)
 
@@ -97,8 +81,12 @@ class VersionHistoryViewModel @Inject constructor(
             .sortedByDescending { it.key }
             .map { (date, items) ->
                 val dateLabel = when (date) {
-                    today -> "${resourceProvider.getString(R.string.today_label)}, ${date.format(DateTimeFormatter.ofPattern("d MMM yyyy"))}"
-                    yesterday -> "${resourceProvider.getString(R.string.yesterday_label)}, ${date.format(DateTimeFormatter.ofPattern("d MMM yyyy"))}"
+                    today -> "${resourceProvider.getString(R.string.today_label)}, " +
+                            "${date.format(DateTimeFormatter.ofPattern("d MMM yyyy"))}"
+
+                    yesterday -> "${resourceProvider.getString(R.string.yesterday_label)}, " +
+                            "${date.format(DateTimeFormatter.ofPattern("d MMM yyyy"))}"
+
                     else -> date.format(DateTimeFormatter.ofPattern("d MMM yyyy"))
                 }
 
@@ -114,5 +102,24 @@ class VersionHistoryViewModel @Inject constructor(
                 }
                 VersionGroup(dateLabel, uiItems)
             }
+    }
+
+    @Suppress("MagicNumber")
+    private fun formatSize(bytes: Long): String {
+        val units = arrayOf(
+            resourceProvider.getString(R.string.unit_b),
+            resourceProvider.getString(R.string.unit_kb),
+            resourceProvider.getString(R.string.unit_mb),
+            resourceProvider.getString(R.string.unit_gb),
+            resourceProvider.getString(R.string.unit_tb)
+        )
+        var size = bytes.toDouble()
+        var index = 0
+
+        while (size >= 1024 && index < units.size - 1) {
+            size /= 1024
+            index++
+        }
+        return String.format("%.2f %s", size, units[index])
     }
 }

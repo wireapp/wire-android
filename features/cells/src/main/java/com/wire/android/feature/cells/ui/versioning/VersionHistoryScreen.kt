@@ -17,6 +17,9 @@
  */
 package com.wire.android.feature.cells.ui.versioning
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -25,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.feature.cells.R
+import com.wire.android.feature.cells.ui.common.LoadingScreen
 import com.wire.android.navigation.WireNavigator
 import com.wire.android.navigation.annotation.features.cells.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
@@ -50,6 +54,7 @@ fun VersionHistoryScreen(
     VersionHistoryScreenContent(
         versionsGroupedByTime = versionHistoryViewModel.versionsGroupedByTime.value,
         modifier = modifier,
+        isFetchingContent = versionHistoryViewModel.isFetchingContent.value,
         navigateBack = { navigator.navigateBack() }
     )
 }
@@ -58,6 +63,7 @@ fun VersionHistoryScreen(
 private fun VersionHistoryScreenContent(
     versionsGroupedByTime: List<VersionGroup>,
     modifier: Modifier = Modifier,
+    isFetchingContent: Boolean,
     navigateBack: () -> Unit = {}
 ) {
     WireScaffold(
@@ -71,22 +77,35 @@ private fun VersionHistoryScreenContent(
             )
         },
     ) { innerPadding ->
-        LazyColumn(Modifier.padding(innerPadding)) {
-            versionsGroupedByTime.forEach { group ->
-                item {
-                    VersionTimeHeaderItem(group.dateLabel)
-                }
-                group.uiItems.forEach {
+
+        AnimatedVisibility(
+            visible = isFetchingContent,
+            enter = fadeIn(),
+            exit = fadeOut()
+        ) { LoadingScreen() }
+
+        AnimatedVisibility(
+            visible = !isFetchingContent,
+            enter = fadeIn(),
+            exit = fadeOut()
+        ) {
+            LazyColumn(Modifier.padding(innerPadding)) {
+                versionsGroupedByTime.forEach { group ->
                     item {
-                        VersionItem(
-                            modifiedAt = it.modifiedAt,
-                            modifiedBy = it.modifiedBy,
-                            fileSize = it.fileSize,
-                        )
-                        WireDivider(
-                            modifier = Modifier.fillMaxWidth(),
-                            color = colorsScheme().outline
-                        )
+                        VersionTimeHeaderItem(group.dateLabel)
+                    }
+                    group.versions.forEach {
+                        item {
+                            VersionItem(
+                                modifiedAt = it.modifiedAt,
+                                modifiedBy = it.modifiedBy,
+                                fileSize = it.fileSize,
+                            )
+                            WireDivider(
+                                modifier = Modifier.fillMaxWidth(),
+                                color = colorsScheme().outline
+                            )
+                        }
                     }
                 }
             }
@@ -99,10 +118,11 @@ private fun VersionHistoryScreenContent(
 fun PreviewVersionHistoryScreenContent() {
     WireTheme {
         VersionHistoryScreenContent(
+            isFetchingContent = false,
             versionsGroupedByTime = listOf(
                 VersionGroup(
                     dateLabel = "Today, 3 Dec 2025",
-                    uiItems = listOf(
+                    versions = listOf(
                         CellVersion("1:46 PM", "Deniz Agha", "200MB"),
                         CellVersion("11:20 AM", "Alice Smith", "150MB"),
                         CellVersion("09:15 AM", "John Doe", "100KB"),
@@ -112,7 +132,7 @@ fun PreviewVersionHistoryScreenContent() {
                 ),
                 VersionGroup(
                     dateLabel = "1 Dec 2025",
-                    uiItems = listOf(
+                    versions = listOf(
                         CellVersion("3:15 PM", "Bob Johnson", "300MB"),
                         CellVersion("10:05 AM", "Charlie Brown", "250KB"),
                     )

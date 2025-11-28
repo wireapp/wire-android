@@ -385,6 +385,7 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="conversation_options_guest_description">Active esta opci&#243;n para abrir esta conversaci&#243;n a personas fuera de su equipo, incluso si no tienen Wire.</string>
     <string name="conversation_options_guest_not_editable_description">No se puede desactivar la opci&#243;n de invitados en esta conversaci&#243;n, ya que ha sido creada por alguien de otro equipo.</string>
     <string name="conversation_options_services_label">Aplicaciones</string>
+    <string name="conversation_details_apps_description">Cuando esta opción está activada, la conversación está abierta a aplicaciones.</string>
     <string name="conversation_options_services_description">Activa esta opción para abrir la conversación a aplicaciones.</string>
     <string name="conversation_options_renamed">Conversaci&#243;n renombrada</string>
     <string name="disable_guest_dialog_title">&#191;Desea desactivar el acceso de invitados?</string>

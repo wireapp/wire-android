@@ -86,6 +86,7 @@ class VersionHistoryViewModelTest {
         assertFalse(viewModel.isFetchingContent.value)
     }
 
+    @Suppress("LongMethod")
     @Test
     fun givenSuccessfulFetch_whenViewModelInits_thenVersionsAreGroupedCorrectly() = runTest {
         val today = LocalDate.now()

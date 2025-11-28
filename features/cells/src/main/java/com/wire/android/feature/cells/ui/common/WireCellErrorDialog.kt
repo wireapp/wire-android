@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.feature.cells.ui.publiclink
+package com.wire.android.feature.cells.ui.common
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
@@ -28,7 +28,7 @@ import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.theme.WireTheme
 
 @Composable
-internal fun PublicLinkErrorDialog(
+internal fun WireCellErrorDialog(
     title: String? = null,
     message: String? = null,
     onResult: (tryAgain: Boolean) -> Unit,
@@ -55,7 +55,7 @@ internal fun PublicLinkErrorDialog(
 @Composable
 private fun PreviewErrorDialog() {
     WireTheme {
-        PublicLinkErrorDialog(
+        WireCellErrorDialog(
             onResult = {},
         )
     }

@@ -47,7 +47,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.feature.cells.R
-import com.wire.android.feature.cells.ui.publiclink.PublicLinkErrorDialog
+import com.wire.android.feature.cells.ui.common.WireCellErrorDialog
 import com.wire.android.feature.cells.ui.publiclink.settings.RemovePasswordDialog
 import com.wire.android.feature.cells.ui.util.PreviewMultipleThemes
 import com.wire.android.navigation.annotation.features.cells.WireDestination
@@ -131,7 +131,7 @@ internal fun PublicLinkPasswordScreen(
     }
 
     passwordError?.let { error ->
-        PublicLinkErrorDialog(
+        WireCellErrorDialog(
             title = error.title?.let { stringResource(it) },
             message = error.message?.let { stringResource(it) },
             onResult = { tryAgain ->

@@ -15,22 +15,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.feature.cells.ui.versionhistory
+package com.wire.android.feature.cells.ui.versioning
 
-import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
-import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.collections.immutable.ImmutableMap
-import kotlinx.collections.immutable.persistentMapOf
-import javax.inject.Inject
+data class CellVersion(
+    val modifiedAt: String,
+    val modifiedBy: String,
+    val fileSize: String
+)
 
-@HiltViewModel
-class VersionHistoryViewModel @Inject constructor(
-    val savedStateHandle: SavedStateHandle,
-) : ViewModel() {
-
-    fun getVersionsGroupedByDate(): ImmutableMap<String, List<CellVersion>> {
-        // todo: implement real logic to get versions in next PR
-        return persistentMapOf("1 Dec 2025" to listOf())
-    }
-}
+data class VersionGroup(
+    val dateLabel: String,
+    val versions: List<CellVersion>
+)

@@ -50,6 +50,7 @@ import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.ramcosta.composedestinations.spec.DestinationSpec
 import com.wire.android.feature.cells.R
+import com.wire.android.feature.cells.ui.common.WireCellErrorDialog
 import com.wire.android.feature.cells.ui.destinations.PublicLinkExpirationScreenDestination
 import com.wire.android.feature.cells.ui.destinations.PublicLinkPasswordScreenDestination
 import com.wire.android.feature.cells.ui.publiclink.settings.PublicLinkSettingsSection
@@ -158,7 +159,7 @@ fun PublicLinkScreen(
     }
 
     showErrorDialog?.let { error ->
-        PublicLinkErrorDialog(
+        WireCellErrorDialog(
             onResult = { tryAgain ->
                 showErrorDialog = null
                 if (tryAgain) viewModel.retryError(error)

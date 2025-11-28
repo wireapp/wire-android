@@ -64,7 +64,6 @@ class FileSharing : BaseUiTest() {
     fun setUp() {
         context = InstrumentationRegistry.getInstrumentation().context
         device = UiAutomatorSetup.start(UiAutomatorSetup.APP_INTERNAL)
-        // device = UiAutomatorSetup.start(UiAutomatorSetup.APP_STAGING)
         backendClient = BackendClient.loadBackend("STAGING")
         teamHelper = TeamHelper()
     }

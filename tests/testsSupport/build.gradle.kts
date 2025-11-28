@@ -75,7 +75,7 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.test.uiAutomator)
     implementation(libs.datafaker)
-    implementation("com.google.code.gson:gson:2.13.2")
+    androidTestImplementation(libs.gson)
 }
 
 // Register a custom Gradle task 'fetchSecrets' to fetch secrets from 1Password CLI and generate secrets.json

@@ -18,7 +18,9 @@
 
 package com.wire.android.services
 
+import androidx.work.Constraints
 import androidx.work.ExistingWorkPolicy
+import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
@@ -78,11 +80,22 @@ class WireFirebaseMessagingService : FirebaseMessagingService() {
     }
 
     private fun enqueueNotificationFetchWorker(userId: String) {
-        val request = OneTimeWorkRequestBuilder<NotificationFetchWorker>()
+        val requestBuilder = OneTimeWorkRequestBuilder<NotificationFetchWorker>()
             .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
             .setInputData(workDataOf(NotificationFetchWorker.USER_ID_INPUT_DATA to userId))
-            .build()
 
+        // Only add network constraints if background notification retry feature is enabled
+        if (BuildConfig.BACKGROUND_NOTIFICATION_RETRY_ENABLED) {
+            val constraints = Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build()
+            requestBuilder.setConstraints(constraints)
+            appLogger.d("$TAG: Enqueued NotificationFetchWorker with network constraints")
+        } else {
+            appLogger.d("$TAG: Enqueued NotificationFetchWorker without network constraints")
+        }
+
+        val request = requestBuilder.build()
         val workManager = WorkManager.getInstance(applicationContext)
 
         workManager.enqueueUniqueWork(

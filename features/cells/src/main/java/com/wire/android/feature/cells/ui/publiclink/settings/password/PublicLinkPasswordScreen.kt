@@ -19,7 +19,6 @@ package com.wire.android.feature.cells.ui.publiclink.settings.password
 
 import android.content.ClipData
 import android.os.PersistableBundle
-import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -36,16 +35,20 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.LocalClipboardManager
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.feature.cells.R
+import com.wire.android.feature.cells.ui.publiclink.PublicLinkErrorDialog
+import com.wire.android.feature.cells.ui.publiclink.settings.RemovePasswordDialog
 import com.wire.android.feature.cells.ui.util.PreviewMultipleThemes
 import com.wire.android.navigation.annotation.features.cells.WireDestination
 import com.wire.android.ui.common.HandleActions
@@ -68,12 +71,17 @@ internal fun PublicLinkPasswordScreen(
     modifier: Modifier = Modifier,
     viewModel: PublicLinkPasswordScreenViewModel = hiltViewModel(),
 ) {
-    val context = LocalContext.current
     val state by viewModel.state.collectAsState()
     val clipboardManager = LocalClipboardManager.current
 
+    var showRemoveConfirmationDialog by remember { mutableStateOf(false) }
+    var showMissingPasswordDialog by remember { mutableStateOf(false) }
+    var passwordError by remember { mutableStateOf<PasswordError?>(null) }
+
     BackHandler {
-        resultNavigator.navigateBack(viewModel.isPasswordCreated)
+        if (!state.showProgress) {
+            resultNavigator.navigateBack(viewModel.isPasswordCreated)
+        }
     }
 
     WireScaffold(
@@ -81,7 +89,9 @@ internal fun PublicLinkPasswordScreen(
         topBar = {
             WireCenterAlignedTopAppBar(
                 onNavigationPressed = {
-                    resultNavigator.navigateBack(viewModel.isPasswordCreated)
+                    if (!state.showProgress) {
+                        resultNavigator.navigateBack(viewModel.isPasswordCreated)
+                    }
                 },
                 title = stringResource(R.string.public_link_setting_password_title),
                 navigationIconType = NavigationIconType.Back(),
@@ -99,15 +109,47 @@ internal fun PublicLinkPasswordScreen(
             onGeneratePasswordClick = viewModel::generatePassword,
             modifier = Modifier.padding(innerPadding),
         )
+    }
 
-        HandleActions(viewModel.actions) { action ->
-            when (action) {
-                is CopyPasswordAndClose -> {
-                    copyPassword(clipboardManager, action.password)
-                    resultNavigator.navigateBack(true)
-                }
-                is ShowError -> Toast.makeText(context, action.message, Toast.LENGTH_SHORT).show()
+    if (showMissingPasswordDialog) {
+        PasswordNotAvailableDialog(
+            onResetPassword = {
+                showMissingPasswordDialog = false
+                viewModel.resetPassword()
+            },
+            onDismiss = { showMissingPasswordDialog = false },
+        )
+    }
+
+    if (showRemoveConfirmationDialog) {
+        RemovePasswordDialog(
+            onResult = { confirmed ->
+                showRemoveConfirmationDialog = false
+                viewModel.onConfirmPasswordRemoval(confirmed)
+            },
+        )
+    }
+
+    passwordError?.let { error ->
+        PublicLinkErrorDialog(
+            title = error.title?.let { stringResource(it) },
+            message = error.message?.let { stringResource(it) },
+            onResult = { tryAgain ->
+                passwordError = null
+                if (tryAgain) viewModel.retryError(error)
             }
+        )
+    }
+
+    HandleActions(viewModel.actions) { action ->
+        when (action) {
+            is CopyPasswordAndClose -> {
+                copyPassword(clipboardManager, action.password)
+                resultNavigator.navigateBack(true)
+            }
+            ShowMissingPasswordDialog -> showMissingPasswordDialog = true
+            ShowRemoveConfirmationDialog -> showRemoveConfirmationDialog = true
+            is ShowError -> passwordError = action.error
         }
     }
 }
@@ -142,7 +184,7 @@ private fun PasswordScreenContent(
             PasswordSettingsContent(
                 screenState = state.screenState,
                 isPasswordValid = state.isPasswordValid,
-                showProgress = state.isUpdating,
+                showProgress = state.showProgress,
                 passwordTextState = passwordTextState,
                 onGeneratePassword = onGeneratePasswordClick,
                 onCopyPassword = {
@@ -199,7 +241,11 @@ private fun PasswordSettingsContent(
                     onCopyPassword = onCopyPassword,
                 )
             PasswordScreenState.NOT_AVAILABLE -> {
-                // TODO: Show dialog
+                PasswordActionsView(
+                    isCopyActionEnabled = false,
+                    onResetPassword = onResetPassword,
+                    onCopyPassword = onCopyPassword,
+                )
             }
         }
     }
@@ -222,7 +268,6 @@ private fun EnablePasswordSection(
         ) {
             Text(
                 modifier = Modifier
-                    .fillMaxWidth()
                     .weight(1f),
                 text = stringResource(R.string.public_link_setting_password_title),
                 style = typography().body02
@@ -253,7 +298,7 @@ private fun PreviewPasswordScreen() {
             state = PublicLinkPasswordScreenViewState(
                 isEnabled = true,
                 isPasswordValid = true,
-                isUpdating = false,
+                showProgress = false,
             ),
             passwordTextState = TextFieldState("password"),
         )

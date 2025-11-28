@@ -23,31 +23,13 @@ data class VersionedInstanceType(
 ) {
 
     fun getPath(): String {
-        return if (isOSX()) {
-            when {
-                name.contains("firefox", ignoreCase = true) ->
-                    "/$name/Contents/MacOS/firefox"
-
-                name.contains("chrome", ignoreCase = true) ->
-                    "/$name/Contents/MacOS/Google Chrome"
-
-                else -> "/$name-$version/zcall"
-            }
-        } else {
-            when (name.lowercase()) {
+           return when (name.lowercase()) {
                 "chrome" -> "/$name-$version/google-chrome"
                 else -> "/$name-$version/$name"
             }
-        }
     }
 
-    fun isFirefox(): Boolean = name.contains("firefox", ignoreCase = true)
-
     fun isChrome(): Boolean = name.contains("chrome", ignoreCase = true)
-
-    fun isZCall(): Boolean = name.contains("zcall", ignoreCase = true)
-
-    private fun isOSX(): Boolean = System.getProperty("os.name").contains("OS X")
 
     companion object {
         fun parse(text: String): VersionedInstanceType {

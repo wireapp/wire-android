@@ -53,6 +53,7 @@ import com.wire.android.feature.cells.ui.destinations.MoveToFolderScreenDestinat
 import com.wire.android.feature.cells.ui.destinations.PublicLinkScreenDestination
 import com.wire.android.feature.cells.ui.destinations.RecycleBinScreenDestination
 import com.wire.android.feature.cells.ui.destinations.RenameNodeScreenDestination
+import com.wire.android.feature.cells.ui.destinations.VersionHistoryScreenDestination
 import com.wire.android.feature.cells.ui.dialog.CellsNewActionBottomSheet
 import com.wire.android.feature.cells.ui.dialog.CellsOptionsBottomSheet
 import com.wire.android.feature.cells.ui.model.CellNodeUi
@@ -300,6 +301,9 @@ fun ConversationFilesScreenContent(
                             AddRemoveTagsScreenDestination(node.uuid, node.tags.toCollection(ArrayList()))
                         )
                     )
+                },
+                showVersionHistoryScreen = {
+                    navigator.navigate(NavigationCommand(VersionHistoryScreenDestination(it)))
                 },
                 isRefreshing = isRefreshing,
                 onRefresh = onRefresh

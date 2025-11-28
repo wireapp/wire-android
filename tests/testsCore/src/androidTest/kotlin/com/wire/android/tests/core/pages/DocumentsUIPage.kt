@@ -20,22 +20,23 @@ package com.wire.android.tests.core.pages
 import androidx.test.uiautomator.UiDevice
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
-data class DocumentsUIPage(private val device: UiDevice) {
-    private val qrCodeImage = UiSelectorParams(text = "my-test-qr.png")
 
+data class DocumentsUIPage(private val device: UiDevice) {
     private val sendButton = UiSelectorParams(text = "Send")
 
-    fun iSeeQrCodeImage(): DocumentsUIPage {
+    fun iSeeQrCodeImage(fileName: String = "my-test-qr.png"): DocumentsUIPage {
+        val qrCodeImage = UiSelectorParams(text = fileName)
 
         try {
             UiWaitUtils.waitElement(qrCodeImage)
         } catch (e: AssertionError) {
-            throw AssertionError("qrCodeImage is not visible", e)
+            throw AssertionError("QR code '$fileName' is not visible", e)
         }
         return this
     }
 
-    fun iOpenDisplayedQrCodeImage(): DocumentsUIPage {
+    fun iOpenDisplayedQrCodeImage(fileName: String = "my-test-qr.png"): DocumentsUIPage {
+        val qrCodeImage = UiSelectorParams(text = fileName)
         UiWaitUtils.waitElement(qrCodeImage).click()
         return this
     }

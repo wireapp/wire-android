@@ -66,10 +66,6 @@ class CallingManager(private val usersManager: ClientUserManager) {
         private const val TIMEOUT_PEER_CONNECTIONS = 20_000L
         private const val FLOWCHECK_POLLING_MS = 2000L
 
-        private const val ZCALL_SUPPORT_VERSION = "8.2.29"
-        private const val ZCALL_CURRENT_VERSION = "9.8.15"
-        private const val FIREFOX_SUPPORT_VERSION = "91.8.0esr"
-        private const val FIREFOX_CURRENT_VERSION = "104.0"
         private const val CHROME_SUPPORT_VERSION = "102.0.5005.115"
         private const val CHROME_CURRENT_VERSION = "103.0.5060.53"
     }
@@ -312,8 +308,6 @@ class CallingManager(private val usersManager: ClientUserManager) {
         } else {
             when (lower) {
                 "chrome" -> VersionedInstanceType(lower, CHROME_CURRENT_VERSION)
-                "firefox" -> VersionedInstanceType(lower, FIREFOX_CURRENT_VERSION)
-                "zcall", "zcall_v3" -> VersionedInstanceType(lower, ZCALL_CURRENT_VERSION)
                 else -> error("Unknown instance type: $value")
             }
         }
@@ -321,8 +315,6 @@ class CallingManager(private val usersManager: ClientUserManager) {
 
     private fun getSupportVersion(type: String): String = when (type) {
         "chrome" -> CHROME_SUPPORT_VERSION
-        "firefox" -> FIREFOX_SUPPORT_VERSION
-        "zcall", "zcall_v3" -> ZCALL_SUPPORT_VERSION
         else -> error("Unknown instance type")
     }
 

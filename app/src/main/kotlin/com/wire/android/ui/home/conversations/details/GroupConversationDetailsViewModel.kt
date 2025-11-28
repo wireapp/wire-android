@@ -38,6 +38,8 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.type.isExternal
+import com.wire.kalium.logic.data.user.type.isFederated
+import com.wire.kalium.logic.data.user.type.isRegularTeamMember
 import com.wire.kalium.logic.data.user.type.isTeamAdmin
 import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateReceiptModeResult
@@ -117,8 +119,10 @@ class GroupConversationDetailsViewModel @Inject constructor(
                 groupDetailsFlow,
                 observeSelfDeletionTimerSettingsForConversation(conversationId, considerSelfUserSettings = false),
             ) { groupDetails, selfDeletionTimer ->
+                val selfType = selfUser?.userType
                 val isSelfInTeamThatOwnsConversation = selfTeam?.id != null && selfTeam.id == groupDetails.conversation.teamId?.value
                 val isSelfExternalMember = selfUser?.userType?.isExternal() == true
+                val isRegularTeamMember = selfType?.isRegularTeamMember() == true
                 val isChannel = groupDetails is ConversationDetails.Group.Channel
                 val isSelfTeamAdmin = selfUser?.userType?.isTeamAdmin() == true
                 val canPerformChannelAdminTasks = isChannel && isSelfInTeamThatOwnsConversation && isSelfTeamAdmin
@@ -126,6 +130,23 @@ class GroupConversationDetailsViewModel @Inject constructor(
                 val canSelfPerformAdminTasks = (isRegularGroupAdmin) || (canPerformChannelAdminTasks)
                 val channelPermissionType = groupDetails.getChannelPermissionType()
                 val channelAccessType = groupDetails.getChannelAccessType()
+                val isExternalOrFederated =
+                    selfType?.isExternal() == true || selfType?.isFederated() == true
+                val canSelfAddParticipants =
+                    when {
+                        !isChannel -> isRegularGroupAdmin && !isExternalOrFederated
+
+                        groupOptionsState.value.isSelfTeamAdmin -> true
+
+                        canSelfPerformAdminTasks -> true
+
+                        channelPermissionType == ChannelAddPermissionType.EVERYONE &&
+                                isSelfInTeamThatOwnsConversation &&
+                                isRegularTeamMember ->
+                            true
+
+                        else -> false
+                    }
 
                 // WPB-21835: Apps availability logic controlled by feature flag
                 val isMLSConversation = groupDetails.conversation.protocol is Conversation.ProtocolInfo.MLS
@@ -162,6 +183,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
                         isWireCellEnabled = groupDetails.wireCell != null,
                         isWireCellFeatureEnabled = isWireCellsEnabled(),
                         isSelfPartOfATeam = selfTeam != null,
+                        canSelfAddParticipants = canSelfAddParticipants
                     )
                 )
             }.collect {}
@@ -198,24 +220,6 @@ class GroupConversationDetailsViewModel @Inject constructor(
         // new logic: based on feature flags
         groupDetails.conversation.isServicesAllowed()
     }
-
-    fun shouldShowAddParticipantButton(): Boolean {
-        val isSelfAdmin = groupParticipantsState.data.isSelfAnAdmin
-        val isSelfGuest = groupParticipantsState.data.isSelfGuest
-        val isSelfExternalMember = groupParticipantsState.data.isSelfExternalMember
-
-        return when {
-            groupOptionsState.value.isChannel -> {
-                val isEveryoneAllowed = groupOptionsState.value.channelAddPermissionType == ChannelAddPermissionType.EVERYONE
-                isEveryoneAllowed && !isSelfGuest || isSelfAdmin && !isSelfGuest || groupOptionsState.value.isSelfTeamAdmin
-            }
-
-            else -> {
-                isSelfAdmin && !isSelfExternalMember
-            }
-        }
-    }
-
     private fun ConversationDetails.getChannelPermissionType(): ChannelAddPermissionType? = if (this is ConversationDetails.Group.Channel) {
         this.permission.toUiEnum()
     } else {

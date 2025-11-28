@@ -204,7 +204,7 @@ internal sealed class ExpirationError(
 ) {
     internal object SetFailure : ExpirationError(
         R.string.public_link_expiration_create_failure_dialog_title,
-        R.string.public_link_expiration_create_failure_dialog_message,
+        R.string.public_link_common_failure_dialog_message,
     )
     internal object RemoveFailure : ExpirationError()
 }

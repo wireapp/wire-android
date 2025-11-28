@@ -206,7 +206,7 @@ internal sealed class PasswordError(
 ) {
     internal object SetFailure : PasswordError(
         R.string.public_link_password_create_failure_dialog_title,
-        R.string.public_link_password_create_failure_dialog_message,
+        R.string.public_link_common_failure_dialog_message,
     )
     internal object RemoveFailure : PasswordError()
 }

@@ -157,9 +157,7 @@
     <string name="public_link_common_failure_dialog_title">Something went wrong</string>
     <string name="public_link_common_failure_dialog_message">Please try again.\n\nIf this error persists, contact your team administrator.</string>
     <string name="public_link_password_create_failure_dialog_title">Unable to create password-secured link</string>
-    <string name="public_link_password_create_failure_dialog_message">Please try again.\n\nIf this error persists, contact your team administrator.</string>
     <string name="public_link_expiration_create_failure_dialog_title">Unable to add expiration date</string>
-    <string name="public_link_expiration_create_failure_dialog_message">Please try again.\n\nIf this error persists, contact your team administrator.</string>
     <string name="error_try_again_button_title">Try again</string>
     <string name="version_history_top_appbar_title">Version history</string>
     <string name="public_link_expiration_add">Add expiration</string>

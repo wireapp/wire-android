@@ -147,6 +147,5 @@
     <string name="public_link_common_failure_dialog_title">Ein Fehler ist aufgetreten</string>
     <string name="public_link_common_failure_dialog_message">Bitte versuchen Sie es erneut.\n\nWenn dieser Fehler weiterhin besteht, kontaktieren Sie Ihren Team-Admin.</string>
     <string name="public_link_password_create_failure_dialog_title">Passwortgesicherter Link kann nicht erstellt werden</string>
-    <string name="public_link_password_create_failure_dialog_message">Bitte versuchen Sie es erneut.\n\nWenn dieser Fehler weiterhin besteht, kontaktieren Sie Ihren Team-Admin.</string>
     <string name="error_try_again_button_title">Erneut versuchen</string>
 </resources>

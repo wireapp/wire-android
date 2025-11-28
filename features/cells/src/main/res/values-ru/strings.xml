@@ -157,6 +157,5 @@
     <string name="public_link_common_failure_dialog_title">Что-то пошло не так</string>
     <string name="public_link_common_failure_dialog_message">Пожалуйста, попробуйте снова.\n\nЕсли эта ошибка не устраняется, обратитесь к администратору вашей команды.</string>
     <string name="public_link_password_create_failure_dialog_title">Не удается создать защищенную паролем ссылку</string>
-    <string name="public_link_password_create_failure_dialog_message">Пожалуйста, попробуйте снова.\n\nЕсли эта ошибка не устраняется, обратитесь к администратору вашей команды.</string>
     <string name="error_try_again_button_title">Повторить</string>
 </resources>

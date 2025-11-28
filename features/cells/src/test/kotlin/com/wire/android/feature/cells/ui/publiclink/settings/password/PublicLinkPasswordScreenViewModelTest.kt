@@ -203,7 +203,7 @@ class PublicLinkPasswordScreenViewModelTest {
 
         viewModel.actions.test {
             viewModel.onConfirmPasswordRemoval(true)
-            assertEquals(ShowPasswordError(PasswordError.RemoveFailure), awaitItem())
+            assertEquals(ShowError(PasswordError.RemoveFailure), awaitItem())
         }
     }
 
@@ -231,7 +231,7 @@ class PublicLinkPasswordScreenViewModelTest {
         viewModel.state.test {
             skipItems(1)
             viewModel.setPassword()
-            assertTrue(awaitItem().isUpdating)
+            assertTrue(awaitItem().showProgress)
         }
     }
 
@@ -296,7 +296,7 @@ class PublicLinkPasswordScreenViewModelTest {
 
         viewModel.state.test {
             viewModel.setPassword()
-            assertFalse(awaitItem().isUpdating)
+            assertFalse(awaitItem().showProgress)
         }
     }
 
@@ -310,7 +310,7 @@ class PublicLinkPasswordScreenViewModelTest {
 
         viewModel.actions.test {
             viewModel.onConfirmPasswordRemoval(true)
-            assertEquals(ShowPasswordError(PasswordError.RemoveFailure), awaitItem())
+            assertEquals(ShowError(PasswordError.RemoveFailure), awaitItem())
         }
     }
 

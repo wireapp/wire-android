@@ -110,7 +110,7 @@ internal class PublicLinkPasswordScreenViewModel @Inject constructor(
     }
 
     fun setPassword() = viewModelScope.launch {
-        updateState { copy(isUpdating = true) }
+        updateState { copy(showProgress = true) }
         val password = passwordTextState.text.toString()
         if (isPasswordCreated) {
             updatePassword(navArgs.linkUuid, password)
@@ -122,8 +122,8 @@ internal class PublicLinkPasswordScreenViewModel @Inject constructor(
                 sendAction(CopyPasswordAndClose(password))
             }
             .onFailure {
-                sendAction(ShowPasswordError(PasswordError.SetFailure))
-                updateState { copy(isUpdating = false) }
+                sendAction(ShowError(PasswordError.SetFailure))
+                updateState { copy(showProgress = false) }
             }
     }
 
@@ -160,7 +160,7 @@ internal class PublicLinkPasswordScreenViewModel @Inject constructor(
                 passwordTextState.clearText()
             }
             .onFailure {
-                sendAction(ShowPasswordError(PasswordError.RemoveFailure))
+                sendAction(ShowError(PasswordError.RemoveFailure))
                 updateState { copy(isEnabled = true) }
             }
     }
@@ -191,12 +191,12 @@ internal sealed interface PublicLinkPasswordScreenAction
 internal data class CopyPasswordAndClose(val password: String) : PublicLinkPasswordScreenAction
 internal data object ShowMissingPasswordDialog : PublicLinkPasswordScreenAction
 internal data object ShowRemoveConfirmationDialog : PublicLinkPasswordScreenAction
-internal data class ShowPasswordError(val error: PasswordError) : PublicLinkPasswordScreenAction
+internal data class ShowError(val error: PasswordError) : PublicLinkPasswordScreenAction
 
 internal data class PublicLinkPasswordScreenViewState(
     val isEnabled: Boolean = false,
     val isPasswordValid: Boolean = false,
-    val isUpdating: Boolean = false,
+    val showProgress: Boolean = false,
     val screenState: PasswordScreenState = PasswordScreenState.INITIAL,
 )
 
@@ -206,7 +206,7 @@ internal sealed class PasswordError(
 ) {
     internal object SetFailure : PasswordError(
         R.string.public_link_password_create_failure_dialog_title,
-        R.string.public_link_password_create_failure_dialog_message,
+        R.string.public_link_common_failure_dialog_message,
     )
     internal object RemoveFailure : PasswordError()
 }

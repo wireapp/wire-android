@@ -32,11 +32,13 @@ import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.typography
 
 @Composable
 internal fun PublicLinkSection(
     state: PublicLinkState,
+    expirationError: String?,
     onShareLink: () -> Unit,
     onCopyLink: () -> Unit,
 ) {
@@ -56,6 +58,16 @@ internal fun PublicLinkSection(
                 .background(colorsScheme().surface)
                 .padding(dimensions().spacing16x)
         ) {
+
+            expirationError?.let {
+                Text(
+                    text = expirationError,
+                    style = typography().body01,
+                    color = colorsScheme().error
+                )
+                VerticalSpace.x8()
+            }
+
             WireSecondaryButton(
                 text = stringResource(R.string.share_link),
                 state = if (isLoading) WireButtonState.Disabled else WireButtonState.Default,

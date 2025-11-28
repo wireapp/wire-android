@@ -157,7 +157,18 @@
     <string name="public_link_common_failure_dialog_title">Something went wrong</string>
     <string name="public_link_common_failure_dialog_message">Please try again.\n\nIf this error persists, contact your team administrator.</string>
     <string name="public_link_password_create_failure_dialog_title">Unable to create password-secured link</string>
-    <string name="public_link_password_create_failure_dialog_message">Please try again.\n\nIf this error persists, contact your team administrator.</string>
+    <string name="public_link_expiration_create_failure_dialog_title">Unable to add expiration date</string>
     <string name="error_try_again_button_title">Try again</string>
     <string name="version_history_top_appbar_title">Version history</string>
+    <string name="public_link_expiration_add">Add expiration</string>
+    <string name="public_link_expiration_set">Set expiration</string>
+    <string name="public_link_expiration_description">The link expires automatically after the set date and time. People can’t access the content anymore.</string>
+    <string name="label_expires">Expires</string>
+    <string name="label_expired">Expired</string>
+    <string name="label_date">Date</string>
+    <string name="label_time">Time</string>
+    <string name="dialog_expiration_date_title">Expiration date</string>
+    <string name="dialog_expiration_time_title">Expiration time</string>
+    <string name="invalid_expiration_date">Expiration date is in the past</string>
+    <string name="link_expired">Link expired on: %1$s, at %2$s</string>
 </resources>

@@ -25,7 +25,6 @@ import com.wire.kalium.logic.feature.asset.DeleteAssetUseCase
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
 import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.client.FinalizeMLSClientAfterE2EIEnrollment
-import com.wire.kalium.logic.feature.client.IsChatBubblesEnabledUseCase
 import com.wire.kalium.logic.feature.client.IsProfileQRCodeEnabledUseCase
 import com.wire.kalium.logic.feature.client.IsWireCellsEnabledForConversationUseCase
 import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
@@ -259,10 +258,6 @@ class UserModule {
     @ViewModelScoped
     @Provides
     fun provideCellsConfigUseCase(userScope: UserScope): IsWireCellsEnabledUseCase = userScope.isWireCellsEnabled
-
-    @ViewModelScoped
-    @Provides
-    fun provideChatBubblesConfigUseCase(userScope: UserScope): IsChatBubblesEnabledUseCase = userScope.isChatBubblesEnabled
 
     @ViewModelScoped
     @Provides

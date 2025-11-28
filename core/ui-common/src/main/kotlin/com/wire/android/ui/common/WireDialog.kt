@@ -122,7 +122,7 @@ fun WireDialog(
 
 @Composable
 fun WireDialog(
-    title: String,
+    title: String?,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
     text: AnnotatedString? = null,
@@ -163,7 +163,7 @@ fun WireDialog(
 
 @Composable
 fun WireDialogContent(
-    title: String,
+    title: String?,
     modifier: Modifier = Modifier,
     titleLoading: Boolean = false,
     text: AnnotatedString? = null,
@@ -192,7 +192,9 @@ fun WireDialogContent(
             horizontalAlignment = if (centerContent) Alignment.CenterHorizontally else Alignment.Start
         ) {
             // Title
-            TitleDialogSection(title, titleLoading)
+            title?.let {
+                TitleDialogSection(title, titleLoading)
+            }
 
             // Dynamic sized body content
             LazyColumn(

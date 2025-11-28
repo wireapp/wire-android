@@ -19,6 +19,7 @@
 package com.wire.android.notification
 
 import androidx.annotation.VisibleForTesting
+import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
@@ -47,6 +48,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.cancellable
@@ -62,10 +64,12 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import java.net.UnknownHostException
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicReference
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -165,11 +169,68 @@ class WireNotificationManager @Inject constructor(
         val observeMessagesJob = observeMessageNotificationsOnceJob(userId)
         val observeCallsJob = observeCallNotificationsOnceJob(userId)
 
-        appLogger.d("$TAG start syncing")
-        syncLifecycleManager.syncTemporarily(userId, STAY_ALIVE_TIME_ON_PUSH_DURATION)
+        val stayAliveDuration = BuildConfig.BACKGROUND_NOTIFICATION_STAY_ALIVE_SECONDS.seconds
+
+        if (BuildConfig.BACKGROUND_NOTIFICATION_RETRY_ENABLED) {
+            appLogger.d("$TAG start syncing with retry logic and extended duration (${stayAliveDuration.inWholeSeconds}s)")
+            retrySync(userId, stayAliveDuration)
+        } else {
+            appLogger.d("$TAG start syncing without retry logic, default duration (${stayAliveDuration.inWholeSeconds}s)")
+            syncLifecycleManager.syncTemporarily(userId, stayAliveDuration)
+        }
 
         observeMessagesJob?.cancel("$TAG checked the notifications once, canceling observing.")
         observeCallsJob?.cancel("$TAG checked the calls once, canceling observing.")
+    }
+
+    /**
+     * Retries sync operation with exponential backoff for transient network failures.
+     * This is critical for background notifications during Doze mode where network
+     * may not be immediately available despite WorkManager constraints.
+     */
+    @Suppress("TooGenericExceptionCaught")
+    private suspend fun retrySync(userId: UserId, stayAliveDuration: Duration) {
+        val maxRetries = MAX_SYNC_RETRY
+        var attempt = 0
+        var lastException: Exception? = null
+
+        while (attempt < maxRetries) {
+            try {
+                appLogger.d("$TAG Sync attempt ${attempt + 1}/$maxRetries")
+                syncLifecycleManager.syncTemporarily(userId, stayAliveDuration)
+                appLogger.i("$TAG Sync succeeded on attempt ${attempt + 1}")
+                return // Success, exit retry loop
+            } catch (e: Exception) {
+                lastException = e
+
+                // Only retry on network-related errors
+                val isRetryable = when (e) {
+                    is UnknownHostException -> true
+                    else -> e.cause is UnknownHostException
+                }
+
+                if (!isRetryable) {
+                    appLogger.w("$TAG Non-retryable error during sync: ${e.message}")
+                    throw e
+                }
+
+                attempt++
+                if (attempt < maxRetries) {
+                    // Exponential backoff: 1s, 2s, 4s
+                    val delaySeconds = (1L shl (attempt - 1))
+                    appLogger.w("$TAG Network error on attempt $attempt, retrying in ${delaySeconds}s: ${e.message}")
+                    delay(delaySeconds.seconds)
+                } else {
+                    appLogger.e("$TAG All $maxRetries sync attempts failed with network errors")
+                }
+            }
+        }
+
+        // If we exhausted all retries, log and rethrow
+        lastException?.let {
+            appLogger.e("$TAG Sync failed after $maxRetries attempts: ${it.message}")
+            throw it
+        }
     }
 
     private suspend fun observeMessageNotificationsOnceJob(userId: UserId): Job? {
@@ -527,6 +588,6 @@ class WireNotificationManager @Inject constructor(
 
     companion object {
         private const val TAG = "WireNotificationManager"
-        private val STAY_ALIVE_TIME_ON_PUSH_DURATION = 1.seconds
+        private const val MAX_SYNC_RETRY = 3
     }
 }

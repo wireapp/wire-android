@@ -33,7 +33,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.wire.android.feature.cells.R
-import com.wire.android.feature.cells.ui.publiclink.PublicLinkPassword
 import com.wire.android.feature.cells.ui.publiclink.PublicLinkSettings
 import com.wire.android.feature.cells.ui.util.PreviewMultipleThemes
 import com.wire.android.ui.common.colorsScheme
@@ -58,7 +57,7 @@ internal fun PublicLinkSettingsSection(
         )
 
         LinkSettingsOption(
-            isEnabled = settings.passwordSettings?.passwordEnabled == true,
+            isEnabled = settings.isPasswordEnabled,
             title = stringResource(R.string.public_link_setting_password_title),
             subtitle = stringResource(R.string.public_link_setting_password_subtitle),
             onClick = onPasswordClick,
@@ -67,9 +66,14 @@ internal fun PublicLinkSettingsSection(
         WireDivider()
 
         LinkSettingsOption(
-            isEnabled = settings.expirationSettings != null,
+            isEnabled = settings.expiresAt != null,
             title = stringResource(R.string.public_link_setting_expiration_title),
             subtitle = stringResource(R.string.public_link_setting_expiration_subtitle),
+            errorLabel = if (settings.isExpired) {
+                stringResource(R.string.label_expired)
+            } else {
+                null
+            },
             onClick = onExpirationClick,
         )
     }
@@ -80,6 +84,7 @@ internal fun LinkSettingsOption(
     isEnabled: Boolean,
     title: String,
     subtitle: String,
+    errorLabel: String? = null,
     onClick: () -> Unit,
 ) {
 
@@ -104,10 +109,18 @@ internal fun LinkSettingsOption(
                 style = typography().body02,
             )
 
-            Text(
-                text = stringResource(if (isEnabled) R.string.label_on else R.string.label_off),
-                style = typography().body01,
-            )
+            if (errorLabel == null) {
+                Text(
+                    text = stringResource(if (isEnabled) R.string.label_on else R.string.label_off),
+                    style = typography().body01,
+                )
+            } else {
+                Text(
+                    text = errorLabel.uppercase(),
+                    style = typography().body01,
+                    color = colorsScheme().error
+                )
+            }
 
             Icon(
                 imageVector = Icons.Default.ChevronRight,
@@ -129,8 +142,8 @@ private fun PreviewSettingsOption() {
     WireTheme {
         PublicLinkSettingsSection(
             PublicLinkSettings(
-                passwordSettings = PublicLinkPassword(true),
-                expirationSettings = null,
+                isPasswordEnabled = true,
+                expiresAt = null,
             ),
             onPasswordClick = {},
             onExpirationClick = {},

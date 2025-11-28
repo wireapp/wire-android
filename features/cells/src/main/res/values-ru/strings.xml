@@ -148,4 +148,14 @@
     <string name="public_link_missing_password_dialog_title">Нет доступа к существующему паролю</string>
     <string name="public_link_missing_password_dialog_message">После переустановки Wire вы не сможете скопировать установленный пароль.\nТем не менее, он по-прежнему действителен. Если вы не сохранили пароль, измените его и повторно поделитесь обновленной ссылкой.</string>
     <string name="public_link_missing_password_dialog_message_action">Изменить пароль</string>
+    <string name="public_link_password_remove_dialog_title">Удалить пароль?</string>
+    <string name="public_link_password_remove_dialog_message">Любой, у кого есть ссылка, может открыть файл и просмотреть его содержимое.</string>
+    <string name="public_link_password_remove_dialog_action">Удалить</string>
+    <string name="public_link_remove_dialog_title">Отключить публичную ссылку?</string>
+    <string name="public_link_remove_dialog_message">Люди больше не могут получить доступ к контенту.</string>
+    <string name="public_link_remove_dialog_action">Отключить</string>
+    <string name="public_link_common_failure_dialog_title">Что-то пошло не так</string>
+    <string name="public_link_common_failure_dialog_message">Пожалуйста, попробуйте снова.\n\nЕсли эта ошибка не устраняется, обратитесь к администратору вашей команды.</string>
+    <string name="public_link_password_create_failure_dialog_title">Не удается создать защищенную паролем ссылку</string>
+    <string name="error_try_again_button_title">Повторить</string>
 </resources>

@@ -79,7 +79,9 @@ internal fun PublicLinkPasswordScreen(
     var passwordError by remember { mutableStateOf<PasswordError?>(null) }
 
     BackHandler {
-        resultNavigator.navigateBack(viewModel.isPasswordCreated)
+        if (!state.showProgress) {
+            resultNavigator.navigateBack(viewModel.isPasswordCreated)
+        }
     }
 
     WireScaffold(
@@ -87,7 +89,9 @@ internal fun PublicLinkPasswordScreen(
         topBar = {
             WireCenterAlignedTopAppBar(
                 onNavigationPressed = {
-                    resultNavigator.navigateBack(viewModel.isPasswordCreated)
+                    if (!state.showProgress) {
+                        resultNavigator.navigateBack(viewModel.isPasswordCreated)
+                    }
                 },
                 title = stringResource(R.string.public_link_setting_password_title),
                 navigationIconType = NavigationIconType.Back(),
@@ -145,7 +149,7 @@ internal fun PublicLinkPasswordScreen(
             }
             ShowMissingPasswordDialog -> showMissingPasswordDialog = true
             ShowRemoveConfirmationDialog -> showRemoveConfirmationDialog = true
-            is ShowPasswordError -> passwordError = action.error
+            is ShowError -> passwordError = action.error
         }
     }
 }
@@ -180,7 +184,7 @@ private fun PasswordScreenContent(
             PasswordSettingsContent(
                 screenState = state.screenState,
                 isPasswordValid = state.isPasswordValid,
-                showProgress = state.isUpdating,
+                showProgress = state.showProgress,
                 passwordTextState = passwordTextState,
                 onGeneratePassword = onGeneratePasswordClick,
                 onCopyPassword = {
@@ -294,7 +298,7 @@ private fun PreviewPasswordScreen() {
             state = PublicLinkPasswordScreenViewState(
                 isEnabled = true,
                 isPasswordValid = true,
-                isUpdating = false,
+                showProgress = false,
             ),
             passwordTextState = TextFieldState("password"),
         )

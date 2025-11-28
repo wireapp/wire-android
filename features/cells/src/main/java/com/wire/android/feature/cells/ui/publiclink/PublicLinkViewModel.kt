@@ -17,10 +17,12 @@
  */
 package com.wire.android.feature.cells.ui.publiclink
 
+import android.system.Os.link
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.navArgs
+import com.wire.android.feature.cells.ui.publiclink.settings.expiration.PublicLinkExpirationResult
 import com.wire.android.feature.cells.util.FileHelper
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.kalium.cells.domain.model.PublicLink
@@ -86,7 +88,7 @@ class PublicLinkViewModel @Inject constructor(
 
     fun onPasswordClick() {
         publicLink?.let { link ->
-            val isPasswordEnabled = _state.value.settings?.passwordSettings?.passwordEnabled == true
+            val isPasswordEnabled = _state.value.settings?.isPasswordEnabled == true
             sendAction(
                 OpenPasswordSettings(
                     linkUuid = link.uuid,
@@ -105,6 +107,17 @@ class PublicLinkViewModel @Inject constructor(
             _state.update {
                 it.copy(isEnabled = true)
             }
+        }
+    }
+
+    fun onExpirationClick() {
+        publicLink?.let {
+            sendAction(
+                OpenExpirationSettings(
+                    linkUuid = it.uuid,
+                    expiresAt = it.expiresAt,
+                )
+            )
         }
     }
 
@@ -146,9 +159,11 @@ class PublicLinkViewModel @Inject constructor(
                     _state.update {
                         it.copy(
                             settings = PublicLinkSettings(
-                                passwordSettings = PublicLinkPassword(
-                                    passwordEnabled = link.passwordRequired,
-                                )
+                                isPasswordEnabled = link.passwordRequired,
+                                expiresAt = link.expiresAt,
+                                isExpired = link.expiresAt?.let { time ->
+                                    time < System.currentTimeMillis()
+                                } ?: false
                             )
                         )
                     }
@@ -198,7 +213,21 @@ class PublicLinkViewModel @Inject constructor(
         _state.update {
             it.copy(
                 settings = it.settings?.copy(
-                    passwordSettings = PublicLinkPassword(passwordEnabled = isPasswordEnabled)
+                    isPasswordEnabled = isPasswordEnabled
+                )
+            )
+        }
+    }
+
+    fun onExpirationUpdate(result: PublicLinkExpirationResult) {
+        publicLink = publicLink?.copy(expiresAt = result.expiresAt)
+        _state.update {
+            it.copy(
+                settings = it.settings?.copy(
+                    expiresAt = result.expiresAt,
+                    isExpired = result.expiresAt?.let { time ->
+                        time < System.currentTimeMillis()
+                    } ?: false
                 )
             )
         }
@@ -210,10 +239,6 @@ class PublicLinkViewModel @Inject constructor(
             PublicLinkError.Remove -> onConfirmRemoval(true)
         }
     }
-
-    fun onExpirationUpdate() {
-        // TODO: Update state
-    }
 }
 
 internal data class PublicLinkViewState(
@@ -221,7 +246,6 @@ internal data class PublicLinkViewState(
     val isLinkAvailable: Boolean = false,
     val linkState: PublicLinkState = PublicLinkState.LOADING,
     val isFolder: Boolean = false,
-    val isExpired: Boolean = false,
     val settings: PublicLinkSettings? = null,
 )
 
@@ -230,16 +254,9 @@ internal enum class PublicLinkState {
 }
 
 internal data class PublicLinkSettings(
-    val passwordSettings: PublicLinkPassword? = null,
-    val expirationSettings: PublicLinkExpiration? = null,
-)
-
-internal data class PublicLinkPassword(
-    val passwordEnabled: Boolean,
-)
-
-internal data class PublicLinkExpiration(
+    val isPasswordEnabled: Boolean = false,
     val expiresAt: Long? = null,
+    val isExpired: Boolean = false,
 )
 
 sealed interface PublicLinkViewAction
@@ -247,6 +264,7 @@ internal data class ShowError(val message: Int, val closeScreen: Boolean = false
 internal data class ShowErrorDialog(val error: PublicLinkError) : PublicLinkViewAction
 internal data class CopyLink(val url: String) : PublicLinkViewAction
 internal data class OpenPasswordSettings(val linkUuid: String, val isPasswordEnabled: Boolean) : PublicLinkViewAction
+internal data class OpenExpirationSettings(val linkUuid: String, val expiresAt: Long?) : PublicLinkViewAction
 internal data object ShowRemoveConfirmation : PublicLinkViewAction
 
 internal enum class PublicLinkError {

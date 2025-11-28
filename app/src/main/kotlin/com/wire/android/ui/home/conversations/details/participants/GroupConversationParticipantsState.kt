@@ -26,8 +26,6 @@ import com.wire.kalium.logic.data.user.UserId
 data class GroupConversationParticipantsState(
     val data: ConversationParticipantsData = ConversationParticipantsData()
 ) {
-    val addParticipantsEnabled: Boolean get() = data.isSelfAnAdmin && !data.isSelfExternalMember
-
     companion object {
         val PREVIEW = GroupConversationParticipantsState(
             data = ConversationParticipantsData(

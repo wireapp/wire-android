@@ -407,7 +407,7 @@ class GroupDetailsViewModelTest {
             val channelDetails = testChannel
                 .copy(
                     isSelfUserMember = true,
-                    permission =  ChannelAddPermission.EVERYONE
+                    permission = ChannelAddPermission.EVERYONE
                 )
 
             val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
@@ -625,8 +625,6 @@ class GroupDetailsViewModelTest {
             // Then
             assertEquals(false, viewModel.groupOptionsState.value.canSelfAddParticipants)
         }
-
-
 
     companion object {
         val dummyConversationId = ConversationId("some-dummy-value", "some.dummy.domain")

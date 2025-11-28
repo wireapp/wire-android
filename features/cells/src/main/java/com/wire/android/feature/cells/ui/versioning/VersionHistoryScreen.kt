@@ -62,8 +62,8 @@ fun VersionHistoryScreen(
 @Composable
 private fun VersionHistoryScreenContent(
     versionsGroupedByTime: List<VersionGroup>,
-    modifier: Modifier = Modifier,
     isFetchingContent: Boolean,
+    modifier: Modifier = Modifier,
     navigateBack: () -> Unit = {}
 ) {
     WireScaffold(

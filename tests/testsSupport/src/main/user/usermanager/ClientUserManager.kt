@@ -656,4 +656,8 @@ class ClientUserManager {
     class TooManyUsersToCreateException(msg: String) : RuntimeException(msg)
 
     class SelfUserNotDefinedException(msg: String) : RuntimeException(msg)
+
+     fun toClientUser(nameAlias: String): ClientUser {
+        return findUserByNameOrNameAlias(nameAlias)
+    }
 }

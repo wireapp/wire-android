@@ -74,7 +74,8 @@ fun ConversationFilesWithSlideInTransitionScreen(
             val stepsBack = viewModel.breadcrumbs()?.size!! - it - 1
             navigator.navigateBackAndRemoveAllConsecutiveXTimes(ConversationFilesWithSlideInTransitionScreenDestination.route, stepsBack)
         },
-        sendIntent = { viewModel.sendIntent(it) },
-        onRefresh = { viewModel.onPullToRefresh() },
+        sendIntent = viewModel::sendIntent,
+        onRefresh = viewModel::onPullToRefresh,
+        retryEditNodeError = viewModel::editNode
     )
 }

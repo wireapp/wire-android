@@ -67,6 +67,7 @@ sealed class CellNodeUi {
         val contentUrl: String? = null,
         val previewUrl: String? = null,
         override val tags: List<String> = emptyList(),
+        val isEditSupported: Boolean = false,
     ) : CellNodeUi()
 }
 
@@ -86,6 +87,7 @@ internal fun Node.File.toUiModel() = CellNodeUi.File(
     publicLinkId = publicLinkId,
     modifiedTime = formattedModifiedTime(),
     tags = tags,
+    isEditSupported = isEditSupported,
 )
 
 internal fun Node.Folder.toUiModel() = CellNodeUi.Folder(
@@ -110,3 +112,4 @@ private fun Node.Folder.formattedModifiedTime() = modifiedTime?.let {
 
 internal fun CellNodeUi.File.localFileAvailable() = localPath != null
 internal fun CellNodeUi.File.canOpenWithUrl() = contentUrl != null && assetType in listOf(IMAGE, VIDEO, PDF)
+internal fun CellNodeUi.isEditSupported() = (this as? CellNodeUi.File)?.isEditSupported == true

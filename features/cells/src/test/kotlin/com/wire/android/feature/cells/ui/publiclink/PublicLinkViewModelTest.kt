@@ -29,6 +29,7 @@ import com.wire.kalium.cells.domain.usecase.publiclink.GetPublicLinkUseCase
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.common.functional.left
 import com.wire.kalium.common.functional.right
+import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -218,6 +219,9 @@ class PublicLinkViewModelTest {
         @MockK
         lateinit var fileHelper: FileHelper
 
+        @MockK
+        lateinit var kaliumConfigs: KaliumConfigs
+
         init {
 
             MockKAnnotations.init(this, relaxUnitFun = true)
@@ -273,12 +277,16 @@ class PublicLinkViewModelTest {
         }
 
         fun arrange(): Pair<Arrangement, PublicLinkViewModel> {
+
+            every { kaliumConfigs.securePublicLinkSettings } returns false
+
             return this to PublicLinkViewModel(
                 savedStateHandle = savedStateHandle,
                 createPublicLink = createPublicLinkUseCase,
                 getPublicLinkUseCase = getPublicLinkUseCase,
                 deletePublicLinkUseCase = deletePublicLinkUseCase,
-                fileHelper = fileHelper
+                fileHelper = fileHelper,
+                config = kaliumConfigs,
             )
         }
     }

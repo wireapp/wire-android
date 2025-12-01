@@ -28,32 +28,27 @@ import backendUtils.team.TeamRoles
 import backendUtils.team.deleteTeam
 import call.CallHelper
 import call.CallingManager
-import com.wire.android.tests.core.di.testModule
 import com.wire.android.tests.core.pages.AllPages
 import com.wire.android.tests.support.UiAutomatorSetup
+import com.wire.android.tests.support.tags.Category
+import com.wire.android.tests.support.tags.TestCaseId
 import deleteDownloadedFilesContaining
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.test.KoinTest
-import org.koin.test.KoinTestRule
 import org.koin.test.inject
 import service.TestServiceHelper
 import uiautomatorutils.PermissionUtils.grantRuntimePermsForForegroundApp
 import user.usermanager.ClientUserManager
 import user.utils.ClientUser
 import kotlin.getValue
+import com.wire.android.tests.core.BaseUiTest
 
 @RunWith(AndroidJUnit4::class)
-class GroupCallChat : KoinTest {
+class GroupCallChat : BaseUiTest() {
 
-    @get:Rule
-    val koinTestRule = KoinTestRule.Companion.create {
-        modules(testModule)
-    }
     private val pages: AllPages by inject()
     private lateinit var device: UiDevice
 
@@ -77,10 +72,8 @@ class GroupCallChat : KoinTest {
         backendClient = BackendClient.loadBackend("STAGING")
         teamHelper = TeamHelper()
 
-        teamHelper?.let {
-            callHelper.init(it.usersManager)
-            callingManager = callHelper.callingManager
-        } ?: throw IllegalArgumentException("Team Helper not initialized")
+        callHelper.init(teamHelper!!.usersManager)
+        callingManager = callHelper.callingManager
 
         grantRuntimePermsForForegroundApp(
             device,
@@ -97,9 +90,10 @@ class GroupCallChat : KoinTest {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
+    @TestCaseId("TC-8602")
+    @Category("criticalFlow")
     @Test
     fun givenIStartGroupCall_whenParticipantShareMessageFileAndLocation_thenAllVisibleAndCallContinues() {
-
         teamHelper?.usersManager!!.createTeamOwnerByAlias(
             "user1Name",
             "WeLikeCalling",

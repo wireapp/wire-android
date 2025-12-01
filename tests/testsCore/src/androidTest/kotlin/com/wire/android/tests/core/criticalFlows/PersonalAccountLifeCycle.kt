@@ -27,16 +27,12 @@ import backendUtils.team.TeamHelper
 import backendUtils.team.deleteTeam
 import backendUtils.user.deleteUser
 import com.wire.android.testSupport.BuildConfig
-import com.wire.android.tests.core.di.testModule
 import com.wire.android.tests.core.pages.AllPages
 import com.wire.android.tests.support.UiAutomatorSetup
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
-import org.koin.test.KoinTest
-import org.koin.test.KoinTestRule
 import org.koin.test.inject
 import service.TestServiceHelper
 import uiautomatorutils.UiWaitUtils.WaitUtils.waitFor
@@ -44,14 +40,13 @@ import uiautomatorutils.UiWaitUtils.closeKeyBoardIfOpened
 import user.usermanager.ClientUserManager
 import user.utils.ClientUser
 import kotlin.getValue
+import com.wire.android.tests.core.BaseUiTest
+import com.wire.android.tests.support.tags.Category
+import com.wire.android.tests.support.tags.TestCaseId
 
 @RunWith(AndroidJUnit4::class)
-class PersonalAccountLifeCycle : KoinTest {
+class PersonalAccountLifeCycle : BaseUiTest() {
 
-    @get:Rule
-    val koinTestRule = KoinTestRule.Companion.create {
-        modules(testModule)
-    }
     private val pages: AllPages by inject()
     private lateinit var device: UiDevice
 
@@ -82,6 +77,8 @@ class PersonalAccountLifeCycle : KoinTest {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
+    @TestCaseId("TC-8609")
+    @Category("criticalFlow")
     @Test
     fun givenNoAccount_whenCreatingAndDeletingPersonalAccount_thenAccountIsRemoved() {
         teamHelper.usersManager.createTeamOwnerByAlias(

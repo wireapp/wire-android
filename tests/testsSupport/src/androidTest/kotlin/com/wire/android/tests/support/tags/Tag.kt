@@ -21,9 +21,15 @@ package com.wire.android.tests.support.tags
  * Key/value annotation for attaching metadata to a test.
  *
  * Examples:
- * @Tag(key = "resource", value = "column-offline")
- * @Tag(key = "smoke", value = "STACKIT")
+ * @Tag(key = "feature", value = "calling")
+ * @Tag(key = "runType", value = "smoke")
+ *
+ * These tags will later be used for filtering tests in CI or local runs.
+ * For example:
+ * -Pandroid.testInstrumentationRunnerArguments.tag=runType:smoke
+ * -Pandroid.testInstrumentationRunnerArguments.tag=feature:calling
  */
+
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.CLASS)
 annotation class Tag(val key: String, val value: String)

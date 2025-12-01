@@ -13,11 +13,10 @@ android {
     }
 }
     dependencies {
+        implementation(libs.androidx.rules)
         val composeBom = platform(libs.compose.bom)
         implementation(composeBom)
         implementation(libs.compose.ui)
-
-        //implementation("net.datafaker:datafaker:2.4.1")
         androidTestImplementation(libs.androidx.test.runner)
         androidTestImplementation(libs.androidx.test.extJunit)
         androidTestImplementation(libs.androidx.espresso.core)
@@ -27,7 +26,8 @@ android {
         androidTestImplementation(libs.koin.test)
         androidTestImplementation(libs.koin.test.junit4)
         implementation(libs.datafaker)
-        implementation("com.google.zxing:core:3.5.2")
-        implementation("com.journeyapps:zxing-android-embedded:4.3.0")
+        androidTestImplementation(libs.zxing.core)
+        androidTestImplementation(libs.zxing.android.embedded)
+        androidTestImplementation(libs.gson)
     }
 

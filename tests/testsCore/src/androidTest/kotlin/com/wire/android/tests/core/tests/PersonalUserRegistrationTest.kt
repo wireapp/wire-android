@@ -34,6 +34,7 @@ import org.junit.runner.RunWith
 import org.koin.test.KoinTest
 import org.koin.test.KoinTestRule
 import org.koin.test.inject
+import uiautomatorutils.UiWaitUtils.closeKeyBoardIfOpened
 import user.UserClient
 
 /*
@@ -53,7 +54,7 @@ class PersonalUserRegistrationTest : KoinTest {
     @Before
     fun setUp() {
         // device = UiAutomatorSetup.start(UiAutomatorSetup.APP_DEV)
-        device = UiAutomatorSetup.start(UiAutomatorSetup.APP_STAGING)
+        device = UiAutomatorSetup.start(UiAutomatorSetup.APP_INTERNAL)
     }
 
     @After
@@ -77,6 +78,7 @@ class PersonalUserRegistrationTest : KoinTest {
             verifyConfirmPasswordIsCorrect(userInfo.password)
             clickHidePasswordEyeIcon()
             checkIAgreeToShareAnonymousUsageData()
+            closeKeyBoardIfOpened()
             clickContinueButton()
             assertTermsOfUseModalVisible() // Asserts all elements
             clickContinueButton()

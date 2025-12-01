@@ -27,15 +27,12 @@ import backendUtils.team.TeamHelper
 import backendUtils.team.deleteTeam
 import backendUtils.user.deleteUser
 import com.wire.android.testSupport.BuildConfig
-import com.wire.android.tests.core.di.testModule
 import com.wire.android.tests.core.pages.AllPages
 import com.wire.android.tests.support.UiAutomatorSetup
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
-import org.koin.test.KoinTestRule
 import org.koin.test.inject
 import service.TestServiceHelper
 import uiautomatorutils.UiWaitUtils.WaitUtils.waitFor

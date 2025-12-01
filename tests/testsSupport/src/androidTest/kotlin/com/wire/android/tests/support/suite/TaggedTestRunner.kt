@@ -16,23 +16,23 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 package com.wire.android.tests.support.suite
-
 import android.os.Bundle
 import androidx.test.runner.AndroidJUnitRunner
+import android.util.Log
 
-/**
- * Custom test runner that will later support filtering tests by:
- * - Category
- * - TestCaseId
- * - Tag key/value
- */
 class TaggedTestRunner : AndroidJUnitRunner() {
 
     override fun onCreate(arguments: Bundle?) {
-        // Here we will later read runner arguments like:
-        // -e category criticalFlow
-        // -e testCaseId TC-8602
-        // For now, just call super.
+        // Read the arguments we care about
+        val category = arguments?.getString("category")
+        val testCaseId = arguments?.getString("testCaseId")
+
+        Log.i(
+            "TaggedTestRunner",
+            "onCreate() called. category=$category, testCaseId=$testCaseId, allArgs=$arguments"
+        )
+
+        // keep default behavior
         super.onCreate(arguments)
     }
 }

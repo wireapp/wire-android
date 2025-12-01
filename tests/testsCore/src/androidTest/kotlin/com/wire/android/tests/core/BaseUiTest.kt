@@ -22,6 +22,7 @@ import com.wire.android.tests.support.suite.CategoryFilterRule
 import org.junit.Rule
 import org.koin.test.KoinTest
 import org.koin.test.KoinTestRule
+import com.wire.android.tests.support.suite.TestCaseIdFilterRule
 
 /**
  * Base class for all UI tests.
@@ -38,4 +39,8 @@ abstract class BaseUiTest : KoinTest {
     // Category filter rule (allows -e category=...)
     @get:Rule
     val categoryFilterRule = CategoryFilterRule()
+
+    // TestCaseId filter rule (allows -e testCaseId =... TC-8602)
+    @get:Rule
+    val testCaseIdFilterRule = TestCaseIdFilterRule()
 }

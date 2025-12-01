@@ -40,7 +40,6 @@ import com.wire.android.tests.core.BaseUiTest
 import com.wire.android.tests.support.tags.Category
 import com.wire.android.tests.support.tags.TestCaseId
 
-
 @RunWith(AndroidJUnit4::class)
 class GroupMessaging : BaseUiTest() {
     private val pages: AllPages by inject()

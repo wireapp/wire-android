@@ -22,24 +22,18 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.uiautomator.UiDevice
 import com.wire.android.testSupport.BuildConfig
 import com.wire.android.tests.support.UiAutomatorSetup
-import com.wire.android.tests.core.di.testModule
 import com.wire.android.tests.core.pages.AllPages
-import com.wire.android.tests.support.suite.RC
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.test.KoinTest
-import org.koin.test.KoinTestRule
 import org.koin.test.inject
 import uiautomatorutils.UiWaitUtils.closeKeyBoardIfOpened
 import user.UserClient
 import com.wire.android.tests.core.BaseUiTest
 import com.wire.android.tests.support.tags.Category
 import com.wire.android.tests.support.tags.TestCaseId
-
 
 /*
 This test works on the following conditions:

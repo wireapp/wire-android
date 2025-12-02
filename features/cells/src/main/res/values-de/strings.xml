@@ -147,5 +147,18 @@
     <string name="public_link_common_failure_dialog_title">Ein Fehler ist aufgetreten</string>
     <string name="public_link_common_failure_dialog_message">Bitte versuchen Sie es erneut.\n\nWenn dieser Fehler weiterhin besteht, kontaktieren Sie Ihren Team-Admin.</string>
     <string name="public_link_password_create_failure_dialog_title">Passwortgesicherter Link kann nicht erstellt werden</string>
+    <string name="public_link_expiration_create_failure_dialog_title">Ablaufdatum kann nicht hinzugefügt werden</string>
     <string name="error_try_again_button_title">Erneut versuchen</string>
+    <string name="version_history_top_appbar_title">Versionsverlauf</string>
+    <string name="public_link_expiration_add">Ablaufdatum hinzufügen</string>
+    <string name="public_link_expiration_set">Ablaufdatum festlegen</string>
+    <string name="public_link_expiration_description">Der Link läuft nach dem festgelegten Datum und der festgelegten Uhrzeit automatisch ab. Die Inhalte sind dann nicht mehr zugänglich.</string>
+    <string name="label_expires">Läuft ab</string>
+    <string name="label_expired">Abgelaufen</string>
+    <string name="label_date">Datum</string>
+    <string name="label_time">Zeit</string>
+    <string name="dialog_expiration_date_title">Ablaufdatum</string>
+    <string name="dialog_expiration_time_title">Ablaufzeit</string>
+    <string name="invalid_expiration_date">Ablaufdatum liegt in der Vergangenheit</string>
+    <string name="link_expired">Link abgelaufen am: %1$s, um %2$s</string>
 </resources>

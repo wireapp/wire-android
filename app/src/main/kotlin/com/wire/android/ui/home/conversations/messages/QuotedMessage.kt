@@ -372,8 +372,9 @@ fun QuotedUnavailable(style: QuotedMessageStyle) {
 }
 
 @Composable
-fun QuotedInvalid(style: QuotedMessageStyle) {
+fun QuotedInvalid(style: QuotedMessageStyle, modifier: Modifier = Modifier) {
     QuotedMessageContent(
+        modifier = modifier,
         senderName = null,
         style = style,
         centerContent = {

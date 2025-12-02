@@ -55,5 +55,6 @@
     <string name="accent_color_none">None</string>
 
     <string name="generate_password_button_text">Generate Password</string>
+    <string name="content_description_check">Check mark</string>
 
 </resources>

@@ -438,7 +438,7 @@ class CellViewModel @Inject constructor(
             NodeBottomSheetAction.RENAME -> sendAction(ShowRenameScreen(node))
             NodeBottomSheetAction.DOWNLOAD -> downloadNode(node)
             NodeBottomSheetAction.VERSION_HISTORY -> {
-                sendAction(ShowVersionHistoryScreen(node.uuid))
+                sendAction(ShowVersionHistoryScreen(node.uuid, node.name ?: ""))
             }
 
             NodeBottomSheetAction.RESTORE -> {
@@ -583,7 +583,7 @@ internal data class ShowPublicLinkScreen(val cellNode: CellNodeUi) : CellViewAct
 internal data class ShowRenameScreen(val cellNode: CellNodeUi) : CellViewAction
 internal data class ShowAddRemoveTagsScreen(val cellNode: CellNodeUi) : CellViewAction
 internal data class ShowMoveToFolderScreen(val currentPath: String, val nodeToMovePath: String, val uuid: String) : CellViewAction
-internal data class ShowVersionHistoryScreen(val uuid: String) : CellViewAction
+internal data class ShowVersionHistoryScreen(val uuid: String, val fileName: String) : CellViewAction
 internal data class ShowUnableToRestoreDialog(val isFolder: Boolean) : CellViewAction
 internal data class ShowRestoreParentFolderDialog(val cellNode: CellNodeUi) : CellViewAction
 internal data object HideRestoreParentFolderDialog : CellViewAction

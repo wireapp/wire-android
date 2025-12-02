@@ -302,8 +302,8 @@ fun ConversationFilesScreenContent(
                         )
                     )
                 },
-                showVersionHistoryScreen = {
-                    navigator.navigate(NavigationCommand(VersionHistoryScreenDestination(it)))
+                showVersionHistoryScreen = { uuid, fileName ->
+                    navigator.navigate(NavigationCommand(VersionHistoryScreenDestination(uuid, fileName)))
                 },
                 isRefreshing = isRefreshing,
                 onRefresh = onRefresh

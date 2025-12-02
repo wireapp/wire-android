@@ -32,6 +32,8 @@ import com.wire.android.feature.cells.ui.common.LoadingScreen
 import com.wire.android.navigation.WireNavigator
 import com.wire.android.navigation.annotation.features.cells.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
+import com.wire.android.ui.common.bottomsheet.WireModalSheetState
+import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.divider.WireDivider
@@ -51,11 +53,29 @@ fun VersionHistoryScreen(
     modifier: Modifier = Modifier,
     versionHistoryViewModel: VersionHistoryViewModel = hiltViewModel()
 ) {
+    val optionsBottomSheetState = rememberWireModalSheetState<CellVersion>()
+
     VersionHistoryScreenContent(
         versionsGroupedByTime = versionHistoryViewModel.versionsGroupedByTime.value,
         modifier = modifier,
+        fileName = versionHistoryViewModel.fileName,
         isFetchingContent = versionHistoryViewModel.isFetchingContent.value,
-        navigateBack = { navigator.navigateBack() }
+        restoreDialogState = versionHistoryViewModel.restoreDialogState.value,
+        navigateBack = { navigator.navigateBack() },
+        optionsBottomSheetState = optionsBottomSheetState,
+        restoreVersion = {
+            versionHistoryViewModel.restoreVersion()
+        },
+        downloadVersion = {
+            optionsBottomSheetState.hide()
+        },
+        showRestoreConfirmationDialog = { versionId ->
+            optionsBottomSheetState.hide()
+            versionHistoryViewModel.showRestoreConfirmationDialog(versionId)
+        },
+        onDismissRestoreConfirmationDialog = {
+            versionHistoryViewModel.hideRestoreConfirmationDialog()
+        },
     )
 }
 
@@ -64,14 +84,23 @@ private fun VersionHistoryScreenContent(
     versionsGroupedByTime: List<VersionGroup>,
     isFetchingContent: Boolean,
     modifier: Modifier = Modifier,
+    optionsBottomSheetState: WireModalSheetState<CellVersion>,
+    fileName: String? = null,
+    restoreDialogState: RestoreDialogState,
+    restoreVersion: () -> Unit = {},
+    downloadVersion: (String) -> Unit = {},
+    showRestoreConfirmationDialog: (String) -> Unit = {},
+    onDismissRestoreConfirmationDialog: () -> Unit = {},
     navigateBack: () -> Unit = {}
 ) {
+
     WireScaffold(
         modifier = modifier,
         topBar = {
             WireCenterAlignedTopAppBar(
                 onNavigationPressed = navigateBack,
                 title = stringResource(R.string.version_history_top_appbar_title),
+                titleContentDescription = fileName,
                 navigationIconType = NavigationIconType.Close(),
                 elevation = dimensions().spacing0x,
             )
@@ -97,9 +126,10 @@ private fun VersionHistoryScreenContent(
                     group.versions.forEach {
                         item {
                             VersionItem(
-                                modifiedAt = it.modifiedAt,
-                                modifiedBy = it.modifiedBy,
-                                fileSize = it.fileSize,
+                                cellVersion = it,
+                                onActionClick = { cellVersion ->
+                                    optionsBottomSheetState.show(cellVersion)
+                                }
                             )
                             WireDivider(
                                 modifier = Modifier.fillMaxWidth(),
@@ -108,6 +138,24 @@ private fun VersionHistoryScreenContent(
                         }
                     }
                 }
+            }
+        }
+
+        VersionActionBottomSheet(
+            sheetState = optionsBottomSheetState,
+            onDismiss = { optionsBottomSheetState.hide() },
+            onRestoreVersionClicked = showRestoreConfirmationDialog,
+            onDownloadVersionClicked = downloadVersion
+        )
+
+        with(restoreDialogState) {
+            if (visible) {
+                RestoreNodeVersionConfirmationDialog(
+                    restoreState = restoreState,
+                    restoreProgress = restoreProgress,
+                    onConfirm = restoreVersion,
+                    onDismiss = onDismissRestoreConfirmationDialog
+                )
             }
         }
     }
@@ -123,21 +171,23 @@ fun PreviewVersionHistoryScreenContent() {
                 VersionGroup(
                     dateLabel = "Today, 3 Dec 2025",
                     versions = listOf(
-                        CellVersion("1:46 PM", "Deniz Agha", "200MB"),
-                        CellVersion("11:20 AM", "Alice Smith", "150MB"),
-                        CellVersion("09:15 AM", "John Doe", "100KB"),
-                        CellVersion("08:00 AM", "Eve Davis", "340KB"),
-                        CellVersion("07:30 AM", "Frank Miller", "1GB"),
+                        CellVersion("id1", "1:46 PM", "Deniz Agha", "200MB"),
+                        CellVersion("id2", "11:20 AM", "Alice Smith", "150MB"),
+                        CellVersion("id3", "09:15 AM", "John Doe", "100KB"),
+                        CellVersion("id4", "08:00 AM", "Eve Davis", "340KB"),
+                        CellVersion("id5", "07:30 AM", "Frank Miller", "1GB"),
                     )
                 ),
                 VersionGroup(
                     dateLabel = "1 Dec 2025",
                     versions = listOf(
-                        CellVersion("3:15 PM", "Bob Johnson", "300MB"),
-                        CellVersion("10:05 AM", "Charlie Brown", "250KB"),
+                        CellVersion("id6", "3:15 PM", "Bob Johnson", "300MB"),
+                        CellVersion("id7", "10:05 AM", "Charlie Brown", "250KB"),
                     )
                 )
-            )
+            ),
+            optionsBottomSheetState = rememberWireModalSheetState<CellVersion>(),
+            restoreDialogState = RestoreDialogState()
         )
     }
 }

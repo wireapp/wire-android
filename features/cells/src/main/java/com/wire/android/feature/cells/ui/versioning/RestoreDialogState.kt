@@ -17,15 +17,9 @@
  */
 package com.wire.android.feature.cells.ui.versioning
 
-data class CellVersion(
+data class RestoreDialogState(
+    val visible: Boolean = false,
     val versionId: String = "",
-    val modifiedAt: String = "",
-    val modifiedBy: String ="",
-    val fileSize: String = "",
-    val isCurrentVersion: Boolean = false
-)
-
-data class VersionGroup(
-    val dateLabel: String,
-    val versions: List<CellVersion>
+    val restoreState: RestoreState = RestoreState.Idle,
+    val restoreProgress: Float = 0f
 )

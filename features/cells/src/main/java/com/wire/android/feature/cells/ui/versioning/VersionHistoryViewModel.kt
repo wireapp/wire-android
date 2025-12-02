@@ -27,8 +27,11 @@ import com.wire.android.feature.cells.ui.navArgs
 import com.wire.android.navigation.di.ResourceProvider
 import com.wire.kalium.cells.domain.model.NodeVersion
 import com.wire.kalium.cells.domain.usecase.versioning.GetNodeVersionsUseCase
+import com.wire.kalium.cells.domain.usecase.versioning.RestoreNodeVersionUseCase
+import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalDate
@@ -40,15 +43,22 @@ import javax.inject.Inject
 class VersionHistoryViewModel @Inject constructor(
     val savedStateHandle: SavedStateHandle,
     val resourceProvider: ResourceProvider,
-    val getNodeVersionsUseCase: GetNodeVersionsUseCase
+    val getNodeVersionsUseCase: GetNodeVersionsUseCase,
+    val restoreNodeVersionUseCase: RestoreNodeVersionUseCase
 ) : ViewModel() {
 
     private val navArgs: VersionHistoryNavArgs = savedStateHandle.navArgs()
 
+    val fileName = navArgs.fileName
+
+    var isFetchingContent: MutableState<Boolean> = mutableStateOf(true)
+        private set
+
     var versionsGroupedByTime: MutableState<List<VersionGroup>> = mutableStateOf(listOf())
         private set
 
-    var isFetchingContent: MutableState<Boolean> = mutableStateOf(true)
+    var restoreDialogState: MutableState<RestoreDialogState> =
+        mutableStateOf(RestoreDialogState())
         private set
 
     init {
@@ -79,7 +89,7 @@ class VersionHistoryViewModel @Inject constructor(
 
         return grouped.entries
             .sortedByDescending { it.key }
-            .map { (date, items) ->
+            .mapIndexed { groupIndex, (date, items) ->
                 val dateLabel = when (date) {
                     today -> "${resourceProvider.getString(R.string.today_label)}, " +
                             "${date.format(DateTimeFormatter.ofPattern(DATE_PATTERN))}"
@@ -90,14 +100,16 @@ class VersionHistoryViewModel @Inject constructor(
                     else -> date.format(DateTimeFormatter.ofPattern(DATE_PATTERN))
                 }
 
-                val uiItems = items.map { apiItem ->
+                val uiItems = items.mapIndexed { itemIndex, apiItem ->
                     CellVersion(
+                        versionId = apiItem.id,
                         modifiedBy = apiItem.ownerName ?: "",
                         fileSize = formatSize(apiItem.size?.toLong() ?: 0),
                         modifiedAt = Instant.ofEpochSecond(apiItem.modifiedTime?.toLong() ?: 0L)
                             .atZone(ZoneId.systemDefault())
                             .toLocalTime()
-                            .format(DateTimeFormatter.ofPattern(TIME_PATTERN))
+                            .format(DateTimeFormatter.ofPattern(TIME_PATTERN)),
+                        isCurrentVersion = groupIndex == 0 && itemIndex == 0
                     )
                 }
                 VersionGroup(dateLabel, uiItems)
@@ -121,6 +133,59 @@ class VersionHistoryViewModel @Inject constructor(
             index++
         }
         return String.format("%.2f %s", size, units[index])
+    }
+
+    fun showRestoreConfirmationDialog(versionId: String) {
+        restoreDialogState.value = restoreDialogState.value.copy(
+            visible = true,
+            versionId = versionId,
+            restoreState = RestoreState.Idle,
+            restoreProgress = 0f
+        )
+    }
+
+    fun hideRestoreConfirmationDialog() {
+        restoreDialogState.value = restoreDialogState.value.copy(
+            restoreState = RestoreState.Idle,
+            visible = false,
+            versionId = ""
+        )
+    }
+
+    fun restoreVersion() {
+        with(restoreDialogState) {
+            restoreDialogState.value = value.copy(
+                restoreState = RestoreState.Restoring
+            )
+
+            viewModelScope.launch {
+                // simulating progress
+                val progressJob = launch {
+                    while (value.restoreProgress < 0.95f && value.restoreState == RestoreState.Restoring) {
+                        delay(100)
+                        restoreDialogState.value = value.copy(
+                            restoreProgress = value.restoreProgress + 0.06f
+                        )
+                    }
+                }
+
+                restoreNodeVersionUseCase(navArgs.uuid ?: "", value.versionId)
+                    .onSuccess {
+                        progressJob.cancel()
+                        restoreDialogState.value = value.copy(
+                            restoreState = RestoreState.Completed,
+                            restoreProgress = 1f
+                        )
+                        fetchNodeVersionsGroupedByDate()
+                    }
+                    .onFailure {
+                        progressJob.cancel()
+                        restoreDialogState.value = value.copy(
+                            restoreState = RestoreState.Failed
+                        )
+                    }
+            }
+        }
     }
 
     companion object {

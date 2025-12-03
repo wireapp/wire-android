@@ -81,7 +81,6 @@ object NetworkBackendClient {
         headers: Map<String, String>,
         options: RequestOptions = RequestOptions()
     ): HttpURLConnection {
-        print(url.toURI().toString())
 
         val connection = (url.openConnection() as HttpURLConnection).apply {
             requestMethod = method

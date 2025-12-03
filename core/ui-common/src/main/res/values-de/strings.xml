@@ -44,4 +44,8 @@
     <string name="accent_color_petrol">Petrol</string>
     <string name="accent_color_purple">Lila</string>
     <string name="accent_color_none">Keine Profilfarbe</string>
+    <string name="generate_password_button_text">Passwort generieren</string>
+    <string name="label_ok">OK</string>
+    <string name="label_cancel">Abbrechen</string>
+    <string name="label_no_selected_date">Kein Datum ausgewählt</string>
 </resources>

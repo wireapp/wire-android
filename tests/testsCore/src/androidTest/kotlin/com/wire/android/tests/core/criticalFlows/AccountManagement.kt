@@ -26,30 +26,25 @@ import backendUtils.BackendClient
 import backendUtils.team.TeamHelper
 import backendUtils.team.TeamRoles
 import backendUtils.team.deleteTeam
+import com.wire.android.tests.core.BaseUiTest
 import com.wire.android.tests.support.UiAutomatorSetup
-import com.wire.android.tests.core.di.testModule
 import com.wire.android.tests.core.pages.AllPages
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.test.KoinTest
-import org.koin.test.KoinTestRule
 import org.koin.test.inject
 import service.TestServiceHelper
 import user.UserClient
 import user.usermanager.ClientUserManager
 import user.utils.ClientUser
+import com.wire.android.tests.support.tags.Category
+import com.wire.android.tests.support.tags.TestCaseId
 
 @RunWith(AndroidJUnit4::class)
-class AccountManagement : KoinTest {
+class AccountManagement : BaseUiTest() {
 
-    @get:Rule
-    val koinTestRule = KoinTestRule.Companion.create {
-        modules(testModule)
-    }
     private val pages: AllPages by inject()
     private lateinit var device: UiDevice
     lateinit var context: Context
@@ -61,7 +56,7 @@ class AccountManagement : KoinTest {
     fun setUp() {
         context = InstrumentationRegistry.getInstrumentation().context
         // device = UiAutomatorSetup.start(UiAutomatorSetup.APP_DEV)
-        device = UiAutomatorSetup.start(UiAutomatorSetup.APP_STAGING)
+        device = UiAutomatorSetup.start(UiAutomatorSetup.APP_INTERNAL)
         backendClient = BackendClient.loadBackend("STAGING")
         teamHelper = TeamHelper()
     }
@@ -76,6 +71,8 @@ class AccountManagement : KoinTest {
     }
 
     @Suppress("LongMethod")
+    @TestCaseId("TC-8610")
+    @Category("criticalFlow")
     @Test
     fun givenMember_whenEnablingLoggingAndAppLockAndChangingEmailAndResettingPassword_thenAllSettingsUpdateSuccessfully() {
         val userInfo = UserClient.generateUniqueUserInfo()

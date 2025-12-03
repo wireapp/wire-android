@@ -1,0 +1,7 @@
+Improvements
+- Dark theme
+- Call reliability
+- Performance
+
+Fix
+- When editing a message, people had two send options

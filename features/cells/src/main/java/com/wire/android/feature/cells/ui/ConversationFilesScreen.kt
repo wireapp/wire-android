@@ -53,6 +53,7 @@ import com.wire.android.feature.cells.ui.destinations.MoveToFolderScreenDestinat
 import com.wire.android.feature.cells.ui.destinations.PublicLinkScreenDestination
 import com.wire.android.feature.cells.ui.destinations.RecycleBinScreenDestination
 import com.wire.android.feature.cells.ui.destinations.RenameNodeScreenDestination
+import com.wire.android.feature.cells.ui.destinations.VersionHistoryScreenDestination
 import com.wire.android.feature.cells.ui.dialog.CellsNewActionBottomSheet
 import com.wire.android.feature.cells.ui.dialog.CellsOptionsBottomSheet
 import com.wire.android.feature.cells.ui.model.CellNodeUi
@@ -105,8 +106,9 @@ fun ConversationFilesScreen(
         isDeleteInProgress = viewModel.isDeleteInProgress.collectAsState().value,
         isRefreshing = viewModel.isPullToRefresh.collectAsState(),
         breadcrumbs = viewModel.breadcrumbs(),
-        sendIntent = { viewModel.sendIntent(it) },
-        onRefresh = { viewModel.onPullToRefresh() },
+        sendIntent = viewModel::sendIntent,
+        onRefresh = viewModel::onPullToRefresh,
+        retryEditNodeError = viewModel::editNode
     )
 
     LaunchedEffect(Unit) {
@@ -125,6 +127,7 @@ fun ConversationFilesScreenContent(
     sendIntent: (CellViewIntent) -> Unit,
     isRefreshing: State<Boolean>,
     onRefresh: () -> Unit,
+    retryEditNodeError: (String) -> Unit,
     modifier: Modifier = Modifier,
     onBreadcrumbsFolderClick: (index: Int) -> Unit = {},
     isDeleteInProgress: Boolean = false,
@@ -301,6 +304,10 @@ fun ConversationFilesScreenContent(
                         )
                     )
                 },
+                showVersionHistoryScreen = {
+                    navigator.navigate(NavigationCommand(VersionHistoryScreenDestination(it)))
+                },
+                retryEditNodeError = { retryEditNodeError(it) },
                 isRefreshing = isRefreshing,
                 onRefresh = onRefresh
             )
@@ -356,7 +363,8 @@ fun PreviewConversationFilesScreen() {
             isRecycleBin = false,
             breadcrumbs = arrayOf("Engineering", "Android"),
             isRefreshing = remember { mutableStateOf(false) },
-            onRefresh = { }
+            onRefresh = {},
+            retryEditNodeError = {},
         )
     }
 }

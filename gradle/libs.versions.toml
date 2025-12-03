@@ -8,7 +8,7 @@ kotlin = "2.1.0"
 
 # KotlinX
 coroutines = "1.10.2"
-ktx-dateTime = "0.5.0"
+ktx-dateTime = "0.6.1"
 ktx-immutableCollections = "0.3.8"
 ktx-serialization = "1.8.1"
 koin = "3.5.3"
@@ -60,7 +60,7 @@ screenshot = "0.0.1-alpha10"
 compose-edgetoedge-preview = "0.3.0" # update after changing target sdk to 35 and androidx-core to 1.15.0
 
 # Hilt
-hilt = "2.53"
+hilt = "2.55"
 hilt-composeNavigation = "1.2.0"
 hilt-work = "1.2.0"
 
@@ -111,6 +111,10 @@ okio = "3.9.0"
 turbine = "1.2.0"
 robolectric = "4.14.1"
 hamcrest = "3.0"
+rules = "1.7.0"
+zxing = "3.5.2"
+zxingAndroid = "4.3.0"
+gson = "2.13.2"
 
 [plugins]
 # 3rd Party plugins
@@ -280,6 +284,9 @@ androidx-test-runner = { module = "androidx.test:runner", version.ref = "android
 androidx-test-uiAutomator = { module = "androidx.test.uiautomator:uiautomator", version.ref = "androidx-test-uiAutomator" }
 androidx-test-work = { module = "androidx.work:work-testing", version.ref = "androidx-workManager" }
 androidx-benchmark-macro-junit4 = { group = "androidx.benchmark", name = "benchmark-macro-junit4", version.ref = "benchmark-macro-junit4" }
+zxing-core = { module = "com.google.zxing:core", version.ref = "zxing" }
+zxing-android-embedded = { module = "com.journeyapps:zxing-android-embedded", version.ref = "zxingAndroid" }
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 
 # Test
 androidx-espresso-accessibility = { module = "androidx.test.espresso:espresso-accessibility", version.ref = "androidx-espresso" }
@@ -300,3 +307,4 @@ koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
 koin-test = { module = "io.insert-koin:koin-test", version.ref = "koin" }
 koin-test-junit4 = { module = "io.insert-koin:koin-test-junit4", version.ref = "koin" }
 datafaker = { module = "net.datafaker:datafaker", version.ref = "datafaker" }
+androidx-rules = { group = "androidx.test", name = "rules", version.ref = "rules" }

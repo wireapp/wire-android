@@ -22,5 +22,4 @@ import com.wire.android.ui.theme.ThemeOption
 data class CustomizationState(
     val selectedThemeOption: ThemeOption = ThemeOption.SYSTEM,
     val pressEnterToSentState: Boolean = false,
-    val isBubbleUiEnabled: Boolean = false
 )

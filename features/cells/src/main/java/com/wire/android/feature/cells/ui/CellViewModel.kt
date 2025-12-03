@@ -27,6 +27,7 @@ import androidx.paging.cachedIn
 import androidx.paging.filter
 import androidx.paging.map
 import com.wire.android.feature.cells.R
+import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.NodeBottomSheetAction
 import com.wire.android.feature.cells.ui.model.canOpenWithUrl
@@ -40,6 +41,7 @@ import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
 import com.wire.kalium.cells.domain.usecase.DownloadCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
+import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
 import com.wire.kalium.cells.domain.usecase.IsAtLeastOneCellAvailableUseCase
 import com.wire.kalium.cells.domain.usecase.RestoreNodeFromRecycleBinUseCase
@@ -83,7 +85,10 @@ class CellViewModel @Inject constructor(
     private val download: DownloadCellFileUseCase,
     private val isCellAvailable: IsAtLeastOneCellAvailableUseCase,
     private val fileHelper: FileHelper,
-    private val fileNameResolver: FileNameResolver
+    private val fileNameResolver: FileNameResolver,
+    private val getEditorUrl: GetEditorUrlUseCase,
+    private val onlineEditor: OnlineEditor,
+    private val cellFileActionsMenu: CellFileActionsMenu,
 ) : ActionsViewModel<CellViewAction>() {
 
     private val navArgs: CellFilesNavArgs = savedStateHandle.navArgs()
@@ -216,6 +221,7 @@ class CellViewModel @Inject constructor(
                 is CellNodeUi.File -> onFileClick(intent.file)
                 is CellNodeUi.Folder -> onFolderClick(intent.file)
             }
+
             is CellViewIntent.OnItemMenuClick -> onItemMenuClick(intent.cellNode)
             is CellViewIntent.OnMenuItemActionSelected -> onMenuItemAction(intent.node, intent.action)
             is CellViewIntent.OnFileDownloadConfirmed -> downloadNode(intent.file)
@@ -225,6 +231,7 @@ class CellViewModel @Inject constructor(
             is CellViewIntent.OnParentFolderRestoreConfirmed -> restoreNodeFromRecycleBin(intent.node)
         }
     }
+
     internal fun currentNodeUuid(): String? = navArgs.conversationId
     internal fun isRecycleBin(): Boolean = navArgs.isRecycleBin ?: false
     private fun isSearching(): Boolean = searchQueryFlow.value.isNotEmpty()
@@ -249,6 +256,7 @@ class CellViewModel @Inject constructor(
             } else {
                 "${currentNodeUuid()}/recycle_bin/${cellNode.name}"
             }
+
             isConversationFiles() -> "${currentNodeUuid()}/${cellNode.name}"
             else -> cellNode.remotePath
         } ?: run {
@@ -360,86 +368,46 @@ class CellViewModel @Inject constructor(
     }
 
     private fun onItemMenuClick(cellNode: CellNodeUi) = viewModelScope.launch {
-        val list = when {
-            isRecycleBin() -> {
-                buildList {
-                    add(NodeBottomSheetAction.RESTORE)
-                    add(NodeBottomSheetAction.DELETE_PERMANENTLY)
-                }
-            }
 
-            isConversationFiles() -> {
-                buildList {
-                    if (cellNode is CellNodeUi.File && cellNode.localFileAvailable()) {
-                        add(NodeBottomSheetAction.SHARE)
-                    }
-                    add(NodeBottomSheetAction.PUBLIC_LINK)
-                    add(NodeBottomSheetAction.DOWNLOAD)
-                    add(NodeBottomSheetAction.ADD_REMOVE_TAGS)
-                    add(NodeBottomSheetAction.MOVE)
-                    add(NodeBottomSheetAction.RENAME)
-                    add(NodeBottomSheetAction.DELETE)
-                }
-            }
-
-            isAllFiles() || isSearching() -> {
-                buildList {
-                    if (cellNode is CellNodeUi.File && cellNode.localFileAvailable()) {
-                        add(NodeBottomSheetAction.SHARE)
-                    }
-                    add(NodeBottomSheetAction.PUBLIC_LINK)
-                    add(NodeBottomSheetAction.DOWNLOAD)
-                }
-            }
-
-            else -> {
-                emptyList()
-            }
-        }
-
-        val menuOption = MenuOptions(
-            node = cellNode,
-            actions = list,
+        val menuItems = cellFileActionsMenu.buildMenu(
+            cellNode = cellNode,
+            isRecycleBin = isRecycleBin(),
+            isConversationFiles = isConversationFiles(),
+            isAllFiles = isAllFiles(),
+            isSearching = isSearching()
         )
-        _menu.emit(menuOption)
+
+        _menu.emit(MenuOptions(cellNode, menuItems))
     }
 
-    @Suppress("CyclomaticComplexMethod")
     private fun onMenuItemAction(node: CellNodeUi, action: NodeBottomSheetAction) {
-        when (action) {
-            NodeBottomSheetAction.SHARE -> {
-                if (node is CellNodeUi.File) {
-                    shareFile(node)
-                } else {
-                    sendAction(ShowPublicLinkScreen(node))
-                }
+        cellFileActionsMenu.onMenuItemAction(
+            conversationId = navArgs.conversationId,
+            parentFolderUuid = navArgs.parentFolderUuid,
+            node = node,
+            action = action,
+        ) { result ->
+            when (result) {
+                is CellFileActionsMenu.Action -> sendAction(result.action)
+                is CellFileActionsMenu.Download -> downloadNode(result.node)
+                is CellFileActionsMenu.Edit -> editNode(result.node.uuid)
+                is CellFileActionsMenu.Share -> shareFile(result.node)
             }
-
-            NodeBottomSheetAction.PUBLIC_LINK -> sendAction(ShowPublicLinkScreen(node))
-            NodeBottomSheetAction.ADD_REMOVE_TAGS -> sendAction(ShowAddRemoveTagsScreen(node))
-            NodeBottomSheetAction.MOVE -> navArgs.conversationId?.let {
-                sendAction(
-                    ShowMoveToFolderScreen(
-                        currentPath = it.substringBefore("/"),
-                        nodeToMovePath = "$it/${node.name}",
-                        uuid = node.uuid
-                    )
-                )
-            }
-
-            NodeBottomSheetAction.RENAME -> sendAction(ShowRenameScreen(node))
-            NodeBottomSheetAction.DOWNLOAD -> downloadNode(node)
-            NodeBottomSheetAction.RESTORE -> {
-                if (navArgs.parentFolderUuid != null) {
-                    sendAction(ShowRestoreParentFolderDialog(node))
-                } else {
-                    sendAction(ShowRestoreConfirmation(node = node))
-                }
-            }
-
-            NodeBottomSheetAction.DELETE -> sendAction(ShowDeleteConfirmation(node = node, isPermanentDelete = false))
-            NodeBottomSheetAction.DELETE_PERMANENTLY -> sendAction(ShowDeleteConfirmation(node = node, isPermanentDelete = true))
         }
+    }
+
+    internal fun editNode(nodeUuid: String) = viewModelScope.launch {
+        getEditorUrl(nodeUuid)
+            .onSuccess { url ->
+                if (url != null) {
+                    onlineEditor.open(url)
+                } else {
+                    sendAction(ShowEditErrorDialog(nodeUuid))
+                }
+            }
+            .onFailure {
+                sendAction(ShowEditErrorDialog(nodeUuid))
+            }
     }
 
     private fun shareFile(cell: CellNodeUi.File) {
@@ -571,16 +539,14 @@ internal data class ShowPublicLinkScreen(val cellNode: CellNodeUi) : CellViewAct
 internal data class ShowRenameScreen(val cellNode: CellNodeUi) : CellViewAction
 internal data class ShowAddRemoveTagsScreen(val cellNode: CellNodeUi) : CellViewAction
 internal data class ShowMoveToFolderScreen(val currentPath: String, val nodeToMovePath: String, val uuid: String) : CellViewAction
+internal data class ShowVersionHistoryScreen(val cellNode: CellNodeUi) : CellViewAction
 internal data class ShowUnableToRestoreDialog(val isFolder: Boolean) : CellViewAction
 internal data class ShowRestoreParentFolderDialog(val cellNode: CellNodeUi) : CellViewAction
 internal data object HideRestoreParentFolderDialog : CellViewAction
 internal data class ShowFileDeletedMessage(val isFile: Boolean, val permanently: Boolean) : CellViewAction
 internal data object RefreshData : CellViewAction
-internal data class OpenFolder(
-    val path: String,
-    val title: String,
-    val parentFolderUuid: String?
-) : CellViewAction
+internal data class OpenFolder(val path: String, val title: String, val parentFolderUuid: String?) : CellViewAction
+internal data class ShowEditErrorDialog(val nodeUuid: String) : CellViewAction
 
 internal enum class CellError(val message: Int) {
     DOWNLOAD_FAILED(R.string.cell_files_download_failure_message),

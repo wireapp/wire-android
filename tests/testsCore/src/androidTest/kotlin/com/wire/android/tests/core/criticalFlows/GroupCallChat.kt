@@ -156,8 +156,8 @@ class GroupCallChat : BaseUiTest() {
             clickDeclineShareDataAlert()
         }
         pages.conversationListPage.apply {
-            assertGroupConversationVisible("GroupCallChat")
-            clickGroupConversation("GroupCallChat")
+            assertGroupConversationVisible("GroupCallChats")
+            clickGroupConversation("GroupCallChats")
         }
 
         runBlocking {

@@ -23,8 +23,10 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -81,14 +83,17 @@ fun VersionHistoryScreen(
         onDismissRestoreConfirmationDialog = {
             versionHistoryViewModel.hideRestoreConfirmationDialog()
         },
-        onGoToFileClicked = {}
+        onGoToFileClicked = {},
+        onRefresh = { versionHistoryViewModel.fetchNodeVersionsGroupedByDate() }
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun VersionHistoryScreenContent(
     versionsGroupedByTime: List<VersionGroup>,
     isFetchingContent: Boolean,
+    onRefresh: () -> Unit,
     modifier: Modifier = Modifier,
     optionsBottomSheetState: WireModalSheetState<CellVersion>,
     fileName: String? = null,
@@ -133,23 +138,28 @@ private fun VersionHistoryScreenContent(
             enter = fadeIn(),
             exit = fadeOut()
         ) {
-            LazyColumn(Modifier.padding(innerPadding)) {
-                versionsGroupedByTime.forEach { group ->
-                    item {
-                        VersionTimeHeaderItem(group.dateLabel)
-                    }
-                    group.versions.forEach {
+            PullToRefreshBox(
+                isRefreshing = isFetchingContent,
+                onRefresh = onRefresh,
+            ) {
+                LazyColumn(Modifier.padding(innerPadding)) {
+                    versionsGroupedByTime.forEach { group ->
                         item {
-                            VersionItem(
-                                cellVersion = it,
-                                onActionClick = { cellVersion ->
-                                    optionsBottomSheetState.show(cellVersion)
-                                }
-                            )
-                            WireDivider(
-                                modifier = Modifier.fillMaxWidth(),
-                                color = colorsScheme().outline
-                            )
+                            VersionTimeHeaderItem(group.dateLabel)
+                        }
+                        group.versions.forEach {
+                            item {
+                                VersionItem(
+                                    cellVersion = it,
+                                    onActionClick = { cellVersion ->
+                                        optionsBottomSheetState.show(cellVersion)
+                                    }
+                                )
+                                WireDivider(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    color = colorsScheme().outline
+                                )
+                            }
                         }
                     }
                 }
@@ -203,7 +213,8 @@ fun PreviewVersionHistoryScreenContent() {
                 )
             ),
             optionsBottomSheetState = rememberWireModalSheetState<CellVersion>(),
-            restoreDialogState = RestoreDialogState()
+            restoreDialogState = RestoreDialogState(),
+            onRefresh = {}
         )
     }
 }

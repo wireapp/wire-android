@@ -64,20 +64,19 @@ class VersionHistoryViewModel @Inject constructor(
         private set
 
     init {
-        viewModelScope.launch {
-            fetchNodeVersionsGroupedByDate()
-        }
+        fetchNodeVersionsGroupedByDate()
     }
 
-    suspend fun fetchNodeVersionsGroupedByDate() {
-        isFetchingContent.value = true
-        navArgs.uuid?.let {
-            getNodeVersionsUseCase(navArgs.uuid).onSuccess {
-                versionsGroupedByTime.value = it.groupByDay()
+    fun fetchNodeVersionsGroupedByDate() =
+        viewModelScope.launch {
+            isFetchingContent.value = true
+            navArgs.uuid?.let {
+                getNodeVersionsUseCase(navArgs.uuid).onSuccess {
+                    versionsGroupedByTime.value = it.groupByDay()
+                }
+                isFetchingContent.value = false
             }
         }
-        isFetchingContent.value = false
-    }
 
     private fun List<NodeVersion>.groupByDay(): List<VersionGroup> {
         val today = LocalDate.now()
@@ -173,14 +172,15 @@ class VersionHistoryViewModel @Inject constructor(
 
                 restoreNodeVersionUseCase(navArgs.uuid ?: "", value.versionId)
                     .onSuccess {
-                        fetchNodeVersionsGroupedByDate()
-                        if (!isFetchingContent.value) {
-                            progressJob.cancel()
-                            restoreDialogState.value = value.copy(
-                                restoreState = RestoreState.Completed,
-                                restoreProgress = 1f
-                            )
-                        }
+                        delay(500) // delay since server takes some time to restore the version
+                        val fetchJob = fetchNodeVersionsGroupedByDate()
+                        fetchJob.start()
+                        fetchJob.join()
+                        progressJob.cancel()
+                        restoreDialogState.value = value.copy(
+                            restoreState = RestoreState.Completed,
+                            restoreProgress = 1f
+                        )
                     }
                     .onFailure {
                         progressJob.cancel()

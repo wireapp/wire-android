@@ -215,18 +215,18 @@ fun DebugDataOptionsContent(
                     onCopyText = onCopyText
                 )
             }
-
-            DebugToolsOptions(
-                isEventProcessingEnabled = state.isEventProcessingDisabled,
-                onDisableEventProcessingChange = onDisableEventProcessingChange,
-                onRestartSlowSyncForRecovery = onRestartSlowSyncForRecovery,
-                onForceUpdateApiVersions = onForceUpdateApiVersions,
-                checkCrlRevocationList = checkCrlRevocationList,
-                onResendFCMToken = onResendFCMToken,
-                isAsyncNotificationsEnabled = state.isAsyncNotificationsEnabled,
-                onEnableAsyncNotificationsChange = onEnableAsyncNotificationsChange
-            )
         }
+
+        DebugToolsOptions(
+            isEventProcessingEnabled = state.isEventProcessingDisabled,
+            onDisableEventProcessingChange = onDisableEventProcessingChange,
+            onRestartSlowSyncForRecovery = onRestartSlowSyncForRecovery,
+            onForceUpdateApiVersions = onForceUpdateApiVersions,
+            checkCrlRevocationList = checkCrlRevocationList,
+            onResendFCMToken = onResendFCMToken,
+            isAsyncNotificationsEnabled = state.isAsyncNotificationsEnabled,
+            onEnableAsyncNotificationsChange = onEnableAsyncNotificationsChange
+        )
 
         if (state.startGettingE2EICertificate) {
             GetE2EICertificateUI(
@@ -368,82 +368,19 @@ private fun DebugToolsOptions(
 ) {
     SectionHeader(stringResource(R.string.label_debug_tools_title))
     Column {
-        DisableEventProcessingSwitch(
-            isEnabled = isEventProcessingEnabled,
-            onCheckedChange = onDisableEventProcessingChange
-        )
-        RowItemTemplate(
-            modifier = Modifier.wrapContentWidth(),
-            title = {
-                Text(
-                    style = MaterialTheme.wireTypography.body01,
-                    color = MaterialTheme.wireColorScheme.onBackground,
-                    text = stringResource(R.string.label_restart_slowsync_for_recovery),
-                    modifier = Modifier.padding(start = dimensions().spacing8x)
-                )
-            },
-            actions = {
-                WirePrimaryButton(
-                    minSize = MaterialTheme.wireDimensions.buttonMediumMinSize,
-                    minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
-                    onClick = onRestartSlowSyncForRecovery,
-                    text = stringResource(R.string.restart_slowsync_for_recovery_button),
-                    fillMaxWidth = false
-                )
-            }
-        )
-
-        // checkCrlRevocationList
-        RowItemTemplate(
-            modifier = Modifier.wrapContentWidth(),
-            title = {
-                Text(
-                    style = MaterialTheme.wireTypography.body01,
-                    color = MaterialTheme.wireColorScheme.onBackground,
-                    text = "CRL revocation check",
-                    modifier = Modifier.padding(start = dimensions().spacing8x)
-                )
-            },
-            actions = {
-                WirePrimaryButton(
-                    minSize = MaterialTheme.wireDimensions.buttonMediumMinSize,
-                    minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
-                    onClick = checkCrlRevocationList,
-                    text = stringResource(R.string.debug_settings_force_api_versioning_update_button_text),
-                    fillMaxWidth = false
-                )
-            }
-        )
-
-        RowItemTemplate(
-            modifier = Modifier.wrapContentWidth(),
-            title = {
-                Text(
-                    style = MaterialTheme.wireTypography.body01,
-                    color = MaterialTheme.wireColorScheme.onBackground,
-                    text = stringResource(R.string.debug_settings_force_api_versioning_update),
-                    modifier = Modifier.padding(start = dimensions().spacing8x)
-                )
-            },
-            actions = {
-                WirePrimaryButton(
-                    minSize = MaterialTheme.wireDimensions.buttonMediumMinSize,
-                    minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
-                    onClick = onForceUpdateApiVersions,
-                    text = stringResource(R.string.debug_settings_force_api_versioning_update_button_text),
-                    fillMaxWidth = false
-                )
-            }
-        )
-
         if (BuildConfig.PRIVATE_BUILD) {
+
+            DisableEventProcessingSwitch(
+                isEnabled = isEventProcessingEnabled,
+                onCheckedChange = onDisableEventProcessingChange
+            )
             RowItemTemplate(
                 modifier = Modifier.wrapContentWidth(),
                 title = {
                     Text(
                         style = MaterialTheme.wireTypography.body01,
                         color = MaterialTheme.wireColorScheme.onBackground,
-                        text = stringResource(R.string.debug_settings_register_fcm_push_token),
+                        text = stringResource(R.string.label_restart_slowsync_for_recovery),
                         modifier = Modifier.padding(start = dimensions().spacing8x)
                     )
                 },
@@ -451,12 +388,58 @@ private fun DebugToolsOptions(
                     WirePrimaryButton(
                         minSize = MaterialTheme.wireDimensions.buttonMediumMinSize,
                         minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
-                        onClick = onResendFCMToken,
+                        onClick = onRestartSlowSyncForRecovery,
+                        text = stringResource(R.string.restart_slowsync_for_recovery_button),
+                        fillMaxWidth = false
+                    )
+                }
+            )
+
+            // checkCrlRevocationList
+            RowItemTemplate(
+                modifier = Modifier.wrapContentWidth(),
+                title = {
+                    Text(
+                        style = MaterialTheme.wireTypography.body01,
+                        color = MaterialTheme.wireColorScheme.onBackground,
+                        text = "CRL revocation check",
+                        modifier = Modifier.padding(start = dimensions().spacing8x)
+                    )
+                },
+                actions = {
+                    WirePrimaryButton(
+                        minSize = MaterialTheme.wireDimensions.buttonMediumMinSize,
+                        minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
+                        onClick = checkCrlRevocationList,
                         text = stringResource(R.string.debug_settings_force_api_versioning_update_button_text),
                         fillMaxWidth = false
                     )
                 }
             )
+
+            RowItemTemplate(
+                modifier = Modifier.wrapContentWidth(),
+                title = {
+                    Text(
+                        style = MaterialTheme.wireTypography.body01,
+                        color = MaterialTheme.wireColorScheme.onBackground,
+                        text = stringResource(R.string.debug_settings_force_api_versioning_update),
+                        modifier = Modifier.padding(start = dimensions().spacing8x)
+                    )
+                },
+                actions = {
+                    WirePrimaryButton(
+                        minSize = MaterialTheme.wireDimensions.buttonMediumMinSize,
+                        minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
+                        onClick = onForceUpdateApiVersions,
+                        text = stringResource(R.string.debug_settings_force_api_versioning_update_button_text),
+                        fillMaxWidth = false
+                    )
+                }
+            )
+        }
+        RegisterFCMPushTokenButton(onClick = onResendFCMToken)
+        if (BuildConfig.PRIVATE_BUILD) {
             EnableAsyncNotifications(isAsyncNotificationsEnabled, onEnableAsyncNotificationsChange)
         }
     }
@@ -486,6 +469,32 @@ private fun DisableEventProcessingSwitch(
                         width = dimensions().buttonSmallMinSize.width,
                         height = dimensions().buttonSmallMinSize.height
                     )
+            )
+        }
+    )
+}
+
+@Composable
+private fun RegisterFCMPushTokenButton(
+    onClick: () -> Unit,
+) {
+    RowItemTemplate(
+        modifier = Modifier.wrapContentWidth(),
+        title = {
+            Text(
+                style = MaterialTheme.wireTypography.body01,
+                color = MaterialTheme.wireColorScheme.onBackground,
+                text = stringResource(R.string.debug_settings_register_fcm_push_token),
+                modifier = Modifier.padding(start = dimensions().spacing8x)
+            )
+        },
+        actions = {
+            WirePrimaryButton(
+                minSize = MaterialTheme.wireDimensions.buttonMediumMinSize,
+                minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
+                onClick = onClick,
+                text = stringResource(R.string.debug_settings_force_api_versioning_update_button_text),
+                fillMaxWidth = false
             )
         }
     )

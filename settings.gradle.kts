@@ -19,6 +19,7 @@ rootProject.name = "wire-android"
 pluginManagement {
     includeBuild("build-logic")
     repositories {
+        mavenLocal()
         mavenCentral()
         google()
          maven(url = "https://s01.oss.sonatype.org/content/repositories/snapshots")
@@ -50,6 +51,7 @@ rootDir
 
 dependencyResolutionManagement {
  repositories {
+        mavenLocal()
         google()
         mavenCentral()
         maven(url = "https://s01.oss.sonatype.org/content/repositories/snapshots")

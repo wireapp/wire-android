@@ -106,3 +106,7 @@ app/version.txt
 *~
 \#*#
 /secrets.json
+
+# Ignore Allure test result artifacts
+allure-results/
+allure-results.tar

@@ -45,6 +45,7 @@ import user.usermanager.ClientUserManager
 import user.utils.ClientUser
 import kotlin.getValue
 import com.wire.android.tests.core.BaseUiTest
+import com.wire.android.tests.support.tags.Tag
 
 @RunWith(AndroidJUnit4::class)
 class GroupCallChat : BaseUiTest() {
@@ -92,6 +93,7 @@ class GroupCallChat : BaseUiTest() {
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-8602")
     @Category("criticalFlow")
+    @Tag(key = "criticalFlow", value = "groupCallChat")
     @Test
     fun givenIStartGroupCall_whenParticipantShareMessageFileAndLocation_thenAllVisibleAndCallContinues() {
         teamHelper?.usersManager!!.createTeamOwnerByAlias(

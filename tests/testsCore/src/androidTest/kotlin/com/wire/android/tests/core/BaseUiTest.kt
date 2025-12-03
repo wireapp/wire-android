@@ -23,7 +23,7 @@ import org.junit.Rule
 import org.koin.test.KoinTest
 import org.koin.test.KoinTestRule
 import com.wire.android.tests.support.suite.TestCaseIdFilterRule
-
+import com.wire.android.tests.support.suite.TagFilterRule
 /**
  * Base class for all UI tests.
  * - Starts Koin with testModule
@@ -43,4 +43,8 @@ abstract class BaseUiTest : KoinTest {
     // TestCaseId filter rule (allows -e testCaseId =... TC-8602)
     @get:Rule
     val testCaseIdFilterRule = TestCaseIdFilterRule()
+
+    // Tag filter rule (allows -e tagKey=..., -e tagValue=...)
+    @get:Rule
+    val tagFilterRule = TagFilterRule()
 }

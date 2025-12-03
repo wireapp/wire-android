@@ -17,22 +17,23 @@
  */
 package com.wire.android.tests.support.suite
 import android.os.Bundle
-import androidx.test.runner.AndroidJUnitRunner
 import android.util.Log
+import io.qameta.allure.android.runners.AllureAndroidJUnitRunner
 
-class TaggedTestRunner : AndroidJUnitRunner() {
+/**
+ * Custom test runner that delegates to Allure's Android runner.
+ *
+ * For now it only logs the incoming instrumentation arguments.
+ * Allure takes care of writing allure-results.
+ */
+class TaggedTestRunner : AllureAndroidJUnitRunner() {
 
-    override fun onCreate(arguments: Bundle?) {
-        // Read the arguments we care about
-        val category = arguments?.getString("category")
-        val testCaseId = arguments?.getString("testCaseId")
+    override fun onCreate(arguments: Bundle) {
+        val filterId = arguments.getString("testCaseId")
+        // Simple debug log so we know runner is alive
+        Log.i("TaggedTestRunner", "onCreate called. testCaseId=$filterId")
 
-        Log.i(
-            "TaggedTestRunner",
-            "onCreate() called. category=$category, testCaseId=$testCaseId, allArgs=$arguments"
-        )
-
-        // keep default behavior
+        // let Allure initialise itself
         super.onCreate(arguments)
     }
 }

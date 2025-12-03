@@ -22,7 +22,7 @@ import com.wire.android.tests.support.tags.Category
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
-
+import org.junit.AssumptionViolatedException
 /**
  * JUnit Rule that filters tests based on @Category annotations.
  *
@@ -57,11 +57,15 @@ class CategoryFilterRule : TestRule {
 
                 val allCategories = methodCategories + classCategories
 
-                // If selected category matches → run test
                 if (allCategories.contains(selectedCategory)) {
+                    // Category matches -> run the test normally
                     base.evaluate()
                 } else {
-                    println("Skipping test '${description.methodName}' because it does NOT match category '$selectedCategory'")
+                    // Category does NOT match -> mark test as SKIPPED
+                    throw AssumptionViolatedException(
+                        "[CategoryFilterRule] Skipping '${description.methodName}' " +
+                                "because it does NOT match category '$selectedCategory'"
+                    )
                 }
             }
         }

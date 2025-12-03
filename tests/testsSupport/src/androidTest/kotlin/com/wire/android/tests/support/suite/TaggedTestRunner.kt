@@ -30,7 +30,7 @@ class TaggedTestRunner : AllureAndroidJUnitRunner() {
 
     override fun onCreate(arguments: Bundle) {
         val filterId = arguments.getString("testCaseId")
-        // Simple debug log so we know runner is alive
+        // debug log so we know runner is alive
         Log.i("TaggedTestRunner", "onCreate called. testCaseId=$filterId")
 
         // let Allure initialise itself

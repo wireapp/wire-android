@@ -369,80 +369,47 @@ private fun DebugToolsOptions(
     SectionHeader(stringResource(R.string.label_debug_tools_title))
     Column {
         if (BuildConfig.PRIVATE_BUILD) {
-
-            DisableEventProcessingSwitch(
-                isEnabled = isEventProcessingEnabled,
-                onCheckedChange = onDisableEventProcessingChange
-            )
-            RowItemTemplate(
-                modifier = Modifier.wrapContentWidth(),
-                title = {
-                    Text(
-                        style = MaterialTheme.wireTypography.body01,
-                        color = MaterialTheme.wireColorScheme.onBackground,
-                        text = stringResource(R.string.label_restart_slowsync_for_recovery),
-                        modifier = Modifier.padding(start = dimensions().spacing8x)
-                    )
-                },
-                actions = {
-                    WirePrimaryButton(
-                        minSize = MaterialTheme.wireDimensions.buttonMediumMinSize,
-                        minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
-                        onClick = onRestartSlowSyncForRecovery,
-                        text = stringResource(R.string.restart_slowsync_for_recovery_button),
-                        fillMaxWidth = false
-                    )
-                }
-            )
-
-            // checkCrlRevocationList
-            RowItemTemplate(
-                modifier = Modifier.wrapContentWidth(),
-                title = {
-                    Text(
-                        style = MaterialTheme.wireTypography.body01,
-                        color = MaterialTheme.wireColorScheme.onBackground,
-                        text = "CRL revocation check",
-                        modifier = Modifier.padding(start = dimensions().spacing8x)
-                    )
-                },
-                actions = {
-                    WirePrimaryButton(
-                        minSize = MaterialTheme.wireDimensions.buttonMediumMinSize,
-                        minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
-                        onClick = checkCrlRevocationList,
-                        text = stringResource(R.string.debug_settings_force_api_versioning_update_button_text),
-                        fillMaxWidth = false
-                    )
-                }
-            )
-
-            RowItemTemplate(
-                modifier = Modifier.wrapContentWidth(),
-                title = {
-                    Text(
-                        style = MaterialTheme.wireTypography.body01,
-                        color = MaterialTheme.wireColorScheme.onBackground,
-                        text = stringResource(R.string.debug_settings_force_api_versioning_update),
-                        modifier = Modifier.padding(start = dimensions().spacing8x)
-                    )
-                },
-                actions = {
-                    WirePrimaryButton(
-                        minSize = MaterialTheme.wireDimensions.buttonMediumMinSize,
-                        minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
-                        onClick = onForceUpdateApiVersions,
-                        text = stringResource(R.string.debug_settings_force_api_versioning_update_button_text),
-                        fillMaxWidth = false
-                    )
-                }
+            PrivateBuildDebugToolsOptions(
+                isEventProcessingEnabled = isEventProcessingEnabled,
+                onDisableEventProcessingChange = onDisableEventProcessingChange,
+                onRestartSlowSyncForRecovery = onRestartSlowSyncForRecovery,
+                onForceUpdateApiVersions = onForceUpdateApiVersions,
+                checkCrlRevocationList = checkCrlRevocationList,
+                isAsyncNotificationsEnabled = isAsyncNotificationsEnabled,
+                onEnableAsyncNotificationsChange = onEnableAsyncNotificationsChange
             )
         }
-        RegisterFCMPushTokenButton(onClick = onResendFCMToken)
-        if (BuildConfig.PRIVATE_BUILD) {
-            EnableAsyncNotifications(isAsyncNotificationsEnabled, onEnableAsyncNotificationsChange)
-        }
+        ProductionDebugToolsOptions(onResendFCMToken = onResendFCMToken)
     }
+}
+
+@Composable
+private fun PrivateBuildDebugToolsOptions(
+    isEventProcessingEnabled: Boolean,
+    onDisableEventProcessingChange: (Boolean) -> Unit,
+    onRestartSlowSyncForRecovery: () -> Unit,
+    onForceUpdateApiVersions: () -> Unit,
+    checkCrlRevocationList: () -> Unit,
+    isAsyncNotificationsEnabled: Boolean,
+    onEnableAsyncNotificationsChange: (Boolean) -> Unit,
+) {
+    Column {
+        DisableEventProcessingSwitch(
+            isEnabled = isEventProcessingEnabled,
+            onCheckedChange = onDisableEventProcessingChange
+        )
+        RestartSlowSyncButton(onClick = onRestartSlowSyncForRecovery)
+        CheckCrlRevocationButton(onClick = checkCrlRevocationList)
+        ForceUpdateApiVersionsButton(onClick = onForceUpdateApiVersions)
+        EnableAsyncNotifications(isAsyncNotificationsEnabled, onEnableAsyncNotificationsChange)
+    }
+}
+
+@Composable
+private fun ProductionDebugToolsOptions(
+    onResendFCMToken: () -> Unit,
+) {
+    RegisterFCMPushTokenButton(onClick = onResendFCMToken)
 }
 
 @Composable
@@ -469,6 +436,84 @@ private fun DisableEventProcessingSwitch(
                         width = dimensions().buttonSmallMinSize.width,
                         height = dimensions().buttonSmallMinSize.height
                     )
+            )
+        }
+    )
+}
+
+@Composable
+private fun RestartSlowSyncButton(
+    onClick: () -> Unit,
+) {
+    RowItemTemplate(
+        modifier = Modifier.wrapContentWidth(),
+        title = {
+            Text(
+                style = MaterialTheme.wireTypography.body01,
+                color = MaterialTheme.wireColorScheme.onBackground,
+                text = stringResource(R.string.label_restart_slowsync_for_recovery),
+                modifier = Modifier.padding(start = dimensions().spacing8x)
+            )
+        },
+        actions = {
+            WirePrimaryButton(
+                minSize = MaterialTheme.wireDimensions.buttonMediumMinSize,
+                minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
+                onClick = onClick,
+                text = stringResource(R.string.restart_slowsync_for_recovery_button),
+                fillMaxWidth = false
+            )
+        }
+    )
+}
+
+@Composable
+private fun CheckCrlRevocationButton(
+    onClick: () -> Unit,
+) {
+    RowItemTemplate(
+        modifier = Modifier.wrapContentWidth(),
+        title = {
+            Text(
+                style = MaterialTheme.wireTypography.body01,
+                color = MaterialTheme.wireColorScheme.onBackground,
+                text = "CRL revocation check",
+                modifier = Modifier.padding(start = dimensions().spacing8x)
+            )
+        },
+        actions = {
+            WirePrimaryButton(
+                minSize = MaterialTheme.wireDimensions.buttonMediumMinSize,
+                minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
+                onClick = onClick,
+                text = stringResource(R.string.debug_settings_force_api_versioning_update_button_text),
+                fillMaxWidth = false
+            )
+        }
+    )
+}
+
+@Composable
+private fun ForceUpdateApiVersionsButton(
+    onClick: () -> Unit,
+) {
+    RowItemTemplate(
+        modifier = Modifier.wrapContentWidth(),
+        title = {
+            Text(
+                style = MaterialTheme.wireTypography.body01,
+                color = MaterialTheme.wireColorScheme.onBackground,
+                text = stringResource(R.string.debug_settings_force_api_versioning_update),
+                modifier = Modifier.padding(start = dimensions().spacing8x)
+            )
+        },
+        actions = {
+            WirePrimaryButton(
+                minSize = MaterialTheme.wireDimensions.buttonMediumMinSize,
+                minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
+                onClick = onClick,
+                text = stringResource(R.string.debug_settings_force_api_versioning_update_button_text),
+                fillMaxWidth = false
             )
         }
     )

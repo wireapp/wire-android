@@ -23,6 +23,8 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -44,6 +46,7 @@ import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.ui.theme.wireTypography
 
 @WireDestination(
     style = PopUpNavigationAnimation::class,
@@ -104,7 +107,15 @@ private fun VersionHistoryScreenContent(
             WireCenterAlignedTopAppBar(
                 onNavigationPressed = navigateBack,
                 title = stringResource(R.string.version_history_top_appbar_title),
-                titleContentDescription = fileName,
+                subtitleContent = {
+                    fileName?.let {
+                        Text(
+                            text = it,
+                            style = MaterialTheme.wireTypography.body01,
+                            color = colorsScheme().secondaryText
+                        )
+                    }
+                },
                 navigationIconType = NavigationIconType.Close(),
                 elevation = dimensions().spacing0x,
             )

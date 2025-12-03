@@ -83,7 +83,11 @@ fun RestoreNodeVersionConfirmationDialog(
                 null
             },
         buttonsHorizontalAlignment = false,
-        properties = DialogProperties(usePlatformDefaultWidth = false, dismissOnBackPress = true, dismissOnClickOutside = true)
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false,
+            dismissOnBackPress = true,
+            dismissOnClickOutside = restoreState == RestoreState.Completed
+        )
     ) {
         when (restoreState) {
             RestoreState.Completed, RestoreState.Restoring -> GoToFileContent(restoreState, restoreProgress, onGoToFileClicked)

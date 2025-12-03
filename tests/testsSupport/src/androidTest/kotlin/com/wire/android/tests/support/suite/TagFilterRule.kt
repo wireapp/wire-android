@@ -16,45 +16,49 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 package com.wire.android.tests.support.suite
+
 import androidx.test.platform.app.InstrumentationRegistry
-import com.wire.android.tests.support.tags.TestCaseId
+import com.wire.android.tests.support.tags.Tag
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
 import org.junit.AssumptionViolatedException
-/**
- * JUnit Rule that filters tests based on @TestCaseId.
- *  - Run tests with: -e testCaseId TC-8602
- */
-class TestCaseIdFilterRule : TestRule {
+
+class TagFilterRule : TestRule {
 
     override fun apply(base: Statement, description: Description): Statement {
         return object : Statement() {
             override fun evaluate() {
                 val args = InstrumentationRegistry.getArguments()
-                val requestedId = args.getString("testCaseId")
 
-                // If no argument provided -> run everything normally
-                if (requestedId.isNullOrEmpty()) {
+                // We’ll pass these from Gradle
+                val requestedKey = args.getString("tagKey")
+                val requestedValue = args.getString("tagValue")
+
+                // If nothing requested -> run everything normally
+                if (requestedKey.isNullOrEmpty() || requestedValue.isNullOrEmpty()) {
                     base.evaluate()
                     return
                 }
 
-                // Look for @TestCaseId on the METHOD
-                val methodAnno = description.getAnnotation(TestCaseId::class.java)
-                // And optionally on the CLASS
-                val classAnno = description.testClass?.getAnnotation(TestCaseId::class.java)
+                // Collect @Tag from method + class
+                val methodTag = description.getAnnotation(Tag::class.java)
+                val classTag = description.testClass?.getAnnotation(Tag::class.java)
 
-                val idsForThisTest = listOfNotNull(methodAnno?.value, classAnno?.value)
+                val tagsForThisTest = listOfNotNull(methodTag, classTag)
 
-                if (idsForThisTest.contains(requestedId)) {
-                    // Matching ID -> run the test
+                val hasRequestedTag = tagsForThisTest.any {
+                    it.key == requestedKey && it.value == requestedValue
+                }
+
+                if (hasRequestedTag) {
+                    // Tag matches -> run test
                     base.evaluate()
                 } else {
-                    // Not matching -> SKIP (not pass)
+                    // Tag does NOT match -> SKIP (not pass)
                     throw AssumptionViolatedException(
-                        "[TestCaseIdFilterRule] Skipping '${description.displayName}' " +
-                                "because it does NOT match testCaseId '$requestedId'"
+                        "[TagFilterRule] Skipping '${description.displayName}' " +
+                                "because it does NOT have tag $requestedKey=$requestedValue"
                     )
                 }
             }

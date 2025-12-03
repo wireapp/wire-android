@@ -33,5 +33,8 @@ android {
         androidTestImplementation(libs.zxing.core)
         androidTestImplementation(libs.zxing.android.embedded)
         androidTestImplementation(libs.gson)
+        androidTestImplementation(libs.allure.kotlin.android)
+        androidTestUtil(libs.androidx.test.orchestrator)
+        androidTestUtil(libs.androidx.test.services)
     }
 

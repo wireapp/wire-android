@@ -73,6 +73,7 @@ fun AssetPreview(
                 item.assetType == AttachmentFileType.IMAGE -> ImageAssetPreview(item, messageStyle)
                 item.assetType == AttachmentFileType.VIDEO -> VideoAssetPreview(item, messageStyle)
                 item.assetType == AttachmentFileType.PDF && !showWithPreview -> PdfAssetPreview(item, messageStyle)
+                item.isEditSupported -> EditableAssetPreview(item, messageStyle, accent)
                 else -> FileAssetPreview(item, messageStyle)
             }
         } else {

@@ -25,28 +25,28 @@ import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.feature.cells.domain.model.AttachmentFileType.IMAGE
 import com.wire.android.feature.cells.domain.model.AttachmentFileType.PDF
 import com.wire.android.feature.cells.domain.model.AttachmentFileType.VIDEO
-import com.wire.android.ui.common.multipart.AssetSource
+import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
 import com.wire.android.ui.common.multipart.toUiModel
-import com.wire.android.util.ExpiringMap
 import com.wire.android.util.FileManager
 import com.wire.kalium.cells.domain.usecase.DownloadCellFileUseCase
-import com.wire.kalium.cells.domain.usecase.RefreshCellAssetStateUseCase
+import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
+import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.CellAssetContent
 import com.wire.kalium.logic.data.message.MessageAttachment
+import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
 import okio.Path.Companion.toPath
 import javax.inject.Inject
-import kotlin.time.Duration.Companion.hours
+
 
 interface MultipartAttachmentsViewModel {
     fun onClick(attachment: MultipartAttachmentUi, openInImageViewer: (String) -> Unit)
-    fun refreshAssetState(attachment: MultipartAttachmentUi)
     fun mapAttachments(
         attachments: List<MessageAttachment>
     ): List<MultipartAttachmentGroup> {
@@ -87,59 +87,48 @@ interface MultipartAttachmentsViewModel {
         data class Media(val attachments: List<MultipartAttachmentUi>) : MultipartAttachmentGroup
         data class Files(val attachments: List<MultipartAttachmentUi>) : MultipartAttachmentGroup
     }
+
+    fun onAttachmentsVisible(attachments: List<MessageAttachment>)
+    fun onAttachmentsHidden(attachments: List<MessageAttachment>)
 }
 
 @Suppress("EmptyFunctionBlock")
 object MultipartAttachmentsViewModelPreview : MultipartAttachmentsViewModel {
     override fun onClick(attachment: MultipartAttachmentUi, openInImageViewer: (String) -> Unit) {}
-    override fun refreshAssetState(attachment: MultipartAttachmentUi) {}
+    override fun onAttachmentsVisible(attachments: List<MessageAttachment>) {}
+    override fun onAttachmentsHidden(attachments: List<MessageAttachment>) {}
 }
 
 @HiltViewModel
 class MultipartAttachmentsViewModelImpl @Inject constructor(
-    private val refreshAsset: RefreshCellAssetStateUseCase,
+    private val refreshHelper: CellAssetRefreshHelper,
     private val download: DownloadCellFileUseCase,
+    private val getEditorUrl: GetEditorUrlUseCase,
+    private val onlineEditor: OnlineEditor,
     private val fileManager: FileManager,
     private val kaliumFileSystem: KaliumFileSystem,
+    private val featureFlags: KaliumConfigs,
 ) : ViewModel(), MultipartAttachmentsViewModel {
-
-    private companion object {
-        val DEFAULT_CONTENT_URL_EXPIRY_MS = 1.hours.inWholeMilliseconds
-    }
-
-    private val refreshed = ExpiringMap<String, Unit>(
-        scope = viewModelScope,
-        expirationMs = DEFAULT_CONTENT_URL_EXPIRY_MS,
-        delegate = mutableMapOf(),
-        onEntryExpired = { key, _ ->
-            viewModelScope.launch { refreshAsset(key) }
-        }
-    )
 
     private val uploadProgress = mutableStateMapOf<String, Float>()
 
     override fun onClick(attachment: MultipartAttachmentUi, openInImageViewer: (String) -> Unit) {
         when {
             attachment.isImage() && !attachment.fileNotFound() -> openInImageViewer(attachment.uuid)
-            attachment.fileNotFound() -> { refreshAssetState(attachment) }
+            attachment.isEditSupported && featureFlags.collaboraIntegration -> openOnlineEditor(attachment.uuid)
+            attachment.fileNotFound() -> { refreshHelper.refresh(attachment.uuid) }
             attachment.localFileAvailable() -> openLocalFile(attachment)
             attachment.canOpenWithUrl() -> openUrl(attachment)
             else -> downloadAsset(attachment)
         }
     }
 
-    override fun refreshAssetState(attachment: MultipartAttachmentUi) {
+    override fun onAttachmentsVisible(attachments: List<MessageAttachment>) {
+        refreshHelper.onAttachmentsVisible(attachments)
+    }
 
-        if (attachment.source != AssetSource.CELL) return
-        if (refreshed.contains(attachment.uuid)) return
-
-        if (attachment.contentUrlExpiresAt != null) {
-            refreshed.putWithExpireAt(attachment.uuid, Unit, attachment.contentUrlExpiresAt)
-        } else {
-            refreshed.put(attachment.uuid, Unit)
-        }
-
-        viewModelScope.launch { refreshAsset(attachment.uuid) }
+    override fun onAttachmentsHidden(attachments: List<MessageAttachment>) {
+        refreshHelper.onAttachmentsHidden(attachments)
     }
 
     private fun openLocalFile(attachment: MultipartAttachmentUi) {
@@ -184,6 +173,19 @@ class MultipartAttachmentsViewModelImpl @Inject constructor(
                 }
             }
         }
+    }
+
+    private fun openOnlineEditor(attachmentUuid: String) = viewModelScope.launch {
+        getEditorUrl(attachmentUuid)
+            .onSuccess { url ->
+                if (url != null) {
+                    onlineEditor.open(url)
+                }
+            }
+    }
+
+    override fun onCleared() {
+        refreshHelper.close()
     }
 
     private fun MessageAttachment.toUiModel() =

@@ -24,6 +24,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.navArgs
+import com.wire.android.feature.cells.ui.versioning.restore.RestoreDialogState
+import com.wire.android.feature.cells.ui.versioning.restore.RestoreState
 import com.wire.android.navigation.di.ResourceProvider
 import com.wire.kalium.cells.domain.model.NodeVersion
 import com.wire.kalium.cells.domain.usecase.versioning.GetNodeVersionsUseCase
@@ -164,19 +166,21 @@ class VersionHistoryViewModel @Inject constructor(
                     while (value.restoreProgress < 0.95f && value.restoreState == RestoreState.Restoring) {
                         delay(100)
                         restoreDialogState.value = value.copy(
-                            restoreProgress = value.restoreProgress + 0.06f
+                            restoreProgress = value.restoreProgress + 0.03f
                         )
                     }
                 }
 
                 restoreNodeVersionUseCase(navArgs.uuid ?: "", value.versionId)
                     .onSuccess {
-                        progressJob.cancel()
-                        restoreDialogState.value = value.copy(
-                            restoreState = RestoreState.Completed,
-                            restoreProgress = 1f
-                        )
                         fetchNodeVersionsGroupedByDate()
+                        if (!isFetchingContent.value) {
+                            progressJob.cancel()
+                            restoreDialogState.value = value.copy(
+                                restoreState = RestoreState.Completed,
+                                restoreProgress = 1f
+                            )
+                        }
                     }
                     .onFailure {
                         progressJob.cancel()

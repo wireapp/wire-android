@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.feature.cells.ui.versioning
+package com.wire.android.feature.cells.ui.versioning.restore
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -46,6 +46,7 @@ import kotlin.math.roundToInt
 fun RestoreNodeVersionConfirmationDialog(
     restoreState: RestoreState = RestoreState.Idle,
     restoreProgress: Float = .40F,
+    onGoToFileClicked: () -> Unit,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
 ) {
@@ -85,7 +86,7 @@ fun RestoreNodeVersionConfirmationDialog(
         properties = DialogProperties(usePlatformDefaultWidth = false, dismissOnBackPress = true, dismissOnClickOutside = true)
     ) {
         when (restoreState) {
-            RestoreState.Completed, RestoreState.Restoring -> GoToFileContent(restoreState, restoreProgress)
+            RestoreState.Completed, RestoreState.Restoring -> GoToFileContent(restoreState, restoreProgress, onGoToFileClicked)
             RestoreState.Failed -> RestoreFailedContent(
                 onRetry = onConfirm,
                 onCancel = onDismiss
@@ -100,6 +101,7 @@ fun RestoreNodeVersionConfirmationDialog(
 private fun GoToFileContent(
     restoreState: RestoreState,
     restoreProgress: Float = .40F,
+    onGoToFileClicked: () -> Unit = {},
 ) {
     Column(
         Modifier.fillMaxWidth()
@@ -130,7 +132,7 @@ private fun GoToFileContent(
         Spacer(Modifier.height(dimensions().spacing24x))
         WirePrimaryButton(
             text = stringResource(id = R.string.dialog_restore_cell_version_go_to_file_button_label),
-            onClick = { }
+            onClick = onGoToFileClicked
         )
     }
 }
@@ -161,6 +163,7 @@ fun PreviewRestoreNodeVersionConfirmationDialog() {
     WireTheme {
         RestoreNodeVersionConfirmationDialog(
             restoreProgress = 0.34f,
+            onGoToFileClicked = {},
             onConfirm = {},
             onDismiss = {}
         )
@@ -174,6 +177,7 @@ fun PreviewRestoreNodeVersionConfirmationDialogWithRestoreCompleted() {
         RestoreNodeVersionConfirmationDialog(
             restoreProgress = 0.34f,
             restoreState = RestoreState.Completed,
+            onGoToFileClicked = {},
             onConfirm = {},
             onDismiss = {}
         )
@@ -186,6 +190,7 @@ fun PreviewRestoreNodeVersionConfirmationDialogWithRestoreFailed() {
     WireTheme {
         RestoreNodeVersionConfirmationDialog(
             restoreState = RestoreState.Failed,
+            onGoToFileClicked = {},
             onConfirm = {},
             onDismiss = {}
         )

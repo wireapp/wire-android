@@ -29,6 +29,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.common.LoadingScreen
+import com.wire.android.feature.cells.ui.versioning.restore.RestoreDialogState
+import com.wire.android.feature.cells.ui.versioning.restore.RestoreNodeVersionConfirmationDialog
 import com.wire.android.navigation.WireNavigator
 import com.wire.android.navigation.annotation.features.cells.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
@@ -76,6 +78,7 @@ fun VersionHistoryScreen(
         onDismissRestoreConfirmationDialog = {
             versionHistoryViewModel.hideRestoreConfirmationDialog()
         },
+        onGoToFileClicked = {}
     )
 }
 
@@ -91,6 +94,7 @@ private fun VersionHistoryScreenContent(
     downloadVersion: (String) -> Unit = {},
     showRestoreConfirmationDialog: (String) -> Unit = {},
     onDismissRestoreConfirmationDialog: () -> Unit = {},
+    onGoToFileClicked: () -> Unit = {},
     navigateBack: () -> Unit = {}
 ) {
 
@@ -154,7 +158,8 @@ private fun VersionHistoryScreenContent(
                     restoreState = restoreState,
                     restoreProgress = restoreProgress,
                     onConfirm = restoreVersion,
-                    onDismiss = onDismissRestoreConfirmationDialog
+                    onDismiss = onDismissRestoreConfirmationDialog,
+                    onGoToFileClicked = onGoToFileClicked,
                 )
             }
         }

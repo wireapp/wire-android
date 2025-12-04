@@ -24,17 +24,23 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.navArgs
+import com.wire.android.feature.cells.ui.versioning.restore.RestoreDialogState
+import com.wire.android.feature.cells.ui.versioning.restore.RestoreState
 import com.wire.android.util.FileSizeFormatter
+import com.wire.android.util.ui.UIText
 import com.wire.kalium.cells.domain.model.NodeVersion
 import com.wire.kalium.cells.domain.usecase.versioning.GetNodeVersionsUseCase
 import com.wire.kalium.cells.domain.usecase.versioning.RestoreNodeVersionUseCase
+import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 import javax.inject.Inject
 
 @HiltViewModel
@@ -42,7 +48,7 @@ class VersionHistoryViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val getNodeVersionsUseCase: GetNodeVersionsUseCase,
     private val fileSizeFormatter: FileSizeFormatter,
-    val restoreNodeVersionUseCase: RestoreNodeVersionUseCase,
+    private val restoreNodeVersionUseCase: RestoreNodeVersionUseCase,
 ) : ViewModel() {
 
     private val navArgs: VersionHistoryNavArgs = savedStateHandle.navArgs()
@@ -119,7 +125,7 @@ class VersionHistoryViewModel @Inject constructor(
                         isCurrentVersion = groupIndex == 0 && itemIndex == 0
                     )
                 }
-                    VersionGroup(dateLabel, uiItems)
+                VersionGroup(dateLabel, uiItems)
             }
     }
 

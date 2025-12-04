@@ -27,29 +27,23 @@ import backendUtils.team.TeamHelper
 import backendUtils.team.TeamRoles
 import backendUtils.team.deleteTeam
 import com.wire.android.tests.support.UiAutomatorSetup
-import com.wire.android.tests.core.di.testModule
 import com.wire.android.tests.core.pages.AllPages
 import deleteDownloadedFilesContaining
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.test.KoinTest
-import org.koin.test.KoinTestRule
 import org.koin.test.inject
 import service.TestServiceHelper
 import user.usermanager.ClientUserManager
 import user.utils.ClientUser
+import com.wire.android.tests.core.BaseUiTest
+import com.wire.android.tests.support.tags.Category
+import com.wire.android.tests.support.tags.TestCaseId
 
 @RunWith(AndroidJUnit4::class)
-class FileSharing : KoinTest {
-
-    @get:Rule
-    val koinTestRule = KoinTestRule.Companion.create {
-        modules(testModule)
-    }
+class FileSharing : BaseUiTest() {
     private val pages: AllPages by inject()
     private lateinit var device: UiDevice
     lateinit var context: Context
@@ -79,6 +73,8 @@ class FileSharing : KoinTest {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
+    @TestCaseId("TC-8603")
+    @Category("criticalFlow")
     @Test
     fun givenUserInAnotherTeam_whenFileIsSent_thenRecipientCanReceivePlayAndDownloadIt() {
 

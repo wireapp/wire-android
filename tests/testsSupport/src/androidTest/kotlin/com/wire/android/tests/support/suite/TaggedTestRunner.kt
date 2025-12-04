@@ -16,10 +16,23 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 package com.wire.android.tests.support.suite
+import android.os.Bundle
+import androidx.test.runner.AndroidJUnitRunner
+import android.util.Log
 
-/**
- * Suite for running scoped tests for release candidate.
- */
-@Target(AnnotationTarget.FUNCTION, AnnotationTarget.CLASS)
-@Retention(AnnotationRetention.RUNTIME)
-annotation class RC(vararg val value: String)
+class TaggedTestRunner : AndroidJUnitRunner() {
+
+    override fun onCreate(arguments: Bundle?) {
+        // Read the arguments we care about
+        val category = arguments?.getString("category")
+        val testCaseId = arguments?.getString("testCaseId")
+
+        Log.i(
+            "TaggedTestRunner",
+            "onCreate() called. category=$category, testCaseId=$testCaseId, allArgs=$arguments"
+        )
+
+        // keep default behavior
+        super.onCreate(arguments)
+    }
+}

@@ -43,7 +43,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -65,6 +64,7 @@ import com.wire.android.ui.common.typography
 import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.home.conversations.messages.item.highlighted
 import com.wire.android.ui.home.conversations.messages.item.isBubble
+import com.wire.android.ui.home.conversations.messages.item.textColor
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
 import com.wire.android.ui.markdown.MarkdownInline
 import com.wire.android.ui.markdown.MessageColors
@@ -332,7 +332,7 @@ private fun QuotedMessageTopRow(
         MessageStyle.NORMAL -> colorsScheme().onSurfaceVariant
     }
 
-    val replyIconColor = when (messageStyle) {
+    val replyColor = when (messageStyle) {
         MessageStyle.BUBBLE_SELF -> colorsScheme().selfBubble.onSecondary
         MessageStyle.BUBBLE_OTHER -> colorsScheme().otherBubble.onSecondary
         MessageStyle.NORMAL -> colorsScheme().secondaryText
@@ -345,14 +345,14 @@ private fun QuotedMessageTopRow(
         if (displayReplyArrow) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_reply),
-                tint = replyIconColor,
+                tint = replyColor,
                 contentDescription = null,
                 modifier = Modifier.size(dimensions().messageQuoteIconSize),
             )
         }
         senderName?.let {
             Text(text = senderName, style = typography().label02, color = authorColor)
-        }
+        } ?: Text(text = stringResource(R.string.unknown_user_name), style = typography().label02, color = replyColor)
     }
 }
 
@@ -362,18 +362,30 @@ fun QuotedUnavailable(style: QuotedMessageStyle) {
         stringResource(id = R.string.username_unavailable_label),
         style = style,
         centerContent = {
-            MainContentText(stringResource(R.string.label_quote_invalid_or_not_found), fontStyle = FontStyle.Italic)
+            MainContentText(
+                stringResource(R.string.label_quote_invalid_or_not_found),
+                fontStyle = FontStyle.Italic,
+                messageStyle = style.messageStyle
+            )
         }
     )
 }
 
 @Composable
-fun QuotedInvalid(style: QuotedMessageStyle) {
+fun QuotedInvalid(style: QuotedMessageStyle, modifier: Modifier = Modifier) {
     QuotedMessageContent(
+        modifier = modifier,
         senderName = null,
         style = style,
         centerContent = {
-            StatusBox(stringResource(R.string.label_quote_invalid_or_not_found))
+            if (style.messageStyle.isBubble()) {
+                Text(
+                    text = stringResource(R.string.label_quote_invalid_or_not_found),
+                    style = typography().subline01.copy(color = style.messageStyle.textColor(), fontStyle = FontStyle.Italic)
+                )
+            } else {
+                StatusBox(stringResource(R.string.label_quote_invalid_or_not_found))
+            }
         }
     )
 }
@@ -395,7 +407,14 @@ private fun QuotedDeleted(
             startContent()
         },
         centerContent = {
-            StatusBox(stringResource(R.string.deleted_message_text))
+            if (style.messageStyle.isBubble()) {
+                Text(
+                    text = stringResource(R.string.deleted_message_text),
+                    style = typography().subline01.copy(color = style.messageStyle.textColor(), fontStyle = FontStyle.Italic)
+                )
+            } else {
+                StatusBox(stringResource(R.string.deleted_message_text))
+            }
         },
         footerContent = {
             QuotedMessageOriginalDate(originalDateDescription, style)
@@ -489,7 +508,7 @@ private fun QuotedImage(
                 startContent()
             },
             centerContent = {
-                MainContentText(stringResource(R.string.notification_shared_picture))
+                MainContentText(stringResource(R.string.notification_shared_picture), messageStyle = style.messageStyle)
             },
             footerContent = {
                 QuotedMessageOriginalDate(originalDateTimeText, style)
@@ -498,8 +517,8 @@ private fun QuotedImage(
         )
     } else {
         val background = when (style.messageStyle) {
-            MessageStyle.BUBBLE_SELF -> MaterialTheme.wireColorScheme.primaryVariant
-            MessageStyle.BUBBLE_OTHER -> MaterialTheme.wireColorScheme.surface
+            MessageStyle.BUBBLE_SELF -> colorsScheme().selfBubble.secondary
+            MessageStyle.BUBBLE_OTHER -> colorsScheme().otherBubble.secondary
             MessageStyle.NORMAL -> MaterialTheme.wireColorScheme.surfaceVariant
         }
         // Similar to the standard layout, but the space for the image stretches
@@ -512,11 +531,13 @@ private fun QuotedImage(
                     color = background,
                     shape = quoteOutlineShape
                 )
-                .border(
-                    width = 1.dp,
-                    color = MaterialTheme.wireColorScheme.outline,
-                    shape = quoteOutlineShape
-                )
+                .applyIf(!style.messageStyle.isBubble()) {
+                    border(
+                        width = 1.dp,
+                        color = MaterialTheme.wireColorScheme.outline,
+                        shape = quoteOutlineShape
+                    )
+                }
                 .padding(dimensions().spacing4x)
                 .fillMaxWidth()
         ) {
@@ -527,7 +548,7 @@ private fun QuotedImage(
                     displayReplyArrow = true,
                     quotedMessageStyle = style
                 )
-                MainContentText(stringResource(R.string.notification_shared_picture))
+                MainContentText(stringResource(R.string.notification_shared_picture), messageStyle = style.messageStyle)
                 QuotedMessageOriginalDate(originalDateTimeText, style)
             }
         }
@@ -608,7 +629,7 @@ fun QuotedAudioMessage(
         style = style,
         modifier = modifier,
         centerContent = {
-            MainContentText(stringResource(R.string.attachment_voice_message))
+            MainContentText(stringResource(R.string.attachment_voice_message), messageStyle = style.messageStyle)
         },
         startContent = {
             startContent()
@@ -618,9 +639,9 @@ fun QuotedAudioMessage(
                 painter = painterResource(R.drawable.ic_audio),
                 contentDescription = null,
                 modifier = Modifier
-                    .padding(end = dimensions().spacing16x)
+                    .padding(horizontal = dimensions().spacing8x)
                     .size(dimensions().spacing24x),
-                tint = colorsScheme().secondaryText
+                tint = style.messageStyle.textColor()
             )
         },
         footerContent = { QuotedMessageOriginalDate(originalDateTimeText, style) },
@@ -630,7 +651,6 @@ fun QuotedAudioMessage(
 
 @Composable
 internal fun MainMarkdownText(text: String, messageStyle: MessageStyle, accent: Accent, fontStyle: FontStyle = FontStyle.Normal) {
-
     val color = when (messageStyle) {
         MessageStyle.BUBBLE_SELF -> colorsScheme().selfBubble.onSecondary
         MessageStyle.BUBBLE_OTHER -> colorsScheme().otherBubble.onSecondary
@@ -660,12 +680,17 @@ internal fun MainMarkdownText(text: String, messageStyle: MessageStyle, accent: 
             nodeData = nodeData
         )
     } else {
-        MainContentText(text, fontStyle)
+        MainContentText(text, messageStyle = messageStyle, fontStyle)
     }
 }
 
 @Composable
-internal fun MainContentText(text: String, fontStyle: FontStyle = FontStyle.Normal, color: Color = colorsScheme().onSurfaceVariant) {
+internal fun MainContentText(text: String, messageStyle: MessageStyle, fontStyle: FontStyle = FontStyle.Normal) {
+    val color = when (messageStyle) {
+        MessageStyle.BUBBLE_SELF -> colorsScheme().selfBubble.onSecondary
+        MessageStyle.BUBBLE_OTHER -> colorsScheme().otherBubble.onSecondary
+        MessageStyle.NORMAL -> colorsScheme().onSurfaceVariant
+    }
     Text(
         text = text,
         style = typography().subline01,
@@ -692,7 +717,7 @@ private fun QuotedGenericAsset(
         modifier = modifier,
         centerContent = {
             assetName?.let {
-                MainContentText(it)
+                MainContentText(it, messageStyle = style.messageStyle)
             }
         },
         startContent = {
@@ -703,8 +728,9 @@ private fun QuotedGenericAsset(
                 painter = painterResource(R.drawable.ic_file),
                 contentDescription = null,
                 modifier = Modifier
+                    .padding(horizontal = dimensions().spacing8x)
                     .size(dimensions().spacing24x),
-                tint = colorsScheme().secondaryText
+                tint = style.messageStyle.textColor()
             )
         },
         footerContent = { QuotedMessageOriginalDate(originalDateTimeText, style) },
@@ -727,7 +753,7 @@ private fun QuotedLocation(
         style = style,
         modifier = modifier,
         centerContent = {
-            MainContentText(locationName)
+            MainContentText(locationName, messageStyle = style.messageStyle)
         },
         startContent = {
             startContent()
@@ -737,8 +763,9 @@ private fun QuotedLocation(
                 painter = painterResource(R.drawable.ic_location),
                 contentDescription = null,
                 modifier = Modifier
+                    .padding(horizontal = dimensions().spacing8x)
                     .size(dimensions().spacing24x),
-                tint = colorsScheme().secondaryText
+                tint = style.messageStyle.textColor()
             )
         },
         footerContent = { QuotedMessageOriginalDate(originalDateTimeText, style) },

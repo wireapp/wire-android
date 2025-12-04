@@ -219,12 +219,12 @@ fun QuotedMultipartMessageContent(
                         if (mediaAttachment.assetAvailable) {
                             MainContentText(
                                 text = mediaAttachment.name,
-                                color = style.messageStyle.textColor()
+                                messageStyle = style.messageStyle
                             )
                         } else {
                             MainContentText(
                                 text = stringResource(R.string.asset_message_failed_download_text),
-                                color = style.messageStyle.textColor()
+                                messageStyle = style.messageStyle
                             )
                         }
                     }

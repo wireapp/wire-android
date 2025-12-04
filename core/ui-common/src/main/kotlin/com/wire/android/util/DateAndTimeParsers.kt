@@ -64,6 +64,12 @@ fun Instant.cellFileDateTime(): String = DateAndTimeParsers.cellFileDateTime(thi
 
 @Stable
 fun Instant.uiReadReceiptDateTime(): String = DateAndTimeParsers.uiReadReceiptDateTime(this)
+
+@Stable
+fun Long.uiLinkExpirationDate(): String = DateAndTimeParsers.linkExpirationDate(this)
+
+@Stable
+fun Long.uiLinkExpirationTime(): String = DateAndTimeParsers.linkExpirationTime(this)
 //endregion
 
 /**
@@ -71,6 +77,7 @@ fun Instant.uiReadReceiptDateTime(): String = DateAndTimeParsers.uiReadReceiptDa
  */
 class DateAndTimeParsers private constructor() {
 
+    @Suppress("TooManyFunctions")
     companion object {
         private val dateTimeFormatter = DateTimeFormatter.ISO_DATE_TIME.withZone(ZoneId.of("UTC"))
 
@@ -109,6 +116,13 @@ class DateAndTimeParsers private constructor() {
 
         private val videoMessageTimeFormat = DateTimeFormatter.ofPattern("mm:ss", Locale.getDefault())
             .withZone(ZoneId.systemDefault())
+
+        private val linkExpirationDateFormat = DateTimeFormatter.ofPattern("EEEE, MMMM dd", Locale.getDefault())
+            .withZone(ZoneId.systemDefault())
+
+        private val linkExpirationTimeFormat = java.text.DateFormat.getTimeInstance(java.text.DateFormat.SHORT, Locale.getDefault()).apply {
+            this.timeZone = java.util.TimeZone.getDefault()
+        }
 
         @Deprecated("Date String parsing is discouraged and will be removed soon for direct Instant/DateTime versions")
         fun serverDate(stringDate: String): Date? {
@@ -164,5 +178,8 @@ class DateAndTimeParsers private constructor() {
 
         fun meetingDate(instant: Instant): String = longDateFormat.format(Date.from(instant.toJavaInstant()))
         fun meetingTime(instant: Instant): String = shortTimeFormat.format(Date.from(instant.toJavaInstant()))
+
+        fun linkExpirationDate(timeMs: Long): String = linkExpirationDateFormat.format(java.time.Instant.ofEpochMilli(timeMs))
+        fun linkExpirationTime(timeMs: Long): String = linkExpirationTimeFormat.format(Date.from(java.time.Instant.ofEpochMilli(timeMs)))
     }
 }

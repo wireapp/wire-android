@@ -198,7 +198,6 @@ fun GroupConversationDetailsScreen(
                 else -> navigator.navigate(NavigationCommand(OtherUserProfileScreenDestination(participant.id, viewModel.conversationId)))
             }
         },
-        showAllowUserToAddParticipants = { viewModel.shouldShowAddParticipantButton() },
         onAddParticipantsPressed = {
             navigator.navigate(
                 NavigationCommand(
@@ -348,7 +347,6 @@ private fun GroupConversationDetailsContent(
     onEditSelfDeletingMessages: () -> Unit,
     onEditGroupName: () -> Unit,
     groupParticipantsState: GroupConversationParticipantsState,
-    showAllowUserToAddParticipants: () -> Boolean,
     isAbandonedOneOnOneConversation: Boolean,
     isWireCellEnabled: Boolean,
     onSearchConversationMessagesClick: () -> Unit,
@@ -466,7 +464,8 @@ private fun GroupConversationDetailsContent(
                         }
 
                         GroupConversationDetailsTabItem.PARTICIPANTS -> {
-                            val shouldShowAddParticipantsButton = showAllowUserToAddParticipants() && !isAbandonedOneOnOneConversation
+                            val shouldShowAddParticipantsButton = groupConversationOptionsState.canSelfAddParticipants
+                                    && !isAbandonedOneOnOneConversation
                             if (shouldShowAddParticipantsButton) {
                                 Box(modifier = Modifier.padding(MaterialTheme.wireDimensions.spacing16x)) {
                                     WirePrimaryButton(
@@ -624,7 +623,6 @@ fun PreviewGroupConversationDetails() {
             onEditSelfDeletingMessages = {},
             onEditGroupName = {},
             groupParticipantsState = GroupConversationParticipantsState.PREVIEW,
-            showAllowUserToAddParticipants = { true },
             isAbandonedOneOnOneConversation = false,
             isWireCellEnabled = false,
             onSearchConversationMessagesClick = {},

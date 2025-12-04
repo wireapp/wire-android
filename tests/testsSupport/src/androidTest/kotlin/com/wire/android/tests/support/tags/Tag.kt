@@ -15,11 +15,21 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.tests.support.suite
+package com.wire.android.tests.support.tags
 
 /**
- * Suite for running scoped tests for regression tests.
+ * Key/value annotation for attaching metadata to a test.
+ *
+ * Examples:
+ * @Tag(key = "feature", value = "calling")
+ * @Tag(key = "runType", value = "smoke")
+ *
+ * These tags will later be used for filtering tests in CI or local runs.
+ * For example:
+ * -Pandroid.testInstrumentationRunnerArguments.tag=runType:smoke
+ * -Pandroid.testInstrumentationRunnerArguments.tag=feature:calling
  */
-@Target(AnnotationTarget.FUNCTION, AnnotationTarget.CLASS)
+
 @Retention(AnnotationRetention.RUNTIME)
-annotation class Regression
+@Target(AnnotationTarget.FUNCTION, AnnotationTarget.CLASS)
+annotation class Tag(val key: String, val value: String)

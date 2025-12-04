@@ -15,8 +15,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-@file:Suppress("TooGenericExceptionCaught", "PackageNaming", "TooGenericExceptionThrown")
-
+@file:Suppress(
+    "TooGenericExceptionCaught",
+    "LargeClass",
+    "PackageNaming",
+    "TooGenericExceptionThrown"
+)
 package backendUtils
 
 import CredentialsManager
@@ -48,6 +52,7 @@ import java.net.HttpURLConnection
 import java.net.InetSocketAddress
 import java.net.PasswordAuthentication
 import java.net.Proxy
+import java.net.URI
 import java.net.URL
 import java.net.URLEncoder
 
@@ -615,13 +620,123 @@ class BackendClient(
     }
 
     fun isDevelopmentApiEnabled(user: ClientUser): Boolean {
-
         return getFeatureConfig("mls", user).get("status").equals("enabled")
+    }
+
+    suspend fun unlockConferenceCallingFeature(team: Team) {
+        val teamId = Uri.encode(team.id)
+        val url = URI("i/teams/$teamId/features/conferenceCalling/unlocked".composeCompleteUrl()).toURL()
+
+        val headers = defaultheaders.toMutableMap().apply {
+            put("Authorization", basicAuth.getEncoded())
+        }
+
+        NetworkBackendClient.sendJsonRequestWithCookies(
+            url = url,
+            method = "PUT",
+            headers = headers,
+            body = JSONObject().toString(),
+            options = RequestOptions(
+                expectedResponseCodes = NumberSequence.Array(intArrayOf(HttpURLConnection.HTTP_OK))
+            )
+        )
+    }
+
+    suspend fun enableConferenceCallingBackdoorViaBackendTeam(team: Team) {
+        val teamId = Uri.encode(team.id)
+        val url = URI("i/teams/$teamId/features/conferenceCalling".composeCompleteUrl()).toURL()
+
+        val headers = defaultheaders.toMutableMap().apply {
+            put("Authorization", basicAuth.getEncoded())
+        }
+
+        val requestBody = JSONObject().apply {
+            put("status", "enabled")
+        }
+
+        NetworkBackendClient.sendJsonRequestWithCookies(
+            url = url,
+            method = "PATCH",
+            headers = headers,
+            body = requestBody.toString(),
+            options = RequestOptions(
+                expectedResponseCodes = NumberSequence.Array(intArrayOf(HttpURLConnection.HTTP_OK))
+            )
+        )
+    }
+
+    suspend fun disableConferenceCallingBackdoorViaBackendTeam(team: Team) {
+        val teamId = Uri.encode(team.id)
+        val url = URI("i/teams/$teamId/features/conferenceCalling".composeCompleteUrl()).toURL()
+
+        val headers = defaultheaders.toMutableMap().apply {
+            put("Authorization", basicAuth.getEncoded())
+        }
+
+        val requestBody = JSONObject().apply {
+            put("status", "disabled")
+        }
+
+        NetworkBackendClient.sendJsonRequestWithCookies(
+            url = url,
+            method = "PUT",
+            headers = headers,
+            body = requestBody.toString(),
+            options = RequestOptions(
+                expectedResponseCodes = NumberSequence.Array(intArrayOf(HttpURLConnection.HTTP_OK))
+            )
+        )
+    }
+
+    suspend fun enableConferenceCallingViaBackendPersonalUser(personalUser: ClientUser) {
+        val userId = Uri.encode(personalUser.id)
+        val url = URI("i/users/$userId/features/conferenceCalling".composeCompleteUrl()).toURL()
+
+        val headers = defaultheaders.toMutableMap().apply {
+            put("Authorization", basicAuth.getEncoded())
+        }
+
+        val requestBody = JSONObject().apply {
+            put("status", "enabled")
+        }
+
+        NetworkBackendClient.sendJsonRequestWithCookies(
+            url = url,
+            method = "PUT",
+            headers = headers,
+            body = requestBody.toString(),
+            options = RequestOptions(
+                expectedResponseCodes = NumberSequence.Array(intArrayOf(HttpURLConnection.HTTP_OK))
+            )
+        )
+    }
+
+    suspend fun upgradeToEnterprisePlanResult(team: Team) {
+        enableConferenceCallingBackdoorViaBackendTeam(team)
+    }
+
+    suspend fun getCallConfig(): JSONObject {
+        val url = URI("calls/config/v2".composeCompleteUrl()).toURL()
+
+        val headers = defaultheaders.toMutableMap().apply {
+            put("Authorization", basicAuth.getEncoded())
+        }
+
+        val response = NetworkBackendClient.sendJsonRequestWithCookies(
+            url = url,
+            method = "GET",
+            headers = headers,
+            options = RequestOptions(
+                expectedResponseCodes = NumberSequence.Array(intArrayOf(HttpURLConnection.HTTP_OK))
+            )
+        )
+
+        return JSONObject(response.body)
     }
 
     suspend fun getPropertyValues(user: ClientUser): JSONObject {
         val token = getAuthToken(user)
-        val url = URL("properties-values".composeCompleteUrl())
+        val url = URI("properties-values".composeCompleteUrl()).toURL()
 
         val headers = defaultheaders.toMutableMap().apply {
             put("Authorization", "${token?.type} ${token?.value}")
@@ -769,6 +884,38 @@ class BackendClient(
                 throw RuntimeException("Failed to change connection status for $connectionId", e)
             }
         }
+    }
+
+    suspend fun disableConsentPopup(user: ClientUser) {
+        val privacyProperty = JSONObject().apply {
+            put("improve_wire", false)
+            put("marketing_consent", false)
+            put("telemetry_data_sharing", false)
+        }
+        val settingsProperty = JSONObject().apply {
+            put("privacy", privacyProperty)
+        }
+        val properties = JSONObject().apply {
+            put("settings", settingsProperty)
+        }
+        setPropertyValue(user, "webapp", properties.toString())
+    }
+
+    suspend fun setPropertyValue(user: ClientUser, propertyKey: String, properties: String) {
+        val url = "properties/$propertyKey".composeCompleteUrl()
+        val token = getAuthToken(user)
+        val headers = defaultheaders.toMutableMap().apply {
+            put("Authorization", "${token?.type} ${token?.value}")
+        }
+        NetworkBackendClient.sendJsonRequestWithCookies(
+            url = URL(url),
+            method = "PUT",
+            headers = headers,
+            body = properties,
+            options = RequestOptions(
+                expectedResponseCodes = NumberSequence.Array(intArrayOf(HttpURLConnection.HTTP_OK))
+            )
+        )
     }
 }
 

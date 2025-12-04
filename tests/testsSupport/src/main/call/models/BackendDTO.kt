@@ -15,11 +15,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.tests.support.suite
+package call.models
 
-/**
- * Suite for running scoped tests for release candidate.
- */
-@Target(AnnotationTarget.FUNCTION, AnnotationTarget.CLASS)
-@Retention(AnnotationRetention.RUNTIME)
-annotation class RC(vararg val value: String)
+import backendUtils.BackendClient
+
+data class BackendDTO(
+    var name: String,
+    val webappUrl: String,
+    val backendUrl: String,
+    val websocketUrl: String
+) {
+    companion object {
+        fun fromBackend(backend: BackendClient): BackendDTO {
+            return BackendDTO(
+                name = backend.name,
+                webappUrl = backend.webappUrl,
+                backendUrl = backend.backendUrl,
+                websocketUrl = backend.backendWebsocket
+            )
+        }
+    }
+}

@@ -15,8 +15,21 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.navigation.di
+package call.models
 
-interface ResourceProvider {
-    fun getString(id: Int): String
+enum class CallStatus {
+    NON_EXISTENT,
+    WAITING,
+    CONNECTING,
+    ACTIVE,
+    SPEAKING,
+    MUTED,
+    DESTROYED,
+    ERROR;
+
+    companion object {
+        fun isContainedInSubset(subSet: Array<CallStatus>, item: CallStatus): Boolean {
+            return subSet.contains(item)
+        }
+    }
 }

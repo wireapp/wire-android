@@ -29,7 +29,6 @@ import com.wire.android.BuildConfig
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
 import com.wire.android.mapper.MessageResourceProvider
-import com.wire.android.navigation.di.ResourceProvider
 import com.wire.android.ui.analytics.AnalyticsConfiguration
 import com.wire.android.ui.home.appLock.CurrentTimestampProvider
 import com.wire.android.ui.home.conversations.MessageSharedState
@@ -117,10 +116,4 @@ object AppModule {
     @Provides
     @Singleton
     fun provideMessageSharedState(): MessageSharedState = MessageSharedState()
-
-    @Provides
-    @Singleton
-    fun provideResourceProvider(@ApplicationContext context: Context): ResourceProvider {
-        return ResourceProviderImpl(context)
-    }
 }

@@ -42,4 +42,7 @@ class AllPages(val device: UiDevice) {
     val chromePage = ChromePage(device)
 
     val selfUserProfilePage = SelfUserProfilePage(device)
+    val callingPage = CallingPage(device)
+
+    val documentsUIPage = DocumentsUIPage(device)
 }

@@ -15,14 +15,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.di
+package call.models
 
-import android.content.Context
-import com.wire.android.navigation.di.ResourceProvider
-import javax.inject.Inject
+import com.google.gson.annotations.SerializedName
 
-class ResourceProviderImpl @Inject constructor(
-    private val context: Context,
-) : ResourceProvider {
-    override fun getString(id: Int): String = context.getString(id)
+data class CallRequest(
+    @SerializedName("conversationId")
+    val conversationId: String = "",
+
+    @SerializedName("timeout")
+    val timeout: Long = DEFAULT_CALL_TIMEOUT
+) {
+    companion object {
+        private const val DEFAULT_CALL_TIMEOUT: Long = 1000L * 60 * 60 * 2 // 2 hours in ms
+    }
+
+    override fun toString(): String {
+        return "CallRequest(conversationId=$conversationId, timeout=$timeout)"
+    }
 }

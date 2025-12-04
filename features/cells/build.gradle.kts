@@ -17,6 +17,7 @@ dependencies {
     implementation(project(":core:ui-common"))
     implementation(libs.androidx.core)
     implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.browser)
     implementation(libs.material)
     implementation(libs.ktx.immutableCollections)
     implementation(libs.ktx.serialization)

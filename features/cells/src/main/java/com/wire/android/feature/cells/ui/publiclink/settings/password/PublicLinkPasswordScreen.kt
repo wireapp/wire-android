@@ -47,7 +47,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.feature.cells.R
-import com.wire.android.feature.cells.ui.publiclink.PublicLinkErrorDialog
+import com.wire.android.feature.cells.ui.common.WireCellErrorDialog
 import com.wire.android.feature.cells.ui.publiclink.settings.RemovePasswordDialog
 import com.wire.android.feature.cells.ui.util.PreviewMultipleThemes
 import com.wire.android.navigation.annotation.features.cells.WireDestination
@@ -79,7 +79,9 @@ internal fun PublicLinkPasswordScreen(
     var passwordError by remember { mutableStateOf<PasswordError?>(null) }
 
     BackHandler {
-        resultNavigator.navigateBack(viewModel.isPasswordCreated)
+        if (!state.showProgress) {
+            resultNavigator.navigateBack(viewModel.isPasswordCreated)
+        }
     }
 
     WireScaffold(
@@ -87,7 +89,9 @@ internal fun PublicLinkPasswordScreen(
         topBar = {
             WireCenterAlignedTopAppBar(
                 onNavigationPressed = {
-                    resultNavigator.navigateBack(viewModel.isPasswordCreated)
+                    if (!state.showProgress) {
+                        resultNavigator.navigateBack(viewModel.isPasswordCreated)
+                    }
                 },
                 title = stringResource(R.string.public_link_setting_password_title),
                 navigationIconType = NavigationIconType.Back(),
@@ -127,7 +131,7 @@ internal fun PublicLinkPasswordScreen(
     }
 
     passwordError?.let { error ->
-        PublicLinkErrorDialog(
+        WireCellErrorDialog(
             title = error.title?.let { stringResource(it) },
             message = error.message?.let { stringResource(it) },
             onResult = { tryAgain ->
@@ -145,7 +149,7 @@ internal fun PublicLinkPasswordScreen(
             }
             ShowMissingPasswordDialog -> showMissingPasswordDialog = true
             ShowRemoveConfirmationDialog -> showRemoveConfirmationDialog = true
-            is ShowPasswordError -> passwordError = action.error
+            is ShowError -> passwordError = action.error
         }
     }
 }
@@ -180,7 +184,7 @@ private fun PasswordScreenContent(
             PasswordSettingsContent(
                 screenState = state.screenState,
                 isPasswordValid = state.isPasswordValid,
-                showProgress = state.isUpdating,
+                showProgress = state.showProgress,
                 passwordTextState = passwordTextState,
                 onGeneratePassword = onGeneratePasswordClick,
                 onCopyPassword = {
@@ -294,7 +298,7 @@ private fun PreviewPasswordScreen() {
             state = PublicLinkPasswordScreenViewState(
                 isEnabled = true,
                 isPasswordValid = true,
-                isUpdating = false,
+                showProgress = false,
             ),
             passwordTextState = TextFieldState("password"),
         )

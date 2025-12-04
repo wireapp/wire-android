@@ -28,6 +28,7 @@ import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
 import com.wire.kalium.cells.domain.usecase.DownloadCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
 import com.wire.kalium.cells.domain.usecase.GetCellFileUseCase
+import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
 import com.wire.kalium.cells.domain.usecase.GetFoldersUseCase
 import com.wire.kalium.cells.domain.usecase.GetMessageAttachmentUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
@@ -49,6 +50,7 @@ import com.wire.kalium.cells.domain.usecase.publiclink.CreatePublicLinkUseCase
 import com.wire.kalium.cells.domain.usecase.publiclink.DeletePublicLinkUseCase
 import com.wire.kalium.cells.domain.usecase.publiclink.GetPublicLinkPasswordUseCase
 import com.wire.kalium.cells.domain.usecase.publiclink.GetPublicLinkUseCase
+import com.wire.kalium.cells.domain.usecase.publiclink.SetPublicLinkExpirationUseCase
 import com.wire.kalium.cells.domain.usecase.publiclink.UpdatePublicLinkPasswordUseCase
 import com.wire.kalium.cells.domain.usecase.versioning.GetNodeVersionsUseCase
 import com.wire.kalium.cells.domain.usecase.versioning.RestoreNodeVersionUseCase
@@ -192,6 +194,13 @@ class CellsModule {
     @Provides
     fun provideGetPublicLinkPasswordUseCase(cellsScope: CellsScope): GetPublicLinkPasswordUseCase =
         cellsScope.getPublicLinkPassword
+
+    @Provides
+    fun provideSetPublicLinkExpirationUseCase(cellsScope: CellsScope): SetPublicLinkExpirationUseCase =
+        cellsScope.setPublicLinkExpiration
+
+    @Provides
+    fun provideEditorUrlUseCase(cellsScope: CellsScope): GetEditorUrlUseCase = cellsScope.getEditorUrl
 
     @ViewModelScoped
     @Provides

@@ -277,13 +277,16 @@ class PublicLinkViewModelTest {
         }
 
         fun arrange(): Pair<Arrangement, PublicLinkViewModel> {
+
+            every { kaliumConfigs.securePublicLinkSettings } returns false
+
             return this to PublicLinkViewModel(
                 savedStateHandle = savedStateHandle,
                 createPublicLink = createPublicLinkUseCase,
                 getPublicLinkUseCase = getPublicLinkUseCase,
                 deletePublicLinkUseCase = deletePublicLinkUseCase,
                 fileHelper = fileHelper,
-                config = kaliumConfigs
+                config = kaliumConfigs,
             )
         }
     }

@@ -25,10 +25,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.feature.cells.R
@@ -45,10 +49,13 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.divider.WireDivider
 import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.common.scaffold.WireScaffold
+import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.openDownloadFolder
+import kotlinx.coroutines.launch
 
 @WireDestination(
     style = PopUpNavigationAnimation::class,
@@ -61,6 +68,9 @@ fun VersionHistoryScreen(
     versionHistoryViewModel: VersionHistoryViewModel = hiltViewModel()
 ) {
     val optionsBottomSheetState = rememberWireModalSheetState<CellVersion>()
+    val snackbarHostState = LocalSnackbarHostState.current
+    val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     VersionHistoryScreenContent(
         versionsGroupedByTime = versionHistoryViewModel.versionsGroupedByTime.value,
@@ -75,6 +85,25 @@ fun VersionHistoryScreen(
         },
         downloadVersion = {
             optionsBottomSheetState.hide()
+
+            coroutineScope.launch {
+                snackbarHostState.showSnackbar(
+                    message = "Downloading..",
+                    duration = SnackbarDuration.Short,
+                )
+            }
+
+            versionHistoryViewModel.downloadVersion(it) { version, fileName ->
+                coroutineScope.launch {
+                    val snackbarResult = snackbarHostState.showSnackbar(
+                        message = "$fileName saved to Downloads",
+                        actionLabel = "Show"
+                    )
+                    if (snackbarResult == SnackbarResult.ActionPerformed) {
+                        openDownloadFolder(context)
+                    }
+                }
+            }
         },
         showRestoreConfirmationDialog = { versionId ->
             optionsBottomSheetState.hide()
@@ -87,6 +116,7 @@ fun VersionHistoryScreen(
         onRefresh = { versionHistoryViewModel.fetchNodeVersionsGroupedByDate() }
     )
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

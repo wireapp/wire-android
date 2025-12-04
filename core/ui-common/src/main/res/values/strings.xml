@@ -56,5 +56,5 @@
 
     <string name="generate_password_button_text">Generate Password</string>
     <string name="content_description_check">Check mark</string>
-
+    <string name="label_no_application_found_open_downloads_folder">"No application found to open downloads folder"</string>
 </resources>

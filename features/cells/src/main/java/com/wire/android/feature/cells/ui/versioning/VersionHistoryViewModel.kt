@@ -26,8 +26,12 @@ import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.navArgs
 import com.wire.android.feature.cells.ui.versioning.restore.RestoreDialogState
 import com.wire.android.feature.cells.ui.versioning.restore.RestoreState
+import com.wire.android.feature.cells.util.FileHelper
+import com.wire.android.feature.cells.util.FileNameResolver
 import com.wire.android.navigation.di.ResourceProvider
+import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.cells.domain.model.NodeVersion
+import com.wire.kalium.cells.domain.usecase.DownloadCellVersionUseCase
 import com.wire.kalium.cells.domain.usecase.versioning.GetNodeVersionsUseCase
 import com.wire.kalium.cells.domain.usecase.versioning.RestoreNodeVersionUseCase
 import com.wire.kalium.common.functional.onFailure
@@ -35,6 +39,8 @@ import com.wire.kalium.common.functional.onSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import okio.buffer
+import okio.sink
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -43,10 +49,14 @@ import javax.inject.Inject
 
 @HiltViewModel
 class VersionHistoryViewModel @Inject constructor(
-    val savedStateHandle: SavedStateHandle,
-    val resourceProvider: ResourceProvider,
-    val getNodeVersionsUseCase: GetNodeVersionsUseCase,
-    val restoreNodeVersionUseCase: RestoreNodeVersionUseCase
+    private val savedStateHandle: SavedStateHandle,
+    private val resourceProvider: ResourceProvider,
+    private val getNodeVersionsUseCase: GetNodeVersionsUseCase,
+    private val restoreNodeVersionUseCase: RestoreNodeVersionUseCase,
+    private val downloadCellVersionUseCase: DownloadCellVersionUseCase,
+    private val fileNameResolver: FileNameResolver,
+    private val dispatchers: DispatcherProvider,
+    private val fileHelper: FileHelper
 ) : ViewModel() {
 
     private val navArgs: VersionHistoryNavArgs = savedStateHandle.navArgs()
@@ -110,7 +120,8 @@ class VersionHistoryViewModel @Inject constructor(
                             .atZone(ZoneId.systemDefault())
                             .toLocalTime()
                             .format(DateTimeFormatter.ofPattern(TIME_PATTERN)),
-                        isCurrentVersion = groupIndex == 0 && itemIndex == 0
+                        isCurrentVersion = groupIndex == 0 && itemIndex == 0,
+                        presignedUrl = apiItem.getUrl?.url
                     )
                 }
                 VersionGroup(dateLabel, uiItems)
@@ -190,6 +201,62 @@ class VersionHistoryViewModel @Inject constructor(
                     }
             }
         }
+    }
+
+    fun addBeforeExtension(fileName: String, insert: String): String {
+        val dotIndex = fileName.lastIndexOf('.')
+        return if (dotIndex != -1) {
+            val name = fileName.take(dotIndex)
+            val ext = fileName.substring(dotIndex)
+            "${name}_$insert$ext"
+        } else {
+            // No extension → just append
+            fileName + insert
+        }
+    }
+
+    fun downloadVersion(versionId: String, onDownloadCompleted: (CellVersion, String) -> Unit = { _, _ -> }) {
+        viewModelScope.launch(dispatchers.io()) {
+            fileName?.let {
+                val cellVersion = findVersionById(versionId)
+                val versionDate = getDateLabelForVersionId(versionId)
+                val newFileName = addBeforeExtension(fileName, "${versionDate}_${cellVersion?.modifiedAt}")
+                val bufferedSink = fileHelper.createDownloadFileStream(newFileName)?.sink()?.buffer()
+                if (cellVersion?.presignedUrl != null && bufferedSink != null) {
+                    downloadCellVersionUseCase.invoke(
+                        bufferedSink = bufferedSink,
+                        preSignedUrl = cellVersion.presignedUrl,
+                        onProgressUpdate = {},
+                        onCompleted = { onDownloadCompleted(cellVersion, newFileName) }
+                    )
+                }
+            }
+        }
+    }
+
+    fun findVersionById(versionId: String): CellVersion? {
+        return versionsGroupedByTime.value
+            .flatMap { it.versions }
+            .find { it.versionId == versionId }
+    }
+
+    fun getDateLabelForVersionId(versionId: String): String {
+        return versionsGroupedByTime.value
+            .firstOrNull { group ->
+                group.versions.any { it.versionId == versionId }
+            }?.dateLabel ?: ""
+    }
+
+    fun updateCurrentVersion(versionId: String) {
+        versionsGroupedByTime.value =
+            versionsGroupedByTime.value.map { group ->
+                val updatedVersions = group.versions.map { version ->
+                    if (version.versionId == versionId) {
+                        version.copy(isCurrentVersion = true)
+                    } else version.copy(isCurrentVersion = false)
+                }
+                group.copy(versions = updatedVersions)
+            }
     }
 
     companion object {

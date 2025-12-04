@@ -66,7 +66,7 @@ import com.wire.android.util.permission.rememberWriteStoragePermissionFlow
 import com.wire.android.util.startFileShareIntent
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.SnackBarMessageHandler
-import com.wire.android.util.ui.openDownloadFolder
+import com.wire.android.util.openDownloadFolder
 
 @OptIn(ExperimentalCoilApi::class)
 @WireDestination(

@@ -22,7 +22,8 @@ data class CellVersion(
     val modifiedAt: String = "",
     val modifiedBy: String ="",
     val fileSize: String = "",
-    val isCurrentVersion: Boolean = false
+    val isCurrentVersion: Boolean = false,
+    val presignedUrl: String? = null
 )
 
 data class VersionGroup(

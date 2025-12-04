@@ -129,7 +129,7 @@ class CellFileActionsMenu @Inject constructor(
             NodeBottomSheetAction.DELETE -> Action(ShowDeleteConfirmation(node = node, isPermanentDelete = false))
             NodeBottomSheetAction.DOWNLOAD -> Download(node)
             NodeBottomSheetAction.EDIT -> Edit(node)
-            NodeBottomSheetAction.VERSION_HISTORY -> Action(ShowVersionHistoryScreen(node))
+            NodeBottomSheetAction.VERSION_HISTORY -> Action(ShowVersionHistoryScreen(node.uuid))
         }
 
         onResult(result)

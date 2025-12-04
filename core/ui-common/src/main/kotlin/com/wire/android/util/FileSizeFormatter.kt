@@ -25,6 +25,7 @@ import javax.inject.Inject
 class FileSizeFormatter @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
+    @Suppress("MagicNumber")
     fun formatSize(bytes: Long): String {
         context.resources.getString(R.string.size_unit_bytes)
         val units = arrayOf(

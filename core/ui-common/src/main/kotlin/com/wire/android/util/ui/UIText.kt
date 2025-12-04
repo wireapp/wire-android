@@ -113,6 +113,7 @@ sealed class UIText {
 
 fun String.toUIText() = UIText.DynamicString(this)
 
+@Suppress("SpreadOperator")
 fun UIText.resolveForTest(fakeStrings: Map<Int, String>): String = when (this) {
     is UIText.DynamicString -> this.value
     is UIText.StringResource -> {

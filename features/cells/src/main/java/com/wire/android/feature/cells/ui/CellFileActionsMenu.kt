@@ -54,10 +54,9 @@ class CellFileActionsMenu @Inject constructor(
                         add(NodeBottomSheetAction.EDIT)
                     }
 
-                    // to be enabled in next PR
-//                    if (cellNode is CellNodeUi.File) {
-//                        add(NodeBottomSheetAction.VERSION_HISTORY) // todo add feature flag
-//                    }
+                    if (featureFlags.collaboraIntegration && cellNode.isEditSupported()) {
+                        add(NodeBottomSheetAction.VERSION_HISTORY)
+                    }
 
                     add(NodeBottomSheetAction.ADD_REMOVE_TAGS)
                     add(NodeBottomSheetAction.MOVE)

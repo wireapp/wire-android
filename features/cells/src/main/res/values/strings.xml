@@ -160,11 +160,6 @@
     <string name="public_link_password_create_failure_dialog_message">Please try again.\n\nIf this error persists, contact your team administrator.</string>
     <string name="error_try_again_button_title">Try again</string>
     <string name="version_history_top_appbar_title">Version history</string>
-    <string name="size_unit_bytes">B</string>
-    <string name="size_unit_kilobytes">KB</string>
-    <string name="size_unit_megabytes">MB</string>
-    <string name="size_unit_gigabytes">GB</string>
-    <string name="size_unit_terabytes">TB</string>
-    <string name="today_label">Today</string>
-    <string name="yesterday_label">Yesterday</string>
+    <string name="date_label_today">Today, %1$s</string>
+    <string name="date_label_yesterday">Yesterday, %1$s</string>
 </resources>

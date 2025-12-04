@@ -17,6 +17,8 @@
  */
 package com.wire.android.feature.cells.ui.versioning
 
+import com.wire.android.util.ui.UIText
+
 data class CellVersion(
     val modifiedAt: String,
     val modifiedBy: String,
@@ -24,6 +26,6 @@ data class CellVersion(
 )
 
 data class VersionGroup(
-    val dateLabel: String,
+    val dateLabel: UIText,
     val versions: List<CellVersion>
 )

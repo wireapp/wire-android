@@ -24,7 +24,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.navArgs
-import com.wire.android.navigation.di.ResourceProvider
+import com.wire.android.util.FileSizeFormatter
+import com.wire.android.util.ui.UIText
 import com.wire.kalium.cells.domain.model.NodeVersion
 import com.wire.kalium.cells.domain.usecase.versioning.GetNodeVersionsUseCase
 import com.wire.kalium.common.functional.onSuccess
@@ -34,13 +35,14 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 import javax.inject.Inject
 
 @HiltViewModel
 class VersionHistoryViewModel @Inject constructor(
-    val savedStateHandle: SavedStateHandle,
-    val resourceProvider: ResourceProvider,
-    val getNodeVersionsUseCase: GetNodeVersionsUseCase
+    private val savedStateHandle: SavedStateHandle,
+    private val getNodeVersionsUseCase: GetNodeVersionsUseCase,
+    private val fileSizeFormatter: FileSizeFormatter
 ) : ViewModel() {
 
     private val navArgs: VersionHistoryNavArgs = savedStateHandle.navArgs()
@@ -80,47 +82,38 @@ class VersionHistoryViewModel @Inject constructor(
         return grouped.entries
             .sortedByDescending { it.key }
             .map { (date, items) ->
-                val dateLabel = when (date) {
-                    today -> "${resourceProvider.getString(R.string.today_label)}, " +
-                            "${date.format(DateTimeFormatter.ofPattern(DATE_PATTERN))}"
+                val dateFormat = DateTimeFormatter.ofPattern(DATE_PATTERN)
+                val formattedDate = date.format(dateFormat)
 
-                    yesterday -> "${resourceProvider.getString(R.string.yesterday_label)}, " +
-                            "${date.format(DateTimeFormatter.ofPattern(DATE_PATTERN))}"
+                val dateLabel: UIText = when (date) {
+                    today -> UIText.StringResource(
+                        R.string.date_label_today,
+                        formattedDate
+                    )
 
-                    else -> date.format(DateTimeFormatter.ofPattern(DATE_PATTERN))
+                    yesterday -> UIText.StringResource(
+                        R.string.date_label_yesterday,
+                        formattedDate
+                    )
+
+                    else -> UIText.DynamicString(formattedDate)
                 }
 
                 val uiItems = items.map { apiItem ->
+
+                    val formattedTime = Instant.ofEpochSecond(apiItem.modifiedTime?.toLong() ?: 0L)
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalTime()
+                        .format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT))
+
                     CellVersion(
                         modifiedBy = apiItem.ownerName ?: "",
-                        fileSize = formatSize(apiItem.size?.toLong() ?: 0),
-                        modifiedAt = Instant.ofEpochSecond(apiItem.modifiedTime?.toLong() ?: 0L)
-                            .atZone(ZoneId.systemDefault())
-                            .toLocalTime()
-                            .format(DateTimeFormatter.ofPattern(TIME_PATTERN))
+                        fileSize = fileSizeFormatter.formatSize(apiItem.size?.toLong() ?: 0),
+                        modifiedAt = formattedTime
                     )
                 }
                 VersionGroup(dateLabel, uiItems)
             }
-    }
-
-    @Suppress("MagicNumber")
-    private fun formatSize(bytes: Long): String {
-        val units = arrayOf(
-            resourceProvider.getString(R.string.size_unit_bytes),
-            resourceProvider.getString(R.string.size_unit_kilobytes),
-            resourceProvider.getString(R.string.size_unit_megabytes),
-            resourceProvider.getString(R.string.size_unit_gigabytes),
-            resourceProvider.getString(R.string.size_unit_terabytes)
-        )
-        var size = bytes.toDouble()
-        var index = 0
-
-        while (size >= 1024 && index < units.size - 1) {
-            size /= 1024
-            index++
-        }
-        return String.format("%.2f %s", size, units[index])
     }
 
     companion object {

@@ -85,7 +85,6 @@ class CellViewModel @Inject constructor(
     private val isCellAvailable: IsAtLeastOneCellAvailableUseCase,
     private val fileHelper: FileHelper,
     private val fileNameResolver: FileNameResolver,
-    private val kaliumConfigs: KaliumConfigs
 ) : ActionsViewModel<CellViewAction>() {
 
     private val navArgs: CellFilesNavArgs = savedStateHandle.navArgs()
@@ -380,7 +379,7 @@ class CellViewModel @Inject constructor(
                     }
                     add(NodeBottomSheetAction.PUBLIC_LINK)
                     add(NodeBottomSheetAction.DOWNLOAD)
-                    if (kaliumConfigs.collaboraIntegration && cellNode is CellNodeUi.File) { // TODO check if edit is supported
+                    if (cellNode is CellNodeUi.File) { // TODO check if edit is supported
                         add(NodeBottomSheetAction.VERSION_HISTORY)
                     }
                     add(NodeBottomSheetAction.ADD_REMOVE_TAGS)

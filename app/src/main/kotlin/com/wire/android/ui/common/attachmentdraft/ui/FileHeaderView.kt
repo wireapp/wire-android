@@ -34,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.feature.cells.domain.model.icon
@@ -44,7 +45,7 @@ import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.home.conversations.messages.item.isBubble
 import com.wire.android.ui.home.conversations.messages.item.textColor
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.util.DeviceUtil
+import com.wire.android.util.FileSizeFormatter
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
@@ -58,8 +59,9 @@ fun FileHeaderView(
     labelColor: Color? = null,
     isError: Boolean = false,
 ) {
+    val context = LocalContext.current
     val attachmentFileType = type ?: remember(extension) { AttachmentFileType.fromExtension(extension) }
-    val sizeString = remember(size) { size?.let { DeviceUtil.formatSize(size) } ?: "" }
+    val sizeString = remember(size) { size?.let { FileSizeFormatter(context).formatSize(size) } ?: "" }
 
     Row(
         modifier = modifier.fillMaxWidth(),

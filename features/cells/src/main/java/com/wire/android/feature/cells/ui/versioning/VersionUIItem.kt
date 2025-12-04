@@ -43,6 +43,8 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.util.ui.UIText
+import com.wire.android.util.ui.toUIText
 
 @Composable
 fun VersionItem(
@@ -117,7 +119,7 @@ fun VersionItem(
 
 @Composable
 fun VersionTimeHeaderItem(
-    timeHeader: String,
+    timeHeader: UIText,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -133,7 +135,7 @@ fun VersionTimeHeaderItem(
                     top = dimensions().spacing8x,
                     bottom = dimensions().spacing8x,
                 ),
-            text = timeHeader,
+            text = timeHeader.asString(),
             style = typography().title03,
             color = colorsScheme().secondaryText,
         )
@@ -157,7 +159,7 @@ fun VersionItemPreview() {
 fun VersionTimeHeaderItemPreview() {
     WireTheme {
         VersionTimeHeaderItem(
-            timeHeader = "Today, 3 Dec 2025"
+            timeHeader = "Today, 3 Dec 2025".toUIText()
         )
     }
 }

@@ -112,3 +112,20 @@ sealed class UIText {
 }
 
 fun String.toUIText() = UIText.DynamicString(this)
+
+fun UIText.resolveForTest(fakeStrings: Map<Int, String>): String = when (this) {
+    is UIText.DynamicString -> this.value
+    is UIText.StringResource -> {
+        val raw = fakeStrings[this.resId]
+            ?: error("Missing fake string for resId ${this.resId}")
+        val resolvedArgs = formatArgs.map {
+            when (it) {
+                is UIText -> it.resolveForTest(fakeStrings)
+                else -> it.toString()
+            }
+        }.toTypedArray()
+        String.format(raw, *resolvedArgs)
+    }
+
+    else -> ""
+}

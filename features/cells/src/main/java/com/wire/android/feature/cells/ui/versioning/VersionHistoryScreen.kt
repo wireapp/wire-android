@@ -40,6 +40,7 @@ import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.util.ui.toUIText
 
 @WireDestination(
     style = PopUpNavigationAnimation::class,
@@ -121,7 +122,7 @@ fun PreviewVersionHistoryScreenContent() {
             isFetchingContent = false,
             versionsGroupedByTime = listOf(
                 VersionGroup(
-                    dateLabel = "Today, 3 Dec 2025",
+                    dateLabel = "Today, 3 Dec 2025".toUIText(),
                     versions = listOf(
                         CellVersion("1:46 PM", "Deniz Agha", "200MB"),
                         CellVersion("11:20 AM", "Alice Smith", "150MB"),
@@ -131,7 +132,7 @@ fun PreviewVersionHistoryScreenContent() {
                     )
                 ),
                 VersionGroup(
-                    dateLabel = "1 Dec 2025",
+                    dateLabel = "1 Dec 2025".toUIText(),
                     versions = listOf(
                         CellVersion("3:15 PM", "Bob Johnson", "300MB"),
                         CellVersion("10:05 AM", "Charlie Brown", "250KB"),

@@ -31,6 +31,7 @@ import com.wire.android.ui.home.conversations.model.messagetypes.image.VisualMed
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
 import com.wire.android.ui.markdown.MarkdownConstants
+import com.wire.android.ui.markdown.MarkdownPreview
 import com.wire.android.ui.theme.Accent
 import com.wire.android.util.Copyable
 import com.wire.android.util.ui.UIText
@@ -52,6 +53,7 @@ import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import kotlin.time.Duration
 
 @Serializable
@@ -285,13 +287,19 @@ sealed interface UILastMessageContent {
     data object None : UILastMessageContent
 
     @Serializable
-    data class TextMessage(val messageBody: MessageBody) : UILastMessageContent
+    data class TextMessage(
+        val messageBody: MessageBody,
+        @Transient
+        val markdownPreview: MarkdownPreview? = null
+    ) : UILastMessageContent
 
     @Serializable
     data class SenderWithMessage(
         val sender: UIText,
         val message: UIText,
-        val separator: String = MarkdownConstants.NON_BREAKING_SPACE
+        val separator: String = MarkdownConstants.NON_BREAKING_SPACE,
+        @Transient
+        val markdownPreview: MarkdownPreview? = null
     ) : UILastMessageContent
 
     @Serializable

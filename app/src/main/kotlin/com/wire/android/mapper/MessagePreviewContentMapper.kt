@@ -105,6 +105,44 @@ private fun String?.userUiText(isSelfMessage: Boolean): UIText = when {
     else -> UIText.StringResource(R.string.username_unavailable_label)
 }
 
+private fun assetMessageResId(
+    assetType: AssetType,
+    isSelfMessage: Boolean,
+    count: Int
+): UIText {
+    return if (count > 1) {
+        val resId = when (assetType) {
+            AssetType.AUDIO -> if (isSelfMessage) R.string.last_message_self_user_shared_multiple_audio
+            else R.string.last_message_other_user_shared_multiple_audio
+
+            AssetType.IMAGE -> if (isSelfMessage) R.string.last_message_self_user_shared_multiple_image
+            else R.string.last_message_other_user_shared_multiple_image
+
+            AssetType.VIDEO -> if (isSelfMessage) R.string.last_message_self_user_shared_multiple_video
+            else R.string.last_message_other_user_shared_multiple_video
+
+            AssetType.GENERIC_ASSET -> if (isSelfMessage) R.string.last_message_self_user_shared_multiple_asset
+            else R.string.last_message_other_user_shared_multiple_asset
+        }
+        UIText.StringResource(resId, count)
+    } else {
+        val resId = when (assetType) {
+            AssetType.AUDIO -> if (isSelfMessage) R.string.last_message_self_user_shared_audio
+            else R.string.last_message_other_user_shared_audio
+
+            AssetType.IMAGE -> if (isSelfMessage) R.string.last_message_self_user_shared_image
+            else R.string.last_message_other_user_shared_image
+
+            AssetType.VIDEO -> if (isSelfMessage) R.string.last_message_self_user_shared_video
+            else R.string.last_message_other_user_shared_video
+
+            AssetType.GENERIC_ASSET -> if (isSelfMessage) R.string.last_message_self_user_shared_asset
+            else R.string.last_message_other_user_shared_asset
+        }
+        UIText.StringResource(resId)
+    }
+}
+
 @Suppress("LongMethod", "ComplexMethod", "NestedBlockDepth")
 fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
     return when (content) {
@@ -112,49 +150,10 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
             val userContent = (content as WithUser)
             val userUIText = userContent.username.userUiText(isSelfMessage)
             when ((userContent)) {
-                is WithUser.Asset -> when ((content as WithUser.Asset).type) {
-                    AssetType.AUDIO ->
-                        UILastMessageContent.SenderWithMessage(
-                            userUIText,
-                            UIText.StringResource(R.string.last_message_self_user_shared_audio)
-                        )
-
-                    AssetType.IMAGE ->
-                        UILastMessageContent.SenderWithMessage(
-                            userUIText,
-                            UIText.StringResource(
-                                if (isSelfMessage) {
-                                    R.string.last_message_self_user_shared_image
-                                } else {
-                                    R.string.last_message_other_user_shared_image
-                                }
-                            )
-                        )
-
-                    AssetType.VIDEO ->
-                        UILastMessageContent.SenderWithMessage(
-                            userUIText,
-                            UIText.StringResource(
-                                if (isSelfMessage) {
-                                    R.string.last_message_self_user_shared_video
-                                } else {
-                                    R.string.last_message_other_user_shared_video
-                                }
-                            )
-                        )
-
-                    AssetType.GENERIC_ASSET ->
-                        UILastMessageContent.SenderWithMessage(
-                            userUIText,
-                            UIText.StringResource(
-                                if (isSelfMessage) {
-                                    R.string.last_message_self_user_shared_asset
-                                } else {
-                                    R.string.last_message_other_user_shared_asset
-                                }
-                            )
-                        )
-                }
+                is WithUser.Asset -> UILastMessageContent.SenderWithMessage(
+                    sender = userUIText,
+                    message = assetMessageResId((content as WithUser.Asset).type, isSelfMessage, (content as WithUser.Asset).count)
+                )
 
                 is WithUser.ConversationNameChange -> UILastMessageContent.SenderWithMessage(
                     userUIText,

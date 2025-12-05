@@ -16,42 +16,16 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 package com.wire.android.tests.support.suite
+
 import android.os.Bundle
 import android.util.Log
 import io.qameta.allure.android.runners.AllureAndroidJUnitRunner
-
-
-/**
- * Custom test runner that delegates to Allure's Android runner.
- *
- * For now it only logs the incoming instrumentation arguments.
- * Allure takes care of writing allure-results.
- */
-//class TaggedTestRunner : AllureAndroidJUnitRunner() {
-//
-//    override fun onCreate(arguments: Bundle) {
-//        val filterId = arguments.getString("testCaseId")
-//        // debug log so we know runner is alive
-//        Log.i("TaggedTestRunner", "onCreate called. testCaseId=$filterId")
-//
-//        // let Allure initialise itself
-//        super.onCreate(arguments)
-//    }
-//}
-
 
 /**
  * Custom test runner that delegates to Allure's Android runner,
  * and filters tests by @TestCaseId, @Category, and @Tag BEFORE
  * they are executed (and before Allure sees them).
- *
- * Supported instrumentation arguments:
- *  - -e testCaseId TC-8602
- *  - -e category   criticalFlow
- *  - -e tagKey     feature
- *  - -e tagValue   calling
  */
-
 
 class TaggedTestRunner : AllureAndroidJUnitRunner() {
 
@@ -61,8 +35,11 @@ class TaggedTestRunner : AllureAndroidJUnitRunner() {
         val tagKey = arguments.getString("tagKey")
         val tagValue = arguments.getString("tagValue")
 
-        Log.i("TaggedTestRunner", "onCreate called. " +
-                "testCaseId=$filterId, category=$category, tagKey=$tagKey, tagValue=$tagValue")
+        Log.i(
+            "TaggedTestRunner",
+            "onCreate called. " +
+                    "testCaseId=$filterId, category=$category, tagKey=$tagKey, tagValue=$tagValue"
+        )
 
         super.onCreate(arguments)
     }

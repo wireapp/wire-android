@@ -180,6 +180,7 @@ class VersionHistoryViewModel @Inject constructor(
         }
     }
 
+    @Suppress("MagicNumber")
     private fun simulateRestoreProgress() = viewModelScope.launch {
         with(restoreDialogState) {
             while (value.restoreProgress < 0.95f && value.restoreVersionState == RestoreVersionState.Restoring) {

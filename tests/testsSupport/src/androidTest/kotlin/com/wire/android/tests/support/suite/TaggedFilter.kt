@@ -15,6 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+@file:Suppress(
+    "ReturnCount",
+    "CyclomaticComplexMethod",
+    "ComplexCondition"
+)
 package com.wire.android.tests.support.suite
 
 import androidx.test.platform.app.InstrumentationRegistry
@@ -34,7 +39,6 @@ import org.junit.runner.manipulation.Filter
  *
  * Tests that don't match are excluded from the run.
  */
-
 class TaggedFilter : Filter() {
 
     // Read instrumentation arguments once
@@ -44,7 +48,6 @@ class TaggedFilter : Filter() {
     private val filterCategory: String? = args.getString("category")
     private val filterTagKey: String? = args.getString("tagKey")
     private val filterTagValue: String? = args.getString("tagValue")
-
     override fun shouldRun(description: Description): Boolean {
         // No filters -> include everything
         if (filterTestCaseId == null &&
@@ -100,7 +103,6 @@ class TaggedFilter : Filter() {
             if (!matchesTag) return false
         }
 
-        // All conditions passed
         return true
     }
 

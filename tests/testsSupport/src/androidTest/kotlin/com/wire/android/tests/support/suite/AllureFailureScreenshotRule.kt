@@ -18,7 +18,6 @@
 package com.wire.android.tests.support.suite
 
 import android.util.Log
-import androidx.test.platform.app.InstrumentationRegistry
 import io.qameta.allure.android.allureScreenshot
 import org.junit.AssumptionViolatedException
 import org.junit.rules.TestRule
@@ -65,7 +64,8 @@ class AllureFailureScreenshotRule(
                         // Never break the test because screenshot failed
                         Log.e(
                             "AllureFailureScreenshotRule",
-                            "Failed to capture screenshot", s
+                            "Failed to capture screenshot",
+                            s
                         )
                     }
 

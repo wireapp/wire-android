@@ -63,7 +63,6 @@ class VersionHistoryViewModel @Inject constructor(
 
     var restoreDialogState: MutableState<RestoreDialogState> =
         mutableStateOf(RestoreDialogState())
-        private set
 
     init {
         fetchNodeVersionsGroupedByDate()

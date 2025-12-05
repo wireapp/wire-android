@@ -241,7 +241,7 @@ class MultipartAttachmentsViewModelTest {
 
         suspend fun arrange(): Pair<Arrangement, MultipartAttachmentsViewModel> {
 
-            coEvery { refreshAsset(any()) } returns CellNode("uuid", "id", "").right()
+            coEvery { refreshAsset(any()) } returns CellNode("uuid", "id", "path").right()
             coEvery { fileManager.openWithExternalApp(any(), any(), any(), any()) } returns Unit
             coEvery { fileManager.openUrlWithExternalApp(any(), any(), any()) } returns Unit
             coEvery { download(any(), any(), any(), any(), any()) } returns Unit.right()

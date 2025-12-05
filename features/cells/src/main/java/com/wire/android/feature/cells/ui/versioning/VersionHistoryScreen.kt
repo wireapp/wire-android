@@ -17,6 +17,7 @@
  */
 package com.wire.android.feature.cells.ui.versioning
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -93,9 +94,9 @@ fun VersionHistoryScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun VersionHistoryScreenContent(
-    modifier: Modifier = Modifier,
-    isFetchingContent: Boolean,
     versionsGroupedByTime: List<VersionGroup>,
+    isFetchingContent: Boolean,
+    modifier: Modifier = Modifier,
     optionsBottomSheetState: WireModalSheetState<CellVersion>,
     restoreDialogState: RestoreDialogState,
     onRefresh: () -> Unit,

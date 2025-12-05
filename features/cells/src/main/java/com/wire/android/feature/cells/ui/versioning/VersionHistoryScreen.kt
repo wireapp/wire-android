@@ -17,9 +17,10 @@
  */
 package com.wire.android.feature.cells.ui.versioning
 
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -48,8 +49,8 @@ import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.util.ui.toUIText
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.ui.toUIText
 
 @WireDestination(
     style = PopUpNavigationAnimation::class,
@@ -128,38 +129,41 @@ private fun VersionHistoryScreenContent(
         },
     ) { innerPadding ->
 
-        AnimatedVisibility(
-            visible = isFetchingContent,
-            enter = fadeIn(),
-            exit = fadeOut()
-        ) { LoadingScreen() }
+        AnimatedContent(
+            targetState = isFetchingContent,
+            modifier = Modifier.fillMaxWidth(),
+            transitionSpec = {
+                val enter = fadeIn()
+                val exit = fadeOut()
+                enter.togetherWith(exit)
+            },
+        ) { isFetching ->
 
-        AnimatedVisibility(
-            visible = !isFetchingContent,
-            enter = fadeIn(),
-            exit = fadeOut()
-        ) {
-            PullToRefreshBox(
-                isRefreshing = isFetchingContent,
-                onRefresh = onRefresh,
-            ) {
-                LazyColumn(Modifier.padding(innerPadding)) {
-                    versionsGroupedByTime.forEach { group ->
-                        item {
-                            VersionTimeHeaderItem(group.dateLabel)
-                        }
-                        group.versions.forEach {
+            if (isFetching) {
+                LoadingScreen()
+            } else {
+                PullToRefreshBox(
+                    isRefreshing = isFetchingContent,
+                    onRefresh = onRefresh,
+                ) {
+                    LazyColumn(Modifier.padding(innerPadding)) {
+                        versionsGroupedByTime.forEach { group ->
                             item {
-                                VersionItem(
-                                    cellVersion = it,
-                                    onActionClick = { cellVersion ->
-                                        optionsBottomSheetState.show(cellVersion)
-                                    }
-                                )
-                                WireDivider(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    color = colorsScheme().outline
-                                )
+                                VersionTimeHeaderItem(group.dateLabel)
+                            }
+                            group.versions.forEach {
+                                item {
+                                    VersionItem(
+                                        cellVersion = it,
+                                        onActionClick = { cellVersion ->
+                                            optionsBottomSheetState.show(cellVersion)
+                                        }
+                                    )
+                                    WireDivider(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        color = colorsScheme().outline
+                                    )
+                                }
                             }
                         }
                     }

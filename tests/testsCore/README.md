@@ -72,7 +72,9 @@ Note: Only runs tests where both key AND value match.
 
 ## Pulling Allure Results From Device
 
-Allure results are stored on the device at:  
+Install allure
+
+## Allure results are stored on the device at:  
 /sdcard/googletest/test_outputfiles/allure-results
 
 ## To pull results from device:  

@@ -24,6 +24,7 @@ import com.wire.android.util.ui.resolveForTest
 import com.wire.android.util.ui.toUIText
 import com.wire.kalium.cells.domain.model.NodeVersion
 import com.wire.kalium.cells.domain.usecase.versioning.GetNodeVersionsUseCase
+import com.wire.kalium.cells.domain.usecase.versioning.RestoreNodeVersionUseCase
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.common.functional.Either
 import io.mockk.coEvery
@@ -53,6 +54,7 @@ class VersionHistoryViewModelTest {
 
     private val savedStateHandle: SavedStateHandle = mockk(relaxed = true)
     private val getNodeVersionsUseCase: GetNodeVersionsUseCase = mockk()
+    private val restoreNodeVersionUseCase: RestoreNodeVersionUseCase = mockk()
     private val fileSizeFormatter: FileSizeFormatter = mockk()
 
     private val testNodeUuid = "test-node-uuid"
@@ -73,7 +75,7 @@ class VersionHistoryViewModelTest {
     fun givenViewModel_whenItInits_thenIsFetchingStateIsManagedCorrectly() = runTest {
         coEvery { getNodeVersionsUseCase(testNodeUuid) } returns Either.Right(emptyList())
 
-        val viewModel = VersionHistoryViewModel(savedStateHandle, getNodeVersionsUseCase, fileSizeFormatter)
+        val viewModel = VersionHistoryViewModel(savedStateHandle, getNodeVersionsUseCase, fileSizeFormatter, restoreNodeVersionUseCase)
 
         assertTrue(viewModel.isFetchingContent.value)
         advanceUntilIdle()
@@ -126,7 +128,7 @@ class VersionHistoryViewModelTest {
         coEvery { getNodeVersionsUseCase(testNodeUuid) } returns Either.Right(versionsFromApi)
         every { fileSizeFormatter.formatSize(any()) } returns "30 MB"
 
-        val viewModel = VersionHistoryViewModel(savedStateHandle, getNodeVersionsUseCase, fileSizeFormatter)
+        val viewModel = VersionHistoryViewModel(savedStateHandle, getNodeVersionsUseCase, fileSizeFormatter, restoreNodeVersionUseCase)
         testDispatcher.scheduler.advanceUntilIdle()
 
         // Versions should be grouped into three sections (Today, Yesterday, and an older date)
@@ -166,7 +168,7 @@ class VersionHistoryViewModelTest {
     fun givenApiFailure_whenViewModelInits_thenVersionListIsEmpty() = runTest {
         coEvery { getNodeVersionsUseCase(testNodeUuid) } returns Either.Left(CoreFailure.MissingClientRegistration)
 
-        val viewModel = VersionHistoryViewModel(savedStateHandle, getNodeVersionsUseCase, fileSizeFormatter)
+        val viewModel = VersionHistoryViewModel(savedStateHandle, getNodeVersionsUseCase, fileSizeFormatter, restoreNodeVersionUseCase)
         advanceUntilIdle()
 
         assertTrue(viewModel.versionsGroupedByTime.value.isEmpty())
@@ -177,7 +179,7 @@ class VersionHistoryViewModelTest {
     fun givenMissingUuid_whenViewModelInits_thenNoFetchIsAttempted() = runTest {
         every { savedStateHandle.get<String>("uuid") } returns null
 
-        val viewModel = VersionHistoryViewModel(savedStateHandle, getNodeVersionsUseCase, fileSizeFormatter)
+        val viewModel = VersionHistoryViewModel(savedStateHandle, getNodeVersionsUseCase, fileSizeFormatter, restoreNodeVersionUseCase)
         advanceUntilIdle()
 
         assertTrue(viewModel.versionsGroupedByTime.value.isEmpty())

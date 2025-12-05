@@ -15,19 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.feature.cells.ui.versioning
+package com.wire.android.feature.cells.ui.versioning.restore
 
-import com.wire.android.util.ui.UIText
-
-data class CellVersion(
-    val versionId: String = "",
-    val modifiedAt: String = "",
-    val modifiedBy: String = "",
-    val fileSize: String = "",
-    val isCurrentVersion: Boolean = false
-)
-
-data class VersionGroup(
-    val dateLabel: UIText,
-    val versions: List<CellVersion>
-)
+enum class RestoreVersionState {
+    Idle,
+    Restoring,
+    Completed,
+    Failed
+}

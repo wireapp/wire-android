@@ -47,6 +47,7 @@ import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.common.LoadingScreen
+import com.wire.android.feature.cells.ui.common.WireCellErrorDialog
 import com.wire.android.feature.cells.ui.dialog.DeleteConfirmationDialog
 import com.wire.android.feature.cells.ui.dialog.NodeActionsBottomSheet
 import com.wire.android.feature.cells.ui.download.DownloadFileBottomSheet
@@ -87,6 +88,7 @@ internal fun CellScreenContent(
     isRecycleBin: Boolean,
     isSearchResult: Boolean = false,
     isFiltering: Boolean = false,
+    retryEditNodeError: (String) -> Unit = {},
     showVersionHistoryScreen: (String) -> Unit = {}
 ) {
 
@@ -97,6 +99,7 @@ internal fun CellScreenContent(
     var restoreConfirmation by remember { mutableStateOf<CellNodeUi?>(null) }
     var showRestoreError by remember { mutableStateOf<ShowUnableToRestoreDialog?>(null) }
     var restoreParentFolderConfirmation by remember { mutableStateOf<CellNodeUi?>(null) }
+    var editNodeError by remember { mutableStateOf<String?>(null) }
     var menu by remember { mutableStateOf<MenuOptions?>(null) }
 
     val downloadFile by downloadFileState.collectAsState()
@@ -195,6 +198,17 @@ internal fun CellScreenContent(
         )
     }
 
+    editNodeError?.let { nodeUuid ->
+        WireCellErrorDialog(
+            title = stringResource(R.string.cell_open_editor_failure_dialog_title),
+            message = stringResource(R.string.cell_open_editor_failure_dialog_message),
+            onResult = { tryAgain ->
+                editNodeError = null
+                if (tryAgain) retryEditNodeError(nodeUuid)
+            }
+        )
+    }
+
     HandleActions(actionsFlow) { action ->
         when (action) {
             is ShowError -> Toast.makeText(context, action.error.message, Toast.LENGTH_SHORT).show()
@@ -221,6 +235,7 @@ internal fun CellScreenContent(
             is HideDeleteConfirmation -> deleteConfirmation = null
             is ShowFileDeletedMessage -> showDeleteConfirmation(context, action.isFile, action.permanently)
             is OpenFolder -> openFolder(action.path, action.title, action.parentFolderUuid)
+            is ShowEditErrorDialog -> editNodeError = action.nodeUuid
         }
     }
 

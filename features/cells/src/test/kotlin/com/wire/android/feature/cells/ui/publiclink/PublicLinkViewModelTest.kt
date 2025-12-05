@@ -278,7 +278,7 @@ class PublicLinkViewModelTest {
                 createPublicLink = createPublicLinkUseCase,
                 getPublicLinkUseCase = getPublicLinkUseCase,
                 deletePublicLinkUseCase = deletePublicLinkUseCase,
-                fileHelper = fileHelper
+                fileHelper = fileHelper,
             )
         }
     }

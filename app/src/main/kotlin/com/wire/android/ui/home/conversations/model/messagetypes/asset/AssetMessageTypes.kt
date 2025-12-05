@@ -41,6 +41,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -64,7 +65,7 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.DeviceUtil
+import com.wire.android.util.FileSizeFormatter
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.asset.isFailed
@@ -200,15 +201,17 @@ fun RestrictedAssetMessage(assetTypeIcon: Int, restrictedAssetMessage: String, m
 
 @Composable
 fun RestrictedGenericFileMessage(fileName: String, fileSize: Long, messageStyle: MessageStyle, modifier: Modifier = Modifier) {
+    val context = LocalContext.current
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(dimensions().messageAssetBorderRadius),
         border = BorderStroke(dimensions().spacing1x, MaterialTheme.wireColorScheme.divider)
     ) {
         val assetName = fileName.split(".").dropLast(1).joinToString(".")
+        val fileSizeFormated = FileSizeFormatter(context).formatSize(fileSize)
         val assetDescription = provideAssetDescription(
             fileName.split(".").last(),
-            fileSize
+            fileSizeFormated
         )
 
         ConstraintLayout(
@@ -296,8 +299,8 @@ private fun isNotClickable(assetTransferStatus: AssetTransferStatus) =
 
 @Suppress("MagicNumber")
 @Stable
-private fun provideAssetDescription(assetExtension: String, assetSizeInBytes: Long): String {
-    return "${assetExtension.uppercase()} (${DeviceUtil.formatSize(assetSizeInBytes)})"
+private fun provideAssetDescription(assetExtension: String, fileSizeFormatted: String): String {
+    return "${assetExtension.uppercase()} ($fileSizeFormatted)"
 }
 
 @PreviewMultipleThemes

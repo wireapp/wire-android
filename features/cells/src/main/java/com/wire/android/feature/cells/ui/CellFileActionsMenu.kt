@@ -54,10 +54,9 @@ class CellFileActionsMenu @Inject constructor(
                         add(NodeBottomSheetAction.EDIT)
                     }
 
-                    // to be enabled in next PR
-//                    if (cellNode is CellNodeUi.File) {
-//                        add(NodeBottomSheetAction.VERSION_HISTORY) // todo add feature flag
-//                    }
+                    if (featureFlags.collaboraIntegration && cellNode.isEditSupported()) {
+                        add(NodeBottomSheetAction.VERSION_HISTORY)
+                    }
 
                     add(NodeBottomSheetAction.ADD_REMOVE_TAGS)
                     add(NodeBottomSheetAction.MOVE)
@@ -129,7 +128,7 @@ class CellFileActionsMenu @Inject constructor(
             NodeBottomSheetAction.DELETE -> Action(ShowDeleteConfirmation(node = node, isPermanentDelete = false))
             NodeBottomSheetAction.DOWNLOAD -> Download(node)
             NodeBottomSheetAction.EDIT -> Edit(node)
-            NodeBottomSheetAction.VERSION_HISTORY -> Action(ShowVersionHistoryScreen(node))
+            NodeBottomSheetAction.VERSION_HISTORY -> Action(ShowVersionHistoryScreen(node.uuid))
         }
 
         onResult(result)

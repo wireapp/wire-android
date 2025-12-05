@@ -75,7 +75,7 @@ class MessageAttachmentsViewModel @Inject constructor(
     private val retryUpload: RetryAttachmentUploadUseCase,
     private val uploadManager: CellUploadManager,
     private val fileManager: FileManager,
-    private val sharedState: MessageSharedState
+    private val sharedState: MessageSharedState,
 ) : ViewModel() {
 
     private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()

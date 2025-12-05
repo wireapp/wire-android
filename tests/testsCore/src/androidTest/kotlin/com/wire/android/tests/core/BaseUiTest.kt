@@ -18,11 +18,13 @@
 package com.wire.android.tests.core
 
 import com.wire.android.tests.core.di.testModule
-import com.wire.android.tests.support.suite.CategoryFilterRule
 import org.junit.Rule
 import org.koin.test.KoinTest
 import org.koin.test.KoinTestRule
-import com.wire.android.tests.support.suite.TestCaseIdFilterRule
+import com.wire.android.tests.support.suite.AllureFailureScreenshotRule
+import com.wire.android.tests.support.suite.AllureLabelsRule
+import com.wire.android.tests.support.suite.AllureLogcatRule
+import io.qameta.allure.kotlin.Allure
 
 /**
  * Base class for all UI tests.
@@ -30,17 +32,25 @@ import com.wire.android.tests.support.suite.TestCaseIdFilterRule
  */
 abstract class BaseUiTest : KoinTest {
 
-    // Koin rule (starts dependency injection)
+    // Dependency injection
     @get:Rule
     val koinTestRule = KoinTestRule.create {
         modules(testModule)
     }
 
-    // Category filter rule (allows -e category=...)
+    // Push TestCaseId / Category / Tag into Allure labels
     @get:Rule
-    val categoryFilterRule = CategoryFilterRule()
+    val allureLabelsRule = AllureLabelsRule()
 
-    // TestCaseId filter rule (allows -e testCaseId =... TC-8602)
+    // Screenshot ONLY for real failures
     @get:Rule
-    val testCaseIdFilterRule = TestCaseIdFilterRule()
+    val failureScreenshotRule = AllureFailureScreenshotRule()
+
+    // logcat on failure
+    @get:Rule
+    val logcatRule = AllureLogcatRule(maxLines = 500)
+
+    protected fun step(name: String, block: () -> Unit) {
+        Allure.step(name) { block() }
+    }
 }

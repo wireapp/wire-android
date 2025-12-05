@@ -100,17 +100,26 @@ class CallingManager(private val usersManager: ClientUserManager) {
         BackendClient.loadBackend(user.backendName.orEmpty()).disableConsentPopup(user)
 
         val type = parseInstanceType(instanceType)
-        val instance = client.startInstance(
-            user,
-            verificationCode,
-            type,
-            "$platform: $scenarioName",
-            beta = true
-        )
 
-        instances[user.email.orEmpty()] = instance
-        Log.d("CallingManager", "Started instance ${instance.id} for user ${user.name}")
-        instance
+        try {
+            val instance = client.startInstance(
+                user,
+                verificationCode,
+                type,
+                "$platform: $scenarioName",
+                beta = true
+            )
+
+            instances[user.email.orEmpty()] = instance
+
+            Log.d("CallingManager", "Started instance ${instance.id} for user ${user.name}")
+            instance
+        } catch (e: Exception) {
+            throw IllegalStateException(
+                " Could not start instance for user '${user.name}': ${e.message}",
+                e
+            )
+        }
     }
 
     suspend fun stopInstance(user: ClientUser) {

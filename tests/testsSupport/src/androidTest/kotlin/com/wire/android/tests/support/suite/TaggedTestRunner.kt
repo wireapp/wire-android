@@ -16,23 +16,31 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 package com.wire.android.tests.support.suite
+
 import android.os.Bundle
-import androidx.test.runner.AndroidJUnitRunner
 import android.util.Log
+import io.qameta.allure.android.runners.AllureAndroidJUnitRunner
 
-class TaggedTestRunner : AndroidJUnitRunner() {
+/**
+ * Custom test runner that delegates to Allure's Android runner,
+ * and filters tests by @TestCaseId, @Category, and @Tag BEFORE
+ * they are executed (and before Allure sees them).
+ */
 
-    override fun onCreate(arguments: Bundle?) {
-        // Read the arguments we care about
-        val category = arguments?.getString("category")
-        val testCaseId = arguments?.getString("testCaseId")
+class TaggedTestRunner : AllureAndroidJUnitRunner() {
+
+    override fun onCreate(arguments: Bundle) {
+        val filterId = arguments.getString("testCaseId")
+        val category = arguments.getString("category")
+        val tagKey = arguments.getString("tagKey")
+        val tagValue = arguments.getString("tagValue")
 
         Log.i(
             "TaggedTestRunner",
-            "onCreate() called. category=$category, testCaseId=$testCaseId, allArgs=$arguments"
+            "onCreate called. " +
+                    "testCaseId=$filterId, category=$category, tagKey=$tagKey, tagValue=$tagValue"
         )
 
-        // keep default behavior
         super.onCreate(arguments)
     }
 }

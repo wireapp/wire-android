@@ -129,6 +129,7 @@ class VersionHistoryViewModel @Inject constructor(
             }
     }
 
+    // TODO: Unit test coming in another PR
     fun showRestoreConfirmationDialog(versionId: String) {
         restoreDialogState.value = restoreDialogState.value.copy(
             visible = true,
@@ -138,6 +139,7 @@ class VersionHistoryViewModel @Inject constructor(
         )
     }
 
+    // TODO: Unit test coming in another PR
     fun hideRestoreConfirmationDialog() {
         restoreDialogState.value = restoreDialogState.value.copy(
             restoreVersionState = RestoreVersionState.Idle,
@@ -146,6 +148,7 @@ class VersionHistoryViewModel @Inject constructor(
         )
     }
 
+    // TODO: Unit test coming in another PR
     fun restoreVersion() {
         with(restoreDialogState) {
             restoreDialogState.value = value.copy(

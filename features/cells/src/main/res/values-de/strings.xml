@@ -164,4 +164,6 @@
     <string name="invalid_expiration_date">Ablaufdatum liegt in der Vergangenheit</string>
     <string name="link_expired">Link abgelaufen am: %1$s, um %2$s</string>
     <string name="version_history_top_appbar_title">Versionsverlauf</string>
+    <string name="date_label_today">Heute, %1$s</string>
+    <string name="date_label_yesterday">Gestern, %1$s</string>
 </resources>

@@ -17,7 +17,7 @@
  */
 package com.wire.android.feature.cells.ui.versioning.restore
 
-enum class RestoreState {
+enum class RestoreVersionState {
     Idle,
     Restoring,
     Completed,

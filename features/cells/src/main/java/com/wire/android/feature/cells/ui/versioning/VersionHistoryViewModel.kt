@@ -25,7 +25,7 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.navArgs
 import com.wire.android.feature.cells.ui.versioning.restore.RestoreDialogState
-import com.wire.android.feature.cells.ui.versioning.restore.RestoreState
+import com.wire.android.feature.cells.ui.versioning.restore.RestoreVersionState
 import com.wire.android.util.FileSizeFormatter
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.cells.domain.model.NodeVersion
@@ -133,14 +133,14 @@ class VersionHistoryViewModel @Inject constructor(
         restoreDialogState.value = restoreDialogState.value.copy(
             visible = true,
             versionId = versionId,
-            restoreState = RestoreState.Idle,
+            restoreVersionState = RestoreVersionState.Idle,
             restoreProgress = 0f
         )
     }
 
     fun hideRestoreConfirmationDialog() {
         restoreDialogState.value = restoreDialogState.value.copy(
-            restoreState = RestoreState.Idle,
+            restoreVersionState = RestoreVersionState.Idle,
             visible = false,
             versionId = ""
         )
@@ -149,43 +149,48 @@ class VersionHistoryViewModel @Inject constructor(
     fun restoreVersion() {
         with(restoreDialogState) {
             restoreDialogState.value = value.copy(
-                restoreState = RestoreState.Restoring
+                restoreVersionState = RestoreVersionState.Restoring
             )
 
             viewModelScope.launch {
-                // simulating progress
-                val progressJob = launch {
-                    while (value.restoreProgress < 0.95f && value.restoreState == RestoreState.Restoring) {
-                        delay(100)
-                        restoreDialogState.value = value.copy(
-                            restoreProgress = value.restoreProgress + 0.03f
-                        )
-                    }
-                }
+                val progressJob = simulateRestoreProgress()
 
                 restoreNodeVersionUseCase(navArgs.uuid ?: "", value.versionId)
                     .onSuccess {
-                        delay(500) // delay since server takes some time to restore the version
+                        delay(DELAY_500_MS) // delay since server takes some time to restore the version
                         val fetchJob = fetchNodeVersionsGroupedByDate()
                         fetchJob.start()
                         fetchJob.join()
                         progressJob.cancel()
                         restoreDialogState.value = value.copy(
-                            restoreState = RestoreState.Completed,
+                            restoreVersionState = RestoreVersionState.Completed,
                             restoreProgress = 1f
                         )
                     }
                     .onFailure {
                         progressJob.cancel()
                         restoreDialogState.value = value.copy(
-                            restoreState = RestoreState.Failed
+                            restoreVersionState = RestoreVersionState.Failed
                         )
                     }
             }
         }
     }
 
+    private fun simulateRestoreProgress() = viewModelScope.launch {
+        with(restoreDialogState) {
+            while (value.restoreProgress < 0.95f && value.restoreVersionState == RestoreVersionState.Restoring) {
+                delay(DELAY_100_MS)
+                restoreDialogState.value = value.copy(
+                    restoreProgress = value.restoreProgress + 0.03f
+                )
+            }
+        }
+    }
+
     companion object {
         const val DATE_PATTERN = "d MMM yyyy"
+        const val DELAY_100_MS = 100L
+        const val DELAY_500_MS = 500L
     }
 }

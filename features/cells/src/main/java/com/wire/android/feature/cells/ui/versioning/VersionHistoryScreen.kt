@@ -177,7 +177,7 @@ private fun VersionHistoryScreenContent(
         with(restoreDialogState) {
             if (visible) {
                 RestoreNodeVersionConfirmationDialog(
-                    restoreState = restoreState,
+                    restoreVersionState = restoreVersionState,
                     restoreProgress = restoreProgress,
                     onConfirm = restoreVersion,
                     onDismiss = onDismissRestoreConfirmationDialog,

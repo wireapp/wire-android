@@ -20,6 +20,6 @@ package com.wire.android.feature.cells.ui.versioning.restore
 data class RestoreDialogState(
     val visible: Boolean = false,
     val versionId: String = "",
-    val restoreState: RestoreState = RestoreState.Idle,
+    val restoreVersionState: RestoreVersionState = RestoreVersionState.Idle,
     val restoreProgress: Float = 0f
 )

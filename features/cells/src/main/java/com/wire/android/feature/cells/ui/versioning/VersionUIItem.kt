@@ -83,7 +83,9 @@ fun VersionItem(
             ) {
                 val currentLabel = if (cellVersion.isCurrentVersion) {
                     stringResource(R.string.version_history_current_label_for_title)
-                } else ""
+                } else {
+                    ""
+                }
 
                 Text(
                     text = "${cellVersion.modifiedAt} $currentLabel",

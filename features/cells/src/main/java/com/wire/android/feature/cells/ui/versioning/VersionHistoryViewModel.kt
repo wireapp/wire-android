@@ -76,6 +76,7 @@ class VersionHistoryViewModel @Inject constructor(
                 getNodeVersionsUseCase(navArgs.uuid).onSuccess {
                     versionsGroupedByTime.value = it.groupByDay()
                 }
+                // TODO: Handle error
                 isFetchingContent.value = false
             }
         }

@@ -45,10 +45,10 @@ import kotlin.math.roundToInt
 @Composable
 fun RestoreNodeVersionConfirmationDialog(
     restoreVersionState: RestoreVersionState = RestoreVersionState.Idle,
-    restoreProgress: Float = .40F,
     onGoToFileClicked: () -> Unit,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
+    restoreProgress: Float = .40F,
 ) {
     WireDialog(
         title = when (restoreVersionState) {

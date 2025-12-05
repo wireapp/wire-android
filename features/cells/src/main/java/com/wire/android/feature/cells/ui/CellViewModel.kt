@@ -48,8 +48,6 @@ import com.wire.kalium.cells.domain.usecase.RestoreNodeFromRecycleBinUseCase
 import com.wire.kalium.common.functional.fold
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
-import com.wire.kalium.logic.featureFlags.KaliumConfigs
-import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.coroutines.delay

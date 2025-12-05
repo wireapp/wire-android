@@ -226,7 +226,7 @@ internal fun CellScreenContent(
             is ShowRenameScreen -> showRenameScreen(action.cellNode)
             is ShowMoveToFolderScreen -> showMoveToFolderScreen(action.currentPath, action.nodeToMovePath, action.uuid)
             is ShowAddRemoveTagsScreen -> showAddRemoveTagsScreen(action.cellNode)
-            is ShowVersionHistoryScreen -> showVersionHistoryScreen(action.cellNode.uuid, action.cellNode.fileName)
+            is ShowVersionHistoryScreen -> showVersionHistoryScreen(action.uuid, action.fileName)
             is RefreshData -> pagingListItems.refresh()
             is ShowUnableToRestoreDialog -> showRestoreError = action
             is ShowRestoreParentFolderDialog -> restoreParentFolderConfirmation = action.cellNode

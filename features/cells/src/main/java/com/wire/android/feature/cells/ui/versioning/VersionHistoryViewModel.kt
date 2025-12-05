@@ -23,6 +23,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.feature.cells.R
+import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.feature.cells.ui.navArgs
 import com.wire.android.feature.cells.ui.versioning.restore.RestoreDialogState
 import com.wire.android.feature.cells.ui.versioning.restore.RestoreState
@@ -56,7 +57,8 @@ class VersionHistoryViewModel @Inject constructor(
     private val downloadCellVersionUseCase: DownloadCellVersionUseCase,
     private val fileNameResolver: FileNameResolver,
     private val dispatchers: DispatcherProvider,
-    private val fileHelper: FileHelper
+    private val fileHelper: FileHelper,
+    private val onlineEditor: OnlineEditor,
 ) : ViewModel() {
 
     private val navArgs: VersionHistoryNavArgs = savedStateHandle.navArgs()
@@ -257,6 +259,13 @@ class VersionHistoryViewModel @Inject constructor(
                 }
                 group.copy(versions = updatedVersions)
             }
+    }
+
+    fun openOnlineEditor() {
+        val cellVersion = findVersionById(restoreDialogState.value.versionId)
+        cellVersion?.presignedUrl?.let {
+            onlineEditor.open(it)
+        }
     }
 
     companion object {

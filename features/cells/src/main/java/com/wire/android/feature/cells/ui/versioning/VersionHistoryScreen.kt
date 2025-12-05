@@ -96,9 +96,10 @@ fun VersionHistoryScreen(
             versionHistoryViewModel.downloadVersion(it) { version, fileName ->
                 coroutineScope.launch {
                     val snackbarResult = snackbarHostState.showSnackbar(
-                        message = "$fileName saved to Downloads",
-                        actionLabel = "Show"
-                    )
+                        message = "\"$fileName\" saved to Downloads",
+                        actionLabel = "Show",
+                        duration = SnackbarDuration.Short,
+                        )
                     if (snackbarResult == SnackbarResult.ActionPerformed) {
                         openDownloadFolder(context)
                     }
@@ -112,7 +113,9 @@ fun VersionHistoryScreen(
         onDismissRestoreConfirmationDialog = {
             versionHistoryViewModel.hideRestoreConfirmationDialog()
         },
-        onGoToFileClicked = {},
+        onGoToFileClicked = {
+            versionHistoryViewModel.openOnlineEditor()
+        },
         onRefresh = { versionHistoryViewModel.fetchNodeVersionsGroupedByDate() }
     )
 }
@@ -174,11 +177,11 @@ private fun VersionHistoryScreenContent(
             ) {
                 LazyColumn(Modifier.padding(innerPadding)) {
                     versionsGroupedByTime.forEach { group ->
-                        item {
+                        item(key = group.dateLabel) {
                             VersionTimeHeaderItem(group.dateLabel)
                         }
                         group.versions.forEach {
-                            item {
+                            item(it.versionId) {
                                 VersionItem(
                                     cellVersion = it,
                                     onActionClick = { cellVersion ->

@@ -1,8 +1,10 @@
 New
-- Add initial support for team-managed channels
+- Design of the conversation and messages
 
 Improvements
-- Improved performance when navigating to a conversation
+- Loading messages is faster when scrolling through long conversation histories
+- Performance in large conversations
+- Messaging Layer Security (MLS) protocol robustness
 
-Fixes
-
+Fix
+- The toggle to enable apps in a conversation was not available

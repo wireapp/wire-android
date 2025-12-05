@@ -1,5 +1,10 @@
 Neu
+- Gestaltung der Unterhaltungen und Nachrichten
 
-Verbesserungen
+Verbessert
+- Das Laden von Nachrichten erfolgt schneller, wenn man durch lange Gesprächsverläufe scrollt
+- Die Leistung bei umfangreichen Unterhaltungen
+- Die Robustheit des MLS-Protokolls (Messaging Layer Security)
 
-Fehlerbehebungen
+Behoben
+- Die Umschaltfunktion zum Aktivieren von Apps in einer Unterhaltung war nicht verfügbar

@@ -39,11 +39,15 @@ import com.wire.android.ui.home.conversations.model.messagetypes.image.VisualMed
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.toUIText
+import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.message.AssetContent.AssetMetadata
+import com.wire.kalium.logic.data.message.CellAssetContent
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.datetime.Instant
 import okio.Path.Companion.toPath
 
@@ -431,6 +435,64 @@ fun mockedImageUIMessage(
         isSenderUnavailable = false
     ),
     source: MessageSource = MessageSource.Self
+) = UIMessage.Regular(
+    conversationId = ConversationId("value", "domain"),
+    userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
+    header = header,
+    messageContent = content,
+    messageFooter = mockEmptyFooter,
+    source = source
+)
+
+private fun mockedCellAssetContent(
+    name: String,
+    id: String,
+    mimeType: String,
+    transferStatus: AssetTransferStatus = AssetTransferStatus.NOT_DOWNLOADED,
+    metadata: AssetMetadata? = null
+) =
+    CellAssetContent(
+        id = id,
+        versionId = "v1",
+        mimeType = mimeType,
+        assetPath = null,
+        assetSize = 21957335,
+        localPath = name,
+        contentUrl = name,
+        contentUrlExpiresAt = null,
+        previewUrl = name,
+        metadata = metadata,
+        transferStatus = transferStatus
+    )
+
+fun mockedMultipartMessage(
+    messageId: String = "messageId",
+    messageStatus: MessageStatus = MessageStatus(
+        flowStatus = MessageFlowStatus.Sent,
+        expirationStatus = ExpirationStatus.NotExpirable
+    ),
+    header: MessageHeader = MessageHeader(
+        username = UIText.DynamicString("John Doe"),
+        membership = Membership.External,
+        showLegalHoldIndicator = false,
+        messageTime = mockMessageTime,
+        messageStatus = messageStatus,
+        messageId = messageId,
+        connectionState = ConnectionState.ACCEPTED,
+        isSenderDeleted = false,
+        isSenderUnavailable = false
+    ),
+    source: MessageSource = MessageSource.Self,
+    content: UIMessageContent.Regular = UIMessageContent.Multipart(
+        messageBody = MessageBody(UIText.DynamicString("Text")),
+        attachments = persistentListOf(
+            mockedCellAssetContent(name = "1.zip", mimeType = "application/zip", id = "1"),
+            mockedCellAssetContent(name = "2.pdf", mimeType = "application/pdf", id = "2"),
+            mockedCellAssetContent(name = "3.txt", mimeType = "text/plain", id = "3", transferStatus = AssetTransferStatus.NOT_FOUND),
+            mockedCellAssetContent(name = "4.png", mimeType = "image/png", id = "4", metadata = AssetMetadata.Image(1920, 1080)),
+            mockedCellAssetContent(name = "5.mp4", mimeType = "video/mp4", id = "5", metadata = AssetMetadata.Video(1920, 1080, 60000L)),
+        ),
+    )
 ) = UIMessage.Regular(
     conversationId = ConversationId("value", "domain"),
     userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),

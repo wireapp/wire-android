@@ -369,7 +369,6 @@ private fun MessageContent(
                     conversationId = message.conversationId,
                     attachments = messageContent.attachments,
                     messageStyle = messageStyle,
-                    accent = accent,
                     onImageAttachmentClick = onMultipartImageClick
                 )
             }

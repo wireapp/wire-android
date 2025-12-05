@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.home.conversations.model.messagetypes.multipart.standalone
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -30,6 +31,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.res.painterResource
 import coil.compose.AsyncImage
 import com.wire.android.ui.common.attachmentdraft.ui.FileHeaderView
 import com.wire.android.ui.common.colorsScheme
@@ -60,7 +63,14 @@ internal fun ImageAssetPreview(
             .width(imageSize.width)
             .height(imageSize.height)
     ) {
-        if (item.previewAvailable()) {
+        if (LocalInspectionMode.current) {
+            Image(
+                modifier = Modifier.fillMaxSize(),
+                painter = painterResource(com.wire.android.ui.common.R.drawable.mock_image),
+                contentDescription = null,
+                contentScale = if (messageStyle.isBubble()) ContentScale.Crop else ContentScale.Fit
+            )
+        } else if (item.previewAvailable()) {
             // Image preview
             AsyncImage(
                 modifier = Modifier.fillMaxSize(),

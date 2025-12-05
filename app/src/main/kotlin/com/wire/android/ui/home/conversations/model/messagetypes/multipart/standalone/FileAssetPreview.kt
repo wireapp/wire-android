@@ -44,7 +44,6 @@ import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.home.conversations.messages.item.textColor
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.getDownloadStatusText
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.transferProgressColor
-import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -57,20 +56,14 @@ import com.wire.kalium.logic.util.fileExtension
 internal fun BoxScope.FileAssetPreview(
     item: MultipartAttachmentUi,
     messageStyle: MessageStyle,
-    accent: Accent = Accent.Unknown
 ) {
     Column(
         modifier = Modifier
             .applyIf(messageStyle == MessageStyle.BUBBLE_SELF) {
-                background(
-                    colorsScheme().bubbleContainerAccentBackgroundColor.getOrDefault(
-                        accent,
-                        colorsScheme().defaultBubbleContainerBackgroundColor
-                    )
-                )
+                background(colorsScheme().selfBubble.secondary)
             }
             .applyIf(messageStyle == MessageStyle.BUBBLE_OTHER) {
-                background(colorsScheme().surface)
+                background(colorsScheme().otherBubble.secondary)
             }
             .fillMaxWidth()
             .height(dimensions().spacing80x)

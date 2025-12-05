@@ -44,29 +44,9 @@ import okio.Path.Companion.toPath
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.hours
 
-@HiltViewModel
-class MultipartAttachmentsViewModel @Inject constructor(
-    private val refreshAsset: RefreshCellAssetStateUseCase,
-    private val download: DownloadCellFileUseCase,
-    private val fileManager: FileManager,
-    private val kaliumFileSystem: KaliumFileSystem,
-) : ViewModel() {
-
-    private companion object {
-        val DEFAULT_CONTENT_URL_EXPIRY_MS = 1.hours.inWholeMilliseconds
-    }
-
-    private val refreshed = ExpiringMap<String, Unit>(
-        scope = viewModelScope,
-        expirationMs = DEFAULT_CONTENT_URL_EXPIRY_MS,
-        delegate = mutableMapOf(),
-        onEntryExpired = { key, _ ->
-            viewModelScope.launch { refreshAsset(key) }
-        }
-    )
-
-    private val uploadProgress = mutableStateMapOf<String, Float>()
-
+interface MultipartAttachmentsViewModel {
+    fun onClick(attachment: MultipartAttachmentUi, openInImageViewer: (String) -> Unit)
+    fun refreshAssetState(attachment: MultipartAttachmentUi)
     fun mapAttachments(
         attachments: List<MessageAttachment>
     ): List<MultipartAttachmentGroup> {
@@ -107,8 +87,38 @@ class MultipartAttachmentsViewModel @Inject constructor(
         data class Media(val attachments: List<MultipartAttachmentUi>) : MultipartAttachmentGroup
         data class Files(val attachments: List<MultipartAttachmentUi>) : MultipartAttachmentGroup
     }
+}
 
-    fun onClick(attachment: MultipartAttachmentUi, openInImageViewer: (String) -> Unit) {
+@Suppress("EmptyFunctionBlock")
+object MultipartAttachmentsViewModelPreview : MultipartAttachmentsViewModel {
+    override fun onClick(attachment: MultipartAttachmentUi, openInImageViewer: (String) -> Unit) {}
+    override fun refreshAssetState(attachment: MultipartAttachmentUi) {}
+}
+
+@HiltViewModel
+class MultipartAttachmentsViewModelImpl @Inject constructor(
+    private val refreshAsset: RefreshCellAssetStateUseCase,
+    private val download: DownloadCellFileUseCase,
+    private val fileManager: FileManager,
+    private val kaliumFileSystem: KaliumFileSystem,
+) : ViewModel(), MultipartAttachmentsViewModel {
+
+    private companion object {
+        val DEFAULT_CONTENT_URL_EXPIRY_MS = 1.hours.inWholeMilliseconds
+    }
+
+    private val refreshed = ExpiringMap<String, Unit>(
+        scope = viewModelScope,
+        expirationMs = DEFAULT_CONTENT_URL_EXPIRY_MS,
+        delegate = mutableMapOf(),
+        onEntryExpired = { key, _ ->
+            viewModelScope.launch { refreshAsset(key) }
+        }
+    )
+
+    private val uploadProgress = mutableStateMapOf<String, Float>()
+
+    override fun onClick(attachment: MultipartAttachmentUi, openInImageViewer: (String) -> Unit) {
         when {
             attachment.isImage() && !attachment.fileNotFound() -> openInImageViewer(attachment.uuid)
             attachment.fileNotFound() -> { refreshAssetState(attachment) }
@@ -118,7 +128,7 @@ class MultipartAttachmentsViewModel @Inject constructor(
         }
     }
 
-    fun refreshAssetState(attachment: MultipartAttachmentUi) {
+    override fun refreshAssetState(attachment: MultipartAttachmentUi) {
 
         if (attachment.source != AssetSource.CELL) return
         if (refreshed.contains(attachment.uuid)) return

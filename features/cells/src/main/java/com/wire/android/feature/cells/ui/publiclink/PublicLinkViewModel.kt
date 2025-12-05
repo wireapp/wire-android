@@ -17,7 +17,6 @@
  */
 package com.wire.android.feature.cells.ui.publiclink
 
-import android.system.Os.link
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.feature.cells.R
@@ -31,7 +30,6 @@ import com.wire.kalium.cells.domain.usecase.publiclink.DeletePublicLinkUseCase
 import com.wire.kalium.cells.domain.usecase.publiclink.GetPublicLinkUseCase
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
-import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -46,7 +44,6 @@ class PublicLinkViewModel @Inject constructor(
     private val getPublicLinkUseCase: GetPublicLinkUseCase,
     private val deletePublicLinkUseCase: DeletePublicLinkUseCase,
     private val fileHelper: FileHelper,
-    private val config: KaliumConfigs,
 ) : ActionsViewModel<PublicLinkViewAction>() {
 
     private val navArgs: PublicLinkNavArgs = savedStateHandle.navArgs()
@@ -131,15 +128,9 @@ class PublicLinkViewModel @Inject constructor(
                 _state.update {
                     it.copy(
                         isLinkAvailable = true,
+                        settings = PublicLinkSettings(),
                         linkState = PublicLinkState.READY
                     )
-                }
-                if (config.securePublicLinkSettings) {
-                    _state.update {
-                        it.copy(
-                            settings = PublicLinkSettings()
-                        )
-                    }
                 }
             }
             .onFailure {
@@ -153,20 +144,17 @@ class PublicLinkViewModel @Inject constructor(
             .onSuccess { link ->
                 publicLink = link
 
-                _state.update { it.copy(linkState = PublicLinkState.READY) }
-
-                if (config.securePublicLinkSettings) {
-                    _state.update {
-                        it.copy(
-                            settings = PublicLinkSettings(
-                                isPasswordEnabled = link.passwordRequired,
-                                expiresAt = link.expiresAt,
-                                isExpired = link.expiresAt?.let { time ->
-                                    time < System.currentTimeMillis()
-                                } ?: false
-                            )
+                _state.update {
+                    it.copy(
+                        linkState = PublicLinkState.READY,
+                        settings = PublicLinkSettings(
+                            isPasswordEnabled = link.passwordRequired,
+                            expiresAt = link.expiresAt,
+                            isExpired = link.expiresAt?.let { time ->
+                                time < System.currentTimeMillis()
+                            } ?: false
                         )
-                    }
+                    )
                 }
             }
             .onFailure {

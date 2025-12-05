@@ -163,4 +163,6 @@
     <string name="cell_open_editor_failure_dialog_message">Возникла проблема с подключением к серверу. Пожалуйста, попробуйте снова. Если проблема не устранена, обратитесь в службу поддержки.</string>
     <string name="error_try_again_button_title">Повторить</string>
     <string name="version_history_top_appbar_title">История версий</string>
+    <string name="date_label_today">Сегодня, %1$s</string>
+    <string name="date_label_yesterday">Вчера, %1$s</string>
 </resources>

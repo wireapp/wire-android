@@ -93,13 +93,13 @@ fun VersionHistoryScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun VersionHistoryScreenContent(
-    versionsGroupedByTime: List<VersionGroup>,
-    isFetchingContent: Boolean,
-    onRefresh: () -> Unit,
     modifier: Modifier = Modifier,
+    isFetchingContent: Boolean,
+    versionsGroupedByTime: List<VersionGroup>,
     optionsBottomSheetState: WireModalSheetState<CellVersion>,
-    fileName: String? = null,
     restoreDialogState: RestoreDialogState,
+    onRefresh: () -> Unit,
+    fileName: String? = null,
     restoreVersion: () -> Unit = {},
     downloadVersion: (String) -> Unit = {},
     showRestoreConfirmationDialog: (String) -> Unit = {},

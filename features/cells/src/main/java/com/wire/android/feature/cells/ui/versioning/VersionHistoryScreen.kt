@@ -55,8 +55,9 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.openDownloadFolder
-import kotlinx.coroutines.launch
+import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.toUIText
+import kotlinx.coroutines.launch
 
 @WireDestination(
     style = PopUpNavigationAnimation::class,
@@ -68,7 +69,7 @@ fun VersionHistoryScreen(
     modifier: Modifier = Modifier,
     versionHistoryViewModel: VersionHistoryViewModel = hiltViewModel()
 ) {
-    val optionsBottomSheetState = rememberWireModalSheetState<CellVersion>()
+    val optionsBottomSheetState = rememberWireModalSheetState<Pair<String, CellVersion>>()
     val snackbarHostState = LocalSnackbarHostState.current
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -84,7 +85,7 @@ fun VersionHistoryScreen(
         restoreVersion = {
             versionHistoryViewModel.restoreVersion()
         },
-        downloadVersion = {
+        downloadVersion = { versionId, versionDate ->
             optionsBottomSheetState.hide()
 
             coroutineScope.launch {
@@ -94,7 +95,7 @@ fun VersionHistoryScreen(
                 )
             }
 
-            versionHistoryViewModel.downloadVersion(it) { version, fileName ->
+            versionHistoryViewModel.downloadVersion(versionId, versionDate) { version, fileName ->
                 coroutineScope.launch {
                     val snackbarResult = snackbarHostState.showSnackbar(
                         message = "\"$fileName\" saved to Downloads",
@@ -129,11 +130,11 @@ private fun VersionHistoryScreenContent(
     isFetchingContent: Boolean,
     onRefresh: () -> Unit,
     modifier: Modifier = Modifier,
-    optionsBottomSheetState: WireModalSheetState<CellVersion>,
+    optionsBottomSheetState: WireModalSheetState<Pair<String, CellVersion>>,
     fileName: String? = null,
     restoreDialogState: RestoreDialogState,
     restoreVersion: () -> Unit = {},
-    downloadVersion: (String) -> Unit = {},
+    downloadVersion: (String, String) -> Unit = { _, _ -> },
     showRestoreConfirmationDialog: (String) -> Unit = {},
     onDismissRestoreConfirmationDialog: () -> Unit = {},
     onGoToFileClicked: () -> Unit = {},
@@ -183,10 +184,11 @@ private fun VersionHistoryScreenContent(
                         }
                         group.versions.forEach {
                             item(it.versionId) {
+                                val versionDate = group.dateLabel.asString()
                                 VersionItem(
                                     cellVersion = it,
                                     onActionClick = { cellVersion ->
-                                        optionsBottomSheetState.show(cellVersion)
+                                        optionsBottomSheetState.show(versionDate to cellVersion)
                                     }
                                 )
                                 WireDivider(
@@ -210,7 +212,7 @@ private fun VersionHistoryScreenContent(
         with(restoreDialogState) {
             if (visible) {
                 RestoreNodeVersionConfirmationDialog(
-                    restoreState = restoreState,
+                    restoreVersionState = restoreVersionState,
                     restoreProgress = restoreProgress,
                     onConfirm = restoreVersion,
                     onDismiss = onDismissRestoreConfirmationDialog,
@@ -229,7 +231,7 @@ fun PreviewVersionHistoryScreenContent() {
             isFetchingContent = false,
             versionsGroupedByTime = listOf(
                 VersionGroup(
-                    dateLabel = "Today, 3 Dec 2025".toUIText(),,
+                    dateLabel = "Today, 3 Dec 2025".toUIText(),
                     versions = listOf(
                         CellVersion("id1", "1:46 PM", "Deniz Agha", "200MB"),
                         CellVersion("id2", "11:20 AM", "Alice Smith", "150MB"),
@@ -239,14 +241,14 @@ fun PreviewVersionHistoryScreenContent() {
                     )
                 ),
                 VersionGroup(
-                    dateLabel = "1 Dec 2025".toUIText(),,
+                    dateLabel = "1 Dec 2025".toUIText(),
                     versions = listOf(
                         CellVersion("id6", "3:15 PM", "Bob Johnson", "300MB"),
                         CellVersion("id7", "10:05 AM", "Charlie Brown", "250KB"),
                     )
                 )
             ),
-            optionsBottomSheetState = rememberWireModalSheetState<CellVersion>(),
+            optionsBottomSheetState = rememberWireModalSheetState<Pair<String, CellVersion>>(),
             restoreDialogState = RestoreDialogState(),
             onRefresh = {}
         )

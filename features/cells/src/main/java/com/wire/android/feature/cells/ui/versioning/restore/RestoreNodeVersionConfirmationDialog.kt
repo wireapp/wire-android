@@ -44,27 +44,27 @@ import kotlin.math.roundToInt
 
 @Composable
 fun RestoreNodeVersionConfirmationDialog(
-    restoreState: RestoreState = RestoreState.Idle,
+    restoreVersionState: RestoreVersionState = RestoreVersionState.Idle,
     restoreProgress: Float = .40F,
     onGoToFileClicked: () -> Unit,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
 ) {
     WireDialog(
-        title = when (restoreState) {
-            RestoreState.Idle -> stringResource(R.string.dialog_restore_cell_version_confirmation_title)
-            RestoreState.Failed -> stringResource(R.string.dialog_restore_cell_version_failed_title)
-            RestoreState.Completed -> stringResource(R.string.dialog_restore_cell_version_successfully_completed_title)
-            RestoreState.Restoring -> stringResource(R.string.dialog_restore_cell_version_restoring_title)
+        title = when (restoreVersionState) {
+            RestoreVersionState.Idle -> stringResource(R.string.dialog_restore_cell_version_confirmation_title)
+            RestoreVersionState.Failed -> stringResource(R.string.dialog_restore_cell_version_failed_title)
+            RestoreVersionState.Completed -> stringResource(R.string.dialog_restore_cell_version_successfully_completed_title)
+            RestoreVersionState.Restoring -> stringResource(R.string.dialog_restore_cell_version_restoring_title)
         },
-        text = when (restoreState) {
-            RestoreState.Idle -> stringResource(R.string.dialog_restore_cell_version_confirmation_description)
-            RestoreState.Failed -> stringResource(R.string.dialog_restore_cell_version_failed_description)
-            RestoreState.Completed, RestoreState.Restoring -> null
+        text = when (restoreVersionState) {
+            RestoreVersionState.Idle -> stringResource(R.string.dialog_restore_cell_version_confirmation_description)
+            RestoreVersionState.Failed -> stringResource(R.string.dialog_restore_cell_version_failed_description)
+            RestoreVersionState.Completed, RestoreVersionState.Restoring -> null
         },
         onDismiss = onDismiss,
         optionButton1Properties =
-            if (restoreState == RestoreState.Idle) {
+            if (restoreVersionState == RestoreVersionState.Idle) {
                 WireDialogButtonProperties(
                     onClick = onConfirm,
                     text = stringResource(id = R.string.dialog_restore_cell_version_confirmation_button_label),
@@ -74,7 +74,7 @@ fun RestoreNodeVersionConfirmationDialog(
                 null
             },
         dismissButtonProperties =
-            if (restoreState == RestoreState.Idle) {
+            if (restoreVersionState == RestoreVersionState.Idle) {
                 WireDialogButtonProperties(
                     text = stringResource(id = R.string.cancel),
                     onClick = onDismiss
@@ -86,12 +86,12 @@ fun RestoreNodeVersionConfirmationDialog(
         properties = DialogProperties(
             usePlatformDefaultWidth = false,
             dismissOnBackPress = true,
-            dismissOnClickOutside = restoreState == RestoreState.Completed
+            dismissOnClickOutside = restoreVersionState == RestoreVersionState.Completed
         )
     ) {
-        when (restoreState) {
-            RestoreState.Completed, RestoreState.Restoring -> GoToFileContent(restoreState, restoreProgress, onGoToFileClicked)
-            RestoreState.Failed -> RestoreFailedContent(
+        when (restoreVersionState) {
+            RestoreVersionState.Completed, RestoreVersionState.Restoring -> GoToFileContent(restoreVersionState, restoreProgress, onGoToFileClicked)
+            RestoreVersionState.Failed -> RestoreFailedContent(
                 onRetry = onConfirm,
                 onCancel = onDismiss
             )
@@ -103,14 +103,14 @@ fun RestoreNodeVersionConfirmationDialog(
 
 @Composable
 private fun GoToFileContent(
-    restoreState: RestoreState,
+    restoreVersionState: RestoreVersionState,
     restoreProgress: Float = .40F,
     onGoToFileClicked: () -> Unit = {},
 ) {
     Column(
         Modifier.fillMaxWidth()
     ) {
-        if (restoreState == RestoreState.Restoring) {
+        if (restoreVersionState == RestoreVersionState.Restoring) {
             Row {
                 Text(
                     stringResource(id = R.string.dialog_restore_cell_version_loading),
@@ -180,7 +180,7 @@ fun PreviewRestoreNodeVersionConfirmationDialogWithRestoreCompleted() {
     WireTheme {
         RestoreNodeVersionConfirmationDialog(
             restoreProgress = 0.34f,
-            restoreState = RestoreState.Completed,
+            restoreVersionState = RestoreVersionState.Completed,
             onGoToFileClicked = {},
             onConfirm = {},
             onDismiss = {}
@@ -193,7 +193,7 @@ fun PreviewRestoreNodeVersionConfirmationDialogWithRestoreCompleted() {
 fun PreviewRestoreNodeVersionConfirmationDialogWithRestoreFailed() {
     WireTheme {
         RestoreNodeVersionConfirmationDialog(
-            restoreState = RestoreState.Failed,
+            restoreVersionState = RestoreVersionState.Failed,
             onGoToFileClicked = {},
             onConfirm = {},
             onDismiss = {}

@@ -17,16 +17,18 @@
  */
 package com.wire.android.feature.cells.ui.versioning
 
+import com.wire.android.util.ui.UIText
+
 data class CellVersion(
     val versionId: String = "",
     val modifiedAt: String = "",
-    val modifiedBy: String ="",
+    val modifiedBy: String = "",
     val fileSize: String = "",
     val isCurrentVersion: Boolean = false,
     val presignedUrl: String? = null
 )
 
 data class VersionGroup(
-    val dateLabel: String,
+    val dateLabel: UIText,
     val versions: List<CellVersion>
 )

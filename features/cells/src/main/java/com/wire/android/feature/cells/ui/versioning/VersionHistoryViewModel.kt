@@ -25,6 +25,7 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.feature.cells.ui.navArgs
+import com.wire.android.feature.cells.ui.versioning.download.DownloadState
 import com.wire.android.feature.cells.ui.versioning.restore.RestoreDialogState
 import com.wire.android.feature.cells.ui.versioning.restore.RestoreVersionState
 import com.wire.android.feature.cells.util.FileHelper
@@ -71,8 +72,10 @@ class VersionHistoryViewModel @Inject constructor(
     var versionsGroupedByTime: MutableState<List<VersionGroup>> = mutableStateOf(listOf())
         private set
 
-    var restoreDialogState: MutableState<RestoreDialogState> =
-        mutableStateOf(RestoreDialogState())
+    var restoreDialogState: MutableState<RestoreDialogState> = mutableStateOf(RestoreDialogState())
+        private set
+
+    var downloadState: MutableState<DownloadState> = mutableStateOf(DownloadState.Idle)
         private set
 
     init {
@@ -205,11 +208,12 @@ class VersionHistoryViewModel @Inject constructor(
         }
     }
 
-    fun downloadVersion(versionId: String, versionDate: String, onDownloadCompleted: (CellVersion, String) -> Unit = { _, _ -> }) {
+    fun downloadVersion(versionId: String, versionDate: String) {
         viewModelScope.launch(dispatchers.io()) {
             val cellVersion = findVersionById(versionId)
 
             cellVersion?.let {
+                downloadState.value = DownloadState.Downloading(0)
                 val cellVersion = findVersionById(versionId)
                 val newFileName = addBeforeExtension(fileName, "${versionDate}_${cellVersion?.modifiedAt}")
                 val bufferedSink = fileHelper.createDownloadFileStream(newFileName)?.sink()?.buffer()
@@ -217,20 +221,17 @@ class VersionHistoryViewModel @Inject constructor(
                     downloadCellVersionUseCase.invoke(
                         bufferedSink = bufferedSink,
                         preSignedUrl = cellVersion.presignedUrl,
-                        onProgressUpdate = {},
-                        onCompleted = {
-                            onDownloadCompleted(cellVersion, newFileName)
-                        }
-                    )
+                        onProgressUpdate = { progress ->
+                            downloadState.value = DownloadState.Downloading(progress.toInt())
+                        },
+                    ).onSuccess {
+                        downloadState.value = DownloadState.Downloaded(fileName)
+                    }.onFailure {
+                        downloadState.value = DownloadState.Failed
+                    }
                 }
             }
         }
-    }
-
-    fun findVersionById(versionId: String): CellVersion? {
-        return versionsGroupedByTime.value
-            .flatMap { it.versions }
-            .find { it.versionId == versionId }
     }
 
     fun openOnlineEditor() {
@@ -238,6 +239,12 @@ class VersionHistoryViewModel @Inject constructor(
         cellVersion?.presignedUrl?.let {
             onlineEditor.open(it)
         }
+    }
+
+    private fun findVersionById(versionId: String): CellVersion? {
+        return versionsGroupedByTime.value
+            .flatMap { it.versions }
+            .find { it.versionId == versionId }
     }
 
     companion object {

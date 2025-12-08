@@ -189,4 +189,7 @@
     <string name="dialog_restore_cell_version_failed_description">Something went wrong while restoring a version. Please retry.</string>
     <string name="dialog_restore_cell_version_loading">Loading…</string>
     <string name="dialog_restore_cell_version_go_to_file_button_label">Go to file</string>
+    <string name="snackbar_download_cell_version_saved_to_downloads_folder_label">saved to Downloads</string>
+    <string name="snackbar_download_cell_version_show_label">Show</string>
+    <string name="snackbar_download_cell_version_downloading_label">Downloading…</string>
 </resources>

@@ -31,13 +31,14 @@ import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.common.LoadingScreen
+import com.wire.android.feature.cells.ui.versioning.download.DownloadState
 import com.wire.android.feature.cells.ui.versioning.restore.RestoreDialogState
 import com.wire.android.feature.cells.ui.versioning.restore.RestoreNodeVersionConfirmationDialog
 import com.wire.android.navigation.WireNavigator
@@ -57,7 +58,6 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.openDownloadFolder
 import com.wire.android.util.ui.toUIText
-import kotlinx.coroutines.launch
 
 @WireDestination(
     style = PopUpNavigationAnimation::class,
@@ -71,8 +71,12 @@ fun VersionHistoryScreen(
 ) {
     val optionsBottomSheetState = rememberWireModalSheetState<Pair<String, CellVersion>>()
     val snackbarHostState = LocalSnackbarHostState.current
-    val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
+    val downloadState = versionHistoryViewModel.downloadState.value
+    val savedToDownloads = stringResource(R.string.snackbar_download_cell_version_saved_to_downloads_folder_label)
+    val showLabel = stringResource(R.string.snackbar_download_cell_version_show_label)
+    val downloadingLabel = stringResource(R.string.snackbar_download_cell_version_downloading_label)
+
 
     VersionHistoryScreenContent(
         versionsGroupedByTime = versionHistoryViewModel.versionsGroupedByTime.value,
@@ -87,26 +91,7 @@ fun VersionHistoryScreen(
         },
         downloadVersion = { versionId, versionDate ->
             optionsBottomSheetState.hide()
-
-            coroutineScope.launch {
-                snackbarHostState.showSnackbar(
-                    message = "Downloading..",
-                    duration = SnackbarDuration.Long,
-                )
-            }
-
-            versionHistoryViewModel.downloadVersion(versionId, versionDate) { version, fileName ->
-                coroutineScope.launch {
-                    val snackbarResult = snackbarHostState.showSnackbar(
-                        message = "\"$fileName\" saved to Downloads",
-                        actionLabel = "Show",
-                        duration = SnackbarDuration.Short,
-                    )
-                    if (snackbarResult == SnackbarResult.ActionPerformed) {
-                        openDownloadFolder(context)
-                    }
-                }
-            }
+            versionHistoryViewModel.downloadVersion(versionId, versionDate)
         },
         showRestoreConfirmationDialog = { versionId ->
             optionsBottomSheetState.hide()
@@ -120,8 +105,31 @@ fun VersionHistoryScreen(
         },
         onRefresh = { versionHistoryViewModel.fetchNodeVersionsGroupedByDate() }
     )
-}
 
+    LaunchedEffect(downloadState) {
+        when (downloadState) {
+            is DownloadState.Downloaded -> {
+                val snackbarResult = snackbarHostState.showSnackbar(
+                    message = "\"${downloadState.fileName}\" $savedToDownloads",
+                    actionLabel = showLabel,
+                    duration = SnackbarDuration.Short,
+                )
+                if (snackbarResult == SnackbarResult.ActionPerformed) {
+                    openDownloadFolder(context)
+                }
+            }
+
+            is DownloadState.Downloading -> {
+                snackbarHostState.showSnackbar(
+                    message = downloadingLabel,
+                    duration = SnackbarDuration.Long,
+                )
+            }
+
+            else -> Unit
+        }
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -129,10 +137,10 @@ private fun VersionHistoryScreenContent(
     versionsGroupedByTime: List<VersionGroup>,
     isFetchingContent: Boolean,
     onRefresh: () -> Unit,
-    modifier: Modifier = Modifier,
     optionsBottomSheetState: WireModalSheetState<Pair<String, CellVersion>>,
-    fileName: String? = null,
     restoreDialogState: RestoreDialogState,
+    modifier: Modifier = Modifier,
+    fileName: String? = null,
     restoreVersion: () -> Unit = {},
     downloadVersion: (String, String) -> Unit = { _, _ -> },
     showRestoreConfirmationDialog: (String) -> Unit = {},

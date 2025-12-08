@@ -22,7 +22,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -38,7 +38,6 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.home.conversations.messages.item.MessageStyle
-import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 
@@ -46,30 +45,22 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 fun AssetNotAvailablePreview(
     messageStyle: MessageStyle,
     modifier: Modifier = Modifier,
-    accent: Accent = Accent.Unknown
 ) {
     Column(
         modifier = modifier
             .applyIf(messageStyle == MessageStyle.BUBBLE_SELF) {
-                background(
-                    colorsScheme().bubbleContainerAccentBackgroundColor.getOrDefault(
-                        accent,
-                        colorsScheme().defaultBubbleContainerBackgroundColor
-                    )
-                )
+                background(colorsScheme().selfBubble.secondary)
             }
             .applyIf(messageStyle == MessageStyle.BUBBLE_OTHER) {
-                background(
-                    colorsScheme().surface
-                )
+                background(colorsScheme().otherBubble.secondary)
             }
-            .fillMaxSize()
+            .fillMaxWidth()
             .height(dimensions().spacing72x)
             .padding(dimensions().spacing8x),
     ) {
         val iconColorColor = when (messageStyle) {
-            MessageStyle.BUBBLE_SELF -> colorsScheme().inverseOnSurface
-            MessageStyle.BUBBLE_OTHER -> colorsScheme().inverseSurface
+            MessageStyle.BUBBLE_SELF -> colorsScheme().selfBubble.onSecondary
+            MessageStyle.BUBBLE_OTHER -> colorsScheme().otherBubble.onSecondary
             MessageStyle.NORMAL -> colorsScheme().secondaryText
         }
 
@@ -86,8 +77,8 @@ fun AssetNotAvailablePreview(
         )
 
         val notAvailableTextColor = when (messageStyle) {
-            MessageStyle.BUBBLE_SELF -> colorsScheme().surface
-            MessageStyle.BUBBLE_OTHER -> colorsScheme().inverseSurface
+            MessageStyle.BUBBLE_SELF -> colorsScheme().selfBubble.onSecondary
+            MessageStyle.BUBBLE_OTHER -> colorsScheme().otherBubble.onSecondary
             MessageStyle.NORMAL -> colorsScheme().secondaryText
         }
 

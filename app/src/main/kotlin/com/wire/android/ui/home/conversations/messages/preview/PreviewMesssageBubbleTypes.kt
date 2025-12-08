@@ -15,6 +15,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+
+@file:Suppress("TooManyFunctions")
+
 package com.wire.android.ui.home.conversations.messages.preview
 
 import androidx.compose.foundation.background
@@ -35,6 +38,7 @@ import com.wire.android.ui.home.conversations.mock.mockMessageWithMarkdownTables
 import com.wire.android.ui.home.conversations.mock.mockMessageWithMarkdownTextAndLinks
 import com.wire.android.ui.home.conversations.mock.mockMessageWithText
 import com.wire.android.ui.home.conversations.mock.mockMessageWithTextContent
+import com.wire.android.ui.home.conversations.mock.mockedMultipartMessage
 import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.MessageEditStatus
 import com.wire.android.ui.home.conversations.model.MessageSource
@@ -400,6 +404,36 @@ fun PreviewMessageBubbleOtherWithMarkdownTablesAndBlocks() {
         Box(modifier = Modifier.background(color = colorsScheme().surface)) {
             RegularMessageItem(
                 message = mockMessageWithMarkdownTablesAndBlocks.copy(source = MessageSource.OtherUser),
+                conversationDetailsData = ConversationDetailsData.None(null),
+                clickActions = MessageClickActions.Content(),
+                isBubbleUiEnabled = true
+            )
+        }
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewMessageBubbleSelfWithMultipartAsset() {
+    WireTheme {
+        Box(modifier = Modifier.background(color = colorsScheme().surface)) {
+            RegularMessageItem(
+                message = mockedMultipartMessage(source = MessageSource.Self),
+                conversationDetailsData = ConversationDetailsData.None(null),
+                clickActions = MessageClickActions.Content(),
+                isBubbleUiEnabled = true
+            )
+        }
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewMessageBubbleOtherWithMultipartAsset() {
+    WireTheme {
+        Box(modifier = Modifier.background(color = colorsScheme().surface)) {
+            RegularMessageItem(
+                message = mockedMultipartMessage(source = MessageSource.OtherUser),
                 conversationDetailsData = ConversationDetailsData.None(null),
                 clickActions = MessageClickActions.Content(),
                 isBubbleUiEnabled = true

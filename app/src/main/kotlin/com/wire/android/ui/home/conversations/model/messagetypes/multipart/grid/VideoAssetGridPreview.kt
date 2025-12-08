@@ -26,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
 import coil.compose.AsyncImage
 import coil.decode.VideoFrameDecoder
@@ -42,7 +43,14 @@ internal fun BoxScope.VideoAssetGridPreview(
     item: MultipartAttachmentUi,
     messageStyle: MessageStyle
 ) {
-    if (item.previewAvailable()) {
+    if (LocalInspectionMode.current) {
+        Image(
+            modifier = Modifier.fillMaxSize(),
+            painter = painterResource(com.wire.android.ui.common.R.drawable.mock_image),
+            contentScale = ContentScale.Crop,
+            contentDescription = null,
+        )
+    } else if (item.previewAvailable()) {
         AsyncImage(
             modifier = Modifier.fillMaxSize(),
             model = item.previewImageModel(decoderFactory = { result, options, _ ->

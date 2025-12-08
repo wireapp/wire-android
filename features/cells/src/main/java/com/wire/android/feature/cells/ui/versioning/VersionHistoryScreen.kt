@@ -15,8 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.feature.cells.ui.versionhistory
+package com.wire.android.feature.cells.ui.versioning
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -25,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.feature.cells.R
+import com.wire.android.feature.cells.ui.common.LoadingScreen
 import com.wire.android.navigation.WireNavigator
 import com.wire.android.navigation.annotation.features.cells.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
@@ -36,8 +40,7 @@ import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.WireTheme
-import kotlinx.collections.immutable.ImmutableMap
-import kotlinx.collections.immutable.persistentMapOf
+import com.wire.android.util.ui.toUIText
 
 @WireDestination(
     style = PopUpNavigationAnimation::class,
@@ -50,15 +53,17 @@ fun VersionHistoryScreen(
     versionHistoryViewModel: VersionHistoryViewModel = hiltViewModel()
 ) {
     VersionHistoryScreenContent(
-        versionsGroupedByTime = versionHistoryViewModel.getVersionsGroupedByDate(),
+        versionsGroupedByTime = versionHistoryViewModel.versionsGroupedByTime.value,
         modifier = modifier,
+        isFetchingContent = versionHistoryViewModel.isFetchingContent.value,
         navigateBack = { navigator.navigateBack() }
     )
 }
 
 @Composable
 private fun VersionHistoryScreenContent(
-    versionsGroupedByTime: ImmutableMap<String, List<CellVersion>>,
+    versionsGroupedByTime: List<VersionGroup>,
+    isFetchingContent: Boolean,
     modifier: Modifier = Modifier,
     navigateBack: () -> Unit = {}
 ) {
@@ -73,22 +78,35 @@ private fun VersionHistoryScreenContent(
             )
         },
     ) { innerPadding ->
-        LazyColumn(Modifier.padding(innerPadding)) {
-            versionsGroupedByTime.forEach { date, versions ->
-                item {
-                    VersionTimeHeaderItem(date)
-                }
-                versions.forEach { version ->
+
+        AnimatedVisibility(
+            visible = isFetchingContent,
+            enter = fadeIn(),
+            exit = fadeOut()
+        ) { LoadingScreen() }
+
+        AnimatedVisibility(
+            visible = !isFetchingContent,
+            enter = fadeIn(),
+            exit = fadeOut()
+        ) {
+            LazyColumn(Modifier.padding(innerPadding)) {
+                versionsGroupedByTime.forEach { group ->
                     item {
-                        VersionItem(
-                            modifiedAt = version.modifiedAt,
-                            modifiedBy = version.modifiedBy,
-                            fileSize = version.fileSize,
-                        )
-                        WireDivider(
-                            modifier = Modifier.fillMaxWidth(),
-                            color = colorsScheme().outline
-                        )
+                        VersionTimeHeaderItem(group.dateLabel)
+                    }
+                    group.versions.forEach {
+                        item {
+                            VersionItem(
+                                modifiedAt = it.modifiedAt,
+                                modifiedBy = it.modifiedBy,
+                                fileSize = it.fileSize,
+                            )
+                            WireDivider(
+                                modifier = Modifier.fillMaxWidth(),
+                                color = colorsScheme().outline
+                            )
+                        }
                     }
                 }
             }
@@ -101,17 +119,24 @@ private fun VersionHistoryScreenContent(
 fun PreviewVersionHistoryScreenContent() {
     WireTheme {
         VersionHistoryScreenContent(
-            versionsGroupedByTime = persistentMapOf(
-                "Today, 3 Dec 2025" to listOf(
-                    CellVersion("1:46 PM", "Deniz Agha", 200L),
-                    CellVersion("11:20 AM", "Alice Smith", 150L),
-                    CellVersion("09:15 AM", "John Doe", 100L),
-                    CellVersion("08:00 AM", "Eve Davis", 120L),
-                    CellVersion("07:30 AM", "Frank Miller", 180L),
+            isFetchingContent = false,
+            versionsGroupedByTime = listOf(
+                VersionGroup(
+                    dateLabel = "Today, 3 Dec 2025".toUIText(),
+                    versions = listOf(
+                        CellVersion("1:46 PM", "Deniz Agha", "200MB"),
+                        CellVersion("11:20 AM", "Alice Smith", "150MB"),
+                        CellVersion("09:15 AM", "John Doe", "100KB"),
+                        CellVersion("08:00 AM", "Eve Davis", "340KB"),
+                        CellVersion("07:30 AM", "Frank Miller", "1GB"),
+                    )
                 ),
-                "1 Dec 2025" to listOf(
-                    CellVersion("3:15 PM", "Bob Johnson", 300L),
-                    CellVersion("10:05 AM", "Charlie Brown", 250L),
+                VersionGroup(
+                    dateLabel = "1 Dec 2025".toUIText(),
+                    versions = listOf(
+                        CellVersion("3:15 PM", "Bob Johnson", "300MB"),
+                        CellVersion("10:05 AM", "Charlie Brown", "250KB"),
+                    )
                 )
             )
         )

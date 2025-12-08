@@ -59,4 +59,9 @@
     <string name="label_cancel">Cancel</string>
     <string name="label_no_selected_date">No selected date</string>
 
+    <string name="size_unit_bytes">B</string>
+    <string name="size_unit_kilobytes">KB</string>
+    <string name="size_unit_megabytes">MB</string>
+    <string name="size_unit_gigabytes">GB</string>
+    <string name="size_unit_terabytes">TB</string>
 </resources>

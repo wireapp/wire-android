@@ -162,7 +162,6 @@
     <string name="cell_open_editor_failure_dialog_title">Unable to open file edit mode</string>
     <string name="cell_open_editor_failure_dialog_message">There was a problem connecting to the server. Please try again. If the issue persists, contact support.</string>
     <string name="error_try_again_button_title">Try again</string>
-    <string name="version_history_top_appbar_title">Version history</string>
     <string name="public_link_expiration_add">Add expiration</string>
     <string name="public_link_expiration_set">Set expiration</string>
     <string name="public_link_expiration_description">The link expires automatically after the set date and time. People can’t access the content anymore.</string>
@@ -174,4 +173,7 @@
     <string name="dialog_expiration_time_title">Expiration time</string>
     <string name="invalid_expiration_date">Expiration date is in the past</string>
     <string name="link_expired">Link expired on: %1$s, at %2$s</string>
+    <string name="version_history_top_appbar_title">Version history</string>
+    <string name="date_label_today">Today, %1$s</string>
+    <string name="date_label_yesterday">Yesterday, %1$s</string>
 </resources>

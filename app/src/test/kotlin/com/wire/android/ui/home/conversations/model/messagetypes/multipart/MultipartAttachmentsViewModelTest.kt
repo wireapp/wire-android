@@ -22,6 +22,7 @@ import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.ui.common.multipart.AssetSource
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
 import com.wire.android.util.FileManager
+import com.wire.kalium.cells.domain.model.CellNode
 import com.wire.kalium.cells.domain.usecase.DownloadCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.RefreshCellAssetStateUseCase
 import com.wire.kalium.common.functional.right
@@ -240,7 +241,7 @@ class MultipartAttachmentsViewModelTest {
 
         suspend fun arrange(): Pair<Arrangement, MultipartAttachmentsViewModel> {
 
-            coEvery { refreshAsset(any()) } returns Unit.right()
+            coEvery { refreshAsset(any()) } returns CellNode("uuid", "id", "path").right()
             coEvery { fileManager.openWithExternalApp(any(), any(), any(), any()) } returns Unit
             coEvery { fileManager.openUrlWithExternalApp(any(), any(), any()) } returns Unit
             coEvery { download(any(), any(), any(), any(), any()) } returns Unit.right()

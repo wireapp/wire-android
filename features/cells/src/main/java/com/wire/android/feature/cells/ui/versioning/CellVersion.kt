@@ -15,8 +15,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.feature.cells.ui.versionhistory
+package com.wire.android.feature.cells.ui.versioning
 
-class VersionHistoryNavArgs(
-    val uuid: String? = null,
+import com.wire.android.util.ui.UIText
+
+data class CellVersion(
+    val modifiedAt: String,
+    val modifiedBy: String,
+    val fileSize: String
+)
+
+data class VersionGroup(
+    val dateLabel: UIText,
+    val versions: List<CellVersion>
 )

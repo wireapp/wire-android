@@ -17,7 +17,6 @@
  */
 package com.wire.android.feature.cells.ui.versioning
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut

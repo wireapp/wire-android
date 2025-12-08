@@ -121,12 +121,17 @@ fun ConversationItemFactory(
         subTitle = {
             if (!isSelectableItem) {
                 when (val messageContent = conversation.lastMessageContent) {
-                    is UILastMessageContent.TextMessage -> LastMessageSubtitle(messageContent.messageBody.message)
+                    is UILastMessageContent.TextMessage -> LastMessageSubtitle(
+                        messageContent.messageBody.message,
+                        messageContent.markdownPreview
+                    )
+
                     is UILastMessageContent.MultipleMessage -> LastMultipleMessages(messageContent.messages, messageContent.separator)
                     is UILastMessageContent.SenderWithMessage -> LastMessageSubtitleWithAuthor(
                         messageContent.sender,
                         messageContent.message,
-                        messageContent.separator
+                        messageContent.separator,
+                        messageContent.markdownPreview
                     )
 
                     is UILastMessageContent.Connection -> ConnectionLabel(connectionInfo = messageContent)

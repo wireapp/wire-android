@@ -162,7 +162,6 @@
     <string name="cell_open_editor_failure_dialog_title">Unable to open file edit mode</string>
     <string name="cell_open_editor_failure_dialog_message">There was a problem connecting to the server. Please try again. If the issue persists, contact support.</string>
     <string name="error_try_again_button_title">Try again</string>
-    <string name="version_history_top_appbar_title">Version history</string>
     <string name="public_link_expiration_add">Add expiration</string>
     <string name="public_link_expiration_set">Set expiration</string>
     <string name="public_link_expiration_description">The link expires automatically after the set date and time. People can’t access the content anymore.</string>
@@ -174,6 +173,9 @@
     <string name="dialog_expiration_time_title">Expiration time</string>
     <string name="invalid_expiration_date">Expiration date is in the past</string>
     <string name="link_expired">Link expired on: %1$s, at %2$s</string>
+    <string name="version_history_top_appbar_title">Version history</string>
+    <string name="date_label_today">Today, %1$s</string>
+    <string name="date_label_yesterday">Yesterday, %1$s</string>
     <string name="version_history_current_label_for_title">Current</string>
     <string name="restore_version_bottom_sheet_item_label">Restore version</string>
     <string name="download_version_bottom_sheet_item_label">Download version</string>
@@ -187,11 +189,4 @@
     <string name="dialog_restore_cell_version_failed_description">Something went wrong while restoring a version. Please retry.</string>
     <string name="dialog_restore_cell_version_loading">Loading…</string>
     <string name="dialog_restore_cell_version_go_to_file_button_label">Go to file</string>
-    <string name="size_unit_bytes">B</string>
-    <string name="size_unit_kilobytes">KB</string>
-    <string name="size_unit_megabytes">MB</string>
-    <string name="size_unit_gigabytes">GB</string>
-    <string name="size_unit_terabytes">TB</string>
-    <string name="today_label">Today</string>
-    <string name="yesterday_label">Yesterday</string>
 </resources>

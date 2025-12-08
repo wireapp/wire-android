@@ -35,6 +35,7 @@
     <string name="add_remove_tags_label">Добавить или удалить теги</string>
     <string name="move_label">Переместить в папку</string>
     <string name="download_label">Скачать</string>
+    <string name="edit_label">Изменить файл</string>
     <string name="copy_link">Скопировать ссылку</string>
     <string name="share_link">Поделиться ссылкой</string>
     <string name="see_version_history_bottom_sheet">Просмотреть историю версий</string>
@@ -158,6 +159,8 @@
     <string name="public_link_common_failure_dialog_title">Что-то пошло не так</string>
     <string name="public_link_common_failure_dialog_message">Пожалуйста, попробуйте снова.\n\nЕсли эта ошибка не устраняется, обратитесь к администратору вашей команды.</string>
     <string name="public_link_password_create_failure_dialog_title">Не удается создать защищенную паролем ссылку</string>
+    <string name="cell_open_editor_failure_dialog_title">Не удается открыть режим редактирования файла</string>
+    <string name="cell_open_editor_failure_dialog_message">Возникла проблема с подключением к серверу. Пожалуйста, попробуйте снова. Если проблема не устранена, обратитесь в службу поддержки.</string>
     <string name="error_try_again_button_title">Повторить</string>
     <string name="version_history_top_appbar_title">История версий</string>
 </resources>

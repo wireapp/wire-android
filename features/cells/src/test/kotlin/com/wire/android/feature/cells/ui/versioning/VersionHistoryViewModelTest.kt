@@ -19,7 +19,9 @@ package com.wire.android.feature.cells.ui.versioning
 
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.feature.cells.R
-import com.wire.android.navigation.di.ResourceProvider
+import com.wire.android.util.FileSizeFormatter
+import com.wire.android.util.ui.resolveForTest
+import com.wire.android.util.ui.toUIText
 import com.wire.kalium.cells.domain.model.NodeVersion
 import com.wire.kalium.cells.domain.usecase.versioning.GetNodeVersionsUseCase
 import com.wire.kalium.common.error.CoreFailure
@@ -50,8 +52,8 @@ class VersionHistoryViewModelTest {
     private val testDispatcher = StandardTestDispatcher()
 
     private val savedStateHandle: SavedStateHandle = mockk(relaxed = true)
-    private val resourceProvider: ResourceProvider = mockk(relaxed = true)
     private val getNodeVersionsUseCase: GetNodeVersionsUseCase = mockk()
+    private val fileSizeFormatter: FileSizeFormatter = mockk()
 
     private val testNodeUuid = "test-node-uuid"
 
@@ -60,14 +62,6 @@ class VersionHistoryViewModelTest {
         Dispatchers.setMain(testDispatcher)
 
         every { savedStateHandle.get<String>("uuid") } returns testNodeUuid
-
-        every { resourceProvider.getString(R.string.today_label) } returns "Today"
-        every { resourceProvider.getString(R.string.yesterday_label) } returns "Yesterday"
-        every { resourceProvider.getString(R.string.size_unit_bytes) } returns "B"
-        every { resourceProvider.getString(R.string.size_unit_kilobytes) } returns "KB"
-        every { resourceProvider.getString(R.string.size_unit_megabytes) } returns "MB"
-        every { resourceProvider.getString(R.string.size_unit_gigabytes) } returns "GB"
-        every { resourceProvider.getString(R.string.size_unit_terabytes) } returns "TB"
     }
 
     @AfterEach
@@ -79,7 +73,7 @@ class VersionHistoryViewModelTest {
     fun givenViewModel_whenItInits_thenIsFetchingStateIsManagedCorrectly() = runTest {
         coEvery { getNodeVersionsUseCase(testNodeUuid) } returns Either.Right(emptyList())
 
-        val viewModel = VersionHistoryViewModel(savedStateHandle, resourceProvider, getNodeVersionsUseCase)
+        val viewModel = VersionHistoryViewModel(savedStateHandle, getNodeVersionsUseCase, fileSizeFormatter)
 
         assertTrue(viewModel.isFetchingContent.value)
         advanceUntilIdle()
@@ -130,8 +124,9 @@ class VersionHistoryViewModelTest {
             ),
         )
         coEvery { getNodeVersionsUseCase(testNodeUuid) } returns Either.Right(versionsFromApi)
+        every { fileSizeFormatter.formatSize(any()) } returns "30 MB"
 
-        val viewModel = VersionHistoryViewModel(savedStateHandle, resourceProvider, getNodeVersionsUseCase)
+        val viewModel = VersionHistoryViewModel(savedStateHandle, getNodeVersionsUseCase, fileSizeFormatter)
         testDispatcher.scheduler.advanceUntilIdle()
 
         // Versions should be grouped into three sections (Today, Yesterday, and an older date)
@@ -139,34 +134,39 @@ class VersionHistoryViewModelTest {
         assertEquals(3, groupedVersions.size)
 
         // Verify "Today" group is correct
+        every { fileSizeFormatter.formatSize(any()) } returns groupedVersions[0].versions[0].fileSize
         val todayFormattedDate = today.format(DateTimeFormatter.ofPattern("d MMM yyyy"))
-        assertEquals("Today, $todayFormattedDate", groupedVersions[0].dateLabel)
+
+        val todayFakeString = mapOf(R.string.date_label_today to "Today, %1\$s")
+        val actualTodayText = groupedVersions[0].dateLabel.resolveForTest(todayFakeString)
+
+        assertEquals("Today, $todayFormattedDate", actualTodayText)
         assertEquals(1, groupedVersions[0].versions.size)
         assertEquals("User A", groupedVersions[0].versions[0].modifiedBy)
-        assertEquals("11:30", groupedVersions[0].versions[0].modifiedAt)
-        assertEquals("1.46 KB", groupedVersions[0].versions[0].fileSize)
+        assertEquals("11:30 AM", groupedVersions[0].versions[0].modifiedAt)
 
         // Verify "Yesterday" group is correct
+        every { fileSizeFormatter.formatSize(any()) } returns groupedVersions[1].versions[0].fileSize
         val yesterdayFormattedDate = yesterday.format(DateTimeFormatter.ofPattern("d MMM yyyy"))
-        assertEquals("Yesterday, $yesterdayFormattedDate", groupedVersions[1].dateLabel)
+        val yesterdayFakeString = mapOf(R.string.date_label_yesterday to "Yesterday, %1\$s")
+        val actualYesterdayText = groupedVersions[1].dateLabel.resolveForTest(yesterdayFakeString)
+
+        assertEquals("Yesterday, $yesterdayFormattedDate", actualYesterdayText)
         assertEquals(2, groupedVersions[1].versions.size)
         assertEquals("User B", groupedVersions[1].versions[0].modifiedBy)
-        assertEquals("2.00 KB", groupedVersions[1].versions[0].fileSize)
         assertEquals("User A", groupedVersions[1].versions[1].modifiedBy)
-        assertEquals("4.77 MB", groupedVersions[1].versions[1].fileSize)
 
         // Verify older date group is correct
         val twoDaysAgoFormatted = twoDaysAgo.format(DateTimeFormatter.ofPattern("d MMM yyyy"))
-        assertEquals(twoDaysAgoFormatted, groupedVersions[2].dateLabel)
+        assertEquals(twoDaysAgoFormatted.toUIText(), groupedVersions[2].dateLabel)
         assertEquals(1, groupedVersions[2].versions.size)
-        assertEquals("123.00 B", groupedVersions[2].versions[0].fileSize)
     }
 
     @Test
     fun givenApiFailure_whenViewModelInits_thenVersionListIsEmpty() = runTest {
         coEvery { getNodeVersionsUseCase(testNodeUuid) } returns Either.Left(CoreFailure.MissingClientRegistration)
 
-        val viewModel = VersionHistoryViewModel(savedStateHandle, resourceProvider, getNodeVersionsUseCase)
+        val viewModel = VersionHistoryViewModel(savedStateHandle, getNodeVersionsUseCase, fileSizeFormatter)
         advanceUntilIdle()
 
         assertTrue(viewModel.versionsGroupedByTime.value.isEmpty())
@@ -177,7 +177,7 @@ class VersionHistoryViewModelTest {
     fun givenMissingUuid_whenViewModelInits_thenNoFetchIsAttempted() = runTest {
         every { savedStateHandle.get<String>("uuid") } returns null
 
-        val viewModel = VersionHistoryViewModel(savedStateHandle, resourceProvider, getNodeVersionsUseCase)
+        val viewModel = VersionHistoryViewModel(savedStateHandle, getNodeVersionsUseCase, fileSizeFormatter)
         advanceUntilIdle()
 
         assertTrue(viewModel.versionsGroupedByTime.value.isEmpty())

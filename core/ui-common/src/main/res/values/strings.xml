@@ -61,4 +61,9 @@
     <string name="content_description_check">Check mark</string>
     <string name="label_no_application_found_open_downloads_folder">"No application found to open downloads folder"</string>
 
+    <string name="size_unit_bytes">B</string>
+    <string name="size_unit_kilobytes">KB</string>
+    <string name="size_unit_megabytes">MB</string>
+    <string name="size_unit_gigabytes">GB</string>
+    <string name="size_unit_terabytes">TB</string>
 </resources>

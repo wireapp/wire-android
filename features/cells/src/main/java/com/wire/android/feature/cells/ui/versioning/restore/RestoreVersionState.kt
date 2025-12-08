@@ -15,6 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+<<<<<<<< HEAD:features/cells/src/main/java/com/wire/android/feature/cells/ui/versioning/restore/RestoreVersionState.kt
 package com.wire.android.feature.cells.ui.versioning.restore
 
 enum class RestoreState {
@@ -23,3 +24,19 @@ enum class RestoreState {
     Completed,
     Failed
 }
+========
+package com.wire.android.feature.cells.ui.versioning
+
+import com.wire.android.util.ui.UIText
+
+data class CellVersion(
+    val modifiedAt: String,
+    val modifiedBy: String,
+    val fileSize: String
+)
+
+data class VersionGroup(
+    val dateLabel: UIText,
+    val versions: List<CellVersion>
+)
+>>>>>>>> origin/develop:features/cells/src/main/java/com/wire/android/feature/cells/ui/versioning/CellVersion.kt

@@ -89,7 +89,7 @@ fun VersionHistoryScreen(
             coroutineScope.launch {
                 snackbarHostState.showSnackbar(
                     message = "Downloading..",
-                    duration = SnackbarDuration.Short,
+                    duration = SnackbarDuration.Long,
                 )
             }
 
@@ -99,7 +99,7 @@ fun VersionHistoryScreen(
                         message = "\"$fileName\" saved to Downloads",
                         actionLabel = "Show",
                         duration = SnackbarDuration.Short,
-                        )
+                    )
                     if (snackbarResult == SnackbarResult.ActionPerformed) {
                         openDownloadFolder(context)
                     }

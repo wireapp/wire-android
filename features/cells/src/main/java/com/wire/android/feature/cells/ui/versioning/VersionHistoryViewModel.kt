@@ -229,7 +229,9 @@ class VersionHistoryViewModel @Inject constructor(
                         bufferedSink = bufferedSink,
                         preSignedUrl = cellVersion.presignedUrl,
                         onProgressUpdate = {},
-                        onCompleted = { onDownloadCompleted(cellVersion, newFileName) }
+                        onCompleted = {
+                            onDownloadCompleted(cellVersion, newFileName)
+                        }
                     )
                 }
             }

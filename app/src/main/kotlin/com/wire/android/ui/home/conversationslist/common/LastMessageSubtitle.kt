@@ -25,6 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.text.style.TextOverflow
 import com.wire.android.ui.markdown.MarkdownConstants
 import com.wire.android.ui.markdown.MarkdownInline
+import com.wire.android.ui.markdown.MarkdownPreview
 import com.wire.android.ui.markdown.MessageColors
 import com.wire.android.ui.markdown.NodeData
 import com.wire.android.ui.markdown.getFirstInlines
@@ -36,13 +37,13 @@ import com.wire.android.util.ui.UIText
 import kotlinx.collections.immutable.persistentListOf
 
 @Composable
-fun LastMessageSubtitle(text: UIText) {
-    LastMessageMarkdown(text = text.asString())
+fun LastMessageSubtitle(text: UIText, markdownPreview: MarkdownPreview? = null) {
+    LastMessageMarkdown(text = text.asString(), markdownPreview = markdownPreview)
 }
 
 @Composable
-fun LastMessageSubtitleWithAuthor(author: UIText, text: UIText, separator: String) {
-    LastMessageMarkdown(text = text.asString(), leadingText = "${author.asString()}$separator")
+fun LastMessageSubtitleWithAuthor(author: UIText, text: UIText, separator: String, markdownPreview: MarkdownPreview? = null) {
+    LastMessageMarkdown(text = text.asString(), leadingText = "${author.asString()}$separator", markdownPreview = markdownPreview)
 }
 
 @Composable
@@ -51,7 +52,11 @@ fun LastMultipleMessages(messages: List<UIText>, separator: String) {
 }
 
 @Composable
-private fun LastMessageMarkdown(text: String, leadingText: String = "") {
+private fun LastMessageMarkdown(
+    text: String,
+    leadingText: String = "",
+    markdownPreview: MarkdownPreview? = null
+) {
     val nodeData = NodeData(
         color = MaterialTheme.wireColorScheme.secondaryText,
         style = MaterialTheme.wireTypography.subline01,
@@ -60,21 +65,21 @@ private fun LastMessageMarkdown(text: String, leadingText: String = "") {
         searchQuery = "",
         mentions = listOf(),
         disableLinks = true,
-        messageColors = MessageColors(highlighted = MaterialTheme.wireColorScheme.primary,),
+        messageColors = MessageColors(highlighted = MaterialTheme.wireColorScheme.primary),
         accent = Accent.Unknown
     )
 
-    val markdownPreview = remember(text) {
-        text.toMarkdownDocument().getFirstInlines()
+    val effectivePreview = remember(text, markdownPreview) {
+        markdownPreview ?: text.toMarkdownDocument().getFirstInlines()
     }
 
     val leadingInlines = remember(leadingText) {
         leadingText.toMarkdownDocument().getFirstInlines()?.children ?: persistentListOf()
     }
 
-    if (markdownPreview != null) {
+    if (effectivePreview != null) {
         MarkdownInline(
-            inlines = leadingInlines.plus(markdownPreview.children),
+            inlines = leadingInlines.plus(effectivePreview.children),
             nodeData = nodeData
         )
     } else {

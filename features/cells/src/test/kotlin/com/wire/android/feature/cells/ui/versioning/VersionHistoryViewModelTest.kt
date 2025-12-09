@@ -64,6 +64,7 @@ class VersionHistoryViewModelTest {
         Dispatchers.setMain(testDispatcher)
 
         every { savedStateHandle.get<String>("uuid") } returns testNodeUuid
+        every { savedStateHandle.get<String>("fileName") } returns testNodeUuid
     }
 
     @AfterEach

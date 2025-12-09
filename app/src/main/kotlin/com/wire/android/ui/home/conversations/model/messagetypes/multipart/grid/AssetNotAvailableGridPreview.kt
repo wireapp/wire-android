@@ -28,16 +28,19 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import com.wire.android.R
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.typography
+import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun AssetNotAvailableGridPreview(
+    messageStyle: MessageStyle,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -45,20 +48,33 @@ fun AssetNotAvailableGridPreview(
             .fillMaxSize()
             .padding(dimensions().spacing8x),
     ) {
+        val iconColorColor = when (messageStyle) {
+            MessageStyle.BUBBLE_SELF -> colorsScheme().selfBubble.onSecondary
+            MessageStyle.BUBBLE_OTHER -> colorsScheme().otherBubble.onSecondary
+            MessageStyle.NORMAL -> colorsScheme().secondaryText
+        }
         Image(
             modifier = Modifier.size(dimensions().spacing16x),
             painter = painterResource(R.drawable.ic_file_not_available),
             contentDescription = null,
+            colorFilter = ColorFilter.tint(iconColorColor)
         )
         Spacer(
             modifier = Modifier
                 .fillMaxHeight()
                 .weight(1f)
         )
+
+        val notAvailableTextColor = when (messageStyle) {
+            MessageStyle.BUBBLE_SELF -> colorsScheme().selfBubble.onSecondary
+            MessageStyle.BUBBLE_OTHER -> colorsScheme().otherBubble.onSecondary
+            MessageStyle.NORMAL -> colorsScheme().secondaryText
+        }
+
         Text(
             text = "File not available",
             style = typography().body02,
-            color = colorsScheme().secondaryText
+            color = notAvailableTextColor
         )
     }
 }
@@ -68,7 +84,7 @@ fun AssetNotAvailableGridPreview(
 fun PreviewAssetNotAvailableGridPreview() {
     WireTheme {
         Box(Modifier.size(dimensions().spacing120x)) {
-            AssetNotAvailableGridPreview()
+            AssetNotAvailableGridPreview(messageStyle = MessageStyle.NORMAL)
         }
     }
 }

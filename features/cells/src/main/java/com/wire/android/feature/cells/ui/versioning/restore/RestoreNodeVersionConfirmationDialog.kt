@@ -44,11 +44,11 @@ import kotlin.math.roundToInt
 
 @Composable
 fun RestoreNodeVersionConfirmationDialog(
-    restoreVersionState: RestoreVersionState = RestoreVersionState.Idle,
-    restoreProgress: Float = .40F,
     onGoToFileClicked: () -> Unit,
     onConfirm: () -> Unit,
-    onDismiss: () -> Unit,
+    restoreVersionState: RestoreVersionState = RestoreVersionState.Idle,
+    restoreProgress: Float = .40F,
+    onDismiss: () -> Unit
 ) {
     WireDialog(
         title = when (restoreVersionState) {
@@ -90,7 +90,12 @@ fun RestoreNodeVersionConfirmationDialog(
         )
     ) {
         when (restoreVersionState) {
-            RestoreVersionState.Completed, RestoreVersionState.Restoring -> GoToFileContent(restoreVersionState, restoreProgress, onGoToFileClicked)
+            RestoreVersionState.Completed, RestoreVersionState.Restoring -> GoToFileContent(
+                restoreVersionState = restoreVersionState,
+                restoreProgress = restoreProgress,
+                onGoToFileClicked = onGoToFileClicked
+            )
+
             RestoreVersionState.Failed -> RestoreFailedContent(
                 onRetry = onConfirm,
                 onCancel = onDismiss
@@ -126,7 +131,6 @@ private fun GoToFileContent(
                 )
                 WireCheckIcon()
             }
-
         }
         Spacer(Modifier.height(dimensions().spacing16x))
         LinearProgressIndicator(

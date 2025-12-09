@@ -58,4 +58,3 @@ fun String.addBeforeExtension(insert: String): String {
         this + insert
     }
 }
-

@@ -77,7 +77,6 @@ fun VersionHistoryScreen(
     val showLabel = stringResource(R.string.snackbar_download_cell_version_show_label)
     val downloadingLabel = stringResource(R.string.snackbar_download_cell_version_downloading_label)
 
-
     VersionHistoryScreenContent(
         versionsGroupedByTime = versionHistoryViewModel.versionsGroupedByTime.value,
         modifier = modifier,

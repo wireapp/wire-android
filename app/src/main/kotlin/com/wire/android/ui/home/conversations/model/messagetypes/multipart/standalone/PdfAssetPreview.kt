@@ -51,7 +51,6 @@ import com.wire.android.ui.home.conversations.messages.item.textColor
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.previewAvailable
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.previewImageModel
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.transferProgressColor
-import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PdfPreviewDecoder
@@ -67,7 +66,6 @@ import com.wire.kalium.logic.util.fileExtension
 internal fun PdfAssetPreview(
     item: MultipartAttachmentUi,
     messageStyle: MessageStyle,
-    accent: Accent
 ) {
 
     val width = item.metadata?.width() ?: 0
@@ -82,18 +80,12 @@ internal fun PdfAssetPreview(
     Column(
         modifier = Modifier
             .widthIn(max = maxWidth)
+            .clip(RoundedCornerShape(dimensions().messageAttachmentCornerSize))
             .applyIf(messageStyle == MessageStyle.BUBBLE_SELF) {
-                background(
-                    colorsScheme().bubbleContainerAccentBackgroundColor.getOrDefault(
-                        accent,
-                        colorsScheme().defaultBubbleContainerBackgroundColor
-                    )
-                )
+                background(colorsScheme().selfBubble.secondary)
             }
             .applyIf(messageStyle == MessageStyle.BUBBLE_OTHER) {
-                background(
-                    colorsScheme().surface
-                )
+                background(colorsScheme().otherBubble.secondary)
             }
             .applyIf(messageStyle == MessageStyle.NORMAL) {
                 background(
@@ -105,8 +97,7 @@ internal fun PdfAssetPreview(
                     color = colorsScheme().outline,
                     shape = RoundedCornerShape(dimensions().messageAttachmentCornerSize)
                 )
-            }
-            .clip(RoundedCornerShape(dimensions().messageAttachmentCornerSize)),
+            },
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(dimensions().spacing8x)
     ) {
@@ -217,7 +208,6 @@ private fun PreviewPdfAsset() {
                         transferStatus = AssetTransferStatus.NOT_DOWNLOADED
                     ),
                     messageStyle = MessageStyle.NORMAL,
-                    accent = Accent.Amber
                 )
             }
             Box {
@@ -227,14 +217,12 @@ private fun PreviewPdfAsset() {
                         progress = 0.75f
                     ),
                     messageStyle = MessageStyle.NORMAL,
-                    accent = Accent.Blue
                 )
             }
             Box {
                 PdfAssetPreview(
                     item = attachment,
                     messageStyle = MessageStyle.NORMAL,
-                    accent = Accent.Red
                 )
             }
             Box {
@@ -244,7 +232,6 @@ private fun PreviewPdfAsset() {
                         progress = 0.75f
                     ),
                     messageStyle = MessageStyle.NORMAL,
-                    accent = Accent.Petrol
                 )
             }
         }

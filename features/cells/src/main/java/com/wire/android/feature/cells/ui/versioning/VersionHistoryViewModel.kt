@@ -42,7 +42,7 @@ import com.wire.kalium.common.functional.onSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import okio.buffer
+import kotlinx.coroutines.withContext
 import okio.sink
 import java.time.Instant
 import java.time.LocalDate
@@ -193,27 +193,38 @@ class VersionHistoryViewModel @Inject constructor(
 
     // TODO: Unit test coming in another PR
     fun downloadVersion(versionId: String, versionDate: String) {
-        viewModelScope.launch(dispatchers.io()) {
-            val cellVersion = findVersionById(versionId)
+        viewModelScope.launch {
+            downloadState.value = DownloadState.Downloading(0, 0)
 
-            cellVersion?.let {
-                downloadState.value = DownloadState.Downloading(0, 0)
-                val cellVersion = findVersionById(versionId)
-                val newFileName = fileName.addBeforeExtension("${versionDate}_${cellVersion?.modifiedAt}")
-                val bufferedSink = fileHelper.createDownloadFileStream(newFileName)?.sink()?.buffer()
-                if (cellVersion?.presignedUrl != null && bufferedSink != null) {
-                    downloadCellVersionUseCase.invoke(
-                        bufferedSink = bufferedSink,
-                        preSignedUrl = cellVersion.presignedUrl,
-                        onProgressUpdate = { progress, total ->
-                            downloadState.value = DownloadState.Downloading(progress.toInt(), total)
-                        },
-                    ).onSuccess {
-                        downloadState.value = DownloadState.Downloaded(fileName)
-                    }.onFailure {
+            val cellVersion = findVersionById(versionId)
+                ?: return@launch run { downloadState.value = DownloadState.Failed }
+
+            val newFileName = fileName.addBeforeExtension("${versionDate}_${cellVersion.modifiedAt}")
+
+            val outputStream = withContext(dispatchers.io()) {
+                fileHelper.createDownloadFileStream(newFileName)
+            } ?: run {
+                downloadState.value = DownloadState.Failed
+                return@launch
+            }
+
+            val presignedUrl = cellVersion.presignedUrl
+                ?: return@launch run { downloadState.value = DownloadState.Failed }
+
+            outputStream.sink().use { sink ->
+                downloadCellVersionUseCase(
+                    bufferedSink = sink,
+                    preSignedUrl = presignedUrl,
+                    onProgressUpdate = { progress, total ->
+                        downloadState.value = DownloadState.Downloading(progress.toInt(), total)
+                    }
+                )
+                    .onSuccess {
+                        downloadState.value = DownloadState.Downloaded(newFileName)
+                    }
+                    .onFailure {
                         downloadState.value = DownloadState.Failed
                     }
-                }
             }
         }
     }

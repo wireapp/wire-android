@@ -152,7 +152,8 @@ jobs:
               {
                 "type": "google-play",
                 "package-name": "com.wire",
-                "track": "${{ vars.PROD_APP_RC_TRACK }}"
+                "track": "${{ vars.PROD_APP_RC_TRACK }}",
+                "user-fraction": 0.1
               },
               {
                 "type": "github-release",

@@ -164,7 +164,6 @@ class ConversationMessagesViewModelArrangement {
         coEvery { observeAssetStatuses(any()) } returns flowOf(mapOf())
 
         coEvery { conversationAudioMessagePlayer.audioSpeed } returns flowOf(AudioSpeed.NORMAL)
-        coEvery { conversationAudioMessagePlayer.getOrBuildWavesMask(any(), any()) } returns Unit
         coEvery { conversationAudioMessagePlayer.playingAudioMessageFlow } returns flowOf(PlayingAudioMessage.None)
         coEvery { isWireCellFeatureEnabled() } returns false
     }

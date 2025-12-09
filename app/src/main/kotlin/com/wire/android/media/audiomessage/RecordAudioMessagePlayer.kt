@@ -21,7 +21,6 @@ import android.content.Context
 import android.media.MediaPlayer
 import androidx.core.net.toUri
 import com.wire.android.di.ApplicationScope
-import com.wire.kalium.logic.feature.asset.AudioNormalizedLoudnessBuilder
 import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.BufferOverflow
@@ -41,7 +40,6 @@ import javax.inject.Inject
 class RecordAudioMessagePlayer @Inject constructor(
     private val context: Context,
     private val audioMediaPlayer: MediaPlayer,
-    private val audioNormalizedLoudnessBuilder: AudioNormalizedLoudnessBuilder,
     private val audioFocusHelper: AudioFocusHelper,
     @ApplicationScope private val scope: CoroutineScope
 ) {
@@ -122,12 +120,6 @@ class RecordAudioMessagePlayer @Inject constructor(
                         )
                     )
                 }
-
-                is RecordAudioMediaPlayerStateUpdate.WaveMaskUpdate -> {
-                    audioState = audioState.copy(
-                        wavesMask = audioStateUpdate.waveMask
-                    )
-                }
             }
 
             audioState
@@ -184,14 +176,6 @@ class RecordAudioMessagePlayer @Inject constructor(
         audioMediaPlayer.prepare()
         audioMediaPlayer.seekTo(position)
         audioMediaPlayer.start()
-
-        audioNormalizedLoudnessBuilder(audioFile.path)?.let {
-            audioMessageStateUpdate.emit(
-                RecordAudioMediaPlayerStateUpdate.WaveMaskUpdate(
-                    waveMask = it.toWavesMask()
-                )
-            )
-        }
 
         audioMessageStateUpdate.emit(
             RecordAudioMediaPlayerStateUpdate.RecordAudioMediaPlayingStateUpdate(

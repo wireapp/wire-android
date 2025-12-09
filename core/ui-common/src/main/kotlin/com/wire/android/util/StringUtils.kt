@@ -49,12 +49,18 @@ fun String.capitalizeFirstLetter(): String = lowercase().replaceFirstChar(Char::
 fun String.normalizeFileName(): String = this.replace("/", "")
 
 fun String.addBeforeExtension(insert: String): String {
-    val dotIndex = this.lastIndexOf('.')
-    return if (dotIndex != -1) {
-        val name = this.take(dotIndex)
-        val ext = this.substring(dotIndex)
-        "${name}_$insert$ext"
-    } else {
-        this + insert
+    val lastDotIndex = this.lastIndexOf('.')
+    if (lastDotIndex <= 0) {
+        return this + insert
     }
+
+    val extensionBlockIndex = this.lastIndexOf('.', lastDotIndex - 1).let {
+        if (it == -1) lastDotIndex else it
+    }
+
+    val name = this.take(extensionBlockIndex)
+    val ext = this.substring(extensionBlockIndex)
+
+    return "${name}_$insert$ext"
 }
+

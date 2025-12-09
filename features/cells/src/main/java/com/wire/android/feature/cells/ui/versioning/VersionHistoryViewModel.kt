@@ -83,14 +83,13 @@ class VersionHistoryViewModel @Inject constructor(
         fetchNodeVersionsGroupedByDate()
     }
 
-    fun fetchNodeVersionsGroupedByDate() =
-        viewModelScope.launch {
-            isFetchingContent.value = true
-            getNodeVersionsUseCase(navArgs.uuid).onSuccess {
-                versionsGroupedByTime.value = it.groupByDay()
-            }
-            isFetchingContent.value = false
+    fun fetchNodeVersionsGroupedByDate() = viewModelScope.launch {
+        isFetchingContent.value = true
+        getNodeVersionsUseCase(navArgs.uuid).onSuccess {
+            versionsGroupedByTime.value = it.groupByDay()
         }
+        isFetchingContent.value = false
+    }
 
     private fun List<NodeVersion>.groupByDay(): List<VersionGroup> {
         val today = LocalDate.now()
@@ -191,29 +190,34 @@ class VersionHistoryViewModel @Inject constructor(
         }
     }
 
-    // TODO: Unit test coming in another PR
     fun downloadVersion(versionId: String, versionDate: String) {
         viewModelScope.launch(dispatchers.io()) {
-            val cellVersion = findVersionById(versionId)
+            downloadState.value = DownloadState.Downloading(0, 0)
 
-            cellVersion?.let {
-                downloadState.value = DownloadState.Downloading(0, 0)
-                val cellVersion = findVersionById(versionId)
-                val newFileName = fileName.addBeforeExtension("${versionDate}_${cellVersion?.modifiedAt}")
-                val bufferedSink = fileHelper.createDownloadFileStream(newFileName)?.sink()?.buffer()
-                if (cellVersion?.presignedUrl != null && bufferedSink != null) {
-                    downloadCellVersionUseCase.invoke(
-                        bufferedSink = bufferedSink,
-                        preSignedUrl = cellVersion.presignedUrl,
-                        onProgressUpdate = { progress, total ->
-                            downloadState.value = DownloadState.Downloading(progress.toInt(), total)
-                        },
-                    ).onSuccess {
-                        downloadState.value = DownloadState.Downloaded(fileName)
-                    }.onFailure {
+            val cellVersion = findVersionById(versionId)
+                ?: return@launch run { downloadState.value = DownloadState.Failed }
+
+            val newFileName = fileName.addBeforeExtension("${versionDate}_${cellVersion.modifiedAt}")
+            val outputStream = fileHelper.createDownloadFileStream(newFileName)
+                ?: return@launch run { downloadState.value = DownloadState.Failed }
+
+            val presignedUrl = cellVersion.presignedUrl
+                ?: return@launch run { downloadState.value = DownloadState.Failed }
+
+            outputStream.sink().buffer().use { sink ->
+                downloadCellVersionUseCase(
+                    bufferedSink = sink,
+                    preSignedUrl = presignedUrl,
+                    onProgressUpdate = { progress, total ->
+                        downloadState.value = DownloadState.Downloading(progress.toInt(), total)
+                    }
+                )
+                    .onSuccess {
+                        downloadState.value = DownloadState.Downloaded(newFileName)
+                    }
+                    .onFailure {
                         downloadState.value = DownloadState.Failed
                     }
-                }
             }
         }
     }

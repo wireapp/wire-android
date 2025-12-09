@@ -30,6 +30,7 @@ import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.resolveForTest
 import com.wire.android.util.ui.toUIText
 import com.wire.kalium.cells.domain.model.NodeVersion
+import com.wire.kalium.cells.domain.model.PreSignedUrl
 import com.wire.kalium.cells.domain.usecase.DownloadCellVersionUseCase
 import com.wire.kalium.cells.domain.usecase.versioning.GetNodeVersionsUseCase
 import com.wire.kalium.cells.domain.usecase.versioning.RestoreNodeVersionUseCase
@@ -45,6 +46,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.jupiter.api.AfterEach
@@ -58,14 +60,14 @@ import java.time.LocalDate
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
+private val dispatcher = StandardTestDispatcher()
+
 @ExperimentalCoroutinesApi
 class VersionHistoryViewModelTest {
 
-    private val testDispatcher = StandardTestDispatcher()
-
     @BeforeEach
     fun setUp() {
-        Dispatchers.setMain(testDispatcher)
+        Dispatchers.setMain(dispatcher)
     }
 
     @AfterEach
@@ -87,7 +89,7 @@ class VersionHistoryViewModelTest {
 
     @Suppress("LongMethod")
     @Test
-    fun givenSuccessfulFetch_whenViewModelInits_thenVersionsAreGroupedCorrectly() = runTest {
+    fun givenSuccessfulFetch_whenViewModelInits_thenVersionsAreGroupedCorrectly() = runTest() {
         val today = LocalDate.now()
         val yesterday = today.minusDays(1)
         val twoDaysAgo = today.minusDays(2)
@@ -145,7 +147,7 @@ class VersionHistoryViewModelTest {
     }
 
     @Test
-    fun givenDialogIsHidden_whenShowRestoreConfirmationDialogIsCalled_thenStateIsVisibleWithCorrectVersionId() {
+    fun givenDialogIsHidden_whenShowRestoreConfirmationDialogIsCalled_thenStateIsVisibleWithCorrectVersionId() = runTest {
         // GIVEN an initial state where the dialog is not visible
         val testVersionId = "version-id-12345"
         val (_, viewModel) = Arrangement()
@@ -168,7 +170,7 @@ class VersionHistoryViewModelTest {
     }
 
     @Test
-    fun givenDialogIsVisible_whenHideRestoreConfirmationDialogIsCalled_thenStateIsHiddenAndReset() {
+    fun givenDialogIsVisible_whenHideRestoreConfirmationDialogIsCalled_thenStateIsHiddenAndReset() = runTest {
         // GIVEN an initial state where the dialog is visible and has data
         val (_, viewModel) = Arrangement()
             .withSavedStateHandleReturning()
@@ -249,26 +251,21 @@ class VersionHistoryViewModelTest {
         coVerify(exactly = 1) { arrangement.getNodeVersionsUseCase(any()) }
     }
 
-
     @Test
     fun givenVersionExistsAndUseCaseSucceeds_whenDownloadVersionIsCalled_thenStateBecomesDownloaded() = runTest {
         // GIVEN a version exists and all dependencies will succeed
         val (_, viewModel) = Arrangement()
             .withSavedStateHandleReturning()
-            .withGetNodeVersionReturning(Either.Right(listOf()))
+            .withDownloadVersionReturning(shouldSucceed = true, true)
+            .withGetNodeVersionReturning(Either.Right(versionsFromApi))
             .withFileSizeFormatter()
             .withSuccessfulFileCreation()
-            .withDownloadVersionReturning(shouldSucceed = true, true)
             .arrange()
-        val versionGroup = VersionGroup(
-            dateLabel = UIText.DynamicString("Today"),
-            versions = listOf(testVersion)
-        )
-        viewModel.versionsGroupedByTime.value = listOf(versionGroup)
 
         // WHEN downloadVersion is called
         viewModel.downloadVersion(testVersion.versionId, "2025-01-01")
 
+        runCurrent()
         // THEN the state should immediately become Downloading
         assertTrue(viewModel.downloadState.value is DownloadState.Downloading)
 
@@ -356,6 +353,7 @@ class VersionHistoryViewModelTest {
         val downloadCellVersionUseCase: DownloadCellVersionUseCase = mockk()
         val fileHelper: FileHelper = mockk()
         val onlineEditor: OnlineEditor = mockk()
+        private val testDispatcherProvider = TestDispatcherProvider(dispatcher)
 
         private val testNodeUuid = "test-node-uuid"
 
@@ -383,32 +381,27 @@ class VersionHistoryViewModelTest {
         ) = apply {
             coEvery { downloadCellVersionUseCase.invoke(any(), any(), any()) } coAnswers {
                 val onProgressUpdate = it.invocation.args[2] as (Long, Long) -> Unit
-                println("withDownloadVersionReturning.start")
 
                 if (simulateProgress) {
-                    println("withDownloadVersionReturning.simulateProgress")
-
                     // Simulate async work before the first progress update
                     kotlinx.coroutines.delay(1)
                     onProgressUpdate(50L, 100L) // Simulate 50% progress
                     // Simulate more work before finishing
                     kotlinx.coroutines.delay(1)
+
                 }
 
                 if (shouldSucceed) {
-                    println("withDownloadVersionReturning.shouldSucceed")
-
                     Unit.right()
                 } else {
-                    println("CoreFailure.MissingClientRegistration")
                     Either.Left(CoreFailure.MissingClientRegistration)
                 }
             }
         }
 
         fun withSuccessfulFileCreation() = apply {
-            val mockOutputStream = mockk<OutputStream>(relaxed = true)
-            every { fileHelper.createDownloadFileStream(any()) } returns mockOutputStream
+            val mockOutputStream: OutputStream = mockk(relaxed = true)
+            coEvery { fileHelper.createDownloadFileStream(any()) } returns mockOutputStream
         }
 
         fun withFileCreationFailure() = apply {
@@ -428,7 +421,7 @@ class VersionHistoryViewModelTest {
                 downloadCellVersionUseCase = downloadCellVersionUseCase,
                 fileHelper = fileHelper,
                 onlineEditor = onlineEditor,
-                dispatchers = TestDispatcherProvider(),
+                dispatchers = testDispatcherProvider,
             )
             return this to viewModel
         }
@@ -451,7 +444,7 @@ class VersionHistoryViewModelTest {
             modifiedTime = today.atTime(10, 30).toEpochSecond(ZoneOffset.UTC).toString(),
             ownerName = "User A",
             ownerUuid = "uuid",
-            getUrl = null,
+            getUrl = PreSignedUrl("expiration", "url"),
             size = "1500"
         )
 

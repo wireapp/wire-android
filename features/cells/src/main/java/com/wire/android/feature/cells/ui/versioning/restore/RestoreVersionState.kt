@@ -15,9 +15,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.feature.cells.ui.versioning
 
-class VersionHistoryNavArgs(
-    val uuid: String,
-    val fileName: String
-)
+package com.wire.android.feature.cells.ui.versioning.restore
+
+enum class RestoreVersionState {
+    Idle,
+    Restoring,
+    Completed,
+    Failed
+}

@@ -15,9 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.feature.cells.ui.versioning
+package com.wire.android.feature.cells.ui.versioning.download
 
-class VersionHistoryNavArgs(
-    val uuid: String,
-    val fileName: String
-)
+sealed class DownloadState {
+    data object Idle : DownloadState()
+    data class Downloading(val progress: Int, val total: Long) : DownloadState()
+    data class Downloaded(val fileName: String) : DownloadState()
+    data object Failed : DownloadState()
+}

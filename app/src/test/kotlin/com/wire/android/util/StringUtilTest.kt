@@ -46,6 +46,37 @@ class StringUtilTest {
         assert(expected == actual)
     }
 
+    @Test
+    fun givenFilenameWithExtension_whenCalled_thenShouldInsertStringBeforeExtension() {
+        val originalFilename = "document.pdf"
+        val textToInsert = "new"
+
+        val result = originalFilename.addBeforeExtension(textToInsert)
+
+        assertEquals("document_new.pdf", result)
+    }
+
+    @Test
+    fun givenFilenameWithoutExtension_whenCalled_thenShouldAppendString() {
+        val originalFilename = "myfile"
+        val textToInsert = "_version2"
+
+        val result = originalFilename.addBeforeExtension(textToInsert)
+
+        assertEquals("myfile_version2", result)
+    }
+
+
+    @Test
+    fun givenFilenameWithMultipleDots_whenCalled_thenShouldInsertBeforeLastDot() {
+        val originalFilename = "archive.2024.tar.gz"
+        val textToInsert = "backup"
+
+        val result = originalFilename.addBeforeExtension(textToInsert)
+
+        assertEquals("archive.2024_backup.tar.gz", result)
+    }
+
     @Suppress("LongMethod")
     @Test
     fun givenDifferentMarkdownsWithOnlyWhitespaces_whenCheckingIfNotBlank_thenReturnProperValues() {

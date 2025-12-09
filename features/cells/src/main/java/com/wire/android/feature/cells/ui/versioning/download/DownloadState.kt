@@ -19,7 +19,7 @@ package com.wire.android.feature.cells.ui.versioning.download
 
 sealed class DownloadState {
     data object Idle : DownloadState()
-    data class Downloading(val progress: Int) : DownloadState()
+    data class Downloading(val progress: Int, val total: Long) : DownloadState()
     data class Downloaded(val fileName: String) : DownloadState()
     data object Failed : DownloadState()
 }

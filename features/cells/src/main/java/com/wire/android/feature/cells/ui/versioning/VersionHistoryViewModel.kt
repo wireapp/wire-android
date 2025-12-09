@@ -204,7 +204,7 @@ class VersionHistoryViewModel @Inject constructor(
             val cellVersion = findVersionById(versionId)
 
             cellVersion?.let {
-                downloadState.value = DownloadState.Downloading(0)
+                downloadState.value = DownloadState.Downloading(0,0)
                 val cellVersion = findVersionById(versionId)
                 val newFileName = fileName.addBeforeExtension("${versionDate}_${cellVersion?.modifiedAt}")
                 val bufferedSink = fileHelper.createDownloadFileStream(newFileName)?.sink()?.buffer()
@@ -212,8 +212,8 @@ class VersionHistoryViewModel @Inject constructor(
                     downloadCellVersionUseCase.invoke(
                         bufferedSink = bufferedSink,
                         preSignedUrl = cellVersion.presignedUrl,
-                        onProgressUpdate = { progress ->
-                            downloadState.value = DownloadState.Downloading(progress.toInt())
+                        onProgressUpdate = { progress, total ->
+                            downloadState.value = DownloadState.Downloading(progress.toInt(), total)
                         },
                     ).onSuccess {
                         downloadState.value = DownloadState.Downloaded(fileName)

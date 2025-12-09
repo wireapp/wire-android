@@ -167,18 +167,11 @@ class VersionHistoryViewModel @Inject constructor(
 
             viewModelScope.launch {
                 // simulating progress
-                val progressJob = launch {
-                    while (value.restoreProgress < 0.95f && value.restoreVersionState == RestoreVersionState.Restoring) {
-                        delay(100)
-                        restoreDialogState.value = value.copy(
-                            restoreProgress = value.restoreProgress + 0.03f
-                        )
-                    }
-                }
+                val progressJob = simulateRestoreProgress()
 
                 restoreNodeVersionUseCase(navArgs.uuid, value.versionId)
                     .onSuccess {
-                        delay(500) // delay since server takes some time to restore the version
+                        delay(DELAY_500_MS) // delay since server takes some time to restore the version
                         val fetchJob = fetchNodeVersionsGroupedByDate()
                         fetchJob.start()
                         fetchJob.join()
@@ -204,7 +197,7 @@ class VersionHistoryViewModel @Inject constructor(
             val cellVersion = findVersionById(versionId)
 
             cellVersion?.let {
-                downloadState.value = DownloadState.Downloading(0,0)
+                downloadState.value = DownloadState.Downloading(0, 0)
                 val cellVersion = findVersionById(versionId)
                 val newFileName = fileName.addBeforeExtension("${versionDate}_${cellVersion?.modifiedAt}")
                 val bufferedSink = fileHelper.createDownloadFileStream(newFileName)?.sink()?.buffer()
@@ -238,7 +231,21 @@ class VersionHistoryViewModel @Inject constructor(
             .find { it.versionId == versionId }
     }
 
+    @Suppress("MagicNumber")
+    private fun simulateRestoreProgress() = viewModelScope.launch {
+        with(restoreDialogState) {
+            while (value.restoreProgress < 0.95f && value.restoreVersionState == RestoreVersionState.Restoring) {
+                delay(DELAY_100_MS)
+                restoreDialogState.value = value.copy(
+                    restoreProgress = value.restoreProgress + 0.03f
+                )
+            }
+        }
+    }
+
     companion object {
         const val DATE_PATTERN = "d MMM yyyy"
+        const val DELAY_100_MS = 100L
+        const val DELAY_500_MS = 500L
     }
 }

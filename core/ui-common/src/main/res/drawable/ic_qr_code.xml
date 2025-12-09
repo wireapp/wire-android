@@ -1,0 +1,42 @@
+<!--
+  ~ Wire
+  ~ Copyright (C) 2025 Wire Swiss GmbH
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program. If not, see http://www.gnu.org/licenses/.
+  -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android" android:height="24dp" android:tint="#000000" android:viewportHeight="24" android:viewportWidth="24" android:width="24dp">
+      
+    <path android:fillColor="@android:color/white" android:pathData="M3,11h8V3H3V11zM5,5h4v4H5V5z"/>
+      
+    <path android:fillColor="@android:color/white" android:pathData="M3,21h8v-8H3V21zM5,15h4v4H5V15z"/>
+      
+    <path android:fillColor="@android:color/white" android:pathData="M13,3v8h8V3H13zM19,9h-4V5h4V9z"/>
+      
+    <path android:fillColor="@android:color/white" android:pathData="M19,19h2v2h-2z"/>
+      
+    <path android:fillColor="@android:color/white" android:pathData="M13,13h2v2h-2z"/>
+      
+    <path android:fillColor="@android:color/white" android:pathData="M15,15h2v2h-2z"/>
+      
+    <path android:fillColor="@android:color/white" android:pathData="M13,17h2v2h-2z"/>
+      
+    <path android:fillColor="@android:color/white" android:pathData="M15,19h2v2h-2z"/>
+      
+    <path android:fillColor="@android:color/white" android:pathData="M17,17h2v2h-2z"/>
+      
+    <path android:fillColor="@android:color/white" android:pathData="M17,13h2v2h-2z"/>
+      
+    <path android:fillColor="@android:color/white" android:pathData="M19,15h2v2h-2z"/>
+    
+</vector>

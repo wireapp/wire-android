@@ -44,8 +44,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -210,6 +208,7 @@ import kotlinx.datetime.Instant
 import java.util.Date
 import java.util.Locale
 import kotlin.time.Duration.Companion.milliseconds
+import com.wire.android.ui.common.R as commonR
 
 /**
  * The maximum number of messages the user can scroll while still
@@ -1560,7 +1559,7 @@ fun JumpToLastMessageButton(
             elevation = FloatingActionButtonDefaults.elevation(dimensions().spacing0x),
         ) {
             Icon(
-                imageVector = Icons.Default.KeyboardArrowDown,
+                painter = painterResource(commonR.drawable.ic_keyboard_arrow_down),
                 contentDescription = stringResource(id = R.string.content_description_jump_to_last_message),
                 Modifier.size(dimensions().spacing32x)
             )

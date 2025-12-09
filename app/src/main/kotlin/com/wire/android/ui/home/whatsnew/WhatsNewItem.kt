@@ -22,8 +22,6 @@ import android.net.Uri
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -38,14 +36,15 @@ import com.wire.android.model.Clickable
 import com.wire.android.navigation.AndroidReleaseNotesDestination
 import com.wire.android.navigation.ExternalUriDirection
 import com.wire.android.navigation.WelcomeToNewAndroidAppDestination
-import com.wire.android.ui.common.rowitem.RowItemTemplate
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.rowitem.RowItemTemplate
 import com.wire.android.ui.common.shimmerPlaceholder
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
+import com.wire.android.ui.common.R as commonR
 
 @Composable
 fun WhatsNewItem(
@@ -94,7 +93,10 @@ fun WhatsNewItem(
                         .padding(end = dimensions().spacing8x)
                         .shimmerPlaceholder(visible = isLoading)
                 )
-            } ?: Icons.Filled.ChevronRight
+            } ?: Icon(
+                painter = painterResource(commonR.drawable.ic_chevron_right),
+                contentDescription = null,
+            )
         },
         clickable = onRowPressed,
         modifier = modifier

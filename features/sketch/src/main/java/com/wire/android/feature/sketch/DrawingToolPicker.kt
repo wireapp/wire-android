@@ -39,15 +39,15 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.IconToggleButtonColors
 import androidx.compose.material3.OutlinedIconToggleButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import com.wire.android.feature.sketch.util.PreviewMultipleThemes
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
 import com.wire.android.ui.common.bottomsheet.WireMenuModalSheetContent
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
@@ -56,10 +56,10 @@ import com.wire.android.ui.common.bottomsheet.WireSheetValue
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.fixedColorsScheme
 import com.wire.android.ui.theme.WireColorPalette
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.feature.sketch.util.PreviewMultipleThemes
-import com.wire.android.ui.common.fixedColorsScheme
+import com.wire.android.ui.common.R as commonR
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -176,7 +176,7 @@ private fun SelectedColor(color: Color, onColorSelected: () -> Unit) {
         onCheckedChange = { onColorSelected() }
     ) {
         Icon(
-            imageVector = Icons.Default.CheckCircle,
+            painter = painterResource(commonR.drawable.ic_check_circle),
             contentDescription = null,
             tint = if (color.isWhite()) Color.Black else Color.White,
             modifier = Modifier.size(

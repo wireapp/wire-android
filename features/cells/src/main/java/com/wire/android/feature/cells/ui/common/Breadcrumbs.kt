@@ -37,6 +37,7 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.ui.common.R as commonR
 
 @Composable
 fun Breadcrumbs(
@@ -70,7 +71,7 @@ fun Breadcrumbs(
                                 start = dimensions().spacing8x,
                                 end = dimensions().spacing8x
                             ),
-                            painter = painterResource(id = R.drawable.ic_chevron_right),
+                            painter = painterResource(id = commonR.drawable.ic_chevron_right),
                             contentDescription = null
                         )
                     }
@@ -117,7 +118,7 @@ private fun RecycleBinItem(
                 start = dimensions().spacing8x,
                 end = dimensions().spacing8x
             ),
-            painter = painterResource(id = R.drawable.ic_chevron_right),
+            painter = painterResource(id = commonR.drawable.ic_chevron_right),
             contentDescription = null
         )
         Icon(

@@ -30,6 +30,7 @@ import com.wire.android.feature.cells.ui.versioning.restore.RestoreDialogState
 import com.wire.android.feature.cells.ui.versioning.restore.RestoreVersionState
 import com.wire.android.feature.cells.util.FileHelper
 import com.wire.android.util.FileSizeFormatter
+import com.wire.android.util.addBeforeExtension
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.cells.domain.model.NodeVersion
@@ -197,17 +198,7 @@ class VersionHistoryViewModel @Inject constructor(
         }
     }
 
-    private fun addBeforeExtension(fileName: String, insert: String): String {
-        val dotIndex = fileName.lastIndexOf('.')
-        return if (dotIndex != -1) {
-            val name = fileName.take(dotIndex)
-            val ext = fileName.substring(dotIndex)
-            "${name}_$insert$ext"
-        } else {
-            fileName + insert
-        }
-    }
-
+    // TODO: Unit test coming in another PR
     fun downloadVersion(versionId: String, versionDate: String) {
         viewModelScope.launch(dispatchers.io()) {
             val cellVersion = findVersionById(versionId)
@@ -215,7 +206,7 @@ class VersionHistoryViewModel @Inject constructor(
             cellVersion?.let {
                 downloadState.value = DownloadState.Downloading(0)
                 val cellVersion = findVersionById(versionId)
-                val newFileName = addBeforeExtension(fileName, "${versionDate}_${cellVersion?.modifiedAt}")
+                val newFileName = fileName.addBeforeExtension("${versionDate}_${cellVersion?.modifiedAt}")
                 val bufferedSink = fileHelper.createDownloadFileStream(newFileName)?.sink()?.buffer()
                 if (cellVersion?.presignedUrl != null && bufferedSink != null) {
                     downloadCellVersionUseCase.invoke(

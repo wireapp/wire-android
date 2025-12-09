@@ -47,3 +47,15 @@ fun String.toTitleCase(delimiter: String = " ", separator: String = " "): String
 fun String.capitalizeFirstLetter(): String = lowercase().replaceFirstChar(Char::titlecaseChar)
 
 fun String.normalizeFileName(): String = this.replace("/", "")
+
+fun String.addBeforeExtension(insert: String): String {
+    val dotIndex = this.lastIndexOf('.')
+    return if (dotIndex != -1) {
+        val name = this.take(dotIndex)
+        val ext = this.substring(dotIndex)
+        "${name}_$insert$ext"
+    } else {
+        this + insert
+    }
+}
+

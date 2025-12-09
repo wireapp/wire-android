@@ -19,23 +19,16 @@ package com.wire.android.media.audiomessage
 
 import androidx.annotation.StringRes
 import com.wire.android.R
-import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer.MessageIdWrapper
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.id.ConversationId
-
-data class AudioMessagesData(
-    val statesHistory: Map<MessageIdWrapper, AudioState>,
-    val playingMessage: PlayingAudioMessage
-)
 
 data class AudioState(
     val audioMediaPlayingState: AudioMediaPlayingState,
     val currentPositionInMs: Int,
     val totalTimeInMs: TotalTimeInMs,
-    val wavesMask: List<Int>?
 ) {
     companion object {
-        val DEFAULT = AudioState(AudioMediaPlayingState.Stopped, 0, TotalTimeInMs.NotKnown, null)
+        val DEFAULT = AudioState(AudioMediaPlayingState.Stopped, 0, TotalTimeInMs.NotKnown)
     }
 
     // if the back-end returned the total time, we use that, in case it didn't we use what we get from
@@ -142,12 +135,6 @@ sealed class AudioMediaPlayerStateUpdate(
         override val messageId: String,
         val totalTimeInMs: Int
     ) : AudioMediaPlayerStateUpdate(conversationId, messageId)
-
-    data class WaveMaskUpdate(
-        override val conversationId: ConversationId,
-        override val messageId: String,
-        val waveMask: List<Int>?
-    ) : AudioMediaPlayerStateUpdate(conversationId, messageId)
 }
 
 sealed class RecordAudioMediaPlayerStateUpdate {
@@ -161,9 +148,5 @@ sealed class RecordAudioMediaPlayerStateUpdate {
 
     data class TotalTimeUpdate(
         val totalTimeInMs: Int
-    ) : RecordAudioMediaPlayerStateUpdate()
-
-    data class WaveMaskUpdate(
-        val waveMask: List<Int>
     ) : RecordAudioMediaPlayerStateUpdate()
 }

@@ -350,8 +350,12 @@ fun mockAssetMessage(assetId: String = "asset1", messageId: String = "msg1") = U
     source = MessageSource.Self
 )
 
-fun mockAssetAudioMessage(assetId: String = "asset1", messageId: String = "msg1") = UIMessage.Regular(
-    conversationId = ConversationId("value", "domain"),
+fun mockAssetAudioMessage(
+    assetId: String = "asset1",
+    messageId: String = "msg1",
+    conversationId: ConversationId = ConversationId("value", "domain"),
+) = UIMessage.Regular(
+    conversationId = conversationId,
     userAvatarData = UserAvatarData(
         UserAvatarAsset(UserAssetId("a", "domain")),
         UserAvailabilityStatus.AVAILABLE

@@ -28,7 +28,8 @@ data class RecordAudioState(
     val originalOutputFile: File? = null,
     val effectsOutputFile: File? = null,
     val shouldApplyEffects: Boolean = false,
-    val audioState: AudioState = AudioState.DEFAULT
+    val audioState: AudioState = AudioState.DEFAULT,
+    val wavesMask: List<Int>? = null
 )
 
 enum class RecordAudioButtonState {

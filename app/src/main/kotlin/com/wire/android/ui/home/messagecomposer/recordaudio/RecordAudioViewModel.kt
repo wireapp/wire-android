@@ -220,8 +220,8 @@ class RecordAudioViewModel @Inject constructor(
                                 ).toInt()
                             } ?: 0
                         ),
-                        wavesMask = playableAudioFile?.let { audioNormalizedLoudnessBuilder(it.path) }?.toWavesMask() ?: listOf()
-                    )
+                    ),
+                    wavesMask = playableAudioFile?.let { audioNormalizedLoudnessBuilder(it.path) }?.toWavesMask() ?: listOf()
                 )
             }
         }
@@ -285,7 +285,7 @@ class RecordAudioViewModel @Inject constructor(
 
             val outputFile = state.originalOutputFile
             val effectsFile = state.effectsOutputFile
-            val wavesMask = state.audioState.wavesMask
+            val wavesMask = state.wavesMask
             state = state.copy(
                 buttonState = RecordAudioButtonState.ENCODING, audioState = AudioState.DEFAULT,
                 originalOutputFile = null,
@@ -389,8 +389,8 @@ class RecordAudioViewModel @Inject constructor(
                                     mimeType = SUPPORTED_AUDIO_MIME_TYPE
                                 ).toInt()
                             ),
-                            wavesMask = state.audioState.wavesMask
                         ),
+                        wavesMask = state.wavesMask,
                         shouldApplyEffects = true
                     )
                 } else {

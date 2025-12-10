@@ -28,12 +28,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.result.ResultBackNavigator
@@ -43,7 +43,7 @@ import com.wire.android.R
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.common.HandleActions
-import com.wire.android.ui.common.Icon
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.common.WireDropDown
 import com.wire.android.ui.common.button.WireButtonState.Default
 import com.wire.android.ui.common.button.WireButtonState.Disabled
@@ -135,7 +135,12 @@ fun ChangeUserColorContent(
                             text = stringResource(R.string.label_save),
                             onClick = onSavePressed,
                             fillMaxWidth = true,
-                            trailingIcon = Icons.Filled.ChevronRight.Icon(),
+                            trailingIcon = {
+                                Icon(
+                                    painter = painterResource(commonR.drawable.ic_chevron_right),
+                                    contentDescription = null,
+                                )
+                            },
                             state = if (state.accent != null) Default else Disabled,
                             loading = state.isPerformingAction,
                             modifier = Modifier.fillMaxWidth()

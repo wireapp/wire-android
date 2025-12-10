@@ -31,6 +31,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.input.TextFieldDecorator
+import androidx.compose.material.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -41,6 +42,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -48,7 +50,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
-import com.wire.android.ui.common.Icon
+import coil.compose.AsyncImagePainter.State.Empty.painter
 import com.wire.android.ui.common.Tint
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireDimensions
@@ -174,7 +176,15 @@ private fun InnerTextLayout(
     ) {
         val trailingOrStateIcon: @Composable (() -> Unit)? = when {
             trailingIcon != null -> trailingIcon
-            else -> style.icon()?.Icon(Modifier.padding(horizontal = dimensions().spacing16x))
+            else -> style.icon()?.let {
+                {
+                    Icon(
+                        modifier = Modifier.padding(horizontal = dimensions().spacing16x),
+                        painter = painterResource(it),
+                        contentDescription = null,
+                    )
+                }
+            }
         }
         if (leadingIcon != null) {
             Box(contentAlignment = Alignment.Center) {

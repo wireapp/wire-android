@@ -44,7 +44,6 @@ import kotlinx.coroutines.launch
 import okio.Path.Companion.toPath
 import javax.inject.Inject
 
-
 interface MultipartAttachmentsViewModel {
     fun onClick(attachment: MultipartAttachmentUi, openInImageViewer: (String) -> Unit)
     fun mapAttachments(

@@ -53,7 +53,6 @@ import com.wire.android.ui.common.progress.WireLinearProgressIndicator
 import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.home.conversations.messages.item.textColor
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.transferProgressColor
-import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.util.fileExtension
 
@@ -64,22 +63,14 @@ import com.wire.kalium.logic.util.fileExtension
 internal fun EditableAssetPreview(
     item: MultipartAttachmentUi,
     messageStyle: MessageStyle,
-    accent: Accent
 ) {
     Column(
         modifier = Modifier
             .applyIf(messageStyle == MessageStyle.BUBBLE_SELF) {
-                background(
-                    colorsScheme().bubbleContainerAccentBackgroundColor.getOrDefault(
-                        accent,
-                        colorsScheme().defaultBubbleContainerBackgroundColor
-                    )
-                )
+                background(colorsScheme().selfBubble.secondary)
             }
             .applyIf(messageStyle == MessageStyle.BUBBLE_OTHER) {
-                background(
-                    colorsScheme().surface
-                )
+                background(colorsScheme().otherBubble.secondary)
             }
             .applyIf(messageStyle == MessageStyle.NORMAL) {
                 background(

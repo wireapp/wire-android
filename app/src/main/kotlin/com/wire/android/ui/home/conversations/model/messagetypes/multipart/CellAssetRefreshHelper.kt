@@ -62,11 +62,11 @@ class CellAssetRefreshHelper(
         },
     )
 
-    //
-    // Editable files. Could be updated frequently.
-    // - Refresh on first display.
-    // - Refresh every 30 sec to update preview if currently visible.
-    //
+/**
+ * Editable files. Could be updated frequently.
+ * - Refresh on first display.
+ * - Refresh every 30 sec to update preview if currently visible.
+ */
     @VisibleForTesting(otherwise = PRIVATE)
     val visibleEditableAssets: ExpiringMap<String, Unit> = expiringMap(
         expirationMs = EDITABLE_CONTENT_EXPIRY_MS,

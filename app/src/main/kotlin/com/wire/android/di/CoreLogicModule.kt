@@ -72,10 +72,6 @@ import javax.inject.Singleton
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
-annotation class KaliumCoreLogic
-
-@Qualifier
-@Retention(AnnotationRetention.BINARY)
 annotation class CurrentSessionFlowService
 
 @Qualifier

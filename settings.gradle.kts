@@ -65,3 +65,5 @@ dependencyResolutionManagement {
 // so Reloaded's Dependabot doesn't try to look into Kalium's build.gradle.kts, which is inaccessible as it is a git submodule.
 // See: https://github.com/dependabot/dependabot-core/issues/7201#issuecomment-1571319655
 apply(from = "include_builds.gradle.kts")
+
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")

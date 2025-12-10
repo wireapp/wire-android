@@ -40,6 +40,7 @@ import com.wire.android.feature.SwitchAccountActions
 import com.wire.android.feature.SwitchAccountParam
 import com.wire.android.feature.SwitchAccountResult
 import com.wire.android.services.ServicesManager
+import com.wire.android.sync.MonitorSyncWorkUseCase
 import com.wire.android.ui.authentication.devices.model.displayName
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.common.dialogs.CustomServerDetailsDialogState
@@ -130,6 +131,7 @@ class WireActivityViewModel @Inject constructor(
     private val workManager: Lazy<WorkManager>,
     private val isProfileQRCodeEnabledFactory: IsProfileQRCodeEnabledUseCaseProvider.Factory,
     private val observeSelfUserFactory: ObserveSelfUserUseCaseProvider.Factory,
+    private val monitorSyncWorkUseCase: MonitorSyncWorkUseCase,
 ) : ActionsViewModel<WireActivityViewAction>() {
 
     var globalAppState: GlobalAppState by mutableStateOf(GlobalAppState())
@@ -163,6 +165,7 @@ class WireActivityViewModel @Inject constructor(
         observeSelectedAccent()
         observeLogoutState()
         resetNewRegistrationAnalyticsState()
+        viewModelScope.launch(dispatchers.io()) { monitorSyncWorkUseCase() }
     }
 
     private suspend fun shouldEnrollToE2ei(): Boolean = observeCurrentValidUserId.first()?.let {
@@ -491,9 +494,9 @@ class WireActivityViewModel @Inject constructor(
 
                     is CheckConversationInviteCodeUseCase.Result.Failure ->
                         globalAppState =
-                        globalAppState.copy(
-                            conversationJoinedDialog = JoinConversationViaCodeState.Error(result)
-                        )
+                            globalAppState.copy(
+                                conversationJoinedDialog = JoinConversationViaCodeState.Error(result)
+                            )
                 }
             }
         }

@@ -49,11 +49,11 @@ class CellAssetRefreshHelper(
         val EDITABLE_CONTENT_EXPIRY_MS = 30.seconds.inWholeMilliseconds
     }
 
-    //
-    // Regular files.
-    // - Refresh on first display.
-    // - Refresh when content URL expires (unlikely).
-    //
+  /**
+   * Regular files.
+   * - Refresh on first display.
+   * - Refresh when content URL expires (unlikely).
+   */
     @VisibleForTesting(otherwise = PRIVATE)
     val regularAssets = expiringMap(
         expirationMs = DEFAULT_CONTENT_URL_EXPIRY_MS,

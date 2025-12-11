@@ -26,8 +26,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Send
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
@@ -39,12 +38,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
-import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
 import com.wire.android.ui.common.bottomsheet.WireMenuModalSheetContent
@@ -62,6 +61,7 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.orDefault
 import com.wire.android.util.permission.PermissionsDeniedRequestDialog
 import com.wire.android.util.permission.rememberCurrentLocationPermissionFlow
+import com.wire.android.ui.common.R as commonR
 
 /**
  * Component to pick the current location to send.
@@ -164,7 +164,13 @@ private fun SendLocationButton(
                 onLocationPicked(geoLocatedAddress!!)
                 onLocationClosed()
             },
-            leadingIcon = Icons.Filled.Send.Icon(Modifier.padding(end = dimensions().spacing8x)),
+            leadingIcon = {
+                Icon(
+                    modifier = Modifier.padding(end = dimensions().spacing8x),
+                    painter = painterResource(commonR.drawable.ic_send),
+                    contentDescription = ""
+                )
+            },
             text = stringResource(id = R.string.content_description_send_button),
             state = if (isLocationLoading || geoLocatedAddress == null) {
                 WireButtonState.Disabled

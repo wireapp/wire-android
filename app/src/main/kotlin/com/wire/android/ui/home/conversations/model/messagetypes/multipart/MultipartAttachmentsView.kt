@@ -29,6 +29,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.decode.Decoder
 import coil.request.ImageRequest
@@ -39,7 +40,6 @@ import com.wire.android.ui.common.multipart.toUiModel
 import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.grid.AssetGridPreview
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.standalone.AssetPreview
-import com.wire.android.ui.theme.Accent
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.asset.isFailed
 import com.wire.kalium.logic.data.id.ConversationId
@@ -56,8 +56,10 @@ fun MultipartAttachmentsView(
     messageStyle: MessageStyle,
     onImageAttachmentClick: (String) -> Unit,
     modifier: Modifier = Modifier,
-    accent: Accent = Accent.Unknown,
-    viewModel: MultipartAttachmentsViewModel = hiltViewModel<MultipartAttachmentsViewModel>(key = conversationId.value),
+    viewModel: MultipartAttachmentsViewModel = when {
+        LocalInspectionMode.current -> MultipartAttachmentsViewModelPreview
+        else -> hiltViewModel<MultipartAttachmentsViewModelImpl>(key = conversationId.value)
+    }
 ) {
 
     // TODO I found out that empty attachments list is not handled here and it shows empty message with no information
@@ -66,7 +68,6 @@ fun MultipartAttachmentsView(
             AssetPreview(
                 item = it,
                 messageStyle = messageStyle,
-                accent = accent,
                 onClick = {
                     viewModel.onClick(
                         attachment = it,
@@ -106,7 +107,6 @@ fun MultipartAttachmentsView(
                                     openInImageViewer = onImageAttachmentClick,
                                 )
                             },
-                            accent = accent
                         )
                 }
             }
@@ -121,7 +121,6 @@ fun MultipartAttachmentsView(
 private fun AttachmentsList(
     attachments: List<MultipartAttachmentUi>,
     messageStyle: MessageStyle,
-    accent: Accent,
     onClick: (MultipartAttachmentUi) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -135,7 +134,6 @@ private fun AttachmentsList(
                 showWithPreview = true,
                 onClick = { onClick(it) },
                 modifier = modifier,
-                accent = accent
             )
         }
     }

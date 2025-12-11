@@ -30,8 +30,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -48,6 +46,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import com.wire.android.R
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.navigation.ExternalDirectionLess
 import com.wire.android.navigation.ExternalUriDirection
 import com.wire.android.navigation.ExternalUriStringResDirection
@@ -193,7 +192,7 @@ fun DrawerItem(
             if (direction is ExternalUriDirection || direction is ExternalUriStringResDirection || direction is ExternalDirectionLess) {
                 HorizontalSpace.x8()
                 Icon(
-                    imageVector = Icons.AutoMirrored.Filled.OpenInNew,
+                    painter = painterResource(commonR.drawable.ic_open_in_new),
                     contentDescription = null,
                     tint = colorsScheme().secondaryText,
                     modifier = Modifier.size(dimensions().spacing16x)

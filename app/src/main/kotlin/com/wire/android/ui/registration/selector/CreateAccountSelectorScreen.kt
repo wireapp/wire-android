@@ -32,8 +32,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -43,6 +41,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.core.net.toUri
@@ -74,6 +73,7 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.configuration.server.ServerConfig
+import com.wire.android.ui.common.R as commonR
 
 @CreateAccountNavGraph(start = true)
 @WireDestination(
@@ -247,7 +247,7 @@ private fun AccountType(
                     Icon(
                         modifier = Modifier
                             .size(dimensions().spacing16x),
-                        imageVector = Icons.Filled.CheckCircle,
+                        painter = painterResource(commonR.drawable.ic_check_circle),
                         tint = colorsScheme().positive,
                         contentDescription = null,
                     )

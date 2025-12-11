@@ -26,7 +26,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.min
 import com.wire.android.ui.common.dimensions
 import kotlinx.serialization.Serializable
-import kotlin.let
 
 /**
  * Parameters describing visual media (image or video) used to calculate
@@ -69,15 +68,25 @@ data class VisualMediaParams(
             }
         }
 
+        // Guard against pathological max bounds (e.g. fraction == 0f)
+        if (effMaxW <= 0.dp || effMaxH <= 0.dp) {
+            return NormalizedSize(minW, minH, isPortrait = realMediaHeight > realMediaWidth)
+        }
+
         val ratio = realMediaWidth.toFloat() / realMediaHeight.toFloat()
+
         val widthFromMaxH = effMaxH * ratio
         val heightFromMaxW = effMaxW / ratio
 
         val downW = min(effMaxW, widthFromMaxH)
         val downH = min(effMaxH, heightFromMaxW)
 
-        val finalW = downW.coerceIn(minW, effMaxW)
-        val finalH = downH.coerceIn(minH, effMaxH)
+
+        val minAllowedW = min(minW, effMaxW)
+        val minAllowedH = min(minH, effMaxH)
+
+        val finalW = downW.coerceInSafe(minAllowedW, effMaxW)
+        val finalH = downH.coerceInSafe(minAllowedH, effMaxH)
 
         val isPortrait = realMediaHeight > realMediaWidth
         return NormalizedSize(finalW, finalH, isPortrait)
@@ -105,3 +114,15 @@ data class NormalizedSize(
 )
 
 fun NormalizedSize.size(): DpSize = DpSize(width, height)
+
+/**
+ * Safe variant of coerceIn for Dp that never throws when bounds are reversed.
+ */
+private fun Dp.coerceInSafe(min: Dp, max: Dp): Dp {
+    val (lower, upper) = if (min <= max) {
+        min to max
+    } else {
+        max to min
+    }
+    return this.coerceIn(lower, upper)
+}

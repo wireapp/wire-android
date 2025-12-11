@@ -33,8 +33,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -82,6 +80,7 @@ import kotlin.time.Duration.Companion.minutes
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 import com.wire.android.ui.common.R as UICommonR
+import com.wire.android.ui.common.R as commonR
 
 @Composable
 fun MeetingItem(
@@ -133,7 +132,7 @@ private fun MeetingMoreButton(onMenuClick: () -> Unit) {
         contentAlignment = Alignment.Center,
     ) {
         Icon(
-            imageVector = Icons.Default.MoreVert,
+            painter = painterResource(commonR.drawable.ic_more_vert),
             contentDescription = stringResource(R.string.content_description_more_menu_icon),
         )
     }

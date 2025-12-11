@@ -29,14 +29,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.wire.android.ui.common.R
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.WireTheme
@@ -85,7 +84,9 @@ fun AttachmentScaffold(
                     shape = CircleShape
                 )
                 .padding(dimensions().spacing4x),
-            imageVector = if (showMenuButton) Icons.Default.MoreHoriz else Icons.Default.Close,
+            painter = painterResource(
+                if (showMenuButton) R.drawable.ic_more_horiz else R.drawable.ic_close,
+            ),
             contentDescription = null,
             tint = colorsScheme().onSurface,
         )

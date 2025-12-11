@@ -26,8 +26,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
@@ -46,6 +44,7 @@ import com.wire.android.ui.common.typography
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.toUIText
+import com.wire.android.ui.common.R as commonR
 
 @Composable
 fun VersionItem(
@@ -103,7 +102,7 @@ fun VersionItem(
         }
 
         Icon(
-            imageVector = Icons.Default.MoreVert,
+            painter = painterResource(commonR.drawable.ic_more_vert),
             contentDescription = null,
             tint = colorsScheme().secondaryText,
             modifier = Modifier

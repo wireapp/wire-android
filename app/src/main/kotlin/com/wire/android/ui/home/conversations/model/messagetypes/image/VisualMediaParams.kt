@@ -41,6 +41,7 @@ data class VisualMediaParams(
      * Returns normalized dimensions preserving the original aspect ratio.
      * Size is limited by [maxBounds] and coerced to at least [minW] × [minH].
      */
+    @Suppress("ReturnCount")
     @Composable
     fun normalizedSize(
         minW: Dp = dimensions().messageImageMinWidth,

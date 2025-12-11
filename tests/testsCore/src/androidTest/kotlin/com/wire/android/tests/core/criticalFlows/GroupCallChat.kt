@@ -160,7 +160,7 @@ class GroupCallChat : BaseUiTest() {
             }
             step("Open GroupCallChats conversation") {
                 pages.conversationListPage.apply {
-                    assertGroupConversationVisible("GroupCallChatS")
+                    assertGroupConversationVisible("GroupCallChat")
                     clickGroupConversation("GroupCallChat")
                 }
             }

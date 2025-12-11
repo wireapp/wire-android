@@ -54,7 +54,7 @@ data class VisualMediaParams(
             return NormalizedSize(minW, minH, isPortrait = false)
         }
 
-        val (effMaxW, effMaxH) = when (maxBounds) {
+        val (maxWidth, maxHeight) = when (maxBounds) {
             is MaxBounds.DpBounds -> maxBounds.maxW to maxBounds.maxH
             is MaxBounds.ScreenFraction -> {
                 fun Float.clampedFraction(): Float = coerceIn(0f, 1f)
@@ -69,24 +69,23 @@ data class VisualMediaParams(
         }
 
         // Guard against pathological max bounds (e.g. fraction == 0f)
-        if (effMaxW <= 0.dp || effMaxH <= 0.dp) {
+        if (maxWidth <= 0.dp || maxHeight <= 0.dp) {
             return NormalizedSize(minW, minH, isPortrait = realMediaHeight > realMediaWidth)
         }
 
         val ratio = realMediaWidth.toFloat() / realMediaHeight.toFloat()
 
-        val widthFromMaxH = effMaxH * ratio
-        val heightFromMaxW = effMaxW / ratio
+        val widthFromMaxH = maxHeight * ratio
+        val heightFromMaxW = maxWidth / ratio
 
-        val downW = min(effMaxW, widthFromMaxH)
-        val downH = min(effMaxH, heightFromMaxW)
+        val downW = min(maxWidth, widthFromMaxH)
+        val downH = min(maxHeight, heightFromMaxW)
 
+        val minAllowedW = min(minW, maxWidth)
+        val minAllowedH = min(minH, maxHeight)
 
-        val minAllowedW = min(minW, effMaxW)
-        val minAllowedH = min(minH, effMaxH)
-
-        val finalW = downW.coerceInSafe(minAllowedW, effMaxW)
-        val finalH = downH.coerceInSafe(minAllowedH, effMaxH)
+        val finalW = downW.coerceIn(minAllowedW, maxWidth)
+        val finalH = downH.coerceIn(minAllowedH, maxHeight)
 
         val isPortrait = realMediaHeight > realMediaWidth
         return NormalizedSize(finalW, finalH, isPortrait)
@@ -114,15 +113,3 @@ data class NormalizedSize(
 )
 
 fun NormalizedSize.size(): DpSize = DpSize(width, height)
-
-/**
- * Safe variant of coerceIn for Dp that never throws when bounds are reversed.
- */
-private fun Dp.coerceInSafe(min: Dp, max: Dp): Dp {
-    val (lower, upper) = if (min <= max) {
-        min to max
-    } else {
-        max to min
-    }
-    return this.coerceIn(lower, upper)
-}

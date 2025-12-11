@@ -90,7 +90,7 @@ jobs:
           track: ${{ matrix.target.track }}
           status: ${{ matrix.target.status || 'completed' }}
           whatsNewDirectory: build/whatsnew
-          userFraction: ${{ inputs.target.user-fraction }}
+          userFraction: ${{ matrix.target.user-fraction }}
 
       - name: Deploy to GitHub Release
         if: matrix.target.type == 'github-release'

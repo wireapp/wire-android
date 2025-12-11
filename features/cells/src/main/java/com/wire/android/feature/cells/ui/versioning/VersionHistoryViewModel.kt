@@ -55,7 +55,7 @@ class VersionHistoryViewModel @Inject constructor(
 
     val fileName = navArgs.fileName
 
-    var isFetchingContent: MutableState<Boolean> = mutableStateOf(true)
+    var versionHistoryState: MutableState<VersionHistoryState> = mutableStateOf(VersionHistoryState.Idle)
         private set
 
     var versionsGroupedByTime: MutableState<List<VersionGroup>> = mutableStateOf(listOf())
@@ -65,20 +65,30 @@ class VersionHistoryViewModel @Inject constructor(
         mutableStateOf(RestoreDialogState())
 
     init {
+        viewModelScope.launch {
+            versionHistoryState.value = VersionHistoryState.Loading
+            fetchNodeVersionsGroupedByDate()
+        }
+    }
+
+    suspend fun refreshVersions() {
+        versionHistoryState.value = VersionHistoryState.Refreshing
         fetchNodeVersionsGroupedByDate()
     }
 
-    fun fetchNodeVersionsGroupedByDate() =
-        viewModelScope.launch {
-            isFetchingContent.value = true
-            navArgs.uuid?.let {
-                getNodeVersionsUseCase(navArgs.uuid).onSuccess {
+    private suspend fun fetchNodeVersionsGroupedByDate() =
+        navArgs.uuid?.let {
+            getNodeVersionsUseCase(navArgs.uuid)
+                .onSuccess {
+                    versionHistoryState.value = VersionHistoryState.Success
                     versionsGroupedByTime.value = it.groupByDay()
                 }
-                // TODO: Handle error
-                isFetchingContent.value = false
-            }
+                // TODO: Handle error on UI
+                .onFailure {
+                    versionHistoryState.value = VersionHistoryState.Failed
+                }
         }
+
 
     private fun List<NodeVersion>.groupByDay(): List<VersionGroup> {
         val today = LocalDate.now()
@@ -161,9 +171,7 @@ class VersionHistoryViewModel @Inject constructor(
                 restoreNodeVersionUseCase(navArgs.uuid ?: "", value.versionId)
                     .onSuccess {
                         delay(DELAY_500_MS) // delay since server takes some time to restore the version
-                        val fetchJob = fetchNodeVersionsGroupedByDate()
-                        fetchJob.start()
-                        fetchJob.join()
+                        refreshVersions()
                         progressJob.cancel()
                         restoreDialogState.value = value.copy(
                             restoreVersionState = RestoreVersionState.Completed,

@@ -17,10 +17,9 @@
  */
 package com.wire.android.feature.cells.ui.versioning
 
-import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -29,6 +28,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -51,6 +54,7 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.toUIText
+import kotlinx.coroutines.launch
 
 @WireDestination(
     style = PopUpNavigationAnimation::class,
@@ -63,12 +67,13 @@ fun VersionHistoryScreen(
     versionHistoryViewModel: VersionHistoryViewModel = hiltViewModel()
 ) {
     val optionsBottomSheetState = rememberWireModalSheetState<CellVersion>()
+    val scope = rememberCoroutineScope()
 
     VersionHistoryScreenContent(
         versionsGroupedByTime = versionHistoryViewModel.versionsGroupedByTime.value,
         modifier = modifier,
         fileName = versionHistoryViewModel.fileName,
-        isFetchingContent = versionHistoryViewModel.isFetchingContent.value,
+        versionHistoryState = versionHistoryViewModel.versionHistoryState,
         restoreDialogState = versionHistoryViewModel.restoreDialogState.value,
         navigateBack = { navigator.navigateBack() },
         optionsBottomSheetState = optionsBottomSheetState,
@@ -86,7 +91,11 @@ fun VersionHistoryScreen(
             versionHistoryViewModel.hideRestoreConfirmationDialog()
         },
         onGoToFileClicked = {},
-        onRefresh = { versionHistoryViewModel.fetchNodeVersionsGroupedByDate() }
+        onRefresh = {
+            scope.launch {
+                versionHistoryViewModel.refreshVersions()
+            }
+        }
     )
 }
 
@@ -94,11 +103,11 @@ fun VersionHistoryScreen(
 @Composable
 private fun VersionHistoryScreenContent(
     versionsGroupedByTime: List<VersionGroup>,
-    isFetchingContent: Boolean,
-    modifier: Modifier = Modifier,
+    versionHistoryState: State<VersionHistoryState>,
     optionsBottomSheetState: WireModalSheetState<CellVersion>,
     restoreDialogState: RestoreDialogState,
     onRefresh: () -> Unit,
+    modifier: Modifier = Modifier,
     fileName: String? = null,
     restoreVersion: () -> Unit = {},
     downloadVersion: (String) -> Unit = {},
@@ -107,7 +116,6 @@ private fun VersionHistoryScreenContent(
     onGoToFileClicked: () -> Unit = {},
     navigateBack: () -> Unit = {}
 ) {
-
     WireScaffold(
         modifier = modifier,
         topBar = {
@@ -129,41 +137,42 @@ private fun VersionHistoryScreenContent(
         },
     ) { innerPadding ->
 
-        AnimatedContent(
-            targetState = isFetchingContent,
-            modifier = Modifier.fillMaxWidth(),
-            transitionSpec = {
-                val enter = fadeIn()
-                val exit = fadeOut()
-                enter.togetherWith(exit)
-            },
-        ) { isFetching ->
+        AnimatedVisibility(
+            modifier = Modifier.padding(innerPadding),
+            visible = versionHistoryState.value == VersionHistoryState.Loading,
+            enter = fadeIn(),
+            exit = fadeOut(),
+        ) {
+            LoadingScreen()
+        }
 
-            if (isFetching) {
-                LoadingScreen()
-            } else {
-                PullToRefreshBox(
-                    isRefreshing = isFetchingContent,
-                    onRefresh = onRefresh,
-                ) {
-                    LazyColumn(Modifier.padding(innerPadding)) {
-                        versionsGroupedByTime.forEach { group ->
-                            item {
-                                VersionTimeHeaderItem(group.dateLabel)
-                            }
-                            group.versions.forEach {
-                                item {
-                                    VersionItem(
-                                        cellVersion = it,
-                                        onActionClick = { cellVersion ->
-                                            optionsBottomSheetState.show(cellVersion)
-                                        }
-                                    )
-                                    WireDivider(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        color = colorsScheme().outline
-                                    )
-                                }
+        AnimatedVisibility(
+            modifier = Modifier.padding(innerPadding),
+            visible = versionHistoryState.value != VersionHistoryState.Loading,
+            enter = fadeIn(),
+            exit = fadeOut()
+        ) {
+            PullToRefreshBox(
+                isRefreshing = versionHistoryState.value == VersionHistoryState.Refreshing,
+                onRefresh = onRefresh,
+            ) {
+                LazyColumn {
+                    versionsGroupedByTime.forEach { group ->
+                        item(group.dateLabel.hashCode()) {
+                            VersionTimeHeaderItem(group.dateLabel)
+                        }
+                        group.versions.forEach {
+                            item(it.versionId) {
+                                VersionItem(
+                                    cellVersion = it,
+                                    onActionClick = { cellVersion ->
+                                        optionsBottomSheetState.show(cellVersion)
+                                    }
+                                )
+                                WireDivider(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    color = colorsScheme().outline
+                                )
                             }
                         }
                     }
@@ -197,7 +206,7 @@ private fun VersionHistoryScreenContent(
 fun PreviewVersionHistoryScreenContent() {
     WireTheme {
         VersionHistoryScreenContent(
-            isFetchingContent = false,
+            versionHistoryState = remember { mutableStateOf(VersionHistoryState.Idle) },
             versionsGroupedByTime = listOf(
                 VersionGroup(
                     dateLabel = "Today, 3 Dec 2025".toUIText(),

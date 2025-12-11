@@ -189,4 +189,6 @@
     <string name="dialog_restore_cell_version_go_to_file_button_label">Go to file</string>
     <string name="date_label_today">Today, %1$s</string>
     <string name="date_label_yesterday">Yesterday, %1$s</string>
+    <string name="versions_list_not_loaded_title_error">Failed to load versions</string>
+    <string name="versions_list_not_loaded_description_error">Something went wrong while loading version list. Please retry.</string>
 </resources>

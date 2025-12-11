@@ -36,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.feature.cells.R
+import com.wire.android.feature.cells.ui.common.ErrorScreen
 import com.wire.android.feature.cells.ui.common.LoadingScreen
 import com.wire.android.feature.cells.ui.versioning.restore.RestoreDialogState
 import com.wire.android.feature.cells.ui.versioning.restore.RestoreNodeVersionConfirmationDialog
@@ -144,6 +145,22 @@ private fun VersionHistoryScreenContent(
             exit = fadeOut(),
         ) {
             LoadingScreen()
+        }
+
+        AnimatedVisibility(
+            modifier = Modifier.padding(innerPadding),
+            visible = versionHistoryState.value == VersionHistoryState.Failed,
+            enter = fadeIn(),
+            exit = fadeOut(),
+        ) {
+            ErrorScreen(
+                titleDefault = stringResource(R.string.versions_list_not_loaded_title_error),
+                titleConnectionError = stringResource(R.string.versions_list_not_loaded_title_error),
+                descriptionDefault = stringResource(R.string.versions_list_not_loaded_description_error),
+                descriptionConnectionError = stringResource(R.string.versions_list_not_loaded_description_error),
+                onRetry = onRefresh,
+                modifier = Modifier.padding(innerPadding)
+            )
         }
 
         AnimatedVisibility(

@@ -65,12 +65,21 @@ data class MessageComposition(
         attachments: List<AttachmentDraftUi>
     ): ComposableMessageBundle {
         return if (editMessageId != null) {
-            ComposableMessageBundle.EditMessageBundle(
-                conversationId = conversationId,
-                originalMessageId = editMessageId,
-                newContent = messageText,
-                newMentions = selectedMentions
-            )
+            if (isMultipart) {
+                ComposableMessageBundle.EditMultipartMessageBundle(
+                    conversationId = conversationId,
+                    originalMessageId = editMessageId,
+                    newContent = messageText,
+                    newMentions = selectedMentions
+                )
+            } else {
+                ComposableMessageBundle.EditMessageBundle(
+                    conversationId = conversationId,
+                    originalMessageId = editMessageId,
+                    newContent = messageText,
+                    newMentions = selectedMentions
+                )
+            }
         } else {
             if (attachments.isEmpty()) {
                 ComposableMessageBundle.SendTextMessageBundle(

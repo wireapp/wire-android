@@ -176,4 +176,5 @@
     <string name="version_history_top_appbar_title">Version history</string>
     <string name="date_label_today">Today, %1$s</string>
     <string name="date_label_yesterday">Yesterday, %1$s</string>
+    <string name="search_text_input_hint_for_files_folders_in_conversation">Search files or folders</string>
 </resources>

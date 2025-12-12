@@ -48,7 +48,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import com.wire.android.R
 import com.wire.android.ui.common.R as commonR
-import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.animation.ShakeAnimation
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
@@ -170,8 +169,8 @@ fun GroupNameScreen(
                                                 onClick = newGroupNameTextState::clearText,
                                             ) {
                                                 Icon(
-                                                    painter = painterResource(id = R.drawable.ic_clear_search),
-                                                    contentDescription = stringResource(R.string.content_description_clear_content)
+                                                    painter = painterResource(id = commonR.drawable.ic_clear_search),
+                                                    contentDescription = stringResource(commonR.string.content_description_clear_content)
                                                 )
                                             }
                                         }

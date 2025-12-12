@@ -34,7 +34,8 @@ jobs:
               {
                 "type": "google-play",
                 "package-name": "com.wire.android.internal",
-                "track": "${{ vars.BETA_APP_TRACK_INTERNAL }}"
+                "track": "${{ vars.BETA_APP_TRACK_INTERNAL }}",
+                "status": "completed"
               }
             ]
           }

@@ -19,6 +19,7 @@ package com.wire.android.feature.cells.ui.rename
 
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
+import com.wire.android.feature.cells.ui.common.FileNameError
 import com.wire.android.feature.cells.ui.navArgs
 import com.wire.kalium.cells.domain.usecase.RenameNodeFailure
 import com.wire.kalium.cells.domain.usecase.RenameNodeUseCase
@@ -69,7 +70,6 @@ class RenameNodeViewModelTest {
         viewModel.actions.test {
             with(expectMostRecentItem()) {
                 assertEquals(false, viewModel.viewState.loading)
-                assertEquals(RenameNodeViewState.Completed.Success, viewModel.viewState.completed)
                 assertTrue(this is RenameNodeViewModelAction.Success)
                 coVerify(exactly = 1) { arrangement.renameNodeUseCase(eq(UUID), eq(CURRENT_PATH), eq("newFileName.txt")) }
             }
@@ -105,7 +105,23 @@ class RenameNodeViewModelTest {
 
         assertFalse(viewModel.viewState.saveEnabled)
         assertEquals(
-            RenameNodeViewState.RenameError.TextFieldError.InvalidName,
+            FileNameError.InvalidName,
+            viewModel.viewState.error
+        )
+    }
+
+    @Test
+    fun `given invalid name starting with dot, when text is emitted, then InvalidNameError is set`() = runTest {
+        val invalidName = "."
+        val (_, viewModel) = Arrangement()
+            .withNodeNameReturning(invalidName)
+            .arrange()
+
+        advanceUntilIdle()
+
+        assertFalse(viewModel.viewState.saveEnabled)
+        assertEquals(
+            FileNameError.InvalidName,
             viewModel.viewState.error
         )
     }
@@ -120,7 +136,7 @@ class RenameNodeViewModelTest {
         advanceUntilIdle()
         assertFalse(viewModel.viewState.saveEnabled)
         assertEquals(
-            RenameNodeViewState.RenameError.TextFieldError.NameEmpty,
+            FileNameError.NameEmpty,
             viewModel.viewState.error
         )
     }
@@ -137,7 +153,7 @@ class RenameNodeViewModelTest {
 
         assertFalse(viewModel.viewState.saveEnabled)
         assertEquals(
-            RenameNodeViewState.RenameError.TextFieldError.NameExceedLimit,
+            FileNameError.NameExceedLimit,
             viewModel.viewState.error
         )
     }
@@ -151,7 +167,7 @@ class RenameNodeViewModelTest {
 
         assertFalse(viewModel.viewState.saveEnabled)
         assertEquals(
-            RenameNodeViewState.RenameError.None,
+            null,
             viewModel.viewState.error
         )
     }

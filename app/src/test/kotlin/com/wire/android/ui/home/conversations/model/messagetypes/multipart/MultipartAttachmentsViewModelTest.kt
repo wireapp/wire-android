@@ -246,7 +246,7 @@ class MultipartAttachmentsViewModelTest {
             coEvery { fileManager.openUrlWithExternalApp(any(), any(), any()) } returns Unit
             coEvery { download(any(), any(), any(), any(), any()) } returns Unit.right()
 
-            return this to MultipartAttachmentsViewModel(
+            return this to MultipartAttachmentsViewModelImpl(
                 refreshAsset = refreshAsset,
                 download = download,
                 fileManager = fileManager,

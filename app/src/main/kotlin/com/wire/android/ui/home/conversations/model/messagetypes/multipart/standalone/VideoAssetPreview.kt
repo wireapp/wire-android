@@ -38,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -60,7 +61,6 @@ import com.wire.android.ui.home.conversations.model.messagetypes.image.VisualMed
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.previewAvailable
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.previewImageModel
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.transferProgressColor
-import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.DateAndTimeParsers
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -75,7 +75,6 @@ import com.wire.kalium.logic.data.message.width
 internal fun VideoAssetPreview(
     item: MultipartAttachmentUi,
     messageStyle: MessageStyle,
-    accent: Accent = Accent.Unknown
 ) {
 
     val videoSize = VisualMediaParams(
@@ -98,18 +97,12 @@ internal fun VideoAssetPreview(
     Column(
         modifier = Modifier
             .width(videoSize.width + dimensions().spacing16x)
+            .clip(RoundedCornerShape(dimensions().messageAttachmentCornerSize))
             .applyIf(messageStyle == MessageStyle.BUBBLE_SELF) {
-                background(
-                    colorsScheme().bubbleContainerAccentBackgroundColor.getOrDefault(
-                        accent,
-                        colorsScheme().defaultBubbleContainerBackgroundColor
-                    )
-                )
+                background(colorsScheme().selfBubble.secondary)
             }
             .applyIf(messageStyle == MessageStyle.BUBBLE_OTHER) {
-                background(
-                    colorsScheme().surface
-                )
+                background(colorsScheme().otherBubble.secondary)
             }
             .applyIf(!messageStyle.isBubble()) {
                 background(
@@ -122,8 +115,7 @@ internal fun VideoAssetPreview(
                     shape = RoundedCornerShape(dimensions().messageAttachmentCornerSize)
                 )
                 padding(dimensions().spacing12x)
-            }
-            .clip(RoundedCornerShape(dimensions().messageAttachmentCornerSize)),
+            },
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(dimensions().spacing8x)
     ) {
@@ -160,8 +152,15 @@ internal fun VideoAssetPreview(
             contentAlignment = Alignment.Center
         ) {
 
-            // Video preview image
-            if (item.previewAvailable()) {
+            if (LocalInspectionMode.current) {
+                Image(
+                    modifier = Modifier.fillMaxSize(),
+                    painter = painterResource(com.wire.android.ui.common.R.drawable.mock_image),
+                    contentScale = ContentScale.FillBounds,
+                    contentDescription = null,
+                )
+            } else if (item.previewAvailable()) {
+                // Video preview image
                 AsyncImage(
                     modifier = Modifier.fillMaxSize(),
                     model = item.previewImageModel(

@@ -31,9 +31,6 @@ import androidx.compose.foundation.text.input.TextObfuscationMode
 import androidx.compose.foundation.text.input.maxLength
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -49,6 +46,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
@@ -133,7 +131,9 @@ fun WirePasswordTextField(
 private fun VisibilityIconButton(isVisible: Boolean, onVisibleChange: (Boolean) -> Unit) {
     IconButton(onClick = { onVisibleChange(!isVisible) }) {
         Icon(
-            imageVector = if (isVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
+            painter = painterResource(
+                if (isVisible) R.drawable.ic_visibility else R.drawable.ic_visibility_off,
+            ),
             contentDescription = stringResource(
                 if (isVisible) {
                     R.string.content_description_hide_password

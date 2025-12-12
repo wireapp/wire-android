@@ -32,20 +32,19 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.util.PreviewMultipleThemes
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.feature.cells.R
+import com.wire.android.ui.common.R as commonR
 
 @Composable
 fun DateTimeView(
@@ -106,7 +105,7 @@ private fun RowScope.DateView(
         )
         Icon(
             modifier = Modifier.size(dimensions().spacing16x),
-            imageVector = Icons.Outlined.CalendarToday,
+            painter = painterResource(R.drawable.ic_calendar_today),
             contentDescription = null,
         )
     }
@@ -138,7 +137,7 @@ private fun RowScope.TimeView(
         )
         Icon(
             modifier = Modifier.size(dimensions().spacing16x),
-            imageVector = Icons.Default.ArrowDropDown,
+            painter = painterResource(commonR.drawable.ic_arrow_drop_down),
             contentDescription = null,
         )
     }

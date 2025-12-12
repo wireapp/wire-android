@@ -2,3 +2,4 @@ Fixes
 
 - Conference calls were not established and if they were established, people couldn't see or hear other participants
 - People using silent mode couldn't hear a ringing tone when they called someone
+- User Interface issue with chat bubbles

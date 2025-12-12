@@ -2,3 +2,4 @@ Behoben
 
 - Telefonkonferenzen konnten nicht hergestellt werden, und wenn sie hergestellt wurden, konnte man die anderen Teilnehmer weder sehen noch hören
 - Benutzer im Lautlos-Modus konnten keinen Klingelton hören, wenn sie jemanden anriefen
+- Problem mit der Benutzeroberfläche bei Chat-Bubbles

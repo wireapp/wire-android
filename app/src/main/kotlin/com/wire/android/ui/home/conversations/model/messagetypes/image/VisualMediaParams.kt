@@ -26,7 +26,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.min
 import com.wire.android.ui.common.dimensions
 import kotlinx.serialization.Serializable
-import kotlin.let
 
 /**
  * Parameters describing visual media (image or video) used to calculate
@@ -42,6 +41,7 @@ data class VisualMediaParams(
      * Returns normalized dimensions preserving the original aspect ratio.
      * Size is limited by [maxBounds] and coerced to at least [minW] × [minH].
      */
+    @Suppress("ReturnCount")
     @Composable
     fun normalizedSize(
         minW: Dp = dimensions().messageImageMinWidth,
@@ -55,7 +55,7 @@ data class VisualMediaParams(
             return NormalizedSize(minW, minH, isPortrait = false)
         }
 
-        val (effMaxW, effMaxH) = when (maxBounds) {
+        val (maxWidth, maxHeight) = when (maxBounds) {
             is MaxBounds.DpBounds -> maxBounds.maxW to maxBounds.maxH
             is MaxBounds.ScreenFraction -> {
                 fun Float.clampedFraction(): Float = coerceIn(0f, 1f)
@@ -69,15 +69,24 @@ data class VisualMediaParams(
             }
         }
 
+        // Guard against pathological max bounds (e.g. fraction == 0f)
+        if (maxWidth <= 0.dp || maxHeight <= 0.dp) {
+            return NormalizedSize(minW, minH, isPortrait = realMediaHeight > realMediaWidth)
+        }
+
         val ratio = realMediaWidth.toFloat() / realMediaHeight.toFloat()
-        val widthFromMaxH = effMaxH * ratio
-        val heightFromMaxW = effMaxW / ratio
 
-        val downW = min(effMaxW, widthFromMaxH)
-        val downH = min(effMaxH, heightFromMaxW)
+        val widthFromMaxH = maxHeight * ratio
+        val heightFromMaxW = maxWidth / ratio
 
-        val finalW = downW.coerceIn(minW, effMaxW)
-        val finalH = downH.coerceIn(minH, effMaxH)
+        val downW = min(maxWidth, widthFromMaxH)
+        val downH = min(maxHeight, heightFromMaxW)
+
+        val minAllowedW = min(minW, maxWidth)
+        val minAllowedH = min(minH, maxHeight)
+
+        val finalW = downW.coerceIn(minAllowedW, maxWidth)
+        val finalH = downH.coerceIn(minAllowedH, maxHeight)
 
         val isPortrait = realMediaHeight > realMediaWidth
         return NormalizedSize(finalW, finalH, isPortrait)

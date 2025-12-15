@@ -1,0 +1,30 @@
+<!--
+  ~ Wire
+  ~ Copyright (C) 2025 Wire Swiss GmbH
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program. If not, see http://www.gnu.org/licenses/.
+  -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="15dp"
+    android:height="15dp"
+    android:viewportWidth="15"
+    android:viewportHeight="15">
+  <path
+      android:pathData="M13.914,3.634L14.473,3.075C15.173,2.375 15.172,1.235 14.468,0.531C13.76,-0.177 12.626,-0.175 11.925,0.526L11.365,1.086L13.914,3.634ZM13.384,4.164L6.186,11.363L3,12L3.637,8.814L10.835,1.616L13.384,4.164ZM6,10.2L4.5,10.5L4.8,9L6,10.2Z"
+      android:fillColor="#000000"
+      android:fillType="evenOdd"/>
+  <path
+      android:pathData="M6.5,2H2C0.895,2 0,2.895 0,4V13C0,14.105 0.895,15 2,15H11C12.105,15 13,14.105 13,13V8H11.5V13C11.5,13.276 11.276,13.5 11,13.5H2C1.724,13.5 1.5,13.276 1.5,13V4C1.5,3.724 1.724,3.5 2,3.5H6.5V2Z"
+      android:fillColor="#000000"/>
+</vector>

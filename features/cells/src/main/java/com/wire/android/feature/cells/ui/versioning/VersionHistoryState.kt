@@ -18,9 +18,9 @@
 package com.wire.android.feature.cells.ui.versioning
 
 enum class VersionHistoryState {
-    Idle,          // Nothing happening yet
-    Loading,       // First load when entering screen
-    Refreshing,    // Pull-to-refresh
-    Success,       // Data loaded successfully
+    Idle,
+    Loading, // First load when entering screen
+    Refreshing, // Pull-to-refresh
+    Success,
     Failed
 }

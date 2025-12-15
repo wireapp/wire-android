@@ -104,7 +104,6 @@ fun PreviewLoadingScreen() {
     }
 }
 
-
 @MultipleThemePreviews
 @Composable
 fun PreviewLoadingFileItem() {

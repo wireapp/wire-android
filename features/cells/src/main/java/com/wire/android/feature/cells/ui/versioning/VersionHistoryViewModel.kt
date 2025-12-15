@@ -89,7 +89,6 @@ class VersionHistoryViewModel @Inject constructor(
                 }
         }
 
-
     private fun List<NodeVersion>.groupByDay(): List<VersionGroup> {
         val today = LocalDate.now()
         val yesterday = today.minusDays(1)

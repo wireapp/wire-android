@@ -41,8 +41,8 @@ import com.wire.android.ui.theme.WireTheme
 @Composable
 fun ErrorScreen(
     onRetry: () -> Unit,
-    isConnectionError: Boolean = true,
     modifier: Modifier = Modifier,
+    isConnectionError: Boolean = true,
     titleDefault: String = stringResource(R.string.file_list_load_error_title),
     titleConnectionError: String = stringResource(R.string.file_list_load_network_error_title),
     descriptionDefault: String = stringResource(R.string.file_list_load_error),

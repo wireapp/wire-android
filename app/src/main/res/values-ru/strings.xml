@@ -854,6 +854,8 @@
     <string name="label_system_message_conversation_started_sensitive_information_footer">Пожалуйста, будьте осторожны со всеми с кем делитесь конфиденциальной информацией.</string>
     <string name="label_conversations_details_verified_proteus">Верифицировано (Proteus)</string>
     <string name="label_conversations_details_verified_mls">Верифицировано (сквозная идентификация)</string>
+    <string name="label_system_message_cell_enabled_for_conversation">Совместная работа (Cells) включена</string>
+    <string name="label_system_message_cell_self_delete_disabled_for_conversation">Самоудаляющиеся сообщения отключены для бесед с Cells</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
         <item quantity="one">Вы добавили 1 пользователя в беседу</item>
@@ -1184,7 +1186,7 @@
     <string name="change">Изменить</string>
     <string name="allow_guests">Разрешить гостей</string>
     <string name="allow_guest_switch_description">Открыть эту беседу для пользователей не из вашей команды. Вы всегда сможете изменить это позже.</string>
-    <string name="allow_guest_switch_channel_description">Откройте эту беседу для людей, не из вашей команды или приложений. Вы всегда сможете изменить это позже.</string>
+    <string name="allow_guest_switch_channel_description">Откройте эту беседу для пользователей не из вашей команды или приложений. Вы всегда сможете изменить это позже.</string>
     <string name="allow_services">Разрешить приложения</string>
     <string name="allow_services_regular_group_description">Открыть эту беседу для приложений. Вы всегда сможете изменить это позже.</string>
     <string name="allow_apps_switch_description">Открыть эту беседу для приложений.</string>

@@ -201,9 +201,7 @@ internal fun FileIconPreview(cell: CellNodeUi.File) {
                         width = dimensions().spacing1x,
                         color = colorsScheme().outline,
                         shape = RoundedCornerShape(dimensions().spacing4x)
-                    ).clickable {
-
-                    },
+                    ),
                 contentScale = ContentScale.Crop,
                 model = builder.build(),
                 contentDescription = null,

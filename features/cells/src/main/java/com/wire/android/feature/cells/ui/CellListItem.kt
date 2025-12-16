@@ -201,7 +201,9 @@ internal fun FileIconPreview(cell: CellNodeUi.File) {
                         width = dimensions().spacing1x,
                         color = colorsScheme().outline,
                         shape = RoundedCornerShape(dimensions().spacing4x)
-                    ),
+                    ).clickable {
+
+                    },
                 contentScale = ContentScale.Crop,
                 model = builder.build(),
                 contentDescription = null,
@@ -246,8 +248,8 @@ private fun PublicLinkIcon(
                 color = colorsScheme().outline,
                 shape = CircleShape
             )
-            .padding(dimensions().spacing2x),
-        painter = painterResource(R.drawable.ic_link),
+            .padding(dimensions().spacing4x),
+        painter = painterResource(commonR.drawable.ic_link_indicator),
         contentDescription = null,
     )
 }

@@ -42,7 +42,7 @@ fun SharePublicLinkMenuOption(onShareAsset: () -> Unit) {
     MenuBottomSheetItem(
         leading = {
             MenuItemIcon(
-                id = com.wire.android.ui.common.R.drawable.ic_link,
+                id = com.wire.android.ui.common.R.drawable.ic_link_indicator,
                 contentDescription = stringResource(R.string.content_description_share_the_file),
             )
         },

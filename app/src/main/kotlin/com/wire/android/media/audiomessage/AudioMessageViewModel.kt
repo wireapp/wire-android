@@ -34,6 +34,7 @@ import com.wire.kalium.logic.feature.message.ObserveMessageByIdUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.launch
@@ -63,8 +64,8 @@ class AudioMessageViewModelImpl @Inject constructor(
     init {
         observeAudioState()
         observeAudioSpeed()
-        initWavesMask()
-        observeWavesMask()
+        preloadAudioMessage()
+        fetchWavesMask()
     }
 
     private fun observeAudioState() {
@@ -90,14 +91,14 @@ class AudioMessageViewModelImpl @Inject constructor(
         }
     }
 
-    private fun initWavesMask() {
+    private fun preloadAudioMessage() {
         viewModelScope.launch {
             // calls preload to initially fetch the audio asset data to be ready and schedule waves mask generation if needed
             audioMessagePlayer.preloadAudioMessage(args.conversationId, args.messageId)
         }
     }
 
-    private fun observeWavesMask() {
+    private fun fetchWavesMask() {
         viewModelScope.launch {
             observeMessageById(args.conversationId, args.messageId)
                 .map {
@@ -108,7 +109,8 @@ class AudioMessageViewModelImpl @Inject constructor(
                     }
                 }
                 .distinctUntilChanged()
-                .collectLatest { state = state.copy(wavesMask = it) }
+                .firstOrNull { it != null } // wait for the first non-null value
+                .let { state = state.copy(wavesMask = it) }
         }
     }
 

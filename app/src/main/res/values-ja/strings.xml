@@ -81,7 +81,6 @@
     <string name="content_description_search_back">検索に戻るアイコン</string>
     <string name="content_description_clear_content">内容を消去</string>
     <string name="content_description_muted_conversation">ミュートした会話</string>
-    <string name="content_description_check">チェックマーク</string>
     <string name="content_description_download_icon">ダウンロードアイコン</string>
     <string name="content_description_open_asset_icon">開くアイコン</string>
     <string name="content_description_add_to_favourite">お気に入りに追加</string>

@@ -26,8 +26,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
@@ -37,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import com.wire.android.feature.cells.R
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -45,14 +44,13 @@ import com.wire.android.ui.common.typography
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.toUIText
+import com.wire.android.ui.common.R as commonR
 
 @Composable
 fun VersionItem(
-    modifiedAt: String,
-    modifiedBy: String,
-    fileSize: String,
+    cellVersion: CellVersion,
     modifier: Modifier = Modifier,
-    onActionClick: () -> Unit = {}
+    onActionClick: (CellVersion) -> Unit = {}
 ) {
     val interactionSource = remember { MutableInteractionSource() }
 
@@ -82,14 +80,20 @@ fun VersionItem(
                     start = dimensions().corner2x
                 )
             ) {
+                val currentLabel = if (cellVersion.isCurrentVersion) {
+                    stringResource(R.string.version_history_current_label_for_title)
+                } else {
+                    ""
+                }
+
                 Text(
-                    text = modifiedAt,
+                    text = "${cellVersion.modifiedAt} $currentLabel",
                     style = typography().title02,
                     color = colorsScheme().onSurface,
                 )
                 Row {
                     Text(
-                        text = "$modifiedBy · $fileSize",
+                        text = "${cellVersion.modifiedBy} · ${cellVersion.fileSize}",
                         style = typography().label04,
                         color = colorsScheme().secondaryText,
                     )
@@ -98,13 +102,13 @@ fun VersionItem(
         }
 
         Icon(
-            imageVector = Icons.Default.MoreVert,
+            painter = painterResource(commonR.drawable.ic_more_vert),
             contentDescription = null,
             tint = colorsScheme().secondaryText,
             modifier = Modifier
                 .padding(end = dimensions().spacing16x)
                 .clickable(
-                    onClick = { onActionClick },
+                    onClick = { onActionClick(cellVersion) },
                     interactionSource = interactionSource,
                     indication = ripple(
                         bounded = false,
@@ -147,9 +151,12 @@ fun VersionTimeHeaderItem(
 fun VersionItemPreview() {
     WireTheme {
         VersionItem(
-            modifiedAt = "1:46 PM",
-            modifiedBy = "Deniz Agha",
-            fileSize = "200MB",
+            cellVersion = CellVersion(
+                versionId = "id",
+                modifiedAt = "1:46 PM",
+                modifiedBy = "Deniz Agha",
+                fileSize = "200MB"
+            )
         )
     }
 }

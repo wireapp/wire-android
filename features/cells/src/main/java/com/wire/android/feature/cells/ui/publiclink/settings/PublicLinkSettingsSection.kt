@@ -24,13 +24,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.publiclink.PublicLinkSettings
@@ -40,6 +39,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.divider.WireDivider
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.ui.common.R as commonR
 
 @Composable
 internal fun PublicLinkSettingsSection(
@@ -123,7 +123,7 @@ internal fun LinkSettingsOption(
             }
 
             Icon(
-                imageVector = Icons.Default.ChevronRight,
+                painter = painterResource(commonR.drawable.ic_chevron_right),
                 contentDescription = null,
             )
         }

@@ -65,7 +65,7 @@ jobs:
                   PR_NUMBER=$(jq --raw-output .pull_request.number "$EVENT_FILE_PATH")
                   gh pr comment "$PR_NUMBER" --body "APKs built during tests are available [here]($CHECKS_LINK). Scroll down to **Artifacts**!"
 
-            - uses: actions/setup-node@v5
+            - uses: actions/setup-node@v6
               with:
                   node-version: 18
             - name: Install datadog-ci

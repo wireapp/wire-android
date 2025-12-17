@@ -65,7 +65,7 @@ internal fun ImageAssetPreview(
         if (LocalInspectionMode.current) {
             Image(
                 modifier = Modifier.fillMaxSize(),
-                painter = painterResource(com.wire.android.ui.common.R.drawable.mock_image),
+                painter = painterResource(R.drawable.mock_image),
                 contentDescription = null,
                 contentScale = if (messageStyle.isBubble()) ContentScale.Crop else ContentScale.Fit
             )

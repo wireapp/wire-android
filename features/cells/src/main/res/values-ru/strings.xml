@@ -108,7 +108,7 @@
     <string name="rename_file_renamed">Файл переименован</string>
     <string name="rename_folder_renamed">Папка переименована</string>
     <string name="rename_failure">Не удается переименовать</string>
-    <string name="rename_invalid_name">Используйте название без \"/\"</string>
+    <string name="rename_invalid_name">Используйте название без \"/\" и не начинающееся с \".\"</string>
     <string name="rename_already_exist">Файл с таким названием уже существует</string>
     <string name="filter_label">Фильтр</string>
     <string name="tags_label">Теги</string>
@@ -159,8 +159,22 @@
     <string name="public_link_common_failure_dialog_title">Что-то пошло не так</string>
     <string name="public_link_common_failure_dialog_message">Пожалуйста, попробуйте снова.\n\nЕсли эта ошибка не устраняется, обратитесь к администратору вашей команды.</string>
     <string name="public_link_password_create_failure_dialog_title">Не удается создать защищенную паролем ссылку</string>
+    <string name="public_link_expiration_create_failure_dialog_title">Невозможно добавить срок действия</string>
     <string name="cell_open_editor_failure_dialog_title">Не удается открыть режим редактирования файла</string>
     <string name="cell_open_editor_failure_dialog_message">Возникла проблема с подключением к серверу. Пожалуйста, попробуйте снова. Если проблема не устранена, обратитесь в службу поддержки.</string>
     <string name="error_try_again_button_title">Повторить</string>
+    <string name="public_link_expiration_add">Добавить срок действия</string>
+    <string name="public_link_expiration_set">Установить срок действия</string>
+    <string name="public_link_expiration_description">Ссылка автоматически станет недействительной после установленной даты и времени. Пользователи больше не смогут получить доступ к контенту.</string>
+    <string name="label_expires">Истекает</string>
+    <string name="label_expired">Истек</string>
+    <string name="label_date">Дата</string>
+    <string name="label_time">Время</string>
+    <string name="dialog_expiration_date_title">Срок действия</string>
+    <string name="dialog_expiration_time_title">Время действия</string>
+    <string name="invalid_expiration_date">Срок действия в прошлом</string>
+    <string name="link_expired">Истек срок действия ссылки: %1$s, в %2$s</string>
     <string name="version_history_top_appbar_title">История версий</string>
+    <string name="date_label_today">Сегодня, %1$s</string>
+    <string name="date_label_yesterday">Вчера, %1$s</string>
 </resources>

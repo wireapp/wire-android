@@ -56,7 +56,7 @@ class PersonalUserRegistrationTest : BaseUiTest() {
     }
 
     @TestCaseId("TC-8694")
-    @Category("applock", "regression", "RC", "registration")
+    @Category("regression", "RC", "registration")
     @Test
     fun givenUserWantsToRegister_whenTheyProvideValidDetails_thenAccountIsCreatedSuccessfully() {
         val userInfo = UserClient.generateUniqueUserInfo()

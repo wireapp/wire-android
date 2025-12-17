@@ -86,7 +86,6 @@
     <string name="content_description_search_back">Geri arama simgesi</string>
     <string name="content_description_clear_content">İçeriği temizle</string>
     <string name="content_description_muted_conversation">Sessize alınmış sohbet</string>
-    <string name="content_description_check">Onay işareti</string>
     <string name="content_description_download_icon">İndirme simgesi</string>
     <string name="content_description_open_asset_icon">Simgeyi aç</string>
     <string name="content_description_add_to_favourite">Favorilere Ekle</string>

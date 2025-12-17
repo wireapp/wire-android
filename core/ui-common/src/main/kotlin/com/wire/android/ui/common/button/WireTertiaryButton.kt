@@ -22,21 +22,21 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.Icon
 import androidx.compose.material3.ButtonElevation
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.wire.android.model.ClickBlockParams
-import com.wire.android.ui.common.Icon
+import com.wire.android.ui.common.R
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -106,7 +106,14 @@ fun PreviewWireTertiaryButtonNarrowWithIcons() = WireTheme {
     WireTertiaryButton(
         onClick = { },
         text = "text",
-        leadingIcon = Icons.Filled.Notifications.Icon(modifier = Modifier.padding(end = 8.dp)),
+        leadingIcon = {
+            Icon(
+                modifier = Modifier.padding(end = 8.dp),
+                painter = painterResource(R.drawable.ic_notifications_filled),
+                contentDescription = null,
+                tint = colorsScheme().onSurface,
+            )
+        },
         leadingIconAlignment = IconAlignment.Center,
         fillMaxWidth = false
     )
@@ -117,7 +124,13 @@ fun PreviewWireTertiaryButtonNarrowWithIcons() = WireTheme {
 fun PreviewWireTertiaryButtonNarrowOnlyIcons() = WireTheme {
     WireTertiaryButton(
         onClick = { },
-        leadingIcon = Icons.Filled.Search.Icon(),
+        leadingIcon = {
+            Icon(
+                painter = painterResource(R.drawable.ic_search),
+                contentDescription = null,
+                tint = colorsScheme().onSurface,
+            )
+        },
         leadingIconAlignment = IconAlignment.Center,
         fillMaxWidth = false
     )

@@ -35,7 +35,6 @@ dependencies {
     implementation(libs.compose.ui.graphics)
     implementation(libs.compose.material.core)
     implementation(libs.compose.material3)
-    implementation(libs.compose.material.icons)
     implementation(libs.androidx.lifecycle.viewModelCompose)
     implementation(libs.compose.ui.preview)
 

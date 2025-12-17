@@ -32,7 +32,8 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.feature.cells.R
-import com.wire.android.feature.cells.ui.rename.RenameNodeViewModel.Companion.NAME_MAX_COUNT
+import com.wire.android.feature.cells.ui.common.FILE_NAME_MAX_COUNT
+import com.wire.android.feature.cells.ui.common.FileNameError
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.navigation.PreviewNavigator
 import com.wire.android.navigation.WireNavigator
@@ -75,7 +76,7 @@ fun RenameNodeScreen(
         topBar = {
             WireCenterAlignedTopAppBar(
                 onNavigationPressed = { navigator.navigateBack() },
-                title = if (renameNodeViewModel.isFolder() == true) {
+                title = if (renameNodeViewModel.isFolder()) {
                     stringResource(R.string.rename_folder_label)
                 } else {
                     stringResource(R.string.rename_file_label)
@@ -107,13 +108,13 @@ fun RenameNodeScreen(
             ShakeAnimation { animate ->
                 WireTextField(
                     textState = renameNodeViewModel.textState,
-                    labelText = if (renameNodeViewModel.isFolder() == true) {
+                    labelText = if (renameNodeViewModel.isFolder()) {
                         stringResource(R.string.rename_folder_label).uppercase()
                     } else {
                         stringResource(R.string.rename_file_label).uppercase()
                     },
                     inputTransformation = InputTransformation.maxLengthWithCallback(
-                        maxLength = NAME_MAX_COUNT,
+                        maxLength = FILE_NAME_MAX_COUNT,
                         onIncorrectChangesFound = {
                             renameNodeViewModel.onMaxLengthExceeded()
                             animate()
@@ -134,43 +135,30 @@ fun RenameNodeScreen(
     HandleActions(renameNodeViewModel.actions) { action ->
         when (action) {
             is RenameNodeViewModelAction.Success -> {
-                val message = if (renameNodeViewModel.isFolder() == true) {
-                    context.resources.getString(R.string.rename_folder_renamed)
-                } else {
-                    context.resources.getString(R.string.rename_file_renamed)
-                }
+                val message = if (renameNodeViewModel.isFolder()) R.string.rename_folder_renamed else R.string.rename_file_renamed
                 Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
             }
 
             is RenameNodeViewModelAction.Failure ->
-                Toast.makeText(context, context.resources.getString(R.string.rename_failure), Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, R.string.rename_failure, Toast.LENGTH_SHORT).show()
         }
         navigator.navigateBack()
     }
 }
 
 @Composable
-private fun computeNameErrorState(
-    error: RenameNodeViewState.RenameError,
-    isFolder: Boolean?
-): WireTextFieldState {
-    return when (error) {
-        is RenameNodeViewState.RenameError.TextFieldError -> {
-            val messageRes = when (error) {
-                RenameNodeViewState.RenameError.TextFieldError.NameEmpty ->
-                    if (isFolder == true) R.string.rename_enter_folder_name else R.string.rename_enter_file_name
-
-                RenameNodeViewState.RenameError.TextFieldError.NameExceedLimit ->
-                    if (isFolder == true) R.string.rename_long_folder_name_error else R.string.rename_long_file_name_error
-
-                RenameNodeViewState.RenameError.TextFieldError.InvalidName -> R.string.rename_invalid_name
-                RenameNodeViewState.RenameError.TextFieldError.NameAlreadyExist -> R.string.rename_already_exist
-            }
-            WireTextFieldState.Error(stringResource(id = messageRes))
-        }
-
-        else -> WireTextFieldState.Default
+private fun computeNameErrorState(error: FileNameError?, isFolder: Boolean): WireTextFieldState {
+    val messageRes = when (error) {
+        FileNameError.NameEmpty ->
+            if (isFolder) R.string.rename_enter_folder_name else R.string.rename_enter_file_name
+        FileNameError.NameExceedLimit ->
+            if (isFolder) R.string.rename_long_folder_name_error else R.string.rename_long_file_name_error
+        FileNameError.NameAlreadyExist -> R.string.rename_already_exist
+        FileNameError.InvalidName -> R.string.rename_invalid_name
+        null -> return WireTextFieldState.Default
     }
+
+    return WireTextFieldState.Error(stringResource(id = messageRes))
 }
 
 @MultipleThemePreviews

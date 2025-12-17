@@ -18,4 +18,5 @@
   -->
 <resources>
     <string name="label_membership_service">App</string>
+    <string name="content_description_check">Bock</string>
 </resources>

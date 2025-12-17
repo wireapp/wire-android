@@ -17,17 +17,10 @@
  */
 package com.wire.android.feature.cells.ui.versioning
 
-import com.wire.android.util.ui.UIText
-
-data class CellVersion(
-    val versionId: String = "",
-    val modifiedAt: String = "",
-    val modifiedBy: String = "",
-    val fileSize: String = "",
-    val isCurrentVersion: Boolean = false
-)
-
-data class VersionGroup(
-    val dateLabel: UIText,
-    val versions: List<CellVersion>
-)
+enum class VersionHistoryState {
+    Idle,
+    Loading, // First load when entering screen
+    Refreshing, // Pull-to-refresh
+    Success,
+    Failed
+}

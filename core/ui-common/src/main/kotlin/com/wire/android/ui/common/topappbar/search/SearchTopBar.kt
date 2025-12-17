@@ -64,10 +64,10 @@ import com.wire.android.util.PreviewMultipleThemes
 fun SearchTopBar(
     isSearchActive: Boolean,
     searchBarHint: String,
-    backIconContentDescription: String? = null,
     searchQueryTextState: TextFieldState,
     modifier: Modifier = Modifier,
     isLoading: Boolean = false,
+    backIconContentDescription: String? = null,
     searchBarDescription: String? = null,
     onCloseSearchClicked: (() -> Unit)? = null,
     onActiveChanged: (isActive: Boolean) -> Unit = {},

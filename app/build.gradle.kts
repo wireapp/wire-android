@@ -80,6 +80,28 @@ android {
         val datadogAppIdKey = "DATADOG_APP_ID"
         val appId: String? = System.getenv(datadogAppIdKey) ?: project.getLocalProperty(datadogAppIdKey, null)
         buildConfigField("String", datadogAppIdKey, appId?.let { "\"$it\"" } ?: "null")
+
+        // DOMAIN_REMOVAL_KEYS_FOR_REPAIR json format {"domain": "some hex string key"}
+        val domainRemovalKeysForRepair = "DOMAIN_REMOVAL_KEYS_FOR_REPAIR"
+        val domainKeysJson: String? =
+            System.getenv(domainRemovalKeysForRepair) ?: project.getLocalProperty(domainRemovalKeysForRepair, null)
+        val domainKeysHashMap = if (domainKeysJson != null) {
+            try {
+                val jsonMap = groovy.json.JsonSlurper().parseText(domainKeysJson) as Map<String, String>
+                val javaMapEntries = jsonMap.entries.joinToString("") { "put(\"${it.key}\", \"${it.value}\");" }
+                "new java.util.HashMap<String, String>(){{$javaMapEntries}}"
+            } catch (e: Exception) {
+                println("Error parsing domain removal keys: ${e.message}")
+                "new java.util.HashMap<String, String>()"
+            }
+        } else {
+            "new java.util.HashMap<String, String>()"
+        }
+        buildConfigField(
+            "java.util.Map<String, String>",
+            domainRemovalKeysForRepair,
+            domainKeysHashMap
+        )
     }
     // Most of the configuration is done in the build-logic
     // through the Wire Application convention plugin
@@ -214,7 +236,7 @@ dependencies {
     implementation(libs.compose.activity)
     implementation(libs.compose.constraintLayout)
     implementation(libs.compose.runtime.liveData)
-    
+
     implementation(libs.androidx.paging3)
     implementation(libs.androidx.paging3Compose)
 

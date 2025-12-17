@@ -23,6 +23,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.BuildConfig.DOMAIN_REMOVAL_KEYS_FOR_REPAIR
+import com.wire.android.appLogger
 import com.wire.android.di.CurrentAccount
 import com.wire.android.di.ScopedArgs
 import com.wire.android.di.ViewModelScopedPreview
@@ -40,8 +42,11 @@ import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.analytics.GetCurrentAnalyticsTrackingIdentifierUseCase
 import com.wire.kalium.logic.feature.debug.ObserveIsConsumableNotificationsEnabledUseCase
+import com.wire.kalium.logic.feature.debug.RepairFaultyRemovalKeysUseCase
+import com.wire.kalium.logic.feature.debug.RepairResult
 import com.wire.kalium.logic.feature.debug.StartUsingAsyncNotificationsResult
 import com.wire.kalium.logic.feature.debug.StartUsingAsyncNotificationsUseCase
+import com.wire.kalium.logic.feature.debug.TargetedRepairParam
 import com.wire.kalium.logic.feature.e2ei.CheckCrlRevocationListUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountResult
@@ -76,6 +81,8 @@ interface DebugDataOptionsViewModel {
     fun disableEventProcessing(disabled: Boolean) {}
     fun forceSendFCMToken() {}
     fun enableAsyncNotifications(enabled: Boolean) {}
+
+    fun repairFaultRemovalKeys() {}
 }
 
 @Suppress("LongParameterList", "TooManyFunctions")
@@ -95,6 +102,7 @@ class DebugDataOptionsViewModelImpl
     private val getDefaultProtocolUseCase: GetDefaultProtocolUseCase,
     private val observeAsyncNotificationsEnabled: ObserveIsConsumableNotificationsEnabledUseCase,
     private val startUsingAsyncNotifications: StartUsingAsyncNotificationsUseCase,
+    private val repairFaultyRemovalKeys: RepairFaultyRemovalKeysUseCase,
 ) : ViewModel(), DebugDataOptionsViewModel {
 
     override var state by mutableStateOf(
@@ -242,6 +250,36 @@ class DebugDataOptionsViewModelImpl
         }
     }
 
+    override fun repairFaultRemovalKeys() {
+        viewModelScope.launch {
+            state = state.copy(mlsInfoState = state.mlsInfoState.copy(isLoadingRepair = true))
+            val (domain, faultyKey) = DOMAIN_REMOVAL_KEYS_FOR_REPAIR.entries.firstOrNull()
+                ?: run {
+                    appLogger.w("No faulty removal keys configured for repair")
+                    _infoMessage.emit(UIText.DynamicString("No faulty removal keys configured for repair"))
+                    state = state.copy(mlsInfoState = state.mlsInfoState.copy(isLoadingRepair = false))
+                    return@launch
+                }
+
+            val result = repairFaultyRemovalKeys(
+                param = TargetedRepairParam(
+                    domain = domain,
+                    faultyKey = faultyKey
+                )
+            )
+            when (result) {
+                RepairResult.Error -> appLogger.e("Error occurred during repair of faulty removal keys")
+                RepairResult.NoConversationsToRepair -> appLogger.i("No conversations to repair")
+                RepairResult.RepairNotNeeded -> appLogger.i("Repair not needed")
+                is RepairResult.RepairPerformed -> {
+                    _infoMessage.emit(UIText.DynamicString("Repair finalized"))
+                    appLogger.i("Repair performed: $result")
+                }
+            }
+            state = state.copy(mlsInfoState = state.mlsInfoState.copy(isLoadingRepair = false))
+        }
+    }
+
     override fun forceSendFCMToken() {
         viewModelScope.launch {
             withContext(dispatcherProvider.io()) {
@@ -276,22 +314,24 @@ class DebugDataOptionsViewModelImpl
                 when (it) {
                     is MLSKeyPackageCountResult.Success -> {
                         state = state.copy(
-                            keyPackagesCount = it.count,
-                            mslClientId = it.clientId.value
+                            mlsInfoState = state.mlsInfoState.copy(
+                                keyPackagesCount = it.count,
+                                mlsClientId = it.clientId.value
+                            )
                         )
                     }
 
                     is MLSKeyPackageCountResult.Failure.NetworkCallFailure -> {
-                        state = state.copy(mlsErrorMessage = "Network Error!")
+                        state = state.copy(mlsInfoState = state.mlsInfoState.copy(mlsErrorMessage = "Network Error!"))
                     }
 
                     is MLSKeyPackageCountResult.Failure.FetchClientIdFailure -> {
-                        state = state.copy(mlsErrorMessage = "ClientId Fetch Error!")
+                        state = state.copy(mlsInfoState = state.mlsInfoState.copy(mlsErrorMessage = "ClientId Fetch Error!"))
                     }
 
                     is MLSKeyPackageCountResult.Failure.Generic -> {}
                     MLSKeyPackageCountResult.Failure.NotEnabled -> {
-                        state = state.copy(mlsErrorMessage = "Not Enabled!")
+                        state = state.copy(mlsInfoState = state.mlsInfoState.copy(mlsErrorMessage = "Not Enabled!"))
                     }
                 }
             }

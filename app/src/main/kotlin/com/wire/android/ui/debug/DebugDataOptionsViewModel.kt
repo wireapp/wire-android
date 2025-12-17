@@ -319,7 +319,6 @@ class DebugDataOptionsViewModelImpl
                                 mlsClientId = it.clientId.value
                             )
                         )
-
                     }
 
                     is MLSKeyPackageCountResult.Failure.NetworkCallFailure -> {

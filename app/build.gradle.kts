@@ -81,6 +81,7 @@ android {
         val appId: String? = System.getenv(datadogAppIdKey) ?: project.getLocalProperty(datadogAppIdKey, null)
         buildConfigField("String", datadogAppIdKey, appId?.let { "\"$it\"" } ?: "null")
 
+        // DOMAIN_REMOVAL_KEYS_FOR_REPAIR json format {"domain": "some hex string key"}
         val domainRemovalKeysForRepair = "DOMAIN_REMOVAL_KEYS_FOR_REPAIR"
         val domainKeysJson: String? =
             System.getenv(domainRemovalKeysForRepair) ?: project.getLocalProperty(domainRemovalKeysForRepair, null)

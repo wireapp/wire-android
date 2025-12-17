@@ -31,17 +31,17 @@ import com.wire.android.R
 import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
 import com.wire.android.model.Clickable
-import com.wire.android.ui.common.rowitem.RowItemTemplate
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSwitch
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.rowitem.RowItemTemplate
+import com.wire.android.ui.common.rowitem.SectionHeader
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.snackbar.collectAndShowSnackbar
 import com.wire.android.ui.e2eiEnrollment.GetE2EICertificateUI
-import com.wire.android.ui.common.rowitem.SectionHeader
 import com.wire.android.ui.home.settings.SettingsItem
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
@@ -333,7 +333,6 @@ private fun EnableEncryptedProteusStorageSwitch(
     )
 }
 //endregion
-
 
 @PreviewMultipleThemes
 @Composable

@@ -253,7 +253,7 @@ class DebugDataOptionsViewModelImpl
     override fun repairFaultRemovalKeys() {
         viewModelScope.launch {
             state = state.copy(mlsInfoState = state.mlsInfoState.copy(isLoadingRepair = true))
-            val (domain, faultyKey) = DOMAIN_REMOVAL_KEYS_FOR_REPAIR.entries.firstOrNull()
+            val (domain, faultyKey) = DOMAIN_REMOVAL_KEYS_FOR_REPAIR.entries.firstOrNull { it.key == currentAccount.domain }
                 ?: run {
                     appLogger.w("No faulty removal keys configured for repair")
                     _infoMessage.emit(UIText.DynamicString("No faulty removal keys configured for repair"))

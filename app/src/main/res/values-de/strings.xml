@@ -84,7 +84,6 @@
     <string name="content_description_reveal_password">Passwort anzeigen</string>
     <string name="content_description_hide_password">Passwort ausblenden</string>
     <string name="content_description_search_back">Suche-Icon zurück</string>
-    <string name="content_description_clear_content">Gesprächsverlauf löschen</string>
     <string name="content_description_muted_conversation">Unterhaltung ist stummgeschaltet</string>
     <string name="content_description_download_icon">Icon herunterladen</string>
     <string name="content_description_open_asset_icon">Icon öffnen</string>

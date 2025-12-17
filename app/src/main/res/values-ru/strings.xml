@@ -86,7 +86,6 @@
     <string name="content_description_reveal_password">Показать пароль</string>
     <string name="content_description_hide_password">Скрыть пароль</string>
     <string name="content_description_search_back">Значок возврата поиска</string>
-    <string name="content_description_clear_content">Очистить контент</string>
     <string name="content_description_muted_conversation">Беззвучные беседы</string>
     <string name="content_description_download_icon">Значок загрузки</string>
     <string name="content_description_open_asset_icon">Значок открытия</string>

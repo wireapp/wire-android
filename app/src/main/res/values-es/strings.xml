@@ -84,7 +84,6 @@
     <string name="content_description_reveal_password">Mostrar contraseña</string>
     <string name="content_description_hide_password">Ocultar contraseña</string>
     <string name="content_description_search_back">Icono de búsqueda atrás</string>
-    <string name="content_description_clear_content">Borrar contenido</string>
     <string name="content_description_muted_conversation">Conversación silenciada</string>
     <string name="content_description_download_icon">Icono de descarga</string>
     <string name="content_description_open_asset_icon">Icono de abrir</string>

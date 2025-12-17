@@ -80,7 +80,6 @@
     <string name="content_description_reveal_password">Mostra la password</string>
     <string name="content_description_hide_password">Nascondi la password</string>
     <string name="content_description_search_back">Icona di ricerca all\'indietro</string>
-    <string name="content_description_clear_content">Cancella il contenuto</string>
     <string name="content_description_muted_conversation">Conversazione silenziata</string>
     <string name="content_description_download_icon">Icona di download</string>
     <string name="content_description_open_asset_icon">Apri icona</string>

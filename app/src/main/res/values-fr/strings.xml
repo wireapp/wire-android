@@ -77,7 +77,6 @@
     <string name="content_description_reveal_password">Afficher le mot de passe</string>
     <string name="content_description_hide_password">Cacher le mot de passe</string>
     <string name="content_description_search_back">Icône de retour de recherche</string>
-    <string name="content_description_clear_content">Effacer le contenu</string>
     <string name="content_description_muted_conversation">Conversation en sourdine</string>
     <string name="content_description_download_icon">Icône de téléchargement</string>
     <string name="content_description_open_asset_icon">Icône d\'ouverture</string>

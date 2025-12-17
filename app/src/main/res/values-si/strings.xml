@@ -84,7 +84,6 @@
     <string name="content_description_reveal_password">මුරපදය පෙන්වන්න</string>
     <string name="content_description_hide_password">මුරපදය සඟවන්න</string>
     <string name="content_description_search_back">ආපසු සොයන්න නිරූපකය</string>
-    <string name="content_description_clear_content">අන්තර්ගතය මකන්න</string>
     <string name="content_description_muted_conversation">නිහඬ කළ සංවාදය</string>
     <string name="content_description_download_icon">බාගැනීමේ නිරූපකය</string>
     <string name="content_description_open_asset_icon">ඇරීමේ නිරූපකය</string>

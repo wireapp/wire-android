@@ -18,4 +18,5 @@
   -->
 <resources>
     <string name="content_description_check">チェックマーク</string>
+    <string name="content_description_clear_content">内容を消去</string>
 </resources>

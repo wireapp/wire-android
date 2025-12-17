@@ -18,4 +18,5 @@
   -->
 <resources>
     <string name="content_description_check">හරි ලකුණ</string>
+    <string name="content_description_clear_content">අන්තර්ගතය මකන්න</string>
 </resources>

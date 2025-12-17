@@ -84,7 +84,6 @@
     <string name="content_description_reveal_password">Şifreyi göster</string>
     <string name="content_description_hide_password">Parolayı gizle</string>
     <string name="content_description_search_back">Geri arama simgesi</string>
-    <string name="content_description_clear_content">İçeriği temizle</string>
     <string name="content_description_muted_conversation">Sessize alınmış sohbet</string>
     <string name="content_description_download_icon">İndirme simgesi</string>
     <string name="content_description_open_asset_icon">Simgeyi aç</string>

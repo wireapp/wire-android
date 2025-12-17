@@ -75,7 +75,6 @@
     <string name="content_description_reveal_password">Prikaži lozinku</string>
     <string name="content_description_hide_password">Sakrij lozinku</string>
     <string name="content_description_search_back">Ikona za povratak</string>
-    <string name="content_description_clear_content">Izbriši sadržaj</string>
     <string name="content_description_muted_conversation">Utišan razgovor</string>
     <string name="content_description_download_icon">Ikona za preuzimanje</string>
     <string name="content_description_open_asset_icon">Otvori ikonu</string>

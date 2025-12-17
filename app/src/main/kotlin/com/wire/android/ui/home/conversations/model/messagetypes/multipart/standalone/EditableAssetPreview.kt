@@ -18,13 +18,16 @@
 package com.wire.android.ui.home.conversations.model.messagetypes.multipart.standalone
 
 import android.graphics.drawable.Drawable
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -39,12 +42,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
-import coil.compose.AsyncImage
-import coil.request.CachePolicy
-import coil.request.ImageRequest
+import androidx.core.graphics.drawable.toBitmap
+import coil.compose.AsyncImagePainter
+import coil.compose.SubcomposeAsyncImage
+import coil.compose.SubcomposeAsyncImageContent
 import com.wire.android.ui.common.applyIf
 import com.wire.android.ui.common.attachmentdraft.ui.FileHeaderView
 import com.wire.android.ui.common.colorsScheme
@@ -67,6 +72,7 @@ internal fun EditableAssetPreview(
 ) {
     Column(
         modifier = Modifier
+            .heightIn(min = dimensions().spacing80x)
             .applyIf(messageStyle == MessageStyle.BUBBLE_SELF) {
                 background(colorsScheme().selfBubble.secondary)
             }
@@ -100,16 +106,23 @@ internal fun EditableAssetPreview(
         )
 
         item.fileName?.let {
-            Text(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = dimensions().spacing8x, end = dimensions().spacing8x),
-                text = it,
-                style = MaterialTheme.wireTypography.body02,
-                color = messageStyle.textColor(),
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
+            Box(
+                modifier = Modifier.then(
+                    if (item.previewUrl == null) Modifier.weight(1f) else Modifier
+                )
+            ) {
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = dimensions().spacing8x, end = dimensions().spacing8x)
+                        .align(Alignment.BottomStart),
+                    text = it,
+                    style = MaterialTheme.wireTypography.body02,
+                    maxLines = 2,
+                    color = messageStyle.textColor(),
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
         }
 
         Box(
@@ -124,32 +137,49 @@ internal fun EditableAssetPreview(
 
             item.previewUrl?.let {
 
-                // Remember recent drawable to use as placeholder to avoid blink on update
                 var drawable by remember { mutableStateOf<Drawable?>(null) }
 
-                val request = ImageRequest.Builder(LocalContext.current)
-                    .diskCacheKey(item.contentHash)
-                    .memoryCacheKey(item.contentHash)
-                    .placeholderMemoryCacheKey(item.contentHash)
-                    .diskCachePolicy(CachePolicy.ENABLED)
-                    .memoryCachePolicy(CachePolicy.ENABLED)
-                    .placeholder(drawable)
-                    .crossfade(true)
-                    .data(item.previewUrl)
-                    .build()
-
-                AsyncImage(
+                SubcomposeAsyncImage(
+                    model = item.previewUrl,
+                    contentDescription = null,
                     modifier = Modifier
                         .fillMaxSize()
+                        .aspectRatio(.8f)
                         .sizeIn(maxHeight = dimensions().messageDocumentPreviewMaxHeight),
-                    model = request,
-                    contentDescription = null,
-                    alignment = Alignment.TopStart,
                     contentScale = ContentScale.FillWidth,
-                    onSuccess = { result ->
-                        drawable = result.result.drawable
+                ) {
+                    when (painter.state) {
+                        is AsyncImagePainter.State.Loading -> {
+                            drawable?.let {
+                                val painter = drawable?.toBitmap()?.asImageBitmap()?.let { BitmapPainter(it) }
+                                painter?.let { paint ->
+                                    Image(
+                                        painter = paint,
+                                        contentDescription = null,
+                                        contentScale = ContentScale.FillWidth,
+                                        modifier = Modifier.fillMaxSize()
+                                    )
+                                }
+                            }
+                        }
+
+                        is AsyncImagePainter.State.Success -> {
+                            // Show the loaded image
+                            SubcomposeAsyncImageContent()
+
+                            // Update drawable state to use as placeholder next time
+                            drawable = (painter.state as AsyncImagePainter.State.Success).result.drawable
+                        }
+
+                        else -> {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .background(Color.Gray)
+                            )
+                        }
                     }
-                )
+                }
             }
 
             // Download progress

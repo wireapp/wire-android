@@ -39,7 +39,6 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -78,9 +77,9 @@ class VersionHistoryViewModelTest {
 
         val viewModel = VersionHistoryViewModel(savedStateHandle, getNodeVersionsUseCase, fileSizeFormatter, restoreNodeVersionUseCase)
 
-        assertTrue(viewModel.isFetchingContent.value)
+        assertEquals(VersionHistoryState.Idle, viewModel.versionHistoryState.value)
         advanceUntilIdle()
-        assertFalse(viewModel.isFetchingContent.value)
+        assertEquals(VersionHistoryState.Success, viewModel.versionHistoryState.value)
     }
 
     @Suppress("LongMethod")
@@ -173,7 +172,7 @@ class VersionHistoryViewModelTest {
         advanceUntilIdle()
 
         assertTrue(viewModel.versionsGroupedByTime.value.isEmpty())
-        assertFalse(viewModel.isFetchingContent.value)
+        assertEquals(VersionHistoryState.Failed, viewModel.versionHistoryState.value)
     }
 
     @Test
@@ -184,6 +183,6 @@ class VersionHistoryViewModelTest {
         advanceUntilIdle()
 
         assertTrue(viewModel.versionsGroupedByTime.value.isEmpty())
-        assertFalse(viewModel.isFetchingContent.value)
+        assertEquals(VersionHistoryState.Loading, viewModel.versionHistoryState.value)
     }
 }

@@ -63,6 +63,7 @@ class KaliumConfigsModule {
             limitTeamMembersFetchDuringSlowSync = BuildConfig.LIMIT_TEAM_MEMBERS_FETCH_DURING_SLOW_SYNC,
             isMlsResetEnabled = BuildConfig.IS_MLS_RESET_ENABLED,
             collaboraIntegration = BuildConfig.COLLABORA_INTEGRATION_ENABLED,
+            syncApiUrl = BuildConfig.SYNC_API_URL
         )
     }
 }

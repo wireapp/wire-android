@@ -33,7 +33,6 @@ import com.wire.android.navigation.WireNavigator
 import com.wire.android.navigation.annotation.features.cells.WireDestination
 import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.ui.common.search.rememberSearchbarState
-import kotlinx.coroutines.delay
 
 @WireDestination(
     style = SlideNavigationAnimation::class,
@@ -48,9 +47,6 @@ fun ConversationFilesWithSlideInTransitionScreen(
     val conversationSearchBarState = rememberSearchbarState()
 
     LaunchedEffect(conversationSearchBarState.searchQueryTextState.text) {
-        if (conversationSearchBarState.searchQueryTextState.text.isNotEmpty()) {
-            delay(300)
-        }
         viewModel.onSearchQueryUpdated(conversationSearchBarState.searchQueryTextState.text.toString())
     }
 

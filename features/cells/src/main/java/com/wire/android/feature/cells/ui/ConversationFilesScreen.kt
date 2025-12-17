@@ -82,7 +82,6 @@ import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import com.wire.android.ui.theme.WireTheme
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -106,9 +105,6 @@ fun ConversationFilesScreen(
     val conversationSearchBarState = rememberSearchbarState()
 
     LaunchedEffect(conversationSearchBarState.searchQueryTextState.text) {
-        if (conversationSearchBarState.searchQueryTextState.text.isNotEmpty()) {
-            delay(300)
-        }
         viewModel.onSearchQueryUpdated(conversationSearchBarState.searchQueryTextState.text.toString())
     }
 

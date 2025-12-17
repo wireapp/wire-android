@@ -59,6 +59,8 @@
     <string name="label_cancel">Cancel</string>
     <string name="label_no_selected_date">No selected date</string>
 
+    <string name="content_description_check">Check mark</string>
+
     <string name="size_unit_bytes">B</string>
     <string name="size_unit_kilobytes">KB</string>
     <string name="size_unit_megabytes">MB</string>

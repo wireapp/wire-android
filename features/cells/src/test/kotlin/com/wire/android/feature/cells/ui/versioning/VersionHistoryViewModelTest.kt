@@ -34,6 +34,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.currentTime
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
@@ -42,9 +43,12 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import java.time.Instant
 import java.time.LocalDate
+import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 
 @ExperimentalCoroutinesApi
 class VersionHistoryViewModelTest {
@@ -75,7 +79,8 @@ class VersionHistoryViewModelTest {
     fun givenViewModel_whenItInits_thenIsFetchingStateIsManagedCorrectly() = runTest {
         coEvery { getNodeVersionsUseCase(testNodeUuid) } returns Either.Right(emptyList())
 
-        val viewModel = VersionHistoryViewModel(savedStateHandle, getNodeVersionsUseCase, fileSizeFormatter, restoreNodeVersionUseCase)
+        val versionGroupHelper = VersionGroupHelper(fileSizeFormatter, { currentTime })
+        val viewModel = VersionHistoryViewModel(savedStateHandle, getNodeVersionsUseCase, restoreNodeVersionUseCase, versionGroupHelper)
 
         assertEquals(VersionHistoryState.Idle, viewModel.versionHistoryState.value)
         advanceUntilIdle()
@@ -85,7 +90,8 @@ class VersionHistoryViewModelTest {
     @Suppress("LongMethod")
     @Test
     fun givenSuccessfulFetch_whenViewModelInits_thenVersionsAreGroupedCorrectly() = runTest {
-        val today = LocalDate.now()
+
+        val today = LocalDate.ofInstant(Instant.ofEpochSecond(currentTime), ZoneId.systemDefault())
         val yesterday = today.minusDays(1)
         val twoDaysAgo = today.minusDays(2)
         val versionNode = NodeVersion(
@@ -128,7 +134,14 @@ class VersionHistoryViewModelTest {
         coEvery { getNodeVersionsUseCase(testNodeUuid) } returns Either.Right(versionsFromApi)
         every { fileSizeFormatter.formatSize(any()) } returns "30 MB"
 
-        val viewModel = VersionHistoryViewModel(savedStateHandle, getNodeVersionsUseCase, fileSizeFormatter, restoreNodeVersionUseCase)
+        val versionGroupHelper = VersionGroupHelper(fileSizeFormatter, { currentTime })
+
+        val viewModel = VersionHistoryViewModel(
+            savedStateHandle = savedStateHandle,
+            getNodeVersionsUseCase = getNodeVersionsUseCase,
+            restoreNodeVersionUseCase = restoreNodeVersionUseCase,
+            versionGroupHelper = versionGroupHelper,
+        )
         testDispatcher.scheduler.advanceUntilIdle()
 
         // Versions should be grouped into three sections (Today, Yesterday, and an older date)
@@ -145,7 +158,13 @@ class VersionHistoryViewModelTest {
         assertEquals("Today, $todayFormattedDate", actualTodayText)
         assertEquals(1, groupedVersions[0].versions.size)
         assertEquals("User A", groupedVersions[0].versions[0].modifiedBy)
-        assertEquals("11:30 AM", groupedVersions[0].versions[0].modifiedAt)
+
+        val expectedTime = Instant
+            .ofEpochSecond(versionNode.modifiedTime!!.toLong())
+            .atZone(ZoneId.systemDefault())
+            .toLocalTime()
+            .format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT))
+        assertEquals(expectedTime, groupedVersions[0].versions[0].modifiedAt)
 
         // Verify "Yesterday" group is correct
         every { fileSizeFormatter.formatSize(any()) } returns groupedVersions[1].versions[0].fileSize
@@ -168,7 +187,8 @@ class VersionHistoryViewModelTest {
     fun givenApiFailure_whenViewModelInits_thenVersionListIsEmpty() = runTest {
         coEvery { getNodeVersionsUseCase(testNodeUuid) } returns Either.Left(CoreFailure.MissingClientRegistration)
 
-        val viewModel = VersionHistoryViewModel(savedStateHandle, getNodeVersionsUseCase, fileSizeFormatter, restoreNodeVersionUseCase)
+        val versionGroupHelper = VersionGroupHelper(fileSizeFormatter, { currentTime })
+        val viewModel = VersionHistoryViewModel(savedStateHandle, getNodeVersionsUseCase, restoreNodeVersionUseCase, versionGroupHelper)
         advanceUntilIdle()
 
         assertTrue(viewModel.versionsGroupedByTime.value.isEmpty())
@@ -179,7 +199,8 @@ class VersionHistoryViewModelTest {
     fun givenMissingUuid_whenViewModelInits_thenNoFetchIsAttempted() = runTest {
         every { savedStateHandle.get<String>("uuid") } returns null
 
-        val viewModel = VersionHistoryViewModel(savedStateHandle, getNodeVersionsUseCase, fileSizeFormatter, restoreNodeVersionUseCase)
+        val versionGroupHelper = VersionGroupHelper(fileSizeFormatter, { currentTime })
+        val viewModel = VersionHistoryViewModel(savedStateHandle, getNodeVersionsUseCase, restoreNodeVersionUseCase, versionGroupHelper)
         advanceUntilIdle()
 
         assertTrue(viewModel.versionsGroupedByTime.value.isEmpty())

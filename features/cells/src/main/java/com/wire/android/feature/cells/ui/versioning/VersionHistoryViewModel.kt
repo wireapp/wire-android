@@ -22,13 +22,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.navArgs
 import com.wire.android.feature.cells.ui.versioning.restore.RestoreDialogState
 import com.wire.android.feature.cells.ui.versioning.restore.RestoreVersionState
-import com.wire.android.util.FileSizeFormatter
-import com.wire.android.util.ui.UIText
-import com.wire.kalium.cells.domain.model.NodeVersion
 import com.wire.kalium.cells.domain.usecase.versioning.GetNodeVersionsUseCase
 import com.wire.kalium.cells.domain.usecase.versioning.RestoreNodeVersionUseCase
 import com.wire.kalium.common.functional.onFailure
@@ -36,19 +32,14 @@ import com.wire.kalium.common.functional.onSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.time.Instant
-import java.time.LocalDate
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 import javax.inject.Inject
 
 @HiltViewModel
 class VersionHistoryViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val getNodeVersionsUseCase: GetNodeVersionsUseCase,
-    private val fileSizeFormatter: FileSizeFormatter,
     private val restoreNodeVersionUseCase: RestoreNodeVersionUseCase,
+    private val versionGroupHelper: VersionGroupHelper,
 ) : ViewModel() {
 
     private val navArgs: VersionHistoryNavArgs = savedStateHandle.navArgs()
@@ -81,62 +72,13 @@ class VersionHistoryViewModel @Inject constructor(
             getNodeVersionsUseCase(navArgs.uuid)
                 .onSuccess {
                     versionHistoryState.value = VersionHistoryState.Success
-                    versionsGroupedByTime.value = it.groupByDay()
+                    versionsGroupedByTime.value = versionGroupHelper.groupByDay(it)
                 }
                 // TODO: Handle error on UI
                 .onFailure {
                     versionHistoryState.value = VersionHistoryState.Failed
                 }
         }
-
-    private fun List<NodeVersion>.groupByDay(): List<VersionGroup> {
-        val today = LocalDate.now()
-        val yesterday = today.minusDays(1)
-
-        val grouped = this.groupBy { item ->
-            Instant.ofEpochSecond(item.modifiedTime?.toLong() ?: 0L)
-                .atZone(ZoneId.systemDefault())
-                .toLocalDate()
-        }
-
-        return grouped.entries
-            .sortedByDescending { it.key }
-            .mapIndexed { groupIndex, (date, items) ->
-                val dateFormat = DateTimeFormatter.ofPattern(DATE_PATTERN)
-                val formattedDate = date.format(dateFormat)
-
-                val dateLabel: UIText = when (date) {
-                    today -> UIText.StringResource(
-                        R.string.date_label_today,
-                        formattedDate
-                    )
-
-                    yesterday -> UIText.StringResource(
-                        R.string.date_label_yesterday,
-                        formattedDate
-                    )
-
-                    else -> UIText.DynamicString(formattedDate)
-                }
-
-                val uiItems = items.mapIndexed { itemIndex, apiItem ->
-
-                    val formattedTime = Instant.ofEpochSecond(apiItem.modifiedTime?.toLong() ?: 0L)
-                        .atZone(ZoneId.systemDefault())
-                        .toLocalTime()
-                        .format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT))
-
-                    CellVersion(
-                        versionId = apiItem.id,
-                        modifiedBy = apiItem.ownerName ?: "",
-                        fileSize = fileSizeFormatter.formatSize(apiItem.size?.toLong() ?: 0),
-                        modifiedAt = formattedTime,
-                        isCurrentVersion = groupIndex == 0 && itemIndex == 0
-                    )
-                }
-                VersionGroup(dateLabel, uiItems)
-            }
-    }
 
     // TODO: Unit test coming in another PR
     fun showRestoreConfirmationDialog(versionId: String) {

@@ -19,8 +19,10 @@ package com.wire.android.di.accountScoped
 
 import com.wire.android.di.CurrentAccount
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.feature.cells.ui.versioning.VersionGroupHelper
 import com.wire.android.feature.cells.util.FileNameResolver
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.CellAssetRefreshHelper
+import com.wire.android.util.FileSizeFormatter
 import com.wire.kalium.cells.CellsScope
 import com.wire.kalium.cells.domain.CellUploadManager
 import com.wire.kalium.cells.domain.usecase.AddAttachmentDraftUseCase
@@ -220,4 +222,8 @@ class CellsModule {
     @Provides
     fun provideRestoreNodeVersionUseCase(cellsScope: CellsScope): RestoreNodeVersionUseCase =
         cellsScope.restoreNodeVersion
+
+    @ViewModelScoped
+    @Provides
+    fun provideVersionGroupHelper(fileSizeFormatter: FileSizeFormatter): VersionGroupHelper = VersionGroupHelper(fileSizeFormatter)
 }

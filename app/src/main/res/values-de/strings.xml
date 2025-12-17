@@ -97,7 +97,6 @@
     <string name="content_description_delete_the_conversation">Unterhaltung löschen</string>
     <string name="content_description_conversation_phone_icon">Audioanruf starten</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
-    <string name="content_description_conversation_search_icon">Icon suchen</string>
     <string name="content_description_conversation_search_input">Sucheingabe</string>
     <string name="content_description_conversation_mention_someone">Jemanden erwähnen</string>
     <string name="content_description_conversation_back_btn">Zurück zur Unterhaltungsliste</string>

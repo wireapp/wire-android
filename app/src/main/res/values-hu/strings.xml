@@ -97,7 +97,6 @@
     <string name="content_description_delete_the_conversation">Beszélgetés törlése</string>
     <string name="content_description_conversation_phone_icon">Hívás indítása</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
-    <string name="content_description_conversation_search_icon">Keresés ikon</string>
     <string name="content_description_conversation_search_input">Keresőmező</string>
     <string name="content_description_conversation_enable_rich_text_mode">Formázott szöveg engedélyezése gomb</string>
     <string name="content_description_conversation_enable_drawing_mode">Rajzmód gomb engedélyezése</string>

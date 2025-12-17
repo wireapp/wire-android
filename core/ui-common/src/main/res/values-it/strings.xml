@@ -19,4 +19,5 @@
 <resources>
     <string name="content_description_check">Segno di spunta</string>
     <string name="content_description_clear_content">Cancella il contenuto</string>
+    <string name="content_description_conversation_search_icon">Icona di ricerca</string>
 </resources>

@@ -19,4 +19,5 @@
 <resources>
     <string name="content_description_check">Pipa jel</string>
     <string name="content_description_clear_content">Tartalom törlése</string>
+    <string name="content_description_conversation_search_icon">Keresés ikon</string>
 </resources>

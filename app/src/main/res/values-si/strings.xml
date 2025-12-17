@@ -97,7 +97,6 @@
     <string name="content_description_delete_the_conversation">සංවාදය මකන්න</string>
     <string name="content_description_conversation_phone_icon">ශ්‍රව්‍ය ඇමතුමක් අරඹන්න</string>
     <string name="content_description_welcome_wire_logo">වයර්</string>
-    <string name="content_description_conversation_search_icon">සොයන්න නිරූපකය</string>
     <string name="content_description_conversation_search_input">සෙවුම ආදානය</string>
     <string name="content_description_conversation_enable_rich_text_mode">සරු පෙළ නිරූපකය සබල කරන්න</string>
     <string name="content_description_conversation_enable_drawing_mode">අඳින ප්‍රකාරය සබල කරන ‌බොත්තම</string>

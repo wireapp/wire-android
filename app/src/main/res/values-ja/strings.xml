@@ -90,7 +90,6 @@
     <string name="content_description_unblock_the_user">ブロック解除</string>
     <string name="content_description_conversation_phone_icon">音声通話を開始</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
-    <string name="content_description_conversation_search_icon">検索アイコン</string>
     <string name="content_description_conversation_search_input">検索入力</string>
     <string name="content_description_conversation_enable_rich_text_mode">リッチテキストモードボタンを有効にする</string>
     <string name="content_description_conversation_enable_drawing_mode">お絵描きモードボタンを有効にする</string>

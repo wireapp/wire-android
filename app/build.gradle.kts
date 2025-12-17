@@ -160,6 +160,7 @@ dependencies {
 
     // kover
     kover(project(":features:sketch"))
+    kover(project(":features:cells"))
     kover(project(":core:ui-common"))
     kover(project(":core:analytics-enabled"))
 

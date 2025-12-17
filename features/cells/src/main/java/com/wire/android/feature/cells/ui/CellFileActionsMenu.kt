@@ -24,6 +24,7 @@ import com.wire.android.feature.cells.ui.model.localFileAvailable
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import javax.inject.Inject
 
+@Suppress("CyclomaticComplexMethod", "LongParameterList")
 class CellFileActionsMenu @Inject constructor(
     private val featureFlags: KaliumConfigs
 ) {
@@ -32,7 +33,8 @@ class CellFileActionsMenu @Inject constructor(
         isRecycleBin: Boolean,
         isConversationFiles: Boolean,
         isAllFiles: Boolean,
-        isSearching: Boolean
+        isSearching: Boolean,
+        isCollaboraEnabled: Boolean,
     ): List<NodeBottomSheetAction> =
         when {
             isRecycleBin -> {
@@ -50,7 +52,7 @@ class CellFileActionsMenu @Inject constructor(
                     add(NodeBottomSheetAction.PUBLIC_LINK)
                     add(NodeBottomSheetAction.DOWNLOAD)
 
-                    if (featureFlags.collaboraIntegration && cellNode.isEditSupported()) {
+                    if (isCollaboraEnabled && featureFlags.collaboraIntegration && cellNode.isEditSupported()) {
                         add(NodeBottomSheetAction.EDIT)
                     }
 
@@ -86,7 +88,6 @@ class CellFileActionsMenu @Inject constructor(
     internal data class Download(val node: CellNodeUi) : MenuActionResult
     internal data class Edit(val node: CellNodeUi) : MenuActionResult
 
-    @Suppress("CyclomaticComplexMethod")
     internal fun onMenuItemAction(
         conversationId: String?,
         parentFolderUuid: String?,

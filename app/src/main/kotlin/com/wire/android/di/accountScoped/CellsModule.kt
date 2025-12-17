@@ -34,6 +34,7 @@ import com.wire.kalium.cells.domain.usecase.GetFoldersUseCase
 import com.wire.kalium.cells.domain.usecase.GetMessageAttachmentUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedNodesUseCase
+import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
 import com.wire.kalium.cells.domain.usecase.IsAtLeastOneCellAvailableUseCase
 import com.wire.kalium.cells.domain.usecase.MoveNodeUseCase
 import com.wire.kalium.cells.domain.usecase.ObserveAttachmentDraftsUseCase
@@ -220,4 +221,8 @@ class CellsModule {
     @Provides
     fun provideRestoreNodeVersionUseCase(cellsScope: CellsScope): RestoreNodeVersionUseCase =
         cellsScope.restoreNodeVersion
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetCellsConfigUseCase(cellsScope: CellsScope): GetWireCellConfigurationUseCase = cellsScope.getCellConfig
 }

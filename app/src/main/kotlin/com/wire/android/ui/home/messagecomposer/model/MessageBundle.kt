@@ -33,6 +33,13 @@ sealed class ComposableMessageBundle(override val conversationId: ConversationId
         val newMentions: List<UIMention>
     ) : ComposableMessageBundle(conversationId)
 
+    data class EditMultipartMessageBundle(
+        override val conversationId: ConversationId,
+        val originalMessageId: String,
+        val newContent: String,
+        val newMentions: List<UIMention>,
+    ) : ComposableMessageBundle(conversationId)
+
     data class SendTextMessageBundle(
         override val conversationId: ConversationId,
         val message: String,

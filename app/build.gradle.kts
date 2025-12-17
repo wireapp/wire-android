@@ -160,6 +160,7 @@ dependencies {
 
     // kover
     kover(project(":features:sketch"))
+    kover(project(":features:cells"))
     kover(project(":core:ui-common"))
     kover(project(":core:analytics-enabled"))
 
@@ -208,7 +209,6 @@ dependencies {
     implementation(libs.compose.material.core)
     implementation(libs.compose.material3)
     // the only libraries with material2 packages that can be used with material3 are icons and ripple
-    implementation(libs.compose.material.icons)
     implementation(libs.compose.material.ripple)
     implementation(libs.compose.ui.preview)
     implementation(libs.compose.activity)

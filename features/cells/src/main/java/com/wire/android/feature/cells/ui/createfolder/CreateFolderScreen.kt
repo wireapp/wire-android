@@ -28,8 +28,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -38,12 +36,13 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.feature.cells.R
-import com.wire.android.model.DisplayNameState
+import com.wire.android.feature.cells.ui.common.FileNameError
 import com.wire.android.navigation.PreviewNavigator
 import com.wire.android.navigation.PreviewResultBackNavigator
 import com.wire.android.navigation.WireNavigator
 import com.wire.android.navigation.annotation.features.cells.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
+import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
@@ -73,19 +72,6 @@ fun CreateFolderScreen(
     createFolderViewModel: CreateFolderViewModel = hiltViewModel()
 ) {
     val showErrorDialog = remember { mutableStateOf(false) }
-
-    LaunchedEffect(createFolderViewModel.createFolderState) {
-        when (createFolderViewModel.createFolderState) {
-            CreateFolderState.Success -> {
-                resultNavigator.setResult(true)
-                resultNavigator.navigateBack()
-            }
-
-            CreateFolderState.Failure -> showErrorDialog.value = true
-
-            else -> Unit // Default case, do nothing
-        }
-    }
 
     if (showErrorDialog.value) {
         WireDialog(
@@ -134,12 +120,12 @@ fun CreateFolderScreen(
                                         folderName = fileNameTextFieldState.text.toString()
                                     )
                                 },
-                                state = if (displayNameState.saveEnabled && !isCreating.collectAsState().value) {
+                                state = if (viewState.saveEnabled && !viewState.loading) {
                                     WireButtonState.Default
                                 } else {
                                     WireButtonState.Disabled
                                 },
-                                loading = isCreating.collectAsState().value
+                                loading = viewState.loading
                             )
                         }
                     }
@@ -158,32 +144,34 @@ fun CreateFolderScreen(
                     start = dimensions().spacing16x,
                     end = dimensions().spacing16x
                 ),
-            state = computeNameErrorState(createFolderViewModel.displayNameState.error),
+            state = computeNameErrorState(createFolderViewModel.viewState.error),
         )
+    }
+
+    HandleActions(createFolderViewModel.actions) { action ->
+        when (action) {
+            CreateFolderViewModelAction.Success -> {
+                resultNavigator.setResult(true)
+                resultNavigator.navigateBack()
+            }
+            CreateFolderViewModelAction.Failure -> {
+                showErrorDialog.value = true
+            }
+        }
     }
 }
 
 @Composable
-private fun computeNameErrorState(
-    error: DisplayNameState.NameError
-): WireTextFieldState {
-    return when (error) {
-        is DisplayNameState.NameError.TextFieldError -> {
-            val messageRes = when (error) {
-                DisplayNameState.NameError.TextFieldError.NameEmptyError ->
-                    R.string.cells_folder_name
-
-                DisplayNameState.NameError.TextFieldError.NameExceedLimitError ->
-                    R.string.rename_long_folder_name_error
-
-                DisplayNameState.NameError.TextFieldError.InvalidNameError ->
-                    R.string.rename_invalid_name
-            }
-            WireTextFieldState.Error(stringResource(id = messageRes))
-        }
-
-        else -> WireTextFieldState.Default
+private fun computeNameErrorState(error: FileNameError?): WireTextFieldState {
+    val messageRes = when (error) {
+        FileNameError.NameEmpty -> R.string.cells_folder_name
+        FileNameError.NameExceedLimit -> R.string.rename_long_folder_name_error
+        FileNameError.NameAlreadyExist -> R.string.rename_already_exist
+        FileNameError.InvalidName -> R.string.rename_invalid_name
+        null -> return WireTextFieldState.Default
     }
+
+    return WireTextFieldState.Error(stringResource(id = messageRes))
 }
 
 @MultipleThemePreviews

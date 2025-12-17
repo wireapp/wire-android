@@ -22,17 +22,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.feature.cells.ui.common.FileNameError
+import com.wire.android.feature.cells.ui.common.validateFileName
 import com.wire.android.feature.cells.ui.navArgs
-import com.wire.android.feature.cells.ui.rename.RenameNodeViewModel.Companion.NAME_MAX_COUNT
-import com.wire.android.model.DisplayNameState
+import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.kalium.cells.domain.usecase.CreateFolderUseCase
-import com.wire.kalium.common.functional.fold
+import com.wire.kalium.common.functional.onFailure
+import com.wire.kalium.common.functional.onSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -40,48 +41,50 @@ import javax.inject.Inject
 class CreateFolderViewModel @Inject constructor(
     val savedStateHandle: SavedStateHandle,
     private val createFolderUseCase: CreateFolderUseCase,
-) : ViewModel() {
+) : ActionsViewModel<CreateFolderViewModelAction>() {
 
     private val navArgs: CreateFolderScreenNavArgs = savedStateHandle.navArgs()
 
-    var createFolderState: CreateFolderState by mutableStateOf(CreateFolderState.Default)
-        private set
-
     val fileNameTextFieldState: TextFieldState = TextFieldState()
 
-    var displayNameState: DisplayNameState by mutableStateOf(DisplayNameState())
+    var viewState: CreateFolderViewState by mutableStateOf(CreateFolderViewState())
         private set
-
-    private val _isCreating = MutableStateFlow(false)
-    val isCreating = _isCreating
 
     init {
         viewModelScope.launch {
-            fileNameTextFieldState.textAsFlow().collectLatest {
-                displayNameState = displayNameState.copy(
-                    saveEnabled = it.trim().isNotEmpty() && it.length <= NAME_MAX_COUNT && !it.contains("/"),
-                    error = when {
-                        it.length > NAME_MAX_COUNT -> DisplayNameState.NameError.TextFieldError.NameExceedLimitError
-                        it.contains("/") -> DisplayNameState.NameError.TextFieldError.InvalidNameError
-                        else -> DisplayNameState.NameError.None
-                    }
+            fileNameTextFieldState.textAsFlow().map { it.trim() }.collectLatest { name ->
+                val fileValidationResult = name.validateFileName().takeIf { name.isNotEmpty() }
+                viewState = viewState.copy(
+                    saveEnabled = fileValidationResult == null && name.isNotEmpty(),
+                    error = fileValidationResult
                 )
             }
         }
     }
 
-    internal fun createFolder(folderName: String) {
-        _isCreating.value = true
-        viewModelScope.launch {
-            createFolderState = createFolderUseCase("${navArgs.uuid}/$folderName").fold(
-                { CreateFolderState.Failure },
-                { CreateFolderState.Success },
-            )
-            _isCreating.value = false
-        }
+    internal fun createFolder(folderName: String) = viewModelScope.launch {
+
+        viewState = viewState.copy(loading = true)
+
+        createFolderUseCase("${navArgs.uuid}/${folderName.trim()}")
+            .onSuccess {
+                sendAction(CreateFolderViewModelAction.Success)
+            }
+            .onFailure {
+                sendAction(CreateFolderViewModelAction.Failure)
+            }
+
+        viewState = viewState.copy(loading = false)
     }
 }
 
-enum class CreateFolderState {
-    Default, Success, Failure
+sealed interface CreateFolderViewModelAction {
+    data object Success : CreateFolderViewModelAction
+    data object Failure : CreateFolderViewModelAction
 }
+
+data class CreateFolderViewState(
+    val loading: Boolean = false,
+    val saveEnabled: Boolean = false,
+    val error: FileNameError? = null,
+)

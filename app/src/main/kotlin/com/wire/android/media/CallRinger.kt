@@ -54,13 +54,18 @@ class CallRinger @Inject constructor(private val context: Context) {
         }
     }
 
-    private fun createMediaPlayer(resource: Int, isLooping: Boolean) {
+    private fun createMediaPlayer(resource: Int, isLooping: Boolean, isRingtone: Boolean) {
         mediaPlayer = MediaPlayer.create(
             context,
             resource,
             AudioAttributes.Builder()
                 .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
+                .setUsage(
+                    when {
+                        isRingtone -> AudioAttributes.USAGE_NOTIFICATION_RINGTONE
+                        else -> AudioAttributes.USAGE_VOICE_COMMUNICATION_SIGNALLING
+                    }
+                )
                 .build(),
             0
         )
@@ -74,7 +79,7 @@ class CallRinger @Inject constructor(private val context: Context) {
     ) {
         stop()
         vibrateIfNeeded(isIncomingCall)
-        createMediaPlayer(resource, isLooping)
+        createMediaPlayer(resource = resource, isLooping = isLooping, isRingtone = isIncomingCall)
         appLogger.i("Starting ringing | isIncomingCall: $isIncomingCall")
         mediaPlayer?.start()
     }

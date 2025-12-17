@@ -26,17 +26,17 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Icon
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.WarningAmber
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.feature.cells.domain.model.icon
+import com.wire.android.ui.common.R
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.typography
@@ -44,7 +44,7 @@ import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.home.conversations.messages.item.isBubble
 import com.wire.android.ui.home.conversations.messages.item.textColor
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.util.DeviceUtil
+import com.wire.android.util.FileSizeFormatter
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
@@ -58,8 +58,9 @@ fun FileHeaderView(
     labelColor: Color? = null,
     isError: Boolean = false,
 ) {
+    val context = LocalContext.current
     val attachmentFileType = type ?: remember(extension) { AttachmentFileType.fromExtension(extension) }
-    val sizeString = remember(size) { size?.let { DeviceUtil.formatSize(size) } ?: "" }
+    val sizeString = remember(size) { size?.let { FileSizeFormatter(context).formatSize(size) } ?: "" }
 
     Row(
         modifier = modifier.fillMaxWidth(),
@@ -69,7 +70,7 @@ fun FileHeaderView(
         if (isError) {
             Icon(
                 modifier = Modifier.size(dimensions().spacing16x),
-                imageVector = Icons.Outlined.WarningAmber,
+                painter = painterResource(R.drawable.ic_warning_amber),
                 tint = colorsScheme().error,
                 contentDescription = null,
             )

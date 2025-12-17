@@ -33,8 +33,10 @@
     <string name="add_remove_tags_label">Tags hinzufügen oder entfernen</string>
     <string name="move_label">In Ordner verschieben</string>
     <string name="download_label">Herunterladen</string>
+    <string name="edit_label">Datei bearbeiten</string>
     <string name="copy_link">Link kopieren</string>
     <string name="share_link">Link teilen</string>
+    <string name="see_version_history_bottom_sheet">Versionsverlauf anzeigen</string>
     <string name="copied_to_clipboard_message">Link in Zwischenablage kopiert</string>
     <string name="file_subtitle">%1$s in %2$s</string>
     <string name="file_subtitle_modified">%1$s von %2$s</string>
@@ -98,7 +100,6 @@
     <string name="rename_file_renamed">Datei wurde umbenannt</string>
     <string name="rename_folder_renamed">Ordner wurde umbenannt</string>
     <string name="rename_failure">Umbenennen nicht möglich</string>
-    <string name="rename_invalid_name">Verwenden Sie einen Namen ohne \"/\"</string>
     <string name="rename_already_exist">Eine Datei mit diesem Namen ist bereits vorhanden</string>
     <string name="filter_label">Filter</string>
     <string name="tags_label">Tags</string>
@@ -148,8 +149,9 @@
     <string name="public_link_common_failure_dialog_message">Bitte versuchen Sie es erneut.\n\nWenn dieser Fehler weiterhin besteht, kontaktieren Sie Ihren Team-Admin.</string>
     <string name="public_link_password_create_failure_dialog_title">Passwortgesicherter Link kann nicht erstellt werden</string>
     <string name="public_link_expiration_create_failure_dialog_title">Ablaufdatum kann nicht hinzugefügt werden</string>
+    <string name="cell_open_editor_failure_dialog_title">Datei-Bearbeitungsmodus kann nicht geöffnet werden</string>
+    <string name="cell_open_editor_failure_dialog_message">Es gab ein Problem beim Verbinden mit dem Server. Bitte versuchen Sie es erneut. Wenn das Problem weiterhin besteht, kontaktieren Sie den Support.</string>
     <string name="error_try_again_button_title">Erneut versuchen</string>
-    <string name="version_history_top_appbar_title">Versionsverlauf</string>
     <string name="public_link_expiration_add">Ablaufdatum hinzufügen</string>
     <string name="public_link_expiration_set">Ablaufdatum festlegen</string>
     <string name="public_link_expiration_description">Der Link läuft nach dem festgelegten Datum und der festgelegten Uhrzeit automatisch ab. Die Inhalte sind dann nicht mehr zugänglich.</string>
@@ -161,4 +163,7 @@
     <string name="dialog_expiration_time_title">Ablaufzeit</string>
     <string name="invalid_expiration_date">Ablaufdatum liegt in der Vergangenheit</string>
     <string name="link_expired">Link abgelaufen am: %1$s, um %2$s</string>
+    <string name="version_history_top_appbar_title">Versionsverlauf</string>
+    <string name="date_label_today">Heute, %1$s</string>
+    <string name="date_label_yesterday">Gestern, %1$s</string>
 </resources>

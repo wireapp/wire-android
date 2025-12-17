@@ -26,9 +26,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.DoNotDisturb
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -37,7 +34,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import com.wire.android.model.Clickable
+import com.wire.android.ui.common.R
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.typography
@@ -83,13 +82,13 @@ fun FeatureListItem(
 
             when (feature.status) {
                 FeatureStatus.ENABLED -> Icon(
-                    imageVector = Icons.Default.Check,
+                    painter = painterResource(R.drawable.ic_check),
                     contentDescription = "Enabled",
                     tint = colorsScheme().primary
                 )
 
                 FeatureStatus.DISABLED -> Icon(
-                    imageVector = Icons.Default.DoNotDisturb,
+                    painter = painterResource(R.drawable.ic_do_not_disturb),
                     contentDescription = "Disabled",
                     tint = colorsScheme().onSurfaceVariant,
                 )

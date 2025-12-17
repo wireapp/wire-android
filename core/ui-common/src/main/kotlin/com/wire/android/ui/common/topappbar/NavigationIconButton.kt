@@ -18,18 +18,14 @@
 
 package com.wire.android.ui.common.topappbar
 
+import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.wire.android.ui.common.R
 import com.wire.android.ui.common.dimensions
@@ -41,25 +37,19 @@ fun NavigationIconButton(iconType: NavigationIconType, onClick: () -> Unit, modi
         modifier = modifier.size(dimensions().spacing48x)
     ) {
         Icon(
-            imageVector = iconType.icon,
+            painter = painterResource(iconType.icon),
             contentDescription = stringResource(iconType.contentDescription),
-            modifier = Modifier.size(dimensions().spacing24x)
         )
     }
 }
 
-@Composable
-fun BackNavigationIconButton(onBackButtonClick: () -> Unit) {
-    NavigationIconButton(NavigationIconType.Back(), onBackButtonClick)
-}
-
-sealed class NavigationIconType(val icon: ImageVector, @StringRes open val contentDescription: Int) {
+sealed class NavigationIconType(@DrawableRes val icon: Int, @StringRes open val contentDescription: Int) {
     data class Back(@StringRes override val contentDescription: Int = R.string.content_description_left_arrow) :
-        NavigationIconType(Icons.AutoMirrored.Filled.ArrowBack, contentDescription)
+        NavigationIconType(R.drawable.ic_arrow_back, contentDescription)
 
     data class Close(@StringRes override val contentDescription: Int = R.string.content_description_close) :
-        NavigationIconType(Icons.Filled.Close, contentDescription)
+        NavigationIconType(R.drawable.ic_close, contentDescription)
 
-    data object Menu : NavigationIconType(Icons.Filled.Menu, R.string.content_description_menu_button)
-    data object Collapse : NavigationIconType(Icons.Filled.KeyboardArrowDown, R.string.content_description_drop_down_icon)
+    data object Menu : NavigationIconType(R.drawable.ic_menu, R.string.content_description_menu_button)
+    data object Collapse : NavigationIconType(R.drawable.ic_keyboard_arrow_down, R.string.content_description_drop_down_icon)
 }

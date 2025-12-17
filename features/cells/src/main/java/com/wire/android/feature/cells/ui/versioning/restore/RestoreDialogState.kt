@@ -15,10 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.feature.cells.ui.versionhistory
+package com.wire.android.feature.cells.ui.versioning.restore
 
-data class CellVersion(
-    val modifiedAt: String,
-    val modifiedBy: String,
-    val fileSize: Long
+data class RestoreDialogState(
+    val visible: Boolean = false,
+    val versionId: String = "",
+    val restoreVersionState: RestoreVersionState = RestoreVersionState.Idle,
+    val restoreProgress: Float = 0f
 )

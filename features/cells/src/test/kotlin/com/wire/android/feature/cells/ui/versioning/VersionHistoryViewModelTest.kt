@@ -37,21 +37,13 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import kotlinx.datetime.Clock
-import kotlinx.datetime.DatePeriod
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.UtcOffset
-import kotlinx.datetime.atStartOfDayIn
-import kotlinx.datetime.atTime
-import kotlinx.datetime.minus
-import kotlinx.datetime.toInstant
-import kotlinx.datetime.toJavaLocalDate
-import kotlinx.datetime.toLocalDateTime
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import java.time.LocalDate
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
 @ExperimentalCoroutinesApi
@@ -93,12 +85,9 @@ class VersionHistoryViewModelTest {
     @Suppress("LongMethod")
     @Test
     fun givenSuccessfulFetch_whenViewModelInits_thenVersionsAreGroupedCorrectly() = runTest {
-        val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
-        val yesterday = today.minus(DatePeriod(days = 1))
-        val twoDaysAgo = today.minus(DatePeriod(days = 2))
-
-        val dateFormatter = DateTimeFormatter.ofPattern("d MMM yyyy")
-
+        val today = LocalDate.now()
+        val yesterday = today.minusDays(1)
+        val twoDaysAgo = today.minusDays(2)
         val versionNode = NodeVersion(
             id = "v1",
             hash = null,
@@ -108,7 +97,7 @@ class VersionHistoryViewModelTest {
             editorUrls = null,
             filePreviews = null,
             isHead = false,
-            modifiedTime = today.atTime(10, 30).toInstant(UtcOffset.ZERO).epochSeconds.toString(),
+            modifiedTime = today.atTime(10, 30).toEpochSecond(ZoneOffset.UTC).toString(),
             ownerName = "User A",
             ownerUuid = "uuid",
             getUrl = null,
@@ -120,19 +109,19 @@ class VersionHistoryViewModelTest {
             versionNode.copy(
                 id = "v2",
                 ownerName = "User B",
-                modifiedTime = yesterday.atTime(14, 0).toInstant(UtcOffset.ZERO).epochSeconds.toString(),
+                modifiedTime = yesterday.atTime(14, 0).toEpochSecond(ZoneOffset.UTC).toString(),
                 size = "2048"
             ),
             versionNode.copy(
                 id = "v3",
                 ownerName = "User A",
-                modifiedTime = yesterday.atTime(9, 15).toInstant(UtcOffset.ZERO).epochSeconds.toString(),
+                modifiedTime = yesterday.atTime(9, 15).toEpochSecond(ZoneOffset.UTC).toString(),
                 size = "5000000"
             ),
             versionNode.copy(
                 id = "v4",
                 ownerName = "User C",
-                modifiedTime = twoDaysAgo.atStartOfDayIn(TimeZone.currentSystemDefault()).epochSeconds.toString(),
+                modifiedTime = twoDaysAgo.atStartOfDay().toEpochSecond(ZoneOffset.UTC).toString(),
                 size = "123"
             ),
         )
@@ -148,7 +137,7 @@ class VersionHistoryViewModelTest {
 
         // Verify "Today" group is correct
         every { fileSizeFormatter.formatSize(any()) } returns groupedVersions[0].versions[0].fileSize
-        val todayFormattedDate = dateFormatter.format(today.toJavaLocalDate())
+        val todayFormattedDate = today.format(DateTimeFormatter.ofPattern("d MMM yyyy"))
 
         val todayFakeString = mapOf(R.string.date_label_today to "Today, %1\$s")
         val actualTodayText = groupedVersions[0].dateLabel.resolveForTest(todayFakeString)
@@ -160,7 +149,7 @@ class VersionHistoryViewModelTest {
 
         // Verify "Yesterday" group is correct
         every { fileSizeFormatter.formatSize(any()) } returns groupedVersions[1].versions[0].fileSize
-        val yesterdayFormattedDate = dateFormatter.format(yesterday.toJavaLocalDate())
+        val yesterdayFormattedDate = yesterday.format(DateTimeFormatter.ofPattern("d MMM yyyy"))
         val yesterdayFakeString = mapOf(R.string.date_label_yesterday to "Yesterday, %1\$s")
         val actualYesterdayText = groupedVersions[1].dateLabel.resolveForTest(yesterdayFakeString)
 
@@ -170,7 +159,7 @@ class VersionHistoryViewModelTest {
         assertEquals("User A", groupedVersions[1].versions[1].modifiedBy)
 
         // Verify older date group is correct
-        val twoDaysAgoFormatted = dateFormatter.format(twoDaysAgo.toJavaLocalDate())
+        val twoDaysAgoFormatted = twoDaysAgo.format(DateTimeFormatter.ofPattern("d MMM yyyy"))
         assertEquals(twoDaysAgoFormatted.toUIText(), groupedVersions[2].dateLabel)
         assertEquals(1, groupedVersions[2].versions.size)
     }

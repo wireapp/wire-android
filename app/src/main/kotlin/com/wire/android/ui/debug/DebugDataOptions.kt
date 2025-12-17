@@ -32,17 +32,17 @@ import com.wire.android.R
 import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
 import com.wire.android.model.Clickable
-import com.wire.android.ui.common.rowitem.RowItemTemplate
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSwitch
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.rowitem.RowItemTemplate
+import com.wire.android.ui.common.rowitem.SectionHeader
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.snackbar.collectAndShowSnackbar
 import com.wire.android.ui.e2eiEnrollment.GetE2EICertificateUI
-import com.wire.android.ui.common.rowitem.SectionHeader
 import com.wire.android.ui.home.settings.SettingsItem
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
@@ -78,6 +78,7 @@ fun DebugDataOptions(
         onResendFCMToken = viewModel::forceSendFCMToken,
         onEnableAsyncNotificationsChange = viewModel::enableAsyncNotifications,
         onShowFeatureFlags = onShowFeatureFlags,
+        onRepairFaultyRemovalKeys = viewModel::repairFaultRemovalKeys
     )
 }
 
@@ -98,6 +99,7 @@ fun DebugDataOptionsContent(
     checkCrlRevocationList: () -> Unit,
     onResendFCMToken: () -> Unit,
     onShowFeatureFlags: () -> Unit,
+    onRepairFaultyRemovalKeys: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier) {
@@ -209,10 +211,9 @@ fun DebugDataOptionsContent(
 
             if (BuildConfig.PRIVATE_BUILD) {
                 MLSOptions(
-                    keyPackagesCount = state.keyPackagesCount,
-                    mlsClientId = state.mslClientId,
-                    mlsErrorMessage = state.mlsErrorMessage,
-                    onCopyText = onCopyText
+                    mlsInfoState = state.mlsInfoState,
+                    onCopyText = onCopyText,
+                    onRepairFaultyRemovalKeys = onRepairFaultyRemovalKeys
                 )
             }
 
@@ -269,36 +270,58 @@ private fun GetE2EICertificateSwitch(
 //region MLS Options
 @Composable
 private fun MLSOptions(
-    keyPackagesCount: Int,
-    mlsClientId: String,
-    mlsErrorMessage: String,
+    mlsInfoState: MLSInfoState,
     onCopyText: (String) -> Unit,
+    onRepairFaultyRemovalKeys: () -> Unit,
 ) {
     SectionHeader(stringResource(R.string.label_mls_option_title))
-    Column {
-        SettingsItem(
-            title = "Error Message",
-            text = mlsErrorMessage,
-            trailingIcon = null
-        )
-        SettingsItem(
-            title = stringResource(R.string.label_key_packages_count),
-            text = keyPackagesCount.toString(),
-            trailingIcon = R.drawable.ic_copy,
-            onIconPressed = Clickable(
-                enabled = true,
-                onClick = { onCopyText(keyPackagesCount.toString()) }
+    with(mlsInfoState) {
+        Column {
+            SettingsItem(
+                title = "Error Message",
+                text = mlsErrorMessage,
+                trailingIcon = null
             )
-        )
-        SettingsItem(
-            title = stringResource(R.string.label_mls_client_id),
-            text = mlsClientId,
-            trailingIcon = R.drawable.ic_copy,
-            onIconPressed = Clickable(
-                enabled = true,
-                onClick = { onCopyText(mlsClientId) }
+            SettingsItem(
+                title = stringResource(R.string.label_key_packages_count),
+                text = keyPackagesCount.toString(),
+                trailingIcon = R.drawable.ic_copy,
+                onIconPressed = Clickable(
+                    enabled = true,
+                    onClick = { onCopyText(keyPackagesCount.toString()) }
+                )
             )
-        )
+            SettingsItem(
+                title = stringResource(R.string.label_mls_client_id),
+                text = mlsClientId,
+                trailingIcon = R.drawable.ic_copy,
+                onIconPressed = Clickable(
+                    enabled = true,
+                    onClick = { onCopyText(mlsClientId) }
+                )
+            )
+            RowItemTemplate(
+                modifier = Modifier.wrapContentWidth(),
+                title = {
+                    Text(
+                        style = MaterialTheme.wireTypography.body01,
+                        color = MaterialTheme.wireColorScheme.onBackground,
+                        text = stringResource(R.string.label_mls_repair_faulty_keys),
+                        modifier = Modifier.padding(start = dimensions().spacing8x)
+                    )
+                },
+                actions = {
+                    WirePrimaryButton(
+                        minSize = MaterialTheme.wireDimensions.buttonMediumMinSize,
+                        minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
+                        onClick = onRepairFaultyRemovalKeys,
+                        text = stringResource(R.string.debug_settings_force_repair_faulty_keys),
+                        fillMaxWidth = false,
+                        loading = isLoadingRepair
+                    )
+                }
+            )
+        }
     }
 }
 //endregion
@@ -457,7 +480,9 @@ private fun DebugToolsOptions(
                     )
                 }
             )
-            EnableAsyncNotifications(isAsyncNotificationsEnabled, onEnableAsyncNotificationsChange)
+            if (BuildConfig.DEBUG) {
+                EnableAsyncNotifications(isAsyncNotificationsEnabled, onEnableAsyncNotificationsChange)
+            }
         }
     }
 }
@@ -530,9 +555,12 @@ fun PreviewOtherDebugOptions() = WireTheme {
         buildVariant = "debug",
         onCopyText = {},
         state = DebugDataOptionsState(
-            keyPackagesCount = 10,
-            mslClientId = "clientId",
-            mlsErrorMessage = "error",
+            mlsInfoState = MLSInfoState(
+                mlsClientId = "mlsClientId",
+                mlsErrorMessage = "-",
+                keyPackagesCount = 42,
+                isLoadingRepair = false
+            ),
             debugId = "debugId",
             commitish = "commitish"
         ),
@@ -546,5 +574,6 @@ fun PreviewOtherDebugOptions() = WireTheme {
         onResendFCMToken = {},
         onEnableAsyncNotificationsChange = {},
         onShowFeatureFlags = {},
+        onRepairFaultyRemovalKeys = {}
     )
 }

@@ -163,5 +163,6 @@
     "background_notification_retry_enabled": false,
     "background_notification_stay_alive_seconds": 1,
     "is_bubble_ui_enabled": true,
-    "collabora_integration": false
+    "collabora_integration": false,
+    "sync_API_url": "replica.wdebug.link"
 }

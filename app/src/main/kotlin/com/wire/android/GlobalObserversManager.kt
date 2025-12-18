@@ -24,6 +24,8 @@ import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.WireNotificationManager
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.kalium.common.functional.onFailure
+import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.user.UserId
@@ -39,6 +41,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.launchIn
@@ -74,6 +77,8 @@ class GlobalObserversManager @Inject constructor(
         }
         scope.handleLogouts()
         scope.handleDeleteEphemeralMessageEndDate()
+        scope.enableSyncReplicationIfConfigured()
+        scope.triggerSyncOnAppVisibilityChange()
     }
 
     private suspend fun setUpNotifications() {
@@ -149,6 +154,77 @@ class GlobalObserversManager @Inject constructor(
                     }
                 }
                 .collect { userId -> coreLogic.getSessionScope(userId).messages.deleteEphemeralMessageEndDate() }
+        }
+    }
+
+    /**
+     * Automatically enables database sync replication for all valid accounts if SYNC_API_URL is configured.
+     * This runs once per user session when they first become valid.
+     */
+    private fun CoroutineScope.enableSyncReplicationIfConfigured() {
+        // Only enable if sync API URL is configured
+        if (BuildConfig.SYNC_API_URL.isNullOrBlank()) {
+            appLogger.d("Sync API URL not configured, skipping sync replication enablement")
+            return
+        }
+
+        launch {
+            val enabledUserIds = mutableSetOf<UserId>()
+
+            coreLogic.getGlobalScope().observeValidAccounts()
+                .distinctUntilChanged()
+                .collectLatest { accounts ->
+                    accounts.forEach { (selfUser, _) ->
+                        val userId = selfUser.id
+
+                        // Enable sync only once per user
+                        if (userId !in enabledUserIds) {
+                            launch {
+                                coreLogic.getSessionScope(userId).enableSyncReplication(true)
+                                    .onSuccess {
+                                        appLogger.i("Database sync replication enabled for user ${userId.value}")
+                                        enabledUserIds.add(userId)
+                                    }
+                                    .onFailure { error ->
+                                        appLogger.e("Failed to enable sync replication for user ${userId.value}: $error")
+                                    }
+                            }
+                        }
+                    }
+                }
+        }
+    }
+
+    /**
+     * Triggers immediate sync when the app visibility changes (foreground/background).
+     * This ensures changes are synced as soon as the user leaves the app, and any pending
+     * operations are processed when the user returns.
+     */
+    private fun CoroutineScope.triggerSyncOnAppVisibilityChange() {
+        // Only trigger if sync API URL is configured
+        if (BuildConfig.SYNC_API_URL.isNullOrBlank()) {
+            return
+        }
+
+        launch {
+            currentScreenManager.isAppVisibleFlow()
+                .collectLatest { isAppVisible ->
+                    val event = if (isAppVisible) "foreground" else "background"
+                    appLogger.d("App visibility changed to $event, triggering immediate sync")
+
+                    // Get current session and trigger sync for that user
+                    coreLogic.getGlobalScope().session.currentSessionFlow()
+                        .firstOrNull()
+                        ?.let { sessionResult ->
+                            if (sessionResult is CurrentSessionResult.Success && sessionResult.accountInfo.isValid()) {
+                                val userId = sessionResult.accountInfo.userId
+                                coreLogic.getSessionScope(userId)
+                                    .userSessionWorkScheduler
+                                    .scheduleImmediateSyncOutboxProcessing()
+                                appLogger.i("Immediate sync triggered for user ${userId.value} on $event")
+                            }
+                        }
+                }
         }
     }
 }

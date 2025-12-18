@@ -63,4 +63,3 @@ fun String.addBeforeExtension(insert: String): String {
 
     return "${name}_$insert$ext"
 }
-

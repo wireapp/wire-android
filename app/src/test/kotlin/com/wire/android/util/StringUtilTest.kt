@@ -65,8 +65,7 @@ class StringUtilTest {
 
         assertEquals("myfile_version2", result)
     }
-
-
+    
     @Test
     fun givenFilenameWithMultipleDots_whenCalled_thenShouldInsertBeforeLastDot() {
         val originalFilename = "archive.2024.tar.gz"

@@ -92,7 +92,7 @@ class VersionHistoryViewModelTest {
 
     @Suppress("LongMethod")
     @Test
-    fun givenSuccessfulFetch_whenViewModelInits_thenVersionsAreGroupedCorrectly() = runTest() {
+    fun givenSuccessfulFetch_whenViewModelInits_thenVersionsAreGroupedCorrectly() = runTest {
         val today = LocalDate.now()
         val yesterday = today.minusDays(1)
         val twoDaysAgo = today.minusDays(2)
@@ -231,7 +231,6 @@ class VersionHistoryViewModelTest {
         // list of versions should be re-fetched, making it the SECOND call overall after the init block
         coVerify(exactly = 2) { arrangement.getNodeVersionsUseCase(any()) }
     }
-
 
     @Test
     fun givenUseCaseFails_whenRestoreVersionIsCalled_thenStateBecomesFailed() = runTest {
@@ -396,7 +395,6 @@ class VersionHistoryViewModelTest {
                     onProgressUpdate(50L, 100L) // Simulate 50% progress
                     // Simulate more work before finishing
                     kotlinx.coroutines.delay(1)
-
                 }
 
                 if (shouldSucceed) {

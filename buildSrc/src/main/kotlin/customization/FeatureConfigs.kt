@@ -142,4 +142,6 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     IS_BUBBLE_UI_ENABLED("is_bubble_ui_enabled", ConfigType.BOOLEAN),
 
     COLLABORA_INTEGRATION_ENABLED("collabora_integration", ConfigType.BOOLEAN),
+
+    DB_INVALIDATION_CONTROL_ENABLED("db_invalidation_control_enabled", ConfigType.BOOLEAN)
 }

@@ -18,4 +18,5 @@
   -->
 <resources>
     <string name="content_description_check">Zaznaczenie</string>
+    <string name="content_description_clear_content">Wyczy&#347;&#263; zawarto&#347;&#263;</string>
 </resources>

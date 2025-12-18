@@ -33,4 +33,7 @@
     <string name="content_description_alert">Uyarı</string>
     <string name="content_description_show_more_options">Daha fazla seçenek göster</string>
     <string name="content_description_check">Onay işareti</string>
+    <string name="content_description_clear_content">İçeriği temizle</string>
+    <string name="content_description_conversation_search_icon">Arama simgesi</string>
+    <string name="content_description_conversation_search_input">Arama girişi</string>
 </resources>

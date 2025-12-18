@@ -194,4 +194,5 @@
     <string name="snackbar_download_cell_version_saved_to_downloads_folder_label">saved to Downloads</string>
     <string name="snackbar_download_cell_version_show_label">Show</string>
     <string name="snackbar_download_cell_version_downloading_label">Downloading…</string>
+    <string name="search_text_input_hint_for_files_folders_in_conversation">Search files or folders</string>
 </resources>

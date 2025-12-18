@@ -93,7 +93,6 @@
     <string name="content_description_reveal_password">Show password</string>
     <string name="content_description_hide_password">Hide password</string>
     <string name="content_description_search_back">Search back icon</string>
-    <string name="content_description_clear_content">Clear content</string>
     <string name="content_description_muted_conversation">Muted conversation</string>
     <string name="content_description_download_icon">Download icon</string>
     <string name="content_description_open_asset_icon">Open icon</string>
@@ -107,8 +106,6 @@
     <string name="content_description_delete_the_conversation">Delete the conversation</string>
     <string name="content_description_conversation_phone_icon">Start audio call</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
-    <string name="content_description_conversation_search_icon">Search icon</string>
-    <string name="content_description_conversation_search_input">Search input</string>
     <string name="content_description_conversation_enable_rich_text_mode">Enable rich text mode button</string>
     <string name="content_description_conversation_enable_drawing_mode">Enable drawing mode button</string>
     <string name="content_description_conversation_rich_text_header">Rich text formatting Header</string>

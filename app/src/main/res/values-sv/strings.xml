@@ -72,7 +72,6 @@
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
     <string name="content_description_reveal_password">Visa lösenord</string>
     <string name="content_description_hide_password">Dölj lösenord</string>
-    <string name="content_description_clear_content">Rensa innehåll</string>
     <string name="content_description_muted_conversation">Tystad konversation</string>
     <string name="content_description_download_icon">Hämta ikon</string>
     <string name="content_description_open_asset_icon">Öppna ikon</string>

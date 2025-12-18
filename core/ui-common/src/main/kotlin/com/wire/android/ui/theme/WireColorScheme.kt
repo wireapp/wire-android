@@ -275,7 +275,7 @@ private val DarkWireColorScheme = WireColorScheme(
     primaryButtonSelected = WireColorPalette.DarkBlue400, onPrimaryButtonSelected = Color.Black,
     primaryButtonRipple = Color.White,
     secondaryButtonEnabled = WireColorPalette.Gray90, onSecondaryButtonEnabled = Color.White,
-    secondaryButtonEnabledOutline = WireColorPalette.Gray90,
+    secondaryButtonEnabledOutline = WireColorPalette.Gray100,
     secondaryButtonDisabled = WireColorPalette.Gray95, onSecondaryButtonDisabled = WireColorPalette.Gray50,
     secondaryButtonDisabledOutline = WireColorPalette.Gray95,
     secondaryButtonSelected = WireColorPalette.DarkBlue800, onSecondaryButtonSelected = Color.White,

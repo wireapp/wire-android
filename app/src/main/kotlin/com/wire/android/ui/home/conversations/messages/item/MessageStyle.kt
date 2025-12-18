@@ -112,4 +112,18 @@ fun MessageStyle.textAlign(): TextAlign {
     }
 }
 
-private const val BUBBLE_OPACITY = 0.5F
+@Composable
+fun MessageStyle.playedColor() = when (this) {
+    MessageStyle.BUBBLE_SELF -> colorsScheme().selfBubble.onPrimary
+    MessageStyle.BUBBLE_OTHER -> colorsScheme().otherBubble.primaryOnSecondary
+    MessageStyle.NORMAL -> colorsScheme().primary
+}
+
+@Composable
+fun MessageStyle.remainingColor() = when (this) {
+    MessageStyle.BUBBLE_SELF -> colorsScheme().selfBubble.onPrimary.copy(alpha = 0.5F)
+    MessageStyle.BUBBLE_OTHER -> colorsScheme().secondaryText
+    MessageStyle.NORMAL -> colorsScheme().onTertiaryButtonDisabled
+}
+
+private const val BUBBLE_OPACITY = 0.7F

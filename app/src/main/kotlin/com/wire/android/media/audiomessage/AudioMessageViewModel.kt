@@ -28,9 +28,14 @@ import com.wire.android.di.ScopedArgs
 import com.wire.android.di.ViewModelScopedPreview
 import com.wire.android.di.scopedArgs
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.message.AssetContent.AssetMetadata
+import com.wire.kalium.logic.data.message.MessageContent
+import com.wire.kalium.logic.feature.message.ObserveMessageByIdUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
@@ -47,6 +52,7 @@ interface AudioMessageViewModel {
 @HiltViewModel
 class AudioMessageViewModelImpl @Inject constructor(
     private val audioMessagePlayer: ConversationAudioMessagePlayer,
+    private val observeMessageById: ObserveMessageByIdUseCase,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel(), AudioMessageViewModel {
 
@@ -58,7 +64,8 @@ class AudioMessageViewModelImpl @Inject constructor(
     init {
         observeAudioState()
         observeAudioSpeed()
-        initWavesMask()
+        preloadAudioMessage()
+        fetchWavesMask()
     }
 
     private fun observeAudioState() {
@@ -84,9 +91,26 @@ class AudioMessageViewModelImpl @Inject constructor(
         }
     }
 
-    private fun initWavesMask() {
+    private fun preloadAudioMessage() {
         viewModelScope.launch {
-            audioMessagePlayer.getOrBuildWavesMask(args.conversationId, args.messageId)
+            // calls preload to initially fetch the audio asset data to be ready and schedule waves mask generation if needed
+            audioMessagePlayer.preloadAudioMessage(args.conversationId, args.messageId)
+        }
+    }
+
+    private fun fetchWavesMask() {
+        viewModelScope.launch {
+            observeMessageById(args.conversationId, args.messageId)
+                .map {
+                    (it as? ObserveMessageByIdUseCase.Result.Success)?.message?.content?.let {
+                        (it as? MessageContent.Asset)?.value?.metadata?.let {
+                            (it as? AssetMetadata.Audio)?.normalizedLoudness?.toWavesMask()
+                        }
+                    }
+                }
+                .distinctUntilChanged()
+                .firstOrNull { it != null } // wait for the first non-null value
+                .let { state = state.copy(wavesMask = it) }
         }
     }
 
@@ -125,4 +149,5 @@ data class AudioMessageArgs(
 data class AudioMessageState(
     val audioSpeed: AudioSpeed = AudioSpeed.NORMAL,
     val audioState: AudioState = AudioState.DEFAULT,
+    val wavesMask: List<Int>? = null
 )

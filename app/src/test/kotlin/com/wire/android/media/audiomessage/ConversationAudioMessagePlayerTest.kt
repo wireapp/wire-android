@@ -23,20 +23,13 @@ import android.media.PlaybackParams
 import app.cash.turbine.TurbineTestContext
 import app.cash.turbine.test
 import com.wire.android.config.TestDispatcherProvider
-import com.wire.android.framework.TestMessage
-import com.wire.android.framework.TestMessage.DUMMY_ASSET_LOCAL_DATA
-import com.wire.android.framework.TestMessage.DUMMY_ASSET_REMOTE_DATA
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer.MessageIdWrapper
 import com.wire.android.services.ServicesManager
 import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.message.AssetContent
-import com.wire.kalium.logic.data.message.Message
-import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.asset.AudioNormalizedLoudnessBuilder
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
@@ -74,7 +67,6 @@ class ConversationAudioMessagePlayerTest {
             .withAudioMediaPlayerReturningTotalTime(1000)
             .withSuccessfulAssetFetch()
             .withCurrentSession()
-            .withGetMessageByIdReturningSuccess(testAudioMessageId, conversationId)
             .arrange()
 
         conversationAudioMessagePlayer.observableAudioMessagesState.test {
@@ -94,11 +86,6 @@ class ConversationAudioMessagePlayerTest {
                 val currentState = state[messageIdWrapper]
                 assert(currentState != null)
                 assert(currentState!!.audioMediaPlayingState is AudioMediaPlayingState.SuccessfulFetching)
-            }
-            awaitAndAssertStateUpdate { state ->
-                val currentState = state[messageIdWrapper]
-                assert(currentState != null)
-                assertEquals(Arrangement.WAVES_MASK, currentState!!.wavesMask)
             }
             awaitAndAssertStateUpdate { state ->
                 val currentState = state[messageIdWrapper]
@@ -139,7 +126,6 @@ class ConversationAudioMessagePlayerTest {
             .withCurrentSession()
             .withAudioMediaPlayerReturningTotalTime(1000)
             .withMediaPlayerPlaying()
-            .withGetMessageByIdReturningSuccess(testAudioMessageId, conversationId)
             .arrange()
 
         conversationAudioMessagePlayer.observableAudioMessagesState.test {
@@ -160,11 +146,6 @@ class ConversationAudioMessagePlayerTest {
                 val currentState = state[messageIdWrapper]
                 assert(currentState != null)
                 assert(currentState!!.audioMediaPlayingState is AudioMediaPlayingState.SuccessfulFetching)
-            }
-            awaitAndAssertStateUpdate { state ->
-                val currentState = state[messageIdWrapper]
-                assert(currentState != null)
-                assertEquals(Arrangement.WAVES_MASK, currentState!!.wavesMask)
             }
             awaitAndAssertStateUpdate { state ->
                 val currentState = state[messageIdWrapper]
@@ -217,8 +198,6 @@ class ConversationAudioMessagePlayerTest {
                 .withSuccessfulAssetFetch()
                 .withCurrentSession()
                 .withAudioMediaPlayerReturningTotalTime(1000)
-                .withGetMessageByIdReturningSuccess(firstAudioMessageId, conversationId)
-                .withGetMessageByIdReturningSuccess(secondAudioMessageId, conversationId)
                 .arrange()
 
             conversationAudioMessagePlayer.observableAudioMessagesState.test {
@@ -239,11 +218,6 @@ class ConversationAudioMessagePlayerTest {
                     val currentState = state[firstAudioMessageIdWrapper]
                     assert(currentState != null)
                     assert(currentState!!.audioMediaPlayingState is AudioMediaPlayingState.SuccessfulFetching)
-                }
-                awaitAndAssertStateUpdate { state ->
-                    val currentState = state[firstAudioMessageIdWrapper]
-                    assert(currentState != null)
-                    assertEquals(Arrangement.WAVES_MASK, currentState!!.wavesMask)
                 }
                 awaitAndAssertStateUpdate { state ->
                     val currentState = state[firstAudioMessageIdWrapper]
@@ -287,11 +261,6 @@ class ConversationAudioMessagePlayerTest {
                     assert(currentState!!.audioMediaPlayingState is AudioMediaPlayingState.SuccessfulFetching)
                 }
                 awaitAndAssertStateUpdate { state ->
-                    val currentState = state[firstAudioMessageIdWrapper]
-                    assert(currentState != null)
-                    assertEquals(Arrangement.WAVES_MASK, currentState!!.wavesMask)
-                }
-                awaitAndAssertStateUpdate { state ->
                     val currentState = state[secondAudioMessageIdWrapper]
                     assert(currentState != null)
                     assert(currentState!!.audioMediaPlayingState is AudioMediaPlayingState.Playing)
@@ -321,8 +290,6 @@ class ConversationAudioMessagePlayerTest {
                 .withSuccessfulAssetFetch()
                 .withCurrentSession()
                 .withAudioMediaPlayerReturningTotalTime(1000)
-                .withGetMessageByIdReturningSuccess(firstAudioMessageId, conversationId)
-                .withGetMessageByIdReturningSuccess(secondAudioMessageId, conversationId)
                 .arrange()
 
             conversationAudioMessagePlayer.observableAudioMessagesState.test {
@@ -343,11 +310,6 @@ class ConversationAudioMessagePlayerTest {
                     val currentState = state[firstAudioMessageIdWrapper]
                     assert(currentState != null)
                     assert(currentState!!.audioMediaPlayingState is AudioMediaPlayingState.SuccessfulFetching)
-                }
-                awaitAndAssertStateUpdate { state ->
-                    val currentState = state[firstAudioMessageIdWrapper]
-                    assert(currentState != null)
-                    assertEquals(Arrangement.WAVES_MASK, currentState!!.wavesMask)
                 }
                 awaitAndAssertStateUpdate { state ->
                     val currentState = state[firstAudioMessageIdWrapper]
@@ -391,11 +353,6 @@ class ConversationAudioMessagePlayerTest {
                     val currentState = state[secondAudioMessageIdWrapper]
                     assert(currentState != null)
                     assert(currentState!!.audioMediaPlayingState is AudioMediaPlayingState.SuccessfulFetching)
-                }
-                awaitAndAssertStateUpdate { state ->
-                    val currentState = state[firstAudioMessageIdWrapper]
-                    assert(currentState != null)
-                    assertEquals(Arrangement.WAVES_MASK, currentState!!.wavesMask)
                 }
                 awaitAndAssertStateUpdate { state ->
                     val currentState = state[secondAudioMessageIdWrapper]
@@ -440,11 +397,6 @@ class ConversationAudioMessagePlayerTest {
                 awaitAndAssertStateUpdate { state ->
                     val currentState = state[firstAudioMessageIdWrapper]
                     assert(currentState != null)
-                    assertEquals(Arrangement.WAVES_MASK, currentState!!.wavesMask)
-                }
-                awaitAndAssertStateUpdate { state ->
-                    val currentState = state[firstAudioMessageIdWrapper]
-                    assert(currentState != null)
                     assert(currentState!!.audioMediaPlayingState is AudioMediaPlayingState.Playing)
                 }
                 awaitAndAssertStateUpdate { state ->
@@ -478,7 +430,6 @@ class ConversationAudioMessagePlayerTest {
                 .withCurrentSession()
                 .withAudioMediaPlayerReturningTotalTime(1000)
                 .withMediaPlayerPlaying()
-                .withGetMessageByIdReturningSuccess(testAudioMessageId, conversationId)
                 .arrange()
 
             conversationAudioMessagePlayer.observableAudioMessagesState.test {
@@ -499,11 +450,6 @@ class ConversationAudioMessagePlayerTest {
                     val currentState = state[messageIdWrapper]
                     assert(currentState != null)
                     assert(currentState!!.audioMediaPlayingState is AudioMediaPlayingState.SuccessfulFetching)
-                }
-                awaitAndAssertStateUpdate { state ->
-                    val currentState = state[messageIdWrapper]
-                    assert(currentState != null)
-                    assertEquals(Arrangement.WAVES_MASK, currentState!!.wavesMask)
                 }
                 awaitAndAssertStateUpdate { state ->
                     val currentState = state[messageIdWrapper]
@@ -581,7 +527,6 @@ class ConversationAudioMessagePlayerTest {
             .withAudioMediaPlayerReturningTotalTime(1000)
             .withSuccessfulAssetFetch()
             .withCurrentSession()
-            .withGetMessageByIdReturningSuccess(testAudioMessageId, conversationId)
             .arrange()
 
         conversationAudioMessagePlayer.observableAudioMessagesState.test {
@@ -611,7 +556,6 @@ class ConversationAudioMessagePlayerTest {
             .withAudioMediaPlayerReturningTotalTime(1000)
             .withSuccessfulAssetFetch(fileExists = true)
             .withCurrentSession()
-            .withGetMessageByIdReturningSuccess(audioMessageId, conversationId)
             .arrange()
 
         conversationAudioMessagePlayer.playAudio(conversationId, audioMessageId) // play the first time
@@ -633,7 +577,6 @@ class ConversationAudioMessagePlayerTest {
             .withAudioMediaPlayerReturningTotalTime(1000)
             .withSuccessfulAssetFetch()
             .withCurrentSession()
-            .withGetMessageByIdReturningSuccess(audioMessageId, conversationId)
             .arrange()
 
         arrangement.withSuccessfulAssetFetch(fileExists = true) // first time the file exists
@@ -657,7 +600,6 @@ class ConversationAudioMessagePlayerTest {
             .withAudioMediaPlayerReturningTotalTime(1000)
             .withFailedAssetFetch()
             .withCurrentSession()
-            .withGetMessageByIdReturningSuccess(audioMessageId, conversationId)
             .arrange()
 
         conversationAudioMessagePlayer.playAudio(conversationId, audioMessageId) // play the first time
@@ -691,9 +633,6 @@ class Arrangement(private val tempDir: File) {
     lateinit var mediaPlayer: MediaPlayer
 
     @MockK
-    lateinit var audioNormalizedLoudnessBuilder: AudioNormalizedLoudnessBuilder
-
-    @MockK
     lateinit var servicesManager: ServicesManager
 
     @MockK
@@ -711,7 +650,6 @@ class Arrangement(private val tempDir: File) {
         ConversationAudioMessagePlayer(
             context = context,
             audioMediaPlayer = mediaPlayer,
-            audioNormalizedLoudnessBuilder = audioNormalizedLoudnessBuilder,
             servicesManager = { servicesManager },
             audioFocusHelper = audioFocusHelper,
             coreLogic = coreLogic,
@@ -725,7 +663,6 @@ class Arrangement(private val tempDir: File) {
 
         every { coreLogic.getSessionScope(any()).messages.getAssetMessage } returns getAssetMessage
         every { coreLogic.getSessionScope(any()).messages.getMessageById } returns getMessageById
-        coEvery { audioNormalizedLoudnessBuilder(any<String>()) } returns WAVES_MASK.toNormalizedLoudness()
         every { mediaPlayer.currentPosition } returns 100
 
         every { servicesManager.stopPlayingAudioMessageService() } returns Unit
@@ -784,31 +721,5 @@ class Arrangement(private val tempDir: File) {
         every { mediaPlayer.playbackParams } returns params
     }
 
-    fun withGetMessageByIdReturningSuccess(
-        messageId: String,
-        conversationId: ConversationId,
-        message: Message = AUDIO_MESSAGE.copy(id = messageId, conversationId = conversationId),
-    ) = apply {
-        coEvery {
-            getMessageById(any(), any())
-        } returns GetMessageByIdUseCase.Result.Success(message)
-    }
-
     fun arrange() = this to conversationAudioMessagePlayer
-
-    companion object {
-        val WAVES_MASK = listOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 0)
-        val AUDIO_MESSAGE = TestMessage.ASSET_MESSAGE.copy(
-            content = MessageContent.Asset(
-                AssetContent(
-                    0L,
-                    "name",
-                    "audio/wav",
-                    AssetContent.AssetMetadata.Audio(10000L, WAVES_MASK.toNormalizedLoudness()),
-                    DUMMY_ASSET_REMOTE_DATA,
-                    DUMMY_ASSET_LOCAL_DATA,
-                )
-            )
-        )
-    }
 }

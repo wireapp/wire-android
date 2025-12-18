@@ -51,10 +51,12 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.io.OutputStream
+import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.ZoneOffset
@@ -149,7 +151,7 @@ class VersionHistoryViewModelTest {
         advanceUntilIdle()
 
         assertTrue(viewModel.versionsGroupedByTime.value.isEmpty())
-        assertFalse(viewModel.isFetchingContent.value)
+        assertEquals(VersionHistoryState.Failed, viewModel.versionHistoryState.value)
     }
 
     @Test

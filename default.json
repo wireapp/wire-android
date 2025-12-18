@@ -37,7 +37,8 @@
             "meetings_enabled": true,
             "use_async_flush_logging": true,
             "conversation_feeder_enabled": true,
-            "collabora_integration": true
+            "collabora_integration": true,
+            "db_invalidation_control_enabled": true
         },
         "staging": {
             "application_id": "com.waz.zclient.dev",
@@ -87,7 +88,8 @@
             "use_async_flush_logging": true,
             "conversation_feeder_enabled": true,
             "background_notification_retry_enabled": true,
-            "background_notification_stay_alive_seconds": 5
+            "background_notification_stay_alive_seconds": 5,
+            "db_invalidation_control_enabled": true
         },
         "fdroid": {
             "application_id": "com.wire",
@@ -163,5 +165,6 @@
     "background_notification_retry_enabled": false,
     "background_notification_stay_alive_seconds": 1,
     "is_bubble_ui_enabled": true,
-    "collabora_integration": false
+    "collabora_integration": false,
+    "db_invalidation_control_enabled": false
 }

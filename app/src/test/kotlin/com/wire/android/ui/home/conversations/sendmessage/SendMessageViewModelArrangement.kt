@@ -50,6 +50,7 @@ import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.message.draft.RemoveMessageDraftUseCase
 import com.wire.kalium.common.functional.Either
 import com.wire.kalium.logic.feature.client.IsWireCellsEnabledForConversationUseCase
+import com.wire.kalium.logic.feature.message.SendEditMultipartMessageUseCase
 import com.wire.kalium.logic.feature.message.SendMultipartMessageUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import io.mockk.MockKAnnotations
@@ -95,6 +96,9 @@ internal class SendMessageViewModelArrangement {
 
     @MockK
     lateinit var sendEditTextMessage: SendEditTextMessageUseCase
+
+    @MockK
+    lateinit var sendEditMultipartMessage: SendEditMultipartMessageUseCase
 
     @MockK
     lateinit var sendAssetMessage: ScheduleNewAssetMessageUseCase
@@ -159,6 +163,7 @@ internal class SendMessageViewModelArrangement {
         SendMessageViewModel(
             sendTextMessage = sendTextMessage,
             sendEditTextMessage = sendEditTextMessage,
+            sendEditMultipartMessage = sendEditMultipartMessage,
             sendAssetMessage = sendAssetMessage,
             dispatchers = TestDispatcherProvider(),
             kaliumFileSystem = fakeKaliumFileSystem,
@@ -225,6 +230,18 @@ internal class SendMessageViewModelArrangement {
     fun withSuccessfulSendEditTextMessage() = apply {
         coEvery {
             sendEditTextMessage(
+                any(),
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        } returns Either.Right(Unit)
+    }
+
+    fun withSuccessfulSendEditMultipartMessage() = apply {
+        coEvery {
+            sendEditMultipartMessage(
                 any(),
                 any(),
                 any(),

@@ -172,7 +172,7 @@ fun ChipAndTextFieldLayout(
 
 @Composable
 @MultipleThemePreviews
-fun PreviewChipAndTextFieldLayout() {
+private fun PreviewChipAndTextFieldLayout() {
     WireTheme {
         ChipAndTextFieldLayout(
             textFieldState = TextFieldState(),

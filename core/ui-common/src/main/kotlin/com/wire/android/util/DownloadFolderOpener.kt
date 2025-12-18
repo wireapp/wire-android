@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2025 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,16 +15,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.util.ui
+package com.wire.android.util
 
 import android.app.DownloadManager
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.widget.Toast
+import com.wire.android.ui.common.R
 
-fun openDownloadFolder(context: Context) {
-    val errorToastMessage = context.resources.getString(com.wire.android.R.string.label_no_application_found_open_downloads_folder)
+fun openDownloadFolder(
+    context: Context,
+) {
+    val errorToastMessage = context.resources.getString(R.string.label_no_application_found_open_downloads_folder)
     try {
         context.startActivity(Intent(DownloadManager.ACTION_VIEW_DOWNLOADS))
     } catch (e: ActivityNotFoundException) {

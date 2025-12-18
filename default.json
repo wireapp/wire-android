@@ -72,7 +72,8 @@
             "analytics_app_key": "8ffae535f1836ed5f58fd5c8a11c00eca07c5438",
             "analytics_server_url": "https://wire.count.ly/",
             "enable_new_registration": true,
-            "use_async_flush_logging": true
+            "use_async_flush_logging": true,
+            "collabora_integration": true
         },
         "internal": {
             "application_id": "com.wire.internal",

@@ -1427,7 +1427,6 @@
     <string name="label_debug_data">නිදෝස්කරණ දත්ත</string>
     <string name="title_internal_debugging">අභ්‍යන්තර නිදොස්කරණය</string>
     <string name="label_log_options_description">"මෙය නිර්නාමික දෝෂ නිරාකරණ තොරතුරු ස්ථානීයව ගබඩා කරයි. "</string>
-    <string name="label_no_application_found_open_downloads_folder">"බාගැනීමේ බහාලුම ඇරීමට සුදුසු යෙදුමක් හමු නොවිණි"</string>
     <string name="notification_obfuscated_message_title">යමෙක්</string>
     <string name="notification_obfuscated_message_content">ඉබේ මැකෙන පණිවිඩයක් එවා ඇත</string>
     <string name="settings_licenses_settings_label">බලපත්‍රයෙහි තොරතුරු</string>

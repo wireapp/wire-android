@@ -18,6 +18,6 @@
 package com.wire.android.feature.cells.ui.versioning
 
 class VersionHistoryNavArgs(
-    val uuid: String? = null,
-    val fileName: String? = null
+    val uuid: String,
+    val fileName: String
 )

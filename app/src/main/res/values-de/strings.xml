@@ -1516,7 +1516,6 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="ten_seconds_short_label">10 Sek</string>
     <string name="label_debug_data">Daten zur Fehlerbehebung</string>
     <string name="label_log_options_description">"Dadurch werden anonymisierte Informationen zur Fehlerbehebung lokal gespeichert. "</string>
-    <string name="label_no_application_found_open_downloads_folder">"Keine Anwendung zum Öffnen des Download-Ordners gefunden"</string>
     <string name="notification_obfuscated_message_title">Jemand</string>
     <string name="notification_obfuscated_message_content">Hat eine selbstlöschende Nachricht gesendet</string>
     <string name="settings_licenses_settings_label">Lizenzen</string>

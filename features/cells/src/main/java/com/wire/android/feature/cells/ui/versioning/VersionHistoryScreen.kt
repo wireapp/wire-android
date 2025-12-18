@@ -25,19 +25,24 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.common.ErrorScreen
 import com.wire.android.feature.cells.ui.common.LoadingScreen
+import com.wire.android.feature.cells.ui.versioning.download.DownloadState
 import com.wire.android.feature.cells.ui.versioning.restore.RestoreDialogState
 import com.wire.android.feature.cells.ui.versioning.restore.RestoreNodeVersionConfirmationDialog
 import com.wire.android.navigation.WireNavigator
@@ -50,10 +55,12 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.divider.WireDivider
 import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.common.scaffold.WireScaffold
+import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.openDownloadFolder
 import com.wire.android.util.ui.toUIText
 import kotlinx.coroutines.launch
 
@@ -67,7 +74,13 @@ fun VersionHistoryScreen(
     modifier: Modifier = Modifier,
     versionHistoryViewModel: VersionHistoryViewModel = hiltViewModel()
 ) {
-    val optionsBottomSheetState = rememberWireModalSheetState<CellVersion>()
+    val optionsBottomSheetState = rememberWireModalSheetState<Pair<String, CellVersion>>()
+    val snackbarHostState = LocalSnackbarHostState.current
+    val context = LocalContext.current
+    val downloadState = versionHistoryViewModel.downloadState.value
+    val savedToDownloads = stringResource(R.string.snackbar_download_cell_version_saved_to_downloads_folder_label)
+    val showLabel = stringResource(R.string.snackbar_download_cell_version_show_label)
+    val downloadingLabel = stringResource(R.string.snackbar_download_cell_version_downloading_label)
     val scope = rememberCoroutineScope()
 
     VersionHistoryScreenContent(
@@ -81,8 +94,9 @@ fun VersionHistoryScreen(
         restoreVersion = {
             versionHistoryViewModel.restoreVersion()
         },
-        downloadVersion = {
+        downloadVersion = { versionId, versionDate ->
             optionsBottomSheetState.hide()
+            versionHistoryViewModel.downloadVersion(versionId, versionDate)
         },
         showRestoreConfirmationDialog = { versionId ->
             optionsBottomSheetState.hide()
@@ -91,13 +105,39 @@ fun VersionHistoryScreen(
         onDismissRestoreConfirmationDialog = {
             versionHistoryViewModel.hideRestoreConfirmationDialog()
         },
-        onGoToFileClicked = {},
+        onGoToFileClicked = {
+            versionHistoryViewModel.openOnlineEditor()
+        },
         onRefresh = {
             scope.launch {
                 versionHistoryViewModel.refreshVersions()
             }
         }
     )
+
+    LaunchedEffect(downloadState) {
+        when (downloadState) {
+            is DownloadState.Downloaded -> {
+                val snackbarResult = snackbarHostState.showSnackbar(
+                    message = "\"${downloadState.fileName}\" $savedToDownloads",
+                    actionLabel = showLabel,
+                    duration = SnackbarDuration.Short,
+                )
+                if (snackbarResult == SnackbarResult.ActionPerformed) {
+                    openDownloadFolder(context)
+                }
+            }
+
+            is DownloadState.Downloading -> {
+                snackbarHostState.showSnackbar(
+                    message = downloadingLabel,
+                    duration = SnackbarDuration.Long,
+                )
+            }
+
+            else -> Unit
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -105,18 +145,19 @@ fun VersionHistoryScreen(
 private fun VersionHistoryScreenContent(
     versionsGroupedByTime: List<VersionGroup>,
     versionHistoryState: State<VersionHistoryState>,
-    optionsBottomSheetState: WireModalSheetState<CellVersion>,
-    restoreDialogState: RestoreDialogState,
     onRefresh: () -> Unit,
+    optionsBottomSheetState: WireModalSheetState<Pair<String, CellVersion>>,
+    restoreDialogState: RestoreDialogState,
     modifier: Modifier = Modifier,
     fileName: String? = null,
     restoreVersion: () -> Unit = {},
-    downloadVersion: (String) -> Unit = {},
+    downloadVersion: (String, String) -> Unit = { _, _ -> },
     showRestoreConfirmationDialog: (String) -> Unit = {},
     onDismissRestoreConfirmationDialog: () -> Unit = {},
     onGoToFileClicked: () -> Unit = {},
     navigateBack: () -> Unit = {}
 ) {
+
     WireScaffold(
         modifier = modifier,
         topBar = {
@@ -180,10 +221,11 @@ private fun VersionHistoryScreenContent(
                         }
                         group.versions.forEach {
                             item(it.versionId) {
+                                val versionDate = group.dateLabel.asString()
                                 VersionItem(
                                     cellVersion = it,
                                     onActionClick = { cellVersion ->
-                                        optionsBottomSheetState.show(cellVersion)
+                                        optionsBottomSheetState.show(versionDate to cellVersion)
                                     }
                                 )
                                 WireDivider(
@@ -216,6 +258,25 @@ private fun VersionHistoryScreenContent(
             }
         }
     }
+
+    VersionActionBottomSheet(
+        sheetState = optionsBottomSheetState,
+        onDismiss = { optionsBottomSheetState.hide() },
+        onRestoreVersionClicked = showRestoreConfirmationDialog,
+        onDownloadVersionClicked = downloadVersion
+    )
+
+    with(restoreDialogState) {
+        if (visible) {
+            RestoreNodeVersionConfirmationDialog(
+                restoreVersionState = restoreVersionState,
+                restoreProgress = restoreProgress,
+                onConfirm = restoreVersion,
+                onDismiss = onDismissRestoreConfirmationDialog,
+                onGoToFileClicked = onGoToFileClicked,
+            )
+        }
+    }
 }
 
 @MultipleThemePreviews
@@ -243,7 +304,7 @@ fun PreviewVersionHistoryScreenContent() {
                     )
                 )
             ),
-            optionsBottomSheetState = rememberWireModalSheetState<CellVersion>(),
+            optionsBottomSheetState = rememberWireModalSheetState<Pair<String, CellVersion>>(),
             restoreDialogState = RestoreDialogState(),
             onRefresh = {}
         )

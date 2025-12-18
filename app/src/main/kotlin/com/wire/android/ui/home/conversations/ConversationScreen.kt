@@ -184,7 +184,7 @@ import com.wire.android.util.normalizeLink
 import com.wire.android.util.serverDate
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
-import com.wire.android.util.ui.openDownloadFolder
+import com.wire.android.util.openDownloadFolder
 import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.Conversation.TypingIndicatorMode

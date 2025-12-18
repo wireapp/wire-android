@@ -99,7 +99,6 @@
     <string name="content_description_delete_the_conversation">Удалить беседу</string>
     <string name="content_description_conversation_phone_icon">Начать звонок</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
-    <string name="content_description_conversation_search_input">Поиск</string>
     <string name="content_description_conversation_enable_rich_text_mode">Кнопка включения режима форматированного текста</string>
     <string name="content_description_conversation_enable_drawing_mode">Кнопка включения режима рисования</string>
     <string name="content_description_conversation_rich_text_header">Заголовок</string>

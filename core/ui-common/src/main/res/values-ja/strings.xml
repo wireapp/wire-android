@@ -20,4 +20,5 @@
     <string name="content_description_check">チェックマーク</string>
     <string name="content_description_clear_content">内容を消去</string>
     <string name="content_description_conversation_search_icon">検索アイコン</string>
+    <string name="content_description_conversation_search_input">検索入力</string>
 </resources>

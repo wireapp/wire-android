@@ -91,7 +91,6 @@
     <string name="content_description_unblock_the_user">Sblocca</string>
     <string name="content_description_conversation_phone_icon">Avvia chiamata audio</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
-    <string name="content_description_conversation_search_input">Input della ricerca</string>
     <string name="content_description_conversation_enable_rich_text_mode">Abilita la modalit&#224; di testo avanzata</string>
     <string name="content_description_conversation_rich_text_header">Intestazione formattata in testo ricco</string>
     <string name="content_description_conversation_rich_text_bold">Grassetto formattazione in testo ricco</string>

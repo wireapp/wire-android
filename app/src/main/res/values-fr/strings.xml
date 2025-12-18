@@ -88,7 +88,6 @@
     <string name="content_description_unblock_the_user">Débloquer</string>
     <string name="content_description_conversation_phone_icon">Passer un appel audio</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
-    <string name="content_description_conversation_search_input">Saisie de la recherche</string>
     <string name="content_description_conversation_enable_rich_text_mode">Bouton d\'activation du mode texte enrichi</string>
     <string name="content_description_conversation_enable_drawing_mode">Activer le bouton du mode dessin</string>
     <string name="content_description_conversation_rich_text_header">En-tête de mise en forme du texte enrichi</string>

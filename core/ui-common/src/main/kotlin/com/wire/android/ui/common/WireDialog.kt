@@ -75,7 +75,7 @@ fun wireDialogPropertiesBuilder(
 @Composable
 fun WireDialog(
     title: String,
-    text: String,
+    text: String?,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
     textSuffixLink: DialogTextSuffixLink? = null,
@@ -103,7 +103,7 @@ fun WireDialog(
         contentPadding = contentPadding,
         title = title,
         titleLoading = titleLoading,
-        text = buildAnnotatedString {
+        text = if (text != null) buildAnnotatedString {
             val style = SpanStyle(
                 color = colorsScheme().onBackground,
                 fontWeight = MaterialTheme.wireTypography.body01.fontWeight,
@@ -112,7 +112,7 @@ fun WireDialog(
                 fontStyle = MaterialTheme.wireTypography.body01.fontStyle
             )
             withStyle(style) { append(text) }
-        },
+        } else null,
         textSuffixLink = textSuffixLink,
         centerContent = centerContent,
         dialogDescription = dialogDescription,

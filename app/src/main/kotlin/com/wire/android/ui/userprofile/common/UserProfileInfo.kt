@@ -31,9 +31,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.appendInlineContent
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.QrCode
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -46,6 +44,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -64,7 +63,6 @@ import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
-import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.MLSVerifiedIcon
 import com.wire.android.ui.common.ProteusVerifiedIcon
 import com.wire.android.ui.common.UserBadge
@@ -96,6 +94,7 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
+import com.wire.android.ui.common.R as commonR
 
 @Suppress("ComposeParameterOrder", "CyclomaticComplexMethod")
 @Composable
@@ -365,7 +364,12 @@ fun QRCodeIcon(
     val clickDescription = stringResource(id = R.string.content_description_share_label)
     WireSecondaryButton(
         modifier = modifier.semantics { this.contentDescription = contentDescription },
-        leadingIcon = Icons.Filled.QrCode.Icon(),
+        leadingIcon = {
+            Icon(
+                painter = painterResource(commonR.drawable.ic_qr_code),
+                contentDescription = contentDescription
+            )
+        },
         contentPadding = PaddingValues(0.dp),
         onClick = onQrCodeClick,
         onClickDescription = clickDescription,
@@ -389,7 +393,12 @@ private fun ManageMemberButton(onEditClick: () -> Unit, modifier: Modifier = Mod
     IconButton(
         modifier = modifier,
         onClick = onEditClick,
-        content = Icons.Filled.Edit.Icon()
+        content = {
+            Icon(
+                painter = painterResource(commonR.drawable.ic_edit),
+                contentDescription = ""
+            )
+        }
     )
 }
 

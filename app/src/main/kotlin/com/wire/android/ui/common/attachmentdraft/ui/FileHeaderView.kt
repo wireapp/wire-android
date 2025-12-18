@@ -26,8 +26,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Icon
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.WarningAmber
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -38,6 +36,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.feature.cells.domain.model.icon
+import com.wire.android.ui.common.R
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.typography
@@ -71,7 +70,7 @@ fun FileHeaderView(
         if (isError) {
             Icon(
                 modifier = Modifier.size(dimensions().spacing16x),
-                imageVector = Icons.Outlined.WarningAmber,
+                painter = painterResource(R.drawable.ic_warning_amber),
                 tint = colorsScheme().error,
                 contentDescription = null,
             )

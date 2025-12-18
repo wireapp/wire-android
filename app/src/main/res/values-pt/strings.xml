@@ -86,7 +86,6 @@
     <string name="content_description_search_back">Ícone de busca</string>
     <string name="content_description_clear_content">Limpar conteúdo</string>
     <string name="content_description_muted_conversation">Conversa silenciada</string>
-    <string name="content_description_check">Marca de seleção</string>
     <string name="content_description_download_icon">Ícone de download</string>
     <string name="content_description_open_asset_icon">Ícone de abrir</string>
     <string name="content_description_add_to_favourite">Adicionar aos Favoritos</string>
@@ -1359,7 +1358,6 @@ registrado. Tente novamente.</string>
     <string name="label_debug_data">Dados de depuração</string>
     <string name="title_internal_debugging">Depuração interna</string>
     <string name="label_log_options_description">"Isso armazena informações anônimas de solução de problemas localmente. "</string>
-    <string name="label_no_application_found_open_downloads_folder">"Nenhum aplicativo encontrado para abrir a pasta de downloads"</string>
     <string name="notification_obfuscated_message_title">Alguém</string>
     <string name="notification_obfuscated_message_content">Enviou uma mensagem de auto-exclusão</string>
     <string name="settings_licenses_settings_label">Informações de Licença</string>

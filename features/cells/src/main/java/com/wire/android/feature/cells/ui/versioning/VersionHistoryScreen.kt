@@ -18,6 +18,7 @@
 package com.wire.android.feature.cells.ui.versioning
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
@@ -32,11 +33,16 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.feature.cells.R
+import com.wire.android.feature.cells.ui.common.ErrorScreen
 import com.wire.android.feature.cells.ui.common.LoadingScreen
 import com.wire.android.feature.cells.ui.versioning.download.DownloadState
 import com.wire.android.feature.cells.ui.versioning.restore.RestoreDialogState
@@ -58,6 +64,7 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.openDownloadFolder
 import com.wire.android.util.ui.toUIText
+import kotlinx.coroutines.launch
 
 @WireDestination(
     style = PopUpNavigationAnimation::class,
@@ -76,12 +83,13 @@ fun VersionHistoryScreen(
     val savedToDownloads = stringResource(R.string.snackbar_download_cell_version_saved_to_downloads_folder_label)
     val showLabel = stringResource(R.string.snackbar_download_cell_version_show_label)
     val downloadingLabel = stringResource(R.string.snackbar_download_cell_version_downloading_label)
+    val scope = rememberCoroutineScope()
 
     VersionHistoryScreenContent(
         versionsGroupedByTime = versionHistoryViewModel.versionsGroupedByTime.value,
         modifier = modifier,
         fileName = versionHistoryViewModel.fileName,
-        isFetchingContent = versionHistoryViewModel.isFetchingContent.value,
+        versionHistoryState = versionHistoryViewModel.versionHistoryState,
         restoreDialogState = versionHistoryViewModel.restoreDialogState.value,
         navigateBack = { navigator.navigateBack() },
         optionsBottomSheetState = optionsBottomSheetState,
@@ -102,7 +110,11 @@ fun VersionHistoryScreen(
         onGoToFileClicked = {
             versionHistoryViewModel.openOnlineEditor()
         },
-        onRefresh = { versionHistoryViewModel.fetchNodeVersionsGroupedByDate() }
+        onRefresh = {
+            scope.launch {
+                versionHistoryViewModel.refreshVersions()
+            }
+        }
     )
 
     LaunchedEffect(downloadState) {
@@ -134,10 +146,10 @@ fun VersionHistoryScreen(
 @Composable
 private fun VersionHistoryScreenContent(
     versionsGroupedByTime: List<VersionGroup>,
-    isFetchingContent: Boolean,
-    onRefresh: () -> Unit,
+    versionHistoryState: State<VersionHistoryState>,
     optionsBottomSheetState: WireModalSheetState<Pair<String, CellVersion>>,
     restoreDialogState: RestoreDialogState,
+    onRefresh: () -> Unit,
     modifier: Modifier = Modifier,
     fileName: String? = null,
     restoreVersion: () -> Unit = {},
@@ -169,42 +181,59 @@ private fun VersionHistoryScreenContent(
         },
     ) { innerPadding ->
 
-        AnimatedContent(
-            targetState = isFetchingContent,
-            modifier = Modifier.fillMaxWidth(),
-            transitionSpec = {
-                val enter = fadeIn()
-                val exit = fadeOut()
-                enter.togetherWith(exit)
-            },
-        ) { isFetching ->
+        AnimatedVisibility(
+            modifier = Modifier.padding(innerPadding),
+            visible = versionHistoryState.value == VersionHistoryState.Loading,
+            enter = fadeIn(),
+            exit = fadeOut(),
+        ) {
+            LoadingScreen()
+        }
 
-            if (isFetching) {
-                LoadingScreen()
-            } else {
-                PullToRefreshBox(
-                    isRefreshing = isFetchingContent,
-                    onRefresh = onRefresh,
-                ) {
-                    LazyColumn(Modifier.padding(innerPadding)) {
-                        versionsGroupedByTime.forEach { group ->
-                            item {
-                                VersionTimeHeaderItem(group.dateLabel)
-                            }
-                            group.versions.forEach {
-                                item {
-                                    val versionDate = group.dateLabel.asString()
-                                    VersionItem(
-                                        cellVersion = it,
-                                        onActionClick = { cellVersion ->
-                                            optionsBottomSheetState.show(versionDate to cellVersion)
-                                        }
-                                    )
-                                    WireDivider(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        color = colorsScheme().outline
-                                    )
-                                }
+        AnimatedVisibility(
+            modifier = Modifier.padding(innerPadding),
+            visible = versionHistoryState.value == VersionHistoryState.Failed,
+            enter = fadeIn(),
+            exit = fadeOut(),
+        ) {
+            ErrorScreen(
+                titleDefault = stringResource(R.string.versions_list_not_loaded_title_error),
+                titleConnectionError = stringResource(R.string.versions_list_not_loaded_title_error),
+                descriptionDefault = stringResource(R.string.versions_list_not_loaded_description_error),
+                descriptionConnectionError = stringResource(R.string.versions_list_not_loaded_description_error),
+                onRetry = onRefresh,
+                modifier = Modifier.padding(innerPadding)
+            )
+        }
+
+        AnimatedVisibility(
+            modifier = Modifier.padding(innerPadding),
+            visible = versionHistoryState.value != VersionHistoryState.Loading,
+            enter = fadeIn(),
+            exit = fadeOut()
+        ) {
+            PullToRefreshBox(
+                isRefreshing = versionHistoryState.value == VersionHistoryState.Refreshing,
+                onRefresh = onRefresh,
+            ) {
+                LazyColumn {
+                    versionsGroupedByTime.forEach { group ->
+                        item(group.dateLabel.hashCode()) {
+                            VersionTimeHeaderItem(group.dateLabel)
+                        }
+                        group.versions.forEach {
+                            item(it.versionId) {
+                                val versionDate = group.dateLabel.asString()
+                                VersionItem(
+                                    cellVersion = it,
+                                    onActionClick = { cellVersion ->
+                                        optionsBottomSheetState.show(versionDate to cellVersion)
+                                    }
+                                )
+                                WireDivider(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    color = colorsScheme().outline
+                                )
                             }
                         }
                     }
@@ -231,6 +260,25 @@ private fun VersionHistoryScreenContent(
             }
         }
     }
+
+    VersionActionBottomSheet(
+        sheetState = optionsBottomSheetState,
+        onDismiss = { optionsBottomSheetState.hide() },
+        onRestoreVersionClicked = showRestoreConfirmationDialog,
+        onDownloadVersionClicked = downloadVersion
+    )
+
+    with(restoreDialogState) {
+        if (visible) {
+            RestoreNodeVersionConfirmationDialog(
+                restoreVersionState = restoreVersionState,
+                restoreProgress = restoreProgress,
+                onConfirm = restoreVersion,
+                onDismiss = onDismissRestoreConfirmationDialog,
+                onGoToFileClicked = onGoToFileClicked,
+            )
+        }
+    }
 }
 
 @MultipleThemePreviews
@@ -238,7 +286,7 @@ private fun VersionHistoryScreenContent(
 fun PreviewVersionHistoryScreenContent() {
     WireTheme {
         VersionHistoryScreenContent(
-            isFetchingContent = false,
+            versionHistoryState = remember { mutableStateOf(VersionHistoryState.Idle) },
             versionsGroupedByTime = listOf(
                 VersionGroup(
                     dateLabel = "Today, 3 Dec 2025".toUIText(),

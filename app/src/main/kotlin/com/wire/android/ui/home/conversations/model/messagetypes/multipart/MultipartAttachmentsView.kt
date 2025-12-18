@@ -25,8 +25,8 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onVisibilityChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
@@ -66,6 +66,14 @@ fun MultipartAttachmentsView(
     if (attachments.size == 1) {
         attachments.first().toUiModel().let {
             AssetPreview(
+                modifier = modifier
+                    .onVisibilityChanged { visible ->
+                        if (visible) {
+                            viewModel.onAttachmentsVisible(attachments)
+                        } else {
+                            viewModel.onAttachmentsHidden(attachments)
+                        }
+                    },
                 item = it,
                 messageStyle = messageStyle,
                 onClick = {
@@ -80,7 +88,14 @@ fun MultipartAttachmentsView(
         val groups = viewModel.mapAttachments(attachments)
 
         Column(
-            modifier = modifier,
+            modifier = modifier
+                .onVisibilityChanged { visible ->
+                    if (visible) {
+                        viewModel.onAttachmentsVisible(attachments)
+                    } else {
+                        viewModel.onAttachmentsHidden(attachments)
+                    }
+                },
             verticalArrangement = Arrangement.spacedBy(dimensions().spacing8x)
         ) {
             groups.forEach { group ->
@@ -111,9 +126,6 @@ fun MultipartAttachmentsView(
                 }
             }
         }
-    }
-    LaunchedEffect(attachments) {
-        attachments.onEach { viewModel.refreshAssetState(it.toUiModel()) }
     }
 }
 

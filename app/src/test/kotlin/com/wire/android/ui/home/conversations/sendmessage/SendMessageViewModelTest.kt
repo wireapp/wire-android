@@ -427,6 +427,50 @@ class SendMessageViewModelTest {
         }
 
     @Test
+    fun `given that user sends an edited multipart message, when invoked, then send typing stopped event and send multipart use case is called`() =
+        runTest {
+            // given
+            val (arrangement, viewModel) = SendMessageViewModelArrangement()
+                .withSuccessfulViewModelInit()
+                .withSuccessfulSendEditMultipartMessage()
+                .arrange()
+
+            // when
+            viewModel.trySendMessage(
+                ComposableMessageBundle.EditMultipartMessageBundle(
+                    conversationId,
+                    "mocked-text-message",
+                    "new-mocked-text-message",
+                    emptyList()
+                )
+            )
+            advanceUntilIdle()
+            // then
+            coVerify(exactly = 1) {
+                arrangement.sendEditMultipartMessage.invoke(
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any()
+                )
+            }
+            coVerify(exactly = 1) {
+                arrangement.sendTypingEvent.invoke(
+                    any(),
+                    eq(Conversation.TypingIndicatorMode.STOPPED)
+                )
+            }
+            verify(exactly = 1) {
+                arrangement.analyticsManager.sendEvent(
+                    match {
+                        it is AnalyticsEvent.Contributed.Text
+                    }
+                )
+            }
+        }
+
+    @Test
     fun `given that user need to be informed about verification, when invoked sending, then message is not sent and dialog shown`() =
         runTest {
             // given

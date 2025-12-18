@@ -46,9 +46,9 @@ import kotlin.math.roundToInt
 fun RestoreNodeVersionConfirmationDialog(
     onGoToFileClicked: () -> Unit,
     onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
     restoreVersionState: RestoreVersionState = RestoreVersionState.Idle,
     restoreProgress: Float = .40F,
-    onDismiss: () -> Unit
 ) {
     WireDialog(
         title = when (restoreVersionState) {
@@ -126,7 +126,7 @@ private fun GoToFileContent(
         } else {
             Row {
                 Text(
-                    stringResource(R.string.dialog_restore_cell_version_successfully_completed),
+                    text = stringResource(R.string.dialog_restore_cell_version_successfully_completed),
                     modifier = Modifier.weight(1f)
                 )
                 WireCheckIcon()

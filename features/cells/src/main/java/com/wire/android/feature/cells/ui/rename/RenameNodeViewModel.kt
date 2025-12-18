@@ -23,8 +23,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.wire.android.feature.cells.ui.common.FileNameError
+import com.wire.android.feature.cells.ui.common.validateFileName
 import com.wire.android.feature.cells.ui.navArgs
-import com.wire.android.feature.cells.ui.rename.RenameNodeViewState.RenameError.None
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.kalium.cells.domain.usecase.RenameNodeFailure
@@ -36,6 +37,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.seconds
@@ -50,7 +52,7 @@ class RenameNodeViewModel @Inject constructor(
 
     private var clearErrorJob: Job? = null
 
-    fun isFolder(): Boolean? = navArgs.isFolder
+    fun isFolder(): Boolean = navArgs.isFolder ?: false
 
     private val originalFile = navArgs.getFileName()
 
@@ -61,10 +63,10 @@ class RenameNodeViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            textState.textAsFlow().collectLatest { name ->
-                val validationError = name.validate()
+            textState.textAsFlow().map { it.trim() }.collectLatest { name ->
+                val validationError = name.validateFileName()
                 viewState = viewState.copy(
-                        saveEnabled = validationError == None && name.trim() != originalFile.name,
+                        saveEnabled = validationError == null && name != originalFile.name,
                         error = validationError,
                     )
             }
@@ -81,10 +83,7 @@ class RenameNodeViewModel @Inject constructor(
                 newName = newNameWithExtension
             )
                 .onSuccess {
-                    viewState = viewState.copy(
-                            loading = false,
-                            completed = RenameNodeViewState.Completed.Success,
-                        )
+                    viewState = viewState.copy(loading = false)
                     sendAction(RenameNodeViewModelAction.Success)
                 }
                 .onFailure { failure ->
@@ -92,8 +91,7 @@ class RenameNodeViewModel @Inject constructor(
                         RenameNodeFailure.FileAlreadyExists ->
                             viewState = viewState.copy(
                                     loading = false,
-                                    error = RenameNodeViewState.RenameError.TextFieldError.NameAlreadyExist,
-                                    completed = RenameNodeViewState.Completed.Failure,
+                                    error = FileNameError.NameAlreadyExist,
                                 )
                         else -> sendAction(RenameNodeViewModelAction.Failure)
                     }
@@ -101,48 +99,23 @@ class RenameNodeViewModel @Inject constructor(
         }
     }
 
-    private fun CharSequence.validate() = when {
-        length > NAME_MAX_COUNT -> RenameNodeViewState.RenameError.TextFieldError.NameExceedLimit
-        trim().isEmpty() -> RenameNodeViewState.RenameError.TextFieldError.NameEmpty
-        contains("/") -> RenameNodeViewState.RenameError.TextFieldError.InvalidName
-        else -> None
-    }
-
     internal fun onMaxLengthExceeded() {
         viewState = viewState.copy(
-                error = RenameNodeViewState.RenameError.TextFieldError.NameExceedLimit
+                error = FileNameError.NameExceedLimit
             )
         clearErrorJob?.cancel()
         clearErrorJob = viewModelScope.launch {
             delay(2.seconds)
-            viewState = viewState.copy(error = None)
+            viewState = viewState.copy(error = null)
         }
-    }
-
-    companion object {
-        const val NAME_MAX_COUNT = 64
     }
 }
 
 internal data class RenameNodeViewState(
     val loading: Boolean = false,
     val saveEnabled: Boolean = false,
-    val error: RenameError = None,
-    val completed: Completed = Completed.None,
-) {
-    enum class Completed {
-        None, Success, Failure
-    }
-    sealed interface RenameError {
-        data object None : RenameError
-        sealed interface TextFieldError : RenameError {
-            data object NameEmpty : TextFieldError
-            data object NameExceedLimit : TextFieldError
-            data object NameAlreadyExist : TextFieldError
-            data object InvalidName : TextFieldError
-        }
-    }
-}
+    val error: FileNameError? = null,
+)
 
 sealed interface RenameNodeViewModelAction {
     data object Success : RenameNodeViewModelAction

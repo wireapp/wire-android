@@ -33,9 +33,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Link
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
@@ -66,6 +63,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireLinearProgressIndicator
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.ui.common.R as commonR
 
 @Composable
 internal fun CellListItem(
@@ -126,7 +124,7 @@ internal fun CellListItem(
                 }
             }
             Icon(
-                imageVector = Icons.Default.MoreVert,
+                painter = painterResource(commonR.drawable.ic_more_vert),
                 contentDescription = null,
                 modifier = Modifier
                     .padding(end = dimensions().spacing16x)
@@ -248,8 +246,8 @@ private fun PublicLinkIcon(
                 color = colorsScheme().outline,
                 shape = CircleShape
             )
-            .padding(dimensions().spacing2x),
-        imageVector = Icons.Default.Link,
+            .padding(dimensions().spacing4x),
+        painter = painterResource(commonR.drawable.ic_link_indicator),
         contentDescription = null,
     )
 }

@@ -48,4 +48,11 @@
     <string name="label_ok">OK</string>
     <string name="label_cancel">Abbrechen</string>
     <string name="label_no_selected_date">Kein Datum ausgewählt</string>
+    <string name="size_unit_bytes">B</string>
+    <string name="size_unit_kilobytes">KB</string>
+    <string name="size_unit_megabytes">MB</string>
+    <string name="size_unit_gigabytes">GB</string>
+    <string name="size_unit_terabytes">TB</string>
+    <string name="content_description_check">Haken</string>
+    <string name="label_no_application_found_open_downloads_folder">"Keine Anwendung zum Öffnen des Download-Ordners gefunden"</string>
 </resources>

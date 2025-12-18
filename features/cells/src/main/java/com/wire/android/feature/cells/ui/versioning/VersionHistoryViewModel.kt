@@ -67,7 +67,7 @@ class VersionHistoryViewModel @Inject constructor(
 
     val fileName = navArgs.fileName
 
-    var isFetchingContent: MutableState<Boolean> = mutableStateOf(true)
+    var versionHistoryState: MutableState<VersionHistoryState> = mutableStateOf(VersionHistoryState.Idle)
         private set
 
     var versionsGroupedByTime: MutableState<List<VersionGroup>> = mutableStateOf(listOf())
@@ -80,16 +80,31 @@ class VersionHistoryViewModel @Inject constructor(
         private set
 
     init {
+        initVersions()
+    }
+
+    fun initVersions() {
+        viewModelScope.launch {
+            versionHistoryState.value = VersionHistoryState.Loading
+            fetchNodeVersionsGroupedByDate()
+        }
+    }
+
+    suspend fun refreshVersions() {
+        versionHistoryState.value = VersionHistoryState.Refreshing
         fetchNodeVersionsGroupedByDate()
     }
 
-    fun fetchNodeVersionsGroupedByDate() = viewModelScope.launch {
-        isFetchingContent.value = true
-        getNodeVersionsUseCase(navArgs.uuid).onSuccess {
-            versionsGroupedByTime.value = it.groupByDay()
-        }
-        isFetchingContent.value = false
-    }
+    private suspend fun fetchNodeVersionsGroupedByDate() =
+        getNodeVersionsUseCase(navArgs.uuid)
+            .onSuccess {
+                versionHistoryState.value = VersionHistoryState.Success
+                versionsGroupedByTime.value = it.groupByDay()
+            }
+            // TODO: Handle error on UI
+            .onFailure {
+                versionHistoryState.value = VersionHistoryState.Failed
+            }
 
     private fun List<NodeVersion>.groupByDay(): List<VersionGroup> {
         val today = LocalDate.now()
@@ -165,15 +180,12 @@ class VersionHistoryViewModel @Inject constructor(
             )
 
             viewModelScope.launch {
-                // simulating progress
                 val progressJob = simulateRestoreProgress()
 
-                restoreNodeVersionUseCase(navArgs.uuid, value.versionId)
+                restoreNodeVersionUseCase(navArgs.uuid ?: "", value.versionId)
                     .onSuccess {
                         delay(DELAY_500_MS) // delay since server takes some time to restore the version
-                        val fetchJob = fetchNodeVersionsGroupedByDate()
-                        fetchJob.start()
-                        fetchJob.join()
+                        initVersions()
                         progressJob.cancel()
                         restoreDialogState.value = value.copy(
                             restoreVersionState = RestoreVersionState.Completed,
@@ -193,10 +205,9 @@ class VersionHistoryViewModel @Inject constructor(
     fun downloadVersion(versionId: String, versionDate: String) {
         viewModelScope.launch {
             downloadState.value = DownloadState.Downloading(0, 0)
+
             val cellVersion = findVersionById(versionId)
-                ?: return@launch run {
-                    downloadState.value = DownloadState.Failed
-                }
+                ?: return@launch run { downloadState.value = DownloadState.Failed }
 
             val newFileName = fileName.addBeforeExtension("${versionDate}_${cellVersion.modifiedAt}")
 

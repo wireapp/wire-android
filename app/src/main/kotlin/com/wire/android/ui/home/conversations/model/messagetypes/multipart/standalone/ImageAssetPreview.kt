@@ -24,8 +24,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -34,6 +32,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
 import coil.compose.AsyncImage
+import com.wire.android.ui.common.R
 import com.wire.android.ui.common.attachmentdraft.ui.FileHeaderView
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -66,7 +65,7 @@ internal fun ImageAssetPreview(
         if (LocalInspectionMode.current) {
             Image(
                 modifier = Modifier.fillMaxSize(),
-                painter = painterResource(com.wire.android.ui.common.R.drawable.mock_image),
+                painter = painterResource(R.drawable.mock_image),
                 contentDescription = null,
                 contentScale = if (messageStyle.isBubble()) ContentScale.Crop else ContentScale.Fit
             )
@@ -91,7 +90,7 @@ internal fun ImageAssetPreview(
                     modifier = Modifier
                         .size(dimensions().spacing32x)
                         .align(Alignment.Center),
-                    imageVector = Icons.Default.VisibilityOff,
+                    painter = painterResource(R.drawable.ic_visibility_off),
                     contentDescription = null,
                     tint = colorsScheme().scrim
                 )

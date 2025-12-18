@@ -45,7 +45,6 @@ androidx-biometric = "1.1.0"
 androidx-startup = "1.2.0"
 androidx-compose-runtime = "1.7.2"
 compose-qr = "1.0.1"
-amplituda = "2.2.2"
 enterprise-feedback = "1.1.0"
 
 # Compose
@@ -115,6 +114,10 @@ rules = "1.7.0"
 zxing = "3.5.2"
 zxingAndroid = "4.3.0"
 gson = "2.13.2"
+allureKotlin = "2.4.0"
+androidx-test-services = "1.6.0"
+
+
 
 [plugins]
 # 3rd Party plugins
@@ -156,6 +159,13 @@ ktx-immutableCollections = { module = "org.jetbrains.kotlinx:kotlinx-collections
 
 ksp-symbol-processing-api = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "ksp" }
 ksp-symbol-processing-plugin = { module = "com.google.devtools.ksp:symbol-processing-gradle-plugin", version.ref = "ksp" }
+
+allure-kotlin-model   = { module = "io.qameta.allure:allure-kotlin-model",   version.ref = "allureKotlin" }
+allure-kotlin-commons = { module = "io.qameta.allure:allure-kotlin-commons", version.ref = "allureKotlin" }
+allure-kotlin-junit4  = { module = "io.qameta.allure:allure-kotlin-junit4",  version.ref = "allureKotlin" }
+allure-kotlin-android = { module = "io.qameta.allure:allure-kotlin-android", version.ref = "allureKotlin" }
+
+
 
 # android dependencies
 
@@ -209,7 +219,6 @@ hilt-work = { module = "androidx.hilt:hilt-work", version.ref = "hilt-work" }
 # Compose BOM
 compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
 compose-material-core = { module = "androidx.compose.material:material" }
-compose-material-icons = { module = "androidx.compose.material:material-icons-extended" }
 compose-material-ripple = { module = "androidx.compose.material:material-ripple" }
 compose-material3 = { module = "androidx.compose.material3:material3", version.ref = "material3" }
 compose-runtime-liveData = { module = "androidx.compose.runtime:runtime-livedata" }
@@ -266,8 +275,6 @@ countly-sdk = { module = "ly.count.android:sdk", version.ref = "countly" }
 # QRs
 compose-qr-code = { module = "com.lightspark:compose-qr-code", version.ref = "compose-qr" }
 
-audio-amplituda = { module = "com.github.lincollincol:amplituda", version.ref = "amplituda" }
-
 # Dev tools
 aboutLibraries-core = { module = "com.mikepenz:aboutlibraries-core", version.ref = "aboutLibraries" }
 aboutLibraries-compose-core = { module = "com.mikepenz:aboutlibraries-compose-core", version.ref = "aboutLibraries" }
@@ -279,6 +286,7 @@ androidx-test-archCore = { module = "androidx.arch.core:core-testing", version.r
 androidx-test-core = { module = "androidx.test:core", version.ref = "androidx-test-core" }
 androidx-test-extJunit = { module = "androidx.test.ext:junit", version.ref = "androidx-test-extensions" }
 androidx-test-orchestrator = { module = "androidx.test:orchestrator", version.ref = "androidx-test-orchestrator" }
+androidx-test-services = { module = "androidx.test.services:test-services", version.ref = "androidx-test-services" }
 androidx-test-rules = { module = "androidx.test:rules", version.ref = "androidx-test-rules" }
 androidx-test-runner = { module = "androidx.test:runner", version.ref = "androidx-test-runner" }
 androidx-test-uiAutomator = { module = "androidx.test.uiautomator:uiautomator", version.ref = "androidx-test-uiAutomator" }

@@ -191,5 +191,8 @@
     <string name="date_label_yesterday">Yesterday, %1$s</string>
     <string name="versions_list_not_loaded_title_error">Failed to load versions</string>
     <string name="versions_list_not_loaded_description_error">Something went wrong while loading version list. Please retry.</string>
+    <string name="snackbar_download_cell_version_saved_to_downloads_folder_label">saved to Downloads</string>
+    <string name="snackbar_download_cell_version_show_label">Show</string>
+    <string name="snackbar_download_cell_version_downloading_label">Downloading…</string>
     <string name="search_text_input_hint_for_files_folders_in_conversation">Search files or folders</string>
 </resources>

@@ -246,8 +246,8 @@ private fun PublicLinkIcon(
                 color = colorsScheme().outline,
                 shape = CircleShape
             )
-            .padding(dimensions().spacing2x),
-        painter = painterResource(R.drawable.ic_link),
+            .padding(dimensions().spacing4x),
+        painter = painterResource(commonR.drawable.ic_link_indicator),
         contentDescription = null,
     )
 }

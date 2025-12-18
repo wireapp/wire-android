@@ -1655,7 +1655,6 @@
     <string name="label_debug_data">Отладочные данные</string>
     <string name="title_internal_debugging">Внутренняя отладка</string>
     <string name="label_log_options_description">"Это позволяет локально сохранять анонимизированную информацию о неполадках. "</string>
-    <string name="label_no_application_found_open_downloads_folder">"Не найдено приложение для открытия папки загрузок"</string>
     <string name="notification_obfuscated_message_title">Кто-то</string>
     <string name="notification_obfuscated_message_content">Отправил самоудаляющееся сообщение</string>
     <string name="settings_licenses_settings_label">Информация о лицензии</string>

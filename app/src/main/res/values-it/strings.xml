@@ -1095,7 +1095,6 @@ registrato. Sei pregato di riprovare.</string>
     <string name="label_debug_data">Dati di debug</string>
     <string name="title_internal_debugging">Debug interno</string>
     <string name="label_log_options_description">"Questo memorizza localmente le informazioni anonime di risoluzione dei problemi. "</string>
-    <string name="label_no_application_found_open_downloads_folder">"Nessun'applicazione trovata per aprire la cartella dei download"</string>
     <string name="notification_obfuscated_message_title">Qualcuno</string>
     <string name="notification_obfuscated_message_content">Ha inviato un messaggio a eliminazione automatica</string>
     <string name="settings_licenses_settings_label">Informazioni sulla licenza</string>

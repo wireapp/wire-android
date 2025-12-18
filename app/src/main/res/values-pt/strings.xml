@@ -1355,7 +1355,6 @@ registrado. Tente novamente.</string>
     <string name="label_debug_data">Dados de depuração</string>
     <string name="title_internal_debugging">Depuração interna</string>
     <string name="label_log_options_description">"Isso armazena informações anônimas de solução de problemas localmente. "</string>
-    <string name="label_no_application_found_open_downloads_folder">"Nenhum aplicativo encontrado para abrir a pasta de downloads"</string>
     <string name="notification_obfuscated_message_title">Alguém</string>
     <string name="notification_obfuscated_message_content">Enviou uma mensagem de auto-exclusão</string>
     <string name="settings_licenses_settings_label">Informações de Licença</string>

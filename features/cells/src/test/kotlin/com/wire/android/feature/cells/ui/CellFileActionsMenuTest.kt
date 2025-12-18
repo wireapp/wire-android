@@ -132,6 +132,7 @@ class CellFileActionsMenuTest {
                     NodeBottomSheetAction.PUBLIC_LINK,
                     NodeBottomSheetAction.DOWNLOAD,
                     NodeBottomSheetAction.EDIT,
+                    NodeBottomSheetAction.VERSION_HISTORY,
                     NodeBottomSheetAction.ADD_REMOVE_TAGS,
                     NodeBottomSheetAction.MOVE,
                     NodeBottomSheetAction.RENAME,

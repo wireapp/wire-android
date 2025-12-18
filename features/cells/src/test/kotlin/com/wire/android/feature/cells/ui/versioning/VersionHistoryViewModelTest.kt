@@ -39,13 +39,15 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import java.time.Instant
 import java.time.LocalDate
+import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 
 @ExperimentalCoroutinesApi
 class VersionHistoryViewModelTest {
@@ -78,9 +80,9 @@ class VersionHistoryViewModelTest {
 
         val viewModel = VersionHistoryViewModel(savedStateHandle, getNodeVersionsUseCase, fileSizeFormatter, restoreNodeVersionUseCase)
 
-        assertTrue(viewModel.isFetchingContent.value)
+        assertEquals(VersionHistoryState.Idle, viewModel.versionHistoryState.value)
         advanceUntilIdle()
-        assertFalse(viewModel.isFetchingContent.value)
+        assertEquals(VersionHistoryState.Success, viewModel.versionHistoryState.value)
     }
 
     @Suppress("LongMethod")
@@ -146,7 +148,12 @@ class VersionHistoryViewModelTest {
         assertEquals("Today, $todayFormattedDate", actualTodayText)
         assertEquals(1, groupedVersions[0].versions.size)
         assertEquals("User A", groupedVersions[0].versions[0].modifiedBy)
-        assertEquals("11:30 AM", groupedVersions[0].versions[0].modifiedAt)
+        val expectedTime = Instant
+            .ofEpochSecond(versionNode.modifiedTime!!.toLong())
+            .atZone(ZoneId.systemDefault())
+            .toLocalTime()
+            .format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT))
+        assertEquals(expectedTime, groupedVersions[0].versions[0].modifiedAt)
 
         // Verify "Yesterday" group is correct
         every { fileSizeFormatter.formatSize(any()) } returns groupedVersions[1].versions[0].fileSize
@@ -173,7 +180,7 @@ class VersionHistoryViewModelTest {
         advanceUntilIdle()
 
         assertTrue(viewModel.versionsGroupedByTime.value.isEmpty())
-        assertFalse(viewModel.isFetchingContent.value)
+        assertEquals(VersionHistoryState.Failed, viewModel.versionHistoryState.value)
     }
 
     @Test
@@ -184,6 +191,6 @@ class VersionHistoryViewModelTest {
         advanceUntilIdle()
 
         assertTrue(viewModel.versionsGroupedByTime.value.isEmpty())
-        assertFalse(viewModel.isFetchingContent.value)
+        assertEquals(VersionHistoryState.Loading, viewModel.versionHistoryState.value)
     }
 }

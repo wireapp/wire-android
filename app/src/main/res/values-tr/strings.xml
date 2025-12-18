@@ -84,7 +84,6 @@
     <string name="content_description_reveal_password">Şifreyi göster</string>
     <string name="content_description_hide_password">Parolayı gizle</string>
     <string name="content_description_search_back">Geri arama simgesi</string>
-    <string name="content_description_clear_content">İçeriği temizle</string>
     <string name="content_description_muted_conversation">Sessize alınmış sohbet</string>
     <string name="content_description_download_icon">İndirme simgesi</string>
     <string name="content_description_open_asset_icon">Simgeyi aç</string>
@@ -98,8 +97,6 @@
     <string name="content_description_delete_the_conversation">Konuşmayı sil</string>
     <string name="content_description_conversation_phone_icon">Sesli aramayı başlat</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
-    <string name="content_description_conversation_search_icon">Arama simgesi</string>
-    <string name="content_description_conversation_search_input">Arama girişi</string>
     <string name="content_description_conversation_enable_rich_text_mode">Zengin metin modunu etkinleştir düğmesi</string>
     <string name="content_description_conversation_enable_drawing_mode">Çizim modunu etkinleştir düğmesi</string>
     <string name="content_description_conversation_rich_text_header">Zengin metin biçimlendirme Başlığı</string>

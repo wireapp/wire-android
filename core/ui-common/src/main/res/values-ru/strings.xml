@@ -61,4 +61,8 @@
     <string name="size_unit_gigabytes">GB</string>
     <string name="size_unit_terabytes">TB</string>
     <string name="content_description_check">Отметка</string>
+    <string name="label_no_application_found_open_downloads_folder">"Не найдено приложение для открытия папки загрузок"</string>
+    <string name="content_description_clear_content">Очистить контент</string>
+    <string name="content_description_conversation_search_icon">Значок поиска</string>
+    <string name="content_description_conversation_search_input">Поиск</string>
 </resources>

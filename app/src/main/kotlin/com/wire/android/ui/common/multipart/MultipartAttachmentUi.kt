@@ -39,6 +39,7 @@ data class MultipartAttachmentUi(
     val metadata: AssetMetadata? = null,
     val transferStatus: AssetTransferStatus,
     val progress: Float? = null,
+    val isEditSupported: Boolean = false,
 )
 
 enum class AssetSource {
@@ -65,6 +66,7 @@ fun CellAssetContent.toUiModel(progress: Float?) = MultipartAttachmentUi(
     transferStatus = this.transferStatus,
     progress = progress,
     contentHash = contentHash,
+    isEditSupported = isEditSupported,
 )
 
 fun AssetContent.toUiModel(progress: Float?) = MultipartAttachmentUi(
@@ -81,4 +83,5 @@ fun AssetContent.toUiModel(progress: Float?) = MultipartAttachmentUi(
     progress = progress,
     contentHash = null,
     contentUrl = null,
+    isEditSupported = false,
 )

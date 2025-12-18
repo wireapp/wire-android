@@ -34,9 +34,6 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.maxLength
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -48,6 +45,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
@@ -57,6 +55,7 @@ import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.wire.android.ui.common.R
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -252,13 +251,13 @@ fun PreviewWireTextFieldDenseSearch() = WireTheme {
             IconButton(
                 modifier = Modifier.height(40.dp),
                 onClick = {}
-            ) { Icon(Icons.Filled.Search, "") }
+            ) { Icon(painterResource(R.drawable.ic_search), "") }
         },
         trailingIcon = {
             IconButton(
                 modifier = Modifier.height(40.dp),
                 onClick = {}
-            ) { Icon(Icons.Filled.Close, "") }
+            ) { Icon(painterResource(R.drawable.ic_close), "") }
         },
         inputMinHeight = 40.dp,
         modifier = Modifier.padding(16.dp)

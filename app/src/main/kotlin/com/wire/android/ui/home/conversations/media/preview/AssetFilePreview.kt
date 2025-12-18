@@ -31,6 +31,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -42,11 +43,12 @@ import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.DeviceUtil
+import com.wire.android.util.FileSizeFormatter
 import java.util.Locale
 
 @Composable
 fun AssetFilePreview(assetName: String, sizeInBytes: Long, modifier: Modifier = Modifier) {
+    val context = LocalContext.current
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -78,8 +80,9 @@ fun AssetFilePreview(assetName: String, sizeInBytes: Long, modifier: Modifier = 
             overflow = TextOverflow.Ellipsis
         )
         VerticalSpace.x8()
+        val fileSizeFormatted = FileSizeFormatter(context).formatSize(sizeInBytes)
         Text(
-            DeviceUtil.formatSize(sizeInBytes),
+            fileSizeFormatted,
             style = MaterialTheme.wireTypography.body01,
             color = MaterialTheme.wireColorScheme.secondaryText
         )

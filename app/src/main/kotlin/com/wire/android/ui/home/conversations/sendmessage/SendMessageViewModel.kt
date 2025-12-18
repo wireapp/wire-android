@@ -67,6 +67,7 @@ import com.wire.kalium.logic.feature.conversation.SendTypingEventUseCase
 import com.wire.kalium.logic.feature.conversation.SetNotifiedAboutConversationUnderLegalHoldUseCase
 import com.wire.kalium.logic.feature.conversation.SetUserInformedAboutVerificationUseCase
 import com.wire.kalium.logic.feature.message.RetryFailedMessageUseCase
+import com.wire.kalium.logic.feature.message.SendEditMultipartMessageUseCase
 import com.wire.kalium.logic.feature.message.SendEditTextMessageUseCase
 import com.wire.kalium.logic.feature.message.SendKnockUseCase
 import com.wire.kalium.logic.feature.message.SendLocationUseCase
@@ -91,6 +92,7 @@ class SendMessageViewModel @Inject constructor(
     private val sendTextMessage: SendTextMessageUseCase,
     private val sendMultipartMessage: SendMultipartMessageUseCase,
     private val sendEditTextMessage: SendEditTextMessageUseCase,
+    private val sendEditMultipartMessage: SendEditMultipartMessageUseCase,
     private val retryFailedMessage: RetryFailedMessageUseCase,
     private val dispatchers: DispatcherProvider,
     private val kaliumFileSystem: KaliumFileSystem,
@@ -209,7 +211,7 @@ class SendMessageViewModel @Inject constructor(
         jobs.joinAll()
     }
 
-    @Suppress("LongMethod")
+    @Suppress("LongMethod", "CyclomaticComplexMethod")
     private suspend fun sendMessage(messageBundle: MessageBundle) {
         when (messageBundle) {
             is ComposableMessageBundle.EditMessageBundle -> {
@@ -217,6 +219,21 @@ class SendMessageViewModel @Inject constructor(
                 sendTypingEvent(messageBundle.conversationId, TypingIndicatorMode.STOPPED)
                 with(messageBundle) {
                     sendEditTextMessage(
+                        conversationId = conversationId,
+                        originalMessageId = originalMessageId,
+                        text = newContent,
+                        mentions = newMentions.map { it.intoMessageMention() },
+                    )
+                        .handleLegalHoldFailureAfterSendingMessage(conversationId)
+                        .handleNonAssetContributionEvent(messageBundle)
+                }
+            }
+
+            is ComposableMessageBundle.EditMultipartMessageBundle -> {
+                removeMessageDraft(messageBundle.conversationId)
+                sendTypingEvent(messageBundle.conversationId, TypingIndicatorMode.STOPPED)
+                with(messageBundle) {
+                    sendEditMultipartMessage(
                         conversationId = conversationId,
                         originalMessageId = originalMessageId,
                         text = newContent,
@@ -392,6 +409,7 @@ class SendMessageViewModel @Inject constructor(
                 is Ping -> AnalyticsEvent.Contributed.Ping
                 is ComposableMessageBundle.EditMessageBundle,
                 is ComposableMessageBundle.SendTextMessageBundle,
+                is ComposableMessageBundle.EditMultipartMessageBundle,
                 is ComposableMessageBundle.SendMultipartMessageBundle -> AnalyticsEvent.Contributed.Text
             }
             analyticsManager.sendEvent(event)

@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.feature.cells.ui.versionhistory
+package com.wire.android.feature.cells.ui.versioning
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -26,8 +26,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
@@ -37,20 +35,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import com.wire.android.feature.cells.R
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.util.ui.UIText
+import com.wire.android.util.ui.toUIText
+import com.wire.android.ui.common.R as commonR
 
 @Composable
 fun VersionItem(
-    modifiedAt: String,
-    modifiedBy: String,
-    fileSize: Long,
+    cellVersion: CellVersion,
     modifier: Modifier = Modifier,
-    onActionClick: () -> Unit = {}
+    onActionClick: (CellVersion) -> Unit = {}
 ) {
     val interactionSource = remember { MutableInteractionSource() }
 
@@ -80,14 +80,20 @@ fun VersionItem(
                     start = dimensions().corner2x
                 )
             ) {
+                val currentLabel = if (cellVersion.isCurrentVersion) {
+                    stringResource(R.string.version_history_current_label_for_title)
+                } else {
+                    ""
+                }
+
                 Text(
-                    text = modifiedAt,
+                    text = "${cellVersion.modifiedAt} $currentLabel",
                     style = typography().title02,
                     color = colorsScheme().onSurface,
                 )
                 Row {
                     Text(
-                        text = "$modifiedBy · $fileSize MB",
+                        text = "${cellVersion.modifiedBy} · ${cellVersion.fileSize}",
                         style = typography().label04,
                         color = colorsScheme().secondaryText,
                     )
@@ -96,13 +102,13 @@ fun VersionItem(
         }
 
         Icon(
-            imageVector = Icons.Default.MoreVert,
+            painter = painterResource(commonR.drawable.ic_more_vert),
             contentDescription = null,
             tint = colorsScheme().secondaryText,
             modifier = Modifier
-                .padding(end = dimensions().spacing8x)
+                .padding(end = dimensions().spacing16x)
                 .clickable(
-                    onClick = { onActionClick },
+                    onClick = { onActionClick(cellVersion) },
                     interactionSource = interactionSource,
                     indication = ripple(
                         bounded = false,
@@ -117,7 +123,7 @@ fun VersionItem(
 
 @Composable
 fun VersionTimeHeaderItem(
-    timeHeader: String,
+    timeHeader: UIText,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -133,7 +139,7 @@ fun VersionTimeHeaderItem(
                     top = dimensions().spacing8x,
                     bottom = dimensions().spacing8x,
                 ),
-            text = timeHeader,
+            text = timeHeader.asString(),
             style = typography().title03,
             color = colorsScheme().secondaryText,
         )
@@ -145,9 +151,12 @@ fun VersionTimeHeaderItem(
 fun VersionItemPreview() {
     WireTheme {
         VersionItem(
-            modifiedAt = "1:46 PM",
-            modifiedBy = "Deniz Agha",
-            fileSize = 200L,
+            cellVersion = CellVersion(
+                versionId = "id",
+                modifiedAt = "1:46 PM",
+                modifiedBy = "Deniz Agha",
+                fileSize = "200MB"
+            )
         )
     }
 }
@@ -157,7 +166,7 @@ fun VersionItemPreview() {
 fun VersionTimeHeaderItemPreview() {
     WireTheme {
         VersionTimeHeaderItem(
-            timeHeader = "Today, 3 Dec 2025"
+            timeHeader = "Today, 3 Dec 2025".toUIText()
         )
     }
 }

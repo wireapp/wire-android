@@ -39,13 +39,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import com.wire.android.feature.cells.R
+import com.wire.android.feature.cells.ui.common.ErrorScreen
 import com.wire.android.feature.cells.ui.common.LoadingScreen
 import com.wire.android.feature.cells.ui.common.WireCellErrorDialog
 import com.wire.android.feature.cells.ui.dialog.DeleteConfirmationDialog
@@ -57,8 +57,6 @@ import com.wire.android.feature.cells.ui.recyclebin.RestoreConfirmationDialog
 import com.wire.android.feature.cells.ui.recyclebin.RestoreParentFolderConfirmationDialog
 import com.wire.android.feature.cells.ui.recyclebin.UnableToRestoreDialog
 import com.wire.android.ui.common.HandleActions
-import com.wire.android.ui.common.button.WirePrimaryButton
-import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.common.typography
@@ -89,7 +87,7 @@ internal fun CellScreenContent(
     isSearchResult: Boolean = false,
     isFiltering: Boolean = false,
     retryEditNodeError: (String) -> Unit = {},
-    showVersionHistoryScreen: (String) -> Unit = {}
+    showVersionHistoryScreen: (String, String) -> Unit = { _, _ -> }
 ) {
 
     val context = LocalContext.current
@@ -106,10 +104,13 @@ internal fun CellScreenContent(
 
     when {
         pagingListItems.isLoading() -> LoadingScreen()
-        pagingListItems.isError() -> ErrorScreen(
-            error = (pagingListItems.loadState.refresh as? LoadState.Error)?.error,
-            onRetry = { pagingListItems.retry() }
-        )
+        pagingListItems.isError() -> {
+            val error = (pagingListItems.loadState.refresh as? LoadState.Error)?.error
+            ErrorScreen(
+                isConnectionError = (error as? FileListLoadError)?.isConnectionError ?: false,
+                onRetry = { pagingListItems.retry() }
+            )
+        }
 
         pagingListItems.itemCount == 0 -> EmptyScreen(
             isSearchResult = isSearchResult,
@@ -226,7 +227,7 @@ internal fun CellScreenContent(
             is ShowRenameScreen -> showRenameScreen(action.cellNode)
             is ShowMoveToFolderScreen -> showMoveToFolderScreen(action.currentPath, action.nodeToMovePath, action.uuid)
             is ShowAddRemoveTagsScreen -> showAddRemoveTagsScreen(action.cellNode)
-            is ShowVersionHistoryScreen -> showVersionHistoryScreen(action.cellNode.uuid)
+            is ShowVersionHistoryScreen -> showVersionHistoryScreen(action.uuid, action.fileName)
             is RefreshData -> pagingListItems.refresh()
             is ShowUnableToRestoreDialog -> showRestoreError = action
             is ShowRestoreParentFolderDialog -> restoreParentFolderConfirmation = action.cellNode
@@ -245,56 +246,6 @@ internal fun CellScreenContent(
                 menu = showMenu
             }
         }
-    }
-}
-
-@Composable
-private fun ErrorScreen(error: Throwable?, onRetry: () -> Unit) {
-
-    val isConnectionError = (error as? FileListLoadError)?.isConnectionError ?: false
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(dimensions().spacing16x),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-
-        Spacer(
-            modifier = Modifier
-                .fillMaxHeight()
-                .weight(1f)
-        )
-
-        Text(
-            text = stringResource(
-                if (isConnectionError) R.string.file_list_load_network_error_title else R.string.file_list_load_error_title
-            ),
-            textAlign = TextAlign.Center,
-            style = typography().title01,
-            color = if (isConnectionError) colorsScheme().onBackground else colorsScheme().error,
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Text(
-            text = stringResource(
-                if (isConnectionError) R.string.file_list_load_network_error else R.string.file_list_load_error
-            ),
-            textAlign = TextAlign.Center,
-            color = if (isConnectionError) colorsScheme().onBackground else colorsScheme().error,
-        )
-
-        Spacer(
-            modifier = Modifier
-                .fillMaxHeight()
-                .weight(1f)
-        )
-
-        WirePrimaryButton(
-            text = stringResource(R.string.reload),
-            onClick = { onRetry() }
-        )
     }
 }
 
@@ -360,28 +311,6 @@ private fun showDeleteConfirmation(
         else -> R.string.cells_file_deleted_message
     }
     Toast.makeText(context, message, Toast.LENGTH_LONG).show()
-}
-
-@MultipleThemePreviews
-@Composable
-fun PreviewErrorScreen() {
-    WireTheme {
-        ErrorScreen(
-            error = null,
-            onRetry = {}
-        )
-    }
-}
-
-@MultipleThemePreviews
-@Composable
-fun PreviewNetworkErrorScreen() {
-    WireTheme {
-        ErrorScreen(
-            error = FileListLoadError(true),
-            onRetry = {}
-        )
-    }
 }
 
 @MultipleThemePreviews

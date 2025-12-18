@@ -107,7 +107,7 @@
     <string name="rename_file_renamed">File was renamed</string>
     <string name="rename_folder_renamed">Folder was renamed</string>
     <string name="rename_failure">Unable to rename</string>
-    <string name="rename_invalid_name">Use a name without "/"</string>
+    <string name="rename_invalid_name">Use a name without "/" and not starting with "."</string>
     <string name="rename_already_exist">File with this name already exists</string>
     <string name="filter_label">Filter</string>
     <string name="tags_label">Tags</string>
@@ -162,7 +162,6 @@
     <string name="cell_open_editor_failure_dialog_title">Unable to open file edit mode</string>
     <string name="cell_open_editor_failure_dialog_message">There was a problem connecting to the server. Please try again. If the issue persists, contact support.</string>
     <string name="error_try_again_button_title">Try again</string>
-    <string name="version_history_top_appbar_title">Version history</string>
     <string name="public_link_expiration_add">Add expiration</string>
     <string name="public_link_expiration_set">Set expiration</string>
     <string name="public_link_expiration_description">The link expires automatically after the set date and time. People can’t access the content anymore.</string>
@@ -174,4 +173,22 @@
     <string name="dialog_expiration_time_title">Expiration time</string>
     <string name="invalid_expiration_date">Expiration date is in the past</string>
     <string name="link_expired">Link expired on: %1$s, at %2$s</string>
+    <string name="version_history_top_appbar_title">Version history</string>
+    <string name="version_history_current_label_for_title">Current</string>
+    <string name="restore_version_bottom_sheet_item_label">Restore version</string>
+    <string name="download_version_bottom_sheet_item_label">Download version</string>
+    <string name="dialog_restore_cell_version_confirmation_description">This copies the restored version and sets it as the current one. All previous versions remain available.</string>
+    <string name="dialog_restore_cell_version_confirmation_button_label">Restore</string>
+    <string name="dialog_restore_cell_version_successfully_completed">Your file version is restored</string>
+    <string name="dialog_restore_cell_version_confirmation_title">Restore version</string>
+    <string name="dialog_restore_cell_version_restoring_title">Restoring version…</string>
+    <string name="dialog_restore_cell_version_failed_title">Restoring version failed</string>
+    <string name="dialog_restore_cell_version_successfully_completed_title">Version restored</string>
+    <string name="dialog_restore_cell_version_failed_description">Something went wrong while restoring a version. Please retry.</string>
+    <string name="dialog_restore_cell_version_loading">Loading…</string>
+    <string name="dialog_restore_cell_version_go_to_file_button_label">Go to file</string>
+    <string name="date_label_today">Today, %1$s</string>
+    <string name="date_label_yesterday">Yesterday, %1$s</string>
+    <string name="versions_list_not_loaded_title_error">Failed to load versions</string>
+    <string name="versions_list_not_loaded_description_error">Something went wrong while loading version list. Please retry.</string>
 </resources>

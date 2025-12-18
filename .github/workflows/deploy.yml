@@ -41,7 +41,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Download build artifacts
         uses: actions/download-artifact@v6
@@ -75,6 +75,11 @@ jobs:
         if: matrix.target.type == 'google-play'
         run: echo '${{ secrets.SERVICE_ACCOUNT_JSON }}' > service_account.json
 
+      - name: Format latest release notes
+        if: matrix.target.type == 'google-play'
+        run: |
+          python3 scripts/generate_whatsnew_notes.py
+
       - name: Deploy to Google Play
         if: matrix.target.type == 'google-play'
         uses: r0adkll/upload-google-play@v1
@@ -84,7 +89,8 @@ jobs:
           releaseFiles: ${{ inputs.artifacts-path }}bundle/${{ steps.lowercase.outputs.build-flavour }}${{ inputs.build-variant }}/*.aab
           track: ${{ matrix.target.track }}
           status: ${{ matrix.target.status || 'completed' }}
-          whatsNewDirectory: app/src/main/play/release-notes
+          whatsNewDirectory: build/whatsnew
+          userFraction: ${{ matrix.target.user-fraction }}
 
       - name: Deploy to GitHub Release
         if: matrix.target.type == 'github-release'

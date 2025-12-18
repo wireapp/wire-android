@@ -111,7 +111,7 @@ class CellsModule {
 
     @ViewModelScoped
     @Provides
-    fun provideDownloadUseCase(cellsScope: CellsScope): DownloadCellFileUseCase = cellsScope.downloadFile
+    fun provideDownloadUseCase(cellsScope: CellsScope): DownloadCellFileUseCase = cellsScope.downloadCellFile
 
     @ViewModelScoped
     @Provides

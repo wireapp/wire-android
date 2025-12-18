@@ -9,7 +9,8 @@
             "analytics_enabled": true,
             "analytics_app_key": "4483f7a58ae3e70b3780319c4ccb5c88a037be49",
             "analytics_server_url": "https://wire.count.ly/",
-            "enable_new_registration": true
+            "enable_new_registration": true,
+            "message_synchronization_enabled": false
         },
         "dev": {
             "application_id": "com.waz.zclient.dev",
@@ -38,7 +39,8 @@
             "use_async_flush_logging": true,
             "conversation_feeder_enabled": true,
             "collabora_integration": true,
-            "db_invalidation_control_enabled": true
+            "db_invalidation_control_enabled": true,
+            "message_synchronization_enabled": true
         },
         "staging": {
             "application_id": "com.waz.zclient.dev",
@@ -60,7 +62,8 @@
             "analytics_enabled": true,
             "analytics_app_key": "8ffae535f1836ed5f58fd5c8a11c00eca07c5438",
             "analytics_server_url": "https://wire.count.ly/",
-            "enable_new_registration": true
+            "enable_new_registration": true,
+            "message_synchronization_enabled": false
         },
         "beta": {
             "application_id": "com.wire.android.internal",
@@ -72,7 +75,8 @@
             "analytics_app_key": "8ffae535f1836ed5f58fd5c8a11c00eca07c5438",
             "analytics_server_url": "https://wire.count.ly/",
             "enable_new_registration": true,
-            "use_async_flush_logging": true
+            "use_async_flush_logging": true,
+            "message_synchronization_enabled": true
         },
         "internal": {
             "application_id": "com.wire.internal",
@@ -89,7 +93,8 @@
             "conversation_feeder_enabled": true,
             "background_notification_retry_enabled": true,
             "background_notification_stay_alive_seconds": 5,
-            "db_invalidation_control_enabled": true
+            "db_invalidation_control_enabled": true,
+            "message_synchronization_enabled": true
         },
         "fdroid": {
             "application_id": "com.wire",
@@ -100,7 +105,8 @@
             "analytics_enabled": false,
             "analytics_app_key": "",
             "analytics_server_url": "",
-            "enable_new_registration": true
+            "enable_new_registration": true,
+            "message_synchronization_enabled": false
         }
     },
     "application_name": "Wire",

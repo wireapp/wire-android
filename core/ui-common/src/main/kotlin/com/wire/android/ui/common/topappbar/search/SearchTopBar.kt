@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2025 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,15 +52,13 @@ import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import com.wire.android.R
-import com.wire.android.ui.common.R as commonR
+import com.wire.android.ui.common.R
 import com.wire.android.ui.common.SearchBarInput
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
-import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.android.util.PreviewMultipleThemes
 
 @Composable
 fun SearchTopBar(
@@ -69,6 +67,7 @@ fun SearchTopBar(
     searchQueryTextState: TextFieldState,
     modifier: Modifier = Modifier,
     isLoading: Boolean = false,
+    backIconContentDescription: String? = null,
     searchBarDescription: String? = null,
     onCloseSearchClicked: (() -> Unit)? = null,
     onActiveChanged: (isActive: Boolean) -> Unit = {},
@@ -128,8 +127,8 @@ fun SearchTopBar(
                             modifier = Modifier.size(dimensions().buttonCircleMinSize)
                         ) {
                             Icon(
-                                painter = painterResource(commonR.drawable.ic_arrow_back),
-                                contentDescription = stringResource(id = R.string.content_description_add_participants_back_btn),
+                                painter = painterResource(R.drawable.ic_arrow_back),
+                                contentDescription = backIconContentDescription,
                                 tint = MaterialTheme.wireColorScheme.onBackground,
                             )
                         }

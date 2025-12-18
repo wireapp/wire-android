@@ -58,7 +58,6 @@
     <string name="content_description_reveal_password">Kuva parool</string>
     <string name="content_description_hide_password">Peida parool</string>
     <string name="content_description_search_back">Otsi tagasi ikoon</string>
-    <string name="content_description_clear_content">Tühjenda sisu</string>
     <string name="content_description_muted_conversation">Vaigistatud vestlus</string>
     <string name="content_description_download_icon">Allalaadimise ikoon</string>
     <string name="content_description_open_asset_icon">Avamise ikoon</string>

@@ -18,4 +18,5 @@
   -->
 <resources>
     <string name="content_description_check">හරි ලකුණ</string>
+    <string name="label_no_application_found_open_downloads_folder">"බාගැනීමේ බහාලුම ඇරීමට සුදුසු යෙදුමක් හමු නොවිණි"</string>
 </resources>

@@ -79,7 +79,6 @@
     <string name="content_description_reveal_password">パスワードを表示</string>
     <string name="content_description_hide_password">パスワードを非表示</string>
     <string name="content_description_search_back">検索に戻るアイコン</string>
-    <string name="content_description_clear_content">内容を消去</string>
     <string name="content_description_muted_conversation">ミュートした会話</string>
     <string name="content_description_download_icon">ダウンロードアイコン</string>
     <string name="content_description_open_asset_icon">開くアイコン</string>
@@ -91,8 +90,6 @@
     <string name="content_description_unblock_the_user">ブロック解除</string>
     <string name="content_description_conversation_phone_icon">音声通話を開始</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
-    <string name="content_description_conversation_search_icon">検索アイコン</string>
-    <string name="content_description_conversation_search_input">検索入力</string>
     <string name="content_description_conversation_enable_rich_text_mode">リッチテキストモードボタンを有効にする</string>
     <string name="content_description_conversation_enable_drawing_mode">お絵描きモードボタンを有効にする</string>
     <string name="content_description_conversation_rich_text_header">リッチテキスト書式のヘッダー</string>

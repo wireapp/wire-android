@@ -84,7 +84,6 @@
     <string name="content_description_reveal_password">Mostrar senha</string>
     <string name="content_description_hide_password">Ocultar senha</string>
     <string name="content_description_search_back">Ícone de busca</string>
-    <string name="content_description_clear_content">Limpar conteúdo</string>
     <string name="content_description_muted_conversation">Conversa silenciada</string>
     <string name="content_description_download_icon">Ícone de download</string>
     <string name="content_description_open_asset_icon">Ícone de abrir</string>
@@ -96,8 +95,6 @@
     <string name="content_description_unblock_the_user">Desbloquear</string>
     <string name="content_description_conversation_phone_icon">Iniciar chamada de áudio</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
-    <string name="content_description_conversation_search_icon">Ícone de pesquisa</string>
-    <string name="content_description_conversation_search_input">Pesquisa</string>
     <string name="content_description_conversation_enable_rich_text_mode">Habilitar modo de texto avançado</string>
     <string name="content_description_conversation_enable_drawing_mode">Ativar botão de modo de desenho</string>
     <string name="content_description_conversation_rich_text_header">Cabeçalho de formatação de Rich Text</string>

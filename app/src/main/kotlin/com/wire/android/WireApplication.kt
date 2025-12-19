@@ -51,10 +51,12 @@ import com.wire.kalium.logger.KaliumLogLevel
 import com.wire.kalium.logger.KaliumLogger
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
+import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import dagger.Lazy
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
@@ -64,6 +66,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import javax.inject.Inject
+import kotlin.collections.filter
 
 @Suppress("TooManyFunctions")
 @HiltAndroidApp
@@ -135,7 +138,23 @@ class WireApplication : BaseApp() {
 
             launch { observeAssetUploadState() }
 
-            observeRecentlyEndedCall()
+            launch { observeRecentlyEndedCall() }
+
+            launch { observeCallBackgroundState() }
+        }
+    }
+
+    private suspend fun observeCallBackgroundState() {
+        combine(
+            currentScreenManager.isAppVisibleFlow(),
+            coreLogic.get().getGlobalScope().session.allSessionsFlow()
+                .filterIsInstance<GetAllSessionsResult.Success>()
+                .map { it.sessions.filter { it.isValid() } },
+            ::Pair
+        ).collect { (isAppVisible, validSessions) ->
+            validSessions.forEach {
+                coreLogic.get().getSessionScope(it.userId).calls.setBackground(!isAppVisible)
+            }
         }
     }
 

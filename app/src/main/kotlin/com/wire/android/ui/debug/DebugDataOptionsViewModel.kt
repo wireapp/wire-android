@@ -264,7 +264,7 @@ class DebugDataOptionsViewModelImpl
             val result = repairFaultyRemovalKeys(
                 param = TargetedRepairParam(
                     domain = domain,
-                    faultyKey = faultyKey
+                    faultyKeys = faultyKey
                 )
             )
             when (result) {
@@ -272,8 +272,8 @@ class DebugDataOptionsViewModelImpl
                 RepairResult.NoConversationsToRepair -> appLogger.i("No conversations to repair")
                 RepairResult.RepairNotNeeded -> appLogger.i("Repair not needed")
                 is RepairResult.RepairPerformed -> {
-                    _infoMessage.emit(UIText.DynamicString("Repair finalized"))
-                    appLogger.i("Repair performed: $result")
+                    _infoMessage.emit(UIText.DynamicString("Reset finalized"))
+                    appLogger.i("Repair performed: ${result.toLogString()}")
                 }
             }
             state = state.copy(mlsInfoState = state.mlsInfoState.copy(isLoadingRepair = false))

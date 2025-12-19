@@ -562,7 +562,7 @@ class WireActivity : AppCompatActivity() {
                     )
                 }
 
-//                UpdateAppDialog(viewModel.globalAppState.updateAppDialog, ::updateTheApp)
+                UpdateAppDialog(viewModel.globalAppState.updateAppDialog, ::updateTheApp)
                 JoinConversationDialog(
                     viewModel.globalAppState.conversationJoinedDialog,
                     navigate,

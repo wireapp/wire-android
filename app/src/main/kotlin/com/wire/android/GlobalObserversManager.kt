@@ -175,16 +175,17 @@ class GlobalObserversManager @Inject constructor(
                 .collectLatest { isVisible ->
                     val previous = previousVisibility
 
-                    // Only trigger sync on transitions, not the initial state
-                    if (previous != null && previous != isVisible) {
-                        val transition = if (isVisible) "background → foreground" else "foreground → background"
-                        appLogger.i("GlobalObserversManager: App transition detected ($transition), triggering message sync")
+                    // Get current user session for both immediate sync and scheduler control
+                    val currentSession = coreLogic.getGlobalScope().session.currentSessionFlow().first()
+                    if (currentSession is CurrentSessionResult.Success && currentSession.accountInfo.isValid()) {
+                        val userId = currentSession.accountInfo.userId
+                        val sessionScope = coreLogic.getSessionScope(userId)
 
-                        // Get current user session
-                        val currentSession = coreLogic.getGlobalScope().session.currentSessionFlow().first()
-                        if (currentSession is CurrentSessionResult.Success && currentSession.accountInfo.isValid()) {
-                            val userId = currentSession.accountInfo.userId
-                            val sessionScope = coreLogic.getSessionScope(userId)
+                        // Only trigger sync on transitions, not the initial state
+                        if (previous != null && previous != isVisible) {
+                            val transition = if (isVisible) "background → foreground" else "foreground → background"
+                            appLogger.i("GlobalObserversManager: App transition detected ($transition), triggering message sync")
+
                             val result = sessionScope.messages.syncMessages()
 
                             when (result) {
@@ -206,9 +207,18 @@ class GlobalObserversManager @Inject constructor(
                                     enqueueMessageSyncRetry(userId)
                                 }
                             }
-                        } else {
-                            appLogger.w("GlobalObserversManager: No valid user session, skipping message sync")
                         }
+
+                        // Start/stop the debounced scheduler based on app visibility
+                        if (isVisible) {
+                            appLogger.i("GlobalObserversManager: App entered foreground, starting debounced message sync scheduler")
+                            sessionScope.messages.debouncedMessageSyncScheduler.start()
+                        } else {
+                            appLogger.i("GlobalObserversManager: App entered background, stopping debounced message sync scheduler")
+                            sessionScope.messages.debouncedMessageSyncScheduler.stop()
+                        }
+                    } else {
+                        appLogger.w("GlobalObserversManager: No valid user session, skipping message sync management")
                     }
 
                     // Update previous state

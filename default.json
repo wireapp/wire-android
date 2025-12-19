@@ -90,7 +90,7 @@
             "conversation_feeder_enabled": true,
             "background_notification_retry_enabled": true,
             "background_notification_stay_alive_seconds": 5,
-            "db_invalidation_control_enabled": true
+            "db_invalidation_control_enabled": false
         },
         "fdroid": {
             "application_id": "com.wire",

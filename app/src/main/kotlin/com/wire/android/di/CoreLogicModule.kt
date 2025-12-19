@@ -96,7 +96,8 @@ class CoreLogicModule {
     fun provideCoreLogic(
         @ApplicationContext context: Context,
         kaliumConfigs: KaliumConfigs,
-        userAgentProvider: UserAgentProvider
+        userAgentProvider: UserAgentProvider,
+        currentScreenManager: com.wire.android.util.CurrentScreenManager
     ): CoreLogic {
         val rootPath = context.getDir("accounts", Context.MODE_PRIVATE).path
 
@@ -104,7 +105,8 @@ class CoreLogicModule {
             userAgent = userAgentProvider.defaultUserAgent,
             appContext = context,
             rootPath = rootPath,
-            kaliumConfigs = kaliumConfigs
+            kaliumConfigs = kaliumConfigs,
+            appVisibilityFlow = currentScreenManager.isAppVisibleFlow()
         )
     }
 

@@ -18,12 +18,6 @@
 
 package com.wire.android
 
-import androidx.work.Constraints
-import androidx.work.Data
-import androidx.work.ExistingWorkPolicy
-import androidx.work.NetworkType
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.notification.NotificationChannelsManager
@@ -36,10 +30,6 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.LogoutCallback
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
-import com.wire.kalium.logic.sync.MessageSyncRetryWorker
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
-import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.awaitClose
@@ -49,7 +39,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.launchIn
@@ -70,7 +59,6 @@ class GlobalObserversManager @Inject constructor(
     private val notificationChannelsManager: NotificationChannelsManager,
     private val userDataStoreProvider: UserDataStoreProvider,
     private val currentScreenManager: CurrentScreenManager,
-    private val workManager: WorkManager,
 ) {
     // TODO(tests): refactor so scope/dispatcher can be injected and properly stopped
     private val scope = CoroutineScope(SupervisorJob() + dispatcherProvider.io())
@@ -88,7 +76,6 @@ class GlobalObserversManager @Inject constructor(
         }
         scope.handleLogouts()
         scope.handleDeleteEphemeralMessageEndDate()
-        scope.handleMessageSync()
     }
 
     private suspend fun setUpNotifications() {
@@ -165,90 +152,5 @@ class GlobalObserversManager @Inject constructor(
                 }
                 .collect { userId -> coreLogic.getSessionScope(userId).messages.deleteEphemeralMessageEndDate() }
         }
-    }
-
-    private fun CoroutineScope.handleMessageSync() {
-        launch {
-            var previousVisibility: Boolean? = null
-
-            currentScreenManager.isAppVisibleFlow()
-                .collectLatest { isVisible ->
-                    val previous = previousVisibility
-
-                    // Get current user session for both immediate sync and scheduler control
-                    val currentSession = coreLogic.getGlobalScope().session.currentSessionFlow().first()
-                    if (currentSession is CurrentSessionResult.Success && currentSession.accountInfo.isValid()) {
-                        val userId = currentSession.accountInfo.userId
-                        val sessionScope = coreLogic.getSessionScope(userId)
-
-                        // Only trigger sync on transitions, not the initial state
-                        if (previous != null && previous != isVisible) {
-                            val transition = if (isVisible) "background → foreground" else "foreground → background"
-                            appLogger.i("GlobalObserversManager: App transition detected ($transition), triggering message sync")
-
-                            val result = sessionScope.messages.syncMessages()
-
-                            when (result) {
-                                is com.wire.kalium.logic.feature.message.sync.SyncMessagesResult.Success -> {
-                                    appLogger.i("GlobalObserversManager: Message sync completed successfully")
-                                }
-                                is com.wire.kalium.logic.feature.message.sync.SyncMessagesResult.NothingToSync -> {
-                                    appLogger.i("GlobalObserversManager: No messages to sync")
-                                }
-                                is com.wire.kalium.logic.feature.message.sync.SyncMessagesResult.Disabled -> {
-                                    appLogger.i("GlobalObserversManager: Message sync feature disabled")
-                                }
-                                is com.wire.kalium.logic.feature.message.sync.SyncMessagesResult.ApiFailure -> {
-                                    appLogger.w("GlobalObserversManager: Message sync API failure (${result.statusCode}), enqueueing retry")
-                                    enqueueMessageSyncRetry(userId)
-                                }
-                                is com.wire.kalium.logic.feature.message.sync.SyncMessagesResult.Failure -> {
-                                    appLogger.e("GlobalObserversManager: Message sync failed, enqueueing retry", result.exception)
-                                    enqueueMessageSyncRetry(userId)
-                                }
-                            }
-                        }
-
-                        // Start/stop the debounced scheduler based on app visibility
-                        if (isVisible) {
-                            appLogger.i("GlobalObserversManager: App entered foreground, starting debounced message sync scheduler")
-                            sessionScope.messages.debouncedMessageSyncScheduler.start()
-                        } else {
-                            appLogger.i("GlobalObserversManager: App entered background, stopping debounced message sync scheduler")
-                            sessionScope.messages.debouncedMessageSyncScheduler.stop()
-                        }
-                    } else {
-                        appLogger.w("GlobalObserversManager: No valid user session, skipping message sync management")
-                    }
-
-                    // Update previous state
-                    previousVisibility = isVisible
-                }
-        }
-    }
-
-    private fun enqueueMessageSyncRetry(userId: UserId) {
-        val constraints = Constraints.Builder()
-            .setRequiredNetworkType(NetworkType.CONNECTED)
-            .build()
-
-        val inputData = Data.Builder()
-            .putString("worker_class", MessageSyncRetryWorker::class.java.canonicalName)
-            .putString("user-id-worker-param", Json.encodeToString(userId))
-            .build()
-
-        val workRequest = OneTimeWorkRequestBuilder<com.wire.kalium.logic.sync.WrapperWorker>()
-            .setInputData(inputData)
-            .setConstraints(constraints)
-            .setInitialDelay(30, TimeUnit.SECONDS)
-            .build()
-
-        workManager.enqueueUniqueWork(
-            MessageSyncRetryWorker.NAME_PREFIX + userId.value,
-            ExistingWorkPolicy.REPLACE,
-            workRequest
-        )
-
-        appLogger.i("GlobalObserversManager: Message sync retry worker enqueued")
     }
 }

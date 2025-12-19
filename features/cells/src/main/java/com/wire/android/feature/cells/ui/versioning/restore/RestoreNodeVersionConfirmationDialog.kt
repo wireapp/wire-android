@@ -91,9 +91,9 @@ fun RestoreNodeVersionConfirmationDialog(
     ) {
         when (restoreVersionState) {
             RestoreVersionState.Completed, RestoreVersionState.Restoring -> GoToFileContent(
-                restoreVersionState,
-                restoreProgress,
-                onGoToFileClicked
+                restoreVersionState = restoreVersionState,
+                restoreProgress = restoreProgress,
+                onGoToFileClicked = onGoToFileClicked
             )
 
             RestoreVersionState.Failed -> RestoreFailedContent(

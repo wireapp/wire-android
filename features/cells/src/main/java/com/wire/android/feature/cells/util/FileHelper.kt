@@ -18,17 +18,49 @@
 package com.wire.android.feature.cells.util
 
 import android.content.ActivityNotFoundException
+import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Environment
+import android.provider.MediaStore
+import android.os.Build
 import androidx.core.content.FileProvider
 import dagger.hilt.android.qualifiers.ApplicationContext
 import okio.Path
+import java.io.File
+import java.io.FileOutputStream
+import java.io.OutputStream
 import javax.inject.Inject
 
 class FileHelper @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
+
+    fun createDownloadFileStream(nodeName: String): OutputStream? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        // Android 10+
+        val values = ContentValues().apply {
+            put(MediaStore.Downloads.DISPLAY_NAME, nodeName)
+            put(MediaStore.Downloads.MIME_TYPE, "application/octet-stream")
+            put(
+                MediaStore.Downloads.RELATIVE_PATH,
+                Environment.DIRECTORY_DOWNLOADS
+            )
+        }
+
+        val uri = context.contentResolver.insert(
+            MediaStore.Downloads.EXTERNAL_CONTENT_URI,
+            values
+        )
+        uri?.let { context.contentResolver.openOutputStream(it) }
+    } else {
+        // Android 8–9 (API 26–28)
+        val downloadsDir =
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+
+        val file = File(downloadsDir, nodeName)
+        FileOutputStream(file)
+    }
 
     fun openAssetFileWithExternalApp(
         localPath: Path,

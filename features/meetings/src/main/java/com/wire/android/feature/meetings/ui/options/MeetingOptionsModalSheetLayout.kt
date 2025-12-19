@@ -122,7 +122,7 @@ private fun MeetingOptionsModalContent(
                     title = stringResource(R.string.meeting_options_copy_link),
                     leading = {
                         Icon(
-                            painter = painterResource(UICommonR.drawable.ic_link),
+                            painter = painterResource(UICommonR.drawable.ic_link_indicator),
                             contentDescription = stringResource(R.string.content_description_copy_link),
                             tint = colorsScheme().onSurface,
                         )

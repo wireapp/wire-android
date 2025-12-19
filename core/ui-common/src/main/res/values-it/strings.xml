@@ -18,4 +18,8 @@
   -->
 <resources>
     <string name="content_description_check">Segno di spunta</string>
+    <string name="label_no_application_found_open_downloads_folder">"Nessun'applicazione trovata per aprire la cartella dei download"</string>
+    <string name="content_description_clear_content">Cancella il contenuto</string>
+    <string name="content_description_conversation_search_icon">Icona di ricerca</string>
+    <string name="content_description_conversation_search_input">Input della ricerca</string>
 </resources>

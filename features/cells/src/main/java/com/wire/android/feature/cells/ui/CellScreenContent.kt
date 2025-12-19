@@ -87,7 +87,7 @@ internal fun CellScreenContent(
     isSearchResult: Boolean = false,
     isFiltering: Boolean = false,
     retryEditNodeError: (String) -> Unit = {},
-    showVersionHistoryScreen: (String, String) -> Unit = { _, _ -> }
+    showVersionHistoryScreen: (String, String) -> Unit = { _, _ -> },
 ) {
 
     val context = LocalContext.current

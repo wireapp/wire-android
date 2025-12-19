@@ -212,13 +212,6 @@ class CellsModule {
 
     @ViewModelScoped
     @Provides
-    fun provideRefreshHelper(cellsScope: CellsScope, kaliumConfigs: KaliumConfigs): CellAssetRefreshHelper = CellAssetRefreshHelper(
-        refreshAsset = cellsScope.refreshAsset,
-        featureFlags = kaliumConfigs
-    )
-
-    @ViewModelScoped
-    @Provides
     fun provideRestoreNodeVersionUseCase(cellsScope: CellsScope): RestoreNodeVersionUseCase =
         cellsScope.restoreNodeVersion
 
@@ -226,4 +219,11 @@ class CellsModule {
     @Provides
     fun provideDownloadCellVersionUseCase(cellsScope: CellsScope): DownloadCellVersionUseCase =
         cellsScope.downloadCellVersion
+
+    @ViewModelScoped
+    @Provides
+    fun provideRefreshHelper(cellsScope: CellsScope, kaliumConfigs: KaliumConfigs): CellAssetRefreshHelper = CellAssetRefreshHelper(
+        refreshAsset = cellsScope.refreshAsset,
+        featureFlags = kaliumConfigs
+    )
 }

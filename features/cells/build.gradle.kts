@@ -53,6 +53,7 @@ dependencies {
     testRuntimeOnly(libs.junit5.engine)
     androidTestImplementation(libs.androidx.test.extJunit)
     androidTestImplementation(libs.androidx.espresso.core)
+    testImplementation(testFixtures(project(":core:ui-common")))
 }
 
 android {

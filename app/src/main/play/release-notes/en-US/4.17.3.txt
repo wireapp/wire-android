@@ -1,0 +1,3 @@
+Fixes
+
+- Resolved performance bugs, crashes, and various other issues

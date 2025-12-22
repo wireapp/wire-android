@@ -1,0 +1,3 @@
+Behoben
+
+- Beseitigung von Leistungsfehlern und Abstürzen

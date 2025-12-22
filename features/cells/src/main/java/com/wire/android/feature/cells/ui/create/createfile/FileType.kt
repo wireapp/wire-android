@@ -17,7 +17,6 @@
  */
 package com.wire.android.feature.cells.ui.create.createfile
 
-data class CreateFileScreenNavArgs(
-    val uuid: String,
-    val fileType: FileType,
-)
+enum class FileType {
+    DOCUMENT, PRESENTATION, SPREADSHEET
+}

@@ -116,7 +116,7 @@ fun CreateFileScreen(
                             WirePrimaryButton(
                                 text = stringResource(R.string.cells_create_file),
                                 onClick = {
-                                    // TODO create file
+                                    createFileViewModel.createFile(fileNameTextFieldState.text.toString())
                                 },
                                 state = if (viewState.saveEnabled && !viewState.loading) {
                                     WireButtonState.Default
@@ -133,8 +133,8 @@ fun CreateFileScreen(
     ) {
         WireTextField(
             textState = createFileViewModel.fileNameTextFieldState,
-            placeholderText = stringResource(R.string.cells_folder_name),
-            labelText = stringResource(R.string.cells_folder_name).uppercase(Locale.getDefault()),
+            placeholderText = stringResource(R.string.cell_file_name),
+            labelText = stringResource(R.string.cell_file_name).uppercase(Locale.getDefault()),
             modifier = Modifier
                 .padding(it)
                 .padding(

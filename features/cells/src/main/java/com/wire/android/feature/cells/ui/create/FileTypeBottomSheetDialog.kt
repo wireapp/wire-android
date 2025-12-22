@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.wire.android.feature.cells.R
+import com.wire.android.feature.cells.ui.create.createfile.FileType
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.WireMenuModalSheetContent
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
@@ -39,7 +40,7 @@ import com.wire.android.ui.theme.wireDimensions
 fun FileTypeBottomSheetDialog(
     sheetState: WireModalSheetState<Unit>,
     onDismiss: () -> Unit,
-    onItemSelected: (String) -> Unit,
+    onItemSelected: (FileType) -> Unit,
 ) {
     WireModalSheetLayout(
         onDismissRequest = onDismiss,
@@ -51,21 +52,21 @@ fun FileTypeBottomSheetDialog(
                     BottomSheetItem(
                         title = stringResource(R.string.file_type_bottom_sheet_document),
                         icon = R.drawable.ic_file_type_doc,
-                        onClicked = { onItemSelected(".docx") },
+                        onClicked = { onItemSelected(FileType.DOCUMENT) },
                     )
                 }
                 add {
                     BottomSheetItem(
                         title = stringResource(R.string.file_type_bottom_sheet_spreadsheet),
                         icon = R.drawable.ic_file_type_spreadsheet,
-                        onClicked = { onItemSelected(".xlsx") },
+                        onClicked = { onItemSelected(FileType.SPREADSHEET) },
                     )
                 }
                 add {
                     BottomSheetItem(
                         title = stringResource(R.string.file_type_bottom_sheet_presentation),
                         icon = R.drawable.ic_file_type_presentation,
-                        onClicked = { onItemSelected(".pptx") },
+                        onClicked = { onItemSelected(FileType.PRESENTATION) },
                     )
                 }
             }

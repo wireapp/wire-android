@@ -212,7 +212,9 @@ fun ConversationFilesScreenContent(
             fileTypeBottomSheetState.hide()
         },
         onItemSelected = {
-            navigator.navigate(NavigationCommand(CreateFileScreenDestination(CreateFileScreenNavArgs(it))))
+            currentNodeUuid?.let { uuid ->
+                navigator.navigate(NavigationCommand(CreateFileScreenDestination(CreateFileScreenNavArgs(uuid, it))))
+            }
             fileTypeBottomSheetState.hide()
         },
     )

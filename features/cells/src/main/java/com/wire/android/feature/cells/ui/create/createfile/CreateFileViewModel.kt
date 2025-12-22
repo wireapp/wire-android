@@ -28,6 +28,11 @@ import com.wire.android.feature.cells.ui.common.validateFileName
 import com.wire.android.feature.cells.ui.navArgs
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.common.textfield.textAsFlow
+import com.wire.kalium.cells.domain.usecase.create.CreateDocumentFileUseCase
+import com.wire.kalium.cells.domain.usecase.create.CreatePresentationFileUseCase
+import com.wire.kalium.cells.domain.usecase.create.CreateSpreadsheetFileUseCase
+import com.wire.kalium.common.functional.onFailure
+import com.wire.kalium.common.functional.onSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
@@ -36,12 +41,15 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CreateFileViewModel @Inject constructor(
-    val savedStateHandle: SavedStateHandle,
+    private val savedStateHandle: SavedStateHandle,
+    private val createPresentationFileUseCase: CreatePresentationFileUseCase,
+    private val createDocumentFileUseCase: CreateDocumentFileUseCase,
+    private val createSpreadsheetFileUseCase: CreateSpreadsheetFileUseCase
 ) : ActionsViewModel<CreateFileViewModelAction>() {
 
     private val navArgs: CreateFileScreenNavArgs = savedStateHandle.navArgs()
 
-    val fileExtension: String = navArgs.extension
+    val fileExtension: String = navArgs.fileType.getExtension()
 
     val fileNameTextFieldState: TextFieldState = TextFieldState()
 
@@ -59,6 +67,39 @@ class CreateFileViewModel @Inject constructor(
             }
         }
     }
+
+    internal fun createFile(fileName: String) = viewModelScope.launch {
+        viewState = viewState.copy(loading = true)
+
+        val fullPath = "${navArgs.uuid}/${fileName.trim()}"
+
+        val result = when (navArgs.fileType) {
+            FileType.DOCUMENT ->
+                createDocumentFileUseCase(fullPath)
+
+            FileType.SPREADSHEET ->
+                createSpreadsheetFileUseCase(fullPath)
+
+            FileType.PRESENTATION ->
+                createPresentationFileUseCase(fullPath)
+        }
+
+        result.onSuccess {
+            sendAction(CreateFileViewModelAction.Success)
+        }.onFailure {
+            sendAction(CreateFileViewModelAction.Failure)
+        }
+
+        viewState = viewState.copy(loading = false)
+    }
+
+
+    fun FileType.getExtension(): String =
+        when (this) {
+            FileType.PRESENTATION -> ".pptx"
+            FileType.DOCUMENT -> ".docx"
+            FileType.SPREADSHEET -> ".xlsx"
+        }
 }
 
 sealed interface CreateFileViewModelAction {

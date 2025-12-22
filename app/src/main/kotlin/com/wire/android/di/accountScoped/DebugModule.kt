@@ -24,6 +24,7 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.debug.BreakSessionUseCase
 import com.wire.kalium.logic.feature.debug.DebugScope
 import com.wire.kalium.logic.feature.debug.GetFeatureConfigUseCase
+import com.wire.kalium.logic.feature.debug.RepairFaultyRemovalKeysUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -82,4 +83,9 @@ class DebugModule {
     @Provides
     fun provideDebugFeedConversationUseCase(debugScope: DebugScope) =
         debugScope.debugFeedConversationUseCase
+
+    @ViewModelScoped
+    @Provides
+    fun provideRepairFaultyRemovalKeysUseCase(debugScope: DebugScope): RepairFaultyRemovalKeysUseCase =
+        debugScope.repairFaultyRemovalKeysUseCase
 }

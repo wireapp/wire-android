@@ -68,7 +68,10 @@ class SyncLifecycleManager @Inject constructor(
             .distinctUntilChanged()
             .collectLatest { (userIds, isAppVisible) ->
                 if (isAppVisible) {
-                    logger.i("App moved to foreground, starting sync requests for users: ${userIds.joinToString { it.value.obfuscateId() }}")
+                    logger.i(
+                        "App moved to foreground, " +
+                                "starting sync requests for users: ${userIds.joinToString { it.value.obfuscateId() }}"
+                    )
                     coroutineScope {
                         userIds.forEach { userId ->
                             launch {

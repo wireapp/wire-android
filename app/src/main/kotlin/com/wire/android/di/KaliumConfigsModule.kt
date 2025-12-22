@@ -64,7 +64,8 @@ class KaliumConfigsModule {
             isMlsResetEnabled = BuildConfig.IS_MLS_RESET_ENABLED,
             collaboraIntegration = BuildConfig.COLLABORA_INTEGRATION_ENABLED,
             dbInvalidationControlEnabled = BuildConfig.DB_INVALIDATION_CONTROL_ENABLED,
-            messageSynchronizationEnabled = BuildConfig.MESSAGE_SYNCHRONIZATION_ENABLED
+            messageSynchronizationEnabled = BuildConfig.MESSAGE_SYNCHRONIZATION_ENABLED,
+            cryptoStateBackupEnabled = BuildConfig.CRYPTO_STATE_BACKUP_ENABLED
         )
     }
 }

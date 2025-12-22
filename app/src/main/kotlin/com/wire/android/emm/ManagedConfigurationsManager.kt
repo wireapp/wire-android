@@ -43,6 +43,8 @@ interface ManagedConfigurationsManager {
 
     val currentSSOCodeConfig: String
 
+    val remoteBackupURLConfig: String?
+
     /**
      * Initialize the server config on first access or when explicitly called.
      * This should be called when the app starts, resumes, or when broadcast receiver triggers.
@@ -66,6 +68,12 @@ interface ManagedConfigurationsManager {
      * empty if no config found or cleared, or failure with reason.
      */
     suspend fun refreshSSOCodeConfig(): SSOCodeConfigResult
+
+    /**
+     * Refresh the remote backup URL from managed configurations.
+     * This should be called when the app starts, resumes, or when broadcast receiver triggers.
+     */
+    suspend fun refreshRemoteBackupURLConfig()
 }
 
 internal class ManagedConfigurationsManagerImpl(
@@ -82,12 +90,16 @@ internal class ManagedConfigurationsManagerImpl(
 
     private val _currentServerConfig = AtomicReference<ServerConfig.Links?>(null)
     private val _currentSSOCodeConfig = AtomicReference(String.EMPTY)
+    private val _remoteBackupURLConfig = AtomicReference(String.EMPTY)
 
     override val currentServerConfig: ServerConfig.Links
         get() = _currentServerConfig.get() ?: serverConfigProvider.getDefaultServerConfig()
 
     override val currentSSOCodeConfig: String
         get() = _currentSSOCodeConfig.get()
+
+    override val remoteBackupURLConfig: String?
+        get() = _remoteBackupURLConfig.get().ifBlank { null }
 
     override suspend fun refreshServerConfig(): ServerConfigResult = withContext(dispatchers.io()) {
         val managedServerConfig = getServerConfig()
@@ -117,6 +129,18 @@ internal class ManagedConfigurationsManagerImpl(
             logger.i("SSO code config refreshed to: $ssoCode")
             managedSSOCodeConfig
         }
+
+    override suspend fun refreshRemoteBackupURLConfig() = withContext(dispatchers.io()) {
+        val restrictions = restrictionsManager.applicationRestrictions
+        val remoteBackupURL = if (restrictions != null && !restrictions.isEmpty) {
+            restrictions.getString(ManagedConfigurationsKeys.REMOTE_BACKUP_URL.asKey()) ?: String.EMPTY
+        } else {
+            String.EMPTY
+        }
+
+        _remoteBackupURLConfig.set(remoteBackupURL)
+        logger.i("Remote backup URL config refreshed to: $remoteBackupURL")
+    }
 
     private suspend fun getSSOCodeConfig(): SSOCodeConfigResult =
         withContext(dispatchers.io()) {

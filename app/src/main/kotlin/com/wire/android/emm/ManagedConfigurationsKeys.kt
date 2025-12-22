@@ -17,9 +17,10 @@
  */
 package com.wire.android.emm
 
-enum class ManagedConfigurationsKeys {
-    DEFAULT_SERVER_URLS,
-    SSO_CODE;
+enum class ManagedConfigurationsKeys(val keyName: String) {
+    DEFAULT_SERVER_URLS("default_server_urls"),
+    SSO_CODE("sso_code"),
+    REMOTE_BACKUP_URL("remote_backup_URL");
 
-    fun asKey() = name.lowercase()
+    fun asKey() = keyName
 }

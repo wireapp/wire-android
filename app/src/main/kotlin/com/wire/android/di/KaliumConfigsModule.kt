@@ -21,6 +21,7 @@ package com.wire.android.di
 import android.content.Context
 import android.os.Build
 import com.wire.android.BuildConfig
+import com.wire.android.emm.ManagedConfigurationsManager
 import com.wire.android.util.isWebsocketEnabledByDefault
 import com.wire.kalium.logic.featureFlags.BuildFileRestrictionState
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
@@ -34,7 +35,10 @@ import dagger.hilt.components.SingletonComponent
 class KaliumConfigsModule {
 
     @Provides
-    fun provideKaliumConfigs(context: Context): KaliumConfigs {
+    fun provideKaliumConfigs(
+        context: Context,
+        managedConfigurationsManager: ManagedConfigurationsManager
+    ): KaliumConfigs {
         val fileRestriction: BuildFileRestrictionState = if (BuildConfig.FILE_RESTRICTION_ENABLED) {
             BuildConfig.FILE_RESTRICTION_LIST.split(",").map { it.trim() }.let {
                 BuildFileRestrictionState.AllowSome(it)
@@ -64,8 +68,9 @@ class KaliumConfigsModule {
             isMlsResetEnabled = BuildConfig.IS_MLS_RESET_ENABLED,
             collaboraIntegration = BuildConfig.COLLABORA_INTEGRATION_ENABLED,
             dbInvalidationControlEnabled = BuildConfig.DB_INVALIDATION_CONTROL_ENABLED,
-            messageSynchronizationEnabled = BuildConfig.MESSAGE_SYNCHRONIZATION_ENABLED,
-            cryptoStateBackupEnabled = BuildConfig.CRYPTO_STATE_BACKUP_ENABLED
+            messageSynchronizationEnabledFlag = BuildConfig.MESSAGE_SYNCHRONIZATION_ENABLED,
+            cryptoStateBackupEnabledFlag = BuildConfig.CRYPTO_STATE_BACKUP_ENABLED,
+            remoteBackupURL = managedConfigurationsManager.remoteBackupURLConfig
         )
     }
 }

@@ -31,4 +31,11 @@
             android:restrictionType="string"
             android:title="@string/restriction_sso_code_title" />
 
+    <!-- Remote backup service URL -->
+    <restriction
+            android:description="@string/restriction_remote_backup_URL_description"
+            android:key="remote_backup_URL"
+            android:restrictionType="string"
+            android:title="@string/restriction_remote_backup_URL_title" />
+
 </restrictions>

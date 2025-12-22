@@ -21,14 +21,12 @@ package com.wire.android.util.lifecycle
 import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.util.CurrentScreenManager
-import com.wire.kalium.common.functional.Either
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logger.KaliumLogger.Companion.ApplicationFlow.SYNC
 import com.wire.kalium.logger.obfuscateDomain
 import com.wire.kalium.logger.obfuscateId
 import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.coroutineScope
@@ -36,7 +34,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -60,26 +58,29 @@ class SyncLifecycleManager @Inject constructor(
      * Should be called only once on a global level
      */
     suspend fun observeAppLifecycle() {
-        coreLogic.getGlobalScope().sessionRepository.allValidSessionsFlow()
-            .filterIsInstance<Either.Right<List<AccountInfo>>>()
-            .map { it.value }
-            .combine(currentScreenManager.isAppVisibleFlow(), ::Pair)
-            .distinctUntilChanged()
-            .collectLatest { (accounts, isAppVisible) ->
-                if (!isAppVisible) {
-                    logger.i("Not running foreground sync request for users, as App is not visible.")
-                    return@collectLatest
+        coreLogic.getGlobalScope().observeValidAccounts()
+            .filter { pairs -> pairs.isNotEmpty() }
+            .map { pairs ->
+                pairs.map { (selfUser, _) ->
+                    selfUser.id
                 }
-                coroutineScope {
-                    accounts.forEach { accountInfo ->
-                        val userId = accountInfo.userId
-                        launch {
-                            logger.i("!!!!! Starting foreground sync request for user ${userId.value.obfuscateId()}.")
-                            coreLogic.getSessionScope(userId).syncExecutor.request {
-                                awaitCancellation()
+            }.combine(currentScreenManager.isAppVisibleFlow(), ::Pair)
+            .distinctUntilChanged()
+            .collectLatest { (userIds, isAppVisible) ->
+                if (isAppVisible) {
+                    logger.i("App moved to foreground, starting sync requests for users: ${userIds.joinToString { it.value.obfuscateId() }}")
+                    coroutineScope {
+                        userIds.forEach { userId ->
+                            launch {
+                                logger.i("!!!!! Starting foreground sync request for user ${userId.value.obfuscateId()}.")
+                                coreLogic.getSessionScope(userId).syncExecutor.request {
+                                    awaitCancellation()
+                                }
                             }
                         }
                     }
+                } else {
+                    logger.i("App moved to background, no longer running foreground sync requests for users.")
                 }
             }
     }

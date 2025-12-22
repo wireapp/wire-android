@@ -62,6 +62,7 @@ class KaliumConfigsModule {
             maxRemoteSearchResultCount = BuildConfig.MAX_REMOTE_SEARCH_RESULT_COUNT,
             limitTeamMembersFetchDuringSlowSync = BuildConfig.LIMIT_TEAM_MEMBERS_FETCH_DURING_SLOW_SYNC,
             isMlsResetEnabled = BuildConfig.IS_MLS_RESET_ENABLED,
+            domainWithFaultyKeysMap = BuildConfig.DOMAIN_REMOVAL_KEYS_FOR_REPAIR
         )
     }
 }

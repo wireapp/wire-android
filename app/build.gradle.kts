@@ -81,24 +81,26 @@ android {
         val appId: String? = System.getenv(datadogAppIdKey) ?: project.getLocalProperty(datadogAppIdKey, null)
         buildConfigField("String", datadogAppIdKey, appId?.let { "\"$it\"" } ?: "null")
 
-        // DOMAIN_REMOVAL_KEYS_FOR_REPAIR json format {"domain": "some hex string key"}
+        // DOMAIN_REMOVAL_KEYS_FOR_REPAIR json format {"domain": ["some hex string key"]}
         val domainRemovalKeysForRepair = "DOMAIN_REMOVAL_KEYS_FOR_REPAIR"
-        val domainKeysJson: String? =
-            System.getenv(domainRemovalKeysForRepair) ?: project.getLocalProperty(domainRemovalKeysForRepair, null)
+        val domainKeysJson: String? = System.getenv(domainRemovalKeysForRepair) ?: project.getLocalProperty(domainRemovalKeysForRepair, null)
         val domainKeysHashMap = if (domainKeysJson != null) {
             try {
-                val jsonMap = groovy.json.JsonSlurper().parseText(domainKeysJson) as Map<String, String>
-                val javaMapEntries = jsonMap.entries.joinToString("") { "put(\"${it.key}\", \"${it.value}\");" }
-                "new java.util.HashMap<String, String>(){{$javaMapEntries}}"
+                val jsonMap = groovy.json.JsonSlurper().parseText(domainKeysJson) as Map<String, List<String>>
+                val javaMapEntries = jsonMap.entries.joinToString("; ") { (domain, keys) ->
+                    val keysList = keys.joinToString("\", \"", "\"", "\"")
+                    "put(\"$domain\", java.util.Arrays.asList($keysList))"
+                }
+                "new java.util.HashMap<String, java.util.List<String>>(){{$javaMapEntries;}}"
             } catch (e: Exception) {
                 println("Error parsing domain removal keys: ${e.message}")
-                "new java.util.HashMap<String, String>()"
+                "new java.util.HashMap<String, java.util.List<String>>()"
             }
         } else {
-            "new java.util.HashMap<String, String>()"
+            "new java.util.HashMap<String, java.util.List<String>>()"
         }
         buildConfigField(
-            "java.util.Map<String, String>",
+            "java.util.Map<String, java.util.List<String>>",
             domainRemovalKeysForRepair,
             domainKeysHashMap
         )

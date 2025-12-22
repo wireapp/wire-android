@@ -253,7 +253,7 @@ class DebugDataOptionsViewModelImpl
     override fun repairFaultRemovalKeys() {
         viewModelScope.launch {
             state = state.copy(mlsInfoState = state.mlsInfoState.copy(isLoadingRepair = true))
-            val (domain, faultyKey) = DOMAIN_REMOVAL_KEYS_FOR_REPAIR.entries.firstOrNull()
+            val (domain, faultyKey) = DOMAIN_REMOVAL_KEYS_FOR_REPAIR.entries.firstOrNull { it.key == currentAccount.domain }
                 ?: run {
                     appLogger.w("No faulty removal keys configured for repair")
                     _infoMessage.emit(UIText.DynamicString("No faulty removal keys configured for repair"))
@@ -264,7 +264,7 @@ class DebugDataOptionsViewModelImpl
             val result = repairFaultyRemovalKeys(
                 param = TargetedRepairParam(
                     domain = domain,
-                    faultyKey = faultyKey
+                    faultyKeys = faultyKey
                 )
             )
             when (result) {
@@ -272,8 +272,8 @@ class DebugDataOptionsViewModelImpl
                 RepairResult.NoConversationsToRepair -> appLogger.i("No conversations to repair")
                 RepairResult.RepairNotNeeded -> appLogger.i("Repair not needed")
                 is RepairResult.RepairPerformed -> {
-                    _infoMessage.emit(UIText.DynamicString("Repair finalized"))
-                    appLogger.i("Repair performed: $result")
+                    _infoMessage.emit(UIText.DynamicString("Reset finalized"))
+                    appLogger.i("Repair performed: ${result.toLogString()}")
                 }
             }
             state = state.copy(mlsInfoState = state.mlsInfoState.copy(isLoadingRepair = false))

@@ -21,7 +21,7 @@ package com.wire.android.navigation
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.parseIntoPrivateImageAsset
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
+import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -30,7 +30,7 @@ internal class NavigationUtilsTest {
 
     @Test
     fun `Given some correct string, when calling parseIntoPrivateImageAsset, then it correctly parses it to PrivateImageAsset`() {
-        val qualifiedIdMapper = QualifiedIdMapperImpl(null)
+        val qualifiedIdMapper = QualifiedIdMapper(null)
 
         // Given
         val mockConversationIdValue = "mocked-conversation-id-value"
@@ -55,7 +55,7 @@ internal class NavigationUtilsTest {
 
     @Test
     fun `Given an incorrect string, when parsing it to PrivateImageAsset, then it throws an exception`() {
-        val qualifiedIdMapper = QualifiedIdMapperImpl(null)
+        val qualifiedIdMapper = QualifiedIdMapper(null)
 
         // Given
         val mockWrongImagePrivateAssetString = "wrong-private-asset@image"

@@ -26,7 +26,6 @@ import com.wire.android.di.NoSession
 import com.wire.android.util.UserAgentProvider
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
-import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
 import com.wire.kalium.logic.feature.asset.AudioNormalizedLoudnessBuilder
 import com.wire.kalium.logic.feature.server.ServerConfigForAccountUseCase
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
@@ -111,7 +110,7 @@ class TestCoreLogicModule {
     @NoSession
     @Singleton
     @Provides
-    fun provideNoSessionQualifiedIdMapper(): QualifiedIdMapper = QualifiedIdMapperImpl(null)
+    fun provideNoSessionQualifiedIdMapper(): QualifiedIdMapper = QualifiedIdMapper(null)
 
     @Singleton
     @Provides

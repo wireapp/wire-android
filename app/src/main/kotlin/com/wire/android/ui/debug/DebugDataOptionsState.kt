@@ -32,4 +32,5 @@ data class DebugDataOptionsState(
     val isFederationEnabled: Boolean = false,
     val currentApiVersion: String = "null",
     val defaultProtocol: String = "null",
+    val isMessageSyncEnabled: Boolean = false,
 )

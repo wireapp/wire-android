@@ -82,4 +82,11 @@ class DebugModule {
     @Provides
     fun provideDebugFeedConversationUseCase(debugScope: DebugScope) =
         debugScope.debugFeedConversationUseCase
+
+    @ViewModelScoped
+    @Provides
+    fun provideRestoreRemoteBackupUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ) = coreLogic.getSessionScope(currentAccount).restoreRemoteBackup
 }

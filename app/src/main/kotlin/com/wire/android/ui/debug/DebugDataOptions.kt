@@ -78,6 +78,7 @@ fun DebugDataOptions(
         onResendFCMToken = viewModel::forceSendFCMToken,
         onEnableAsyncNotificationsChange = viewModel::enableAsyncNotifications,
         onShowFeatureFlags = onShowFeatureFlags,
+        onFetchRemoteBackup = viewModel::fetchRemoteBackup,
     )
 }
 
@@ -98,6 +99,7 @@ fun DebugDataOptionsContent(
     checkCrlRevocationList: () -> Unit,
     onResendFCMToken: () -> Unit,
     onShowFeatureFlags: () -> Unit,
+    onFetchRemoteBackup: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier) {
@@ -224,7 +226,9 @@ fun DebugDataOptionsContent(
                 checkCrlRevocationList = checkCrlRevocationList,
                 onResendFCMToken = onResendFCMToken,
                 isAsyncNotificationsEnabled = state.isAsyncNotificationsEnabled,
-                onEnableAsyncNotificationsChange = onEnableAsyncNotificationsChange
+                onEnableAsyncNotificationsChange = onEnableAsyncNotificationsChange,
+                isMessageSyncEnabled = state.isMessageSyncEnabled,
+                onFetchRemoteBackup = onFetchRemoteBackup
             )
         }
 
@@ -350,7 +354,9 @@ private fun DebugToolsOptionsPreview() {
             checkCrlRevocationList = {},
             onResendFCMToken = {},
             isAsyncNotificationsEnabled = true,
-            onEnableAsyncNotificationsChange = {}
+            onEnableAsyncNotificationsChange = {},
+            isMessageSyncEnabled = true,
+            onFetchRemoteBackup = {}
         )
     }
 }
@@ -365,6 +371,8 @@ private fun DebugToolsOptions(
     onResendFCMToken: () -> Unit,
     isAsyncNotificationsEnabled: Boolean,
     onEnableAsyncNotificationsChange: (Boolean) -> Unit,
+    isMessageSyncEnabled: Boolean,
+    onFetchRemoteBackup: () -> Unit,
 ) {
     SectionHeader(stringResource(R.string.label_debug_tools_title))
     Column {
@@ -458,6 +466,28 @@ private fun DebugToolsOptions(
                 }
             )
             EnableAsyncNotifications(isAsyncNotificationsEnabled, onEnableAsyncNotificationsChange)
+
+            RowItemTemplate(
+                modifier = Modifier.wrapContentWidth(),
+                title = {
+                    Text(
+                        style = MaterialTheme.wireTypography.body01,
+                        color = MaterialTheme.wireColorScheme.onBackground,
+                        text = "Fetch remote backup",
+                        modifier = Modifier.padding(start = dimensions().spacing8x)
+                    )
+                },
+                actions = {
+                    WirePrimaryButton(
+                        minSize = MaterialTheme.wireDimensions.buttonMediumMinSize,
+                        minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
+                        onClick = onFetchRemoteBackup,
+                        text = "Fetch",
+                        fillMaxWidth = false,
+                        state = if (isMessageSyncEnabled) com.wire.android.ui.common.button.WireButtonState.Default else com.wire.android.ui.common.button.WireButtonState.Disabled
+                    )
+                }
+            )
         }
     }
 }
@@ -546,5 +576,6 @@ fun PreviewOtherDebugOptions() = WireTheme {
         onResendFCMToken = {},
         onEnableAsyncNotificationsChange = {},
         onShowFeatureFlags = {},
+        onFetchRemoteBackup = {},
     )
 }

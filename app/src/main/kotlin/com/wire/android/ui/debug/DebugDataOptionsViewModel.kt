@@ -76,6 +76,7 @@ interface DebugDataOptionsViewModel {
     fun disableEventProcessing(disabled: Boolean) {}
     fun forceSendFCMToken() {}
     fun enableAsyncNotifications(enabled: Boolean) {}
+    fun fetchRemoteBackup() {}
 }
 
 @Suppress("LongParameterList", "TooManyFunctions")
@@ -95,7 +96,11 @@ class DebugDataOptionsViewModelImpl
     private val getDefaultProtocolUseCase: GetDefaultProtocolUseCase,
     private val observeAsyncNotificationsEnabled: ObserveIsConsumableNotificationsEnabledUseCase,
     private val startUsingAsyncNotifications: StartUsingAsyncNotificationsUseCase,
+    private val restoreRemoteBackup: com.wire.kalium.logic.feature.backup.RestoreRemoteBackupUseCase,
+    kaliumConfigs: com.wire.kalium.logic.featureFlags.KaliumConfigs,
 ) : ViewModel(), DebugDataOptionsViewModel {
+
+    private val isMessageSyncEnabled = kaliumConfigs.messageSynchronizationEnabled
 
     override var state by mutableStateOf(
         DebugDataOptionsState()
@@ -111,6 +116,7 @@ class DebugDataOptionsViewModelImpl
         setAnalyticsTrackingId()
         setServerConfigData()
         setDefaultProtocol()
+        state = state.copy(isMessageSyncEnabled = isMessageSyncEnabled)
     }
 
     private fun observeAsyncNotificationsEnabledData() {
@@ -264,6 +270,21 @@ class DebugDataOptionsViewModelImpl
                     },
                     {
                         _infoMessage.emit(UIText.DynamicString("Token registered"))
+                    }
+                )
+            }
+        }
+    }
+
+    override fun fetchRemoteBackup() {
+        viewModelScope.launch {
+            withContext(dispatcherProvider.io()) {
+                restoreRemoteBackup().fold(
+                    { failure ->
+                        _infoMessage.emit(UIText.DynamicString("Failed to fetch remote backup: ${failure.uiText()}"))
+                    },
+                    { restoredCount ->
+                        _infoMessage.emit(UIText.DynamicString("Successfully restored $restoredCount messages"))
                     }
                 )
             }

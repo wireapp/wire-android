@@ -29,6 +29,7 @@ import androidx.core.app.NotificationCompat.CallStyle
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.Person
 import com.wire.android.R
+import com.wire.android.feature.notification.R as NR
 import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.di.NoSession
@@ -218,7 +219,7 @@ class CallNotificationBuilder @Inject constructor(
         return notificationBuilder
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setCategory(NotificationCompat.CATEGORY_CALL)
-            .setSmallIcon(R.drawable.notification_icon_small)
+            .setSmallIcon(NR.drawable.notification_icon_small)
             .setContentTitle(data.conversationName)
             .setContentText(context.getString(R.string.notification_outgoing_call_tap_to_return))
             .setSubText(data.userName)
@@ -248,7 +249,7 @@ class CallNotificationBuilder @Inject constructor(
         val notification = NotificationCompat.Builder(context, channelId)
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setCategory(NotificationCompat.CATEGORY_CALL)
-            .setSmallIcon(R.drawable.notification_icon_small)
+            .setSmallIcon(NR.drawable.notification_icon_small)
             .setContentTitle(title)
             .setContentText(content)
             .setSubText(data.userName)
@@ -296,7 +297,7 @@ class CallNotificationBuilder @Inject constructor(
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setCategory(NotificationCompat.CATEGORY_CALL)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            .setSmallIcon(R.drawable.notification_icon_small)
+            .setSmallIcon(NR.drawable.notification_icon_small)
             .setAutoCancel(true)
             .setOngoing(true)
             .setUsesChronometer(true)
@@ -324,7 +325,7 @@ class CallNotificationBuilder @Inject constructor(
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setCategory(NotificationCompat.CATEGORY_CALL)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            .setSmallIcon(R.drawable.notification_icon_small)
+            .setSmallIcon(NR.drawable.notification_icon_small)
             .setAutoCancel(true)
             .setOngoing(true)
             .setContentIntent(openAppPendingIntent(context))

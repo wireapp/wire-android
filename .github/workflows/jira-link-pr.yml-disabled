@@ -1,0 +1,20 @@
+name: Link PR to Jira Ticket
+on:
+  pull_request:
+    types: [opened, edited, synchronize]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  link-jira:
+    uses: mohamadjaara/jira-description-action@master
+    with:
+      jira-base-url: https://wearezeta.atlassian.net
+      jira-ticket-regex: '[A-Z]+-[0-9]+'
+      skip-actors: 'dependabot[bot],AndroidBob'
+      skip-branches: '^(production-release|main|master|release\/v\d+)$'
+      repository-owner-check: 'wireapp'
+    secrets:
+      jira-token: ${{ secrets.JIRA_TOKEN }}

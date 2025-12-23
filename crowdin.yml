@@ -11,10 +11,10 @@ files: [
     "languages_mapping": {
       "two_letters_code": {
         # map non-two letter codes here, left side is crowdin designation, right side is babel designation
-        "me": "cnr-Latn",
-        "sr-Cyrl-ME": "cnr-Cyrl",
-        "sr": "sr-Cyrl",
-        "sr-CS": "sr-Latn"
+        "me": "b+cnr+Latn",
+        "sr-Cyrl-ME": "b+cnr+Cyrl",
+        "sr-SP": "b+sr+Cyrl",
+        "sr-CS": "b+sr+Latn"
       }
     }
   },
@@ -24,10 +24,10 @@ files: [
     "languages_mapping": {
       "two_letters_code": {
         # map non-two letter codes here, left side is crowdin designation, right side is babel designation
-        "me": "cnr-Latn",
-        "sr-Cyrl-ME": "cnr-Cyrl",
-        "sr": "sr-Cyrl",
-        "sr-CS": "sr-Latn"
+        "me": "b+cnr+Latn",
+        "sr-Cyrl-ME": "b+cnr+Cyrl",
+        "sr-SP": "b+sr+Cyrl",
+        "sr-CS": "b+sr+Latn"
       }
     }
   },
@@ -37,10 +37,23 @@ files: [
     "languages_mapping": {
       "two_letters_code": {
         # map non-two letter codes here, left side is crowdin designation, right side is babel designation
-        "me": "cnr-Latn",
-        "sr-Cyrl-ME": "cnr-Cyrl",
-        "sr": "sr-Cyrl",
-        "sr-CS": "sr-Latn"
+        "me": "b+cnr+Latn",
+        "sr-Cyrl-ME": "b+cnr+Cyrl",
+        "sr-SP": "b+sr+Cyrl",
+        "sr-CS": "b+sr+Latn"
+      }
+    }
+  },
+  {
+    "source": "/features/meetings/src/main/res/values/strings.xml",
+    "translation": "/features/meetings/src/main/res/values-%two_letters_code%/%original_file_name%",
+    "languages_mapping": {
+      "two_letters_code": {
+        # map non-two letter codes here, left side is crowdin designation, right side is babel designation
+        "me": "b+cnr+Latn",
+        "sr-Cyrl-ME": "b+cnr+Cyrl",
+        "sr-SP": "b+sr+Cyrl",
+        "sr-CS": "b+sr+Latn"
       }
     }
   },
@@ -63,10 +76,10 @@ files: [
     "languages_mapping": {
       "two_letters_code": {
         # map non-two letter codes here, left side is crowdin designation, right side is babel designation
-        "me": "cnr-Latn",
-        "sr-Cyrl-ME": "cnr-Cyrl",
-        "sr": "sr-Cyrl",
-        "sr-CS": "sr-Latn"
+        "me": "b+cnr+Latn",
+        "sr-Cyrl-ME": "b+cnr+Cyrl",
+        "sr-SP": "b+sr+Cyrl",
+        "sr-CS": "b+sr+Latn"
       }
     }
   }

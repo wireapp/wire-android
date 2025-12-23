@@ -38,6 +38,7 @@ import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.analytics.GetCurrentAnalyticsTrackingIdentifierUseCase
 import com.wire.kalium.logic.feature.debug.ObserveIsConsumableNotificationsEnabledUseCase
+import com.wire.kalium.logic.feature.debug.RepairFaultyRemovalKeysUseCase
 import com.wire.kalium.logic.feature.debug.StartUsingAsyncNotificationsResult
 import com.wire.kalium.logic.feature.debug.StartUsingAsyncNotificationsUseCase
 import com.wire.kalium.logic.feature.e2ei.CheckCrlRevocationListUseCase
@@ -280,6 +281,9 @@ internal class DebugDataOptionsHiltArrangement {
     @MockK
     lateinit var startUsingAsyncNotifications: StartUsingAsyncNotificationsUseCase
 
+    @MockK
+    lateinit var repairFaultyRemovalKeysUseCase: RepairFaultyRemovalKeysUseCase
+
     private val viewModel by lazy {
         DebugDataOptionsViewModelImpl(
             context = context,
@@ -294,7 +298,8 @@ internal class DebugDataOptionsHiltArrangement {
             selfServerConfigUseCase = selfServerConfigUseCase,
             getDefaultProtocolUseCase = getDefaultProtocolUseCase,
             startUsingAsyncNotifications = startUsingAsyncNotifications,
-            observeAsyncNotificationsEnabled = observeIsConsumableNotificationsEnabled
+            observeAsyncNotificationsEnabled = observeIsConsumableNotificationsEnabled,
+            repairFaultyRemovalKeys = repairFaultyRemovalKeysUseCase
         )
     }
 

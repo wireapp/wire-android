@@ -75,7 +75,7 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.SnackBarMessageHandler
 import com.wire.android.util.ui.UIText
-import com.wire.android.util.ui.openDownloadFolder
+import com.wire.android.util.openDownloadFolder
 import com.wire.kalium.logic.data.id.ConversationId
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable

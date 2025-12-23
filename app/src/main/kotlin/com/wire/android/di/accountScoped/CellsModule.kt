@@ -27,6 +27,7 @@ import com.wire.kalium.cells.domain.usecase.AddAttachmentDraftUseCase
 import com.wire.kalium.cells.domain.usecase.CreateFolderUseCase
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
 import com.wire.kalium.cells.domain.usecase.DownloadCellFileUseCase
+import com.wire.kalium.cells.domain.usecase.DownloadCellVersionUseCase
 import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
 import com.wire.kalium.cells.domain.usecase.GetCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
@@ -111,7 +112,7 @@ class CellsModule {
 
     @ViewModelScoped
     @Provides
-    fun provideDownloadUseCase(cellsScope: CellsScope): DownloadCellFileUseCase = cellsScope.downloadFile
+    fun provideDownloadUseCase(cellsScope: CellsScope): DownloadCellFileUseCase = cellsScope.downloadCellFile
 
     @ViewModelScoped
     @Provides
@@ -211,13 +212,18 @@ class CellsModule {
 
     @ViewModelScoped
     @Provides
+    fun provideRestoreNodeVersionUseCase(cellsScope: CellsScope): RestoreNodeVersionUseCase =
+        cellsScope.restoreNodeVersion
+
+    @ViewModelScoped
+    @Provides
+    fun provideDownloadCellVersionUseCase(cellsScope: CellsScope): DownloadCellVersionUseCase =
+        cellsScope.downloadCellVersion
+
+    @ViewModelScoped
+    @Provides
     fun provideRefreshHelper(cellsScope: CellsScope, kaliumConfigs: KaliumConfigs): CellAssetRefreshHelper = CellAssetRefreshHelper(
         refreshAsset = cellsScope.refreshAsset,
         featureFlags = kaliumConfigs
     )
-
-    @ViewModelScoped
-    @Provides
-    fun provideRestoreNodeVersionUseCase(cellsScope: CellsScope): RestoreNodeVersionUseCase =
-        cellsScope.restoreNodeVersion
 }

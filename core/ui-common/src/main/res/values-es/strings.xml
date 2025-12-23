@@ -17,4 +17,7 @@
   -->
 <resources>
     <string name="content_description_check">Marca de verificación</string>
+    <string name="content_description_clear_content">Borrar contenido</string>
+    <string name="content_description_conversation_search_icon">Ícono de búsqueda</string>
+    <string name="content_description_conversation_search_input">Campo de búsqueda</string>
 </resources>

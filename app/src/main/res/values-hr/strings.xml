@@ -75,7 +75,6 @@
     <string name="content_description_reveal_password">Prikaži lozinku</string>
     <string name="content_description_hide_password">Sakrij lozinku</string>
     <string name="content_description_search_back">Ikona za povratak</string>
-    <string name="content_description_clear_content">Izbriši sadržaj</string>
     <string name="content_description_muted_conversation">Utišan razgovor</string>
     <string name="content_description_download_icon">Ikona za preuzimanje</string>
     <string name="content_description_open_asset_icon">Otvori ikonu</string>
@@ -87,8 +86,6 @@
     <string name="content_description_unblock_the_user">Odblokiraj</string>
     <string name="content_description_conversation_phone_icon">Pokreni audio poziv</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
-    <string name="content_description_conversation_search_icon">Ikona pretraživanja</string>
-    <string name="content_description_conversation_search_input">Unos pretraživanja</string>
     <string name="content_description_conversation_enable_rich_text_mode">Gumb za prikaz obogaćenog teksta</string>
     <string name="content_description_conversation_rich_text_header">Zaglavlje teksta</string>
     <string name="content_description_conversation_rich_text_bold">Podebljanje teksta</string>

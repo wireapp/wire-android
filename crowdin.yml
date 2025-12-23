@@ -10,11 +10,11 @@ files: [
     "translation": "/app/src/main/res/values-%two_letters_code%/%original_file_name%",
     "languages_mapping": {
       "two_letters_code": {
-        # map non-two letter codes here, left side is crowdin designation, right side is babel designation
-        "me": "b+cnr+Latn",
-        "sr-Cyrl-ME": "b+cnr+Cyrl",
-        "sr-SP": "b+sr+Cyrl",
-        "sr-CS": "b+sr+Latn"
+#        # map non-two letter codes here, left side is crowdin designation, right side is babel designation
+#        "me": "b+cnr+Latn",
+#        "sr-Cyrl-ME": "b+cnr+Cyrl",
+#        "sr-SP": "b+sr+Cyrl",
+#        "sr-CS": "b+sr+Latn"
       }
     }
   },
@@ -23,11 +23,11 @@ files: [
     "translation": "/features/cells/src/main/res/values-%two_letters_code%/%original_file_name%",
     "languages_mapping": {
       "two_letters_code": {
-        # map non-two letter codes here, left side is crowdin designation, right side is babel designation
-        "me": "b+cnr+Latn",
-        "sr-Cyrl-ME": "b+cnr+Cyrl",
-        "sr-SP": "b+sr+Cyrl",
-        "sr-CS": "b+sr+Latn"
+#        # map non-two letter codes here, left side is crowdin designation, right side is babel designation
+#        "me": "b+cnr+Latn",
+#        "sr-Cyrl-ME": "b+cnr+Cyrl",
+#        "sr-SP": "b+sr+Cyrl",
+#        "sr-CS": "b+sr+Latn"
       }
     }
   },
@@ -36,11 +36,11 @@ files: [
     "translation": "/features/sketch/src/main/res/values-%two_letters_code%/%original_file_name%",
     "languages_mapping": {
       "two_letters_code": {
-        # map non-two letter codes here, left side is crowdin designation, right side is babel designation
-        "me": "b+cnr+Latn",
-        "sr-Cyrl-ME": "b+cnr+Cyrl",
-        "sr-SP": "b+sr+Cyrl",
-        "sr-CS": "b+sr+Latn"
+#        # map non-two letter codes here, left side is crowdin designation, right side is babel designation
+#        "me": "b+cnr+Latn",
+#        "sr-Cyrl-ME": "b+cnr+Cyrl",
+#        "sr-SP": "b+sr+Cyrl",
+#        "sr-CS": "b+sr+Latn"
       }
     }
   },
@@ -49,11 +49,11 @@ files: [
     "translation": "/features/meetings/src/main/res/values-%two_letters_code%/%original_file_name%",
     "languages_mapping": {
       "two_letters_code": {
-        # map non-two letter codes here, left side is crowdin designation, right side is babel designation
-        "me": "b+cnr+Latn",
-        "sr-Cyrl-ME": "b+cnr+Cyrl",
-        "sr-SP": "b+sr+Cyrl",
-        "sr-CS": "b+sr+Latn"
+#        # map non-two letter codes here, left side is crowdin designation, right side is babel designation
+#        "me": "b+cnr+Latn",
+#        "sr-Cyrl-ME": "b+cnr+Cyrl",
+#        "sr-SP": "b+sr+Cyrl",
+#        "sr-CS": "b+sr+Latn"
       }
     }
   },
@@ -62,11 +62,11 @@ files: [
     "translation": "/features/meetings/src/main/res/values-%two_letters_code%/%original_file_name%",
     "languages_mapping": {
       "two_letters_code": {
-        # map non-two letter codes here, left side is crowdin designation, right side is babel designation
-        "me": "cnr-Latn",
-        "sr-Cyrl-ME": "cnr-Cyrl",
-        "sr": "sr-Cyrl",
-        "sr-CS": "sr-Latn"
+#        # map non-two letter codes here, left side is crowdin designation, right side is babel designation
+#        "me": "cnr-Latn",
+#        "sr-Cyrl-ME": "cnr-Cyrl",
+#        "sr": "sr-Cyrl",
+#        "sr-CS": "sr-Latn"
       }
     }
   },
@@ -75,11 +75,11 @@ files: [
     "translation": "/core/ui-common/src/main/res/values-%two_letters_code%/%original_file_name%",
     "languages_mapping": {
       "two_letters_code": {
-        # map non-two letter codes here, left side is crowdin designation, right side is babel designation
-        "me": "b+cnr+Latn",
-        "sr-Cyrl-ME": "b+cnr+Cyrl",
-        "sr-SP": "b+sr+Cyrl",
-        "sr-CS": "b+sr+Latn"
+#        # map non-two letter codes here, left side is crowdin designation, right side is babel designation
+#        "me": "b+cnr+Latn",
+#        "sr-Cyrl-ME": "b+cnr+Cyrl",
+#        "sr-SP": "b+sr+Cyrl",
+#        "sr-CS": "b+sr+Latn"
       }
     }
   }

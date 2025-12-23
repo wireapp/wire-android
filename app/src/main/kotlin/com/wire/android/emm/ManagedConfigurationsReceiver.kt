@@ -104,11 +104,10 @@ class ManagedConfigurationsReceiver @Inject constructor(
         }
     }
 
-    private suspend fun updateRemoteBackupURLConfig() {
-        managedConfigurationsManager.refreshRemoteBackupURLConfig()
+    private fun updateRemoteBackupURLConfig() {
         val remoteBackupURL = managedConfigurationsManager.remoteBackupURLConfig
 
-        if (remoteBackupURL.isNotEmpty()) {
+        if (remoteBackupURL != null) {
             managedConfigurationsReporter.reportAppliedState(
                 key = ManagedConfigurationsKeys.REMOTE_BACKUP_URL.asKey(),
                 message = "Managed configuration applied",

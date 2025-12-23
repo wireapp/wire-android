@@ -74,7 +74,8 @@
             "analytics_server_url": "https://wire.count.ly/",
             "enable_new_registration": true,
             "use_async_flush_logging": true,
-            "message_synchronization_enabled": true
+            "message_synchronization_enabled": true,
+            "remote_backup_URL": "https://replica.wdebug.link:4545"
         },
         "internal": {
             "application_id": "com.wire.internal",

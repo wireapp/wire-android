@@ -164,6 +164,12 @@
     <string name="invalid_expiration_date">Ablaufdatum liegt in der Vergangenheit</string>
     <string name="link_expired">Link abgelaufen am: %1$s, um %2$s</string>
     <string name="version_history_top_appbar_title">Versionsverlauf</string>
+    <string name="restore_version_bottom_sheet_item_label">Version wiederherstellen</string>
+    <string name="dialog_restore_cell_version_confirmation_description">Dadurch wird die wiederhergestellte Version kopiert und als aktuelle Version festgelegt. Alle vorherigen Versionen bleiben verfügbar.</string>
+    <string name="dialog_restore_cell_version_confirmation_button_label">Wiederherstellen</string>
+    <string name="dialog_restore_cell_version_confirmation_title">Version wiederherstellen</string>
+    <string name="dialog_restore_cell_version_successfully_completed_title">Version wiederhergestellt</string>
+    <string name="dialog_restore_cell_version_loading">Wird geladen…</string>
     <string name="date_label_today">Heute, %1$s</string>
     <string name="date_label_yesterday">Gestern, %1$s</string>
 </resources>

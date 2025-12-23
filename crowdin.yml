@@ -14,8 +14,8 @@ files: [
         "me": "cnr-Latn",
         "sr-Cyrl-ME": "cnr-Cyrl",
         "sr": "sr-Cyrl",
-        "sr-CS": "sr-Latn"
-      }
+        "sr-CS": "sr-Latn",
+      },
   },
   {
     "source": "/features/cells/src/main/res/values/strings.xml",
@@ -26,8 +26,8 @@ files: [
         "me": "cnr-Latn",
         "sr-Cyrl-ME": "cnr-Cyrl",
         "sr": "sr-Cyrl",
-        "sr-CS": "sr-Latn"
-      }
+        "sr-CS": "sr-Latn",
+      },
   },
   {
     "source": "/features/sketch/src/main/res/values/strings.xml",
@@ -38,8 +38,8 @@ files: [
         "me": "cnr-Latn",
         "sr-Cyrl-ME": "cnr-Cyrl",
         "sr": "sr-Cyrl",
-        "sr-CS": "sr-Latn"
-      }
+        "sr-CS": "sr-Latn",
+      },
   },
   {
     "source": "/core/ui-common/src/main/res/values/strings.xml",
@@ -50,7 +50,7 @@ files: [
         "me": "cnr-Latn",
         "sr-Cyrl-ME": "cnr-Cyrl",
         "sr": "sr-Cyrl",
-        "sr-CS": "sr-Latn"
-      }
+        "sr-CS": "sr-Latn",
+      },
   }
 ]

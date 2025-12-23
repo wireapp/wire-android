@@ -58,6 +58,19 @@ files: [
     }
   },
   {
+    "source": "/features/meetings/src/main/res/values/strings.xml",
+    "translation": "/features/meetings/src/main/res/values-%two_letters_code%/%original_file_name%",
+    "languages_mapping": {
+      "two_letters_code": {
+        # map non-two letter codes here, left side is crowdin designation, right side is babel designation
+        "me": "cnr-Latn",
+        "sr-Cyrl-ME": "cnr-Cyrl",
+        "sr": "sr-Cyrl",
+        "sr-CS": "sr-Latn"
+      }
+    }
+  },
+  {
     "source": "/core/ui-common/src/main/res/values/strings.xml",
     "translation": "/core/ui-common/src/main/res/values-%two_letters_code%/%original_file_name%",
     "languages_mapping": {

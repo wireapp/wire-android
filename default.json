@@ -38,8 +38,7 @@
             "use_async_flush_logging": true,
             "conversation_feeder_enabled": true,
             "collabora_integration": true,
-            "db_invalidation_control_enabled": true,
-            "message_synchronization_enabled": true
+            "db_invalidation_control_enabled": true
         },
         "staging": {
             "application_id": "com.waz.zclient.dev",
@@ -74,8 +73,6 @@
             "analytics_server_url": "https://wire.count.ly/",
             "enable_new_registration": true,
             "use_async_flush_logging": true,
-            "message_synchronization_enabled": true,
-            "remote_backup_URL": "https://replica.wdebug.link:4545"
         },
         "internal": {
             "application_id": "com.wire.internal",
@@ -93,7 +90,6 @@
             "background_notification_retry_enabled": true,
             "background_notification_stay_alive_seconds": 5,
             "db_invalidation_control_enabled": true,
-            "message_synchronization_enabled": true
         },
         "fdroid": {
             "application_id": "com.wire",
@@ -105,7 +101,18 @@
             "analytics_app_key": "",
             "analytics_server_url": "",
             "enable_new_registration": true,
-            "message_synchronization_enabled": false
+        },
+        "bkp": {
+            "application_id": "com.wire.android.internal",
+            "developer_features_enabled": true,
+            "logging_enabled": true,
+            "application_is_private_build": true,
+            "development_api_enabled": false,
+            "analytics_enabled": false,
+            "enable_new_registration": true,
+            "use_async_flush_logging": true,
+            "message_synchronization_enabled": true,
+            "remote_backup_URL": "https://replica.wdebug.link:4545"
         }
     },
     "application_name": "Wire",

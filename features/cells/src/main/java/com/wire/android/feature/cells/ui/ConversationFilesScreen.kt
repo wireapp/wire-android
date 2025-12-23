@@ -53,7 +53,7 @@ import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.feature.cells.ui.common.Breadcrumbs
 import com.wire.android.feature.cells.ui.create.FileTypeBottomSheetDialog
-import com.wire.android.feature.cells.ui.create.createfile.CreateFileScreenNavArgs
+import com.wire.android.feature.cells.ui.create.file.CreateFileScreenNavArgs
 import com.wire.android.feature.cells.ui.destinations.AddRemoveTagsScreenDestination
 import com.wire.android.feature.cells.ui.destinations.ConversationFilesWithSlideInTransitionScreenDestination
 import com.wire.android.feature.cells.ui.destinations.CreateFileScreenDestination

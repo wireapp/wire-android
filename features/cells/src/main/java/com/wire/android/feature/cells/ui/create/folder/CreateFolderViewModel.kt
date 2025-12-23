@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.feature.cells.ui.create.createfile
+package com.wire.android.feature.cells.ui.create.folder
 
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.getValue
@@ -28,9 +28,7 @@ import com.wire.android.feature.cells.ui.common.validateFileName
 import com.wire.android.feature.cells.ui.navArgs
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.common.textfield.textAsFlow
-import com.wire.kalium.cells.domain.usecase.create.CreateDocumentFileUseCase
-import com.wire.kalium.cells.domain.usecase.create.CreatePresentationFileUseCase
-import com.wire.kalium.cells.domain.usecase.create.CreateSpreadsheetFileUseCase
+import com.wire.kalium.cells.domain.usecase.create.CreateFolderUseCase
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -40,25 +38,21 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class CreateFileViewModel @Inject constructor(
-    private val savedStateHandle: SavedStateHandle,
-    private val createPresentationFileUseCase: CreatePresentationFileUseCase,
-    private val createDocumentFileUseCase: CreateDocumentFileUseCase,
-    private val createSpreadsheetFileUseCase: CreateSpreadsheetFileUseCase
-) : ActionsViewModel<CreateFileViewModelAction>() {
+class CreateFolderViewModel @Inject constructor(
+    val savedStateHandle: SavedStateHandle,
+    private val createFolderUseCase: CreateFolderUseCase,
+) : ActionsViewModel<CreateFolderViewModelAction>() {
 
-    private val navArgs: CreateFileScreenNavArgs = savedStateHandle.navArgs()
+    private val navArgs: CreateFolderScreenNavArgs = savedStateHandle.navArgs()
 
-    val fileExtension: String = navArgs.fileType.getExtension()
-
-    val fileNameTextFieldState: TextFieldState = TextFieldState()
+    val folderNameTextFieldState: TextFieldState = TextFieldState()
 
     var viewState: CreateFolderViewState by mutableStateOf(CreateFolderViewState())
         private set
 
     init {
         viewModelScope.launch {
-            fileNameTextFieldState.textAsFlow().map { it.trim() }.collectLatest { name ->
+            folderNameTextFieldState.textAsFlow().map { it.trim() }.collectLatest { name ->
                 val fileValidationResult = name.validateFileName().takeIf { name.isNotEmpty() }
                 viewState = viewState.copy(
                     saveEnabled = fileValidationResult == null && name.isNotEmpty(),
@@ -68,43 +62,25 @@ class CreateFileViewModel @Inject constructor(
         }
     }
 
-    internal fun createFile(fileName: String) = viewModelScope.launch {
+    internal fun createFolder(folderName: String) = viewModelScope.launch {
+
         viewState = viewState.copy(loading = true)
 
-        val fullPath = "${navArgs.uuid}/${fileName.trim()}"
-
-        val result = when (navArgs.fileType) {
-            FileType.DOCUMENT ->
-                createDocumentFileUseCase(fullPath)
-
-            FileType.SPREADSHEET ->
-                createSpreadsheetFileUseCase(fullPath)
-
-            FileType.PRESENTATION ->
-                createPresentationFileUseCase(fullPath)
-        }
-
-        result.onSuccess {
-            sendAction(CreateFileViewModelAction.Success)
-        }.onFailure {
-            sendAction(CreateFileViewModelAction.Failure)
-        }
+        createFolderUseCase("${navArgs.uuid}/${folderName.trim()}")
+            .onSuccess {
+                sendAction(CreateFolderViewModelAction.Success)
+            }
+            .onFailure {
+                sendAction(CreateFolderViewModelAction.Failure)
+            }
 
         viewState = viewState.copy(loading = false)
     }
-
-
-    fun FileType.getExtension(): String =
-        when (this) {
-            FileType.PRESENTATION -> ".pptx"
-            FileType.DOCUMENT -> ".docx"
-            FileType.SPREADSHEET -> ".xlsx"
-        }
 }
 
-sealed interface CreateFileViewModelAction {
-    data object Success : CreateFileViewModelAction
-    data object Failure : CreateFileViewModelAction
+sealed interface CreateFolderViewModelAction {
+    data object Success : CreateFolderViewModelAction
+    data object Failure : CreateFolderViewModelAction
 }
 
 data class CreateFolderViewState(

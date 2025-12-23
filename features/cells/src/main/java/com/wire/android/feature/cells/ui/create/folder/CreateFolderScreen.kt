@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.feature.cells.ui.create.createfolder
+package com.wire.android.feature.cells.ui.create.folder
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically

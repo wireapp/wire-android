@@ -15,32 +15,32 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.feature.cells.ui.dialog
+package com.wire.android.feature.cells.ui.create
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.wire.android.feature.cells.R
-import com.wire.android.feature.cells.ui.util.PreviewMultipleThemes
+import com.wire.android.feature.cells.ui.create.file.FileType
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.WireMenuModalSheetContent
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.bottomsheet.WireSheetValue
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
+import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 
 @Composable
-internal fun CellsNewActionBottomSheet(
+fun FileTypeBottomSheetDialog(
     sheetState: WireModalSheetState<Unit>,
     onDismiss: () -> Unit,
-    onCreateFolder: () -> Unit,
-    onCreateFile: () -> Unit,
+    onItemSelected: (FileType) -> Unit,
 ) {
     WireModalSheetLayout(
         onDismissRequest = onDismiss,
@@ -49,15 +49,24 @@ internal fun CellsNewActionBottomSheet(
         WireMenuModalSheetContent(
             menuItems = buildList {
                 add {
-                    CreateFolderSheetItem(
-                        title = stringResource(R.string.cells_create_folder),
-                        onClicked = onCreateFolder,
+                    BottomSheetItem(
+                        title = stringResource(R.string.file_type_bottom_sheet_document),
+                        icon = R.drawable.ic_file_type_doc,
+                        onClicked = { onItemSelected(FileType.DOCUMENT) },
                     )
                 }
                 add {
-                    CreateFileSheetItem(
-                        title = stringResource(R.string.cells_create_file),
-                        onClicked = onCreateFile,
+                    BottomSheetItem(
+                        title = stringResource(R.string.file_type_bottom_sheet_spreadsheet),
+                        icon = R.drawable.ic_file_type_spreadsheet,
+                        onClicked = { onItemSelected(FileType.SPREADSHEET) },
+                    )
+                }
+                add {
+                    BottomSheetItem(
+                        title = stringResource(R.string.file_type_bottom_sheet_presentation),
+                        icon = R.drawable.ic_file_type_presentation,
+                        onClicked = { onItemSelected(FileType.PRESENTATION) },
                     )
                 }
             }
@@ -66,16 +75,17 @@ internal fun CellsNewActionBottomSheet(
 }
 
 @Composable
-private fun CreateFolderSheetItem(
+private fun BottomSheetItem(
     title: String,
+    icon: Int = R.drawable.ic_folder,
     onClicked: () -> Unit,
 ) {
     MenuBottomSheetItem(
         title = title,
         onItemClick = onClicked,
         leading = {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_folder),
+            Image(
+                painter = painterResource(id = icon),
                 contentDescription = null,
                 modifier = Modifier
                     .size(MaterialTheme.wireDimensions.wireIconButtonSize)
@@ -84,34 +94,14 @@ private fun CreateFolderSheetItem(
     )
 }
 
+@MultipleThemePreviews
 @Composable
-private fun CreateFileSheetItem(
-    title: String,
-    onClicked: () -> Unit,
-) {
-    MenuBottomSheetItem(
-        title = title,
-        onItemClick = onClicked,
-        leading = {
-            Icon(
-                painter = painterResource(id = com.wire.android.ui.common.R.drawable.ic_plus),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(MaterialTheme.wireDimensions.wireIconButtonSize)
-            )
-        },
-    )
-}
-
-@PreviewMultipleThemes
-@Composable
-private fun PreviewFilesNewActionsBottomSheet() {
+fun PreviewFileTypeBottomSheetDialog() {
     WireTheme {
-        CellsNewActionBottomSheet(
+        FileTypeBottomSheetDialog(
             sheetState = rememberWireModalSheetState(WireSheetValue.Expanded(value = Unit)),
             onDismiss = {},
-            onCreateFolder = {},
-            onCreateFile = {}
+            onItemSelected = {},
         )
     }
 }

@@ -29,6 +29,8 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -70,6 +72,7 @@ class KaliumConfigsModule {
             dbInvalidationControlEnabled = BuildConfig.DB_INVALIDATION_CONTROL_ENABLED,
             messageSynchronizationEnabledFlag = BuildConfig.MESSAGE_SYNCHRONIZATION_ENABLED,
             cryptoStateBackupEnabledFlag = BuildConfig.CRYPTO_STATE_BACKUP_ENABLED,
+            cryptoStateBackupInterval = BuildConfig.CRYPTO_STATE_BACKUP_INTERVAL.seconds,
             remoteBackupURL = managedConfigurationsManager.remoteBackupURLConfig ?: BuildConfig.REMOTE_BACKUP_URL.ifBlank { null }
         )
     }

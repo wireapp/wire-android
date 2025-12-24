@@ -149,5 +149,7 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
 
     CRYPTO_STATE_BACKUP_ENABLED("crypto_state_backup_enabled", ConfigType.BOOLEAN),
 
+    CRYPTO_STATE_BACKUP_INTERVAL("crypto_state_backup_interval", ConfigType.INT),
+
     REMOTE_BACKUP_URL("remote_backup_URL", ConfigType.STRING)
 }

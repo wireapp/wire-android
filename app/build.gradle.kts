@@ -49,7 +49,7 @@ repositories {
     google()
 }
 
-val nonFreeFlavors = setOf("prod", "internal", "staging", "beta", "dev")
+val nonFreeFlavors = setOf("prod", "internal", "staging", "beta", "dev", "bkp")
 val fossFlavors = setOf("fdroid")
 val internalFlavors = setOf("internal", "staging", "beta", "dev")
 val allFlavors = nonFreeFlavors + fossFlavors

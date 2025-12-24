@@ -49,11 +49,13 @@ fun VersionActionBottomSheet(
     ) { state ->
         WireMenuModalSheetContent(
             menuItems = buildList {
-                add {
-                    RestoreVersionModalItem(
-                        title = stringResource(R.string.restore_version_bottom_sheet_item_label),
-                        onClicked = { onRestoreVersionClicked(state.second.versionId) },
-                    )
+                if (!state.second.isCurrentVersion) {
+                    add {
+                        RestoreVersionModalItem(
+                            title = stringResource(R.string.restore_version_bottom_sheet_item_label),
+                            onClicked = { onRestoreVersionClicked(state.second.versionId) },
+                        )
+                    }
                 }
                 add {
                     DownloadVersionModalItem(

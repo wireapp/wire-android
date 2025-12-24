@@ -18,14 +18,12 @@
 
 package com.wire.android.util.lifecycle
 
+import com.wire.android.framework.TestUser
 import com.wire.android.framework.fake.FakeSyncExecutor
 import com.wire.android.util.CurrentScreenManager
 import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.data.auth.AccountInfo
-import com.wire.kalium.logic.data.session.SessionRepository
-import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.UserSessionScope
-import com.wire.kalium.common.functional.Either
+import com.wire.kalium.logic.feature.user.ObserveValidAccountsUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
@@ -46,7 +44,7 @@ class SyncLifecycleManagerTest {
             .withAppInTheForeground()
             .arrange()
 
-        connectionPolicyManager.syncTemporarily(USER_ID)
+        connectionPolicyManager.syncTemporarily(TestUser.SELF_USER_ID)
 
         assertEquals(1, arrangement.syncExecutor.requestCount)
         assertEquals(1, arrangement.syncExecutor.waitUntilLiveCount)
@@ -90,7 +88,7 @@ class SyncLifecycleManagerTest {
         val observingLifecycleJob = launch {
             syncLifecycleManager.observeAppLifecycle()
         }
-        syncLifecycleManager.syncTemporarily(USER_ID)
+        syncLifecycleManager.syncTemporarily(TestUser.SELF_USER_ID)
         advanceUntilIdle()
         observingLifecycleJob.cancel()
 
@@ -110,7 +108,7 @@ class SyncLifecycleManagerTest {
         lateinit var userSessionScope: UserSessionScope
 
         @MockK
-        lateinit var sessionRepository: SessionRepository
+        lateinit var observeValidAccountsUseCase: ObserveValidAccountsUseCase
 
         var syncExecutor = FakeSyncExecutor()
 
@@ -120,11 +118,12 @@ class SyncLifecycleManagerTest {
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
-
-            every { coreLogic.getGlobalScope().sessionRepository } returns sessionRepository
-            every { coreLogic.getSessionScope(USER_ID) } returns userSessionScope
-            coEvery { sessionRepository.allValidSessionsFlow() } returns flowOf(
-                Either.Right(listOf(AccountInfo.Valid(userId = USER_ID)))
+            every { coreLogic.getGlobalScope().observeValidAccounts } returns observeValidAccountsUseCase
+            every { coreLogic.getSessionScope(TestUser.SELF_USER_ID) } returns userSessionScope
+            coEvery { observeValidAccountsUseCase.invoke() } returns flowOf(
+                listOf(
+                    TestUser.SELF_USER to null
+                )
             )
         }
 
@@ -139,9 +138,5 @@ class SyncLifecycleManagerTest {
         fun arrange() = this to syncLifecycleManager.also {
             every { userSessionScope.syncExecutor } returns syncExecutor
         }
-    }
-
-    companion object {
-        private val USER_ID = UserId("user", "domain")
     }
 }

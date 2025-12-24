@@ -19,11 +19,11 @@ package com.wire.android.util.deeplink
 
 import android.net.Uri
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
+import com.wire.kalium.logic.data.id.QualifiedIdMapper
 
 object UserLinkQRMapper {
 
-    val qualifiedIdMapper = QualifiedIdMapperImpl(null)
+    val qualifiedIdMapper = QualifiedIdMapper(null)
 
     fun fromDeepLinkToQualifiedId(uri: Uri, defaultDomain: String): UserLinkQRResult {
         val segments = uri.pathSegments

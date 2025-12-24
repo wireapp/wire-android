@@ -53,9 +53,4 @@
     <string name="size_unit_megabytes">MB</string>
     <string name="size_unit_gigabytes">GB</string>
     <string name="size_unit_terabytes">TB</string>
-    <string name="content_description_check">Haken</string>
-    <string name="label_no_application_found_open_downloads_folder">"Keine Anwendung zum Öffnen des Download-Ordners gefunden"</string>
-    <string name="content_description_clear_content">Gesprächsverlauf löschen</string>
-    <string name="content_description_conversation_search_icon">Icon suchen</string>
-    <string name="content_description_conversation_search_input">Sucheingabe</string>
 </resources>

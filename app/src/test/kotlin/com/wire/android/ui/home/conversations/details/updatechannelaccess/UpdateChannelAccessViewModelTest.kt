@@ -23,7 +23,7 @@ import com.wire.android.ui.destinations.ChannelAccessOnUpdateScreenDestination
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAddPermissionType
 import com.wire.android.ui.navArgs
-import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
+import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.conversation.channel.UpdateChannelAddPermissionUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -37,8 +37,8 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
@@ -104,7 +104,7 @@ class UpdateChannelAccessViewModelTest {
             UpdateChannelAccessViewModel(
                 updateChannelAddPermission = updateChannelAddPermission,
                 savedStateHandle = savedStateHandle,
-                qualifiedIdMapper = QualifiedIdMapperImpl(TestUser.SELF_USER_ID)
+                qualifiedIdMapper = QualifiedIdMapper(TestUser.SELF_USER_ID)
             )
         }
 
@@ -124,8 +124,8 @@ class UpdateChannelAccessViewModelTest {
         fun withUpdateChannelAddPermissionUseCaseReturning(
             result: UpdateChannelAddPermissionUseCase.UpdateChannelAddPermissionUseCaseResult
         ) = apply {
-                coEvery { updateChannelAddPermission(any(), any()) } returns result
-            }
+            coEvery { updateChannelAddPermission(any(), any()) } returns result
+        }
 
         fun arrange() = this to viewModel
     }

@@ -84,7 +84,6 @@
     <string name="content_description_reveal_password">Mostrar contraseña</string>
     <string name="content_description_hide_password">Ocultar contraseña</string>
     <string name="content_description_search_back">Icono de búsqueda atrás</string>
-    <string name="content_description_clear_content">Borrar contenido</string>
     <string name="content_description_muted_conversation">Conversación silenciada</string>
     <string name="content_description_download_icon">Icono de descarga</string>
     <string name="content_description_open_asset_icon">Icono de abrir</string>
@@ -98,8 +97,6 @@
     <string name="content_description_delete_the_conversation">Eliminar la conversación</string>
     <string name="content_description_conversation_phone_icon">Iniciar una llamada</string>
     <string name="content_description_welcome_wire_logo">Logo de Wire</string>
-    <string name="content_description_conversation_search_icon">Ícono de búsqueda</string>
-    <string name="content_description_conversation_search_input">Campo de búsqueda</string>
     <string name="content_description_conversation_enable_rich_text_mode">Botón de modo de texto enriquecido</string>
     <string name="content_description_conversation_enable_drawing_mode">Botón activar modo de dibujo</string>
     <string name="content_description_conversation_rich_text_header">Encabezado de formato de texto enriquecido</string>

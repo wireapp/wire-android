@@ -36,7 +36,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.AudioNormalizedLoudnessBuilder
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
-import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCaseImpl
+import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase.AssetSizeLimits.ASSET_SIZE_DEFAULT_LIMIT_BYTES
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -408,7 +408,7 @@ class RecordAudioViewModelTest {
                 .tempFilePath("temp_recording.wav")
             coEvery { audioMediaRecorder.getMaxFileSizeReached() } returns flowOf(
                 RecordAudioDialogState.MaxFileSizeReached(
-                    maxSize = GetAssetSizeLimitUseCaseImpl.ASSET_SIZE_DEFAULT_LIMIT_BYTES
+                    maxSize = ASSET_SIZE_DEFAULT_LIMIT_BYTES
                 )
             )
             coEvery { generateAudioFileWithEffects(any(), any(), any()) } returns Unit

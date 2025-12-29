@@ -145,9 +145,9 @@ fun VersionHistoryScreen(
 private fun VersionHistoryScreenContent(
     versionsGroupedByTime: List<VersionGroup>,
     versionHistoryState: State<VersionHistoryState>,
-    onRefresh: () -> Unit,
     optionsBottomSheetState: WireModalSheetState<Pair<String, CellVersion>>,
     restoreDialogState: RestoreDialogState,
+    onRefresh: () -> Unit,
     modifier: Modifier = Modifier,
     fileName: String? = null,
     restoreVersion: () -> Unit = {},

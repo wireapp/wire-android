@@ -63,6 +63,9 @@ fun Instant.fileDateTime(): String = DateAndTimeParsers.fileDateTime(this)
 fun Instant.cellFileDateTime(): String = DateAndTimeParsers.cellFileDateTime(this)
 
 @Stable
+fun Instant.cellFileTime(): String = DateAndTimeParsers.cellTimeFormat(this)
+
+@Stable
 fun Instant.uiReadReceiptDateTime(): String = DateAndTimeParsers.uiReadReceiptDateTime(this)
 
 @Stable
@@ -102,8 +105,6 @@ class DateAndTimeParsers private constructor() {
             .withZone(ZoneId.systemDefault()).withLocale(Locale.getDefault())
         private val fileDateTimeFormat =
             DateTimeFormatter.ofPattern("yyyy-MM-dd-hh-mm-ss", Locale.getDefault()).withZone(ZoneId.systemDefault())
-        private val cellFileDateTimeFormat =
-            DateTimeFormatter.ofPattern("MMM dd, hh:mm a", Locale.getDefault()).withZone(ZoneId.systemDefault())
         private val readReceiptDateTimeFormat =
             DateTimeFormatter.ofPattern("MMM dd yyyy,  hh:mm a", Locale.getDefault()).withZone(ZoneId.systemDefault())
         private val mediumOnlyDateTimeFormat =
@@ -156,7 +157,33 @@ class DateAndTimeParsers private constructor() {
                 null
             }
 
-        fun cellFileDateTime(instant: Instant): String = cellFileDateTimeFormat.format(instant.toJavaInstant())
+        fun cellTimeFormat(instant: Instant): String {
+            val timeFormatter = java.text.DateFormat.getTimeInstance(
+                java.text.DateFormat.SHORT,
+                Locale.getDefault()
+            ).apply {
+                timeZone = java.util.TimeZone.getDefault()
+            }
+            return timeFormatter.format(Date.from(instant.toJavaInstant()))
+        }
+
+        fun cellDateFormat(instant: Instant, showYear: Boolean = false): String {
+            val pattern = if (showYear) "MMM dd, yyyy" else "MMM dd"
+
+            val formatter = java.text.SimpleDateFormat(pattern, Locale.getDefault()).apply {
+                timeZone = java.util.TimeZone.getDefault() // system timezone
+            }
+
+            return formatter.format(Date.from(instant.toJavaInstant()))
+        }
+
+        fun cellFileDateTime(instant: Instant): String {
+
+            val dateString = cellDateFormat(instant)
+            val timeString = cellTimeFormat(instant)
+
+            return "$dateString, $timeString"
+        }
 
         fun fileDateTime(instant: Instant): String = fileDateTimeFormat.format(instant.toJavaInstant())
 

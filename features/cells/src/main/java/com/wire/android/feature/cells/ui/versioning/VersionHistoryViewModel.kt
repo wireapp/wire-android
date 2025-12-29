@@ -34,7 +34,7 @@ import com.wire.android.util.addBeforeExtension
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.cells.domain.model.NodeVersion
-import com.wire.kalium.cells.domain.usecase.DownloadCellVersionUseCase
+import com.wire.kalium.cells.domain.usecase.download.DownloadCellVersionUseCase
 import com.wire.kalium.cells.domain.usecase.versioning.GetNodeVersionsUseCase
 import com.wire.kalium.cells.domain.usecase.versioning.RestoreNodeVersionUseCase
 import com.wire.kalium.common.functional.onFailure

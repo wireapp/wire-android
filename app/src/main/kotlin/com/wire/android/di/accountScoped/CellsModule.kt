@@ -24,10 +24,7 @@ import com.wire.android.ui.home.conversations.model.messagetypes.multipart.CellA
 import com.wire.kalium.cells.CellsScope
 import com.wire.kalium.cells.domain.CellUploadManager
 import com.wire.kalium.cells.domain.usecase.AddAttachmentDraftUseCase
-import com.wire.kalium.cells.domain.usecase.CreateFolderUseCase
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
-import com.wire.kalium.cells.domain.usecase.DownloadCellFileUseCase
-import com.wire.kalium.cells.domain.usecase.DownloadCellVersionUseCase
 import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
 import com.wire.kalium.cells.domain.usecase.GetCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
@@ -47,6 +44,12 @@ import com.wire.kalium.cells.domain.usecase.RenameNodeUseCase
 import com.wire.kalium.cells.domain.usecase.RestoreNodeFromRecycleBinUseCase
 import com.wire.kalium.cells.domain.usecase.RetryAttachmentUploadUseCase
 import com.wire.kalium.cells.domain.usecase.UpdateNodeTagsUseCase
+import com.wire.kalium.cells.domain.usecase.create.CreateDocumentFileUseCase
+import com.wire.kalium.cells.domain.usecase.create.CreateFolderUseCase
+import com.wire.kalium.cells.domain.usecase.create.CreatePresentationFileUseCase
+import com.wire.kalium.cells.domain.usecase.create.CreateSpreadsheetFileUseCase
+import com.wire.kalium.cells.domain.usecase.download.DownloadCellFileUseCase
+import com.wire.kalium.cells.domain.usecase.download.DownloadCellVersionUseCase
 import com.wire.kalium.cells.domain.usecase.publiclink.CreatePublicLinkPasswordUseCase
 import com.wire.kalium.cells.domain.usecase.publiclink.CreatePublicLinkUseCase
 import com.wire.kalium.cells.domain.usecase.publiclink.DeletePublicLinkUseCase
@@ -141,6 +144,19 @@ class CellsModule {
     @ViewModelScoped
     @Provides
     fun provideCreateFolderUseCase(cellsScope: CellsScope): CreateFolderUseCase = cellsScope.createFolderUseCase
+
+    @ViewModelScoped
+    @Provides
+    fun provideCreateSpreadsheetFileUseCase(cellsScope: CellsScope): CreateSpreadsheetFileUseCase = cellsScope.createSpreadsheetFileUseCase
+
+    @ViewModelScoped
+    @Provides
+    fun provideCreateDocumentFileUseCase(cellsScope: CellsScope): CreateDocumentFileUseCase = cellsScope.createDocumentFileUseCase
+
+    @ViewModelScoped
+    @Provides
+    fun provideCreatePresentationFileUseCase(cellsScope: CellsScope): CreatePresentationFileUseCase =
+        cellsScope.createPresentationFileUseCase
 
     @ViewModelScoped
     @Provides

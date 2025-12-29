@@ -100,7 +100,7 @@
     <string name="rename_file_renamed">Datei wurde umbenannt</string>
     <string name="rename_folder_renamed">Ordner wurde umbenannt</string>
     <string name="rename_failure">Umbenennen nicht möglich</string>
-    <string name="rename_already_exist">Eine Datei mit diesem Namen ist bereits vorhanden</string>
+    <string name="rename_file_already_exist">Eine Datei mit diesem Namen ist bereits vorhanden</string>
     <string name="filter_label">Filter</string>
     <string name="tags_label">Tags</string>
     <string name="select_tags_label">Tags auswählen</string>

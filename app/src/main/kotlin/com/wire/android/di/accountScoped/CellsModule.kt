@@ -155,7 +155,8 @@ class CellsModule {
 
     @ViewModelScoped
     @Provides
-    fun provideCreatePresentationFileUseCase(cellsScope: CellsScope): CreatePresentationFileUseCase = cellsScope.createPresentationFileUseCase
+    fun provideCreatePresentationFileUseCase(cellsScope: CellsScope): CreatePresentationFileUseCase =
+        cellsScope.createPresentationFileUseCase
 
     @ViewModelScoped
     @Provides

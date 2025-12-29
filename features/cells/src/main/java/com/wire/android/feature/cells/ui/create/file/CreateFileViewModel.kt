@@ -93,7 +93,6 @@ class CreateFileViewModel @Inject constructor(
         viewState = viewState.copy(loading = false)
     }
 
-
     fun FileType.getExtension(): String =
         when (this) {
             FileType.PRESENTATION -> ".pptx"

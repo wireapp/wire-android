@@ -73,7 +73,6 @@ class CreateFileViewModelTest {
         assertEquals(null, viewModel.viewState.error)
     }
 
-
     @Test
     fun `given valid file name, when name changes, then save is enabled and no error`() = runTest {
         // Given
@@ -105,7 +104,6 @@ class CreateFileViewModelTest {
         assertFalse(viewModel.viewState.saveEnabled)
         assertEquals(FileNameError.InvalidName, viewModel.viewState.error)
     }
-
 
     @Test
     fun `given document file type, when createFile is called, then document use case is invoked`() = runTest {

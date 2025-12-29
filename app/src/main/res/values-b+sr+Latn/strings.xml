@@ -17,8 +17,6 @@
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
 <resources>
-    <string name="app_version">Верзија апликације</string>
-    <string name="label_message_sent_failure">Message could not be sent.</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
     <string name="content_description_empty"></string>
     <!-- Non translatable strings-->
@@ -53,7 +51,6 @@
     <!--Profile image-->
     <!--Conversation-->
     <!-- System messages -->
-    <string name="label_system_message_conversation_history_lost">YOU HAVEN\'T USED THIS DEVICE FOR A WHILE. SOME MESSAGES MAY NOT APPEAR HERE.</string>
     <!-- Last messages -->
     <!-- Unread Events -->
     <!--Typing Indicator-->

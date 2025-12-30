@@ -170,11 +170,11 @@ class DateAndTimeParsers private constructor() {
         fun cellDateFormat(instant: Instant, showYear: Boolean = false): String {
             val pattern = if (showYear) "MMM dd, yyyy" else "MMM dd"
 
-            val formatter = java.text.SimpleDateFormat(pattern, Locale.getDefault()).apply {
-                timeZone = java.util.TimeZone.getDefault() // system timezone
-            }
+            val formatter = DateTimeFormatter
+                .ofPattern(pattern, Locale.getDefault())
+                .withZone(ZoneId.systemDefault())
 
-            return formatter.format(Date.from(instant.toJavaInstant()))
+            return formatter.format(instant.toJavaInstant())
         }
 
         fun cellFileDateTime(instant: Instant): String {

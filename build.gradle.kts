@@ -20,6 +20,7 @@ buildscript {
     repositories {
         google()
         mavenCentral()
+        mavenLocal()
         maven(url = "https://oss.sonatype.org/content/repositories/snapshots")
         maven(url = "https://plugins.gradle.org/m2/")
     }
@@ -44,6 +45,7 @@ buildscript {
 
 allprojects {
     repositories {
+        mavenLocal()
         google()
         mavenCentral()
         maven(url = "https://jitpack.io")

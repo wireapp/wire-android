@@ -46,6 +46,7 @@ plugins {
 
 repositories {
     wireDetektRulesRepo()
+    mavenLocal()
     google()
 }
 

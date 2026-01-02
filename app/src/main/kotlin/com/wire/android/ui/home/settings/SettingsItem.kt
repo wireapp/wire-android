@@ -58,7 +58,6 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
-import com.wire.android.ui.common.R as commonR
 
 @Composable
 fun SettingsItem(
@@ -125,10 +124,7 @@ fun SettingsItem(
                             .padding(end = dimensions().spacing8x)
                             .clickable(onIconPressed)
                     )
-                } ?: Icon(
-                    painter = painterResource(commonR.drawable.ic_chevron_right),
-                    contentDescription = null,
-                )
+                }
             }
         },
         clickable = onRowPressed

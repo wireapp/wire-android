@@ -171,7 +171,7 @@ class MessageNotificationManager
     private fun getSummaryNotification(userId: QualifiedID, userName: String): Notification {
         val channelId = NotificationConstants.getMessagesChannelId(userId)
         return NotificationCompat.Builder(context, channelId)
-            .setSmallIcon(R.drawable.notification_icon_small)
+            .setSmallIcon(com.wire.android.feature.notification.R.drawable.notification_icon_small)
             .setGroup(NotificationConstants.getMessagesGroupKey(userId))
             .setStyle(NotificationCompat.InboxStyle().setSummaryText(userName))
             .setGroupSummary(true)
@@ -530,7 +530,7 @@ class MessageNotificationManager
                 priority = NotificationCompat.PRIORITY_MAX
                 setCategory(NotificationCompat.CATEGORY_MESSAGE)
 
-                setSmallIcon(R.drawable.notification_icon_small)
+                setSmallIcon(com.wire.android.feature.notification.R.drawable.notification_icon_small)
                 setGroup(NotificationConstants.getMessagesGroupKey(userId))
                 setAutoCancel(true)
             }

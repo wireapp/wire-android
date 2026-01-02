@@ -26,11 +26,6 @@ tasks.register("clean", Delete::class) {
     delete(rootProject.layout.buildDirectory)
 }
 
-tasks.named<Wrapper>("wrapper") {
-    gradleVersion = findVersion("gradle").requiredVersion
-    distributionType = Wrapper.DistributionType.ALL
-}
-
 tasks.register("runUnitTests") {
     description = "Runs all Unit Tests."
     dependsOn(":app:test${Default.BUILD_VARIANT}UnitTest")

@@ -32,7 +32,6 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
@@ -66,10 +65,12 @@ class AddRemoveTagsViewModelTest {
             .arrange()
         val newTag = "compose"
 
-        viewModel.addTag(newTag)
-
-        val addedTags = viewModel.addedTags.first()
-        assertTrue(addedTags.contains(newTag))
+        viewModel.state.test {
+            skipItems(1)
+            viewModel.addTag(newTag)
+            val addedTags = awaitItem().addedTags
+            assertTrue(addedTags.contains(newTag))
+        }
     }
 
     @Test
@@ -79,10 +80,11 @@ class AddRemoveTagsViewModelTest {
             .arrange()
         val blankTag = "   "
 
-        viewModel.addTag(blankTag)
-
-        val addedTags = viewModel.addedTags.first()
-        assertTrue(addedTags.isEmpty())
+        viewModel.state.test {
+            viewModel.addTag(blankTag)
+            val addedTags = awaitItem().addedTags
+            assertTrue(addedTags.isEmpty())
+        }
     }
 
     @Test
@@ -92,12 +94,14 @@ class AddRemoveTagsViewModelTest {
             .arrange()
 
         val tag = "compose"
-        viewModel.addTag(tag)
 
-        viewModel.addTag(tag)
-
-        val addedTags = viewModel.addedTags.first()
-        assertEquals(1, addedTags.count { it == tag })
+        viewModel.state.test {
+            skipItems(1)
+            viewModel.addTag(tag)
+            viewModel.addTag(tag)
+            val addedTags = awaitItem().addedTags
+            assertEquals(1, addedTags.count { it == tag })
+        }
     }
 
     @Test
@@ -109,9 +113,12 @@ class AddRemoveTagsViewModelTest {
             .arrange()
 
         advanceUntilIdle()
-        assertTrue(viewModel.suggestedTags.contains(tagInSuggestions))
-        viewModel.addTag(tagInSuggestions)
-        assertFalse(viewModel.suggestedTags.contains(tagInSuggestions))
+
+        viewModel.state.test {
+            assertTrue(awaitItem().suggestedTags.contains(tagInSuggestions))
+            viewModel.addTag(tagInSuggestions)
+            assertFalse(awaitItem().suggestedTags.contains(tagInSuggestions))
+        }
     }
 
     @Test
@@ -120,13 +127,19 @@ class AddRemoveTagsViewModelTest {
             .withGetAllTagsUseCaseReturning(Either.Right(setOf()))
             .arrange()
         val tag = "compose"
-        viewModel.addTag(tag)
-        assertTrue(viewModel.addedTags.first().contains(tag))
 
-        viewModel.removeTag(tag)
+        viewModel.state.test {
 
-        val addedTags = viewModel.addedTags.first()
-        assertFalse(addedTags.contains(tag))
+            skipItems(1)
+
+            viewModel.addTag(tag)
+            assertTrue(awaitItem().addedTags.contains(tag))
+
+            viewModel.removeTag(tag)
+
+            val addedTags = awaitItem().addedTags
+            assertFalse(addedTags.contains(tag))
+        }
     }
 
     @Test
@@ -134,17 +147,22 @@ class AddRemoveTagsViewModelTest {
         val (_, viewModel) = Arrangement()
             .withGetAllTagsUseCaseReturning(Either.Right(setOf()))
             .arrange()
+
         val existingTag = "compose"
         val nonExistentTag = "android"
+
         viewModel.addTag(existingTag)
-        val initialTags = viewModel.addedTags.first()
 
-        // When
-        viewModel.removeTag(nonExistentTag)
+        viewModel.state.test {
 
-        // Then
-        val currentTags = viewModel.addedTags.first()
-        assertEquals(initialTags, currentTags)
+            skipItems(1)
+
+            // When
+            viewModel.removeTag(nonExistentTag)
+
+            // Then
+            expectNoEvents()
+        }
     }
 
     @Test

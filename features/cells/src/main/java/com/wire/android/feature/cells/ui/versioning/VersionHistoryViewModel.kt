@@ -31,6 +31,7 @@ import com.wire.android.feature.cells.ui.versioning.restore.RestoreVersionState
 import com.wire.android.feature.cells.util.FileHelper
 import com.wire.android.util.FileSizeFormatter
 import com.wire.android.util.addBeforeExtension
+import com.wire.android.util.cellFileTime
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.cells.domain.model.NodeVersion
@@ -48,7 +49,6 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 import javax.inject.Inject
 
 @HiltViewModel
@@ -138,10 +138,9 @@ class VersionHistoryViewModel @Inject constructor(
 
                 val uiItems = items.mapIndexed { itemIndex, apiItem ->
 
-                    val formattedTime = Instant.ofEpochSecond(apiItem.modifiedTime?.toLong() ?: 0L)
-                        .atZone(ZoneId.systemDefault())
-                        .toLocalTime()
-                        .format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT))
+                    val formattedTime = apiItem.modifiedTime?.toLong()?.let {
+                        kotlinx.datetime.Instant.fromEpochSeconds(it).cellFileTime()
+                    } ?: ""
 
                     CellVersion(
                         versionId = apiItem.id,

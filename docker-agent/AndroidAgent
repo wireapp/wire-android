@@ -66,6 +66,9 @@ ENV PATH=${ANDROID_HOME}/cmdline-tools/latest/bin:${ANDROID_HOME}/platform-tools
 # Accept licenses and install SDK components
 ARG BUILD_TOOLS_VERSION=35.0.0
 ARG PLATFORMS_VERSION=android-35
+ARG ARCHITECTURE=x86_64
 
 RUN yes | sdkmanager --licenses && \
-    sdkmanager "platform-tools" "build-tools;${BUILD_TOOLS_VERSION}" "platforms;${PLATFORMS_VERSION}"
+    sdkmanager "platform-tools" "build-tools;${BUILD_TOOLS_VERSION}" "platforms;${PLATFORMS_VERSION}" \
+    "system-images;${PLATFORMS_VERSION};default;${ARCHITECTURE}" \
+    "extras;android;m2repository" "extras;google;m2repository"

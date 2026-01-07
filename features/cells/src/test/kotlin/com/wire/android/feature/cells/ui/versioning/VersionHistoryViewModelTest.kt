@@ -32,6 +32,7 @@ import com.wire.android.util.ui.toUIText
 import com.wire.kalium.cells.domain.model.NodeVersion
 import com.wire.kalium.cells.domain.model.PreSignedUrl
 import com.wire.kalium.cells.domain.usecase.DownloadCellVersionUseCase
+import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
 import com.wire.kalium.cells.domain.usecase.versioning.GetNodeVersionsUseCase
 import com.wire.kalium.cells.domain.usecase.versioning.RestoreNodeVersionUseCase
 import com.wire.kalium.common.error.CoreFailure
@@ -351,6 +352,45 @@ class VersionHistoryViewModelTest {
         coVerify(exactly = 0) { arrangement.downloadCellVersionUseCase.invoke(any(), any(), any()) }
     }
 
+    @Test
+    fun givenEditorUrlExists_whenOpenOnlineEditor_thenEditorIsOpened() = runTest {
+        // Given
+        val expectedUrl = "https://example.com/editor"
+        val (arrangement, viewModel) = Arrangement()
+            .withSavedStateHandleReturning()
+            .withGetNodeVersionReturning(Either.Right(emptyList()))
+            .withGetEditorUrlReturning(expectedUrl.right())
+            .withOnlineEditor()
+            .arrange()
+
+        // When
+        viewModel.openOnlineEditor()
+        advanceUntilIdle()
+
+        // Then
+        coVerify(exactly = 1) { arrangement.getEditorUrlUseCase(any()) }
+        coVerify(exactly = 1) { arrangement.onlineEditor.open(expectedUrl) }
+    }
+
+    @Test
+    fun givenGetEditorUrlFails_whenOpenOnlineEditorIsCalled_thenEditorIsNotOpened() = runTest {
+        // Given
+        val (arrangement, viewModel) = Arrangement()
+            .withSavedStateHandleReturning()
+            .withGetNodeVersionReturning(Either.Right(emptyList()))
+            .withGetEditorUrlReturning(Either.Left(CoreFailure.MissingClientRegistration))
+            .withOnlineEditor()
+            .arrange()
+
+        // When
+        viewModel.openOnlineEditor()
+        advanceUntilIdle()
+
+        // Then
+        coVerify(exactly = 1) { arrangement.getEditorUrlUseCase(any()) }
+        coVerify(inverse = true) { arrangement.onlineEditor.open("url") }
+    }
+
     private class Arrangement {
 
         val savedStateHandle: SavedStateHandle = mockk(relaxed = true)
@@ -360,6 +400,7 @@ class VersionHistoryViewModelTest {
         val downloadCellVersionUseCase: DownloadCellVersionUseCase = mockk()
         val fileHelper: FileHelper = mockk()
         val onlineEditor: OnlineEditor = mockk()
+        val getEditorUrlUseCase: GetEditorUrlUseCase = mockk()
         private val testDispatcherProvider = TestDispatcherProvider(dispatcher)
 
         private val testNodeUuid = "test-node-uuid"
@@ -418,6 +459,14 @@ class VersionHistoryViewModelTest {
             coEvery { fileSizeFormatter.formatSize(any()) } returns "30 MB"
         }
 
+        fun withGetEditorUrlReturning(result: Either<CoreFailure, String?>) = apply {
+            coEvery { getEditorUrlUseCase(any()) } returns result
+        }
+
+        fun withOnlineEditor() = apply {
+            coEvery { onlineEditor.open(any()) } returns Unit
+        }
+
         fun arrange(): Pair<Arrangement, VersionHistoryViewModel> {
             val viewModel = VersionHistoryViewModel(
                 savedStateHandle = savedStateHandle,
@@ -427,6 +476,7 @@ class VersionHistoryViewModelTest {
                 downloadCellVersionUseCase = downloadCellVersionUseCase,
                 fileHelper = fileHelper,
                 onlineEditor = onlineEditor,
+                getEditorUrl = getEditorUrlUseCase,
                 dispatchers = testDispatcherProvider,
             )
             return this to viewModel

@@ -22,8 +22,10 @@ import com.wire.android.framework.TestUser
 import com.wire.android.framework.fake.FakeSyncExecutor
 import com.wire.android.util.CurrentScreenManager
 import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.feature.UserSessionScope
-import com.wire.kalium.logic.feature.user.ObserveValidAccountsUseCase
+import com.wire.kalium.logic.feature.session.GetAllSessionsResult
+import com.wire.kalium.logic.feature.session.ObserveSessionsUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
@@ -108,7 +110,7 @@ class SyncLifecycleManagerTest {
         lateinit var userSessionScope: UserSessionScope
 
         @MockK
-        lateinit var observeValidAccountsUseCase: ObserveValidAccountsUseCase
+        lateinit var observeValidAccountsUseCase: ObserveSessionsUseCase
 
         var syncExecutor = FakeSyncExecutor()
 
@@ -118,11 +120,13 @@ class SyncLifecycleManagerTest {
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
-            every { coreLogic.getGlobalScope().observeValidAccounts } returns observeValidAccountsUseCase
+            every { coreLogic.getGlobalScope().observeAllValidSessionsFlow } returns observeValidAccountsUseCase
             every { coreLogic.getSessionScope(TestUser.SELF_USER_ID) } returns userSessionScope
             coEvery { observeValidAccountsUseCase.invoke() } returns flowOf(
-                listOf(
-                    TestUser.SELF_USER to null
+                GetAllSessionsResult.Success(
+                    listOf(
+                        AccountInfo.Valid(TestUser.SELF_USER_ID)
+                    )
                 )
             )
         }

@@ -28,7 +28,7 @@ import com.wire.android.feature.cells.ui.common.validateFileName
 import com.wire.android.feature.cells.ui.navArgs
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.common.textfield.textAsFlow
-import com.wire.kalium.cells.domain.usecase.CreateFolderUseCase
+import com.wire.kalium.cells.domain.usecase.create.CreateFolderUseCase
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel

@@ -39,12 +39,12 @@ import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.common.DEFAULT_SEARCH_QUERY_DEBOUNCE
 import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
-import com.wire.kalium.cells.domain.usecase.DownloadCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
 import com.wire.kalium.cells.domain.usecase.IsAtLeastOneCellAvailableUseCase
 import com.wire.kalium.cells.domain.usecase.RestoreNodeFromRecycleBinUseCase
+import com.wire.kalium.cells.domain.usecase.download.DownloadCellFileUseCase
 import com.wire.kalium.common.functional.fold
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess

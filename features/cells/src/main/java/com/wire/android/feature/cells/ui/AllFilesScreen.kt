@@ -102,8 +102,11 @@ fun AllFilesScreen(
         onRefresh = { viewModel.onPullToRefresh() }
     )
 
+    val tags = viewModel.tags.collectAsState()
+    val sortedTags = tags.value.toList().sortedBy { it.lowercase() }
+
     FilterBottomSheet(
-        selectableTags = viewModel.tags.collectAsState().value,
+        selectableTags = sortedTags,
         selectedTags = viewModel.selectedTags.collectAsState().value,
         onApply = {
             filterBottomSheetState.hide()

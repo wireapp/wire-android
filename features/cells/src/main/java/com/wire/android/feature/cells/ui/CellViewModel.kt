@@ -54,6 +54,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -65,7 +66,9 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import okio.Path
@@ -118,7 +121,13 @@ class CellViewModel @Inject constructor(
     val selectedTags: StateFlow<Set<String>> = _selectedTags.asStateFlow()
 
     private val _tags = MutableStateFlow<Set<String>>(emptySet())
-    val tags: StateFlow<Set<String>> = _tags.asStateFlow()
+    val sortedTags: StateFlow<List<String>> = _tags.asStateFlow()
+        .map { it.sortedBy { tag -> tag.lowercase() } }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(1_000),
+            initialValue = emptyList()
+        )
 
     // Used to navigate to the root of the recycle bin after restoring a parent folder.
     private val _navigateToRecycleBinRoot = MutableStateFlow(false)

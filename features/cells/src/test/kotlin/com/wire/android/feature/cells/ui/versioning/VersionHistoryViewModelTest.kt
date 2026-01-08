@@ -31,6 +31,7 @@ import com.wire.android.util.ui.resolveForTest
 import com.wire.android.util.ui.toUIText
 import com.wire.kalium.cells.domain.model.NodeVersion
 import com.wire.kalium.cells.domain.model.PreSignedUrl
+import com.wire.kalium.cells.domain.usecase.download.DownloadCellVersionUseCase
 import com.wire.kalium.cells.domain.usecase.DownloadCellVersionUseCase
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
 import com.wire.kalium.cells.domain.usecase.versioning.GetNodeVersionsUseCase

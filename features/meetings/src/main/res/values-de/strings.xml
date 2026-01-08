@@ -16,4 +16,29 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
-<resources></resources>
+<resources>
+    <string name="all_meetings_tab_next">NÄCHSTE</string>
+    <string name="all_meetings_tab_past">LETZTE</string>
+    <string name="meeting_repeating_daily">Täglich</string>
+    <string name="meeting_repeating_weekly">Wöchentlich</string>
+    <string name="meeting_repeating_biweekly">Alle 2 Wochen</string>
+    <string name="meeting_repeating_monthly">Monatlich</string>
+    <string name="meeting_repeating_annually">Jährlich</string>
+    <string name="meeting_started_at">Begann %1$s</string>
+    <string name="meeting_join_button">Beitreten</string>
+    <string name="meeting_starting_in">Beginnt in %1$s</string>
+    <string name="meeting_button_show_all">Alle anzeigen</string>
+    <string name="meeting_date_header_today">Heute (%1$s)</string>
+    <string name="meeting_date_header_tomorrow">Morgen (%1$s)</string>
+    <string name="meeting_date_header_yesterday">Gestern (%1$s)</string>
+    <string name="deleted_meeting_options_closed">Die Optionen wurden geschlossen, da diese Meeting nicht mehr verfügbar ist.</string>
+    <string name="meeting_options_start_meeting">Meeting starten</string>
+    <string name="meeting_options_create_conversation">Unterhaltung erstellen</string>
+    <string name="meeting_options_copy_link">Link kopieren</string>
+    <string name="meeting_options_edit_meeting">Meeting bearbeiten</string>
+    <string name="meetings_empty_text_next">"Beginnen Sie ein Meeting mit Team-Mitgliedern, Gästen oder Externen."</string>
+    <string name="meetings_empty_text_past">Vorherige Meetings werden hier aufgelistet.</string>
+    <string name="new_meeting_title">Neues Meeting</string>
+    <string name="new_meeting_now">Meeting starten</string>
+    <string name="new_meeting_schedule">Meeting planen</string>
+</resources>

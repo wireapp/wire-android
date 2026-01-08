@@ -125,7 +125,7 @@ class CellViewModel @Inject constructor(
         .map { it.sortedBy { tag -> tag.lowercase() } }
         .stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(1_000),
+            started = SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS),
             initialValue = emptyList()
         )
 
@@ -524,6 +524,7 @@ class CellViewModel @Inject constructor(
                 append = LoadState.NotLoading(true)
             )
         )
+        const val STOP_TIMEOUT_MILLIS = 1_000L
     }
 }
 

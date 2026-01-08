@@ -98,34 +98,28 @@ fun CreateFileScreen(
             )
         },
         bottomBar = {
-            AnimatedVisibility(
-                visible = true,
-                enter = fadeIn() + expandVertically(),
-                exit = shrinkVertically() + fadeOut(),
+            Surface(
+                color = MaterialTheme.wireColorScheme.background,
+                shadowElevation = MaterialTheme.wireDimensions.bottomNavigationShadowElevation
             ) {
-                Surface(
-                    color = MaterialTheme.wireColorScheme.background,
-                    shadowElevation = MaterialTheme.wireDimensions.bottomNavigationShadowElevation
+                Column(
+                    verticalArrangement = Arrangement.Center,
+                    modifier = Modifier
+                        .padding(dimensions().spacing16x)
                 ) {
-                    Column(
-                        verticalArrangement = Arrangement.Center,
-                        modifier = Modifier
-                            .padding(dimensions().spacing16x)
-                    ) {
-                        with(createFileViewModel) {
-                            WirePrimaryButton(
-                                text = stringResource(R.string.cells_create_file),
-                                onClick = {
-                                    createFileViewModel.createFile(fileNameTextFieldState.text.toString())
-                                },
-                                state = if (viewState.saveEnabled && !viewState.loading) {
-                                    WireButtonState.Default
-                                } else {
-                                    WireButtonState.Disabled
-                                },
-                                loading = viewState.loading
-                            )
-                        }
+                    with(createFileViewModel) {
+                        WirePrimaryButton(
+                            text = stringResource(R.string.cells_create_file),
+                            onClick = {
+                                createFileViewModel.createFile(fileNameTextFieldState.text.toString())
+                            },
+                            state = if (viewState.saveEnabled && !viewState.loading) {
+                                WireButtonState.Default
+                            } else {
+                                WireButtonState.Disabled
+                            },
+                            loading = viewState.loading
+                        )
                     }
                 }
             }
@@ -152,6 +146,7 @@ fun CreateFileScreen(
                 resultNavigator.setResult(true)
                 resultNavigator.navigateBack()
             }
+
             CreateFileViewModelAction.Failure -> {
                 showErrorDialog.value = true
             }

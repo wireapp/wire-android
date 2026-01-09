@@ -28,7 +28,6 @@ import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.ui.theme.Accent
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.kalium.common.functional.getOrNull
 import com.wire.kalium.logic.feature.team.GetUpdatedSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.IsE2EIEnabledUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase

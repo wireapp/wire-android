@@ -145,7 +145,7 @@ class MyAccountViewModel @Inject constructor(
     }
 
     private suspend fun fetchSelfUserTeam() {
-        val selfTeam = getSelfTeam().getOrNull()
+        val selfTeam = getSelfTeam()
         myAccountState = myAccountState.copy(
             teamName = selfTeam?.name.orEmpty(),
         )

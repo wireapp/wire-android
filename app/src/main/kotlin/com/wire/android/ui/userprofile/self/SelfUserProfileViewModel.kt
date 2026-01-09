@@ -163,7 +163,7 @@ class SelfUserProfileViewModel @Inject constructor(
     private fun fetchSelfUser() {
         viewModelScope.launch {
             val self = observeSelf().flowOn(dispatchers.io()).shareIn(this, SharingStarted.WhileSubscribed(1))
-            val selfTeam = getSelfTeam().getOrNull()
+            val selfTeam = getSelfTeam()
             val validAccounts =
                 observeValidAccounts().flowOn(dispatchers.io()).shareIn(this, SharingStarted.WhileSubscribed(1))
 

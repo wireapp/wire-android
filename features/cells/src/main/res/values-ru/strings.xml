@@ -109,7 +109,6 @@
     <string name="rename_folder_renamed">Папка переименована</string>
     <string name="rename_failure">Не удается переименовать</string>
     <string name="rename_invalid_name">Используйте название без \"/\" и не начинающееся с \".\"</string>
-    <string name="rename_already_exist">Файл с таким названием уже существует</string>
     <string name="filter_label">Фильтр</string>
     <string name="tags_label">Теги</string>
     <string name="select_tags_label">выбрать теги</string>

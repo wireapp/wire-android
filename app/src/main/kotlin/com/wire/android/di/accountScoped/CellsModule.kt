@@ -44,7 +44,10 @@ import com.wire.kalium.cells.domain.usecase.RenameNodeUseCase
 import com.wire.kalium.cells.domain.usecase.RestoreNodeFromRecycleBinUseCase
 import com.wire.kalium.cells.domain.usecase.RetryAttachmentUploadUseCase
 import com.wire.kalium.cells.domain.usecase.UpdateNodeTagsUseCase
+import com.wire.kalium.cells.domain.usecase.create.CreateDocumentFileUseCase
 import com.wire.kalium.cells.domain.usecase.create.CreateFolderUseCase
+import com.wire.kalium.cells.domain.usecase.create.CreatePresentationFileUseCase
+import com.wire.kalium.cells.domain.usecase.create.CreateSpreadsheetFileUseCase
 import com.wire.kalium.cells.domain.usecase.download.DownloadCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.download.DownloadCellVersionUseCase
 import com.wire.kalium.cells.domain.usecase.publiclink.CreatePublicLinkPasswordUseCase
@@ -141,6 +144,19 @@ class CellsModule {
     @ViewModelScoped
     @Provides
     fun provideCreateFolderUseCase(cellsScope: CellsScope): CreateFolderUseCase = cellsScope.createFolderUseCase
+
+    @ViewModelScoped
+    @Provides
+    fun provideCreateSpreadsheetFileUseCase(cellsScope: CellsScope): CreateSpreadsheetFileUseCase = cellsScope.createSpreadsheetFileUseCase
+
+    @ViewModelScoped
+    @Provides
+    fun provideCreateDocumentFileUseCase(cellsScope: CellsScope): CreateDocumentFileUseCase = cellsScope.createDocumentFileUseCase
+
+    @ViewModelScoped
+    @Provides
+    fun provideCreatePresentationFileUseCase(cellsScope: CellsScope): CreatePresentationFileUseCase =
+        cellsScope.createPresentationFileUseCase
 
     @ViewModelScoped
     @Provides

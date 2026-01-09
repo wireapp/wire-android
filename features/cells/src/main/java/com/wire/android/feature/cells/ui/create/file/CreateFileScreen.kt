@@ -15,13 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.feature.cells.ui.createfolder
+package com.wire.android.feature.cells.ui.create.file
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -62,22 +57,22 @@ import java.util.Locale
 
 @WireDestination(
     style = PopUpNavigationAnimation::class,
-    navArgsDelegate = CreateFolderScreenNavArgs::class,
+    navArgsDelegate = CreateFileScreenNavArgs::class,
 )
 @Composable
-fun CreateFolderScreen(
+fun CreateFileScreen(
     navigator: WireNavigator,
     resultNavigator: ResultBackNavigator<Boolean>,
     modifier: Modifier = Modifier,
-    createFolderViewModel: CreateFolderViewModel = hiltViewModel()
+    createFileViewModel: CreateFileViewModel = hiltViewModel()
 ) {
     val showErrorDialog = remember { mutableStateOf(false) }
 
     if (showErrorDialog.value) {
         WireDialog(
             properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false, usePlatformDefaultWidth = false),
-            title = stringResource(id = R.string.cells_create_folder),
-            text = stringResource(id = R.string.create_folder_error),
+            title = stringResource(id = R.string.cells_create_file),
+            text = stringResource(id = R.string.create_file_error),
             onDismiss = { showErrorDialog.value = false },
             dismissButtonProperties = WireDialogButtonProperties(
                 onClick = { showErrorDialog.value = false },
@@ -94,49 +89,41 @@ fun CreateFolderScreen(
                 onNavigationPressed = { navigator.navigateBack() },
                 navigationIconType = NavigationIconType.Close(),
                 elevation = dimensions().spacing0x,
-                title = stringResource(id = R.string.cells_create_folder),
+                title = stringResource(id = R.string.create_file_screen_title, createFileViewModel.fileExtension),
             )
         },
         bottomBar = {
-            AnimatedVisibility(
-                visible = true,
-                enter = fadeIn() + expandVertically(),
-                exit = shrinkVertically() + fadeOut(),
+            Surface(
+                color = MaterialTheme.wireColorScheme.background,
+                shadowElevation = MaterialTheme.wireDimensions.bottomNavigationShadowElevation
             ) {
-                Surface(
-                    color = MaterialTheme.wireColorScheme.background,
-                    shadowElevation = MaterialTheme.wireDimensions.bottomNavigationShadowElevation
+                Column(
+                    verticalArrangement = Arrangement.Center,
+                    modifier = Modifier
+                        .padding(dimensions().spacing16x)
                 ) {
-                    Column(
-                        verticalArrangement = Arrangement.Center,
-                        modifier = Modifier
-                            .padding(dimensions().spacing16x)
-                    ) {
-                        with(createFolderViewModel) {
-                            WirePrimaryButton(
-                                text = stringResource(R.string.cells_create_folder),
-                                onClick = {
-                                    createFolder(
-                                        folderName = fileNameTextFieldState.text.toString()
-                                    )
-                                },
-                                state = if (viewState.saveEnabled && !viewState.loading) {
-                                    WireButtonState.Default
-                                } else {
-                                    WireButtonState.Disabled
-                                },
-                                loading = viewState.loading
-                            )
-                        }
+                    with(createFileViewModel) {
+                        WirePrimaryButton(
+                            text = stringResource(R.string.cells_create_file),
+                            onClick = {
+                                createFileViewModel.createFile(fileNameTextFieldState.text.toString())
+                            },
+                            state = if (viewState.saveEnabled && !viewState.loading) {
+                                WireButtonState.Default
+                            } else {
+                                WireButtonState.Disabled
+                            },
+                            loading = viewState.loading
+                        )
                     }
                 }
             }
         }
     ) {
         WireTextField(
-            textState = createFolderViewModel.fileNameTextFieldState,
-            placeholderText = stringResource(R.string.cells_folder_name),
-            labelText = stringResource(R.string.cells_folder_name).uppercase(Locale.getDefault()),
+            textState = createFileViewModel.fileNameTextFieldState,
+            placeholderText = stringResource(R.string.cell_file_name),
+            labelText = stringResource(R.string.cell_file_name).uppercase(Locale.getDefault()),
             modifier = Modifier
                 .padding(it)
                 .padding(
@@ -144,17 +131,18 @@ fun CreateFolderScreen(
                     start = dimensions().spacing16x,
                     end = dimensions().spacing16x
                 ),
-            state = computeNameErrorState(createFolderViewModel.viewState.error),
+            state = computeNameErrorState(createFileViewModel.viewState.error),
         )
     }
 
-    HandleActions(createFolderViewModel.actions) { action ->
+    HandleActions(createFileViewModel.actions) { action ->
         when (action) {
-            CreateFolderViewModelAction.Success -> {
+            CreateFileViewModelAction.Success -> {
                 resultNavigator.setResult(true)
                 resultNavigator.navigateBack()
             }
-            CreateFolderViewModelAction.Failure -> {
+
+            CreateFileViewModelAction.Failure -> {
                 showErrorDialog.value = true
             }
         }
@@ -164,9 +152,9 @@ fun CreateFolderScreen(
 @Composable
 private fun computeNameErrorState(error: FileNameError?): WireTextFieldState {
     val messageRes = when (error) {
-        FileNameError.NameEmpty -> R.string.cells_folder_name
-        FileNameError.NameExceedLimit -> R.string.rename_long_folder_name_error
-        FileNameError.NameAlreadyExist -> R.string.rename_already_exist
+        FileNameError.NameEmpty -> R.string.cell_file_name
+        FileNameError.NameExceedLimit -> R.string.long_file_name_error
+        FileNameError.NameAlreadyExist -> R.string.rename_file_already_exist
         FileNameError.InvalidName -> R.string.rename_invalid_name
         null -> return WireTextFieldState.Default
     }
@@ -176,9 +164,9 @@ private fun computeNameErrorState(error: FileNameError?): WireTextFieldState {
 
 @MultipleThemePreviews
 @Composable
-fun PreviewCreateFolderScreen() {
+fun PreviewCreateFileScreen() {
     WireTheme {
-        CreateFolderScreen(
+        CreateFileScreen(
             navigator = PreviewNavigator,
             resultNavigator = PreviewResultBackNavigator as ResultBackNavigator<Boolean>,
         )

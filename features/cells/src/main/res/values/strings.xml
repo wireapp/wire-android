@@ -113,6 +113,7 @@
     <string name="filter_label">Filter</string>
     <string name="tags_label">Tags</string>
     <string name="select_tags_label">select tags</string>
+    <string name="no_tags_created_yet_label">No tags were created yet.</string>
     <string name="clear_all_label">Clear All</string>
     <string name="apply_label">Apply</string>
     <string name="add_or_remove_tags_title">Add or remove tags</string>

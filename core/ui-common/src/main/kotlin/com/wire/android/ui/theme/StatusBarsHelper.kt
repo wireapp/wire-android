@@ -18,6 +18,8 @@
 package com.wire.android.ui.theme
 
 import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.platform.LocalView
@@ -26,10 +28,16 @@ import androidx.core.view.WindowCompat
 @Composable
 fun UpdateSystemBarIconsAppearance(useDarkSystemBarIcons: Boolean) {
     val view = LocalView.current
-    if (!view.isInEditMode) {
+    val activity = view.context.getActivity()
+    if (!view.isInEditMode && activity != null) {
         SideEffect {
-            val window = (view.context as Activity).window
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = useDarkSystemBarIcons
+            WindowCompat.getInsetsController(activity.window, view).isAppearanceLightStatusBars = useDarkSystemBarIcons
         }
     }
+}
+
+private fun Context.getActivity(): Activity? = when (this) {
+    is Activity -> this
+    is ContextWrapper -> baseContext.getActivity()
+    else -> null
 }

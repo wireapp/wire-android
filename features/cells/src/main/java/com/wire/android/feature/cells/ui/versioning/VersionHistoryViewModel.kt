@@ -31,10 +31,12 @@ import com.wire.android.feature.cells.ui.versioning.restore.RestoreVersionState
 import com.wire.android.feature.cells.util.FileHelper
 import com.wire.android.util.FileSizeFormatter
 import com.wire.android.util.addBeforeExtension
+import com.wire.android.util.cellFileTime
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.cells.domain.model.NodeVersion
-import com.wire.kalium.cells.domain.usecase.DownloadCellVersionUseCase
+import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
+import com.wire.kalium.cells.domain.usecase.download.DownloadCellVersionUseCase
 import com.wire.kalium.cells.domain.usecase.versioning.GetNodeVersionsUseCase
 import com.wire.kalium.cells.domain.usecase.versioning.RestoreNodeVersionUseCase
 import com.wire.kalium.common.functional.onFailure
@@ -48,7 +50,6 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 import javax.inject.Inject
 
 @HiltViewModel
@@ -60,6 +61,7 @@ class VersionHistoryViewModel @Inject constructor(
     private val downloadCellVersionUseCase: DownloadCellVersionUseCase,
     private val fileHelper: FileHelper,
     private val onlineEditor: OnlineEditor,
+    private val getEditorUrl: GetEditorUrlUseCase,
     private val dispatchers: DispatcherProvider,
 ) : ViewModel() {
 
@@ -138,10 +140,9 @@ class VersionHistoryViewModel @Inject constructor(
 
                 val uiItems = items.mapIndexed { itemIndex, apiItem ->
 
-                    val formattedTime = Instant.ofEpochSecond(apiItem.modifiedTime?.toLong() ?: 0L)
-                        .atZone(ZoneId.systemDefault())
-                        .toLocalTime()
-                        .format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT))
+                    val formattedTime = apiItem.modifiedTime?.toLong()?.let {
+                        kotlinx.datetime.Instant.fromEpochSeconds(it).cellFileTime()
+                    } ?: ""
 
                     CellVersion(
                         versionId = apiItem.id,
@@ -182,7 +183,7 @@ class VersionHistoryViewModel @Inject constructor(
             viewModelScope.launch {
                 val progressJob = simulateRestoreProgress()
 
-                restoreNodeVersionUseCase(navArgs.uuid ?: "", value.versionId)
+                restoreNodeVersionUseCase(navArgs.uuid, value.versionId)
                     .onSuccess {
                         delay(DELAY_500_MS) // delay since server takes some time to restore the version
                         initVersions()
@@ -240,9 +241,12 @@ class VersionHistoryViewModel @Inject constructor(
     }
 
     fun openOnlineEditor() {
-        val cellVersion = findVersionById(restoreDialogState.value.versionId)
-        cellVersion?.presignedUrl?.let {
-            onlineEditor.open(it)
+        viewModelScope.launch {
+            getEditorUrl(navArgs.uuid).onSuccess { editorUrl ->
+                editorUrl?.let {
+                    onlineEditor.open(it)
+                }
+            }
         }
     }
 

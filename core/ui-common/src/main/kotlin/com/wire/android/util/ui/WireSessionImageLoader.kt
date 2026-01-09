@@ -42,7 +42,7 @@ import com.wire.android.model.ImageAsset
 import com.wire.kalium.logic.feature.asset.DeleteAssetUseCase
 import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
-import com.wire.kalium.logic.util.ExponentialDurationHelperImpl
+import com.wire.kalium.logic.util.ExponentialDurationHelper
 import com.wire.kalium.network.NetworkState
 import com.wire.kalium.network.NetworkStateObserver
 import kotlinx.coroutines.delay
@@ -80,7 +80,7 @@ class WireSessionImageLoader(
         withCrossfadeAnimation: Boolean = false,
     ): Painter {
         var retryHash by remember { mutableStateOf(0) }
-        val exponentialDurationHelper = remember { ExponentialDurationHelperImpl(MIN_RETRY_DELAY, MAX_RETRY_DELAY) }
+        val exponentialDurationHelper = remember { ExponentialDurationHelper(MIN_RETRY_DELAY, MAX_RETRY_DELAY) }
         val painter = rememberAsyncImagePainter(
             model = ImageRequest.Builder(LocalContext.current)
                 .memoryCacheKey(asset?.uniqueKey)

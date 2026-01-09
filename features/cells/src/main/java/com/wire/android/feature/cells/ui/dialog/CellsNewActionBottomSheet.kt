@@ -40,6 +40,7 @@ internal fun CellsNewActionBottomSheet(
     sheetState: WireModalSheetState<Unit>,
     onDismiss: () -> Unit,
     onCreateFolder: () -> Unit,
+    onCreateFile: () -> Unit,
 ) {
     WireModalSheetLayout(
         onDismissRequest = onDismiss,
@@ -51,7 +52,12 @@ internal fun CellsNewActionBottomSheet(
                     CreateFolderSheetItem(
                         title = stringResource(R.string.cells_create_folder),
                         onClicked = onCreateFolder,
-                        enabled = true
+                    )
+                }
+                add {
+                    CreateFileSheetItem(
+                        title = stringResource(R.string.cells_create_file),
+                        onClicked = onCreateFile,
                     )
                 }
             }
@@ -63,7 +69,6 @@ internal fun CellsNewActionBottomSheet(
 private fun CreateFolderSheetItem(
     title: String,
     onClicked: () -> Unit,
-    enabled: Boolean,
 ) {
     MenuBottomSheetItem(
         title = title,
@@ -76,7 +81,25 @@ private fun CreateFolderSheetItem(
                     .size(MaterialTheme.wireDimensions.wireIconButtonSize)
             )
         },
-        enabled = enabled
+    )
+}
+
+@Composable
+private fun CreateFileSheetItem(
+    title: String,
+    onClicked: () -> Unit,
+) {
+    MenuBottomSheetItem(
+        title = title,
+        onItemClick = onClicked,
+        leading = {
+            Icon(
+                painter = painterResource(id = com.wire.android.ui.common.R.drawable.ic_plus),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(MaterialTheme.wireDimensions.wireIconButtonSize)
+            )
+        },
     )
 }
 
@@ -87,7 +110,8 @@ private fun PreviewFilesNewActionsBottomSheet() {
         CellsNewActionBottomSheet(
             sheetState = rememberWireModalSheetState(WireSheetValue.Expanded(value = Unit)),
             onDismiss = {},
-            onCreateFolder = {}
+            onCreateFolder = {},
+            onCreateFile = {}
         )
     }
 }

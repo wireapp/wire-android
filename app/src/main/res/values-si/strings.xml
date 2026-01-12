@@ -84,9 +84,7 @@
     <string name="content_description_reveal_password">මුරපදය පෙන්වන්න</string>
     <string name="content_description_hide_password">මුරපදය සඟවන්න</string>
     <string name="content_description_search_back">ආපසු සොයන්න නිරූපකය</string>
-    <string name="content_description_clear_content">අන්තර්ගතය මකන්න</string>
     <string name="content_description_muted_conversation">නිහඬ කළ සංවාදය</string>
-    <string name="content_description_check">හරි ලකුණ</string>
     <string name="content_description_download_icon">බාගැනීමේ නිරූපකය</string>
     <string name="content_description_open_asset_icon">ඇරීමේ නිරූපකය</string>
     <string name="content_description_add_to_favourite">ප්‍රියතමයන්ට දමන්න</string>
@@ -99,8 +97,6 @@
     <string name="content_description_delete_the_conversation">සංවාදය මකන්න</string>
     <string name="content_description_conversation_phone_icon">ශ්‍රව්‍ය ඇමතුමක් අරඹන්න</string>
     <string name="content_description_welcome_wire_logo">වයර්</string>
-    <string name="content_description_conversation_search_icon">සොයන්න නිරූපකය</string>
-    <string name="content_description_conversation_search_input">සෙවුම ආදානය</string>
     <string name="content_description_conversation_enable_rich_text_mode">සරු පෙළ නිරූපකය සබල කරන්න</string>
     <string name="content_description_conversation_enable_drawing_mode">අඳින ප්‍රකාරය සබල කරන ‌බොත්තම</string>
     <string name="content_description_conversation_rich_text_header">ශ්‍රීර්ෂකය ලෙස ආකෘතිකරණය</string>
@@ -1428,7 +1424,6 @@
     <string name="label_debug_data">නිදෝස්කරණ දත්ත</string>
     <string name="title_internal_debugging">අභ්‍යන්තර නිදොස්කරණය</string>
     <string name="label_log_options_description">"මෙය නිර්නාමික දෝෂ නිරාකරණ තොරතුරු ස්ථානීයව ගබඩා කරයි. "</string>
-    <string name="label_no_application_found_open_downloads_folder">"බාගැනීමේ බහාලුම ඇරීමට සුදුසු යෙදුමක් හමු නොවිණි"</string>
     <string name="notification_obfuscated_message_title">යමෙක්</string>
     <string name="notification_obfuscated_message_content">ඉබේ මැකෙන පණිවිඩයක් එවා ඇත</string>
     <string name="settings_licenses_settings_label">බලපත්‍රයෙහි තොරතුරු</string>

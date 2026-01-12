@@ -39,7 +39,7 @@ import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.common.DEFAULT_SEARCH_QUERY_DEBOUNCE
 import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
-import com.wire.kalium.cells.domain.usecase.DownloadCellFileUseCase
+import com.wire.kalium.cells.domain.usecase.download.DownloadCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
@@ -54,6 +54,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -65,7 +66,9 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import okio.Path
@@ -118,7 +121,13 @@ class CellViewModel @Inject constructor(
     val selectedTags: StateFlow<Set<String>> = _selectedTags.asStateFlow()
 
     private val _tags = MutableStateFlow<Set<String>>(emptySet())
-    val tags: StateFlow<Set<String>> = _tags.asStateFlow()
+    val sortedTags: StateFlow<List<String>> = _tags.asStateFlow()
+        .map { it.sortedBy { tag -> tag.lowercase() } }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS),
+            initialValue = emptyList()
+        )
 
     // Used to navigate to the root of the recycle bin after restoring a parent folder.
     private val _navigateToRecycleBinRoot = MutableStateFlow(false)
@@ -500,7 +509,7 @@ class CellViewModel @Inject constructor(
     }
 
     suspend fun loadTags() {
-        getAllTagsUseCase().onSuccess { updated -> _tags.update { updated.sorted().toSet() } }
+        getAllTagsUseCase().onSuccess { updated -> _tags.update { updated } }
         // apply delay to avoid too frequent requests
         delay(30.seconds)
     }
@@ -515,6 +524,7 @@ class CellViewModel @Inject constructor(
                 append = LoadState.NotLoading(true)
             )
         )
+        const val STOP_TIMEOUT_MILLIS = 1_000L
     }
 }
 
@@ -539,7 +549,7 @@ internal data class ShowPublicLinkScreen(val cellNode: CellNodeUi) : CellViewAct
 internal data class ShowRenameScreen(val cellNode: CellNodeUi) : CellViewAction
 internal data class ShowAddRemoveTagsScreen(val cellNode: CellNodeUi) : CellViewAction
 internal data class ShowMoveToFolderScreen(val currentPath: String, val nodeToMovePath: String, val uuid: String) : CellViewAction
-internal data class ShowVersionHistoryScreen(val uuid: String) : CellViewAction
+internal data class ShowVersionHistoryScreen(val uuid: String, val fileName: String) : CellViewAction
 internal data class ShowUnableToRestoreDialog(val isFolder: Boolean) : CellViewAction
 internal data class ShowRestoreParentFolderDialog(val cellNode: CellNodeUi) : CellViewAction
 internal data object HideRestoreParentFolderDialog : CellViewAction

@@ -62,7 +62,7 @@ import com.wire.android.ui.theme.wireTypography
 
 @Composable
 fun FilterBottomSheet(
-    selectableTags: Set<String>,
+    selectableTags: List<String>,
     selectedTags: Set<String>,
     onApply: (Set<String>) -> Unit,
     onClearAll: () -> Unit,
@@ -95,7 +95,7 @@ fun FilterBottomSheet(
 
 @Composable
 private fun SheetContent(
-    selectableTags: Set<String>,
+    selectableTags: List<String>,
     selectedTags: Set<String>,
     onApply: (Set<String>) -> Unit = {},
     onClearAll: () -> Unit = {},
@@ -155,28 +155,37 @@ private fun SheetContent(
                     style = MaterialTheme.wireTypography.label01,
                     color = colorsScheme().secondaryText,
                 )
-                LazyRow(
-                    modifier = Modifier.padding(
-                        top = dimensions().spacing16x,
-                        bottom = dimensions().spacing16x
+                if (selectableTags.isEmpty()) {
+                    Text(
+                        modifier = Modifier.padding(top = dimensions().spacing16x, bottom = dimensions().spacing16x),
+                        text = stringResource(R.string.no_tags_created_yet_label),
+                        style = MaterialTheme.wireTypography.body01,
+                        color = colorsScheme().onBackground,
                     )
-                ) {
-                    selectableTags.forEach { tag ->
-                        val isSelected = selectedChips.contains(tag)
+                } else {
+                    LazyRow(
+                        modifier = Modifier.padding(
+                            top = dimensions().spacing16x,
+                            bottom = dimensions().spacing16x
+                        )
+                    ) {
+                        selectableTags.forEach { tag ->
+                            val isSelected = selectedChips.contains(tag)
 
-                        item {
-                            WireFilterChip(
-                                label = tag,
-                                isSelected = isSelected,
-                                modifier = Modifier.padding(end = dimensions().spacing16x),
-                                onSelectChip = { label ->
-                                    selectedChips = if (isSelected) {
-                                        selectedChips - label
-                                    } else {
-                                        selectedChips + label
+                            item {
+                                WireFilterChip(
+                                    label = tag,
+                                    isSelected = isSelected,
+                                    modifier = Modifier.padding(end = dimensions().spacing16x),
+                                    onSelectChip = { label ->
+                                        selectedChips = if (isSelected) {
+                                            selectedChips - label
+                                        } else {
+                                            selectedChips + label
+                                        }
                                     }
-                                }
-                            )
+                                )
+                            }
                         }
                     }
                 }
@@ -218,7 +227,21 @@ private fun SheetContent(
 fun PreviewFilterBottomSheet() {
     WireTheme {
         FilterBottomSheet(
-            setOf("Android", "iOS", "Web", "QA"),
+            listOf("Android", "iOS", "Web", "QA"),
+            emptySet(),
+            onApply = {},
+            onClearAll = {},
+            onDismiss = {},
+        )
+    }
+}
+
+@MultipleThemePreviews
+@Composable
+fun PreviewEmptyFilterBottomSheet() {
+    WireTheme {
+        FilterBottomSheet(
+            listOf(),
             emptySet(),
             onApply = {},
             onClearAll = {},

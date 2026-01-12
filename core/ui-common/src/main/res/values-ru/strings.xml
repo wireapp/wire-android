@@ -52,4 +52,17 @@
     <string name="accent_color_purple">Фиолетовый</string>
     <string name="accent_color_none">Нет</string>
     <string name="generate_password_button_text">Сгенерировать пароль</string>
+    <string name="label_ok">OK</string>
+    <string name="label_cancel">Отмена</string>
+    <string name="label_no_selected_date">Дата не выбрана</string>
+    <string name="content_description_check">Отметка</string>
+    <string name="label_no_application_found_open_downloads_folder">"Не найдено приложение для открытия папки загрузок"</string>
+    <string name="size_unit_bytes">B</string>
+    <string name="size_unit_kilobytes">KB</string>
+    <string name="size_unit_megabytes">MB</string>
+    <string name="size_unit_gigabytes">GB</string>
+    <string name="size_unit_terabytes">TB</string>
+    <string name="content_description_conversation_search_icon">Значок поиска</string>
+    <string name="content_description_conversation_search_input">Поиск</string>
+    <string name="content_description_clear_content">Очистить контент</string>
 </resources>

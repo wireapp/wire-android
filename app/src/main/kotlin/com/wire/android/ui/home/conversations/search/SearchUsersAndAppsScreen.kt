@@ -143,6 +143,7 @@ fun SearchUsersAndAppsScreen(
             SearchTopBar(
                 isSearchActive = searchBarState.isSearchActive,
                 searchBarHint = searchBarTitle,
+                backIconContentDescription = stringResource(id = R.string.content_description_add_participants_back_btn),
                 searchBarDescription = stringResource(R.string.content_description_add_participants_search_field),
                 searchQueryTextState = searchBarState.searchQueryTextState,
                 onActiveChanged = searchBarState::searchActiveChanged,

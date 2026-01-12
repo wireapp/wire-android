@@ -31,7 +31,7 @@ import com.wire.android.appLogger
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.fileDateTime
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
-import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCaseImpl.Companion.ASSET_SIZE_DEFAULT_LIMIT_BYTES
+import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase.AssetSizeLimits.ASSET_SIZE_DEFAULT_LIMIT_BYTES
 import com.wire.kalium.util.DateTimeUtil
 import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.CoroutineScope

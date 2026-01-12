@@ -18,17 +18,18 @@
 package com.wire.android.ui.home.conversations.model.messagetypes.multipart
 
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
+import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.ui.common.multipart.AssetSource
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
 import com.wire.android.util.FileManager
-import com.wire.kalium.cells.domain.model.CellNode
-import com.wire.kalium.cells.domain.usecase.DownloadCellFileUseCase
-import com.wire.kalium.cells.domain.usecase.RefreshCellAssetStateUseCase
+import com.wire.kalium.cells.domain.usecase.download.DownloadCellFileUseCase
+import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
 import com.wire.kalium.common.functional.right
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.message.CellAssetContent
+import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -162,7 +163,7 @@ class MultipartAttachmentsViewModelTest {
         )
 
         coVerify(exactly = 0) { callback.invoke(testAttachmentUi.uuid) }
-        coVerify(exactly = 1) { arrangement.refreshAsset(testAttachmentUi.uuid) }
+        coVerify(exactly = 1) { arrangement.refreshHelper.refresh(testAttachmentUi.uuid) }
     }
 
     @Test
@@ -181,7 +182,7 @@ class MultipartAttachmentsViewModelTest {
         )
 
         coVerify(exactly = 0) { callback.invoke(testAttachmentUi.uuid) }
-        coVerify(exactly = 1) { arrangement.refreshAsset(testAttachmentUi.uuid) }
+        coVerify(exactly = 1) { arrangement.refreshHelper.refresh(testAttachmentUi.uuid) }
     }
 
     @Test
@@ -229,28 +230,40 @@ class MultipartAttachmentsViewModelTest {
         }
 
         @MockK
-        lateinit var refreshAsset: RefreshCellAssetStateUseCase
+        lateinit var refreshHelper: CellAssetRefreshHelper
 
         @MockK
         lateinit var download: DownloadCellFileUseCase
 
         @MockK
+        lateinit var getEditorUrl: GetEditorUrlUseCase
+
+        @MockK
+        lateinit var onlineEditor: OnlineEditor
+
+        @MockK
         lateinit var fileManager: FileManager
+
+        @MockK
+        lateinit var kaliumConfigs: KaliumConfigs
 
         val kaliumFileSystem: KaliumFileSystem = FakeKaliumFileSystem()
 
         suspend fun arrange(): Pair<Arrangement, MultipartAttachmentsViewModel> {
 
-            coEvery { refreshAsset(any()) } returns CellNode("uuid", "id", "path").right()
+            coEvery { refreshHelper.refresh(any()) } returns Unit
             coEvery { fileManager.openWithExternalApp(any(), any(), any(), any()) } returns Unit
             coEvery { fileManager.openUrlWithExternalApp(any(), any(), any()) } returns Unit
             coEvery { download(any(), any(), any(), any(), any()) } returns Unit.right()
 
             return this to MultipartAttachmentsViewModelImpl(
-                refreshAsset = refreshAsset,
+                refreshHelper = refreshHelper,
                 download = download,
                 fileManager = fileManager,
+                getEditorUrl = getEditorUrl,
+                onlineEditor = onlineEditor,
                 kaliumFileSystem = kaliumFileSystem,
+                featureFlags = kaliumConfigs,
             )
         }
     }

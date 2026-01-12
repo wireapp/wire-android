@@ -31,7 +31,7 @@ import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
+import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import io.mockk.MockKAnnotations
@@ -491,7 +491,7 @@ class CallNotificationManagerTest {
             dispatcherProvider = dispatcherProvider,
             builder = callNotificationBuilder,
             coreLogic = coreLogic,
-            qualifiedIdMapper = QualifiedIdMapperImpl(TestUser.SELF_USER_ID),
+            qualifiedIdMapper = QualifiedIdMapper(TestUser.SELF_USER_ID),
         )
     }
 

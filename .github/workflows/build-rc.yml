@@ -113,7 +113,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Create GitHub Pre-Release
-        uses: softprops/action-gh-release@v2.4.2
+        uses: softprops/action-gh-release@v2.5.0
         with:
           tag_name: ${{ github.ref_name }}
           name: "Release Candidate ${{ github.ref_name }}"
@@ -152,7 +152,9 @@ jobs:
               {
                 "type": "google-play",
                 "package-name": "com.wire",
-                "track": "${{ vars.PROD_APP_RC_TRACK }}"
+                "track": "${{ vars.PROD_APP_RC_TRACK }}",
+                "user-fraction": 0.1,
+                "status": "inProgress"
               },
               {
                 "type": "github-release",

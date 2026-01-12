@@ -33,7 +33,6 @@ import com.wire.android.util.getDeviceIdString
 import com.wire.android.util.getGitBuildId
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.uiText
-import com.wire.kalium.common.functional.fold
 import com.wire.kalium.logic.configuration.server.CommonApiVersionType
 import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserId
@@ -49,6 +48,7 @@ import com.wire.kalium.logic.feature.e2ei.usecase.FinalizeEnrollmentResult
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountResult
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountUseCase
 import com.wire.kalium.logic.feature.notificationToken.SendFCMTokenError
+import com.wire.kalium.logic.feature.notificationToken.SendFCMTokenResult
 import com.wire.kalium.logic.feature.notificationToken.SendFCMTokenUseCase
 import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
@@ -283,26 +283,25 @@ class DebugDataOptionsViewModelImpl
         viewModelScope.launch {
             withContext(dispatcherProvider.io()) {
                 val result = sendFCMToken()
-                result.fold(
-                    {
-                        when (it.status) {
+                when (result) {
+                    is SendFCMTokenResult.Failure -> {
+                        when (result.error.status) {
                             SendFCMTokenError.Reason.CANT_GET_CLIENT_ID -> {
-                                _infoMessage.emit(UIText.DynamicString("Can't get client ID, error: ${it.error}"))
+                                _infoMessage.emit(UIText.DynamicString("Can't get client ID, error: ${result.error.error}"))
                             }
 
                             SendFCMTokenError.Reason.CANT_GET_NOTIFICATION_TOKEN -> {
-                                _infoMessage.emit(UIText.DynamicString("Can't get notification token, error: ${it.error}"))
+                                _infoMessage.emit(UIText.DynamicString("Can't get notification token, error: ${result.error.error}"))
                             }
 
                             SendFCMTokenError.Reason.CANT_REGISTER_TOKEN -> {
-                                _infoMessage.emit(UIText.DynamicString("Can't register token, error: ${it.error}"))
+                                _infoMessage.emit(UIText.DynamicString("Can't register token, error: ${result.error.error}"))
                             }
                         }
-                    },
-                    {
-                        _infoMessage.emit(UIText.DynamicString("Token registered"))
                     }
-                )
+
+                    is SendFCMTokenResult.Success -> _infoMessage.emit(UIText.DynamicString("Token registered"))
+                }
             }
         }
     }

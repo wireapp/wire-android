@@ -17,22 +17,23 @@
  */
 package com.wire.android.framework.fake
 
-import com.wire.kalium.common.error.CoreFailure
-import com.wire.kalium.common.functional.Either
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.sync.SyncExecutor
 import com.wire.kalium.logic.sync.SyncRequest
+import com.wire.kalium.logic.sync.SyncRequestResult
 import com.wire.kalium.util.DelicateKaliumApi
 
 open class FakeSyncExecutor : SyncExecutor() {
 
     var waitUntilLiveCount = 0
     var requestCount = 0
-    open fun onWaitUntilLiveOrFailure(): Either<CoreFailure, Unit> = Either.Right(Unit).also { waitUntilLiveCount++ }
-    open fun onWaitUntilOrFailure(syncState: SyncState): Either<CoreFailure, Unit> = Either.Right(Unit)
+    open fun onWaitUntilLiveOrFailure(): SyncRequestResult = SyncRequestResult.Success.also { waitUntilLiveCount++ }
+    open fun onWaitUntilOrFailure(syncState: SyncState): SyncRequestResult = SyncRequestResult.Success
     open fun onKeepSyncAlwaysOn() {}
 
-    open fun onRequest() { requestCount++ }
+    open fun onRequest() {
+        requestCount++
+    }
 
     override fun startAndStopSyncAsNeeded() = Unit
 
@@ -44,9 +45,9 @@ open class FakeSyncExecutor : SyncExecutor() {
     inner class FakeSyncRequest : SyncRequest {
         override suspend fun waitUntilOrFailure(
             syncState: SyncState
-        ): Either<CoreFailure, Unit> = onWaitUntilOrFailure(syncState)
+        ): SyncRequestResult = onWaitUntilOrFailure(syncState)
 
-        override suspend fun waitUntilLiveOrFailure(): Either<CoreFailure, Unit> = onWaitUntilLiveOrFailure()
+        override suspend fun waitUntilLiveOrFailure(): SyncRequestResult = onWaitUntilLiveOrFailure()
 
         @DelicateKaliumApi(message = "By calling this, Sync will run indefinitely.")
         override fun keepSyncAlwaysOn() {

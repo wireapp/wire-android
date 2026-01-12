@@ -208,10 +208,24 @@ class RegistrationPage(private val device: UiDevice) {
         return this
     }
 
+//    fun waitUntilLoginFlowIsCompleted(): RegistrationPage {
+//        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+//        waitUntilElementGone(device, loginButtonGoneSelector, timeoutMillis = 12_000)
+//        waitUntilElementGone(device, settingUpWireGoneSelector, timeoutMillis = 35_000)
+//        return this
+//    }
+
     fun waitUntilLoginFlowIsCompleted(): RegistrationPage {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        waitUntilElementGone(device, loginButtonGoneSelector, timeoutMillis = 12_000)
-        waitUntilElementGone(device, settingUpWireGoneSelector, timeoutMillis = 30_000)
+        try {
+            waitUntilElementGone(device, loginButtonGoneSelector, timeoutMillis = 15_000)
+            waitUntilElementGone(device, settingUpWireGoneSelector, timeoutMillis = 35_000)
+        } catch (e: AssertionError) {
+            throw AssertionError(
+                "Login flow did not complete: login button or 'Setting up Wire' is still visible",
+                e
+            )
+        }
         return this
     }
 

@@ -13,6 +13,7 @@ import network.WireTestLogger
 import okta.OktaApiClient
 import org.json.JSONObject
 import service.TestServiceHelper
+import user.usermanager.ClientUserManager
 import user.utils.ClientUser
 import java.net.URL
 import java.net.URLEncoder
@@ -21,6 +22,11 @@ import java.util.UUID
 object SSOServiceHelper {
 
     var identityProviderId = ""
+    lateinit var usersManager: ClientUserManager
+
+    fun initialize(manager: ClientUserManager) {
+        this.usersManager = manager
+    }
 
     suspend fun TestServiceHelper.thereIsASSOTeamOwnerForOkta(
         context: Context,

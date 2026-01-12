@@ -176,17 +176,30 @@ dependencies {
     androidTestImplementation("com.wire.kalium:kalium-mocks")
     androidTestImplementation("com.wire.kalium:kalium-network")
 
-    // features
-    implementation(project(":features:cells"))
-    implementation(project(":features:sketch"))
-    implementation(project(":features:meetings"))
-    implementation(project(":core:ui-common"))
+    fun implementationWithCoverage(dependency: ProjectDependency) {
+        implementation(dependency)
+        kover(dependency)
+    }
+    implementationWithCoverage(projects.features.cells)
+    implementationWithCoverage(projects.features.sketch)
+    implementationWithCoverage(projects.features.meetings)
+    implementationWithCoverage(projects.core.uiCommon)
 
-    // kover
-    kover(project(":features:sketch"))
-    kover(project(":features:cells"))
-    kover(project(":core:ui-common"))
-    kover(project(":core:analytics-enabled"))
+    // Anonymous Analytics
+    val flavors = getFlavorsSettings()
+    val isCustomBuild = isCustomizationEnabled()
+    flavors.flavorMap.entries.forEach { (key, configs) ->
+        if (configs["analytics_enabled"] as? Boolean == true && !isCustomBuild) {
+            println(">> Dependency Anonymous Analytics is enabled for [$key] flavor")
+            add("${key}Implementation", project(":core:analytics-enabled"))
+            add("test${key.capitalize()}Implementation", project(":core:analytics-disabled"))
+        } else {
+            println(">> Dependency Anonymous Analytics is disabled for [$key] flavor")
+            add("${key}Implementation", project(":core:analytics-disabled"))
+        }
+    }
+    // Analytics may not be added to the app build, but we always want the merged coverage report
+    kover(projects.core.analyticsEnabled)
 
     // Application dependencies
     implementation(libs.androidx.appcompat)
@@ -271,20 +284,6 @@ dependencies {
     }
     implementation(libs.androidx.work)
 
-    // Anonymous Analytics
-    val flavors = getFlavorsSettings()
-    val isCustomBuild = isCustomizationEnabled()
-    flavors.flavorMap.entries.forEach { (key, configs) ->
-        if (configs["analytics_enabled"] as? Boolean == true && !isCustomBuild) {
-            println(">> Dependency Anonymous Analytics is enabled for [$key] flavor")
-            add("${key}Implementation", project(":core:analytics-enabled"))
-            add("test${key.capitalize()}Implementation", project(":core:analytics-disabled"))
-        } else {
-            println(">> Dependency Anonymous Analytics is disabled for [$key] flavor")
-            add("${key}Implementation", project(":core:analytics-disabled"))
-        }
-    }
-
     // commonMark
     implementation(libs.commonmark.core)
     implementation(libs.commonmark.strikethrough)
@@ -351,8 +350,8 @@ dependencies {
     betaImplementation(libs.dataDog.compose)
     stagingImplementation(libs.dataDog.compose)
 
-    implementation(project(":ksp"))
+    implementation(projects.ksp)
     ksp(project(":ksp"))
 
-    testImplementation(testFixtures(project(":core:ui-common")))
+    testImplementation(testFixtures(projects.core.uiCommon))
 }

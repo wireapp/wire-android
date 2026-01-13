@@ -39,7 +39,6 @@ import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.Cha
 import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.RemoveConversationMemberError
 import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.RemoveConversationMemberSuccess
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.kalium.common.functional.getOrNull
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.feature.client.FetchUsersClientsFromRemoteUseCase
@@ -48,6 +47,7 @@ import com.wire.kalium.logic.feature.conversation.IsOneToOneConversationCreatedU
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleResult
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
+import com.wire.kalium.logic.feature.e2ei.usecase.GetMLSClientIdentityResult
 import com.wire.kalium.logic.feature.e2ei.usecase.GetMLSClientIdentityUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.IsOtherUserE2EIVerifiedUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
@@ -136,9 +136,13 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                         is ObserveClientsByUserIdUseCase.Result.Success -> {
                             val devices = result.clients.map { client ->
                                 async {
+                                    val identity = when (val identityResult = mlsClientIdentity(client.id)) {
+                                        is GetMLSClientIdentityResult.Success -> identityResult.identity
+                                        is GetMLSClientIdentityResult.Failure -> null
+                                    }
                                     Device(
                                         client = client,
-                                        mlsClientIdentity = mlsClientIdentity(client.id).getOrNull()
+                                        mlsClientIdentity = identity
                                     )
                                 }
                             }.awaitAll()

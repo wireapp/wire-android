@@ -30,8 +30,6 @@ import com.wire.android.ui.settings.devices.DeviceDetailsViewModelTest.Arrangeme
 import com.wire.android.ui.settings.devices.DeviceDetailsViewModelTest.Arrangement.Companion.MLS_CLIENT_IDENTITY_WITH_VALID_E2EI
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.common.error.NetworkFailure
-import com.wire.kalium.common.functional.Either
-import com.wire.kalium.common.functional.right
 import com.wire.kalium.logic.data.client.ClientType
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.id.QualifiedClientID
@@ -50,6 +48,7 @@ import com.wire.kalium.logic.feature.e2ei.MLSClientE2EIStatus
 import com.wire.kalium.logic.feature.e2ei.MLSClientIdentity
 import com.wire.kalium.logic.feature.e2ei.MLSCredentialsType
 import com.wire.kalium.logic.feature.e2ei.X509Identity
+import com.wire.kalium.logic.feature.e2ei.usecase.GetMLSClientIdentityResult
 import com.wire.kalium.logic.feature.e2ei.usecase.GetMLSClientIdentityUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import com.wire.kalium.logic.feature.user.IsE2EIEnabledUseCase
@@ -320,7 +319,7 @@ class DeviceDetailsViewModelTest {
             val (_, viewModel) = Arrangement()
                 .withRequiredMockSetup()
                 .withClientDetailsResult(GetClientDetailsResult.Success(TestClient.CLIENT, true))
-                .withE2eiCertificate(MLS_CLIENT_IDENTITY_WITH_VALID_E2EI.right())
+                .withE2eiCertificate(GetMLSClientIdentityResult.Success(MLS_CLIENT_IDENTITY_WITH_VALID_E2EI))
                 .arrange()
 
             // then
@@ -382,7 +381,7 @@ class DeviceDetailsViewModelTest {
             MockKAnnotations.init(this, relaxUnitFun = true)
             withFingerprintSuccess()
             coEvery { observeUserInfo(any()) } returns flowOf(GetUserInfoResult.Success(TestUser.OTHER_USER, null))
-            coEvery { getE2eiCertificate(any()) } returns MLS_CLIENT_IDENTITY_WITHOUT_E2EI.right()
+            coEvery { getE2eiCertificate(any()) } returns GetMLSClientIdentityResult.Success(MLS_CLIENT_IDENTITY_WITHOUT_E2EI)
             coEvery { isE2EIEnabledUseCase() } returns true
             coEvery { breakSession(any(), any()) } returns BreakSessionResult.Success
         }
@@ -419,7 +418,7 @@ class DeviceDetailsViewModelTest {
             )
         }
 
-        fun withE2eiCertificate(result: Either<CoreFailure, MLSClientIdentity>) = apply {
+        fun withE2eiCertificate(result: GetMLSClientIdentityResult) = apply {
             coEvery { getE2eiCertificate(any()) } returns result
         }
 

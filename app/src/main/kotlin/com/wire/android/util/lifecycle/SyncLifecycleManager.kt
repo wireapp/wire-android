@@ -21,14 +21,13 @@ package com.wire.android.util.lifecycle
 import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.util.CurrentScreenManager
-import com.wire.kalium.common.functional.onFailure
-import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logger.KaliumLogger.Companion.ApplicationFlow.SYNC
 import com.wire.kalium.logger.obfuscateDomain
 import com.wire.kalium.logger.obfuscateId
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
+import com.wire.kalium.logic.sync.SyncRequestResult
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
@@ -103,10 +102,12 @@ class SyncLifecycleManager @Inject constructor(
             logger.d("Starting Sync request")
             syncExecutor.request {
                 logger.d("Waiting until live")
-                waitUntilLiveOrFailure().onFailure {
-                    logger.w("Failed waiting until live")
-                }.onSuccess {
-                    delay(stayAliveExtraDuration)
+                when (waitUntilLiveOrFailure()) {
+                    is SyncRequestResult.Failure ->
+                        logger.w("Failed waiting until live")
+
+                    is SyncRequestResult.Success ->
+                        delay(stayAliveExtraDuration)
                 }
             }
         }

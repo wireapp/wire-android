@@ -33,7 +33,6 @@ import com.wire.android.ui.authentication.devices.remove.RemoveDeviceError
 import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.ui.navArgs
 import com.wire.android.ui.settings.devices.model.DeviceDetailsState
-import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.data.client.ClientType
 import com.wire.kalium.logic.data.client.DeleteClientParam
 import com.wire.kalium.logic.data.conversation.ClientId
@@ -47,14 +46,13 @@ import com.wire.kalium.logic.feature.client.ObserveClientDetailsUseCase
 import com.wire.kalium.logic.feature.client.Result
 import com.wire.kalium.logic.feature.client.UpdateClientVerificationStatusUseCase
 import com.wire.kalium.logic.feature.debug.BreakSessionUseCase
-import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
+import com.wire.kalium.logic.feature.e2ei.usecase.FinalizeEnrollmentResult
+import com.wire.kalium.logic.feature.e2ei.usecase.GetMLSClientIdentityResult
 import com.wire.kalium.logic.feature.e2ei.usecase.GetMLSClientIdentityUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import com.wire.kalium.logic.feature.user.IsE2EIEnabledUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
-import com.wire.kalium.common.functional.Either
-import com.wire.kalium.common.functional.fold
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -143,16 +141,19 @@ class DeviceDetailsViewModel @Inject constructor(
 
     private fun getE2eiCertificate() {
         viewModelScope.launch {
-            state = mlsClientIdentity(deviceId).fold({
-                state.copy(isE2eiCertificateActivated = false, isLoadingCertificate = false)
-            }, { mlsClientIdentity ->
-                state.copy(
-                    isE2eiCertificateActivated = true,
-                    mlsClientIdentity = mlsClientIdentity,
-                    isLoadingCertificate = false,
-                    device = state.device.updateE2EICertificate(mlsClientIdentity)
-                )
-            })
+            state = when (val result = mlsClientIdentity(deviceId)) {
+                is GetMLSClientIdentityResult.Failure -> {
+                    state.copy(isE2eiCertificateActivated = false, isLoadingCertificate = false)
+                }
+                is GetMLSClientIdentityResult.Success -> {
+                    state.copy(
+                        isE2eiCertificateActivated = true,
+                        mlsClientIdentity = result.identity,
+                        isLoadingCertificate = false,
+                        device = state.device.updateE2EICertificate(result.identity)
+                    )
+                }
+            }
         }
     }
 
@@ -160,28 +161,23 @@ class DeviceDetailsViewModel @Inject constructor(
         state = state.copy(isLoadingCertificate = true, startGettingE2EICertificate = true)
     }
 
-    fun handleE2EIEnrollmentResult(result: Either<CoreFailure, E2EIEnrollmentResult>) {
-        result.fold({
-            state = state.copy(
-                isLoadingCertificate = false,
-                startGettingE2EICertificate = false,
-                isE2EICertificateEnrollError = true,
-            )
-        }, {
-            state = if (it is E2EIEnrollmentResult.Finalized) {
+    fun handleE2EIEnrollmentResult(result: FinalizeEnrollmentResult) {
+        state = when (result) {
+            is FinalizeEnrollmentResult.Failure -> {
+                state.copy(
+                    isLoadingCertificate = false,
+                    startGettingE2EICertificate = false,
+                    isE2EICertificateEnrollError = true,
+                )
+            }
+            is FinalizeEnrollmentResult.Success -> {
                 getE2eiCertificate()
                 state.copy(
                     isE2EICertificateEnrollSuccess = true,
                     startGettingE2EICertificate = false
                 )
-            } else {
-                state.copy(
-                    isLoadingCertificate = false,
-                    isE2EICertificateEnrollError = true,
-                    startGettingE2EICertificate = false,
-                )
             }
-        })
+        }
     }
 
     private fun getClientFingerPrint() {

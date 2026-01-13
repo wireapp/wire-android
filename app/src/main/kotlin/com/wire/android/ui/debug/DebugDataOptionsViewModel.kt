@@ -33,10 +33,6 @@ import com.wire.android.util.getDeviceIdString
 import com.wire.android.util.getGitBuildId
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.uiText
-import com.wire.kalium.common.error.CoreFailure
-import com.wire.kalium.common.error.E2EIFailure
-import com.wire.kalium.common.functional.Either
-import com.wire.kalium.common.functional.fold
 import com.wire.kalium.logic.configuration.server.CommonApiVersionType
 import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserId
@@ -48,10 +44,11 @@ import com.wire.kalium.logic.feature.debug.StartUsingAsyncNotificationsResult
 import com.wire.kalium.logic.feature.debug.StartUsingAsyncNotificationsUseCase
 import com.wire.kalium.logic.feature.debug.TargetedRepairParam
 import com.wire.kalium.logic.feature.e2ei.CheckCrlRevocationListUseCase
-import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
+import com.wire.kalium.logic.feature.e2ei.usecase.FinalizeEnrollmentResult
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountResult
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountUseCase
 import com.wire.kalium.logic.feature.notificationToken.SendFCMTokenError
+import com.wire.kalium.logic.feature.notificationToken.SendFCMTokenResult
 import com.wire.kalium.logic.feature.notificationToken.SendFCMTokenUseCase
 import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
@@ -75,7 +72,7 @@ interface DebugDataOptionsViewModel {
     fun checkCrlRevocationList() {}
     fun restartSlowSyncForRecovery() {}
     fun enrollE2EICertificate() {}
-    fun handleE2EIEnrollmentResult(result: Either<CoreFailure, E2EIEnrollmentResult>) {}
+    fun handleE2EIEnrollmentResult(result: FinalizeEnrollmentResult) {}
     fun dismissCertificateDialog() {}
     fun forceUpdateApiVersions() {}
     fun disableEventProcessing(disabled: Boolean) {}
@@ -196,28 +193,30 @@ class DebugDataOptionsViewModelImpl
         state = state.copy(startGettingE2EICertificate = true)
     }
 
-    override fun handleE2EIEnrollmentResult(result: Either<CoreFailure, E2EIEnrollmentResult>) {
-        result.fold({
-            state = state.copy(
-                certificate = (it as E2EIFailure.OAuth).reason,
-                showCertificate = true,
-                startGettingE2EICertificate = false
-            )
-        }, {
-            if (it is E2EIEnrollmentResult.Finalized) {
-                state = state.copy(
-                    certificate = it.certificate,
-                    showCertificate = true,
-                    startGettingE2EICertificate = false
-                )
-            } else {
+    override fun handleE2EIEnrollmentResult(result: FinalizeEnrollmentResult) {
+        state = when (result) {
+            is FinalizeEnrollmentResult.Failure.OAuthError -> {
                 state.copy(
-                    certificate = it.toString(),
+                    certificate = result.reason,
                     showCertificate = true,
                     startGettingE2EICertificate = false
                 )
             }
-        })
+            is FinalizeEnrollmentResult.Failure -> {
+                state.copy(
+                    certificate = result.toString(),
+                    showCertificate = true,
+                    startGettingE2EICertificate = false
+                )
+            }
+            is FinalizeEnrollmentResult.Success -> {
+                state.copy(
+                    certificate = result.certificate,
+                    showCertificate = true,
+                    startGettingE2EICertificate = false
+                )
+            }
+        }
     }
 
     override fun dismissCertificateDialog() {
@@ -284,26 +283,25 @@ class DebugDataOptionsViewModelImpl
         viewModelScope.launch {
             withContext(dispatcherProvider.io()) {
                 val result = sendFCMToken()
-                result.fold(
-                    {
-                        when (it.status) {
+                when (result) {
+                    is SendFCMTokenResult.Failure -> {
+                        when (result.error.status) {
                             SendFCMTokenError.Reason.CANT_GET_CLIENT_ID -> {
-                                _infoMessage.emit(UIText.DynamicString("Can't get client ID, error: ${it.error}"))
+                                _infoMessage.emit(UIText.DynamicString("Can't get client ID, error: ${result.error.error}"))
                             }
 
                             SendFCMTokenError.Reason.CANT_GET_NOTIFICATION_TOKEN -> {
-                                _infoMessage.emit(UIText.DynamicString("Can't get notification token, error: ${it.error}"))
+                                _infoMessage.emit(UIText.DynamicString("Can't get notification token, error: ${result.error.error}"))
                             }
 
                             SendFCMTokenError.Reason.CANT_REGISTER_TOKEN -> {
-                                _infoMessage.emit(UIText.DynamicString("Can't register token, error: ${it.error}"))
+                                _infoMessage.emit(UIText.DynamicString("Can't register token, error: ${result.error.error}"))
                             }
                         }
-                    },
-                    {
-                        _infoMessage.emit(UIText.DynamicString("Token registered"))
                     }
-                )
+
+                    is SendFCMTokenResult.Success -> _infoMessage.emit(UIText.DynamicString("Token registered"))
+                }
             }
         }
     }

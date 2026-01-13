@@ -30,7 +30,6 @@ import com.wire.android.util.getDeviceIdString
 import com.wire.android.util.getGitBuildId
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.common.error.CoreFailure
-import com.wire.kalium.common.functional.Either
 import com.wire.kalium.logic.configuration.server.CommonApiVersionType
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.conversation.ClientId
@@ -45,6 +44,7 @@ import com.wire.kalium.logic.feature.e2ei.CheckCrlRevocationListUseCase
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountResult
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountUseCase
 import com.wire.kalium.logic.feature.notificationToken.SendFCMTokenError
+import com.wire.kalium.logic.feature.notificationToken.SendFCMTokenResult
 import com.wire.kalium.logic.feature.notificationToken.SendFCMTokenUseCase
 import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
@@ -322,22 +322,22 @@ internal class DebugDataOptionsHiltArrangement {
             } returns "gitBuildId"
             coEvery {
                 selfServerConfigUseCase()
-        } returns SelfServerConfigUseCase.Result.Success(
-            ServerConfig(
-                id = "id",
-                links = mockk(),
-                metaData = ServerConfig.MetaData(
-                    federation = true,
-                    commonApiVersion = CommonApiVersionType.Unknown,
-                    domain = null,
+            } returns SelfServerConfigUseCase.Result.Success(
+                ServerConfig(
+                    id = "id",
+                    links = mockk(),
+                    metaData = ServerConfig.MetaData(
+                        federation = true,
+                        commonApiVersion = CommonApiVersionType.Unknown,
+                        domain = null,
+                    )
                 )
             )
-        )
-        every {
-            getDefaultProtocolUseCase()
-        } returns SupportedProtocol.PROTEUS
+            every {
+                getDefaultProtocolUseCase()
+            } returns SupportedProtocol.PROTEUS
 
-        withObserveIsConsumableNotificationsEnabled(false)
+            withObserveIsConsumableNotificationsEnabled(false)
         }
     }
 
@@ -356,24 +356,25 @@ internal class DebugDataOptionsHiltArrangement {
     fun withSendFCMTokenSuccess() = apply {
         coEvery {
             sendFCMToken()
-        } returns Either.Right(Unit)
+        } returns SendFCMTokenResult.Success
     }
+
     suspend fun withSendFCMTokenClientIdFailure() = apply {
         coEvery {
             sendFCMToken()
-        } returns Either.Left(SendFCMTokenError(SendFCMTokenError.Reason.CANT_GET_CLIENT_ID, "error message"))
+        } returns SendFCMTokenResult.Failure(SendFCMTokenError(SendFCMTokenError.Reason.CANT_GET_CLIENT_ID, "error message"))
     }
 
     suspend fun withSendFCMTokenNotificationTokenFailure() = apply {
         coEvery {
             sendFCMToken()
-        } returns Either.Left(SendFCMTokenError(SendFCMTokenError.Reason.CANT_GET_NOTIFICATION_TOKEN, "error message"))
+        } returns SendFCMTokenResult.Failure(SendFCMTokenError(SendFCMTokenError.Reason.CANT_GET_NOTIFICATION_TOKEN, "error message"))
     }
 
     suspend fun withSendFCMTokenClientRepositoryRegisterTokenFailure() = apply {
         coEvery {
             sendFCMToken()
-        } returns Either.Left(SendFCMTokenError(SendFCMTokenError.Reason.CANT_REGISTER_TOKEN, "error message"))
+        } returns SendFCMTokenResult.Failure(SendFCMTokenError(SendFCMTokenError.Reason.CANT_REGISTER_TOKEN, "error message"))
     }
 
     fun withProteusProtocolSetup() = apply {

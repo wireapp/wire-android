@@ -35,6 +35,7 @@ import com.wire.kalium.cells.domain.usecase.download.DownloadCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
+import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
 import com.wire.kalium.cells.domain.usecase.IsAtLeastOneCellAvailableUseCase
 import com.wire.kalium.cells.domain.usecase.RestoreNodeFromRecycleBinUseCase
 import com.wire.kalium.common.error.CoreFailure
@@ -304,6 +305,9 @@ class CellViewModelTest {
         @MockK
         lateinit var cellFileActionsMenu: CellFileActionsMenu
 
+        @MockK
+        lateinit var getWireCellsConfig: GetWireCellConfigurationUseCase
+
         init {
 
             MockKAnnotations.init(this, relaxUnitFun = true)
@@ -371,6 +375,8 @@ class CellViewModelTest {
             every { fileNameResolver.getUniqueFile(any(), any()) } returns File("")
             coEvery { Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) } returns File("")
 
+            coEvery { getWireCellsConfig() } returns null
+
             return this to CellViewModel(
                 savedStateHandle = savedStateHandle,
                 getCellFilesPaged = getCellFilesPagedUseCase,
@@ -384,6 +390,7 @@ class CellViewModelTest {
                 onlineEditor = onlineEditor,
                 getEditorUrl = getEditorUrlUseCase,
                 cellFileActionsMenu = cellFileActionsMenu,
+                getWireCellsConfig = getWireCellsConfig,
             )
         }
     }

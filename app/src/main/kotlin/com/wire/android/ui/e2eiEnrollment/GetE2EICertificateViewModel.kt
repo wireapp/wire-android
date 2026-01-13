@@ -21,14 +21,12 @@ import androidx.lifecycle.ViewModel
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.feature.e2ei.OAuthUseCase
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.common.error.E2EIFailure
 import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
+import com.wire.kalium.logic.feature.e2ei.usecase.FinalizeEnrollmentResult
+import com.wire.kalium.logic.feature.e2ei.usecase.InitialEnrollmentResult
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
-import com.wire.kalium.common.functional.Either
-import com.wire.kalium.common.functional.fold
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
@@ -46,14 +44,16 @@ class GetE2EICertificateViewModel @Inject constructor(
     private val scope = CoroutineScope(SupervisorJob() + dispatcherProvider.default())
 
     val requestOAuthFlow = MutableSharedFlow<E2EIEnrollmentResult.Initialized>()
-    val enrollmentResultFlow = MutableSharedFlow<Either<CoreFailure, E2EIEnrollmentResult>>()
+    val enrollmentResultFlow = MutableSharedFlow<FinalizeEnrollmentResult>()
 
     fun handleOAuthResult(oAuthResult: OAuthUseCase.OAuthResult, initialEnrollmentResult: E2EIEnrollmentResult.Initialized) {
         scope.launch {
             when (oAuthResult) {
                 is OAuthUseCase.OAuthResult.Success -> finalizeEnrollment(oAuthResult, initialEnrollmentResult)
 
-                is OAuthUseCase.OAuthResult.Failed -> enrollmentResultFlow.emit(Either.Left(E2EIFailure.OAuth(oAuthResult.reason)))
+                is OAuthUseCase.OAuthResult.Failed -> enrollmentResultFlow.emit(
+                    FinalizeEnrollmentResult.Failure.OAuthError(oAuthResult.reason)
+                )
             }
         }
     }
@@ -62,15 +62,19 @@ class GetE2EICertificateViewModel @Inject constructor(
         scope.launch {
             val currentSessionResult = currentSession()
             if (currentSessionResult is CurrentSessionResult.Success && currentSessionResult.accountInfo.isValid()) {
-                coreLogic.getSessionScope(currentSessionResult.accountInfo.userId)
+                val result = coreLogic.getSessionScope(currentSessionResult.accountInfo.userId)
                     .users
                     .enrollE2EI
                     .initialEnrollment(isNewClientRegistration = isNewClient)
-                    .fold({
-                        enrollmentResultFlow.emit(Either.Left(it))
-                    }, {
-                        requestOAuthFlow.emit(it)
-                    })
+                when (result) {
+                    is InitialEnrollmentResult.Failure -> {
+                        enrollmentResultFlow.emit(FinalizeEnrollmentResult.Failure.Generic(result.toE2EIFailure()))
+                    }
+
+                    is InitialEnrollmentResult.Success -> {
+                        requestOAuthFlow.emit(result.initializationResult)
+                    }
+                }
             }
         }
     }
@@ -91,5 +95,11 @@ class GetE2EICertificateViewModel @Inject constructor(
                 )
             enrollmentResultFlow.emit(enrollmentResult)
         }
+    }
+
+    private fun InitialEnrollmentResult.Failure.toE2EIFailure() = when (this) {
+        is InitialEnrollmentResult.Failure.E2EIDisabled -> com.wire.kalium.common.error.E2EIFailure.Disabled
+        is InitialEnrollmentResult.Failure.MissingTeamSettings -> com.wire.kalium.common.error.E2EIFailure.MissingTeamSettings
+        is InitialEnrollmentResult.Failure.Generic -> this.e2EIFailure
     }
 }

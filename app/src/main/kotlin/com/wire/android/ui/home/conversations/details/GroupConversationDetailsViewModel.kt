@@ -33,7 +33,6 @@ import com.wire.android.ui.navArgs
 import com.wire.android.util.debug.FeatureVisibilityFlags
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
-import com.wire.kalium.common.functional.getOrNull
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -112,7 +111,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
             val groupDetailsFlow = groupDetailsFlow()
                 .shareIn(this, SharingStarted.WhileSubscribed(), 1)
 
-            val selfTeam = getSelfTeam().getOrNull()
+            val selfTeam = getSelfTeam()
             val selfUser = getSelfUser()
 
             combine(
@@ -220,6 +219,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
         // new logic: based on feature flags
         groupDetails.conversation.isServicesAllowed()
     }
+
     private fun ConversationDetails.getChannelPermissionType(): ChannelAddPermissionType? = if (this is ConversationDetails.Group.Channel) {
         this.permission.toUiEnum()
     } else {

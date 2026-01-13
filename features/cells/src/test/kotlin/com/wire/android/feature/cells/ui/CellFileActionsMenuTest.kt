@@ -123,6 +123,7 @@ class CellFileActionsMenuTest {
                 fileNode = fileNode.copy(isEditSupported = true),
                 withCollaboraIntegration = true,
                 isConversationFiles = true,
+                isCollaboraEnabled = true,
             )
 
             // THEN
@@ -456,12 +457,13 @@ class CellFileActionsMenuTest {
         isConversationFiles: Boolean = false,
         isAllFiles: Boolean = false,
         isSearching: Boolean = false,
+        isCollaboraEnabled: Boolean = false,
     ): List<NodeBottomSheetAction> =
         CellFileActionsMenu(
             featureFlags = KaliumConfigs(
                 collaboraIntegration = withCollaboraIntegration
             )
-        ).buildMenu(fileNode, isRecycleBin, isConversationFiles, isAllFiles, isSearching)
+        ).buildMenu(fileNode, isRecycleBin, isConversationFiles, isAllFiles, isSearching, isCollaboraEnabled)
 
     private companion object {
         val fileNode = CellNodeUi.File(

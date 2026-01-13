@@ -31,9 +31,11 @@ import com.wire.android.ui.common.multipart.toUiModel
 import com.wire.android.util.FileManager
 import com.wire.kalium.cells.domain.usecase.download.DownloadCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
+import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
 import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
+import com.wire.kalium.logic.data.featureConfig.CollaboraEdition
 import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.CellAssetContent
 import com.wire.kalium.logic.data.message.MessageAttachment
@@ -107,14 +109,22 @@ class MultipartAttachmentsViewModelImpl @Inject constructor(
     private val fileManager: FileManager,
     private val kaliumFileSystem: KaliumFileSystem,
     private val featureFlags: KaliumConfigs,
+    private val getWireCellsConfig: GetWireCellConfigurationUseCase,
 ) : ViewModel(), MultipartAttachmentsViewModel {
 
     private val uploadProgress = mutableStateMapOf<String, Float>()
 
+    private var isCollaboraEnabled: Boolean = false
+
+    init {
+        loadWireCellConfig()
+    }
+
     override fun onClick(attachment: MultipartAttachmentUi, openInImageViewer: (String) -> Unit) {
         when {
             attachment.isImage() && !attachment.fileNotFound() -> openInImageViewer(attachment.uuid)
-            attachment.isEditSupported && featureFlags.collaboraIntegration -> openOnlineEditor(attachment.uuid)
+            attachment.isEditSupported && isCollaboraEnabled && featureFlags.collaboraIntegration ->
+                openOnlineEditor(attachment.uuid)
             attachment.fileNotFound() -> { refreshHelper.refresh(attachment.uuid) }
             attachment.localFileAvailable() -> openLocalFile(attachment)
             attachment.canOpenWithUrl() -> openUrl(attachment)
@@ -187,8 +197,10 @@ class MultipartAttachmentsViewModelImpl @Inject constructor(
         refreshHelper.close()
     }
 
-    private fun MessageAttachment.toUiModel() =
-        toUiModel(uploadProgress[assetId()])
+    private fun loadWireCellConfig() = viewModelScope.launch {
+        val config = getWireCellsConfig()
+        isCollaboraEnabled = config?.collabora != CollaboraEdition.NO
+    }
 }
 
 private fun MessageAttachment.assetId() =

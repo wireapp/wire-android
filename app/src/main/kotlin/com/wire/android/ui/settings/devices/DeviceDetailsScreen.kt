@@ -89,8 +89,6 @@ import com.wire.android.util.extension.formatAsFingerPrint
 import com.wire.android.util.extension.formatAsString
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
-import com.wire.kalium.common.error.CoreFailure
-import com.wire.kalium.common.functional.Either
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.id.QualifiedClientID
 import com.wire.kalium.logic.data.user.UserId
@@ -99,7 +97,7 @@ import com.wire.kalium.logic.feature.e2ei.MLSClientE2EIStatus
 import com.wire.kalium.logic.feature.e2ei.MLSClientIdentity
 import com.wire.kalium.logic.feature.e2ei.MLSCredentialsType
 import com.wire.kalium.logic.feature.e2ei.X509Identity
-import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
+import com.wire.kalium.logic.feature.e2ei.usecase.FinalizeEnrollmentResult
 import kotlinx.datetime.Instant
 
 @WireDestination(
@@ -146,7 +144,7 @@ fun DeviceDetailsScreen(
 fun DeviceDetailsContent(
     state: DeviceDetailsState,
     passwordTextState: TextFieldState,
-    handleE2EIEnrollmentResult: (Either<CoreFailure, E2EIEnrollmentResult>) -> Unit,
+    handleE2EIEnrollmentResult: (FinalizeEnrollmentResult) -> Unit,
     modifier: Modifier = Modifier,
     onDeleteDevice: () -> Unit = {},
     onNavigateBack: () -> Unit = {},

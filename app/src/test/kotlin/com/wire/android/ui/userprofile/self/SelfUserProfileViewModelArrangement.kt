@@ -28,7 +28,6 @@ import com.wire.android.framework.TestUser
 import com.wire.android.mapper.OtherAccountMapper
 import com.wire.android.notification.WireNotificationManager
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.kalium.common.functional.Either
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
@@ -140,7 +139,7 @@ class SelfUserProfileViewModelArrangement {
         mockUri()
 
         coEvery { getSelf.invoke() } returns flowOf(TestUser.SELF_USER)
-        coEvery { getSelfTeam.invoke() } returns Either.Right(TestTeam.TEAM)
+        coEvery { getSelfTeam.invoke() } returns TestTeam.TEAM
         coEvery { observeValidAccounts.invoke() } returns flowOf(listOf(TestUser.SELF_USER to TestTeam.TEAM))
         coEvery { isReadOnlyAccount.invoke() } returns false
         coEvery { observeEstablishedCalls.invoke() } returns flowOf(emptyList())

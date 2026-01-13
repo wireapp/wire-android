@@ -39,7 +39,7 @@ import com.wire.android.notification.openAppPendingIntent
 import com.wire.kalium.common.functional.fold
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
+import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
 import dagger.assisted.Assisted
@@ -74,7 +74,7 @@ class DeleteConversationLocallyWorker @AssistedInject constructor(
         if (userIdString == null || conversationIdString == null) {
             return@coroutineScope Result.failure() // If either ID is not provided, fail the work
         }
-        val qualifiedIdMapper = QualifiedIdMapperImpl(null)
+        val qualifiedIdMapper = QualifiedIdMapper(null)
         val conversationId = qualifiedIdMapper.fromStringToQualifiedID(conversationIdString)
         val userId = qualifiedIdMapper.fromStringToQualifiedID(userIdString)
         coreLogic.getGlobalScope().doesValidSessionExist(userId).let {

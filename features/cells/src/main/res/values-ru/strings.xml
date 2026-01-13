@@ -109,7 +109,6 @@
     <string name="rename_folder_renamed">Папка переименована</string>
     <string name="rename_failure">Не удается переименовать</string>
     <string name="rename_invalid_name">Используйте название без \"/\" и не начинающееся с \".\"</string>
-    <string name="rename_already_exist">Файл с таким названием уже существует</string>
     <string name="filter_label">Фильтр</string>
     <string name="tags_label">Теги</string>
     <string name="select_tags_label">выбрать теги</string>
@@ -175,6 +174,25 @@
     <string name="invalid_expiration_date">Срок действия в прошлом</string>
     <string name="link_expired">Истек срок действия ссылки: %1$s, в %2$s</string>
     <string name="version_history_top_appbar_title">История версий</string>
+    <string name="version_history_current_label_for_title">Текущее</string>
+    <string name="restore_version_bottom_sheet_item_label">Восстановить версию</string>
+    <string name="download_version_bottom_sheet_item_label">Скачать версию</string>
+    <string name="dialog_restore_cell_version_confirmation_description">При этом будет скопирована восстановленная версия и установлена в качестве текущей. Все предыдущие версии останутся доступными.</string>
+    <string name="dialog_restore_cell_version_confirmation_button_label">Восстановить</string>
+    <string name="dialog_restore_cell_version_successfully_completed">Версия вашего файла восстановлена</string>
+    <string name="dialog_restore_cell_version_confirmation_title">Восстановить версию</string>
+    <string name="dialog_restore_cell_version_restoring_title">Восстановление версии…</string>
+    <string name="dialog_restore_cell_version_failed_title">Не удалось восстановить версию</string>
+    <string name="dialog_restore_cell_version_successfully_completed_title">Версия восстановлена</string>
+    <string name="dialog_restore_cell_version_failed_description">Что-то пошло не так при восстановлении версии. Повторите попытку.</string>
+    <string name="dialog_restore_cell_version_loading">Загрузка…</string>
+    <string name="dialog_restore_cell_version_go_to_file_button_label">Перейти к файлу</string>
     <string name="date_label_today">Сегодня, %1$s</string>
     <string name="date_label_yesterday">Вчера, %1$s</string>
+    <string name="versions_list_not_loaded_title_error">Не удалось загрузить версии</string>
+    <string name="versions_list_not_loaded_description_error">Что-то пошло не так во время загрузки списка версий. Повторите попытку.</string>
+    <string name="snackbar_download_cell_version_saved_to_downloads_folder_label">сохранено в Загрузках</string>
+    <string name="snackbar_download_cell_version_show_label">Показать</string>
+    <string name="snackbar_download_cell_version_downloading_label">Загрузка…</string>
+    <string name="search_text_input_hint_for_files_folders_in_conversation">Поиск файлов или папок</string>
 </resources>

@@ -71,6 +71,7 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
+import com.wire.android.ui.common.R as commonR
 
 @Composable
 fun ConversationScreenTopAppBar(
@@ -176,7 +177,7 @@ private fun ConversationScreenTopAppBarContent(
                     WireSecondaryIconButton(
                         onButtonClicked = onSearchButtonClick,
                         iconResource = R.drawable.ic_search,
-                        contentDescription = R.string.content_description_conversation_search_icon,
+                        contentDescription = commonR.string.content_description_conversation_search_icon,
                         minSize = dimensions().buttonSmallMinSize,
                         minClickableSize = DpSize(
                             dimensions().buttonSmallMinSize.width,

@@ -108,10 +108,12 @@
     <string name="rename_folder_renamed">Folder was renamed</string>
     <string name="rename_failure">Unable to rename</string>
     <string name="rename_invalid_name">Use a name without "/" and not starting with "."</string>
-    <string name="rename_already_exist">File with this name already exists</string>
+    <string name="rename_file_already_exist">File with this name already exists</string>
+    <string name="rename_folder_already_exist">Folder with this name already exists</string>
     <string name="filter_label">Filter</string>
     <string name="tags_label">Tags</string>
     <string name="select_tags_label">select tags</string>
+    <string name="no_tags_created_yet_label">No tags were created yet.</string>
     <string name="clear_all_label">Clear All</string>
     <string name="apply_label">Apply</string>
     <string name="add_or_remove_tags_title">Add or remove tags</string>
@@ -191,4 +193,16 @@
     <string name="date_label_yesterday">Yesterday, %1$s</string>
     <string name="versions_list_not_loaded_title_error">Failed to load versions</string>
     <string name="versions_list_not_loaded_description_error">Something went wrong while loading version list. Please retry.</string>
+    <string name="snackbar_download_cell_version_saved_to_downloads_folder_label">saved to Downloads</string>
+    <string name="snackbar_download_cell_version_show_label">Show</string>
+    <string name="snackbar_download_cell_version_downloading_label">Downloading…</string>
+    <string name="search_text_input_hint_for_files_folders_in_conversation">Search files or folders</string>
+    <string name="cells_create_file">Create File</string>
+    <string name="create_file_error">Unable to create file. Please try again</string>
+    <string name="cell_file_name">File Name</string>
+    <string name="long_file_name_error">Use a shorter file name (at most 64 characters)</string>
+    <string name="file_type_bottom_sheet_document">Document</string>
+    <string name="file_type_bottom_sheet_spreadsheet">Spreadsheet</string>
+    <string name="file_type_bottom_sheet_presentation">Presentation</string>
+    <string name="create_file_screen_title">Create %1$s file</string>
 </resources>

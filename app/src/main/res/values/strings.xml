@@ -93,7 +93,6 @@
     <string name="content_description_reveal_password">Show password</string>
     <string name="content_description_hide_password">Hide password</string>
     <string name="content_description_search_back">Search back icon</string>
-    <string name="content_description_clear_content">Clear content</string>
     <string name="content_description_muted_conversation">Muted conversation</string>
     <string name="content_description_download_icon">Download icon</string>
     <string name="content_description_open_asset_icon">Open icon</string>
@@ -107,8 +106,6 @@
     <string name="content_description_delete_the_conversation">Delete the conversation</string>
     <string name="content_description_conversation_phone_icon">Start audio call</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
-    <string name="content_description_conversation_search_icon">Search icon</string>
-    <string name="content_description_conversation_search_input">Search input</string>
     <string name="content_description_conversation_enable_rich_text_mode">Enable rich text mode button</string>
     <string name="content_description_conversation_enable_drawing_mode">Enable drawing mode button</string>
     <string name="content_description_conversation_rich_text_header">Rich text formatting Header</string>
@@ -1354,6 +1351,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="label_client_device_id">Proteus ID</string>
     <string name="label_key_packages_count">Key-packages count</string>
     <string name="label_mls_client_id">MLS Client ID</string>
+    <string name="label_mls_repair_faulty_keys" translatable="false">Initiate reset of affected MLS groups</string>
     <string name="conversation_empty_list_description">Connect with others or create a new group to start collaborating!</string>
     <string name="favorites_empty_list_description">Select your favorite conversations, and you’ll find them here</string>
     <string name="group_empty_list_description">You are not part of any group conversation yet.\nStart a new conversation!</string>
@@ -1624,7 +1622,6 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="label_debug_data">Debug data</string>
     <string name="title_internal_debugging">Internal debugging</string>
     <string name="label_log_options_description">"This stores anonymized troubleshooting information locally. "</string>
-    <string name="label_no_application_found_open_downloads_folder">"No application found to open downloads folder"</string>
     <string name="notification_obfuscated_message_title">Someone</string>
     <string name="notification_obfuscated_message_content">Sent a self-deleting message</string>
     <string name="settings_licenses_settings_label">License Information</string>
@@ -1794,6 +1791,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="debug_settings_force_api_versioning_update" translatable="false">Force API versioning update</string>
     <string name="debug_settings_break_session" translatable="false">⚠️ Break Session</string>
     <string name="debug_settings_force_api_versioning_update_button_text" translatable="false">Update</string>
+    <string name="debug_settings_force_repair_faulty_keys" translatable="false">Reset</string>
     <string name="debug_settings_feature_flags" translatable="false">Feature Flags</string>
 
     <!--    Personal to team migration screen-->

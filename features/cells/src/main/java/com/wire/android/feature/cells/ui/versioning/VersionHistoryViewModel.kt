@@ -23,12 +23,20 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.feature.cells.R
+import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.feature.cells.ui.navArgs
+import com.wire.android.feature.cells.ui.versioning.download.DownloadState
 import com.wire.android.feature.cells.ui.versioning.restore.RestoreDialogState
 import com.wire.android.feature.cells.ui.versioning.restore.RestoreVersionState
+import com.wire.android.feature.cells.util.FileHelper
 import com.wire.android.util.FileSizeFormatter
+import com.wire.android.util.addBeforeExtension
+import com.wire.android.util.cellFileTime
+import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.cells.domain.model.NodeVersion
+import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
+import com.wire.kalium.cells.domain.usecase.download.DownloadCellVersionUseCase
 import com.wire.kalium.cells.domain.usecase.versioning.GetNodeVersionsUseCase
 import com.wire.kalium.cells.domain.usecase.versioning.RestoreNodeVersionUseCase
 import com.wire.kalium.common.functional.onFailure
@@ -36,11 +44,12 @@ import com.wire.kalium.common.functional.onSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okio.sink
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 import javax.inject.Inject
 
 @HiltViewModel
@@ -49,6 +58,11 @@ class VersionHistoryViewModel @Inject constructor(
     private val getNodeVersionsUseCase: GetNodeVersionsUseCase,
     private val fileSizeFormatter: FileSizeFormatter,
     private val restoreNodeVersionUseCase: RestoreNodeVersionUseCase,
+    private val downloadCellVersionUseCase: DownloadCellVersionUseCase,
+    private val fileHelper: FileHelper,
+    private val onlineEditor: OnlineEditor,
+    private val getEditorUrl: GetEditorUrlUseCase,
+    private val dispatchers: DispatcherProvider,
 ) : ViewModel() {
 
     private val navArgs: VersionHistoryNavArgs = savedStateHandle.navArgs()
@@ -61,10 +75,17 @@ class VersionHistoryViewModel @Inject constructor(
     var versionsGroupedByTime: MutableState<List<VersionGroup>> = mutableStateOf(listOf())
         private set
 
-    var restoreDialogState: MutableState<RestoreDialogState> =
-        mutableStateOf(RestoreDialogState())
+    var restoreDialogState: MutableState<RestoreDialogState> = mutableStateOf(RestoreDialogState())
+        private set
+
+    var downloadState: MutableState<DownloadState> = mutableStateOf(DownloadState.Idle)
+        private set
 
     init {
+        initVersions()
+    }
+
+    fun initVersions() {
         viewModelScope.launch {
             versionHistoryState.value = VersionHistoryState.Loading
             fetchNodeVersionsGroupedByDate()
@@ -77,17 +98,15 @@ class VersionHistoryViewModel @Inject constructor(
     }
 
     private suspend fun fetchNodeVersionsGroupedByDate() =
-        navArgs.uuid?.let {
-            getNodeVersionsUseCase(navArgs.uuid)
-                .onSuccess {
-                    versionHistoryState.value = VersionHistoryState.Success
-                    versionsGroupedByTime.value = it.groupByDay()
-                }
-                // TODO: Handle error on UI
-                .onFailure {
-                    versionHistoryState.value = VersionHistoryState.Failed
-                }
-        }
+        getNodeVersionsUseCase(navArgs.uuid)
+            .onSuccess {
+                versionHistoryState.value = VersionHistoryState.Success
+                versionsGroupedByTime.value = it.groupByDay()
+            }
+            // TODO: Handle error on UI
+            .onFailure {
+                versionHistoryState.value = VersionHistoryState.Failed
+            }
 
     private fun List<NodeVersion>.groupByDay(): List<VersionGroup> {
         val today = LocalDate.now()
@@ -121,24 +140,23 @@ class VersionHistoryViewModel @Inject constructor(
 
                 val uiItems = items.mapIndexed { itemIndex, apiItem ->
 
-                    val formattedTime = Instant.ofEpochSecond(apiItem.modifiedTime?.toLong() ?: 0L)
-                        .atZone(ZoneId.systemDefault())
-                        .toLocalTime()
-                        .format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT))
+                    val formattedTime = apiItem.modifiedTime?.toLong()?.let {
+                        kotlinx.datetime.Instant.fromEpochSeconds(it).cellFileTime()
+                    } ?: ""
 
                     CellVersion(
                         versionId = apiItem.id,
                         modifiedBy = apiItem.ownerName ?: "",
                         fileSize = fileSizeFormatter.formatSize(apiItem.size?.toLong() ?: 0),
                         modifiedAt = formattedTime,
-                        isCurrentVersion = groupIndex == 0 && itemIndex == 0
+                        isCurrentVersion = groupIndex == 0 && itemIndex == 0,
+                        presignedUrl = apiItem.getUrl?.url
                     )
                 }
                 VersionGroup(dateLabel, uiItems)
             }
     }
 
-    // TODO: Unit test coming in another PR
     fun showRestoreConfirmationDialog(versionId: String) {
         restoreDialogState.value = restoreDialogState.value.copy(
             visible = true,
@@ -148,7 +166,6 @@ class VersionHistoryViewModel @Inject constructor(
         )
     }
 
-    // TODO: Unit test coming in another PR
     fun hideRestoreConfirmationDialog() {
         restoreDialogState.value = restoreDialogState.value.copy(
             restoreVersionState = RestoreVersionState.Idle,
@@ -157,7 +174,6 @@ class VersionHistoryViewModel @Inject constructor(
         )
     }
 
-    // TODO: Unit test coming in another PR
     fun restoreVersion() {
         with(restoreDialogState) {
             restoreDialogState.value = value.copy(
@@ -167,10 +183,10 @@ class VersionHistoryViewModel @Inject constructor(
             viewModelScope.launch {
                 val progressJob = simulateRestoreProgress()
 
-                restoreNodeVersionUseCase(navArgs.uuid ?: "", value.versionId)
+                restoreNodeVersionUseCase(navArgs.uuid, value.versionId)
                     .onSuccess {
                         delay(DELAY_500_MS) // delay since server takes some time to restore the version
-                        refreshVersions()
+                        initVersions()
                         progressJob.cancel()
                         restoreDialogState.value = value.copy(
                             restoreVersionState = RestoreVersionState.Completed,
@@ -185,6 +201,59 @@ class VersionHistoryViewModel @Inject constructor(
                     }
             }
         }
+    }
+
+    fun downloadVersion(versionId: String, versionDate: String) {
+        viewModelScope.launch {
+            downloadState.value = DownloadState.Downloading(0, 0)
+
+            val cellVersion = findVersionById(versionId)
+                ?: return@launch run { downloadState.value = DownloadState.Failed }
+
+            val newFileName = fileName.addBeforeExtension("${versionDate}_${cellVersion.modifiedAt}")
+
+            val outputStream = withContext(dispatchers.io()) {
+                fileHelper.createDownloadFileStream(newFileName)
+            } ?: run {
+                downloadState.value = DownloadState.Failed
+                return@launch
+            }
+
+            val presignedUrl = cellVersion.presignedUrl
+                ?: return@launch run { downloadState.value = DownloadState.Failed }
+
+            outputStream.sink().use { sink ->
+                downloadCellVersionUseCase(
+                    bufferedSink = sink,
+                    preSignedUrl = presignedUrl,
+                    onProgressUpdate = { progress, total ->
+                        downloadState.value = DownloadState.Downloading(progress.toInt(), total)
+                    }
+                )
+                    .onSuccess {
+                        downloadState.value = DownloadState.Downloaded(newFileName)
+                    }
+                    .onFailure {
+                        downloadState.value = DownloadState.Failed
+                    }
+            }
+        }
+    }
+
+    fun openOnlineEditor() {
+        viewModelScope.launch {
+            getEditorUrl(navArgs.uuid).onSuccess { editorUrl ->
+                editorUrl?.let {
+                    onlineEditor.open(it)
+                }
+            }
+        }
+    }
+
+    private fun findVersionById(versionId: String): CellVersion? {
+        return versionsGroupedByTime.value
+            .flatMap { it.versions }
+            .find { it.versionId == versionId }
     }
 
     @Suppress("MagicNumber")

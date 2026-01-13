@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Wire
+  ~ Copyright (C) 2025 Wire Swiss GmbH
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program. If not, see http://www.gnu.org/licenses/.
+  -->
+<resources>
+    <string name="all_meetings_tab_next">ДАЛЕЕ</string>
+    <string name="all_meetings_tab_past">НАЗАД</string>
+    <string name="meeting_repeating_daily">Ежедневно</string>
+    <string name="meeting_repeating_weekly">Еженедельно</string>
+    <string name="meeting_repeating_biweekly">Каждые две недели</string>
+    <string name="meeting_repeating_monthly">Ежемесячно</string>
+    <string name="meeting_repeating_annually">Ежегодно</string>
+    <string name="meeting_started_at">Начиная с %1$s</string>
+    <string name="content_description_meeting_icon">Значок встречи</string>
+    <string name="content_description_more_menu_icon">Значок меню встречи</string>
+    <string name="meeting_join_button">Присоединиться</string>
+    <string name="meeting_attending">Участвует</string>
+    <string name="meeting_starting_in">Начало в %1$s</string>
+    <string name="meeting_button_show_all">Показать все</string>
+    <string name="meeting_date_header_ongoing">В настоящее время</string>
+    <string name="meeting_date_header_today">Сегодня (%1$s)</string>
+    <string name="meeting_date_header_tomorrow">Завтра (%1$s)</string>
+    <string name="meeting_date_header_yesterday">Вчера (%1$s)</string>
+    <string name="deleted_meeting_options_closed">Опции были закрыты, поскольку эта встреча больше не доступна.</string>
+    <string name="meeting_options_start_meeting">Начать встречу</string>
+    <string name="meeting_options_create_conversation">Создать беседу</string>
+    <string name="content_description_create_conversation">Значок создания беседы</string>
+    <string name="meeting_options_copy_link">Скопировать ссылку</string>
+    <string name="content_description_copy_link">Значок копирования ссылки</string>
+    <string name="meeting_options_edit_meeting">Изменить встречу</string>
+    <string name="content_description_edit_meeting">Значок изменения встречи</string>
+    <string name="meeting_options_delete_meeting_for_me">Удалить встречу для меня</string>
+    <string name="content_description_delete_meeting_for_me">Значок удаления встречи для меня</string>
+    <string name="meeting_options_delete_meeting_for_everyone">Удалить встречу для всех</string>
+    <string name="content_description_delete_meeting_for_everyone">Значок удаления встречи для всех</string>
+    <string name="meetings_empty_title_next">Предстоящих встреч пока нет</string>
+    <string name="meetings_empty_title_past">Прошлых встреч пока нет</string>
+    <string name="meetings_empty_text_next">"Начните встречу с членами команды, гостями или внешними участниками."</string>
+    <string name="meetings_empty_text_past">Предыдущие встречи будут перечислены здесь.</string>
+    <string name="new_meeting_title">Новая встреча</string>
+    <string name="new_meeting_now">Встречи сейчас</string>
+    <string name="new_meeting_schedule">Запланировать встречу</string>
+    <string name="content_description_new_meeting_now_icon">Значок встреч сейчас</string>
+    <string name="content_description_new_meeting_schedule_icon">Значок планирования встречи</string>
+</resources>

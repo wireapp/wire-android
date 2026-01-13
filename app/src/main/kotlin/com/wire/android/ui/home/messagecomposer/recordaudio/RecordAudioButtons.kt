@@ -184,6 +184,7 @@ fun RecordAudioButtonEncoding(
 fun RecordAudioButtonSend(
     applyAudioFilterState: Boolean,
     audioState: AudioState,
+    wavesMask: List<Int>?,
     onClick: () -> Unit,
     outputFile: File?,
     onPlayAudio: () -> Unit,
@@ -198,6 +199,7 @@ fun RecordAudioButtonSend(
             outputFile?.let {
                 RecordedAudioMessage(
                     audioState = audioState,
+                    wavesMask = wavesMask,
                     onPlayButtonClick = onPlayAudio,
                     onSliderPositionChange = { position ->
                         onSliderPositionChange(position.toInt())
@@ -322,8 +324,8 @@ fun PreviewRecordAudioButtonSend() {
                 audioMediaPlayingState = AudioMediaPlayingState.Paused,
                 totalTimeInMs = AudioState.TotalTimeInMs.Known(1000),
                 currentPositionInMs = 0,
-                wavesMask = listOf(32, 1, 24, 23, 13, 16, 9, 0, 4, 30, 23)
             ),
+            wavesMask = listOf(32, 1, 24, 23, 13, 16, 9, 0, 4, 30, 23),
             onClick = {},
             modifier = Modifier,
             outputFile = null,

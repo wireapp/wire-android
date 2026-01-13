@@ -38,10 +38,10 @@ import com.wire.android.ui.theme.wireDimensions
 
 @Composable
 fun VersionActionBottomSheet(
-    sheetState: WireModalSheetState<CellVersion>,
+    sheetState: WireModalSheetState<Pair<String, CellVersion>>,
     onDismiss: () -> Unit,
     onRestoreVersionClicked: (String) -> Unit,
-    onDownloadVersionClicked: (String) -> Unit,
+    onDownloadVersionClicked: (String, String) -> Unit,
 ) {
     WireModalSheetLayout(
         onDismissRequest = onDismiss,
@@ -49,16 +49,18 @@ fun VersionActionBottomSheet(
     ) { state ->
         WireMenuModalSheetContent(
             menuItems = buildList {
-                add {
-                    RestoreVersionModalItem(
-                        title = stringResource(R.string.restore_version_bottom_sheet_item_label),
-                        onClicked = { onRestoreVersionClicked(state.versionId) },
-                    )
+                if (!state.second.isCurrentVersion) {
+                    add {
+                        RestoreVersionModalItem(
+                            title = stringResource(R.string.restore_version_bottom_sheet_item_label),
+                            onClicked = { onRestoreVersionClicked(state.second.versionId) },
+                        )
+                    }
                 }
                 add {
                     DownloadVersionModalItem(
                         title = stringResource(R.string.download_version_bottom_sheet_item_label),
-                        onClicked = { onDownloadVersionClicked(state.versionId) },
+                        onClicked = { onDownloadVersionClicked(state.second.versionId, state.first) },
                     )
                 }
             }
@@ -111,10 +113,10 @@ private fun DownloadVersionModalItem(
 private fun PreviewCellsOptionsBottomSheet() {
     WireTheme {
         VersionActionBottomSheet(
-            sheetState = rememberWireModalSheetState(WireSheetValue.Expanded(value = CellVersion())),
+            sheetState = rememberWireModalSheetState(WireSheetValue.Expanded(value = "" to CellVersion())),
             onDismiss = {},
             onRestoreVersionClicked = {},
-            onDownloadVersionClicked = {}
+            onDownloadVersionClicked = { _, _ -> }
         )
     }
 }

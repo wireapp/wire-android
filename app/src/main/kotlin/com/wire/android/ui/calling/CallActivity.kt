@@ -27,7 +27,7 @@ import androidx.lifecycle.lifecycleScope
 import com.wire.android.ui.AppLockActivity
 import com.wire.android.ui.common.setupOrientationForDevice
 import com.wire.android.util.SwitchAccountObserver
-import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
+import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -46,12 +46,13 @@ abstract class CallActivity : AppCompatActivity() {
     }
 
     private val callActivityViewModel: CallActivityViewModel by viewModels()
-    protected val qualifiedIdMapper = QualifiedIdMapperImpl(null)
+    protected val qualifiedIdMapper = QualifiedIdMapper(null)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setupOrientationForDevice()
     }
+
     fun switchAccountIfNeeded(userId: String?) {
         userId?.let {
             qualifiedIdMapper.fromStringToQualifiedID(it).run {

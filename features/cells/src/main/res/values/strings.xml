@@ -16,8 +16,8 @@
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
 <resources>
-    <string name="empty_screen_learn_more_link_conversation" translatable="false">https://support.wire.com/hc/en-us/articles/32207745256221-Shared-Drive-in-conversations</string>
-    <string name="empty_screen_learn_more_link_all_files_screen" translatable="false">https://support.wire.com/hc/en-us/articles/32207800433309-Access-all-files-shared-across-conversations-Wire-Drive</string>
+    <string name="empty_screen_learn_more_link_conversation" translatable="false">https://support.wire.com/hc/articles/32207745256221</string>
+    <string name="empty_screen_learn_more_link_all_files_screen" translatable="false">https://support.wire.com/hc/articles/32207800433309</string>
 
     <string name="retry">Retry</string>
     <string name="file_list_load_error_title">Error</string>

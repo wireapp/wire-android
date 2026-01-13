@@ -43,11 +43,13 @@ import com.wire.kalium.cells.domain.usecase.download.DownloadCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
+import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
 import com.wire.kalium.cells.domain.usecase.IsAtLeastOneCellAvailableUseCase
 import com.wire.kalium.cells.domain.usecase.RestoreNodeFromRecycleBinUseCase
 import com.wire.kalium.common.functional.fold
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
+import com.wire.kalium.logic.data.featureConfig.CollaboraEdition
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.coroutines.delay
@@ -92,6 +94,7 @@ class CellViewModel @Inject constructor(
     private val getEditorUrl: GetEditorUrlUseCase,
     private val onlineEditor: OnlineEditor,
     private val cellFileActionsMenu: CellFileActionsMenu,
+    private val getWireCellsConfig: GetWireCellConfigurationUseCase,
 ) : ActionsViewModel<CellViewAction>() {
 
     private val navArgs: CellFilesNavArgs = savedStateHandle.navArgs()
@@ -141,10 +144,11 @@ class CellViewModel @Inject constructor(
 
     private val refreshTrigger = MutableSharedFlow<Unit>(replay = 0)
 
+    private var isCollaboraEnabled: Boolean = false
+
     init {
-        viewModelScope.launch {
-            loadTags()
-        }
+        loadTags()
+        loadWireCellConfig()
     }
 
     internal val nodesFlow = flow {
@@ -383,7 +387,8 @@ class CellViewModel @Inject constructor(
             isRecycleBin = isRecycleBin(),
             isConversationFiles = isConversationFiles(),
             isAllFiles = isAllFiles(),
-            isSearching = isSearching()
+            isSearching = isSearching(),
+            isCollaboraEnabled = isCollaboraEnabled,
         )
 
         _menu.emit(MenuOptions(cellNode, menuItems))
@@ -508,10 +513,15 @@ class CellViewModel @Inject constructor(
         }
     }
 
-    suspend fun loadTags() {
+    internal fun loadTags() = viewModelScope.launch {
         getAllTagsUseCase().onSuccess { updated -> _tags.update { updated } }
         // apply delay to avoid too frequent requests
         delay(30.seconds)
+    }
+
+    private fun loadWireCellConfig() = viewModelScope.launch {
+        val config = getWireCellsConfig()
+        isCollaboraEnabled = config?.collabora != CollaboraEdition.NO
     }
 
     companion object {

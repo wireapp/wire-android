@@ -25,6 +25,7 @@ import com.wire.android.ui.common.multipart.MultipartAttachmentUi
 import com.wire.android.util.FileManager
 import com.wire.kalium.cells.domain.usecase.download.DownloadCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
+import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
 import com.wire.kalium.common.functional.right
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
@@ -247,6 +248,9 @@ class MultipartAttachmentsViewModelTest {
         @MockK
         lateinit var kaliumConfigs: KaliumConfigs
 
+        @MockK
+        lateinit var getWireCellsConfig: GetWireCellConfigurationUseCase
+
         val kaliumFileSystem: KaliumFileSystem = FakeKaliumFileSystem()
 
         suspend fun arrange(): Pair<Arrangement, MultipartAttachmentsViewModel> {
@@ -255,6 +259,7 @@ class MultipartAttachmentsViewModelTest {
             coEvery { fileManager.openWithExternalApp(any(), any(), any(), any()) } returns Unit
             coEvery { fileManager.openUrlWithExternalApp(any(), any(), any()) } returns Unit
             coEvery { download(any(), any(), any(), any(), any()) } returns Unit.right()
+            coEvery { getWireCellsConfig() } returns null
 
             return this to MultipartAttachmentsViewModelImpl(
                 refreshHelper = refreshHelper,
@@ -264,6 +269,7 @@ class MultipartAttachmentsViewModelTest {
                 onlineEditor = onlineEditor,
                 kaliumFileSystem = kaliumFileSystem,
                 featureFlags = kaliumConfigs,
+                getWireCellsConfig = getWireCellsConfig,
             )
         }
     }

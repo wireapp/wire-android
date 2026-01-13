@@ -339,7 +339,6 @@ private fun LearnMoreLink(
     )
 }
 
-
 private fun showDeleteConfirmation(
     context: Context,
     isFile: Boolean,

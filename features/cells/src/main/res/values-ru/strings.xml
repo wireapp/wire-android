@@ -206,4 +206,6 @@
     <string name="file_type_bottom_sheet_spreadsheet">Электронная таблица</string>
     <string name="file_type_bottom_sheet_presentation">Презентация</string>
     <string name="create_file_screen_title">Создать файл %1$s</string>
+    <string name="empty_screen_learn_more_conversation">Узнайте больше об общем диске</string>
+    <string name="empty_screen_learn_more">Подробнее</string>
 </resources>

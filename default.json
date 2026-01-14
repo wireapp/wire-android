@@ -37,7 +37,6 @@
             "meetings_enabled": true,
             "use_async_flush_logging": true,
             "conversation_feeder_enabled": true,
-            "collabora_integration": true,
             "db_invalidation_control_enabled": true
         },
         "staging": {
@@ -73,7 +72,6 @@
             "analytics_server_url": "https://wire.count.ly/",
             "enable_new_registration": true,
             "use_async_flush_logging": true,
-            "collabora_integration": true
         },
         "internal": {
             "application_id": "com.wire.internal",
@@ -89,7 +87,6 @@
             "use_async_flush_logging": true,
             "conversation_feeder_enabled": true,
             "db_invalidation_control_enabled": false,
-            "collabora_integration": true
         },
         "fdroid": {
             "application_id": "com.wire",
@@ -165,6 +162,6 @@
     "background_notification_retry_enabled": true,
     "background_notification_stay_alive_seconds": 3,
     "is_bubble_ui_enabled": true,
-    "collabora_integration": false,
+    "collabora_integration": true,
     "db_invalidation_control_enabled": false
 }

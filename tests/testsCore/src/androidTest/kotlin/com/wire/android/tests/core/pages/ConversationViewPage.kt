@@ -60,10 +60,7 @@ data class ConversationViewPage(private val device: UiDevice) {
 
     private val messageInputField = UiSelectorParams(className = "android.widget.EditText")
 
-    private fun conversationDetails1On1(userName: String) =
-        UiSelector()
-            .resourceId("User avatar")
-            .fromParent(UiSelector().className("android.widget.TextView").text(userName))
+    private fun conversationDetails1On1(userName: String) = UiSelector().className("android.widget.TextView").text(userName)
 
     private val sendButton = UiSelectorParams(description = "Send")
 
@@ -193,7 +190,7 @@ data class ConversationViewPage(private val device: UiDevice) {
         return this
     }
 
-    fun assertTextFileWithNameIsVisible(fileName3: String): ConversationViewPage {
+    fun assertFileWithNameIsVisible(fileName3: String): ConversationViewPage {
         val fileNameElement = UiWaitUtils.waitElement(fileWithName(fileName3))
         Assert.assertTrue("File with name '$fileName3' is not visible", !fileNameElement.visibleBounds.isEmpty)
         return this
@@ -305,13 +302,23 @@ data class ConversationViewPage(private val device: UiDevice) {
         return this
     }
 
-    fun assertMessageNotVisible(text: String) {
-        val element = findElementOrNull(UiSelectorParams(text = text))
+    fun assertMessageNotVisible(text: String, timeoutSeconds: Int = 5) {
+        try {
+            val deadline = System.currentTimeMillis() + timeoutSeconds * 1000L
 
-        Assert.assertTrue(
-            "Message '$text' is still visible on the screen.",
-            element == null || element.visibleBounds.isEmpty
-        )
+            while (System.currentTimeMillis() < deadline) {
+                val element = findElementOrNull(UiSelectorParams(text = text))
+                if (element != null) {
+                    throw AssertionError("Message '$text' is still present in the conversation.")
+                }
+                Thread.sleep(250)
+            }
+        } catch (e: AssertionError) {
+            throw AssertionError(
+                "Expected message '$text' to be absent, but it was found within ${timeoutSeconds}s.",
+                e
+            )
+        }
     }
 
     fun tapBackButtonToCloseConversationViewPage(): ConversationViewPage {
@@ -436,6 +443,18 @@ data class ConversationViewPage(private val device: UiDevice) {
         } catch (e: AssertionError) {
             throw AssertionError("Location map container is not visible", e)
         }
+        return this
+    }
+
+    fun assertRestoredBackupMessageIsVisibleInCurrentConversation(message: String): ConversationViewPage {
+        val messageSelector = UiSelectorParams(text = message)
+
+        try {
+            UiWaitUtils.waitElement(messageSelector)
+        } catch (e: AssertionError) {
+            throw AssertionError("Message '$message' was not found or not visible in the conversation.", e)
+        }
+
         return this
     }
 }

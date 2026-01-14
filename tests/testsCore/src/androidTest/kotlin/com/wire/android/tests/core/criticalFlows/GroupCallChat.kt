@@ -83,7 +83,7 @@ class GroupCallChat : BaseUiTest() {
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-8602")
-    @Category("criticalFlow", "testTest")
+    @Category("criticalFlow")
     @Tag(key = "criticalFlow", value = "groupCallChat")
     @Test
     fun givenIStartGroupCall_whenParticipantShareMessageFileAndLocation_thenAllVisibleAndCallContinues() {
@@ -198,7 +198,7 @@ class GroupCallChat : BaseUiTest() {
                 iMinimiseOngoingCall()
             }
         }
-        step("Send chat message 'Hello Friends' from user2") {
+        step("Participant sends a message to the group conversation") {
             testServiceHelper.apply {
                 addDevice("user2Name", null, "Device1")
                 userSendMessageToConversation(
@@ -237,7 +237,7 @@ class GroupCallChat : BaseUiTest() {
                 iSeeSentQrCodeImageInCurrentConversation()
             }
         }
-        step("Share location from user3 and verify call continues") {
+        step("User shares default location to group conversation while the call continues") {
             testServiceHelper.userXSharesLocationTo(
                 "user3Name",
                 "GroupCallChat",

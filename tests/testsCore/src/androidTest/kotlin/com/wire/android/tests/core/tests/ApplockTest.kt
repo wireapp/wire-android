@@ -65,7 +65,7 @@ class ApplockTest : BaseUiTest() {
     }
 
     @TestCaseId("TC-8143")
-    @Category("applock", "regression", "testTest")
+    @Category("applock", "regression")
     @Test
     fun givenUserEnablesAppLock_whenAppIsBackgroundedForOneMinute_thenAppRequiresUnlockOnReturn() {
 

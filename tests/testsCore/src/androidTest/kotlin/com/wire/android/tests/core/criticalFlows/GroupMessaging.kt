@@ -66,7 +66,7 @@ class GroupMessaging : BaseUiTest() {
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-8606")
-    @Category("criticalFlow", "testTest")
+    @Category("criticalFlow")
     @Test
     fun givenGroupConversation_whenMessagesAreExchangedAndSelfDeletingMessageIsSent_thenMessageIsVisibleAndExpires() {
         step("Prepare team via backend and group conversation with members") {

@@ -208,13 +208,6 @@ class RegistrationPage(private val device: UiDevice) {
         return this
     }
 
-//    fun waitUntilLoginFlowIsCompleted(): RegistrationPage {
-//        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-//        waitUntilElementGone(device, loginButtonGoneSelector, timeoutMillis = 12_000)
-//        waitUntilElementGone(device, settingUpWireGoneSelector, timeoutMillis = 35_000)
-//        return this
-//    }
-
     fun waitUntilLoginFlowIsCompleted(): RegistrationPage {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         try {

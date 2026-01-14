@@ -58,7 +58,7 @@ class GdprTest : BaseUiTest() {
     }
 
     @TestCaseId("TC-8705")
-    @Category("gdpr", "regression", "testTest")
+    @Category("gdpr", "regression")
     @Test
     fun givenTeamUserAcceptsAnonymousDataSharing_whenConsentIsGiven_thenAnalyticsIdentifierIsVisibleInDebugSettings() {
 

@@ -76,7 +76,7 @@ class AccountManagement : BaseUiTest() {
 
         @Suppress("LongMethod", "CyclomaticComplexMethod")
         @TestCaseId("TC-8610")
-        @Category("criticalFlow", "testTest")
+        @Category("criticalFlow")
         @Test
         fun givenMember_whenEnablingLoggingAndAppLockAndChangingEmailAndResettingPassword_thenAllSettingsUpdateSuccessfully() {
             val userInfo = UserClient.generateUniqueUserInfo()
@@ -186,7 +186,7 @@ class AccountManagement : BaseUiTest() {
                 }
             }
 
-            step("Fetch email verification link from Inbucket") {
+            step("Fetch email verification link from test mailbox") {
                 activationLink = runBlocking {
                     InbucketClient.getVerificationLink(
                         newEmail.email.orEmpty(),

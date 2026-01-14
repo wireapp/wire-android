@@ -44,7 +44,7 @@ import com.wire.android.tests.support.tags.TestCaseId
 import uiautomatorutils.UiWaitUtils.WaitUtils.waitFor
 
 @RunWith(AndroidJUnit4::class)
-class FileSharing : BaseUiTest() {
+class FileSharingBetweenTeams : BaseUiTest() {
     private val pages: AllPages by inject()
     private lateinit var device: UiDevice
     private lateinit var context: Context
@@ -72,7 +72,7 @@ class FileSharing : BaseUiTest() {
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-8603")
-    @Category("criticalFlow", "testTest")
+    @Category("criticalFlow")
     @Test
     fun givenUserInAnotherTeam_whenFileIsSent_thenRecipientCanReceivePlayAndDownloadIt() {
         step("Prepare team via backend (sender team + receiver team) with owners and members") {

@@ -71,7 +71,7 @@ class PersonalAccountLifeCycle : BaseUiTest() {
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-8609")
-    @Category("criticalFlow", "testTest")
+    @Category("criticalFlow")
     @Test
     fun givenNoAccount_whenCreatingAndDeletingPersonalAccount_thenAccountIsRemoved() {
         step("Prepare backend users and device") {
@@ -124,7 +124,7 @@ class PersonalAccountLifeCycle : BaseUiTest() {
                 clickContinueButton()
             }
         }
-        step("Fetch OTP from Inbucket to complete 2FA verification and complete registration") {
+        step("Fetch OTP to complete 2FA verification and complete registration") {
             val otp = runBlocking {
                 InbucketClient.getVerificationCode(
                     personalUser?.email.orEmpty(),

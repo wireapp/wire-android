@@ -17,16 +17,18 @@
  */
 package com.wire.android.tests.core.pages
 
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.Until
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
+import uiautomatorutils.UiWaitUtils.toBySelector
 
 data class SSOPage(private val device: UiDevice) {
 
     private val oktaUsernameField = UiSelectorParams(resourceId = "okta-signin-username")
     private val oktaPasswordField = UiSelectorParams(resourceId = "okta-signin-password")
     private val oktaSignInButton = UiSelectorParams(resourceId = "okta-signin-submit")
-
     fun enterOktaEmail(email: String): SSOPage {
         val usernameField = UiWaitUtils.waitElement(oktaUsernameField)
         usernameField.text = email
@@ -42,6 +44,22 @@ data class SSOPage(private val device: UiDevice) {
     fun tapOktaSignIn(): SSOPage {
         val signInBtn = UiWaitUtils.waitElement(oktaSignInButton)
         signInBtn.click()
+        return this
+    }
+
+    fun waitUntilOktaPageLoaded(timeoutMs: Long = 20_000): SSOPage {
+        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        try {
+            val sel = oktaSignInButton.toBySelector()
+            if (!device.wait(Until.hasObject(sel), timeoutMs)) {
+                throw AssertionError()
+            }
+        } catch (e: AssertionError) {
+            throw AssertionError(
+                "Okta page did not load: Email and password input field is not visible",
+                e
+            )
+        }
         return this
     }
 }

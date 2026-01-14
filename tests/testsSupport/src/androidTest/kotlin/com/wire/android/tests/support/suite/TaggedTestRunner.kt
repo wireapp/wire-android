@@ -26,7 +26,6 @@ import io.qameta.allure.android.runners.AllureAndroidJUnitRunner
  * and filters tests by @TestCaseId, @Category, and @Tag BEFORE
  * they are executed (and before Allure sees them).
  */
-
 class TaggedTestRunner : AllureAndroidJUnitRunner() {
 
     override fun onCreate(arguments: Bundle) {
@@ -42,5 +41,40 @@ class TaggedTestRunner : AllureAndroidJUnitRunner() {
         )
 
         super.onCreate(arguments)
+    }
+
+    override fun onStart() {
+        //  before running any tests, clear previous Allure results on the device
+        clearAllureResultsOnDevice()
+
+        //  then let Allure/AndroidJUnitRunner do its normal startup
+        super.onStart()
+    }
+
+    /**
+     * Clears the Allure results directory on the device so each run starts clean.
+     * This runs once per test run (when the runner starts).
+     */
+    private fun clearAllureResultsOnDevice() {
+        try {
+            // This is where Allure stores results on the device in our setup.
+            // If the directory doesn't exist yet, rm -rf is still safe.
+            val cmd = "rm -rf /sdcard/googletest/test_outputfiles/allure-results"
+
+            val process = Runtime.getRuntime().exec(arrayOf("sh", "-c", cmd))
+            val exitCode = process.waitFor()
+
+            Log.i(
+                "TaggedTestRunner",
+                "Cleared Allure results dir on device, exitCode=$exitCode"
+            )
+        } catch (t: Throwable) {
+            // Never fail the test run just because cleanup failed.
+            Log.w(
+                "TaggedTestRunner",
+                "Failed to clear Allure results directory before tests",
+                t
+            )
+        }
     }
 }

@@ -23,11 +23,13 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.SystemClock
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlin.math.sqrt
 
 class ShakeDetector(
     context: Context,
-    private val onShake: () -> Unit,
     private val shakeThresholdGravity: Float = DEFAULT_SHAKE_THRESHOLD_GRAVITY,
     private val debounceMs: Long = DEFAULT_DEBOUNCE_MS
 ) : SensorEventListener {
@@ -36,6 +38,9 @@ class ShakeDetector(
     private val accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
 
     private var lastShakeTimestamp = 0L
+    private val shakeEvents = MutableSharedFlow<Unit>(replay = 0, extraBufferCapacity = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+
+    fun observeShakes(): Flow<Unit> = shakeEvents
 
     fun start() {
         if (accelerometer != null) {
@@ -58,7 +63,7 @@ class ShakeDetector(
                 val now = SystemClock.elapsedRealtime()
                 if (now - lastShakeTimestamp >= debounceMs) {
                     lastShakeTimestamp = now
-                    onShake()
+                    shakeEvents.tryEmit(Unit)
                 }
             }
         }

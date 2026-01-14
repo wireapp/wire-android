@@ -168,8 +168,7 @@ class WireActivity : AppCompatActivity() {
     private val legalHoldDeactivatedViewModel: LegalHoldDeactivatedViewModel by viewModels()
 
     private val newIntents = Channel<Pair<Intent, Bundle?>>(Channel.UNLIMITED) // keep new intents until subscribed but do not replay them
-    private var navigatorRef: Navigator? = null
-    private var shakeDetector: ShakeDetector? = null
+    private lateinit var shakeDetector: ShakeDetector
 
     // This flag is used to keep the splash screen open until the first screen is drawn.
     private var shouldKeepSplashOpen = true
@@ -186,7 +185,7 @@ class WireActivity : AppCompatActivity() {
 
         enableEdgeToEdge()
         setupOrientationForDevice()
-        shakeDetector = ShakeDetector(this, onShake = { handleLogManagementShake() })
+        shakeDetector = ShakeDetector(this)
 
         lifecycleScope.launch {
 
@@ -280,14 +279,6 @@ class WireActivity : AppCompatActivity() {
                             }
                         }
                     )
-                    DisposableEffect(navigator) {
-                        navigatorRef = navigator
-                        onDispose {
-                            if (navigatorRef === navigator) {
-                                navigatorRef = null
-                            }
-                        }
-                    }
                     val currentBackStackEntryState = navigator.navController.currentBackStackEntryAsState()
                     val backgroundType by remember {
                         derivedStateOf {
@@ -426,6 +417,16 @@ class WireActivity : AppCompatActivity() {
                 onDispose {
                     switchAccountObserver.unregister(it)
                 }
+            }
+        }
+
+        LaunchedEffect(Unit) {
+            lifecycleScope.launch {
+                shakeDetector.observeShakes()
+                    .flowWithLifecycle(lifecycle, Lifecycle.State.RESUMED)
+                    .collectLatest {
+                        handleLogManagementShake(currentNavigator)
+                    }
             }
         }
     }
@@ -675,7 +676,7 @@ class WireActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        shakeDetector?.start()
+        shakeDetector.start()
 
         lifecycleScope.launch {
             lockCodeTimeManager.get().observeAppLock()
@@ -694,7 +695,7 @@ class WireActivity : AppCompatActivity() {
     }
 
     override fun onPause() {
-        shakeDetector?.stop()
+        shakeDetector.stop()
         super.onPause()
     }
 
@@ -756,8 +757,7 @@ class WireActivity : AppCompatActivity() {
         }
     }
 
-    private fun handleLogManagementShake() {
-        val navigator = navigatorRef ?: return
+    private fun handleLogManagementShake(navigator: Navigator) {
         runOnUiThread {
             val currentRoute = navigator.navController.currentDestination?.route?.getBaseRoute()
             val targetRoute = LogManagementScreenDestination.route.getBaseRoute()

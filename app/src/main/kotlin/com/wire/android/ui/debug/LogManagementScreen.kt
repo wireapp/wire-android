@@ -37,12 +37,14 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 @Composable
 fun LogManagementScreen(
     navigator: Navigator,
+    modifier: Modifier = Modifier,
     viewModel: LogManagementViewModel = hiltViewModel()
 ) {
     val state = viewModel.state
     val contentState = rememberDebugContentState(state.logPath)
 
     WireScaffold(
+        modifier = modifier,
         topBar = {
             WireCenterAlignedTopAppBar(
                 title = stringResource(R.string.label_logs_option_title),

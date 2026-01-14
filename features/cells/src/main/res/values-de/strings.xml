@@ -191,5 +191,6 @@
     <string name="file_type_bottom_sheet_document">Dokument</string>
     <string name="file_type_bottom_sheet_spreadsheet">Tabelle</string>
     <string name="file_type_bottom_sheet_presentation">Präsentation</string>
+    <string name="empty_screen_learn_more_conversation">Erfahren Sie mehr über das geteilte Drive</string>
     <string name="empty_screen_learn_more">Mehr erfahren</string>
 </resources>

@@ -70,25 +70,23 @@ fun LogOptions(
                 onCheckedChange = onDBLoggerEnabledChange
             )
         }
-        if (isLoggingEnabled) {
-            SettingsItem(
-                text = stringResource(R.string.label_share_logs),
-                trailingIcon = R.drawable.ic_entypo_share,
-                onIconPressed = Clickable(
-                    enabled = true,
-                    onClick = onShareLogs
-                )
+        SettingsItem(
+            text = stringResource(R.string.label_share_logs),
+            trailingIcon = R.drawable.ic_entypo_share,
+            onIconPressed = Clickable(
+                enabled = true,
+                onClick = onShareLogs
             )
+        )
 
-            SettingsItem(
-                text = stringResource(R.string.label_delete_logs),
-                trailingIcon = com.wire.android.ui.common.R.drawable.ic_delete,
-                onIconPressed = Clickable(
-                    enabled = true,
-                    onClick = onDeleteLogs
-                )
+        SettingsItem(
+            text = stringResource(R.string.label_delete_logs),
+            trailingIcon = com.wire.android.ui.common.R.drawable.ic_delete,
+            onIconPressed = Clickable(
+                enabled = true,
+                onClick = onDeleteLogs
             )
-        }
+        )
     }
 }
 

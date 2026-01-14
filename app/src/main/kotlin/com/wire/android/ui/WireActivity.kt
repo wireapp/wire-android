@@ -96,6 +96,7 @@ import com.wire.android.ui.destinations.NewWelcomeEmptyStartScreenDestination
 import com.wire.android.ui.destinations.SelfDevicesScreenDestination
 import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
 import com.wire.android.ui.destinations.WelcomeScreenDestination
+import com.wire.android.ui.destinations.LogManagementScreenDestination
 import com.wire.android.ui.e2eiEnrollment.GetE2EICertificateUI
 import com.wire.android.ui.home.E2EICertificateRevokedDialog
 import com.wire.android.ui.home.E2EIRequiredDialog
@@ -119,6 +120,7 @@ import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.LocalSyncStateObserver
 import com.wire.android.util.SwitchAccountObserver
 import com.wire.android.util.SyncStateObserver
+import com.wire.android.util.ShakeDetector
 import com.wire.android.util.debug.FeatureVisibilityFlags
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.deeplink.LoginType
@@ -166,6 +168,7 @@ class WireActivity : AppCompatActivity() {
     private val legalHoldDeactivatedViewModel: LegalHoldDeactivatedViewModel by viewModels()
 
     private val newIntents = Channel<Pair<Intent, Bundle?>>(Channel.UNLIMITED) // keep new intents until subscribed but do not replay them
+    private lateinit var shakeDetector: ShakeDetector
 
     // This flag is used to keep the splash screen open until the first screen is drawn.
     private var shouldKeepSplashOpen = true
@@ -182,6 +185,7 @@ class WireActivity : AppCompatActivity() {
 
         enableEdgeToEdge()
         setupOrientationForDevice()
+        shakeDetector = ShakeDetector(this)
 
         lifecycleScope.launch {
 
@@ -413,6 +417,16 @@ class WireActivity : AppCompatActivity() {
                 onDispose {
                     switchAccountObserver.unregister(it)
                 }
+            }
+        }
+
+        LaunchedEffect(Unit) {
+            lifecycleScope.launch {
+                shakeDetector.observeShakes()
+                    .flowWithLifecycle(lifecycle, Lifecycle.State.RESUMED)
+                    .collectLatest {
+                        handleLogManagementShake(currentNavigator)
+                    }
             }
         }
     }
@@ -662,6 +676,7 @@ class WireActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        shakeDetector.start()
 
         lifecycleScope.launch {
             lockCodeTimeManager.get().observeAppLock()
@@ -677,6 +692,11 @@ class WireActivity : AppCompatActivity() {
                     }
                 }
         }
+    }
+
+    override fun onPause() {
+        shakeDetector.stop()
+        super.onPause()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -734,6 +754,15 @@ class WireActivity : AppCompatActivity() {
         } else {
             viewModel.handleDeepLink(intent)
             intent.putExtra(HANDLED_DEEPLINK_FLAG, true)
+        }
+    }
+
+    private fun handleLogManagementShake(navigator: Navigator) {
+        runOnUiThread {
+            val currentRoute = navigator.navController.currentDestination?.route?.getBaseRoute()
+            val targetRoute = LogManagementScreenDestination.route.getBaseRoute()
+            if (currentRoute == targetRoute) return@runOnUiThread
+            navigator.navigate(NavigationCommand(LogManagementScreenDestination, BackStackMode.UPDATE_EXISTED))
         }
     }
 

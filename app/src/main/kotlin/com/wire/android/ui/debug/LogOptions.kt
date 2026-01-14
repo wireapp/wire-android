@@ -33,13 +33,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.model.Clickable
-import com.wire.android.ui.common.rowitem.RowItemTemplate
 import com.wire.android.ui.common.SurfaceBackgroundWrapper
 import com.wire.android.ui.common.button.WireSwitch
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.typography
+import com.wire.android.ui.common.rowitem.RowItemTemplate
 import com.wire.android.ui.common.rowitem.SectionHeader
+import com.wire.android.ui.common.typography
 import com.wire.android.ui.home.settings.SettingsItem
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions

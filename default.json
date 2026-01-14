@@ -88,7 +88,8 @@
             "use_strict_mls_filter": false,
             "use_async_flush_logging": true,
             "conversation_feeder_enabled": true,
-            "db_invalidation_control_enabled": false
+            "db_invalidation_control_enabled": false,
+            "collabora_integration": true
         },
         "fdroid": {
             "application_id": "com.wire",

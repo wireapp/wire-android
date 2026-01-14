@@ -32,7 +32,6 @@ import com.wire.android.ui.home.conversations.details.participants.usecase.Obser
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAddPermissionType
 import com.wire.android.ui.navArgs
-import com.wire.kalium.common.functional.Either
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Group.Channel.ChannelAccess
@@ -776,7 +775,7 @@ internal class GroupConversationDetailsViewModelArrangement {
         coEvery { observeConversationDetails(any()) } returns flowOf()
         coEvery { getSelfUser() } returns TestUser.SELF_USER
         coEvery { observeParticipantsForConversationUseCase(any(), any()) } returns flowOf()
-        coEvery { getSelfTeamUseCase() } returns Either.Right(null)
+        coEvery { getSelfTeamUseCase() } returns null
         coEvery { isMLSEnabledUseCase() } returns true
         coEvery { updateConversationMutedStatus(any(), any(), any()) } returns ConversationUpdateStatusResult.Success
         coEvery { observeSelfDeletionTimerSettingsForConversation(any(), any()) } returns flowOf(SelfDeletionTimer.Disabled)
@@ -805,7 +804,7 @@ internal class GroupConversationDetailsViewModelArrangement {
     }
 
     suspend fun withSelfTeamUseCaseReturns(result: Team?) = apply {
-        coEvery { getSelfTeamUseCase() } returns Either.Right(result)
+        coEvery { getSelfTeamUseCase() } returns result
     }
 
     suspend fun withUpdateConversationReceiptModeReturningSuccess() = apply {

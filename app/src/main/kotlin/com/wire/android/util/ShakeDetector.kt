@@ -48,20 +48,20 @@ class ShakeDetector(
     }
 
     override fun onSensorChanged(event: SensorEvent) {
-        if (event.sensor.type != Sensor.TYPE_ACCELEROMETER) return
+        if (event.sensor.type == Sensor.TYPE_ACCELEROMETER) {
+            val x = event.values[0] / SensorManager.GRAVITY_EARTH
+            val y = event.values[1] / SensorManager.GRAVITY_EARTH
+            val z = event.values[2] / SensorManager.GRAVITY_EARTH
 
-        val x = event.values[0] / SensorManager.GRAVITY_EARTH
-        val y = event.values[1] / SensorManager.GRAVITY_EARTH
-        val z = event.values[2] / SensorManager.GRAVITY_EARTH
-
-        val gForce = sqrt(x * x + y * y + z * z)
-        if (gForce < shakeThresholdGravity) return
-
-        val now = SystemClock.elapsedRealtime()
-        if (now - lastShakeTimestamp < debounceMs) return
-
-        lastShakeTimestamp = now
-        onShake()
+            val gForce = sqrt(x * x + y * y + z * z)
+            if (gForce >= shakeThresholdGravity) {
+                val now = SystemClock.elapsedRealtime()
+                if (now - lastShakeTimestamp >= debounceMs) {
+                    lastShakeTimestamp = now
+                    onShake()
+                }
+            }
+        }
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) = Unit

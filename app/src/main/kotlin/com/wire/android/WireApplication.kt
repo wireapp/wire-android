@@ -317,9 +317,7 @@ class WireApplication : BaseApp() {
         AppLogger.init(config)
         CoreLogger.init(config)
         // 3. Initialize our internal FILE logging framework
-        if (isLoggingEnabled) {
-            logFileWriter.get().start()
-        }
+        logFileWriter.get().start()
         // 4. Everything ready, now we can log device info
         appLogger.i("Logger enabled")
         logDeviceInformation()

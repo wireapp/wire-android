@@ -17,9 +17,9 @@
  */
 package com.wire.android.ui.home.messagecomposer.recordaudio
 
-import android.app.Activity
 import android.text.format.DateUtils
 import android.view.WindowManager
+import androidx.activity.compose.LocalActivity
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Column
@@ -41,7 +41,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -117,12 +116,12 @@ fun RecordAudioButtonRecording(
         }
     }
     if (!LocalInspectionMode.current) {
-        val activity = LocalContext.current as Activity
+        val activity = LocalActivity.current
 
         DisposableEffect(Unit) {
-            activity.window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+            activity?.window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
             onDispose {
-                activity.window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
             }
         }
     }
@@ -154,12 +153,12 @@ fun RecordAudioButtonEncoding(
     modifier: Modifier = Modifier
 ) {
     if (!LocalInspectionMode.current) {
-        val activity = LocalContext.current as Activity
+        val activity = LocalActivity.current
 
         DisposableEffect(Unit) {
-            activity.window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+            activity?.window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
             onDispose {
-                activity.window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
             }
         }
     }

@@ -89,9 +89,9 @@ sealed class HomeDestination(
     )
 
     data object Cells : HomeDestination(
-        title = UIText.StringResource(R.string.cells_screen_title),
+        title = UIText.StringResource(R.string.drive_screen_title),
         icon = R.drawable.ic_files,
-        searchBar = SearchBarOptions(R.string.cells_screen_search_hint),
+        searchBar = SearchBarOptions(R.string.drive_screen_search_hint),
         filterAction = FilterActionOptions.FilterCells,
         direction = GlobalCellsScreenDestination
     )

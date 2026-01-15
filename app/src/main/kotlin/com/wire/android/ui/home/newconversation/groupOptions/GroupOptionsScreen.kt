@@ -361,7 +361,7 @@ private fun GroupOptionState.AllowAppsOptions(onAllowServicesChanged: (Boolean) 
 @Composable
 private fun GroupOptionState.EnableWireCellOptions(onEnableWireCell: (Boolean) -> Unit) {
     val context = LocalContext.current
-    val cellsLearnMoreUrl = stringResource(R.string.create_group_with_cells_learn_more_url)
+    val cellsLearnMoreUrl = stringResource(R.string.create_group_with_shared_drive_learn_more_url)
 
     GroupConversationOptionsItem(
         title = stringResource(R.string.enable_wire_cell),
@@ -428,7 +428,7 @@ private fun AllowGuestsDialog(
             type = WireDialogButtonType.Primary
         ),
         optionButton2Properties = WireDialogButtonProperties(
-            text = stringResource(R.string.allow_guests),
+            text = stringResource(R.string.enable_guests_dialog_button),
             onClick = onAllowGuestsClicked,
             type = WireDialogButtonType.Primary
         ),

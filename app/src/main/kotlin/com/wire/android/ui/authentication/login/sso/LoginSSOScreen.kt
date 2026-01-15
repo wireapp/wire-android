@@ -64,6 +64,7 @@ fun LoginSSOScreen(
     onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit,
     onRemoveDeviceNeeded: () -> Unit,
     ssoLoginResult: DeepLinkResult.SSOLogin?,
+    ssoCode: String?,
     ssoUrlConfigHolder: SSOUrlConfigHolder,
     loginSSOViewModel: LoginSSOViewModel = hiltViewModel(),
     scrollState: ScrollState = rememberScrollState()
@@ -73,6 +74,12 @@ fun LoginSSOScreen(
 
     LaunchedEffect(ssoLoginResult) {
         loginSSOViewModel.handleSSOResult(ssoLoginResult, ssoUrlConfigHolder.get()?.serverConfig)
+    }
+
+    LaunchedEffect(ssoCode) {
+        ssoCode?.let {
+            loginSSOViewModel.setSSOCodeAndLogin(it)
+        }
     }
     LoginSSOContent(
         scrollState = scrollState,

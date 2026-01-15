@@ -181,5 +181,6 @@
     "collabora_integration": false,
     "db_invalidation_control_enabled": false,
     "message_synchronization_enabled": false,
-    "crypto_state_backup_enabled": false
+    "crypto_state_backup_enabled": false,
+    "crypto_state_backup_interval": 20
 }

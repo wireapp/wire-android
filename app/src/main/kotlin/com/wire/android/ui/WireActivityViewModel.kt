@@ -130,6 +130,7 @@ class WireActivityViewModel @Inject constructor(
     private val workManager: Lazy<WorkManager>,
     private val isProfileQRCodeEnabledFactory: IsProfileQRCodeEnabledUseCaseProvider.Factory,
     private val observeSelfUserFactory: ObserveSelfUserUseCaseProvider.Factory,
+    private val managedConfigurationsManager: Lazy<com.wire.android.emm.ManagedConfigurationsManager>,
 ) : ActionsViewModel<WireActivityViewAction>() {
 
     var globalAppState: GlobalAppState by mutableStateOf(GlobalAppState())
@@ -363,6 +364,27 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
+    fun handleServerConfigIntent(serverConfigJson: String) {
+        if (!BuildConfig.EMM_SUPPORT_ENABLED) {
+            appLogger.w("$TAG: EMM support not enabled, ignoring server_config intent")
+            return
+        }
+
+        viewModelScope.launch(dispatchers.io()) {
+            when (val result = managedConfigurationsManager.get().setServerConfigFromJson(serverConfigJson)) {
+                is com.wire.android.emm.ServerConfigResult.Success -> {
+                    appLogger.i("$TAG: Server config from intent applied successfully: ${result.config.title}")
+                }
+                is com.wire.android.emm.ServerConfigResult.Failure -> {
+                    appLogger.e("$TAG: Failed to apply server config from intent: ${result.reason}")
+                }
+                com.wire.android.emm.ServerConfigResult.Empty -> {
+                    appLogger.w("$TAG: Empty server config result from intent")
+                }
+            }
+        }
+    }
+
     fun dismissCustomBackendDialog() {
         globalAppState = globalAppState.copy(customBackendDialog = null)
     }
@@ -567,6 +589,10 @@ class WireActivityViewModel @Inject constructor(
         is CurrentScreen.OtherUserProfile,
         is CurrentScreen.AuthRelated,
         is CurrentScreen.SomeOther -> true
+    }
+
+    companion object {
+        private const val TAG = "WireActivityViewModel"
     }
 }
 

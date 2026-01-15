@@ -840,14 +840,12 @@
         <item quantity="other">%1$s සහ තවත් %2$d දෙනෙක් ලියමින්</item>
     </plurals>
     <!-- Search Messages -->
-    <string name="label_search_messages">පණිවිඩ සොයන්න</string>
     <string name="label_search_messages_empty_title">මෙම සංවාදයේ සියලුම පණිවිඩ සොයන්න.</string>
     <string name="label_search_messages_no_results">ප්‍රතිඵල හමු නොවිණි.\nනැවත උත්සාහ කරන්න.</string>
     <string name="label_search_button">සොයන්න</string>
     <!-- Conversation Media -->
     <string name="label_conversation_media">මාධ්‍ය</string>
     <string name="label_conversation_pictures">ඡායාරූප</string>
-    <string name="label_conversation_files">ගොනු</string>
     <string name="label_conversation_pictures_empty">කිසිවෙක් මෙම සංවාදයෙහි ඡායාරූප බෙදාගෙන නැත 🥲</string>
     <string name="label_conversation_files_empty">කිසිවෙක් මෙම සංවාදයෙහි ගොනු බෙදාගෙන නැත 🙀</string>
     <!-- Search Contact-->
@@ -1654,8 +1652,7 @@
     <string name="channel_not_available_dialog_description">කණ්ඩායමක් සාදා නොමිලේ සහයෝගයෙන් කටයුතු කිරීම ආරම්භ කරන්න!</string>
     <string name="channel_not_available_dialog_create_team_button">වයර් කණ්ඩායම සාදන්න</string>
     <string name="custimization_options_header_title">විකල්ප</string>
-    <string name="cells_screen_title">සියලුම ගොනු</string>
-    <string name="cells_screen_search_hint">ගොනු සොයන්න</string>
+    <string name="drive_screen_search_hint">ගොනු සොයන්න</string>
     <string name="failed_attachment_retry_upload">උඩුගත කිරීම නැවත උත්සාහ කරන්න</string>
     <string name="failed_attachment_remove">ඉවත් කරන්න</string>
     <!-- Apps-->

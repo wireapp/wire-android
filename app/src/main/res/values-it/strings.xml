@@ -611,14 +611,12 @@ Un messaggio eliminato non pu&#242; essere ripristinato.</string>
         <item quantity="other">%1$s e altri %2$d stanno digitando</item>
     </plurals>
     <!-- Search Messages -->
-    <string name="label_search_messages">Cerca messaggi</string>
     <string name="label_search_messages_empty_title">Cerca tutti i messaggi in questa conversazione.</string>
     <string name="label_search_messages_no_results">Impossibile trovare alcun risultato.\nTi preghiamo di affinare la tua ricerca e riprovare.</string>
     <string name="label_search_button">Cerca</string>
     <!-- Conversation Media -->
     <string name="label_conversation_media">Multimedia</string>
     <string name="label_conversation_pictures">Immagini</string>
-    <string name="label_conversation_files">File</string>
     <string name="label_conversation_pictures_empty">Nessuno ha ancora condiviso immagini in questa conversazione 🥲</string>
     <string name="label_conversation_files_empty">Nessuno ha ancora condiviso dei file in questa conversazione 🙀</string>
     <!-- Search Contact-->

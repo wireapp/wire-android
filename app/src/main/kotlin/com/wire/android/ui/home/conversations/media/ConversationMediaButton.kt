@@ -27,6 +27,8 @@ import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.preview.MultipleThemePreviews
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 
 @Composable
@@ -50,4 +52,12 @@ fun ConversationMediaButton(
         },
         onClickDescription = stringResource(id = R.string.content_description_see_media_in_conversation_btn)
     )
+}
+
+@MultipleThemePreviews
+@Composable
+fun PreviewConversationMediaButton() {
+    WireTheme {
+        ConversationMediaButton(onClick = {})
+    }
 }

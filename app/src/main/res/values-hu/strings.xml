@@ -824,14 +824,12 @@
         <item quantity="other">%1$s és %2$d gépel</item>
     </plurals>
     <!-- Search Messages -->
-    <string name="label_search_messages">Üzenetek keresése</string>
     <string name="label_search_messages_empty_title">Üzenetek keresése ebben a beszélgetésben.</string>
     <string name="label_search_messages_no_results">Nincs találat.\nMódosítsa a keresőkifejezést, és próbálja meg újra.</string>
     <string name="label_search_button">Keresés</string>
     <!-- Conversation Media -->
     <string name="label_conversation_media">Média</string>
     <string name="label_conversation_pictures">Képek</string>
-    <string name="label_conversation_files">Fájlok</string>
     <string name="label_conversation_pictures_empty">Ebben a beszélgetésben még senki nem osztott meg képet 🥲</string>
     <string name="label_conversation_files_empty">Ebben a beszégetésben még senki nem osztott meg fájlt 🙀</string>
     <!-- Search Contact-->
@@ -1645,7 +1643,6 @@ Kérjük, próbálja meg újra.</string>
     <string name="channel_not_available_dialog_description">Hozzon létre csapatot, és kezdjen együttműködni költségmentesen!</string>
     <string name="channel_not_available_dialog_create_team_button">Wire csapat létrehozása</string>
     <string name="custimization_options_header_title">Beállítások</string>
-    <string name="cells_screen_title">Minden fájl</string>
-    <string name="cells_screen_search_hint">Fájlok keresése</string>
+    <string name="drive_screen_search_hint">Fájlok keresése</string>
     <!-- Apps-->
 </resources>

@@ -101,8 +101,8 @@ object NetworkBackendClient {
                 setRequestProperty("Cookie", cookie.name + "=" + cookie.value)
             }
 
-            connectTimeout = 5000
-            readTimeout = 5000
+            connectTimeout = 20000
+            readTimeout = 30000
         }
 
         writeRequestBody(connection, body)

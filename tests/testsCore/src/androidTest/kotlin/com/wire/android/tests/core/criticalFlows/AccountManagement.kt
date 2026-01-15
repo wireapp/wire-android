@@ -44,111 +44,186 @@ import com.wire.android.tests.support.tags.TestCaseId
 
 @RunWith(AndroidJUnit4::class)
 class AccountManagement : BaseUiTest() {
-
     private val pages: AllPages by inject()
     private lateinit var device: UiDevice
-    lateinit var context: Context
-    var registeredUser: ClientUser? = null
-    var backendClient: BackendClient? = null
-    var teamHelper: TeamHelper? = null
+    private lateinit var context: Context
+    private lateinit var appPackage: String
+    private var teamMember: ClientUser? = null
+    private lateinit var backendClient: BackendClient
+    private lateinit var teamHelper: TeamHelper
+    private lateinit var testServiceHelper: TestServiceHelper
+    private var registeredUser: ClientUser? = null
+    private lateinit var activationLink: String
 
     @Before
     fun setUp() {
         context = InstrumentationRegistry.getInstrumentation().context
-        // device = UiAutomatorSetup.start(UiAutomatorSetup.APP_DEV)
-        device = UiAutomatorSetup.start(UiAutomatorSetup.APP_INTERNAL)
+        appPackage = UiAutomatorSetup.APP_INTERNAL
+        device = UiAutomatorSetup.start(appPackage)
         backendClient = BackendClient.loadBackend("STAGING")
         teamHelper = TeamHelper()
+        testServiceHelper = TestServiceHelper(teamHelper.usersManager)
     }
 
     @After
     fun tearDown() {
-        //  UiAutomatorSetup.stopApp()
+        UiAutomatorSetup.stopApp()
         // To delete team member
-        // registeredUser?.deleteTeamMember(backendClient!!, teamMember?.getUserId().orEmpty())
+       // runCatching { registeredUser?.deleteTeamMember(backendClient, teamMember?.getUserId().orEmpty()) }
         // To delete team
-        registeredUser?.deleteTeam(backendClient!!)
+        runCatching { registeredUser?.deleteTeam(backendClient) }
     }
 
-    @Suppress("LongMethod")
-    @TestCaseId("TC-8610")
-    @Category("criticalFlow")
-    @Test
-    fun givenMember_whenEnablingLoggingAndAppLockAndChangingEmailAndResettingPassword_thenAllSettingsUpdateSuccessfully() {
-        val userInfo = UserClient.generateUniqueUserInfo()
-        teamHelper?.usersManager!!.createTeamOwnerByAlias("user1Name", "AccountManagement", "en_US", true, backendClient!!, context)
-        registeredUser = teamHelper?.usersManager!!.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
-        teamHelper?.userXAddsUsersToTeam(
-            "user1Name",
-            "user2Name,user3Name",
-            "AccountManagement",
-            TeamRoles.Member,
-            backendClient!!,
-            context,
-            true
-        )
-        val teamMember = teamHelper?.usersManager!!.findUserBy("user2Name", ClientUserManager.FindBy.NAME_ALIAS)
-        val newEmail = teamHelper?.usersManager!!.findUserBy("user4Name", ClientUserManager.FindBy.NAME_ALIAS)
+        @Suppress("LongMethod", "CyclomaticComplexMethod")
+        @TestCaseId("TC-8610")
+        @Category("criticalFlow")
+        @Test
+        fun givenMember_whenEnablingLoggingAndAppLockAndChangingEmailAndResettingPassword_thenAllSettingsUpdateSuccessfully() {
+            val userInfo = UserClient.generateUniqueUserInfo()
 
-        TestServiceHelper().userHasGroupConversationInTeam("user1Name", "MyTeam", "user2Name", "AccountManagement")
+            lateinit var newEmail: ClientUser
 
-        pages.registrationPage.apply {
-            assertEmailWelcomePage()
-        }
-        pages.loginPage.apply {
-            enterTeamMemberLoggingEmail(teamMember.email ?: "")
-            clickLoginButton()
-            enterTeamMemberLoggingPassword(teamMember.password ?: "")
-            clickLoginButton()
-        }
-        pages.registrationPage.apply {
-            waitUntilLoginFlowIsCompleted()
-            clickAllowNotificationButton()
-            clickDeclineShareDataAlert()
-        }
-        pages.conversationListPage.apply {
-            assertGroupConversationVisible("MyTeam")
-            clickConversationsMenuEntry()
-            clickSettingsButtonOnMenuEntry()
-            pages.settingsPage.apply {
-                clickDebugSettingsButton()
-                tapEnableLoggingToggle()
-                assertLoggingToggleIsOff()
-                tapEnableLoggingToggle()
-                assertLoggingToggleIsOn()
-                clickBackButtonOnSettingsPage()
-                assertLockWithPasswordToggleIsOff()
-                turnOnLockWithPasscodeToggle()
-                assertAppLockDescriptionText()
-                enterPasscode(userInfo.password)
-                tapSetPasscodeButton()
-                assertLockWithPasswordToggleIsOn()
-                tapAccountDetailsButton()
-                verifyDisplayedEmailAddress(teamMember.email ?: "")
-                verifyDisplayedDomain("staging.zinfra.io")
-                clickDisplayedEmailAddress()
-                changeToNewEmailAddress(newEmail.email ?: "")
-                clickSaveButton()
-                assertNotificationWithNewEmail(newEmail.email ?: "")
-                val activationLink = runBlocking {
+            step("Prepare team via backend  (owner + members + conversation)") {
+                teamHelper.usersManager.createTeamOwnerByAlias(
+                    "user1Name",
+                    "AccountManagement",
+                    "en_US",
+                    true,
+                    backendClient,
+                    context
+                )
+
+                teamHelper.userXAddsUsersToTeam(
+                    "user1Name",
+                    "user2Name,user3Name",
+                    "AccountManagement",
+                    TeamRoles.Member,
+                    backendClient,
+                    context,
+                    true
+                )
+
+                testServiceHelper.userHasGroupConversationInTeam(
+                    "user1Name",
+                    "MyTeam",
+                    "user2Name",
+                    "AccountManagement"
+                )
+
+                registeredUser = teamHelper.usersManager.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
+                teamMember = teamHelper.usersManager.findUserBy("user2Name", ClientUserManager.FindBy.NAME_ALIAS)
+                newEmail = teamHelper.usersManager.findUserBy("user4Name", ClientUserManager.FindBy.NAME_ALIAS)
+            }
+
+            step("Login as team member in Android app") {
+                pages.registrationPage.apply {
+                    assertEmailWelcomePage()
+                }
+
+                pages.loginPage.apply {
+                    clickStagingDeepLink()
+                    clickProceedButtonOnDeeplinkOverlay()
+                }
+
+                pages.loginPage.apply {
+                    enterTeamMemberLoggingEmail(teamMember?.email ?: "")
+                    clickLoginButton()
+                    enterTeamMemberLoggingPassword(teamMember?.password ?: "")
+                    clickLoginButton()
+                }
+
+                pages.registrationPage.apply {
+                    waitUntilLoginFlowIsCompleted()
+                    clickAllowNotificationButton()
+                    clickDeclineShareDataAlert()
+                }
+            }
+
+            step("Assert conversation name and open Settings from conversation menu entry") {
+                pages.conversationListPage.apply {
+                    assertGroupConversationVisible("MyTeam")
+                    clickConversationsMenuEntry()
+                    clickSettingsButtonOnMenuEntry()
+                }
+            }
+
+            step("Verify Enable Logging toggle works in Debug Settings") {
+                pages.settingsPage.apply {
+                    clickDebugSettingsButton()
+                    tapEnableLoggingToggle()
+                    assertLoggingToggleIsOff()
+                    tapEnableLoggingToggle()
+                    assertLoggingToggleIsOn()
+                    clickBackButtonOnSettingsPage()
+                }
+            }
+
+            step("Enable App Lock and set passcode") {
+                pages.settingsPage.apply {
+                    assertLockWithPasswordToggleIsOff()
+                    turnOnLockWithPasscodeToggle()
+                    assertAppLockDescriptionText()
+                    enterPasscode(userInfo.password)
+                    tapSetPasscodeButton()
+                    assertLockWithPasswordToggleIsOn()
+                }
+            }
+
+            step("Open Account Details and verify current email + domain") {
+                pages.settingsPage.apply {
+                    tapAccountDetailsButton()
+                    verifyDisplayedEmailAddress(teamMember?.email ?: "")
+                    verifyDisplayedDomain("staging.zinfra.io")
+                }
+            }
+
+            step("Change email address and verify confirmation notification") {
+                pages.settingsPage.apply {
+                    clickDisplayedEmailAddress()
+                    changeToNewEmailAddress(newEmail.email ?: "")
+                    clickSaveButton()
+                    assertNotificationWithNewEmail(newEmail.email ?: "")
+                }
+            }
+
+            step("Fetch email verification link from test mailbox") {
+                activationLink = runBlocking {
                     InbucketClient.getVerificationLink(
                         newEmail.email.orEmpty(),
-                        backendClient!!.inbucketUrl,
-                        backendClient!!.inbucketPassword,
-                        backendClient!!.inbucketUsername
+                        backendClient.inbucketUrl,
+                        backendClient.inbucketPassword,
+                        backendClient.inbucketUsername
                     )
                 }
-                clickEmailVerificationLink(activationLink)
-                assertEmailVerifiedMessageVisibleOnChrome()
-                // Brings the Wire staging app to the foreground using the monkey tool
-                device.executeShellCommand("monkey -p ${UiAutomatorSetup.APP_STAGING} -c android.intent.category.LAUNCHER 1")
-                clickBackButtonOnSettingsPage()
-                waitUntilNewEmailIsVisible(newEmail.email ?: "")
-                assertDisplayedEmailAddressIsNewEmail(newEmail.email ?: "")
-                assertResetPasswordButtonIsDisplayed()
-                tapResetPasswordButton()
-                assertChromeUrlIsDisplayed("wire-account-staging.zinfra.io")
+            }
+
+            step("Verify new email via Chrome") {
+                pages.settingsPage.apply {
+                    clickEmailVerificationLink(activationLink)
+                    assertEmailVerifiedMessageVisibleOnChrome()
+                }
+            }
+
+            step("Bring Wire app back to foreground") {
+                device.executeShellCommand(
+                    "monkey -p $appPackage -c android.intent.category.LAUNCHER 1"
+                )
+            }
+
+            step("Verify new email is visible in Account Details") {
+                pages.settingsPage.apply {
+                    clickBackButtonOnSettingsPage()
+                    waitUntilNewEmailIsVisible(newEmail.email ?: "")
+                    assertDisplayedEmailAddressIsNewEmail(newEmail.email ?: "")
+                }
+            }
+
+            step("Start reset password flow and verify the reset URL") {
+                pages.settingsPage.apply {
+                    assertResetPasswordButtonIsDisplayed()
+                    tapResetPasswordButton()
+                    assertChromeUrlIsDisplayed("wire-account-staging.zinfra.io")
+                }
             }
         }
     }
-}

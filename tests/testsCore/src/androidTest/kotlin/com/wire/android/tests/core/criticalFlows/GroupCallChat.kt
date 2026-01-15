@@ -49,22 +49,15 @@ import com.wire.android.tests.support.tags.Tag
 
 @RunWith(AndroidJUnit4::class)
 class GroupCallChat : BaseUiTest() {
-
     private val pages: AllPages by inject()
     private lateinit var device: UiDevice
-
-    lateinit var callingManager: CallingManager
-
-    lateinit var context: Context
-    var teamOwner: ClientUser? = null
-    var backendClient: BackendClient? = null
-    var teamHelper: TeamHelper? = null
-    val testServiceHelper by lazy {
-        TestServiceHelper()
-    }
-    val callHelper by lazy {
-        CallHelper()
-    }
+    private lateinit var context: Context
+    private lateinit var backendClient: BackendClient
+    private lateinit var teamHelper: TeamHelper
+    private lateinit var testServiceHelper: TestServiceHelper
+    private val callHelper by lazy { CallHelper() }
+    private lateinit var callingManager: CallingManager
+    private var teamOwner: ClientUser? = null
 
     @Before
     fun setUp() {
@@ -72,10 +65,9 @@ class GroupCallChat : BaseUiTest() {
         device = UiAutomatorSetup.start(UiAutomatorSetup.APP_INTERNAL)
         backendClient = BackendClient.loadBackend("STAGING")
         teamHelper = TeamHelper()
-
-        callHelper.init(teamHelper!!.usersManager)
+        testServiceHelper = TestServiceHelper(teamHelper.usersManager)
+        callHelper.init(teamHelper.usersManager)
         callingManager = callHelper.callingManager
-
         grantRuntimePermsForForegroundApp(
             device,
             android.Manifest.permission.RECORD_AUDIO,
@@ -85,8 +77,7 @@ class GroupCallChat : BaseUiTest() {
 
     @After
     fun tearDown() {
-        // To delete team
-        teamOwner?.deleteTeam(backendClient!!)
+        runCatching { teamOwner?.deleteTeam(backendClient) }
         deleteDownloadedFilesContaining("my-test-qr.png")
     }
 
@@ -96,22 +87,22 @@ class GroupCallChat : BaseUiTest() {
     @Tag(key = "criticalFlow", value = "groupCallChat")
     @Test
     fun givenIStartGroupCall_whenParticipantShareMessageFileAndLocation_thenAllVisibleAndCallContinues() {
-        step("Prepare backend team (owner + members + conversation)") {
-            teamHelper?.usersManager!!.createTeamOwnerByAlias(
+        step("Prepare team via backend (owner + members + conversation)") {
+            teamHelper.usersManager.createTeamOwnerByAlias(
                 "user1Name",
                 "WeLikeCalling",
                 "en_US",
                 true,
-                backendClient!!,
+                backendClient,
                 context
             )
-            teamOwner = teamHelper?.usersManager!!.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
-            teamHelper?.userXAddsUsersToTeam(
+            teamOwner = teamHelper.usersManager.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
+            teamHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name,user3Name",
                 "WeLikeCalling",
                 TeamRoles.Member,
-                backendClient!!,
+                backendClient,
                 context,
                 true
             )
@@ -126,143 +117,143 @@ class GroupCallChat : BaseUiTest() {
             testServiceHelper.addDevice("user3Name", null, "Device1")
         }
 
-            step("Enable conference calling & start browser instances for participants") {
-                runBlocking {
-                    callHelper.enableConferenceCallingFeatureViaBackdoorTeam(
-                        "user1Name",
-                        "WeLikeCalling"
-                    )
-                    callHelper.userXStartsInstance(
-                        "user2Name, user3Name",
-                        "Chrome"
-                    )
-                }
-            }
-            step("Login as team owner in Android app") {
-                pages.registrationPage.apply {
-                    assertEmailWelcomePage()
-                }
-                pages.loginPage.apply {
-                    clickStagingDeepLink()
-                    clickProceedButtonOnDeeplinkOverlay()
-                }
-                pages.loginPage.apply {
-                    enterTeamOwnerLoggingEmail(teamOwner?.email ?: "")
-                    clickLoginButton()
-                    enterTeamOwnerLoggingPassword(teamOwner?.password ?: "")
-                    clickLoginButton()
-                }
-                pages.registrationPage.apply {
-                    waitUntilLoginFlowIsCompleted()
-                    clickAllowNotificationButton()
-                    clickDeclineShareDataAlert()
-                }
-            }
-            step("Open GroupCallChats conversation") {
-                pages.conversationListPage.apply {
-                    assertGroupConversationVisible("GroupCallChat")
-                    clickGroupConversation("GroupCallChat")
-                }
-            }
-
-            step("Prepare participants to auto-accept next incoming call") {
-                runBlocking {
-                    callHelper.userXAcceptsNextIncomingCallAutomatically("user2Name, user3Name")
-                }
-            }
-
-            step("Start group call from GroupCallChats conversation") {
-                pages.conversationViewPage.apply {
-                    iTapStartCallButton()
-                }
-            }
-
-            step("Verify group call is active and participants joined") {
-                runBlocking {
-                    callHelper.userVerifiesCallStatusToUserY(
-                        "user2Name, user3Name",
-                        "active",
-                        90
-                    )
-                }
-                pages.callingPage.apply {
-                    iSeeOngoingGroupCall()
-                }
-                callHelper.iSeeParticipantsInGroupCall("user2Name, user3Name")
-            }
-
-            step("Unmute participants and verify audio is sent & received") {
-                runBlocking {
-                    val callParticipants =
-                        teamHelper!!.usersManager.splitAliases("user2Name, user3Name")
-                    callingManager.unmuteMicrophone(callParticipants)
-
-                    val callParticipantsAudio =
-                        teamHelper!!.usersManager.splitAliases("user2Name, user3Name")
-                    callingManager.verifySendAndReceiveAudio(callParticipantsAudio)
-                }
-            }
-            step("Minimise ongoing group call") {
-                pages.callingPage.apply {
-                    iMinimiseOngoingCall()
-                }
-            }
-            step("Send chat message 'Hello Friends' from user2") {
-                testServiceHelper.apply {
-                    addDevice("user2Name", null, "Device1")
-                    userSendMessageToConversation(
-                        "user2Name",
-                        "Hello Friends",
-                        "Device1",
-                        "GroupCallChat",
-                        false
-                    )
-                }
-            }
-            step("Verify message is visible in conversation") {
-                pages.conversationViewPage.apply {
-                    assertReceivedMessageIsVisibleInCurrentConversation("Hello Friends")
-                }
-            }
-            step("Share QR code file in conversation and verify it is sent") {
-                pages.conversationViewPage.apply {
-                    iTapFileSharingButton()
-                    assertSharingOptionVisible("File")
-                    assertSharingOptionVisible("Gallery")
-                    assertSharingOptionVisible("Camera")
-                    assertSharingOptionVisible("Video")
-                    assertSharingOptionVisible("Audio")
-                    assertSharingOptionVisible("Location")
-                    createQrImageInDeviceDownloadsFolder("my-test-qr")
-                    tapSharingOption("File")
-                }
-                pages.documentsUIPage.apply {
-                    iSeeQrCodeImage()
-                    iOpenDisplayedQrCodeImage()
-                    iTapSendButtonOnPreviewImage()
-                }
-
-                pages.conversationViewPage.apply {
-                    iSeeSentQrCodeImageInCurrentConversation()
-                }
-            }
-            step("Share location from user3 and verify call continues") {
-                testServiceHelper.userXSharesLocationTo(
-                    "user3Name",
-                    "GroupCallChat",
-                    "Device1",
-                    false
+        step("Enable conference calling & start browser instances for participants") {
+            runBlocking {
+                callHelper.enableConferenceCallingFeatureViaBackdoorTeam(
+                    "user1Name",
+                    "WeLikeCalling"
                 )
-
-                pages.conversationViewPage.apply {
-                    iSeeLocationMapContainer()
-                }
-
-                pages.callingPage.apply {
-                    iRestoreOngoingCall()
-                    iSeeOngoingGroupCall()
-                }
-                callHelper.iSeeParticipantsInGroupCall("user2Name, user3Name")
+                callHelper.userXStartsInstance(
+                    "user2Name, user3Name",
+                    "Chrome"
+                )
             }
         }
+        step("Login as team owner in Android app") {
+            pages.registrationPage.apply {
+                assertEmailWelcomePage()
+            }
+            pages.loginPage.apply {
+                clickStagingDeepLink()
+                clickProceedButtonOnDeeplinkOverlay()
+            }
+            pages.loginPage.apply {
+                enterTeamOwnerLoggingEmail(teamOwner?.email ?: "")
+                clickLoginButton()
+                enterTeamOwnerLoggingPassword(teamOwner?.password ?: "")
+                clickLoginButton()
+            }
+            pages.registrationPage.apply {
+                waitUntilLoginFlowIsCompleted()
+                clickAllowNotificationButton()
+                clickDeclineShareDataAlert()
+            }
+        }
+        step("Open GroupCallChat conversation") {
+            pages.conversationListPage.apply {
+                assertGroupConversationVisible("GroupCallChat")
+                clickGroupConversation("GroupCallChat")
+            }
+        }
+
+        step("Prepare participants to auto-accept next incoming call") {
+            runBlocking {
+                callHelper.userXAcceptsNextIncomingCallAutomatically("user2Name, user3Name")
+            }
+        }
+
+        step("Start group call from GroupCallChats conversation") {
+            pages.conversationViewPage.apply {
+                iTapStartCallButton()
+            }
+        }
+
+        step("Verify group call is active and participants joined") {
+            runBlocking {
+                callHelper.userVerifiesCallStatusToUserY(
+                    "user2Name, user3Name",
+                    "active",
+                    90
+                )
+            }
+            pages.callingPage.apply {
+                iSeeOngoingGroupCall()
+            }
+            callHelper.iSeeParticipantsInGroupCall("user2Name, user3Name")
+        }
+
+        step("Unmute participants and verify audio is sent & received") {
+            runBlocking {
+                val callParticipants =
+                    teamHelper.usersManager.splitAliases("user2Name, user3Name")
+                callingManager.unmuteMicrophone(callParticipants)
+
+                val callParticipantsAudio =
+                    teamHelper.usersManager.splitAliases("user2Name, user3Name")
+                callingManager.verifySendAndReceiveAudio(callParticipantsAudio)
+            }
+        }
+        step("Minimise ongoing group call") {
+            pages.callingPage.apply {
+                iMinimiseOngoingCall()
+            }
+        }
+        step("Participant sends a message to the group conversation") {
+            testServiceHelper.apply {
+                addDevice("user2Name", null, "Device1")
+                userSendMessageToConversation(
+                    "user2Name",
+                    "Hello Friends",
+                    "Device1",
+                    "GroupCallChat",
+                    false
+                )
+            }
+        }
+        step("Verify message is visible in conversation") {
+            pages.conversationViewPage.apply {
+                assertReceivedMessageIsVisibleInCurrentConversation("Hello Friends")
+            }
+        }
+        step("Share QR code file in conversation and verify it is sent") {
+            pages.conversationViewPage.apply {
+                iTapFileSharingButton()
+                assertSharingOptionVisible("File")
+                assertSharingOptionVisible("Gallery")
+                assertSharingOptionVisible("Camera")
+                assertSharingOptionVisible("Video")
+                assertSharingOptionVisible("Audio")
+                assertSharingOptionVisible("Location")
+                createQrImageInDeviceDownloadsFolder("my-test-qr")
+                tapSharingOption("File")
+            }
+            pages.documentsUIPage.apply {
+                iSeeQrCodeImage()
+                iOpenDisplayedQrCodeImage()
+                iTapSendButtonOnPreviewImage()
+            }
+
+            pages.conversationViewPage.apply {
+                iSeeSentQrCodeImageInCurrentConversation()
+            }
+        }
+        step("User shares default location to group conversation while the call continues") {
+            testServiceHelper.userXSharesLocationTo(
+                "user3Name",
+                "GroupCallChat",
+                "Device1",
+                false
+            )
+
+            pages.conversationViewPage.apply {
+                iSeeLocationMapContainer()
+            }
+
+            pages.callingPage.apply {
+                iRestoreOngoingCall()
+                iSeeOngoingGroupCall()
+            }
+            callHelper.iSeeParticipantsInGroupCall("user2Name, user3Name")
+        }
     }
+}

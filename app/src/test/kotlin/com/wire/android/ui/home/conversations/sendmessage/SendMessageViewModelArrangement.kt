@@ -31,27 +31,29 @@ import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
 import com.wire.android.ui.navArgs
 import com.wire.android.util.ImageUtil
 import com.wire.kalium.common.error.CoreFailure
+import com.wire.kalium.common.functional.Either
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.feature.asset.upload.ScheduleNewAssetMessageResult
 import com.wire.kalium.logic.feature.asset.upload.ScheduleNewAssetMessageUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
+import com.wire.kalium.logic.feature.client.IsWireCellsEnabledForConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationUnderLegalHoldNotifiedUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveDegradedConversationNotifiedUseCase
 import com.wire.kalium.logic.feature.conversation.SendTypingEventUseCase
 import com.wire.kalium.logic.feature.conversation.SetNotifiedAboutConversationUnderLegalHoldUseCase
 import com.wire.kalium.logic.feature.conversation.SetUserInformedAboutVerificationUseCase
+import com.wire.kalium.logic.feature.message.RetryFailedMessageResult
 import com.wire.kalium.logic.feature.message.RetryFailedMessageUseCase
+import com.wire.kalium.logic.feature.message.SendEditMultipartMessageUseCase
+import com.wire.kalium.logic.feature.message.SendEditTextMessageResult
 import com.wire.kalium.logic.feature.message.SendEditTextMessageUseCase
 import com.wire.kalium.logic.feature.message.SendKnockUseCase
 import com.wire.kalium.logic.feature.message.SendLocationUseCase
+import com.wire.kalium.logic.feature.message.SendMultipartMessageUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.message.draft.RemoveMessageDraftUseCase
-import com.wire.kalium.common.functional.Either
-import com.wire.kalium.logic.feature.client.IsWireCellsEnabledForConversationUseCase
-import com.wire.kalium.logic.feature.message.SendEditMultipartMessageUseCase
-import com.wire.kalium.logic.feature.message.SendMultipartMessageUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -236,7 +238,7 @@ internal class SendMessageViewModelArrangement {
                 any(),
                 any()
             )
-        } returns Either.Right(Unit)
+        } returns SendEditTextMessageResult.Success
     }
 
     fun withSuccessfulSendEditMultipartMessage() = apply {
@@ -276,7 +278,7 @@ internal class SendMessageViewModelArrangement {
     }
 
     fun withSuccessfulRetryFailedMessage() = apply {
-        coEvery { retryFailedMessageUseCase(any(), any()) } returns Either.Right(Unit)
+        coEvery { retryFailedMessageUseCase(any(), any()) } returns RetryFailedMessageResult.Success
     }
 
     fun withPendingTextBundle(textToShare: String = "some text") = apply {

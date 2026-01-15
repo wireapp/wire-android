@@ -1643,6 +1643,5 @@ Kérjük, próbálja meg újra.</string>
     <string name="channel_not_available_dialog_description">Hozzon létre csapatot, és kezdjen együttműködni költségmentesen!</string>
     <string name="channel_not_available_dialog_create_team_button">Wire csapat létrehozása</string>
     <string name="custimization_options_header_title">Beállítások</string>
-    <string name="drive_screen_search_hint">Fájlok keresése</string>
     <!-- Apps-->
 </resources>

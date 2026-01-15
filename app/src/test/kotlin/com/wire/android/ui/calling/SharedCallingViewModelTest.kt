@@ -34,7 +34,6 @@ import com.wire.android.ui.calling.common.SharedCallingViewModel
 import com.wire.android.ui.calling.model.ReactionSender
 import com.wire.android.ui.calling.usecase.HangUpCallUseCase
 import com.wire.kalium.common.error.NetworkFailure
-import com.wire.kalium.common.functional.Either
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.call.InCallReactionMessage
@@ -59,6 +58,7 @@ import com.wire.kalium.logic.feature.call.usecase.UnMuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.video.UpdateVideoStateUseCase
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
+import com.wire.kalium.logic.feature.incallreaction.SendInCallReactionResult
 import com.wire.kalium.logic.feature.incallreaction.SendInCallReactionUseCase
 import com.wire.kalium.logic.util.PlatformRotation
 import io.mockk.MockKAnnotations
@@ -288,7 +288,7 @@ class SharedCallingViewModelTest {
 
         // given
         val (_, sharedCallingViewModel) = Arrangement()
-            .withSendInCallReactionUseCaseReturning(Either.Right(Unit))
+            .withSendInCallReactionUseCaseReturning(SendInCallReactionResult.Success)
             .arrange()
 
         sharedCallingViewModel.inCallReactions.test {
@@ -309,7 +309,7 @@ class SharedCallingViewModelTest {
 
             // given
             val (arrangement, sharedCallingViewModel) = Arrangement()
-                .withSendInCallReactionUseCaseReturning(Either.Right(Unit))
+                .withSendInCallReactionUseCaseReturning(SendInCallReactionResult.Success)
                 .arrange()
 
             // when
@@ -326,7 +326,13 @@ class SharedCallingViewModelTest {
     fun givenAnOngoingCall_WhenInCallReactionSentFails_ThenNoEmojiIsEmitted() = runTest(dispatchers.main()) {
         // given
         val (_, sharedCallingViewModel) = Arrangement()
-            .withSendInCallReactionUseCaseReturning(Either.Left(NetworkFailure.NoNetworkConnection(IllegalStateException())))
+            .withSendInCallReactionUseCaseReturning(
+                SendInCallReactionResult.Failure(
+                    NetworkFailure.NoNetworkConnection(
+                        IllegalStateException()
+                    )
+                )
+            )
             .arrange()
 
         sharedCallingViewModel.inCallReactions.test {
@@ -467,7 +473,7 @@ class SharedCallingViewModelTest {
             dispatchers = dispatchers,
         )
 
-        fun withSendInCallReactionUseCaseReturning(result: Either<NetworkFailure, Unit>) = apply {
+        fun withSendInCallReactionUseCaseReturning(result: SendInCallReactionResult) = apply {
             coEvery { sendInCallReactionUseCase(conversationId, any()) } returns result
         }
     }

@@ -428,7 +428,7 @@ private fun AllowGuestsDialog(
             type = WireDialogButtonType.Primary
         ),
         optionButton2Properties = WireDialogButtonProperties(
-            text = stringResource(R.string.allow_guests),
+            text = stringResource(R.string.enable_guests_dialog_button),
             onClick = onAllowGuestsClicked,
             type = WireDialogButtonType.Primary
         ),

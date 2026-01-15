@@ -1205,6 +1205,7 @@
     <string name="disable_guests_dialog_title">Not Allow Guests?</string>
     <string name="disable_guests_dialog_description">Guests you selected in the previous step won\'t be part of the conversation if you do not allow guest access.</string>
     <string name="disable_guests_dialog_button">Not Allow Guests</string>
+    <string name="enable_guests_dialog_button">Allow Guests</string>
     <!--block user dialog -->
     <string name="block_user_dialog_title">Block user?</string>
     <string name="block_user_dialog_body">%1$s won\'t be able to contact you or add you to group conversations. They will not be notified about this.</string>

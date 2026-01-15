@@ -320,6 +320,13 @@
         <receiver
                 android:name=".notification.broadcastreceivers.StopAudioMessageReceiver"
                 android:exported="false" />
+        <receiver
+            android:name=".notification.broadcastreceivers.LogoutBroadcastReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.wire.ACTION_LOGOUT" />
+            </intent-filter>
+        </receiver>
 
         <service
             android:name=".services.WireFirebaseMessagingService"

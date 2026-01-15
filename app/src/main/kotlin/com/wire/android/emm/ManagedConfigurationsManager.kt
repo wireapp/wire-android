@@ -73,6 +73,15 @@ interface ManagedConfigurationsManager {
      * Refresh the remote backup URL from managed configurations.
      * This should be called when the app starts, resumes, or when broadcast receiver triggers.
      */
+
+    /**
+     * Sets server configuration from an external base64-encoded JSON string (e.g., intent parameter).
+     * This allows setting a custom server config without using EMM managed configurations.
+     *
+     * @param jsonString Base64-encoded JSON string matching ManagedServerConfig format
+     * @return ServerConfigResult.Success if valid and applied, Failure otherwise
+     */
+    suspend fun setServerConfigFromJson(jsonString: String): ServerConfigResult
 }
 
 internal class ManagedConfigurationsManagerImpl(
@@ -162,26 +171,44 @@ internal class ManagedConfigurationsManagerImpl(
 
     private suspend fun getServerConfig(): ServerConfigResult = withContext(dispatchers.io()) {
         val restrictions = restrictionsManager.applicationRestrictions
-        if (restrictions == null || restrictions.isEmpty) {
+
+        // Priority 1: EMM managed config
+        if (restrictions != null && !restrictions.isEmpty) {
+            try {
+                val managedServerConfig = getJsonRestrictionByKey<ManagedServerConfig>(
+                    ManagedConfigurationsKeys.DEFAULT_SERVER_URLS.asKey()
+                )
+                if (managedServerConfig?.endpoints?.isValid == true) {
+                    logger.i("Managed server config found: $managedServerConfig")
+                    return@withContext ServerConfigResult.Success(managedServerConfig)
+                } else {
+                    logger.w("Managed server config is not valid: $managedServerConfig")
+                }
+            } catch (e: InvalidManagedConfig) {
+                logger.w("Invalid managed server config: ${e.reason}")
+            }
+        } else {
             logger.i("No application restrictions found")
-            return@withContext ServerConfigResult.Empty
         }
 
-        return@withContext try {
-            val managedServerConfig = getJsonRestrictionByKey<ManagedServerConfig>(
-                ManagedConfigurationsKeys.DEFAULT_SERVER_URLS.asKey()
-            )
-            if (managedServerConfig?.endpoints?.isValid == true) {
-                logger.i("Managed server config found: $managedServerConfig")
-                ServerConfigResult.Success(managedServerConfig)
-            } else {
-                logger.w("Managed server config is not valid: $managedServerConfig")
-                ServerConfigResult.Failure("Managed server config is not a valid config. Check the URLs and format.")
+        // Priority 2: Intent-provided config (persisted in SharedPreferences)
+        val intentConfigJson = loadIntentServerConfigFromPrefs()
+        if (intentConfigJson != null) {
+            try {
+                val intentServerConfig = json.decodeFromString<ManagedServerConfig>(intentConfigJson)
+                if (intentServerConfig.endpoints.isValid) {
+                    logger.i("Intent server config loaded from storage: ${intentServerConfig.title}")
+                    return@withContext ServerConfigResult.Success(intentServerConfig)
+                } else {
+                    logger.w("Stored intent server config is not valid")
+                }
+            } catch (e: Exception) {
+                logger.e("Failed to parse stored intent server config: ${e.message}")
             }
-        } catch (e: InvalidManagedConfig) {
-            logger.w("Invalid managed server config: ${e.reason}")
-            ServerConfigResult.Failure(e.reason)
         }
+
+        // Priority 3: No config found
+        return@withContext ServerConfigResult.Empty
     }
 
     @Suppress("TooGenericExceptionCaught")
@@ -193,6 +220,43 @@ internal class ManagedConfigurationsManagerImpl(
                 throw InvalidManagedConfig("Failed to parse managed config for key $key: ${e.message}")
             }
         }
+
+    override suspend fun setServerConfigFromJson(base64EncodedJson: String): ServerConfigResult = withContext(dispatchers.io()) {
+        return@withContext try {
+            // Decode base64 first
+            val decodedBytes = android.util.Base64.decode(base64EncodedJson, android.util.Base64.DEFAULT)
+            val jsonString = String(decodedBytes, Charsets.UTF_8)
+
+            val managedServerConfig = json.decodeFromString<ManagedServerConfig>(jsonString)
+            if (managedServerConfig.endpoints.isValid) {
+                logger.i("Intent server config parsed successfully: ${managedServerConfig.title}")
+                val serverConfig = serverConfigProvider.getDefaultServerConfig(managedServerConfig)
+                _currentServerConfig.set(serverConfig)
+                // Store decoded JSON to persistent storage
+                storeIntentServerConfigToPrefs(jsonString)
+                logger.i("Intent server config applied and persisted: ${managedServerConfig.title}")
+                ServerConfigResult.Success(managedServerConfig)
+            } else {
+                logger.w("Intent server config is not valid: URLs check failed")
+                ServerConfigResult.Failure("Server config URLs are not valid. Check the format.")
+            }
+        } catch (e: Exception) {
+            logger.e("Failed to parse intent server config: ${e.message}", e)
+            ServerConfigResult.Failure("Failed to parse server config JSON: ${e.message}")
+        }
+    }
+
+    private fun storeIntentServerConfigToPrefs(jsonString: String) {
+        context.getSharedPreferences("wire_intent_config", Context.MODE_PRIVATE)
+            .edit()
+            .putString("server_config_json", jsonString)
+            .apply()
+    }
+
+    private fun loadIntentServerConfigFromPrefs(): String? {
+        return context.getSharedPreferences("wire_intent_config", Context.MODE_PRIVATE)
+            .getString("server_config_json", null)
+    }
 
     companion object {
         private const val TAG = "ManagedConfigurationsManager"

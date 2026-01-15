@@ -726,6 +726,11 @@ class WireActivity : AppCompatActivity() {
             || originalIntent == intent // This is the case when the activity is recreated and already handled
             || intent.getBooleanExtra(HANDLED_DEEPLINK_FLAG, false)
         ) {
+            // Check for server_config intent extra even when there's no deep link
+            intent?.getStringExtra(EXTRA_SERVER_CONFIG)?.let { serverConfigJson ->
+                viewModel.handleServerConfigIntent(serverConfigJson)
+            }
+
             if (navigator.isEmptyWelcomeStartDestination()) {
                 // no deep link to handle so if "welcome empty start" screen then switch "start" screen to login by navigating to it
                 navigator.navigate(NavigationCommand(NewLoginScreenDestination(), BackStackMode.CLEAR_WHOLE))
@@ -749,6 +754,7 @@ class WireActivity : AppCompatActivity() {
     companion object {
         private const val HANDLED_DEEPLINK_FLAG = "deeplink_handled_flag_key"
         private const val ORIGINAL_SAVED_INTENT_FLAG = "original_saved_intent"
+        private const val EXTRA_SERVER_CONFIG = "server_config"
         private const val TAG = "WireActivity"
     }
 }

@@ -36,11 +36,11 @@ import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.NotificationConstants
 import com.wire.android.notification.NotificationIds
 import com.wire.android.notification.openAppPendingIntent
-import com.wire.kalium.common.functional.fold
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -82,9 +82,10 @@ class DeleteConversationLocallyWorker @AssistedInject constructor(
                 return@coroutineScope Result.failure() // If no valid session exists, fail the work
             }
         }
-
-        coreLogic.getSessionScope(userId).conversations.deleteConversationLocallyUseCase(conversationId)
-            .fold({ Result.retry() }, { Result.success() })
+        when (coreLogic.getSessionScope(userId).conversations.deleteConversationLocallyUseCase(conversationId)) {
+            is ClearConversationContentUseCase.Result.Failure -> Result.retry()
+            ClearConversationContentUseCase.Result.Success -> Result.success()
+        }
     }
 
     override suspend fun getForegroundInfo(): ForegroundInfo {

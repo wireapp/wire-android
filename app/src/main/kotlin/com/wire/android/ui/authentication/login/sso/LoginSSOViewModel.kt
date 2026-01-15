@@ -122,6 +122,11 @@ class LoginSSOViewModel(
         updateSSOFlowState(LoginState.Default)
     }
 
+    fun setSSOCodeAndLogin(code: String) {
+        ssoTextState.setTextAndPlaceCursorAtEnd(code)
+        login()
+    }
+
     fun login() {
         updateSSOFlowState(LoginState.Loading)
         ssoTextState.text.toString().also {

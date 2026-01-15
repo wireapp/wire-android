@@ -74,6 +74,7 @@ import com.wire.android.navigation.startDestination
 import com.wire.android.navigation.style.BackgroundStyle
 import com.wire.android.navigation.style.BackgroundType
 import com.wire.android.notification.broadcastreceivers.DynamicReceiversManager
+import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.LoginPasswordPath
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import com.wire.android.ui.calling.getIncomingCallIntent
@@ -731,6 +732,25 @@ class WireActivity : AppCompatActivity() {
                 viewModel.handleServerConfigIntent(serverConfigJson)
             }
 
+            // Check for sso_code intent extra
+            intent?.getStringExtra(EXTRA_SSO_CODE)?.let { ssoCode ->
+                if (navigator.isEmptyWelcomeStartDestination()) {
+                    // Only trigger SSO login if user is not already logged in
+                    appLogger.i("$TAG: SSO code provided via intent, navigating to login screen")
+                    navigator.navigate(
+                        NavigationCommand(
+                            LoginScreenDestination(
+                                navArgs = LoginNavArgs(ssoCode = ssoCode)
+                            ),
+                            BackStackMode.CLEAR_WHOLE
+                        )
+                    )
+                    return
+                } else {
+                    appLogger.w("$TAG: SSO code provided but user is already logged in, ignoring")
+                }
+            }
+
             if (navigator.isEmptyWelcomeStartDestination()) {
                 // no deep link to handle so if "welcome empty start" screen then switch "start" screen to login by navigating to it
                 navigator.navigate(NavigationCommand(NewLoginScreenDestination(), BackStackMode.CLEAR_WHOLE))
@@ -755,6 +775,7 @@ class WireActivity : AppCompatActivity() {
         private const val HANDLED_DEEPLINK_FLAG = "deeplink_handled_flag_key"
         private const val ORIGINAL_SAVED_INTENT_FLAG = "original_saved_intent"
         private const val EXTRA_SERVER_CONFIG = "server_config"
+        private const val EXTRA_SSO_CODE = "sso_code"
         private const val TAG = "WireActivity"
     }
 }

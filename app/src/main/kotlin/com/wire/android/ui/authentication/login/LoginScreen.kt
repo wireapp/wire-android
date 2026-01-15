@@ -110,6 +110,7 @@ fun LoginScreen(
         },
         loginEmailViewModel = loginEmailViewModel,
         ssoLoginResult = loginNavArgs.ssoLoginResult,
+        ssoCode = loginNavArgs.ssoCode,
         ssoUrlConfigHolder = ssoUrlConfigHolder,
     )
 }
@@ -121,6 +122,7 @@ private fun LoginContent(
     onRemoveDeviceNeeded: () -> Unit,
     loginEmailViewModel: LoginEmailViewModel,
     ssoLoginResult: DeepLinkResult.SSOLogin?,
+    ssoCode: String?,
     ssoUrlConfigHolder: SSOUrlConfigHolder,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
@@ -144,6 +146,7 @@ private fun LoginContent(
                     onRemoveDeviceNeeded = onRemoveDeviceNeeded,
                     loginEmailViewModel = loginEmailViewModel,
                     ssoLoginResult = ssoLoginResult,
+                    ssoCode = ssoCode,
                     ssoUrlConfigHolder = ssoUrlConfigHolder
                 )
             }
@@ -159,12 +162,13 @@ private fun MainLoginContent(
     onRemoveDeviceNeeded: () -> Unit,
     loginEmailViewModel: LoginEmailViewModel,
     ssoLoginResult: DeepLinkResult.SSOLogin?,
+    ssoCode: String?,
     ssoUrlConfigHolder: SSOUrlConfigHolder,
 ) {
 
     val scope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
-    val initialPageIndex = if (ssoLoginResult == null) LoginTabItem.EMAIL.ordinal else LoginTabItem.SSO.ordinal
+    val initialPageIndex = if (ssoLoginResult == null && ssoCode == null) LoginTabItem.EMAIL.ordinal else LoginTabItem.SSO.ordinal
     val pagerState = rememberPagerState(
         initialPage = initialPageIndex,
         pageCount = { LoginTabItem.values().size }
@@ -228,7 +232,7 @@ private fun MainLoginContent(
             ) { pageIndex ->
                 when (LoginTabItem.values()[pageIndex]) {
                     LoginTabItem.EMAIL -> LoginEmailScreen(onSuccess, onRemoveDeviceNeeded, loginEmailViewModel, scrollState)
-                    LoginTabItem.SSO -> LoginSSOScreen(onSuccess, onRemoveDeviceNeeded, ssoLoginResult, ssoUrlConfigHolder)
+                    LoginTabItem.SSO -> LoginSSOScreen(onSuccess, onRemoveDeviceNeeded, ssoLoginResult, ssoCode, ssoUrlConfigHolder)
                 }
             }
             if (!pagerState.isScrollInProgress && focusedTabIndex != pagerState.currentPage) {
@@ -258,6 +262,7 @@ private fun PreviewLoginScreen() = WireTheme {
             onRemoveDeviceNeeded = {},
             loginEmailViewModel = hiltViewModel(),
             ssoLoginResult = null,
+            ssoCode = null,
             ssoUrlConfigHolder = SSOUrlConfigHolderPreview,
         )
     }

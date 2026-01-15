@@ -26,6 +26,7 @@ data class LoginNavArgs(
     val userHandle: PreFilledUserIdentifierType.PreFilled? = null,
     val ssoLoginResult: DeepLinkResult.SSOLogin? = null,
     val loginPasswordPath: LoginPasswordPath? = null,
+    val ssoCode: String? = null,
 )
 
 @Serializable

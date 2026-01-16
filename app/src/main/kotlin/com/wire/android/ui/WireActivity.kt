@@ -18,10 +18,14 @@
 
 package com.wire.android.ui
 
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.Build
 import android.os.Bundle
 import android.view.WindowManager
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
@@ -74,6 +78,7 @@ import com.wire.android.navigation.startDestination
 import com.wire.android.navigation.style.BackgroundStyle
 import com.wire.android.navigation.style.BackgroundType
 import com.wire.android.notification.broadcastreceivers.DynamicReceiversManager
+import com.wire.android.notification.broadcastreceivers.LogoutBroadcastReceiver
 import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.LoginPasswordPath
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
@@ -171,6 +176,15 @@ class WireActivity : AppCompatActivity() {
     // This flag is used to keep the splash screen open until the first screen is drawn.
     private var shouldKeepSplashOpen = true
 
+    private val finishActivityReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action == LogoutBroadcastReceiver.ACTION_FINISH_ACTIVITY) {
+                appLogger.i("$TAG: Received finish activity broadcast, closing activity")
+                finishAffinity()
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
 
         appLogger.i("$TAG splash install")
@@ -217,6 +231,8 @@ class WireActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         dynamicReceiversManager.registerAll()
+        LocalBroadcastManager.getInstance(this)
+            .registerReceiver(finishActivityReceiver, IntentFilter(LogoutBroadcastReceiver.ACTION_FINISH_ACTIVITY))
         if (BuildConfig.EMM_SUPPORT_ENABLED) {
             lifecycleScope.launch(Dispatchers.IO) {
                 managedConfigurationsManager.refreshServerConfig()
@@ -228,6 +244,7 @@ class WireActivity : AppCompatActivity() {
     override fun onStop() {
         super.onStop()
         dynamicReceiversManager.unregisterAll()
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(finishActivityReceiver)
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -237,8 +254,22 @@ class WireActivity : AppCompatActivity() {
             handleSynchronizeExternalData(intent)
             return
         }
+
+        // If the intent contains SSO code or server config, restart the activity to properly process them
+        if (shouldRestartForIntent(intent)) {
+            appLogger.i("$TAG: Received intent with SSO/server config, restarting activity")
+            // Finish and restart with the new intent
+            finish()
+            startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK))
+            return
+        }
+
         setIntent(intent)
         handleNewIntent(intent)
+    }
+
+    private fun shouldRestartForIntent(intent: Intent): Boolean {
+        return intent.hasExtra(EXTRA_SSO_CODE) || intent.hasExtra(EXTRA_SERVER_CONFIG)
     }
 
     private fun handleNewIntent(intent: Intent, savedInstanceState: Bundle? = null) = lifecycleScope.launch {

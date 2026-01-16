@@ -61,9 +61,7 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
-import com.wire.kalium.common.error.CoreFailure
-import com.wire.kalium.common.functional.Either
-import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
+import com.wire.kalium.logic.feature.e2ei.usecase.FinalizeEnrollmentResult
 
 @WireDestination(
     style = PopUpNavigationAnimation::class
@@ -113,7 +111,7 @@ private fun E2EIEnrollmentScreenContent(
     dismissSuccess: () -> Unit,
     dismissErrorDialog: () -> Unit,
     enrollE2EICertificate: () -> Unit,
-    handleE2EIEnrollmentResult: (Either<CoreFailure, E2EIEnrollmentResult>) -> Unit,
+    handleE2EIEnrollmentResult: (FinalizeEnrollmentResult) -> Unit,
     openCertificateDetails: () -> Unit,
     onBackButtonClicked: () -> Unit,
     onCancelEnrollmentClicked: () -> Unit,

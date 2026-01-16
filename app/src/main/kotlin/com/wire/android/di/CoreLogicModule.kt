@@ -464,11 +464,6 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun provideMembersHavingLegalHoldClientUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
-        coreLogic.getSessionScope(currentAccount).membersHavingLegalHoldClient
-
-    @ViewModelScoped
-    @Provides
     fun provideFetchConversationMLSVerificationStatusUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId

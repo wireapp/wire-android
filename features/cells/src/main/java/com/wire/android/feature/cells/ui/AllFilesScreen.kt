@@ -103,7 +103,7 @@ fun AllFilesScreen(
     )
 
     FilterBottomSheet(
-        selectableTags = viewModel.tags.collectAsState().value,
+        selectableTags = viewModel.sortedTags.collectAsState().value,
         selectedTags = viewModel.selectedTags.collectAsState().value,
         onApply = {
             filterBottomSheetState.hide()

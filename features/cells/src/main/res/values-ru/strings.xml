@@ -109,10 +109,12 @@
     <string name="rename_folder_renamed">Папка переименована</string>
     <string name="rename_failure">Не удается переименовать</string>
     <string name="rename_invalid_name">Используйте название без \"/\" и не начинающееся с \".\"</string>
-    <string name="rename_already_exist">Файл с таким названием уже существует</string>
+    <string name="rename_file_already_exist">Файл с таким названием уже существует</string>
+    <string name="rename_folder_already_exist">Папка с этим именем уже существует</string>
     <string name="filter_label">Фильтр</string>
     <string name="tags_label">Теги</string>
     <string name="select_tags_label">выбрать теги</string>
+    <string name="no_tags_created_yet_label">Теги еще не созданы.</string>
     <string name="clear_all_label">Очистить все</string>
     <string name="apply_label">Применить</string>
     <string name="add_or_remove_tags_title">Добавить или удалить теги</string>
@@ -196,4 +198,14 @@
     <string name="snackbar_download_cell_version_show_label">Показать</string>
     <string name="snackbar_download_cell_version_downloading_label">Загрузка…</string>
     <string name="search_text_input_hint_for_files_folders_in_conversation">Поиск файлов или папок</string>
+    <string name="cells_create_file">Создать файл</string>
+    <string name="create_file_error">Не удается создать файл. Пожалуйста, попробуйте снова</string>
+    <string name="cell_file_name">Название файла</string>
+    <string name="long_file_name_error">Используйте более короткое название файла (не более 64 символа)</string>
+    <string name="file_type_bottom_sheet_document">Документ</string>
+    <string name="file_type_bottom_sheet_spreadsheet">Электронная таблица</string>
+    <string name="file_type_bottom_sheet_presentation">Презентация</string>
+    <string name="create_file_screen_title">Создать файл %1$s</string>
+    <string name="empty_screen_learn_more_conversation">Узнайте больше об общем диске</string>
+    <string name="empty_screen_learn_more">Подробнее</string>
 </resources>

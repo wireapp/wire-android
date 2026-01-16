@@ -39,12 +39,10 @@ import java.time.Duration
 import java.util.concurrent.Callable
 import java.util.concurrent.TimeUnit
 
-class TestServiceHelper {
-
+class TestServiceHelper(
+    private val usersManager: ClientUserManager
+) {
     val wireReceiptMode = "WIRE_RECEIPT_MODE"
-    val usersManager by lazy {
-        ClientUserManager.getInstance()
-    }
 
     val testServiceClient by lazy {
         TestService("http://192.168.2.18:8080", "TestService")

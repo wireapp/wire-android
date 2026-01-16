@@ -198,6 +198,10 @@ class WireActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setupOrientationForDevice()
 
+        // Register the finish activity receiver in onCreate so it works even when app is in background
+        LocalBroadcastManager.getInstance(this)
+            .registerReceiver(finishActivityReceiver, IntentFilter(LogoutBroadcastReceiver.ACTION_FINISH_ACTIVITY))
+
         lifecycleScope.launch {
 
             appLogger.i("$TAG persistent connection status")
@@ -231,8 +235,6 @@ class WireActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         dynamicReceiversManager.registerAll()
-        LocalBroadcastManager.getInstance(this)
-            .registerReceiver(finishActivityReceiver, IntentFilter(LogoutBroadcastReceiver.ACTION_FINISH_ACTIVITY))
         if (BuildConfig.EMM_SUPPORT_ENABLED) {
             lifecycleScope.launch(Dispatchers.IO) {
                 managedConfigurationsManager.refreshServerConfig()
@@ -244,6 +246,10 @@ class WireActivity : AppCompatActivity() {
     override fun onStop() {
         super.onStop()
         dynamicReceiversManager.unregisterAll()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
         LocalBroadcastManager.getInstance(this).unregisterReceiver(finishActivityReceiver)
     }
 

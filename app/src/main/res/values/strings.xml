@@ -634,7 +634,7 @@
     <string name="conversation_details_is_not_classified">SECURITY LEVEL: UNCLASSIFIED</string>
     <string name="conversation_options_self_deleting_messages_label">Self-deleting messages</string>
     <string name="conversation_options_self_deleting_messages_description">When this is on, all messages in this conversation will disappear after a certain time.</string>
-    <string name="conversation_options_self_deleting_messages_shared_drive_description">The feature is not available for conversations with a shared Drive.</string>
+    <string name="conversation_options_self_deleting_messages_shared_drive_description">The feature is not available for conversations with a Shared Drive.</string>
     <string name="conversation_options_guests_label">Guests</string>
     <string name="conversation_details_guest_description">When this is ON, people from outside your team can join this conversation</string>
     <string name="conversation_options_guest_description">Turn this option ON to open this conversation to people outside your team, even if they don\'t have Wire.</string>
@@ -1883,7 +1883,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="drive_screen_search_hint">Search files</string>
     <string name="drive_screen_title" translatable="false">Drive</string>
     <string name="enable_wire_cell">Shared Drive</string>
-    <string name="enable_wire_cell_switch_description">Enable participants to manage their documents and media files in a shared Drive. This can\’t be undone.</string>
+    <string name="enable_wire_cell_switch_description">Enable participants to manage their documents and media files in a Shared Drive. This can’t be undone.</string>
     <string name="failed_attachment_retry_upload">Retry upload</string>
     <string name="failed_attachment_remove">Remove</string>
     <string name="content_description_apply_filter">Apply Filter</string>

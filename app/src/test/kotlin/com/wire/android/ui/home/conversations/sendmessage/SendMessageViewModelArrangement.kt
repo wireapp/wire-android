@@ -31,7 +31,6 @@ import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
 import com.wire.android.ui.navArgs
 import com.wire.android.util.ImageUtil
 import com.wire.kalium.common.error.CoreFailure
-import com.wire.kalium.common.functional.Either
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.feature.asset.upload.ScheduleNewAssetMessageResult
@@ -44,12 +43,10 @@ import com.wire.kalium.logic.feature.conversation.ObserveDegradedConversationNot
 import com.wire.kalium.logic.feature.conversation.SendTypingEventUseCase
 import com.wire.kalium.logic.feature.conversation.SetNotifiedAboutConversationUnderLegalHoldUseCase
 import com.wire.kalium.logic.feature.conversation.SetUserInformedAboutVerificationUseCase
-import com.wire.kalium.logic.feature.message.RetryFailedMessageResult
+import com.wire.kalium.logic.feature.message.MessageOperationResult
 import com.wire.kalium.logic.feature.message.RetryFailedMessageUseCase
 import com.wire.kalium.logic.feature.message.SendEditMultipartMessageUseCase
-import com.wire.kalium.logic.feature.message.SendEditTextMessageResult
 import com.wire.kalium.logic.feature.message.SendEditTextMessageUseCase
-import com.wire.kalium.logic.feature.message.SendKnockResult
 import com.wire.kalium.logic.feature.message.SendKnockUseCase
 import com.wire.kalium.logic.feature.message.SendLocationUseCase
 import com.wire.kalium.logic.feature.message.SendMultipartMessageUseCase
@@ -81,7 +78,7 @@ internal class SendMessageViewModelArrangement {
         coEvery { observeEstablishedCallsUseCase() } returns flowOf(listOf())
         coEvery { observeSyncState() } returns flowOf(SyncState.Live)
         every { pingRinger.ping(any(), any()) } returns Unit
-        coEvery { sendKnockUseCase(any(), any()) } returns SendKnockResult.Success
+        coEvery { sendKnockUseCase(any(), any()) } returns MessageOperationResult.Success
         coEvery { setUserInformedAboutVerificationUseCase(any()) } returns Unit
         coEvery { observeDegradedConversationNotifiedUseCase(any()) } returns flowOf(true)
         coEvery { setNotifiedAboutConversationUnderLegalHold(any()) } returns Unit
@@ -216,7 +213,7 @@ internal class SendMessageViewModelArrangement {
                 any(),
                 any()
             )
-        } returns Either.Right(Unit)
+        } returns MessageOperationResult.Success
     }
 
     fun withFailedSendTextMessage(failure: CoreFailure) = apply {
@@ -227,7 +224,7 @@ internal class SendMessageViewModelArrangement {
                 any(),
                 any()
             )
-        } returns Either.Left(failure)
+        } returns MessageOperationResult.Failure(failure)
     }
 
     fun withSuccessfulSendEditTextMessage() = apply {
@@ -239,7 +236,7 @@ internal class SendMessageViewModelArrangement {
                 any(),
                 any()
             )
-        } returns SendEditTextMessageResult.Success
+        } returns MessageOperationResult.Success
     }
 
     fun withSuccessfulSendEditMultipartMessage() = apply {
@@ -251,7 +248,7 @@ internal class SendMessageViewModelArrangement {
                 any(),
                 any()
             )
-        } returns Either.Right(Unit)
+        } returns MessageOperationResult.Success
     }
 
     fun withSuccessfulSendLocationMessage() = apply {
@@ -263,7 +260,7 @@ internal class SendMessageViewModelArrangement {
                 any(),
                 any()
             )
-        } returns Either.Right(Unit)
+        } returns MessageOperationResult.Success
     }
 
     fun withHandleUriAsset(result: HandleUriAssetUseCase.Result) = apply {
@@ -279,7 +276,7 @@ internal class SendMessageViewModelArrangement {
     }
 
     fun withSuccessfulRetryFailedMessage() = apply {
-        coEvery { retryFailedMessageUseCase(any(), any()) } returns RetryFailedMessageResult.Success
+        coEvery { retryFailedMessageUseCase(any(), any()) } returns MessageOperationResult.Success
     }
 
     fun withPendingTextBundle(textToShare: String = "some text") = apply {

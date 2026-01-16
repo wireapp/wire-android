@@ -58,8 +58,8 @@ import com.wire.kalium.logic.feature.call.usecase.UnMuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.video.UpdateVideoStateUseCase
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
-import com.wire.kalium.logic.feature.incallreaction.SendInCallReactionResult
 import com.wire.kalium.logic.feature.incallreaction.SendInCallReactionUseCase
+import com.wire.kalium.logic.feature.message.MessageOperationResult
 import com.wire.kalium.logic.util.PlatformRotation
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -288,7 +288,7 @@ class SharedCallingViewModelTest {
 
         // given
         val (_, sharedCallingViewModel) = Arrangement()
-            .withSendInCallReactionUseCaseReturning(SendInCallReactionResult.Success)
+            .withSendInCallReactionUseCaseReturning(MessageOperationResult.Success)
             .arrange()
 
         sharedCallingViewModel.inCallReactions.test {
@@ -309,7 +309,7 @@ class SharedCallingViewModelTest {
 
             // given
             val (arrangement, sharedCallingViewModel) = Arrangement()
-                .withSendInCallReactionUseCaseReturning(SendInCallReactionResult.Success)
+                .withSendInCallReactionUseCaseReturning(MessageOperationResult.Success)
                 .arrange()
 
             // when
@@ -327,7 +327,7 @@ class SharedCallingViewModelTest {
         // given
         val (_, sharedCallingViewModel) = Arrangement()
             .withSendInCallReactionUseCaseReturning(
-                SendInCallReactionResult.Failure(
+                MessageOperationResult.Failure(
                     NetworkFailure.NoNetworkConnection(
                         IllegalStateException()
                     )
@@ -473,7 +473,7 @@ class SharedCallingViewModelTest {
             dispatchers = dispatchers,
         )
 
-        fun withSendInCallReactionUseCaseReturning(result: SendInCallReactionResult) = apply {
+        fun withSendInCallReactionUseCaseReturning(result: MessageOperationResult) = apply {
             coEvery { sendInCallReactionUseCase(conversationId, any()) } returns result
         }
     }

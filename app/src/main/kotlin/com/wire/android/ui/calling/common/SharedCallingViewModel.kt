@@ -41,6 +41,7 @@ import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.util.ExpiringMap
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.extension.withDelayAfterFirst
+import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.ConversationTypeForCall
 import com.wire.kalium.logic.data.call.VideoState
@@ -63,7 +64,6 @@ import com.wire.kalium.logic.feature.call.usecase.UnMuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.video.UpdateVideoStateUseCase
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
-import com.wire.kalium.logic.feature.incallreaction.SendInCallReactionResult
 import com.wire.kalium.logic.feature.incallreaction.SendInCallReactionUseCase
 import com.wire.kalium.logic.util.PlatformRotation
 import com.wire.kalium.logic.util.PlatformView
@@ -328,16 +328,11 @@ class SharedCallingViewModel @AssistedInject constructor(
 
     fun onReactionClick(emoji: String) {
         viewModelScope.launch {
-            when (val result = sendInCallReactionUseCase(conversationId, emoji)) {
-                is SendInCallReactionResult.Success -> {
+            sendInCallReactionUseCase(conversationId, emoji).toEither()
+                .onSuccess {
                     _inCallReactions.send(InCallReaction(emoji, ReactionSender.You))
                     recentReactions[selfUserId] = emoji
                 }
-
-                is SendInCallReactionResult.Failure -> {
-                    appLogger.w("SharedCallingViewModel: failed to send in-call reaction: ${result.failure}")
-                }
-            }
         }
     }
 

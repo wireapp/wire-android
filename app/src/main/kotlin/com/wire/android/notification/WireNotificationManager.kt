@@ -475,7 +475,10 @@ class WireNotificationManager @Inject constructor(
                         selfUserNameState.value
                     )
                 }
-                markMessagesAsNotified(userId)
+
+                newNotifications.map { it.conversationId }.distinct().forEach { notifiedConversationId ->
+                    markMessagesAsNotified(userId, notifiedConversationId)
+                }
                 markConnectionAsNotified(userId)
             }
     }

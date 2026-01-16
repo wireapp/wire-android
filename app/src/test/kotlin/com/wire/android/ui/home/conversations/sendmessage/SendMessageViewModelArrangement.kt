@@ -49,6 +49,7 @@ import com.wire.kalium.logic.feature.message.RetryFailedMessageUseCase
 import com.wire.kalium.logic.feature.message.SendEditMultipartMessageUseCase
 import com.wire.kalium.logic.feature.message.SendEditTextMessageResult
 import com.wire.kalium.logic.feature.message.SendEditTextMessageUseCase
+import com.wire.kalium.logic.feature.message.SendKnockResult
 import com.wire.kalium.logic.feature.message.SendKnockUseCase
 import com.wire.kalium.logic.feature.message.SendLocationUseCase
 import com.wire.kalium.logic.feature.message.SendMultipartMessageUseCase
@@ -80,7 +81,7 @@ internal class SendMessageViewModelArrangement {
         coEvery { observeEstablishedCallsUseCase() } returns flowOf(listOf())
         coEvery { observeSyncState() } returns flowOf(SyncState.Live)
         every { pingRinger.ping(any(), any()) } returns Unit
-        coEvery { sendKnockUseCase(any(), any()) } returns Either.Right(Unit)
+        coEvery { sendKnockUseCase(any(), any()) } returns SendKnockResult.Success
         coEvery { setUserInformedAboutVerificationUseCase(any()) } returns Unit
         coEvery { observeDegradedConversationNotifiedUseCase(any()) } returns flowOf(true)
         coEvery { setNotifiedAboutConversationUnderLegalHold(any()) } returns Unit

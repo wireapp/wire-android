@@ -21,6 +21,7 @@ package com.wire.android.notification.broadcastreceivers
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.wire.android.appLogger
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.datastore.UserDataStoreProvider
@@ -79,8 +80,8 @@ class LogoutBroadcastReceiver : BroadcastReceiver() {
         coroutineScope.launch(Dispatchers.Default) {
             try {
                 hardLogoutAllAccounts()
-                context.moveAppToBackground()
-                appLogger.i("$TAG: Logout completed, app moved to background")
+                context.finishActivityAndMoveToBackground()
+                appLogger.i("$TAG: Logout completed, activity finished and app moved to background")
             } catch (e: Exception) {
                 appLogger.e("$TAG: Error during logout: ${e.message}", e)
             }
@@ -130,7 +131,12 @@ class LogoutBroadcastReceiver : BroadcastReceiver() {
         userDataStoreProvider.getOrCreate(userId).clear()
     }
 
-    private fun Context.moveAppToBackground() {
+    private fun Context.finishActivityAndMoveToBackground() {
+        // Send local broadcast to finish WireActivity
+        val finishIntent = Intent(ACTION_FINISH_ACTIVITY)
+        LocalBroadcastManager.getInstance(this).sendBroadcast(finishIntent)
+
+        // Move app to background
         val homeIntent = Intent(Intent.ACTION_MAIN).apply {
             addCategory(Intent.CATEGORY_HOME)
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
@@ -140,6 +146,7 @@ class LogoutBroadcastReceiver : BroadcastReceiver() {
 
     companion object {
         const val ACTION_LOGOUT = "com.wire.ACTION_LOGOUT"
+        const val ACTION_FINISH_ACTIVITY = "com.wire.ACTION_FINISH_ACTIVITY"
         private const val TAG = "LogoutBroadcastReceiver"
     }
 }

@@ -23,7 +23,7 @@ jobs:
 
   add-jira-description:
     needs: get-version
-    uses: wireapp/.github/.github/workflows/jira-link-pr-reusable.yml@mo/ci/jira-linking-gh-action # TODO: replace with commit hash
+    uses: wireapp/.github/.github/workflows/jira-link-pr-reusable.yml@9dc8b7e52fc073667a6b8afda5057fdb2880e86c
     with:
       skip-branches: '^(production-release|main|master|release\/v\d+)$'
       skip-actors: 'dependabot[bot],AndroidBob'

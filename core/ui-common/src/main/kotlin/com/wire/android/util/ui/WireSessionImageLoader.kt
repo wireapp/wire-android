@@ -107,7 +107,7 @@ class WireSessionImageLoader(
 
                 if (retryPolicy != AssetImageRetryPolicy.DO_NOT_RETRY) {
                     networkStateObserver.observeNetworkState().firstOrNull { it == NetworkState.ConnectedWithInternet }
-                    retryHash += 1
+                    retryHash += RETRY_INCREMENT_ATTEMPT_PER_STEP
                 }
             } else {
                 exponentialDurationHelper.reset()

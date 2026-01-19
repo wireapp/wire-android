@@ -28,15 +28,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.ui.common.applyIf
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
 import com.wire.android.ui.home.conversations.messages.item.MessageStyle
-import com.wire.android.ui.home.conversations.messages.item.isBubble
-import com.wire.android.ui.theme.Accent
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.message.height
 import com.wire.kalium.logic.data.message.width
@@ -46,35 +43,41 @@ fun AssetPreview(
     item: MultipartAttachmentUi,
     messageStyle: MessageStyle,
     onClick: () -> Unit,
-    accent: Accent,
     modifier: Modifier = Modifier,
     showWithPreview: Boolean = false
 ) {
     Box(
         modifier = modifier
             .clickable { onClick() }
-            .applyIf(!messageStyle.isBubble()) {
+            .clip(RoundedCornerShape(dimensions().messageAttachmentCornerSize))
+            .applyIf(messageStyle == MessageStyle.BUBBLE_SELF) {
+                background(colorsScheme().selfBubble.secondary)
+            }
+            .applyIf(messageStyle == MessageStyle.BUBBLE_OTHER) {
+                background(colorsScheme().otherBubble.secondary)
+            }
+            .applyIf(messageStyle == MessageStyle.NORMAL) {
                 background(
-                    color = colorsScheme().surfaceVariant,
+                    color = colorsScheme().surface,
                     shape = RoundedCornerShape(dimensions().messageAttachmentCornerSize)
                 )
                 border(
-                    width = 1.dp,
+                    width = dimensions().spacing1x,
                     color = colorsScheme().outline,
                     shape = RoundedCornerShape(dimensions().messageAttachmentCornerSize)
                 )
             }
-            .clip(RoundedCornerShape(dimensions().messageAttachmentCornerSize))
     ) {
         if (item.transferStatus != AssetTransferStatus.NOT_FOUND) {
             when {
                 item.assetType == AttachmentFileType.IMAGE -> ImageAssetPreview(item, messageStyle)
-                item.assetType == AttachmentFileType.VIDEO -> VideoAssetPreview(item, messageStyle, accent)
-                item.assetType == AttachmentFileType.PDF && !showWithPreview -> PdfAssetPreview(item, messageStyle, accent)
-                else -> FileAssetPreview(item, messageStyle, accent)
+                item.assetType == AttachmentFileType.VIDEO -> VideoAssetPreview(item, messageStyle)
+                item.assetType == AttachmentFileType.PDF && !showWithPreview -> PdfAssetPreview(item, messageStyle)
+                item.isEditSupported -> EditableAssetPreview(item, messageStyle)
+                else -> FileAssetPreview(item, messageStyle)
             }
         } else {
-            AssetNotAvailablePreview(messageStyle = messageStyle, accent = accent)
+            AssetNotAvailablePreview(messageStyle = messageStyle)
         }
     }
 }

@@ -21,7 +21,6 @@ import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.config.NavigationTestExtension
-import com.wire.android.feature.GenerateRandomPasswordUseCase
 import com.wire.android.ui.home.conversations.details.editguestaccess.createPasswordProtectedGuestLink.CreatePasswordGuestLinkNavArgs
 import com.wire.android.ui.home.conversations.details.editguestaccess.createPasswordProtectedGuestLink.CreatePasswordGuestLinkViewModel
 import com.wire.android.ui.navArgs
@@ -31,6 +30,7 @@ import com.wire.kalium.logic.feature.auth.ValidatePasswordResult
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import com.wire.kalium.logic.feature.conversation.guestroomlink.GenerateGuestRoomLinkResult
 import com.wire.kalium.logic.feature.conversation.guestroomlink.GenerateGuestRoomLinkUseCase
+import com.wire.kalium.logic.util.RandomPassword
 import io.mockk.MockKAnnotations
 import io.mockk.clearMocks
 import io.mockk.coEvery
@@ -283,7 +283,7 @@ class CreatePasswordGuestLinkViewModelTest {
         lateinit var validatePassword: ValidatePasswordUseCase
 
         @MockK
-        lateinit var generateRandomPasswordUseCase: GenerateRandomPasswordUseCase
+        lateinit var generateRandomPassword: RandomPassword
 
         init {
             MockKAnnotations.init(this)
@@ -316,7 +316,7 @@ class CreatePasswordGuestLinkViewModelTest {
             result: String
         ) = apply {
             every {
-                generateRandomPasswordUseCase()
+                generateRandomPassword()
             } returns result
         }
 
@@ -330,7 +330,7 @@ class CreatePasswordGuestLinkViewModelTest {
             CreatePasswordGuestLinkViewModel(
                 generateGuestRoomLink = generateGuestRoomLink,
                 validatePassword = validatePassword,
-                generateRandomPasswordUseCase = generateRandomPasswordUseCase,
+                generatePassword = generateRandomPassword,
                 savedStateHandle = savedStateHandle
             )
         }

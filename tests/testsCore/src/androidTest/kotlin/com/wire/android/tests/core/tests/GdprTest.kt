@@ -22,90 +22,100 @@ import androidx.test.uiautomator.UiDevice
 import backendUtils.BackendClient
 import backendUtils.user.deleteUser
 import com.wire.android.tests.support.UiAutomatorSetup
-import com.wire.android.tests.core.di.testModule
 import com.wire.android.tests.core.pages.AllPages
-import com.wire.android.tests.support.suite.RC
-import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.test.KoinTest
-import org.koin.test.KoinTestRule
 import org.koin.test.inject
 import user.utils.ClientUser
+import com.wire.android.tests.core.BaseUiTest
+import com.wire.android.tests.support.tags.Category
+import com.wire.android.tests.support.tags.TestCaseId
 
 /*
 This test works on the following conditions:
 1) The dev/staging app is installed on the device/emulator.
 */
 @RunWith(AndroidJUnit4::class)
-@RC("RC", "regression", "@TC-8694", "@registration")
-class GdprTest : KoinTest {
-
-    @get:Rule
-    val koinTestRule = KoinTestRule.create {
-        modules(testModule)
-    }
-    private lateinit var device: UiDevice
+class GdprTest : BaseUiTest() {
     private val pages: AllPages by inject()
-    var registeredUser: ClientUser? = null
-    var backendClient: BackendClient? = null
+    private lateinit var device: UiDevice
+    private lateinit var backendClient: BackendClient
+    private var registeredUser: ClientUser? = null
 
     @Before
     fun setUp() {
-       // device = UiAutomatorSetup.start(UiAutomatorSetup.APP_DEV)
-        device = UiAutomatorSetup.start(UiAutomatorSetup.APP_STAGING)
+        device = UiAutomatorSetup.start(UiAutomatorSetup.APP_INTERNAL)
         backendClient = BackendClient.loadBackend("STAGING")
     }
 
     @After
     fun tearDown() {
-        // UiAutomatorSetup.stopApp()
-        runBlocking {
-            registeredUser?.deleteUser(backendClient!!)
+        runCatching {
+            registeredUser?.deleteUser(backendClient)
         }
     }
 
+    @TestCaseId("TC-8705")
+    @Category("gdpr", "regression")
     @Test
     fun givenTeamUserAcceptsAnonymousDataSharing_whenConsentIsGiven_thenAnalyticsIdentifierIsVisibleInDebugSettings() {
-        val clientUser = ClientUser()
-        registeredUser = backendClient?.createPersonalUserViaBackend(clientUser)
-        pages.registrationPage.assertEmailWelcomePage()
-        /*
-        Below step open deeplink to Staging
-        pages.loginPage.clickStagingDeepLink()
-        pages.loginPage.clickProceedButtonOnDeeplinkOverlay()
-         */
-        pages.loginPage.apply {
-            enterPersonalUserLoggingEmail(registeredUser?.email ?: "")
-            clickLoginButton()
-            assertLoggingPageVisible()
-            enterPersonalUserLoginPassword(registeredUser?.password ?: "")
-            clickLoginButton()
+
+        step("Create personal user via backend") {
+            val clientUser = ClientUser()
+            registeredUser = backendClient.createPersonalUserViaBackend(clientUser)
         }
-        pages.registrationPage.apply {
-            waitUntilLoginFlowIsCompleted()
-            clickAllowNotificationButton()
-            setUserName(registeredUser?.uniqueUsername ?: "")
+
+        step("Verify welcome page and login via staging deep link") {
+            pages.registrationPage.assertEmailWelcomePage()
+            pages.loginPage.apply {
+                clickStagingDeepLink()
+                clickProceedButtonOnDeeplinkOverlay()
+                enterPersonalUserLoggingEmail(registeredUser?.email ?: "")
+                clickLoginButton()
+                enterPersonalUserLoginPassword(registeredUser?.password ?: "")
+                clickLoginButton()
+            }
         }
-        pages.loginPage.clickConfirmButtonOnUsernameSetupPage()
-        pages.registrationPage.apply {
-            clickAgreeShareDataAlert()
-            assertConversationPageVisible()
+
+        step("Complete login flow and set username") {
+            pages.registrationPage.apply {
+                waitUntilLoginFlowIsCompleted()
+                clickAllowNotificationButton()
+                setUserName(registeredUser?.uniqueUsername ?: "")
+            }
+            pages.loginPage.clickConfirmButtonOnUsernameSetupPage()
         }
-        pages.conversationListPage.apply {
-            clickConversationsMenuEntry()
-            clickSettingsButtonOnMenuEntry()
+
+        step("Give consent to share anonymous usage data and verify landing on conversation page") {
+            pages.registrationPage.apply {
+                clickAgreeShareDataAlert()
+                assertConversationPageVisible()
+            }
         }
-        pages.settingsPage.apply {
-            clickPrivacySettingsButtonOnSettingsPage()
-            assertSendAnonymousUsageDataToggleIsOn()
-            clickBackButtonOnPrivacySettingsPage()
-            clickDebugSettingsButton()
-            assertAnalyticsInitializedIsSetToTrue()
-            assertAnalyticsTrackingIdentifierIsDispayed()
+
+        step("Navigate to settings from conversation list") {
+            pages.conversationListPage.apply {
+                clickConversationsMenuEntry()
+                clickSettingsButtonOnMenuEntry()
+            }
+        }
+
+        step("Verify anonymous usage data toggle is ON in privacy settings") {
+            pages.settingsPage.apply {
+                clickPrivacySettingsButtonOnSettingsPage()
+                assertSendAnonymousUsageDataToggleIsOn()
+                clickBackButtonOnPrivacySettingsPage()
+            }
+        }
+
+        step("Open debug settings and verify analytics identifier is visible") {
+            pages.settingsPage.apply {
+                clickDebugSettingsButton()
+                assertAnalyticsInitializedIsSetToTrue()
+                assertAnalyticsTrackingIdentifierIsDispayed()
+            }
         }
     }
 }

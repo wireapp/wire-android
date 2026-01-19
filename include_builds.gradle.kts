@@ -19,12 +19,12 @@ includeBuild("kalium") {
     // This dependency substitution should not be done on release mode once the Kalium library has been published to Maven repo
     dependencySubstitution {
         substitute(module("com.wire.kalium:kalium-logic")).using(project(":logic"))
-        substitute(module("com.wire.kalium:kalium-util")).using(project(":util"))
-        substitute(module("com.wire.kalium:kalium-data")).using(project(":data"))
-        substitute(module("com.wire.kalium:kalium-cells")).using(project(":cells"))
-        substitute(module("com.wire.kalium:kalium-common")).using(project(":common"))
+        substitute(module("com.wire.kalium:kalium-util")).using(project(":core:util"))
+        substitute(module("com.wire.kalium:kalium-data")).using(project(":core:data"))
+        substitute(module("com.wire.kalium:kalium-common")).using(project(":core:common"))
+        substitute(module("com.wire.kalium:kalium-cells")).using(project(":domain:cells"))
         // test modules
-        substitute(module("com.wire.kalium:kalium-mocks")).using(project(":mocks"))
-        substitute(module("com.wire.kalium:kalium-network")).using(project(":network"))
+        substitute(module("com.wire.kalium:kalium-mocks")).using(project(":test:mocks"))
+        substitute(module("com.wire.kalium:kalium-network")).using(project(":data:network"))
     }
 }

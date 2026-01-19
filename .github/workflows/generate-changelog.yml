@@ -24,7 +24,7 @@ jobs:
 
     steps:
       - name: 'Checkout Git repository with history for all branches and tags'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
           submodules: recursive # Needed in order to fetch Kalium sources for building
@@ -61,7 +61,7 @@ jobs:
           npx generate-changelog@1.8.0 -t "$PREVIOUS_TAG...$CURRENT_TAG"
 
       - name: 'Create release with changelog'
-        uses: softprops/action-gh-release@v2.4.1
+        uses: softprops/action-gh-release@v2.5.0
         env:
           GITHUB_TOKEN: ${{ secrets.ANDROID_BOB_GH_TOKEN }}
         with:

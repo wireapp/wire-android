@@ -1,4 +1,3 @@
-
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 import java.io.ByteArrayOutputStream
@@ -14,7 +13,7 @@ plugins {
 val env = Properties()
 
 // File where secrets will be saved/generated
-val secretsJson =  rootProject.file("secrets.json")
+val secretsJson = rootProject.file("secrets.json")
 
 // Function to sanitize keys by replacing spaces and dashes with underscores, and making uppercase
 fun sanitize(text: String): String {
@@ -75,15 +74,16 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.test.uiAutomator)
     implementation(libs.datafaker)
+    androidTestImplementation(libs.gson)
 }
 
 // Register a custom Gradle task 'fetchSecrets' to fetch secrets from 1Password CLI and generate secrets.json
 tasks.register("fetchSecrets") {
     // Only run if secrets.json doesn't exist or needs updating
-  outputs.file(rootProject.file("secrets.json"))
+    outputs.file(rootProject.file("secrets.json"))
 
     doLast {
-      val secretsFile = rootProject.file("secrets.json")
+        val secretsFile = rootProject.file("secrets.json")
         if (!secretsFile.exists()) {
             val vaultName = "Test Automation"
 
@@ -147,8 +147,10 @@ tasks.register("fetchSecrets") {
 
 }
 // workaround for now, we should configure the action https://github.com/1Password/install-cli-action when running tests on CI
-val isGitHubActions = System.getenv("GITHUB_ACTIONS") == "true"
-if (!isGitHubActions) {
+// By default, fetchSecrets is disabled. Enable it by setting enableFetchSecrets=true in local.properties or gradle.properties
+val enableFetchSecrets = project.getLocalProperty("enableFetchSecrets", "false").toBoolean()
+if (enableFetchSecrets) {
+    println("> fetchSecrets is ENABLED")
     // Make sure fetchSecrets runs automatically before building
     tasks.named("preBuild") {
         dependsOn("fetchSecrets")

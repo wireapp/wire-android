@@ -32,7 +32,6 @@ import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.common.error.CoreFailure
-import com.wire.kalium.logger.obfuscateId
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCase
@@ -102,17 +101,17 @@ internal class ConnectionActionButtonViewModelImpl @Inject constructor(
                 }
 
                 is SendConnectionRequestResult.Failure.MissingLegalHoldConsent -> {
-                    appLogger.d(("Couldn't send a connect request to user ${userId.value.obfuscateId()} - missing legal hold consent"))
+                    appLogger.d(("Couldn't send a connect request to user ${userId.toLogString()} - missing legal hold consent"))
                     state = state.copy(missingLegalHoldConsentDialogState = MissingLegalHoldConsentDialogState.Visible(userId))
                 }
 
                 is SendConnectionRequestResult.Failure.FederationDenied -> {
-                    appLogger.d(("Couldn't send a connect request to user ${userId.value.obfuscateId()} - federation denied"))
+                    appLogger.d(("Couldn't send a connect request to user ${userId.toLogString()} - federation denied"))
                     _infoMessage.emit(UIText.StringResource(R.string.connection_request_sent_federation_denied_error, userName))
                 }
 
                 is SendConnectionRequestResult.Failure -> {
-                    appLogger.d(("Couldn't send a connect request to user ${userId.value.obfuscateId()}"))
+                    appLogger.d(("Couldn't send a connect request to user ${userId.toLogString()}"))
                     _infoMessage.emit(UIText.StringResource(R.string.connection_request_sent_error))
                 }
             }

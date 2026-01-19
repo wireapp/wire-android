@@ -22,11 +22,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.kalium.common.error.CoreFailure
-import com.wire.kalium.common.functional.Either
-import com.wire.kalium.common.functional.fold
 import com.wire.kalium.logic.feature.client.FinalizeMLSClientAfterE2EIEnrollment
-import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
+import com.wire.kalium.logic.feature.e2ei.usecase.FinalizeEnrollmentResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -56,30 +53,25 @@ class E2EIEnrollmentViewModel @Inject constructor(
         state = state.copy(isLoading = true, startGettingE2EICertificate = true)
     }
 
-    fun handleE2EIEnrollmentResult(result: Either<CoreFailure, E2EIEnrollmentResult>) {
-        result.fold({
-            state = state.copy(
-                isLoading = false,
-                isCertificateEnrollError = true,
-                startGettingE2EICertificate = false
-            )
-        }, {
-            state = if (it is E2EIEnrollmentResult.Finalized) {
-                state.copy(
-                    certificate = it.certificate,
-                    isCertificateEnrollSuccess = true,
-                    isCertificateEnrollError = false,
-                    isLoading = false,
-                    startGettingE2EICertificate = false
-                )
-            } else {
+    fun handleE2EIEnrollmentResult(result: FinalizeEnrollmentResult) {
+        state = when (result) {
+            is FinalizeEnrollmentResult.Failure -> {
                 state.copy(
                     isLoading = false,
                     isCertificateEnrollError = true,
                     startGettingE2EICertificate = false
                 )
             }
-        })
+            is FinalizeEnrollmentResult.Success -> {
+                state.copy(
+                    certificate = result.certificate,
+                    isCertificateEnrollSuccess = true,
+                    isCertificateEnrollError = false,
+                    isLoading = false,
+                    startGettingE2EICertificate = false
+                )
+            }
+        }
     }
 
     fun dismissErrorDialog() {

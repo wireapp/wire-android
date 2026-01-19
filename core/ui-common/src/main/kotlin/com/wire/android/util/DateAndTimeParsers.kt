@@ -63,7 +63,16 @@ fun Instant.fileDateTime(): String = DateAndTimeParsers.fileDateTime(this)
 fun Instant.cellFileDateTime(): String = DateAndTimeParsers.cellFileDateTime(this)
 
 @Stable
+fun Instant.cellFileTime(): String = DateAndTimeParsers.cellTimeFormat(this)
+
+@Stable
 fun Instant.uiReadReceiptDateTime(): String = DateAndTimeParsers.uiReadReceiptDateTime(this)
+
+@Stable
+fun Long.uiLinkExpirationDate(): String = DateAndTimeParsers.linkExpirationDate(this)
+
+@Stable
+fun Long.uiLinkExpirationTime(): String = DateAndTimeParsers.linkExpirationTime(this)
 //endregion
 
 /**
@@ -71,6 +80,7 @@ fun Instant.uiReadReceiptDateTime(): String = DateAndTimeParsers.uiReadReceiptDa
  */
 class DateAndTimeParsers private constructor() {
 
+    @Suppress("TooManyFunctions")
     companion object {
         private val dateTimeFormatter = DateTimeFormatter.ISO_DATE_TIME.withZone(ZoneId.of("UTC"))
 
@@ -95,8 +105,6 @@ class DateAndTimeParsers private constructor() {
             .withZone(ZoneId.systemDefault()).withLocale(Locale.getDefault())
         private val fileDateTimeFormat =
             DateTimeFormatter.ofPattern("yyyy-MM-dd-hh-mm-ss", Locale.getDefault()).withZone(ZoneId.systemDefault())
-        private val cellFileDateTimeFormat =
-            DateTimeFormatter.ofPattern("MMM dd, hh:mm a", Locale.getDefault()).withZone(ZoneId.systemDefault())
         private val readReceiptDateTimeFormat =
             DateTimeFormatter.ofPattern("MMM dd yyyy,  hh:mm a", Locale.getDefault()).withZone(ZoneId.systemDefault())
         private val mediumOnlyDateTimeFormat =
@@ -109,6 +117,13 @@ class DateAndTimeParsers private constructor() {
 
         private val videoMessageTimeFormat = DateTimeFormatter.ofPattern("mm:ss", Locale.getDefault())
             .withZone(ZoneId.systemDefault())
+
+        private val linkExpirationDateFormat = DateTimeFormatter.ofPattern("EEEE, MMMM dd", Locale.getDefault())
+            .withZone(ZoneId.systemDefault())
+
+        private val linkExpirationTimeFormat = java.text.DateFormat.getTimeInstance(java.text.DateFormat.SHORT, Locale.getDefault()).apply {
+            this.timeZone = java.util.TimeZone.getDefault()
+        }
 
         @Deprecated("Date String parsing is discouraged and will be removed soon for direct Instant/DateTime versions")
         fun serverDate(stringDate: String): Date? {
@@ -142,7 +157,33 @@ class DateAndTimeParsers private constructor() {
                 null
             }
 
-        fun cellFileDateTime(instant: Instant): String = cellFileDateTimeFormat.format(instant.toJavaInstant())
+        fun cellTimeFormat(instant: Instant): String {
+            val timeFormatter = java.text.DateFormat.getTimeInstance(
+                java.text.DateFormat.SHORT,
+                Locale.getDefault()
+            ).apply {
+                timeZone = java.util.TimeZone.getDefault()
+            }
+            return timeFormatter.format(Date.from(instant.toJavaInstant()))
+        }
+
+        fun cellDateFormat(instant: Instant, showYear: Boolean = false): String {
+            val pattern = if (showYear) "MMM dd, yyyy" else "MMM dd"
+
+            val formatter = DateTimeFormatter
+                .ofPattern(pattern, Locale.getDefault())
+                .withZone(ZoneId.systemDefault())
+
+            return formatter.format(instant.toJavaInstant())
+        }
+
+        fun cellFileDateTime(instant: Instant): String {
+
+            val dateString = cellDateFormat(instant)
+            val timeString = cellTimeFormat(instant)
+
+            return "$dateString, $timeString"
+        }
 
         fun fileDateTime(instant: Instant): String = fileDateTimeFormat.format(instant.toJavaInstant())
 
@@ -164,5 +205,8 @@ class DateAndTimeParsers private constructor() {
 
         fun meetingDate(instant: Instant): String = longDateFormat.format(Date.from(instant.toJavaInstant()))
         fun meetingTime(instant: Instant): String = shortTimeFormat.format(Date.from(instant.toJavaInstant()))
+
+        fun linkExpirationDate(timeMs: Long): String = linkExpirationDateFormat.format(java.time.Instant.ofEpochMilli(timeMs))
+        fun linkExpirationTime(timeMs: Long): String = linkExpirationTimeFormat.format(Date.from(java.time.Instant.ofEpochMilli(timeMs)))
     }
 }

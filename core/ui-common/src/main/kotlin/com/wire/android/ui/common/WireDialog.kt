@@ -75,7 +75,7 @@ fun wireDialogPropertiesBuilder(
 @Composable
 fun WireDialog(
     title: String,
-    text: String,
+    text: String?,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
     textSuffixLink: DialogTextSuffixLink? = null,
@@ -103,7 +103,7 @@ fun WireDialog(
         contentPadding = contentPadding,
         title = title,
         titleLoading = titleLoading,
-        text = buildAnnotatedString {
+        text = if (text != null) buildAnnotatedString {
             val style = SpanStyle(
                 color = colorsScheme().onBackground,
                 fontWeight = MaterialTheme.wireTypography.body01.fontWeight,
@@ -112,7 +112,7 @@ fun WireDialog(
                 fontStyle = MaterialTheme.wireTypography.body01.fontStyle
             )
             withStyle(style) { append(text) }
-        },
+        } else null,
         textSuffixLink = textSuffixLink,
         centerContent = centerContent,
         dialogDescription = dialogDescription,
@@ -122,7 +122,7 @@ fun WireDialog(
 
 @Composable
 fun WireDialog(
-    title: String,
+    title: String?,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
     text: AnnotatedString? = null,
@@ -163,7 +163,7 @@ fun WireDialog(
 
 @Composable
 fun WireDialogContent(
-    title: String,
+    title: String?,
     modifier: Modifier = Modifier,
     titleLoading: Boolean = false,
     text: AnnotatedString? = null,
@@ -192,7 +192,9 @@ fun WireDialogContent(
             horizontalAlignment = if (centerContent) Alignment.CenterHorizontally else Alignment.Start
         ) {
             // Title
-            TitleDialogSection(title, titleLoading)
+            title?.let {
+                TitleDialogSection(title, titleLoading)
+            }
 
             // Dynamic sized body content
             LazyColumn(

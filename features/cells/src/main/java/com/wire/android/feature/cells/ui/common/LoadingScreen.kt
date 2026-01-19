@@ -35,8 +35,12 @@ import androidx.compose.ui.draw.clip
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.common.rowitem.RowItemTemplate
 import com.wire.android.ui.common.shimmerPlaceholder
+import com.wire.android.ui.theme.WireTheme
+
+private const val LOADING_PLACEHOLDER_ITEMS_COUNT = 6
 
 @Composable
 fun LoadingScreen(
@@ -92,4 +96,18 @@ fun LoadingFileItem(modifier: Modifier = Modifier) {
     )
 }
 
-private const val LOADING_PLACEHOLDER_ITEMS_COUNT = 6
+@MultipleThemePreviews
+@Composable
+fun PreviewLoadingScreen() {
+    WireTheme {
+        LoadingScreen()
+    }
+}
+
+@MultipleThemePreviews
+@Composable
+fun PreviewLoadingFileItem() {
+    WireTheme {
+        LoadingFileItem()
+    }
+}

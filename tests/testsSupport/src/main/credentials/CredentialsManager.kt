@@ -27,7 +27,7 @@ object CredentialsManager {
         return try {
             return getBuildConfigValue("${parentKey}_$fieldKey")
         } catch (e: Exception) {
-            println("❌ Error reading secret [$parentKey/$fieldKey]: ${e.message}")
+            println("Error reading secret [$parentKey/$fieldKey]: ${e.message}")
             null
         }
     }
@@ -40,7 +40,7 @@ object CredentialsManager {
             field.isAccessible = true
             field.get(null)?.toString()
         } catch (e: Exception) {
-            println("❌ Could not access BuildConfig field '$fieldName': ${e.message}")
+            println("Could not access BuildConfig field '$fieldName': ${e.message}")
             null
         }
     }

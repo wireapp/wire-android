@@ -39,9 +39,9 @@ import com.wire.android.ui.home.HomeSnackBarMessage
 import com.wire.android.ui.home.conversations.usecase.GetConversationsFromSearchUseCase
 import com.wire.android.ui.home.conversationslist.common.previewConversationItemsFlow
 import com.wire.android.ui.home.conversationslist.model.BadgeEventType
-import com.wire.android.ui.home.conversationslist.model.ConversationSection
-import com.wire.android.ui.home.conversationslist.model.ConversationItemType
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
+import com.wire.android.ui.home.conversationslist.model.ConversationItemType
+import com.wire.android.ui.home.conversationslist.model.ConversationSection
 import com.wire.android.ui.home.conversationslist.model.ConversationsSource
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.conversation.Conversation
@@ -141,7 +141,7 @@ class ConversationListViewModelImpl @AssistedInject constructor(
     private val conversationsPaginatedFlow: Flow<PagingData<ConversationItemType>> = searchQueryFlow
         .debounce { if (it.isEmpty()) 0L else DEFAULT_SEARCH_QUERY_DEBOUNCE }
         .onStart { emit("") }
-        .combine(isSelfUserUnderLegalHoldFlow, ::Pair)
+        .combine(isSelfUserUnderLegalHoldFlow.onStart { emit(false) }, ::Pair)
         .distinctUntilChanged()
         .combine(audioMessagePlayer.playingAudioMessageFlow) { (searchQuery, isSelfUserUnderLegalHold), playingAudioMessage ->
             Triple(searchQuery, isSelfUserUnderLegalHold, playingAudioMessage)

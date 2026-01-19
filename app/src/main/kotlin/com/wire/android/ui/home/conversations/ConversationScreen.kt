@@ -44,8 +44,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -87,6 +85,7 @@ import com.ramcosta.composedestinations.result.NavResult.Value
 import com.ramcosta.composedestinations.result.OpenResultRecipient
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
+import com.wire.android.BuildConfig.IS_BUBBLE_UI_ENABLED
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
@@ -185,7 +184,7 @@ import com.wire.android.util.normalizeLink
 import com.wire.android.util.serverDate
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
-import com.wire.android.util.ui.openDownloadFolder
+import com.wire.android.util.openDownloadFolder
 import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.Conversation.TypingIndicatorMode
@@ -209,6 +208,7 @@ import kotlinx.datetime.Instant
 import java.util.Date
 import java.util.Locale
 import kotlin.time.Duration.Companion.milliseconds
+import com.wire.android.ui.common.R as commonR
 
 /**
  * The maximum number of messages the user can scroll while still
@@ -925,7 +925,7 @@ private fun ConversationScreen(
     Box(modifier = Modifier) {
         // only here we will use normal Scaffold because of specific behaviour of message composer
         Scaffold(
-            contentColor = if (conversationInfoViewState.isBubbleUiEnabled) {
+            contentColor = if (IS_BUBBLE_UI_ENABLED) {
                 colorsScheme().primary
             } else {
                 colorsScheme().background
@@ -1019,7 +1019,7 @@ private fun ConversationScreen(
                         onAttachmentClick = onAttachmentClick,
                         onAttachmentMenuClick = onAttachmentMenuClick,
                         showHistoryLoadingIndicator = conversationInfoViewState.showHistoryLoadingIndicator,
-                        isBubbleUiEnabled = conversationInfoViewState.isBubbleUiEnabled,
+                        isBubbleUiEnabled = IS_BUBBLE_UI_ENABLED,
                         isWireCellsEnabled = isWireCellsEnabled,
                     )
                 }
@@ -1559,7 +1559,7 @@ fun JumpToLastMessageButton(
             elevation = FloatingActionButtonDefaults.elevation(dimensions().spacing0x),
         ) {
             Icon(
-                imageVector = Icons.Default.KeyboardArrowDown,
+                painter = painterResource(commonR.drawable.ic_keyboard_arrow_down),
                 contentDescription = stringResource(id = R.string.content_description_jump_to_last_message),
                 Modifier.size(dimensions().spacing32x)
             )

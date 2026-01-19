@@ -80,9 +80,7 @@
     <string name="content_description_reveal_password">Mostra la password</string>
     <string name="content_description_hide_password">Nascondi la password</string>
     <string name="content_description_search_back">Icona di ricerca all\'indietro</string>
-    <string name="content_description_clear_content">Cancella il contenuto</string>
     <string name="content_description_muted_conversation">Conversazione silenziata</string>
-    <string name="content_description_check">Segno di spunta</string>
     <string name="content_description_download_icon">Icona di download</string>
     <string name="content_description_open_asset_icon">Apri icona</string>
     <string name="content_description_add_to_favourite">Aggiungi ai preferiti</string>
@@ -93,8 +91,6 @@
     <string name="content_description_unblock_the_user">Sblocca</string>
     <string name="content_description_conversation_phone_icon">Avvia chiamata audio</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
-    <string name="content_description_conversation_search_icon">Icona di ricerca</string>
-    <string name="content_description_conversation_search_input">Input della ricerca</string>
     <string name="content_description_conversation_enable_rich_text_mode">Abilita la modalit&#224; di testo avanzata</string>
     <string name="content_description_conversation_rich_text_header">Intestazione formattata in testo ricco</string>
     <string name="content_description_conversation_rich_text_bold">Grassetto formattazione in testo ricco</string>
@@ -615,14 +611,12 @@ Un messaggio eliminato non pu&#242; essere ripristinato.</string>
         <item quantity="other">%1$s e altri %2$d stanno digitando</item>
     </plurals>
     <!-- Search Messages -->
-    <string name="label_search_messages">Cerca messaggi</string>
     <string name="label_search_messages_empty_title">Cerca tutti i messaggi in questa conversazione.</string>
     <string name="label_search_messages_no_results">Impossibile trovare alcun risultato.\nTi preghiamo di affinare la tua ricerca e riprovare.</string>
     <string name="label_search_button">Cerca</string>
     <!-- Conversation Media -->
     <string name="label_conversation_media">Multimedia</string>
     <string name="label_conversation_pictures">Immagini</string>
-    <string name="label_conversation_files">File</string>
     <string name="label_conversation_pictures_empty">Nessuno ha ancora condiviso immagini in questa conversazione 🥲</string>
     <string name="label_conversation_files_empty">Nessuno ha ancora condiviso dei file in questa conversazione 🙀</string>
     <!-- Search Contact-->
@@ -1099,7 +1093,6 @@ registrato. Sei pregato di riprovare.</string>
     <string name="label_debug_data">Dati di debug</string>
     <string name="title_internal_debugging">Debug interno</string>
     <string name="label_log_options_description">"Questo memorizza localmente le informazioni anonime di risoluzione dei problemi. "</string>
-    <string name="label_no_application_found_open_downloads_folder">"Nessun'applicazione trovata per aprire la cartella dei download"</string>
     <string name="notification_obfuscated_message_title">Qualcuno</string>
     <string name="notification_obfuscated_message_content">Ha inviato un messaggio a eliminazione automatica</string>
     <string name="settings_licenses_settings_label">Informazioni sulla licenza</string>

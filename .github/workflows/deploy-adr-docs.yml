@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout project
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install pip for adr-viewer
         run: |
@@ -33,7 +33,7 @@ jobs:
 
       - name: Deploy docs 🚀
         if: github.event_name == 'push' && github.ref_name == 'develop'
-        uses: JamesIves/github-pages-deploy-action@v4.7.3
+        uses: JamesIves/github-pages-deploy-action@v4.7.6
         with:
           branch: gh-pages
           clean: false

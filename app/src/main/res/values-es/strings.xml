@@ -84,9 +84,7 @@
     <string name="content_description_reveal_password">Mostrar contraseña</string>
     <string name="content_description_hide_password">Ocultar contraseña</string>
     <string name="content_description_search_back">Icono de búsqueda atrás</string>
-    <string name="content_description_clear_content">Borrar contenido</string>
     <string name="content_description_muted_conversation">Conversación silenciada</string>
-    <string name="content_description_check">Marca de verificación</string>
     <string name="content_description_download_icon">Icono de descarga</string>
     <string name="content_description_open_asset_icon">Icono de abrir</string>
     <string name="content_description_add_to_favourite">Agregar a Favoritos</string>
@@ -99,8 +97,6 @@
     <string name="content_description_delete_the_conversation">Eliminar la conversación</string>
     <string name="content_description_conversation_phone_icon">Iniciar una llamada</string>
     <string name="content_description_welcome_wire_logo">Logo de Wire</string>
-    <string name="content_description_conversation_search_icon">Ícono de búsqueda</string>
-    <string name="content_description_conversation_search_input">Campo de búsqueda</string>
     <string name="content_description_conversation_enable_rich_text_mode">Botón de modo de texto enriquecido</string>
     <string name="content_description_conversation_enable_drawing_mode">Botón activar modo de dibujo</string>
     <string name="content_description_conversation_rich_text_header">Encabezado de formato de texto enriquecido</string>
@@ -385,6 +381,7 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="conversation_options_guest_description">Active esta opci&#243;n para abrir esta conversaci&#243;n a personas fuera de su equipo, incluso si no tienen Wire.</string>
     <string name="conversation_options_guest_not_editable_description">No se puede desactivar la opci&#243;n de invitados en esta conversaci&#243;n, ya que ha sido creada por alguien de otro equipo.</string>
     <string name="conversation_options_services_label">Aplicaciones</string>
+    <string name="conversation_details_apps_description">Cuando esta opción está activada, la conversación está abierta a aplicaciones.</string>
     <string name="conversation_options_services_description">Activa esta opción para abrir la conversación a aplicaciones.</string>
     <string name="conversation_options_renamed">Conversaci&#243;n renombrada</string>
     <string name="disable_guest_dialog_title">&#191;Desea desactivar el acceso de invitados?</string>

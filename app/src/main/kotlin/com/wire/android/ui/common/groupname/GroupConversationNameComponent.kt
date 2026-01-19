@@ -33,8 +33,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -49,7 +47,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import com.wire.android.R
-import com.wire.android.ui.common.Icon
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.common.animation.ShakeAnimation
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
@@ -171,8 +169,8 @@ fun GroupNameScreen(
                                                 onClick = newGroupNameTextState::clearText,
                                             ) {
                                                 Icon(
-                                                    painter = painterResource(id = R.drawable.ic_clear_search),
-                                                    contentDescription = stringResource(R.string.content_description_clear_content)
+                                                    painter = painterResource(id = commonR.drawable.ic_clear_search),
+                                                    contentDescription = stringResource(commonR.string.content_description_clear_content)
                                                 )
                                             }
                                         }
@@ -213,7 +211,12 @@ fun GroupNameScreen(
                             onClick = onContinuePressed,
                             fillMaxWidth = true,
                             loading = isLoading,
-                            trailingIcon = Icons.Filled.ChevronRight.Icon(),
+                            trailingIcon = {
+                                Icon(
+                                    painter = painterResource(commonR.drawable.ic_chevron_right),
+                                    contentDescription = null,
+                                )
+                            },
                             state = if (continueEnabled) WireButtonState.Default else WireButtonState.Disabled,
                             modifier = Modifier
                                 .fillMaxWidth()

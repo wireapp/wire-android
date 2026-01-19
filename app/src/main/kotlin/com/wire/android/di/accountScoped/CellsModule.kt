@@ -20,18 +20,19 @@ package com.wire.android.di.accountScoped
 import com.wire.android.di.CurrentAccount
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.feature.cells.util.FileNameResolver
+import com.wire.android.ui.home.conversations.model.messagetypes.multipart.CellAssetRefreshHelper
 import com.wire.kalium.cells.CellsScope
 import com.wire.kalium.cells.domain.CellUploadManager
 import com.wire.kalium.cells.domain.usecase.AddAttachmentDraftUseCase
-import com.wire.kalium.cells.domain.usecase.CreateFolderUseCase
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
-import com.wire.kalium.cells.domain.usecase.DownloadCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
 import com.wire.kalium.cells.domain.usecase.GetCellFileUseCase
+import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
 import com.wire.kalium.cells.domain.usecase.GetFoldersUseCase
 import com.wire.kalium.cells.domain.usecase.GetMessageAttachmentUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedNodesUseCase
+import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
 import com.wire.kalium.cells.domain.usecase.IsAtLeastOneCellAvailableUseCase
 import com.wire.kalium.cells.domain.usecase.MoveNodeUseCase
 import com.wire.kalium.cells.domain.usecase.ObserveAttachmentDraftsUseCase
@@ -44,12 +45,25 @@ import com.wire.kalium.cells.domain.usecase.RenameNodeUseCase
 import com.wire.kalium.cells.domain.usecase.RestoreNodeFromRecycleBinUseCase
 import com.wire.kalium.cells.domain.usecase.RetryAttachmentUploadUseCase
 import com.wire.kalium.cells.domain.usecase.UpdateNodeTagsUseCase
+import com.wire.kalium.cells.domain.usecase.create.CreateDocumentFileUseCase
+import com.wire.kalium.cells.domain.usecase.create.CreateFolderUseCase
+import com.wire.kalium.cells.domain.usecase.create.CreatePresentationFileUseCase
+import com.wire.kalium.cells.domain.usecase.create.CreateSpreadsheetFileUseCase
+import com.wire.kalium.cells.domain.usecase.download.DownloadCellFileUseCase
+import com.wire.kalium.cells.domain.usecase.download.DownloadCellVersionUseCase
+import com.wire.kalium.cells.domain.usecase.publiclink.CreatePublicLinkPasswordUseCase
 import com.wire.kalium.cells.domain.usecase.publiclink.CreatePublicLinkUseCase
 import com.wire.kalium.cells.domain.usecase.publiclink.DeletePublicLinkUseCase
+import com.wire.kalium.cells.domain.usecase.publiclink.GetPublicLinkPasswordUseCase
 import com.wire.kalium.cells.domain.usecase.publiclink.GetPublicLinkUseCase
+import com.wire.kalium.cells.domain.usecase.publiclink.SetPublicLinkExpirationUseCase
+import com.wire.kalium.cells.domain.usecase.publiclink.UpdatePublicLinkPasswordUseCase
+import com.wire.kalium.cells.domain.usecase.versioning.GetNodeVersionsUseCase
+import com.wire.kalium.cells.domain.usecase.versioning.RestoreNodeVersionUseCase
 import com.wire.kalium.cells.paginatedFilesFlowUseCase
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -102,7 +116,7 @@ class CellsModule {
 
     @ViewModelScoped
     @Provides
-    fun provideDownloadUseCase(cellsScope: CellsScope): DownloadCellFileUseCase = cellsScope.downloadFile
+    fun provideDownloadUseCase(cellsScope: CellsScope): DownloadCellFileUseCase = cellsScope.downloadCellFile
 
     @ViewModelScoped
     @Provides
@@ -131,6 +145,19 @@ class CellsModule {
     @ViewModelScoped
     @Provides
     fun provideCreateFolderUseCase(cellsScope: CellsScope): CreateFolderUseCase = cellsScope.createFolderUseCase
+
+    @ViewModelScoped
+    @Provides
+    fun provideCreateSpreadsheetFileUseCase(cellsScope: CellsScope): CreateSpreadsheetFileUseCase = cellsScope.createSpreadsheetFileUseCase
+
+    @ViewModelScoped
+    @Provides
+    fun provideCreateDocumentFileUseCase(cellsScope: CellsScope): CreateDocumentFileUseCase = cellsScope.createDocumentFileUseCase
+
+    @ViewModelScoped
+    @Provides
+    fun provideCreatePresentationFileUseCase(cellsScope: CellsScope): CreatePresentationFileUseCase =
+        cellsScope.createPresentationFileUseCase
 
     @ViewModelScoped
     @Provides
@@ -175,4 +202,49 @@ class CellsModule {
 
     @Provides
     fun provideGetCellNodeUseCase(cellsScope: CellsScope): GetCellFileUseCase = cellsScope.getCellFileUseCase
+
+    @Provides
+    fun provideCreatePublicLinkPasswordUseCase(cellsScope: CellsScope): CreatePublicLinkPasswordUseCase =
+        cellsScope.createPublicLinkPasswordUseCase
+
+    @Provides
+    fun provideUpdatePublicLinkPasswordUseCase(cellsScope: CellsScope): UpdatePublicLinkPasswordUseCase =
+        cellsScope.updatePublicLinkPasswordUseCase
+
+    @Provides
+    fun provideGetPublicLinkPasswordUseCase(cellsScope: CellsScope): GetPublicLinkPasswordUseCase =
+        cellsScope.getPublicLinkPassword
+
+    @Provides
+    fun provideSetPublicLinkExpirationUseCase(cellsScope: CellsScope): SetPublicLinkExpirationUseCase =
+        cellsScope.setPublicLinkExpiration
+
+    @Provides
+    fun provideEditorUrlUseCase(cellsScope: CellsScope): GetEditorUrlUseCase = cellsScope.getEditorUrl
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetNodeVersionsUseCase(cellsScope: CellsScope): GetNodeVersionsUseCase =
+        cellsScope.getNodeVersions
+
+    @ViewModelScoped
+    @Provides
+    fun provideRestoreNodeVersionUseCase(cellsScope: CellsScope): RestoreNodeVersionUseCase =
+        cellsScope.restoreNodeVersion
+
+    @ViewModelScoped
+    @Provides
+    fun provideDownloadCellVersionUseCase(cellsScope: CellsScope): DownloadCellVersionUseCase =
+        cellsScope.downloadCellVersion
+
+    @ViewModelScoped
+    @Provides
+    fun provideRefreshHelper(cellsScope: CellsScope, kaliumConfigs: KaliumConfigs): CellAssetRefreshHelper = CellAssetRefreshHelper(
+        refreshAsset = cellsScope.refreshAsset,
+        featureFlags = kaliumConfigs
+    )
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetCellsConfigUseCase(cellsScope: CellsScope): GetWireCellConfigurationUseCase = cellsScope.getCellConfig
 }

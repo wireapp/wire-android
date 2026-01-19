@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Wire
+  ~ Copyright (C) 2024 Wire Swiss GmbH
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program. If not, see http://www.gnu.org/licenses/.
+  -->
+<resources>
+    <string name="app_version">Верзија апликације</string>
+    <string name="label_message_sent_failure">Message could not be sent.</string>
+    <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
+    <string name="content_description_empty"></string>
+    <!-- Non translatable strings-->
+    <!-- Wire Urls - Non translatable -->
+    <!-- Navigation -->
+    <!--Whats New -->
+    <!-- Settings -->
+    <!-- Welcome -->
+    <!-- API Versioning Dialogs -->
+    <!-- Migration -->
+    <!-- Enterprise Login -->
+    <!-- Login -->
+    <!-- Second Factor Authentication -->
+    <!-- Remove Device -->
+    <!-- Register Device -->
+    <!-- Delete Message -->
+    <!-- Replies/Quotes to other messages -->
+    <!-- Create Account -->
+    <!-- Conversations -->
+    <!-- Import/Export External Media -->
+    <!--Read receipts -->
+    <!-- Messages -->
+    <!-- Messages Date and Time -->
+    <!-- Attachment options -->
+    <!-- User Profile -->
+    <!-- Remove Conversation Member Dialog -->
+    <!-- Logout Wipe Data Dialog -->
+    <!-- User Profile status dialog-->
+    <!-- Conversations BottomSheet -->
+    <!-- Conversation filter BottomSheet -->
+    <!-- Muting options BottomSheet -->
+    <!--Profile image-->
+    <!--Conversation-->
+    <!-- System messages -->
+    <string name="label_system_message_conversation_history_lost">YOU HAVEN\'T USED THIS DEVICE FOR A WHILE. SOME MESSAGES MAY NOT APPEAR HERE.</string>
+    <!-- Last messages -->
+    <!-- Unread Events -->
+    <!--Typing Indicator-->
+    <!-- Search Messages -->
+    <!-- Conversation Media -->
+    <!-- Search Contact-->
+    <!-- Search Channels -->
+    <!-- Snackbar messages -->
+    <!-- Archiving -->
+    <!-- Favorite -->
+    <!-- Animation label -->
+    <!-- Notifications -->
+    <!-- Calling-->
+    <!-- Connectivity Status Bar -->
+    <!-- Connections -->
+    <!-- Missing keyPackages dialog -->
+    <!-- Gallery -->
+    <!--sso dialog-->
+    <!--prohibited asset messages -->
+    <!--wire dropdown-->
+    <!--block user dialog -->
+    <!--Settings -->
+    <!--Settings, Appearance -->
+    <!--Settings, My Account -->
+    <!--Settings, My Account > Display name -->
+    <!--Privacy Settings -->
+    <!--Privacy Settings, App lock -->
+    <!--Devices -->
+    <!--unblock user dialog -->
+    <!--max account reached dialog-->
+    <!--create and restore backup-->
+    <!--    report bug-->
+    <!-- Claimed Domain dialog -->
+    <!-- Update App dialog -->
+    <!-- Analytics Usage dialog -->
+    <!-- session reset -->
+    <!-- join conversation dialog -->
+    <!-- edit self-deleting messages -->
+    <!-- visit link -->
+    <!-- invalid link -->
+    <!-- guest room link -->
+    <!-- New Device dialog -->
+    <!-- Asset limits error messages -->
+    <!-- Expiring messages -->
+    <!-- Record Audio -->
+    <!--    biometrics-->
+    <!--    e2ei-->
+    <!-- legal hold -->
+    <!-- Sure want to send message Dialog -->
+    <!-- Sure want to call Dialog -->
+    <!-- Go to app settings permissions dialog -->
+    <!-- Share Location -->
+    <!-- Asset Preview -->
+    <!-- No Activity Errors -->
+    <!--    Ping dialog-->
+    <!-- Call Feedback Dialog -->
+    <!-- Debug Settings -->
+    <!--    Personal to team migration screen-->
+    <!-- Move to Folder -->
+    <!-- enterprise configurations -->
+    <!--    channel not available dialog-->
+    <!-- Apps-->
+</resources>

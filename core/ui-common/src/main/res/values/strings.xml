@@ -54,4 +54,21 @@
     <string name="accent_color_purple">Purple</string>
     <string name="accent_color_none">None</string>
 
+    <string name="generate_password_button_text">Generate Password</string>
+    <string name="label_ok">Ok</string>
+    <string name="label_cancel">Cancel</string>
+    <string name="label_no_selected_date">No selected date</string>
+    <string name="content_description_check">Check mark</string>
+    <string name="label_no_application_found_open_downloads_folder">"No application found to open downloads folder"</string>
+
+    <string name="size_unit_bytes">B</string>
+    <string name="size_unit_kilobytes">KB</string>
+    <string name="size_unit_megabytes">MB</string>
+    <string name="size_unit_gigabytes">GB</string>
+    <string name="size_unit_terabytes">TB</string>
+
+    <string name="content_description_conversation_search_icon">Search icon</string>
+    <string name="content_description_conversation_search_input">Search input</string>
+    <string name="content_description_clear_content">Clear content</string>
+
 </resources>

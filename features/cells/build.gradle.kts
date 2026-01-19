@@ -17,6 +17,7 @@ dependencies {
     implementation(project(":core:ui-common"))
     implementation(libs.androidx.core)
     implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.browser)
     implementation(libs.material)
     implementation(libs.ktx.immutableCollections)
     implementation(libs.ktx.serialization)
@@ -31,7 +32,6 @@ dependencies {
     implementation(libs.compose.ui.graphics)
     implementation(libs.compose.material.core)
     implementation(libs.compose.material3)
-    implementation(libs.compose.material.icons)
     implementation(libs.androidx.lifecycle.viewModelCompose)
     implementation(libs.compose.ui.preview)
 
@@ -53,6 +53,7 @@ dependencies {
     testRuntimeOnly(libs.junit5.engine)
     androidTestImplementation(libs.androidx.test.extJunit)
     androidTestImplementation(libs.androidx.espresso.core)
+    testImplementation(testFixtures(project(":core:ui-common")))
 }
 
 android {

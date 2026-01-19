@@ -81,7 +81,6 @@ object NetworkBackendClient {
         headers: Map<String, String>,
         options: RequestOptions = RequestOptions()
     ): HttpURLConnection {
-        print(url.toURI().toString())
 
         val connection = (url.openConnection() as HttpURLConnection).apply {
             requestMethod = method
@@ -102,8 +101,8 @@ object NetworkBackendClient {
                 setRequestProperty("Cookie", cookie.name + "=" + cookie.value)
             }
 
-            connectTimeout = 5000
-            readTimeout = 5000
+            connectTimeout = 20000
+            readTimeout = 30000
         }
 
         writeRequestBody(connection, body)

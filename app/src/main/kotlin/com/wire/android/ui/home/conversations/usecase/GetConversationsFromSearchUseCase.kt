@@ -121,7 +121,7 @@ class GetConversationsFromSearchUseCase @Inject constructor(
 
     private companion object {
         const val PAGE_SIZE = 20
-        const val INITIAL_LOAD_SIZE = 60
+        const val INITIAL_LOAD_SIZE = 40
         const val PREFETCH_DISTANCE = 5
     }
 }

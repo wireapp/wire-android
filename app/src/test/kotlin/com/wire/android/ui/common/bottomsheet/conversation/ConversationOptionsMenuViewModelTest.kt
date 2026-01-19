@@ -26,9 +26,6 @@ import com.wire.android.ui.home.HomeSnackBarMessage
 import com.wire.android.workmanager.worker.ConversationDeletionLocallyStatus
 import com.wire.android.workmanager.worker.enqueueConversationDeletionLocally
 import com.wire.kalium.common.error.CoreFailure
-import com.wire.kalium.common.functional.Either
-import com.wire.kalium.common.functional.left
-import com.wire.kalium.common.functional.right
 import com.wire.kalium.logic.data.conversation.ConversationFolder
 import com.wire.kalium.logic.data.conversation.FolderType
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
@@ -47,6 +44,7 @@ import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUs
 import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.delete.MarkConversationAsDeletedLocallyUseCase
+import com.wire.kalium.logic.feature.conversation.delete.MarkConversationAsDeletedResult
 import com.wire.kalium.logic.feature.conversation.folder.AddConversationToFavoritesUseCase
 import com.wire.kalium.logic.feature.conversation.folder.RemoveConversationFromFavoritesUseCase
 import com.wire.kalium.logic.feature.conversation.folder.RemoveConversationFromFolderUseCase
@@ -259,6 +257,44 @@ class ConversationOptionsMenuViewModelTest {
     }
 
     @Test
+    fun `given user is not a member, when moving to archive, then archive only locally`() = runTest(dispatcherProvider.main()) {
+        val (arrangement, viewModel) = Arrangement()
+            .withUpdateArchivedStatus(ArchiveStatusUpdateResult.Success)
+            .arrange()
+
+        viewModel.actions.test {
+            viewModel.moveToArchive(conversationId, true, false)
+
+            coVerify(exactly = 1) { arrangement.updateConversationArchivedStatus(conversationId, true, true, any()) }
+            assertIs<ConversationOptionsMenuViewAction.Message>(awaitItem()).also {
+                assertIs<HomeSnackBarMessage.UpdateArchivingStatusSuccess>(it.message).also {
+                    assertEquals(true, it.isArchiving)
+                }
+            }
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun `given user is not a member, when removing from archive, then unarchive only locally`() = runTest(dispatcherProvider.main()) {
+        val (arrangement, viewModel) = Arrangement()
+            .withUpdateArchivedStatus(ArchiveStatusUpdateResult.Success)
+            .arrange()
+
+        viewModel.actions.test {
+            viewModel.moveToArchive(conversationId, false, false)
+
+            coVerify(exactly = 1) { arrangement.updateConversationArchivedStatus(conversationId, false, true, any()) }
+            assertIs<ConversationOptionsMenuViewAction.Message>(awaitItem()).also {
+                assertIs<HomeSnackBarMessage.UpdateArchivingStatusSuccess>(it.message).also {
+                    assertEquals(false, it.isArchiving)
+                }
+            }
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
     fun `given success, when changing muted state, then call proper action`() = runTest(dispatcherProvider.main()) {
         val (arrangement, viewModel) = Arrangement()
             .withUpdateConversationMutedStatus(ConversationUpdateStatusResult.Success)
@@ -337,7 +373,7 @@ class ConversationOptionsMenuViewModelTest {
     fun `given success, when leaving group with deleting, then call proper action`() = runTest(dispatcherProvider.main()) {
         val (arrangement, viewModel) = Arrangement()
             .withLeaveConversation(RemoveMemberFromConversationUseCase.Result.Success)
-            .withMarkConversationAsDeletedLocally(Unit.right())
+            .withMarkConversationAsDeletedLocally(MarkConversationAsDeletedResult.Success)
             .withEnqueueConversationDeletionLocally(ConversationDeletionLocallyStatus.SUCCEEDED)
             .arrange()
 
@@ -359,7 +395,7 @@ class ConversationOptionsMenuViewModelTest {
     fun `given failure, when leaving group with deleting, then call proper action`() = runTest(dispatcherProvider.main()) {
         val (arrangement, viewModel) = Arrangement()
             .withLeaveConversation(RemoveMemberFromConversationUseCase.Result.Success)
-            .withMarkConversationAsDeletedLocally(CoreFailure.Unknown(null).left())
+            .withMarkConversationAsDeletedLocally(MarkConversationAsDeletedResult.Failure(CoreFailure.Unknown(null)))
             .withEnqueueConversationDeletionLocally(ConversationDeletionLocallyStatus.FAILED)
             .arrange()
 
@@ -379,7 +415,7 @@ class ConversationOptionsMenuViewModelTest {
     @Test
     fun `given success, when deleting group locally, then call proper action`() = runTest(dispatcherProvider.main()) {
         val (arrangement, viewModel) = Arrangement()
-            .withMarkConversationAsDeletedLocally(Unit.right())
+            .withMarkConversationAsDeletedLocally(MarkConversationAsDeletedResult.Success)
             .withEnqueueConversationDeletionLocally(ConversationDeletionLocallyStatus.SUCCEEDED)
             .arrange()
 
@@ -399,7 +435,7 @@ class ConversationOptionsMenuViewModelTest {
     @Test
     fun `given failure, when deleting group locally, then call proper action`() = runTest(dispatcherProvider.main()) {
         val (arrangement, viewModel) = Arrangement()
-            .withMarkConversationAsDeletedLocally(CoreFailure.Unknown(null).left())
+            .withMarkConversationAsDeletedLocally(MarkConversationAsDeletedResult.Failure(CoreFailure.Unknown(null)))
             .withEnqueueConversationDeletionLocally(ConversationDeletionLocallyStatus.FAILED)
             .arrange()
 
@@ -622,37 +658,48 @@ class ConversationOptionsMenuViewModelTest {
         fun withAddToFavorites(result: AddConversationToFavoritesUseCase.Result) = apply {
             coEvery { addConversationToFavorites(any()) } returns result
         }
+
         fun withRemoveFromFavorites(result: RemoveConversationFromFavoritesUseCase.Result) = apply {
             coEvery { removeConversationFromFavorites(any()) } returns result
         }
+
         fun withRemoveFromFolder(result: RemoveConversationFromFolderUseCase.Result) = apply {
             coEvery { removeConversationFromFolder(any(), any()) } returns result
         }
+
         fun withUpdateConversationMutedStatus(result: ConversationUpdateStatusResult) = apply {
             coEvery { updateConversationMutedStatus(any(), any(), any()) } returns result
         }
+
         fun withBlockUser(result: BlockUserResult) = apply {
             coEvery { blockUser(any()) } returns result
         }
+
         fun withUnblockUser(result: UnblockUserResult) = apply {
             coEvery { unblockUser(any()) } returns result
         }
+
         fun withDeleteTeamConversation(result: Result) = apply {
             coEvery { deleteTeamConversation(any()) } returns result
         }
+
         fun withLeaveConversation(result: RemoveMemberFromConversationUseCase.Result) = apply {
             coEvery { leaveConversation(any()) } returns result
         }
-        fun withMarkConversationAsDeletedLocally(result: Either<CoreFailure, Unit>) = apply {
+
+        fun withMarkConversationAsDeletedLocally(result: MarkConversationAsDeletedResult) = apply {
             coEvery { markConversationAsDeletedLocally(any()) } returns result
         }
+
         fun withEnqueueConversationDeletionLocally(result: ConversationDeletionLocallyStatus) = apply {
             coEvery { workManager.enqueueConversationDeletionLocally(any(), any()) } returns flowOf(result)
         }
+
         fun withUpdateArchivedStatus(result: ArchiveStatusUpdateResult) = apply {
             coEvery { updateConversationArchivedStatus(any(), any(), any()) } returns result
             coEvery { updateConversationArchivedStatus(any(), any(), any(), any()) } returns result
         }
+
         fun withClearConversationContent(result: ClearConversationContentUseCase.Result) = apply {
             coEvery { clearConversationContent(any(), any()) } returns result
         }

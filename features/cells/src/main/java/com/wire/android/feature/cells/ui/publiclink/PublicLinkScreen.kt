@@ -24,6 +24,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -34,6 +35,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
@@ -41,13 +45,23 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultBackNavigator
+import com.ramcosta.composedestinations.result.ResultRecipient
+import com.ramcosta.composedestinations.spec.DestinationSpec
 import com.wire.android.feature.cells.R
+import com.wire.android.feature.cells.ui.common.WireCellErrorDialog
+import com.wire.android.feature.cells.ui.destinations.PublicLinkExpirationScreenDestination
+import com.wire.android.feature.cells.ui.destinations.PublicLinkPasswordScreenDestination
+import com.wire.android.feature.cells.ui.publiclink.settings.PublicLinkSettingsSection
+import com.wire.android.feature.cells.ui.publiclink.settings.RemovePublicLinkDialog
+import com.wire.android.feature.cells.ui.publiclink.settings.expiration.PublicLinkExpirationResult
 import com.wire.android.feature.cells.ui.util.PreviewMultipleThemes
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.WireNavigator
 import com.wire.android.navigation.annotation.features.cells.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.HandleActions
-import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.button.WireSwitch
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -56,6 +70,8 @@ import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.util.uiLinkExpirationDate
+import com.wire.android.util.uiLinkExpirationTime
 
 @WireDestination(
     navArgsDelegate = PublicLinkNavArgs::class,
@@ -63,7 +79,10 @@ import com.wire.android.ui.theme.WireTheme
 )
 @Composable
 fun PublicLinkScreen(
+    navigator: WireNavigator,
     resultNavigator: ResultBackNavigator<Unit>,
+    onPasswordChange: ResultRecipient<PublicLinkPasswordScreenDestination, Boolean>,
+    onExpirationChange: ResultRecipient<PublicLinkExpirationScreenDestination, PublicLinkExpirationResult>,
     modifier: Modifier = Modifier,
     viewModel: PublicLinkViewModel = hiltViewModel(),
 ) {
@@ -72,12 +91,15 @@ fun PublicLinkScreen(
     val clipboardManager = LocalClipboardManager.current
     val state by viewModel.state.collectAsState()
 
+    var showRemoveConfirmationDialog by remember { mutableStateOf(false) }
+    var showErrorDialog by remember { mutableStateOf<PublicLinkError?>(null) }
+
     WireScaffold(
         modifier = modifier,
         topBar = {
             WireCenterAlignedTopAppBar(
                 onNavigationPressed = { resultNavigator.navigateBack() },
-                title = if (viewModel.isFolder()) {
+                title = if (state.isFolder) {
                     stringResource(R.string.share_folder_via_link)
                 } else {
                     stringResource(R.string.share_file_via_link)
@@ -91,34 +113,58 @@ fun PublicLinkScreen(
             modifier = Modifier.padding(innerPadding)
         ) {
             EnableLinkSection(
-                checked = state.enabled,
-                isFolder = viewModel.isFolder(),
-                onCheckChange = {
-                    viewModel.onEnabled(it)
+                checked = state.isEnabled,
+                isFolder = state.isFolder,
+                onCheckClick = {
+                    viewModel.onEnabledClick()
                 }
             )
 
             AnimatedVisibility(
-                visible = state.enabled,
+                visible = state.isLinkAvailable,
                 enter = fadeIn(),
                 exit = fadeOut()
             ) {
-                PublicLinkSection(
-                    url = state.url,
-                    onShareLink = {
-                        state.url?.let { url ->
-                            viewModel.shareLink(url)
-                        }
-                    },
-                    onCopyLink = {
-                        state.url?.let { url ->
-                            clipboardManager.setText(AnnotatedString(url))
-                            showLinkCopiedToast(context)
-                        }
+                Column {
+                    state.settings?.let {
+                        PublicLinkSettingsSection(
+                            settings = it,
+                            onPasswordClick = viewModel::onPasswordClick,
+                            onExpirationClick = viewModel::onExpirationClick,
+                        )
                     }
-                )
+
+                    PublicLinkSection(
+                        state = state.linkState,
+                        expirationError = if (state.settings?.isExpired == true) {
+                            state.settings?.formattedExpirationError()
+                        } else {
+                            null
+                        },
+                        onShareLink = viewModel::shareLink,
+                        onCopyLink = viewModel::copyLink,
+                    )
+                }
             }
         }
+    }
+
+    if (showRemoveConfirmationDialog) {
+        RemovePublicLinkDialog(
+            onResult = { confirmed ->
+                showRemoveConfirmationDialog = false
+                viewModel.onConfirmRemoval(confirmed)
+            }
+        )
+    }
+
+    showErrorDialog?.let { error ->
+        WireCellErrorDialog(
+            onResult = { tryAgain ->
+                showErrorDialog = null
+                if (tryAgain) viewModel.retryError(error)
+            }
+        )
     }
 
     HandleActions(viewModel.actions) { action ->
@@ -131,7 +177,44 @@ fun PublicLinkScreen(
                     resultNavigator.navigateBack()
                 }
             }
+
+            is CopyLink -> {
+                clipboardManager.setText(AnnotatedString(action.url))
+                showLinkCopiedToast(context)
+            }
+
+            is OpenPasswordSettings ->
+                navigator.navigate(
+                    NavigationCommand(
+                        PublicLinkPasswordScreenDestination(
+                            linkUuid = action.linkUuid,
+                            passwordEnabled = action.isPasswordEnabled,
+                        )
+                    )
+                )
+
+            is OpenExpirationSettings ->
+                navigator.navigate(
+                    NavigationCommand(
+                        PublicLinkExpirationScreenDestination(
+                            linkUuid = action.linkUuid,
+                            expiresAt = action.expiresAt,
+                        )
+                    )
+                )
+
+            ShowRemoveConfirmation -> showRemoveConfirmationDialog = true
+
+            is ShowErrorDialog -> showErrorDialog = action.error
         }
+    }
+
+    onPasswordChange.handleNavResult { result ->
+        viewModel.onPasswordUpdate(result)
+    }
+
+    onExpirationChange.handleNavResult { result ->
+        viewModel.onExpirationUpdate(result)
     }
 }
 
@@ -139,12 +222,13 @@ fun PublicLinkScreen(
 private fun EnableLinkSection(
     checked: Boolean,
     isFolder: Boolean,
-    onCheckChange: (Boolean) -> Unit
+    onCheckClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .background(colorsScheme().surface)
+            .clickable { onCheckClick() }
             .padding(dimensions().spacing16x)
     ) {
 
@@ -161,7 +245,7 @@ private fun EnableLinkSection(
             WireSwitch(
                 checked = checked,
                 onCheckedChange = {
-                    onCheckChange(it)
+                    onCheckClick()
                 }
             )
         }
@@ -179,46 +263,6 @@ private fun EnableLinkSection(
     }
 }
 
-@Composable
-private fun PublicLinkSection(
-    url: String?,
-    onShareLink: () -> Unit,
-    onCopyLink: () -> Unit,
-) {
-    Column {
-        Text(
-            text = stringResource(R.string.share_link).uppercase(),
-            style = typography().title03,
-            modifier = Modifier.padding(dimensions().spacing16x)
-        )
-
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(colorsScheme().surface)
-                .padding(dimensions().spacing16x)
-        ) {
-            Text(
-                text = url ?: stringResource(R.string.creating_link),
-                style = typography().body01,
-                minLines = 2,
-            )
-
-            Spacer(modifier = Modifier.height(dimensions().spacing24x))
-
-            WireSecondaryButton(
-                text = stringResource(R.string.share_link),
-                onClick = onShareLink
-            )
-            Spacer(modifier = Modifier.height(dimensions().spacing8x))
-            WireSecondaryButton(
-                text = stringResource(R.string.copy_link),
-                onClick = onCopyLink
-            )
-        }
-    }
-}
-
 /**
  * Show a toast message when the link is copied to the clipboard.
  * Only for API levels lower than 33. On new versions, the system will show a clipboard
@@ -230,6 +274,22 @@ private fun showLinkCopiedToast(context: Context) {
     }
 }
 
+@Composable
+private fun <D : DestinationSpec<*>, R> ResultRecipient<D, R>.handleNavResult(block: (R) -> Unit) {
+    onNavResult { result ->
+        when (result) {
+            is NavResult.Value<R> -> block(result.value)
+            NavResult.Canceled -> {}
+        }
+    }
+}
+
+@Composable
+private fun PublicLinkSettings.formattedExpirationError() =
+    expiresAt?.let {
+        stringResource(R.string.link_expired, it.uiLinkExpirationDate(), it.uiLinkExpirationTime())
+    }
+
 @PreviewMultipleThemes
 @Composable
 private fun PreviewCreatePublicLinkScreen() {
@@ -238,10 +298,11 @@ private fun PreviewCreatePublicLinkScreen() {
             EnableLinkSection(
                 checked = true,
                 isFolder = false,
-                onCheckChange = {}
+                onCheckClick = {}
             )
             PublicLinkSection(
-                url = "http://test.url",
+                state = PublicLinkState.READY,
+                expirationError = null,
                 onShareLink = {},
                 onCopyLink = {}
             )

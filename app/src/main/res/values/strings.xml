@@ -93,9 +93,7 @@
     <string name="content_description_reveal_password">Show password</string>
     <string name="content_description_hide_password">Hide password</string>
     <string name="content_description_search_back">Search back icon</string>
-    <string name="content_description_clear_content">Clear content</string>
     <string name="content_description_muted_conversation">Muted conversation</string>
-    <string name="content_description_check">Check mark</string>
     <string name="content_description_download_icon">Download icon</string>
     <string name="content_description_open_asset_icon">Open icon</string>
     <string name="content_description_add_to_favourite">Add to Favorites</string>
@@ -108,8 +106,6 @@
     <string name="content_description_delete_the_conversation">Delete the conversation</string>
     <string name="content_description_conversation_phone_icon">Start audio call</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
-    <string name="content_description_conversation_search_icon">Search icon</string>
-    <string name="content_description_conversation_search_input">Search input</string>
     <string name="content_description_conversation_enable_rich_text_mode">Enable rich text mode button</string>
     <string name="content_description_conversation_enable_drawing_mode">Enable drawing mode button</string>
     <string name="content_description_conversation_rich_text_header">Rich text formatting Header</string>
@@ -295,6 +291,7 @@
     <string name="url_system_message_learn_more_about_e2ee" translatable="false">https://support.wire.com/hc/articles/10898523878173</string>
     <string name="url_e2ee_id_shield" translatable="false">https://support.wire.com/hc/articles/9211300150685</string>
     <string name="url_how_to_add_apps" translatable="false">https://support.wire.com/hc/articles/360000296158</string>
+    <string name="create_group_with_shared_drive_learn_more_url" translatable="false">https://support.wire.com/hc/articles/32207749480477</string>
     <!-- Navigation -->
     <string name="vault_screen_title">Vault</string>
     <string name="channels_screen_title">Channels</string>
@@ -637,12 +634,13 @@
     <string name="conversation_details_is_not_classified">SECURITY LEVEL: UNCLASSIFIED</string>
     <string name="conversation_options_self_deleting_messages_label">Self-deleting messages</string>
     <string name="conversation_options_self_deleting_messages_description">When this is on, all messages in this conversation will disappear after a certain time.</string>
-    <string name="conversation_options_self_deleting_messages_cells_description">The feature is not available for conversations with Cells.</string>
+    <string name="conversation_options_self_deleting_messages_shared_drive_description">The feature is not available for conversations with a Shared Drive.</string>
     <string name="conversation_options_guests_label">Guests</string>
     <string name="conversation_details_guest_description">When this is ON, people from outside your team can join this conversation</string>
     <string name="conversation_options_guest_description">Turn this option ON to open this conversation to people outside your team, even if they don\'t have Wire.</string>
     <string name="conversation_options_guest_not_editable_description">You cannot disable the guest option in this conversation, since it has been created by someone from another team.</string>
     <string name="conversation_options_services_label">Apps</string>
+    <string name="conversation_details_apps_description">When this is ON, you open this conversation to apps.</string>
     <string name="conversation_options_services_description">Turn this option ON to open this conversation to apps.</string>
     <string name="conversation_options_renamed">Conversation renamed</string>
     <string name="disable_guest_dialog_title">Disable guest access?</string>
@@ -875,14 +873,14 @@
     <string name="label_system_message_conversation_verified_mls">All devices are verified (end-to-end identity)</string>
     <string name="label_system_message_conversation_verified_proteus">All fingerprints are verified (Proteus)</string>
     <string name="label_system_message_conversation_started_sensitive_information_header">**Communication in Wire is always end-to-end encrypted.**</string>
-    <string name="label_system_message_conversation_started_sensitive_information_header_with_cells_on">**Communication in Wire is always secured.**</string>
+    <string name="label_system_message_conversation_started_sensitive_information_header_with_shared_drive_on">**Communication in Wire is always secured.**</string>
     <string name="label_system_message_conversation_started_sensitive_information_message">Everything you send and receive in this conversation is only accessible to you and other conversation participants.</string>
-    <string name="label_system_message_conversation_started_sensitive_information_message_with_cells_on">Messages and calls are always end-to-end encrypted, whereas files and folders are secured in transit and encrypted at rest. </string>
+    <string name="label_system_message_conversation_started_sensitive_information_message_with_shared_drive_on">Messages and calls are always end-to-end encrypted, whereas files and folders are secured in transit and encrypted at rest. </string>
     <string name="label_system_message_conversation_started_sensitive_information_footer">Please still be careful with who you share sensitive information.</string>
     <string name="label_conversations_details_verified_proteus">Verified (Proteus)</string>
     <string name="label_conversations_details_verified_mls">Verified (End-to-end Identity)</string>
-    <string name="label_system_message_cell_enabled_for_conversation">File collaboration (Cells) is **on**</string>
-    <string name="label_system_message_cell_self_delete_disabled_for_conversation">Self-deleting messages are **off** for conversations with Cells</string>
+    <string name="label_system_message_cell_enabled_for_conversation">Shared Drive is **on**</string>
+    <string name="label_system_message_cell_self_delete_disabled_for_conversation">Self-deleting messages are **off**</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
         <item quantity="one">You added 1 person to the conversation</item>
@@ -969,14 +967,15 @@
         <item quantity="other">%1$s and %2$d more are typing</item>
     </plurals>
     <!-- Search Messages -->
-    <string name="label_search_messages">Search messages</string>
+    <string name="label_search_messages">Search text messages</string>
     <string name="label_search_messages_empty_title">Search all messages in this conversation.</string>
     <string name="label_search_messages_no_results">No results could be found.\nPlease refine your search and try again.</string>
     <string name="label_search_button">Search</string>
     <!-- Conversation Media -->
     <string name="label_conversation_media">Media</string>
     <string name="label_conversation_pictures">Pictures</string>
-    <string name="label_conversation_files">Files</string>
+    <string name="label_conversation_shared_drive">Shared Drive</string>
+    <string name="content_description_see_shared_drive_in_conversation_btn">Open Shared Drive</string>
     <string name="label_conversation_pictures_empty">Nobody shared pictures in this conversation yet 🥲</string>
     <string name="label_conversation_files_empty">Nobody shared files in this conversation yet 🙀</string>
     <!-- Search Contact-->
@@ -1207,6 +1206,7 @@
     <string name="disable_guests_dialog_title">Not Allow Guests?</string>
     <string name="disable_guests_dialog_description">Guests you selected in the previous step won\'t be part of the conversation if you do not allow guest access.</string>
     <string name="disable_guests_dialog_button">Not Allow Guests</string>
+    <string name="enable_guests_dialog_button">Allow Guests</string>
     <!--block user dialog -->
     <string name="block_user_dialog_title">Block user?</string>
     <string name="block_user_dialog_body">%1$s won\'t be able to contact you or add you to group conversations. They will not be notified about this.</string>
@@ -1354,6 +1354,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="label_client_device_id">Proteus ID</string>
     <string name="label_key_packages_count">Key-packages count</string>
     <string name="label_mls_client_id">MLS Client ID</string>
+    <string name="label_mls_repair_faulty_keys" translatable="false">Initiate reset of affected MLS groups</string>
     <string name="conversation_empty_list_description">Connect with others or create a new group to start collaborating!</string>
     <string name="favorites_empty_list_description">Select your favorite conversations, and you’ll find them here</string>
     <string name="group_empty_list_description">You are not part of any group conversation yet.\nStart a new conversation!</string>
@@ -1624,7 +1625,6 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="label_debug_data">Debug data</string>
     <string name="title_internal_debugging">Internal debugging</string>
     <string name="label_log_options_description">"This stores anonymized troubleshooting information locally. "</string>
-    <string name="label_no_application_found_open_downloads_folder">"No application found to open downloads folder"</string>
     <string name="notification_obfuscated_message_title">Someone</string>
     <string name="notification_obfuscated_message_content">Sent a self-deleting message</string>
     <string name="settings_licenses_settings_label">License Information</string>
@@ -1794,6 +1794,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="debug_settings_force_api_versioning_update" translatable="false">Force API versioning update</string>
     <string name="debug_settings_break_session" translatable="false">⚠️ Break Session</string>
     <string name="debug_settings_force_api_versioning_update_button_text" translatable="false">Update</string>
+    <string name="debug_settings_force_repair_faulty_keys" translatable="false">Reset</string>
     <string name="debug_settings_feature_flags" translatable="false">Feature Flags</string>
 
     <!--    Personal to team migration screen-->
@@ -1879,18 +1880,18 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="channel_not_available_dialog_description">Create a team and start collaborating for free!</string>
     <string name="channel_not_available_dialog_create_team_button">Create Wire Team</string>
     <string name="custimization_options_header_title">Options</string>
-    <string name="cells_screen_title">All files</string>
-    <string name="cells_screen_search_hint">Search files</string>
-    <string name="enable_wire_cell">File collaboration (Cells beta version)</string>
-    <string name="enable_wire_cell_switch_description">Enable participants to manage their documents and media files. Use folders, tags, and filters to work more efficiently. This can\’t be undone.</string>
+    <string name="drive_screen_search_hint">Search files</string>
+    <string name="drive_screen_title" translatable="false">Drive</string>
+    <string name="enable_wire_cell">Shared Drive</string>
+    <string name="enable_wire_cell_switch_description">Enable participants to manage their documents and media files in a Shared Drive. This can’t be undone.</string>
     <string name="failed_attachment_retry_upload">Retry upload</string>
     <string name="failed_attachment_remove">Remove</string>
     <string name="content_description_apply_filter">Apply Filter</string>
     <string name="content_description_filter_files">Filter files</string>
 
     <string name="profile_deeplink_feature_unavailable_title_alert">This feature is not available. Please contact your administrator.</string>
-    <string name="conversation_options_file_collaboration_label">File collaboration (Cells)</string>
-    <string name="conversation_options_file_collaboration_description">Permanently on for this conversation.</string>
+    <string name="conversation_options_shared_drive_label">Shared Drive</string>
+    <string name="conversation_options_shared_drive_description">Permanently on for this conversation.</string>
     <plurals name="reply_multiple_files">
         <item quantity="one">%1$d file</item>
         <item quantity="other">%1$d files</item>

@@ -28,6 +28,7 @@ import kotlinx.coroutines.runBlocking
 import network.HttpRequestException
 import service.enums.LegalHoldStatus
 import service.models.Conversation
+import service.models.SendLocationParams
 import service.models.SendTextParams
 import user.usermanager.ClientUserManager
 import user.utils.ClientUser
@@ -38,12 +39,10 @@ import java.time.Duration
 import java.util.concurrent.Callable
 import java.util.concurrent.TimeUnit
 
-class TestServiceHelper {
-
+class TestServiceHelper(
+    private val usersManager: ClientUserManager
+) {
     val wireReceiptMode = "WIRE_RECEIPT_MODE"
-    val usersManager by lazy {
-        ClientUserManager.getInstance()
-    }
 
     val testServiceClient by lazy {
         TestService("http://192.168.2.18:8080", "TestService")
@@ -398,6 +397,7 @@ class TestServiceHelper {
     fun toClientUser(nameAlias: String): ClientUser {
         return usersManager.findUserByNameOrNameAlias(nameAlias)
     }
+
     fun userSendMessageToConversation(
         senderAlias: String,
         msg: String,
@@ -420,6 +420,29 @@ class TestServiceHelper {
         val clientUser = toClientUser(senderAlias)
         val conversation = toConvoObjPersonal(clientUser, dstConvoName)
         sendMessageInternal(clientUser, conversation, msg, deviceName, isSelfDeleting)
+    }
+
+    fun userXSharesLocationTo(
+        senderAlias: String,
+        convoName: String,
+        deviceName: String,
+        isSelfDeleting: Boolean
+    ) {
+        val clientUser = toClientUser(senderAlias)
+        val conversation = toConvoObj(clientUser, convoName)
+        testServiceClient.sendLocation(
+            SendLocationParams(
+                owner = clientUser,
+                deviceName = deviceName,
+                convoId = conversation.id,
+                convoDomain = conversation.qualifiedID.domain,
+                timeout = if (isSelfDeleting) Duration.ofSeconds(1000) else Duration.ZERO,
+                longitude = 0f,
+                latitude = 0f,
+                locationName = "location",
+                zoom = 1
+            )
+        )
     }
 
     private fun sendMessageInternal(

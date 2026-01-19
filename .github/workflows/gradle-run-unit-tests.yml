@@ -20,7 +20,7 @@ jobs:
     runs-on: buildjet-8vcpu-ubuntu-2204
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: recursive # Needed in order to fetch Kalium sources for building
           fetch-depth: 0
@@ -85,7 +85,7 @@ jobs:
           merge-multiple: true
 
       - name: Upload code coverage to codecov
-        uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7
+        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: "app/build/reports/kover/report.xml"

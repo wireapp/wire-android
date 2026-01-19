@@ -1,27 +1,5 @@
-<!--
-  ~ Wire
-  ~ Copyright (C) 2024 Wire Swiss GmbH
-  ~
-  ~ This program is free software: you can redistribute it and/or modify
-  ~ it under the terms of the GNU General Public License as published by
-  ~ the Free Software Foundation, either version 3 of the License, or
-  ~ (at your option) any later version.
-  ~
-  ~ This program is distributed in the hope that it will be useful,
-  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
-  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-  ~ GNU General Public License for more details.
-  ~
-  ~ You should have received a copy of the GNU General Public License
-  ~ along with this program. If not, see http://www.gnu.org/licenses/.
-  -->
-
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
-        android:width="16dp"
-        android:height="16dp"
-        android:viewportWidth="16"
-        android:viewportHeight="16">
-    <path
-            android:fillColor="#000000"
-            android:pathData="M2.757,14.656L8,9.414L13.243,14.656L14.657,13.242L9.414,8L14.657,2.757L13.243,1.343L8,6.585L2.757,1.343L1.343,2.757L6.586,8L1.343,13.242L2.757,14.656Z" />
+<vector xmlns:android="http://schemas.android.com/apk/res/android" android:height="24dp" android:tint="#000000" android:viewportHeight="960" android:viewportWidth="960" android:width="24dp">
+      
+    <path android:fillColor="@android:color/white" android:pathData="M256,760L200,704L424,480L200,256L256,200L480,424L704,200L760,256L536,480L760,704L704,760L480,536L256,760Z"/>
+    
 </vector>

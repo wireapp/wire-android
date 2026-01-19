@@ -26,38 +26,31 @@ import backendUtils.team.TeamHelper
 import backendUtils.team.TeamRoles
 import backendUtils.team.deleteTeam
 import com.wire.android.tests.support.UiAutomatorSetup
-import com.wire.android.tests.core.di.testModule
 import com.wire.android.tests.core.pages.AllPages
 import org.junit.After
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.test.KoinTest
-import org.koin.test.KoinTestRule
 import org.koin.test.inject
 import user.usermanager.ClientUserManager
 import user.utils.ClientUser
+import com.wire.android.tests.core.BaseUiTest
+import com.wire.android.tests.support.tags.Category
+import com.wire.android.tests.support.tags.TestCaseId
 
 @RunWith(AndroidJUnit4::class)
-class ApplockTest : KoinTest {
-
-    @get:Rule
-    val koinTestRule = KoinTestRule.create {
-        modules(testModule)
-    }
+class ApplockTest : BaseUiTest() {
     private val pages: AllPages by inject()
     private lateinit var device: UiDevice
-    lateinit var context: Context
-    var registeredUser: ClientUser? = null
-    var backendClient: BackendClient? = null
-    var teamHelper: TeamHelper? = null
+    private lateinit var context: Context
+    private lateinit var backendClient: BackendClient
+    private lateinit var teamHelper: TeamHelper
+    private var registeredUser: ClientUser? = null
 
     @Before
     fun setUp() {
         context = InstrumentationRegistry.getInstrumentation().context
-        // device = UiAutomatorSetup.start(UiAutomatorSetup.APP_DEV)
-        device = UiAutomatorSetup.start(UiAutomatorSetup.APP_STAGING)
+        device = UiAutomatorSetup.start(UiAutomatorSetup.APP_INTERNAL)
         backendClient = BackendClient.loadBackend("STAGING")
         teamHelper = TeamHelper()
     }
@@ -66,40 +59,62 @@ class ApplockTest : KoinTest {
     fun tearDown() {
         //  UiAutomatorSetup.stopApp()
         // To delete team member
-        // registeredUser?.deleteTeamMember(backendClient!!, teamMember?.getUserId().orEmpty())
+        // runCatching { registeredUser?.deleteTeamMember(backendClient, teamMember?.getUserId().orEmpty()) }
         // To delete team
-        registeredUser?.deleteTeam(backendClient!!)
+        runCatching { registeredUser?.deleteTeam(backendClient) }
     }
 
+    @TestCaseId("TC-8143")
+    @Category("applock", "regression")
     @Test
     fun givenUserEnablesAppLock_whenAppIsBackgroundedForOneMinute_thenAppRequiresUnlockOnReturn() {
 
-        teamHelper?.usersManager!!.createTeamOwnerByAlias("user1Name", "AppLock", "en_US", true, backendClient!!, context)
-        registeredUser = teamHelper?.usersManager!!.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
-        teamHelper?.userXAddsUsersToTeam(
-            "user1Name",
-            "user2Name,user3Name,user4Name,user5Name",
-            "AppLock",
-            TeamRoles.Member,
-            backendClient!!,
-            context,
-            true
-        )
+        step("Prepare backend team (owner + members)") {
+            teamHelper.usersManager!!.createTeamOwnerByAlias(
+                "user1Name",
+                "AppLock",
+                "en_US",
+                true,
+                backendClient,
+                context
+            )
+            registeredUser =
+                teamHelper.usersManager.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
+            teamHelper.userXAddsUsersToTeam(
+                "user1Name",
+                "user2Name,user3Name,user4Name,user5Name",
+                "AppLock",
+                TeamRoles.Member,
+                backendClient,
+                context,
+                true
+            )
+        }
 
-        pages.registrationPage.apply {
-            assertEmailWelcomePage()
+        step("Verify email welcome page is shown") {
+            pages.registrationPage.apply {
+                assertEmailWelcomePage()
+            }
         }
-        pages.loginPage.apply {
-            enterPersonalUserLoggingEmail(registeredUser?.email ?: "")
-            clickLoginButton()
-            enterPersonalUserLoginPassword(registeredUser?.password ?: "")
-            clickLoginButton()
+
+        step("Login as personal user in Android app") {
+            pages.loginPage.apply {
+                clickStagingDeepLink()
+                clickProceedButtonOnDeeplinkOverlay()
+                enterPersonalUserLoggingEmail(registeredUser?.email ?: "")
+                clickLoginButton()
+                enterPersonalUserLoginPassword(registeredUser?.password ?: "")
+                clickLoginButton()
+            }
         }
-        pages.registrationPage.apply {
-            waitUntilLoginFlowIsCompleted()
-            clickAllowNotificationButton()
-            clickAgreeShareDataAlert()
-            assertConversationPageVisible()
+
+        step("Complete registration flow and reach conversation list") {
+            pages.registrationPage.apply {
+                waitUntilLoginFlowIsCompleted()
+                clickAllowNotificationButton()
+                clickAgreeShareDataAlert()
+                assertConversationPageVisible()
+            }
         }
     }
 }

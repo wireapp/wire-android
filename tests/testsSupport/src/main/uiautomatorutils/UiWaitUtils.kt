@@ -28,7 +28,6 @@ import androidx.test.uiautomator.UiObject2
 import androidx.test.uiautomator.UiSelector
 import androidx.test.uiautomator.Until
 import java.io.IOException
-
 private const val TIMEOUT_IN_MILLISECONDS = 10000L
 
 data class UiSelectorParams(
@@ -171,24 +170,5 @@ object UiWaitUtils {
                 stopPinging()
             }
         }
-    }
-
-    @Suppress("MagicNumber")
-    fun closeKeyBoardIfOpened() {
-        val d = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        val ims = d.executeShellCommand("dumpsys input_method")
-        val isOpen = (
-                ims.contains("mInputShown=true") ||
-                        ims.contains("mIsInputViewShown=true") ||
-                        (
-                                Regex("mImeWindowVis=0x([0-9a-fA-F]+)")
-                                    .find(ims)
-                                    ?.groups?.get(1)?.value
-                                    ?.toInt(16)
-                                    ?.let { it != 0 } == true
-                                ) ||
-                        ims.contains("mVisible=true")
-                )
-        if (isOpen) d.pressBack()
     }
 }

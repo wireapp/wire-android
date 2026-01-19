@@ -40,7 +40,6 @@ data class ConversationInfoViewState(
     val accentId: Int = -1,
     val isWireCellEnabled: Boolean = false,
     val notFound: Boolean = false,
-    val isBubbleUiEnabled: Boolean = false
 ) {
     val showHistoryLoadingIndicator: Boolean get() = conversationType == Conversation.Type.Group.Channel
 }

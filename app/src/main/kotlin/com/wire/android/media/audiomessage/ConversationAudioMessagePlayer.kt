@@ -30,12 +30,8 @@ import com.wire.android.util.extension.intervalFlow
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.message.AssetContent.AssetMetadata
-import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.asset.AudioNormalizedLoudnessBuilder
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
-import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.GetNextAudioMessageInConversationUseCase
 import com.wire.kalium.logic.feature.message.GetSenderNameByMessageIdUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
@@ -62,7 +58,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import okio.Path
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -72,7 +67,6 @@ class ConversationAudioMessagePlayer
 @Inject constructor(
     @ApplicationContext private val context: Context,
     private val audioMediaPlayer: MediaPlayer,
-    private val audioNormalizedLoudnessBuilder: AudioNormalizedLoudnessBuilder,
     private val servicesManager: Lazy<ServicesManager>,
     private val audioFocusHelper: AudioFocusHelper,
     @KaliumCoreLogic private val coreLogic: CoreLogic,
@@ -194,15 +188,6 @@ class ConversationAudioMessagePlayer
                         )
                     }
                 }
-
-                is AudioMediaPlayerStateUpdate.WaveMaskUpdate -> {
-                    audioMessageStateHistory = audioMessageStateHistory.toMutableMap().apply {
-                        put(
-                            messageIdKey,
-                            currentState.copy(wavesMask = audioMessageStateUpdate.waveMask)
-                        )
-                    }
-                }
             }
 
             audioMessageStateHistory
@@ -311,12 +296,6 @@ class ConversationAudioMessagePlayer
                     audioMediaPlayer.setDataSource(context, Uri.parse(result.decodedAssetPath.toString()))
                     audioMediaPlayer.prepare()
 
-                    getOrBuildWavesMask(
-                        conversationId = conversationId,
-                        messageId = messageId,
-                        assetPath = result.decodedAssetPath
-                    )
-
                     if (position != null) audioMediaPlayer.seekTo(position)
 
                     audioFocusHelper.request()
@@ -366,48 +345,12 @@ class ConversationAudioMessagePlayer
         seekToAudioPosition.emit(MessageIdWrapper(conversationId, messageId) to position)
     }
 
-    /**
-     * Gets waves mask from local database for the audio message or builds a new one if it does not exist and emits the update event.
-     * @param conversationId The ID of the conversation.
-     * @param messageId The ID of the message.
-     * @param assetPath Optional path to the decoded asset. If not provided, it will be fetched.
-     */
-    @Suppress("ReturnCount")
-    suspend fun getOrBuildWavesMask(conversationId: ConversationId, messageId: String, assetPath: Path? = null) {
+    suspend fun preloadAudioMessage(conversationId: ConversationId, messageId: String) {
         val currentAccountResult = coreLogic.getGlobalScope().session.currentSession()
         if (currentAccountResult is CurrentSessionResult.Failure) return
         val userId = (currentAccountResult as CurrentSessionResult.Success).accountInfo.userId
-        val messageResult = coreLogic.getSessionScope(userId).messages.getMessageById(conversationId, messageId)
-        if (messageResult is GetMessageByIdUseCase.Result.Failure) return
-        val messageContent = (messageResult as GetMessageByIdUseCase.Result.Success).message.content
-        if (messageContent !is MessageContent.Asset) return
-        if (messageContent.value.metadata !is AssetMetadata.Audio) return
-        val audioMetadata = messageContent.value.metadata as AssetMetadata.Audio
-
-        val currentNormalizedLoudness: ByteArray? = audioMetadata.normalizedLoudness ?: run {
-            (assetPath ?: getAssetPath(userId, conversationId, messageId))?.let { assetPath ->
-                audioNormalizedLoudnessBuilder(assetPath.toString())?.also {
-                    coreLogic.getSessionScope(userId).messages.updateAudioMessageNormalizedLoudnessUseCase(
-                        conversationId = conversationId,
-                        messageId = messageId,
-                        normalizedLoudness = it
-                    )
-                }
-            }
-        }
-        currentNormalizedLoudness?.let {
-            audioMessageStateUpdate.emit(
-                AudioMediaPlayerStateUpdate.WaveMaskUpdate(
-                    conversationId = conversationId,
-                    messageId = messageId,
-                    waveMask = currentNormalizedLoudness.toWavesMask()
-                )
-            )
-        }
+        getAssetMessage(userId, conversationId, messageId)
     }
-
-    private suspend fun getAssetPath(userId: UserId, conversationId: ConversationId, messageId: String): Path? =
-        (getAssetMessage(userId, conversationId, messageId) as? MessageAssetResult.Success)?.decodedAssetPath
 
     private suspend fun resumeOrPause(conversationId: ConversationId, messageId: String) {
         if (audioMediaPlayer.isPlaying) {

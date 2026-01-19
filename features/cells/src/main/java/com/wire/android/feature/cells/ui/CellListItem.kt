@@ -21,6 +21,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,12 +33,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Link
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -63,6 +63,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireLinearProgressIndicator
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.ui.common.R as commonR
 
 @Composable
 internal fun CellListItem(
@@ -70,6 +71,8 @@ internal fun CellListItem(
     onMenuClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
+
     Box(modifier = modifier) {
         Row(
             modifier = Modifier
@@ -120,18 +123,22 @@ internal fun CellListItem(
                     }
                 }
             }
-
-            Box(
+            Icon(
+                painter = painterResource(commonR.drawable.ic_more_vert),
+                contentDescription = null,
                 modifier = Modifier
-                    .size(dimensions().spacing56x)
-                    .clickable { onMenuClick() },
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(
-                    imageVector = Icons.Default.MoreVert,
-                    contentDescription = null,
-                )
-            }
+                    .padding(end = dimensions().spacing16x)
+                    .clickable(
+                        onClick = { onMenuClick() },
+                        interactionSource = interactionSource,
+                        indication = ripple(
+                            bounded = false,
+                            radius = dimensions().spacing24x,
+                            color = Color.Transparent
+                        )
+                    )
+                    .then(Modifier.size(dimensions().spacing24x))
+            )
         }
         cell.downloadProgress?.let {
             WireLinearProgressIndicator(
@@ -239,8 +246,8 @@ private fun PublicLinkIcon(
                 color = colorsScheme().outline,
                 shape = CircleShape
             )
-            .padding(dimensions().spacing2x),
-        imageVector = Icons.Default.Link,
+            .padding(dimensions().spacing4x),
+        painter = painterResource(commonR.drawable.ic_link_indicator),
         contentDescription = null,
     )
 }

@@ -23,11 +23,15 @@ import com.ramcosta.composedestinations.spec.NavGraphSpec
 import com.wire.android.feature.cells.ui.destinations.AddRemoveTagsScreenDestination
 import com.wire.android.feature.cells.ui.destinations.ConversationFilesScreenDestination
 import com.wire.android.feature.cells.ui.destinations.ConversationFilesWithSlideInTransitionScreenDestination
+import com.wire.android.feature.cells.ui.destinations.CreateFileScreenDestination
 import com.wire.android.feature.cells.ui.destinations.CreateFolderScreenDestination
 import com.wire.android.feature.cells.ui.destinations.MoveToFolderScreenDestination
+import com.wire.android.feature.cells.ui.destinations.PublicLinkExpirationScreenDestination
+import com.wire.android.feature.cells.ui.destinations.PublicLinkPasswordScreenDestination
 import com.wire.android.feature.cells.ui.destinations.PublicLinkScreenDestination
 import com.wire.android.feature.cells.ui.destinations.RecycleBinScreenDestination
 import com.wire.android.feature.cells.ui.destinations.RenameNodeScreenDestination
+import com.wire.android.feature.cells.ui.destinations.VersionHistoryScreenDestination
 import com.wire.android.feature.sketch.destinations.DrawingCanvasScreenDestination
 import com.wire.android.ui.NavGraphs
 
@@ -40,10 +44,14 @@ object WireMainNavGraph : NavGraphSpec {
         .plus(ConversationFilesScreenDestination)
         .plus(ConversationFilesWithSlideInTransitionScreenDestination)
         .plus(CreateFolderScreenDestination)
+        .plus(CreateFileScreenDestination)
         .plus(MoveToFolderScreenDestination)
         .plus(RecycleBinScreenDestination)
         .plus(RenameNodeScreenDestination)
         .plus(AddRemoveTagsScreenDestination)
+        .plus(PublicLinkPasswordScreenDestination)
+        .plus(PublicLinkExpirationScreenDestination)
+        .plus(VersionHistoryScreenDestination)
     override val destinationsByRoute = destinations.associateBy { it.route }
     override val nestedNavGraphs = NavGraphs.wireRoot.nestedNavGraphs
 }

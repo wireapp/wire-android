@@ -64,7 +64,6 @@ class AppearanceViewModelTest {
             MockKAnnotations.init(this, relaxUnitFun = true)
             coEvery { globalDataStore.setThemeOption(any()) } returns Unit
             every { globalDataStore.selectedThemeOptionFlow() } returns flowOf(ThemeOption.DARK)
-            every { globalDataStore.observeIsBubbleUI() } returns flowOf(false)
         }
 
         fun withEnterToSend(result: Flow<Boolean>) = apply {

@@ -68,6 +68,7 @@ import com.wire.android.util.ui.markdownBold
 import com.wire.android.util.ui.markdownText
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.android.ui.common.R as commonR
 
 @Suppress("ComplexMethod")
 @Composable
@@ -505,7 +506,7 @@ private fun SystemMessage.buildContent(isWireCellsEnabled: Boolean) = when (this
     }
 
     is SystemMessage.ConversationMessageCreatedUnverifiedWarning -> buildContent(
-        iconResId = R.drawable.ic_shield_holo,
+        iconResId = commonR.drawable.ic_shield_holo,
         iconTintColor = MaterialTheme.wireColorScheme.onPositiveVariant,
         backgroundColor = MaterialTheme.wireColorScheme.positiveVariant,
         additionalVerticalPaddings = MaterialTheme.wireDimensions.spacing12x,
@@ -516,12 +517,12 @@ private fun SystemMessage.buildContent(isWireCellsEnabled: Boolean) = when (this
             boldColor = MaterialTheme.wireColorScheme.onPositiveVariant
         )
         val header = if (isWireCellsEnabled) {
-            stringResource(R.string.label_system_message_conversation_started_sensitive_information_header_with_cells_on)
+            stringResource(R.string.label_system_message_conversation_started_sensitive_information_header_with_shared_drive_on)
         } else {
             stringResource(R.string.label_system_message_conversation_started_sensitive_information_header)
         }
         val message = if (isWireCellsEnabled) {
-            stringResource(R.string.label_system_message_conversation_started_sensitive_information_message_with_cells_on)
+            stringResource(R.string.label_system_message_conversation_started_sensitive_information_message_with_shared_drive_on)
         } else {
             stringResource(R.string.label_system_message_conversation_started_sensitive_information_message)
         }

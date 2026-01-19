@@ -8,7 +8,7 @@ kotlin = "2.1.0"
 
 # KotlinX
 coroutines = "1.10.2"
-ktx-dateTime = "0.5.0"
+ktx-dateTime = "0.6.1"
 ktx-immutableCollections = "0.3.8"
 ktx-serialization = "1.8.1"
 koin = "3.5.3"
@@ -20,7 +20,7 @@ google-gms = "4.4.2"
 gms-location = "21.3.0"
 android-gradlePlugin = "8.10.1"
 desugaring = "2.1.5"
-firebaseBOM = "33.6.0"
+firebaseBOM = "34.7.0"
 fragment = "1.5.6"
 resaca = "3.0.0"
 bundlizer = "0.8.0"
@@ -29,38 +29,37 @@ visibilityModifiers = "1.1.0"
 kover = "0.7.6"
 
 # AndroidX
-androidx-appcompat = "1.7.0"
+androidx-appcompat = "1.7.1"
 androidx-core = "1.13.1"
 androidx-dataStore = "1.1.7"
 androidx-exif = "1.3.7"
 androidx-emoji = "1.5.0"
 androidx-jetpack = "1.1.0"
-androidx-lifecycle = "2.8.7"
+androidx-lifecycle = "2.10.0"
 androidx-paging3 = "3.3.6"
 androidx-paging3Compose = "3.3.4"
-androidx-splashscreen = "1.0.1"
+androidx-splashscreen = "1.2.0"
 androidx-workManager = "2.9.1"
 androidx-browser = "1.8.0"
 androidx-biometric = "1.1.0"
 androidx-startup = "1.2.0"
 androidx-compose-runtime = "1.7.2"
 compose-qr = "1.0.1"
-amplituda = "2.2.2"
 enterprise-feedback = "1.1.0"
 
 # Compose
 composeBom = "2025.09.00"
-compose-activity = "1.9.3"
-compose-constraint = "1.1.0"
+compose-activity = "1.10.0"
+compose-constraint = "1.1.1"
 compose-navigation = "2.7.7" # adjusted to work with compose-destinations "1.9.54"
 compose-destinations = "1.11.9"
-screenshot = "0.0.1-alpha10"
+screenshot = "0.0.1-alpha13"
 
 # Compose Preview
 compose-edgetoedge-preview = "0.3.0" # update after changing target sdk to 35 and androidx-core to 1.15.0
 
 # Hilt
-hilt = "2.53"
+hilt = "2.55"
 hilt-composeNavigation = "1.2.0"
 hilt-work = "1.2.0"
 
@@ -111,6 +110,14 @@ okio = "3.9.0"
 turbine = "1.2.0"
 robolectric = "4.14.1"
 hamcrest = "3.0"
+rules = "1.7.0"
+zxing = "3.5.2"
+zxingAndroid = "4.3.0"
+gson = "2.13.2"
+allureKotlin = "2.4.0"
+androidx-test-services = "1.6.0"
+
+
 
 [plugins]
 # 3rd Party plugins
@@ -153,6 +160,13 @@ ktx-immutableCollections = { module = "org.jetbrains.kotlinx:kotlinx-collections
 ksp-symbol-processing-api = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "ksp" }
 ksp-symbol-processing-plugin = { module = "com.google.devtools.ksp:symbol-processing-gradle-plugin", version.ref = "ksp" }
 
+allure-kotlin-model   = { module = "io.qameta.allure:allure-kotlin-model",   version.ref = "allureKotlin" }
+allure-kotlin-commons = { module = "io.qameta.allure:allure-kotlin-commons", version.ref = "allureKotlin" }
+allure-kotlin-junit4  = { module = "io.qameta.allure:allure-kotlin-junit4",  version.ref = "allureKotlin" }
+allure-kotlin-android = { module = "io.qameta.allure:allure-kotlin-android", version.ref = "allureKotlin" }
+
+
+
 # android dependencies
 
 # KotlinX
@@ -167,7 +181,7 @@ resaca-core = { module = "com.github.sebaslogen.resaca:resaca", version.ref = "r
 resaca-hilt = { module = "com.github.sebaslogen.resaca:resacahilt", version.ref = "resaca" }
 bundlizer-core = { module = "dev.ahmedmourad.bundlizer:bundlizer-core", version.ref = "bundlizer" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBOM" }
-firebase-fcm = { module = "com.google.firebase:firebase-messaging-ktx" }
+firebase-fcm = { module = "com.google.firebase:firebase-messaging" }
 
 ## AndroidX - Lifecycle
 androidx-lifecycle-liveData = { module = "androidx.lifecycle:lifecycle-livedata-ktx", version.ref = "androidx-lifecycle" }
@@ -205,7 +219,6 @@ hilt-work = { module = "androidx.hilt:hilt-work", version.ref = "hilt-work" }
 # Compose BOM
 compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
 compose-material-core = { module = "androidx.compose.material:material" }
-compose-material-icons = { module = "androidx.compose.material:material-icons-extended" }
 compose-material-ripple = { module = "androidx.compose.material:material-ripple" }
 compose-material3 = { module = "androidx.compose.material3:material3", version.ref = "material3" }
 compose-runtime-liveData = { module = "androidx.compose.runtime:runtime-livedata" }
@@ -262,8 +275,6 @@ countly-sdk = { module = "ly.count.android:sdk", version.ref = "countly" }
 # QRs
 compose-qr-code = { module = "com.lightspark:compose-qr-code", version.ref = "compose-qr" }
 
-audio-amplituda = { module = "com.github.lincollincol:amplituda", version.ref = "amplituda" }
-
 # Dev tools
 aboutLibraries-core = { module = "com.mikepenz:aboutlibraries-core", version.ref = "aboutLibraries" }
 aboutLibraries-compose-core = { module = "com.mikepenz:aboutlibraries-compose-core", version.ref = "aboutLibraries" }
@@ -275,11 +286,15 @@ androidx-test-archCore = { module = "androidx.arch.core:core-testing", version.r
 androidx-test-core = { module = "androidx.test:core", version.ref = "androidx-test-core" }
 androidx-test-extJunit = { module = "androidx.test.ext:junit", version.ref = "androidx-test-extensions" }
 androidx-test-orchestrator = { module = "androidx.test:orchestrator", version.ref = "androidx-test-orchestrator" }
+androidx-test-services = { module = "androidx.test.services:test-services", version.ref = "androidx-test-services" }
 androidx-test-rules = { module = "androidx.test:rules", version.ref = "androidx-test-rules" }
 androidx-test-runner = { module = "androidx.test:runner", version.ref = "androidx-test-runner" }
 androidx-test-uiAutomator = { module = "androidx.test.uiautomator:uiautomator", version.ref = "androidx-test-uiAutomator" }
 androidx-test-work = { module = "androidx.work:work-testing", version.ref = "androidx-workManager" }
 androidx-benchmark-macro-junit4 = { group = "androidx.benchmark", name = "benchmark-macro-junit4", version.ref = "benchmark-macro-junit4" }
+zxing-core = { module = "com.google.zxing:core", version.ref = "zxing" }
+zxing-android-embedded = { module = "com.journeyapps:zxing-android-embedded", version.ref = "zxingAndroid" }
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 
 # Test
 androidx-espresso-accessibility = { module = "androidx.test.espresso:espresso-accessibility", version.ref = "androidx-espresso" }
@@ -300,3 +315,4 @@ koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
 koin-test = { module = "io.insert-koin:koin-test", version.ref = "koin" }
 koin-test-junit4 = { module = "io.insert-koin:koin-test-junit4", version.ref = "koin" }
 datafaker = { module = "net.datafaker:datafaker", version.ref = "datafaker" }
+androidx-rules = { group = "androidx.test", name = "rules", version.ref = "rules" }

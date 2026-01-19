@@ -148,7 +148,7 @@ fun GroupConversationSettings(
                     add {
                         GroupConversationOptionsItem(
                             title = stringResource(id = R.string.conversation_options_services_label),
-                            subtitle = stringResource(id = R.string.conversation_options_services_description),
+                            subtitle = stringResource(id = R.string.conversation_details_apps_description),
                             switchState = SwitchState.TextOnly(value = state.isAppsAllowed),
                             arrowType = if (state.isUpdatingAppsAllowed) ArrowType.TITLE_ALIGNED else ArrowType.NONE,
                             clickable = Clickable(
@@ -160,8 +160,8 @@ fun GroupConversationSettings(
                     }
                     addIf(state.isWireCellEnabled) {
                         GroupConversationOptionsItem(
-                            title = stringResource(id = R.string.conversation_options_file_collaboration_label),
-                            subtitle = stringResource(id = R.string.conversation_options_file_collaboration_description),
+                            title = stringResource(id = R.string.conversation_options_shared_drive_label),
+                            subtitle = stringResource(id = R.string.conversation_options_shared_drive_description),
                             trailingOnText = null,
                             switchState = SwitchState.TextOnly(true),
                             arrowType = ArrowType.NONE,
@@ -200,7 +200,7 @@ fun GroupConversationSettings(
                 addIf(state.isWireCellEnabled) {
                     GroupConversationOptionsItem(
                         title = stringResource(id = R.string.conversation_options_self_deleting_messages_label),
-                        subtitle = stringResource(id = R.string.conversation_options_self_deleting_messages_cells_description),
+                        subtitle = stringResource(id = R.string.conversation_options_self_deleting_messages_shared_drive_description),
                         trailingOnText = null,
                         switchState = SwitchState.TextOnly(),
                         arrowType = ArrowType.NONE,

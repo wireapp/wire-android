@@ -4,6 +4,14 @@ plugins {
 }
 
 android {
+    defaultConfig {
+        // tell Android to use your custom runner
+        testInstrumentationRunner = "com.wire.android.tests.support.suite.TaggedTestRunner"
+
+        // Always apply our JUnit filter for UI tests
+        testInstrumentationRunnerArguments["filter"] =
+            "com.wire.android.tests.support.suite.TaggedFilter"
+    }
     sourceSets {
         getByName("androidTest") {
             kotlin.srcDirs("src/androidTest/kotlin")
@@ -12,22 +20,25 @@ android {
         }
     }
 }
-    dependencies {
-        val composeBom = platform(libs.compose.bom)
-        implementation(composeBom)
-        implementation(libs.compose.ui)
-
-        //implementation("net.datafaker:datafaker:2.4.1")
-        androidTestImplementation(libs.androidx.test.runner)
-        androidTestImplementation(libs.androidx.test.extJunit)
-        androidTestImplementation(libs.androidx.espresso.core)
-        androidTestImplementation(libs.androidx.test.uiAutomator)
-        androidTestImplementation(project(":tests:testsSupport"))
-        implementation(libs.koin.core)
-        androidTestImplementation(libs.koin.test)
-        androidTestImplementation(libs.koin.test.junit4)
-        implementation(libs.datafaker)
-        implementation("com.google.zxing:core:3.5.2")
-        implementation("com.journeyapps:zxing-android-embedded:4.3.0")
-    }
+dependencies {
+    implementation(libs.androidx.rules)
+    val composeBom = platform(libs.compose.bom)
+    implementation(composeBom)
+    implementation(libs.compose.ui)
+    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.androidx.test.extJunit)
+    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.androidx.test.uiAutomator)
+    androidTestImplementation(project(":tests:testsSupport"))
+    implementation(libs.koin.core)
+    androidTestImplementation(libs.koin.test)
+    androidTestImplementation(libs.koin.test.junit4)
+    implementation(libs.datafaker)
+    androidTestImplementation(libs.zxing.core)
+    androidTestImplementation(libs.zxing.android.embedded)
+    androidTestImplementation(libs.gson)
+    androidTestImplementation(libs.allure.kotlin.android)
+    androidTestUtil(libs.androidx.test.orchestrator)
+    androidTestUtil(libs.androidx.test.services)
+}
 

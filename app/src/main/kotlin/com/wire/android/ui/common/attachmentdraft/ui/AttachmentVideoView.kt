@@ -27,8 +27,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Icon
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.WarningAmber
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,6 +38,7 @@ import coil.compose.AsyncImage
 import coil.decode.VideoFrameDecoder
 import coil.request.ImageRequest
 import com.wire.android.R
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -94,7 +93,7 @@ fun AttachmentVideoView(
                         shape = CircleShape,
                     )
                     .padding(dimensions().spacing6x),
-                imageVector = Icons.Outlined.WarningAmber,
+                painter = painterResource(commonR.drawable.ic_warning_amber),
                 tint = colorsScheme().error,
                 contentDescription = null,
             )

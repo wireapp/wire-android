@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.home.conversations
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -24,9 +25,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
@@ -37,7 +35,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.ui.common.colorsScheme
@@ -46,6 +44,7 @@ import com.wire.android.ui.common.divider.WireDivider
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.home.conversations.attachment.FailedAttachmentDialogState
 import kotlinx.coroutines.launch
+import com.wire.android.ui.common.R as commonR
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -69,7 +68,7 @@ fun FailedAttachmentDialog(
             if (state.showRetryOption) {
                 WireDivider(modifier = Modifier.fillMaxWidth())
                 MenuItem(
-                    icon = Icons.Default.Refresh,
+                    iconRes = commonR.drawable.ic_refresh,
                     text = stringResource(R.string.failed_attachment_retry_upload),
                     onClick = {
                         scope.launch {
@@ -82,7 +81,7 @@ fun FailedAttachmentDialog(
             }
             WireDivider(modifier = Modifier.fillMaxWidth())
             MenuItem(
-                icon = Icons.Default.Delete,
+                iconRes = commonR.drawable.ic_filled_delete,
                 text = stringResource(R.string.failed_attachment_remove),
                 highlightColor = colorsScheme().error,
                 onClick = {
@@ -100,7 +99,8 @@ fun FailedAttachmentDialog(
 
 @Composable
 private fun MenuItem(
-    icon: ImageVector,
+    @DrawableRes
+    iconRes: Int,
     text: String,
     highlightColor: Color? = null,
     onClick: () -> Unit
@@ -116,7 +116,7 @@ private fun MenuItem(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(
-            imageVector = icon,
+            painter = painterResource(iconRes),
             contentDescription = null,
             tint = highlightColor ?: colorsScheme().onSurface,
         )

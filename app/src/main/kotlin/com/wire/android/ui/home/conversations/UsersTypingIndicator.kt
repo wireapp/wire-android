@@ -35,9 +35,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -46,6 +43,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -67,6 +65,7 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.android.ui.common.R as commonR
 
 private const val MAX_PREVIEWS_DISPLAY = 3
 private const val ANIMATION_SPEED_MILLIS = 1_500
@@ -167,7 +166,7 @@ private fun HorizontalBouncingWritingPen(
         )
 
         Icon(
-            imageVector = Icons.Default.MoreHoriz,
+            painter = painterResource(commonR.drawable.ic_more_horiz),
             contentDescription = null,
             tint = colorsScheme().secondaryText,
             modifier = Modifier
@@ -177,7 +176,7 @@ private fun HorizontalBouncingWritingPen(
                 .align(Alignment.Bottom)
         )
         Icon(
-            imageVector = Icons.Default.Edit,
+            painter = painterResource(commonR.drawable.ic_edit),
             contentDescription = null,
             tint = colorsScheme().secondaryText,
             modifier = Modifier

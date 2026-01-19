@@ -123,11 +123,9 @@ class WireSessionImageLoader(
         private val getPrivateAsset: GetMessageAssetUseCase,
         private val networkStateObserver: NetworkStateObserver,
     ) {
-        private val defaultImageLoader = ImageLoader(context)
-
         fun newImageLoader(): WireSessionImageLoader =
             WireSessionImageLoader(
-                defaultImageLoader.newBuilder()
+                ImageLoader.Builder(context)
                     .components {
                         add(
                             AssetImageFetcher.Factory(

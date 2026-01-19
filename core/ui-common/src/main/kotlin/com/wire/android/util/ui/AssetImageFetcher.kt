@@ -56,10 +56,8 @@ internal class AssetImageFetcher(
             return when (data) {
                 is ImageAsset.UserAvatarAsset -> {
                     val retryHash = options.extras[OPTION_PARAMETER_RETRY_KEY]
-                    if (retryHash != null) {
-                        if (retryHash >= RETRY_ATTEMPT_TO_DELETE_ASSET) {
-                            deleteAsset(data.userAssetId)
-                        }
+                    if (retryHash != null && retryHash >= RETRY_ATTEMPT_TO_DELETE_ASSET) {
+                        deleteAsset(data.userAssetId)
                     }
                     when (val result = getPublicAsset(data.userAssetId)) {
                         is PublicAssetResult.Failure ->

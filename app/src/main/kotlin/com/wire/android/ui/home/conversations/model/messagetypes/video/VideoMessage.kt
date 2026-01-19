@@ -45,9 +45,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
-import coil.decode.VideoFrameDecoder
-import coil.request.ImageRequest
+import coil3.compose.AsyncImage
+import coil3.video.VideoFrameDecoder
+import coil3.request.ImageRequest
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.applyIf

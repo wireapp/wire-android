@@ -18,10 +18,11 @@
 
 package com.wire.android.util.ui
 
-import coil.ImageLoader
-import coil.fetch.FetchResult
-import coil.fetch.Fetcher
-import coil.request.Options
+import coil3.Extras
+import coil3.ImageLoader
+import coil3.fetch.FetchResult
+import coil3.fetch.Fetcher
+import coil3.request.Options
 import com.wire.android.model.ImageAsset
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.common.error.NetworkFailure
@@ -43,7 +44,7 @@ internal class AssetImageFetcher(
 ) : Fetcher {
 
     companion object {
-        const val OPTION_PARAMETER_RETRY_KEY = "retry_attempt"
+        val OPTION_PARAMETER_RETRY_KEY = Extras.Key<Int>(default = DEFAULT_RETRY_ATTEMPT)
         private const val RETRY_ATTEMPT_TO_DELETE_ASSET = 1
         private const val DEFAULT_RETRY_ATTEMPT = 0
     }
@@ -54,9 +55,11 @@ internal class AssetImageFetcher(
         with(assetFetcherParameters) {
             return when (data) {
                 is ImageAsset.UserAvatarAsset -> {
-                    val retryHash = options.parameters.value(OPTION_PARAMETER_RETRY_KEY) ?: DEFAULT_RETRY_ATTEMPT
-                    if (retryHash >= RETRY_ATTEMPT_TO_DELETE_ASSET) {
-                        deleteAsset(data.userAssetId)
+                    val retryHash = options.extras[OPTION_PARAMETER_RETRY_KEY]
+                    if (retryHash != null) {
+                        if (retryHash >= RETRY_ATTEMPT_TO_DELETE_ASSET) {
+                            deleteAsset(data.userAssetId)
+                        }
                     }
                     when (val result = getPublicAsset(data.userAssetId)) {
                         is PublicAssetResult.Failure ->
@@ -142,10 +145,10 @@ private object MutexMap {
 
     private fun increaseCountAndGetMutex(key: String): Pair<Int, Mutex> =
         assetMutex.compute(key) { _, value ->
-        ((value ?: (0 to Mutex()))).let { (count, mutex) ->
-            count + 1 to mutex
-        }
-    }!!
+            ((value ?: (0 to Mutex()))).let { (count, mutex) ->
+                count + 1 to mutex
+            }
+        }!!
 
     private fun decreaseCountAndRemoveMutexIfNeeded(key: String) {
         assetMutex.compute(key) { _, value ->

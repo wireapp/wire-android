@@ -45,11 +45,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.core.graphics.drawable.toBitmap
-import coil.compose.AsyncImagePainter
-import coil.compose.SubcomposeAsyncImage
-import coil.compose.SubcomposeAsyncImageContent
+import coil3.asDrawable
+import coil3.compose.AsyncImagePainter
+import coil3.compose.SubcomposeAsyncImage
+import coil3.compose.SubcomposeAsyncImageContent
 import com.wire.android.ui.common.applyIf
 import com.wire.android.ui.common.attachmentdraft.ui.FileHeaderView
 import com.wire.android.ui.common.colorsScheme
@@ -70,6 +72,7 @@ internal fun EditableAssetPreview(
     item: MultipartAttachmentUi,
     messageStyle: MessageStyle,
 ) {
+    val resources = LocalResources.current
     Column(
         modifier = Modifier
             .heightIn(min = dimensions().spacing80x)
@@ -148,7 +151,7 @@ internal fun EditableAssetPreview(
                         .sizeIn(maxHeight = dimensions().messageDocumentPreviewMaxHeight),
                     contentScale = ContentScale.FillWidth,
                 ) {
-                    when (painter.state) {
+                    when (painter.state.value) {
                         is AsyncImagePainter.State.Loading -> {
                             drawable?.let {
                                 val painter = drawable?.toBitmap()?.asImageBitmap()?.let { BitmapPainter(it) }
@@ -168,7 +171,7 @@ internal fun EditableAssetPreview(
                             SubcomposeAsyncImageContent()
 
                             // Update drawable state to use as placeholder next time
-                            drawable = (painter.state as AsyncImagePainter.State.Success).result.drawable
+                            drawable = (painter.state.value as AsyncImagePainter.State.Success).result.image.asDrawable(resources)
                         }
 
                         else -> {

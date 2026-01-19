@@ -116,8 +116,6 @@ zxingAndroid = "4.3.0"
 gson = "2.13.2"
 allureKotlin = "2.4.0"
 androidx-test-services = "1.6.0"
-cameraCamera2Pipe = "1.6.0-alpha02"
-
 
 
 [plugins]

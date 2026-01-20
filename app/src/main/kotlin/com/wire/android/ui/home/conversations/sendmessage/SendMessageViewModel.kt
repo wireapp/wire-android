@@ -223,7 +223,7 @@ class SendMessageViewModel @Inject constructor(
                         originalMessageId = originalMessageId,
                         text = newContent,
                         mentions = newMentions.map { it.intoMessageMention() },
-                    )
+                    ).toEither()
                         .handleLegalHoldFailureAfterSendingMessage(conversationId)
                         .handleNonAssetContributionEvent(messageBundle)
                 }
@@ -238,7 +238,7 @@ class SendMessageViewModel @Inject constructor(
                         originalMessageId = originalMessageId,
                         text = newContent,
                         mentions = newMentions.map { it.intoMessageMention() },
-                    )
+                    ).toEither()
                         .handleLegalHoldFailureAfterSendingMessage(conversationId)
                         .handleNonAssetContributionEvent(messageBundle)
                 }
@@ -271,7 +271,7 @@ class SendMessageViewModel @Inject constructor(
                         text = message,
                         mentions = mentions.map { it.intoMessageMention() },
                         quotedMessageId = quotedMessageId
-                    )
+                    ).toEither()
                         .handleLegalHoldFailureAfterSendingMessage(conversationId)
                         .handleNonAssetContributionEvent(messageBundle)
                 }
@@ -286,7 +286,7 @@ class SendMessageViewModel @Inject constructor(
                         text = message,
                         mentions = mentions.map { it.intoMessageMention() },
                         quotedMessageId = quotedMessageId
-                    )
+                    ).toEither()
                         .handleLegalHoldFailureAfterSendingMessage(conversationId)
                         .handleNonAssetContributionEvent(messageBundle)
                 }
@@ -295,6 +295,7 @@ class SendMessageViewModel @Inject constructor(
             is ComposableMessageBundle.LocationBundle -> {
                 with(messageBundle) {
                     sendLocation(conversationId, location.latitude.toFloat(), location.longitude.toFloat(), locationName, zoom)
+                        .toEither()
                         .handleLegalHoldFailureAfterSendingMessage(conversationId)
                         .handleNonAssetContributionEvent(messageBundle)
                 }
@@ -303,6 +304,7 @@ class SendMessageViewModel @Inject constructor(
             is Ping -> {
                 pingRinger.ping(R.raw.ping_from_me, isReceivingPing = false)
                 sendKnock(conversationId = messageBundle.conversationId, hotKnock = false)
+                    .toEither()
                     .handleLegalHoldFailureAfterSendingMessage(messageBundle.conversationId)
                     .handleNonAssetContributionEvent(messageBundle)
             }

@@ -244,6 +244,7 @@ class MediaGalleryViewModel @Inject constructor(
         viewModelScope.launch {
             deleteMessageDialogState.update { it.copy(loading = true) }
             deleteMessage(conversationId = conversationId, messageId = messageId, deleteForEveryone = deleteForEveryone)
+                .toEither()
                 .onFailure {
                     onSnackbarMessage(MediaGallerySnackbarMessages.DeletingMessageError)
                 }.onSuccess {

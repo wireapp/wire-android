@@ -146,6 +146,7 @@ android-junit5 = { module = "de.mannodermaus.gradle.plugins:android-junit5", ver
 grgit-core = { module = "org.ajoberstar.grgit:grgit-core", version.ref = "grgitCore" }
 kotlin-gradlePlugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
 android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "android-gradlePlugin" }
+android-gradleApi = { group = "com.android.tools.build", name = "gradle-api", version.ref = "android-gradlePlugin" }
 hilt-gradlePlugin = { module = "com.google.dagger:hilt-android-gradle-plugin", version.ref = "hilt" }
 googleGms-gradlePlugin = { module = "com.google.gms:google-services", version.ref = "google-gms" }
 googleGms-location = { module = "com.google.android.gms:play-services-location", version.ref = "gms-location" }

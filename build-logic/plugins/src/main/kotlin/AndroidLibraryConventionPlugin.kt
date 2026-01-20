@@ -19,6 +19,7 @@ import com.android.build.gradle.LibraryExtension
 import com.wire.android.gradle.configureAndroidKotlinTests
 import com.wire.android.gradle.configureCompose
 import com.wire.android.gradle.configureKotlinAndroid
+import com.wire.android.gradle.crowdin.AddEntryToCrowdinTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
@@ -48,6 +49,17 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
                 release {
                     isMinifyEnabled = false
                     proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+                }
+            }
+
+            val crowdinTask = tasks.register("addEntryToCrowdinFile", AddEntryToCrowdinTask::class.java) {
+                resDirPath = sourceSets.getByName("main").res.srcDirs.first().path
+            }
+
+            afterEvaluate {
+                val resTasks = tasks.filter { it.name.startsWith("package") && it.name.endsWith("Resources") }
+                resTasks.forEach {
+                    it.dependsOn(crowdinTask)
                 }
             }
         }

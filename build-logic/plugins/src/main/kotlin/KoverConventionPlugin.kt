@@ -28,10 +28,8 @@ class KoverConventionPlugin : Plugin<Project> {
             extensions.configure<KoverReportExtension> {
                 defaults {
                     if (project.name == "app") {
-                        println(">> Configuring Kover devDebug variant for: ${project.name}")
                         mergeWith("devDebug")
                     } else {
-                        println(">> Configuring Kover debug variant for: ${project.name}")
                         mergeWith("debug")
                     }
 

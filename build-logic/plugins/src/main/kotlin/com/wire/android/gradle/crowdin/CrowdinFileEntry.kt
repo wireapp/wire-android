@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2026 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,27 +15,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+package com.wire.android.gradle.crowdin
 
-package com.wire.android.util.ui
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
-import coil3.decode.DataSource
-import coil3.decode.ImageSource
-import coil3.fetch.FetchResult
-import coil3.fetch.SourceFetchResult
-import okio.FileSystem
-import okio.Path
-
-internal class DrawableResultWrapper {
-
-    internal fun toFetchResult(assetPath: Path): FetchResult {
-        return SourceFetchResult(
-            source = ImageSource(
-                file = assetPath,
-                fileSystem = FileSystem.SYSTEM,
-                diskCacheKey = assetPath.name,
-            ),
-            mimeType = null,
-            dataSource = DataSource.DISK
-        )
-    }
-}
+@Serializable
+data class CrowdinFileEntry(
+    @SerialName("source") val source: String,
+    @SerialName("translation") val translation: String
+)

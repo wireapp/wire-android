@@ -96,21 +96,23 @@ class WireSessionImageLoader(
         )
 
         LaunchedEffect(painter.state) {
-            if (painter.state.value is AsyncImagePainter.State.Error) {
-                val retryPolicy =
-                    ((painter.state.value as AsyncImagePainter.State.Error).result.throwable as? AssetImageException)?.retryPolicy
-                        ?: AssetImageRetryPolicy.DO_NOT_RETRY
+            painter.state.collect { state ->
+                if (state is AsyncImagePainter.State.Error) {
+                    val retryPolicy =
+                        (state.result.throwable as? AssetImageException)?.retryPolicy
+                            ?: AssetImageRetryPolicy.DO_NOT_RETRY
 
-                if (retryPolicy == AssetImageRetryPolicy.EXPONENTIAL_RETRY_WHEN_CONNECTED) {
-                    delay(exponentialDurationHelper.next())
-                }
+                    if (retryPolicy == AssetImageRetryPolicy.EXPONENTIAL_RETRY_WHEN_CONNECTED) {
+                        delay(exponentialDurationHelper.next())
+                    }
 
-                if (retryPolicy != AssetImageRetryPolicy.DO_NOT_RETRY) {
-                    networkStateObserver.observeNetworkState().firstOrNull { it == NetworkState.ConnectedWithInternet }
-                    retryHash += RETRY_INCREMENT_ATTEMPT_PER_STEP
+                    if (retryPolicy != AssetImageRetryPolicy.DO_NOT_RETRY) {
+                        networkStateObserver.observeNetworkState().firstOrNull { it == NetworkState.ConnectedWithInternet }
+                        retryHash += RETRY_INCREMENT_ATTEMPT_PER_STEP
+                    }
+                } else {
+                    exponentialDurationHelper.reset()
                 }
-            } else {
-                exponentialDurationHelper.reset()
             }
         }
         return painter

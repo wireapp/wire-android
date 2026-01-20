@@ -34,6 +34,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -151,11 +152,12 @@ internal fun EditableAssetPreview(
                         .sizeIn(maxHeight = dimensions().messageDocumentPreviewMaxHeight),
                     contentScale = ContentScale.FillWidth,
                 ) {
-                    when (painter.state.value) {
+                    val state by painter.state.collectAsState()
+                    when (state) {
                         is AsyncImagePainter.State.Loading -> {
                             drawable?.let {
-                                val painter = drawable?.toBitmap()?.asImageBitmap()?.let { BitmapPainter(it) }
-                                painter?.let { paint ->
+                                val cachedPainter = drawable?.toBitmap()?.asImageBitmap()?.let { BitmapPainter(it) }
+                                cachedPainter?.let { paint ->
                                     Image(
                                         painter = paint,
                                         contentDescription = null,
@@ -171,7 +173,7 @@ internal fun EditableAssetPreview(
                             SubcomposeAsyncImageContent()
 
                             // Update drawable state to use as placeholder next time
-                            drawable = (painter.state.value as AsyncImagePainter.State.Success).result.image.asDrawable(resources)
+                            drawable = (state as AsyncImagePainter.State.Success).result.image.asDrawable(resources)
                         }
 
                         else -> {

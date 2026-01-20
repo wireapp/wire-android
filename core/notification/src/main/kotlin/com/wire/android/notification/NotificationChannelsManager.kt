@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2025 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +27,6 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationChannelGroupCompat
 import androidx.core.app.NotificationManagerCompat
-import com.wire.android.appLogger
 import com.wire.android.media.PingRinger
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.UserId
@@ -58,7 +57,6 @@ class NotificationChannelsManager @Inject constructor(
      *  And removing the ChannelGroups (with all the channels in it) that are not belongs to any user in a list (user logged out e.x.)
      */
     fun createUserNotificationChannels(allUsers: List<SelfUser>) {
-        appLogger.i("$TAG: creating all the notification channels for ${allUsers.size} users")
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
 
         allUsers.forEach { user ->
@@ -88,7 +86,6 @@ class NotificationChannelsManager @Inject constructor(
         notificationManagerCompat.notificationChannelGroups
             .filter { group -> groupsToKeep.none { it == group.id } }
             .forEach { group ->
-                appLogger.i("$TAG: deleting notification channels for ${group.name} group")
                 notificationManagerCompat.deleteNotificationChannelGroup(group.id)
             }
     }

@@ -38,5 +38,9 @@ files: [
     {
         "source": "/features/sketch/src/main/res/values/strings.xml",
         "translation": "/features/sketch/src/main/res/values-%two_letters_code%/%original_file_name%"
+    },
+    {
+        "source": "/features/sync/src/main/res/values/strings.xml",
+        "translation": "/features/sync/src/main/res/values-%two_letters_code%/%original_file_name%"
     }
 ]

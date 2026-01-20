@@ -110,7 +110,7 @@
     <string name="rename_file_renamed">File was renamed</string>
     <string name="rename_folder_renamed">Folder was renamed</string>
     <string name="rename_failure">Unable to rename</string>
-    <string name="rename_invalid_name">Use a name without "/" and not starting with "."</string>
+    <string name="rename_invalid_name">Don’t start with ‘.’ or add ‘/’, ‘\\’, ‘\"’</string>
     <string name="rename_file_already_exist">File with this name already exists</string>
     <string name="rename_folder_already_exist">Folder with this name already exists</string>
     <string name="filter_label">Filter</string>

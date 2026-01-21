@@ -30,8 +30,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.model.Clickable
@@ -39,6 +42,7 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireDestination
+import com.wire.android.ui.common.TextWithLinkSuffix
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
@@ -69,6 +73,7 @@ import com.wire.android.ui.home.settings.SwitchState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
+import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.conversation.CreateConversationParam
 import com.wire.kalium.logic.data.id.ConversationId
@@ -355,6 +360,9 @@ private fun GroupOptionState.AllowAppsOptions(onAllowServicesChanged: (Boolean) 
 
 @Composable
 private fun GroupOptionState.EnableWireCellOptions(onEnableWireCell: (Boolean) -> Unit) {
+    val context = LocalContext.current
+    val cellsLearnMoreUrl = stringResource(R.string.create_group_with_shared_drive_learn_more_url)
+
     GroupConversationOptionsItem(
         title = stringResource(R.string.enable_wire_cell),
         switchState = SwitchState.Enabled(
@@ -367,12 +375,17 @@ private fun GroupOptionState.EnableWireCellOptions(onEnableWireCell: (Boolean) -
         modifier = Modifier.background(MaterialTheme.colorScheme.surface)
     )
 
-    Text(
-        text = stringResource(R.string.enable_wire_cell_switch_description),
-        color = MaterialTheme.wireColorScheme.secondaryText,
+    TextWithLinkSuffix(
+        text = AnnotatedString(stringResource(R.string.enable_wire_cell_switch_description)),
+        linkText = stringResource(R.string.label_learn_more),
         modifier = Modifier.padding(MaterialTheme.wireDimensions.spacing16x),
-        textAlign = TextAlign.Left,
-        style = typography().body01,
+        textStyle = typography().body01,
+        textColor = MaterialTheme.wireColorScheme.secondaryText,
+        linkDecoration = TextDecoration.None,
+        linkColor = MaterialTheme.wireColorScheme.primary,
+        onLinkClick = {
+            CustomTabsHelper.launchUrl(context, cellsLearnMoreUrl)
+        }
     )
 }
 
@@ -415,7 +428,7 @@ private fun AllowGuestsDialog(
             type = WireDialogButtonType.Primary
         ),
         optionButton2Properties = WireDialogButtonProperties(
-            text = stringResource(R.string.allow_guests),
+            text = stringResource(R.string.enable_guests_dialog_button),
             onClick = onAllowGuestsClicked,
             type = WireDialogButtonType.Primary
         ),

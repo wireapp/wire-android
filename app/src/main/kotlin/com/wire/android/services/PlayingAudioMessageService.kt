@@ -148,7 +148,7 @@ class PlayingAudioMessageService : Service() {
 
         return NotificationCompat.Builder(this, PLAYING_AUDIO_CHANNEL_ID)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            .setSmallIcon(R.drawable.notification_icon_small)
+            .setSmallIcon(com.wire.android.feature.notification.R.drawable.notification_icon_small)
             .setStyle(NotificationCompat.DecoratedCustomViewStyle())
             .setCustomContentView(notificationLayout)
             .setCategory(NotificationCompat.CATEGORY_SERVICE)

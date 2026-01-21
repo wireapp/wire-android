@@ -25,10 +25,7 @@ import user.usermanager.ClientUserManager
 import user.utils.ClientUser
 
 class TeamHelper {
-
-    val usersManager by lazy {
-        ClientUserManager.getInstance()
-    }
+    val usersManager: ClientUserManager = ClientUserManager(useSpecialEmail = false)
 
     @Suppress("LongParameterList", "TooGenericExceptionThrown")
     fun userXAddsUsersToTeam(
@@ -42,10 +39,8 @@ class TeamHelper {
     ) {
         val admin = toClientUser(ownerNameAlias)
         val dstTeam = runBlocking { backendClient.getTeamByName(admin, teamName) }
-
         val membersToBeAdded = mutableListOf<ClientUser>()
         val aliases = usersManager.splitAliases(userNameAliases)
-
         for (userNameAlias in aliases) {
             val user = toClientUser(userNameAlias)
             if (usersManager.isUserCreated(user)) {
@@ -55,7 +50,6 @@ class TeamHelper {
             }
             membersToBeAdded.add(user)
         }
-
         usersManager.createTeamMembers(
             teamOwner = admin,
             teamId = dstTeam.id,

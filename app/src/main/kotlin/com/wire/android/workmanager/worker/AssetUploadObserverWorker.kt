@@ -79,7 +79,7 @@ class AssetUploadObserverWorker @AssistedInject constructor(
         )
 
         val notification = NotificationCompat.Builder(applicationContext, NotificationConstants.OTHER_CHANNEL_ID)
-            .setSmallIcon(R.drawable.notification_icon_small)
+            .setSmallIcon(com.wire.android.feature.notification.R.drawable.notification_icon_small)
             .setAutoCancel(true)
             .setSilent(true)
             .setCategory(NotificationCompat.CATEGORY_SERVICE)

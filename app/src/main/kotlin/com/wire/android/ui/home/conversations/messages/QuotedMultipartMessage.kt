@@ -214,6 +214,7 @@ fun QuotedMultipartMessageContent(
                         text = text,
                         messageStyle = style.messageStyle,
                         accent = accent,
+                        maxLines = 1
                     )
                 } else {
                     quotedMultipartMessage.mediaAttachment?.let { mediaAttachment ->

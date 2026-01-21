@@ -18,17 +18,25 @@
 
 package com.wire.android
 
+import com.wire.kalium.network.CurrentNetwork
 import com.wire.kalium.network.NetworkState
 import com.wire.kalium.network.NetworkStateObserver
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
-class TestNetworkStateObserver(initialState: NetworkState = NetworkState.ConnectedWithInternet) : NetworkStateObserver {
+class TestNetworkStateObserver(
+    initialState: NetworkState = NetworkState.ConnectedWithInternet,
+    currentNetwork: CurrentNetwork? = CurrentNetwork("0", CurrentNetwork.Type.CELLULAR, true)
+) : NetworkStateObserver {
 
     private val networkState = MutableStateFlow(initialState)
+    private val currentNetwork = MutableStateFlow(currentNetwork)
 
     override fun observeNetworkState(): MutableStateFlow<NetworkState> = networkState
+    override fun observeCurrentNetwork(): StateFlow<CurrentNetwork?> = currentNetwork
 
     suspend fun updateNetworkState(state: NetworkState) { networkState.emit(state) }
+    suspend fun updateCurrentNetwork(network: CurrentNetwork?) { currentNetwork.emit(network) }
 
     companion object {
         val DEFAULT_TEST_NETWORK_STATE_OBSERVER = TestNetworkStateObserver()

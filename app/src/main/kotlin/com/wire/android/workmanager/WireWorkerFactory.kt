@@ -26,6 +26,7 @@ import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.feature.StartPersistentWebsocketIfNecessaryUseCase
 import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.WireNotificationManager
+import com.wire.android.sync.InitialSyncWorker
 import com.wire.android.workmanager.worker.DeleteConversationLocallyWorker
 import com.wire.android.workmanager.worker.NotificationFetchWorker
 import com.wire.android.workmanager.worker.PersistentWebsocketCheckWorker
@@ -65,6 +66,9 @@ class WireWorkerFactory @Inject constructor(
 
             AssetUploadObserverWorker::class.java.canonicalName ->
                 AssetUploadObserverWorker(appContext, workerParameters, coreLogic, notificationChannelsManager)
+
+            InitialSyncWorker::class.java.canonicalName ->
+                InitialSyncWorker(appContext, workerParameters, coreLogic, notificationChannelsManager)
 
             else -> null
         }

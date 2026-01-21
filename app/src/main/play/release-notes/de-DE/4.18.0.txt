@@ -1,0 +1,6 @@
+Verbessert
+- Audionachrichten
+- Leistung, insbesondere in Unterhaltungen
+
+Behoben
+- Fehlende Anrufbenachrichtigungen

@@ -180,10 +180,14 @@ dependencies {
         implementation(dependency)
         kover(dependency)
     }
+    implementationWithCoverage(projects.core.uiCommon)
+    implementationWithCoverage(projects.core.di)
+    implementationWithCoverage(projects.core.media)
+    implementationWithCoverage(projects.core.notification)
     implementationWithCoverage(projects.features.cells)
     implementationWithCoverage(projects.features.sketch)
     implementationWithCoverage(projects.features.meetings)
-    implementationWithCoverage(projects.core.uiCommon)
+    implementationWithCoverage(projects.features.sync)
 
     // Anonymous Analytics
     val flavors = getFlavorsSettings()

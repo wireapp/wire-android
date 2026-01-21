@@ -34,6 +34,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,11 +46,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.core.graphics.drawable.toBitmap
-import coil.compose.AsyncImagePainter
-import coil.compose.SubcomposeAsyncImage
-import coil.compose.SubcomposeAsyncImageContent
+import coil3.asDrawable
+import coil3.compose.AsyncImagePainter
+import coil3.compose.SubcomposeAsyncImage
+import coil3.compose.SubcomposeAsyncImageContent
 import com.wire.android.ui.common.applyIf
 import com.wire.android.ui.common.attachmentdraft.ui.FileHeaderView
 import com.wire.android.ui.common.colorsScheme
@@ -70,6 +73,7 @@ internal fun EditableAssetPreview(
     item: MultipartAttachmentUi,
     messageStyle: MessageStyle,
 ) {
+    val resources = LocalResources.current
     Column(
         modifier = Modifier
             .heightIn(min = dimensions().spacing80x)
@@ -148,11 +152,12 @@ internal fun EditableAssetPreview(
                         .sizeIn(maxHeight = dimensions().messageDocumentPreviewMaxHeight),
                     contentScale = ContentScale.FillWidth,
                 ) {
-                    when (painter.state) {
+                    val state by painter.state.collectAsState()
+                    when (state) {
                         is AsyncImagePainter.State.Loading -> {
                             drawable?.let {
-                                val painter = drawable?.toBitmap()?.asImageBitmap()?.let { BitmapPainter(it) }
-                                painter?.let { paint ->
+                                val cachedPainter = drawable?.toBitmap()?.asImageBitmap()?.let { BitmapPainter(it) }
+                                cachedPainter?.let { paint ->
                                     Image(
                                         painter = paint,
                                         contentDescription = null,
@@ -168,7 +173,7 @@ internal fun EditableAssetPreview(
                             SubcomposeAsyncImageContent()
 
                             // Update drawable state to use as placeholder next time
-                            drawable = (painter.state as AsyncImagePainter.State.Success).result.drawable
+                            drawable = (state as AsyncImagePainter.State.Success).result.image.asDrawable(resources)
                         }
 
                         else -> {

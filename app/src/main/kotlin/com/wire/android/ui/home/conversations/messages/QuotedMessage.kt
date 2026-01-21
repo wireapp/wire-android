@@ -653,8 +653,8 @@ fun QuotedAudioMessage(
 internal fun MainMarkdownText(
     text: String,
     messageStyle: MessageStyle,
-    accent: Accent, fontStyle:
-    FontStyle = FontStyle.Normal,
+    accent: Accent,
+    fontStyle: FontStyle = FontStyle.Normal,
     maxLines: Int = TEXT_QUOTE_MAX_LINES
 ) {
     val color = when (messageStyle) {

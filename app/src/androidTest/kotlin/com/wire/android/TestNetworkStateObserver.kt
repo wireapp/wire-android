@@ -26,7 +26,7 @@ import kotlinx.coroutines.flow.StateFlow
 
 class TestNetworkStateObserver(
     initialState: NetworkState = NetworkState.ConnectedWithInternet,
-    currentNetwork: CurrentNetwork? = CurrentNetwork("0", CurrentNetwork.Type.UNKNOWN, true)
+    currentNetwork: CurrentNetwork? = CurrentNetwork("0", CurrentNetwork.Type.CELLULAR, true)
 ) : NetworkStateObserver {
 
     private val networkState = MutableStateFlow(initialState)

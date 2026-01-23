@@ -6,16 +6,12 @@ plugins {
 
 android {
     namespace = "com.wire.android.navigation"
-    buildTypes {
-        create("benchmark") {
-        }
-    }
 }
 
 dependencies {
+    implementation(projects.core.uiCommon)
     implementation(libs.visibilityModifiers)
     implementation(libs.compose.navigation)
     implementation(libs.compose.destinations.core)
-    implementation(project(":core:ui-common"))
     implementation(libs.compose.material3)
 }

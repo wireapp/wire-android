@@ -73,7 +73,6 @@ class KaliumConfigsModule {
             messageSynchronizationEnabledFlag = BuildConfig.MESSAGE_SYNCHRONIZATION_ENABLED,
             cryptoStateBackupEnabledFlag = BuildConfig.CRYPTO_STATE_BACKUP_ENABLED,
             cryptoStateBackupInterval = BuildConfig.CRYPTO_STATE_BACKUP_INTERVAL.seconds,
-            remoteBackupURL = managedConfigurationsManager.remoteBackupURLConfig ?: BuildConfig.REMOTE_BACKUP_URL.ifBlank { null }
         )
     }
 }

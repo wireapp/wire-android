@@ -113,8 +113,7 @@
             "use_async_flush_logging": true,
             "message_synchronization_enabled": true,
             "crypto_state_backup_enabled": true,
-            "crypto_state_backup_interval": 10,
-            "remote_backup_URL": "https://replica.wdebug.link:4545"
+            "crypto_state_backup_interval": 10
         }
     },
     "application_name": "Wire",

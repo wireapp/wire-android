@@ -48,7 +48,6 @@ class ManagedConfigurationsReceiver @Inject constructor(
                     logger.i("Received intent to refresh managed configurations")
                     updateServerConfig()
                     updateSSOCodeConfig()
-                    updateRemoteBackupURLConfig()
                 }
             }
 
@@ -101,24 +100,6 @@ class ManagedConfigurationsReceiver @Inject constructor(
                     data = result.config.ssoCode
                 )
             }
-        }
-    }
-
-    private fun updateRemoteBackupURLConfig() {
-        val remoteBackupURL = managedConfigurationsManager.remoteBackupURLConfig
-
-        if (remoteBackupURL != null) {
-            managedConfigurationsReporter.reportAppliedState(
-                key = ManagedConfigurationsKeys.REMOTE_BACKUP_URL.asKey(),
-                message = "Managed configuration applied",
-                data = remoteBackupURL
-            )
-        } else {
-            managedConfigurationsReporter.reportAppliedState(
-                key = ManagedConfigurationsKeys.REMOTE_BACKUP_URL.asKey(),
-                message = "Managed configuration cleared",
-                data = String.EMPTY
-            )
         }
     }
 

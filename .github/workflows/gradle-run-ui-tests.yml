@@ -80,7 +80,7 @@ jobs:
           zip -r integration-tests-android_${{ env.COMMIT_HASH }}.zip acceptanceTests/flavors/
 
       - name: Upload zipped test results
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: integration-tests-android_${{ env.COMMIT_HASH }}-${{ inputs.artifact-suffix }}
           path: integration-tests-android_${{ env.COMMIT_HASH }}.zip

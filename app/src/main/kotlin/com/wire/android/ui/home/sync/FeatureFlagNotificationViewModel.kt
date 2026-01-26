@@ -45,6 +45,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -65,8 +66,14 @@ class FeatureFlagNotificationViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            initialSync()
-            isAppLockSet()
+            // Load local initial app lock state before collecting updates
+            val initialAppLockSet = globalDataStore.get().isAppLockPasscodeSetFlow().first()
+            featureFlagState = featureFlagState.copy(isUserAppLockSet = initialAppLockSet)
+
+            coroutineScope {
+                launch { initialSync() }
+                launch { isAppLockSet() }
+            }
         }
     }
 

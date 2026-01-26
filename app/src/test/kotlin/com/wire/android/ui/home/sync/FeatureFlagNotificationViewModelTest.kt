@@ -356,6 +356,7 @@ class FeatureFlagNotificationViewModelTest {
             every { coreLogic.getSessionScope(any()).markNotifyForRevokedCertificateAsNotified } returns
                     markNotifyForRevokedCertificateAsNotified
             coEvery { ppLockTeamFeatureConfigObserver() } returns flowOf(null)
+            withIsAppLockSetup(true)
         }
 
         fun withCurrentSessionsFlow(result: Flow<CurrentSessionResult>) = apply {

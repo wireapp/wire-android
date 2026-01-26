@@ -363,7 +363,7 @@ class FeatureFlagNotificationViewModelTest {
         }
 
         fun withIsAppLockSetup(result: Boolean) = apply {
-            coEvery { globalDataStore.isAppLockPasscodeSet() } returns result
+            coEvery { globalDataStore.isAppLockPasscodeSetFlow() } returns flowOf(result)
         }
 
         fun withAppLockSource(source: AppLockSource) = apply {

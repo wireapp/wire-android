@@ -64,7 +64,10 @@ class FeatureFlagNotificationViewModel @Inject constructor(
     private var currentUserId by mutableStateOf<UserId?>(null)
 
     init {
-        viewModelScope.launch { initialSync() }
+        viewModelScope.launch {
+            initialSync()
+            isAppLockSet()
+        }
     }
 
     /**
@@ -158,7 +161,7 @@ class FeatureFlagNotificationViewModel @Inject constructor(
                     val shouldBlockApp = if (isStatusChanged) {
                         true
                     } else {
-                        (!isUserAppLockSet() && appLockConfig.isEnforced)
+                        (!featureFlagState.isUserAppLockSet && appLockConfig.isEnforced)
                     }
 
                     featureFlagState = featureFlagState.copy(
@@ -273,7 +276,9 @@ class FeatureFlagNotificationViewModel @Inject constructor(
         }
     }
 
-    fun isUserAppLockSet() = globalDataStore.get().isAppLockPasscodeSet()
+    private suspend fun isAppLockSet() = globalDataStore.get().isAppLockPasscodeSetFlow().collect { isSet ->
+        featureFlagState = featureFlagState.copy(isUserAppLockSet = isSet)
+    }
 
     fun enrollE2EICertificate() {
         featureFlagState = featureFlagState.copy(isE2EILoading = true, startGettingE2EICertificate = true)
@@ -290,6 +295,7 @@ class FeatureFlagNotificationViewModel @Inject constructor(
                     e2EIResult = e2eiRequired?.let { FeatureFlagState.E2EIResult.Failure(e2eiRequired) }
                 )
             }
+
             is FinalizeEnrollmentResult.Success -> {
                 featureFlagState.copy(
                     isE2EILoading = false,

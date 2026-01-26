@@ -48,7 +48,7 @@ class AddRemoveTagsViewModel @Inject constructor(
 
     private val navArgs: AddRemoveTagsNavArgs = savedStateHandle.navArgs()
     private val initialTags: Set<String> = navArgs.tags.toSet()
-    private val disallowedChars = listOf(",", ";", "/", "\\", "\"", "\'", "<", ">")
+    private val disallowedChars = setOf(",", ";", "/", "\\", "\"", "\'", "<", ">")
 
     private val _state = MutableStateFlow(TagsViewState(addedTags = initialTags))
     val state = _state.asStateFlow()
@@ -60,11 +60,9 @@ class AddRemoveTagsViewModel @Inject constructor(
             getAllTagsUseCase().onSuccess { tags ->
                 _state.update { it.copy(allTags = tags) }
             }
-            launch {
-                snapshotFlow { tagsTextState.text.toString() }
-                    .debounce(TYPING_DEBOUNCE_TIME)
-                    .collectLatest { updateViewState() }
-            }
+            snapshotFlow { tagsTextState.text.toString() }
+                .debounce(TYPING_DEBOUNCE_TIME)
+                .collectLatest { updateViewState() }
         }
     }
 
@@ -73,12 +71,11 @@ class AddRemoveTagsViewModel @Inject constructor(
     }
 
     fun addTag(tag: String) {
-        tag.trim().let { newTag ->
-            val addedTags = state.value.addedTags
-            if (newTag.isNotBlank() && newTag !in addedTags) {
-                updateViewState(addedTags + tag)
-                tagsTextState.clearText()
-            }
+        val addedTags = state.value.addedTags
+        val newTag = tag.trim()
+        if (newTag.isNotBlank() && newTag !in addedTags) {
+            updateViewState(addedTags + tag)
+            tagsTextState.clearText()
         }
     }
 
@@ -103,11 +100,7 @@ class AddRemoveTagsViewModel @Inject constructor(
             .also { _state.update { it.copy(isLoading = false) } }
     }
 
-    fun updateViewState() {
-        updateViewState(state.value.addedTags)
-    }
-
-    fun updateViewState(addedTags: Set<String>) {
+    fun updateViewState(addedTags: Set<String> = state.value.addedTags) {
         _state.update { current ->
             current.copy(
                 addedTags = addedTags,

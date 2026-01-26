@@ -62,7 +62,7 @@ class NotificationReplyReceiver : CoroutineReceiver() { // requires zero argumen
 
             with(coreLogic.getSessionScope(qualifiedUserId)) {
                 syncExecutor.request {
-                    messages.sendTextMessage(qualifiedConversationId, replyText)
+                    messages.sendTextMessage(qualifiedConversationId, replyText).toEither()
                         .fold(
                             { updateNotification(context, conversationId, qualifiedUserId, null) },
                             { updateNotification(context, conversationId, qualifiedUserId, replyText) }

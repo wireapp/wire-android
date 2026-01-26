@@ -1,6 +1,7 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+<!--
   ~ Wire
-  ~ Copyright (C) 2024 Wire Swiss GmbH
+  ~ Copyright (C) 2025 Wire Swiss GmbH
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -16,5 +17,5 @@
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
 <resources>
-    <string name="module_name" translatable="false">Core Analytics Module</string>
+    <string name="notification_setting_up_wire">Setting up Wire</string>
 </resources>

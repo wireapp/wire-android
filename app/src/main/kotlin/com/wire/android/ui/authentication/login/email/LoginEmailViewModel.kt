@@ -203,6 +203,7 @@ class LoginEmailViewModel @Inject constructor(
                 addAuthenticatedUser(
                     authTokens = loginResult.authData,
                     ssoId = loginResult.ssoID,
+                    managedBy = loginResult.managedBy,
                     serverConfigId = loginResult.serverConfigId,
                     proxyCredentials = loginResult.proxyCredentials,
                     replace = false

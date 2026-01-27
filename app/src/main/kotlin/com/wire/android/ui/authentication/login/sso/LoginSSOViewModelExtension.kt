@@ -99,6 +99,7 @@ class LoginSSOViewModelExtension(
                             ssoId = ssoLoginResult.ssoId,
                             serverConfigId = serverConfigId,
                             proxyCredentials = ssoLoginResult.proxyCredentials,
+                            managedBy = ssoLoginResult.managedBy,
                             replace = false
                         ).let { authenticatedUserResult ->
                             when (authenticatedUserResult) {

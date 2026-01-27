@@ -892,7 +892,7 @@
     <!-- Conversation Media -->
     <string name="label_conversation_media">Medien</string>
     <string name="label_conversation_pictures">Bilder</string>
-    <string name="label_conversation_shared_drive">Geteiltes Drive</string>
+    <string name="label_conversation_files">Dateien</string>
     <string name="content_description_see_shared_drive_in_conversation_btn">Geteiltes Drive öffnen</string>
     <string name="label_conversation_pictures_empty">Bislang hat niemand Bilder in dieser Unterhaltung geteilt 🥲</string>
     <string name="label_conversation_files_empty">Bislang hat niemand Dateien in dieser Unterhaltung geteilt 🙀</string>

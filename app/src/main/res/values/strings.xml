@@ -974,7 +974,7 @@
     <!-- Conversation Media -->
     <string name="label_conversation_media">Media</string>
     <string name="label_conversation_pictures">Pictures</string>
-    <string name="label_conversation_shared_drive">Shared Drive</string>
+    <string name="label_conversation_files">Files</string>
     <string name="content_description_see_shared_drive_in_conversation_btn">Open Shared Drive</string>
     <string name="label_conversation_pictures_empty">Nobody shared pictures in this conversation yet 🥲</string>
     <string name="label_conversation_files_empty">Nobody shared files in this conversation yet 🙀</string>

@@ -224,7 +224,7 @@ private fun Content(
                         onImageLongClicked = onOpenAssetOptions
                     )
 
-                    ConversationMediaScreenTabItem.SHARED_DRIVE -> FileAssetsContent(
+                    ConversationMediaScreenTabItem.FILES -> FileAssetsContent(
                         groupedAssetMessageList = state.assetMessages,
                         assetStatuses = state.assetStatuses,
                         onAssetItemClicked = onAssetItemClicked,
@@ -267,7 +267,7 @@ private fun AssetOptionsModalSheetLayout(
 
 enum class ConversationMediaScreenTabItem(@StringRes val titleResId: Int) : TabItem {
     PICTURES(R.string.label_conversation_pictures),
-    SHARED_DRIVE(R.string.label_conversation_shared_drive);
+    FILES(R.string.label_conversation_files);
 
     override val title: UIText = UIText.StringResource(titleResId)
 }
@@ -305,7 +305,7 @@ fun PreviewConversationMediaScreenFilesContent() = WireTheme {
             assetMessages = flowOfAssets,
             assetStatuses = assetStatuses,
         ),
-        initialPage = ConversationMediaScreenTabItem.SHARED_DRIVE,
+        initialPage = ConversationMediaScreenTabItem.FILES,
     )
 }
 

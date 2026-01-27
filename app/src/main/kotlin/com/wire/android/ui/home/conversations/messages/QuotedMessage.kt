@@ -650,7 +650,13 @@ fun QuotedAudioMessage(
 }
 
 @Composable
-internal fun MainMarkdownText(text: String, messageStyle: MessageStyle, accent: Accent, fontStyle: FontStyle = FontStyle.Normal) {
+internal fun MainMarkdownText(
+    text: String,
+    messageStyle: MessageStyle,
+    accent: Accent,
+    fontStyle: FontStyle = FontStyle.Normal,
+    maxLines: Int = TEXT_QUOTE_MAX_LINES
+) {
     val color = when (messageStyle) {
         MessageStyle.BUBBLE_SELF -> colorsScheme().selfBubble.onSecondary
         MessageStyle.BUBBLE_OTHER -> colorsScheme().otherBubble.onSecondary
@@ -676,7 +682,7 @@ internal fun MainMarkdownText(text: String, messageStyle: MessageStyle, accent: 
     if (markdownPreview != null) {
         MarkdownInline(
             inlines = markdownPreview.children,
-            maxLines = TEXT_QUOTE_MAX_LINES,
+            maxLines = maxLines,
             nodeData = nodeData
         )
     } else {

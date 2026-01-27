@@ -1,0 +1,16 @@
+Neu
+- Drive:
+    • Dateien plus Text senden
+    • Gemeinsam Dokumente bearbeiten
+    • Ordner und Tags nutzen
+    • Alle Dateien in Drive
+- Klingelton für eingehende Anrufe
+- Zugriff auf Fehlerbehebung durch Schütteln des Geräts
+
+Behoben
+- Benachrichtigungen nicht empfangen
+- Absturz beim Ändern der Profilfarbe auf Tablets
+- Entschlüsselungsfehler
+- Falsche Systembenachrichtigungen bei Anrufen
+- Video im Querformat falsch angezeigt
+- Lautsprechertaste bei neuem Beitreten als an angezeigt

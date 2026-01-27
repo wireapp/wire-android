@@ -12,18 +12,6 @@ files: [
         "translation": "/app/src/main/res/values-%two_letters_code%/%original_file_name%"
     },
     {
-        "source": "/core/analytics-disabled/src/main/res/values/strings.xml",
-        "translation": "/core/analytics-disabled/src/main/res/values-%two_letters_code%/%original_file_name%"
-    },
-    {
-        "source": "/core/analytics-enabled/src/main/res/values/strings.xml",
-        "translation": "/core/analytics-enabled/src/main/res/values-%two_letters_code%/%original_file_name%"
-    },
-    {
-        "source": "/core/analytics/src/main/res/values/strings.xml",
-        "translation": "/core/analytics/src/main/res/values-%two_letters_code%/%original_file_name%"
-    },
-    {
         "source": "/core/ui-common/src/main/res/values/strings.xml",
         "translation": "/core/ui-common/src/main/res/values-%two_letters_code%/%original_file_name%"
     },

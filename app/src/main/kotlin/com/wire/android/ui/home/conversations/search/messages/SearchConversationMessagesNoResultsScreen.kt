@@ -50,7 +50,6 @@ fun SearchConversationMessagesNoResultsScreen(
     }
 }
 
-
 @PreviewMultipleThemes
 @Composable
 fun PreviewSearchConversationMessagesNoResultsScreen() {

@@ -38,7 +38,8 @@ data class FeatureFlagState(
     val e2EIResult: E2EIResult? = null,
     val isE2EILoading: Boolean = false,
     val showCallEndedBecauseOfConversationDegraded: Boolean = false,
-    val startGettingE2EICertificate: Boolean = false
+    val startGettingE2EICertificate: Boolean = false,
+    val isUserAppLockSet: Boolean = false
 ) {
 
     sealed interface FileSharingState {

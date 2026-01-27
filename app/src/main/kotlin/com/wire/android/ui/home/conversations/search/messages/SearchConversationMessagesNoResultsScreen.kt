@@ -18,12 +18,7 @@
 package com.wire.android.ui.home.conversations.search.messages
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,30 +27,29 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import com.wire.android.R
-import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
-fun SearchConversationMessagesNoResultsScreen(modifier: Modifier = Modifier) {
-    Box(modifier = modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Spacer(modifier = Modifier.height(dimensions().spacing16x))
-            Text(
-                text = stringResource(R.string.label_search_messages_no_results),
-                style = MaterialTheme.wireTypography.body01.copy(color = MaterialTheme.wireColorScheme.secondaryText),
-                textAlign = TextAlign.Center
-            )
-        }
+fun SearchConversationMessagesNoResultsScreen(
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = stringResource(R.string.label_search_messages_no_results),
+            style = MaterialTheme.wireTypography.body01.copy(
+                color = MaterialTheme.wireColorScheme.secondaryText
+            ),
+            textAlign = TextAlign.Center
+        )
     }
 }
+
 
 @PreviewMultipleThemes
 @Composable

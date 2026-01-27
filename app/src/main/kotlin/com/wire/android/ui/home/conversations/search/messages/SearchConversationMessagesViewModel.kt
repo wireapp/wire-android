@@ -45,7 +45,10 @@ class SearchConversationMessagesViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val searchConversationMessagesNavArgs: SearchConversationMessagesNavArgs = savedStateHandle.navArgs()
-    private val conversationId: QualifiedID = searchConversationMessagesNavArgs.conversationId
+
+    val conversationId: QualifiedID = searchConversationMessagesNavArgs.conversationId
+    val groupName: String = searchConversationMessagesNavArgs.groupName
+    val isCellsConversation: Boolean = searchConversationMessagesNavArgs.isCellsConversation
 
     val searchQueryTextState: TextFieldState = TextFieldState()
     var searchConversationMessagesState by mutableStateOf(SearchConversationMessagesState(conversationId))

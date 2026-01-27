@@ -105,7 +105,7 @@ fun ConversationFilesScreen(
     navigator: WireNavigator,
     viewModel: CellViewModel = hiltViewModel(),
 ) {
-    val conversationSearchBarState = rememberSearchbarState()
+    val conversationSearchBarState = rememberSearchbarState(viewModel.isSearchByDefaultActive)
 
     LaunchedEffect(conversationSearchBarState.searchQueryTextState.text) {
         viewModel.onSearchQueryUpdated(conversationSearchBarState.searchQueryTextState.text.toString())

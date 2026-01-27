@@ -43,39 +43,47 @@ import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
-fun SearchConversationMessagesEmptyScreen(modifier: Modifier = Modifier) {
+fun SearchConversationMessagesEmptyScreen(
+    modifier: Modifier = Modifier
+) {
     val context = LocalContext.current
-    Box(modifier = modifier.fillMaxSize()) {
+    val searchUrl = stringResource(R.string.url_learn_about_conversation_search)
+
+    Box(
+        modifier = modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(dimensions().spacing16x))
             Text(
                 text = stringResource(R.string.label_search_messages_empty_title),
-                style = MaterialTheme.wireTypography.body01.copy(color = MaterialTheme.wireColorScheme.secondaryText),
+                style = MaterialTheme.wireTypography.body01.copy(
+                    color = MaterialTheme.wireColorScheme.secondaryText
+                ),
                 textAlign = TextAlign.Center
             )
+
             Spacer(modifier = Modifier.height(dimensions().spacing8x))
-            val searchUrl = stringResource(id = R.string.url_learn_about_conversation_search)
+
             Text(
                 text = stringResource(R.string.label_learn_more),
                 style = MaterialTheme.wireTypography.body02.copy(
                     textDecoration = TextDecoration.Underline,
                     color = MaterialTheme.colorScheme.onBackground
                 ),
-                modifier = Modifier.clickable(onClickLabel = stringResource(R.string.content_description_open_link_label)) {
-                    CustomTabsHelper.launchUrl(
-                        context,
-                        searchUrl
+                modifier = Modifier.clickable(
+                    onClickLabel = stringResource(
+                        R.string.content_description_open_link_label
                     )
+                ) {
+                    CustomTabsHelper.launchUrl(context, searchUrl)
                 }
             )
         }
     }
 }
+
 
 @PreviewMultipleThemes
 @Composable

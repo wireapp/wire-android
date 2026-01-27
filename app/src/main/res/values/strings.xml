@@ -978,6 +978,7 @@
     <string name="content_description_see_shared_drive_in_conversation_btn">Open Shared Drive</string>
     <string name="label_conversation_pictures_empty">Nobody shared pictures in this conversation yet 🥲</string>
     <string name="label_conversation_files_empty">Nobody shared files in this conversation yet 🙀</string>
+    <string name="conversation_search_files_button">Search files</string>
     <!-- Search Contact-->
     <string name="label_selected">Selected</string>
     <string name="label_contacts">Contacts</string>

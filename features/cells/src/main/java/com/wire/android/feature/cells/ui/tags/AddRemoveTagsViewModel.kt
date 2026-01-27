@@ -58,7 +58,7 @@ class AddRemoveTagsViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             getAllTagsUseCase().onSuccess { tags ->
-                _state.update { it.copy(allTags = tags) }
+                _state.update { it.copy(allTags = tags.toList().sorted()) }
             }
             snapshotFlow { tagsTextState.text.toString() }
                 .debounce(TYPING_DEBOUNCE_TIME)
@@ -93,7 +93,7 @@ class AddRemoveTagsViewModel @Inject constructor(
         if (state.value.addedTags.isEmpty()) {
             removeNodeTagsUseCase(navArgs.uuid)
         } else {
-            updateNodeTagsUseCase(navArgs.uuid, state.value.addedTags)
+            updateNodeTagsUseCase(navArgs.uuid, state.value.addedTags.toSet())
         }
             .onSuccess { sendAction(AddRemoveTagsViewModelAction.Success) }
             .onFailure { sendAction(AddRemoveTagsViewModelAction.Failure) }
@@ -124,7 +124,7 @@ data class TagsViewState(
     val tagsUpdated: Boolean = false,
     val addedTags: Set<String> = emptySet(),
     val suggestedTags: Set<String> = emptySet(),
-    val allTags: Set<String> = emptySet(),
+    val allTags: List<String> = emptyList(),
 )
 
 sealed interface AddRemoveTagsViewModelAction {

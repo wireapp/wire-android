@@ -93,7 +93,7 @@ class AddRemoveTagsViewModel @Inject constructor(
         if (state.value.addedTags.isEmpty()) {
             removeNodeTagsUseCase(navArgs.uuid)
         } else {
-            updateNodeTagsUseCase(navArgs.uuid, state.value.addedTags.toSet())
+            updateNodeTagsUseCase(navArgs.uuid, state.value.addedTags)
         }
             .onSuccess { sendAction(AddRemoveTagsViewModelAction.Success) }
             .onFailure { sendAction(AddRemoveTagsViewModelAction.Failure) }

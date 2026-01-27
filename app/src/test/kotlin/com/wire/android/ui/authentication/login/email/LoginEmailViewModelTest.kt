@@ -139,7 +139,15 @@ class LoginEmailViewModelTest {
     @Test
     fun `given button is clicked and initial sync is completed, when login returns Success, then navigate to home screen`() = runTest {
         val (arrangement, loginViewModel) = Arrangement()
-            .withLoginReturning(AuthenticationResult.Success(AUTH_TOKEN, SSO_ID, MANAGED_BY,SERVER_CONFIG.id, null))
+            .withLoginReturning(
+                AuthenticationResult.Success(
+                    authData = AUTH_TOKEN,
+                    ssoID = SSO_ID,
+                    managedBy = MANAGED_BY,
+                    serverConfigId = SERVER_CONFIG.id,
+                    proxyCredentials = null
+                )
+            )
             .withAddAuthenticatedUserReturning(AddAuthenticatedUserUseCase.Result.Success(USER_ID))
             .withValidateEmailReturning(true)
             .withPersistEmailReturning(PersistSelfUserEmailResult.Success)
@@ -515,7 +523,15 @@ class LoginEmailViewModelTest {
         val newUserId = UserId("newUserId", "domain")
         val (arrangement, loginViewModel) = Arrangement()
             .withCurrentSessionReturning(CurrentSessionResult.Success(AccountInfo.Valid(previousUserId)))
-            .withLoginReturning(AuthenticationResult.Success(AUTH_TOKEN.copy(userId = newUserId), SSO_ID, MANAGED_BY, SERVER_CONFIG.id, null))
+            .withLoginReturning(
+                AuthenticationResult.Success(
+                    authData = AUTH_TOKEN.copy(userId = newUserId),
+                    ssoID = SSO_ID,
+                    managedBy = MANAGED_BY,
+                    serverConfigId = SERVER_CONFIG.id,
+                    proxyCredentials = null
+                )
+            )
             .withAddAuthenticatedUserReturning(AddAuthenticatedUserUseCase.Result.Success(newUserId))
             .withValidateEmailReturning(true)
             .withPersistEmailReturning(PersistSelfUserEmailResult.Success)

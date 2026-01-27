@@ -44,6 +44,7 @@ import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
@@ -64,7 +65,9 @@ class FeatureFlagNotificationViewModel @Inject constructor(
     private var currentUserId by mutableStateOf<UserId?>(null)
 
     init {
-        viewModelScope.launch { initialSync() }
+        viewModelScope.launch {
+            initialSync()
+        }
     }
 
     /**
@@ -151,16 +154,20 @@ class FeatureFlagNotificationViewModel @Inject constructor(
     }
 
     private suspend fun setTeamAppLockFeatureFlag(userId: UserId) {
-        coreLogic.get().getSessionScope(userId).appLockTeamFeatureConfigObserver()
-            .distinctUntilChanged()
-            .collectLatest { appLockConfig ->
+        combine(
+            coreLogic.get().getSessionScope(userId).appLockTeamFeatureConfigObserver(),
+            globalDataStore.get().isAppLockPasscodeSetFlow(),
+            ::Pair
+        ).distinctUntilChanged()
+            .collectLatest { (appLockConfig, isPasscodeSet) ->
+                featureFlagState = featureFlagState.copy(isUserAppLockSet = isPasscodeSet)
+
                 appLockConfig?.isStatusChanged?.let { isStatusChanged ->
                     val shouldBlockApp = if (isStatusChanged) {
                         true
                     } else {
-                        (!isUserAppLockSet() && appLockConfig.isEnforced)
+                        (!isPasscodeSet && appLockConfig.isEnforced)
                     }
-
                     featureFlagState = featureFlagState.copy(
                         isTeamAppLockEnabled = appLockConfig.isEnforced,
                         shouldShowTeamAppLockDialog = shouldBlockApp
@@ -273,8 +280,6 @@ class FeatureFlagNotificationViewModel @Inject constructor(
         }
     }
 
-    fun isUserAppLockSet() = globalDataStore.get().isAppLockPasscodeSet()
-
     fun enrollE2EICertificate() {
         featureFlagState = featureFlagState.copy(isE2EILoading = true, startGettingE2EICertificate = true)
     }
@@ -290,6 +295,7 @@ class FeatureFlagNotificationViewModel @Inject constructor(
                     e2EIResult = e2eiRequired?.let { FeatureFlagState.E2EIResult.Failure(e2eiRequired) }
                 )
             }
+
             is FinalizeEnrollmentResult.Success -> {
                 featureFlagState.copy(
                     isE2EILoading = false,

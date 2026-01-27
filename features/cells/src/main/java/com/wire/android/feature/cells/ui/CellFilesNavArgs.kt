@@ -23,6 +23,7 @@ data class CellFilesNavArgs(
     val isRecycleBin: Boolean? = false,
     val breadcrumbs: Array<String>? = null,
     val parentFolderUuid: String? = null,
+    val isSearchByDefaultActive: Boolean = false,
 ) {
 
     override fun hashCode(): Int {

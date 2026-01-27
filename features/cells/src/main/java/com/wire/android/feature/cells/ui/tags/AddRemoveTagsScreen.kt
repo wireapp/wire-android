@@ -38,6 +38,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -52,9 +54,9 @@ import com.wire.android.navigation.WireNavigator
 import com.wire.android.navigation.annotation.features.cells.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.HandleActions
-import com.wire.android.ui.common.button.WireButtonState
+import com.wire.android.ui.common.button.WireButtonState.Default
+import com.wire.android.ui.common.button.WireButtonState.Disabled
 import com.wire.android.ui.common.button.WirePrimaryButton
-import com.wire.android.ui.common.chip.ChipData
 import com.wire.android.ui.common.chip.WireFilterChip
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -80,6 +82,8 @@ fun AddRemoveTagsScreen(
 ) {
     val context = LocalContext.current
 
+    val viewState by addRemoveTagsViewModel.state.collectAsState()
+
     WireScaffold(
         modifier = modifier,
         snackbarHost = {},
@@ -90,21 +94,20 @@ fun AddRemoveTagsScreen(
                 onNavigationPressed = {
                     navigator.navigateBack()
                 },
+                elevation = dimensions().spacing0x,
             )
         },
         bottomBar = {
-            val isLoading = addRemoveTagsViewModel.isLoading.collectAsState().value
-            val tags = addRemoveTagsViewModel.suggestedTags
             Column(
                 modifier = Modifier.background(colorsScheme().background)
             ) {
-                if (tags.isNotEmpty()) {
+                if (viewState.suggestedTags.isNotEmpty()) {
                     LazyRow(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(start = dimensions().spacing16x, end = dimensions().spacing16x)
                     ) {
-                        tags.forEach { tag ->
+                        viewState.suggestedTags.forEach { tag ->
                             item {
                                 WireFilterChip(
                                     modifier = Modifier.padding(
@@ -131,15 +134,13 @@ fun AddRemoveTagsScreen(
                             .padding(horizontal = dimensions().spacing16x)
                             .height(dimensions().groupButtonHeight)
                     ) {
-                        val shouldDisabledSaveButton =
-                            isLoading || addRemoveTagsViewModel.initialTags == addRemoveTagsViewModel.addedTags.collectAsState().value
                         WirePrimaryButton(
                             text = stringResource(R.string.save_label),
                             onClick = {
                                 addRemoveTagsViewModel.updateTags()
                             },
-                            state = if (shouldDisabledSaveButton) WireButtonState.Disabled else WireButtonState.Default,
-                            loading = isLoading,
+                            state = if (viewState.tagsUpdated && !viewState.isLoading) Default else Disabled,
+                            loading = viewState.isLoading,
                             clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
                         )
                     }
@@ -151,7 +152,7 @@ fun AddRemoveTagsScreen(
         AddRemoveTagsScreenContent(
             internalPadding = internalPadding,
             textFieldState = addRemoveTagsViewModel.tagsTextState,
-            addedTags = addRemoveTagsViewModel.addedTags.collectAsState().value,
+            addedTags = viewState.addedTags,
             onAddTag = { tag ->
                 addRemoveTagsViewModel.addTag(tag)
             },
@@ -217,18 +218,22 @@ fun AddRemoveTagsScreenContent(
 
         ChipAndTextFieldLayout(
             textFieldState = textFieldState,
-            tags = addedTags.map { ChipData(label = it, isSelected = true, isEnabled = false) }.toSet(),
             isValidTag = isValidTag,
             onDone = onAddTag,
             onRemoveLastTag = onRemoveLastTag,
-        ) { data: ChipData ->
-
-            WireFilterChip(
-                label = data.label,
-                isSelected = data.isSelected,
-                onSelectChip = onRemoveTag
-            )
-        }
+            chipsLayout = {
+                addedTags.forEach { item ->
+                    key(item) {
+                        WireFilterChip(
+                            modifier = Modifier.align(Alignment.CenterVertically),
+                            label = item,
+                            isSelected = true,
+                            onSelectChip = onRemoveTag
+                        )
+                    }
+                }
+            }
+        )
     }
 }
 

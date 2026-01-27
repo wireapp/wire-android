@@ -44,8 +44,8 @@ import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -66,14 +66,7 @@ class FeatureFlagNotificationViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            // Load local initial app lock state before collecting updates
-            val initialAppLockSet = globalDataStore.get().isAppLockPasscodeSetFlow().first()
-            featureFlagState = featureFlagState.copy(isUserAppLockSet = initialAppLockSet)
-
-            coroutineScope {
-                launch { initialSync() }
-                launch { isAppLockSet() }
-            }
+            initialSync()
         }
     }
 
@@ -161,16 +154,20 @@ class FeatureFlagNotificationViewModel @Inject constructor(
     }
 
     private suspend fun setTeamAppLockFeatureFlag(userId: UserId) {
-        coreLogic.get().getSessionScope(userId).appLockTeamFeatureConfigObserver()
-            .distinctUntilChanged()
-            .collectLatest { appLockConfig ->
+        combine(
+            coreLogic.get().getSessionScope(userId).appLockTeamFeatureConfigObserver(),
+            globalDataStore.get().isAppLockPasscodeSetFlow(),
+            ::Pair
+        ).distinctUntilChanged()
+            .collectLatest { (appLockConfig, isPasscodeSet) ->
+                featureFlagState = featureFlagState.copy(isUserAppLockSet = isPasscodeSet)
+
                 appLockConfig?.isStatusChanged?.let { isStatusChanged ->
                     val shouldBlockApp = if (isStatusChanged) {
                         true
                     } else {
-                        (!featureFlagState.isUserAppLockSet && appLockConfig.isEnforced)
+                        (!isPasscodeSet && appLockConfig.isEnforced)
                     }
-
                     featureFlagState = featureFlagState.copy(
                         isTeamAppLockEnabled = appLockConfig.isEnforced,
                         shouldShowTeamAppLockDialog = shouldBlockApp
@@ -281,10 +278,6 @@ class FeatureFlagNotificationViewModel @Inject constructor(
                 AppLockSource.TeamEnforced -> disableAppLockUseCase.get().invoke()
             }
         }
-    }
-
-    private suspend fun isAppLockSet() = globalDataStore.get().isAppLockPasscodeSetFlow().collect { isSet ->
-        featureFlagState = featureFlagState.copy(isUserAppLockSet = isSet)
     }
 
     fun enrollE2EICertificate() {

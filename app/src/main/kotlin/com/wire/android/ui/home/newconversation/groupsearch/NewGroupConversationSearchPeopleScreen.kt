@@ -48,7 +48,6 @@ fun NewGroupConversationSearchPeopleScreen(
     }
 
     BackHandler(true, onBackClicked)
-    val isSelfTeamMember = newConversationViewModel.newGroupState.isSelfTeamMember ?: false
 
     val screenTitle = if (newConversationViewModel.newGroupState.isChannel) {
         stringResource(id = R.string.label_new_channel)
@@ -61,7 +60,7 @@ fun NewGroupConversationSearchPeopleScreen(
             OtherUserProfileScreenDestination(QualifiedID(contact.id, contact.domain))
                 .let { navigator.navigate(NavigationCommand(it)) }
         },
-        shouldShowChannelPromotion = !isSelfTeamMember,
+        shouldShowChannelPromotion = false,
         isUserAllowedToCreateChannels = false,
         onContactChecked = newConversationViewModel::updateSelectedContacts,
         onContinue = { navigator.navigate(NavigationCommand(NewGroupNameScreenDestination)) },

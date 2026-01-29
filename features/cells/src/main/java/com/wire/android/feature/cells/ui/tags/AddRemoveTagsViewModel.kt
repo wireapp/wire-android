@@ -58,7 +58,7 @@ class AddRemoveTagsViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             getAllTagsUseCase().onSuccess { tags ->
-                _state.update { it.copy(allTags = tags.toList().sorted()) }
+                _state.update { it.copy(allTags = tags.sorted()) }
             }
             snapshotFlow { tagsTextState.text.toString() }
                 .debounce(TYPING_DEBOUNCE_TIME)

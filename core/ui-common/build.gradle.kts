@@ -50,6 +50,7 @@ dependencies {
     implementation(libs.coil.core)
     implementation(libs.coil.gif)
     implementation(libs.coil.compose)
+    implementation(libs.coil.network)
 
     implementation(libs.ktx.dateTime)
 

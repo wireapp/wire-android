@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.FlowRowScope
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
@@ -44,6 +45,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
@@ -52,8 +54,8 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import com.wire.android.feature.cells.R
-import com.wire.android.ui.common.chip.ChipData
 import com.wire.android.ui.common.chip.WireFilterChip
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -61,9 +63,9 @@ import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.common.textfield.WireTextFieldColors
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.textfield.wireTextFieldColors
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
 import kotlinx.coroutines.delay
-import androidx.compose.runtime.key as runtimeKey
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -73,11 +75,10 @@ fun ChipAndTextFieldLayout(
     modifier: Modifier = Modifier,
     isValidTag: () -> Boolean = { false },
     onDone: (String) -> Unit = { _ -> },
-    tags: Set<ChipData> = emptySet(),
     textStyle: TextStyle = MaterialTheme.wireTypography.body01,
     style: WireTextFieldState = WireTextFieldState.Default,
     colors: WireTextFieldColors = wireTextFieldColors(),
-    chip: @Composable (data: ChipData) -> Unit
+    chipsLayout: @Composable FlowRowScope.() -> Unit
 ) {
 
     val showErrorMessage = remember { mutableStateOf(false) }
@@ -100,14 +101,11 @@ fun ChipAndTextFieldLayout(
                 .background(colorsScheme().surfaceVariant)
                 .padding(dimensions().spacing16x)
                 .animateContentSize(),
-            horizontalArrangement = Arrangement.spacedBy(dimensions().spacing8x)
+            horizontalArrangement = Arrangement.spacedBy(dimensions().spacing8x),
+            verticalArrangement = Arrangement.Bottom,
         ) {
 
-            tags.forEach { item ->
-                runtimeKey(item.id) {
-                    chip(item)
-                }
-            }
+            chipsLayout()
 
             Box(
                 modifier = Modifier
@@ -137,13 +135,15 @@ fun ChipAndTextFieldLayout(
                     ),
                     lineLimits = TextFieldLineLimits.SingleLine,
                     keyboardOptions = KeyboardOptions.Default.copy(
-                        imeAction = ImeAction.Done
+                        imeAction = ImeAction.Done,
+                        capitalization = KeyboardCapitalization.Sentences,
                     ),
-                    onKeyboardAction = KeyboardActionHandler { performDefaultAction ->
+                    onKeyboardAction = KeyboardActionHandler { _ ->
                         if (isValidTag()) {
                             onDone(textFieldState.text.toString())
                         }
                     },
+                    cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
                     decorator = TextFieldDecorator { innerTextField ->
                         Box {
                             if (textFieldState.text.isEmpty()) {
@@ -172,16 +172,17 @@ fun ChipAndTextFieldLayout(
 
 @Composable
 @MultipleThemePreviews
-fun PreviewChipAndTextFieldLayout() {
-    ChipAndTextFieldLayout(
-        textFieldState = TextFieldState(),
-        tags = setOf(ChipData(id = "", label = "Chip", isSelected = false, isEnabled = false)),
-        onRemoveLastTag = { }
-    ) { data: ChipData ->
-        WireFilterChip(
-            label = data.label,
-            isSelected = data.isSelected,
-            onSelectChip = {}
-        )
+private fun PreviewChipAndTextFieldLayout() {
+    WireTheme {
+        ChipAndTextFieldLayout(
+            textFieldState = TextFieldState(),
+            onRemoveLastTag = {},
+        ) {
+            WireFilterChip(
+                modifier = Modifier.align(Alignment.CenterVertically),
+                label = "Test",
+                isSelected = true,
+            )
+        }
     }
 }

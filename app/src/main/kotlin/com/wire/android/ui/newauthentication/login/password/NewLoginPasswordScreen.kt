@@ -211,7 +211,8 @@ internal fun LoginPasswordContent(
                 PasswordInput(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = dimensions().spacing8x),
+                        .padding(bottom = dimensions().spacing8x)
+                        .testTag("PasswordInput"),
                     passwordState = passwordTextState,
                 )
                 if (serverConfig.isProxyAuthRequired) {
@@ -237,7 +238,8 @@ internal fun LoginPasswordContent(
                     onClick = onLoginButtonClick,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = dimensions().spacing8x),
+                        .padding(bottom = dimensions().spacing8x)
+                        .testTag("LoginNextButton"),
 
                     )
                 if (!serverConfig.isProxyAuthRequired) {

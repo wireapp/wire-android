@@ -75,7 +75,7 @@ class DebugConversationViewModel @Inject constructor(
     }
 
     fun resetMLSConversation() = viewModelScope.launch {
-        resetMLSConversation(conversationId)
+        resetMLSConversation(conversationId).toEither()
             .onSuccess {
                 sendAction(ShowMessage("MLS conversation reset successfully."))
             }

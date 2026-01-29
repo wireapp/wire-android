@@ -90,13 +90,13 @@ import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.E2EIEnrollmentScreenDestination
 import com.wire.android.ui.destinations.E2eiCertificateDetailsScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination
+import com.wire.android.ui.destinations.LogManagementScreenDestination
 import com.wire.android.ui.destinations.LoginScreenDestination
 import com.wire.android.ui.destinations.NewLoginScreenDestination
 import com.wire.android.ui.destinations.NewWelcomeEmptyStartScreenDestination
 import com.wire.android.ui.destinations.SelfDevicesScreenDestination
 import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
 import com.wire.android.ui.destinations.WelcomeScreenDestination
-import com.wire.android.ui.destinations.LogManagementScreenDestination
 import com.wire.android.ui.e2eiEnrollment.GetE2EICertificateUI
 import com.wire.android.ui.home.E2EICertificateRevokedDialog
 import com.wire.android.ui.home.E2EIRequiredDialog
@@ -118,9 +118,9 @@ import com.wire.android.ui.userprofile.self.dialog.LogoutOptionsDialog
 import com.wire.android.ui.userprofile.self.dialog.LogoutOptionsDialogState
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.LocalSyncStateObserver
+import com.wire.android.util.ShakeDetector
 import com.wire.android.util.SwitchAccountObserver
 import com.wire.android.util.SyncStateObserver
-import com.wire.android.util.ShakeDetector
 import com.wire.android.util.debug.FeatureVisibilityFlags
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.deeplink.LoginType
@@ -458,8 +458,7 @@ class WireActivity : AppCompatActivity() {
                     onConfirm = {
                         featureFlagNotificationViewModel.dismissTeamAppLockDialog()
                         if (isTeamAppLockEnabled) {
-                            val isUserAppLockSet =
-                                featureFlagNotificationViewModel.isUserAppLockSet()
+                            val isUserAppLockSet = featureFlagNotificationViewModel.featureFlagState.isUserAppLockSet
                             // No need to setup another app lock if the user already has one
                             if (!isUserAppLockSet) {
                                 Intent(this@WireActivity, AppLockActivity::class.java)

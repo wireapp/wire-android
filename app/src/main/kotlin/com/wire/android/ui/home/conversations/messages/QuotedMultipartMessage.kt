@@ -46,9 +46,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import coil.compose.AsyncImage
-import coil.decode.VideoFrameDecoder
-import coil.request.ImageRequest
+import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+import coil3.request.crossfade
+import coil3.video.VideoFrameDecoder
 import com.wire.android.R
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.feature.cells.domain.model.AttachmentFileType.VIDEO
@@ -213,6 +214,7 @@ fun QuotedMultipartMessageContent(
                         text = text,
                         messageStyle = style.messageStyle,
                         accent = accent,
+                        maxLines = 1
                     )
                 } else {
                     quotedMultipartMessage.mediaAttachment?.let { mediaAttachment ->

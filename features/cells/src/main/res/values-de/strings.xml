@@ -103,7 +103,6 @@
     <string name="rename_file_renamed">Datei wurde umbenannt</string>
     <string name="rename_folder_renamed">Ordner wurde umbenannt</string>
     <string name="rename_failure">Umbenennen nicht möglich</string>
-    <string name="rename_invalid_name">Verwenden Sie einen Namen ohne \"/\" und nicht mit \".\" beginnend</string>
     <string name="filter_label">Filter</string>
     <string name="tags_label">Tags</string>
     <string name="select_tags_label">Tags auswählen</string>
@@ -168,6 +167,7 @@
     <string name="invalid_expiration_date">Ablaufdatum liegt in der Vergangenheit</string>
     <string name="link_expired">Link abgelaufen am: %1$s, um %2$s</string>
     <string name="version_history_top_appbar_title">Versionsverlauf</string>
+    <string name="version_history_current_label_for_title">Aktuell</string>
     <string name="restore_version_bottom_sheet_item_label">Version wiederherstellen</string>
     <string name="download_version_bottom_sheet_item_label">Version herunterladen</string>
     <string name="dialog_restore_cell_version_confirmation_description">Dadurch wird die wiederhergestellte Version kopiert und als aktuelle Version festgelegt. Alle vorherigen Versionen bleiben verfügbar.</string>

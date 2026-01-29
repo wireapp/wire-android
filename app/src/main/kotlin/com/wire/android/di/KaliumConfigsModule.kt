@@ -18,10 +18,8 @@
 
 package com.wire.android.di
 
-import android.content.Context
 import android.os.Build
 import com.wire.android.BuildConfig
-import com.wire.android.util.isWebsocketEnabledByDefault
 import com.wire.kalium.logic.featureFlags.BuildFileRestrictionState
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import dagger.Module
@@ -34,20 +32,20 @@ import dagger.hilt.components.SingletonComponent
 class KaliumConfigsModule {
 
     @Provides
-    fun provideKaliumConfigs(context: Context): KaliumConfigs {
-        val fileRestriction: BuildFileRestrictionState = if (BuildConfig.FILE_RESTRICTION_ENABLED) {
-            BuildConfig.FILE_RESTRICTION_LIST.split(",").map { it.trim() }.let {
-                BuildFileRestrictionState.AllowSome(it)
-            }
-        } else {
-            BuildFileRestrictionState.NoRestriction
-        }
-
+    fun provideKaliumConfigs(): KaliumConfigs {
         return KaliumConfigs(
-            fileRestrictionState = fileRestriction,
+            fileRestrictionState = {
+                if (BuildConfig.FILE_RESTRICTION_ENABLED) {
+                    BuildConfig.FILE_RESTRICTION_LIST.split(",").map { it.trim() }.let {
+                        BuildFileRestrictionState.AllowSome(it)
+                    }
+                } else {
+                    BuildFileRestrictionState.NoRestriction
+                }
+            },
             forceConstantBitrateCalls = BuildConfig.FORCE_CONSTANT_BITRATE_CALLS,
             // we use upsert, available from SQL3.24, which is supported from Android API30, so for older APIs we have to use SQLCipher
-            shouldEncryptData = !BuildConfig.DEBUG || Build.VERSION.SDK_INT < Build.VERSION_CODES.R,
+            shouldEncryptData = { !BuildConfig.DEBUG || Build.VERSION.SDK_INT < Build.VERSION_CODES.R },
             lowerKeyPackageLimits = BuildConfig.LOWER_KEYPACKAGE_LIMIT,
             developmentApiEnabled = BuildConfig.DEVELOPMENT_API_ENABLED,
             ignoreSSLCertificatesForUnboundCalls = BuildConfig.IGNORE_SSL_CERTIFICATES,
@@ -57,7 +55,6 @@ class KaliumConfigsModule {
             wipeOnCookieInvalid = BuildConfig.WIPE_ON_COOKIE_INVALID,
             wipeOnDeviceRemoval = BuildConfig.WIPE_ON_DEVICE_REMOVAL,
             wipeOnRootedDevice = BuildConfig.WIPE_ON_ROOTED_DEVICE,
-            isWebSocketEnabledByDefault = isWebsocketEnabledByDefault(context),
             certPinningConfig = BuildConfig.CERTIFICATE_PINNING_CONFIG,
             maxRemoteSearchResultCount = BuildConfig.MAX_REMOTE_SEARCH_RESULT_COUNT,
             limitTeamMembersFetchDuringSlowSync = BuildConfig.LIMIT_TEAM_MEMBERS_FETCH_DURING_SLOW_SYNC,

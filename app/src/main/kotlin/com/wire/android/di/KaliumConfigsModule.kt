@@ -34,7 +34,7 @@ class KaliumConfigsModule {
     @Provides
     fun provideKaliumConfigs(): KaliumConfigs {
         return KaliumConfigs(
-            fileRestrictionState = {
+            fileRestrictionState = lazy {
                 if (BuildConfig.FILE_RESTRICTION_ENABLED) {
                     BuildConfig.FILE_RESTRICTION_LIST.split(",").map { it.trim() }.let {
                         BuildFileRestrictionState.AllowSome(it)

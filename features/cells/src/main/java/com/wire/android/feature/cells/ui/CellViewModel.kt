@@ -99,7 +99,7 @@ class CellViewModel @Inject constructor(
 
     private val navArgs: CellFilesNavArgs = savedStateHandle.navArgs()
 
-    val isSearchByDefaultActive: Boolean = navArgs.isSearchByDefaultActive
+    val isSearchByDefaultActive: Boolean? = navArgs.isSearchByDefaultActive
 
     // Show menu with actions for the selected file.
     private val _menu: MutableSharedFlow<MenuOptions> = MutableSharedFlow()

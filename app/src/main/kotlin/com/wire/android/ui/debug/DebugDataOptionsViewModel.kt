@@ -100,7 +100,7 @@ class DebugDataOptionsViewModelImpl
     kaliumConfigs: com.wire.kalium.logic.featureFlags.KaliumConfigs,
 ) : ViewModel(), DebugDataOptionsViewModel {
 
-    private val isMessageSyncEnabled = kaliumConfigs.messageSynchronizationEnabled
+    private val isMessageSyncEnabled = kaliumConfigs.contentBackupEnabled
 
     override var state by mutableStateOf(
         DebugDataOptionsState()

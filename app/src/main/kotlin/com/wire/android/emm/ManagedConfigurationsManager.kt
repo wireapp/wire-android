@@ -43,8 +43,6 @@ interface ManagedConfigurationsManager {
 
     val currentSSOCodeConfig: String
 
-    val remoteBackupURLConfig: String?
-
     /**
      * Initialize the server config on first access or when explicitly called.
      * This should be called when the app starts, resumes, or when broadcast receiver triggers.
@@ -68,11 +66,6 @@ interface ManagedConfigurationsManager {
      * empty if no config found or cleared, or failure with reason.
      */
     suspend fun refreshSSOCodeConfig(): SSOCodeConfigResult
-
-    /**
-     * Refresh the remote backup URL from managed configurations.
-     * This should be called when the app starts, resumes, or when broadcast receiver triggers.
-     */
 
     /**
      * Sets server configuration from an external base64-encoded JSON string (e.g., intent parameter).
@@ -104,15 +97,6 @@ internal class ManagedConfigurationsManagerImpl(
 
     override val currentSSOCodeConfig: String
         get() = _currentSSOCodeConfig.get()
-
-    override val remoteBackupURLConfig: String? by lazy {
-        val restrictions = restrictionsManager.applicationRestrictions
-        if (restrictions != null && !restrictions.isEmpty) {
-            restrictions.getString(ManagedConfigurationsKeys.REMOTE_BACKUP_URL.asKey())
-        } else {
-            null
-        }
-    }
 
     override suspend fun refreshServerConfig(): ServerConfigResult = withContext(dispatchers.io()) {
         val managedServerConfig = getServerConfig()

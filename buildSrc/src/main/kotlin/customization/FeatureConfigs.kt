@@ -145,11 +145,9 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
 
     DB_INVALIDATION_CONTROL_ENABLED("db_invalidation_control_enabled", ConfigType.BOOLEAN),
 
-    MESSAGE_SYNCHRONIZATION_ENABLED("message_synchronization_enabled", ConfigType.BOOLEAN),
+    CONTENT_BACKUP_ENABLED("content_backup_enabled", ConfigType.BOOLEAN),
 
     CRYPTO_STATE_BACKUP_ENABLED("crypto_state_backup_enabled", ConfigType.BOOLEAN),
 
     CRYPTO_STATE_BACKUP_INTERVAL("crypto_state_backup_interval", ConfigType.INT),
-
-    REMOTE_BACKUP_URL("remote_backup_URL", ConfigType.STRING)
 }

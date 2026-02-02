@@ -111,10 +111,9 @@
             "analytics_enabled": false,
             "enable_new_registration": true,
             "use_async_flush_logging": true,
-            "message_synchronization_enabled": true,
+            "content_backup_enabled": true,
             "crypto_state_backup_enabled": true,
-            "crypto_state_backup_interval": 10,
-            "remote_backup_URL": "https://replica.wdebug.link:4545"
+            "crypto_state_backup_interval": 10
         }
     },
     "application_name": "Wire",
@@ -181,7 +180,7 @@
     "is_bubble_ui_enabled": true,
     "collabora_integration": false,
     "db_invalidation_control_enabled": false,
-    "message_synchronization_enabled": false,
+    "content_backup_enabled": false,
     "crypto_state_backup_enabled": false,
     "crypto_state_backup_interval": 20
 }

@@ -27,7 +27,10 @@ import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiObject2
 import androidx.test.uiautomator.UiSelector
 import androidx.test.uiautomator.Until
+import uiautomatorutils.UiWaitUtils.toBySelector
+import uiautomatorutils.UiWaitUtils.waitUntilVisible
 import java.io.IOException
+
 private const val TIMEOUT_IN_MILLISECONDS = 10000L
 
 data class UiSelectorParams(
@@ -170,5 +173,32 @@ object UiWaitUtils {
                 stopPinging()
             }
         }
+    }
+
+    fun waitUntilVisible(
+        params: UiSelectorParams,
+        timeoutMs: Long = TIMEOUT_IN_MILLISECONDS,
+        errorMessage: String
+    ) {
+        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        try {
+            val sel = params.toBySelector()
+            if (!device.wait(Until.hasObject(sel), timeoutMs)) {
+                throw AssertionError()
+            }
+        } catch (e: AssertionError) {
+            throw AssertionError(errorMessage, e)
+        }
+    }
+
+    fun waitUntilToastIsDisplayed(
+        message: String,
+        timeoutMs: Long = 5_000
+    ) {
+        waitUntilVisible(
+            params = UiSelectorParams(textContains = message),
+            timeoutMs = timeoutMs,
+            errorMessage = "Toast message containing '$message' was not displayed within ${timeoutMs}ms."
+        )
     }
 }

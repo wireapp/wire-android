@@ -28,6 +28,9 @@ data class CallingPage(private val device: UiDevice) {
 
     private val restoreCallButton = UiSelectorParams(text = "RETURN TO CALL")
 
+    private val turnCameraOnButton = UiSelectorParams(description = "Turn camera on")
+
+
     fun iSeeOngoingGroupCall(): CallingPage {
 
         try {
@@ -45,6 +48,11 @@ data class CallingPage(private val device: UiDevice) {
 
     fun iRestoreOngoingCall(): CallingPage {
         UiWaitUtils.waitElement(restoreCallButton).click()
+        return this
+    }
+
+    fun iTurnCameraOn(): CallingPage {
+        UiWaitUtils.waitElement(turnCameraOnButton).click()
         return this
     }
 }

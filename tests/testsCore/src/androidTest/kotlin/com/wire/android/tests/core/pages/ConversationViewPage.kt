@@ -62,6 +62,7 @@ data class ConversationViewPage(private val device: UiDevice) {
 
     private fun conversationDetails1On1(userName: String) = UiSelector().className("android.widget.TextView").text(userName)
 
+    private fun conversationDetailsGroup(userName: String) = UiSelectorParams(text = userName)
     private val sendButton = UiSelectorParams(description = "Send")
 
     private val backButton = UiSelectorParams(description = "Go back to conversation list")
@@ -77,6 +78,7 @@ data class ConversationViewPage(private val device: UiDevice) {
     private fun sharingOption(label: String): UiSelectorParams {
         return UiSelectorParams(text = label, className = "android.widget.TextView")
     }
+
     private fun fileWithName(name: String): UiSelectorParams {
         return UiSelectorParams(text = name)
     }
@@ -405,6 +407,19 @@ data class ConversationViewPage(private val device: UiDevice) {
         if (!userName.exists()) throw AssertionError("User '$userName' not found in current conversation")
         userName.click()
 
+        return this
+    }
+
+    fun clickOnGroupConversationDetails(userName: String): ConversationViewPage {
+        val params = conversationDetailsGroup(userName)
+
+        UiWaitUtils.waitUntilVisible(
+            params = params,
+            timeoutMs = 5_000,
+            errorMessage = "Group conversation details for user '$userName' not visible"
+        )
+
+        UiWaitUtils.waitElement(params).click()
         return this
     }
 

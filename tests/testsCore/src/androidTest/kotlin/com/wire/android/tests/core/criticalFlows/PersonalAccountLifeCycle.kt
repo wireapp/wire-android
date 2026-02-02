@@ -42,6 +42,7 @@ import kotlin.getValue
 import com.wire.android.tests.core.BaseUiTest
 import com.wire.android.tests.support.tags.Category
 import com.wire.android.tests.support.tags.TestCaseId
+import uiautomatorutils.UiWaitUtils.waitUntilToastIsDisplayed
 
 @RunWith(AndroidJUnit4::class)
 class PersonalAccountLifeCycle : BaseUiTest() {
@@ -159,8 +160,7 @@ class PersonalAccountLifeCycle : BaseUiTest() {
             }
 
             pages.unconnectedUserProfilePage.clickConnectionRequestButton()
-            pages.connectedUserProfilePage.assertToastMessageIsDisplayed("Connection request sent")
-
+            waitUntilToastIsDisplayed("Connection request sent")
             pages.unconnectedUserProfilePage.clickCloseButtonOnUnconnectedUserProfilePage()
             pages.conversationListPage.clickCloseButtonOnNewConversationScreen()
             pages.conversationListPage
@@ -208,7 +208,7 @@ class PersonalAccountLifeCycle : BaseUiTest() {
                 clickShowMoreOptions()
                 clickBlockOption()
                 clickBlockButtonAlert()
-                assertToastMessageIsDisplayed("${teamOwner?.name ?: ""} blocked")
+                waitUntilToastIsDisplayed("${teamOwner?.name ?: ""} blocked")
                 assertBlockedLabelVisible()
                 assertUnblockUserButtonVisible()
                 tapCloseButtonOnConnectedUserProfilePage()

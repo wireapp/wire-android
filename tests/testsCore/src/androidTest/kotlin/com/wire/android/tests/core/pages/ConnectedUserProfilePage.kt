@@ -56,21 +56,6 @@ data class ConnectedUserProfilePage(private val device: UiDevice) {
         return this
     }
 
-    fun assertToastMessageIsDisplayed(
-        expectedMessage: String,
-        timeoutMillis: Long = 5_000
-    ): ConnectedUserProfilePage {
-        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        val selector = By.text(expectedMessage)
-        val toast = device.wait(Until.findObject(selector), timeoutMillis)
-
-        if (toast == null || toast.visibleBounds.isEmpty) {
-            throw AssertionError("Toast message '$expectedMessage' was not displayed within ${timeoutMillis}ms.")
-        }
-
-        return this
-    }
-
     fun tapCloseButtonOnConnectedUserProfilePage(): ConnectedUserProfilePage {
         UiWaitUtils.waitElement(closeButton).click()
         return this

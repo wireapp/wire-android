@@ -101,4 +101,35 @@ class CallHelper {
     suspend fun userVerifiesAudio(callees: String) {
         callingManager.verifySendAndReceiveAudio(callees)
     }
+
+    fun iSeeParticipantsInGroupVideoCall(participants: String) {
+        // 1. Resolve aliases into real usernames
+        val resolvedParticipants = usersManager.replaceAliasesOccurrences(
+            participants,
+            ClientUserManager.FindBy.NAME_ALIAS
+        )
+
+        // 2. Split into individual names and check each one
+        resolvedParticipants
+            .split(",")
+            .map { it.trim() }
+            .forEach { participant ->
+                try {
+                    // In the video grid, each tile shows the participant name as a TextView label.
+                    UiWaitUtils.waitElement(
+                        UiSelectorParams(
+                            text = participant
+                            // If your UiSelectorParams supports it, you can make it stricter:
+                            // className = "android.widget.TextView"
+                        )
+                    )
+                } catch (e: AssertionError) {
+                    throw AssertionError(
+                        "User '$participant' is not visible in the ongoing group video call (name label not found).",
+                        e
+                    )
+                }
+            }
+    }
+
 }

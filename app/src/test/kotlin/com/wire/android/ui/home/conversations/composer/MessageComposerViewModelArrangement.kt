@@ -60,6 +60,7 @@ import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
 import com.wire.kalium.logic.feature.conversation.IsInteractionAvailableResult
 import com.wire.kalium.logic.feature.conversation.MembersToMentionUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationInteractionAvailabilityUseCase
+import com.wire.kalium.logic.feature.conversation.MarkConversationAsReadLocallyUseCase
 import com.wire.kalium.logic.feature.conversation.SendTypingEventUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.message.ephemeral.EnqueueMessageSelfDeletionUseCase
@@ -67,6 +68,7 @@ import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletion
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
+import com.wire.kalium.common.functional.Either
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -100,6 +102,7 @@ internal class MessageComposerViewModelArrangement {
         } returns flowOf(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID)))
         coEvery { globalDataStore.enterToSendFlow() } returns flowOf(false)
         coEvery { observeEstablishedCalls() } returns emptyFlow()
+        coEvery { markConversationAsReadLocallyUseCase(any(), any()) } returns Either.Right(false)
     }
 
     @MockK
@@ -119,6 +122,9 @@ internal class MessageComposerViewModelArrangement {
 
     @MockK
     private lateinit var updateConversationReadDateUseCase: UpdateConversationReadDateUseCase
+
+    @MockK
+    lateinit var markConversationAsReadLocallyUseCase: MarkConversationAsReadLocallyUseCase
 
     @MockK
     private lateinit var observeSyncState: ObserveSyncStateUseCase
@@ -158,6 +164,7 @@ internal class MessageComposerViewModelArrangement {
             dispatchers = TestDispatcherProvider(),
             isFileSharingEnabled = isFileSharingEnabledUseCase,
             updateConversationReadDate = updateConversationReadDateUseCase,
+            markConversationAsReadLocally = markConversationAsReadLocallyUseCase,
             observeConversationInteractionAvailability = observeConversationInteractionAvailabilityUseCase,
             contactMapper = contactMapper,
             membersToMention = membersToMention,

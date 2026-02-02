@@ -47,6 +47,7 @@ import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.conversation.IsInteractionAvailableResult
 import com.wire.kalium.logic.feature.conversation.MembersToMentionUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationInteractionAvailabilityUseCase
+import com.wire.kalium.logic.feature.conversation.MarkConversationAsReadLocallyUseCase
 import com.wire.kalium.logic.feature.conversation.SendTypingEventUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.message.ephemeral.EnqueueMessageSelfDeletionUseCase
@@ -55,6 +56,7 @@ import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
@@ -74,6 +76,7 @@ class MessageComposerViewModel @Inject constructor(
     private val isFileSharingEnabled: IsFileSharingEnabledUseCase,
     private val observeConversationInteractionAvailability: ObserveConversationInteractionAvailabilityUseCase,
     private val updateConversationReadDate: UpdateConversationReadDateUseCase,
+    private val markConversationAsReadLocally: MarkConversationAsReadLocallyUseCase,
     private val contactMapper: ContactMapper,
     private val membersToMention: MembersToMentionUseCase,
     private val enqueueMessageSelfDeletion: EnqueueMessageSelfDeletionUseCase,
@@ -105,6 +108,8 @@ class MessageComposerViewModel @Inject constructor(
     var invalidLinkDialogState: InvalidLinkDialogState by mutableStateOf(
         InvalidLinkDialogState.Hidden
     )
+
+    private var lastReadInstant: Instant? = null
 
     init {
         initTempWritableVideoUri()
@@ -195,8 +200,24 @@ class MessageComposerViewModel @Inject constructor(
     }
 
     fun updateConversationReadDate(utcISO: String) {
-        viewModelScope.launch(dispatchers.io()) {
-            updateConversationReadDate(conversationId, Instant.parse(utcISO))
+        val instant = Instant.parse(utcISO)
+        lastReadInstant = instant
+        viewModelScope.launch(NonCancellable) {
+            updateConversationReadDate(conversationId, instant)
+        }
+    }
+
+    /**
+     * Called when the user leaves the conversation.
+     * Immediately updates the local read date to clear unread badges
+     * without waiting for the debounced update to complete.
+     * If the user viewed messages, uses the last read timestamp.
+     */
+    fun onConversationClosed() {
+        lastReadInstant?.let { instant ->
+            viewModelScope.launch(NonCancellable) {
+                markConversationAsReadLocally(conversationId, instant)
+            }
         }
     }
 

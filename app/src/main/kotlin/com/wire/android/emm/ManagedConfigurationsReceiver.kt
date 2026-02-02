@@ -48,6 +48,7 @@ class ManagedConfigurationsReceiver @Inject constructor(
                     logger.i("Received intent to refresh managed configurations")
                     updateServerConfig()
                     updateSSOCodeConfig()
+                    updatePersistentWebSocketConfig()
                 }
             }
 
@@ -101,6 +102,16 @@ class ManagedConfigurationsReceiver @Inject constructor(
                 )
             }
         }
+    }
+
+    private suspend fun updatePersistentWebSocketConfig() {
+        managedConfigurationsManager.refreshPersistentWebSocketConfig()
+        val isEnforced = managedConfigurationsManager.persistentWebSocketEnforcedByMDM.value
+        managedConfigurationsReporter.reportAppliedState(
+            key = ManagedConfigurationsKeys.KEEP_WEBSOCKET_CONNECTION.asKey(),
+            message = if (isEnforced) "Persistent WebSocket enforced" else "Persistent WebSocket not enforced",
+            data = isEnforced.toString()
+        )
     }
 
     companion object {

@@ -126,6 +126,36 @@ class ManagedConfigurationsManagerTest {
         assertEquals(ServerConfigProvider().getDefaultServerConfig(), serverConfig)
     }
 
+    @Test
+    fun `given keep_websocket_connection is true, then persistentWebSocketEnforcedByMDM returns true`() = runTest {
+        val (_, manager) = Arrangement()
+            .withBooleanRestrictions(mapOf(ManagedConfigurationsKeys.KEEP_WEBSOCKET_CONNECTION.asKey() to true))
+            .arrange()
+
+        manager.refreshPersistentWebSocketConfig()
+        assertEquals(true, manager.persistentWebSocketEnforcedByMDM.value)
+    }
+
+    @Test
+    fun `given keep_websocket_connection is false, then persistentWebSocketEnforcedByMDM returns false`() = runTest {
+        val (_, manager) = Arrangement()
+            .withBooleanRestrictions(mapOf(ManagedConfigurationsKeys.KEEP_WEBSOCKET_CONNECTION.asKey() to false))
+            .arrange()
+
+        manager.refreshPersistentWebSocketConfig()
+        assertEquals(false, manager.persistentWebSocketEnforcedByMDM.value)
+    }
+
+    @Test
+    fun `given no keep_websocket_connection restriction, then persistentWebSocketEnforcedByMDM returns false`() = runTest {
+        val (_, manager) = Arrangement()
+            .withRestrictions(emptyMap())
+            .arrange()
+
+        manager.refreshPersistentWebSocketConfig()
+        assertEquals(false, manager.persistentWebSocketEnforcedByMDM.value)
+    }
+
     private class Arrangement {
 
         private val context: Context = ApplicationProvider.getApplicationContext()
@@ -138,6 +168,19 @@ class ManagedConfigurationsManagerTest {
                 Bundle().apply {
                     restrictions.forEach { (key, value) ->
                         putString(key, value)
+                    }
+                }
+            )
+        }
+
+        fun withBooleanRestrictions(restrictions: Map<String, Boolean>) = apply {
+            val restrictionsManager =
+                context.getSystemService(Context.RESTRICTIONS_SERVICE) as RestrictionsManager
+            val shadowRestrictionsManager = Shadows.shadowOf(restrictionsManager)
+            shadowRestrictionsManager.setApplicationRestrictions(
+                Bundle().apply {
+                    restrictions.forEach { (key, value) ->
+                        putBoolean(key, value)
                     }
                 }
             )

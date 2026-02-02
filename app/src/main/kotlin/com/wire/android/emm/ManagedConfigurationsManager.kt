@@ -24,6 +24,9 @@ import com.wire.android.config.ServerConfigProvider
 import com.wire.android.util.EMPTY
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.configuration.server.ServerConfig
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import java.util.concurrent.atomic.AtomicReference
@@ -66,6 +69,19 @@ interface ManagedConfigurationsManager {
      * empty if no config found or cleared, or failure with reason.
      */
     suspend fun refreshSSOCodeConfig(): SSOCodeConfigResult
+
+    /**
+     * Whether persistent WebSocket connection is enforced by MDM.
+     * When true, the persistent WebSocket service should always be started
+     * and users should not be able to change this setting.
+     */
+    val persistentWebSocketEnforcedByMDM: StateFlow<Boolean>
+
+    /**
+     * Refresh the persistent WebSocket configuration from managed restrictions.
+     * This should be called when the app starts or when broadcast receiver triggers.
+     */
+    suspend fun refreshPersistentWebSocketConfig()
 }
 
 internal class ManagedConfigurationsManagerImpl(
@@ -82,12 +98,16 @@ internal class ManagedConfigurationsManagerImpl(
 
     private val _currentServerConfig = AtomicReference<ServerConfig.Links?>(null)
     private val _currentSSOCodeConfig = AtomicReference(String.EMPTY)
+    private val _persistentWebSocketEnforcedByMDM = MutableStateFlow(false)
 
     override val currentServerConfig: ServerConfig.Links
         get() = _currentServerConfig.get() ?: serverConfigProvider.getDefaultServerConfig()
 
     override val currentSSOCodeConfig: String
         get() = _currentSSOCodeConfig.get()
+
+    override val persistentWebSocketEnforcedByMDM: StateFlow<Boolean>
+        get() = _persistentWebSocketEnforcedByMDM.asStateFlow()
 
     override suspend fun refreshServerConfig(): ServerConfigResult = withContext(dispatchers.io()) {
         val managedServerConfig = getServerConfig()
@@ -117,6 +137,22 @@ internal class ManagedConfigurationsManagerImpl(
             logger.i("SSO code config refreshed to: $ssoCode")
             managedSSOCodeConfig
         }
+
+    override suspend fun refreshPersistentWebSocketConfig() {
+        withContext(dispatchers.io()) {
+            val restrictions = restrictionsManager.applicationRestrictions
+            val isEnforced = if (restrictions == null || restrictions.isEmpty) {
+                false
+            } else {
+                restrictions.getBoolean(
+                    ManagedConfigurationsKeys.KEEP_WEBSOCKET_CONNECTION.asKey(),
+                    false
+                )
+            }
+            _persistentWebSocketEnforcedByMDM.value = isEnforced
+            logger.i("Persistent WebSocket enforced by MDM refreshed to: $isEnforced")
+        }
+    }
 
     private suspend fun getSSOCodeConfig(): SSOCodeConfigResult =
         withContext(dispatchers.io()) {

@@ -1875,6 +1875,9 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="restriction_sso_code_title">SSO code configuration</string>
     <string name="restriction_server_urls_description">JSON value with the server endpoints configuration</string>
     <string name="restriction_sso_code_description">JSON value with the default SSO code configuration</string>
+    <string name="restriction_keep_websocket_title">Keep WebSocket Connection</string>
+    <string name="restriction_keep_websocket_description">Force persistent WebSocket connection for all users</string>
+    <string name="settings_keep_websocket_enforced_by_organization">This setting is managed by your organization.</string>
 
     <!--    channel not available dialog-->
     <string name="channel_not_available_dialog_title">Channels are available for team members.</string>

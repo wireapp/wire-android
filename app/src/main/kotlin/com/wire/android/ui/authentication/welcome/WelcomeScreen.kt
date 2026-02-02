@@ -69,7 +69,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.BuildConfig.ENABLE_NEW_REGISTRATION
 import com.wire.android.R
 import com.wire.android.config.LocalCustomUiConfigurationProvider
-import com.wire.android.config.orDefault
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireDestination
@@ -233,7 +232,7 @@ private fun WelcomeContent(
                                     NavigationCommand(
                                         CreateAccountDataDetailScreenDestination(
                                             CreateAccountDataNavArgs(
-                                                customServerConfig = state.orDefault()
+                                                customServerConfig = state
                                             )
                                         )
                                     )
@@ -311,8 +310,11 @@ private suspend fun autoScrollCarousel(
         }
     }.collect { (scrollToPage, animate) ->
         if (pageState.pageCount != 0) {
-            if (animate) pageState.animateScrollToPage(scrollToPage)
-            else pageState.scrollToPage(scrollToPage)
+            if (animate) {
+                pageState.animateScrollToPage(scrollToPage)
+            } else {
+                pageState.scrollToPage(scrollToPage)
+            }
         }
     }
 
@@ -422,7 +424,8 @@ fun PreviewWelcomeScreen() {
             maxAccountsReached = false,
             state = ServerConfig.DEFAULT,
             navigateBack = {},
-            navigate = {})
+            navigate = {}
+        )
     }
 }
 

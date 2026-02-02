@@ -21,15 +21,21 @@ package com.wire.android.ui.home.conversationslist.all
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Composable
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.navigation.HomeNavGraph
 import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.rememberNavigator
+import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.search.rememberSearchbarState
 import com.wire.android.ui.home.HomeStateHolder
+import com.wire.android.ui.home.conversations.folder.ConversationFoldersStateArgs
+import com.wire.android.ui.home.conversations.folder.ConversationFoldersVM
+import com.wire.android.ui.home.conversations.folder.ConversationFoldersVMImpl
 import com.wire.android.ui.home.conversationslist.ConversationListViewModelPreview
 import com.wire.android.ui.home.conversationslist.ConversationsScreenContent
-import com.wire.android.ui.home.conversationslist.common.previewConversationFoldersFlow
+import com.wire.android.ui.home.conversationslist.common.previewConversationItemsFlow
+import com.wire.android.ui.home.conversationslist.filter.ConversationFilterSheetContent
 import com.wire.android.ui.home.conversationslist.model.ConversationsSource
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -38,7 +44,13 @@ import com.wire.kalium.logic.data.conversation.ConversationFilter
 @HomeNavGraph(start = true)
 @WireDestination
 @Composable
-fun AllConversationsScreen(homeStateHolder: HomeStateHolder) {
+fun AllConversationsScreen(
+    homeStateHolder: HomeStateHolder,
+    foldersViewModel: ConversationFoldersVM =
+        hiltViewModel<ConversationFoldersVMImpl, ConversationFoldersVMImpl.Factory>(
+            creationCallback = { it.create(ConversationFoldersStateArgs(null)) }
+        ),
+) {
     with(homeStateHolder) {
         Crossfade(
             targetState = homeStateHolder.currentConversationFilter,
@@ -59,6 +71,19 @@ fun AllConversationsScreen(homeStateHolder: HomeStateHolder) {
                 emptyListContent = { ConversationsEmptyContent(filter = filter, navigator = navigator) }
             )
         }
+        WireModalSheetLayout(
+            sheetState = conversationsFilterBottomSheetState,
+            sheetContent = { sheetData ->
+                ConversationFilterSheetContent(
+                    currentFilter = homeStateHolder.currentConversationFilter,
+                    folders = foldersViewModel.state().folders,
+                    onChangeFilter = { filter ->
+                        conversationsFilterBottomSheetState.hide()
+                        homeStateHolder.changeConversationFilter(filter)
+                    },
+                )
+            }
+        )
     }
 }
 
@@ -70,7 +95,7 @@ fun PreviewAllConversationsEmptyScreen() = WireTheme {
         searchBarState = rememberSearchbarState(),
         conversationsSource = ConversationsSource.MAIN,
         emptyListContent = { ConversationsEmptyContent(navigator = rememberNavigator {}) },
-        conversationListViewModel = ConversationListViewModelPreview(previewConversationFoldersFlow(list = listOf())),
+        conversationListViewModel = ConversationListViewModelPreview(previewConversationItemsFlow(list = listOf())),
     )
 }
 
@@ -82,7 +107,7 @@ fun PreviewAllConversationsEmptySearchScreen() = WireTheme {
         searchBarState = rememberSearchbarState(initialIsSearchActive = true, searchQueryTextState = TextFieldState(initialText = "er")),
         conversationsSource = ConversationsSource.MAIN,
         emptyListContent = { ConversationsEmptyContent(navigator = rememberNavigator {}) },
-        conversationListViewModel = ConversationListViewModelPreview(previewConversationFoldersFlow(searchQuery = "er", list = listOf())),
+        conversationListViewModel = ConversationListViewModelPreview(previewConversationItemsFlow(searchQuery = "er", list = listOf())),
     )
 }
 
@@ -94,6 +119,6 @@ fun PreviewAllConversationsSearchScreen() = WireTheme {
         searchBarState = rememberSearchbarState(initialIsSearchActive = true, searchQueryTextState = TextFieldState(initialText = "er")),
         conversationsSource = ConversationsSource.MAIN,
         emptyListContent = { ConversationsEmptyContent(navigator = rememberNavigator {}) },
-        conversationListViewModel = ConversationListViewModelPreview(previewConversationFoldersFlow("er")),
+        conversationListViewModel = ConversationListViewModelPreview(previewConversationItemsFlow("er")),
     )
 }

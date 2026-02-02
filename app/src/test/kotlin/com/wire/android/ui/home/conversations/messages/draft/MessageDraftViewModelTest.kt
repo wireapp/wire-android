@@ -33,6 +33,7 @@ import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.message.draft.MessageDraft
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.message.draft.GetMessageDraftUseCase
+import com.wire.kalium.logic.feature.message.draft.SaveMessageDraftUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -77,7 +78,7 @@ class MessageDraftViewModelTest {
     fun `given null message draft, when init, then state is not updated`() = runTest {
         // given
         val (arrangement, viewModel) = Arrangement()
-            .withMessageDraft(null)
+            .withNoMessageDraft()
             .arrange()
 
         // when
@@ -106,7 +107,7 @@ class MessageDraftViewModelTest {
             senderName = UIText.DynamicString("John"),
             originalMessageDateDescription = UIText.StringResource(R.string.label_quote_original_message_date, "10:30"),
             editedTimeDescription = UIText.StringResource(R.string.label_message_status_edited_with_date, "10:32"),
-            quotedContent = UIQuotedMessage.UIQuotedData.Text("Any ideas?"),
+            quotedContent = UIQuotedMessage.UIQuotedData.Text(UIText.DynamicString("Any ideas?")),
             senderAccent = Accent.Unknown
         )
         val (arrangement, viewModel) = Arrangement()
@@ -180,17 +181,25 @@ class MessageDraftViewModelTest {
         lateinit var getMessageDraft: GetMessageDraftUseCase
 
         @MockK
+        lateinit var saveMessageDraft: SaveMessageDraftUseCase
+
+        @MockK
         lateinit var getQuoteMessageForConversation: GetQuoteMessageForConversationUseCase
 
         private val viewModel by lazy {
             MessageDraftViewModel(
                 savedStateHandle,
                 getMessageDraft,
-                getQuoteMessageForConversation
+                getQuoteMessageForConversation,
+                saveMessageDraft,
             )
         }
 
-        fun withMessageDraft(messageDraft: MessageDraft?) = apply {
+        fun withNoMessageDraft() = apply {
+            coEvery { getMessageDraft(any()) } returns null
+        }
+
+        fun withMessageDraft(messageDraft: MessageDraft) = apply {
             coEvery { getMessageDraft(any()) } returns messageDraft
         }
 

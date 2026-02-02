@@ -36,8 +36,6 @@
     <string name="label_learn_more">Scopri di pi&#249;</string>
     <string name="label_removing">Rimozione in corso...</string>
     <string name="label_logging_in">Accesso in corso...</string>
-    <string name="label_membership_guest">Ospite</string>
-    <string name="label_membership_external">Esterno</string>
     <string name="label_user_deleted">Cancellato</string>
     <string name="label_message_sent_failure">Il messaggio non pu&#242; essere inviato a causa di problemi di connessione.</string>
     <string name="label_message_edit_sent_failure">Il messaggio modificato non pu&#242; essere inviato a causa di problemi di connessione.</string>
@@ -58,7 +56,6 @@
     </plurals>
     <string name="label_reset_session">Resetta Sessione</string>
     <string name="label_reset_session_success">Sessione resettata con successo</string>
-    <string name="label_federated_membership">Federato</string>
     <string name="label_update">Aggiorna</string>
     <string name="label_close">Chiudi</string>
     <string name="label_download">Scarica</string>
@@ -83,10 +80,7 @@
     <string name="content_description_reveal_password">Mostra la password</string>
     <string name="content_description_hide_password">Nascondi la password</string>
     <string name="content_description_search_back">Icona di ricerca all\'indietro</string>
-    <string name="content_description_clear_content">Cancella il contenuto</string>
-    <string name="content_description_user_avatar">Immagine del profilo</string>
     <string name="content_description_muted_conversation">Conversazione silenziata</string>
-    <string name="content_description_check">Segno di spunta</string>
     <string name="content_description_download_icon">Icona di download</string>
     <string name="content_description_open_asset_icon">Apri icona</string>
     <string name="content_description_add_to_favourite">Aggiungi ai preferiti</string>
@@ -97,8 +91,6 @@
     <string name="content_description_unblock_the_user">Sblocca</string>
     <string name="content_description_conversation_phone_icon">Avvia chiamata audio</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
-    <string name="content_description_conversation_search_icon">Icona di ricerca</string>
-    <string name="content_description_conversation_search_input">Input della ricerca</string>
     <string name="content_description_conversation_enable_rich_text_mode">Abilita la modalit&#224; di testo avanzata</string>
     <string name="content_description_conversation_rich_text_header">Intestazione formattata in testo ricco</string>
     <string name="content_description_conversation_rich_text_bold">Grassetto formattazione in testo ricco</string>
@@ -434,10 +426,6 @@ Un messaggio eliminato non pu&#242; essere ripristinato.</string>
     <string name="user_profile_close_description">Chiudi profilo utente</string>
     <string name="user_profile_other_accs">Gli Altri Tuoi Profili</string>
     <string name="user_profile_status_availability">Disponibilità</string>
-    <string name="user_profile_status_available">Disponibile</string>
-    <string name="user_profile_status_busy">Occupato</string>
-    <string name="user_profile_status_away">Assente</string>
-    <string name="user_profile_status_none">Nessuno</string>
     <string name="user_profile_details_tab">Dettagli</string>
     <string name="user_profile_devices_tab">Dispositivi</string>
     <string name="user_profile_role_change_error">Si è verificato un errore provando a modificare il ruolo. Sei pregato di controllare la tua connessione a Internet e di riprovare</string>
@@ -482,9 +470,7 @@ Un messaggio eliminato non pu&#242; essere ripristinato.</string>
     <string name="profile_image_change_image_button_label">Cambia immagine...</string>
     <!--Conversation-->
     <string name="label_message_details">Dettagli messaggio</string>
-    <string name="label_copy">Copia</string>
     <string name="label_share">Condividi</string>
-    <string name="label_edit">Modifica</string>
     <string name="label_delete">Elimina</string>
     <string name="info_message_copied">Messaggio copiato</string>
     <string name="conversation_banner_federated_externals_guests_present">Sono presenti utenti federati, esterni e ospiti</string>
@@ -625,14 +611,12 @@ Un messaggio eliminato non pu&#242; essere ripristinato.</string>
         <item quantity="other">%1$s e altri %2$d stanno digitando</item>
     </plurals>
     <!-- Search Messages -->
-    <string name="label_search_messages">Cerca messaggi</string>
     <string name="label_search_messages_empty_title">Cerca tutti i messaggi in questa conversazione.</string>
     <string name="label_search_messages_no_results">Impossibile trovare alcun risultato.\nTi preghiamo di affinare la tua ricerca e riprovare.</string>
     <string name="label_search_button">Cerca</string>
     <!-- Conversation Media -->
     <string name="label_conversation_media">Multimedia</string>
     <string name="label_conversation_pictures">Immagini</string>
-    <string name="label_conversation_files">File</string>
     <string name="label_conversation_pictures_empty">Nessuno ha ancora condiviso immagini in questa conversazione 🥲</string>
     <string name="label_conversation_files_empty">Nessuno ha ancora condiviso dei file in questa conversazione 🙀</string>
     <!-- Search Contact-->
@@ -1109,7 +1093,6 @@ registrato. Sei pregato di riprovare.</string>
     <string name="label_debug_data">Dati di debug</string>
     <string name="title_internal_debugging">Debug interno</string>
     <string name="label_log_options_description">"Questo memorizza localmente le informazioni anonime di risoluzione dei problemi. "</string>
-    <string name="label_no_application_found_open_downloads_folder">"Nessun'applicazione trovata per aprire la cartella dei download"</string>
     <string name="notification_obfuscated_message_title">Qualcuno</string>
     <string name="notification_obfuscated_message_content">Ha inviato un messaggio a eliminazione automatica</string>
     <string name="settings_licenses_settings_label">Informazioni sulla licenza</string>
@@ -1242,5 +1225,7 @@ registrato. Sei pregato di riprovare.</string>
     <string name="debug_settings_screen_title">Impostazioni di Debug</string>
     <!--    Personal to team migration screen-->
     <!-- Move to Folder -->
+    <!-- enterprise configurations -->
     <!--    channel not available dialog-->
+    <!-- Apps-->
 </resources>

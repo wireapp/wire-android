@@ -18,6 +18,8 @@
 
 package com.wire.android.ui.home.settings.account
 
+import com.wire.android.ui.theme.Accent
+
 data class MyAccountState(
     val fullName: String = "",
     val userName: String = "",
@@ -28,5 +30,6 @@ data class MyAccountState(
     val changePasswordUrl: String? = null,
     val isEditNameAllowed: Boolean = false,
     val isEditEmailAllowed: Boolean = false,
-    val isEditHandleAllowed: Boolean = false
+    val isEditHandleAllowed: Boolean = false,
+    val accent: Accent? = null
 )

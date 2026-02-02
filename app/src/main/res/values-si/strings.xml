@@ -36,8 +36,6 @@
     <string name="label_learn_more">තව දැනගන්න</string>
     <string name="label_removing">ඉවත් කෙරෙමින්…</string>
     <string name="label_logging_in">පිවිසෙමින්…</string>
-    <string name="label_membership_guest">අමුත්තා</string>
-    <string name="label_membership_external">බාහිර</string>
     <string name="label_user_deleted">මකා ඇත</string>
     <string name="label_try_again">නැවත උත්සාහ කරන්න</string>
     <string name="label_done">කළා</string>
@@ -61,7 +59,6 @@
     </plurals>
     <string name="label_reset_session">වාරය යළි සකසන්න</string>
     <string name="label_reset_session_success">වාරය සාර්ථකව යළි සැකසිණි</string>
-    <string name="label_federated_membership">ඒකාබද්ධ</string>
     <string name="label_update">යාවත්කාල</string>
     <string name="label_close">වසන්න</string>
     <string name="label_download">බාගන්න</string>
@@ -87,10 +84,7 @@
     <string name="content_description_reveal_password">මුරපදය පෙන්වන්න</string>
     <string name="content_description_hide_password">මුරපදය සඟවන්න</string>
     <string name="content_description_search_back">ආපසු සොයන්න නිරූපකය</string>
-    <string name="content_description_clear_content">අන්තර්ගතය මකන්න</string>
-    <string name="content_description_user_avatar">පැතිකඩ ඡායාරූපය</string>
     <string name="content_description_muted_conversation">නිහඬ කළ සංවාදය</string>
-    <string name="content_description_check">හරි ලකුණ</string>
     <string name="content_description_download_icon">බාගැනීමේ නිරූපකය</string>
     <string name="content_description_open_asset_icon">ඇරීමේ නිරූපකය</string>
     <string name="content_description_add_to_favourite">ප්‍රියතමයන්ට දමන්න</string>
@@ -103,8 +97,6 @@
     <string name="content_description_delete_the_conversation">සංවාදය මකන්න</string>
     <string name="content_description_conversation_phone_icon">ශ්‍රව්‍ය ඇමතුමක් අරඹන්න</string>
     <string name="content_description_welcome_wire_logo">වයර්</string>
-    <string name="content_description_conversation_search_icon">සොයන්න නිරූපකය</string>
-    <string name="content_description_conversation_search_input">සෙවුම ආදානය</string>
     <string name="content_description_conversation_enable_rich_text_mode">සරු පෙළ නිරූපකය සබල කරන්න</string>
     <string name="content_description_conversation_enable_drawing_mode">අඳින ප්‍රකාරය සබල කරන ‌බොත්තම</string>
     <string name="content_description_conversation_rich_text_header">ශ්‍රීර්ෂකය ලෙස ආකෘතිකරණය</string>
@@ -202,8 +194,6 @@
     <string name="content_description_open_label">විවෘත</string>
     <string name="content_description_join_call_label">ඇමතුමකට සම්බන්ධ වන්න</string>
     <string name="content_description_share_label">බෙදාගන්න</string>
-    <string name="content_description_collapse_label">බිඳ වැටීම</string>
-    <string name="content_description_expand_label">පුළුල් කරන්න</string>
     <string name="content_description_edit_label">සංස්කරණය කරන්න</string>
     <string name="content_description_select_label">තෝරන්න</string>
     <string name="content_description_unselect_label">තේරීම ඉවත් කරන්න</string>
@@ -531,8 +521,6 @@
     <string name="conversation_details_options_tab">විකල්ප</string>
     <string name="conversation_details_participants_tab">සහභාගීන්</string>
     <string name="conversation_details_options_group_name">සමූහයේ නම</string>
-    <string name="conversation_details_conversation_admins">සංවාද ඇඩ්මින්වරු (%d)</string>
-    <string name="conversation_details_conversation_members">සංවාද සාමාජිකයින් (%d)</string>
     <string name="conversation_details_participants_info">මෙම සංවාදයට %s සහභාගිවන්නන් සිටී.\nසංවාදයකට පුද්ගලයින් 500ක් දක්වා සම්බන්ධ විය හැක.</string>
     <string name="conversation_details_participants_count">සහභාගීන් %s</string>
     <string name="conversation_details_show_all_participants">සියළු සහභාගීන් පෙන්වන්න (%d)</string>
@@ -598,10 +586,6 @@
     <string name="user_profile_logout">ඉවත් වන්න</string>
     <string name="user_profile_other_accs">ඔබගේ වෙනත් ගිණුම්</string>
     <string name="user_profile_status_availability">තත්‍වය</string>
-    <string name="user_profile_status_available">සිටිනවා</string>
-    <string name="user_profile_status_busy">කාර්යබහුලයි</string>
-    <string name="user_profile_status_away">නොසිටියි</string>
-    <string name="user_profile_status_none">කිසිවක් නැත</string>
     <string name="user_profile_new_account_text">නව කණ්ඩායම හෝ ගිණුමක් එක් කරන්න</string>
     <string name="user_profile_account_management">කණ්ඩායම කළමනාකරණය කරන්න</string>
     <string name="user_profile_details_tab">විස්තර</string>
@@ -681,9 +665,7 @@
     <string name="profile_image_change_image_button_label">රූපය සංශෝධනය…</string>
     <!--Conversation-->
     <string name="label_message_details">පණිවිඩයේ විස්තර</string>
-    <string name="label_copy">පිටපතක්</string>
     <string name="label_share">බෙදාගන්න</string>
-    <string name="label_edit">සංස්කරණය</string>
     <string name="label_delete">මකන්න</string>
     <string name="info_message_copied">පණිවිඩය පිටපත් විය</string>
     <string name="conversation_banner_federated">ඒකාබද්ධ පරිශීලකයින්</string>
@@ -858,14 +840,12 @@
         <item quantity="other">%1$s සහ තවත් %2$d දෙනෙක් ලියමින්</item>
     </plurals>
     <!-- Search Messages -->
-    <string name="label_search_messages">පණිවිඩ සොයන්න</string>
     <string name="label_search_messages_empty_title">මෙම සංවාදයේ සියලුම පණිවිඩ සොයන්න.</string>
     <string name="label_search_messages_no_results">ප්‍රතිඵල හමු නොවිණි.\nනැවත උත්සාහ කරන්න.</string>
     <string name="label_search_button">සොයන්න</string>
     <!-- Conversation Media -->
     <string name="label_conversation_media">මාධ්‍ය</string>
     <string name="label_conversation_pictures">ඡායාරූප</string>
-    <string name="label_conversation_files">ගොනු</string>
     <string name="label_conversation_pictures_empty">කිසිවෙක් මෙම සංවාදයෙහි ඡායාරූප බෙදාගෙන නැත 🥲</string>
     <string name="label_conversation_files_empty">කිසිවෙක් මෙම සංවාදයෙහි ගොනු බෙදාගෙන නැත 🙀</string>
     <!-- Search Contact-->
@@ -1442,7 +1422,6 @@
     <string name="label_debug_data">නිදෝස්කරණ දත්ත</string>
     <string name="title_internal_debugging">අභ්‍යන්තර නිදොස්කරණය</string>
     <string name="label_log_options_description">"මෙය නිර්නාමික දෝෂ නිරාකරණ තොරතුරු ස්ථානීයව ගබඩා කරයි. "</string>
-    <string name="label_no_application_found_open_downloads_folder">"බාගැනීමේ බහාලුම ඇරීමට සුදුසු යෙදුමක් හමු නොවිණි"</string>
     <string name="notification_obfuscated_message_title">යමෙක්</string>
     <string name="notification_obfuscated_message_content">ඉබේ මැකෙන පණිවිඩයක් එවා ඇත</string>
     <string name="settings_licenses_settings_label">බලපත්‍රයෙහි තොරතුරු</string>
@@ -1667,15 +1646,13 @@
     <string name="press_enter_to_send_title">යැවීමට Enter ඔබන්න</string>
     <string name="press_enter_to_send_text">මෙය ක්‍රියාත්මක විට, ඔබට ඔබේ යතුරුපුවරුවේ Enter යතුර භාවිතයෙන් පණිවිඩ යැවිය හැක.</string>
     <string name="customization_options_header_title">විකල්ප</string>
+    <!-- enterprise configurations -->
     <!--    channel not available dialog-->
     <string name="channel_not_available_dialog_title">කණ්ඩායම් සාමාජිකයින් සඳහා නාලිකා තිබේ.</string>
     <string name="channel_not_available_dialog_description">කණ්ඩායමක් සාදා නොමිලේ සහයෝගයෙන් කටයුතු කිරීම ආරම්භ කරන්න!</string>
     <string name="channel_not_available_dialog_create_team_button">වයර් කණ්ඩායම සාදන්න</string>
     <string name="custimization_options_header_title">විකල්ප</string>
-    <string name="cells_screen_title">සියලුම ගොනු</string>
-    <string name="cells_screen_search_hint">ගොනු සොයන්න</string>
-    <string name="enable_wire_cell">වයර් කොටුව සබල කරන්න</string>
-    <string name="enable_wire_cell_switch_description">මෙම සංවාදයේ ඇති සියලුම ගොනු Wire Cell ගබඩාවට උඩුගත කෙරේ.</string>
     <string name="failed_attachment_retry_upload">උඩුගත කිරීම නැවත උත්සාහ කරන්න</string>
     <string name="failed_attachment_remove">ඉවත් කරන්න</string>
+    <!-- Apps-->
 </resources>

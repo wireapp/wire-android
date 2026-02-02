@@ -17,25 +17,29 @@
  */
 package com.wire.android.ui.home.conversations.model.messagetypes.multipart.standalone
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import coil.compose.AsyncImage
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.res.painterResource
+import coil3.compose.AsyncImage
+import com.wire.android.ui.common.R
 import com.wire.android.ui.common.attachmentdraft.ui.FileHeaderView
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
 import com.wire.android.ui.home.conversations.messages.item.MessageStyle
-import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageParams
+import com.wire.android.ui.home.conversations.messages.item.isBubble
+import com.wire.android.ui.home.conversations.model.messagetypes.image.VisualMediaParams
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.previewAvailable
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.previewImageModel
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
@@ -48,10 +52,9 @@ internal fun ImageAssetPreview(
     messageStyle: MessageStyle
 ) {
 
-    val imageSize = ImageMessageParams(
-        realImgWidth = item.metadata?.width() ?: 0,
-        realImgHeight = item.metadata?.height() ?: 0,
-        allowUpscale = true
+    val imageSize = VisualMediaParams(
+        realMediaWidth = item.metadata?.width() ?: 0,
+        realMediaHeight = item.metadata?.height() ?: 0
     ).normalizedSize()
 
     Box(
@@ -59,12 +62,20 @@ internal fun ImageAssetPreview(
             .width(imageSize.width)
             .height(imageSize.height)
     ) {
-        if (item.previewAvailable()) {
+        if (LocalInspectionMode.current) {
+            Image(
+                modifier = Modifier.fillMaxSize(),
+                painter = painterResource(R.drawable.mock_image),
+                contentDescription = null,
+                contentScale = if (messageStyle.isBubble()) ContentScale.Crop else ContentScale.Fit
+            )
+        } else if (item.previewAvailable()) {
             // Image preview
             AsyncImage(
                 modifier = Modifier.fillMaxSize(),
                 model = item.previewImageModel(),
                 contentDescription = null,
+                contentScale = if (messageStyle.isBubble()) ContentScale.Crop else ContentScale.Fit
             )
         } else {
             // File card if no preview available
@@ -79,7 +90,7 @@ internal fun ImageAssetPreview(
                     modifier = Modifier
                         .size(dimensions().spacing32x)
                         .align(Alignment.Center),
-                    imageVector = Icons.Default.VisibilityOff,
+                    painter = painterResource(R.drawable.ic_visibility_off),
                     contentDescription = null,
                     tint = colorsScheme().scrim
                 )

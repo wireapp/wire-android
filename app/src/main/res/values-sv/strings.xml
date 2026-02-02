@@ -22,6 +22,7 @@
     <string name="label_new">Ny</string>
     <string name="label_login">Logga in</string>
     <string name="label_ok">OK</string>
+    <string name="label_open">Öppna</string>
     <string name="label_cancel">Avbryt</string>
     <string name="label_confirm">Bekräfta</string>
     <string name="label_continue">Fortsätt</string>
@@ -35,9 +36,8 @@
     <string name="label_learn_more">Läs mer</string>
     <string name="label_removing">Tar bort…</string>
     <string name="label_logging_in">Loggar in…</string>
-    <string name="label_membership_guest">Gäst</string>
-    <string name="label_membership_external">Extern</string>
     <string name="label_user_deleted">Togs bort</string>
+    <string name="label_done">Klar</string>
     <string name="label_message_sent_failure">Message could not be sent.</string>
     <string name="label_message_edit_sent_failure">Det redigerade meddelandet kunde inte skickas till följd av problem med anslutningen.</string>
     <string name="label_message_receive_failure">Hämtningsfel</string>
@@ -52,7 +52,6 @@
     </plurals>
     <string name="label_reset_session">Återställ session</string>
     <string name="label_reset_session_success">Återställningen av sessionen lyckades</string>
-    <string name="label_federated_membership">Federerade</string>
     <string name="label_update">Uppdatera</string>
     <string name="label_close">Stäng</string>
     <string name="label_download">Ladda ner</string>
@@ -73,10 +72,7 @@
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
     <string name="content_description_reveal_password">Visa lösenord</string>
     <string name="content_description_hide_password">Dölj lösenord</string>
-    <string name="content_description_clear_content">Rensa innehåll</string>
-    <string name="content_description_user_avatar">Profilbild</string>
     <string name="content_description_muted_conversation">Tystad konversation</string>
-    <string name="content_description_check">Bock</string>
     <string name="content_description_download_icon">Hämta ikon</string>
     <string name="content_description_open_asset_icon">Öppna ikon</string>
     <string name="content_description_add_to_favourite">Lägg till i favoriter</string>
@@ -119,6 +115,7 @@
     <string name="content_description_calling_turn_speaker_on">Sätt igång högtalaren</string>
     <string name="content_description_calling_turn_speaker_off">Stäng av högtalaren</string>
     <string name="content_description_reply_to_messge">Svara på meddelandet</string>
+    <string name="content_description_copy">Kopiera</string>
     <string name="content_description_edit">Redigera</string>
     <string name="content_description_record_audio_button_send">Skicka ljudmeddelande</string>
     <string name="content_description_conversation_details_more_btn">Öppna konversationsalternativ</string>
@@ -128,6 +125,7 @@
     <string name="content_description_user_profile_copy_phone_btn">Kopiera telefon</string>
     <string name="content_description_user_profile_copy_email_btn">Kopiera e-postadress</string>
     <string name="content_description_home_profile_btn">Din profil</string>
+    <string name="content_description_open_label">öppna</string>
     <string name="content_description_self_profile_heading">Din profil</string>
     <string name="content_description_self_profile_avatar">Din profilbild</string>
     <string name="content_description_self_profile_profile_name">Profilnamn, %s</string>
@@ -312,10 +310,6 @@
     <string name="user_profile_close_description">Stäng ner användarprofil</string>
     <string name="user_profile_other_accs">Dina andra konton</string>
     <string name="user_profile_status_availability">Tillgänglighet</string>
-    <string name="user_profile_status_available">Tillgänglig</string>
-    <string name="user_profile_status_busy">Upptagen</string>
-    <string name="user_profile_status_away">Borta</string>
-    <string name="user_profile_status_none">Ingen</string>
     <string name="user_profile_details_tab">Detaljer</string>
     <string name="user_profile_devices_tab">Enheter</string>
     <string name="user_profile_unblock_user">Avblockera användare</string>
@@ -350,9 +344,7 @@
     <string name="profile_image_choose_from_gallery_menu_item">Välj från galleri</string>
     <string name="profile_image_take_a_picture_menu_item">Ta en bild</string>
     <!--Conversation-->
-    <string name="label_copy">Kopiera</string>
     <string name="label_share">Dela</string>
-    <string name="label_edit">Redigera</string>
     <string name="label_delete">Radera</string>
     <string name="conversation_banner_guests">gäster</string>
     <!-- System messages -->
@@ -401,7 +393,6 @@
     <!-- Conversation Media -->
     <string name="label_conversation_media">Media</string>
     <string name="label_conversation_pictures">Bilder</string>
-    <string name="label_conversation_files">Filer</string>
     <!-- Search Contact-->
     <string name="label_contacts">Kontakter</string>
     <string name="label_new_group">Ny grupp</string>
@@ -648,5 +639,7 @@
     <string name="personal_to_team_migration_confirmation_step_wire_terms_of_use_accept_label">Jag accepterar</string>
     <string name="personal_to_team_migration_done_step">Grattis %1$s!</string>
     <!-- Move to Folder -->
+    <!-- enterprise configurations -->
     <!--    channel not available dialog-->
+    <!-- Apps-->
 </resources>

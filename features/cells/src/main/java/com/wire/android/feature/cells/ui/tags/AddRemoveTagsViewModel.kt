@@ -19,6 +19,7 @@ package com.wire.android.feature.cells.ui.tags
 
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.clearText
+import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.feature.cells.ui.navArgs
@@ -30,10 +31,9 @@ import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -47,58 +47,85 @@ class AddRemoveTagsViewModel @Inject constructor(
 ) : ActionsViewModel<AddRemoveTagsViewModelAction>() {
 
     private val navArgs: AddRemoveTagsNavArgs = savedStateHandle.navArgs()
+    private val initialTags: Set<String> = navArgs.tags.toSet()
+    private val disallowedChars = setOf(",", ";", "/", "\\", "\"", "\'", "<", ">")
 
-    val isLoading = MutableStateFlow(false)
+    private val _state = MutableStateFlow(TagsViewState(addedTags = initialTags))
+    val state = _state.asStateFlow()
 
     val tagsTextState = TextFieldState()
-
-    private val allTags: MutableStateFlow<Set<String>> = MutableStateFlow(emptySet())
-
-    private val _addedTags: MutableStateFlow<Set<String>> = MutableStateFlow(navArgs.tags.toSet())
-    internal val addedTags = _addedTags.asStateFlow()
-
-    internal val suggestedTags =
-        allTags.combine(addedTags) { all, added ->
-            all.filter { it !in added }.toSet()
-        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptySet())
 
     init {
         viewModelScope.launch {
             getAllTagsUseCase().onSuccess { tags ->
-                allTags.update { tags }
+                _state.update { it.copy(allTags = tags) }
             }
+            snapshotFlow { tagsTextState.text.toString() }
+                .debounce(TYPING_DEBOUNCE_TIME)
+                .collectLatest { updateViewState() }
         }
     }
 
+    fun isValidTag(): Boolean = with(tagsTextState) {
+        disallowedChars.none { it in text } && text.length in ALLOWED_LENGTH
+    }
+
     fun addTag(tag: String) {
-        tag.trim().let { newTag ->
-            if (newTag.isNotBlank() && newTag !in _addedTags.value) {
-                _addedTags.update { it + newTag }
-                tagsTextState.clearText()
-            }
+        val addedTags = state.value.addedTags
+        val newTag = tag.trim()
+        if (newTag.isNotBlank() && newTag !in addedTags) {
+            updateViewState(addedTags + tag)
+            tagsTextState.clearText()
         }
     }
 
     fun removeTag(tag: String) {
-        _addedTags.update { it - tag }
+        updateViewState(state.value.addedTags - tag)
     }
 
-    fun updateTags() {
-        viewModelScope.launch {
-            isLoading.value = true
-            val result = if (_addedTags.value.isEmpty()) {
-                removeNodeTagsUseCase(navArgs.uuid)
-            } else {
-                updateNodeTagsUseCase(navArgs.uuid, _addedTags.value)
-            }
+    fun removeLastTag() {
+        state.value.addedTags.lastOrNull()?.let { removeTag(it) }
+    }
 
-            result
-                .onSuccess { sendAction(AddRemoveTagsViewModelAction.Success) }
-                .onFailure { sendAction(AddRemoveTagsViewModelAction.Failure) }
-                .also { isLoading.value = false }
+    fun updateTags() = viewModelScope.launch {
+        _state.update { it.copy(isLoading = true) }
+
+        if (state.value.addedTags.isEmpty()) {
+            removeNodeTagsUseCase(navArgs.uuid)
+        } else {
+            updateNodeTagsUseCase(navArgs.uuid, state.value.addedTags)
+        }
+            .onSuccess { sendAction(AddRemoveTagsViewModelAction.Success) }
+            .onFailure { sendAction(AddRemoveTagsViewModelAction.Failure) }
+            .also { _state.update { it.copy(isLoading = false) } }
+    }
+
+    fun updateViewState(addedTags: Set<String> = state.value.addedTags) {
+        _state.update { current ->
+            current.copy(
+                addedTags = addedTags,
+                suggestedTags = current.allTags
+                    .filter { it !in addedTags }
+                    .filter { it.contains(tagsTextState.text.toString(), ignoreCase = true) }
+                    .toSet(),
+                tagsUpdated = addedTags != initialTags
+            )
         }
     }
+
+    private companion object {
+        val ALLOWED_LENGTH = 1..30
+        const val TYPING_DEBOUNCE_TIME = 200L
+    }
 }
+
+data class TagsViewState(
+    val isLoading: Boolean = false,
+    val tagsUpdated: Boolean = false,
+    val addedTags: Set<String> = emptySet(),
+    val suggestedTags: Set<String> = emptySet(),
+    val allTags: Set<String> = emptySet(),
+)
 
 sealed interface AddRemoveTagsViewModelAction {
     data object Success : AddRemoveTagsViewModelAction

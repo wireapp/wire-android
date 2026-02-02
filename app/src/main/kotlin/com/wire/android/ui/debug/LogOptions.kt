@@ -33,13 +33,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.model.Clickable
-import com.wire.android.ui.common.rowitem.RowItemTemplate
 import com.wire.android.ui.common.SurfaceBackgroundWrapper
 import com.wire.android.ui.common.button.WireSwitch
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.rowitem.RowItemTemplate
+import com.wire.android.ui.common.rowitem.SectionHeader
 import com.wire.android.ui.common.typography
-import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.home.settings.SettingsItem
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -58,7 +58,7 @@ fun LogOptions(
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
-        FolderHeader(stringResource(R.string.label_logs_option_title))
+        SectionHeader(stringResource(R.string.label_logs_option_title))
         EnableLoggingSwitch(
             isEnabled = isLoggingEnabled,
             onCheckedChange = onLoggingEnabledChange
@@ -82,7 +82,7 @@ fun LogOptions(
 
             SettingsItem(
                 text = stringResource(R.string.label_delete_logs),
-                trailingIcon = R.drawable.ic_delete,
+                trailingIcon = com.wire.android.ui.common.R.drawable.ic_delete,
                 onIconPressed = Clickable(
                     enabled = true,
                     onClick = onDeleteLogs

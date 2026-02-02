@@ -18,23 +18,24 @@
 package com.wire.android.ui.common.textfield
 
 import androidx.compose.foundation.text.input.TextFieldState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.graphics.vector.ImageVector
+import com.wire.android.ui.common.R
 import kotlinx.coroutines.flow.Flow
 
 sealed class WireTextFieldState {
     data object Default : WireTextFieldState()
-    data class Error(val errorText: String? = null) : WireTextFieldState()
+    data class Error(
+        val errorText: String? = null,
+        val withStartPadding: Boolean = false
+    ) : WireTextFieldState()
+
     data object Success : WireTextFieldState()
     data object Disabled : WireTextFieldState()
     data object ReadOnly : WireTextFieldState()
 
-    fun icon(): ImageVector? = when (this) {
-        is Error -> Icons.Filled.ErrorOutline
-        is Success -> Icons.Filled.Check
+    fun icon(): Int? = when (this) {
+        is Error -> R.drawable.ic_error_outline
+        is Success -> R.drawable.ic_check
         else -> null
     }
 }

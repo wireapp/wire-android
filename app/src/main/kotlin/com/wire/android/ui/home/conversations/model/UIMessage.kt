@@ -27,10 +27,11 @@ import com.wire.android.mapper.groupedUIMessageDateTime
 import com.wire.android.mapper.shouldDisplayDatesDifferenceDivider
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.UserAvatarData
-import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageParams
+import com.wire.android.ui.home.conversations.model.messagetypes.image.VisualMediaParams
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
 import com.wire.android.ui.markdown.MarkdownConstants
+import com.wire.android.ui.markdown.MarkdownPreview
 import com.wire.android.ui.theme.Accent
 import com.wire.android.util.Copyable
 import com.wire.android.util.ui.UIText
@@ -52,6 +53,7 @@ import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import kotlin.time.Duration
 
 @Serializable
@@ -84,20 +86,13 @@ sealed interface UIMessage {
                 || messageContent is UIMessageContent.ImageMessage
                 || messageContent is UIMessageContent.AudioAssetMessage
 
-        val assetParams: ImageMessageParams? = when (messageContent) {
-            is UIMessageContent.ImageMessage -> ImageMessageParams(messageContent.width, messageContent.height)
-            is UIMessageContent.VideoMessage -> {
-                if (messageContent.width != null && messageContent.height != null) {
-                    ImageMessageParams(messageContent.width, messageContent.height)
-                } else {
-                    null
-                }
-            }
-
+        val assetParams: VisualMediaParams? = when (messageContent) {
+            is UIMessageContent.ImageMessage -> messageContent.params
+            is UIMessageContent.VideoMessage -> messageContent.params
             else -> null
         }
 
-        val hasAssetParams: Boolean = assetParams != null
+        val hasAssetParams: Boolean = assetParams != null && !decryptionFailed
 
         private val isReplyableContent: Boolean
             get() = messageContent is UIMessageContent.TextMessage ||
@@ -105,6 +100,7 @@ sealed interface UIMessage {
                     messageContent is UIMessageContent.AudioAssetMessage ||
                     messageContent is UIMessageContent.VideoMessage ||
                     messageContent is UIMessageContent.Location ||
+                    messageContent is UIMessageContent.Multipart ||
                     messageContent is UIMessageContent.Regular
 
         /**
@@ -120,8 +116,7 @@ sealed interface UIMessage {
             get() = isReplyableContent &&
                     isTheMessageAvailableToOtherUsers &&
                     !isDeleted &&
-                    header.messageStatus.expirationStatus is ExpirationStatus.NotExpirable &&
-                    !isMultipart
+                    header.messageStatus.expirationStatus is ExpirationStatus.NotExpirable
 
         val isReactionAllowed: Boolean
             get() = !isDeleted &&
@@ -174,8 +169,23 @@ data class MessageHeader(
 @Serializable
 data class MessageFooter(
     val messageId: String,
-    val reactions: Map<String, Int> = emptyMap(),
-    val ownReactions: Set<String> = emptySet()
+    val reactionMap: Map<String, Reaction> = emptyMap()
+) {
+    // Backward-compatible properties for gradual migration
+    @Deprecated("Use reactionMap instead", ReplaceWith("reactionMap.mapValues { it.value.count }"))
+    val reactions: Map<String, Int>
+        get() = reactionMap.mapValues { it.value.count }
+
+    @Deprecated("Use reactionMap instead", ReplaceWith("reactionMap.filter { it.value.isSelf }.keys"))
+    val ownReactions: Set<String>
+        get() = reactionMap.filter { it.value.isSelf }.keys
+}
+
+@Stable
+@Serializable
+data class Reaction(
+    val count: Int,
+    val isSelf: Boolean
 )
 
 @Serializable
@@ -277,13 +287,19 @@ sealed interface UILastMessageContent {
     data object None : UILastMessageContent
 
     @Serializable
-    data class TextMessage(val messageBody: MessageBody) : UILastMessageContent
+    data class TextMessage(
+        val messageBody: MessageBody,
+        @Transient
+        val markdownPreview: MarkdownPreview? = null
+    ) : UILastMessageContent
 
     @Serializable
     data class SenderWithMessage(
         val sender: UIText,
         val message: UIText,
-        val separator: String = MarkdownConstants.NON_BREAKING_SPACE
+        val separator: String = MarkdownConstants.NON_BREAKING_SPACE,
+        @Transient
+        val markdownPreview: MarkdownPreview? = null
     ) : UILastMessageContent
 
     @Serializable
@@ -369,8 +385,7 @@ sealed interface UIMessageContent {
     data class ImageMessage(
         val assetId: AssetId,
         val asset: ImageAsset.PrivateAsset?,
-        val width: Int,
-        val height: Int,
+        val params: VisualMediaParams,
         override val deliveryStatus: DeliveryStatusContent = DeliveryStatusContent.CompleteDelivery
     ) : Regular, PartialDeliverable
 
@@ -381,8 +396,7 @@ sealed interface UIMessageContent {
         val assetId: AssetId,
         val assetSizeInBytes: Long,
         val assetDataPath: String?,
-        val width: Int?,
-        val height: Int?,
+        val params: VisualMediaParams,
         val duration: Long?,
         override val deliveryStatus: DeliveryStatusContent = DeliveryStatusContent.CompleteDelivery
     ) : Regular, PartialDeliverable
@@ -600,6 +614,13 @@ sealed interface UIMessageContent {
 
         @Serializable
         data object NewConversationWithCellSelfDeleteDisabled : SystemMessage
+
+        @Serializable
+        data class ConversationAppsEnabledChanged(
+            val author: UIText,
+            val isAuthorSelfUser: Boolean = false,
+            val isAccessEnabled: Boolean
+        ) : SystemMessage
     }
 }
 
@@ -626,6 +647,12 @@ data class MessageTime(val instant: Instant) {
 @Serializable
 sealed interface DeliveryStatusContent {
 
+    val hasAnyFailures: Boolean
+        get() = when (this) {
+            CompleteDelivery -> false
+            is PartialDelivery -> hasFailures
+        }
+
     @Serializable
     class PartialDelivery(
         val failedRecipients: ImmutableList<UIText> = persistentListOf(),
@@ -634,7 +661,9 @@ sealed interface DeliveryStatusContent {
         val hasFailures: Boolean
             get() = totalUsersWithFailures > 0
 
-        val filteredRecipientsFailure by lazy { failedRecipients.filter { it !in noClients.values.flatten() }.toImmutableList() }
+        val filteredRecipientsFailure by lazy {
+            failedRecipients.filter { it !in noClients.values.flatten() }.toImmutableList()
+        }
         val isSingleUserFailure by lazy { totalUsersWithFailures == 1 }
         val totalUsersWithFailures by lazy { (failedRecipients.size + noClients.values.distinct().sumOf { it.size }) }
     }

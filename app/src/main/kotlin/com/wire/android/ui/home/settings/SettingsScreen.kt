@@ -43,7 +43,7 @@ import com.wire.android.ui.destinations.SetLockCodeScreenDestination
 import com.wire.android.ui.home.HomeStateHolder
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
-import com.wire.android.util.extension.folderWithElements
+import com.wire.android.util.ui.sectionWithElements
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @HomeNavGraph
@@ -55,9 +55,13 @@ fun SettingsScreen(
 ) {
     val turnAppLockOffDialogState = rememberVisibilityState<Unit>()
     val onAppLockSwitchClicked: (Boolean) -> Unit = remember {
-        { isChecked ->
-            if (isChecked) homeStateHolder.navigator.navigate(NavigationCommand(SetLockCodeScreenDestination, BackStackMode.NONE))
-            else turnAppLockOffDialogState.show(Unit)
+        {
+            isChecked ->
+            if (isChecked) {
+                homeStateHolder.navigator.navigate(NavigationCommand(SetLockCodeScreenDestination, BackStackMode.NONE))
+            } else {
+                turnAppLockOffDialogState.show(Unit)
+            }
         }
     }
 
@@ -94,7 +98,7 @@ fun SettingsScreenContent(
             state = lazyListState,
             modifier = modifier.fillMaxSize()
         ) {
-            folderWithElements(
+            sectionWithElements(
                 header = context.getString(R.string.settings_account_settings_label),
                 items = buildList {
                     add(SettingsItem.YourAccount)
@@ -106,14 +110,14 @@ fun SettingsScreenContent(
                 },
                 trailingText = { settingsItem ->
                     if (settingsItem is SettingsItem.YourAccount) {
-                        return@folderWithElements settingsState.userName
+                        return@sectionWithElements settingsState.userName
                     }
-                    return@folderWithElements null
+                    return@sectionWithElements null
                 },
                 onItemClicked = onItemClicked
             )
 
-            folderWithElements(
+            sectionWithElements(
                 header = context.getString(R.string.app_settings_screen_title),
                 items = buildList {
                     add(SettingsItem.Customization)
@@ -122,9 +126,12 @@ fun SettingsScreenContent(
                     }
                     add(SettingsItem.NetworkSettings)
 
-                    appLogger.d("AppLockConfig " +
-                            "isAppLockEditable: ${settingsState.isAppLockEditable} isAppLockEnabled: ${settingsState.isAppLockEnabled}")
-                    add(SettingsItem.AppLock(
+                    appLogger.d(
+                        "AppLockConfig " +
+                            "isAppLockEditable: ${settingsState.isAppLockEditable} isAppLockEnabled: ${settingsState.isAppLockEnabled}"
+                    )
+                    add(
+                        SettingsItem.AppLock(
                         when (settingsState.isAppLockEditable) {
                             true -> {
                                 SwitchState.Enabled(
@@ -140,12 +147,13 @@ fun SettingsScreenContent(
                                 )
                             }
                         }
-                    ))
+                    )
+                    )
                 },
                 onItemClicked = onItemClicked
             )
 
-            folderWithElements(
+            sectionWithElements(
                 header = context.getString(R.string.settings_other_group_title),
                 items = buildList {
                     add(SettingsItem.Support)
@@ -163,13 +171,13 @@ fun SettingsScreenContent(
     }
 }
 
-private fun LazyListScope.folderWithElements(
+private fun LazyListScope.sectionWithElements(
     header: String,
     items: List<SettingsItem>,
     trailingText: ((SettingsItem) -> String?)? = null,
     onItemClicked: (SettingsItem.DirectionItem) -> Unit
 ) {
-    folderWithElements(
+    sectionWithElements(
         header = header.uppercase(),
         items = items.associateBy { it.id }
     ) { settingsItem ->

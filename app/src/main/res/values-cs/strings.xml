@@ -36,8 +36,6 @@
     <string name="label_learn_more">Dozvědět se více</string>
     <string name="label_removing">Odstraňování…</string>
     <string name="label_logging_in">Přihlašování…</string>
-    <string name="label_membership_guest">Host</string>
-    <string name="label_membership_external">Externí</string>
     <string name="label_user_deleted">Odstranit</string>
     <string name="label_message_sent_failure">Message could not be sent.</string>
     <string name="label_message_edit_sent_failure">Upravená zpráva nemohla být odeslána z důvodu problémů s připojením.</string>
@@ -144,5 +142,7 @@
     <!-- Debug Settings -->
     <!--    Personal to team migration screen-->
     <!-- Move to Folder -->
+    <!-- enterprise configurations -->
     <!--    channel not available dialog-->
+    <!-- Apps-->
 </resources>

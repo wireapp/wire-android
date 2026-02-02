@@ -32,16 +32,16 @@ import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
+import com.wire.kalium.logic.feature.client.IsProfileQRCodeEnabledUseCase
 import com.wire.kalium.logic.feature.legalhold.LegalHoldStateForSelfUser
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserUseCase
 import com.wire.kalium.logic.feature.personaltoteamaccount.CanMigrateFromPersonalToTeamUseCase
 import com.wire.kalium.logic.feature.server.GetTeamUrlUseCase
 import com.wire.kalium.logic.feature.team.GetUpdatedSelfTeamUseCase
-import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsReadOnlyAccountUseCase
+import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.feature.user.ObserveValidAccountsUseCase
 import com.wire.kalium.logic.feature.user.UpdateSelfAvailabilityStatusUseCase
-import com.wire.kalium.common.functional.Either
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
@@ -105,6 +105,9 @@ class SelfUserProfileViewModelArrangement {
     @MockK
     lateinit var getTeamUrl: GetTeamUrlUseCase
 
+    @MockK
+    lateinit var profileQRCodeEnabledUseCase: IsProfileQRCodeEnabledUseCase
+
     private val viewModel by lazy {
         SelfUserProfileViewModel(
             selfUserId = TestUser.SELF_USER.id,
@@ -126,7 +129,8 @@ class SelfUserProfileViewModelArrangement {
             qualifiedIdMapper = qualifiedIdMapper,
             anonymousAnalyticsManager = anonymousAnalyticsManager,
             canMigrateFromPersonalToTeam = canMigrateFromPersonalToTeam,
-            getTeamUrl = getTeamUrl
+            getTeamUrl = getTeamUrl,
+            isProfileQRCodeEnabled = profileQRCodeEnabledUseCase,
         )
     }
 
@@ -135,13 +139,14 @@ class SelfUserProfileViewModelArrangement {
         mockUri()
 
         coEvery { getSelf.invoke() } returns flowOf(TestUser.SELF_USER)
-        coEvery { getSelfTeam.invoke() } returns Either.Right(TestTeam.TEAM)
+        coEvery { getSelfTeam.invoke() } returns TestTeam.TEAM
         coEvery { observeValidAccounts.invoke() } returns flowOf(listOf(TestUser.SELF_USER to TestTeam.TEAM))
         coEvery { isReadOnlyAccount.invoke() } returns false
         coEvery { observeEstablishedCalls.invoke() } returns flowOf(emptyList())
         coEvery { observeEstablishedCalls.invoke() } returns flowOf(emptyList())
         coEvery { canMigrateFromPersonalToTeam.invoke() } returns true
         coEvery { getTeamUrl.invoke() } returns ""
+        coEvery { profileQRCodeEnabledUseCase.invoke() } returns true
     }
 
     fun withLegalHoldStatus(result: LegalHoldStateForSelfUser) = apply {

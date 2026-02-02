@@ -26,14 +26,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.result.ResultBackNavigator
@@ -42,7 +42,6 @@ import com.wire.android.R
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.authentication.create.common.handle.UsernameTextField
-import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.button.WireButtonState.Default
 import com.wire.android.ui.common.button.WireButtonState.Disabled
 import com.wire.android.ui.common.button.WirePrimaryButton
@@ -55,6 +54,7 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.android.ui.common.R as commonR
 
 @WireDestination(
     style = DestinationStyle.Runtime::class, // default should be SlideNavigationAnimation
@@ -145,7 +145,12 @@ fun ChangeHandleContent(
                         text = stringResource(R.string.label_save),
                         onClick = onSaveClicked,
                         fillMaxWidth = true,
-                        trailingIcon = Icons.Filled.ChevronRight.Icon(),
+                        trailingIcon = {
+                            Icon(
+                                painter = painterResource(commonR.drawable.ic_chevron_right),
+                                contentDescription = null,
+                            )
+                        },
                         state = if (state.isSaveButtonEnabled) Default else Disabled,
                         modifier = Modifier.fillMaxWidth()
                     )

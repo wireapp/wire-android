@@ -32,6 +32,7 @@ data class MessageComposition(
     val quotedMessage: UIQuotedMessage.UIQuotedData? = null,
     val quotedMessageId: String? = null,
     val selectedMentions: List<UIMention> = emptyList(),
+    val isMultipart: Boolean = false,
 ) {
     fun getSelectedMentions(newMessageText: String): List<UIMention> {
         val result = mutableSetOf<UIMention>()
@@ -64,12 +65,21 @@ data class MessageComposition(
         attachments: List<AttachmentDraftUi>
     ): ComposableMessageBundle {
         return if (editMessageId != null) {
-            ComposableMessageBundle.EditMessageBundle(
-                conversationId = conversationId,
-                originalMessageId = editMessageId,
-                newContent = messageText,
-                newMentions = selectedMentions
-            )
+            if (isMultipart) {
+                ComposableMessageBundle.EditMultipartMessageBundle(
+                    conversationId = conversationId,
+                    originalMessageId = editMessageId,
+                    newContent = messageText,
+                    newMentions = selectedMentions
+                )
+            } else {
+                ComposableMessageBundle.EditMessageBundle(
+                    conversationId = conversationId,
+                    originalMessageId = editMessageId,
+                    newContent = messageText,
+                    newMentions = selectedMentions
+                )
+            }
         } else {
             if (attachments.isEmpty()) {
                 ComposableMessageBundle.SendTextMessageBundle(

@@ -31,7 +31,7 @@ import com.wire.android.appLogger
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.fileDateTime
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
-import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCaseImpl.Companion.ASSET_SIZE_DEFAULT_LIMIT_BYTES
+import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase.AssetSizeLimits.ASSET_SIZE_DEFAULT_LIMIT_BYTES
 import com.wire.kalium.util.DateTimeUtil
 import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.CoroutineScope
@@ -72,7 +72,7 @@ class AudioMediaRecorder @Inject constructor(
     private var assetLimitInMB: Long = ASSET_SIZE_DEFAULT_LIMIT_BYTES
 
     var originalOutputPath: Path? = null
-    var mp4OutputPath: Path? = null
+    var m4aOutputPath: Path? = null
 
     private val _maxFileSizeReached = MutableSharedFlow<RecordAudioDialogState>()
     fun getMaxFileSizeReached(): Flow<RecordAudioDialogState> =
@@ -99,8 +99,8 @@ class AudioMediaRecorder @Inject constructor(
             originalOutputPath = kaliumFileSystem
                 .tempFilePath(getRecordingAudioFileName())
 
-            mp4OutputPath = kaliumFileSystem
-                .tempFilePath(getRecordingMP4AudioFileName())
+            m4aOutputPath = kaliumFileSystem
+                .tempFilePath(getRecordingM4aAudioFileName())
         }
     }
 
@@ -217,14 +217,14 @@ class AudioMediaRecorder @Inject constructor(
     }
 
     @Suppress("LongMethod", "CyclomaticComplexMethod", "TooGenericExceptionCaught")
-    suspend fun convertWavToMp4(inputFilePath: String): Boolean = withContext(Dispatchers.IO) {
+    suspend fun convertWavToM4a(inputFilePath: String): Boolean = withContext(Dispatchers.IO) {
         var codec: MediaCodec? = null
         var muxer: MediaMuxer? = null
         var success = true
 
         try {
             FileInputStream(File(inputFilePath)).use { fileInputStream ->
-                mp4OutputPath?.toFile()?.let { outputFile ->
+                m4aOutputPath?.toFile()?.let { outputFile ->
                     ParcelFileDescriptor.open(
                         outputFile,
                         ParcelFileDescriptor.MODE_READ_WRITE or ParcelFileDescriptor.MODE_CREATE
@@ -327,12 +327,12 @@ class AudioMediaRecorder @Inject constructor(
                         }
                     }
                 } ?: run {
-                    appLogger.e("[RecordAudio] convertWavToMp4: mp4OutputPath is null")
+                    appLogger.e("[RecordAudio] convertWavToM4a: m4aOutputPath is null")
                     success = false
                 }
             }
         } catch (e: Exception) {
-            appLogger.e("Could not convert wav to mp4: ${e.message}", throwable = e)
+            appLogger.e("Could not convert wav to m4a: ${e.message}", throwable = e)
         } finally {
             try {
                 muxer?.let { safeMuxer ->
@@ -359,7 +359,7 @@ class AudioMediaRecorder @Inject constructor(
 
     companion object {
         fun getRecordingAudioFileName(): String = "wire-audio-${DateTimeUtil.currentInstant().fileDateTime()}.wav"
-        fun getRecordingMP4AudioFileName(): String = "wire-audio-${DateTimeUtil.currentInstant().fileDateTime()}.mp4"
+        fun getRecordingM4aAudioFileName(): String = "wire-audio-${DateTimeUtil.currentInstant().fileDateTime()}.m4a"
 
         const val SIZE_OF_1MB = 1024 * 1024
         const val AUDIO_CHANNELS = 1 // Mono

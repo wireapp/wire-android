@@ -21,6 +21,8 @@ import com.wire.android.appLogger
 import com.wire.android.model.ImageAsset
 import com.wire.android.ui.theme.Accent
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.asset.AssetTransferStatus
+import com.wire.kalium.logic.data.message.CellAssetContent
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.serialization.Serializable
 
@@ -45,7 +47,7 @@ sealed class UIQuotedMessage {
         sealed interface Content
 
         @Serializable
-        data class Text(val value: String) : Content
+        data class Text(val value: UIText) : Content
 
         @Serializable
         data class GenericAsset(
@@ -68,9 +70,24 @@ sealed class UIQuotedMessage {
         data object Deleted : Content
 
         @Serializable
+        data class Multipart(
+            val text: UIText?,
+            val attachments: List<UIMultipartQuotedContent>
+        ) : Content
+
+        @Serializable
         data object Invalid : Content
     }
 }
+
+@Serializable
+data class UIMultipartQuotedContent(
+    val name: String,
+    val localPath: String?,
+    val previewUrl: String?,
+    val mimeType: String,
+    val assetAvailable: Boolean,
+)
 
 fun UIMessage.Regular.mapToQuotedContent(): UIQuotedMessage.UIQuotedData.Content? =
     when (val messageContent = messageContent) {
@@ -89,9 +106,7 @@ fun UIMessage.Regular.mapToQuotedContent(): UIQuotedMessage.UIQuotedData.Content
             assetMimeType = messageContent.mimeType
         )
 
-        is UIMessageContent.TextMessage -> UIQuotedMessage.UIQuotedData.Text(
-            value = messageContent.messageBody.message.asString(null)
-        )
+        is UIMessageContent.TextMessage -> UIQuotedMessage.UIQuotedData.Text(value = messageContent.messageBody.message)
 
         is UIMessageContent.AudioAssetMessage -> UIQuotedMessage.UIQuotedData.AudioMessage
 
@@ -103,6 +118,21 @@ fun UIMessage.Regular.mapToQuotedContent(): UIQuotedMessage.UIQuotedData.Content
 
         is UIMessageContent.Location -> with(messageContent) {
             UIQuotedMessage.UIQuotedData.Location(locationName = name)
+        }
+
+        is UIMessageContent.Multipart -> with(messageContent) {
+            UIQuotedMessage.UIQuotedData.Multipart(
+                text = messageContent.messageBody?.message,
+                attachments = attachments.filterIsInstance<CellAssetContent>().map { attachment ->
+                    UIMultipartQuotedContent(
+                        name = attachment.assetPath?.substringAfterLast("/") ?: "",
+                        localPath = attachment.localPath,
+                        previewUrl = attachment.previewUrl,
+                        mimeType = attachment.mimeType,
+                        assetAvailable = attachment.transferStatus != AssetTransferStatus.NOT_FOUND,
+                    )
+                }
+            )
         }
 
         else -> {

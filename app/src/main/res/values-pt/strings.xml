@@ -36,8 +36,6 @@
     <string name="label_learn_more">Saiba mais</string>
     <string name="label_removing">Removendo…</string>
     <string name="label_logging_in">Iniciando sessão…</string>
-    <string name="label_membership_guest">Convidado</string>
-    <string name="label_membership_external">Externo</string>
     <string name="label_user_deleted">Excluído</string>
     <string name="label_try_again">Tente novamente</string>
     <string name="label_done">Pronto</string>
@@ -61,7 +59,6 @@
     </plurals>
     <string name="label_reset_session">Redefinir sessão</string>
     <string name="label_reset_session_success">Sessão redefinida com sucesso</string>
-    <string name="label_federated_membership">Federado</string>
     <string name="label_update">Atualizar</string>
     <string name="label_close">Fechar</string>
     <string name="label_download">Baixar</string>
@@ -87,10 +84,7 @@
     <string name="content_description_reveal_password">Mostrar senha</string>
     <string name="content_description_hide_password">Ocultar senha</string>
     <string name="content_description_search_back">Ícone de busca</string>
-    <string name="content_description_clear_content">Limpar conteúdo</string>
-    <string name="content_description_user_avatar">Imagem de perfil</string>
     <string name="content_description_muted_conversation">Conversa silenciada</string>
-    <string name="content_description_check">Marca de seleção</string>
     <string name="content_description_download_icon">Ícone de download</string>
     <string name="content_description_open_asset_icon">Ícone de abrir</string>
     <string name="content_description_add_to_favourite">Adicionar aos Favoritos</string>
@@ -101,8 +95,6 @@
     <string name="content_description_unblock_the_user">Desbloquear</string>
     <string name="content_description_conversation_phone_icon">Iniciar chamada de áudio</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
-    <string name="content_description_conversation_search_icon">Ícone de pesquisa</string>
-    <string name="content_description_conversation_search_input">Pesquisa</string>
     <string name="content_description_conversation_enable_rich_text_mode">Habilitar modo de texto avançado</string>
     <string name="content_description_conversation_enable_drawing_mode">Ativar botão de modo de desenho</string>
     <string name="content_description_conversation_rich_text_header">Cabeçalho de formatação de Rich Text</string>
@@ -199,8 +191,6 @@
     <string name="content_description_open_label">abrir</string>
     <string name="content_description_join_call_label">participar de uma chamada</string>
     <string name="content_description_share_label">compartilhar</string>
-    <string name="content_description_collapse_label">recolher</string>
-    <string name="content_description_expand_label">expandir</string>
     <string name="content_description_edit_label">editar</string>
     <string name="content_description_select_label">selecionar</string>
     <string name="content_description_unselect_label">desmarcar</string>
@@ -574,10 +564,6 @@ Uma mensagem excluída não pode ser restaurada.</string>
     <string name="user_profile_logout">Encerrar Sessão</string>
     <string name="user_profile_other_accs">Suas outras contas</string>
     <string name="user_profile_status_availability">Disponibilidade</string>
-    <string name="user_profile_status_available">Disponível</string>
-    <string name="user_profile_status_busy">Ocupado</string>
-    <string name="user_profile_status_away">Ausente</string>
-    <string name="user_profile_status_none">Nenhum</string>
     <string name="user_profile_new_account_text">Nova Equipe ou Adicionar Conta</string>
     <string name="user_profile_account_management">Gerenciar Equipe</string>
     <string name="user_profile_details_tab">Detalhes</string>
@@ -646,9 +632,7 @@ Uma mensagem excluída não pode ser restaurada.</string>
     <string name="profile_image_change_image_button_label">Mudar foto…</string>
     <!--Conversation-->
     <string name="label_message_details">Detalhes da mensagem</string>
-    <string name="label_copy">Copiar</string>
     <string name="label_share">Compartilhar</string>
-    <string name="label_edit">Editar</string>
     <string name="label_delete">Excluir</string>
     <string name="info_message_copied">Mensagem copiada</string>
     <string name="conversation_banner_federated">usuários federados</string>
@@ -799,14 +783,12 @@ Uma mensagem excluída não pode ser restaurada.</string>
         <item quantity="other">%1$s e %2$d estão digitando</item>
     </plurals>
     <!-- Search Messages -->
-    <string name="label_search_messages">Procurar mensagens</string>
     <string name="label_search_messages_empty_title">Pesquisar todas as mensagens nesta conversa.</string>
     <string name="label_search_messages_no_results">Nenhum resultado encontrado.\nRefine sua pesquisa e tente novamente.</string>
     <string name="label_search_button">Procurar</string>
     <!-- Conversation Media -->
     <string name="label_conversation_media">Mídia</string>
     <string name="label_conversation_pictures">Imagens</string>
-    <string name="label_conversation_files">Arquivos</string>
     <string name="label_conversation_pictures_empty">Ninguém compartilhou fotos nesta conversa ainda 🥲</string>
     <string name="label_conversation_files_empty">Ninguém compartilhou arquivos nesta conversa ainda 🙀</string>
     <!-- Search Contact-->
@@ -1371,7 +1353,6 @@ registrado. Tente novamente.</string>
     <string name="label_debug_data">Dados de depuração</string>
     <string name="title_internal_debugging">Depuração interna</string>
     <string name="label_log_options_description">"Isso armazena informações anônimas de solução de problemas localmente. "</string>
-    <string name="label_no_application_found_open_downloads_folder">"Nenhum aplicativo encontrado para abrir a pasta de downloads"</string>
     <string name="notification_obfuscated_message_title">Alguém</string>
     <string name="notification_obfuscated_message_content">Enviou uma mensagem de auto-exclusão</string>
     <string name="settings_licenses_settings_label">Informações de Licença</string>
@@ -1596,8 +1577,10 @@ registrado. Tente novamente.</string>
     <string name="press_enter_to_send_title">Pressione Enter para enviar</string>
     <string name="press_enter_to_send_text">Quando ativado, você pode enviar mensagens com a tecla Enter em seu teclado.</string>
     <string name="customization_options_header_title">Opções</string>
+    <!-- enterprise configurations -->
     <!--    channel not available dialog-->
     <string name="channel_not_available_dialog_title">Canais estão disponíveis para os membros da equipe.</string>
     <string name="channel_not_available_dialog_description">Crie uma equipe e comece a colaborar gratuitamente!</string>
     <string name="channel_not_available_dialog_create_team_button">Criar Equipe Wire</string>
+    <!-- Apps-->
 </resources>

@@ -19,17 +19,17 @@ package com.wire.android.ui.settings.devices.button
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
-import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.android.ui.common.R as commonR
 
 @Composable
 fun ShowE2eiCertificateButton(
@@ -50,7 +50,12 @@ fun ShowE2eiCertificateButton(
         onClick = onShowCertificateClicked,
         loading = isLoading,
         state = if (!enabled) WireButtonState.Disabled else WireButtonState.Default,
-        trailingIcon = Icons.Filled.ChevronRight.Icon()
+        trailingIcon = {
+            Icon(
+                painter = painterResource(commonR.drawable.ic_chevron_right),
+                contentDescription = null,
+            )
+        }
     )
 }
 

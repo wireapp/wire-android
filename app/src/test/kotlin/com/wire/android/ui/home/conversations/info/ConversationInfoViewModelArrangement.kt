@@ -20,7 +20,6 @@ package com.wire.android.ui.home.conversations.info
 
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.mockUri
-import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.navArgs
@@ -63,9 +62,6 @@ class ConversationInfoViewModelArrangement {
     @MockK
     lateinit var isCellsEnabled: IsWireCellsEnabledUseCase
 
-    @MockK
-    lateinit var globalDataStore: GlobalDataStore
-
     private val viewModel: ConversationInfoViewModel by lazy {
         ConversationInfoViewModel(
             qualifiedIdMapper = qualifiedIdMapper,
@@ -74,7 +70,6 @@ class ConversationInfoViewModelArrangement {
             fetchConversationMLSVerificationStatus = fetchConversationMLSVerificationStatus,
             selfUserId = TestUser.SELF_USER_ID,
             isWireCellFeatureEnabled = isCellsEnabled,
-            globalDataStore = globalDataStore,
         )
     }
 
@@ -91,7 +86,6 @@ class ConversationInfoViewModelArrangement {
         }
         coEvery { fetchConversationMLSVerificationStatus.invoke(any()) } returns Unit
         coEvery { isCellsEnabled() } returns false
-        coEvery { globalDataStore.observeIsBubbleUI() } returns flowOf(false)
     }
 
     suspend fun withConversationDetailUpdate(conversationDetails: ConversationDetails) = apply {

@@ -56,12 +56,15 @@ import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset
 import com.wire.android.ui.common.StatusBox
+import com.wire.android.ui.common.applyIf
 import com.wire.android.ui.common.clickable
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.home.conversations.messages.item.highlighted
+import com.wire.android.ui.home.conversations.messages.item.isBubble
+import com.wire.android.ui.home.conversations.messages.item.textColor
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
 import com.wire.android.ui.markdown.MarkdownInline
 import com.wire.android.ui.markdown.MessageColors
@@ -72,12 +75,15 @@ import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.id.ConversationId
 
 private const val TEXT_QUOTE_MAX_LINES = 7
 
 data class QuotedMessageStyle(
     val quotedStyle: QuotedStyle,
-    val messageStyle: MessageStyle
+    val messageStyle: MessageStyle,
+    val selfAccent: Accent,
+    val senderAccent: Accent
 )
 
 /**
@@ -102,6 +108,7 @@ enum class QuotedStyle {
 
 @Composable
 internal fun QuotedMessage(
+    conversationId: ConversationId,
     messageData: UIQuotedMessage.UIQuotedData,
     clickable: Clickable?,
     style: QuotedMessageStyle,
@@ -116,7 +123,6 @@ internal fun QuotedMessage(
             senderName = messageData.senderName,
             originalDateTimeText = messageData.originalMessageDateDescription,
             assetName = quotedContent.assetName,
-            accent = messageData.senderAccent,
             modifier = modifier,
             style = style,
             startContent = startContent,
@@ -127,7 +133,6 @@ internal fun QuotedMessage(
             senderName = messageData.senderName,
             asset = quotedContent.displayable,
             originalDateTimeText = messageData.originalMessageDateDescription,
-            accent = messageData.senderAccent,
             modifier = modifier,
             style = style,
             startContent = startContent,
@@ -137,18 +142,16 @@ internal fun QuotedMessage(
         UIQuotedMessage.UIQuotedData.Deleted -> QuotedDeleted(
             senderName = messageData.senderName,
             originalDateDescription = messageData.originalMessageDateDescription,
-            accent = messageData.senderAccent,
             modifier = modifier,
             style = style,
             clickable = clickable
         )
 
         is UIQuotedMessage.UIQuotedData.Text -> QuotedText(
-            text = quotedContent.value,
+            text = quotedContent.value.asString(),
             editedTimeDescription = messageData.editedTimeDescription,
             originalDateTimeDescription = messageData.originalMessageDateDescription,
             senderName = messageData.senderName,
-            accent = messageData.senderAccent,
             modifier = modifier,
             style = style,
             startContent = startContent,
@@ -158,7 +161,6 @@ internal fun QuotedMessage(
         is UIQuotedMessage.UIQuotedData.AudioMessage -> QuotedAudioMessage(
             senderName = messageData.senderName,
             originalDateTimeText = messageData.originalMessageDateDescription,
-            accent = messageData.senderAccent,
             modifier = modifier,
             style = style,
             startContent = startContent,
@@ -169,6 +171,18 @@ internal fun QuotedMessage(
             senderName = messageData.senderName,
             originalDateTimeText = messageData.originalMessageDateDescription,
             locationName = quotedContent.locationName,
+            modifier = modifier,
+            style = style,
+            startContent = startContent,
+            clickable = clickable
+        )
+
+        is UIQuotedMessage.UIQuotedData.Multipart -> QuotedMultipartMessage(
+            conversationId = conversationId,
+            quotedMessageId = messageData.messageId,
+            senderName = messageData.senderName,
+            originalDateTimeText = messageData.originalMessageDateDescription,
+            text = quotedContent.text?.asString(),
             accent = messageData.senderAccent,
             modifier = modifier,
             style = style,
@@ -180,15 +194,17 @@ internal fun QuotedMessage(
 
 @Composable
 fun QuotedMessagePreview(
+    conversationId: ConversationId,
     quotedMessageData: UIQuotedMessage.UIQuotedData,
     onCancelReply: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     QuotedMessage(
+        conversationId = conversationId,
         modifier = modifier,
         messageData = quotedMessageData,
         clickable = null,
-        style = QuotedMessageStyle(QuotedStyle.PREVIEW, MessageStyle.NORMAL)
+        style = QuotedMessageStyle(QuotedStyle.PREVIEW, MessageStyle.NORMAL, Accent.Unknown, quotedMessageData.senderAccent)
     ) {
         Box(
             modifier = Modifier
@@ -215,10 +231,9 @@ fun QuotedMessagePreview(
 
 @Composable
 @Suppress("LongParameterList")
-private fun QuotedMessageContent(
+internal fun QuotedMessageContent(
     senderName: String?,
     style: QuotedMessageStyle,
-    accent: Accent,
     modifier: Modifier = Modifier,
     endContent: @Composable () -> Unit = {},
     startContent: @Composable () -> Unit = {},
@@ -228,8 +243,8 @@ private fun QuotedMessageContent(
 ) {
     val quoteOutlineShape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
     val background = when (style.messageStyle) {
-        MessageStyle.BUBBLE_SELF -> MaterialTheme.wireColorScheme.primaryVariant
-        MessageStyle.BUBBLE_OTHER -> MaterialTheme.wireColorScheme.surface
+        MessageStyle.BUBBLE_SELF -> colorsScheme().selfBubble.secondary
+        MessageStyle.BUBBLE_OTHER -> colorsScheme().otherBubble.secondary
         MessageStyle.NORMAL -> MaterialTheme.wireColorScheme.surfaceVariant
     }
 
@@ -240,11 +255,13 @@ private fun QuotedMessageContent(
                 color = background,
                 shape = quoteOutlineShape
             )
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.wireColorScheme.outline,
-                shape = quoteOutlineShape
-            )
+            .applyIf(!style.messageStyle.isBubble()) {
+                border(
+                    width = 1.dp,
+                    color = MaterialTheme.wireColorScheme.outline,
+                    shape = quoteOutlineShape
+                )
+            }
             .padding(dimensions().spacing4x)
             .fillMaxWidth()
             .height(IntrinsicSize.Min)
@@ -269,8 +286,7 @@ private fun QuotedMessageContent(
             QuotedMessageTopRow(
                 senderName,
                 displayReplyArrow = style.quotedStyle == QuotedStyle.COMPLETE,
-                messageStyle = style.messageStyle,
-                accent = accent
+                quotedMessageStyle = style
             )
             Row(horizontalArrangement = Arrangement.spacedBy(dimensions().spacing4x)) {
                 Column(
@@ -303,14 +319,23 @@ private fun QuotedMessageContent(
 private fun QuotedMessageTopRow(
     senderName: String?,
     displayReplyArrow: Boolean,
-    messageStyle: MessageStyle,
-    accent: Accent
+    quotedMessageStyle: QuotedMessageStyle
 ) {
 
+    val messageStyle = quotedMessageStyle.messageStyle
+
+    val accentScheme = colorsScheme(quotedMessageStyle.senderAccent)
+
     val authorColor = when (messageStyle) {
-        MessageStyle.BUBBLE_SELF -> colorsScheme().wireAccentColors.getOrDefault(accent, colorsScheme().onSurfaceVariant)
-        MessageStyle.BUBBLE_OTHER -> colorsScheme().wireAccentColors.getOrDefault(accent, colorsScheme().onSurfaceVariant)
+        MessageStyle.BUBBLE_SELF -> accentScheme.selfBubble.primaryOnSecondary
+        MessageStyle.BUBBLE_OTHER -> accentScheme.primary
         MessageStyle.NORMAL -> colorsScheme().onSurfaceVariant
+    }
+
+    val replyColor = when (messageStyle) {
+        MessageStyle.BUBBLE_SELF -> colorsScheme().selfBubble.onSecondary
+        MessageStyle.BUBBLE_OTHER -> colorsScheme().otherBubble.onSecondary
+        MessageStyle.NORMAL -> colorsScheme().secondaryText
     }
 
     Row(
@@ -320,14 +345,14 @@ private fun QuotedMessageTopRow(
         if (displayReplyArrow) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_reply),
-                tint = colorsScheme().secondaryText,
+                tint = replyColor,
                 contentDescription = null,
                 modifier = Modifier.size(dimensions().messageQuoteIconSize),
             )
         }
         senderName?.let {
             Text(text = senderName, style = typography().label02, color = authorColor)
-        }
+        } ?: Text(text = stringResource(R.string.unknown_user_name), style = typography().label02, color = replyColor)
     }
 }
 
@@ -336,21 +361,31 @@ fun QuotedUnavailable(style: QuotedMessageStyle) {
     QuotedMessageContent(
         stringResource(id = R.string.username_unavailable_label),
         style = style,
-        accent = Accent.Unknown,
         centerContent = {
-            MainContentText(stringResource(R.string.label_quote_invalid_or_not_found), fontStyle = FontStyle.Italic)
+            MainContentText(
+                stringResource(R.string.label_quote_invalid_or_not_found),
+                fontStyle = FontStyle.Italic,
+                messageStyle = style.messageStyle
+            )
         }
     )
 }
 
 @Composable
-fun QuotedInvalid(style: QuotedMessageStyle) {
+fun QuotedInvalid(style: QuotedMessageStyle, modifier: Modifier = Modifier) {
     QuotedMessageContent(
+        modifier = modifier,
         senderName = null,
         style = style,
-        accent = Accent.Unknown,
         centerContent = {
-            StatusBox(stringResource(R.string.label_quote_invalid_or_not_found))
+            if (style.messageStyle.isBubble()) {
+                Text(
+                    text = stringResource(R.string.label_quote_invalid_or_not_found),
+                    style = typography().subline01.copy(color = style.messageStyle.textColor(), fontStyle = FontStyle.Italic)
+                )
+            } else {
+                StatusBox(stringResource(R.string.label_quote_invalid_or_not_found))
+            }
         }
     )
 }
@@ -360,7 +395,6 @@ private fun QuotedDeleted(
     senderName: UIText,
     originalDateDescription: UIText,
     style: QuotedMessageStyle,
-    accent: Accent,
     clickable: Clickable?,
     modifier: Modifier = Modifier,
     startContent: @Composable () -> Unit = {}
@@ -368,16 +402,22 @@ private fun QuotedDeleted(
     QuotedMessageContent(
         senderName.asString(),
         style = style,
-        accent = accent,
         modifier = modifier,
         startContent = {
             startContent()
         },
         centerContent = {
-            StatusBox(stringResource(R.string.deleted_message_text))
+            if (style.messageStyle.isBubble()) {
+                Text(
+                    text = stringResource(R.string.deleted_message_text),
+                    style = typography().subline01.copy(color = style.messageStyle.textColor(), fontStyle = FontStyle.Italic)
+                )
+            } else {
+                StatusBox(stringResource(R.string.deleted_message_text))
+            }
         },
         footerContent = {
-            QuotedMessageOriginalDate(originalDateDescription)
+            QuotedMessageOriginalDate(originalDateDescription, style)
         },
         clickable = clickable
     )
@@ -390,7 +430,6 @@ private fun QuotedText(
     originalDateTimeDescription: UIText,
     senderName: UIText,
     style: QuotedMessageStyle,
-    accent: Accent,
     clickable: Clickable?,
     modifier: Modifier = Modifier,
     startContent: @Composable () -> Unit = {}
@@ -398,7 +437,6 @@ private fun QuotedText(
     QuotedMessageContent(
         senderName = senderName.asString(),
         style = style,
-        accent = accent,
         modifier = modifier,
         startContent = {
             startContent()
@@ -409,23 +447,29 @@ private fun QuotedText(
                     StatusBox(it.asString())
                 }
             }
-            MainMarkdownText(text, messageStyle = style.messageStyle)
+            MainMarkdownText(text, messageStyle = style.messageStyle, accent = style.selfAccent)
         },
         footerContent = {
-            QuotedMessageOriginalDate(originalDateTimeDescription)
+            QuotedMessageOriginalDate(originalDateTimeDescription, style)
         },
         clickable = clickable
     )
 }
 
 @Composable
-private fun QuotedMessageOriginalDate(
-    originalDateTimeText: UIText
+internal fun QuotedMessageOriginalDate(
+    originalDateTimeText: UIText,
+    style: QuotedMessageStyle
 ) {
+    val color = when (style.messageStyle) {
+        MessageStyle.BUBBLE_SELF -> colorsScheme().selfBubble.onSecondary
+        MessageStyle.BUBBLE_OTHER -> colorsScheme().otherBubble.onSecondary
+        MessageStyle.NORMAL -> colorsScheme().secondaryText
+    }
     Text(
         originalDateTimeText.asString(),
         style = typography().subline01,
-        color = colorsScheme().secondaryText,
+        color = color,
     )
 }
 
@@ -435,7 +479,6 @@ private fun QuotedImage(
     asset: ImageAsset.PrivateAsset,
     originalDateTimeText: UIText,
     style: QuotedMessageStyle,
-    accent: Accent,
     clickable: Clickable?,
     modifier: Modifier = Modifier,
     startContent: @Composable () -> Unit = {}
@@ -448,7 +491,6 @@ private fun QuotedImage(
         QuotedMessageContent(
             senderName = senderName.asString(),
             style = style,
-            accent = accent,
             modifier = modifier,
             endContent = {
                 Image(
@@ -461,19 +503,22 @@ private fun QuotedImage(
                     alignment = Alignment.Center,
                     contentScale = ContentScale.Crop
                 )
-            }, startContent = {
+            },
+            startContent = {
                 startContent()
-            }, centerContent = {
-                MainContentText(stringResource(R.string.notification_shared_picture))
-            }, footerContent = {
-                QuotedMessageOriginalDate(originalDateTimeText)
+            },
+            centerContent = {
+                MainContentText(stringResource(R.string.notification_shared_picture), messageStyle = style.messageStyle)
+            },
+            footerContent = {
+                QuotedMessageOriginalDate(originalDateTimeText, style)
             },
             clickable = clickable
         )
     } else {
         val background = when (style.messageStyle) {
-            MessageStyle.BUBBLE_SELF -> MaterialTheme.wireColorScheme.primaryVariant
-            MessageStyle.BUBBLE_OTHER -> MaterialTheme.wireColorScheme.surface
+            MessageStyle.BUBBLE_SELF -> colorsScheme().selfBubble.secondary
+            MessageStyle.BUBBLE_OTHER -> colorsScheme().otherBubble.secondary
             MessageStyle.NORMAL -> MaterialTheme.wireColorScheme.surfaceVariant
         }
         // Similar to the standard layout, but the space for the image stretches
@@ -486,11 +531,13 @@ private fun QuotedImage(
                     color = background,
                     shape = quoteOutlineShape
                 )
-                .border(
-                    width = 1.dp,
-                    color = MaterialTheme.wireColorScheme.outline,
-                    shape = quoteOutlineShape
-                )
+                .applyIf(!style.messageStyle.isBubble()) {
+                    border(
+                        width = 1.dp,
+                        color = MaterialTheme.wireColorScheme.outline,
+                        shape = quoteOutlineShape
+                    )
+                }
                 .padding(dimensions().spacing4x)
                 .fillMaxWidth()
         ) {
@@ -499,11 +546,10 @@ private fun QuotedImage(
                 QuotedMessageTopRow(
                     senderName = senderName.asString(),
                     displayReplyArrow = true,
-                    messageStyle = style.messageStyle,
-                    accent = accent
+                    quotedMessageStyle = style
                 )
-                MainContentText(stringResource(R.string.notification_shared_picture))
-                QuotedMessageOriginalDate(originalDateTimeText)
+                MainContentText(stringResource(R.string.notification_shared_picture), messageStyle = style.messageStyle)
+                QuotedMessageOriginalDate(originalDateTimeText, style)
             }
         }
     }
@@ -574,7 +620,6 @@ fun QuotedAudioMessage(
     senderName: UIText,
     originalDateTimeText: UIText,
     style: QuotedMessageStyle,
-    accent: Accent,
     startContent: @Composable () -> Unit,
     clickable: Clickable?,
     modifier: Modifier = Modifier
@@ -582,10 +627,9 @@ fun QuotedAudioMessage(
     QuotedMessageContent(
         senderName = senderName.asString(),
         style = style,
-        accent = accent,
         modifier = modifier,
         centerContent = {
-            MainContentText(stringResource(R.string.attachment_voice_message))
+            MainContentText(stringResource(R.string.attachment_voice_message), messageStyle = style.messageStyle)
         },
         startContent = {
             startContent()
@@ -595,20 +639,31 @@ fun QuotedAudioMessage(
                 painter = painterResource(R.drawable.ic_audio),
                 contentDescription = null,
                 modifier = Modifier
-                    .padding(end = dimensions().spacing16x)
+                    .padding(horizontal = dimensions().spacing8x)
                     .size(dimensions().spacing24x),
-                tint = colorsScheme().secondaryText
+                tint = style.messageStyle.textColor()
             )
         },
-        footerContent = { QuotedMessageOriginalDate(originalDateTimeText) },
+        footerContent = { QuotedMessageOriginalDate(originalDateTimeText, style) },
         clickable = clickable
     )
 }
 
 @Composable
-private fun MainMarkdownText(text: String, messageStyle: MessageStyle, fontStyle: FontStyle = FontStyle.Normal) {
+internal fun MainMarkdownText(
+    text: String,
+    messageStyle: MessageStyle,
+    accent: Accent,
+    fontStyle: FontStyle = FontStyle.Normal,
+    maxLines: Int = TEXT_QUOTE_MAX_LINES
+) {
+    val color = when (messageStyle) {
+        MessageStyle.BUBBLE_SELF -> colorsScheme().selfBubble.onSecondary
+        MessageStyle.BUBBLE_OTHER -> colorsScheme().otherBubble.onSecondary
+        MessageStyle.NORMAL -> colorsScheme().onSurfaceVariant
+    }
     val nodeData = NodeData(
-        color = colorsScheme().onSurfaceVariant,
+        color = color,
         style = MaterialTheme.wireTypography.subline01.copy(fontStyle = fontStyle),
         colorScheme = MaterialTheme.wireColorScheme,
         typography = MaterialTheme.wireTypography,
@@ -616,7 +671,8 @@ private fun MainMarkdownText(text: String, messageStyle: MessageStyle, fontStyle
         mentions = listOf(),
         disableLinks = true,
         messageStyle = messageStyle,
-        messageColors = MessageColors(highlighted = messageStyle.highlighted())
+        messageColors = MessageColors(highlighted = messageStyle.highlighted()),
+        accent = accent
     )
 
     val markdownPreview = remember(text) {
@@ -626,22 +682,27 @@ private fun MainMarkdownText(text: String, messageStyle: MessageStyle, fontStyle
     if (markdownPreview != null) {
         MarkdownInline(
             inlines = markdownPreview.children,
-            maxLines = TEXT_QUOTE_MAX_LINES,
+            maxLines = maxLines,
             nodeData = nodeData
         )
     } else {
-        MainContentText(text, fontStyle)
+        MainContentText(text, messageStyle = messageStyle, fontStyle)
     }
 }
 
 @Composable
-private fun MainContentText(text: String, fontStyle: FontStyle = FontStyle.Normal) {
+internal fun MainContentText(text: String, messageStyle: MessageStyle, fontStyle: FontStyle = FontStyle.Normal) {
+    val color = when (messageStyle) {
+        MessageStyle.BUBBLE_SELF -> colorsScheme().selfBubble.onSecondary
+        MessageStyle.BUBBLE_OTHER -> colorsScheme().otherBubble.onSecondary
+        MessageStyle.NORMAL -> colorsScheme().onSurfaceVariant
+    }
     Text(
         text = text,
         style = typography().subline01,
         maxLines = TEXT_QUOTE_MAX_LINES,
         overflow = TextOverflow.Ellipsis,
-        color = colorsScheme().onSurfaceVariant,
+        color = color,
         fontStyle = fontStyle
     )
 }
@@ -652,7 +713,6 @@ private fun QuotedGenericAsset(
     originalDateTimeText: UIText,
     assetName: String?,
     style: QuotedMessageStyle,
-    accent: Accent,
     clickable: Clickable?,
     modifier: Modifier = Modifier,
     startContent: @Composable () -> Unit = {}
@@ -660,11 +720,10 @@ private fun QuotedGenericAsset(
     QuotedMessageContent(
         senderName = senderName.asString(),
         style = style,
-        accent = accent,
         modifier = modifier,
         centerContent = {
             assetName?.let {
-                MainContentText(it)
+                MainContentText(it, messageStyle = style.messageStyle)
             }
         },
         startContent = {
@@ -675,11 +734,12 @@ private fun QuotedGenericAsset(
                 painter = painterResource(R.drawable.ic_file),
                 contentDescription = null,
                 modifier = Modifier
+                    .padding(horizontal = dimensions().spacing8x)
                     .size(dimensions().spacing24x),
-                tint = colorsScheme().secondaryText
+                tint = style.messageStyle.textColor()
             )
         },
-        footerContent = { QuotedMessageOriginalDate(originalDateTimeText) },
+        footerContent = { QuotedMessageOriginalDate(originalDateTimeText, style) },
         clickable = clickable
     )
 }
@@ -690,7 +750,6 @@ private fun QuotedLocation(
     originalDateTimeText: UIText,
     locationName: String,
     style: QuotedMessageStyle,
-    accent: Accent,
     clickable: Clickable?,
     modifier: Modifier = Modifier,
     startContent: @Composable () -> Unit = {}
@@ -698,10 +757,9 @@ private fun QuotedLocation(
     QuotedMessageContent(
         senderName = senderName.asString(),
         style = style,
-        accent = accent,
         modifier = modifier,
         centerContent = {
-            MainContentText(locationName)
+            MainContentText(locationName, messageStyle = style.messageStyle)
         },
         startContent = {
             startContent()
@@ -711,11 +769,12 @@ private fun QuotedLocation(
                 painter = painterResource(R.drawable.ic_location),
                 contentDescription = null,
                 modifier = Modifier
+                    .padding(horizontal = dimensions().spacing8x)
                     .size(dimensions().spacing24x),
-                tint = colorsScheme().secondaryText
+                tint = style.messageStyle.textColor()
             )
         },
-        footerContent = { QuotedMessageOriginalDate(originalDateTimeText) },
+        footerContent = { QuotedMessageOriginalDate(originalDateTimeText, style) },
         clickable = clickable
     )
 }

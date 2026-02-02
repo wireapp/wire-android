@@ -44,10 +44,10 @@ data class OrientationDependent<T>(
 
 // https://developer.android.com/guide/topics/large-screens/support-different-screen-sizes#TaskUseSWQuali
 data class ScreenSizeDependent<T>(
-    val compactPhone: T, //sw320dp
-    val defaultPhone: T, //sw480dp
-    val tablet7: T,      //sw600dp
-    val tablet10: T      //sw840dp
+    val compactPhone: T, // sw320dp
+    val defaultPhone: T, // sw480dp
+    val tablet7: T, // sw600dp
+    val tablet10: T // sw840dp
 ) {
     val currentScreenSize: T
         @Composable get() = LocalConfiguration.current.smallestScreenWidthDp.let { swDp ->

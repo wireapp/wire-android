@@ -73,7 +73,7 @@ private fun ShowRecycleBinItem(
         onItemClick = onClicked,
         leading = {
             Icon(
-                painter = painterResource(id = R.drawable.ic_delete),
+                painter = painterResource(id = com.wire.android.ui.common.R.drawable.ic_delete),
                 contentDescription = null,
                 tint = colorsScheme().onBackground,
                 modifier = Modifier

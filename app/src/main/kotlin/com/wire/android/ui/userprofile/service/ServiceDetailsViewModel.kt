@@ -29,7 +29,6 @@ import com.wire.android.ui.home.conversations.details.participants.usecase.Obser
 import com.wire.android.ui.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
-import com.wire.kalium.common.error.StorageFailure
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.service.ServiceDetails
@@ -38,9 +37,8 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.AddServiceToConversationUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.service.GetServiceByIdUseCase
+import com.wire.kalium.logic.feature.service.ObserveIsServiceMemberResult
 import com.wire.kalium.logic.feature.service.ObserveIsServiceMemberUseCase
-import com.wire.kalium.common.functional.Either
-import com.wire.kalium.common.functional.nullableFold
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -140,7 +138,9 @@ class ServiceDetailsViewModel @Inject constructor(
                     serviceAvatarAsset = serviceAvatarAsset,
                     serviceDetails = service
                 )
-            } else serviceNotFound()
+            } else {
+                serviceNotFound()
+            }
         }
 
     private suspend fun observeGroupInfo(): Flow<ServiceDetailsGroupState> {
@@ -154,19 +154,19 @@ class ServiceDetailsViewModel @Inject constructor(
     }
 
     private suspend fun observeIsServiceConversationMember() {
-            observeIsServiceMember(
-                serviceId = serviceId,
-                conversationId = conversationId
-            )
-                .combine(observeGroupInfo(), ::Pair)
-                .flowOn(dispatchers.io())
-                .collect { (serviceMemberId: Either<StorageFailure, UserId?>, groupInfo: ServiceDetailsGroupState) ->
-                    val memberId = serviceMemberId.nullableFold({ null }, { it })
-                    updateViewStateButton(
-                        serviceMemberId = memberId,
-                        groupInfo = groupInfo
-                    )
-                }
+        observeIsServiceMember(
+            serviceId = serviceId,
+            conversationId = conversationId
+        )
+            .combine(observeGroupInfo(), ::Pair)
+            .flowOn(dispatchers.io())
+            .collect { (serviceMemberResult: ObserveIsServiceMemberResult, groupInfo: ServiceDetailsGroupState) ->
+                val memberId = (serviceMemberResult as? ObserveIsServiceMemberResult.Success)?.userId
+                updateViewStateButton(
+                    serviceMemberId = memberId,
+                    groupInfo = groupInfo
+                )
+            }
     }
 
     private fun serviceNotFound() {

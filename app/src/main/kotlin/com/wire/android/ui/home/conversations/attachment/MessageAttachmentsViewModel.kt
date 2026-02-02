@@ -27,6 +27,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
+import com.wire.android.media.audiomessage.toNormalizedLoudness
 import com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi
 import com.wire.android.ui.common.attachmentdraft.model.toUiModel
 import com.wire.android.ui.home.conversations.ConversationNavArgs
@@ -37,6 +38,7 @@ import com.wire.android.ui.navArgs
 import com.wire.android.ui.sharing.ImportedMediaAsset
 import com.wire.android.util.FileManager
 import com.wire.android.util.MediaMetadata
+import com.wire.android.util.getAudioLengthInMs
 import com.wire.kalium.cells.domain.CellUploadEvent
 import com.wire.kalium.cells.domain.CellUploadManager
 import com.wire.kalium.cells.domain.model.AttachmentDraft
@@ -48,6 +50,7 @@ import com.wire.kalium.cells.domain.usecase.RetryAttachmentUploadUseCase
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.util.fileExtension
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -72,7 +75,7 @@ class MessageAttachmentsViewModel @Inject constructor(
     private val retryUpload: RetryAttachmentUploadUseCase,
     private val uploadManager: CellUploadManager,
     private val fileManager: FileManager,
-    private val sharedState: MessageSharedState
+    private val sharedState: MessageSharedState,
 ) : ViewModel() {
 
     private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
@@ -100,6 +103,24 @@ class MessageAttachmentsViewModel @Inject constructor(
                 if (it.isNotEmpty()) {
                     onFilesAddedAsBundle(it)
                 }
+            }
+        }
+    }
+
+    fun onAudioRecorded(uri: Uri, wavesMask: List<Int>?) = viewModelScope.launch {
+        handleImportedAsset(uri)?.assetBundle?.let { bundle ->
+            addAttachment(
+                conversationId = conversationId,
+                fileName = bundle.fileName,
+                assetPath = bundle.dataPath,
+                assetSize = bundle.dataSize,
+                mimeType = bundle.mimeType,
+                assetMetadata = AssetContent.AssetMetadata.Audio(
+                    durationMs = getAudioLengthInMs(bundle.dataPath, bundle.mimeType),
+                    normalizedLoudness = wavesMask?.toNormalizedLoudness()
+                )
+            ).onFailure {
+                appLogger.e("Failed to add recorded audio attachment: $it", tag = "MessageAttachmentsViewModel")
             }
         }
     }

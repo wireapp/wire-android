@@ -67,7 +67,6 @@ class ConversationAudioMessagePlayer
 @Inject constructor(
     @ApplicationContext private val context: Context,
     private val audioMediaPlayer: MediaPlayer,
-    private val wavesMaskHelper: AudioWavesMaskHelper,
     private val servicesManager: Lazy<ServicesManager>,
     private val audioFocusHelper: AudioFocusHelper,
     @KaliumCoreLogic private val coreLogic: CoreLogic,
@@ -189,15 +188,6 @@ class ConversationAudioMessagePlayer
                         )
                     }
                 }
-
-                is AudioMediaPlayerStateUpdate.WaveMaskUpdate -> {
-                    audioMessageStateHistory = audioMessageStateHistory.toMutableMap().apply {
-                        put(
-                            messageIdKey,
-                            currentState.copy(wavesMask = audioMessageStateUpdate.waveMask)
-                        )
-                    }
-                }
             }
 
             audioMessageStateHistory
@@ -306,14 +296,6 @@ class ConversationAudioMessagePlayer
                     audioMediaPlayer.setDataSource(context, Uri.parse(result.decodedAssetPath.toString()))
                     audioMediaPlayer.prepare()
 
-                    audioMessageStateUpdate.emit(
-                        AudioMediaPlayerStateUpdate.WaveMaskUpdate(
-                            conversationId,
-                            messageId,
-                            wavesMaskHelper.getWaveMask(result.decodedAssetPath)
-                        )
-                    )
-
                     if (position != null) audioMediaPlayer.seekTo(position)
 
                     audioFocusHelper.request()
@@ -363,22 +345,11 @@ class ConversationAudioMessagePlayer
         seekToAudioPosition.emit(MessageIdWrapper(conversationId, messageId) to position)
     }
 
-    suspend fun fetchWavesMask(conversationId: ConversationId, messageId: String) {
+    suspend fun preloadAudioMessage(conversationId: ConversationId, messageId: String) {
         val currentAccountResult = coreLogic.getGlobalScope().session.currentSession()
         if (currentAccountResult is CurrentSessionResult.Failure) return
         val userId = (currentAccountResult as CurrentSessionResult.Success).accountInfo.userId
-
-        val result = getAssetMessage(userId, conversationId, messageId)
-
-        if (result is MessageAssetResult.Success) {
-            audioMessageStateUpdate.emit(
-                AudioMediaPlayerStateUpdate.WaveMaskUpdate(
-                    conversationId,
-                    messageId,
-                    wavesMaskHelper.getWaveMask(result.decodedAssetPath)
-                )
-            )
-        }
+        getAssetMessage(userId, conversationId, messageId)
     }
 
     private suspend fun resumeOrPause(conversationId: ConversationId, messageId: String) {
@@ -533,7 +504,6 @@ class ConversationAudioMessagePlayer
 
     internal fun clear() {
         audioMediaPlayer.reset()
-        wavesMaskHelper.clear()
         currentAudioMessageId = null
         audioMessageStateHistory = emptyMap()
         servicesManager.get().stopPlayingAudioMessageService()

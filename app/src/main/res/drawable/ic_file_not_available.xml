@@ -23,7 +23,6 @@
   <path
       android:strokeWidth="1"
       android:pathData="M0.5,2.5C0.5,1.395 1.395,0.5 2.5,0.5H10.5C11.605,0.5 12.5,1.395 12.5,2.5V11.506C12.5,12.163 12.242,12.793 11.781,13.26L10.311,14.754C9.841,15.231 9.199,15.5 8.529,15.5H2.5C1.395,15.5 0.5,14.605 0.5,13.5V2.5Z"
-      android:fillColor="#ffffff"
       android:strokeColor="#676B71"/>
   <path
       android:strokeWidth="1"

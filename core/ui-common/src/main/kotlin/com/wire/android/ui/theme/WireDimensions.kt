@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import io.github.esentsov.PackagePrivate
+import kotlin.Float
 
 @Immutable
 data class WireDimensions(
@@ -69,7 +70,6 @@ data class WireDimensions(
     val bottomNavigationShadowElevation: Dp,
     // Conversation
     val conversationItemRowHeight: Dp,
-    val conversationItemPadding: Dp,
     val conversationsListBottomPadding: Dp,
     // Conversation BottomSheet
     val conversationBottomSheetItemHeight: Dp,
@@ -81,7 +81,10 @@ data class WireDimensions(
     val messageImageMaxWidth: Dp,
     val messageImageMinHeight: Dp,
     val messageImageMaxHeight: Dp,
-    val bubbleMaxWidth: Dp,
+    val messageDocumentPreviewMaxHeight: Dp,
+    val messageVisualMaxFractionWidth: Float,
+    val messageVisualMaxFractionHeight: Float,
+    val bubbleMessageMaxFractionWidth: Float,
     val messageQuoteBorderWidth: Dp,
     val messageQuoteBorderRadius: Dp,
     val messageQuoteIconSize: Dp,
@@ -222,7 +225,6 @@ data class WireDimensions(
     val legalHoldBannerMinHeight: Dp,
     // Attachment draft
     val attachmentDraftHeight: Dp,
-    val messageAttachmentGridCornerSize: Dp,
     val messageAttachmentCornerSize: Dp,
     val attachmentPdfMaxWidth: Dp,
     val attachmentPdfMaxWidthLandscape: Dp,
@@ -269,17 +271,19 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     bottomNavigationHeight = 60.dp,
     bottomNavigationShadowElevation = 8.dp,
     conversationItemRowHeight = 56.dp,
-    conversationItemPadding = 0.5.dp,
     conversationsListBottomPadding = 74.dp,
     conversationBottomSheetItemHeight = 48.dp,
     conversationBottomSheetItemPadding = 14.dp,
     conversationBottomSheetShapeCorner = 12.dp,
     wireIconButtonSize = 16.dp,
-    messageImageMinWidth = 180.dp,
-    messageImageMaxWidth = 270.dp,
-    messageImageMinHeight = 180.dp,
-    messageImageMaxHeight = 270.dp,
-    bubbleMaxWidth = 270.dp,
+    messageImageMinWidth = 220.dp,
+    messageImageMaxWidth = 310.dp,
+    messageImageMinHeight = 220.dp,
+    messageImageMaxHeight = 310.dp,
+    messageDocumentPreviewMaxHeight = 410.dp,
+    messageVisualMaxFractionWidth = 0.7F,
+    messageVisualMaxFractionHeight = 0.4F,
+    bubbleMessageMaxFractionWidth = 0.75F,
     messageQuoteBorderWidth = 1.dp,
     messageQuoteBorderRadius = 1.dp,
     messageQuoteIconSize = 10.dp,
@@ -398,7 +402,6 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     inCallReactionButtonSize = 48.dp,
     inCallReactionRecentReactionSize = 32.dp,
     attachmentDraftHeight = 100.dp,
-    messageAttachmentGridCornerSize = 8.dp,
     messageAttachmentCornerSize = 10.dp,
     attachmentPdfMaxWidth = 240.dp,
     attachmentPdfMaxWidthLandscape = 400.dp,

@@ -25,6 +25,7 @@ import com.wire.kalium.logic.feature.asset.DeleteAssetUseCase
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
 import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.client.FinalizeMLSClientAfterE2EIEnrollment
+import com.wire.kalium.logic.feature.client.IsProfileQRCodeEnabledUseCase
 import com.wire.kalium.logic.feature.client.IsWireCellsEnabledForConversationUseCase
 import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.GetAllContactsNotInConversationUseCase
@@ -45,6 +46,7 @@ import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import com.wire.kalium.logic.feature.user.SetUserHandleUseCase
+import com.wire.kalium.logic.feature.user.UpdateAccentColorUseCase
 import com.wire.kalium.logic.feature.user.UpdateDisplayNameUseCase
 import com.wire.kalium.logic.feature.user.UpdateEmailUseCase
 import com.wire.kalium.logic.feature.user.UpdateSelfAvailabilityStatusUseCase
@@ -99,6 +101,13 @@ class UserModule {
         userScope: UserScope
     ): UpdateDisplayNameUseCase =
         userScope.updateDisplayName
+
+    @ViewModelScoped
+    @Provides
+    fun provideUpdateAccentColorUseCase(
+        userScope: UserScope
+    ): UpdateAccentColorUseCase =
+        userScope.updateAccentColor
 
     @ViewModelScoped
     @Provides
@@ -254,4 +263,9 @@ class UserModule {
     @Provides
     fun provideIsWireCellsEnabledForConversationUseCase(userScope: UserScope): IsWireCellsEnabledForConversationUseCase =
         userScope.isWireCellsEnabledForConversation
+
+    @ViewModelScoped
+    @Provides
+    fun provideProfileQRCodeConfigUseCase(userScope: UserScope): IsProfileQRCodeEnabledUseCase =
+        userScope.isProfileQRCodeEnabled
 }

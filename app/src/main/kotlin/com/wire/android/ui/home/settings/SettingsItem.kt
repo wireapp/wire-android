@@ -23,8 +23,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -41,13 +39,13 @@ import com.wire.android.navigation.ReportBugDestination
 import com.wire.android.navigation.SupportScreenDestination
 import com.wire.android.navigation.TermsOfUseScreenDestination
 import com.wire.android.navigation.WireWebsiteScreenDestination
-import com.wire.android.ui.common.rowitem.RowItemTemplate
 import com.wire.android.ui.common.clickable
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.rowitem.RowItemTemplate
 import com.wire.android.ui.destinations.AboutThisAppScreenDestination
 import com.wire.android.ui.destinations.AppSettingsScreenDestination
-import com.wire.android.ui.destinations.CustomizationScreenDestination
 import com.wire.android.ui.destinations.BackupAndRestoreScreenDestination
+import com.wire.android.ui.destinations.CustomizationScreenDestination
 import com.wire.android.ui.destinations.DebugScreenDestination
 import com.wire.android.ui.destinations.DependenciesScreenDestination
 import com.wire.android.ui.destinations.LicensesScreenDestination
@@ -126,7 +124,7 @@ fun SettingsItem(
                             .padding(end = dimensions().spacing8x)
                             .clickable(onIconPressed)
                     )
-                } ?: Icons.Filled.ChevronRight
+                }
             }
         },
         clickable = onRowPressed

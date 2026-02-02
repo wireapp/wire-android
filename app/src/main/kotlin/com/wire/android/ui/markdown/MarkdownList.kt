@@ -25,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.buildAnnotatedString
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.home.conversations.messages.item.onBackground
 import com.wire.android.ui.markdown.MarkdownConstants.BULLET_MARK
 import com.wire.android.ui.theme.wireTypography
 
@@ -33,7 +34,7 @@ fun MarkdownBulletList(bulletList: MarkdownNode.Block.ListBlock.Bullet, nodeData
     val bottom = if (bulletList.isParentDocument) dimensions().spacing8x else dimensions().spacing0x
 
     val text = buildAnnotatedString {
-        pushStyle(MaterialTheme.wireTypography.body01.toSpanStyle())
+        pushStyle(MaterialTheme.wireTypography.body01.copy(color = nodeData.messageStyle.onBackground()).toSpanStyle())
         append("$BULLET_MARK ")
         pop()
     }
@@ -43,7 +44,7 @@ fun MarkdownBulletList(bulletList: MarkdownNode.Block.ListBlock.Bullet, nodeData
             Row {
                 MarkdownText(
                     annotatedString = text,
-                    style = MaterialTheme.wireTypography.body01,
+                    style = MaterialTheme.wireTypography.body01.copy(color = nodeData.messageStyle.onBackground()),
                     onLongClick = nodeData.actions?.onLongClick,
                     onOpenProfile = nodeData.actions?.onOpenProfile
                 )
@@ -54,13 +55,17 @@ fun MarkdownBulletList(bulletList: MarkdownNode.Block.ListBlock.Bullet, nodeData
 }
 
 @Composable
-fun MarkdownOrderedList(orderedList: MarkdownNode.Block.ListBlock.Ordered, nodeData: NodeData, modifier: Modifier = Modifier) {
+fun MarkdownOrderedList(
+    orderedList: MarkdownNode.Block.ListBlock.Ordered,
+    nodeData: NodeData,
+    modifier: Modifier = Modifier
+) {
     val bottom = if (orderedList.isParentDocument) dimensions().spacing8x else dimensions().spacing0x
 
     Column(modifier = modifier.padding(bottom = bottom)) {
         orderedList.children.forEach { listItem ->
             val text = buildAnnotatedString {
-                pushStyle(MaterialTheme.wireTypography.body01.toSpanStyle())
+                pushStyle(MaterialTheme.wireTypography.body01.copy(color = nodeData.messageStyle.onBackground()).toSpanStyle())
                 append("${listItem.orderNumber}${orderedList.delimiter} ")
                 pop()
             }
@@ -68,7 +73,7 @@ fun MarkdownOrderedList(orderedList: MarkdownNode.Block.ListBlock.Ordered, nodeD
             Row {
                 MarkdownText(
                     annotatedString = text,
-                    style = MaterialTheme.wireTypography.body01,
+                    style = MaterialTheme.wireTypography.body01.copy(color = nodeData.messageStyle.onBackground()),
                     onLongClick = nodeData.actions?.onLongClick,
                     onOpenProfile = nodeData.actions?.onOpenProfile
                 )

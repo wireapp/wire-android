@@ -23,8 +23,6 @@ import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.TestDispatcherProvider
-import com.wire.android.framework.TestConversation
-import com.wire.android.framework.TestConversationDetails
 import com.wire.android.framework.TestUser
 import com.wire.android.mapper.testUIParticipant
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsState
@@ -34,9 +32,11 @@ import com.wire.android.ui.home.conversations.details.participants.usecase.Obser
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAddPermissionType
 import com.wire.android.ui.navArgs
-import com.wire.kalium.common.functional.Either
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
+import com.wire.kalium.logic.data.conversation.ConversationDetails.Group.Channel.ChannelAccess
+import com.wire.kalium.logic.data.conversation.ConversationDetails.Group.Channel.ChannelAddPermission
+import com.wire.kalium.logic.data.conversation.ConversationHistorySettings
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.TeamId
@@ -44,12 +44,12 @@ import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.data.user.type.UserTypeInfo
 import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.ArchiveStatusUpdateResult
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateReceiptModeResult
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
-import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReceiptModeUseCase
@@ -68,7 +68,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Instant
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -171,127 +170,12 @@ class GroupDetailsViewModelTest {
             details.conversation.teamId?.value == selfTeam.id,
             viewModel.groupOptionsState.value.isUpdatingGuestAllowed
         )
-        assertEquals(true, viewModel.groupOptionsState.value.isUpdatingServicesAllowed)
+        assertEquals(true, viewModel.groupOptionsState.value.isUpdatingAppsAllowed)
         assertEquals(true, viewModel.groupOptionsState.value.isUpdatingSelfDeletingAllowed)
         assertEquals(
             details.conversation.isTeamGroup(),
             viewModel.groupOptionsState.value.isUpdatingReadReceiptAllowed
         )
-    }
-
-    @Test
-    fun `when disabling Services , then the dialog must state must be updated`() = runTest {
-        // Given
-        val members = buildList {
-            for (i in 1..5) {
-                add(testUIParticipant(i))
-            }
-        }
-        val conversationParticipantsData = ConversationParticipantsData(
-            participants = members,
-            allParticipantsCount = members.size
-        )
-
-        val details = testGroup
-
-        val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
-            .withUpdateConversationAccessUseCaseReturns(
-                UpdateConversationAccessRoleUseCase.Result.Success
-            ).withConversationDetailUpdate(details)
-            .withConversationMembersUpdate(conversationParticipantsData)
-            .arrange()
-
-        viewModel.onServicesUpdate(false)
-        assertEquals(true, viewModel.groupOptionsState.value.changeServiceOptionConfirmationRequired)
-    }
-
-    @Test
-    fun `when no guests allowed and enabling services, use case is called with the correct values`() = runTest {
-        // Given
-        val members = buildList {
-            for (i in 1..5) {
-                add(testUIParticipant(i))
-            }
-        }
-        val conversationParticipantsData = ConversationParticipantsData(
-            participants = members,
-            allParticipantsCount = members.size,
-        )
-
-        val details = testGroup.copy(
-            conversation = testGroup.conversation.copy(
-                accessRole = Conversation.defaultGroupAccessRoles.toMutableList().apply {
-                    remove(Conversation.AccessRole.NON_TEAM_MEMBER)
-                    remove(Conversation.AccessRole.GUEST)
-                },
-                access = listOf()
-            )
-        )
-
-        val (arrangement, viewModel) = GroupConversationDetailsViewModelArrangement()
-            .withUpdateConversationAccessUseCaseReturns(
-                UpdateConversationAccessRoleUseCase.Result.Success
-            ).withConversationDetailUpdate(details)
-            .withConversationMembersUpdate(conversationParticipantsData)
-            .arrange()
-
-        viewModel.onServicesUpdate(true)
-        coVerify(exactly = 1) {
-            arrangement.updateConversationAccessRoleUseCase(
-                conversationId = details.conversation.id,
-                accessRoles = Conversation
-                    .defaultGroupAccessRoles
-                    .toMutableSet()
-                    .apply {
-                        add(Conversation.AccessRole.SERVICE)
-                        remove(Conversation.AccessRole.NON_TEAM_MEMBER)
-                    },
-                access = Conversation.defaultGroupAccess
-            )
-        }
-    }
-
-    @Test
-    fun `when no guests allowed and disable service dialog confirmed, then use case is called with the correct values`() = runTest {
-        // Given
-        val members = buildList {
-            for (i in 1..5) {
-                add(testUIParticipant(i))
-            }
-        }
-        val conversationParticipantsData = ConversationParticipantsData(
-            participants = members,
-            allParticipantsCount = members.size
-        )
-
-        val details = testGroup.copy(
-            conversation = testGroup.conversation.copy(
-                accessRole = Conversation.defaultGroupAccessRoles.toMutableList().apply {
-                    remove(Conversation.AccessRole.NON_TEAM_MEMBER)
-                    remove(Conversation.AccessRole.GUEST)
-                },
-                access = listOf()
-            )
-        )
-
-        val (arrangement, viewModel) = GroupConversationDetailsViewModelArrangement()
-            .withUpdateConversationAccessUseCaseReturns(
-                UpdateConversationAccessRoleUseCase.Result.Success
-            ).withConversationDetailUpdate(details)
-            .withConversationMembersUpdate(conversationParticipantsData)
-            .arrange()
-
-        viewModel.onServiceDialogConfirm()
-        assertEquals(false, viewModel.groupOptionsState.value.changeServiceOptionConfirmationRequired)
-        coVerify(exactly = 1) {
-            arrangement.updateConversationAccessRoleUseCase(
-                conversationId = details.conversation.id,
-                accessRoles = Conversation.defaultGroupAccessRoles.toMutableSet().apply {
-                    remove(Conversation.AccessRole.NON_TEAM_MEMBER)
-                },
-                access = Conversation.defaultGroupAccess
-            )
-        }
     }
 
     @Test
@@ -375,7 +259,7 @@ class GroupDetailsViewModelTest {
         isTeamGroup: Boolean = true,
         isSelfAnAdmin: Boolean = true,
         isSelfAMemberOfGroupOwnerTeam: Boolean = true,
-        selfUserType: UserType = UserType.INTERNAL,
+        selfUserType: UserTypeInfo = UserTypeInfo.Regular(UserType.INTERNAL),
         assertResult: (GroupConversationOptionsState) -> Unit
     ) = runTest {
         val members = buildList {
@@ -406,25 +290,25 @@ class GroupDetailsViewModelTest {
 
     @Test
     fun `given user is admin and external team member, when init group options, then group name update is not allowed`() =
-        testUpdatingAllowedFields(isSelfAnAdmin = true, selfUserType = UserType.EXTERNAL) {
+        testUpdatingAllowedFields(isSelfAnAdmin = true, selfUserType = UserTypeInfo.Regular(UserType.EXTERNAL)) {
             assertEquals(false, it.isUpdatingNameAllowed)
         }
 
     @Test
     fun `given user is admin and internal team member, when init group options, then group name update is allowed`() =
-        testUpdatingAllowedFields(isSelfAnAdmin = true, selfUserType = UserType.INTERNAL) {
+        testUpdatingAllowedFields(isSelfAnAdmin = true, selfUserType = UserTypeInfo.Regular(UserType.INTERNAL)) {
             assertEquals(true, it.isUpdatingNameAllowed)
         }
 
     @Test
     fun `given user is not admin and external team member, when init group options, then group name update is not allowed`() =
-        testUpdatingAllowedFields(isSelfAnAdmin = false, selfUserType = UserType.EXTERNAL) {
+        testUpdatingAllowedFields(isSelfAnAdmin = false, selfUserType = UserTypeInfo.Regular(UserType.EXTERNAL)) {
             assertEquals(false, it.isUpdatingNameAllowed)
         }
 
     @Test
     fun `given user is not admin and internal team member, when init group options, then group name update is not allowed`() =
-        testUpdatingAllowedFields(isSelfAnAdmin = false, selfUserType = UserType.INTERNAL) {
+        testUpdatingAllowedFields(isSelfAnAdmin = false, selfUserType = UserTypeInfo.Regular(UserType.INTERNAL)) {
             assertEquals(false, it.isUpdatingNameAllowed)
         }
 
@@ -450,18 +334,6 @@ class GroupDetailsViewModelTest {
     fun `given user is not admin and not member of group owner team, when init group options, then guests update is not allowed`() =
         testUpdatingAllowedFields(isSelfAnAdmin = false, isSelfAMemberOfGroupOwnerTeam = false) {
             assertEquals(false, it.isUpdatingGuestAllowed)
-        }
-
-    @Test
-    fun `given user is admin, when init group options, then services update is allowed`() =
-        testUpdatingAllowedFields(isSelfAnAdmin = true) {
-            assertEquals(true, it.isUpdatingServicesAllowed)
-        }
-
-    @Test
-    fun `given user is not admin, when init group options, then services update is not allowed`() =
-        testUpdatingAllowedFields(isSelfAnAdmin = false) {
-            assertEquals(false, it.isUpdatingServicesAllowed)
         }
 
     @Test
@@ -521,30 +393,31 @@ class GroupDetailsViewModelTest {
     }
 
     @Test
-    fun `Given isChannel is true and EVERYONE permission, when isSelfGuest is false, then should show addParticipants button`() {
-        // Given
-        val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
-            .arrange()
-        viewModel.groupParticipantsState = viewModel.groupParticipantsState.copy(
-            data = viewModel.groupParticipantsState.data.copy(
-                isSelfAnAdmin = false,
-                isSelfGuest = false,
-                isSelfExternalMember = false
+    fun `given channel EVERYONE and self is regular team member of owning team, then canSelfAddParticipants is true`() =
+        runTest {
+            // Given
+            val selfTeamId = TeamId("team_id")
+            val self = TestUser.SELF_USER.copy(
+                userType = UserTypeInfo.Regular(UserType.INTERNAL),
+                teamId = selfTeamId
             )
-        )
-        viewModel.updateState(
-            viewModel.groupOptionsState.value.copy(
-                isChannel = true,
-                channelAddPermissionType = ChannelAddPermissionType.EVERYONE
-            )
-        )
 
-        // When
-        val result = viewModel.shouldShowAddParticipantButton()
+            // When
+            val channelDetails = testChannel
+                .copy(
+                    isSelfUserMember = true,
+                    permission = ChannelAddPermission.EVERYONE
+                )
 
-        // Then
-        assertEquals(true, result)
-    }
+            val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
+                .withGetSelfUserReturns(self)
+                .withSelfTeamUseCaseReturns(Team(selfTeamId.value, "team_name", "icon"))
+                .withConversationDetailUpdate(channelDetails)
+                .arrange()
+
+            // Then
+            assertEquals(true, viewModel.groupOptionsState.value.canSelfAddParticipants)
+        }
 
     @Test
     fun `Given isChannel is true and EVERYONE permission, when isSelfGuest is true, then should not show addParticipants button`() {
@@ -566,36 +439,33 @@ class GroupDetailsViewModelTest {
         )
 
         // When
-        val result = viewModel.shouldShowAddParticipantButton()
+        val result = viewModel.groupOptionsState.value.canSelfAddParticipants
 
         // Then
         assertEquals(false, result)
     }
 
     @Test
-    fun `Given regular group and isSelfAdmin is true, when isSelfExternalMember is false, then should show button`() {
-        val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
-            .arrange()
-        viewModel.groupParticipantsState = viewModel.groupParticipantsState.copy(
-            data = viewModel.groupParticipantsState.data.copy(
-                isSelfAnAdmin = true,
-                isSelfGuest = false,
-                isSelfExternalMember = false
+    fun `given regular group and self is admin and not external, then canSelfAddParticipants is true`() =
+        runTest {
+            // Given
+            val details = testGroup.copy(
+                selfRole = Conversation.Member.Role.Admin
             )
-        )
-        viewModel.updateState(
-            viewModel.groupOptionsState.value.copy(
-                isChannel = false,
-                channelAddPermissionType = ChannelAddPermissionType.EVERYONE
+
+            val self = TestUser.SELF_USER.copy(
+                userType = UserTypeInfo.Regular(UserType.INTERNAL) // not EXTERNAL, not FEDERATED
             )
-        )
 
-        // When
-        val result = viewModel.shouldShowAddParticipantButton()
+            // When
+            val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
+                .withConversationDetailUpdate(details)
+                .withGetSelfUserReturns(self)
+                .arrange()
 
-        // Then
-        assertEquals(true, result)
-    }
+            // Then
+            assertEquals(true, viewModel.groupOptionsState.value.canSelfAddParticipants)
+        }
 
     @Test
     fun `Given regular group and isSelfAdmin is false, when isSelfExternalMember is true, then should not show button`() {
@@ -616,7 +486,7 @@ class GroupDetailsViewModelTest {
         )
 
         // When
-        val result = viewModel.shouldShowAddParticipantButton()
+        val result = viewModel.groupOptionsState.value.canSelfAddParticipants
 
         // Then
         assertEquals(false, result)
@@ -641,75 +511,119 @@ class GroupDetailsViewModelTest {
         )
 
         // When
-        val result = viewModel.shouldShowAddParticipantButton()
+        val result = viewModel.groupOptionsState.value.canSelfAddParticipants
 
         // Then
         assertEquals(false, result)
     }
 
     @Test
-    fun `Given isChannel is true and isSelfTeamAdmin is true, then should show button`() {
-        val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
-            .arrange()
-        viewModel.groupParticipantsState = viewModel.groupParticipantsState.copy(
-            data = viewModel.groupParticipantsState.data.copy(
-                isSelfAnAdmin = false,
-                isSelfGuest = false,
-                isSelfExternalMember = true
+    fun `given channel and self is team admin of owning team, then canSelfAddParticipants is true`() =
+        runTest {
+            // Given
+            val selfTeamId = TeamId("team_id")
+            val self = TestUser.SELF_USER.copy(
+                userType = UserTypeInfo.Regular(UserType.ADMIN),
+                teamId = selfTeamId
             )
-        )
-        viewModel.updateState(
-            viewModel.groupOptionsState.value.copy(
-                isSelfTeamAdmin = true,
-                isChannel = true,
-                channelAddPermissionType = ChannelAddPermissionType.ADMINS
+
+            // When
+            val channelDetails = testChannel.copy(
+                isSelfUserMember = true,
+                selfRole = Conversation.Member.Role.Member,
+                permission = ChannelAddPermission.ADMINS,
+                access = ChannelAccess.PRIVATE
             )
-        )
 
-        // When
-        val result = viewModel.shouldShowAddParticipantButton()
+            val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
+                .withGetSelfUserReturns(self)
+                .withSelfTeamUseCaseReturns(Team(selfTeamId.value, "team_name", "icon"))
+                .withConversationDetailUpdate(channelDetails)
+                .arrange()
 
-        // Then
-        assertEquals(true, result)
-    }
+            // Then
+            assertEquals(true, viewModel.groupOptionsState.value.canSelfAddParticipants)
+        }
 
     @Test
-    fun `given isServicesAllowed for team, then state should reflect this to allow`() = runTest {
-        // given
-        val conversation =
-            TestConversation.GROUP().copy(
-                accessRole = listOf(Conversation.AccessRole.SERVICE)
+    fun `given channel EVERYONE and self is regular team member from other team, then canSelfAddParticipants is false`() =
+        runTest {
+            // Given
+            val selfTeamId = TeamId("other_team_id")
+            val self = TestUser.SELF_USER.copy(
+                userType = UserTypeInfo.Regular(UserType.INTERNAL),
+                teamId = selfTeamId
             )
 
-        val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
-            .withAppsAllowedResult(true)
-            .withConversationDetailUpdate(TestConversationDetails.GROUP.copy(conversation = conversation))
-            .arrange()
-        advanceUntilIdle()
+            // When
+            val channelDetails = testChannel.copy(
+                isSelfUserMember = true,
+                permission = ChannelAddPermission.EVERYONE
+            )
 
-        // when
-        // then
-        assertEquals(true, viewModel.groupOptionsState.value.isServicesAllowed)
-    }
+            val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
+                .withGetSelfUserReturns(self)
+                .withSelfTeamUseCaseReturns(Team(selfTeamId.value, "team_name", "icon"))
+                .withConversationDetailUpdate(channelDetails)
+                .arrange()
+
+            assertEquals(false, viewModel.groupOptionsState.value.canSelfAddParticipants)
+        }
 
     @Test
-    fun `given isServicesAllowed for team, but no role for conversation, then state should reflect this to not allow`() = runTest {
-        // given
-        val conversation =
-            TestConversation.GROUP().copy(
-                accessRole = listOf(Conversation.AccessRole.GUEST)
+    fun `given channel EVERYONE and self is guest non admin of owning team, then canSelfAddParticipants is false`() =
+        runTest {
+            // Given
+            val selfTeamId = TeamId("team_id")
+            val self = TestUser.SELF_USER.copy(
+                userType = UserTypeInfo.Regular(UserType.GUEST),
+                teamId = selfTeamId
             )
 
-        val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
-            .withAppsAllowedResult(true)
-            .withConversationDetailUpdate(TestConversationDetails.GROUP.copy(conversation = conversation))
-            .arrange()
-        advanceUntilIdle()
+            // When
+            val channelDetails = testChannel.copy(
+                isSelfUserMember = true,
+                selfRole = Conversation.Member.Role.Member,
+                permission = ChannelAddPermission.EVERYONE
+            )
 
-        // when
-        // then
-        assertEquals(false, viewModel.groupOptionsState.value.isServicesAllowed)
-    }
+            val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
+                .withGetSelfUserReturns(self)
+                .withSelfTeamUseCaseReturns(Team(selfTeamId.value, "team_name", "icon"))
+                .withConversationDetailUpdate(channelDetails)
+                .arrange()
+
+            // Then
+            assertEquals(false, viewModel.groupOptionsState.value.canSelfAddParticipants)
+        }
+
+    @Test
+    fun `given channel ADMINS and self is regular member of owning team, then canSelfAddParticipants is false`() =
+        runTest {
+            // Given
+            val selfTeamId = TeamId("team_id")
+            val self = TestUser.SELF_USER.copy(
+                userType = UserTypeInfo.Regular(UserType.INTERNAL),
+                teamId = selfTeamId
+            )
+
+            // When
+            val channelDetails = testChannel.copy(
+                isSelfUserMember = true,
+                selfRole = Conversation.Member.Role.Member,
+                permission = ChannelAddPermission.ADMINS,
+                access = ChannelAccess.PRIVATE
+            )
+
+            val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
+                .withGetSelfUserReturns(self)
+                .withSelfTeamUseCaseReturns(Team(selfTeamId.value, "team_name", "icon"))
+                .withConversationDetailUpdate(channelDetails)
+                .arrange()
+
+            // Then
+            assertEquals(false, viewModel.groupOptionsState.value.canSelfAddParticipants)
+        }
 
     companion object {
         val dummyConversationId = ConversationId("some-dummy-value", "some.dummy.domain")
@@ -742,6 +656,41 @@ class GroupDetailsViewModelTest {
             selfRole = Conversation.Member.Role.Member,
             wireCell = null,
         )
+
+        val testChannel = ConversationDetails.Group.Channel(
+            Conversation(
+                id = dummyConversationId,
+                name = "Conv Name",
+                type = Conversation.Type.Group.Channel,
+                teamId = TeamId("team_id"),
+                protocol = Conversation.ProtocolInfo.Proteus,
+                mutedStatus = MutedConversationStatus.AllAllowed,
+                removedBy = null,
+                lastNotificationDate = null,
+                lastModifiedDate = null,
+                access = listOf(Conversation.Access.CODE, Conversation.Access.INVITE),
+                accessRole = Conversation.defaultGroupAccessRoles.toMutableList().apply { add(Conversation.AccessRole.GUEST) },
+                lastReadDate = Instant.parse("2022-04-04T16:11:28.388Z"),
+                creatorId = null,
+                receiptMode = Conversation.ReceiptMode.ENABLED,
+                messageTimer = null,
+                userMessageTimer = null,
+                archived = false,
+                archivedDateTime = null,
+                mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+                proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+                legalHoldStatus = Conversation.LegalHoldStatus.ENABLED
+            ),
+            hasOngoingCall = false,
+            isSelfUserMember = true,
+            selfRole = Conversation.Member.Role.Member,
+            wireCell = null,
+            isFavorite = false,
+            folder = null,
+            access = ChannelAccess.PRIVATE,
+            permission = ChannelAddPermission.EVERYONE,
+            historySharing = ConversationHistorySettings.Private,
+        )
     }
 }
 
@@ -758,9 +707,6 @@ internal class GroupConversationDetailsViewModelArrangement {
 
     @MockK
     lateinit var observeParticipantsForConversationUseCase: ObserveParticipantsForConversationUseCase
-
-    @MockK
-    lateinit var updateConversationAccessRoleUseCase: UpdateConversationAccessRoleUseCase
 
     @MockK
     lateinit var getSelfTeamUseCase: GetUpdatedSelfTeamUseCase
@@ -800,14 +746,12 @@ internal class GroupConversationDetailsViewModelArrangement {
             getSelfUser = getSelfUser,
             observeConversationDetails = observeConversationDetails,
             observeConversationMembers = observeParticipantsForConversationUseCase,
-            updateConversationAccessRole = updateConversationAccessRoleUseCase,
             getSelfTeam = getSelfTeamUseCase,
             savedStateHandle = savedStateHandle,
             updateConversationReceiptMode = updateConversationReceiptMode,
             isMLSEnabled = isMLSEnabledUseCase,
             observeSelfDeletionTimerSettingsForConversation = observeSelfDeletionTimerSettingsForConversation,
             refreshUsersWithoutMetadata = refreshUsersWithoutMetadata,
-            observeIsAppsAllowedForUsage = observeIsAppsAllowedForUsage,
             isWireCellsEnabled = isWireCellsEnabled,
         )
     }
@@ -831,7 +775,7 @@ internal class GroupConversationDetailsViewModelArrangement {
         coEvery { observeConversationDetails(any()) } returns flowOf()
         coEvery { getSelfUser() } returns TestUser.SELF_USER
         coEvery { observeParticipantsForConversationUseCase(any(), any()) } returns flowOf()
-        coEvery { getSelfTeamUseCase() } returns Either.Right(null)
+        coEvery { getSelfTeamUseCase() } returns null
         coEvery { isMLSEnabledUseCase() } returns true
         coEvery { updateConversationMutedStatus(any(), any(), any()) } returns ConversationUpdateStatusResult.Success
         coEvery { observeSelfDeletionTimerSettingsForConversation(any(), any()) } returns flowOf(SelfDeletionTimer.Disabled)
@@ -859,12 +803,8 @@ internal class GroupConversationDetailsViewModelArrangement {
         observeParticipantsForConversationFlow.emit(conversationParticipantsData)
     }
 
-    suspend fun withUpdateConversationAccessUseCaseReturns(result: UpdateConversationAccessRoleUseCase.Result) = apply {
-        coEvery { updateConversationAccessRoleUseCase(any(), any(), any()) } returns result
-    }
-
     suspend fun withSelfTeamUseCaseReturns(result: Team?) = apply {
-        coEvery { getSelfTeamUseCase() } returns Either.Right(result)
+        coEvery { getSelfTeamUseCase() } returns result
     }
 
     suspend fun withUpdateConversationReceiptModeReturningSuccess() = apply {

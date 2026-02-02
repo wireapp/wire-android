@@ -36,8 +36,6 @@
     <string name="label_learn_more">Saznaj više</string>
     <string name="label_removing">Uklanjanje…</string>
     <string name="label_logging_in">Prijava…</string>
-    <string name="label_membership_guest">Gost</string>
-    <string name="label_membership_external">Vanjski</string>
     <string name="label_user_deleted">Izbrisano</string>
     <string name="label_message_sent_failure">Poruka se ne može poslati zbog problema s konekcijom.</string>
     <string name="label_message_edit_sent_failure">Uređena poruka nije mogla biti poslana zbog problema konekcijom.</string>
@@ -54,7 +52,6 @@
     <string name="label_message_partial_delivery_participants_many_deliver_later">%s će dobiti tvoju poruku kasnije.</string>
     <string name="label_reset_session">Resetiraj sesiju</string>
     <string name="label_reset_session_success">Sesija je uspješno resetirana</string>
-    <string name="label_federated_membership">Vanjski</string>
     <string name="label_update">Ažuriraj</string>
     <string name="label_close">Zatvori</string>
     <string name="label_download">Preuzimanje</string>
@@ -78,10 +75,7 @@
     <string name="content_description_reveal_password">Prikaži lozinku</string>
     <string name="content_description_hide_password">Sakrij lozinku</string>
     <string name="content_description_search_back">Ikona za povratak</string>
-    <string name="content_description_clear_content">Izbriši sadržaj</string>
-    <string name="content_description_user_avatar">Slika profila</string>
     <string name="content_description_muted_conversation">Utišan razgovor</string>
-    <string name="content_description_check">Oznaka kvačice</string>
     <string name="content_description_download_icon">Ikona za preuzimanje</string>
     <string name="content_description_open_asset_icon">Otvori ikonu</string>
     <string name="content_description_add_to_favourite">Dodaj u Favorite</string>
@@ -92,8 +86,6 @@
     <string name="content_description_unblock_the_user">Odblokiraj</string>
     <string name="content_description_conversation_phone_icon">Pokreni audio poziv</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
-    <string name="content_description_conversation_search_icon">Ikona pretraživanja</string>
-    <string name="content_description_conversation_search_input">Unos pretraživanja</string>
     <string name="content_description_conversation_enable_rich_text_mode">Gumb za prikaz obogaćenog teksta</string>
     <string name="content_description_conversation_rich_text_header">Zaglavlje teksta</string>
     <string name="content_description_conversation_rich_text_bold">Podebljanje teksta</string>
@@ -390,9 +382,6 @@
     <string name="attachment_voice_message">Zvuk</string>
     <!-- User Profile -->
     <string name="user_profile_title">Korisnički profil</string>
-    <string name="user_profile_status_busy">Zauzet</string>
-    <string name="user_profile_status_away">Odsutan</string>
-    <string name="user_profile_status_none">Ništa</string>
     <string name="user_profile_details_tab">Detalji</string>
     <string name="user_profile_devices_tab">Uređaji</string>
     <string name="user_profile_unblock_user">Odblokiraj korisnika</string>
@@ -421,9 +410,7 @@
     <string name="profile_image_change_image_button_label">Promijeni sliku…</string>
     <!--Conversation-->
     <string name="label_message_details">Detalji o poruci</string>
-    <string name="label_copy">Kopiraj</string>
     <string name="label_share">Podijeli</string>
-    <string name="label_edit">Uredi</string>
     <string name="label_delete">Izbriši</string>
     <string name="info_message_copied">Poruka kopirana</string>
     <!-- System messages -->
@@ -566,5 +553,7 @@
     <string name="debug_settings_screen_title">Postavke za uklanjanje pogrešaka</string>
     <!--    Personal to team migration screen-->
     <!-- Move to Folder -->
+    <!-- enterprise configurations -->
     <!--    channel not available dialog-->
+    <!-- Apps-->
 </resources>

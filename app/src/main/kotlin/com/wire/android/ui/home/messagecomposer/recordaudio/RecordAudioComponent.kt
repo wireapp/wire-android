@@ -137,6 +137,7 @@ fun RecordAudioComponent(
                 applyAudioFilterState = viewModel.state.shouldApplyEffects,
                 applyAudioFilterClick = viewModel::setApplyEffectsAndPlayAudio,
                 audioState = viewModel.state.audioState,
+                wavesMask = viewModel.state.wavesMask,
                 onClick = viewModel::sendRecording,
                 modifier = buttonModifier,
                 outputFile = viewModel.getPlayableAudioFile(),

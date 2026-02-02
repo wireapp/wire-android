@@ -36,11 +36,11 @@ import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.NotificationConstants
 import com.wire.android.notification.NotificationIds
 import com.wire.android.notification.openAppPendingIntent
-import com.wire.kalium.common.functional.fold
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
+import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -74,7 +74,7 @@ class DeleteConversationLocallyWorker @AssistedInject constructor(
         if (userIdString == null || conversationIdString == null) {
             return@coroutineScope Result.failure() // If either ID is not provided, fail the work
         }
-        val qualifiedIdMapper = QualifiedIdMapperImpl(null)
+        val qualifiedIdMapper = QualifiedIdMapper(null)
         val conversationId = qualifiedIdMapper.fromStringToQualifiedID(conversationIdString)
         val userId = qualifiedIdMapper.fromStringToQualifiedID(userIdString)
         coreLogic.getGlobalScope().doesValidSessionExist(userId).let {
@@ -82,9 +82,10 @@ class DeleteConversationLocallyWorker @AssistedInject constructor(
                 return@coroutineScope Result.failure() // If no valid session exists, fail the work
             }
         }
-
-        coreLogic.getSessionScope(userId).conversations.deleteConversationLocallyUseCase(conversationId)
-            .fold({ Result.retry() }, { Result.success() })
+        when (coreLogic.getSessionScope(userId).conversations.deleteConversationLocallyUseCase(conversationId)) {
+            is ClearConversationContentUseCase.Result.Failure -> Result.retry()
+            ClearConversationContentUseCase.Result.Success -> Result.success()
+        }
     }
 
     override suspend fun getForegroundInfo(): ForegroundInfo {
@@ -94,7 +95,7 @@ class DeleteConversationLocallyWorker @AssistedInject constructor(
         )
 
         val notification = NotificationCompat.Builder(applicationContext, NotificationConstants.OTHER_CHANNEL_ID)
-            .setSmallIcon(R.drawable.notification_icon_small)
+            .setSmallIcon(com.wire.android.feature.notification.R.drawable.notification_icon_small)
             .setAutoCancel(true)
             .setSilent(true)
             .setCategory(NotificationCompat.CATEGORY_SERVICE)

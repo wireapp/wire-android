@@ -207,7 +207,9 @@ class WireNotificationManagerTest {
             verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
             verify(exactly = 0) {
                 arrangement.messageNotificationManager.handleNotification(
-                    newNotifications = any(), userId = any(), userName = TestUser.SELF_USER.handle!!
+                    newNotifications = any(),
+                    userId = any(),
+                    userName = TestUser.SELF_USER.handle!!
                 )
             }
             verify(exactly = 1) { arrangement.callNotificationManager.hideAllIncomingCallNotifications() }
@@ -234,7 +236,9 @@ class WireNotificationManagerTest {
             verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
             verify(exactly = 0) {
                 arrangement.messageNotificationManager.handleNotification(
-                    any(), any(), TestUser.SELF_USER.handle!!
+                    any(),
+                    any(),
+                    TestUser.SELF_USER.handle!!
                 )
             }
             verify(exactly = 1) { arrangement.callNotificationManager.hideAllIncomingCallNotifications() }
@@ -258,7 +262,9 @@ class WireNotificationManagerTest {
 
         verify(exactly = 1) {
             arrangement.messageNotificationManager.handleNotification(
-                messageNotifications, TestUser.SELF_USER.id, TestUser.SELF_USER.handle!!
+                messageNotifications,
+                TestUser.SELF_USER.id,
+                TestUser.SELF_USER.handle!!
             )
         }
     }
@@ -286,7 +292,9 @@ class WireNotificationManagerTest {
 
             verify(exactly = 1) {
                 arrangement.messageNotificationManager.handleNotification(
-                    listOf(), TestUser.SELF_USER.id, TestUser.SELF_USER.handle!!
+                    listOf(),
+                    TestUser.SELF_USER.id,
+                    TestUser.SELF_USER.handle!!
                 )
             }
             coVerify(atLeast = 1) {
@@ -1017,11 +1025,13 @@ class WireNotificationManagerTest {
 
             verify(exactly = 0) {
                 arrangement.messageNotificationManager.handleNotification(
-                    listOf(), TestUser.SELF_USER.id, TestUser.SELF_USER.handle!!
+                    listOf(),
+                    TestUser.SELF_USER.id,
+                    TestUser.SELF_USER.handle!!
                 )
             }
             coVerify(atLeast = 1) {
-                arrangement.markMessagesAsNotified(MarkMessagesAsNotifiedUseCase.UpdateTarget.AllConversations)
+                arrangement.markMessagesAsNotified(MarkMessagesAsNotifiedUseCase.UpdateTarget.SingleConversation(conversationId))
             }
         }
 
@@ -1183,7 +1193,9 @@ class WireNotificationManagerTest {
             coEvery { callNotificationManager.builder.getNotificationTitle(any()) } returns "Test title"
             coEvery { messageScope.getNotifications } returns getNotificationsUseCase
             coEvery { messageScope.markMessagesAsNotified } returns markMessagesAsNotified
-            coEvery { markMessagesAsNotified(any<MarkMessagesAsNotifiedUseCase.UpdateTarget.SingleConversation>()) } returns Result.Success
+            coEvery {
+                markMessagesAsNotified(any<MarkMessagesAsNotifiedUseCase.UpdateTarget.SingleConversation>())
+            } returns Result.Success
             coEvery { globalKaliumScope.session.currentSessionFlow } returns currentSessionFlowUseCase
             coEvery { currentSessionFlowUseCase() } returns currentSessionChannel.consumeAsFlow()
             coEvery { getSelfUser.invoke() } returns flowOf(TestUser.SELF_USER)
@@ -1334,7 +1346,10 @@ class WireNotificationManagerTest {
             id: ConversationId = ConversationId("conversation_value", "conversation_domain"),
             messages: List<LocalNotificationMessage> = listOf()
         ) = LocalNotification.Conversation(
-            id, "name_${id.value}", messages, true
+            id,
+            "name_${id.value}",
+            messages,
+            true
         )
 
         private fun provideLocalNotificationUpdateMessage(
@@ -1345,7 +1360,10 @@ class WireNotificationManagerTest {
         }
 
         private fun provideLocalNotificationMessage(): LocalNotificationMessage = LocalNotificationMessage.Text(
-            "message_id", LocalNotificationMessageAuthor("author", null), Instant.DISTANT_FUTURE, "testing text"
+            "message_id",
+            LocalNotificationMessageAuthor("author", null),
+            Instant.DISTANT_FUTURE,
+            "testing text"
         )
 
         private fun provideLocalNotificationMessagePing(): LocalNotificationMessage = LocalNotificationMessage.Knock(

@@ -16,4 +16,43 @@
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
 <resources>
+    <string name="all_meetings_tab_next">NEXT</string>
+    <string name="all_meetings_tab_past">PAST</string>
+    <string name="meeting_repeating_daily">Daily</string>
+    <string name="meeting_repeating_weekly">Weekly</string>
+    <string name="meeting_repeating_biweekly">Biweekly</string>
+    <string name="meeting_repeating_monthly">Monthly</string>
+    <string name="meeting_repeating_annually">Annually</string>
+    <string name="meeting_started_at">Started at %1$s</string>
+    <string name="content_description_meeting_icon">Meeting icon</string>
+    <string name="content_description_more_menu_icon">Meeting more menu icon</string>
+    <string name="meeting_join_button">Join</string>
+    <string name="meeting_attending">Attending</string>
+    <string name="meeting_starting_in">Starting in %1$s</string>
+    <string name="meeting_button_show_all">Show All</string>
+    <string name="meeting_date_header_ongoing">Ongoing</string>
+    <string name="meeting_date_header_today">Today (%1$s)</string>
+    <string name="meeting_date_header_tomorrow">Tomorrow (%1$s)</string>
+    <string name="meeting_date_header_yesterday">Yesterday (%1$s)</string>
+    <string name="deleted_meeting_options_closed">The options have been closed as this meeting is no longer available.</string>
+    <string name="meeting_options_start_meeting">Start meeting</string>
+    <string name="meeting_options_create_conversation">Create conversation</string>
+    <string name="content_description_create_conversation">Create conversation icon</string>
+    <string name="meeting_options_copy_link">Copy link</string>
+    <string name="content_description_copy_link">Copy link icon</string>
+    <string name="meeting_options_edit_meeting">Edit meeting</string>
+    <string name="content_description_edit_meeting">Edit meeting icon</string>
+    <string name="meeting_options_delete_meeting_for_me">Delete meeting for me</string>
+    <string name="content_description_delete_meeting_for_me">Delete meeting for me icon</string>
+    <string name="meeting_options_delete_meeting_for_everyone">Delete meeting for everyone</string>
+    <string name="content_description_delete_meeting_for_everyone">Delete meeting for everyone icon</string>
+    <string name="meetings_empty_title_next">No upcoming meetings yet</string>
+    <string name="meetings_empty_title_past">No past meetings yet</string>
+    <string name="meetings_empty_text_next">"Start a meeting with team members, guests or external parties."</string>
+    <string name="meetings_empty_text_past">Previous meetings will be listed here.</string>
+    <string name="new_meeting_title">New Meeting</string>
+    <string name="new_meeting_now">Meet Now</string>
+    <string name="new_meeting_schedule">Schedule a Meeting</string>
+    <string name="content_description_new_meeting_now_icon">Meet now icon</string>
+    <string name="content_description_new_meeting_schedule_icon">Schedule a Meeting icon</string>
 </resources>

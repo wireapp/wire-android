@@ -18,6 +18,7 @@
 package user.usermanager
 
 import android.content.Context
+import android.util.Log
 import backendUtils.BackendClient
 import backendUtils.team.TeamRoles
 import backendUtils.team.createTeamOwnerViaBackend
@@ -49,12 +50,13 @@ import java.util.logging.Logger
 import java.util.stream.Collectors
 
 @Suppress("TooManyFunctions")
-class ClientUserManager {
-
+class ClientUserManager(
+    private val useSpecialEmail: Boolean = false
+) {
     private val usersMap: MutableMap<UserState, MutableList<ClientUser>> =
         ConcurrentHashMap<UserState, MutableList<ClientUser>>()
-    private var useSpecialEmail: Boolean = false
     private var selfUser: ClientUser? = null
+    private var actualUseSpecialEmail: Boolean = useSpecialEmail
 
     companion object {
         private val NAME_ALIAS_TEMPLATE: Function<Int, String> = Function { idx -> "user${idx}Name" }
@@ -75,17 +77,6 @@ class ClientUserManager {
         private val SELF_USER_PASSWORD_ALIASES = arrayOf("myPassword")
         private val SELF_USER_EMAIL_ALIASES = arrayOf("myEmail")
         private val SELF_USER_UNIQUE_USERNAME_ALIASES = arrayOf("myUniqueUsername")
-
-        @Volatile
-        private var INSTANCE: ClientUserManager? = null
-
-        @Synchronized
-        fun getInstance(): ClientUserManager {
-            if (INSTANCE == null) {
-                INSTANCE = ClientUserManager(true)
-            }
-            return INSTANCE!!
-        }
 
         @Suppress("LongParameterList")
         private fun setClientUserAliases(
@@ -119,24 +110,20 @@ class ClientUserManager {
         }
     }
 
-    // Creates an empty manager (for maintenance jobs)
-    constructor() {
+    init {
         usersMap[UserState.Created] = ArrayList()
         usersMap[UserState.NotCreated] = ArrayList()
-    }
 
-    constructor(useSpecialEmail: Boolean) {
-        usersMap[UserState.Created] = ArrayList()
-        usersMap[UserState.NotCreated] = ArrayList()
         // Workaround for federation tests (can be deleted when inbucket is rolled out completely)
-        this.useSpecialEmail = if (BackendClient.getDefault() == null || BackendClient.getDefault()?.hasInbucketSetup() == true) {
+        val actualUseSpecialEmail = if (BackendClient.getDefault() == null || BackendClient.getDefault()?.hasInbucketSetup() == true) {
             false
         } else {
             useSpecialEmail
         }
+
         for (userIdx in 0 until MAX_USERS) {
             val pendingUser = ClientUser()
-            setUserDefaults(pendingUser, userIdx)
+            setUserDefaults(pendingUser, userIdx, actualUseSpecialEmail)
             usersMap[UserState.NotCreated]?.add(pendingUser)
         }
     }
@@ -154,8 +141,9 @@ class ClientUserManager {
      * Sets default values and aliases for a user based on their index.
      * @param user The ClientUser object to modify
      * @param userIdx The index of the user (used for generating unique values)
+     * @param useSpecialEmail Whether to use special email generation
      */
-    private fun setUserDefaults(user: ClientUser, userIdx: Int) {
+    private fun setUserDefaults(user: ClientUser, userIdx: Int, useSpecialEmail: Boolean) {
         // If special email flag is set, generate a unique email and password
         if (useSpecialEmail) {
             user.email = generateIndexedEmail(user.uniqueUsername ?: user.email.orEmpty(), userIdx + 1)
@@ -205,6 +193,7 @@ class ClientUserManager {
      * @return Unmodifiable list containing all users (both created and not created)
      */
     fun getAllUsers(): List<ClientUser> {
+        ensureUsersInitialized()
         val allUsers = ArrayList<ClientUser>()
 
         // Add both created and non-created users to the combined list
@@ -251,8 +240,10 @@ class ClientUserManager {
      * @throws NoSuchUserException if no user matches the name criteria
      */
     @Throws(NoSuchUserException::class)
-    fun findUserByNameOrNameAlias(alias: String): ClientUser =
-        findUserBy(alias, arrayOf(FindBy.NAME, FindBy.NAME_ALIAS))
+    fun findUserByNameOrNameAlias(alias: String): ClientUser {
+        ensureUsersInitialized()
+        return findUserBy(alias, arrayOf(FindBy.NAME, FindBy.NAME_ALIAS))
+    }
 
     /**
      * Finds a user by either first name or first name alias.
@@ -470,6 +461,7 @@ class ClientUserManager {
     }
 
     private fun fetchCreatedUsers(): List<ClientUser> {
+        ensureUsersInitialized()
         return Collections.unmodifiableList(this.usersMap[UserState.Created])
     }
 
@@ -505,7 +497,7 @@ class ClientUserManager {
         val unactivatedMails = ArrayList<String>()
         for (i in 0 until amountToCreate) {
             val user = ClientUser()
-            setUserDefaults(user, createdUsers.size + i)
+            setUserDefaults(user, createdUsers.size + i, useSpecialEmail)
             log.info("Add new unactivated mail: ${user.email}")
             unactivatedMails.add(user.email.orEmpty())
         }
@@ -571,6 +563,34 @@ class ClientUserManager {
         owner.isTeamOwner = true
     }
 
+    /**
+     * Initialize users on first access if not already initialized
+     */
+    @Suppress("TooGenericExceptionCaught")
+    private fun ensureUsersInitialized() {
+        if (usersMap[UserState.NotCreated].isNullOrEmpty()) {
+            // Workaround for federation tests (can be deleted when inbucket is rolled out completely)
+            val hasInbucketSetup = try {
+                BackendClient.getDefault()?.hasInbucketSetup() == true
+            } catch (e: Exception) {
+                Log.d("Debug", "Failed to check Inbucket setup: ${e.message}")
+                false
+            }
+
+            actualUseSpecialEmail = if (BackendClient.getDefault() == null || hasInbucketSetup) {
+                false
+            } else {
+                useSpecialEmail
+            }
+
+            for (userIdx in 0 until MAX_USERS) {
+                val pendingUser = ClientUser()
+                setUserDefaults(pendingUser, userIdx, actualUseSpecialEmail)
+                usersMap[UserState.NotCreated]?.add(pendingUser)
+            }
+        }
+    }
+
     fun getSelfUserOrThrowError(): ClientUser =
         selfUser ?: throw SelfUserNotDefinedException("Self user should be defined in some previous step!")
 
@@ -615,9 +635,13 @@ class ClientUserManager {
 
     fun isSelfUserSet(): Boolean = selfUser != null
 
-    fun isUserCreated(user: ClientUser): Boolean = usersMap[UserState.Created]?.contains(user) ?: false
+    fun isUserCreated(user: ClientUser): Boolean {
+        ensureUsersInitialized()
+        return usersMap[UserState.Created]?.contains(user) ?: false
+    }
 
     fun appendCustomUser(user: ClientUser): Int {
+        ensureUsersInitialized()
         usersMap[UserState.Created]?.let { safeCreatedUsers ->
             if (safeCreatedUsers.contains(user)) {
                 return safeCreatedUsers.indexOf(user)
@@ -629,6 +653,7 @@ class ClientUserManager {
     }
 
     fun splitAliases(aliases: String): List<String> {
+        ensureUsersInitialized()
         return if (aliases.lowercase().startsWith(OTHER_USERS_ALIAS)) {
             val otherUsers = ArrayList(createdUsers)
             otherUsers.remove(getSelfUserOrThrowError())
@@ -656,4 +681,9 @@ class ClientUserManager {
     class TooManyUsersToCreateException(msg: String) : RuntimeException(msg)
 
     class SelfUserNotDefinedException(msg: String) : RuntimeException(msg)
+
+    fun toClientUser(nameAlias: String): ClientUser {
+        ensureUsersInitialized()
+        return findUserByNameOrNameAlias(nameAlias)
+    }
 }

@@ -17,19 +17,22 @@
  */
 package com.wire.android.feature.cells.ui
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
+import com.wire.android.feature.cells.R
+import com.wire.android.feature.cells.ui.destinations.ConversationFilesWithSlideInTransitionScreenDestination
 import com.wire.android.feature.cells.ui.destinations.RecycleBinScreenDestination
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
-import com.wire.android.feature.cells.ui.destinations.ConversationFilesWithSlideInTransitionScreenDestination
 import com.wire.android.navigation.WireNavigator
 import com.wire.android.navigation.annotation.features.cells.WireDestination
 import com.wire.android.navigation.style.SlideNavigationAnimation
-import com.wire.android.ui.common.topappbar.NavigationIconType
+import com.wire.android.ui.common.search.rememberSearchbarState
 
 @WireDestination(
     style = SlideNavigationAnimation::class,
@@ -41,6 +44,15 @@ fun ConversationFilesWithSlideInTransitionScreen(
     cellFilesNavArgs: CellFilesNavArgs,
     viewModel: CellViewModel = hiltViewModel(),
 ) {
+    val conversationSearchBarState = rememberSearchbarState()
+
+    LaunchedEffect(conversationSearchBarState.searchQueryTextState.text) {
+        viewModel.onSearchQueryUpdated(conversationSearchBarState.searchQueryTextState.text.toString())
+    }
+
+    BackHandler(conversationSearchBarState.isSearchActive) {
+        conversationSearchBarState.closeSearch()
+    }
 
     LaunchedEffect(viewModel.navigateToRecycleBinRoot.collectAsState().value) {
         if (viewModel.navigateToRecycleBinRoot.value) {
@@ -59,7 +71,9 @@ fun ConversationFilesWithSlideInTransitionScreen(
     ConversationFilesScreenContent(
         navigator = navigator,
         currentNodeUuid = viewModel.currentNodeUuid(),
-        screenTitle = cellFilesNavArgs.screenTitle,
+        conversationSearchBarState = conversationSearchBarState,
+        isSearchResult = false,
+        screenTitle = stringResource(R.string.conversation_files_title),
         isRecycleBin = viewModel.isRecycleBin(),
         actions = viewModel.actions,
         pagingListItems = viewModel.nodesFlow.collectAsLazyPagingItems(),
@@ -73,8 +87,8 @@ fun ConversationFilesWithSlideInTransitionScreen(
             val stepsBack = viewModel.breadcrumbs()?.size!! - it - 1
             navigator.navigateBackAndRemoveAllConsecutiveXTimes(ConversationFilesWithSlideInTransitionScreenDestination.route, stepsBack)
         },
-        sendIntent = { viewModel.sendIntent(it) },
-        onRefresh = { viewModel.onPullToRefresh() },
-        navigationIconType = NavigationIconType.Back(),
+        sendIntent = viewModel::sendIntent,
+        onRefresh = viewModel::onPullToRefresh,
+        retryEditNodeError = viewModel::editNode
     )
 }

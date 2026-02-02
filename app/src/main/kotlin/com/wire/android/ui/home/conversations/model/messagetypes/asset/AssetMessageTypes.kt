@@ -41,6 +41,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -58,12 +59,13 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.home.conversations.messages.item.isBubble
+import com.wire.android.ui.home.conversations.messages.item.onBackground
 import com.wire.android.ui.home.conversations.messages.item.textColor
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.DeviceUtil
+import com.wire.android.util.FileSizeFormatter
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.asset.isFailed
@@ -82,15 +84,15 @@ internal fun MessageAsset(
         modifier = Modifier
             .applyIf(!messageStyle.isBubble()) {
                 padding(top = dimensions().spacing4x)
-                .background(
-                    color = MaterialTheme.wireColorScheme.surfaceVariant,
-                    shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
-                )
-                .border(
-                    width = 1.dp,
-                    color = MaterialTheme.wireColorScheme.secondaryButtonDisabledOutline,
-                    shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
-                )
+                    .background(
+                        color = MaterialTheme.wireColorScheme.surfaceVariant,
+                        shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
+                    )
+                    .border(
+                        width = 1.dp,
+                        color = MaterialTheme.wireColorScheme.secondaryButtonDisabledOutline,
+                        shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
+                    )
             }
             .clickable(if (isNotClickable(assetTransferStatus)) null else onAssetClick)
     ) {
@@ -101,7 +103,14 @@ internal fun MessageAsset(
                 .align(Alignment.Center)
                 .fillMaxWidth()
             Column(
-                modifier = assetModifier.padding(dimensions().spacing8x),
+                modifier = assetModifier.padding(
+                    horizontal = if (messageStyle.isBubble()) {
+                        dimensions().spacing0x
+                    } else {
+                        dimensions().spacing8x
+                    },
+                    vertical = dimensions().spacing8x
+                ),
                 verticalArrangement = Arrangement.spacedBy(dimensions().spacing8x)
             ) {
                 FileHeaderView(
@@ -117,7 +126,7 @@ internal fun MessageAsset(
                     fontSize = 15.sp,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
-                    color = messageStyle.textColor()
+                    color = messageStyle.onBackground()
                 )
 
                 assetDataPath?.let { localPath ->
@@ -192,15 +201,17 @@ fun RestrictedAssetMessage(assetTypeIcon: Int, restrictedAssetMessage: String, m
 
 @Composable
 fun RestrictedGenericFileMessage(fileName: String, fileSize: Long, messageStyle: MessageStyle, modifier: Modifier = Modifier) {
+    val context = LocalContext.current
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(dimensions().messageAssetBorderRadius),
         border = BorderStroke(dimensions().spacing1x, MaterialTheme.wireColorScheme.divider)
     ) {
         val assetName = fileName.split(".").dropLast(1).joinToString(".")
+        val fileSizeFormated = FileSizeFormatter(context).formatSize(fileSize)
         val assetDescription = provideAssetDescription(
             fileName.split(".").last(),
-            fileSize
+            fileSizeFormated
         )
 
         ConstraintLayout(
@@ -261,9 +272,9 @@ fun RestrictedGenericFileMessage(fileName: String, fileSize: Long, messageStyle:
                 modifier = Modifier
                     .padding(top = dimensions().spacing4x)
                     .constrainAs(message) {
-                    start.linkTo(parent.start)
-                    top.linkTo(icon.bottom)
-                }
+                        start.linkTo(parent.start)
+                        top.linkTo(icon.bottom)
+                    }
             )
         }
     }
@@ -288,8 +299,8 @@ private fun isNotClickable(assetTransferStatus: AssetTransferStatus) =
 
 @Suppress("MagicNumber")
 @Stable
-private fun provideAssetDescription(assetExtension: String, assetSizeInBytes: Long): String {
-    return "${assetExtension.uppercase()} (${DeviceUtil.formatSize(assetSizeInBytes)})"
+private fun provideAssetDescription(assetExtension: String, fileSizeFormatted: String): String {
+    return "${assetExtension.uppercase()} ($fileSizeFormatted)"
 }
 
 @PreviewMultipleThemes

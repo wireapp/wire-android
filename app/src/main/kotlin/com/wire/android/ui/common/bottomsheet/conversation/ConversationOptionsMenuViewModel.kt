@@ -36,7 +36,6 @@ import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.LeaveGroupDialogState
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.workmanager.worker.enqueueConversationDeletionLocally
-import com.wire.kalium.common.functional.fold
 import com.wire.kalium.logic.data.conversation.ConversationFolder
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
@@ -54,6 +53,7 @@ import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUs
 import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.delete.MarkConversationAsDeletedLocallyUseCase
+import com.wire.kalium.logic.feature.conversation.delete.MarkConversationAsDeletedResult
 import com.wire.kalium.logic.feature.conversation.folder.AddConversationToFavoritesUseCase
 import com.wire.kalium.logic.feature.conversation.folder.RemoveConversationFromFavoritesUseCase
 import com.wire.kalium.logic.feature.conversation.folder.RemoveConversationFromFolderUseCase
@@ -88,7 +88,7 @@ interface ConversationOptionsMenuViewModel : ActionsManager<ConversationOptionsM
     val archiveConversationDialogState: VisibilityState<DialogState> get() = VisibilityState()
 
     fun observeConversationStateFlow(conversationId: ConversationId): StateFlow<ConversationOptionsMenuState> =
-        MutableStateFlow(ConversationOptionsMenuState.Loading)
+        MutableStateFlow(ConversationOptionsMenuState.Conversation(mockConversationOptionsData))
 
     fun changeFavoriteState(conversationId: ConversationId, conversationName: String, addToFavorite: Boolean) {}
     fun removeFromFolder(conversationId: ConversationId, conversationName: String, folder: ConversationFolder) {}
@@ -287,17 +287,18 @@ class ConversationOptionsMenuViewModelImpl @Inject constructor(
     }
 
     private suspend fun markAsDeletedLocallyAndEnqueueWorkerToDeleteCompletely(conversationId: ConversationId): Boolean {
-        return markConversationAsDeletedLocally(conversationId).fold(
-            {
+        return when (markConversationAsDeletedLocally(conversationId)) {
+            is MarkConversationAsDeletedResult.Failure -> {
                 appLogger.e("Failed to mark conversation $conversationId as deleted locally")
                 false
-            },
-            {
+            }
+
+            MarkConversationAsDeletedResult.Success -> {
                 appLogger.d("Conversation $conversationId marked as deleted locally, starting worker to complete deletion")
                 workManager.enqueueConversationDeletionLocally(conversationId, currentAccount)
                 true
             }
-        )
+        }
     }
 
     override fun deleteGroup(conversationId: ConversationId, conversationName: String) {

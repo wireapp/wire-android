@@ -30,13 +30,17 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.di.IsProfileQRCodeEnabledUseCaseProvider
 import com.wire.android.di.ObserveIfE2EIRequiredDuringLoginUseCaseProvider
 import com.wire.android.di.ObserveScreenshotCensoringConfigUseCaseProvider
+import com.wire.android.di.ObserveSelfUserUseCaseProvider
 import com.wire.android.di.ObserveSyncStateUseCaseProvider
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.framework.TestClient
 import com.wire.android.framework.TestUser
+import com.wire.android.framework.TestUser.SELF_USER
 import com.wire.android.services.ServicesManager
+import com.wire.android.sync.MonitorSyncWorkUseCase
 import com.wire.android.ui.common.dialogs.CustomServerDetailsDialogState
 import com.wire.android.ui.common.dialogs.CustomServerNoNetworkDialogState
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModelTest
@@ -63,6 +67,7 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.appVersioning.ObserveIfAppUpdateRequiredUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.client.ClearNewClientsForUserUseCase
+import com.wire.kalium.logic.feature.client.IsProfileQRCodeEnabledUseCase
 import com.wire.kalium.logic.feature.client.NewClientResult
 import com.wire.kalium.logic.feature.client.ObserveNewClientsUseCase
 import com.wire.kalium.logic.feature.conversation.CheckConversationInviteCodeUseCase
@@ -74,6 +79,7 @@ import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistUseCase
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.ObserveSessionsUseCase
+import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.feature.user.screenshotCensoring.ObserveScreenshotCensoringConfigResult
 import com.wire.kalium.logic.feature.user.screenshotCensoring.ObserveScreenshotCensoringConfigUseCase
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
@@ -335,6 +341,7 @@ class WireActivityViewModelTest {
             val (_, viewModel) = Arrangement()
                 .withSomeCurrentSession()
                 .withDeepLinkResult(result)
+                .withProfileQRCodeEnabled()
                 .arrange()
 
             viewModel.actions.test {
@@ -764,6 +771,7 @@ class WireActivityViewModelTest {
 
             // Default empty values
             mockUri()
+            coEvery { monitorSyncWorkUseCase() } returns Unit
             coEvery { currentSessionFlow() } returns flowOf()
             coEvery { getServerConfigUseCase(any()) } returns GetServerConfigResult.Success(newServerConfig(1).links)
             coEvery { deepLinkProcessor(any(), any()) } returns DeepLinkResult.Unknown
@@ -777,10 +785,15 @@ class WireActivityViewModelTest {
             coEvery { observeScreenshotCensoringConfigUseCase() } returns flowOf(ObserveScreenshotCensoringConfigResult.Disabled)
             coEvery { currentScreenManager.observeCurrentScreen(any()) } returns MutableStateFlow(CurrentScreen.SomeOther())
             coEvery { globalDataStore.selectedThemeOptionFlow() } returns flowOf(ThemeOption.LIGHT)
-            coEvery { observeIfE2EIRequiredDuringLoginUseCaseProviderFactory.create(any()).observeIfE2EIIsRequiredDuringLogin() } returns
+            coEvery {
+                observeIfE2EIRequiredDuringLoginUseCaseProviderFactory.create(any()).observeIfE2EIIsRequiredDuringLogin()
+            } returns
                     flowOf(false)
             every { workManager.cancelAllWorkByTag(any()) } returns OperationImpl()
             every { workManager.enqueueUniquePeriodicWork(any(), any(), any()) } returns OperationImpl()
+            val observeSelfUserUseCase = mockk<ObserveSelfUserUseCase>()
+            every { observeSelfUserFactory.create(any()).observeSelfUser } returns observeSelfUserUseCase
+            coEvery { observeSelfUserUseCase() } returns flowOf(SELF_USER)
         }
 
         @MockK
@@ -843,6 +856,15 @@ class WireActivityViewModelTest {
         @MockK
         lateinit var observeEstablishedCalls: ObserveEstablishedCallsUseCase
 
+        @MockK
+        lateinit var isProfileQRCodeEnabledFactory: IsProfileQRCodeEnabledUseCaseProvider.Factory
+
+        @MockK
+        lateinit var observeSelfUserFactory: ObserveSelfUserUseCaseProvider.Factory
+
+        @MockK
+        lateinit var monitorSyncWorkUseCase: MonitorSyncWorkUseCase
+
         private val viewModel by lazy {
             WireActivityViewModel(
                 coreLogic = { coreLogic },
@@ -862,7 +884,10 @@ class WireActivityViewModelTest {
                 observeScreenshotCensoringConfigUseCaseProviderFactory = observeScreenshotCensoringConfigUseCaseProviderFactory,
                 globalDataStore = { globalDataStore },
                 observeIfE2EIRequiredDuringLoginUseCaseProviderFactory = observeIfE2EIRequiredDuringLoginUseCaseProviderFactory,
-                workManager = { workManager }
+                workManager = { workManager },
+                isProfileQRCodeEnabledFactory = isProfileQRCodeEnabledFactory,
+                observeSelfUserFactory = observeSelfUserFactory,
+                monitorSyncWorkUseCase = monitorSyncWorkUseCase,
             )
         }
 
@@ -980,6 +1005,12 @@ class WireActivityViewModelTest {
 
         suspend fun withThemeOption(themeOption: ThemeOption) = apply {
             coEvery { globalDataStore.selectedThemeOptionFlow() } returns flowOf(themeOption)
+        }
+
+        suspend fun withProfileQRCodeEnabled(isEnabled: Boolean = true) = apply {
+            val useCase = mockk<IsProfileQRCodeEnabledUseCase>()
+            coEvery { isProfileQRCodeEnabledFactory.create(any()).isProfileQRCodeEnabled } returns useCase
+            coEvery { useCase() } returns isEnabled
         }
 
         fun arrange() = this to viewModel

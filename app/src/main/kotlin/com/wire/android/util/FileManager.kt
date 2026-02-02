@@ -55,7 +55,9 @@ class FileManager @Inject constructor(@ApplicationContext private val context: C
         assetMimeType: String,
         dispatcher: DispatcherProvider = DefaultDispatcherProvider()
     ): String? = withContext(dispatcher.io()) {
-        saveFileDataToMediaFolder(assetName, assetDataPath, assetDataSize, assetMimeType, context)?.let { context.getFileName(it) }
+        saveFileDataToMediaFolder(assetName, assetDataPath, assetDataSize, assetMimeType, context)?.let {
+            context.getFileName(it)
+        }
     }
 
     fun openWithExternalApp(assetDataPath: Path, assetName: String?, onError: () -> Unit) {
@@ -114,6 +116,7 @@ class FileManager @Inject constructor(@ApplicationContext private val context: C
         attachmentUri: Uri,
         assetDestinationPath: Path,
         specifiedMimeType: String? = null, // specify a particular mimetype, otherwise it will be taken from the uri / file extension
+        audioWavesMask: List<Int>? = null,
         dispatcher: DispatcherProvider = DefaultDispatcherProvider(),
     ): AssetBundle? = withContext(dispatcher.io()) {
         try {
@@ -133,7 +136,7 @@ class FileManager @Inject constructor(@ApplicationContext private val context: C
                 //  of video assets hitting the max limit.
                 copyToPath(attachmentUri, assetDestinationPath)
             }
-            AssetBundle(assetKey, mimeType, assetDestinationPath, assetSize, assetFileName, attachmentType)
+            AssetBundle(assetKey, mimeType, assetDestinationPath, assetSize, assetFileName, attachmentType, audioWavesMask)
         } catch (e: IOException) {
             appLogger.e("There was an error while obtaining the file from disk", e)
             null

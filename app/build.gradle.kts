@@ -80,6 +80,30 @@ android {
         val datadogAppIdKey = "DATADOG_APP_ID"
         val appId: String? = System.getenv(datadogAppIdKey) ?: project.getLocalProperty(datadogAppIdKey, null)
         buildConfigField("String", datadogAppIdKey, appId?.let { "\"$it\"" } ?: "null")
+
+        // DOMAIN_REMOVAL_KEYS_FOR_REPAIR json format {"domain": ["some hex string key"]}
+        val domainRemovalKeysForRepair = "DOMAIN_REMOVAL_KEYS_FOR_REPAIR"
+        val domainKeysJson: String? = System.getenv(domainRemovalKeysForRepair) ?: project.getLocalProperty(domainRemovalKeysForRepair, null)
+        val domainKeysHashMap = if (domainKeysJson != null) {
+            try {
+                val jsonMap = groovy.json.JsonSlurper().parseText(domainKeysJson) as Map<String, List<String>>
+                val javaMapEntries = jsonMap.entries.joinToString("; ") { (domain, keys) ->
+                    val keysList = keys.joinToString("\", \"", "\"", "\"")
+                    "put(\"$domain\", java.util.Arrays.asList($keysList))"
+                }
+                "new java.util.HashMap<String, java.util.List<String>>(){{$javaMapEntries;}}"
+            } catch (e: Exception) {
+                println("Error parsing domain removal keys: ${e.message}")
+                "new java.util.HashMap<String, java.util.List<String>>()"
+            }
+        } else {
+            "new java.util.HashMap<String, java.util.List<String>>()"
+        }
+        buildConfigField(
+            "java.util.Map<String, java.util.List<String>>",
+            domainRemovalKeysForRepair,
+            domainKeysHashMap
+        )
     }
     // Most of the configuration is done in the build-logic
     // through the Wire Application convention plugin
@@ -137,10 +161,12 @@ android {
     }
 }
 
-aboutLibraries {
-    val isAboutLibrariesDisabled = System.getenv("DISABLE_ABOUT_LIBRARIES")?.equals("true", true) ?: false
-    registerAndroidTasks = !isAboutLibrariesDisabled
-    excludeFields = arrayOf("generated")
+// Skip AboutLibraries configuration when running lint to reduce memory usage
+if (!project.hasProperty("skip.aboutlibraries")) {
+    aboutLibraries {
+        android.registerAndroidTasks = true
+        export.excludeFields.add("generated")
+    }
 }
 
 dependencies {
@@ -150,16 +176,34 @@ dependencies {
     androidTestImplementation("com.wire.kalium:kalium-mocks")
     androidTestImplementation("com.wire.kalium:kalium-network")
 
-    // features
-    implementation(project(":features:cells"))
-    implementation(project(":features:sketch"))
-    implementation(project(":features:meetings"))
-    implementation(project(":core:ui-common"))
+    fun implementationWithCoverage(dependency: ProjectDependency) {
+        implementation(dependency)
+        kover(dependency)
+    }
+    implementationWithCoverage(projects.core.uiCommon)
+    implementationWithCoverage(projects.core.di)
+    implementationWithCoverage(projects.core.media)
+    implementationWithCoverage(projects.core.notification)
+    implementationWithCoverage(projects.features.cells)
+    implementationWithCoverage(projects.features.sketch)
+    implementationWithCoverage(projects.features.meetings)
+    implementationWithCoverage(projects.features.sync)
 
-    // kover
-    kover(project(":features:sketch"))
-    kover(project(":core:ui-common"))
-    kover(project(":core:analytics-enabled"))
+    // Anonymous Analytics
+    val flavors = getFlavorsSettings()
+    val isCustomBuild = isCustomizationEnabled()
+    flavors.flavorMap.entries.forEach { (key, configs) ->
+        if (configs["analytics_enabled"] as? Boolean == true && !isCustomBuild) {
+            println(">> Dependency Anonymous Analytics is enabled for [$key] flavor")
+            add("${key}Implementation", project(":core:analytics-enabled"))
+            add("test${key.capitalize()}Implementation", project(":core:analytics-disabled"))
+        } else {
+            println(">> Dependency Anonymous Analytics is disabled for [$key] flavor")
+            add("${key}Implementation", project(":core:analytics-disabled"))
+        }
+    }
+    // Analytics may not be added to the app build, but we always want the merged coverage report
+    kover(projects.core.analyticsEnabled)
 
     // Application dependencies
     implementation(libs.androidx.appcompat)
@@ -206,13 +250,12 @@ dependencies {
     implementation(libs.compose.material.core)
     implementation(libs.compose.material3)
     // the only libraries with material2 packages that can be used with material3 are icons and ripple
-    implementation(libs.compose.material.icons)
     implementation(libs.compose.material.ripple)
     implementation(libs.compose.ui.preview)
     implementation(libs.compose.activity)
     implementation(libs.compose.constraintLayout)
     implementation(libs.compose.runtime.liveData)
-    
+
     implementation(libs.androidx.paging3)
     implementation(libs.androidx.paging3Compose)
 
@@ -245,29 +288,16 @@ dependencies {
     }
     implementation(libs.androidx.work)
 
-    // Anonymous Analytics
-    val flavors = getFlavorsSettings()
-    val isCustomBuild = isCustomizationEnabled()
-    flavors.flavorMap.entries.forEach { (key, configs) ->
-        if (configs["analytics_enabled"] as? Boolean == true && !isCustomBuild) {
-            println(">> Dependency Anonymous Analytics is enabled for [$key] flavor")
-            add("${key}Implementation", project(":core:analytics-enabled"))
-            add("test${key.capitalize()}Implementation", project(":core:analytics-disabled"))
-        } else {
-            println(">> Dependency Anonymous Analytics is disabled for [$key] flavor")
-            add("${key}Implementation", project(":core:analytics-disabled"))
-        }
-    }
-
     // commonMark
     implementation(libs.commonmark.core)
     implementation(libs.commonmark.strikethrough)
     implementation(libs.commonmark.tables)
 
     implementation(libs.aboutLibraries.core)
-    implementation(libs.aboutLibraries.ui)
+    implementation(libs.aboutLibraries.compose.core)
+    implementation(libs.aboutLibraries.compose.m3)
     implementation(libs.compose.qr.code)
-    implementation(libs.audio.amplituda)
+    implementation(libs.enterprise.feedback)
 
     // screenshot testing
     screenshotTestImplementation(libs.compose.ui.tooling)
@@ -324,6 +354,8 @@ dependencies {
     betaImplementation(libs.dataDog.compose)
     stagingImplementation(libs.dataDog.compose)
 
-    implementation(project(":ksp"))
+    implementation(projects.ksp)
     ksp(project(":ksp"))
+
+    testImplementation(testFixtures(projects.core.uiCommon))
 }

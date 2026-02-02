@@ -86,7 +86,6 @@
             android:exported="true"
             android:hardwareAccelerated="true"
             android:launchMode="singleTop"
-            android:screenOrientation="portrait"
             android:theme="@style/AppTheme" />
 
         <activity
@@ -95,7 +94,6 @@
             android:exported="true"
             android:hardwareAccelerated="true"
             android:launchMode="singleTop"
-            android:screenOrientation="portrait"
             android:supportsPictureInPicture="true"
             android:taskAffinity="wire.call"
             android:theme="@style/AppTheme" />
@@ -105,7 +103,6 @@
             android:exported="true"
             android:hardwareAccelerated="true"
             android:launchMode="singleInstance"
-            android:screenOrientation="portrait"
             android:taskAffinity="wire.call"
             android:theme="@style/AppTheme" />
 
@@ -114,7 +111,6 @@
             android:exported="true"
             android:hardwareAccelerated="true"
             android:launchMode="singleTask"
-            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.SplashScreen"
             android:windowSoftInputMode="adjustResize|stateHidden">
 
@@ -304,6 +300,10 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
         </provider>
+
+        <meta-data
+                android:name="android.content.APP_RESTRICTIONS"
+                android:resource="@xml/app_restrictions" />
 
         <receiver
             android:name=".notification.broadcastreceivers.NotificationReplyReceiver"

@@ -49,6 +49,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireDestination
+import com.wire.android.ui.common.button.GeneratePasswordButton
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
@@ -257,8 +258,11 @@ private fun CreateButton(
         fillMaxWidth = true,
         onClick = onCreateLink,
         loading = isLoading,
-        state = if (!enabled) WireButtonState.Disabled
-        else WireButtonState.Default,
+        state = if (!enabled) {
+            WireButtonState.Disabled
+        } else {
+            WireButtonState.Default
+        },
         modifier = Modifier
             .fillMaxWidth()
             .background(MaterialTheme.wireColorScheme.background)

@@ -83,11 +83,13 @@ fun WirePrimaryIconButton(
 fun PreviewWirePrimaryIconButton() {
     WirePrimaryIconButton({}, loading = false, iconResource = R.drawable.ic_close, contentDescription = 0)
 }
+
 @Preview
 @Composable
 fun PreviewWirePrimaryIconButtonLoading() {
     WirePrimaryIconButton({}, loading = true, iconResource = R.drawable.ic_close, contentDescription = 0)
 }
+
 @Preview
 @Composable
 fun PreviewWirePrimaryIconButtonRound() {

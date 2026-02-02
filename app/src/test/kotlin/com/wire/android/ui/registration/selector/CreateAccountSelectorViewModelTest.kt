@@ -60,6 +60,6 @@ class CreateAccountSelectorViewModelTest {
                     CreateAccountSelectorNavArgs(ServerConfig.STAGING, email)
         }
 
-        fun arrange() = this to CreateAccountSelectorViewModel(globalDataStore, savedStateHandle)
+        fun arrange() = this to CreateAccountSelectorViewModel(globalDataStore, savedStateHandle, ServerConfig.STAGING)
     }
 }

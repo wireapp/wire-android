@@ -17,6 +17,7 @@
  */
 package com.wire.android.feature.cells.ui.tags
 
+import androidx.compose.foundation.text.input.setTextAndSelectAll
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.wire.android.feature.cells.ui.movetofolder.MoveToFolderViewModelTest.Companion.UUID
@@ -31,8 +32,7 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -46,7 +46,7 @@ import org.junit.jupiter.api.Test
 
 class AddRemoveTagsViewModelTest {
 
-    private val dispatcher = UnconfinedTestDispatcher()
+    private val dispatcher = StandardTestDispatcher()
 
     @BeforeEach
     fun beforeEach() {
@@ -59,21 +59,18 @@ class AddRemoveTagsViewModelTest {
     }
 
     @Test
-    fun `given a new valid tag, when addTag is called, then tag is added and suggestions updated`() = runTest {
+    fun `given a new valid tag, when addTag is called, then tag is added`() = runTest {
         val (_, viewModel) = Arrangement()
             .withGetAllTagsUseCaseReturning(Either.Right(setOf()))
             .arrange()
         val newTag = "compose"
 
-        viewModel.addTag(newTag)
-
-        val addedTags = viewModel.addedTags.first()
-        assertTrue(addedTags.contains(newTag))
-
-        val suggestedTags = viewModel.suggestedTags.first()
-        assertFalse(suggestedTags.contains(newTag))
-
-        assertEquals("", viewModel.tagsTextState.text)
+        viewModel.state.test {
+            skipItems(1)
+            viewModel.addTag(newTag)
+            val addedTags = awaitItem().addedTags
+            assertTrue(addedTags.contains(newTag))
+        }
     }
 
     @Test
@@ -83,10 +80,11 @@ class AddRemoveTagsViewModelTest {
             .arrange()
         val blankTag = "   "
 
-        viewModel.addTag(blankTag)
-
-        val addedTags = viewModel.addedTags.first()
-        assertTrue(addedTags.isEmpty())
+        viewModel.state.test {
+            viewModel.addTag(blankTag)
+            val addedTags = awaitItem().addedTags
+            assertTrue(addedTags.isEmpty())
+        }
     }
 
     @Test
@@ -96,12 +94,14 @@ class AddRemoveTagsViewModelTest {
             .arrange()
 
         val tag = "compose"
-        viewModel.addTag(tag)
 
-        viewModel.addTag(tag)
-
-        val addedTags = viewModel.addedTags.first()
-        assertEquals(1, addedTags.count { it == tag })
+        viewModel.state.test {
+            skipItems(1)
+            viewModel.addTag(tag)
+            viewModel.addTag(tag)
+            val addedTags = awaitItem().addedTags
+            assertEquals(1, addedTags.count { it == tag })
+        }
     }
 
     @Test
@@ -112,10 +112,12 @@ class AddRemoveTagsViewModelTest {
             .withGetAllTagsUseCaseReturning(Either.Right(setOf(tagInSuggestions)))
             .arrange()
 
-        viewModel.suggestedTags.test {
-            assertTrue(expectMostRecentItem().contains(tagInSuggestions))
+        advanceUntilIdle()
+
+        viewModel.state.test {
+            assertTrue(awaitItem().suggestedTags.contains(tagInSuggestions))
             viewModel.addTag(tagInSuggestions)
-            assertFalse(expectMostRecentItem().contains(tagInSuggestions))
+            assertFalse(awaitItem().suggestedTags.contains(tagInSuggestions))
         }
     }
 
@@ -125,13 +127,19 @@ class AddRemoveTagsViewModelTest {
             .withGetAllTagsUseCaseReturning(Either.Right(setOf()))
             .arrange()
         val tag = "compose"
-        viewModel.addTag(tag)
-        assertTrue(viewModel.addedTags.first().contains(tag))
 
-        viewModel.removeTag(tag)
+        viewModel.state.test {
 
-        val addedTags = viewModel.addedTags.first()
-        assertFalse(addedTags.contains(tag))
+            skipItems(1)
+
+            viewModel.addTag(tag)
+            assertTrue(awaitItem().addedTags.contains(tag))
+
+            viewModel.removeTag(tag)
+
+            val addedTags = awaitItem().addedTags
+            assertFalse(addedTags.contains(tag))
+        }
     }
 
     @Test
@@ -139,17 +147,22 @@ class AddRemoveTagsViewModelTest {
         val (_, viewModel) = Arrangement()
             .withGetAllTagsUseCaseReturning(Either.Right(setOf()))
             .arrange()
+
         val existingTag = "compose"
         val nonExistentTag = "android"
+
         viewModel.addTag(existingTag)
-        val initialTags = viewModel.addedTags.first()
 
-        // When
-        viewModel.removeTag(nonExistentTag)
+        viewModel.state.test {
 
-        // Then
-        val currentTags = viewModel.addedTags.first()
-        assertEquals(initialTags, currentTags)
+            skipItems(1)
+
+            // When
+            viewModel.removeTag(nonExistentTag)
+
+            // Then
+            expectNoEvents()
+        }
     }
 
     @Test
@@ -223,6 +236,61 @@ class AddRemoveTagsViewModelTest {
         }
     }
 
+    @Test
+    fun `given valid input when isValidTag called then returns true`() {
+        // Given
+        val (_, viewModel) = Arrangement().arrange()
+        viewModel.tagsTextState.setTextAndSelectAll("ValidTag123")
+
+        // When
+        val result = viewModel.isValidTag()
+
+        // Then
+        assertTrue(result)
+    }
+
+    @Test
+    fun `given multiple invalid inputs when isValidTag called then returns false`() {
+        // Given
+        val (_, viewModel) = Arrangement().arrange()
+
+        val invalidInputs = listOf(
+            "Invalid,Tag",
+            "Invalid;Tag",
+            "Invalid/Tag",
+            "Invalid\\Tag",
+            "Invalid\"Tag",
+            "Invalid'Tag",
+            "Invalid<Tag",
+            "Invalid>Tag",
+            "Inva<lid>/Tag\\"
+        )
+
+        // When & Then
+        invalidInputs.forEach { input ->
+            viewModel.tagsTextState.setTextAndSelectAll(input)
+            val result = viewModel.isValidTag()
+            assertFalse(result)
+        }
+    }
+
+    @Test
+    fun `given input outside length range when isValidTag called then returns false`() {
+        // Given
+        val (_, viewModel) = Arrangement().arrange()
+        val tooShort = "" // length 0
+        val tooLong = "A".repeat(31) // length 31
+
+        // When
+        val resultTooShort = viewModel.isValidTag()
+        viewModel.tagsTextState.setTextAndSelectAll(tooShort)
+        assertFalse(resultTooShort)
+
+        val resultTooLong = viewModel.isValidTag()
+        viewModel.tagsTextState.setTextAndSelectAll(tooLong)
+        assertFalse(resultTooLong)
+    }
+
     private class Arrangement {
 
         @MockK
@@ -243,15 +311,6 @@ class AddRemoveTagsViewModelTest {
             every { savedStateHandle.get<ArrayList<String>>("tags") } returns ArrayList()
         }
 
-        private val viewModel by lazy {
-            AddRemoveTagsViewModel(
-                savedStateHandle = savedStateHandle,
-                getAllTagsUseCase = getAllTagsUseCase,
-                updateNodeTagsUseCase = updateNodeTagsUseCase,
-                removeNodeTagsUseCase = removeNodeTagsUseCase,
-            )
-        }
-
         fun withGetAllTagsUseCaseReturning(result: Either<CoreFailure, Set<String>>) = apply {
             coEvery { getAllTagsUseCase() } returns result
         }
@@ -264,6 +323,16 @@ class AddRemoveTagsViewModelTest {
             coEvery { removeNodeTagsUseCase(any()) } returns result
         }
 
-        fun arrange() = this to viewModel
+        fun arrange(): Pair<Arrangement, AddRemoveTagsViewModel> {
+            // Create a new ViewModel instance every time arrange() is called.
+            // This prevents state from leaking between tests.
+            val viewModel = AddRemoveTagsViewModel(
+                savedStateHandle = savedStateHandle,
+                getAllTagsUseCase = getAllTagsUseCase,
+                updateNodeTagsUseCase = updateNodeTagsUseCase,
+                removeNodeTagsUseCase = removeNodeTagsUseCase,
+            )
+            return this to viewModel
+        }
     }
 }

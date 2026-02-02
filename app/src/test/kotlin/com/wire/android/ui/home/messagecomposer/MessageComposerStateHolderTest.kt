@@ -74,7 +74,7 @@ class MessageComposerStateHolderTest {
     @BeforeEach
     fun before() {
         MockKAnnotations.init(this, relaxUnitFun = true)
-        every { focusRequester.requestFocus() } returns Unit
+        every { focusRequester.requestFocus() } returns true
         every { focusRequester.captureFocus() } returns true
         messageComposerViewState = mutableStateOf(MessageComposerViewState())
         messageComposition = mutableStateOf(MessageComposition(TestConversation.ID))
@@ -91,6 +91,7 @@ class MessageComposerStateHolderTest {
                 messageTextState = messageTextState,
                 onClearDraft = {},
                 onSaveDraft = {},
+                onMessageTextUpdate = {},
                 onSearchMentionQueryChanged = {},
                 onClearMentionSearchResult = {},
                 onTypingEvent = {},
@@ -113,7 +114,8 @@ class MessageComposerStateHolderTest {
         state.toEdit(
             messageId = "messageId",
             editMessageText = "edit_message_text",
-            mentions = listOf()
+            mentions = listOf(),
+            isMultipart = false,
         )
 
         // then
@@ -125,7 +127,8 @@ class MessageComposerStateHolderTest {
         state.toEdit(
             messageId = "messageId",
             editMessageText = "edit_message_text",
-            mentions = listOf()
+            mentions = listOf(),
+            isMultipart = false,
         )
         assertInstanceOf(InputType.Editing::class.java, messageCompositionInputStateHolder.inputType).also {
             assertEquals(false, it.isEditButtonEnabled)
@@ -137,7 +140,8 @@ class MessageComposerStateHolderTest {
         state.toEdit(
             messageId = "messageId",
             editMessageText = "edit_message_text",
-            mentions = listOf()
+            mentions = listOf(),
+            isMultipart = false,
         )
         state.messageCompositionHolder.value.messageTextState.edit {
             append("some text")

@@ -64,4 +64,4 @@ fun SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable.iconMetrics(
 
 private const val FULL_CIRCLE_DEGREES = 360f
 internal const val START_ANGLE_TOP_DEG = -90f
-internal const val STROKE_WIDTH_FRACTION = 0.08f
+internal const val STROKE_WIDTH_FRACTION = 0.11f

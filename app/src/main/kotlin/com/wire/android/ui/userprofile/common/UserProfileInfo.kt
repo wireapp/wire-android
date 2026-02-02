@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.userprofile.common
 
-import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
@@ -32,9 +31,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.appendInlineContent
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.QrCode
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -47,6 +44,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -65,7 +63,6 @@ import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
-import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.MLSVerifiedIcon
 import com.wire.android.ui.common.ProteusVerifiedIcon
 import com.wire.android.ui.common.UserBadge
@@ -80,7 +77,6 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.debug.FeatureVisibilityFlags.QRCodeEnabled
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.ifNotEmpty
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -90,6 +86,7 @@ import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.data.user.type.UserTypeInfo
 import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -97,8 +94,9 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
+import com.wire.android.ui.common.R as commonR
 
-@SuppressLint("ComposeParameterOrder")
+@Suppress("ComposeParameterOrder", "CyclomaticComplexMethod")
 @Composable
 fun UserProfileInfo(
     userId: UserId?,
@@ -117,7 +115,8 @@ fun UserProfileInfo(
     isMLSVerified: Boolean = false,
     expiresAt: Instant? = null,
     onQrCodeClick: (() -> Unit)? = null,
-    accentId: Int = -1
+    accentId: Int = -1,
+    showQrCode: Boolean = true,
 ) {
     Column(
         horizontalAlignment = CenterHorizontally,
@@ -258,7 +257,7 @@ fun UserProfileInfo(
                         bottom.linkTo(displayName.bottom)
                     }
             ) {
-                if (QRCodeEnabled && isLoading.not()) {
+                if (showQrCode && isLoading.not()) {
                     onQrCodeClick?.let { QRCodeIcon(it) }
                 }
             }
@@ -308,8 +307,11 @@ private fun processFullName(
         val processedFullName = createMiddleEllipsizeIfNeeded(fullName)
         append(
             processedFullName.ifBlank {
-                if (isLoading) ""
-                else UIText.StringResource(R.string.username_unavailable_label).asString()
+                if (isLoading) {
+                    ""
+                } else {
+                    UIText.StringResource(R.string.username_unavailable_label).asString()
+                }
             }
         )
 
@@ -362,7 +364,12 @@ fun QRCodeIcon(
     val clickDescription = stringResource(id = R.string.content_description_share_label)
     WireSecondaryButton(
         modifier = modifier.semantics { this.contentDescription = contentDescription },
-        leadingIcon = Icons.Filled.QrCode.Icon(),
+        leadingIcon = {
+            Icon(
+                painter = painterResource(commonR.drawable.ic_qr_code),
+                contentDescription = contentDescription
+            )
+        },
         contentPadding = PaddingValues(0.dp),
         onClick = onQrCodeClick,
         onClickDescription = clickDescription,
@@ -386,7 +393,12 @@ private fun ManageMemberButton(onEditClick: () -> Unit, modifier: Modifier = Mod
     IconButton(
         modifier = modifier,
         onClick = onEditClick,
-        content = Icons.Filled.Edit.Icon()
+        content = {
+            Icon(
+                painter = painterResource(commonR.drawable.ic_edit),
+                contentDescription = ""
+            )
+        }
     )
 }
 
@@ -443,7 +455,7 @@ fun PreviewUserProfileInfoTempUser() {
                     handle = "",
                     accentId = 1,
                     connectionStatus = ConnectionState.ACCEPTED,
-                    userType = UserType.GUEST,
+                    userType = UserTypeInfo.Regular(UserType.GUEST),
                     availabilityStatus = UserAvailabilityStatus.AVAILABLE,
                     completePicture = null,
                     previewPicture = null,

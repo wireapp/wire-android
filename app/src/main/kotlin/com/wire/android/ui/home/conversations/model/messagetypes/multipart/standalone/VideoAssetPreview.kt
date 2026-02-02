@@ -23,11 +23,12 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
@@ -37,12 +38,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
-import coil.decode.VideoFrameDecoder
+import coil3.compose.AsyncImage
+import coil3.video.VideoFrameDecoder
 import com.wire.android.R
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.ui.common.applyIf
@@ -56,6 +57,7 @@ import com.wire.android.ui.common.progress.WireLinearProgressIndicator
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.home.conversations.messages.item.isBubble
+import com.wire.android.ui.home.conversations.model.messagetypes.image.VisualMediaParams
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.previewAvailable
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.previewImageModel
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.transferProgressColor
@@ -72,11 +74,14 @@ import com.wire.kalium.logic.data.message.width
 @Composable
 internal fun VideoAssetPreview(
     item: MultipartAttachmentUi,
-    messageStyle: MessageStyle
+    messageStyle: MessageStyle,
 ) {
 
-    val width = item.metadata?.width() ?: 0
-    val height = item.metadata?.height() ?: 0
+    val videoSize = VisualMediaParams(
+        realMediaWidth = item.metadata?.width() ?: 0,
+        realMediaHeight = item.metadata?.height() ?: 0
+    ).normalizedSize()
+
     val maxWidth = calculateMaxMediaAssetWidth(
         item = item,
         maxDefaultWidth = dimensions().attachmentVideoMaxWidth,
@@ -85,35 +90,38 @@ internal fun VideoAssetPreview(
 
     val fileNameColor = when (messageStyle) {
         MessageStyle.BUBBLE_SELF -> colorsScheme().onPrimary
-        MessageStyle.BUBBLE_OTHER -> colorsScheme().onPrimary
+        MessageStyle.BUBBLE_OTHER -> colorsScheme().onSurface
         MessageStyle.NORMAL -> colorsScheme().onSurface
     }
 
     Column(
         modifier = Modifier
-            .widthIn(max = maxWidth)
+            .width(videoSize.width + dimensions().spacing16x)
+            .clip(RoundedCornerShape(dimensions().messageAttachmentCornerSize))
+            .applyIf(messageStyle == MessageStyle.BUBBLE_SELF) {
+                background(colorsScheme().selfBubble.secondary)
+            }
+            .applyIf(messageStyle == MessageStyle.BUBBLE_OTHER) {
+                background(colorsScheme().otherBubble.secondary)
+            }
             .applyIf(!messageStyle.isBubble()) {
                 background(
-                    color = colorsScheme().surface,
+                    color = colorsScheme().primaryButtonSelected,
                     shape = RoundedCornerShape(dimensions().messageAttachmentCornerSize)
                 )
-            }
-            .border(
-                width = dimensions().spacing1x,
-                color = colorsScheme().outline,
-                shape = RoundedCornerShape(dimensions().messageAttachmentCornerSize)
-            )
-            .clip(RoundedCornerShape(dimensions().messageAttachmentCornerSize))
-            .padding(dimensions().spacing10x),
+                border(
+                    width = dimensions().spacing1x,
+                    color = colorsScheme().outline,
+                    shape = RoundedCornerShape(dimensions().messageAttachmentCornerSize)
+                )
+                padding(dimensions().spacing12x)
+            },
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(dimensions().spacing8x)
     ) {
 
         FileHeaderView(
-            modifier = Modifier.padding(
-                top = dimensions().spacing8x,
-                bottom = dimensions().spacing8x,
-            ),
+            modifier = Modifier.padding(dimensions().spacing8x),
             extension = item.mimeType.substringAfter("/"),
             size = item.assetSize,
             messageStyle = messageStyle
@@ -121,7 +129,9 @@ internal fun VideoAssetPreview(
 
         item.fileName?.let {
             Text(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = dimensions().spacing8x),
                 text = it.substringBeforeLast("."),
                 style = typography().body02,
                 color = fileNameColor,
@@ -132,13 +142,9 @@ internal fun VideoAssetPreview(
 
         Box(
             modifier = Modifier
-                .aspectRatio(aspectRatio(width, height))
+                .fillMaxWidth()
+                .height(videoSize.height)
                 .background(
-                    color = colorsScheme().outline,
-                    shape = RoundedCornerShape(dimensions().messageAttachmentCornerSize)
-                )
-                .border(
-                    width = 1.dp,
                     color = colorsScheme().outline,
                     shape = RoundedCornerShape(dimensions().messageAttachmentCornerSize)
                 )
@@ -146,8 +152,15 @@ internal fun VideoAssetPreview(
             contentAlignment = Alignment.Center
         ) {
 
-            // Video preview image
-            if (item.previewAvailable()) {
+            if (LocalInspectionMode.current) {
+                Image(
+                    modifier = Modifier.fillMaxSize(),
+                    painter = painterResource(com.wire.android.ui.common.R.drawable.mock_image),
+                    contentScale = ContentScale.FillBounds,
+                    contentDescription = null,
+                )
+            } else if (item.previewAvailable()) {
+                // Video preview image
                 AsyncImage(
                     modifier = Modifier.fillMaxSize(),
                     model = item.previewImageModel(
@@ -155,7 +168,7 @@ internal fun VideoAssetPreview(
                             VideoFrameDecoder(result.source, options)
                         }
                     ),
-                    contentScale = ContentScale.Crop,
+                    contentScale = ContentScale.FillBounds,
                     contentDescription = null,
                 )
             }
@@ -231,7 +244,7 @@ private fun PreviewVideoAsset() {
 
     WireTheme {
         Column(
-            modifier = Modifier.padding(dimensions().spacing8x),
+            modifier = Modifier.padding(dimensions().spacing18x),
             verticalArrangement = Arrangement.spacedBy(dimensions().spacing8x)
         ) {
             Box {

@@ -31,6 +31,7 @@ data class MultipartAttachmentUi(
     val localPath: String?,
     val contentHash: String? = null,
     val contentUrl: String? = null,
+    val contentUrlExpiresAt: Long? = null,
     val previewUrl: String? = null,
     val mimeType: String,
     val assetType: AttachmentFileType,
@@ -38,6 +39,7 @@ data class MultipartAttachmentUi(
     val metadata: AssetMetadata? = null,
     val transferStatus: AssetTransferStatus,
     val progress: Float? = null,
+    val isEditSupported: Boolean = false,
 )
 
 enum class AssetSource {
@@ -55,6 +57,7 @@ fun CellAssetContent.toUiModel(progress: Float?) = MultipartAttachmentUi(
     fileName = this.assetPath?.substringAfterLast("/"),
     localPath = this.localPath,
     contentUrl = this.contentUrl,
+    contentUrlExpiresAt = this.contentUrlExpiresAt,
     previewUrl = this.previewUrl,
     mimeType = this.mimeType,
     assetType = AttachmentFileType.fromMimeType(mimeType),
@@ -63,6 +66,7 @@ fun CellAssetContent.toUiModel(progress: Float?) = MultipartAttachmentUi(
     transferStatus = this.transferStatus,
     progress = progress,
     contentHash = contentHash,
+    isEditSupported = isEditSupported,
 )
 
 fun AssetContent.toUiModel(progress: Float?) = MultipartAttachmentUi(
@@ -79,4 +83,5 @@ fun AssetContent.toUiModel(progress: Float?) = MultipartAttachmentUi(
     progress = progress,
     contentHash = null,
     contentUrl = null,
+    isEditSupported = false,
 )

@@ -34,7 +34,10 @@
             "analytics_server_url": "https://wire.count.ly/",
             "enable_new_registration": true,
             "channels_history_options_enabled": true,
-            "meetings_enabled": true
+            "meetings_enabled": true,
+            "use_async_flush_logging": true,
+            "conversation_feeder_enabled": true,
+            "db_invalidation_control_enabled": true
         },
         "staging": {
             "application_id": "com.waz.zclient.dev",
@@ -67,7 +70,8 @@
             "analytics_enabled": true,
             "analytics_app_key": "8ffae535f1836ed5f58fd5c8a11c00eca07c5438",
             "analytics_server_url": "https://wire.count.ly/",
-            "enable_new_registration": true
+            "enable_new_registration": true,
+            "use_async_flush_logging": true,
         },
         "internal": {
             "application_id": "com.wire.internal",
@@ -79,7 +83,10 @@
             "analytics_app_key": "8ffae535f1836ed5f58fd5c8a11c00eca07c5438",
             "analytics_server_url": "https://wire.count.ly/",
             "enable_new_registration": true,
-             "use_strict_mls_filter": false
+            "use_strict_mls_filter": false,
+            "use_async_flush_logging": true,
+            "conversation_feeder_enabled": true,
+            "db_invalidation_control_enabled": false,
         },
         "fdroid": {
             "application_id": "com.wire",
@@ -142,11 +149,19 @@
     "paginated_conversation_list_enabled": true,
     "should_display_release_notes": true,
     "public_channels_enabled": false,
+    "use_async_flush_logging": false,
     "channels_history_options_enabled": false,
     "use_new_login_for_default_backend": true,
     "enable_crossplatform_backup": true,
     "mls_read_receipts_enabled": false,
     "is_mls_reset_enabled": true,
-    "use_strict_mls_filter": true,
-    "meetings_enabled": false
+    "use_strict_mls_filter": false,
+    "meetings_enabled": false,
+    "emm_support_enabled": true,
+    "conversation_feeder_enabled": false,
+    "background_notification_retry_enabled": true,
+    "background_notification_stay_alive_seconds": 3,
+    "is_bubble_ui_enabled": true,
+    "collabora_integration": true,
+    "db_invalidation_control_enabled": false
 }

@@ -35,7 +35,7 @@ import io.github.esentsov.PackagePrivate
 
 @Suppress("LongParameterList")
 @Immutable
-class WireColorScheme(
+data class WireColorScheme(
     val useDarkSystemBarIcons: Boolean,
     val connectivityBarShouldUseDarkIcons: Boolean,
 
@@ -94,9 +94,14 @@ class WireColorScheme(
     // custom
     val emojiBackgroundColor: Color,
     val defaultSelectedItemInLoadingState: Color,
-    val markdownNodeTextColor: Color
+    val onScrim: Color,
 
-    ) {
+    // message bubbles
+    val bubblesBackground: Color,
+    val selfBubble: BubbleColors,
+    val otherBubble: BubbleColors
+
+) {
     fun toColorScheme(): ColorScheme = ColorScheme(
         primary = primary, onPrimary = onPrimary,
         primaryContainer = primaryVariant, onPrimaryContainer = onPrimaryVariant,
@@ -155,19 +160,19 @@ private val LightWireColorScheme = WireColorScheme(
 
     // buttons
     primaryButtonEnabled = WireColorPalette.LightBlue500, onPrimaryButtonEnabled = Color.White,
-    primaryButtonDisabled = WireColorPalette.Gray50, onPrimaryButtonDisabled = WireColorPalette.Gray80,
+    primaryButtonDisabled = WireColorPalette.Gray50, onPrimaryButtonDisabled = Gray80,
     primaryButtonSelected = WireColorPalette.LightBlue700, onPrimaryButtonSelected = Color.White,
     primaryButtonRipple = Color.Black,
     secondaryButtonEnabled = Color.White, onSecondaryButtonEnabled = Color.Black,
     secondaryButtonEnabledOutline = WireColorPalette.Gray40,
     secondaryButtonDisabled = WireColorPalette.Gray20, onSecondaryButtonDisabled = WireColorPalette.Gray70,
     secondaryButtonDisabledOutline = WireColorPalette.Gray40,
-    secondaryButtonSelected = WireColorPalette.LightBlue50, onSecondaryButtonSelected = WireColorPalette.LightBlue500,
+    secondaryButtonSelected = LightBlue50, onSecondaryButtonSelected = WireColorPalette.LightBlue500,
     secondaryButtonSelectedOutline = WireColorPalette.LightBlue300,
     secondaryButtonRipple = Color.Black,
     tertiaryButtonEnabled = Color.Transparent, onTertiaryButtonEnabled = Color.Black,
     tertiaryButtonDisabled = Color.Transparent, onTertiaryButtonDisabled = WireColorPalette.Gray60,
-    tertiaryButtonSelected = WireColorPalette.LightBlue50, onTertiaryButtonSelected = WireColorPalette.LightBlue500,
+    tertiaryButtonSelected = LightBlue50, onTertiaryButtonSelected = WireColorPalette.LightBlue500,
     tertiaryButtonSelectedOutline = WireColorPalette.LightBlue300,
     tertiaryButtonRipple = Color.Black,
 
@@ -217,7 +222,22 @@ private val LightWireColorScheme = WireColorScheme(
     // custom
     emojiBackgroundColor = Color.White,
     defaultSelectedItemInLoadingState = WireColorPalette.LightBlue100,
-    markdownNodeTextColor = Color.White
+    onScrim = Color.White,
+    bubblesBackground = Color.White,
+    selfBubble = BubbleColors(
+        primary = WireColorPalette.LightBlue500,
+        secondary = WireColorPalette.LightBlue600,
+        onPrimary = Color.White,
+        onSecondary = Color.White,
+        primaryOnSecondary = WireColorPalette.LightBlue200
+    ),
+    otherBubble = BubbleColors(
+        primary = WireColorPalette.Gray20,
+        secondary = Color.White,
+        onPrimary = Color.Black,
+        onSecondary = Color.Black,
+        primaryOnSecondary = WireColorPalette.LightBlue500
+    ),
 )
 
 // Dark WireColorScheme
@@ -246,16 +266,16 @@ private val DarkWireColorScheme = WireColorScheme(
     surfaceContainerLowest = WireColorPalette.Gray100,
     surfaceContainerLow = WireColorPalette.Gray95,
     surfaceContainer = WireColorPalette.Gray90,
-    surfaceContainerHigh = WireColorPalette.Gray80,
+    surfaceContainerHigh = Gray80,
     surfaceContainerHighest = WireColorPalette.Gray70,
 
     // buttons
     primaryButtonEnabled = WireColorPalette.DarkBlue500, onPrimaryButtonEnabled = Color.Black,
-    primaryButtonDisabled = WireColorPalette.Gray80, onPrimaryButtonDisabled = WireColorPalette.Gray50,
+    primaryButtonDisabled = Gray80, onPrimaryButtonDisabled = WireColorPalette.Gray50,
     primaryButtonSelected = WireColorPalette.DarkBlue400, onPrimaryButtonSelected = Color.Black,
     primaryButtonRipple = Color.White,
     secondaryButtonEnabled = WireColorPalette.Gray90, onSecondaryButtonEnabled = Color.White,
-    secondaryButtonEnabledOutline = WireColorPalette.Gray90,
+    secondaryButtonEnabledOutline = WireColorPalette.Gray100,
     secondaryButtonDisabled = WireColorPalette.Gray95, onSecondaryButtonDisabled = WireColorPalette.Gray50,
     secondaryButtonDisabledOutline = WireColorPalette.Gray95,
     secondaryButtonSelected = WireColorPalette.DarkBlue800, onSecondaryButtonSelected = Color.White,
@@ -312,11 +332,34 @@ private val DarkWireColorScheme = WireColorScheme(
     },
     emojiBackgroundColor = Color.Black,
     defaultSelectedItemInLoadingState = WireColorPalette.DarkBlue800,
-    markdownNodeTextColor = Color.White
+    onScrim = Color.White,
+    bubblesBackground = WireColorPalette.Gray100,
+    selfBubble = BubbleColors(
+        primary = WireColorPalette.LightBlue800,
+        secondary = WireColorPalette.LightBlue900,
+        onPrimary = Color.White,
+        onSecondary = Color.White,
+        primaryOnSecondary = WireColorPalette.DarkBlue400
+    ),
+    otherBubble = BubbleColors(
+        primary = WireColorPalette.Gray90,
+        secondary = WireColorPalette.Gray95,
+        onPrimary = Color.White,
+        onSecondary = Color.White,
+        primaryOnSecondary = WireColorPalette.DarkBlue500
+    ),
 )
 
 @PackagePrivate
 val WireColorSchemeTypes: ThemeDependent<WireColorScheme> = ThemeDependent(
     light = LightWireColorScheme,
     dark = DarkWireColorScheme
+)
+
+data class BubbleColors(
+    val primary: Color,
+    val secondary: Color,
+    val onPrimary: Color,
+    val onSecondary: Color,
+    val primaryOnSecondary: Color
 )

@@ -108,7 +108,13 @@ private fun parseRowCells(
 
     tableCells.forEach { child ->
         val cellText = buildAnnotatedString {
-            onMentionsUpdate(inlineNodeChildren(child.children, this, nodeData))
+            onMentionsUpdate(
+                inlineNodeChildren(
+                    child.children,
+                    this,
+                    nodeData
+                )
+            )
         }
         rowsData.add(RowData(cellText, isHeader))
     }

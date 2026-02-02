@@ -41,7 +41,6 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireDestination
@@ -51,13 +50,13 @@ import com.wire.android.ui.common.selectableBackground
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.conversations.details.options.ArrowType
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsItem
-import com.wire.android.ui.home.conversationslist.common.FolderHeader
+import com.wire.android.ui.common.rowitem.SectionHeader
 import com.wire.android.ui.home.settings.SwitchState
 import com.wire.android.ui.theme.ThemeData
 import com.wire.android.ui.theme.ThemeOption
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.extension.folderWithElements
+import com.wire.android.util.ui.sectionWithElements
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @WireDestination
@@ -73,7 +72,6 @@ fun CustomizationScreen(
         onThemeOptionChanged = viewModel::selectThemeOption,
         onBackPressed = navigator::navigateBack,
         onEnterToSendClicked = viewModel::selectPressEnterToSendOption,
-        onMessageBubbleClicked = viewModel::selectBubbleUI
     )
 }
 
@@ -83,7 +81,6 @@ fun CustomizationScreenContent(
     onThemeOptionChanged: (ThemeOption) -> Unit,
     onBackPressed: () -> Unit,
     onEnterToSendClicked: (Boolean) -> Unit,
-    onMessageBubbleClicked: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     lazyListState: LazyListState = rememberLazyListState()
 ) {
@@ -104,7 +101,7 @@ fun CustomizationScreenContent(
                 .padding(internalPadding)
                 .fillMaxSize()
         ) {
-            folderWithElements(
+            sectionWithElements(
                 header = context.getString(R.string.settings_appearance_theme_label),
                 items = buildList {
                     add(ThemeData(option = ThemeOption.SYSTEM, selectedOption = state.selectedThemeOption))
@@ -116,9 +113,7 @@ fun CustomizationScreenContent(
             item {
                 CustomizationOptionsContent(
                     enterToSendState = state.pressEnterToSentState,
-                    isBubbleUiEnabled = state.isBubbleUiEnabled,
                     enterToSendClicked = onEnterToSendClicked,
-                    onMessageBubbleClicked = onMessageBubbleClicked
                 )
             }
         }
@@ -128,38 +123,29 @@ fun CustomizationScreenContent(
 @Composable
 fun CustomizationOptionsContent(
     enterToSendState: Boolean,
-    isBubbleUiEnabled: Boolean,
     enterToSendClicked: (Boolean) -> Unit,
-    onMessageBubbleClicked: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier
             .fillMaxWidth()
     ) {
-        FolderHeader(stringResource(R.string.customization_options_header_title))
+        SectionHeader(stringResource(R.string.customization_options_header_title))
         GroupConversationOptionsItem(
             title = stringResource(R.string.press_enter_to_send_title),
             switchState = SwitchState.Enabled(value = enterToSendState, onCheckedChange = enterToSendClicked),
             arrowType = ArrowType.NONE,
             subtitle = stringResource(id = R.string.press_enter_to_send_text)
         )
-        if (BuildConfig.PRIVATE_BUILD) {
-            GroupConversationOptionsItem(
-                title = "Message bubbles",
-                switchState = SwitchState.Enabled(value = isBubbleUiEnabled, onCheckedChange = onMessageBubbleClicked),
-                arrowType = ArrowType.NONE,
-            )
-        }
     }
 }
 
-private fun LazyListScope.folderWithElements(
+private fun LazyListScope.sectionWithElements(
     header: String,
     items: List<ThemeData>,
     onItemClicked: (ThemeOption) -> Unit
 ) {
-    folderWithElements(
+    sectionWithElements(
         header = header.uppercase(),
         items = items.associateBy { it.option }
     ) { themeItem ->
@@ -217,6 +203,5 @@ fun PreviewSettingsScreen() {
         {},
         {},
         {},
-        {}
     )
 }

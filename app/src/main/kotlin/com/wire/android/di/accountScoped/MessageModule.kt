@@ -26,8 +26,9 @@ import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.GetPaginatedFlowOfAssetMessageByConversationIdUseCase
 import com.wire.kalium.logic.feature.asset.ObserveAssetStatusesUseCase
 import com.wire.kalium.logic.feature.asset.ObservePaginatedAssetImageMessages
-import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
 import com.wire.kalium.logic.feature.asset.UpdateAssetMessageTransferStatusUseCase
+import com.wire.kalium.logic.feature.asset.UpdateAudioMessageNormalizedLoudnessUseCase
+import com.wire.kalium.logic.feature.asset.upload.ScheduleNewAssetMessageUseCase
 import com.wire.kalium.logic.feature.incallreaction.SendInCallReactionUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
@@ -42,6 +43,7 @@ import com.wire.kalium.logic.feature.message.ObserveMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.ObserveMessageReactionsUseCase
 import com.wire.kalium.logic.feature.message.ObserveMessageReceiptsUseCase
 import com.wire.kalium.logic.feature.message.RetryFailedMessageUseCase
+import com.wire.kalium.logic.feature.message.SendEditMultipartMessageUseCase
 import com.wire.kalium.logic.feature.message.SendEditTextMessageUseCase
 import com.wire.kalium.logic.feature.message.SendKnockUseCase
 import com.wire.kalium.logic.feature.message.SendLocationUseCase
@@ -114,6 +116,11 @@ class MessageModule {
     @Provides
     fun provideSendEditTextMessageUseCase(messageScope: MessageScope): SendEditTextMessageUseCase =
         messageScope.sendEditTextMessage
+
+    @ViewModelScoped
+    @Provides
+    fun provideSendEditMultipartMessageUseCase(messageScope: MessageScope): SendEditMultipartMessageUseCase =
+        messageScope.sendEditMultipartMessage
 
     @ViewModelScoped
     @Provides
@@ -240,4 +247,9 @@ class MessageModule {
     @Provides
     fun provideSendMultipartMessageUseCase(messageScope: MessageScope): SendMultipartMessageUseCase =
         messageScope.sendMultipartMessage
+
+    @ViewModelScoped
+    @Provides
+    fun provideUpdateAudioMessageNormalizedLoudnessUseCase(messageScope: MessageScope): UpdateAudioMessageNormalizedLoudnessUseCase =
+        messageScope.updateAudioMessageNormalizedLoudnessUseCase
 }

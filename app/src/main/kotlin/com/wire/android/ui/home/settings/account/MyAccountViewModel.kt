@@ -26,8 +26,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig
 import com.wire.android.appLogger
+import com.wire.android.ui.theme.Accent
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.kalium.common.functional.getOrNull
 import com.wire.kalium.logic.feature.team.GetUpdatedSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.IsE2EIEnabledUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
@@ -130,7 +130,8 @@ class MyAccountViewModel @Inject constructor(
                     fullName = user.name.orEmpty(),
                     userName = user.handle.orEmpty(),
                     email = user.email.orEmpty(),
-                    domain = user.id.domain
+                    domain = user.id.domain,
+                    accent = Accent.fromAccentId(user.accentId)
                 )
             }
         }
@@ -143,7 +144,7 @@ class MyAccountViewModel @Inject constructor(
     }
 
     private suspend fun fetchSelfUserTeam() {
-        val selfTeam = getSelfTeam().getOrNull()
+        val selfTeam = getSelfTeam()
         myAccountState = myAccountState.copy(
             teamName = selfTeam?.name.orEmpty(),
         )

@@ -29,22 +29,28 @@ import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogState
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogType
 import com.wire.android.ui.navArgs
 import com.wire.android.util.FileManager
+import com.wire.kalium.cells.domain.usecase.GetCellFileUseCase
+import com.wire.kalium.cells.domain.usecase.GetMessageAttachmentUseCase
 import com.wire.kalium.common.error.CoreFailure
-import com.wire.kalium.common.functional.Either
+import com.wire.kalium.common.functional.right
+import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.ConversationDetails.OneOne
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus.AllAllowed
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.message.CellAssetContent
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.data.user.type.UserTypeInfo
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
+import com.wire.kalium.logic.feature.message.MessageOperationResult
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -60,6 +66,7 @@ import okio.Path.Companion.toPath
 import okio.buffer
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -102,7 +109,7 @@ class MediaGalleryViewModelTest {
 
         // Then
         coVerify(exactly = 1) {
-            arrangement.getImageData.invoke(mockedConversation.conversation.id, viewModel.imageAsset.messageId)
+            arrangement.getImageData.invoke(mockedConversation.conversation.id, dummyMessageId)
             arrangement.fileManager.saveToExternalStorage(any(), dummyDataPath, mockedImage.size.toLong(), any(), any())
         }
     }
@@ -139,7 +146,7 @@ class MediaGalleryViewModelTest {
 
         // When
         viewModel.deleteMessageDialogState.show(
-            DeleteMessageDialogState(true, viewModel.imageAsset.messageId, viewModel.imageAsset.conversationId)
+            DeleteMessageDialogState(true, dummyMessageId, dummyConversationId)
         )
 
         // Then
@@ -160,11 +167,12 @@ class MediaGalleryViewModelTest {
             .withSuccessfulImageData(imagePath, mockedImage.size.toLong())
             .arrange()
 
-        // When
-        viewModel.deleteMessage("", true)
+        viewModel.actions.test {
+            // When
+            viewModel.deleteMessage("", true)
 
-        // Then
-        assertEquals(true, viewModel.mediaGalleryViewState.messageDeleted)
+            assertTrue(awaitItem() is MediaGalleryAction.Close)
+        }
     }
 
     @Test
@@ -185,9 +193,189 @@ class MediaGalleryViewModelTest {
             viewModel.deleteMessage("", true)
 
             // Then
-            assertEquals(false, viewModel.mediaGalleryViewState.messageDeleted)
             assertEquals(MediaGallerySnackbarMessages.DeletingMessageError, awaitItem())
         }
+    }
+
+    @Test
+    fun givenCellAssetWithLocalPath_whenInitialisingViewModel_thenAssetWithLocalPathReturned() = runTest {
+        // Given
+        val (_, viewModel) = Arrangement()
+            .withNavArgs(cellAssetId = "cell-asset-id")
+            .withConversationDetails(mockedConversationDetails())
+            .withAssetContent(
+                CellAssetContent(
+                    id = "cell-asset-id",
+                    versionId = "",
+                    mimeType = "image/png",
+                    localPath = "local/path",
+                    assetPath = "asset/path",
+                    assetSize = 1,
+                    metadata = null,
+                    transferStatus = AssetTransferStatus.SAVED_INTERNALLY
+                )
+            )
+            .arrange()
+
+        // When
+        val state = viewModel.mediaGalleryViewState
+
+        // Then
+        assertTrue(state.imageAsset is MediaGalleryImage.LocalAsset)
+        assertEquals("local/path", (state.imageAsset as MediaGalleryImage.LocalAsset).path)
+    }
+
+    @Test
+    fun givenCellAssetWithUrl_whenInitialisingViewModel_thenAssetWithUrlReturned() = runTest {
+        // Given
+        val (_, viewModel) = Arrangement()
+            .withNavArgs(cellAssetId = "cell-asset-id")
+            .withConversationDetails(mockedConversationDetails())
+            .withAssetContent(
+                CellAssetContent(
+                    id = "cell-asset-id",
+                    versionId = "",
+                    mimeType = "image/png",
+                    localPath = null,
+                    assetPath = "asset/path",
+                    contentUrl = "content/url",
+                    previewUrl = "preview/url",
+                    assetSize = 1,
+                    metadata = null,
+                    transferStatus = AssetTransferStatus.SAVED_INTERNALLY
+                )
+            )
+            .arrange()
+
+        // When
+        val state = viewModel.mediaGalleryViewState
+
+        // Then
+        assertTrue(state.imageAsset is MediaGalleryImage.UrlAsset)
+        assertEquals("content/url", (state.imageAsset as MediaGalleryImage.UrlAsset).url)
+        assertEquals("preview/url", state.imageAsset.placeholder)
+    }
+
+    @Test
+    fun givenMessageMenuOptionsDisabled_whenShowingMenu_thenCorrectMenuItemsShown() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withNavArgs(messageOptionsEnabled = false, isEphemeral = false)
+            .withConversationDetails(mockedConversationDetails())
+            .arrange()
+
+        viewModel.onOptionsClick()
+
+        val state = viewModel.mediaGalleryViewState
+
+        assertEquals(
+            listOf(
+                MediaGalleryMenuItem.DOWNLOAD,
+                MediaGalleryMenuItem.SHARE,
+                MediaGalleryMenuItem.DELETE,
+            ),
+            state.menuItems
+        )
+    }
+
+    @Test
+    fun givenMessageMenuOptionsDisabledAndEphemeral_whenShowingMenu_thenCorrectMenuItemsShown() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withNavArgs(messageOptionsEnabled = false, isEphemeral = true)
+            .withConversationDetails(mockedConversationDetails())
+            .arrange()
+
+        viewModel.onOptionsClick()
+
+        val state = viewModel.mediaGalleryViewState
+
+        assertEquals(
+            listOf(
+                MediaGalleryMenuItem.DOWNLOAD,
+                MediaGalleryMenuItem.DELETE,
+            ),
+            state.menuItems
+        )
+    }
+
+    @Test
+    fun givenMessageMenuOptionsEnabledAndEphemeral_whenShowingMenu_thenCorrectMenuItemsShown() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withNavArgs(messageOptionsEnabled = true, isEphemeral = true)
+            .withConversationDetails(mockedConversationDetails())
+            .arrange()
+
+        viewModel.onOptionsClick()
+
+        val state = viewModel.mediaGalleryViewState
+
+        assertEquals(
+            listOf(
+                MediaGalleryMenuItem.SHOW_DETAILS,
+                MediaGalleryMenuItem.DOWNLOAD,
+                MediaGalleryMenuItem.DELETE,
+            ),
+            state.menuItems
+        )
+    }
+
+    @Test
+    fun givenMessageMenuOptionsEnabledAndCellAsset_whenShowingMenu_thenCorrectMenuItemsShown() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withNavArgs(messageOptionsEnabled = true, isEphemeral = false, cellAssetId = "cell-asset-id")
+            .withConversationDetails(mockedConversationDetails())
+            .withAssetContent(
+                CellAssetContent(
+                    id = "cell-asset-id",
+                    versionId = "",
+                    mimeType = "image/png",
+                    localPath = null,
+                    assetPath = "asset/path",
+                    contentUrl = "content/url",
+                    previewUrl = "preview/url",
+                    assetSize = 1,
+                    metadata = null,
+                    transferStatus = AssetTransferStatus.SAVED_INTERNALLY
+                )
+            )
+            .arrange()
+
+        viewModel.onOptionsClick()
+
+        val state = viewModel.mediaGalleryViewState
+
+        assertEquals(
+            listOf(
+                MediaGalleryMenuItem.REACT,
+                MediaGalleryMenuItem.SHOW_DETAILS,
+                MediaGalleryMenuItem.REPLY,
+                MediaGalleryMenuItem.SHARE_PUBLIC_LINK,
+            ),
+            state.menuItems
+        )
+    }
+
+    @Test
+    fun givenMessageMenuOptionsEnabled_whenShowingMenu_thenCorrectMenuItemsShown() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withNavArgs(messageOptionsEnabled = true, isEphemeral = false, cellAssetId = null)
+            .withConversationDetails(mockedConversationDetails())
+            .arrange()
+
+        viewModel.onOptionsClick()
+
+        val state = viewModel.mediaGalleryViewState
+
+        assertEquals(
+            listOf(
+                MediaGalleryMenuItem.REACT,
+                MediaGalleryMenuItem.SHOW_DETAILS,
+                MediaGalleryMenuItem.REPLY,
+                MediaGalleryMenuItem.DOWNLOAD,
+                MediaGalleryMenuItem.SHARE,
+                MediaGalleryMenuItem.DELETE,
+            ),
+            state.menuItems
+        )
     }
 
     private class Arrangement {
@@ -206,19 +394,41 @@ class MediaGalleryViewModelTest {
         @MockK
         lateinit var deleteMessage: DeleteMessageUseCase
 
+        @MockK
+        lateinit var getAttachment: GetMessageAttachmentUseCase
+
+        @MockK
+        lateinit var getCellFile: GetCellFileUseCase
+
         init {
             // Tests setup
-            val dummyPrivateAsset = "some-conversationId:some-message-id:true:true"
             MockKAnnotations.init(this, relaxUnitFun = true)
+
             every { savedStateHandle.navArgs<MediaGalleryNavArgs>() } returns MediaGalleryNavArgs(
                 conversationId = dummyConversationId,
-                messageId = dummyPrivateAsset,
+                messageId = dummyMessageId,
                 isSelfAsset = true,
                 isEphemeral = false,
-                messageOptionsEnabled = true
+                messageOptionsEnabled = true,
+                cellAssetId = null,
             )
 
-            coEvery { deleteMessage(any(), any(), any()) } returns Either.Right(Unit)
+            coEvery { deleteMessage(any(), any(), any()) } returns MessageOperationResult.Success
+        }
+
+        fun withNavArgs(messageOptionsEnabled: Boolean = true, isEphemeral: Boolean = false, cellAssetId: String? = null) = apply {
+            every { savedStateHandle.navArgs<MediaGalleryNavArgs>() } returns MediaGalleryNavArgs(
+                conversationId = dummyConversationId,
+                messageId = dummyMessageId,
+                isSelfAsset = true,
+                isEphemeral = isEphemeral,
+                messageOptionsEnabled = messageOptionsEnabled,
+                cellAssetId = cellAssetId,
+            )
+        }
+
+        fun withAssetContent(cellAssetContent: CellAssetContent) = apply {
+            coEvery { getAttachment(any()) } returns cellAssetContent.right()
         }
 
         fun withStoredData(assetData: ByteArray, assetPath: Path): Arrangement {
@@ -230,7 +440,9 @@ class MediaGalleryViewModelTest {
         }
 
         fun withConversationDetails(conversationDetails: ConversationDetails): Arrangement {
-            coEvery { getConversationDetails(any()) } returns flowOf(ObserveConversationDetailsUseCase.Result.Success(conversationDetails))
+            coEvery {
+                getConversationDetails(any())
+            } returns flowOf(ObserveConversationDetailsUseCase.Result.Success(conversationDetails))
             return this
         }
 
@@ -253,7 +465,7 @@ class MediaGalleryViewModelTest {
                 )
             } returns CompletableDeferred(
                 MessageAssetResult.Failure(
-                    CoreFailure.Unknown(java.lang.RuntimeException()),
+                    CoreFailure.Unknown(RuntimeException()),
                     isRetryNeeded = true
                 )
             )
@@ -261,7 +473,7 @@ class MediaGalleryViewModelTest {
         }
 
         fun withFailedMessageDeleting(): Arrangement {
-            coEvery { deleteMessage(any(), any(), any()) } returns Either.Left(CoreFailure.Unknown(null))
+            coEvery { deleteMessage(any(), any(), any()) } returns MessageOperationResult.Failure(CoreFailure.Unknown(null))
             return this
         }
 
@@ -271,7 +483,9 @@ class MediaGalleryViewModelTest {
             TestDispatcherProvider(),
             getImageData,
             fileManager,
-            deleteMessage
+            deleteMessage,
+            getAttachment,
+            getCellFile,
         )
     }
 
@@ -307,7 +521,7 @@ class MediaGalleryViewModelTest {
                 QualifiedID("other-user-id", "domain-id"),
                 "Test user", null, null, null,
                 1, null, ConnectionState.ACCEPTED, null, null,
-                UserType.INTERNAL,
+                UserTypeInfo.Regular(UserType.INTERNAL),
                 UserAvailabilityStatus.AVAILABLE,
                 setOf(SupportedProtocol.PROTEUS),
                 null,
@@ -315,11 +529,12 @@ class MediaGalleryViewModelTest {
                 defederated = false,
                 isProteusVerified = false
             ),
-            userType = UserType.INTERNAL,
+            userType = UserTypeInfo.Regular(UserType.INTERNAL),
         )
 
     companion object {
         val fakeKaliumFileSystem = FakeKaliumFileSystem()
         val dummyConversationId = QualifiedID("a-value", "a-domain")
+        const val dummyMessageId = "some-conversationId:some-message-id:true:true"
     }
 }

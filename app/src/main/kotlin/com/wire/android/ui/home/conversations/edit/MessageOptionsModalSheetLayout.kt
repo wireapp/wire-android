@@ -17,12 +17,14 @@
  */
 package com.wire.android.ui.home.conversations.edit
 
+import android.R.id.message
 import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wire.android.R
 import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
@@ -31,7 +33,6 @@ import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.bottomsheet.WireSheetValue
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
-import com.wire.android.ui.common.collectAsStateLifecycleAware
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
@@ -56,7 +57,7 @@ fun MessageOptionsModalSheetLayout(
     onReactionClick: (messageId: String, reactionEmoji: String) -> Unit,
     onDetailsClick: (messageId: String, isSelfMessage: Boolean) -> Unit,
     onReplyClick: (UIMessage.Regular) -> Unit,
-    onEditClick: (messageId: String, messageBody: String, mentions: List<MessageMention>) -> Unit,
+    onEditClick: (messageId: String, messageBody: String, mentions: List<MessageMention>, isMultipart: Boolean) -> Unit,
     onShareAssetClick: (messageId: String) -> Unit,
     onDownloadAssetClick: (messageId: String) -> Unit,
     onOpenAssetClick: (messageId: String) -> Unit,
@@ -70,7 +71,7 @@ fun MessageOptionsModalSheetLayout(
     WireModalSheetLayout(
         sheetState = sheetState,
         sheetContent = {
-            when (val state = viewModel.observeMessageStateFlow(it).collectAsStateLifecycleAware().value) {
+            when (val state = viewModel.observeMessageStateFlow(it).collectAsStateWithLifecycle().value) {
                 is MessageOptionsMenuState.Message -> MessageOptionsModalContent( // message state - show the sheet with proper content
                     message = state.message,
                     sheetState = sheetState,
@@ -83,7 +84,9 @@ fun MessageOptionsModalSheetLayout(
                     onShareAssetClick = onShareAssetClick,
                     onDownloadAssetClick = onDownloadAssetClick,
                     onOpenAssetClick = onOpenAssetClick
-                )
+                ).also {
+                    sheetState.updateContent()
+                }
 
                 MessageOptionsMenuState.Loading -> WireCircularProgressIndicator( // loading state - show a progress indicator
                     progressColor = colorsScheme().onSurface,
@@ -108,7 +111,7 @@ private fun MessageOptionsModalContent(
     onReactionClick: (messageId: String, reactionEmoji: String) -> Unit,
     onDetailsClick: (messageId: String, isSelfMessage: Boolean) -> Unit,
     onReplyClick: (UIMessage.Regular) -> Unit,
-    onEditClick: (messageId: String, messageBody: String, mentions: List<MessageMention>) -> Unit,
+    onEditClick: (messageId: String, messageBody: String, mentions: List<MessageMention>, isMultipart: Boolean) -> Unit,
     onShareAssetClick: (messageId: String) -> Unit,
     onDownloadAssetClick: (messageId: String) -> Unit,
     onOpenAssetClick: (messageId: String) -> Unit,
@@ -127,7 +130,7 @@ private fun MessageOptionsModalContent(
             isComposite = message.messageContent is UIMessageContent.Composite,
             isEphemeral = isEphemeral,
             isEditable = !isUploading && !isDeleted && (message.messageContent?.isEditable() ?: false) && isMyMessage,
-            isCopyable = !isUploading && !isDeleted && !isEphemeral && message.messageContent is Copyable,
+            isCopyable = message.isCopyable(),
             isOpenable = true,
             onCopyClick = remember(message.messageContent) {
                 (message.messageContent as? Copyable)?.textToCopy(context.resources)?.let {
@@ -177,7 +180,8 @@ private fun MessageOptionsModalContent(
                                 onEditClick(
                                     message.header.messageId,
                                     message.messageContent.messageBody.message.asString(context.resources),
-                                    (message.messageContent.messageBody.message as? UIText.DynamicString)?.mentions ?: listOf()
+                                    (message.messageContent.messageBody.message as? UIText.DynamicString)?.mentions ?: listOf(),
+                                    false,
                                 )
                             }
 
@@ -187,7 +191,8 @@ private fun MessageOptionsModalContent(
                                     onEditClick(
                                         message.header.messageId,
                                         this?.message?.asString(context.resources) ?: "",
-                                        (this?.message as? UIText.DynamicString)?.mentions ?: listOf()
+                                        (this?.message as? UIText.DynamicString)?.mentions ?: listOf(),
+                                        true,
                                     )
                                 }
                             }
@@ -221,6 +226,24 @@ private fun MessageOptionsModalContent(
     )
 }
 
+private fun UIMessage.Regular.isCopyable() =
+    when {
+        isPending -> false
+        isDeleted -> false
+        header.messageStatus.expirationStatus is ExpirationStatus.Expirable -> false
+        messageContent !is Copyable -> false
+        messageContent.isEmptyMultipartText() -> false
+        else -> true
+    }
+
+private fun UIMessageContent.Regular?.isEmptyMultipartText() =
+    (this as? UIMessageContent.Multipart)?.messageBody?.message?.let { message ->
+        when (message) {
+            is UIText.DynamicString -> message.value.isEmpty()
+            else -> false
+        }
+    } ?: false
+
 @PreviewMultipleThemes
 @Composable
 fun PreviewMessageOptionsModalSheetLayout() = WireTheme {
@@ -232,7 +255,7 @@ fun PreviewMessageOptionsModalSheetLayout() = WireTheme {
         onReactionClick = { _, _ -> },
         onDetailsClick = { _, _ -> },
         onReplyClick = { },
-        onEditClick = { _, _, _ -> },
+        onEditClick = { _, _, _, _ -> },
         onShareAssetClick = { },
         onDownloadAssetClick = { },
         onOpenAssetClick = { }

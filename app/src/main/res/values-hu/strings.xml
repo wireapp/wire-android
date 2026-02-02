@@ -36,8 +36,6 @@
     <string name="label_learn_more">További információ</string>
     <string name="label_removing">Eltávolít…</string>
     <string name="label_logging_in">Bejelentkezés…</string>
-    <string name="label_membership_guest">Vendég</string>
-    <string name="label_membership_external">Külső</string>
     <string name="label_user_deleted">Törölve</string>
     <string name="label_try_again">Próbálja újra</string>
     <string name="label_done">Kész</string>
@@ -61,7 +59,6 @@
     </plurals>
     <string name="label_reset_session">Munkamenet újraindítása</string>
     <string name="label_reset_session_success">Munkamenet sikeresen újraindítva</string>
-    <string name="label_federated_membership">Szövetséges</string>
     <string name="label_update">Frissítés</string>
     <string name="label_close">Bezárás</string>
     <string name="label_download">Letöltés</string>
@@ -87,10 +84,7 @@
     <string name="content_description_reveal_password">Jelszó megjelenítése</string>
     <string name="content_description_hide_password">Jelszó elrejtése</string>
     <string name="content_description_search_back">Keresés vissza ikon</string>
-    <string name="content_description_clear_content">Tartalom törlése</string>
-    <string name="content_description_user_avatar">Profilkép</string>
     <string name="content_description_muted_conversation">Némított beszélgetés</string>
-    <string name="content_description_check">Pipa jel</string>
     <string name="content_description_download_icon">Letöltés ikon</string>
     <string name="content_description_open_asset_icon">Megnyitás ikon</string>
     <string name="content_description_add_to_favourite">Hozzáadás a kedvencekhez</string>
@@ -103,8 +97,6 @@
     <string name="content_description_delete_the_conversation">Beszélgetés törlése</string>
     <string name="content_description_conversation_phone_icon">Hívás indítása</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
-    <string name="content_description_conversation_search_icon">Keresés ikon</string>
-    <string name="content_description_conversation_search_input">Keresőmező</string>
     <string name="content_description_conversation_enable_rich_text_mode">Formázott szöveg engedélyezése gomb</string>
     <string name="content_description_conversation_enable_drawing_mode">Rajzmód gomb engedélyezése</string>
     <string name="content_description_conversation_rich_text_header">Szövegformázás Címsor</string>
@@ -202,8 +194,6 @@
     <string name="content_description_open_label">megnyitás</string>
     <string name="content_description_join_call_label">híváshoz csatlakozás</string>
     <string name="content_description_share_label">megosztás</string>
-    <string name="content_description_collapse_label">összecsukás</string>
-    <string name="content_description_expand_label">kinyitás</string>
     <string name="content_description_edit_label">szerkeszt</string>
     <string name="content_description_select_label">kiválaszt</string>
     <string name="content_description_unselect_label">kiválasztás megszüntetése</string>
@@ -538,8 +528,6 @@
     <string name="conversation_details_options_tab">LEHETŐSÉGEK</string>
     <string name="conversation_details_participants_tab">RÉSZTVEVŐK</string>
     <string name="conversation_details_options_group_name">CSOPORT NEVE</string>
-    <string name="conversation_details_conversation_admins">A BESZÉLGETÉS ADMINJAI (%d)</string>
-    <string name="conversation_details_conversation_members">A BESZÉLGETÉS RÉSZTVEVŐI (%d)</string>
     <string name="conversation_details_participants_info">A beszélgetésnek %s résztvevője van.\nAkár 500 fő is csatlakozhat egy beszélgetéshez.</string>
     <string name="conversation_details_participants_count">%s résztvevő</string>
     <string name="conversation_details_show_all_participants">Mutassa az összes résztvevőt (%d)</string>
@@ -605,10 +593,6 @@
     <string name="user_profile_logout">Kijelentkezés</string>
     <string name="user_profile_other_accs">További fiókjai</string>
     <string name="user_profile_status_availability">Elérhetőség</string>
-    <string name="user_profile_status_available">Elérhető</string>
-    <string name="user_profile_status_busy">Elfoglalt</string>
-    <string name="user_profile_status_away">Nincs a gépnél</string>
-    <string name="user_profile_status_none">Semmi</string>
     <string name="user_profile_new_account_text">Új csapat, vagy fiók hozzáadása</string>
     <string name="user_profile_account_management">Csapat kezelése</string>
     <string name="user_profile_details_tab">Részletek</string>
@@ -688,9 +672,7 @@
     <string name="profile_image_change_image_button_label">Kép megváltoztatása…</string>
     <!--Conversation-->
     <string name="label_message_details">Üzenet részletei</string>
-    <string name="label_copy">Másolás</string>
     <string name="label_share">Megosztás</string>
-    <string name="label_edit">Szerkesztés</string>
     <string name="label_delete">Törlés</string>
     <string name="info_message_copied">Üzenet másolva</string>
     <string name="conversation_banner_federated">szövetséges felhasználók</string>
@@ -842,14 +824,12 @@
         <item quantity="other">%1$s és %2$d gépel</item>
     </plurals>
     <!-- Search Messages -->
-    <string name="label_search_messages">Üzenetek keresése</string>
     <string name="label_search_messages_empty_title">Üzenetek keresése ebben a beszélgetésben.</string>
     <string name="label_search_messages_no_results">Nincs találat.\nMódosítsa a keresőkifejezést, és próbálja meg újra.</string>
     <string name="label_search_button">Keresés</string>
     <!-- Conversation Media -->
     <string name="label_conversation_media">Média</string>
     <string name="label_conversation_pictures">Képek</string>
-    <string name="label_conversation_files">Fájlok</string>
     <string name="label_conversation_pictures_empty">Ebben a beszélgetésben még senki nem osztott meg képet 🥲</string>
     <string name="label_conversation_files_empty">Ebben a beszégetésben még senki nem osztott meg fájlt 🙀</string>
     <!-- Search Contact-->
@@ -1433,7 +1413,6 @@ Kérjük, próbálja meg újra.</string>
     <string name="label_debug_data">Hibakeresési információ</string>
     <string name="title_internal_debugging">Belső hibakeresés</string>
     <string name="label_log_options_description">"Ez helyileg tárolja az anonimizált hibaelhárítási információkat. "</string>
-    <string name="label_no_application_found_open_downloads_folder">"Nem található alkalmazás a letöltési mappa megnyitásához"</string>
     <string name="notification_obfuscated_message_title">Valaki</string>
     <string name="notification_obfuscated_message_content">Önmegsemmisítő üzenetet küldött</string>
     <string name="settings_licenses_settings_label">Licenc információ</string>
@@ -1658,13 +1637,11 @@ Kérjük, próbálja meg újra.</string>
     <string name="press_enter_to_send_title">Nyomja meg az Entert a küldéshez</string>
     <string name="press_enter_to_send_text">Ha ez aktív, a billentyűzet Enter gombjával tud üzenetet küldeni.</string>
     <string name="customization_options_header_title">Beállítások</string>
+    <!-- enterprise configurations -->
     <!--    channel not available dialog-->
     <string name="channel_not_available_dialog_title">A csatornák csapattagok számára érhetők el.</string>
     <string name="channel_not_available_dialog_description">Hozzon létre csapatot, és kezdjen együttműködni költségmentesen!</string>
     <string name="channel_not_available_dialog_create_team_button">Wire csapat létrehozása</string>
     <string name="custimization_options_header_title">Beállítások</string>
-    <string name="cells_screen_title">Minden fájl</string>
-    <string name="cells_screen_search_hint">Fájlok keresése</string>
-    <string name="enable_wire_cell">Wire Cell engedélyezése</string>
-    <string name="enable_wire_cell_switch_description">A beszélgetésben található összes fájl fel lesz töltve a Wire Cell tárhelyre.</string>
+    <!-- Apps-->
 </resources>

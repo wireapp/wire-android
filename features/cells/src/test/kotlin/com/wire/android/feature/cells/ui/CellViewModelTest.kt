@@ -17,6 +17,7 @@
  */
 package com.wire.android.feature.cells.ui
 
+import android.os.Environment
 import androidx.lifecycle.SavedStateHandle
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
@@ -24,17 +25,17 @@ import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
 import com.wire.android.config.NavigationTestExtension
-import com.wire.android.feature.cells.domain.model.AttachmentFileType
-import com.wire.android.feature.cells.ui.model.CellNodeUi
-import com.wire.android.feature.cells.ui.model.NodeBottomSheetAction
+import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.feature.cells.ui.model.toUiModel
 import com.wire.android.feature.cells.util.FileHelper
 import com.wire.android.feature.cells.util.FileNameResolver
 import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
-import com.wire.kalium.cells.domain.usecase.DownloadCellFileUseCase
+import com.wire.kalium.cells.domain.usecase.download.DownloadCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
+import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
+import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
 import com.wire.kalium.cells.domain.usecase.IsAtLeastOneCellAvailableUseCase
 import com.wire.kalium.cells.domain.usecase.RestoreNodeFromRecycleBinUseCase
 import com.wire.kalium.common.error.CoreFailure
@@ -46,6 +47,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.mockkStatic
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -61,28 +63,12 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import java.io.File
 
 @ExtendWith(NavigationTestExtension::class)
 class CellViewModelTest {
 
     private companion object {
-        val fileNode = CellNodeUi.File(
-            name = "file.txt",
-            conversationName = "Conversation",
-            downloadProgress = null,
-            uuid = "fileUuid",
-            mimeType = "video/mp4",
-            assetType = AttachmentFileType.VIDEO,
-            size = 23432532532,
-            localPath = "localPath",
-            userName = null,
-            modifiedTime = null,
-            remotePath = null,
-            contentHash = null,
-            contentUrl = null,
-            previewUrl = null,
-            publicLinkId = null
-        )
         val testFiles = listOf(
             Node.File(
                 uuid = "fileUuid",
@@ -123,7 +109,7 @@ class CellViewModelTest {
     }
 
     @Test
-    fun `given view model when files flow subscibed cell files are loaded`() = runTest {
+    fun `given view model when files flow subscribed cell files are loaded`() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .withLoadSuccess()
             .arrange()
@@ -140,7 +126,7 @@ class CellViewModelTest {
             .withLoadSuccess()
             .arrange()
 
-        viewModel.sendIntent(CellViewIntent.OnFileClick(testFiles[0].toUiModel()))
+        viewModel.sendIntent(CellViewIntent.OnItemClick(testFiles[0].toUiModel()))
 
         coVerify(exactly = 1) { arrangement.fileHelper.openAssetFileWithExternalApp(any(), any(), any(), any()) }
     }
@@ -156,7 +142,7 @@ class CellViewModelTest {
             contentUrl = "https://example.com/file"
         )
 
-        viewModel.sendIntent(CellViewIntent.OnFileClick(testFile.toUiModel()))
+        viewModel.sendIntent(CellViewIntent.OnItemClick(testFile.toUiModel()))
 
         coVerify(exactly = 1) { arrangement.fileHelper.openAssetUrlWithExternalApp(any(), any(), any()) }
     }
@@ -173,7 +159,7 @@ class CellViewModelTest {
         ).toUiModel()
 
         viewModel.downloadFileSheet.test {
-            viewModel.sendIntent(CellViewIntent.OnFileClick(testFile))
+            viewModel.sendIntent(CellViewIntent.OnItemClick(testFile))
 
             with(expectMostRecentItem()) {
                 assertEquals(testFile, this)
@@ -210,78 +196,6 @@ class CellViewModelTest {
         }
 
         coVerify(exactly = 1) { arrangement.downloadCellFileUseCase(any(), any(), any(), any(), any()) }
-    }
-
-    @Test
-    fun `given view model when save menu action selected then download starts`() = runTest {
-        val (arrangement, viewModel) = Arrangement()
-            .withLoadSuccess()
-            .withDownloadSuccess()
-            .arrange()
-
-        val testFile = testFiles[0]
-            .toUiModel()
-            .copy(localPath = null)
-
-        viewModel.sendIntent(CellViewIntent.OnMenuItemActionSelected(testFile, NodeBottomSheetAction.DOWNLOAD))
-
-        coVerify(exactly = 1) {
-            arrangement.downloadCellFileUseCase(any(), any(), any(), any(), any())
-        }
-    }
-
-    @Test
-    fun `given view model when share menu action selected then file is shared`() = runTest {
-        val (arrangement, viewModel) = Arrangement()
-            .withLoadSuccess()
-            .arrange()
-
-        val testFile = testFiles[0]
-            .toUiModel()
-
-        viewModel.sendIntent(CellViewIntent.OnMenuItemActionSelected(testFile, NodeBottomSheetAction.SHARE))
-
-        coVerify(exactly = 1) {
-            arrangement.fileHelper.shareFileChooser(any(), any(), any(), any())
-        }
-    }
-
-    @Test
-    fun `given view model when public link menu action selected then public link is created`() = runTest {
-        val (_, viewModel) = Arrangement()
-            .withLoadSuccess()
-            .arrange()
-
-        val testFile = testFiles[0]
-            .toUiModel()
-
-        viewModel.actions.test {
-            viewModel.sendIntent(CellViewIntent.OnMenuItemActionSelected(testFile, NodeBottomSheetAction.PUBLIC_LINK))
-
-            with(expectMostRecentItem()) {
-                assertTrue(this is ShowPublicLinkScreen)
-                assertEquals(testFile, (this as ShowPublicLinkScreen).cellNode)
-            }
-        }
-    }
-
-    @Test
-    fun `given view model when delete menu action selected then delete confirmation is shown`() = runTest {
-        val (_, viewModel) = Arrangement()
-            .withLoadSuccess()
-            .arrange()
-
-        val testFile = testFiles[0]
-            .toUiModel()
-
-        viewModel.actions.test {
-            viewModel.sendIntent(CellViewIntent.OnMenuItemActionSelected(testFile, NodeBottomSheetAction.DELETE))
-
-            with(expectMostRecentItem()) {
-                assertTrue(this is ShowDeleteConfirmation)
-                assertEquals(testFile, (this as ShowDeleteConfirmation).node)
-            }
-        }
     }
 
     @Test
@@ -339,116 +253,6 @@ class CellViewModelTest {
         }
 
     @Test
-    fun `GIVEN Search context AND File node with local file available WHEN onItemMenuClick called THEN emits SHARE PUBLIC_LINK DOWNLOAD actions`() =
-        runTest(dispatcher) {
-            // GIVEN
-            val (_, viewModel) = Arrangement().arrange()
-            viewModel.onSearchQueryUpdated("test")
-
-            viewModel.menu.test {
-                // WHEN
-                viewModel.sendIntent(CellViewIntent.OnItemMenuClick(fileNode))
-
-                // THEN
-                val emitted = awaitItem()
-                assertEquals(fileNode, emitted.node)
-                assertEquals(
-                    listOf(
-                        NodeBottomSheetAction.SHARE,
-                        NodeBottomSheetAction.PUBLIC_LINK,
-                        NodeBottomSheetAction.DOWNLOAD
-                    ),
-                    emitted.actions
-                )
-                cancelAndIgnoreRemainingEvents()
-            }
-        }
-
-    @Test
-    fun `GIVEN RecycleBin context WHEN onItemMenuClick called THEN emits RESTORE DELETE_PERMANENTLY actions`() = runTest {
-        // GIVEN
-        val (_, viewModel) = Arrangement()
-            .withRecycleBinArg(true)
-            .arrange()
-
-        viewModel.menu.test {
-            // WHEN
-            viewModel.sendIntent(CellViewIntent.OnItemMenuClick(fileNode))
-
-            // THEN
-            val emitted = awaitItem()
-            assertEquals(fileNode, emitted.node)
-            assertEquals(
-                listOf(
-                    NodeBottomSheetAction.RESTORE,
-                    NodeBottomSheetAction.DELETE_PERMANENTLY,
-                ),
-                emitted.actions
-            )
-            cancelAndIgnoreRemainingEvents()
-        }
-    }
-
-    @Test
-    fun `GIVEN Conversation context AND File node with local file available WHEN onItemMenuClick called THEN emits all conversation actions`() =
-        runTest {
-            // GIVEN
-            val (_, viewModel) = Arrangement()
-                .withConversationIdArg("conversationId")
-                .arrange()
-            val fileWithNullLocalPath = fileNode.copy(localPath = null)
-
-            viewModel.menu.test {
-                // WHEN
-                viewModel.sendIntent(CellViewIntent.OnItemMenuClick(fileWithNullLocalPath))
-
-                // THEN
-                val emitted = awaitItem()
-                assertEquals(fileWithNullLocalPath, emitted.node)
-                assertEquals(
-                    listOf(
-                        NodeBottomSheetAction.PUBLIC_LINK,
-                        NodeBottomSheetAction.DOWNLOAD,
-                        NodeBottomSheetAction.ADD_REMOVE_TAGS,
-                        NodeBottomSheetAction.MOVE,
-                        NodeBottomSheetAction.RENAME,
-                        NodeBottomSheetAction.DELETE,
-                    ),
-                    emitted.actions
-                )
-                cancelAndIgnoreRemainingEvents()
-            }
-        }
-
-    @Test
-    fun `GIVEN AllFiles context AND File node with local file available WHEN onItemMenuClick called THEN emits SHARE PUBLIC_LINK DOWNLOAD actions`() =
-        runTest(dispatcher) {
-            // GIVEN
-            val (_, viewModel) = Arrangement()
-                .withRecycleBinArg(false)
-                .withConversationIdArg(null)
-                .arrange()
-
-            viewModel.menu.test {
-                // WHEN
-                viewModel.sendIntent(CellViewIntent.OnItemMenuClick(fileNode))
-
-                // THEN
-                val emitted = awaitItem()
-                assertEquals(fileNode, emitted.node)
-                assertEquals(
-                    listOf(
-                        NodeBottomSheetAction.SHARE,
-                        NodeBottomSheetAction.PUBLIC_LINK,
-                        NodeBottomSheetAction.DOWNLOAD
-                    ),
-                    emitted.actions
-                )
-                cancelAndIgnoreRemainingEvents()
-            }
-        }
-
-    @Test
     fun `GIVEN no cells available WHEN ViewModel initialized THEN no load request is sent`() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .withNoCellsAvailable()
@@ -491,6 +295,18 @@ class CellViewModelTest {
 
         @MockK
         lateinit var fileNameResolver: FileNameResolver
+
+        @MockK
+        lateinit var getEditorUrlUseCase: GetEditorUrlUseCase
+
+        @MockK
+        lateinit var onlineEditor: OnlineEditor
+
+        @MockK
+        lateinit var cellFileActionsMenu: CellFileActionsMenu
+
+        @MockK
+        lateinit var getWireCellsConfig: GetWireCellConfigurationUseCase
 
         init {
 
@@ -548,23 +364,19 @@ class CellViewModelTest {
             coEvery { deleteCellAssetUseCase(any(), any()) } returns Unit.right()
         }
 
-        fun withRecycleBinArg(isRecycleBin: Boolean) = apply {
-            every { savedStateHandle.navArgs<CellFilesNavArgs>() } returns CellFilesNavArgs(
-                isRecycleBin = isRecycleBin
-            )
-        }
-
-        fun withConversationIdArg(conversationId: String?) = apply {
-            every { savedStateHandle.navArgs<CellFilesNavArgs>() } returns CellFilesNavArgs(
-                conversationId = conversationId
-            )
-        }
-
         fun withNoCellsAvailable() = apply {
             coEvery { isCellAvailableUseCase.invoke() } returns false.right()
         }
 
         fun arrange(): Pair<Arrangement, CellViewModel> {
+
+            mockkStatic(Environment::class)
+
+            every { fileNameResolver.getUniqueFile(any(), any()) } returns File("")
+            coEvery { Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) } returns File("")
+
+            coEvery { getWireCellsConfig() } returns null
+
             return this to CellViewModel(
                 savedStateHandle = savedStateHandle,
                 getCellFilesPaged = getCellFilesPagedUseCase,
@@ -574,7 +386,11 @@ class CellViewModelTest {
                 download = downloadCellFileUseCase,
                 isCellAvailable = isCellAvailableUseCase,
                 fileHelper = fileHelper,
-                fileNameResolver = fileNameResolver
+                fileNameResolver = fileNameResolver,
+                onlineEditor = onlineEditor,
+                getEditorUrl = getEditorUrlUseCase,
+                cellFileActionsMenu = cellFileActionsMenu,
+                getWireCellsConfig = getWireCellsConfig,
             )
         }
     }

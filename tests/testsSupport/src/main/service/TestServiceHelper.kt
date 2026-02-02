@@ -28,6 +28,7 @@ import kotlinx.coroutines.runBlocking
 import network.HttpRequestException
 import service.enums.LegalHoldStatus
 import service.models.Conversation
+import service.models.SendLocationParams
 import service.models.SendTextParams
 import user.usermanager.ClientUserManager
 import user.utils.ClientUser
@@ -35,14 +36,13 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.time.Duration
+import java.util.concurrent.Callable
 import java.util.concurrent.TimeUnit
 
-class TestServiceHelper {
-
+class TestServiceHelper(
+    private val usersManager: ClientUserManager
+) {
     val wireReceiptMode = "WIRE_RECEIPT_MODE"
-    val usersManager by lazy {
-        ClientUserManager.getInstance()
-    }
 
     val testServiceClient by lazy {
         TestService("http://192.168.2.18:8080", "TestService")
@@ -354,9 +354,50 @@ class TestServiceHelper {
         return this != 0
     }
 
+    @Suppress("LongParameterList")
+    fun thereIsATeamOwner(
+        context: Context,
+        ownerNameAlias: String,
+        teamName: String,
+        updateHandle: Boolean,
+        locale: String = "en_US",
+        backend: BackendClient = BackendClient.getDefault()!!
+    ) {
+        val owner = toClientUser(ownerNameAlias)
+        if (usersManager.isUserCreated(owner)) {
+            throw Exception(
+                "Cannot create team with user ${owner.nameAliases} as owner because user is already created"
+            )
+        }
+        usersManager.createTeamOwnerByAlias(ownerNameAlias, teamName, locale, updateHandle, backend, context)
+    }
+
+    fun syncUserIdsForUsersCreatedThroughIdP(ownerNameAlias: String, user: ClientUser) {
+        user.getUserIdThroughOwner = Callable {
+            val asUser = toClientUser(ownerNameAlias)
+            val backend = BackendClient.loadBackend(asUser.backendName.orEmpty())
+            val teamMembers = backend.getTeamMembers(asUser)
+
+            for (member in teamMembers) {
+                val memberId = member.userId
+
+                val memberName = backend.getUserNameByID(backend.domain, memberId, asUser)
+
+                if (user.name == memberName) {
+                    return@Callable memberId
+                }
+            }
+
+            throw IOException(
+                "No user ID found for user ${user.email}. Please verify you are using the right Team Owner account"
+            )
+        }
+    }
+
     fun toClientUser(nameAlias: String): ClientUser {
         return usersManager.findUserByNameOrNameAlias(nameAlias)
     }
+
     fun userSendMessageToConversation(
         senderAlias: String,
         msg: String,
@@ -379,6 +420,29 @@ class TestServiceHelper {
         val clientUser = toClientUser(senderAlias)
         val conversation = toConvoObjPersonal(clientUser, dstConvoName)
         sendMessageInternal(clientUser, conversation, msg, deviceName, isSelfDeleting)
+    }
+
+    fun userXSharesLocationTo(
+        senderAlias: String,
+        convoName: String,
+        deviceName: String,
+        isSelfDeleting: Boolean
+    ) {
+        val clientUser = toClientUser(senderAlias)
+        val conversation = toConvoObj(clientUser, convoName)
+        testServiceClient.sendLocation(
+            SendLocationParams(
+                owner = clientUser,
+                deviceName = deviceName,
+                convoId = conversation.id,
+                convoDomain = conversation.qualifiedID.domain,
+                timeout = if (isSelfDeleting) Duration.ofSeconds(1000) else Duration.ZERO,
+                longitude = 0f,
+                latitude = 0f,
+                locationName = "location",
+                zoom = 1
+            )
+        )
     }
 
     private fun sendMessageInternal(

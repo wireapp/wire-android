@@ -26,7 +26,7 @@ import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.util.FileManager
 import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
-import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCaseImpl
+import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase.AssetSizeLimits.ASSET_SIZE_DEFAULT_LIMIT_BYTES
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -49,7 +49,7 @@ class HandleUriAssetUseCaseTest {
     fun `given an invalid url schema, when invoked, then result should not succeed`() =
         runTest(dispatcher) {
             // Given
-            val limit = GetAssetSizeLimitUseCaseImpl.ASSET_SIZE_DEFAULT_LIMIT_BYTES
+            val limit = ASSET_SIZE_DEFAULT_LIMIT_BYTES
             val (_, useCase) = Arrangement()
                 .withGetAssetSizeLimitUseCase(true, limit)
                 .withGetAssetBundleFromUri(null)
@@ -66,7 +66,7 @@ class HandleUriAssetUseCaseTest {
     fun `given a user picks an image asset less than limit, when invoked, then result should succeed`() =
         runTest(dispatcher) {
             // Given
-            val limit = GetAssetSizeLimitUseCaseImpl.ASSET_SIZE_DEFAULT_LIMIT_BYTES
+            val limit = ASSET_SIZE_DEFAULT_LIMIT_BYTES
             val mockedAttachment = AssetBundle(
                 "key",
                 "image/jpeg",
@@ -91,7 +91,7 @@ class HandleUriAssetUseCaseTest {
     fun `given a user picks an image asset larger than limit, when invoked, then result is asset too large failure`() =
         runTest(dispatcher) {
             // Given
-            val limit = GetAssetSizeLimitUseCaseImpl.ASSET_SIZE_DEFAULT_LIMIT_BYTES
+            val limit = ASSET_SIZE_DEFAULT_LIMIT_BYTES
             val mockedAttachment = AssetBundle(
                 "key",
                 "image/jpeg",
@@ -116,7 +116,7 @@ class HandleUriAssetUseCaseTest {
     fun `given that a user picks too large asset that needs saving if invalid, when invoked, then saveToExternalMediaStorage is called`() =
         runTest(dispatcher) {
             // Given
-            val limit = GetAssetSizeLimitUseCaseImpl.ASSET_SIZE_DEFAULT_LIMIT_BYTES
+            val limit = ASSET_SIZE_DEFAULT_LIMIT_BYTES
             val mockedAttachment = AssetBundle(
                 "key",
                 "file/x-zip",
@@ -151,7 +151,7 @@ class HandleUriAssetUseCaseTest {
     fun `given that a user picks asset, when getting uri returns null, then it should return error`() =
         runTest(dispatcher) {
             // Given
-            val limit = GetAssetSizeLimitUseCaseImpl.ASSET_SIZE_DEFAULT_LIMIT_BYTES
+            val limit = ASSET_SIZE_DEFAULT_LIMIT_BYTES
             val (_, useCase) = Arrangement()
                 .withGetAssetBundleFromUri(null)
                 .withGetAssetSizeLimitUseCase(false, limit)
@@ -180,7 +180,7 @@ class HandleUriAssetUseCaseTest {
         }
 
         fun withGetAssetBundleFromUri(assetBundle: AssetBundle?) = apply {
-            coEvery { fileManager.getAssetBundleFromUri(any(), any(), any(), any()) } returns assetBundle
+            coEvery { fileManager.getAssetBundleFromUri(any(), any(), any(), any(), any()) } returns assetBundle
         }
 
         fun withGetAssetSizeLimitUseCase(isImage: Boolean, assetSizeLimit: Long) = apply {

@@ -36,8 +36,6 @@
     <string name="label_learn_more">Daha fazla bilgi</string>
     <string name="label_removing">Kaldırılıyor…</string>
     <string name="label_logging_in">Oturum açılıyor…</string>
-    <string name="label_membership_guest">Misafir</string>
-    <string name="label_membership_external">Harici</string>
     <string name="label_user_deleted">Silinmiş</string>
     <string name="label_try_again">Yeniden Dene</string>
     <string name="label_done">Tamamlandı</string>
@@ -61,7 +59,6 @@
     </plurals>
     <string name="label_reset_session">Oturumu Sıfırla</string>
     <string name="label_reset_session_success">Oturum başarıyla sıfırlandı</string>
-    <string name="label_federated_membership">Federe</string>
     <string name="label_update">Güncelleme</string>
     <string name="label_close">Kapat</string>
     <string name="label_download">İndir</string>
@@ -87,10 +84,7 @@
     <string name="content_description_reveal_password">Şifreyi göster</string>
     <string name="content_description_hide_password">Parolayı gizle</string>
     <string name="content_description_search_back">Geri arama simgesi</string>
-    <string name="content_description_clear_content">İçeriği temizle</string>
-    <string name="content_description_user_avatar">Profil resmi</string>
     <string name="content_description_muted_conversation">Sessize alınmış sohbet</string>
-    <string name="content_description_check">Onay işareti</string>
     <string name="content_description_download_icon">İndirme simgesi</string>
     <string name="content_description_open_asset_icon">Simgeyi aç</string>
     <string name="content_description_add_to_favourite">Favorilere Ekle</string>
@@ -103,8 +97,6 @@
     <string name="content_description_delete_the_conversation">Konuşmayı sil</string>
     <string name="content_description_conversation_phone_icon">Sesli aramayı başlat</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
-    <string name="content_description_conversation_search_icon">Arama simgesi</string>
-    <string name="content_description_conversation_search_input">Arama girişi</string>
     <string name="content_description_conversation_enable_rich_text_mode">Zengin metin modunu etkinleştir düğmesi</string>
     <string name="content_description_conversation_enable_drawing_mode">Çizim modunu etkinleştir düğmesi</string>
     <string name="content_description_conversation_rich_text_header">Zengin metin biçimlendirme Başlığı</string>
@@ -202,8 +194,6 @@
     <string name="content_description_open_label">aç</string>
     <string name="content_description_join_call_label">bir çağrıya katıl</string>
     <string name="content_description_share_label">paylaş</string>
-    <string name="content_description_collapse_label">daralt</string>
-    <string name="content_description_expand_label">genişlet</string>
     <string name="content_description_edit_label">düzenle</string>
     <string name="content_description_select_label">seç</string>
     <string name="content_description_unselect_label">seçimi kaldır</string>
@@ -378,8 +368,11 @@ Yedek dosyayı korumak için güçlü bir şifre seçin.</string>
     <!-- Logout Wipe Data Dialog -->
     <!-- User Profile status dialog-->
     <!-- Conversations BottomSheet -->
+    <string name="label_notifications">Bildirimler</string>
+    <string name="label_clear_content">İçeriği sil…</string>
     <!-- Conversation filter BottomSheet -->
     <!-- Muting options BottomSheet -->
+    <string name="muting_option_all_allowed_title">Her şey</string>
     <!--Profile image-->
     <!--Conversation-->
     <!-- System messages -->
@@ -392,6 +385,7 @@ Yedek dosyayı korumak için güçlü bir şifre seçin.</string>
     <string name="label_search_button">Arama</string>
     <!-- Conversation Media -->
     <string name="label_conversation_media">Medya</string>
+    <string name="label_conversation_pictures">Resimler</string>
     <!-- Search Contact-->
     <!-- Search Channels -->
     <!-- Snackbar messages -->
@@ -463,5 +457,7 @@ Yedek dosyayı korumak için güçlü bir şifre seçin.</string>
     <string name="debug_settings_screen_title">Hata Ayıklama Günlüğü Ayarları</string>
     <!--    Personal to team migration screen-->
     <!-- Move to Folder -->
+    <!-- enterprise configurations -->
     <!--    channel not available dialog-->
+    <!-- Apps-->
 </resources>

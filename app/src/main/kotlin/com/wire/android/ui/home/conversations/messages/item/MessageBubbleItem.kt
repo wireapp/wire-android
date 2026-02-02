@@ -18,7 +18,6 @@
 package com.wire.android.ui.home.conversations.messages.item
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -28,7 +27,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -37,18 +36,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.unit.dp
+import com.wire.android.ui.common.applyIf
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
+import com.wire.android.ui.home.conversations.model.UIMessageContent
+import com.wire.android.ui.home.conversations.model.messagetypes.image.MaxBounds
 import com.wire.android.ui.theme.Accent
+import com.wire.android.ui.theme.color
 import com.wire.android.ui.theme.wireColorScheme
 
-@OptIn(ExperimentalFoundationApi::class)
 @Suppress("CyclomaticComplexMethod")
 @Composable
 fun MessageBubbleItem(
@@ -64,11 +68,13 @@ fun MessageBubbleItem(
     leading: (@Composable () -> Unit)? = null,
     footer: (@Composable (inner: PaddingValues) -> Unit)? = null,
     header: (@Composable (inner: PaddingValues) -> Unit)? = null,
+    error: (@Composable () -> Unit)? = null,
     content: @Composable (inner: PaddingValues) -> Unit
 ) {
     val isSelfMessage = source == MessageSource.Self
+    val configuration = LocalConfiguration.current
 
-    Row(
+    Column(
         modifier = modifier
             .fillMaxWidth()
             .padding(
@@ -76,111 +82,160 @@ fun MessageBubbleItem(
                 top = if (showAuthor) dimensions().spacing6x else dimensions().spacing1x,
                 bottom = if (useSmallBottomPadding) dimensions().spacing1x else dimensions().messageItemBottomPadding
             ),
-        horizontalArrangement = if (isSelfMessage) {
-            Arrangement.End
-        } else {
-            Arrangement.Start
-        },
-        verticalAlignment = Alignment.Bottom
-
+        verticalArrangement = Arrangement.spacedBy(-dimensions().spacing8x, alignment = Alignment.Bottom),
+        horizontalAlignment = if (isSelfMessage) Alignment.End else Alignment.Start
     ) {
-        if (leading != null) {
-            Box(Modifier.size(dimensions().spacing48x), contentAlignment = Alignment.BottomStart) {
-                leading()
-            }
+        val paddingValue = dimensions().spacing10x
+        val leadingPadding = if (leading != null) {
+            dimensions().spacing48x
         } else {
-            HorizontalSpace.x12()
+            dimensions().spacing12x
         }
-        val maxBubbleWidth = dimensions().spacing270x
-        Column(
-            modifier = Modifier
-                .widthIn(max = maxBubbleWidth),
-            verticalArrangement = Arrangement.spacedBy(-dimensions().spacing8x),
-            horizontalAlignment = if (isSelfMessage) {
-                Alignment.End
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = if (isSelfMessage) {
+                Arrangement.End
             } else {
-                Alignment.Start
-            }
+                Arrangement.Start
+            },
+            verticalAlignment = Alignment.Bottom
         ) {
-            val shape = RoundedCornerShape(dimensions().corner16x)
-
-            val bubbleColorOther: Color = if (messageStatus.isDeleted) {
-                MaterialTheme.colorScheme.surface
-            } else {
-                MaterialTheme.colorScheme.background
+            Box(Modifier.width(leadingPadding), contentAlignment = Alignment.BottomStart) {
+                if (leading != null) {
+                    leading()
+                }
             }
-            val bubbleColor = if (messageStatus.isDeleted) {
-                MaterialTheme.colorScheme.surface
-            } else if (isSelfMessage) {
-                MaterialTheme.wireColorScheme.wireAccentColors.getOrDefault(
-                    accent,
-                    MaterialTheme.wireColorScheme.primary
-                )
-            } else {
-                bubbleColorOther
-            }
-
-            val borderColor = if (messageStatus.isDeleted) if (isSelfMessage) {
-                MaterialTheme.wireColorScheme.wireAccentColors.getOrDefault(
-                    accent,
-                    MaterialTheme.wireColorScheme.primary
-                )
-            } else {
-                colorsScheme().outline
-            } else {
-                null
-            }
-            val paddingValue = dimensions().spacing10x
-
-            val bubbleWidthMod = message.assetParams?.normalizedSize()?.width
-                ?.let { Modifier.widthIn(max = it) }
-                ?: Modifier
-
-            Surface(
-                color = bubbleColor,
-                shape = shape,
-                border = borderColor?.let { BorderStroke(dimensions().spacing1x, it) },
-                modifier = bubbleWidthMod
-                    .clip(shape)
-                    .interceptCombinedClickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = LocalIndication.current,
-                        onClick = onClick,
-                        onLongPress = onLongClick
-                    )
+            Column(
+                modifier = Modifier.applyIf(!message.decryptionFailed) {
+                    widthIn(max = (configuration.screenWidthDp * dimensions().bubbleMessageMaxFractionWidth).dp)
+                },
+                horizontalAlignment = if (isSelfMessage) {
+                    Alignment.End
+                } else {
+                    Alignment.Start
+                }
             ) {
-                Column {
-                    val contentModifier = if (message.hasAssetParams) {
-                        Modifier.padding(
-                            bottom = if (useSmallBottomPadding) dimensions().spacing0x else paddingValue
-                        )
-                    } else {
-                        Modifier.padding(all = paddingValue)
-                    }
-                    val contentPadding = if (message.hasAssetParams) {
-                        PaddingValues(horizontal = paddingValue)
-                    } else {
-                        PaddingValues()
+                val shape = RoundedCornerShape(dimensions().corner16x)
+
+                val bubbleColorOther: Color = if (messageStatus.isDeleted) {
+                    colorsScheme().surface
+                } else {
+                    colorsScheme().otherBubble.primary
+                }
+                val bubbleColor = when {
+                    messageStatus.isDeleted || message.decryptionFailed -> {
+                        colorsScheme().surface
                     }
 
-                    Column(contentModifier) {
-                        if (header != null) {
-                            val headerPadding = if (message.hasAssetParams) {
-                                PaddingValues(start = paddingValue, end = paddingValue, top = paddingValue)
-                            } else {
-                                PaddingValues()
+                    isSelfMessage -> colorsScheme().selfBubble.primary
+
+                    else -> {
+                        bubbleColorOther
+                    }
+                }
+
+                val borderColor = when {
+                    message.decryptionFailed -> MaterialTheme.wireColorScheme.outline
+                    messageStatus.isDeleted -> if (isSelfMessage) {
+                        accent.color(MaterialTheme.wireColorScheme.primary)
+                    } else {
+                        colorsScheme().outline
+                    }
+
+                    else -> {
+                        null
+                    }
+                }
+
+                val bubbleWidthMod = when {
+                    !message.decryptionFailed -> {
+                        when (message.messageContent) {
+                            is UIMessageContent.VideoMessage -> {
+                                val normalizedSize = message.messageContent.params.normalizedSize(
+                                    maxBounds = MaxBounds.ScreenFraction(
+                                        maxWFraction = dimensions().messageVisualMaxFractionWidth,
+                                        maxHFraction = dimensions().messageVisualMaxFractionHeight
+                                    )
+                                )
+                                Modifier.width(normalizedSize.width)
                             }
-                            header(headerPadding)
+
+                            is UIMessageContent.ImageMessage -> {
+                                val normalizedSize = message.messageContent.params.normalizedSize(
+                                    maxBounds = MaxBounds.ScreenFraction(
+                                        maxWFraction = dimensions().messageVisualMaxFractionWidth,
+                                        maxHFraction = dimensions().messageVisualMaxFractionHeight
+                                    )
+                                )
+                                Modifier.width(normalizedSize.width)
+                            }
+
+                            else -> {
+                                Modifier
+                            }
                         }
-                        content(contentPadding)
+                    }
+
+                    else -> {
+                        Modifier
+                    }
+                }
+
+                Surface(
+                    color = bubbleColor,
+                    shape = shape,
+                    border = borderColor?.let { BorderStroke(dimensions().spacing1x, it) },
+                    modifier = bubbleWidthMod
+                        .graphicsLayer {
+                            clip = true
+                            this.shape = shape
+                            compositingStrategy = CompositingStrategy.Offscreen
+                        }
+                        .interceptCombinedClickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = LocalIndication.current,
+                            onClick = onClick,
+                            onLongPress = onLongClick
+                        )
+                ) {
+                    Column {
+                        val contentModifier = if (message.hasAssetParams) {
+                            Modifier.padding(
+                                bottom = if (useSmallBottomPadding) dimensions().spacing0x else paddingValue
+                            )
+                        } else {
+                            Modifier.padding(all = paddingValue)
+                        }
+                        val contentPadding = if (message.hasAssetParams) {
+                            PaddingValues(horizontal = paddingValue)
+                        } else {
+                            PaddingValues()
+                        }
+
+                        Column(contentModifier) {
+                            if (header != null) {
+                                val headerPadding = if (message.hasAssetParams) {
+                                    PaddingValues(start = paddingValue, end = paddingValue, top = paddingValue)
+                                } else {
+                                    PaddingValues()
+                                }
+                                header(headerPadding)
+                            }
+                            content(contentPadding)
+                        }
+                    }
+                }
+
+                if (error != null) {
+                    Column(modifier = Modifier.padding(top = dimensions().spacing8x)) {
+                        error()
                     }
                 }
             }
-
-            if (footer != null) {
-                val footerPadding = PaddingValues(horizontal = paddingValue)
-                footer(footerPadding)
-            }
+        }
+        if (footer != null) {
+            val footerPadding = PaddingValues(start = paddingValue + leadingPadding, end = paddingValue)
+            footer(footerPadding)
         }
     }
 }

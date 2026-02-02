@@ -15,16 +15,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-@file:Suppress("TooGenericExceptionCaught", "PackageNaming", "TooGenericExceptionThrown")
-
+@file:Suppress(
+    "TooGenericExceptionCaught",
+    "LargeClass",
+    "PackageNaming",
+    "TooGenericExceptionThrown"
+)
 package backendUtils
 
 import CredentialsManager
 import android.net.Uri
+import backendUtils.team.TeamRoles
 import backendUtils.team.defaultheaders
 import backendUtils.team.getAuthToken
 import backendUtils.team.getTeamId
 import com.wire.android.testSupport.BuildConfig
+import com.wire.android.testSupport.backendConnections.team.Team
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import logger.WireTestLogger
@@ -34,6 +40,7 @@ import network.NumberSequence
 import network.RequestOptions
 import org.json.JSONObject
 import service.models.Connection
+import service.models.TeamMember
 import user.utils.AccessCookie
 import user.utils.AccessCredentials
 import user.utils.AccessToken
@@ -45,6 +52,7 @@ import java.net.HttpURLConnection
 import java.net.InetSocketAddress
 import java.net.PasswordAuthentication
 import java.net.Proxy
+import java.net.URI
 import java.net.URL
 import java.net.URLEncoder
 
@@ -85,6 +93,7 @@ class BackendClient(
 
     companion object {
         const val contentType = "Content-Type"
+        const val accept = "Accept"
         const val applicationJson = "application/json"
         const val AUTHORIZATION = "Authorization"
 
@@ -138,7 +147,7 @@ class BackendClient(
         }
 
         fun getDefault(): BackendClient? {
-            return loadBackend("Staging")
+            return loadBackend("STAGING")
         }
 
         fun loadBackend(connectionName: String): BackendClient {
@@ -366,6 +375,97 @@ class BackendClient(
         return "Email Registered"
     }
 
+    fun createIdentityProvider(user: ClientUser, metadata: String): String {
+        val token = runBlocking { getAuthToken(user) }
+        val url = URL("identity-providers".composeCompleteUrl())
+
+        val headers = defaultheaders.toMutableMap().apply {
+            put("Authorization", "${token?.type} ${token?.value}")
+            put("Accept", applicationJson)
+            put("Content-Type", "application/xml")
+        }
+
+        val response = NetworkBackendClient.sendJsonRequestWithCookies(
+            url = url,
+            method = "POST",
+            body = metadata,
+            headers = headers,
+            options = RequestOptions(
+                accessToken = token,
+                expectedResponseCodes = NumberSequence.Array(intArrayOf(HttpURLConnection.HTTP_OK, HttpURLConnection.HTTP_CREATED))
+            )
+        )
+
+        val responseBody = JSONObject(response.body)
+        return responseBody.getString("id")
+    }
+
+    fun getAllTeams(forUser: ClientUser): List<Team> {
+        val token = runBlocking { getAuthToken(forUser) }
+        val url = URL("teams".composeCompleteUrl())
+
+        val headers = defaultheaders.toMutableMap().apply {
+            put("Authorization", "${token?.type} ${token?.value}")
+            put("Accept", applicationJson)
+        }
+
+        val response = NetworkBackendClient.sendJsonRequestWithCookies(
+            url = url,
+            method = "GET",
+            headers = headers,
+            options = RequestOptions(
+                accessToken = token,
+                expectedResponseCodes = NumberSequence.Array(intArrayOf(HttpURLConnection.HTTP_OK))
+            )
+        )
+
+        val jsonResponse = JSONObject(response.body)
+        val teams = jsonResponse.getJSONArray("teams")
+
+        return buildList {
+            for (i in 0 until teams.length()) {
+                add(Team.fromJSON(teams.getJSONObject(i)))
+            }
+        }
+    }
+
+    fun getTeamMembers(asUser: ClientUser): List<TeamMember> {
+        val firstTeam = getAllTeams(asUser).first()
+        return getTeamMembers(runBlocking { getAuthToken(asUser)!! }, firstTeam.id)
+    }
+
+    private fun getTeamMembers(token: AccessToken, teamId: String): List<TeamMember> {
+        val url = URL("teams/$teamId/members".composeCompleteUrl())
+
+        val headers = defaultheaders.toMutableMap().apply {
+            put("Authorization", "${token.type} ${token.value}")
+            put("Accept", applicationJson)
+        }
+
+        val response = NetworkBackendClient.sendJsonRequestWithCookies(
+            url = url,
+            method = "GET",
+            headers = headers,
+            options = RequestOptions(
+                accessToken = token,
+                expectedResponseCodes = NumberSequence.Array(intArrayOf(HttpURLConnection.HTTP_OK))
+            )
+        )
+
+        val jsonResponse = JSONObject(response.body)
+        val members = jsonResponse.getJSONArray("members")
+
+        return buildList {
+            for (i in 0 until members.length()) {
+                val member = members.getJSONObject(i)
+                val userId = member.getString("user")
+                val permissions = member.getJSONObject("permissions")
+                val role = TeamRoles.getByPermissionBitMask(permissions.getInt("self"))
+                add(TeamMember(userId, role))
+            }
+        }
+    }
+
     private fun getFeatureConfig(feature: String, user: ClientUser): JSONObject {
         val token = runBlocking {
             getAuthToken(user)
@@ -520,13 +620,123 @@ class BackendClient(
     }
 
     fun isDevelopmentApiEnabled(user: ClientUser): Boolean {
-
         return getFeatureConfig("mls", user).get("status").equals("enabled")
+    }
+
+    suspend fun unlockConferenceCallingFeature(team: Team) {
+        val teamId = Uri.encode(team.id)
+        val url = URI("i/teams/$teamId/features/conferenceCalling/unlocked".composeCompleteUrl()).toURL()
+
+        val headers = defaultheaders.toMutableMap().apply {
+            put("Authorization", basicAuth.getEncoded())
+        }
+
+        NetworkBackendClient.sendJsonRequestWithCookies(
+            url = url,
+            method = "PUT",
+            headers = headers,
+            body = JSONObject().toString(),
+            options = RequestOptions(
+                expectedResponseCodes = NumberSequence.Array(intArrayOf(HttpURLConnection.HTTP_OK))
+            )
+        )
+    }
+
+    suspend fun enableConferenceCallingBackdoorViaBackendTeam(team: Team) {
+        val teamId = Uri.encode(team.id)
+        val url = URI("i/teams/$teamId/features/conferenceCalling".composeCompleteUrl()).toURL()
+
+        val headers = defaultheaders.toMutableMap().apply {
+            put("Authorization", basicAuth.getEncoded())
+        }
+
+        val requestBody = JSONObject().apply {
+            put("status", "enabled")
+        }
+
+        NetworkBackendClient.sendJsonRequestWithCookies(
+            url = url,
+            method = "PATCH",
+            headers = headers,
+            body = requestBody.toString(),
+            options = RequestOptions(
+                expectedResponseCodes = NumberSequence.Array(intArrayOf(HttpURLConnection.HTTP_OK))
+            )
+        )
+    }
+
+    suspend fun disableConferenceCallingBackdoorViaBackendTeam(team: Team) {
+        val teamId = Uri.encode(team.id)
+        val url = URI("i/teams/$teamId/features/conferenceCalling".composeCompleteUrl()).toURL()
+
+        val headers = defaultheaders.toMutableMap().apply {
+            put("Authorization", basicAuth.getEncoded())
+        }
+
+        val requestBody = JSONObject().apply {
+            put("status", "disabled")
+        }
+
+        NetworkBackendClient.sendJsonRequestWithCookies(
+            url = url,
+            method = "PUT",
+            headers = headers,
+            body = requestBody.toString(),
+            options = RequestOptions(
+                expectedResponseCodes = NumberSequence.Array(intArrayOf(HttpURLConnection.HTTP_OK))
+            )
+        )
+    }
+
+    suspend fun enableConferenceCallingViaBackendPersonalUser(personalUser: ClientUser) {
+        val userId = Uri.encode(personalUser.id)
+        val url = URI("i/users/$userId/features/conferenceCalling".composeCompleteUrl()).toURL()
+
+        val headers = defaultheaders.toMutableMap().apply {
+            put("Authorization", basicAuth.getEncoded())
+        }
+
+        val requestBody = JSONObject().apply {
+            put("status", "enabled")
+        }
+
+        NetworkBackendClient.sendJsonRequestWithCookies(
+            url = url,
+            method = "PUT",
+            headers = headers,
+            body = requestBody.toString(),
+            options = RequestOptions(
+                expectedResponseCodes = NumberSequence.Array(intArrayOf(HttpURLConnection.HTTP_OK))
+            )
+        )
+    }
+
+    suspend fun upgradeToEnterprisePlanResult(team: Team) {
+        enableConferenceCallingBackdoorViaBackendTeam(team)
+    }
+
+    suspend fun getCallConfig(): JSONObject {
+        val url = URI("calls/config/v2".composeCompleteUrl()).toURL()
+
+        val headers = defaultheaders.toMutableMap().apply {
+            put("Authorization", basicAuth.getEncoded())
+        }
+
+        val response = NetworkBackendClient.sendJsonRequestWithCookies(
+            url = url,
+            method = "GET",
+            headers = headers,
+            options = RequestOptions(
+                expectedResponseCodes = NumberSequence.Array(intArrayOf(HttpURLConnection.HTTP_OK))
+            )
+        )
+
+        return JSONObject(response.body)
     }
 
     suspend fun getPropertyValues(user: ClientUser): JSONObject {
         val token = getAuthToken(user)
-        val url = URL("properties-values".composeCompleteUrl())
+        val url = URI("properties-values".composeCompleteUrl()).toURL()
 
         val headers = defaultheaders.toMutableMap().apply {
             put("Authorization", "${token?.type} ${token?.value}")
@@ -674,6 +884,38 @@ class BackendClient(
                 throw RuntimeException("Failed to change connection status for $connectionId", e)
             }
         }
+    }
+
+    suspend fun disableConsentPopup(user: ClientUser) {
+        val privacyProperty = JSONObject().apply {
+            put("improve_wire", false)
+            put("marketing_consent", false)
+            put("telemetry_data_sharing", false)
+        }
+        val settingsProperty = JSONObject().apply {
+            put("privacy", privacyProperty)
+        }
+        val properties = JSONObject().apply {
+            put("settings", settingsProperty)
+        }
+        setPropertyValue(user, "webapp", properties.toString())
+    }
+
+    suspend fun setPropertyValue(user: ClientUser, propertyKey: String, properties: String) {
+        val url = "properties/$propertyKey".composeCompleteUrl()
+        val token = getAuthToken(user)
+        val headers = defaultheaders.toMutableMap().apply {
+            put("Authorization", "${token?.type} ${token?.value}")
+        }
+        NetworkBackendClient.sendJsonRequestWithCookies(
+            url = URL(url),
+            method = "PUT",
+            headers = headers,
+            body = properties,
+            options = RequestOptions(
+                expectedResponseCodes = NumberSequence.Array(intArrayOf(HttpURLConnection.HTTP_OK))
+            )
+        )
     }
 }
 

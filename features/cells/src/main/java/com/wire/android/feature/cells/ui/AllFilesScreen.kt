@@ -22,6 +22,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
+import com.wire.android.feature.cells.domain.model.CellsFilter
 import com.wire.android.feature.cells.ui.destinations.AddRemoveTagsScreenDestination
 import com.wire.android.feature.cells.ui.destinations.ConversationFilesScreenDestination
 import com.wire.android.feature.cells.ui.destinations.PublicLinkScreenDestination
@@ -30,7 +31,6 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.WireNavigator
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.search.SearchBarState
-import com.wire.android.feature.cells.domain.model.CellsFilter
 import kotlinx.coroutines.delay
 
 /**
@@ -66,8 +66,8 @@ fun AllFilesScreen(
         actionsFlow = viewModel.actions,
         pagingListItems = pagingListItems,
         sendIntent = { viewModel.sendIntent(it) },
-        onFolderClick = {
-            navigator.navigate(NavigationCommand(ConversationFilesScreenDestination(it.remotePath)))
+        openFolder = { path, _, _ ->
+            navigator.navigate(NavigationCommand(ConversationFilesScreenDestination(path)))
         },
         downloadFileState = viewModel.downloadFileSheet,
         menuState = viewModel.menu,
@@ -103,7 +103,7 @@ fun AllFilesScreen(
     )
 
     FilterBottomSheet(
-        selectableTags = viewModel.tags.collectAsState().value,
+        selectableTags = viewModel.sortedTags.collectAsState().value,
         selectedTags = viewModel.selectedTags.collectAsState().value,
         onApply = {
             filterBottomSheetState.hide()
@@ -122,5 +122,8 @@ fun AllFilesScreen(
         onDismiss = {
             filterBottomSheetState.hide()
         },
+        onShow = {
+            viewModel.loadTags()
+        }
     )
 }

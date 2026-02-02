@@ -125,6 +125,7 @@ fun ActiveMessageComposerInput(
             VerticalSpace.x4()
             Box(modifier = Modifier.padding(horizontal = dimensions().spacing8x)) {
                 QuotedMessagePreview(
+                    conversationId = conversationId,
                     quotedMessageData = quotedMessage,
                     onCancelReply = onCancelReply
                 )
@@ -263,13 +264,16 @@ private fun InputContent(
                     UsersTypingIndicatorForConversation(conversationId = conversationId)
                 }
             }
-            MessageSendActions(
-                onSendButtonClicked = onSendButtonClicked,
-                sendButtonEnabled = canSendMessage,
-                selfDeletionTimer = viewModel.state(),
-                onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
-                modifier = Modifier.padding(end = dimensions().spacing8x)
-            )
+            // Only show send button when not in editing mode
+            if (inputType !is InputType.Editing) {
+                MessageSendActions(
+                    onSendButtonClicked = onSendButtonClicked,
+                    sendButtonEnabled = canSendMessage,
+                    selfDeletionTimer = viewModel.state(),
+                    onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
+                    modifier = Modifier.padding(end = dimensions().spacing8x)
+                )
+            }
         }
     }
 }
@@ -358,7 +362,7 @@ fun CollapseButton(
             modifier = Modifier.size(20.dp)
         ) {
             Icon(
-                painter = painterResource(id = R.drawable.ic_collapse),
+                painter = painterResource(id = com.wire.android.ui.common.R.drawable.ic_collapse),
                 contentDescription = stringResource(R.string.content_description_drop_down_icon),
                 tint = colorsScheme().onSecondaryButtonDisabled,
                 modifier = Modifier.rotate(collapseButtonRotationDegree)
@@ -378,7 +382,7 @@ private fun PreviewActiveMessageComposerInput(inputType: InputType, isTextExpand
         keyboardOptions = KeyboardOptions.Companion.MessageComposerDefault,
         onKeyboardAction = null,
         canSendMessage = true,
-        focusRequester = FocusRequester(),
+        focusRequester = remember { FocusRequester() },
         onSendButtonClicked = {},
         onEditButtonClicked = {},
         onChangeSelfDeletionClicked = {},

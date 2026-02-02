@@ -27,9 +27,9 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.id.FederatedIdMapper
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
-import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.analytics.GetCurrentAnalyticsTrackingIdentifierUseCase
+import com.wire.kalium.logic.feature.asset.AudioNormalizedLoudnessBuilder
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.auth.sso.ValidateSSOCodeUseCase
@@ -54,6 +54,7 @@ import com.wire.kalium.logic.feature.user.ObserveValidAccountsUseCase
 import com.wire.kalium.logic.feature.user.screenshotCensoring.ObserveScreenshotCensoringConfigUseCase
 import com.wire.kalium.logic.feature.user.screenshotCensoring.PersistScreenshotCensoringConfigUseCase
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
+import com.wire.kalium.logic.util.RandomPassword
 import com.wire.kalium.network.NetworkStateObserver
 import dagger.Module
 import dagger.Provides
@@ -67,10 +68,6 @@ import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.runBlocking
 import javax.inject.Qualifier
 import javax.inject.Singleton
-
-@Qualifier
-@Retention(AnnotationRetention.BINARY)
-annotation class KaliumCoreLogic
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
@@ -138,11 +135,15 @@ class CoreLogicModule {
     @NoSession
     @Singleton
     @Provides
-    fun provideNoSessionQualifiedIdMapper(): QualifiedIdMapper = QualifiedIdMapperImpl(null)
+    fun provideNoSessionQualifiedIdMapper(): QualifiedIdMapper = QualifiedIdMapper(null)
 
     @Singleton
     @Provides
     fun provideWorkManager(@ApplicationContext applicationContext: Context) = WorkManager.getInstance(applicationContext)
+
+    @Provides
+    fun provideAudioNormalizedLoudnessBuilder(@KaliumCoreLogic coreLogic: CoreLogic): AudioNormalizedLoudnessBuilder =
+        coreLogic.audioNormalizedLoudnessBuilder
 }
 
 @Module
@@ -459,11 +460,6 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun provideMembersHavingLegalHoldClientUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
-        coreLogic.getSessionScope(currentAccount).membersHavingLegalHoldClient
-
-    @ViewModelScoped
-    @Provides
     fun provideFetchConversationMLSVerificationStatusUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
@@ -489,4 +485,8 @@ class UseCaseModule {
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
     ) = coreLogic.getSessionScope(currentAccount).getTeamUrlUseCase
+
+    @ViewModelScoped
+    @Provides
+    fun provideGenerateRandomPasswordUseCase() = RandomPassword()
 }

@@ -54,13 +54,18 @@ class CallRinger @Inject constructor(private val context: Context) {
         }
     }
 
-    private fun createMediaPlayer(resource: Int, isLooping: Boolean) {
+    private fun createMediaPlayer(resource: Int, isLooping: Boolean, isRingtone: Boolean) {
         mediaPlayer = MediaPlayer.create(
             context,
             resource,
             AudioAttributes.Builder()
                 .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
+                .setUsage(
+                    when {
+                        isRingtone -> AudioAttributes.USAGE_NOTIFICATION_RINGTONE
+                        else -> AudioAttributes.USAGE_VOICE_COMMUNICATION_SIGNALLING
+                    }
+                )
                 .build(),
             0
         )
@@ -74,24 +79,23 @@ class CallRinger @Inject constructor(private val context: Context) {
     ) {
         stop()
         vibrateIfNeeded(isIncomingCall)
-        createMediaPlayer(resource, isLooping)
-        appLogger.i("Starting ringing | isIncomingCall: $isIncomingCall");
+        createMediaPlayer(resource = resource, isLooping = isLooping, isRingtone = isIncomingCall)
+        appLogger.i("Starting ringing | isIncomingCall: $isIncomingCall")
         mediaPlayer?.start()
     }
-
 
     @Suppress("NestedBlockDepth")
     private fun vibrateIfNeeded(isIncomingCall: Boolean) {
         if (isIncomingCall) {
             vibrator?.let {
                 if (!it.hasVibrator()) {
-                    appLogger.i("Device does not support vibration");
+                    appLogger.i("Device does not support vibration")
                     return
                 }
                 val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager?
                 val ringerMode = audioManager?.ringerMode
                 if (ringerMode == AudioManager.RINGER_MODE_VIBRATE) {
-                    appLogger.i("Starting vibration");
+                    appLogger.i("Starting vibration")
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                         it.cancel()
                         it.vibrate(VibrationEffect.createWaveform(VIBRATE_PATTERN, 1))

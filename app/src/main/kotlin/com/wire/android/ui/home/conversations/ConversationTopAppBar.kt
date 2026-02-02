@@ -37,6 +37,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -70,6 +71,7 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
+import com.wire.android.ui.common.R as commonR
 
 @Composable
 fun ConversationScreenTopAppBar(
@@ -82,7 +84,8 @@ fun ConversationScreenTopAppBar(
     onJoinCallButtonClick: () -> Unit,
     onAudioPermissionPermanentlyDenied: () -> Unit,
     isInteractionEnabled: Boolean,
-    isDropDownEnabled: Boolean = false
+    isDropDownEnabled: Boolean = false,
+    containerColor: Color? = null
 ) {
     val featureVisibilityFlags = LocalFeatureVisibilityFlags.current
     ConversationScreenTopAppBarContent(
@@ -96,7 +99,8 @@ fun ConversationScreenTopAppBar(
         onJoinCallButtonClick = onJoinCallButtonClick,
         onAudioPermissionPermanentlyDenied = onAudioPermissionPermanentlyDenied,
         isInteractionEnabled = isInteractionEnabled,
-        isSearchEnabled = featureVisibilityFlags.ConversationSearchIcon
+        isSearchEnabled = featureVisibilityFlags.ConversationSearchIcon,
+        containerColor = containerColor
     )
 }
 
@@ -113,7 +117,8 @@ private fun ConversationScreenTopAppBarContent(
     onAudioPermissionPermanentlyDenied: () -> Unit,
     isInteractionEnabled: Boolean,
     isSearchEnabled: Boolean,
-    isDropDownEnabled: Boolean = false
+    isDropDownEnabled: Boolean = false,
+    containerColor: Color? = null
 ) {
     TopAppBar(
         title = {
@@ -172,7 +177,7 @@ private fun ConversationScreenTopAppBarContent(
                     WireSecondaryIconButton(
                         onButtonClicked = onSearchButtonClick,
                         iconResource = R.drawable.ic_search,
-                        contentDescription = R.string.content_description_conversation_search_icon,
+                        contentDescription = commonR.string.content_description_conversation_search_icon,
                         minSize = dimensions().buttonSmallMinSize,
                         minClickableSize = DpSize(
                             dimensions().buttonSmallMinSize.width,
@@ -191,7 +196,7 @@ private fun ConversationScreenTopAppBarContent(
             }
         },
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-            containerColor = MaterialTheme.colorScheme.background,
+            containerColor = containerColor ?: MaterialTheme.colorScheme.background,
             titleContentColor = MaterialTheme.colorScheme.onBackground,
             actionIconContentColor = MaterialTheme.colorScheme.onBackground,
             navigationIconContentColor = MaterialTheme.colorScheme.onBackground
@@ -252,7 +257,6 @@ private fun CallControlButton(
         JoinButton(
             buttonClick = onJoinCallButtonClick,
             onAudioPermissionPermanentlyDenied = onAudioPermissionPermanentlyDenied,
-            horizontalPadding = dimensions().spacing0x,
         )
     } else {
         StartCallButton(

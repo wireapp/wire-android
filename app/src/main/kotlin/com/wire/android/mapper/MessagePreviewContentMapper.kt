@@ -22,6 +22,9 @@ import com.wire.android.R
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.UILastMessageContent
 import com.wire.android.ui.markdown.MarkdownConstants
+import com.wire.android.ui.markdown.MarkdownPreview
+import com.wire.android.ui.markdown.getFirstInlines
+import com.wire.android.ui.markdown.toMarkdownDocument
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.toUIText
 import com.wire.kalium.logic.data.conversation.UnreadEventCount
@@ -95,7 +98,7 @@ private fun multipleUnreadEventsToLastMessage(unreadEventCount: UnreadEventCount
         val second = unreadContentTexts.values.elementAt(1)
         UILastMessageContent.MultipleMessage(listOf(first, second))
     } else {
-        UILastMessageContent.TextMessage(MessageBody(first))
+        UILastMessageContent.TextMessage(MessageBody(first), markdownPreview = first.toMarkdownPreviewOrNull())
     }
 }
 
@@ -116,66 +119,96 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
                     AssetType.AUDIO ->
                         UILastMessageContent.SenderWithMessage(
                             userUIText,
-                            UIText.StringResource(R.string.last_message_self_user_shared_audio)
+                            UIText.StringResource(R.string.last_message_self_user_shared_audio),
+                            markdownPreview = userUIText.toMarkdownPreviewOrNull()
                         )
 
                     AssetType.IMAGE ->
                         UILastMessageContent.SenderWithMessage(
                             userUIText,
                             UIText.StringResource(
-                                if (isSelfMessage) R.string.last_message_self_user_shared_image
-                                else R.string.last_message_other_user_shared_image
-                            )
+                                if (isSelfMessage) {
+                                    R.string.last_message_self_user_shared_image
+                                } else {
+                                    R.string.last_message_other_user_shared_image
+                                }
+                            ),
+                            markdownPreview = userUIText.toMarkdownPreviewOrNull()
                         )
 
                     AssetType.VIDEO ->
                         UILastMessageContent.SenderWithMessage(
                             userUIText,
                             UIText.StringResource(
-                                if (isSelfMessage) R.string.last_message_self_user_shared_video
-                                else R.string.last_message_other_user_shared_video
-                            )
+                                if (isSelfMessage) {
+                                    R.string.last_message_self_user_shared_video
+                                } else {
+                                    R.string.last_message_other_user_shared_video
+                                }
+                            ),
+                            markdownPreview = userUIText.toMarkdownPreviewOrNull()
                         )
 
                     AssetType.GENERIC_ASSET ->
                         UILastMessageContent.SenderWithMessage(
-                            userUIText, UIText.StringResource(
-                                if (isSelfMessage) R.string.last_message_self_user_shared_asset
-                                else R.string.last_message_other_user_shared_asset
-                            )
+                            userUIText,
+                            UIText.StringResource(
+                                if (isSelfMessage) {
+                                    R.string.last_message_self_user_shared_asset
+                                } else {
+                                    R.string.last_message_other_user_shared_asset
+                                }
+                            ),
+                            markdownPreview = userUIText.toMarkdownPreviewOrNull()
                         )
                 }
 
                 is WithUser.ConversationNameChange -> UILastMessageContent.SenderWithMessage(
                     userUIText,
                     UIText.StringResource(
-                        if (isSelfMessage) R.string.last_message_self_changed_conversation_name
-                        else R.string.last_message_other_changed_conversation_name
-                    )
+                        if (isSelfMessage) {
+                            R.string.last_message_self_changed_conversation_name
+                        } else {
+                            R.string.last_message_other_changed_conversation_name
+                        }
+                    ),
+                    markdownPreview = userUIText.toMarkdownPreviewOrNull()
                 )
 
                 is WithUser.Knock -> UILastMessageContent.SenderWithMessage(
                     userUIText,
                     UIText.StringResource(
-                        if (isSelfMessage) R.string.last_message_self_user_knock
-                        else R.string.last_message_other_user_knock
-                    )
+                        if (isSelfMessage) {
+                            R.string.last_message_self_user_knock
+                        } else {
+                            R.string.last_message_other_user_knock
+                        }
+                    ),
+                    markdownPreview = userUIText.toMarkdownPreviewOrNull()
                 )
 
                 is WithUser.MemberJoined -> UILastMessageContent.SenderWithMessage(
                     userUIText,
                     UIText.StringResource(
-                        if (isSelfMessage) R.string.last_message_self_user_joined_conversation
-                        else R.string.last_message_other_user_joined_conversation
-                    )
+                        if (isSelfMessage) {
+                            R.string.last_message_self_user_joined_conversation
+                        } else {
+                            R.string.last_message_other_user_joined_conversation
+                        }
+                    ),
+                    markdownPreview = userUIText.toMarkdownPreviewOrNull()
                 )
 
                 is WithUser.MemberLeft -> UILastMessageContent.SenderWithMessage(
                     userUIText,
                     UIText.StringResource(
-                        if (isSelfMessage) R.string.last_message_self_user_left_conversation
-                        else R.string.last_message_other_user_left_conversation
-                    )
+                        if (isSelfMessage) {
+                            R.string.last_message_self_user_left_conversation
+                        } else {
+                            R.string.last_message_other_user_left_conversation
+                        }
+                    ),
+                    markdownPreview = userUIText.toMarkdownPreviewOrNull()
                 )
 
                 is WithUser.MembersAdded -> {
@@ -201,7 +234,7 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
                         }
                     }
 
-                    UILastMessageContent.TextMessage(MessageBody(previewMessageContent))
+                    UILastMessageContent.TextMessage(MessageBody(previewMessageContent), previewMessageContent.toMarkdownPreviewOrNull())
                 }
 
                 is WithUser.ConversationMembersRemoved -> {
@@ -231,7 +264,7 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
                         }
                     }
 
-                    UILastMessageContent.TextMessage(MessageBody(previewMessageContent))
+                    UILastMessageContent.TextMessage(MessageBody(previewMessageContent), previewMessageContent.toMarkdownPreviewOrNull())
                 }
 
                 is WithUser.TeamMembersRemoved -> {
@@ -239,7 +272,7 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
                     val previewMessageContent =
                         UIText.PluralResource(R.plurals.last_message_team_member_removed, teamMembersRemovedContent.otherUserIdList.size)
 
-                    UILastMessageContent.TextMessage(MessageBody(previewMessageContent))
+                    UILastMessageContent.TextMessage(MessageBody(previewMessageContent), previewMessageContent.toMarkdownPreviewOrNull())
                 }
 
                 is WithUser.MentionedSelf -> UILastMessageContent.SenderWithMessage(
@@ -278,8 +311,11 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
                 is WithUser.Location -> UILastMessageContent.SenderWithMessage(
                     userUIText,
                     UIText.StringResource(
-                        if (isSelfMessage) R.string.last_message_self_user_shared_location
-                        else R.string.last_message_other_user_shared_location
+                        if (isSelfMessage) {
+                            R.string.last_message_self_user_shared_location
+                        } else {
+                            R.string.last_message_other_user_shared_location
+                        }
                     )
                 )
 
@@ -314,7 +350,7 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
                 }
             }
 
-            UILastMessageContent.TextMessage(MessageBody(previewMessageContent))
+            UILastMessageContent.TextMessage(MessageBody(previewMessageContent), previewMessageContent.toMarkdownPreviewOrNull())
         }
 
         is MessagePreviewContent.Ephemeral -> {
@@ -352,3 +388,9 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
         Unknown -> UILastMessageContent.None
     }
 }
+
+private fun UIText.toMarkdownPreviewOrNull(): MarkdownPreview? =
+    when (this) {
+        is UIText.DynamicString -> value.toMarkdownDocument().getFirstInlines()
+        else -> null
+    }

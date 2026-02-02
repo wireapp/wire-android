@@ -35,10 +35,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
+import coil3.compose.AsyncImage
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
+import com.wire.android.ui.common.applyIf
 import com.wire.android.ui.common.attachmentdraft.ui.FileHeaderView
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -46,6 +47,7 @@ import com.wire.android.ui.common.multipart.AssetSource
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
 import com.wire.android.ui.common.progress.WireLinearProgressIndicator
 import com.wire.android.ui.home.conversations.messages.item.MessageStyle
+import com.wire.android.ui.home.conversations.messages.item.textColor
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.previewAvailable
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.previewImageModel
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.transferProgressColor
@@ -63,7 +65,7 @@ import com.wire.kalium.logic.util.fileExtension
 @Composable
 internal fun PdfAssetPreview(
     item: MultipartAttachmentUi,
-    messageStyle: MessageStyle
+    messageStyle: MessageStyle,
 ) {
 
     val width = item.metadata?.width() ?: 0
@@ -78,22 +80,34 @@ internal fun PdfAssetPreview(
     Column(
         modifier = Modifier
             .widthIn(max = maxWidth)
-            .background(
-                color = colorsScheme().surface,
-                shape = RoundedCornerShape(dimensions().messageAttachmentCornerSize)
-            )
-            .border(
-                width = 1.dp,
-                color = colorsScheme().outline,
-                shape = RoundedCornerShape(dimensions().messageAttachmentCornerSize)
-            )
-            .clip(RoundedCornerShape(dimensions().buttonCornerSize))
-            .padding(dimensions().spacing10x),
+            .clip(RoundedCornerShape(dimensions().messageAttachmentCornerSize))
+            .applyIf(messageStyle == MessageStyle.BUBBLE_SELF) {
+                background(colorsScheme().selfBubble.secondary)
+            }
+            .applyIf(messageStyle == MessageStyle.BUBBLE_OTHER) {
+                background(colorsScheme().otherBubble.secondary)
+            }
+            .applyIf(messageStyle == MessageStyle.NORMAL) {
+                background(
+                    color = colorsScheme().surface,
+                    shape = RoundedCornerShape(dimensions().messageAttachmentCornerSize)
+                )
+                border(
+                    width = dimensions().spacing1x,
+                    color = colorsScheme().outline,
+                    shape = RoundedCornerShape(dimensions().messageAttachmentCornerSize)
+                )
+            },
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(dimensions().spacing8x)
     ) {
 
         FileHeaderView(
+            modifier = Modifier.padding(
+                start = dimensions().spacing8x,
+                top = dimensions().spacing8x,
+                end = dimensions().spacing8x
+            ),
             extension = item.fileName?.fileExtension() ?: item.mimeType.substringAfter("/"),
             size = item.assetSize,
             messageStyle = messageStyle
@@ -101,9 +115,12 @@ internal fun PdfAssetPreview(
 
         item.fileName?.let {
             Text(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = dimensions().spacing8x, end = dimensions().spacing8x),
                 text = it,
                 style = MaterialTheme.wireTypography.body02,
+                color = messageStyle.textColor(),
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
@@ -114,9 +131,9 @@ internal fun PdfAssetPreview(
                 .aspectRatio(aspectRatio(width, height))
                 .background(
                     color = colorsScheme().outline,
-                    shape = RoundedCornerShape(dimensions().buttonCornerSize)
+                    shape = RoundedCornerShape(dimensions().messageAttachmentCornerSize)
                 )
-                .clip(RoundedCornerShape(dimensions().buttonCornerSize)),
+                .clip(RoundedCornerShape(dimensions().messageAttachmentCornerSize)),
             contentAlignment = Alignment.Center
         ) {
 
@@ -130,6 +147,8 @@ internal fun PdfAssetPreview(
                         }
                     ),
                     contentDescription = null,
+                    alignment = Alignment.TopStart,
+                    contentScale = ContentScale.FillWidth
                 )
             }
 
@@ -153,6 +172,8 @@ private fun aspectRatio(width: Int?, height: Int?) =
     when {
         width == null || height == null -> 10f / 14f
         width == 0 || height == 0 -> 10f / 14f
+        // Very long image
+        width.toFloat() / height.toFloat() < 0.7f -> 10f / 14f
         else -> width.toFloat() / height.toFloat()
     }
 
@@ -186,7 +207,7 @@ private fun PreviewPdfAsset() {
                     item = attachment.copy(
                         transferStatus = AssetTransferStatus.NOT_DOWNLOADED
                     ),
-                    messageStyle = MessageStyle.NORMAL
+                    messageStyle = MessageStyle.NORMAL,
                 )
             }
             Box {
@@ -195,13 +216,13 @@ private fun PreviewPdfAsset() {
                         transferStatus = AssetTransferStatus.DOWNLOAD_IN_PROGRESS,
                         progress = 0.75f
                     ),
-                    messageStyle = MessageStyle.NORMAL
+                    messageStyle = MessageStyle.NORMAL,
                 )
             }
             Box {
                 PdfAssetPreview(
                     item = attachment,
-                    messageStyle = MessageStyle.NORMAL
+                    messageStyle = MessageStyle.NORMAL,
                 )
             }
             Box {
@@ -210,7 +231,7 @@ private fun PreviewPdfAsset() {
                         transferStatus = FAILED_DOWNLOAD,
                         progress = 0.75f
                     ),
-                    messageStyle = MessageStyle.NORMAL
+                    messageStyle = MessageStyle.NORMAL,
                 )
             }
         }

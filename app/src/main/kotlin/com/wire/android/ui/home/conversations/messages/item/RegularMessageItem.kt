@@ -22,7 +22,6 @@ import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -31,9 +30,10 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.SelfDeletionTimerHelper
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.model.DeliveryStatusContent
+import com.wire.android.ui.home.conversations.model.MessageFlowStatus
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.UIMessage
-import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.home.conversations.model.UIMessageContent.PartialDeliverable
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 
 // TODO: a definite candidate for a refactor and cleanup WPB-14390
@@ -65,7 +65,7 @@ fun RegularMessageItem(
     fun messageContent() {
         if (isBubbleUiEnabled) {
             val footerSlot: (@Composable (inner: PaddingValues) -> Unit)? =
-                if (shouldDisplayFooter) {
+                if (shouldDisplayFooter && !message.header.messageStatus.isDeleted) {
                     { innerPadding ->
                         MessageReactionsItem(
                             messageFooter = message.messageFooter,
@@ -122,6 +122,39 @@ fun RegularMessageItem(
                     null
                 }
 
+            val errorSlot: (@Composable () -> Unit)? = when {
+                sendingFailed -> {
+                    {
+                        MessageSendFailureWarning(
+                            messageStatus = header.messageStatus.flowStatus as MessageFlowStatus.Failure.Send,
+                            isInteractionAvailable = failureInteractionAvailable,
+                            messageStyle = messageStyle,
+                            onRetryClick = remember(message) {
+                                {
+                                    clickActions.onFailedMessageRetryClicked(
+                                        header.messageId,
+                                        message.conversationId
+                                    )
+                                }
+                            },
+                            onCancelClick = remember(message) {
+                                {
+                                    clickActions.onFailedMessageCancelClicked(header.messageId)
+                                }
+                            }
+                        )
+                    }
+                }
+
+                messageContent is PartialDeliverable && messageContent.deliveryStatus.hasAnyFailures -> {
+                    {
+                        PartialDeliveryInformation(messageContent.deliveryStatus, messageStyle)
+                    }
+                }
+
+                else -> null
+            }
+
             MessageBubbleItem(
                 message = message,
                 source = source,
@@ -130,6 +163,7 @@ fun RegularMessageItem(
                 accent = header.accent,
                 useSmallBottomPadding = useSmallBottomPadding,
                 leading = leadingSlot,
+                error = errorSlot,
                 onClick = clickActions.onFullMessageClicked?.let { onFullMessageClicked ->
                     {
                         onFullMessageClicked(message.header.messageId)
@@ -151,6 +185,7 @@ fun RegularMessageItem(
                         message = message,
                         conversationDetailsData = conversationDetailsData,
                         modifier = modifier,
+                        accent = header.accent,
                         searchQuery = searchQuery,
                         assetStatus = assetStatus,
                         shouldDisplayMessageStatus = shouldDisplayMessageStatus,
@@ -228,21 +263,11 @@ fun RegularMessageItem(
         }
     }
 
-    when (swipeableMessageConfiguration) {
-        is SwipeableMessageConfiguration.Swipeable -> {
-            SwipeableMessageBox(
-                configuration = swipeableMessageConfiguration,
-                messageStyle = messageStyle,
-                accentColor = MaterialTheme.wireColorScheme.wireAccentColors.getOrDefault(
-                    swipeableMessageConfiguration.selfUserAccent,
-                    MaterialTheme.wireColorScheme.primary
-                )
-            ) {
-                messageContent()
-            }
-        }
-
-        SwipeableMessageConfiguration.NotSwipeable -> messageContent()
+    SwipeableMessageBox(
+        configuration = swipeableMessageConfiguration,
+        messageStyle = messageStyle,
+    ) {
+        messageContent()
     }
 }
 

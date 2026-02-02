@@ -19,18 +19,26 @@ package com.wire.android.ui.common
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
+import com.wire.android.ui.theme.Accent
+import com.wire.android.ui.theme.WireColorScheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDarkColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireFixedColorScheme
 import com.wire.android.ui.theme.wireLightColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.ui.theme.withAccent
+import com.wire.kalium.logic.data.id.ConversationId
+import kotlin.math.absoluteValue
 
 @Composable
 fun dimensions() = MaterialTheme.wireDimensions
 
 @Composable
-fun colorsScheme() = MaterialTheme.wireColorScheme
+fun colorsScheme(accent: Accent? = null) = accent?.let {
+    MaterialTheme.wireColorScheme.withAccent(accent)
+} ?: MaterialTheme.wireColorScheme
 
 @Composable
 fun darkColorsScheme() = MaterialTheme.wireDarkColorScheme
@@ -43,3 +51,15 @@ fun fixedColorsScheme() = MaterialTheme.wireFixedColorScheme
 
 @Composable
 fun typography() = MaterialTheme.wireTypography
+
+@Composable
+fun WireColorScheme.channelConversationColor(id: ConversationId) = channelAvatarColors.withConversationId(id)
+
+@Composable
+fun WireColorScheme.groupConversationColor(id: ConversationId) = groupAvatarColors.withConversationId(id)
+
+@Stable
+private fun <T> List<T>.withConversationId(id: ConversationId): T {
+    val hash = id.value.lowercase().hashCode()
+    return this[hash.absoluteValue % this.size]
+}

@@ -28,6 +28,9 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.FetchConversationUseCase
 import com.wire.kalium.logic.data.conversation.ResetMLSConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
+import com.wire.kalium.logic.feature.debug.DebugFeedConfig
+import com.wire.kalium.logic.feature.debug.DebugFeedConversationUseCase
+import com.wire.kalium.logic.feature.debug.DebugFeedResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -40,6 +43,7 @@ class DebugConversationViewModel @Inject constructor(
     private val conversationDetails: ObserveConversationDetailsUseCase,
     private val resetMLSConversation: ResetMLSConversationUseCase,
     private val fetchConversation: FetchConversationUseCase,
+    private val feedConversation: DebugFeedConversationUseCase,
     savedStateHandle: SavedStateHandle,
 ) : ActionsViewModel<DebugConversationScreenAction>() {
 
@@ -71,7 +75,7 @@ class DebugConversationViewModel @Inject constructor(
     }
 
     fun resetMLSConversation() = viewModelScope.launch {
-        resetMLSConversation(conversationId)
+        resetMLSConversation(conversationId).toEither()
             .onSuccess {
                 sendAction(ShowMessage("MLS conversation reset successfully."))
             }
@@ -90,6 +94,95 @@ class DebugConversationViewModel @Inject constructor(
                 appLogger.e("MLS conversation fetch failed: $error")
             }
     }
+
+    /**
+     * Toggle: enable/disable messages feeder for this conversation.
+     */
+    fun onMessagesFeederToggle(enabled: Boolean) {
+        _state.update { current ->
+            current.copy(
+                feedConfig = current.feedConfig.copy(messagesEnabled = enabled)
+            )
+        }
+    }
+
+    /**
+     * Toggle: enable/disable reactions feeder for this conversation.
+     */
+    fun onReactionsFeederToggle(enabled: Boolean) {
+        _state.update { current ->
+            current.copy(
+                feedConfig = current.feedConfig.copy(reactionsEnabled = enabled)
+            )
+        }
+    }
+
+    /**
+     * Toggle: enable/disable unread events feeder for this conversation.
+     */
+    fun onUnreadEventsFeederToggle(enabled: Boolean) {
+        _state.update { current ->
+            current.copy(
+                feedConfig = current.feedConfig.copy(unreadEventsEnabled = enabled)
+            )
+        }
+    }
+
+    /**
+     * Toggle: enable/disable mentions feeder for this conversation.
+     */
+    fun onMentionsFeederToggle(enabled: Boolean) {
+        _state.update { current ->
+            current.copy(
+                feedConfig = current.feedConfig.copy(mentionsEnabled = enabled)
+            )
+        }
+    }
+
+    fun showFeedersDialog(show: Boolean) {
+        _state.update { current ->
+            current.copy(
+                feedConfig = current.feedConfig.copy(showDialog = show)
+            )
+        }
+    }
+
+    /**
+     * Runs all selected feeders for the current conversation.
+     *
+     * This is debug-only: it can generate a lot of local data and should only be
+     * triggered manually from the debug screen.
+     */
+    fun runFeedersForConversation() = viewModelScope.launch {
+        val uiConfig = state.value.feedConfig
+
+        // Map UI config -> domain config for the use case.
+        val config = DebugFeedConfig(
+            messages = uiConfig.messagesEnabled,
+            reactions = uiConfig.reactionsEnabled,
+            unreadEvents = uiConfig.unreadEventsEnabled,
+            mentions = uiConfig.mentionsEnabled,
+        )
+
+        _state.update {
+            it.copy(feedConfig = it.feedConfig.copy(isProcessing = true))
+        }
+        when (val response = feedConversation(conversationId, config)) {
+            is DebugFeedResult.Failure -> {
+                _state.update {
+                    it.copy(feedConfig = DebugFeedConfigUiState())
+                }
+                sendAction(ShowMessage("Feeders failed: ${response.coreFailure}}"))
+            }
+
+            DebugFeedResult.Success -> {
+                _state.update {
+                    it.copy(feedConfig = DebugFeedConfigUiState())
+                }
+                sendAction(ShowMessage("Feeders executed successfully."))
+            }
+        }
+    }
 }
 
 sealed interface DebugConversationScreenAction
@@ -99,4 +192,14 @@ data class DebugConversationViewState(
     val conversationName: String? = null,
     val teamId: String? = null,
     val mlsProtocolInfo: Conversation.ProtocolInfo.MLS? = null,
+    val feedConfig: DebugFeedConfigUiState = DebugFeedConfigUiState(),
+)
+
+data class DebugFeedConfigUiState(
+    val messagesEnabled: Boolean = false,
+    val reactionsEnabled: Boolean = false,
+    val unreadEventsEnabled: Boolean = false,
+    val mentionsEnabled: Boolean = false,
+    val isProcessing: Boolean = false,
+    val showDialog: Boolean = false
 )

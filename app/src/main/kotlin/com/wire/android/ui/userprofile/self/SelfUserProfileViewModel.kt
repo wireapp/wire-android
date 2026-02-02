@@ -39,7 +39,6 @@ import com.wire.android.notification.WireNotificationManager
 import com.wire.android.ui.legalhold.banner.LegalHoldUIState
 import com.wire.android.ui.userprofile.self.dialog.StatusDialogData
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.kalium.common.functional.getOrNull
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.toQualifiedID
@@ -49,10 +48,11 @@ import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.data.user.type.isTeamAdmin
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
+import com.wire.kalium.logic.feature.client.IsProfileQRCodeEnabledUseCase
 import com.wire.kalium.logic.feature.legalhold.LegalHoldStateForSelfUser
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserUseCase
 import com.wire.kalium.logic.feature.personaltoteamaccount.CanMigrateFromPersonalToTeamUseCase
@@ -101,7 +101,8 @@ class SelfUserProfileViewModel @Inject constructor(
     private val globalDataStore: GlobalDataStore,
     private val qualifiedIdMapper: QualifiedIdMapper,
     private val anonymousAnalyticsManager: AnonymousAnalyticsManager,
-    private val getTeamUrl: GetTeamUrlUseCase
+    private val getTeamUrl: GetTeamUrlUseCase,
+    private val isProfileQRCodeEnabled: IsProfileQRCodeEnabledUseCase,
 ) : ViewModel() {
 
     var userProfileState by mutableStateOf(SelfUserProfileState(userId = selfUserId, isAvatarLoading = true))
@@ -116,7 +117,13 @@ class SelfUserProfileViewModel @Inject constructor(
             fetchIsReadOnlyAccount()
             observeLegalHoldStatus()
             markCreateTeamNoticeAsRead()
+            fetchProfileQRCodeState()
         }
+    }
+
+    fun fetchProfileQRCodeState() = viewModelScope.launch {
+        val isEnabled = isProfileQRCodeEnabled()
+        userProfileState = userProfileState.copy(showQrCode = isEnabled)
     }
 
     suspend fun checkIfUserAbleToMigrateToTeamAccount() {
@@ -155,7 +162,7 @@ class SelfUserProfileViewModel @Inject constructor(
     private fun fetchSelfUser() {
         viewModelScope.launch {
             val self = observeSelf().flowOn(dispatchers.io()).shareIn(this, SharingStarted.WhileSubscribed(1))
-            val selfTeam = getSelfTeam().getOrNull()
+            val selfTeam = getSelfTeam()
             val validAccounts =
                 observeValidAccounts().flowOn(dispatchers.io()).shareIn(this, SharingStarted.WhileSubscribed(1))
 
@@ -172,7 +179,7 @@ class SelfUserProfileViewModel @Inject constructor(
                         // Load user avatar raw image data
                         completePicture?.let { updateUserAvatar(it) }
 
-                        val teamUrl = getTeamUrl().takeIf { userType == UserType.OWNER || userType == UserType.ADMIN }
+                        val teamUrl = getTeamUrl().takeIf { userType.isTeamAdmin() }
 
                         // Update user data state
                         userProfileState = userProfileState.copy(

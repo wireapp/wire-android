@@ -36,9 +36,6 @@
     <string name="label_learn_more">Más información</string>
     <string name="label_removing">Eliminando...</string>
     <string name="label_logging_in">Iniciando sesión…</string>
-    <string name="label_membership_guest">Invitado</string>
-    <string name="label_membership_external">Externo</string>
-    <string name="label_membership_service">Aplicación</string>
     <string name="label_user_deleted">Eliminado</string>
     <string name="label_try_again">Intentar de nuevo</string>
     <string name="label_done">Listo</string>
@@ -62,7 +59,6 @@
     </plurals>
     <string name="label_reset_session">Restablecer la sesión</string>
     <string name="label_reset_session_success">Sesión restablecida con éxito</string>
-    <string name="label_federated_membership">Federado</string>
     <string name="label_update">Actualizar</string>
     <string name="label_close">Cerrar</string>
     <string name="label_download">Descargar</string>
@@ -88,10 +84,7 @@
     <string name="content_description_reveal_password">Mostrar contraseña</string>
     <string name="content_description_hide_password">Ocultar contraseña</string>
     <string name="content_description_search_back">Icono de búsqueda atrás</string>
-    <string name="content_description_clear_content">Borrar contenido</string>
-    <string name="content_description_user_avatar">Foto de perfil</string>
     <string name="content_description_muted_conversation">Conversación silenciada</string>
-    <string name="content_description_check">Marca de verificación</string>
     <string name="content_description_download_icon">Icono de descarga</string>
     <string name="content_description_open_asset_icon">Icono de abrir</string>
     <string name="content_description_add_to_favourite">Agregar a Favoritos</string>
@@ -104,8 +97,6 @@
     <string name="content_description_delete_the_conversation">Eliminar la conversación</string>
     <string name="content_description_conversation_phone_icon">Iniciar una llamada</string>
     <string name="content_description_welcome_wire_logo">Logo de Wire</string>
-    <string name="content_description_conversation_search_icon">Ícono de búsqueda</string>
-    <string name="content_description_conversation_search_input">Campo de búsqueda</string>
     <string name="content_description_conversation_enable_rich_text_mode">Botón de modo de texto enriquecido</string>
     <string name="content_description_conversation_enable_drawing_mode">Botón activar modo de dibujo</string>
     <string name="content_description_conversation_rich_text_header">Encabezado de formato de texto enriquecido</string>
@@ -372,22 +363,25 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="member_name_you_label_titlecase">Tú</string>
     <string name="member_name_you_label_lowercase">tú</string>
     <string name="label_add_participants">A&#241;adir participantes</string>
-    <string name="conversation_details_title">Detalles de la conversaci&#243;n</string>
+    <string name="conversation_details_title">Detalles de la conversación</string>
     <string name="conversation_details_options_tab">OPCIONES</string>
     <string name="conversation_details_participants_tab">PARTICIPANTES</string>
     <string name="conversation_details_options_group_name">NOMBRE DEL GRUPO</string>
-    <string name="conversation_details_conversation_admins">ADMINISTRADORES DE LA CONVERSACIÓN (%d)</string>
-    <string name="conversation_details_conversation_members">MIEMBROS DE CONVERSACIÓN (%d)</string>
+    <string name="conversation_details_conversation_admins">ADMINISTRADORES (%d)</string>
+    <string name="conversation_details_conversation_members">MIEMBROS (%d)</string>
+    <string name="conversation_details_conversation_apps">APLICACIONES (%d)</string>
+    <string name="conversation_details_participants_count">%s participantes</string>
     <string name="conversation_details_show_all_participants">Mostrar todos los participantes (%d)</string>
     <string name="conversation_participant_you_label">(Tú)</string>
     <string name="conversation_details_is_classified">NIVEL DE SEGURIDAD: VS-NfD</string>
     <string name="conversation_details_is_not_classified">NIVEL DE SEGURIDAD: NO CLASIFICADO</string>
     <string name="conversation_options_self_deleting_messages_label">Mensajes con auto-borrado</string>
     <string name="conversation_options_guests_label">Invitados</string>
-    <string name="conversation_details_guest_description">Cuando est&#225; activo, personas fuera de su equipo pueden unirse a esta conversaci&#243;n.</string>
+    <string name="conversation_details_guest_description">Cuando esto está activo, personas de fuera de tu equipo pueden unirse a esta conversación</string>
     <string name="conversation_options_guest_description">Active esta opci&#243;n para abrir esta conversaci&#243;n a personas fuera de su equipo, incluso si no tienen Wire.</string>
     <string name="conversation_options_guest_not_editable_description">No se puede desactivar la opci&#243;n de invitados en esta conversaci&#243;n, ya que ha sido creada por alguien de otro equipo.</string>
     <string name="conversation_options_services_label">Aplicaciones</string>
+    <string name="conversation_details_apps_description">Cuando esta opción está activada, la conversación está abierta a aplicaciones.</string>
     <string name="conversation_options_services_description">Activa esta opción para abrir la conversación a aplicaciones.</string>
     <string name="conversation_options_renamed">Conversaci&#243;n renombrada</string>
     <string name="disable_guest_dialog_title">&#191;Desea desactivar el acceso de invitados?</string>
@@ -400,7 +394,7 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="import_media_send_button_title">Enviar</string>
     <string name="export_media_subject_title">Compartiendo multimedia desde Wire</string>
     <!--Read receipts -->
-    <string name="conversation_options_read_receipt_label">Recibos de lectura</string>
+    <string name="conversation_options_read_receipt_label">Confirmación de lectura</string>
     <string name="conversation_options_read_receipt_description">Cuando est&#225; activado, las personas pueden ver cu&#225;ndo se lee su mensaje en esta conversaci&#243;n.</string>
     <!-- Messages -->
     <string name="message_details_title">Detalles del mensaje</string>
@@ -423,10 +417,6 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="user_profile_close_description">Cerrar perfil de usuario</string>
     <string name="user_profile_other_accs">Tus otras cuentas</string>
     <string name="user_profile_status_availability">Disponibilidad</string>
-    <string name="user_profile_status_available">Disponible</string>
-    <string name="user_profile_status_busy">Ocupado</string>
-    <string name="user_profile_status_away">Ausente</string>
-    <string name="user_profile_status_none">Ninguno</string>
     <string name="user_profile_details_tab">Detalles</string>
     <string name="user_profile_devices_tab">Dispositivos</string>
     <string name="user_profile_role_change_error">Ocurri&#243; un error al intentar cambiar el rol. Por favor, verifica tu conexi&#243;n a internet e intenta de nuevo.</string>
@@ -475,9 +465,7 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="profile_image_change_image_button_label">Cambiar imagen...</string>
     <!--Conversation-->
     <string name="label_message_details">Detalles del mensaje</string>
-    <string name="label_copy">Copiar</string>
     <string name="label_share">Compartir</string>
-    <string name="label_edit">Editar</string>
     <string name="label_delete">Eliminar</string>
     <string name="info_message_copied">Mensaje copiado</string>
     <string name="conversation_banner_services">aplicaciones</string>
@@ -608,7 +596,9 @@ Un mensaje eliminado no puede ser restaurado.</string>
         <item quantity="other">%1$s y %2$d más están escribiendo</item>
     </plurals>
     <!-- Search Messages -->
+    <string name="label_search_button">Buscar</string>
     <!-- Conversation Media -->
+    <string name="label_conversation_media">Multimedia</string>
     <!-- Search Contact-->
     <string name="label_contacts">Contactos</string>
     <string name="label_new_group">Nuevo Grupo</string>
@@ -618,10 +608,12 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <!-- Search Channels -->
     <string name="label_new_conversation">Nueva Conversaci&#243;n</string>
     <string name="label_search_people">Buscar Personas</string>
+    <string name="label_search_people_or_apps">Buscar personas o aplicaciones</string>
     <string name="label_search_people_instruction">Busca personas por su nombre de perfil o @nombredeusuario</string>
     <string name="label_learn_more_searching_user">Aprende m&#225;s</string>
     <string name="label_no_results_found">No se encontraron resultados. Por favor intenta nuevamente.</string>
     <string name="label_general_error">Algo sali&#243; mal</string>
+    <string name="label_add_member_services">Aplicaciones</string>
     <string name="label_empty_contacts_list">Buscar personas por su nombre o nombre de usuario para iniciar una conversación 🔍</string>
     <!-- Snackbar messages -->
     <string name="error_unknown_title">Algo sali&#243; mal</string>
@@ -745,9 +737,10 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="change">Cambiar</string>
     <string name="allow_guests">Permitir invitados</string>
     <string name="allow_guest_switch_description">Abra esta conversaci&#243;n a personas fuera de su equipo. Siempre puede cambiarlo m&#225;s tarde.</string>
+    <string name="allow_guest_switch_channel_description">Abre esta conversación a personas fuera de tu equipo o a aplicaciones. Siempre puedes cambiarla más tarde.</string>
     <string name="allow_services">Permitir aplicaciones</string>
     <string name="allow_services_regular_group_description">Abrir la conversación a aplicaciones. Siempre puedes cambiar esta opción más adelante.</string>
-    <string name="allow_services_channel_description">Abrir la conversación a personas externas a tu equipo o a aplicaciones. Siempre puedes cambiar esta opción más adelante.</string>
+    <string name="allow_apps_switch_description">Abrir esta conversación a aplicaciones.</string>
     <string name="service_details_label">Aplicación</string>
     <string name="service_details_add_service_label">Añadir a la Conversación</string>
     <string name="service_details_remove_service_label">Remover de la Conversación</string>
@@ -891,7 +884,7 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="file_sharing_restricted_description_no_users">Necesitas iniciar sesión en Wire antes de poder compartir nada</string>
     <string name="file_sharing_restricted_button_text_no_users">Abrir Wire</string>
     <!-- join conversation dialog -->
-    <string name="join_conversation_dialog_title">&#191;Unirse a la conversaci&#243;n?</string>
+    <string name="join_conversation_dialog_title">¿Unirse a la conversación?</string>
     <string name="join_conversation_dialog_message">Te han invitado a una conversaci&#243;n.
 
 %1$s</string>
@@ -1027,5 +1020,21 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="debug_settings_screen_title">Configuraci&#243;n de depuraci&#243;n</string>
     <!--    Personal to team migration screen-->
     <!-- Move to Folder -->
+    <!-- enterprise configurations -->
     <!--    channel not available dialog-->
+    <!-- Apps-->
+    <string name="apps_upgrade_teams_for_apps_banner_title">Tu equipo aún no utiliza aplicaciones</string>
+    <string name="apps_upgrade_teams_for_apps_banner_content">Para mejorar tu flujo de trabajo con las aplicaciones, tu equipo necesita configuración. Por favor, contacta al administrador de tu equipo.</string>
+    <string name="apps_edit_apps_option_title">Aplicaciones</string>
+    <string name="content_description_edit_apps_option_back_btn">Volver a los detalles de la conversación</string>
+    <string name="content_description_conversation_details_apps_action">ajustar acceso a aplicaciones</string>
+    <string name="search_results_apps_empty_title">Tu equipo aún no ha añadido aplicaciones</string>
+    <string name="search_results_apps_empty_description_team_admin">Las aplicaciones son de ayuda para mejorar tu flujo de trabajo. Como administrador del equipo, puedes añadirlas en las configuraciones del equipo.</string>
+    <string name="search_results_apps_empty_description_non_team_admin">Las aplicaciones son de ayuda para mejorar tu flujo de trabajo. Para usarlas, póngase en contacto con el administrador del equipo.</string>
+    <string name="search_results_apps_empty_description_disabled_for_conversation">Las aplicaciones están desactivadas en esta conversación. Puedes habilitarlas en las opciones de conversación.</string>
+    <string name="label_system_message_apps_access_enabled_by_self">%1$s has habilitado las **aplicaciones** para esta conversación</string>
+    <string name="label_system_message_apps_access_disabled_by_self">%1$s has deshabilitado las **aplicaciones** para esta conversación</string>
+    <string name="label_system_message_apps_access_enabled_by_other">%1$s ha habilitado las **aplicaciones** para esta conversación</string>
+    <string name="label_system_message_apps_access_disabled_by_other">%1$s ha deshabilitado las **aplicaciones** para esta conversación</string>
+    <string name="label_system_message_apps_access_enabled_disclaimer">Las aplicaciones añadidas tienen acceso al contenido de esta conversación.</string>
 </resources>

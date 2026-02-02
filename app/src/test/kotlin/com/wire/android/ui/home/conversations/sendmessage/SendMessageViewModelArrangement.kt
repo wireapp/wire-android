@@ -33,24 +33,25 @@ import com.wire.android.util.ImageUtil
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.sync.SyncState
-import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageResult
-import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
+import com.wire.kalium.logic.feature.asset.upload.ScheduleNewAssetMessageResult
+import com.wire.kalium.logic.feature.asset.upload.ScheduleNewAssetMessageUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
+import com.wire.kalium.logic.feature.client.IsWireCellsEnabledForConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationUnderLegalHoldNotifiedUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveDegradedConversationNotifiedUseCase
 import com.wire.kalium.logic.feature.conversation.SendTypingEventUseCase
 import com.wire.kalium.logic.feature.conversation.SetNotifiedAboutConversationUnderLegalHoldUseCase
 import com.wire.kalium.logic.feature.conversation.SetUserInformedAboutVerificationUseCase
+import com.wire.kalium.logic.feature.message.MessageOperationResult
 import com.wire.kalium.logic.feature.message.RetryFailedMessageUseCase
+import com.wire.kalium.logic.feature.message.SendEditMultipartMessageUseCase
 import com.wire.kalium.logic.feature.message.SendEditTextMessageUseCase
 import com.wire.kalium.logic.feature.message.SendKnockUseCase
 import com.wire.kalium.logic.feature.message.SendLocationUseCase
+import com.wire.kalium.logic.feature.message.SendMultipartMessageUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.message.draft.RemoveMessageDraftUseCase
-import com.wire.kalium.common.functional.Either
-import com.wire.kalium.logic.feature.client.IsWireCellsEnabledForConversationUseCase
-import com.wire.kalium.logic.feature.message.SendMultipartMessageUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -77,7 +78,7 @@ internal class SendMessageViewModelArrangement {
         coEvery { observeEstablishedCallsUseCase() } returns flowOf(listOf())
         coEvery { observeSyncState() } returns flowOf(SyncState.Live)
         every { pingRinger.ping(any(), any()) } returns Unit
-        coEvery { sendKnockUseCase(any(), any()) } returns Either.Right(Unit)
+        coEvery { sendKnockUseCase(any(), any()) } returns MessageOperationResult.Success
         coEvery { setUserInformedAboutVerificationUseCase(any()) } returns Unit
         coEvery { observeDegradedConversationNotifiedUseCase(any()) } returns flowOf(true)
         coEvery { setNotifiedAboutConversationUnderLegalHold(any()) } returns Unit
@@ -95,6 +96,9 @@ internal class SendMessageViewModelArrangement {
 
     @MockK
     lateinit var sendEditTextMessage: SendEditTextMessageUseCase
+
+    @MockK
+    lateinit var sendEditMultipartMessage: SendEditMultipartMessageUseCase
 
     @MockK
     lateinit var sendAssetMessage: ScheduleNewAssetMessageUseCase
@@ -159,6 +163,7 @@ internal class SendMessageViewModelArrangement {
         SendMessageViewModel(
             sendTextMessage = sendTextMessage,
             sendEditTextMessage = sendEditTextMessage,
+            sendEditMultipartMessage = sendEditMultipartMessage,
             sendAssetMessage = sendAssetMessage,
             dispatchers = TestDispatcherProvider(),
             kaliumFileSystem = fakeKaliumFileSystem,
@@ -196,16 +201,7 @@ internal class SendMessageViewModelArrangement {
 
     fun withSendAttachmentMessageResult(result: ScheduleNewAssetMessageResult) = apply {
         coEvery {
-            sendAssetMessage(
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-                any()
-            )
+            sendAssetMessage(any())
         } returns result
     }
 
@@ -217,7 +213,7 @@ internal class SendMessageViewModelArrangement {
                 any(),
                 any()
             )
-        } returns Either.Right(Unit)
+        } returns MessageOperationResult.Success
     }
 
     fun withFailedSendTextMessage(failure: CoreFailure) = apply {
@@ -228,7 +224,7 @@ internal class SendMessageViewModelArrangement {
                 any(),
                 any()
             )
-        } returns Either.Left(failure)
+        } returns MessageOperationResult.Failure(failure)
     }
 
     fun withSuccessfulSendEditTextMessage() = apply {
@@ -240,7 +236,19 @@ internal class SendMessageViewModelArrangement {
                 any(),
                 any()
             )
-        } returns Either.Right(Unit)
+        } returns MessageOperationResult.Success
+    }
+
+    fun withSuccessfulSendEditMultipartMessage() = apply {
+        coEvery {
+            sendEditMultipartMessage(
+                any(),
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        } returns MessageOperationResult.Success
     }
 
     fun withSuccessfulSendLocationMessage() = apply {
@@ -252,11 +260,11 @@ internal class SendMessageViewModelArrangement {
                 any(),
                 any()
             )
-        } returns Either.Right(Unit)
+        } returns MessageOperationResult.Success
     }
 
     fun withHandleUriAsset(result: HandleUriAssetUseCase.Result) = apply {
-        coEvery { handleUriAssetUseCase.invoke(any(), any(), any()) } returns result
+        coEvery { handleUriAssetUseCase.invoke(any(), any(), any(), any()) } returns result
     }
 
     fun withInformAboutVerificationBeforeMessagingFlag(flag: Boolean) = apply {
@@ -268,7 +276,7 @@ internal class SendMessageViewModelArrangement {
     }
 
     fun withSuccessfulRetryFailedMessage() = apply {
-        coEvery { retryFailedMessageUseCase(any(), any()) } returns Either.Right(Unit)
+        coEvery { retryFailedMessageUseCase(any(), any()) } returns MessageOperationResult.Success
     }
 
     fun withPendingTextBundle(textToShare: String = "some text") = apply {

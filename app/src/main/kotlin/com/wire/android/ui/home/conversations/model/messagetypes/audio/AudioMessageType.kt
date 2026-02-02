@@ -19,11 +19,13 @@
 
 package com.wire.android.ui.home.conversations.model.messagetypes.audio
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -41,6 +43,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.SliderState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
@@ -50,6 +53,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.DpSize
@@ -62,6 +72,8 @@ import com.wire.android.media.audiomessage.AudioMessageViewModel
 import com.wire.android.media.audiomessage.AudioMessageViewModelImpl
 import com.wire.android.media.audiomessage.AudioSpeed
 import com.wire.android.media.audiomessage.AudioState
+import com.wire.android.media.audiomessage.equalizedWavesMask
+import com.wire.android.media.audiomessage.sampledWavesMask
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
@@ -79,6 +91,9 @@ import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.home.conversations.messages.item.isBubble
+import com.wire.android.ui.home.conversations.messages.item.playedColor
+import com.wire.android.ui.home.conversations.messages.item.remainingColor
+import com.wire.android.ui.home.conversations.messages.item.surface
 import com.wire.android.ui.home.conversations.messages.item.textColor
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.UploadInProgressAssetMessage
 import com.wire.android.ui.theme.WireTheme
@@ -120,7 +135,7 @@ private fun AudioMessageLayout(
             .applyIf(!messageStyle.isBubble()) {
                 padding(top = dimensions().spacing4x)
                     .background(
-                        color = MaterialTheme.wireColorScheme.onPrimary,
+                        color = messageStyle.surface(),
                         shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
                     )
                     .border(
@@ -173,6 +188,7 @@ private fun UploadedAudioMessage(
     }
     UploadedAudioMessage(
         audioState = sanitizedAudioState,
+        wavesMask = viewModel.state.wavesMask,
         audioSpeed = viewModel.state.audioSpeed,
         extension = extension,
         size = size,
@@ -189,6 +205,7 @@ private fun UploadedAudioMessage(
 @Composable
 private fun UploadedAudioMessage(
     audioState: AudioState,
+    wavesMask: List<Int>?,
     audioSpeed: AudioSpeed,
     extension: String,
     size: Long,
@@ -203,6 +220,7 @@ private fun UploadedAudioMessage(
     } else {
         SuccessfulAudioMessageContent(
             audioState = audioState,
+            wavesMask = wavesMask,
             audioSpeed = audioSpeed,
             messageStyle = messageStyle,
             onPlayButtonClick = onPlayButtonClick,
@@ -215,6 +233,7 @@ private fun UploadedAudioMessage(
 @Composable
 fun RecordedAudioMessage(
     audioState: AudioState,
+    wavesMask: List<Int>?,
     onPlayButtonClick: () -> Unit,
     onSliderPositionChange: (Float) -> Unit,
     modifier: Modifier = Modifier,
@@ -228,6 +247,7 @@ fun RecordedAudioMessage(
         SuccessfulAudioMessageContent(
             modifier = Modifier.padding(horizontal = dimensions().spacing24x),
             audioState = audioState,
+            wavesMask = wavesMask,
             audioSpeed = AudioSpeed.NORMAL,
             onPlayButtonClick = onPlayButtonClick,
             onSliderPositionChange = onSliderPositionChange,
@@ -240,6 +260,7 @@ fun RecordedAudioMessage(
 @Composable
 fun SuccessfulAudioMessageContent(
     audioState: AudioState,
+    wavesMask: List<Int>?,
     audioSpeed: AudioSpeed,
     messageStyle: MessageStyle,
     onPlayButtonClick: () -> Unit,
@@ -257,8 +278,9 @@ fun SuccessfulAudioMessageContent(
         modifier = modifier.fillMaxWidth(),
     ) {
         val (iconResource, contentDescriptionRes) = getPlayOrPauseIcon(audioState.audioMediaPlayingState)
+        val buttonSize = dimensions().spacing32x + dimensions().spacing1x * 2 // button size + border (because outer alignment on designs)
         WireSecondaryIconButton(
-            minSize = DpSize(dimensions().spacing32x, dimensions().spacing32x),
+            minSize = DpSize(buttonSize, buttonSize),
             minClickableSize = dimensions().buttonMinClickableSize,
             iconSize = dimensions().spacing12x,
             iconResource = iconResource,
@@ -278,15 +300,15 @@ fun SuccessfulAudioMessageContent(
             AudioMessageSlider(
                 audioDuration = audioDuration,
                 totalTimeInMs = audioState.totalTimeInMs,
-                waveMask = audioState.wavesMask,
+                waveMask = wavesMask,
                 messageStyle = messageStyle,
                 onSliderPositionChange = onSliderPositionChange
             )
 
             val currentTimeColor = when (messageStyle) {
-                MessageStyle.BUBBLE_SELF -> MaterialTheme.wireColorScheme.onPrimary
-                MessageStyle.BUBBLE_OTHER -> MaterialTheme.wireColorScheme.primary
-                MessageStyle.NORMAL -> MaterialTheme.wireColorScheme.primary
+                MessageStyle.BUBBLE_SELF -> colorsScheme().selfBubble.onPrimary
+                MessageStyle.BUBBLE_OTHER -> colorsScheme().primary
+                MessageStyle.NORMAL -> colorsScheme().primary
             }
 
             Row {
@@ -385,41 +407,21 @@ private fun AudioMessageSlider(
     waveMask: List<Int>?,
     onSliderPositionChange: (Float) -> Unit,
 ) {
-    Box(modifier = Modifier.fillMaxWidth()) {
+    val density = LocalDensity.current
+    val waveWidth = dimensions().spacing2x
+    val spaceBetweenWaves = dimensions().spacing1x
+    BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
         val totalMs = if (totalTimeInMs is AudioState.TotalTimeInMs.Known) totalTimeInMs.value.toFloat() else 0f
-        val waves = waveMask?.ifEmpty { getDefaultWaveMask() } ?: getDefaultWaveMask()
-        val wavesAmount = waves.size
-
-        val activatedColor = when (messageStyle) {
-            MessageStyle.BUBBLE_SELF -> colorsScheme().onPrimary
-            MessageStyle.BUBBLE_OTHER -> colorsScheme().primary
-            MessageStyle.NORMAL -> colorsScheme().primary
-        }
-        val disabledColor = when (messageStyle) {
-            MessageStyle.BUBBLE_SELF -> colorsScheme().onPrimary.copy(alpha = 0.7F)
-            MessageStyle.BUBBLE_OTHER -> colorsScheme().onTertiaryButtonDisabled
-            MessageStyle.NORMAL -> colorsScheme().onTertiaryButtonDisabled
-        }
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.Center),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            waves.forEachIndexed { index, wave ->
-                val isWaveActivated = totalMs > 0 && (index / wavesAmount.toFloat()) < audioDuration.currentPositionInMs / totalMs
-                Spacer(
-                    Modifier
-                        .background(
-                            color = if (isWaveActivated) activatedColor else disabledColor,
-                            shape = RoundedCornerShape(dimensions().corner2x)
-                        )
-                        .weight(2f)
-                        .height(wave.dp)
-                )
-
-                Spacer(Modifier.weight(1F))
+        val waves by remember(waveMask, constraints.maxWidth) {
+            derivedStateOf {
+                val wavesAmount = with(density) {
+                    (constraints.maxWidth.toDp() / (waveWidth + spaceBetweenWaves)).toInt()
+                }
+                when {
+                    wavesAmount <= 0 -> emptyList()
+                    waveMask.isNullOrEmpty() -> getDefaultWaveMask(wavesAmount)
+                    else -> waveMask.equalizedWavesMask().sampledWavesMask(wavesAmount)
+                }
             }
         }
 
@@ -430,19 +432,62 @@ private fun AudioMessageSlider(
             thumb = {
                 SliderDefaults.Thumb(
                     interactionSource = remember { MutableInteractionSource() },
-                    colors = SliderDefaults.colors(thumbColor = activatedColor),
-                    thumbSize = DpSize(dimensions().spacing4x, dimensions().spacing32x)
+                    colors = SliderDefaults.colors(thumbColor = messageStyle.playedColor()),
+                    thumbSize = DpSize(dimensions().spacing4x, dimensions().spacing32x),
                 )
             },
-            track = { _ ->
-                // just empty, track is displayed by waves above
-                Spacer(Modifier.fillMaxWidth())
+            track = { sliderState: SliderState ->
+                AudioMessageSliderTrack(sliderState, waves, messageStyle)
             },
             colors = SliderDefaults.colors(
                 inactiveTrackColor = colorsScheme().secondaryButtonDisabledOutline
             ),
             modifier = Modifier.fillMaxWidth()
         )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun AudioMessageSliderTrack(state: SliderState, waves: List<Int>, messageStyle: MessageStyle) {
+    val progressPercentage = (state.value - state.valueRange.start) / (state.valueRange.endInclusive - state.valueRange.start)
+    val playedColor = messageStyle.playedColor()
+    val remainingColor = messageStyle.remainingColor()
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .graphicsLayer(compositingStrategy = CompositingStrategy.Offscreen)
+            .drawWithContent {
+                drawContent()
+                drawRect(
+                    color = remainingColor,
+                    blendMode = BlendMode.SrcIn,
+                    size = size.copy(width = size.width, height = size.height),
+                    topLeft = Offset(x = size.width * progressPercentage, y = 0f)
+                )
+                drawRect(
+                    color = playedColor,
+                    blendMode = BlendMode.SrcIn,
+                    size = size.copy(width = size.width * progressPercentage, height = size.height)
+                )
+            }
+    ) {
+        waves.forEachIndexed { index, wave ->
+            Spacer(
+                Modifier
+                    .background(
+                        // full alpha required here to properly apply the blendMode in drawWithContent
+                        // this color won't be visible, will be fully replaced in drawWithContent with the correct ones with proper alphas
+                        color = Color.Red,
+                        shape = RoundedCornerShape(dimensions().corner2x)
+                    )
+                    .weight(2f)
+                    .animateContentSize()
+                    .height(wave.dp)
+            )
+            Spacer(Modifier.weight(1f))
+        }
     }
 }
 
@@ -497,7 +542,7 @@ private fun getPlayOrPauseIcon(audioMediaPlayingState: AudioMediaPlayingState): 
     }
 
 @Suppress("MagicNumber")
-private fun getDefaultWaveMask(): List<Int> = List(75) { 1 }
+private fun getDefaultWaveMask(amount: Int): List<Int> = List(amount) { 1 }
 
 // helper wrapper class to format the time
 private data class AudioDuration(val totalDurationInMs: AudioState.TotalTimeInMs, val currentPositionInMs: Int) {
@@ -545,6 +590,7 @@ private fun PreviewUploadedAudioMessage() = WireTheme {
 private fun PreviewUploadedAudioMessageFetching() = WireTheme {
     UploadedAudioMessage(
         audioState = PREVIEW_AUDIO_STATE.copy(audioMediaPlayingState = AudioMediaPlayingState.Fetching),
+        wavesMask = PREVIEW_WAVES_MASK,
         audioSpeed = AudioSpeed.NORMAL,
         messageStyle = MessageStyle.NORMAL,
         extension = "MP3",
@@ -560,6 +606,7 @@ private fun PreviewUploadedAudioMessageFetching() = WireTheme {
 private fun PreviewUploadedAudioMessageFetched() = WireTheme {
     UploadedAudioMessage(
         audioState = PREVIEW_AUDIO_STATE.copy(audioMediaPlayingState = AudioMediaPlayingState.SuccessfulFetching),
+        wavesMask = PREVIEW_WAVES_MASK,
         audioSpeed = AudioSpeed.NORMAL,
         extension = "MP3",
         messageStyle = MessageStyle.NORMAL,
@@ -575,6 +622,7 @@ private fun PreviewUploadedAudioMessageFetched() = WireTheme {
 private fun PreviewUploadedAudioMessagePlaying() = WireTheme {
     UploadedAudioMessage(
         audioState = PREVIEW_AUDIO_STATE.copy(audioMediaPlayingState = AudioMediaPlayingState.Playing, currentPositionInMs = 5000),
+        wavesMask = PREVIEW_WAVES_MASK,
         audioSpeed = AudioSpeed.NORMAL,
         messageStyle = MessageStyle.NORMAL,
         extension = "MP3",
@@ -590,6 +638,7 @@ private fun PreviewUploadedAudioMessagePlaying() = WireTheme {
 private fun PreviewUploadedAudioMessageFailed() = WireTheme {
     UploadedAudioMessage(
         audioState = PREVIEW_AUDIO_STATE.copy(audioMediaPlayingState = AudioMediaPlayingState.Failed),
+        wavesMask = PREVIEW_WAVES_MASK,
         audioSpeed = AudioSpeed.NORMAL,
         messageStyle = MessageStyle.NORMAL,
         extension = "MP3",
@@ -600,14 +649,38 @@ private fun PreviewUploadedAudioMessageFailed() = WireTheme {
     )
 }
 
+@PreviewMultipleThemes
+@Composable
+private fun PreviewUploadedAudioMessageNarrow() = WireTheme {
+    Box(modifier = Modifier.width(150.dp)) {
+        UploadedAudioMessage(
+            audioState = PREVIEW_AUDIO_STATE.copy(audioMediaPlayingState = AudioMediaPlayingState.Fetching),
+            wavesMask = PREVIEW_WAVES_MASK,
+            audioSpeed = AudioSpeed.NORMAL,
+            messageStyle = MessageStyle.NORMAL,
+            extension = "MP3",
+            size = 1024,
+            onPlayButtonClick = {},
+            onSliderPositionChange = {},
+            onAudioSpeedChange = {}
+        )
+    }
+}
+
 @Suppress("MagicNumber")
 private val PREVIEW_AUDIO_STATE = AudioState(
     audioMediaPlayingState = AudioMediaPlayingState.SuccessfulFetching,
     currentPositionInMs = 0,
     totalTimeInMs = AudioState.TotalTimeInMs.Known(10000),
-    wavesMask = listOf(
-        32, 1, 24, 23, 13, 16, 9, 0, 4, 30, 23, 12, 14, 1, 7, 8, 0, 12, 32, 23, 34, 4, 16, 9, 0, 4, 30, 23, 12,
-        14, 1, 7, 8, 0, 13, 16, 9, 0, 4, 30, 23, 12, 14, 1, 7, 8, 0, 12, 32, 23, 34, 4, 16, 13, 16, 9, 0, 4, 30, 23, 12, 14, 1,
-        7, 8, 0, 12, 32, 23, 34, 4, 16,
-    ),
+)
+
+@Suppress("MagicNumber")
+private val PREVIEW_WAVES_MASK = listOf(
+    115, 166, 142, 163, 19, 70, 224, 5, 193, 73, 244, 64, 140, 255, 149, 58, 194, 244, 112, 128, 239, 51, 102, 83, 107, 148, 3, 147,
+    151, 27, 124, 216, 208, 176, 248, 199, 47, 77, 154, 44, 73, 101, 33, 169, 17, 129, 97, 66, 17, 110, 247, 124, 237, 245, 43, 184,
+    198, 196, 175, 195, 60, 66, 81, 109, 185, 206, 38, 130, 248, 206, 43, 156, 184, 9, 65, 40, 42, 18, 134, 41, 140, 234, 105, 130,
+    42, 197, 103, 183, 82, 195, 24, 65, 45, 12, 136, 112, 204, 157, 123, 193, 193, 120, 51, 69, 136, 133, 37, 43, 233, 172, 63, 209,
+    113, 175, 20, 211, 95, 131, 78, 198, 94, 239, 112, 67, 157, 106, 191, 75, 59, 115, 216, 21, 0, 57, 225, 2, 95, 88, 205, 104, 114,
+    156, 24, 210, 69, 232, 141, 65, 102, 219, 36, 166, 252, 40, 129, 16, 240, 60, 33, 29, 219, 32, 5, 243, 39, 8, 89, 196, 250, 48,
+    87, 181, 11, 165, 109, 151, 5, 46, 43, 36, 55, 108, 253, 153, 60, 45, 11, 225, 122, 244, 64, 241, 78, 44, 65, 137, 166, 10, 73, 75
 )

@@ -33,7 +33,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.ui.common.applyIf
 import com.wire.android.ui.common.colorsScheme
@@ -41,7 +40,6 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.multipart.AssetSource
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
 import com.wire.android.ui.home.conversations.messages.item.MessageStyle
-import com.wire.android.ui.home.conversations.messages.item.isBubble
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.transferProgressColor
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -59,18 +57,24 @@ internal fun AssetGridPreview(
         modifier = modifier
             .aspectRatio(1f)
             .clickable { onClick() }
-            .applyIf(messageStyle.isBubble()) {
+            .clip(RoundedCornerShape(dimensions().messageAttachmentCornerSize))
+            .applyIf(messageStyle == MessageStyle.BUBBLE_SELF) {
+                background(colorsScheme().selfBubble.secondary)
+            }
+            .applyIf(messageStyle == MessageStyle.BUBBLE_OTHER) {
+                background(colorsScheme().otherBubble.secondary)
+            }
+            .applyIf(messageStyle == MessageStyle.NORMAL) {
                 background(
-                    color = colorsScheme().surfaceVariant,
-                    shape = RoundedCornerShape(dimensions().messageAttachmentGridCornerSize)
+                    color = colorsScheme().surface,
+                    shape = RoundedCornerShape(dimensions().messageAttachmentCornerSize)
+                )
+                border(
+                    width = dimensions().spacing1x,
+                    color = colorsScheme().outline,
+                    shape = RoundedCornerShape(dimensions().messageAttachmentCornerSize)
                 )
             }
-            .border(
-                width = 1.dp,
-                color = colorsScheme().outline,
-                shape = RoundedCornerShape(dimensions().messageAttachmentGridCornerSize)
-            )
-            .clip(RoundedCornerShape(dimensions().messageAttachmentGridCornerSize))
     ) {
 
         if (item.transferStatus != AssetTransferStatus.NOT_FOUND) {
@@ -81,10 +85,6 @@ internal fun AssetGridPreview(
 
                 AttachmentFileType.VIDEO -> {
                     VideoAssetGridPreview(item, messageStyle)
-                }
-
-                AttachmentFileType.PDF -> {
-                    PdfAssetGridPreview(item)
                 }
 
                 else -> {
@@ -103,7 +103,7 @@ internal fun AssetGridPreview(
                 )
             }
         } else {
-            AssetNotAvailableGridPreview()
+            AssetNotAvailableGridPreview(messageStyle)
         }
     }
 }

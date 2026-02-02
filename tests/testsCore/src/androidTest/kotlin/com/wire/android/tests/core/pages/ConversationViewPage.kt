@@ -34,14 +34,16 @@ import kotlin.test.assertEquals
 
 data class ConversationViewPage(private val device: UiDevice) {
     private fun displayedUserName(userName: String) = UiSelectorParams(text = userName)
-
     private val typeMessageField = UiSelectorParams(description = " Type a message")
+    private val sentQRImage = UiSelectorParams(description = "Image message")
 
+    private val sharedLocationContainer = UiSelectorParams(description = "Location item")
+    private val attachNewFileButton = UiSelectorParams(description = "Attach new item to conversation")
     private val audioSeekBar = UiSelectorParams(className = "android.widget.SeekBar")
     private val audioInitialTime = UiSelectorParams(text = "00:00")
-
     private val playAudioButton = UiSelectorParams(description = "Play audio")
 
+    private val startCallButton = UiSelectorParams(description = "Start audio call")
     private val pauseAudioButton = UiSelectorParams(description = "Pause audio")
     private val downloadButton = UiSelectorParams(text = "Download")
 
@@ -58,10 +60,7 @@ data class ConversationViewPage(private val device: UiDevice) {
 
     private val messageInputField = UiSelectorParams(className = "android.widget.EditText")
 
-    private fun conversationDetails1On1(userName: String) =
-        UiSelector()
-            .resourceId("User avatar")
-            .fromParent(UiSelector().className("android.widget.TextView").text(userName))
+    private fun conversationDetails1On1(userName: String) = UiSelector().className("android.widget.TextView").text(userName)
 
     private val sendButton = UiSelectorParams(description = "Send")
 
@@ -75,16 +74,28 @@ data class ConversationViewPage(private val device: UiDevice) {
         return UiSelectorParams(text = label, className = "android.widget.TextView")
     }
 
+    private fun sharingOption(label: String): UiSelectorParams {
+        return UiSelectorParams(text = label, className = "android.widget.TextView")
+    }
     private fun fileWithName(name: String): UiSelectorParams {
         return UiSelectorParams(text = name)
     }
 
     fun assertConversationIsVisibleWithTeamMember(userName: String): ConversationViewPage {
-        val teamMemberName = UiWaitUtils.waitElement(displayedUserName(userName))
-        assertTrue(
-            "Team member name '$userName' is not visible in conversation view",
-            !teamMemberName.visibleBounds.isEmpty
-        )
+        try {
+            UiWaitUtils.waitElement(displayedUserName(userName))
+        } catch (e: AssertionError) {
+            throw AssertionError("Team member name '$userName' is not visible in conversation view", e)
+        }
+        return this
+    }
+
+    fun assertConversationIsVisibleWithTeamOwner(userName: String): ConversationViewPage {
+        try {
+            UiWaitUtils.waitElement(displayedUserName(userName))
+        } catch (e: AssertionError) {
+            throw AssertionError("Team owner name '$userName' is not visible in conversation view", e)
+        }
         return this
     }
 
@@ -179,7 +190,7 @@ data class ConversationViewPage(private val device: UiDevice) {
         return this
     }
 
-    fun assertTextFileWithNameIsVisible(fileName3: String): ConversationViewPage {
+    fun assertFileWithNameIsVisible(fileName3: String): ConversationViewPage {
         val fileNameElement = UiWaitUtils.waitElement(fileWithName(fileName3))
         Assert.assertTrue("File with name '$fileName3' is not visible", !fileNameElement.visibleBounds.isEmpty)
         return this
@@ -268,6 +279,7 @@ data class ConversationViewPage(private val device: UiDevice) {
             currentPackage.contains("APP_")
         )
     }
+
     fun typeMessageInInputField(message: String): ConversationViewPage {
         UiWaitUtils.waitElement(messageInputField).click()
         device.type(message)
@@ -290,16 +302,26 @@ data class ConversationViewPage(private val device: UiDevice) {
         return this
     }
 
-    fun assertMessageNotVisible(text: String) {
-        val element = findElementOrNull(UiSelectorParams(text = text))
+    fun assertMessageNotVisible(text: String, timeoutSeconds: Int = 5) {
+        try {
+            val deadline = System.currentTimeMillis() + timeoutSeconds * 1000L
 
-        Assert.assertTrue(
-            "Message '$text' is still visible on the screen.",
-            element == null || element.visibleBounds.isEmpty
-        )
+            while (System.currentTimeMillis() < deadline) {
+                val element = findElementOrNull(UiSelectorParams(text = text))
+                if (element != null) {
+                    throw AssertionError("Message '$text' is still present in the conversation.")
+                }
+                Thread.sleep(250)
+            }
+        } catch (e: AssertionError) {
+            throw AssertionError(
+                "Expected message '$text' to be absent, but it was found within ${timeoutSeconds}s.",
+                e
+            )
+        }
     }
 
-    fun tapBackButtonOnConversationViewPage(): ConversationViewPage {
+    fun tapBackButtonToCloseConversationViewPage(): ConversationViewPage {
         UiWaitUtils.waitElement(backButton).click()
         return this
     }
@@ -329,6 +351,11 @@ data class ConversationViewPage(private val device: UiDevice) {
         val element = device.findObject(
             UiSelector().text(label).className("android.widget.TextView")
         )
+        element.click()
+    }
+
+    fun tapSharingOption(label: String) {
+        val element = UiWaitUtils.waitElement(sharingOption(label))
         element.click()
     }
 
@@ -377,6 +404,56 @@ data class ConversationViewPage(private val device: UiDevice) {
         val userName = device.findObject(conversationDetails1On1(userName))
         if (!userName.exists()) throw AssertionError("User '$userName' not found in current conversation")
         userName.click()
+
+        return this
+    }
+
+    fun iTapStartCallButton(): ConversationViewPage {
+        UiWaitUtils.waitElement(startCallButton).click()
+        return this
+    }
+
+    fun iTapFileSharingButton(): ConversationViewPage {
+        UiWaitUtils.waitElement(attachNewFileButton).click()
+        return this
+    }
+
+    fun assertSharingOptionVisible(label: String) {
+        try {
+            UiWaitUtils.waitElement(sharingOption(label))
+        } catch (e: AssertionError) {
+            throw AssertionError("Sharing option '$label' is not visible", e)
+        }
+    }
+
+    fun iSeeSentQrCodeImageInCurrentConversation(): ConversationViewPage {
+
+        try {
+            UiWaitUtils.waitElement(sentQRImage)
+        } catch (e: AssertionError) {
+            throw AssertionError("Sent qrCodeImage is not visible in current conversation", e)
+        }
+        return this
+    }
+
+    fun iSeeLocationMapContainer(): ConversationViewPage {
+
+        try {
+            UiWaitUtils.waitElement(sharedLocationContainer)
+        } catch (e: AssertionError) {
+            throw AssertionError("Location map container is not visible", e)
+        }
+        return this
+    }
+
+    fun assertRestoredBackupMessageIsVisibleInCurrentConversation(message: String): ConversationViewPage {
+        val messageSelector = UiSelectorParams(text = message)
+
+        try {
+            UiWaitUtils.waitElement(messageSelector)
+        } catch (e: AssertionError) {
+            throw AssertionError("Message '$message' was not found or not visible in the conversation.", e)
+        }
 
         return this
     }

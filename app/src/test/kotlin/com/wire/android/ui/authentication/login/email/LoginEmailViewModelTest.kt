@@ -54,6 +54,7 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.user.SsoId
+import com.wire.kalium.logic.data.user.SsoManagedBy
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
@@ -138,7 +139,15 @@ class LoginEmailViewModelTest {
     @Test
     fun `given button is clicked and initial sync is completed, when login returns Success, then navigate to home screen`() = runTest {
         val (arrangement, loginViewModel) = Arrangement()
-            .withLoginReturning(AuthenticationResult.Success(AUTH_TOKEN, SSO_ID, SERVER_CONFIG.id, null))
+            .withLoginReturning(
+                AuthenticationResult.Success(
+                    authData = AUTH_TOKEN,
+                    ssoID = SSO_ID,
+                    managedBy = MANAGED_BY,
+                    serverConfigId = SERVER_CONFIG.id,
+                    proxyCredentials = null
+                )
+            )
             .withAddAuthenticatedUserReturning(AddAuthenticatedUserUseCase.Result.Success(USER_ID))
             .withValidateEmailReturning(true)
             .withPersistEmailReturning(PersistSelfUserEmailResult.Success)
@@ -165,7 +174,7 @@ class LoginEmailViewModelTest {
         runTest {
             val password = "abc"
             val (arrangement, loginViewModel) = Arrangement()
-                .withLoginReturning(AuthenticationResult.Success(AUTH_TOKEN, SSO_ID, SERVER_CONFIG.id, null))
+                .withLoginReturning(AuthenticationResult.Success(AUTH_TOKEN, SSO_ID, MANAGED_BY, SERVER_CONFIG.id, null))
                 .withAddAuthenticatedUserReturning(AddAuthenticatedUserUseCase.Result.Success(USER_ID))
                 .withValidateEmailReturning(true)
                 .withPersistEmailReturning(PersistSelfUserEmailResult.Success)
@@ -239,7 +248,7 @@ class LoginEmailViewModelTest {
     @Test
     fun `given button is clicked, when addAuthenticatedUser returns UserAlreadyExists error, then UserAlreadyExists is passed`() = runTest {
         val (arrangement, loginViewModel) = Arrangement()
-            .withLoginReturning(AuthenticationResult.Success(AUTH_TOKEN, SSO_ID, SERVER_CONFIG.id, null))
+            .withLoginReturning(AuthenticationResult.Success(AUTH_TOKEN, SSO_ID, MANAGED_BY, SERVER_CONFIG.id, null))
             .withAddAuthenticatedUserReturning(AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists)
             .arrange()
 
@@ -375,7 +384,7 @@ class LoginEmailViewModelTest {
         val email = "some.email@example.org"
         val code = "123456"
         val (arrangement, loginViewModel) = Arrangement()
-            .withLoginReturning(AuthenticationResult.Success(AUTH_TOKEN, SSO_ID, SERVER_CONFIG.id, null))
+            .withLoginReturning(AuthenticationResult.Success(AUTH_TOKEN, SSO_ID, MANAGED_BY, SERVER_CONFIG.id, null))
             .withAddAuthenticatedUserReturning(AddAuthenticatedUserUseCase.Result.Success(USER_ID))
             .withValidateEmailReturning(true)
             .withPersistEmailReturning(PersistSelfUserEmailResult.Success)
@@ -398,7 +407,7 @@ class LoginEmailViewModelTest {
         val email = "some.email@example.org"
         val code = "123456"
         val (arrangement, loginViewModel) = Arrangement()
-            .withLoginReturning(AuthenticationResult.Success(AUTH_TOKEN, SSO_ID, SERVER_CONFIG.id, null))
+            .withLoginReturning(AuthenticationResult.Success(AUTH_TOKEN, SSO_ID, MANAGED_BY, SERVER_CONFIG.id, null))
             .withAddAuthenticatedUserReturning(AddAuthenticatedUserUseCase.Result.Success(USER_ID))
             .withValidateEmailReturning(true)
             .withPersistEmailReturning(PersistSelfUserEmailResult.Success)
@@ -419,7 +428,7 @@ class LoginEmailViewModelTest {
         val email = "some.email@example.org"
         val code = "123456"
         val (arrangement, loginViewModel) = Arrangement()
-            .withLoginReturning(AuthenticationResult.Success(AUTH_TOKEN, SSO_ID, SERVER_CONFIG.id, null))
+            .withLoginReturning(AuthenticationResult.Success(AUTH_TOKEN, SSO_ID, MANAGED_BY, SERVER_CONFIG.id, null))
             .withAddAuthenticatedUserReturning(AddAuthenticatedUserUseCase.Result.Success(USER_ID))
             .withValidateEmailReturning(true)
             .withPersistEmailReturning(PersistSelfUserEmailResult.Success)
@@ -453,7 +462,7 @@ class LoginEmailViewModelTest {
     fun `given email, when logging in, then persist email`() = runTest {
         val email = "some.email@example.org"
         val (arrangement, loginViewModel) = Arrangement()
-            .withLoginReturning(AuthenticationResult.Success(AUTH_TOKEN, SSO_ID, SERVER_CONFIG.id, null))
+            .withLoginReturning(AuthenticationResult.Success(AUTH_TOKEN, SSO_ID, MANAGED_BY, SERVER_CONFIG.id, null))
             .withAddAuthenticatedUserReturning(AddAuthenticatedUserUseCase.Result.Success(USER_ID))
             .withValidateEmailReturning(true)
             .withPersistEmailReturning(PersistSelfUserEmailResult.Success)
@@ -472,7 +481,7 @@ class LoginEmailViewModelTest {
     fun `given handle, when logging in, then do not persist email`() = runTest {
         val handle = "some.handle"
         val (arrangement, loginViewModel) = Arrangement()
-            .withLoginReturning(AuthenticationResult.Success(AUTH_TOKEN, SSO_ID, SERVER_CONFIG.id, null))
+            .withLoginReturning(AuthenticationResult.Success(AUTH_TOKEN, SSO_ID, MANAGED_BY, SERVER_CONFIG.id, null))
             .withAddAuthenticatedUserReturning(AddAuthenticatedUserUseCase.Result.Success(USER_ID))
             .withValidateEmailReturning(false)
             .withGetOrRegisterClientReturning(RegisterClientResult.Success(CLIENT))
@@ -491,7 +500,7 @@ class LoginEmailViewModelTest {
         val email = "some.email@example.org"
         val failure = CoreFailure.Unknown(null)
         val (arrangement, loginViewModel) = Arrangement()
-            .withLoginReturning(AuthenticationResult.Success(AUTH_TOKEN, SSO_ID, SERVER_CONFIG.id, null))
+            .withLoginReturning(AuthenticationResult.Success(AUTH_TOKEN, SSO_ID, MANAGED_BY, SERVER_CONFIG.id, null))
             .withAddAuthenticatedUserReturning(AddAuthenticatedUserUseCase.Result.Success(USER_ID))
             .withValidateEmailReturning(true)
             .withPersistEmailReturning(PersistSelfUserEmailResult.Failure(failure))
@@ -514,7 +523,15 @@ class LoginEmailViewModelTest {
         val newUserId = UserId("newUserId", "domain")
         val (arrangement, loginViewModel) = Arrangement()
             .withCurrentSessionReturning(CurrentSessionResult.Success(AccountInfo.Valid(previousUserId)))
-            .withLoginReturning(AuthenticationResult.Success(AUTH_TOKEN.copy(userId = newUserId), SSO_ID, SERVER_CONFIG.id, null))
+            .withLoginReturning(
+                AuthenticationResult.Success(
+                    authData = AUTH_TOKEN.copy(userId = newUserId),
+                    ssoID = SSO_ID,
+                    managedBy = MANAGED_BY,
+                    serverConfigId = SERVER_CONFIG.id,
+                    proxyCredentials = null
+                )
+            )
             .withAddAuthenticatedUserReturning(AddAuthenticatedUserUseCase.Result.Success(newUserId))
             .withValidateEmailReturning(true)
             .withPersistEmailReturning(PersistSelfUserEmailResult.Success)
@@ -651,7 +668,7 @@ class LoginEmailViewModelTest {
             .withDeleteSessionReturning(DeleteSessionUseCase.Result.Success)
             .withUpdateCurrentSessionReturning(UpdateCurrentSessionUseCase.Result.Success)
             .withCurrentSessionReturning(CurrentSessionResult.Success(AccountInfo.Valid(previousUserId)))
-            .withLoginReturning(AuthenticationResult.Success(authToken2, SSO_ID, SERVER_CONFIG.id, null))
+            .withLoginReturning(AuthenticationResult.Success(authToken2, SSO_ID, MANAGED_BY, SERVER_CONFIG.id, null))
             .withAddAuthenticatedUserReturning(AddAuthenticatedUserUseCase.Result.Success(newUserId2))
             .withValidateEmailReturning(true)
             .withPersistEmailReturning(PersistSelfUserEmailResult.Success)
@@ -672,7 +689,7 @@ class LoginEmailViewModelTest {
         }
         coVerify(exactly = 1) { // verify that the second login job has been started
             arrangement.loginUseCase(any(), any(), any(), any(), any())
-            arrangement.addAuthenticatedUserUseCase(any(), any(), eq(authToken2), any())
+            arrangement.addAuthenticatedUserUseCase(any(), any(), eq(authToken2), any(), any())
         }
     }
 
@@ -686,7 +703,7 @@ class LoginEmailViewModelTest {
             .withDeleteSessionReturning(DeleteSessionUseCase.Result.Success)
             .withUpdateCurrentSessionReturning(UpdateCurrentSessionUseCase.Result.Success)
             .withCurrentSessionReturning(CurrentSessionResult.Success(AccountInfo.Valid(previousUserId)))
-            .withLoginReturning(AuthenticationResult.Success(authToken, SSO_ID, SERVER_CONFIG.id, null))
+            .withLoginReturning(AuthenticationResult.Success(authToken, SSO_ID, MANAGED_BY, SERVER_CONFIG.id, null))
             .withAddAuthenticatedUserReturning(AddAuthenticatedUserUseCase.Result.Success(newUserId))
             .withValidateEmailReturning(true)
             .withPersistEmailReturning(PersistSelfUserEmailResult.Success)
@@ -713,7 +730,7 @@ class LoginEmailViewModelTest {
             .withDeleteSessionReturning(DeleteSessionUseCase.Result.Success)
             .withUpdateCurrentSessionReturning(UpdateCurrentSessionUseCase.Result.Success)
             .withCurrentSessionReturning(CurrentSessionResult.Success(AccountInfo.Valid(previousUserId)))
-            .withLoginReturning(AuthenticationResult.Success(authToken, SSO_ID, SERVER_CONFIG.id, null))
+            .withLoginReturning(AuthenticationResult.Success(authToken, SSO_ID, MANAGED_BY, SERVER_CONFIG.id, null))
             .withAddAuthenticatedUserReturning(AddAuthenticatedUserUseCase.Result.Success(newUserId))
             .withValidateEmailReturning(true)
             .withPersistEmailReturning(PersistSelfUserEmailResult.Success)
@@ -752,7 +769,7 @@ class LoginEmailViewModelTest {
             val (arrangement, loginViewModel) = Arrangement()
                 .withCurrentSessionReturning(CurrentSessionResult.Failure.SessionNotFound)
                 .withValidateEmailReturning(true)
-                .withLoginReturning(AuthenticationResult.Success(AUTH_TOKEN, SSO_ID, SERVER_CONFIG.id, null))
+                .withLoginReturning(AuthenticationResult.Success(AUTH_TOKEN, SSO_ID, MANAGED_BY, SERVER_CONFIG.id, null))
                 .withAddAuthenticatedUserReturning(AddAuthenticatedUserUseCase.Result.Success(USER_ID))
                 .withPersistEmailReturning(PersistSelfUserEmailResult.Success)
                 .withGetOrRegisterClientReturning(RegisterClientResult.Success(CLIENT))
@@ -862,7 +879,8 @@ class LoginEmailViewModelTest {
             userDataStoreProvider,
             coreLogic,
             countdownTimer,
-            dispatcherProvider
+            dispatcherProvider,
+            ServerConfig.STAGING
         ).also { it.autoLoginWhenFullCodeEntered = true }
 
         fun withLoginReturning(result: AuthenticationResult) = apply {
@@ -873,7 +891,7 @@ class LoginEmailViewModelTest {
 
         fun withAddAuthenticatedUserReturning(result: AddAuthenticatedUserUseCase.Result) = apply {
             coEvery {
-                addAuthenticatedUserUseCase(any(), any(), any(), any())
+                addAuthenticatedUserUseCase(any(), any(), any(), any(), any())
             } returns result
         }
 
@@ -930,6 +948,7 @@ class LoginEmailViewModelTest {
         val CLIENT = TestClient.CLIENT
         val USER_ID: QualifiedID = QualifiedID("userId", "domain")
         val SSO_ID: SsoId = SsoId("scim_id", null, null)
+        val MANAGED_BY: SsoManagedBy = SsoManagedBy.WIRE
         val AUTH_TOKEN = AccountTokens(
             userId = UserId("user_id", "domain"),
             accessToken = "access_token",

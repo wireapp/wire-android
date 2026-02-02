@@ -48,7 +48,7 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.destinations.DeviceDetailsScreenDestination
 import com.wire.android.ui.settings.devices.model.SelfDevicesState
 import com.wire.android.ui.theme.wireColorScheme
-import com.wire.android.util.extension.folderWithElements
+import com.wire.android.util.ui.sectionWithElements
 import com.wire.android.util.lifecycle.rememberLifecycleEvent
 import com.wire.kalium.logic.data.conversation.ClientId
 
@@ -66,7 +66,9 @@ fun SelfDevicesScreen(
     SelfDevicesScreenContent(
         state = viewModel.state,
         onNavigateBack = navigator::navigateBack,
-        onDeviceClick = { navigator.navigate(NavigationCommand(DeviceDetailsScreenDestination(viewModel.currentAccountId, it.clientId))) }
+        onDeviceClick = {
+            navigator.navigate(NavigationCommand(DeviceDetailsScreenDestination(viewModel.currentAccountId, it.clientId)))
+        }
     )
 }
 
@@ -142,7 +144,7 @@ private fun LazyListScope.folderDeviceItems(
     placeholders: Boolean = false,
     onDeviceClick: (Device) -> Unit = {}
 ) {
-    folderWithElements(
+    sectionWithElements(
         header = header?.uppercase(),
         items = items.associateBy { it.clientId.value },
         divider = {

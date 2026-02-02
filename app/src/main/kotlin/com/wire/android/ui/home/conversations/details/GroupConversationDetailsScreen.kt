@@ -25,8 +25,6 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration
@@ -105,6 +103,7 @@ import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.destinations.SearchConversationMessagesScreenDestination
 import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
 import com.wire.android.ui.destinations.ServiceDetailsScreenDestination
+import com.wire.android.ui.destinations.UpdateAppsAccessScreenDestination
 import com.wire.android.ui.home.conversations.details.editguestaccess.EditGuestAccessParams
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptions
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsState
@@ -112,6 +111,7 @@ import com.wire.android.ui.home.conversations.details.options.LoadingGroupConver
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipants
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipantsState
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
+import com.wire.android.ui.home.conversations.details.updateappsaccess.UpdateAppsAccessParams
 import com.wire.android.ui.home.conversations.details.updatechannelaccess.UpdateChannelAccessArgs
 import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavArgs
 import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavBackArgs
@@ -156,7 +156,9 @@ fun GroupConversationDetailsScreen(
         navigator.navigate(
             NavigationCommand(
                 SearchConversationMessagesScreenDestination(
-                    conversationId = viewModel.conversationId
+                    conversationId = viewModel.conversationId,
+                    isCellsConversation = groupOptions.isWireCellEnabled && groupOptions.isWireCellFeatureEnabled,
+                    groupName = groupOptions.groupName,
                 )
             )
         )
@@ -164,7 +166,14 @@ fun GroupConversationDetailsScreen(
 
     val onConversationMediaClick: () -> Unit = {
         if (groupOptions.isWireCellEnabled && groupOptions.isWireCellFeatureEnabled) {
-            navigator.navigate(NavigationCommand(ConversationFilesScreenDestination(viewModel.conversationId.toString())))
+            navigator.navigate(
+                NavigationCommand(
+                    ConversationFilesScreenDestination(
+                        conversationId = viewModel.conversationId.toString(),
+                        breadcrumbs = arrayOf(groupOptions.groupName)
+                    )
+                )
+            )
         } else {
             navigator.navigate(NavigationCommand(ConversationMediaScreenDestination(viewModel.conversationId)))
         }
@@ -191,13 +200,13 @@ fun GroupConversationDetailsScreen(
                 else -> navigator.navigate(NavigationCommand(OtherUserProfileScreenDestination(participant.id, viewModel.conversationId)))
             }
         },
-        showAllowUserToAddParticipants = { viewModel.shouldShowAddParticipantButton() },
         onAddParticipantsPressed = {
             navigator.navigate(
                 NavigationCommand(
                     AddMembersSearchScreenDestination(
-                        viewModel.conversationId,
-                        groupOptions.isServicesAllowed
+                        conversationId = viewModel.conversationId,
+                        isConversationAppsEnabled = groupOptions.isAppsAllowed,
+                        isSelfPartOfATeam = groupOptions.isSelfPartOfATeam
                     )
                 )
             )
@@ -210,8 +219,21 @@ fun GroupConversationDetailsScreen(
                         viewModel.conversationId,
                         EditGuestAccessParams(
                             groupOptions.isGuestAllowed,
-                            groupOptions.isServicesAllowed,
+                            groupOptions.isAppsAllowed,
                             groupOptions.isUpdatingGuestAllowed
+                        )
+                    )
+                )
+            )
+        },
+        onAppsAccessItemClicked = {
+            navigator.navigate(
+                NavigationCommand(
+                    UpdateAppsAccessScreenDestination(
+                        viewModel.conversationId,
+                        UpdateAppsAccessParams(
+                            isGuestAllowed = groupOptions.isGuestAllowed,
+                            isAppsAllowed = groupOptions.isAppsAllowed
                         )
                     )
                 )
@@ -322,11 +344,11 @@ private fun GroupConversationDetailsContent(
     onProfilePressed: (UIParticipant) -> Unit,
     onAddParticipantsPressed: () -> Unit,
     onEditGuestAccess: () -> Unit,
+    onAppsAccessItemClicked: () -> Unit,
     onChannelAccessItemClicked: () -> Unit,
     onEditSelfDeletingMessages: () -> Unit,
     onEditGroupName: () -> Unit,
     groupParticipantsState: GroupConversationParticipantsState,
-    showAllowUserToAddParticipants: () -> (Boolean),
     isAbandonedOneOnOneConversation: Boolean,
     isWireCellEnabled: Boolean,
     onSearchConversationMessagesClick: () -> Unit,
@@ -384,11 +406,7 @@ private fun GroupConversationDetailsContent(
             AnimatedContent(
                 targetState = isScreenLoading.collectAsState().value,
                 transitionSpec = {
-                    val enter = if (this.targetState) {
-                        slideInVertically(initialOffsetY = { it })
-                    } else {
-                        fadeIn(tween(durationMillis = 500, delayMillis = 100)) + slideInVertically(initialOffsetY = { it / 2 })
-                    }
+                    val enter = fadeIn(tween(durationMillis = 500, delayMillis = 100))
                     val exit = fadeOut()
                     enter.togetherWith(exit)
                 },
@@ -431,8 +449,8 @@ private fun GroupConversationDetailsContent(
                 targetState = currentTabState,
                 label = "Conversation details bottom bar crossfade",
                 transitionSpec = {
-                    val enter = slideInVertically(initialOffsetY = { it })
-                    val exit = slideOutVertically(targetOffsetY = { it })
+                    val enter = fadeIn(tween(durationMillis = 500, delayMillis = 100))
+                    val exit = fadeOut()
                     enter.togetherWith(exit)
                 },
                 modifier = Modifier.fillMaxWidth()
@@ -448,7 +466,8 @@ private fun GroupConversationDetailsContent(
                         }
 
                         GroupConversationDetailsTabItem.PARTICIPANTS -> {
-                            val shouldShowAddParticipantsButton = showAllowUserToAddParticipants() && !isAbandonedOneOnOneConversation
+                            val shouldShowAddParticipantsButton = groupConversationOptionsState.canSelfAddParticipants
+                                    && !isAbandonedOneOnOneConversation
                             if (shouldShowAddParticipantsButton) {
                                 Box(modifier = Modifier.padding(MaterialTheme.wireDimensions.spacing16x)) {
                                     WirePrimaryButton(
@@ -480,8 +499,6 @@ private fun GroupConversationDetailsContent(
             visible = !isScreenLoading.collectAsState().value,
             enter = fadeIn(
                 animationSpec = tween(durationMillis = 500, delayMillis = 100)
-            ) + slideInVertically(
-                initialOffsetY = { it / 2 }
             ),
             exit = fadeOut()
         ) {
@@ -494,6 +511,7 @@ private fun GroupConversationDetailsContent(
                         GroupConversationDetailsTabItem.OPTIONS -> GroupConversationOptions(
                             lazyListState = lazyListStates[pageIndex],
                             onEditGuestAccess = onEditGuestAccess,
+                            onAppsAccessItemClicked = onAppsAccessItemClicked,
                             onChannelAccessItemClicked = onChannelAccessItemClicked,
                             onEditSelfDeletingMessages = onEditSelfDeletingMessages,
                             onEditGroupName = onEditGroupName
@@ -596,25 +614,25 @@ enum class GroupConversationDetailsTabItem(@StringRes val titleResId: Int) : Tab
 fun PreviewGroupConversationDetails() {
     WireTheme {
         GroupConversationDetailsContent(
-            sheetState = rememberWireModalSheetState(),
-            initialPageIndex = GroupConversationDetailsTabItem.PARTICIPANTS,
             groupConversationOptionsState = GroupConversationOptionsState(ConversationId("v", "d")),
-            showAllowUserToAddParticipants = { true },
+            sheetState = rememberWireModalSheetState(),
             onBackPressed = {},
             onProfilePressed = {},
             onAddParticipantsPressed = {},
-            groupParticipantsState = GroupConversationParticipantsState.PREVIEW,
-            onEditGroupName = {},
-            onEditSelfDeletingMessages = {},
             onEditGuestAccess = {},
+            onAppsAccessItemClicked = {},
             onChannelAccessItemClicked = {},
-            onSearchConversationMessagesClick = {},
-            onConversationMediaClick = {},
+            onEditSelfDeletingMessages = {},
+            onEditGroupName = {},
+            groupParticipantsState = GroupConversationParticipantsState.PREVIEW,
             isAbandonedOneOnOneConversation = false,
             isWireCellEnabled = false,
+            onSearchConversationMessagesClick = {},
+            onConversationMediaClick = {},
             onMoveToFolder = {},
             onLeftConversation = {},
             onDeletedConversation = {},
+            initialPageIndex = GroupConversationDetailsTabItem.PARTICIPANTS
         )
     }
 }

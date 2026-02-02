@@ -96,7 +96,7 @@ fun MarkdownNodeBlockChildren(
                     }
                 )
 
-                is MarkdownNode.Block.ThematicBreak -> MarkdownThematicBreak()
+                is MarkdownNode.Block.ThematicBreak -> MarkdownThematicBreak(nodeData.messageStyle)
 
                 // Not used Blocks here
                 is MarkdownNode.Block.TableContent.Body -> {}
@@ -266,8 +266,8 @@ fun appendLinksAndMentions(
     val linkInfos = LinkSpannableString.getLinkInfos(stringBuilder.toString(), Linkify.WEB_URLS or Linkify.EMAIL_ADDRESSES)
 
     val linkAndMentionColor = when (nodeData.messageStyle) {
-        MessageStyle.BUBBLE_SELF -> nodeData.colorScheme.onPrimary
-        MessageStyle.BUBBLE_OTHER -> nodeData.colorScheme.primary
+        MessageStyle.BUBBLE_SELF -> nodeData.colorScheme.selfBubble.onPrimary
+        MessageStyle.BUBBLE_OTHER -> nodeData.colorScheme.otherBubble.onPrimary
         MessageStyle.NORMAL -> nodeData.colorScheme.primary
     }
 

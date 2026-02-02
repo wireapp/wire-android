@@ -20,23 +20,26 @@ package com.wire.android.tests.core.pages
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.type
 import backendUtils.team.TeamHelper
-import org.junit.Assert
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 import user.usermanager.ClientUserManager
 
 data class SearchPage(private val device: UiDevice) {
-    private val searchFieldSearchPage = UiSelectorParams(className = "android.widget.EditText")
     private val searchFieldSearchPeople = UiSelectorParams(description = "Search people by name or username")
 
-    fun assertUsernameInSearchResultIs(expectedName: String): SearchPage {
-        val searchField = UiWaitUtils.waitElement(searchFieldSearchPage)
-        val actualText = searchField.text
-        Assert.assertEquals(
-            "Expected search field text to be '$expectedName', but found '$actualText'",
-            expectedName,
-            actualText
+    fun assertUsernameInSearchResultIs(expectedHandle: String): SearchPage {
+        val handleSelector = UiSelectorParams(
+            className = "android.widget.TextView",
+            text = expectedHandle
         )
+        try {
+            UiWaitUtils.waitElement(params = handleSelector)
+        } catch (e: AssertionError) {
+            throw AssertionError(
+                "Expected user name in search results to be '$expectedHandle' but its not '$expectedHandle'",
+                e
+            )
+        }
         return this
     }
 
@@ -62,6 +65,20 @@ data class SearchPage(private val device: UiDevice) {
         field.click()
         val toType = uniqueUserName.uniqueUsername.orEmpty().replace(" ", "%s")
         device.type(toType)
+        return this
+    }
+
+    fun typeUserNameInSearchField(alias: String): SearchPage {
+        val teamHelper by lazy {
+            TeamHelper()
+        }
+        // Resolve the alias to the username
+        val userName = teamHelper.usersManager.replaceAliasesOccurrences(
+            alias,
+            ClientUserManager.FindBy.NAME_ALIAS
+        )
+         UiWaitUtils.waitElement(searchFieldSearchPeople).click()
+        device.type(userName)
         return this
     }
 }

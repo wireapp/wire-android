@@ -23,13 +23,9 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -45,11 +41,10 @@ import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.calling.controlbuttons.JoinButton
-import com.wire.android.ui.common.rowitem.RowItemTemplate
 import com.wire.android.ui.common.WireRadioButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.shimmerPlaceholder
+import com.wire.android.ui.common.rowitem.RowItemTemplate
 import com.wire.android.ui.home.conversations.info.ConversationAvatar
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.UILastMessageContent
@@ -126,12 +121,17 @@ fun ConversationItemFactory(
         subTitle = {
             if (!isSelectableItem) {
                 when (val messageContent = conversation.lastMessageContent) {
-                    is UILastMessageContent.TextMessage -> LastMessageSubtitle(messageContent.messageBody.message)
+                    is UILastMessageContent.TextMessage -> LastMessageSubtitle(
+                        messageContent.messageBody.message,
+                        messageContent.markdownPreview
+                    )
+
                     is UILastMessageContent.MultipleMessage -> LastMultipleMessages(messageContent.messages, messageContent.separator)
                     is UILastMessageContent.SenderWithMessage -> LastMessageSubtitleWithAuthor(
                         messageContent.sender,
                         messageContent.message,
-                        messageContent.separator
+                        messageContent.separator,
+                        messageContent.markdownPreview
                     )
 
                     is UILastMessageContent.Connection -> ConnectionLabel(connectionInfo = messageContent)
@@ -170,7 +170,8 @@ private fun GeneralConversationItem(
         is ConversationItem.Group -> {
             with(conversation) {
                 RowItemTemplate(
-                    modifier = modifier,
+                    modifier = modifier.padding(start = dimensions().spacing8x),
+                    titleStartPadding = dimensions().spacing0x,
                     leadingIcon = {
                         Row {
                             if (isSelectable) {
@@ -193,9 +194,9 @@ private fun GeneralConversationItem(
                             searchQuery = searchQuery
                         )
                     },
-                    subTitle = subTitle,
+                    subtitle = subTitle,
                     clickable = onConversationItemClick,
-                    trailingIcon = {
+                    actions = {
                         if (!isSelectable) {
                             if (hasOnGoingCall) {
                                 JoinButton(
@@ -210,7 +211,6 @@ private fun GeneralConversationItem(
                                 )
                             } else {
                                 Row(
-                                    modifier = Modifier.padding(horizontal = dimensions().spacing8x),
                                     horizontalArrangement = Arrangement.spacedBy(dimensions().spacing8x)
                                 ) {
                                     if (mutedStatus != MutedConversationStatus.AllAllowed) {
@@ -228,7 +228,7 @@ private fun GeneralConversationItem(
         is ConversationItem.PrivateConversation -> {
             with(conversation) {
                 RowItemTemplate(
-                    modifier = modifier,
+                    modifier = modifier.padding(start = dimensions().spacing8x),
                     leadingIcon = {
                         Row {
                             if (isSelectable) {
@@ -245,19 +245,18 @@ private fun GeneralConversationItem(
                             searchQuery = searchQuery
                         )
                     },
-                    subTitle = subTitle,
+                    subtitle = subTitle,
                     clickable = onConversationItemClick,
-                    trailingIcon = {
+                    actions = {
                         if (!isSelectable) {
                             if (conversation.playingAudio != null) {
                                 AudioControlButtons(
-                                    playingAudio = conversation.playingAudio!!,
+                                    playingAudio = conversation.playingAudio,
                                     onPlayPauseCurrentAudio = onPlayPauseCurrentAudio,
                                     onStopCurrentAudio = onStopCurrentAudio
                                 )
                             } else {
                                 Row(
-                                    modifier = Modifier.padding(horizontal = dimensions().spacing8x),
                                     horizontalArrangement = Arrangement.spacedBy(dimensions().spacing8x)
                                 ) {
                                     if (mutedStatus != MutedConversationStatus.AllAllowed) {
@@ -275,7 +274,7 @@ private fun GeneralConversationItem(
         is ConversationItem.ConnectionConversation -> {
             with(conversation) {
                 RowItemTemplate(
-                    modifier = modifier,
+                    modifier = modifier.padding(start = dimensions().spacing8x),
                     leadingIcon = { ConversationUserAvatar(userAvatarData) },
                     title = {
                         UserLabel(
@@ -283,13 +282,10 @@ private fun GeneralConversationItem(
                             searchQuery = searchQuery
                         )
                     },
-                    subTitle = subTitle,
+                    subtitle = subTitle,
                     clickable = onConversationItemClick,
-                    trailingIcon = {
-                        EventBadgeFactory(
-                            modifier = Modifier.padding(horizontal = dimensions().spacing8x),
-                            eventType = conversation.badgeEventType
-                        )
+                    actions = {
+                        EventBadgeFactory(eventType = conversation.badgeEventType)
                     }
                 )
             }
@@ -304,7 +300,7 @@ fun AudioControlButtons(
     onPlayPauseCurrentAudio: () -> Unit = {},
     onStopCurrentAudio: () -> Unit = {}
 ) {
-    Row(modifier = modifier.padding(end = dimensions().spacing8x)) {
+    Row(modifier = modifier) {
         val playPauseIconId = if (playingAudio.isPaused) R.drawable.ic_play else R.drawable.ic_pause
 
         val leftBtnShape = RoundedCornerShape(topStart = dimensions().corner16x, bottomStart = dimensions().corner16x)
@@ -318,7 +314,7 @@ fun AudioControlButtons(
                 .border(
                     width = dimensions().spacing1x,
                     shape = leftBtnShape,
-                    color = colorsScheme().secondaryButtonDisabledOutline
+                    color = colorsScheme().outline
                 )
                 .size(dimensions().buttonSmallMinSize)
                 .padding(vertical = dimensions().spacing10x, horizontal = dimensions().spacing14x),
@@ -334,55 +330,13 @@ fun AudioControlButtons(
                 .border(
                     width = dimensions().spacing1x,
                     shape = rightBtnShape,
-                    color = colorsScheme().secondaryButtonDisabledOutline
+                    color = colorsScheme().outline
                 )
                 .size(dimensions().buttonSmallMinSize)
                 .padding(vertical = dimensions().spacing10x, horizontal = dimensions().spacing14x),
             colorFilter = ColorFilter.tint(MaterialTheme.wireColorScheme.onSecondaryButtonEnabled)
         )
     }
-}
-
-@Composable
-fun LoadingConversationItem(modifier: Modifier = Modifier) {
-    RowItemTemplate(
-        modifier = modifier,
-        leadingIcon = {
-            Box(
-                modifier = Modifier
-                    .padding(dimensions().avatarClickablePadding)
-                    .clip(CircleShape)
-                    .shimmerPlaceholder(visible = true)
-                    .border(dimensions().avatarBorderWidth, colorsScheme().outline)
-                    .size(dimensions().avatarDefaultSize)
-            )
-        },
-        title = {
-            Box(
-                modifier = Modifier
-                    .height(dimensions().spacing16x)
-                    .padding(vertical = dimensions().spacing1x)
-                    .shimmerPlaceholder(visible = true)
-                    .fillMaxWidth(0.75f)
-            )
-        },
-        subTitle = {
-            Box(
-                modifier = Modifier
-                    .padding(top = dimensions().spacing8x)
-                    .shimmerPlaceholder(visible = true)
-                    .fillMaxWidth(0.5f)
-                    .height(dimensions().spacing6x)
-            )
-        },
-        clickable = remember { Clickable(false) },
-    )
-}
-
-@PreviewMultipleThemes
-@Composable
-fun PreviewLoadingConversationItem() = WireTheme {
-    LoadingConversationItem()
 }
 
 @PreviewMultipleThemes

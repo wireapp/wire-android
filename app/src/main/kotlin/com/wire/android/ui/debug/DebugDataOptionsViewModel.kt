@@ -23,6 +23,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.BuildConfig.DOMAIN_REMOVAL_KEYS_FOR_REPAIR
+import com.wire.android.appLogger
 import com.wire.android.di.CurrentAccount
 import com.wire.android.di.ScopedArgs
 import com.wire.android.di.ViewModelScopedPreview
@@ -31,22 +33,22 @@ import com.wire.android.util.getDeviceIdString
 import com.wire.android.util.getGitBuildId
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.uiText
-import com.wire.kalium.common.error.CoreFailure
-import com.wire.kalium.common.error.E2EIFailure
-import com.wire.kalium.common.functional.Either
-import com.wire.kalium.common.functional.fold
 import com.wire.kalium.logic.configuration.server.CommonApiVersionType
 import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.analytics.GetCurrentAnalyticsTrackingIdentifierUseCase
 import com.wire.kalium.logic.feature.debug.ObserveIsConsumableNotificationsEnabledUseCase
+import com.wire.kalium.logic.feature.debug.RepairFaultyRemovalKeysUseCase
+import com.wire.kalium.logic.feature.debug.RepairResult
 import com.wire.kalium.logic.feature.debug.StartUsingAsyncNotificationsResult
 import com.wire.kalium.logic.feature.debug.StartUsingAsyncNotificationsUseCase
+import com.wire.kalium.logic.feature.debug.TargetedRepairParam
 import com.wire.kalium.logic.feature.e2ei.CheckCrlRevocationListUseCase
-import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
+import com.wire.kalium.logic.feature.e2ei.usecase.FinalizeEnrollmentResult
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountResult
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountUseCase
 import com.wire.kalium.logic.feature.notificationToken.SendFCMTokenError
+import com.wire.kalium.logic.feature.notificationToken.SendFCMTokenResult
 import com.wire.kalium.logic.feature.notificationToken.SendFCMTokenUseCase
 import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
@@ -70,12 +72,14 @@ interface DebugDataOptionsViewModel {
     fun checkCrlRevocationList() {}
     fun restartSlowSyncForRecovery() {}
     fun enrollE2EICertificate() {}
-    fun handleE2EIEnrollmentResult(result: Either<CoreFailure, E2EIEnrollmentResult>) {}
+    fun handleE2EIEnrollmentResult(result: FinalizeEnrollmentResult) {}
     fun dismissCertificateDialog() {}
     fun forceUpdateApiVersions() {}
     fun disableEventProcessing(disabled: Boolean) {}
     fun forceSendFCMToken() {}
     fun enableAsyncNotifications(enabled: Boolean) {}
+
+    fun repairFaultRemovalKeys() {}
 }
 
 @Suppress("LongParameterList", "TooManyFunctions")
@@ -95,6 +99,7 @@ class DebugDataOptionsViewModelImpl
     private val getDefaultProtocolUseCase: GetDefaultProtocolUseCase,
     private val observeAsyncNotificationsEnabled: ObserveIsConsumableNotificationsEnabledUseCase,
     private val startUsingAsyncNotifications: StartUsingAsyncNotificationsUseCase,
+    private val repairFaultyRemovalKeys: RepairFaultyRemovalKeysUseCase,
 ) : ViewModel(), DebugDataOptionsViewModel {
 
     override var state by mutableStateOf(
@@ -188,28 +193,30 @@ class DebugDataOptionsViewModelImpl
         state = state.copy(startGettingE2EICertificate = true)
     }
 
-    override fun handleE2EIEnrollmentResult(result: Either<CoreFailure, E2EIEnrollmentResult>) {
-        result.fold({
-            state = state.copy(
-                certificate = (it as E2EIFailure.OAuth).reason,
-                showCertificate = true,
-                startGettingE2EICertificate = false
-            )
-        }, {
-            if (it is E2EIEnrollmentResult.Finalized) {
-                state = state.copy(
-                    certificate = it.certificate,
-                    showCertificate = true,
-                    startGettingE2EICertificate = false
-                )
-            } else {
+    override fun handleE2EIEnrollmentResult(result: FinalizeEnrollmentResult) {
+        state = when (result) {
+            is FinalizeEnrollmentResult.Failure.OAuthError -> {
                 state.copy(
-                    certificate = it.toString(),
+                    certificate = result.reason,
                     showCertificate = true,
                     startGettingE2EICertificate = false
                 )
             }
-        })
+            is FinalizeEnrollmentResult.Failure -> {
+                state.copy(
+                    certificate = result.toString(),
+                    showCertificate = true,
+                    startGettingE2EICertificate = false
+                )
+            }
+            is FinalizeEnrollmentResult.Success -> {
+                state.copy(
+                    certificate = result.certificate,
+                    showCertificate = true,
+                    startGettingE2EICertificate = false
+                )
+            }
+        }
     }
 
     override fun dismissCertificateDialog() {
@@ -242,30 +249,59 @@ class DebugDataOptionsViewModelImpl
         }
     }
 
+    override fun repairFaultRemovalKeys() {
+        viewModelScope.launch {
+            state = state.copy(mlsInfoState = state.mlsInfoState.copy(isLoadingRepair = true))
+            val (domain, faultyKey) = DOMAIN_REMOVAL_KEYS_FOR_REPAIR.entries.firstOrNull { it.key == currentAccount.domain }
+                ?: run {
+                    appLogger.w("No faulty removal keys configured for repair")
+                    _infoMessage.emit(UIText.DynamicString("No faulty removal keys configured for repair"))
+                    state = state.copy(mlsInfoState = state.mlsInfoState.copy(isLoadingRepair = false))
+                    return@launch
+                }
+
+            val result = repairFaultyRemovalKeys(
+                param = TargetedRepairParam(
+                    domain = domain,
+                    faultyKeys = faultyKey
+                )
+            )
+            when (result) {
+                RepairResult.Error -> appLogger.e("Error occurred during repair of faulty removal keys")
+                RepairResult.NoConversationsToRepair -> appLogger.i("No conversations to repair")
+                RepairResult.RepairNotNeeded -> appLogger.i("Repair not needed")
+                is RepairResult.RepairPerformed -> {
+                    _infoMessage.emit(UIText.DynamicString("Reset finalized"))
+                    appLogger.i("Repair performed: ${result.toLogString()}")
+                }
+            }
+            state = state.copy(mlsInfoState = state.mlsInfoState.copy(isLoadingRepair = false))
+        }
+    }
+
     override fun forceSendFCMToken() {
         viewModelScope.launch {
             withContext(dispatcherProvider.io()) {
                 val result = sendFCMToken()
-                result.fold(
-                    {
-                        when (it.status) {
+                when (result) {
+                    is SendFCMTokenResult.Failure -> {
+                        when (result.error.status) {
                             SendFCMTokenError.Reason.CANT_GET_CLIENT_ID -> {
-                                _infoMessage.emit(UIText.DynamicString("Can't get client ID, error: ${it.error}"))
+                                _infoMessage.emit(UIText.DynamicString("Can't get client ID, error: ${result.error.error}"))
                             }
 
                             SendFCMTokenError.Reason.CANT_GET_NOTIFICATION_TOKEN -> {
-                                _infoMessage.emit(UIText.DynamicString("Can't get notification token, error: ${it.error}"))
+                                _infoMessage.emit(UIText.DynamicString("Can't get notification token, error: ${result.error.error}"))
                             }
 
                             SendFCMTokenError.Reason.CANT_REGISTER_TOKEN -> {
-                                _infoMessage.emit(UIText.DynamicString("Can't register token, error: ${it.error}"))
+                                _infoMessage.emit(UIText.DynamicString("Can't register token, error: ${result.error.error}"))
                             }
                         }
-                    },
-                    {
-                        _infoMessage.emit(UIText.DynamicString("Token registered"))
                     }
-                )
+
+                    is SendFCMTokenResult.Success -> _infoMessage.emit(UIText.DynamicString("Token registered"))
+                }
             }
         }
     }
@@ -276,22 +312,24 @@ class DebugDataOptionsViewModelImpl
                 when (it) {
                     is MLSKeyPackageCountResult.Success -> {
                         state = state.copy(
-                            keyPackagesCount = it.count,
-                            mslClientId = it.clientId.value
+                            mlsInfoState = state.mlsInfoState.copy(
+                                keyPackagesCount = it.count,
+                                mlsClientId = it.clientId.value
+                            )
                         )
                     }
 
                     is MLSKeyPackageCountResult.Failure.NetworkCallFailure -> {
-                        state = state.copy(mlsErrorMessage = "Network Error!")
+                        state = state.copy(mlsInfoState = state.mlsInfoState.copy(mlsErrorMessage = "Network Error!"))
                     }
 
                     is MLSKeyPackageCountResult.Failure.FetchClientIdFailure -> {
-                        state = state.copy(mlsErrorMessage = "ClientId Fetch Error!")
+                        state = state.copy(mlsInfoState = state.mlsInfoState.copy(mlsErrorMessage = "ClientId Fetch Error!"))
                     }
 
                     is MLSKeyPackageCountResult.Failure.Generic -> {}
                     MLSKeyPackageCountResult.Failure.NotEnabled -> {
-                        state = state.copy(mlsErrorMessage = "Not Enabled!")
+                        state = state.copy(mlsInfoState = state.mlsInfoState.copy(mlsErrorMessage = "Not Enabled!"))
                     }
                 }
             }

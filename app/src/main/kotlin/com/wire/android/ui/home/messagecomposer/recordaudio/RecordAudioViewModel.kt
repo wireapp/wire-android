@@ -27,8 +27,8 @@ import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.media.audiomessage.AudioFocusHelper
 import com.wire.android.media.audiomessage.AudioMediaPlayingState
 import com.wire.android.media.audiomessage.AudioState
-import com.wire.android.media.audiomessage.AudioWavesMaskHelper
 import com.wire.android.media.audiomessage.RecordAudioMessagePlayer
+import com.wire.android.media.audiomessage.toWavesMask
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.util.CurrentScreen
@@ -40,6 +40,7 @@ import com.wire.android.util.fromNioPathToContentUri
 import com.wire.android.util.getAudioLengthInMs
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
+import com.wire.kalium.logic.feature.asset.AudioNormalizedLoudnessBuilder
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.util.DateTimeUtil
@@ -66,7 +67,7 @@ class RecordAudioViewModel @Inject constructor(
     private val currentScreenManager: CurrentScreenManager,
     private val audioMediaRecorder: AudioMediaRecorder,
     private val globalDataStore: GlobalDataStore,
-    private val audioWavesMaskHelper: AudioWavesMaskHelper,
+    private val audioNormalizedLoudnessBuilder: AudioNormalizedLoudnessBuilder,
     private val audioFocusHelper: AudioFocusHelper,
     private val dispatchers: DispatcherProvider,
     private val kaliumFileSystem: KaliumFileSystem
@@ -219,8 +220,8 @@ class RecordAudioViewModel @Inject constructor(
                                 ).toInt()
                             } ?: 0
                         ),
-                        wavesMask = playableAudioFile?.let { audioWavesMaskHelper.getWaveMask(it) } ?: listOf()
-                    )
+                    ),
+                    wavesMask = playableAudioFile?.let { audioNormalizedLoudnessBuilder(it.path) }?.toWavesMask() ?: listOf()
                 )
             }
         }
@@ -284,6 +285,7 @@ class RecordAudioViewModel @Inject constructor(
 
             val outputFile = state.originalOutputFile
             val effectsFile = state.effectsOutputFile
+            val wavesMask = state.wavesMask
             state = state.copy(
                 buttonState = RecordAudioButtonState.ENCODING, audioState = AudioState.DEFAULT,
                 originalOutputFile = null,
@@ -291,9 +293,9 @@ class RecordAudioViewModel @Inject constructor(
             )
 
             val didSucceed = if (state.shouldApplyEffects) {
-                audioMediaRecorder.convertWavToMp4(effectsFile!!.toString())
+                audioMediaRecorder.convertWavToM4a(effectsFile!!.toString())
             } else {
-                audioMediaRecorder.convertWavToMp4(outputFile!!.toString())
+                audioMediaRecorder.convertWavToM4a(outputFile!!.toString())
             }
 
             try {
@@ -316,9 +318,9 @@ class RecordAudioViewModel @Inject constructor(
             }
             sendAction(
                 RecordAudioViewActions.Recorded(
-                    UriAsset(
+                    uriAsset = UriAsset(
                         uri = if (didSucceed) {
-                            context.fromNioPathToContentUri(nioPath = audioMediaRecorder.mp4OutputPath!!.toNioPath())
+                            context.fromNioPathToContentUri(nioPath = audioMediaRecorder.m4aOutputPath!!.toNioPath())
                         } else {
                             if (state.shouldApplyEffects) {
                                 context.fromNioPathToContentUri(nioPath = state.effectsOutputFile!!.toPath())
@@ -331,7 +333,8 @@ class RecordAudioViewModel @Inject constructor(
                         } else {
                             "audio/wav"
                         },
-                        saveToDeviceIfInvalid = false
+                        saveToDeviceIfInvalid = false,
+                        audioWavesMask = wavesMask
                     )
                 )
             )
@@ -386,8 +389,8 @@ class RecordAudioViewModel @Inject constructor(
                                     mimeType = SUPPORTED_AUDIO_MIME_TYPE
                                 ).toInt()
                             ),
-                            wavesMask = listOf()
                         ),
+                        wavesMask = state.wavesMask,
                         shouldApplyEffects = true
                     )
                 } else {
@@ -407,7 +410,6 @@ class RecordAudioViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
         recordAudioMessagePlayer.close()
-        audioWavesMaskHelper.clear()
     }
 
     companion object {

@@ -30,7 +30,7 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
+import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.toQualifiedID
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
@@ -84,7 +84,7 @@ class DeepLinkProcessor @Inject constructor(
     private val currentSession: CurrentSessionUseCase,
     @KaliumCoreLogic private val coreLogic: CoreLogic,
 ) {
-    private val qualifiedIdMapper = QualifiedIdMapperImpl(null)
+    private val qualifiedIdMapper = QualifiedIdMapper(null)
 
     suspend operator fun invoke(uri: Uri? = null, action: String? = null): DeepLinkResult {
         return when (val sessionResult = currentSession()) {
@@ -196,8 +196,11 @@ class DeepLinkProcessor @Inject constructor(
 
     private fun getOpenMigrationLoginDeepLinkResult(uri: Uri): DeepLinkResult =
         uri.lastPathSegment?.let {
-            if (it == MIGRATION_LOGIN_HOST) DeepLinkResult.MigrationLogin(String.EMPTY)
-            else DeepLinkResult.MigrationLogin(it)
+            if (it == MIGRATION_LOGIN_HOST) {
+                DeepLinkResult.MigrationLogin(String.EMPTY)
+            } else {
+                DeepLinkResult.MigrationLogin(it)
+            }
         } ?: DeepLinkResult.Unknown
 
     private fun getCustomServerConfigDeepLinkResult(uri: Uri) =

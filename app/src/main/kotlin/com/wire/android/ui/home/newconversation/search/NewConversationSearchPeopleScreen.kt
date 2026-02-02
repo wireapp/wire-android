@@ -30,9 +30,10 @@ import com.wire.android.ui.NavGraphs
 import com.wire.android.ui.destinations.NewGroupConversationSearchPeopleScreenDestination
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.home.conversations.search.SearchPeopleScreenType
-import com.wire.android.ui.home.conversations.search.SearchUsersAndServicesScreen
+import com.wire.android.ui.home.conversations.search.SearchUsersAndAppsScreen
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
 import com.wire.android.ui.home.newconversation.common.NewConversationNavGraph
+import com.wire.kalium.logic.data.conversation.CreateConversationParam
 import com.wire.kalium.logic.data.id.QualifiedID
 
 @NewConversationNavGraph(start = true)
@@ -44,12 +45,10 @@ fun NewConversationSearchPeopleScreen(
     navigator: Navigator,
     newConversationViewModel: NewConversationViewModel,
 ) {
-    val isSelfTeamMember = newConversationViewModel.newGroupState.isSelfTeamMember ?: false
-    val shouldShowChannelPromotion = !isSelfTeamMember
     val showCreateTeamDialog = remember { mutableStateOf(false) }
-    SearchUsersAndServicesScreen(
+    SearchUsersAndAppsScreen(
         searchTitle = stringResource(id = R.string.label_new_conversation),
-        shouldShowChannelPromotion = shouldShowChannelPromotion,
+        shouldShowChannelPromotion = false,
         isUserAllowedToCreateChannels = newConversationViewModel.isChannelCreationPossible,
         onOpenUserProfile = { contact ->
             OtherUserProfileScreenDestination(QualifiedID(contact.id, contact.domain))
@@ -61,19 +60,15 @@ fun NewConversationSearchPeopleScreen(
             navigator.navigate(NavigationCommand(NewGroupConversationSearchPeopleScreenDestination))
         },
         onCreateNewChannel = {
-            if (!shouldShowChannelPromotion) {
-                newConversationViewModel.setIsChannel(true)
-                navigator.navigate(NavigationCommand(NewGroupConversationSearchPeopleScreenDestination))
-            } else {
-                showCreateTeamDialog.value = true
-            }
+            newConversationViewModel.setIsChannel(true)
+            navigator.navigate(NavigationCommand(NewGroupConversationSearchPeopleScreenDestination))
         },
         isGroupSubmitVisible = newConversationViewModel.newGroupState.isGroupCreatingAllowed == true,
         onClose = navigator::navigateBack,
-        onServiceClicked = { },
         screenType = SearchPeopleScreenType.NEW_CONVERSATION,
         selectedContacts = newConversationViewModel.newGroupState.selectedUsers,
-        isAppDiscoveryAllowed = newConversationViewModel.groupOptionsState.isTeamAllowedToUseApps
+        isAppsTabVisible = newConversationViewModel.newGroupState.groupProtocol != CreateConversationParam.Protocol.MLS,
+        onAppClicked = { }
     )
 
     if (showCreateTeamDialog.value) {

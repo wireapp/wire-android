@@ -26,7 +26,6 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -36,9 +35,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -47,18 +43,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.times
 import com.wire.android.R
 import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
-import com.wire.android.ui.common.avatar.UserProfileAvatar
-import com.wire.android.ui.common.avatar.UserProfileAvatarType
+import com.wire.android.ui.common.avatar.UserProfileAvatarsRow
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
@@ -71,6 +65,7 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.android.ui.common.R as commonR
 
 private const val MAX_PREVIEWS_DISPLAY = 3
 private const val ANIMATION_SPEED_MILLIS = 1_500
@@ -78,7 +73,8 @@ private const val ANIMATION_SPEED_MILLIS = 1_500
 @Composable
 fun UsersTypingIndicatorForConversation(
     conversationId: ConversationId,
-    viewModel: TypingIndicatorViewModel = hiltViewModelScoped<TypingIndicatorViewModelImpl, TypingIndicatorViewModel, TypingIndicatorArgs>(
+    viewModel: TypingIndicatorViewModel =
+    hiltViewModelScoped<TypingIndicatorViewModelImpl, TypingIndicatorViewModel, TypingIndicatorArgs>(
         TypingIndicatorArgs(conversationId)
     )
 ) {
@@ -133,29 +129,14 @@ private fun UsersTypingAvatarPreviews(
     modifier: Modifier = Modifier,
     maxPreviewsDisplay: Int = MAX_PREVIEWS_DISPLAY
 ) {
-    val avatarSize = dimensions().spacing16x
-    val borderWidth = dimensions().spacing1x
-    val avatarWithBorderSize = avatarSize + 2 * borderWidth
-    val roundedCornersSize = avatarWithBorderSize / 2
-    val spacedBy = -(avatarSize / 2)
-
-    Row(
+    UserProfileAvatarsRow(
+        avatars = usersTyping.take(maxPreviewsDisplay).map { it.avatarData },
         modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(spacedBy)
-    ) {
-        usersTyping.take(maxPreviewsDisplay).forEach { user ->
-            UserProfileAvatar(
-                avatarData = user.avatarData,
-                size = dimensions().spacing16x,
-                modifier = Modifier
-                    .clip(RoundedCornerShape(roundedCornersSize))
-                    .size(avatarWithBorderSize)
-                    .background(colorsScheme().surfaceVariant),
-                padding = dimensions().spacing0x,
-                type = UserProfileAvatarType.WithoutIndicators,
-            )
-        }
-    }
+        avatarSize = dimensions().spacing16x,
+        overlapSize = dimensions().spacing8x,
+        borderWidth = dimensions().spacing1x,
+        borderColor = colorsScheme().surfaceVariant,
+    )
 }
 
 @Suppress("MagicNumber")
@@ -165,7 +146,8 @@ private fun HorizontalBouncingWritingPen(
 ) {
     Row(modifier = Modifier.fillMaxHeight()) {
         val position by infiniteTransition.animateFloat(
-            initialValue = -10f, targetValue = -2f,
+            initialValue = -10f,
+            targetValue = -2f,
             animationSpec = infiniteRepeatable(
                 animation = tween(ANIMATION_SPEED_MILLIS, easing = FastOutSlowInEasing),
                 repeatMode = RepeatMode.Reverse
@@ -184,7 +166,7 @@ private fun HorizontalBouncingWritingPen(
         )
 
         Icon(
-            imageVector = Icons.Default.MoreHoriz,
+            painter = painterResource(commonR.drawable.ic_more_horiz),
             contentDescription = null,
             tint = colorsScheme().secondaryText,
             modifier = Modifier
@@ -194,7 +176,7 @@ private fun HorizontalBouncingWritingPen(
                 .align(Alignment.Bottom)
         )
         Icon(
-            imageVector = Icons.Default.Edit,
+            painter = painterResource(commonR.drawable.ic_edit),
             contentDescription = null,
             tint = colorsScheme().secondaryText,
             modifier = Modifier

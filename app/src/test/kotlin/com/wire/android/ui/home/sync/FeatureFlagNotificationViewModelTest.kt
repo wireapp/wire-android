@@ -340,7 +340,9 @@ class FeatureFlagNotificationViewModelTest {
             coEvery { currentSessionFlow() } returns flowOf(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID)))
             coEvery { coreLogic.getSessionScope(any()).observeSyncState() } returns flowOf(SyncState.Live)
             coEvery { coreLogic.getSessionScope(any()).observeTeamSettingsSelfDeletionStatus() } returns flowOf()
-            every { coreLogic.getSessionScope(any()).markGuestLinkFeatureFlagAsNotChanged } returns markGuestLinkFeatureFlagAsNotChanged
+            every {
+                coreLogic.getSessionScope(any()).markGuestLinkFeatureFlagAsNotChanged
+            } returns markGuestLinkFeatureFlagAsNotChanged
             every { coreLogic.getSessionScope(any()).markSelfDeletingMessagesAsNotified } returns markSelfDeletingStatusAsNotified
             every { coreLogic.getSessionScope(any()).markE2EIRequiredAsNotified } returns markE2EIRequiredAsNotified
             coEvery { coreLogic.getSessionScope(any()).appLockTeamFeatureConfigObserver } returns ppLockTeamFeatureConfigObserver
@@ -354,6 +356,7 @@ class FeatureFlagNotificationViewModelTest {
             every { coreLogic.getSessionScope(any()).markNotifyForRevokedCertificateAsNotified } returns
                     markNotifyForRevokedCertificateAsNotified
             coEvery { ppLockTeamFeatureConfigObserver() } returns flowOf(null)
+            withIsAppLockSetup(true)
         }
 
         fun withCurrentSessionsFlow(result: Flow<CurrentSessionResult>) = apply {
@@ -361,7 +364,7 @@ class FeatureFlagNotificationViewModelTest {
         }
 
         fun withIsAppLockSetup(result: Boolean) = apply {
-            coEvery { globalDataStore.isAppLockPasscodeSet() } returns result
+            coEvery { globalDataStore.isAppLockPasscodeSetFlow() } returns flowOf(result)
         }
 
         fun withAppLockSource(source: AppLockSource) = apply {

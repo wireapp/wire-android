@@ -328,17 +328,18 @@ class SharedCallingViewModel @AssistedInject constructor(
 
     fun onReactionClick(emoji: String) {
         viewModelScope.launch {
-            sendInCallReactionUseCase(conversationId, emoji).onSuccess {
-                _inCallReactions.send(InCallReaction(emoji, ReactionSender.You))
-                recentReactions[selfUserId] = emoji
-            }
+            sendInCallReactionUseCase(conversationId, emoji).toEither()
+                .onSuccess {
+                    _inCallReactions.send(InCallReaction(emoji, ReactionSender.You))
+                    recentReactions[selfUserId] = emoji
+                }
         }
     }
 
     private fun recentInCallReactionMap(): MutableMap<UserId, String> =
         ExpiringMap<UserId, String>(
             scope = viewModelScope,
-            expiration = InCallReactions.recentReactionShowDurationMs,
+            expirationMs = InCallReactions.recentReactionShowDurationMs,
             delegate = mutableStateMapOf<UserId, String>()
         )
 

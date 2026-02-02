@@ -31,37 +31,48 @@ import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.MessageTime
+import com.wire.android.ui.home.conversations.model.Reaction
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.UIAssetMessage
+import com.wire.android.ui.home.conversations.model.messagetypes.image.VisualMediaParams
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.toUIText
+import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.message.AssetContent.AssetMetadata
+import com.wire.kalium.logic.data.message.CellAssetContent
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.datetime.Instant
 import okio.Path.Companion.toPath
 
 private const val MOCK_TIME_IN_SECONDS: Long = 1729837498
-val mockFooter = MessageFooter("", mapOf("👍" to 1), setOf("👍"))
+val mockFooter = MessageFooter(
+    "",
+    mapOf(
+        "👍" to Reaction(1, isSelf = false),
+        "👍" to Reaction(count = 2, isSelf = true)
+    )
+)
 
 val mockFooterWithMultipleReactions = MessageFooter(
     messageId = "messageId",
-    reactions = mapOf(
-        "👍" to 1,
-        "👎" to 2,
-        "👏" to 3,
-        "🤔" to 4,
-        "🤷" to 5,
-        "🤦" to 6,
-        "🤢" to 7
+    reactionMap = mapOf(
+        "👍" to Reaction(1, isSelf = true),
+        "👎" to Reaction(2, isSelf = false),
+        "👏" to Reaction(3, isSelf = false),
+        "🤔" to Reaction(4, isSelf = false),
+        "🤷" to Reaction(5, isSelf = false),
+        "🤦" to Reaction(6, isSelf = false),
+        "🤢" to Reaction(7, isSelf = false),
     ),
-    ownReactions = setOf("👍"),
 )
-val mockEmptyFooter = MessageFooter("", emptyMap(), emptySet())
+val mockEmptyFooter = MessageFooter("", emptyMap())
 val mockMessageTime = MessageTime(Instant.fromEpochSeconds(MOCK_TIME_IN_SECONDS))
 
 val mockHeader = MessageHeader(
@@ -339,8 +350,12 @@ fun mockAssetMessage(assetId: String = "asset1", messageId: String = "msg1") = U
     source = MessageSource.Self
 )
 
-fun mockAssetAudioMessage(assetId: String = "asset1", messageId: String = "msg1") = UIMessage.Regular(
-    conversationId = ConversationId("value", "domain"),
+fun mockAssetAudioMessage(
+    assetId: String = "asset1",
+    messageId: String = "msg1",
+    conversationId: ConversationId = ConversationId("value", "domain"),
+) = UIMessage.Regular(
+    conversationId = conversationId,
     userAvatarData = UserAvatarData(
         UserAvatarAsset(UserAssetId("a", "domain")),
         UserAvailabilityStatus.AVAILABLE
@@ -381,11 +396,21 @@ fun mockUIAssetMessage(assetId: String = "asset1", messageId: String = "msg1") =
 )
 
 @Suppress("MagicNumber")
-fun mockedImg() = UIMessageContent.ImageMessage(
+fun mockedImg(width: Int = 800, height: Int = 600) = UIMessageContent.ImageMessage(
     assetId = UserAssetId("a", "domain"),
     asset = mockedPrivateAsset(),
-    width = 800,
-    height = 600
+    params = VisualMediaParams(width, height)
+)
+
+@Suppress("MagicNumber")
+fun mockedVideo(width: Int = 800, height: Int = 600, assetName: String = "video.mp4") = UIMessageContent.VideoMessage(
+    assetId = UserAssetId("a", "domain"),
+    assetSizeInBytes = 123456,
+    assetName = assetName,
+    assetExtension = "mp4",
+    assetDataPath = null,
+    params = VisualMediaParams(width, height),
+    duration = 12412412,
 )
 
 fun mockedPrivateAsset() = ImageAsset.PrivateAsset(
@@ -400,11 +425,9 @@ fun mockedImageUIMessage(
     messageStatus: MessageStatus = MessageStatus(
         flowStatus = MessageFlowStatus.Sent,
         expirationStatus = ExpirationStatus.NotExpirable
-    )
-) = UIMessage.Regular(
-    conversationId = ConversationId("value", "domain"),
-    userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
-    header = MessageHeader(
+    ),
+    content: UIMessageContent.Regular = mockedImg(),
+    header: MessageHeader = MessageHeader(
         username = UIText.DynamicString("John Doe"),
         membership = Membership.External,
         showLegalHoldIndicator = false,
@@ -415,9 +438,72 @@ fun mockedImageUIMessage(
         isSenderDeleted = false,
         isSenderUnavailable = false
     ),
-    messageContent = mockedImg(),
+    source: MessageSource = MessageSource.Self
+) = UIMessage.Regular(
+    conversationId = ConversationId("value", "domain"),
+    userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
+    header = header,
+    messageContent = content,
     messageFooter = mockEmptyFooter,
-    source = MessageSource.Self
+    source = source
+)
+
+private fun mockedCellAssetContent(
+    name: String,
+    id: String,
+    mimeType: String,
+    transferStatus: AssetTransferStatus = AssetTransferStatus.NOT_DOWNLOADED,
+    metadata: AssetMetadata? = null
+) =
+    CellAssetContent(
+        id = id,
+        versionId = "v1",
+        mimeType = mimeType,
+        assetPath = null,
+        assetSize = 21957335,
+        localPath = name,
+        contentUrl = name,
+        contentUrlExpiresAt = null,
+        previewUrl = name,
+        metadata = metadata,
+        transferStatus = transferStatus
+    )
+
+fun mockedMultipartMessage(
+    messageId: String = "messageId",
+    messageStatus: MessageStatus = MessageStatus(
+        flowStatus = MessageFlowStatus.Sent,
+        expirationStatus = ExpirationStatus.NotExpirable
+    ),
+    header: MessageHeader = MessageHeader(
+        username = UIText.DynamicString("John Doe"),
+        membership = Membership.External,
+        showLegalHoldIndicator = false,
+        messageTime = mockMessageTime,
+        messageStatus = messageStatus,
+        messageId = messageId,
+        connectionState = ConnectionState.ACCEPTED,
+        isSenderDeleted = false,
+        isSenderUnavailable = false
+    ),
+    source: MessageSource = MessageSource.Self,
+    content: UIMessageContent.Regular = UIMessageContent.Multipart(
+        messageBody = MessageBody(UIText.DynamicString("Text")),
+        attachments = persistentListOf(
+            mockedCellAssetContent(name = "1.zip", mimeType = "application/zip", id = "1"),
+            mockedCellAssetContent(name = "2.pdf", mimeType = "application/pdf", id = "2"),
+            mockedCellAssetContent(name = "3.txt", mimeType = "text/plain", id = "3", transferStatus = AssetTransferStatus.NOT_FOUND),
+            mockedCellAssetContent(name = "4.png", mimeType = "image/png", id = "4", metadata = AssetMetadata.Image(1920, 1080)),
+            mockedCellAssetContent(name = "5.mp4", mimeType = "video/mp4", id = "5", metadata = AssetMetadata.Video(1920, 1080, 60000L)),
+        ),
+    )
+) = UIMessage.Regular(
+    conversationId = ConversationId("value", "domain"),
+    userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
+    header = header,
+    messageContent = content,
+    messageFooter = mockEmptyFooter,
+    source = source
 )
 
 @Suppress("LongMethod", "MagicNumber")
@@ -461,7 +547,8 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             showLegalHoldIndicator = true,
             messageTime = mockMessageTime,
             messageStatus = MessageStatus(
-                flowStatus = MessageFlowStatus.Delivered, isDeleted = true,
+                flowStatus = MessageFlowStatus.Delivered,
+                isDeleted = true,
                 expirationStatus = ExpirationStatus.NotExpirable
             ),
             messageId = "2",

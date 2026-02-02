@@ -23,19 +23,24 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.wire.android.feature.cells.ui.common.FileNameError
+import com.wire.android.feature.cells.ui.common.validateFileName
 import com.wire.android.feature.cells.ui.navArgs
-import com.wire.android.model.DisplayNameState
-import com.wire.android.model.DisplayNameState.NameError.None
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.common.textfield.textAsFlow
+import com.wire.kalium.cells.domain.usecase.RenameNodeFailure
 import com.wire.kalium.cells.domain.usecase.RenameNodeUseCase
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.util.splitFileExtension
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.seconds
 
 @HiltViewModel
 class RenameNodeViewModel @Inject constructor(
@@ -45,66 +50,86 @@ class RenameNodeViewModel @Inject constructor(
 
     private val navArgs: RenameNodeNavArgs = savedStateHandle.navArgs()
 
-    fun isFolder(): Boolean? = navArgs.isFolder
+    private var clearErrorJob: Job? = null
 
-    private val originalFileName = navArgs.nodeName?.splitFileExtension()?.first ?: ""
-    private val fileExtension: String = navArgs.nodeName?.splitFileExtension()?.second ?: ""
-    val textState: TextFieldState = TextFieldState(navArgs.nodeName?.splitFileExtension()?.first ?: "")
+    fun isFolder(): Boolean = navArgs.isFolder ?: false
 
-    var displayNameState: DisplayNameState by mutableStateOf(DisplayNameState())
+    private val originalFile = navArgs.getFileName()
+
+    val textState: TextFieldState = TextFieldState(originalFile.name)
+
+    internal var viewState by mutableStateOf(RenameNodeViewState())
         private set
 
     init {
         viewModelScope.launch {
-            textState.textAsFlow().collectLatest { name ->
-                val validationError = name.validate()
-                displayNameState = displayNameState.copy(
-                    saveEnabled = validationError == None && name.trim() != originalFileName,
-                    error = validationError,
-                )
+            textState.textAsFlow().map { it.trim() }.collectLatest { name ->
+                val validationError = name.validateFileName()
+                viewState = viewState.copy(
+                        saveEnabled = validationError == null && name != originalFile.name,
+                        error = validationError,
+                    )
             }
         }
     }
 
     fun renameNode(newName: String) {
-        displayNameState = displayNameState.copy(loading = true)
+        viewState = viewState.copy(loading = true)
         viewModelScope.launch {
-            val newNameWithExtension = newName + fileExtension.takeIf { it.isNotEmpty() }?.let { ".$it" }.orEmpty()
+            val newNameWithExtension = newName.trim() + originalFile.extension?.takeIf { it.isNotEmpty() }?.let { ".$it" }.orEmpty()
             renameNodeUseCase.invoke(
                 uuid = navArgs.uuid!!,
                 path = navArgs.currentPath!!,
                 newName = newNameWithExtension
             )
                 .onSuccess {
-                    displayNameState = displayNameState.copy(
-                        loading = false,
-                        completed = DisplayNameState.Completed.Success,
-                    )
+                    viewState = viewState.copy(loading = false)
                     sendAction(RenameNodeViewModelAction.Success)
                 }
-                .onFailure {
-                    displayNameState = displayNameState.copy(
-                        loading = false,
-                        completed = DisplayNameState.Completed.Failure,
-                    )
-                    sendAction(RenameNodeViewModelAction.Failure)
+                .onFailure { failure ->
+                    when (failure) {
+                        RenameNodeFailure.FileAlreadyExists ->
+                            viewState = viewState.copy(
+                                    loading = false,
+                                    error = FileNameError.NameAlreadyExist,
+                                )
+                        else -> sendAction(RenameNodeViewModelAction.Failure)
+                    }
                 }
         }
     }
 
-    private fun CharSequence.validate() = when {
-        length > NAME_MAX_COUNT -> DisplayNameState.NameError.TextFieldError.NameExceedLimitError
-        trim().isEmpty() -> DisplayNameState.NameError.TextFieldError.NameEmptyError
-        contains("/") || contains(".") -> DisplayNameState.NameError.TextFieldError.InvalidNameError
-        else -> None
-    }
-
-    companion object {
-        const val NAME_MAX_COUNT = 64
+    internal fun onMaxLengthExceeded() {
+        viewState = viewState.copy(
+                error = FileNameError.NameExceedLimit
+            )
+        clearErrorJob?.cancel()
+        clearErrorJob = viewModelScope.launch {
+            delay(2.seconds)
+            viewState = viewState.copy(error = null)
+        }
     }
 }
+
+internal data class RenameNodeViewState(
+    val loading: Boolean = false,
+    val saveEnabled: Boolean = false,
+    val error: FileNameError? = null,
+)
 
 sealed interface RenameNodeViewModelAction {
     data object Success : RenameNodeViewModelAction
     data object Failure : RenameNodeViewModelAction
+}
+
+private data class FileNameParts(
+    val name: String,
+    val extension: String?,
+)
+
+private fun RenameNodeNavArgs.getFileName() = if (isFolder == true) {
+    FileNameParts(name = nodeName ?: "", extension = null)
+} else {
+    val (name, extension) = nodeName?.splitFileExtension() ?: ("" to null)
+    FileNameParts(name = name, extension = extension)
 }

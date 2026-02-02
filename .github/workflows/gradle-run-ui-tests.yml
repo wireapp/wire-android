@@ -1,6 +1,5 @@
 name: "UI Tests"
 
-
 on:
   workflow_call:
     inputs:
@@ -20,10 +19,25 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: recursive # Needed in order to fetch Kalium sources for building
           fetch-depth: 0
+
+      # trying https://github.com/actions/runner-images/issues/10386#issuecomment-2271613335
+      - name: Free Disk Space Before Build
+        run: |
+          echo "Disk space before cleanup:"
+          df -h
+          sudo rm -rf /usr/local/.ghcup
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          sudo rm -rf /usr/local/lib/android/sdk/ndk
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /usr/local/share/boost
+          sudo apt-get clean
+          echo "Disk space after cleanup:"
+          df -h
 
       - name: Set up JDK 17
         uses: buildjet/setup-java@v4
@@ -33,7 +47,7 @@ jobs:
           cache: gradle
 
       - name: Validate Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v4
+        uses: gradle/actions/wrapper-validation@v5
 
       - name: AVD cache
         uses: buildjet/cache@v4
@@ -80,7 +94,7 @@ jobs:
           zip -r integration-tests-android_${{ env.COMMIT_HASH }}.zip acceptanceTests/flavors/
 
       - name: Upload zipped test results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: integration-tests-android_${{ env.COMMIT_HASH }}-${{ inputs.artifact-suffix }}
           path: integration-tests-android_${{ env.COMMIT_HASH }}.zip

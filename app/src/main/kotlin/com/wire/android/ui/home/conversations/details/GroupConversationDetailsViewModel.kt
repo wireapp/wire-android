@@ -30,20 +30,20 @@ import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAddPermissionType
 import com.wire.android.ui.home.newconversation.channelaccess.toUiEnum
 import com.wire.android.ui.navArgs
+import com.wire.android.util.debug.FeatureVisibilityFlags
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
-import com.wire.kalium.common.functional.getOrNull
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
-import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.data.user.type.isExternal
+import com.wire.kalium.logic.data.user.type.isFederated
+import com.wire.kalium.logic.data.user.type.isRegularTeamMember
+import com.wire.kalium.logic.data.user.type.isTeamAdmin
 import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateReceiptModeResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
-import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReceiptModeUseCase
-import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageUseCase
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.team.GetUpdatedSelfTeamUseCase
@@ -70,7 +70,6 @@ class GroupConversationDetailsViewModel @Inject constructor(
     private val dispatcher: DispatcherProvider,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     observeConversationMembers: ObserveParticipantsForConversationUseCase,
-    private val updateConversationAccessRole: UpdateConversationAccessRoleUseCase,
     private val getSelfTeam: GetUpdatedSelfTeamUseCase,
     private val getSelfUser: GetSelfUserUseCase,
     private val updateConversationReceiptMode: UpdateConversationReceiptModeUseCase,
@@ -79,7 +78,6 @@ class GroupConversationDetailsViewModel @Inject constructor(
     private val isMLSEnabled: IsMLSEnabledUseCase,
     refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase,
     private val isWireCellsEnabled: IsWireCellsEnabledUseCase,
-    private val observeIsAppsAllowedForUsage: ObserveIsAppsAllowedForUsageUseCase,
 ) : GroupConversationParticipantsViewModel(savedStateHandle, observeConversationMembers, refreshUsersWithoutMetadata),
     ActionsManager<GroupConversationDetailsViewAction> by ActionsManagerImpl() {
 
@@ -113,23 +111,47 @@ class GroupConversationDetailsViewModel @Inject constructor(
             val groupDetailsFlow = groupDetailsFlow()
                 .shareIn(this, SharingStarted.WhileSubscribed(), 1)
 
-            val selfTeam = getSelfTeam().getOrNull()
+            val selfTeam = getSelfTeam()
             val selfUser = getSelfUser()
 
             combine(
-                observeIsAppsAllowedForUsage(),
                 groupDetailsFlow,
                 observeSelfDeletionTimerSettingsForConversation(conversationId, considerSelfUserSettings = false),
-            ) { isAppsUsageAllowed, groupDetails, selfDeletionTimer ->
+            ) { groupDetails, selfDeletionTimer ->
+                val selfType = selfUser?.userType
                 val isSelfInTeamThatOwnsConversation = selfTeam?.id != null && selfTeam.id == groupDetails.conversation.teamId?.value
-                val isSelfExternalMember = selfUser?.userType == UserType.EXTERNAL
+                val isSelfExternalMember = selfUser?.userType?.isExternal() == true
+                val isRegularTeamMember = selfType?.isRegularTeamMember() == true
                 val isChannel = groupDetails is ConversationDetails.Group.Channel
-                val isSelfTeamAdmin = selfUser?.userType in arrayOf(UserType.ADMIN, UserType.OWNER)
+                val isSelfTeamAdmin = selfUser?.userType?.isTeamAdmin() == true
                 val canPerformChannelAdminTasks = isChannel && isSelfInTeamThatOwnsConversation && isSelfTeamAdmin
                 val isRegularGroupAdmin = groupDetails.selfRole == Conversation.Member.Role.Admin
                 val canSelfPerformAdminTasks = (isRegularGroupAdmin) || (canPerformChannelAdminTasks)
                 val channelPermissionType = groupDetails.getChannelPermissionType()
                 val channelAccessType = groupDetails.getChannelAccessType()
+                val isExternalOrFederated =
+                    selfType?.isExternal() == true || selfType?.isFederated() == true
+                val canSelfAddParticipants =
+                    when {
+                        !isChannel -> isRegularGroupAdmin && !isExternalOrFederated
+
+                        groupOptionsState.value.isSelfTeamAdmin -> true
+
+                        canSelfPerformAdminTasks -> true
+
+                        channelPermissionType == ChannelAddPermissionType.EVERYONE &&
+                                isSelfInTeamThatOwnsConversation &&
+                                isRegularTeamMember ->
+                            true
+
+                        else -> false
+                    }
+
+                // WPB-21835: Apps availability logic controlled by feature flag
+                val isMLSConversation = groupDetails.conversation.protocol is Conversation.ProtocolInfo.MLS
+                val isAppsAllowedForConversation = computeAppsEnabledStatus(groupDetails, isMLSConversation)
+                val isUpdatingAppsAllowedForConversation =
+                    computeAppsAllowedStatus(canSelfPerformAdminTasks, isSelfInTeamThatOwnsConversation, isMLSConversation)
 
                 _isFetchingInitialData.value = false
 
@@ -145,8 +167,8 @@ class GroupConversationDetailsViewModel @Inject constructor(
                         isUpdatingNameAllowed = canSelfPerformAdminTasks && !isSelfExternalMember,
                         isUpdatingGuestAllowed = canSelfPerformAdminTasks && isSelfInTeamThatOwnsConversation,
                         isUpdatingChannelAccessAllowed = canSelfPerformAdminTasks && isSelfInTeamThatOwnsConversation,
-                        isServicesAllowed = groupDetails.conversation.isServicesAllowed() && isAppsUsageAllowed,
-                        isUpdatingServicesAllowed = canSelfPerformAdminTasks && isAppsUsageAllowed,
+                        isAppsAllowed = isAppsAllowedForConversation,
+                        isUpdatingAppsAllowed = isUpdatingAppsAllowedForConversation,
                         isUpdatingReadReceiptAllowed = canSelfPerformAdminTasks && groupDetails.conversation.isTeamGroup(),
                         isUpdatingSelfDeletingAllowed = canSelfPerformAdminTasks,
                         mlsEnabled = isMLSEnabled(),
@@ -159,27 +181,43 @@ class GroupConversationDetailsViewModel @Inject constructor(
                         loadingWireCellState = false,
                         isWireCellEnabled = groupDetails.wireCell != null,
                         isWireCellFeatureEnabled = isWireCellsEnabled(),
+                        isSelfPartOfATeam = selfTeam != null,
+                        canSelfAddParticipants = canSelfAddParticipants
                     )
                 )
             }.collect {}
         }
     }
 
-    fun shouldShowAddParticipantButton(): Boolean {
-        val isSelfAdmin = groupParticipantsState.data.isSelfAnAdmin
-        val isSelfGuest = groupParticipantsState.data.isSelfGuest
-        val isSelfExternalMember = groupParticipantsState.data.isSelfExternalMember
+    /**
+     * Determine apps visibility based on feature flag and team settings
+     * Or just should be protocol based in case of current logic
+     */
+    private fun computeAppsAllowedStatus(
+        canSelfPerformAdminTasks: Boolean,
+        isSelfInTeamThatOwnsConversation: Boolean,
+        isMLSConversation: Boolean
+    ) = if (FeatureVisibilityFlags.AppsBasedOnProtocol) {
+        // current logic: based on protocol
+        canSelfPerformAdminTasks && isSelfInTeamThatOwnsConversation && !isMLSConversation
+    } else {
+        // new logic: based on permissions
+        canSelfPerformAdminTasks && isSelfInTeamThatOwnsConversation
+    }
 
-        return when {
-            groupOptionsState.value.isChannel -> {
-                val isEveryoneAllowed = groupOptionsState.value.channelAddPermissionType == ChannelAddPermissionType.EVERYONE
-                isEveryoneAllowed && !isSelfGuest || isSelfAdmin && !isSelfGuest || groupOptionsState.value.isSelfTeamAdmin
-            }
-
-            else -> {
-                isSelfAdmin && !isSelfExternalMember
-            }
-        }
+    /**
+     * Determine apps visibility based on feature flag and team settings
+     * Or just should be protocol based in case of current logic
+     */
+    private fun computeAppsEnabledStatus(
+        groupDetails: ConversationDetails.Group,
+        isMLSConversation: Boolean
+    ) = if (FeatureVisibilityFlags.AppsBasedOnProtocol) {
+        // current logic: based on protocol (apps disabled for MLS)
+        groupDetails.conversation.isServicesAllowed() && !isMLSConversation
+    } else {
+        // new logic: based on feature flags
+        groupDetails.conversation.isServicesAllowed()
     }
 
     private fun ConversationDetails.getChannelPermissionType(): ChannelAddPermissionType? = if (this is ConversationDetails.Group.Channel) {
@@ -202,57 +240,10 @@ class GroupConversationDetailsViewModel @Inject constructor(
         updateState(groupOptionsState.value.copy(channelAddPermissionType = channelAddPermissionType))
     }
 
-    fun onServicesUpdate(enableServices: Boolean) {
-        updateState(groupOptionsState.value.copy(loadingServicesOption = true, isServicesAllowed = enableServices))
-        when (enableServices) {
-            true -> updateServicesRemoteRequest(enableServices)
-            false -> updateState(groupOptionsState.value.copy(changeServiceOptionConfirmationRequired = true))
-        }
-    }
-
     fun onReadReceiptUpdate(enableReadReceipt: Boolean) {
         appLogger.i("[$TAG][onReadReceiptUpdate] - enableReadReceipt: $enableReadReceipt")
         updateState(groupOptionsState.value.copy(loadingReadReceiptOption = true, isReadReceiptAllowed = enableReadReceipt))
         updateReadReceiptRemoteRequest(enableReadReceipt)
-    }
-
-    fun onServiceDialogDismiss() {
-        updateState(
-            groupOptionsState.value.copy(
-                loadingServicesOption = false,
-                changeServiceOptionConfirmationRequired = false,
-                isServicesAllowed = !groupOptionsState.value.isServicesAllowed
-            )
-        )
-    }
-
-    fun onServiceDialogConfirm() {
-        updateState(groupOptionsState.value.copy(changeServiceOptionConfirmationRequired = false, loadingServicesOption = true))
-        updateServicesRemoteRequest(false)
-    }
-
-    private fun updateServicesRemoteRequest(enableServices: Boolean) {
-        viewModelScope.launch {
-            val result = withContext(dispatcher.io()) {
-                updateConversationAccess(
-                    enableGuestAndNonTeamMember = groupOptionsState.value.isGuestAllowed,
-                    enableServices = enableServices,
-                    conversationId = conversationId
-                )
-            }
-
-            when (result) {
-                is UpdateConversationAccessRoleUseCase.Result.Failure -> updateState(
-                    groupOptionsState.value.copy(
-                        isServicesAllowed = !enableServices, error = GroupConversationOptionsState.Error.UpdateServicesError(result.cause)
-                    )
-                )
-
-                is UpdateConversationAccessRoleUseCase.Result.Success -> Unit
-            }
-
-            updateState(groupOptionsState.value.copy(loadingServicesOption = false))
-        }
     }
 
     private fun updateReadReceiptRemoteRequest(enableReadReceipt: Boolean) {
@@ -282,36 +273,9 @@ class GroupConversationDetailsViewModel @Inject constructor(
         }
     }
 
-    private suspend fun updateConversationAccess(
-        enableGuestAndNonTeamMember: Boolean,
-        enableServices: Boolean,
-        conversationId: ConversationId
-    ): UpdateConversationAccessRoleUseCase.Result {
-
-        val accessRoles = Conversation
-            .accessRolesFor(
-                guestAllowed = enableGuestAndNonTeamMember,
-                servicesAllowed = enableServices,
-                nonTeamMembersAllowed = enableGuestAndNonTeamMember
-            )
-
-        val access = Conversation
-            .accessFor(
-                guestsAllowed = enableGuestAndNonTeamMember
-            )
-
-        return updateConversationAccessRole(
-            conversationId = conversationId,
-            accessRoles = accessRoles,
-            access = access
-        )
-    }
-
     fun updateState(newState: GroupConversationOptionsState) {
         _groupOptionsState.value = newState
     }
-
-    private fun onMessage(text: UIText) = sendAction(GroupConversationDetailsViewAction.Message(text))
 
     companion object {
         const val TAG = "GroupConversationDetailsViewModel"

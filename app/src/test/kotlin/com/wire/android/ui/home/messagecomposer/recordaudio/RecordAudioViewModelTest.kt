@@ -25,7 +25,6 @@ import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.media.audiomessage.AudioFocusHelper
 import com.wire.android.media.audiomessage.AudioState
-import com.wire.android.media.audiomessage.AudioWavesMaskHelper
 import com.wire.android.media.audiomessage.RecordAudioMessagePlayer
 import com.wire.android.ui.home.messagecomposer.recordaudio.RecordAudioViewModelTest.Arrangement.Companion.ASSET_SIZE_LIMIT
 import com.wire.android.util.CurrentScreen
@@ -35,8 +34,9 @@ import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.asset.AudioNormalizedLoudnessBuilder
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
-import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCaseImpl
+import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase.AssetSizeLimits.ASSET_SIZE_DEFAULT_LIMIT_BYTES
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -47,11 +47,9 @@ import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
-import okio.Path
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import java.io.File
 
 @ExtendWith(CoroutineTestExtension::class)
 class RecordAudioViewModelTest {
@@ -377,7 +375,7 @@ class RecordAudioViewModelTest {
         val context = mockk<Context>()
         val dispatchers = TestDispatcherProvider()
         val fakeKaliumFileSystem = FakeKaliumFileSystem()
-        val audioWavesMaskHelper = mockk<AudioWavesMaskHelper>()
+        val audioNormalizedLoudnessBuilder = mockk<AudioNormalizedLoudnessBuilder>()
         val audioFocusHelper = mockk<AudioFocusHelper>()
 
         val viewModel by lazy {
@@ -391,7 +389,7 @@ class RecordAudioViewModelTest {
                 generateAudioFileWithEffects = generateAudioFileWithEffects,
                 globalDataStore = globalDataStore,
                 dispatchers = dispatchers,
-                audioWavesMaskHelper = audioWavesMaskHelper,
+                audioNormalizedLoudnessBuilder = audioNormalizedLoudnessBuilder,
                 kaliumFileSystem = fakeKaliumFileSystem,
                 audioFocusHelper = audioFocusHelper
             )
@@ -410,7 +408,7 @@ class RecordAudioViewModelTest {
                 .tempFilePath("temp_recording.wav")
             coEvery { audioMediaRecorder.getMaxFileSizeReached() } returns flowOf(
                 RecordAudioDialogState.MaxFileSizeReached(
-                    maxSize = GetAssetSizeLimitUseCaseImpl.ASSET_SIZE_DEFAULT_LIMIT_BYTES
+                    maxSize = ASSET_SIZE_DEFAULT_LIMIT_BYTES
                 )
             )
             coEvery { generateAudioFileWithEffects(any(), any(), any()) } returns Unit
@@ -427,8 +425,7 @@ class RecordAudioViewModelTest {
 
             coEvery { observeEstablishedCalls() } returns flowOf(listOf())
 
-            every { audioWavesMaskHelper.getWaveMask(any<File>()) } returns listOf()
-            every { audioWavesMaskHelper.getWaveMask(any<Path>()) } returns listOf()
+            coEvery { audioNormalizedLoudnessBuilder(any<String>()) } returns byteArrayOf()
 
             every { audioFocusHelper.requestExclusive() } returns true
             every { audioFocusHelper.abandonExclusive() } returns Unit

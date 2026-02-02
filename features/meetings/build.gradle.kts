@@ -24,13 +24,17 @@ dependencies {
     implementation(libs.hilt.navigationCompose)
     implementation(libs.hilt.work)
 
+    // smaller view models
+    implementation(libs.resaca.core)
+    implementation(libs.resaca.hilt)
+    implementation(libs.bundlizer.core)
+
     val composeBom = platform(libs.compose.bom)
     implementation(composeBom)
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.graphics)
     implementation(libs.compose.material.core)
     implementation(libs.compose.material3)
-    implementation(libs.compose.material.icons)
     implementation(libs.androidx.lifecycle.viewModelCompose)
     implementation(libs.compose.ui.preview)
 

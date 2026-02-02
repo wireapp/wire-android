@@ -110,9 +110,9 @@ fun LoginScreen(
 
             navigator.navigate(NavigationCommand(destination, BackStackMode.CLEAR_WHOLE))
 
-            // If started with SSO intent, move app to background after navigation completes
-            if (wireActivityViewModel.globalAppState.startedWithSSOIntent) {
-                com.wire.android.appLogger.i("LoginScreen: SSO intent detected, moving app to background")
+            // If started with SSO intent and sync is already completed, move app to background
+            if (wireActivityViewModel.globalAppState.startedWithSSOIntent && initialSyncCompleted) {
+                com.wire.android.appLogger.i("LoginScreen: SSO intent detected and sync completed, moving app to background")
                 wireActivityViewModel.setSSOIntentFlag(false)
                 scope.launch {
                     kotlinx.coroutines.delay(100) // Small delay to let navigation complete
@@ -120,8 +120,8 @@ fun LoginScreen(
                     val result = activity.moveTaskToBack(false)
                     com.wire.android.appLogger.i("LoginScreen: moveTaskToBack result: $result")
                 }
-            } else {
-                com.wire.android.appLogger.i("LoginScreen: No SSO intent flag detected (flag=${wireActivityViewModel.globalAppState.startedWithSSOIntent})")
+            } else if (wireActivityViewModel.globalAppState.startedWithSSOIntent) {
+                com.wire.android.appLogger.i("LoginScreen: SSO intent detected, but waiting for initial sync to complete")
             }
         },
         onRemoveDeviceNeeded = {

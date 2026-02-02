@@ -39,21 +39,24 @@ import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.common.DEFAULT_SEARCH_QUERY_DEBOUNCE
 import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
-import com.wire.kalium.cells.domain.usecase.DownloadCellFileUseCase
+import com.wire.kalium.cells.domain.usecase.download.DownloadCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
+import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
 import com.wire.kalium.cells.domain.usecase.IsAtLeastOneCellAvailableUseCase
 import com.wire.kalium.cells.domain.usecase.RestoreNodeFromRecycleBinUseCase
 import com.wire.kalium.common.functional.fold
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
+import com.wire.kalium.logic.data.featureConfig.CollaboraEdition
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -65,7 +68,9 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import okio.Path
@@ -89,9 +94,12 @@ class CellViewModel @Inject constructor(
     private val getEditorUrl: GetEditorUrlUseCase,
     private val onlineEditor: OnlineEditor,
     private val cellFileActionsMenu: CellFileActionsMenu,
+    private val getWireCellsConfig: GetWireCellConfigurationUseCase,
 ) : ActionsViewModel<CellViewAction>() {
 
     private val navArgs: CellFilesNavArgs = savedStateHandle.navArgs()
+
+    val isSearchByDefaultActive: Boolean = navArgs.isSearchByDefaultActive
 
     // Show menu with actions for the selected file.
     private val _menu: MutableSharedFlow<MenuOptions> = MutableSharedFlow()
@@ -118,7 +126,13 @@ class CellViewModel @Inject constructor(
     val selectedTags: StateFlow<Set<String>> = _selectedTags.asStateFlow()
 
     private val _tags = MutableStateFlow<Set<String>>(emptySet())
-    val tags: StateFlow<Set<String>> = _tags.asStateFlow()
+    val sortedTags: StateFlow<List<String>> = _tags.asStateFlow()
+        .map { it.sortedBy { tag -> tag.lowercase() } }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS),
+            initialValue = emptyList()
+        )
 
     // Used to navigate to the root of the recycle bin after restoring a parent folder.
     private val _navigateToRecycleBinRoot = MutableStateFlow(false)
@@ -132,10 +146,11 @@ class CellViewModel @Inject constructor(
 
     private val refreshTrigger = MutableSharedFlow<Unit>(replay = 0)
 
+    private var isCollaboraEnabled: Boolean = false
+
     init {
-        viewModelScope.launch {
-            loadTags()
-        }
+        loadTags()
+        loadWireCellConfig()
     }
 
     internal val nodesFlow = flow {
@@ -374,7 +389,8 @@ class CellViewModel @Inject constructor(
             isRecycleBin = isRecycleBin(),
             isConversationFiles = isConversationFiles(),
             isAllFiles = isAllFiles(),
-            isSearching = isSearching()
+            isSearching = isSearching(),
+            isCollaboraEnabled = isCollaboraEnabled,
         )
 
         _menu.emit(MenuOptions(cellNode, menuItems))
@@ -499,10 +515,15 @@ class CellViewModel @Inject constructor(
         }
     }
 
-    suspend fun loadTags() {
-        getAllTagsUseCase().onSuccess { updated -> _tags.update { updated.sorted().toSet() } }
+    internal fun loadTags() = viewModelScope.launch {
+        getAllTagsUseCase().onSuccess { updated -> _tags.update { updated } }
         // apply delay to avoid too frequent requests
         delay(30.seconds)
+    }
+
+    private fun loadWireCellConfig() = viewModelScope.launch {
+        val config = getWireCellsConfig()
+        isCollaboraEnabled = config?.collabora != CollaboraEdition.NO
     }
 
     companion object {
@@ -515,6 +536,7 @@ class CellViewModel @Inject constructor(
                 append = LoadState.NotLoading(true)
             )
         )
+        const val STOP_TIMEOUT_MILLIS = 1_000L
     }
 }
 

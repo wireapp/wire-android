@@ -20,9 +20,6 @@ package com.wire.android.ui.debug
 data class DebugDataOptionsState(
     val isEventProcessingDisabled: Boolean = false,
     val isAsyncNotificationsEnabled: Boolean = false,
-    val keyPackagesCount: Int = 0,
-    val mslClientId: String = "null",
-    val mlsErrorMessage: String = "null",
     val debugId: String = "null",
     val commitish: String = "null",
     val certificate: String = "null",
@@ -32,4 +29,12 @@ data class DebugDataOptionsState(
     val isFederationEnabled: Boolean = false,
     val currentApiVersion: String = "null",
     val defaultProtocol: String = "null",
+    val mlsInfoState: MLSInfoState = MLSInfoState()
+)
+
+data class MLSInfoState(
+    val mlsClientId: String = "null",
+    val mlsErrorMessage: String = "-",
+    val keyPackagesCount: Int = 0,
+    val isLoadingRepair: Boolean = false,
 )

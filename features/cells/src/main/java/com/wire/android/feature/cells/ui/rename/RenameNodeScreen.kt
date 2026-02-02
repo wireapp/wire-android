@@ -151,9 +151,13 @@ private fun computeNameErrorState(error: FileNameError?, isFolder: Boolean): Wir
     val messageRes = when (error) {
         FileNameError.NameEmpty ->
             if (isFolder) R.string.rename_enter_folder_name else R.string.rename_enter_file_name
+
         FileNameError.NameExceedLimit ->
             if (isFolder) R.string.rename_long_folder_name_error else R.string.rename_long_file_name_error
-        FileNameError.NameAlreadyExist -> R.string.rename_already_exist
+
+        FileNameError.NameAlreadyExist ->
+            if (isFolder) R.string.rename_folder_already_exist else R.string.rename_file_already_exist
+
         FileNameError.InvalidName -> R.string.rename_invalid_name
         null -> return WireTextFieldState.Default
     }

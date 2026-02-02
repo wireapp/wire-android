@@ -555,7 +555,7 @@
     <string name="conversation_details_is_not_classified">SICHERHEITSNIVEAU: NICHT EINGESTUFT</string>
     <string name="conversation_options_self_deleting_messages_label">Selbstlöschende Nachrichten</string>
     <string name="conversation_options_self_deleting_messages_description">Wenn diese Option aktiviert ist, verschwinden alle Nachrichten in dieser Unterhaltung nach einer bestimmten Zeit.</string>
-    <string name="conversation_options_self_deleting_messages_cells_description">Die Funktion ist für Unterhaltungen mit Cells nicht verfügbar.</string>
+    <string name="conversation_options_self_deleting_messages_shared_drive_description">Die Funktion ist für Unterhaltungen mit Geteiltes Drive nicht verfügbar.</string>
     <string name="conversation_options_guests_label">Gäste</string>
     <string name="conversation_details_guest_description">Wenn diese Option aktiviert ist, können Personen außerhalb des Teams an dieser Unterhaltung teilnehmen</string>
     <string name="conversation_options_guest_description">Aktivieren Sie diese Option, um die Unterhaltung für Personen außerhalb Ihres Teams zu öffnen – auch wenn diese Wire nicht nutzen.</string>
@@ -791,12 +791,14 @@
     <string name="label_system_message_conversation_verified_mls">Alle Geräte sind überprüft (Ende-zu-Ende-Identität)</string>
     <string name="label_system_message_conversation_verified_proteus">Alle Fingerabdrücke sind überprüft (Proteus)</string>
     <string name="label_system_message_conversation_started_sensitive_information_header">**Kommunikation in Wire ist immer Ende-zu-Ende-verschlüsselt.**</string>
+    <string name="label_system_message_conversation_started_sensitive_information_header_with_shared_drive_on">**Kommunikation in Wire ist immer sicher.**</string>
     <string name="label_system_message_conversation_started_sensitive_information_message">Alles, was Sie in dieser Unterhaltung senden und empfangen, ist nur für Sie und andere Teilnehmer zugänglich.</string>
+    <string name="label_system_message_conversation_started_sensitive_information_message_with_shared_drive_on">Nachrichten und Anrufe sind immer Ende-zu-Ende verschlüsselt, während Dateien und Ordner bei der Übertragung gesichert und im Ruhezustand verschlüsselt werden. </string>
     <string name="label_system_message_conversation_started_sensitive_information_footer">Bitte seien Sie dennoch vorsichtig, mit wem Sie vertrauliche Informationen teilen.</string>
     <string name="label_conversations_details_verified_proteus">Überprüft (Proteus)</string>
     <string name="label_conversations_details_verified_mls">Überprüft (Ende-zu-Ende-Identität)</string>
-    <string name="label_system_message_cell_enabled_for_conversation">Dateiverwaltung (Cells) aktiv</string>
-    <string name="label_system_message_cell_self_delete_disabled_for_conversation">Selbstlöschende Nachrichten sind für Unterhaltungen mit Cells deaktiviert</string>
+    <string name="label_system_message_cell_enabled_for_conversation">Geteiltes Drive ist **an**</string>
+    <string name="label_system_message_cell_self_delete_disabled_for_conversation">Selbstlöschende Nachrichten sind deaktiviert.</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
         <item quantity="one">Sie haben 1 Person zur Unterhaltung hinzugefügt</item>
@@ -891,6 +893,7 @@
     <string name="label_conversation_media">Medien</string>
     <string name="label_conversation_pictures">Bilder</string>
     <string name="label_conversation_files">Dateien</string>
+    <string name="content_description_see_shared_drive_in_conversation_btn">Geteiltes Drive öffnen</string>
     <string name="label_conversation_pictures_empty">Bislang hat niemand Bilder in dieser Unterhaltung geteilt 🥲</string>
     <string name="label_conversation_files_empty">Bislang hat niemand Dateien in dieser Unterhaltung geteilt 🙀</string>
     <!-- Search Contact-->
@@ -1113,6 +1116,7 @@
     <string name="disable_guests_dialog_title">Gäste nicht zulassen?</string>
     <string name="disable_guests_dialog_description">Gäste, die Sie im vorherigen Schritt ausgewählt haben, sind nicht Teil der Unterhaltung, wenn Sie den Gastzugang nicht erlauben.</string>
     <string name="disable_guests_dialog_button">Keine Gäste zulassen</string>
+    <string name="enable_guests_dialog_button">Gäste zulassen</string>
     <!--block user dialog -->
     <string name="block_user_dialog_title">Benutzer blockieren?</string>
     <string name="block_user_dialog_body">%1$s wird Sie nicht kontaktieren oder zu Gruppenunterhaltungen hinzufügen können und wird darüber nicht informiert.</string>
@@ -1144,6 +1148,7 @@
     <string name="settings_myaccount_display_name">PROFILNAME</string>
     <string name="settings_myaccount_username">BENUTZERNAME</string>
     <string name="settings_myaccount_email">E-MAIL-ADRESSE</string>
+    <string name="settings_myaccount_user_color">PROFILFARBE</string>
     <string name="settings_myaccount_team">TEAM</string>
     <string name="settings_myaccount_domain">DOMAIN</string>
     <string name="settings_myaccount_reset_password">Passwort zurücksetzen</string>
@@ -1154,6 +1159,7 @@
     <string name="settings_myaccount_display_name_exceeded_limit_error">Mindestens ein und höchstens 64 Zeichen</string>
     <string name="settings_myaccount_display_name_updated">Ihr Profilname wurde geändert</string>
     <string name="settings_myaccount_handle_updated">Ihr Benutzername wurde geändert</string>
+    <string name="settings_myaccount_user_color_title">Profilfarbe</string>
     <string name="settings_myaccount_user_color_updated">Profilfarbe geändert</string>
     <string name="settings_myaccount_user_color_example">BEISPIEL</string>
     <!--Privacy Settings -->
@@ -1735,16 +1741,15 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="channel_not_available_dialog_description">Erstellen Sie ein Team und arbeiten Sie kostenlos zusammen!</string>
     <string name="channel_not_available_dialog_create_team_button">Wire Team erstellen</string>
     <string name="custimization_options_header_title">Optionen</string>
-    <string name="cells_screen_title">Alle Dateien</string>
-    <string name="cells_screen_search_hint">Dateien suchen</string>
-    <string name="enable_wire_cell">Dateiverwaltung (Cells Beta-Version)</string>
-    <string name="enable_wire_cell_switch_description">Ermöglichen Sie den Teilnehmern, ihre Dokumente und Mediendateien zu verwalten. Verwenden Sie Ordner, Tags und Filter, um effizienter zu arbeiten. Dieser Vorgang kann nicht rückgängig gemacht werden.</string>
+    <string name="drive_screen_search_hint">Dateien suchen</string>
+    <string name="enable_wire_cell">Geteiltes Drive</string>
+    <string name="enable_wire_cell_switch_description">Ermöglichen Sie den Teilnehmern, ihre Dokumente und Mediendateien in Geteiltes Drive zu verwalten. Dieser Vorgang kann nicht rückgängig gemacht werden.</string>
     <string name="failed_attachment_retry_upload">Upload wiederholen</string>
     <string name="failed_attachment_remove">Entfernen</string>
     <string name="content_description_apply_filter">Filter anwenden</string>
     <string name="content_description_filter_files">Dateien filtern</string>
-    <string name="conversation_options_file_collaboration_label">Dateiverwaltung (Cells)</string>
-    <string name="conversation_options_file_collaboration_description">Dauerhaft aktiv für diese Unterhaltung.</string>
+    <string name="conversation_options_shared_drive_label">Geteiltes Drive</string>
+    <string name="conversation_options_shared_drive_description">Dauerhaft aktiv für diese Unterhaltung.</string>
     <plurals name="reply_multiple_files">
         <item quantity="one">%1$d Datei</item>
         <item quantity="other">%1$d Dateien</item>

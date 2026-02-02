@@ -23,6 +23,7 @@ import com.ramcosta.composedestinations.spec.NavGraphSpec
 import com.wire.android.feature.cells.ui.destinations.AddRemoveTagsScreenDestination
 import com.wire.android.feature.cells.ui.destinations.ConversationFilesScreenDestination
 import com.wire.android.feature.cells.ui.destinations.ConversationFilesWithSlideInTransitionScreenDestination
+import com.wire.android.feature.cells.ui.destinations.CreateFileScreenDestination
 import com.wire.android.feature.cells.ui.destinations.CreateFolderScreenDestination
 import com.wire.android.feature.cells.ui.destinations.MoveToFolderScreenDestination
 import com.wire.android.feature.cells.ui.destinations.PublicLinkExpirationScreenDestination
@@ -43,6 +44,7 @@ object WireMainNavGraph : NavGraphSpec {
         .plus(ConversationFilesScreenDestination)
         .plus(ConversationFilesWithSlideInTransitionScreenDestination)
         .plus(CreateFolderScreenDestination)
+        .plus(CreateFileScreenDestination)
         .plus(MoveToFolderScreenDestination)
         .plus(RecycleBinScreenDestination)
         .plus(RenameNodeScreenDestination)

@@ -40,6 +40,7 @@ import com.wire.android.framework.TestClient
 import com.wire.android.framework.TestUser
 import com.wire.android.framework.TestUser.SELF_USER
 import com.wire.android.services.ServicesManager
+import com.wire.android.sync.MonitorSyncWorkUseCase
 import com.wire.android.ui.common.dialogs.CustomServerDetailsDialogState
 import com.wire.android.ui.common.dialogs.CustomServerNoNetworkDialogState
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModelTest
@@ -770,6 +771,7 @@ class WireActivityViewModelTest {
 
             // Default empty values
             mockUri()
+            coEvery { monitorSyncWorkUseCase() } returns Unit
             coEvery { currentSessionFlow() } returns flowOf()
             coEvery { getServerConfigUseCase(any()) } returns GetServerConfigResult.Success(newServerConfig(1).links)
             coEvery { deepLinkProcessor(any(), any()) } returns DeepLinkResult.Unknown
@@ -860,6 +862,9 @@ class WireActivityViewModelTest {
         @MockK
         lateinit var observeSelfUserFactory: ObserveSelfUserUseCaseProvider.Factory
 
+        @MockK
+        lateinit var monitorSyncWorkUseCase: MonitorSyncWorkUseCase
+
         private val viewModel by lazy {
             WireActivityViewModel(
                 coreLogic = { coreLogic },
@@ -881,7 +886,8 @@ class WireActivityViewModelTest {
                 observeIfE2EIRequiredDuringLoginUseCaseProviderFactory = observeIfE2EIRequiredDuringLoginUseCaseProviderFactory,
                 workManager = { workManager },
                 isProfileQRCodeEnabledFactory = isProfileQRCodeEnabledFactory,
-                observeSelfUserFactory = observeSelfUserFactory
+                observeSelfUserFactory = observeSelfUserFactory,
+                monitorSyncWorkUseCase = monitorSyncWorkUseCase,
             )
         }
 

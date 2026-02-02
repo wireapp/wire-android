@@ -65,6 +65,10 @@ class AndroidTestLibraryConventionPlugin : Plugin<Project> {
                     isMinifyEnabled = false
                     proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
                 }
+                create("benchmark") {
+                    initWith(getByName("release"))
+                    matchingFallbacks.add("release")
+                }
             }
         }
     }

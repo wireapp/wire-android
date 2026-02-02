@@ -63,16 +63,16 @@ class StartupBenchmarkWithLogin {
     }
 
     private fun MacrobenchmarkScope.login() {
-        device.findObject(By.res("loginButton"))?.let {
-            it.click()
-        }
         device.findObject(By.res("userIdentifierInput"))?.let {
             it.text = EMAIL
+        }
+        device.findObject(By.res("loginButton"))?.let {
+            it.click()
         }
         device.findObject(By.res("PasswordInput"))?.let {
             it.text = PASSWORD
         }
-        device.findObject(By.res("loginButton"))?.let {
+        device.findObject(By.res("LoginNextButton"))?.let {
             it.click()
         }
         device.wait(Until.hasObject(By.text("Conversations")), 30_000)

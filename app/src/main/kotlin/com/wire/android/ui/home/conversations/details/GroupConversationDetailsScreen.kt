@@ -156,7 +156,9 @@ fun GroupConversationDetailsScreen(
         navigator.navigate(
             NavigationCommand(
                 SearchConversationMessagesScreenDestination(
-                    conversationId = viewModel.conversationId
+                    conversationId = viewModel.conversationId,
+                    isCellsConversation = groupOptions.isWireCellEnabled && groupOptions.isWireCellFeatureEnabled,
+                    groupName = groupOptions.groupName,
                 )
             )
         )

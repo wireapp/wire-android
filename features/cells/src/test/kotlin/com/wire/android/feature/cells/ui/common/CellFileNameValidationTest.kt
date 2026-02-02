@@ -45,6 +45,20 @@ class CellFileNameValidationTest {
     }
 
     @Test
+    fun `given file name contains backslash, when validating, then correct error returned`() = runTest {
+        val filename = "Fi\\leName"
+        val result = filename.validateFileName()
+        assertEquals(FileNameError.InvalidName, result)
+    }
+
+    @Test
+    fun `given file name contains double quotes, when validating, then correct error returned`() = runTest {
+        val filename = "Fi\"leName"
+        val result = filename.validateFileName()
+        assertEquals(FileNameError.InvalidName, result)
+    }
+
+    @Test
     fun `given file name starts with dot, when validating, then correct error returned`() = runTest {
         val filename = ".filename"
         val result = filename.validateFileName()

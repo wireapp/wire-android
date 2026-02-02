@@ -47,9 +47,7 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
-import com.wire.kalium.common.error.CoreFailure
-import com.wire.kalium.common.functional.Either
-import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
+import com.wire.kalium.logic.feature.e2ei.usecase.FinalizeEnrollmentResult
 
 @Composable
 fun DebugDataOptions(
@@ -76,6 +74,7 @@ fun DebugDataOptions(
         onResendFCMToken = viewModel::forceSendFCMToken,
         onEnableAsyncNotificationsChange = viewModel::enableAsyncNotifications,
         onShowFeatureFlags = onShowFeatureFlags,
+        onRepairFaultyRemovalKeys = viewModel::repairFaultRemovalKeys
     )
 }
 
@@ -91,11 +90,12 @@ fun DebugDataOptionsContent(
     onRestartSlowSyncForRecovery: () -> Unit,
     onForceUpdateApiVersions: () -> Unit,
     enrollE2EICertificate: () -> Unit,
-    handleE2EIEnrollmentResult: (Either<CoreFailure, E2EIEnrollmentResult>) -> Unit,
+    handleE2EIEnrollmentResult: (FinalizeEnrollmentResult) -> Unit,
     dismissCertificateDialog: () -> Unit,
     checkCrlRevocationList: () -> Unit,
     onResendFCMToken: () -> Unit,
     onShowFeatureFlags: () -> Unit,
+    onRepairFaultyRemovalKeys: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier) {
@@ -207,10 +207,9 @@ fun DebugDataOptionsContent(
 
             if (BuildConfig.PRIVATE_BUILD) {
                 MLSOptions(
-                    keyPackagesCount = state.keyPackagesCount,
-                    mlsClientId = state.mslClientId,
-                    mlsErrorMessage = state.mlsErrorMessage,
-                    onCopyText = onCopyText
+                    mlsInfoState = state.mlsInfoState,
+                    onCopyText = onCopyText,
+                    onRepairFaultyRemovalKeys = onRepairFaultyRemovalKeys
                 )
             }
         }
@@ -267,36 +266,58 @@ private fun GetE2EICertificateSwitch(
 //region MLS Options
 @Composable
 private fun MLSOptions(
-    keyPackagesCount: Int,
-    mlsClientId: String,
-    mlsErrorMessage: String,
+    mlsInfoState: MLSInfoState,
     onCopyText: (String) -> Unit,
+    onRepairFaultyRemovalKeys: () -> Unit,
 ) {
     SectionHeader(stringResource(R.string.label_mls_option_title))
-    Column {
-        SettingsItem(
-            title = "Error Message",
-            text = mlsErrorMessage,
-            trailingIcon = null
-        )
-        SettingsItem(
-            title = stringResource(R.string.label_key_packages_count),
-            text = keyPackagesCount.toString(),
-            trailingIcon = R.drawable.ic_copy,
-            onIconPressed = Clickable(
-                enabled = true,
-                onClick = { onCopyText(keyPackagesCount.toString()) }
+    with(mlsInfoState) {
+        Column {
+            SettingsItem(
+                title = "Error Message",
+                text = mlsErrorMessage,
+                trailingIcon = null
             )
-        )
-        SettingsItem(
-            title = stringResource(R.string.label_mls_client_id),
-            text = mlsClientId,
-            trailingIcon = R.drawable.ic_copy,
-            onIconPressed = Clickable(
-                enabled = true,
-                onClick = { onCopyText(mlsClientId) }
+            SettingsItem(
+                title = stringResource(R.string.label_key_packages_count),
+                text = keyPackagesCount.toString(),
+                trailingIcon = R.drawable.ic_copy,
+                onIconPressed = Clickable(
+                    enabled = true,
+                    onClick = { onCopyText(keyPackagesCount.toString()) }
+                )
             )
-        )
+            SettingsItem(
+                title = stringResource(R.string.label_mls_client_id),
+                text = mlsClientId,
+                trailingIcon = R.drawable.ic_copy,
+                onIconPressed = Clickable(
+                    enabled = true,
+                    onClick = { onCopyText(mlsClientId) }
+                )
+            )
+            RowItemTemplate(
+                modifier = Modifier.wrapContentWidth(),
+                title = {
+                    Text(
+                        style = MaterialTheme.wireTypography.body01,
+                        color = MaterialTheme.wireColorScheme.onBackground,
+                        text = stringResource(R.string.label_mls_repair_faulty_keys),
+                        modifier = Modifier.padding(start = dimensions().spacing8x)
+                    )
+                },
+                actions = {
+                    WirePrimaryButton(
+                        minSize = MaterialTheme.wireDimensions.buttonMediumMinSize,
+                        minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
+                        onClick = onRepairFaultyRemovalKeys,
+                        text = stringResource(R.string.debug_settings_force_repair_faulty_keys),
+                        fillMaxWidth = false,
+                        loading = isLoadingRepair
+                    )
+                }
+            )
+        }
     }
 }
 //endregion
@@ -342,9 +363,12 @@ fun PreviewOtherDebugOptions() = WireTheme {
         buildVariant = "debug",
         onCopyText = {},
         state = DebugDataOptionsState(
-            keyPackagesCount = 10,
-            mslClientId = "clientId",
-            mlsErrorMessage = "error",
+            mlsInfoState = MLSInfoState(
+                mlsClientId = "mlsClientId",
+                mlsErrorMessage = "-",
+                keyPackagesCount = 42,
+                isLoadingRepair = false
+            ),
             debugId = "debugId",
             commitish = "commitish"
         ),
@@ -358,5 +382,6 @@ fun PreviewOtherDebugOptions() = WireTheme {
         onResendFCMToken = {},
         onEnableAsyncNotificationsChange = {},
         onShowFeatureFlags = {},
+        onRepairFaultyRemovalKeys = {}
     )
 }

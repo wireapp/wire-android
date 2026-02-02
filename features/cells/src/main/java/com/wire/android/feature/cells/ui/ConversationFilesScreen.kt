@@ -52,8 +52,11 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.feature.cells.ui.common.Breadcrumbs
+import com.wire.android.feature.cells.ui.create.FileTypeBottomSheetDialog
+import com.wire.android.feature.cells.ui.create.file.CreateFileScreenNavArgs
 import com.wire.android.feature.cells.ui.destinations.AddRemoveTagsScreenDestination
 import com.wire.android.feature.cells.ui.destinations.ConversationFilesWithSlideInTransitionScreenDestination
+import com.wire.android.feature.cells.ui.destinations.CreateFileScreenDestination
 import com.wire.android.feature.cells.ui.destinations.CreateFolderScreenDestination
 import com.wire.android.feature.cells.ui.destinations.MoveToFolderScreenDestination
 import com.wire.android.feature.cells.ui.destinations.PublicLinkScreenDestination
@@ -102,7 +105,7 @@ fun ConversationFilesScreen(
     navigator: WireNavigator,
     viewModel: CellViewModel = hiltViewModel(),
 ) {
-    val conversationSearchBarState = rememberSearchbarState()
+    val conversationSearchBarState = rememberSearchbarState(viewModel.isSearchByDefaultActive)
 
     LaunchedEffect(conversationSearchBarState.searchQueryTextState.text) {
         viewModel.onSearchQueryUpdated(conversationSearchBarState.searchQueryTextState.text.toString())
@@ -159,6 +162,7 @@ fun ConversationFilesScreenContent(
     breadcrumbs: Array<String>? = emptyArray(),
 ) {
     val newActionBottomSheetState = rememberWireModalSheetState<Unit>()
+    val fileTypeBottomSheetState = rememberWireModalSheetState<Unit>()
     val optionsBottomSheetState = rememberWireModalSheetState<Unit>()
 
     val isFabVisible = when {
@@ -176,6 +180,10 @@ fun ConversationFilesScreenContent(
         onCreateFolder = {
             newActionBottomSheetState.hide()
             navigator.navigate(NavigationCommand(CreateFolderScreenDestination(currentNodeUuid)))
+        },
+        onCreateFile = {
+            newActionBottomSheetState.hide()
+            fileTypeBottomSheetState.show()
         }
     )
 
@@ -196,6 +204,19 @@ fun ConversationFilesScreenContent(
             )
             optionsBottomSheetState.hide()
         }
+    )
+
+    FileTypeBottomSheetDialog(
+        sheetState = fileTypeBottomSheetState,
+        onDismiss = {
+            fileTypeBottomSheetState.hide()
+        },
+        onItemSelected = {
+            currentNodeUuid?.let { uuid ->
+                navigator.navigate(NavigationCommand(CreateFileScreenDestination(CreateFileScreenNavArgs(uuid, it))))
+            }
+            fileTypeBottomSheetState.hide()
+        },
     )
 
     CollapsingTopBarScaffold(

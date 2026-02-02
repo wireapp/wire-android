@@ -368,8 +368,11 @@ Yedek dosyayı korumak için güçlü bir şifre seçin.</string>
     <!-- Logout Wipe Data Dialog -->
     <!-- User Profile status dialog-->
     <!-- Conversations BottomSheet -->
+    <string name="label_notifications">Bildirimler</string>
+    <string name="label_clear_content">İçeriği sil…</string>
     <!-- Conversation filter BottomSheet -->
     <!-- Muting options BottomSheet -->
+    <string name="muting_option_all_allowed_title">Her şey</string>
     <!--Profile image-->
     <!--Conversation-->
     <!-- System messages -->
@@ -382,6 +385,7 @@ Yedek dosyayı korumak için güçlü bir şifre seçin.</string>
     <string name="label_search_button">Arama</string>
     <!-- Conversation Media -->
     <string name="label_conversation_media">Medya</string>
+    <string name="label_conversation_pictures">Resimler</string>
     <!-- Search Contact-->
     <!-- Search Channels -->
     <!-- Snackbar messages -->

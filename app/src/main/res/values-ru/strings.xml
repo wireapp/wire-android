@@ -590,7 +590,7 @@
     <string name="conversation_details_is_not_classified">УРОВЕНЬ БЕЗОПАСНОСТИ: НЕКЛАССИФИЦИРОВАН</string>
     <string name="conversation_options_self_deleting_messages_label">Самоудаляющиеся сообщения</string>
     <string name="conversation_options_self_deleting_messages_description">Если этот параметр включен, все сообщения в этой беседе будут исчезать через определенное время.</string>
-    <string name="conversation_options_self_deleting_messages_cells_description">Функция недоступна для бесед с Cells.</string>
+    <string name="conversation_options_self_deleting_messages_shared_drive_description">Функция недоступна для бесед с общим диском.</string>
     <string name="conversation_options_guests_label">Гости</string>
     <string name="conversation_details_guest_description">Когда эта опция включена, к беседе могут присоединиться пользователи, не входящие в вашу команду</string>
     <string name="conversation_options_guest_description">Включите эту опцию, чтобы открыть эту беседу для пользователей не из вашей команды, даже если у них нет Wire.</string>
@@ -844,14 +844,14 @@
     <string name="label_system_message_conversation_verified_mls">Все устройства верифицированы (сквозная идентификация)</string>
     <string name="label_system_message_conversation_verified_proteus">Все отпечатки верифицированы (Proteus)</string>
     <string name="label_system_message_conversation_started_sensitive_information_header">**Коммуникации в Wire всегда зашифрованы сквозным шифрованием.**</string>
-    <string name="label_system_message_conversation_started_sensitive_information_header_with_cells_on">**Коммуникации в Wire всегда защищены.**</string>
+    <string name="label_system_message_conversation_started_sensitive_information_header_with_shared_drive_on">**Коммуникации в Wire всегда защищены.**</string>
     <string name="label_system_message_conversation_started_sensitive_information_message">Все, что вы отправляете и получаете в этой беседе, доступно только вам и другим участникам беседы.</string>
-    <string name="label_system_message_conversation_started_sensitive_information_message_with_cells_on">Сообщения и звонки всегда зашифрованы сквозным шифрованием, при этом файлы и папки защищены в состоянии передачи и зашифрованы в состоянии покоя. </string>
+    <string name="label_system_message_conversation_started_sensitive_information_message_with_shared_drive_on">Сообщения и звонки всегда зашифрованы сквозным шифрованием, при этом файлы и папки защищены в состоянии передачи и зашифрованы в состоянии покоя. </string>
     <string name="label_system_message_conversation_started_sensitive_information_footer">Пожалуйста, будьте осторожны со всеми с кем делитесь конфиденциальной информацией.</string>
     <string name="label_conversations_details_verified_proteus">Верифицировано (Proteus)</string>
     <string name="label_conversations_details_verified_mls">Верифицировано (сквозная идентификация)</string>
-    <string name="label_system_message_cell_enabled_for_conversation">Совместная работа (Cells) включена</string>
-    <string name="label_system_message_cell_self_delete_disabled_for_conversation">Самоудаляющиеся сообщения отключены для бесед с Cells</string>
+    <string name="label_system_message_cell_enabled_for_conversation">Общий диск **включен**</string>
+    <string name="label_system_message_cell_self_delete_disabled_for_conversation">Самоудаляющиеся сообщения **отключены**</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
         <item quantity="one">Вы добавили 1 пользователя в беседу</item>
@@ -964,7 +964,7 @@
         <item quantity="other">%1$s и еще %2$d печатают</item>
     </plurals>
     <!-- Search Messages -->
-    <string name="label_search_messages">Поиск сообщений</string>
+    <string name="label_search_messages">Поиск текстовых сообщений</string>
     <string name="label_search_messages_empty_title">Поиск всех сообщений в этой беседе.</string>
     <string name="label_search_messages_no_results">Ничего не найдено.\nПожалуйста, уточните свой поиск и попробуйте еще раз.</string>
     <string name="label_search_button">Поиск</string>
@@ -972,6 +972,7 @@
     <string name="label_conversation_media">Медиа</string>
     <string name="label_conversation_pictures">Изображения</string>
     <string name="label_conversation_files">Файлы</string>
+    <string name="content_description_see_shared_drive_in_conversation_btn">Открыть общий диск</string>
     <string name="label_conversation_pictures_empty">Никто не делился фотографиями в этой беседе 🥲</string>
     <string name="label_conversation_files_empty">Никто не делился файлами в этой беседе 🙀</string>
     <!-- Search Contact-->
@@ -1201,6 +1202,7 @@
     <string name="disable_guests_dialog_title">Не разрешать гостей?</string>
     <string name="disable_guests_dialog_description">Гости, выбранные на предыдущем этапе, не смогут войти в беседу, если не разрешить гостевой доступ.</string>
     <string name="disable_guests_dialog_button">Не разрешать гостей</string>
+    <string name="enable_guests_dialog_button">Разрешить гостям</string>
     <!--block user dialog -->
     <string name="block_user_dialog_title">Заблокировать пользователя?</string>
     <string name="block_user_dialog_body">%1$s не сможет с вами связаться или добавить в групповые беседы. Уведомлений об этом не будет.</string>
@@ -1889,17 +1891,16 @@
     <string name="channel_not_available_dialog_description">Создайте команду и начните взаимодействовать бесплатно!</string>
     <string name="channel_not_available_dialog_create_team_button">Создать команду Wire</string>
     <string name="custimization_options_header_title">Настройки</string>
-    <string name="cells_screen_title">Все файлы</string>
-    <string name="cells_screen_search_hint">Поиск файлов</string>
-    <string name="enable_wire_cell">Совместная работа с файлами (бета-версия Cells)</string>
-    <string name="enable_wire_cell_switch_description">Предоставьте пользователям возможность управлять своими документами и медиафайлами. Используйте папки, теги и фильтры для более эффективной работы. Это невозможно отменить.</string>
+    <string name="drive_screen_search_hint">Поиск файлов</string>
+    <string name="enable_wire_cell">Общий диск</string>
+    <string name="enable_wire_cell_switch_description">Разрешить участникам управлять своими документами и медиа файлами в общем диске. Это действие не может быть отменено.</string>
     <string name="failed_attachment_retry_upload">Повторить загрузку</string>
     <string name="failed_attachment_remove">Удалить</string>
     <string name="content_description_apply_filter">Применить фильтр</string>
     <string name="content_description_filter_files">Фильтр файлов</string>
     <string name="profile_deeplink_feature_unavailable_title_alert">Эта функция недоступна. Пожалуйста, свяжитесь со своим администратором.</string>
-    <string name="conversation_options_file_collaboration_label">Совместная работа с файлами (Cells)</string>
-    <string name="conversation_options_file_collaboration_description">Постоянно для этой беседы.</string>
+    <string name="conversation_options_shared_drive_label">Общий диск</string>
+    <string name="conversation_options_shared_drive_description">Постоянно для этой беседы.</string>
     <plurals name="reply_multiple_files">
         <item quantity="one">%1$d файл</item>
         <item quantity="few">%1$d файла</item>

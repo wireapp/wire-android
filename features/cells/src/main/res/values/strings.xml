@@ -16,6 +16,9 @@
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
 <resources>
+    <string name="empty_screen_learn_more_link_conversation" translatable="false">https://support.wire.com/hc/articles/32207745256221</string>
+    <string name="empty_screen_learn_more_link_all_files_screen" translatable="false">https://support.wire.com/hc/articles/32207800433309</string>
+
     <string name="retry">Retry</string>
     <string name="file_list_load_error_title">Error</string>
     <string name="file_list_load_error">The list of files couldn\'t be loaded. Please try again.</string>
@@ -107,11 +110,13 @@
     <string name="rename_file_renamed">File was renamed</string>
     <string name="rename_folder_renamed">Folder was renamed</string>
     <string name="rename_failure">Unable to rename</string>
-    <string name="rename_invalid_name">Use a name without "/" and not starting with "."</string>
-    <string name="rename_already_exist">File with this name already exists</string>
+    <string name="rename_invalid_name">Don’t start with a . and don’t use / \ "</string>
+    <string name="rename_file_already_exist">File with this name already exists</string>
+    <string name="rename_folder_already_exist">Folder with this name already exists</string>
     <string name="filter_label">Filter</string>
     <string name="tags_label">Tags</string>
     <string name="select_tags_label">select tags</string>
+    <string name="no_tags_created_yet_label">No tags were created yet.</string>
     <string name="clear_all_label">Clear All</string>
     <string name="apply_label">Apply</string>
     <string name="add_or_remove_tags_title">Add or remove tags</string>
@@ -195,4 +200,14 @@
     <string name="snackbar_download_cell_version_show_label">Show</string>
     <string name="snackbar_download_cell_version_downloading_label">Downloading…</string>
     <string name="search_text_input_hint_for_files_folders_in_conversation">Search files or folders</string>
+    <string name="cells_create_file">Create File</string>
+    <string name="create_file_error">Unable to create file. Please try again</string>
+    <string name="cell_file_name">File Name</string>
+    <string name="long_file_name_error">Use a shorter file name (at most 64 characters)</string>
+    <string name="file_type_bottom_sheet_document">Document</string>
+    <string name="file_type_bottom_sheet_spreadsheet">Spreadsheet</string>
+    <string name="file_type_bottom_sheet_presentation">Presentation</string>
+    <string name="create_file_screen_title">Create %1$s file</string>
+    <string name="empty_screen_learn_more_conversation">Learn more about Shared Drive</string>
+    <string name="empty_screen_learn_more">Learn more</string>
 </resources>

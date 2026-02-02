@@ -1031,7 +1031,7 @@ class WireNotificationManagerTest {
                 )
             }
             coVerify(atLeast = 1) {
-                arrangement.markMessagesAsNotified(MarkMessagesAsNotifiedUseCase.UpdateTarget.AllConversations)
+                arrangement.markMessagesAsNotified(MarkMessagesAsNotifiedUseCase.UpdateTarget.SingleConversation(conversationId))
             }
         }
 

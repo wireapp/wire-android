@@ -30,7 +30,6 @@ import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.lifecycle.SyncLifecycleManager
 import com.wire.android.util.logging.logIfEmptyUserName
-import com.wire.kalium.logger.obfuscateId
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -149,12 +148,12 @@ class WireNotificationManager @Inject constructor(
             if (isJobRunningForUser) {
                 // Return the currently existing job if it's active
                 appLogger.d(
-                    "$TAG Already processing notifications for user=${userId.value.obfuscateId()}, and joining original execution"
+                    "$TAG Already processing notifications for user=${userId.toLogString()}, and joining original execution"
                 )
                 currentJobForUser
             } else {
                 // Create a new job for this user
-                appLogger.d("$TAG Starting to processing notifications for user=${userId.value.obfuscateId()}")
+                appLogger.d("$TAG Starting to processing notifications for user=${userId.toLogString()}")
                 val newJob = scope.launch(start = CoroutineStart.LAZY) {
                     triggerSyncForUserIfAuthenticated(userId)
                 }
@@ -476,7 +475,10 @@ class WireNotificationManager @Inject constructor(
                         selfUserNameState.value
                     )
                 }
-                markMessagesAsNotified(userId)
+
+                newNotifications.map { it.conversationId }.distinct().forEach { notifiedConversationId ->
+                    markMessagesAsNotified(userId, notifiedConversationId)
+                }
                 markConnectionAsNotified(userId)
             }
     }

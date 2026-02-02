@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2025 Wire Swiss GmbH
+ * Copyright (C) 2026 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,12 +19,15 @@ package com.wire.android.feature.cells.ui
 
 import android.content.Context
 import android.widget.Toast
+import androidx.annotation.StringRes
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -39,6 +42,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
@@ -51,6 +55,7 @@ import com.wire.android.feature.cells.ui.common.WireCellErrorDialog
 import com.wire.android.feature.cells.ui.dialog.DeleteConfirmationDialog
 import com.wire.android.feature.cells.ui.dialog.NodeActionsBottomSheet
 import com.wire.android.feature.cells.ui.download.DownloadFileBottomSheet
+import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.publiclink.PublicLinkScreenData
 import com.wire.android.feature.cells.ui.recyclebin.RestoreConfirmationDialog
@@ -61,6 +66,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.cells.domain.paging.FileListLoadError
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
@@ -290,6 +296,21 @@ private fun EmptyScreen(
             style = typography().body01,
             textAlign = TextAlign.Center,
         )
+        Spacer(modifier = Modifier.height(dimensions().spacing24x))
+
+        if (!isFiltering && !isRecycleBin && !isAllFiles) {
+            LearnMoreLink(
+                textRes = R.string.empty_screen_learn_more_conversation,
+                urlRes = R.string.empty_screen_learn_more_link_conversation,
+            )
+        }
+
+        if (isAllFiles) {
+            LearnMoreLink(
+                textRes = R.string.empty_screen_learn_more,
+                urlRes = R.string.empty_screen_learn_more_link_all_files_screen,
+            )
+        }
 
         Spacer(
             modifier = Modifier
@@ -297,6 +318,25 @@ private fun EmptyScreen(
                 .weight(1.5f)
         )
     }
+}
+
+@Composable
+private fun LearnMoreLink(
+    @StringRes textRes: Int,
+    @StringRes urlRes: Int,
+) {
+    val context = LocalContext.current.applicationContext
+    val onlineEditor = remember(context) { OnlineEditor(context) }
+
+    val url = stringResource(urlRes)
+    Text(
+        text = stringResource(textRes),
+        style = MaterialTheme.wireTypography.body01,
+        textDecoration = TextDecoration.Underline,
+        modifier = Modifier.clickable {
+            onlineEditor.open(url)
+        },
+    )
 }
 
 private fun showDeleteConfirmation(

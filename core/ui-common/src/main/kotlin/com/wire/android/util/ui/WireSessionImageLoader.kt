@@ -31,18 +31,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import coil.Coil
-import coil.ImageLoader
-import coil.compose.AsyncImagePainter
-import coil.compose.rememberAsyncImagePainter
-import coil.decode.GifDecoder
-import coil.decode.ImageDecoderDecoder
-import coil.request.ImageRequest
+import coil3.ImageLoader
+import coil3.compose.AsyncImagePainter
+import coil3.compose.rememberAsyncImagePainter
+import coil3.gif.AnimatedImageDecoder
+import coil3.gif.GifDecoder
+import coil3.request.ImageRequest
+import coil3.request.crossfade
 import com.wire.android.model.ImageAsset
+import com.wire.android.util.ui.AssetImageFetcher.Companion.OPTION_PARAMETER_RETRY_KEY
 import com.wire.kalium.logic.feature.asset.DeleteAssetUseCase
 import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
-import com.wire.kalium.logic.util.ExponentialDurationHelperImpl
+import com.wire.kalium.logic.util.ExponentialDurationHelper
 import com.wire.kalium.network.NetworkState
 import com.wire.kalium.network.NetworkStateObserver
 import kotlinx.coroutines.delay
@@ -80,16 +81,14 @@ class WireSessionImageLoader(
         withCrossfadeAnimation: Boolean = false,
     ): Painter {
         var retryHash by remember { mutableStateOf(0) }
-        val exponentialDurationHelper = remember { ExponentialDurationHelperImpl(MIN_RETRY_DELAY, MAX_RETRY_DELAY) }
+        val exponentialDurationHelper = remember { ExponentialDurationHelper(MIN_RETRY_DELAY, MAX_RETRY_DELAY) }
         val painter = rememberAsyncImagePainter(
             model = ImageRequest.Builder(LocalContext.current)
                 .memoryCacheKey(asset?.uniqueKey)
                 .data(asset ?: fallbackData)
-                .setParameter(
-                    key = AssetImageFetcher.OPTION_PARAMETER_RETRY_KEY,
-                    value = retryHash,
-                    memoryCacheKey = null
-                )
+                .apply {
+                    extras[OPTION_PARAMETER_RETRY_KEY] = retryHash
+                }
                 .crossfade(withCrossfadeAnimation)
                 .build(),
             error = (fallbackData as? Int)?.let { painterResource(id = it) },
@@ -97,21 +96,23 @@ class WireSessionImageLoader(
         )
 
         LaunchedEffect(painter.state) {
-            if (painter.state is AsyncImagePainter.State.Error) {
-                val retryPolicy = ((painter.state as AsyncImagePainter.State.Error).result.throwable as? AssetImageException)?.retryPolicy
-                    ?: AssetImageRetryPolicy.DO_NOT_RETRY
+            painter.state.collect { state ->
+                if (state is AsyncImagePainter.State.Error) {
+                    val retryPolicy =
+                        (state.result.throwable as? AssetImageException)?.retryPolicy
+                            ?: AssetImageRetryPolicy.DO_NOT_RETRY
 
-                if (retryPolicy == AssetImageRetryPolicy.EXPONENTIAL_RETRY_WHEN_CONNECTED) {
-                    delay(exponentialDurationHelper.next())
-                }
+                    if (retryPolicy == AssetImageRetryPolicy.EXPONENTIAL_RETRY_WHEN_CONNECTED) {
+                        delay(exponentialDurationHelper.next())
+                    }
 
-                if (retryPolicy != AssetImageRetryPolicy.DO_NOT_RETRY) {
-                    networkStateObserver.observeNetworkState().firstOrNull { it == NetworkState.ConnectedWithInternet }.let {
+                    if (retryPolicy != AssetImageRetryPolicy.DO_NOT_RETRY) {
+                        networkStateObserver.observeNetworkState().firstOrNull { it == NetworkState.ConnectedWithInternet }
                         retryHash += RETRY_INCREMENT_ATTEMPT_PER_STEP
                     }
+                } else {
+                    exponentialDurationHelper.reset()
                 }
-            } else {
-                exponentialDurationHelper.reset()
             }
         }
         return painter
@@ -124,11 +125,9 @@ class WireSessionImageLoader(
         private val getPrivateAsset: GetMessageAssetUseCase,
         private val networkStateObserver: NetworkStateObserver,
     ) {
-        private val defaultImageLoader = Coil.imageLoader(context)
-
         fun newImageLoader(): WireSessionImageLoader =
             WireSessionImageLoader(
-                defaultImageLoader.newBuilder()
+                ImageLoader.Builder(context)
                     .components {
                         add(
                             AssetImageFetcher.Factory(
@@ -139,7 +138,7 @@ class WireSessionImageLoader(
                             )
                         )
                         if (SDK_INT >= VERSION_CODES.P) {
-                            add(ImageDecoderDecoder.Factory())
+                            add(AnimatedImageDecoder.Factory())
                         } else {
                             add(GifDecoder.Factory())
                         }

@@ -90,6 +90,7 @@ import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.E2EIEnrollmentScreenDestination
 import com.wire.android.ui.destinations.E2eiCertificateDetailsScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination
+import com.wire.android.ui.destinations.LogManagementScreenDestination
 import com.wire.android.ui.destinations.LoginScreenDestination
 import com.wire.android.ui.destinations.NewLoginScreenDestination
 import com.wire.android.ui.destinations.NewWelcomeEmptyStartScreenDestination
@@ -117,6 +118,7 @@ import com.wire.android.ui.userprofile.self.dialog.LogoutOptionsDialog
 import com.wire.android.ui.userprofile.self.dialog.LogoutOptionsDialogState
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.LocalSyncStateObserver
+import com.wire.android.util.ShakeDetector
 import com.wire.android.util.SwitchAccountObserver
 import com.wire.android.util.SyncStateObserver
 import com.wire.android.util.debug.FeatureVisibilityFlags
@@ -166,6 +168,7 @@ class WireActivity : AppCompatActivity() {
     private val legalHoldDeactivatedViewModel: LegalHoldDeactivatedViewModel by viewModels()
 
     private val newIntents = Channel<Pair<Intent, Bundle?>>(Channel.UNLIMITED) // keep new intents until subscribed but do not replay them
+    private lateinit var shakeDetector: ShakeDetector
 
     // This flag is used to keep the splash screen open until the first screen is drawn.
     private var shouldKeepSplashOpen = true
@@ -182,6 +185,7 @@ class WireActivity : AppCompatActivity() {
 
         enableEdgeToEdge()
         setupOrientationForDevice()
+        shakeDetector = ShakeDetector(this)
 
         lifecycleScope.launch {
 
@@ -415,6 +419,16 @@ class WireActivity : AppCompatActivity() {
                 }
             }
         }
+
+        LaunchedEffect(Unit) {
+            lifecycleScope.launch {
+                shakeDetector.observeShakes()
+                    .flowWithLifecycle(lifecycle, Lifecycle.State.RESUMED)
+                    .collectLatest {
+                        handleLogManagementShake(currentNavigator)
+                    }
+            }
+        }
     }
 
     @Composable
@@ -444,8 +458,7 @@ class WireActivity : AppCompatActivity() {
                     onConfirm = {
                         featureFlagNotificationViewModel.dismissTeamAppLockDialog()
                         if (isTeamAppLockEnabled) {
-                            val isUserAppLockSet =
-                                featureFlagNotificationViewModel.isUserAppLockSet()
+                            val isUserAppLockSet = featureFlagNotificationViewModel.featureFlagState.isUserAppLockSet
                             // No need to setup another app lock if the user already has one
                             if (!isUserAppLockSet) {
                                 Intent(this@WireActivity, AppLockActivity::class.java)
@@ -662,6 +675,7 @@ class WireActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        shakeDetector.start()
 
         lifecycleScope.launch {
             lockCodeTimeManager.get().observeAppLock()
@@ -677,6 +691,11 @@ class WireActivity : AppCompatActivity() {
                     }
                 }
         }
+    }
+
+    override fun onPause() {
+        shakeDetector.stop()
+        super.onPause()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -734,6 +753,15 @@ class WireActivity : AppCompatActivity() {
         } else {
             viewModel.handleDeepLink(intent)
             intent.putExtra(HANDLED_DEEPLINK_FLAG, true)
+        }
+    }
+
+    private fun handleLogManagementShake(navigator: Navigator) {
+        runOnUiThread {
+            val currentRoute = navigator.navController.currentDestination?.route?.getBaseRoute()
+            val targetRoute = LogManagementScreenDestination.route.getBaseRoute()
+            if (currentRoute == targetRoute) return@runOnUiThread
+            navigator.navigate(NavigationCommand(LogManagementScreenDestination, BackStackMode.UPDATE_EXISTED))
         }
     }
 

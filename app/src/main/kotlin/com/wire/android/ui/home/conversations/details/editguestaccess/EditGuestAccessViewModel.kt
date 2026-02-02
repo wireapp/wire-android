@@ -25,10 +25,10 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig
+import com.wire.android.appLogger
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.ui.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -40,6 +40,7 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUs
 import com.wire.kalium.logic.feature.conversation.guestroomlink.CanCreatePasswordProtectedLinksUseCase
 import com.wire.kalium.logic.feature.conversation.guestroomlink.GenerateGuestRoomLinkResult
 import com.wire.kalium.logic.feature.conversation.guestroomlink.GenerateGuestRoomLinkUseCase
+import com.wire.kalium.logic.feature.conversation.guestroomlink.ObserveGuestRoomLinkResult
 import com.wire.kalium.logic.feature.conversation.guestroomlink.ObserveGuestRoomLinkUseCase
 import com.wire.kalium.logic.feature.conversation.guestroomlink.RevokeGuestRoomLinkResult
 import com.wire.kalium.logic.feature.conversation.guestroomlink.RevokeGuestRoomLinkUseCase
@@ -280,10 +281,16 @@ class EditGuestAccessViewModel @Inject constructor(
 
     private fun startObservingGuestRoomLink() {
         viewModelScope.launch {
-            observeGuestRoomLink(conversationId).collect {
-                it.onSuccess {
-                    editGuestAccessState =
-                        editGuestAccessState.copy(link = it?.link, isLinkPasswordProtected = it?.isPasswordProtected ?: false)
+            observeGuestRoomLink(conversationId).collect { linkResult ->
+                when (linkResult) {
+                    is ObserveGuestRoomLinkResult.Failure -> appLogger.w("Failed to observe guest room link: ${linkResult.failure}")
+                    is ObserveGuestRoomLinkResult.Success -> {
+                        editGuestAccessState =
+                            editGuestAccessState.copy(
+                                link = linkResult.link?.link,
+                                isLinkPasswordProtected = linkResult.link?.isPasswordProtected ?: false
+                            )
+                    }
                 }
             }
         }

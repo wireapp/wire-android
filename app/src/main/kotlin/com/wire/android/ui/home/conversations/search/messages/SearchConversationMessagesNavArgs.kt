@@ -20,5 +20,7 @@ package com.wire.android.ui.home.conversations.search.messages
 import com.wire.kalium.logic.data.id.ConversationId
 
 data class SearchConversationMessagesNavArgs(
-    val conversationId: ConversationId
+    val conversationId: ConversationId,
+    val groupName: String = "",
+    val isCellsConversation: Boolean = false
 )

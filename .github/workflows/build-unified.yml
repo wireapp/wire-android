@@ -222,6 +222,7 @@ jobs:
           DATADOG_APP_ID: ${{ secrets.DATADOG_APP_ID }}
           DATADOG_CLIENT_TOKEN: ${{ secrets.DATADOG_CLIENT_TOKEN }}
           ENABLE_SIGNING: ${{ secrets.ENABLE_SIGNING }}
+          DOMAIN_REMOVAL_KEYS_FOR_REPAIR: ${{ secrets.DOMAIN_REMOVAL_KEYS_FOR_REPAIR }}
 
       - name: Build AAB
         if: matrix.build-type == 'bundle' || matrix.build-type == 'both'
@@ -231,13 +232,14 @@ jobs:
           DATADOG_APP_ID: ${{ secrets.DATADOG_APP_ID }}
           DATADOG_CLIENT_TOKEN: ${{ secrets.DATADOG_CLIENT_TOKEN }}
           ENABLE_SIGNING: ${{ secrets.ENABLE_SIGNING }}
+          DOMAIN_REMOVAL_KEYS_FOR_REPAIR: ${{ secrets.DOMAIN_REMOVAL_KEYS_FOR_REPAIR }}
 
       - name: Move version file for consistent artifact structure
         if: matrix.generate-version-file == true
         run: mv app/version.txt app/build/outputs/
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: ${{ matrix.flavor }}-${{ matrix.variant }}-artifacts
           path: app/build/outputs/

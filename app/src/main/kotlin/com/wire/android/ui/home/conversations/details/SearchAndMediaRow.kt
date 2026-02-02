@@ -25,7 +25,7 @@ import com.wire.android.ui.common.button.LoadingWireSecondaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.common.spacers.HorizontalSpace
-import com.wire.android.ui.home.conversations.media.ConversationFilesButton
+import com.wire.android.ui.home.conversations.media.ConversationSharedDriveButton
 import com.wire.android.ui.home.conversations.media.ConversationMediaButton
 import com.wire.android.ui.home.conversations.search.messages.SearchConversationMessagesButton
 import com.wire.android.ui.theme.WireTheme
@@ -44,7 +44,7 @@ fun SearchAndMediaRow(
         )
         HorizontalSpace.x8()
         if (isWireCellEnabled) {
-            ConversationFilesButton(
+            ConversationSharedDriveButton(
                 modifier = Modifier.weight(1f),
                 onClick = onConversationMediaClick
             )

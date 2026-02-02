@@ -28,7 +28,6 @@ import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.navArgs
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreenViewModelTest.Companion.CONVERSATION_ID
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreenViewModelTest.Companion.USER_ID
-import com.wire.kalium.common.functional.right
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.client.FetchUsersClientsFromRemoteUseCase
 import com.wire.kalium.logic.feature.client.ObserveClientsByUserIdUseCase
@@ -38,6 +37,7 @@ import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUs
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleResult
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
 import com.wire.kalium.logic.feature.e2ei.MLSClientIdentity
+import com.wire.kalium.logic.feature.e2ei.usecase.GetMLSClientIdentityResult
 import com.wire.kalium.logic.feature.e2ei.usecase.GetMLSClientIdentityUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.IsOtherUserE2EIVerifiedUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
@@ -139,7 +139,7 @@ internal class OtherUserProfileViewModelArrangement {
             GetOneToOneConversationDetailsUseCase.Result.Success(OtherUserProfileScreenViewModelTest.CONVERSATION_ONE_ONE)
         )
         coEvery { getUserE2eiCertificateStatus.invoke(any()) } returns true
-        coEvery { mlsClientIdentity.invoke(any()) } returns mlsIdentity.right()
+        coEvery { mlsClientIdentity.invoke(any()) } returns GetMLSClientIdentityResult.Success(mlsIdentity)
         coEvery { isOneToOneConversationCreated.invoke(any()) } returns true
         coEvery { isE2EIEnabled.invoke() } returns true
     }

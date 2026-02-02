@@ -773,7 +773,9 @@ class WireActivity : AppCompatActivity() {
             intent?.getStringExtra(EXTRA_SSO_CODE)?.let { ssoCode ->
                 if (navigator.isEmptyWelcomeStartDestination()) {
                     // Only trigger SSO login if user is not already logged in
-                    appLogger.i("$TAG: SSO code provided via intent, navigating to login screen")
+                    appLogger.i("$TAG: SSO code provided via intent, setting SSO intent flag and navigating to login screen")
+                    viewModel.setSSOIntentFlag(true)
+                    appLogger.i("$TAG: SSO intent flag set to: ${viewModel.globalAppState.startedWithSSOIntent}")
                     navigator.navigate(
                         NavigationCommand(
                             LoginScreenDestination(

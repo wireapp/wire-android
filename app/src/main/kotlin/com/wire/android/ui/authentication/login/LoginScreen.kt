@@ -45,6 +45,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
@@ -91,6 +92,10 @@ fun LoginScreen(
     ssoUrlConfigHolder: SSOUrlConfigHolder,
     loginEmailViewModel: LoginEmailViewModel = hiltViewModel()
 ) {
+    val activity = com.wire.android.ui.LocalActivity.current
+    // Get the Activity-scoped ViewModel, not the navigation-scoped one
+    val wireActivityViewModel: com.wire.android.ui.WireActivityViewModel = viewModel(viewModelStoreOwner = activity)
+    val scope = rememberCoroutineScope()
 
     LoginContent(
         onBackPressed = navigator::navigateBack,
@@ -104,6 +109,20 @@ fun LoginScreen(
             }
 
             navigator.navigate(NavigationCommand(destination, BackStackMode.CLEAR_WHOLE))
+
+            // If started with SSO intent, move app to background after navigation completes
+            if (wireActivityViewModel.globalAppState.startedWithSSOIntent) {
+                com.wire.android.appLogger.i("LoginScreen: SSO intent detected, moving app to background")
+                wireActivityViewModel.setSSOIntentFlag(false)
+                scope.launch {
+                    kotlinx.coroutines.delay(100) // Small delay to let navigation complete
+                    com.wire.android.appLogger.i("LoginScreen: Calling moveTaskToBack(false)")
+                    val result = activity.moveTaskToBack(false)
+                    com.wire.android.appLogger.i("LoginScreen: moveTaskToBack result: $result")
+                }
+            } else {
+                com.wire.android.appLogger.i("LoginScreen: No SSO intent flag detected (flag=${wireActivityViewModel.globalAppState.startedWithSSOIntent})")
+            }
         },
         onRemoveDeviceNeeded = {
             navigator.navigate(NavigationCommand(RemoveDeviceScreenDestination, BackStackMode.CLEAR_WHOLE))

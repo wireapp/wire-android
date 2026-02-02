@@ -113,7 +113,7 @@
             "use_async_flush_logging": true,
             "content_backup_enabled": true,
             "crypto_state_backup_enabled": true,
-            "crypto_state_backup_interval": 10
+            "crypto_state_backup_interval": 30
         }
     },
     "application_name": "Wire",
@@ -182,5 +182,5 @@
     "db_invalidation_control_enabled": false,
     "content_backup_enabled": false,
     "crypto_state_backup_enabled": false,
-    "crypto_state_backup_interval": 20
+    "crypto_state_backup_interval": 120
 }

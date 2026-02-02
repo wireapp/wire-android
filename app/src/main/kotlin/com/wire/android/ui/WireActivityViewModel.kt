@@ -531,6 +531,10 @@ class WireActivityViewModel @Inject constructor(
         globalAppState = globalAppState.copy(maxAccountDialog = false)
     }
 
+    fun setSSOIntentFlag(started: Boolean) {
+        globalAppState = globalAppState.copy(startedWithSSOIntent = started)
+    }
+
     fun observePersistentConnectionStatus() {
         viewModelScope.launch {
             coreLogic.get().getGlobalScope().observePersistentWebSocketConnectionStatus()
@@ -657,7 +661,8 @@ data class GlobalAppState(
     val newClientDialog: NewClientsData? = null,
     val screenshotCensoringEnabled: Boolean = true,
     val themeOption: ThemeOption = ThemeOption.SYSTEM,
-    val userAccent: Accent = Accent.Unknown
+    val userAccent: Accent = Accent.Unknown,
+    val startedWithSSOIntent: Boolean = false
 )
 
 enum class InitialAppState {

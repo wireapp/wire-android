@@ -1,0 +1,6 @@
+New
+- Wire Drive feature:
+   • Share multiple files plus text message
+   • Let your team collaborate and edit documents
+   • Stay organized with folders and tags
+   • Find all files in Drive

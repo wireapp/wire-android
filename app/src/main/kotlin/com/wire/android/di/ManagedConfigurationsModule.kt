@@ -21,6 +21,10 @@ import android.content.Context
 import com.wire.android.BuildConfig
 import com.wire.android.config.ServerConfigProvider
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.emm.AndroidUserContextProvider
+import com.wire.android.emm.AndroidUserContextProviderImpl
+import com.wire.android.emm.ManagedConfigParser
+import com.wire.android.emm.ManagedConfigParserImpl
 import com.wire.android.emm.ManagedConfigurationsManager
 import com.wire.android.emm.ManagedConfigurationsManagerImpl
 import com.wire.android.util.EMPTY
@@ -44,13 +48,32 @@ class ManagedConfigurationsModule {
 
     @Provides
     @Singleton
+    fun provideAndroidUserContextProvider(): AndroidUserContextProvider =
+        AndroidUserContextProviderImpl()
+
+    @Provides
+    @Singleton
+    fun provideManagedConfigParser(
+        userContextProvider: AndroidUserContextProvider
+    ): ManagedConfigParser = ManagedConfigParserImpl(userContextProvider)
+
+    @Provides
+    @Singleton
     fun provideManagedConfigurationsRepository(
         @ApplicationContext context: Context,
         dispatcherProvider: DispatcherProvider,
         serverConfigProvider: ServerConfigProvider,
+        configParser: ManagedConfigParser
         globalDataStore: GlobalDataStore
     ): ManagedConfigurationsManager {
-        return ManagedConfigurationsManagerImpl(context, dispatcherProvider, serverConfigProvider, globalDataStore)
+        return ManagedConfigurationsManagerImpl(
+            context,
+            dispatcherProvider,
+            serverConfigProvider,
+            globalDataStore,
+            configParser
+
+        )
     }
 
     @Provides

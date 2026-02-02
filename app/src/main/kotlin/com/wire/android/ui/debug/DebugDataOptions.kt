@@ -19,7 +19,6 @@ package com.wire.android.ui.debug
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -35,7 +34,6 @@ import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WirePrimaryButton
-import com.wire.android.ui.common.button.WireSwitch
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.rowitem.RowItemTemplate
 import com.wire.android.ui.common.rowitem.SectionHeader
@@ -45,6 +43,7 @@ import com.wire.android.ui.e2eiEnrollment.GetE2EICertificateUI
 import com.wire.android.ui.home.settings.SettingsItem
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.feature.e2ei.usecase.FinalizeEnrollmentResult
@@ -319,39 +318,6 @@ private fun MLSOptions(
             )
         }
     }
-}
-//endregion
-
-//region Proteus Options
-
-@Composable
-private fun EnableEncryptedProteusStorageSwitch(
-    isEnabled: Boolean = false,
-    onCheckedChange: ((Boolean) -> Unit)?,
-) {
-    RowItemTemplate(
-        title = {
-            Text(
-                style = MaterialTheme.wireTypography.body01,
-                color = MaterialTheme.wireColorScheme.onBackground,
-                text = stringResource(R.string.label_enable_encrypted_proteus_storage),
-                modifier = Modifier.padding(start = dimensions().spacing8x)
-            )
-        },
-        actions = {
-            WireSwitch(
-                checked = isEnabled,
-                onCheckedChange = onCheckedChange,
-                enabled = !isEnabled,
-                modifier = Modifier
-                    .padding(end = dimensions().spacing8x)
-                    .size(
-                        width = dimensions().buttonSmallMinSize.width,
-                        height = dimensions().buttonSmallMinSize.height
-                    )
-            )
-        }
-    )
 }
 //endregion
 

@@ -68,7 +68,7 @@
     <string name="download">Download</string>
     <string name="downloading_file_message">Downloading file…</string>
     <string name="error_share_link">Unable to share link.</string>
-    <string name="conversation_files_title">Files</string>
+    <string name="conversation_files_title">Shared Drive</string>
     <string name="creating_link">Creating public link…</string>
     <string name="cells_new_label">New</string>
     <string name="cells_new_label_content_description">New</string>

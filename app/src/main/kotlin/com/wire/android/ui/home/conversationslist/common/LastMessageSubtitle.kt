@@ -21,7 +21,7 @@ package com.wire.android.ui.home.conversationslist.common
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.style.TextOverflow
 import com.wire.android.ui.markdown.MarkdownConstants
 import com.wire.android.ui.markdown.MarkdownInline
@@ -80,7 +80,7 @@ private fun LastMessageMarkdown(
         accent = Accent.Unknown
     )
 
-    val locales = LocalContext.current.resources.configuration.locales
+    val locales = LocalConfiguration.current.locales
     val currentLocaleTag = if (locales.isEmpty) "" else locales[0].toLanguageTag()
     val shouldUsePreview = markdownPreview != null && (markdownLocaleTag == null || markdownLocaleTag == currentLocaleTag)
 

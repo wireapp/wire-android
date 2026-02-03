@@ -22,7 +22,10 @@ import android.content.Context
 import android.content.Intent
 import androidx.test.core.app.ApplicationProvider
 import com.wire.android.config.TestDispatcherProvider
+import com.wire.android.feature.StartPersistentWebsocketIfNecessaryUseCase
 import com.wire.android.util.EMPTY
+import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.GlobalKaliumScope
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -187,17 +190,65 @@ class ManagedConfigurationsReceiverTest {
             coVerify(exactly = 0) { arrangement.managedConfigurationsManager.refreshSSOCodeConfig() }
         }
 
+    @Test
+    fun `given websocket enforcement turns ON, when onReceive is called, then bulk enable persistent websocket and trigger service`() =
+        runTest {
+            val (arrangement, receiver) = Arrangement()
+                .withIntent(Intent.ACTION_APPLICATION_RESTRICTIONS_CHANGED)
+                .withPersistentWebSocketTransition(from = false, to = true)
+                .arrange()
+
+            receiver.onReceive(arrangement.context, arrangement.intent)
+            advanceUntilIdle()
+
+            coVerify(exactly = 1) { arrangement.globalScope.setAllPersistentWebSocketEnabled(true) }
+            coVerify(exactly = 1) { arrangement.startPersistentWebsocketIfNecessary.invoke() }
+            coVerify(exactly = 1) {
+                arrangement.managedConfigurationsReporter.reportAppliedState(
+                    eq(ManagedConfigurationsKeys.KEEP_WEBSOCKET_CONNECTION.asKey()),
+                    eq("Persistent WebSocket enforced"),
+                    eq("true")
+                )
+            }
+        }
+
+    @Test
+    fun `given websocket enforcement turns OFF, when onReceive is called, then do not bulk enable and trigger service`() =
+        runTest {
+            val (arrangement, receiver) = Arrangement()
+                .withIntent(Intent.ACTION_APPLICATION_RESTRICTIONS_CHANGED)
+                .withPersistentWebSocketTransition(from = true, to = false)
+                .arrange()
+
+            receiver.onReceive(arrangement.context, arrangement.intent)
+            advanceUntilIdle()
+
+            coVerify(exactly = 0) { arrangement.globalScope.setAllPersistentWebSocketEnabled(true) }
+            coVerify(exactly = 1) { arrangement.startPersistentWebsocketIfNecessary.invoke() }
+            coVerify(exactly = 1) {
+                arrangement.managedConfigurationsReporter.reportAppliedState(
+                    eq(ManagedConfigurationsKeys.KEEP_WEBSOCKET_CONNECTION.asKey()),
+                    eq("Persistent WebSocket not enforced"),
+                    eq("false")
+                )
+            }
+        }
+
     private class Arrangement {
 
         val context: Context = ApplicationProvider.getApplicationContext()
         val managedConfigurationsManager: ManagedConfigurationsManager = mockk(relaxed = true)
         val managedConfigurationsReporter: ManagedConfigurationsReporter = mockk(relaxed = true)
+        val coreLogic: CoreLogic = mockk(relaxed = true)
+        val globalScope: GlobalKaliumScope = mockk(relaxed = true)
+        val startPersistentWebsocketIfNecessary: StartPersistentWebsocketIfNecessaryUseCase = mockk(relaxed = true)
         private val dispatchers = TestDispatcherProvider()
         private val persistentWebSocketEnforcedFlow = MutableStateFlow(false)
         lateinit var intent: Intent
 
         init {
             every { managedConfigurationsManager.persistentWebSocketEnforcedByMDM } returns persistentWebSocketEnforcedFlow
+            every { coreLogic.getGlobalScope() } returns globalScope
         }
 
         fun withIntent(action: String?) = apply {
@@ -216,9 +267,18 @@ class ManagedConfigurationsReceiverTest {
             persistentWebSocketEnforcedFlow.value = enforced
         }
 
+        fun withPersistentWebSocketTransition(from: Boolean, to: Boolean) = apply {
+            persistentWebSocketEnforcedFlow.value = from
+            coEvery { managedConfigurationsManager.refreshPersistentWebSocketConfig() } answers {
+                persistentWebSocketEnforcedFlow.value = to
+            }
+        }
+
         fun arrange() = this to ManagedConfigurationsReceiver(
             managedConfigurationsManager,
             managedConfigurationsReporter,
+            lazy { coreLogic },
+            startPersistentWebsocketIfNecessary,
             dispatchers
         )
     }

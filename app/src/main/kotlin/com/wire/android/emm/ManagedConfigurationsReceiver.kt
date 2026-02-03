@@ -21,8 +21,12 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import com.wire.android.appLogger
+import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.feature.StartPersistentWebsocketIfNecessaryUseCase
 import com.wire.android.util.EMPTY
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.kalium.logic.CoreLogic
+import dagger.Lazy
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
@@ -33,6 +37,8 @@ import javax.inject.Singleton
 class ManagedConfigurationsReceiver @Inject constructor(
     private val managedConfigurationsManager: ManagedConfigurationsManager,
     private val managedConfigurationsReporter: ManagedConfigurationsReporter,
+    @KaliumCoreLogic private val coreLogic: Lazy<CoreLogic>,
+    private val startPersistentWebsocketIfNecessary: StartPersistentWebsocketIfNecessaryUseCase,
     dispatcher: DispatcherProvider
 ) : BroadcastReceiver() {
 
@@ -105,8 +111,18 @@ class ManagedConfigurationsReceiver @Inject constructor(
     }
 
     private suspend fun updatePersistentWebSocketConfig() {
+        val wasEnforced = managedConfigurationsManager.persistentWebSocketEnforcedByMDM.value
         managedConfigurationsManager.refreshPersistentWebSocketConfig()
         val isEnforced = managedConfigurationsManager.persistentWebSocketEnforcedByMDM.value
+
+        // Only bulk update when MDM enforcement turns ON
+        if (!wasEnforced && isEnforced) {
+            coreLogic.get().getGlobalScope().setAllPersistentWebSocketEnabled(true)
+        }
+
+        // Trigger service start/stop based on current state
+        startPersistentWebsocketIfNecessary()
+
         managedConfigurationsReporter.reportAppliedState(
             key = ManagedConfigurationsKeys.KEEP_WEBSOCKET_CONNECTION.asKey(),
             message = if (isEnforced) "Persistent WebSocket enforced" else "Persistent WebSocket not enforced",

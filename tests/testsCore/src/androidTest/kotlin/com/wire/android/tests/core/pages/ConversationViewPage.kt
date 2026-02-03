@@ -71,6 +71,12 @@ data class ConversationViewPage(private val device: UiDevice) {
 
     private val selfDeletingMessageLabel = UiSelectorParams(description = " Self-deleting message")
 
+    private val pingButton = UiSelectorParams(description = "Ping")
+
+    private val pingButtonOnModal = UiSelectorParams(text = "Ping")
+
+    private val pingAlert = UiSelectorParams(text = "Send a ping")
+
     private fun selfDeleteOption(label: String): UiSelectorParams {
         return UiSelectorParams(text = label, className = "android.widget.TextView")
     }
@@ -472,4 +478,27 @@ data class ConversationViewPage(private val device: UiDevice) {
 
         return this
     }
+
+    fun tapPingButton(): ConversationViewPage {
+     UiWaitUtils.waitElement(pingButton).click()
+        return this
+    }
+
+    fun tapPingButtonModal(): ConversationViewPage {
+        UiWaitUtils.waitElement(pingButtonOnModal).click()
+        return this
+    }
+
+    fun iSeePingModalWithText(message: String): ConversationViewPage {
+        val messageSelector = UiSelectorParams(text = message)
+
+        try {
+            UiWaitUtils.waitElement(messageSelector)
+        } catch (e: AssertionError) {
+            throw AssertionError("Message '$message' is not not visible on ping modal.", e)
+        }
+
+        return this
+    }
+
 }

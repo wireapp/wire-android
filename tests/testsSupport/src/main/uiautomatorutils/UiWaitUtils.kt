@@ -19,6 +19,9 @@ package uiautomatorutils
 
 import android.graphics.Rect
 import android.os.SystemClock
+import android.view.accessibility.AccessibilityEvent
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.BySelector
@@ -27,9 +30,20 @@ import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiObject2
 import androidx.test.uiautomator.UiSelector
 import androidx.test.uiautomator.Until
-import uiautomatorutils.UiWaitUtils.toBySelector
-import uiautomatorutils.UiWaitUtils.waitUntilVisible
+import org.hamcrest.CoreMatchers.containsString
 import java.io.IOException
+
+
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import org.hamcrest.Matchers.containsString
+
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.withText
+import java.io.File
+
 
 private const val TIMEOUT_IN_MILLISECONDS = 10000L
 
@@ -201,4 +215,49 @@ object UiWaitUtils {
             errorMessage = "Toast message containing '$message' was not displayed within ${timeoutMs}ms."
         )
     }
+
+    fun iSeeSystemMessage(
+        message: String,
+        timeoutMs: Long = 5_000
+    ) {
+        waitUntilVisible(
+            params = UiSelectorParams(textContains = message),
+            timeoutMs = timeoutMs,
+            errorMessage = "System message containing '$message' was not displayed within ${timeoutMs}ms."
+        )
+    }
+
+
+
+    fun assertCantRecordAudioMessageViaDump(timeoutMs: Long = 5_000) {
+        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+
+        val deadline = System.currentTimeMillis() + timeoutMs
+        val needle1 = "record an audio message"
+        val needle2 = "record an audio"
+        val needle3 = "during a call"
+
+        while (System.currentTimeMillis() < deadline) {
+            val file = File(
+                InstrumentationRegistry.getInstrumentation().targetContext.cacheDir,
+                "window_dump.xml"
+            )
+            device.dumpWindowHierarchy(file)
+
+            val xml = file.readText()
+
+            if (xml.contains(needle1, ignoreCase = true) ||
+                xml.contains(needle2, ignoreCase = true) ||
+                xml.contains(needle3, ignoreCase = true)
+            ) {
+                return
+            }
+
+            Thread.sleep(150)
+        }
+
+        throw AssertionError("Expected message about not recording audio during a call was not found in window hierarchy dump.")
+    }
+
+
 }

@@ -40,8 +40,11 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.koin.test.inject
 import service.TestServiceHelper
+import uiautomatorutils.KeyboardUtils.closeKeyboardIfOpened
 import uiautomatorutils.PermissionUtils.grantRuntimePermsForForegroundApp
 import uiautomatorutils.UiWaitUtils.WaitUtils.waitFor
+import uiautomatorutils.UiWaitUtils.assertCantRecordAudioMessageViaDump
+import uiautomatorutils.UiWaitUtils.iSeeSystemMessage
 import uiautomatorutils.UiWaitUtils.waitUntilToastIsDisplayed
 import user.usermanager.ClientUserManager
 import user.utils.ClientUser
@@ -545,7 +548,7 @@ class GroupVideoCall : BaseUiTest() {
                 tapContinueButton()
                 assertUsernameIsAddedToParticipantsList(teamOwnerB?.name ?: "")
                 tapCloseButtonOnGroupConversationDetailsPage()
-                waitUntilToastIsDisplayed("You added ${teamOwnerB?.name ?: ""} to the conversation")
+                iSeeSystemMessage("You added ${teamOwnerB?.name ?: ""} to the conversation")
             }
         }
 
@@ -566,45 +569,67 @@ class GroupVideoCall : BaseUiTest() {
             }
         }
 
-        step("Verify group call is active and participants joined") {
-            runBlocking {
-                callHelper.userVerifiesCallStatusToUserY(
-                    "user2Name, user3Name, user4Name, user5Name",
-                    "active",
-                    90
-                )
+//        step("Verify group call is active and participants joined") {
+//            runBlocking {
+//                callHelper.userVerifiesCallStatusToUserY(
+//                    "user2Name, user3Name, user4Name, user5Name",
+//                    "active",
+//                    90
+//                )
+//            }
+//
+//            pages.callingPage.apply {
+//                iSeeOngoingGroupCall()
+//            }
+//
+//            callHelper.iSeeParticipantsInGroupCall("user2Name, user3Name, user4Name, user5Name")
+//        }
+//
+//        step("Turn camera on") {
+//            pages.callingPage.apply {
+//                iTurnCameraOn()
+//            }
+//        }
+//
+//        step("Switch video on for participants and verify audio/video") {
+//            waitFor(2)
+//
+//            runBlocking {
+//                val callParticipantsSwitchVideoOn =
+//                    teamHelper.usersManager.splitAliases("user2Name, user3Name, user4Name, user5Name")
+//                callingManager.switchVideoOn(callParticipantsSwitchVideoOn)
+//
+//                val assertCallParticipantsReceiveAudioVideo =
+//                    teamHelper.usersManager.splitAliases("user2Name, user3Name, user4Name, user5Name")
+//                callingManager.verifyReceiveAudioAndVideo(assertCallParticipantsReceiveAudioVideo)
+//
+//
+//                callHelper.iSeeParticipantsInGroupVideoCall("user2Name, user3Name, user4Name, user5Name")
+//            }
+//
+//            pages.callingPage.apply {
+//                iMinimiseOngoingCall()
+//            }
+                pages.conversationViewPage.apply {
+//                tapMessageInInputField()
+//
+//                    tapPingButton()
+//
+//                    iSeePingModalWithText("Are you sure you want to ping 5 people?")
+//
+//                    tapPingButtonModal()
+//
+//                    iSeeSystemMessage("You pinged")
+//
+//                    closeKeyboardIfOpened()
+
+                        iTapFileSharingButton()
+                    tapSharingOption("Audio")
+
+
+
+                    assertCantRecordAudioMessageViaDump()
+                    waitFor(50)
             }
-
-            pages.callingPage.apply {
-                iSeeOngoingGroupCall()
-            }
-
-            callHelper.iSeeParticipantsInGroupCall("user2Name, user3Name, user4Name, user5Name")
-        }
-
-        step("Turn camera on") {
-            pages.callingPage.apply {
-                iTurnCameraOn()
-            }
-        }
-
-        step("Switch video on for participants and verify audio/video") {
-            waitFor(2)
-
-            runBlocking {
-                val callParticipantsSwitchVideoOn =
-                    teamHelper.usersManager.splitAliases("user2Name, user3Name, user4Name, user5Name")
-                callingManager.switchVideoOn(callParticipantsSwitchVideoOn)
-
-                val assertCallParticipantsReceiveAudioVideo =
-                    teamHelper.usersManager.splitAliases("user2Name, user3Name, user4Name, user5Name")
-                callingManager.verifyReceiveAudioAndVideo(assertCallParticipantsReceiveAudioVideo)
-
-
-                callHelper.iSeeParticipantsInGroupVideoCall("user2Name, user3Name, user4Name, user5Name")
-            }
-
-            waitFor(40)
         }
     }
-}

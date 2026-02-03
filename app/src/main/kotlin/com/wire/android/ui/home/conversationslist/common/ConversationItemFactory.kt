@@ -123,7 +123,8 @@ fun ConversationItemFactory(
                 when (val messageContent = conversation.lastMessageContent) {
                     is UILastMessageContent.TextMessage -> LastMessageSubtitle(
                         messageContent.messageBody.message,
-                        messageContent.markdownPreview
+                        messageContent.markdownPreview,
+                        messageContent.markdownLocaleTag
                     )
 
                     is UILastMessageContent.MultipleMessage -> LastMultipleMessages(messageContent.messages, messageContent.separator)
@@ -131,7 +132,8 @@ fun ConversationItemFactory(
                         messageContent.sender,
                         messageContent.message,
                         messageContent.separator,
-                        messageContent.markdownPreview
+                        messageContent.markdownPreview,
+                        messageContent.markdownLocaleTag
                     )
 
                     is UILastMessageContent.Connection -> ConnectionLabel(connectionInfo = messageContent)

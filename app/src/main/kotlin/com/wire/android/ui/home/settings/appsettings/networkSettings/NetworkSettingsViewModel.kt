@@ -53,8 +53,11 @@ class NetworkSettingsViewModel
             managedConfigurationsManager.persistentWebSocketEnforcedByMDM.collect { isEnforced ->
                 networkSettingsState = networkSettingsState.copy(
                     isEnforcedByMDM = isEnforced,
-                    isPersistentWebSocketConnectionEnabled = if (isEnforced) true
-                    else networkSettingsState.isPersistentWebSocketConnectionEnabled
+                    isPersistentWebSocketConnectionEnabled = if (isEnforced) {
+                        true
+                    } else {
+                        networkSettingsState.isPersistentWebSocketConnectionEnabled
+                    }
                 )
             }
         }
@@ -72,6 +75,7 @@ class NetworkSettingsViewModel
                             is ObservePersistentWebSocketConnectionStatusUseCase.Result.Failure -> {
                                 appLogger.e("Failure while fetching persistent web socket status flow from network settings")
                             }
+
                             is ObservePersistentWebSocketConnectionStatusUseCase.Result.Success -> {
                                 it.persistentWebSocketStatusListFlow.collect {
                                     it.map { persistentWebSocketStatus ->
@@ -79,7 +83,7 @@ class NetworkSettingsViewModel
                                             networkSettingsState =
                                                 networkSettingsState.copy(
                                                     isPersistentWebSocketConnectionEnabled =
-                                                    persistentWebSocketStatus.isPersistentWebSocketEnabled
+                                                        persistentWebSocketStatus.isPersistentWebSocketEnabled
                                                 )
                                         }
                                     }
@@ -88,6 +92,7 @@ class NetworkSettingsViewModel
                         }
                     }
                 }
+
                 else -> {
                     // NO SESSION - Nothing to do
                 }

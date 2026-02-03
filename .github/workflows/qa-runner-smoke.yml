@@ -1,0 +1,30 @@
+name: QA Runner Smoke Check
+
+on:
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    runs-on:
+      - self-hosted
+      - Linux
+      - X64
+      - office
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Show system info
+        run: |
+          echo "Runner: $(hostname)"
+          uname -a
+          whoami
+          java -version || true
+          ./gradlew -v || true
+
+      - name: Verify ADB and list devices
+        run: |
+          adb version
+          adb start-server

@@ -25,7 +25,9 @@ import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.util.EMPTY
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
@@ -59,6 +61,14 @@ class ManagedConfigurationsReceiverTest {
             coVerify(exactly = 1) {
                 arrangement.managedConfigurationsReporter.reportAppliedState(
                     eq(ManagedConfigurationsKeys.SSO_CODE.asKey()),
+                    any(),
+                    any()
+                )
+            }
+            coVerify(exactly = 1) { arrangement.managedConfigurationsManager.refreshPersistentWebSocketConfig() }
+            coVerify(exactly = 1) {
+                arrangement.managedConfigurationsReporter.reportAppliedState(
+                    eq(ManagedConfigurationsKeys.KEEP_WEBSOCKET_CONNECTION.asKey()),
                     any(),
                     any()
                 )
@@ -183,7 +193,12 @@ class ManagedConfigurationsReceiverTest {
         val managedConfigurationsManager: ManagedConfigurationsManager = mockk(relaxed = true)
         val managedConfigurationsReporter: ManagedConfigurationsReporter = mockk(relaxed = true)
         private val dispatchers = TestDispatcherProvider()
+        private val persistentWebSocketEnforcedFlow = MutableStateFlow(false)
         lateinit var intent: Intent
+
+        init {
+            every { managedConfigurationsManager.persistentWebSocketEnforcedByMDM } returns persistentWebSocketEnforcedFlow
+        }
 
         fun withIntent(action: String?) = apply {
             intent = if (action != null) Intent(action) else Intent()
@@ -195,6 +210,10 @@ class ManagedConfigurationsReceiverTest {
 
         fun withRefreshSSOConfigResult(result: SSOCodeConfigResult) = apply {
             coEvery { managedConfigurationsManager.refreshSSOCodeConfig() } returns result
+        }
+
+        fun withPersistentWebSocketEnforced(enforced: Boolean) = apply {
+            persistentWebSocketEnforcedFlow.value = enforced
         }
 
         fun arrange() = this to ManagedConfigurationsReceiver(

@@ -31,6 +31,7 @@ import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.IsProfileQRCodeEnabledUseCaseProvider
+import com.wire.android.emm.ManagedConfigurationsManager
 import com.wire.android.di.ObserveIfE2EIRequiredDuringLoginUseCaseProvider
 import com.wire.android.di.ObserveScreenshotCensoringConfigUseCaseProvider
 import com.wire.android.di.ObserveSelfUserUseCaseProvider
@@ -527,6 +528,56 @@ class WireActivityViewModelTest {
         }
 
     @Test
+    fun `given MDM enforced and no user enabled in DB, then service should be started`() = runTest {
+        val statuses = listOf(
+            PersistentWebSocketStatus(TestUser.SELF_USER.id, false),
+        )
+        val (arrangement, viewModel) = Arrangement()
+            .withPersistentWebSocketConnectionStatuses(statuses)
+            .withIsPersistentWebSocketServiceRunning(false)
+            .withPersistentWebSocketEnforcedByMDM(true)
+            .arrange()
+
+        viewModel.observePersistentConnectionStatus()
+
+        coVerify(exactly = 1) { arrangement.servicesManager.startPersistentWebSocketService() }
+        coVerify(exactly = 0) { arrangement.servicesManager.stopPersistentWebSocketService() }
+    }
+
+    @Test
+    fun `given MDM not enforced and no user enabled in DB, then service should be stopped`() = runTest {
+        val statuses = listOf(
+            PersistentWebSocketStatus(TestUser.SELF_USER.id, false),
+        )
+        val (arrangement, viewModel) = Arrangement()
+            .withPersistentWebSocketConnectionStatuses(statuses)
+            .withPersistentWebSocketEnforcedByMDM(false)
+            .arrange()
+
+        viewModel.observePersistentConnectionStatus()
+
+        coVerify(exactly = 0) { arrangement.servicesManager.startPersistentWebSocketService() }
+        coVerify(exactly = 1) { arrangement.servicesManager.stopPersistentWebSocketService() }
+    }
+
+    @Test
+    fun `given MDM not enforced but some user enabled in DB, then service should be started`() = runTest {
+        val statuses = listOf(
+            PersistentWebSocketStatus(TestUser.SELF_USER.id, true),
+        )
+        val (arrangement, viewModel) = Arrangement()
+            .withPersistentWebSocketConnectionStatuses(statuses)
+            .withIsPersistentWebSocketServiceRunning(false)
+            .withPersistentWebSocketEnforcedByMDM(false)
+            .arrange()
+
+        viewModel.observePersistentConnectionStatus()
+
+        coVerify(exactly = 1) { arrangement.servicesManager.startPersistentWebSocketService() }
+        coVerify(exactly = 0) { arrangement.servicesManager.stopPersistentWebSocketService() }
+    }
+
+    @Test
     fun `given newClient is registered for the current user, then should show the NewClient dialog`() = runTest {
         val (_, viewModel) = Arrangement()
             .withNoCurrentSession()
@@ -794,6 +845,7 @@ class WireActivityViewModelTest {
             val observeSelfUserUseCase = mockk<ObserveSelfUserUseCase>()
             every { observeSelfUserFactory.create(any()).observeSelfUser } returns observeSelfUserUseCase
             coEvery { observeSelfUserUseCase() } returns flowOf(SELF_USER)
+            every { managedConfigurationsManager.persistentWebSocketEnforcedByMDM } returns persistentWebSocketEnforcedByMDMFlow
         }
 
         @MockK
@@ -865,6 +917,9 @@ class WireActivityViewModelTest {
         @MockK
         lateinit var monitorSyncWorkUseCase: MonitorSyncWorkUseCase
 
+        val managedConfigurationsManager: ManagedConfigurationsManager = mockk(relaxed = true)
+        private val persistentWebSocketEnforcedByMDMFlow = MutableStateFlow(false)
+
         private val viewModel by lazy {
             WireActivityViewModel(
                 coreLogic = { coreLogic },
@@ -888,6 +943,7 @@ class WireActivityViewModelTest {
                 isProfileQRCodeEnabledFactory = isProfileQRCodeEnabledFactory,
                 observeSelfUserFactory = observeSelfUserFactory,
                 monitorSyncWorkUseCase = monitorSyncWorkUseCase,
+                managedConfigurationsManager = managedConfigurationsManager,
             )
         }
 
@@ -965,6 +1021,10 @@ class WireActivityViewModelTest {
 
         fun withIsPersistentWebSocketServiceRunning(isRunning: Boolean): Arrangement = apply {
             every { servicesManager.isPersistentWebSocketServiceRunning() } returns isRunning
+        }
+
+        fun withPersistentWebSocketEnforcedByMDM(enforced: Boolean): Arrangement = apply {
+            persistentWebSocketEnforcedByMDMFlow.value = enforced
         }
 
         fun withNewClient(result: NewClientResult) = apply {

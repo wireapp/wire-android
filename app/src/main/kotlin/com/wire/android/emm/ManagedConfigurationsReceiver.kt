@@ -112,8 +112,7 @@ class ManagedConfigurationsReceiver @Inject constructor(
 
     private suspend fun updatePersistentWebSocketConfig() {
         val wasEnforced = managedConfigurationsManager.persistentWebSocketEnforcedByMDM.value
-        managedConfigurationsManager.refreshPersistentWebSocketConfig()
-        val isEnforced = managedConfigurationsManager.persistentWebSocketEnforcedByMDM.value
+        val isEnforced = managedConfigurationsManager.refreshPersistentWebSocketConfig()
 
         // Only bulk update when MDM enforcement turns ON
         if (!wasEnforced && isEnforced) {

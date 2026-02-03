@@ -7,6 +7,7 @@ import android.os.Bundle
 import androidx.test.core.app.ApplicationProvider
 import com.wire.android.config.ServerConfigProvider
 import com.wire.android.config.TestDispatcherProvider
+import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.util.EMPTY
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -132,7 +133,8 @@ class ManagedConfigurationsManagerTest {
             .withBooleanRestrictions(mapOf(ManagedConfigurationsKeys.KEEP_WEBSOCKET_CONNECTION.asKey() to true))
             .arrange()
 
-        manager.refreshPersistentWebSocketConfig()
+        val result = manager.refreshPersistentWebSocketConfig()
+        assertEquals(true, result)
         assertEquals(true, manager.persistentWebSocketEnforcedByMDM.value)
     }
 
@@ -142,7 +144,8 @@ class ManagedConfigurationsManagerTest {
             .withBooleanRestrictions(mapOf(ManagedConfigurationsKeys.KEEP_WEBSOCKET_CONNECTION.asKey() to false))
             .arrange()
 
-        manager.refreshPersistentWebSocketConfig()
+        val result = manager.refreshPersistentWebSocketConfig()
+        assertEquals(false, result)
         assertEquals(false, manager.persistentWebSocketEnforcedByMDM.value)
     }
 
@@ -152,7 +155,8 @@ class ManagedConfigurationsManagerTest {
             .withRestrictions(emptyMap())
             .arrange()
 
-        manager.refreshPersistentWebSocketConfig()
+        val result = manager.refreshPersistentWebSocketConfig()
+        assertEquals(false, result)
         assertEquals(false, manager.persistentWebSocketEnforcedByMDM.value)
     }
 
@@ -189,7 +193,8 @@ class ManagedConfigurationsManagerTest {
         fun arrange() = this to ManagedConfigurationsManagerImpl(
             context = context,
             serverConfigProvider = ServerConfigProvider(),
-            dispatchers = TestDispatcherProvider()
+            dispatchers = TestDispatcherProvider(),
+            globalDataStore = GlobalDataStore(context)
         )
     }
 

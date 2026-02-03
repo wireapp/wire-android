@@ -21,12 +21,15 @@ import android.content.Context
 import android.content.RestrictionsManager
 import com.wire.android.appLogger
 import com.wire.android.config.ServerConfigProvider
+import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.util.EMPTY
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import java.util.concurrent.atomic.AtomicReference
@@ -81,13 +84,14 @@ interface ManagedConfigurationsManager {
      * Refresh the persistent WebSocket configuration from managed restrictions.
      * This should be called when the app starts or when broadcast receiver triggers.
      */
-    suspend fun refreshPersistentWebSocketConfig()
+    suspend fun refreshPersistentWebSocketConfig(): Boolean
 }
 
 internal class ManagedConfigurationsManagerImpl(
     private val context: Context,
     private val dispatchers: DispatcherProvider,
     private val serverConfigProvider: ServerConfigProvider,
+    private val globalDataStore: GlobalDataStore,
 ) : ManagedConfigurationsManager {
 
     private val json: Json = Json { ignoreUnknownKeys = true }
@@ -98,7 +102,9 @@ internal class ManagedConfigurationsManagerImpl(
 
     private val _currentServerConfig = AtomicReference<ServerConfig.Links?>(null)
     private val _currentSSOCodeConfig = AtomicReference(String.EMPTY)
-    private val _persistentWebSocketEnforcedByMDM = MutableStateFlow(false)
+    private val _persistentWebSocketEnforcedByMDM by lazy {
+        MutableStateFlow(runBlocking { globalDataStore.isPersistentWebSocketEnforcedByMDM().first() })
+    }
 
     override val currentServerConfig: ServerConfig.Links
         get() = _currentServerConfig.get() ?: serverConfigProvider.getDefaultServerConfig()
@@ -138,8 +144,8 @@ internal class ManagedConfigurationsManagerImpl(
             managedSSOCodeConfig
         }
 
-    override suspend fun refreshPersistentWebSocketConfig() {
-        withContext(dispatchers.io()) {
+    override suspend fun refreshPersistentWebSocketConfig(): Boolean {
+        return withContext(dispatchers.io()) {
             val restrictions = restrictionsManager.applicationRestrictions
             val isEnforced = if (restrictions == null || restrictions.isEmpty) {
                 false
@@ -150,7 +156,9 @@ internal class ManagedConfigurationsManagerImpl(
                 )
             }
             _persistentWebSocketEnforcedByMDM.value = isEnforced
+            globalDataStore.setPersistentWebSocketEnforcedByMDM(isEnforced)
             logger.i("Persistent WebSocket enforced by MDM refreshed to: $isEnforced")
+            isEnforced
         }
     }
 

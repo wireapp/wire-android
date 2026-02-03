@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import com.wire.android.BuildConfig
+import com.wire.android.util.extension.isGoogleServicesAvailable
 import io.mockk.coEvery
 import io.mockk.mockkStatic
 import org.junit.Assert.assertEquals
@@ -46,4 +47,3 @@ class WebsocketHelperTest {
         assertEquals(BuildConfig.WEBSOCKET_ENABLED_BY_DEFAULT, result)
     }
 }
-

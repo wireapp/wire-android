@@ -271,6 +271,7 @@ class ManagedConfigurationsReceiverTest {
             persistentWebSocketEnforcedFlow.value = from
             coEvery { managedConfigurationsManager.refreshPersistentWebSocketConfig() } answers {
                 persistentWebSocketEnforcedFlow.value = to
+                to
             }
         }
 

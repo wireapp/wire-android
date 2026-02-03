@@ -2,6 +2,9 @@ name: QA Runner Smoke Check
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - ci/WPB-21881-android-ui-tests-integration
 
 jobs:
   smoke:
@@ -10,6 +13,7 @@ jobs:
       - Linux
       - X64
       - office
+
     timeout-minutes: 15
 
     steps:
@@ -28,3 +32,13 @@ jobs:
         run: |
           adb version
           adb start-server
+          adb devices -l
+
+      - name: Fail if no devices connected
+        run: |
+          COUNT=$(adb devices | awk 'NR>1 && $2=="device"{print $1}' | wc -l | tr -d ' ')
+          echo "Connected devices: $COUNT"
+          if [ "$COUNT" -eq 0 ]; then
+            echo "ERROR: No devices detected by adb."
+            exit 1
+          fi

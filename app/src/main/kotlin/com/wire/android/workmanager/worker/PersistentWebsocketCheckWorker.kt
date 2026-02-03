@@ -30,8 +30,10 @@ import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.feature.IsWebSocketConnectionUnhealthyUseCase
 import com.wire.android.feature.StartPersistentWebsocketIfNecessaryUseCase
 import com.wire.android.notification.NotificationChannelsManager
+import com.wire.android.services.ServicesManager
 import com.wire.android.notification.NotificationConstants
 import com.wire.android.notification.NotificationIds
 import com.wire.android.notification.openAppPendingIntent
@@ -50,13 +52,36 @@ class PersistentWebsocketCheckWorker
     @Assisted private val appContext: Context,
     @Assisted private val workerParams: WorkerParameters,
     private val startPersistentWebsocketIfNecessary: StartPersistentWebsocketIfNecessaryUseCase,
+    private val isWebSocketConnectionUnhealthy: IsWebSocketConnectionUnhealthyUseCase,
+    private val servicesManager: ServicesManager,
     private val notificationChannelsManager: NotificationChannelsManager
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result = coroutineScope {
         appLogger.i("${TAG}: Starting periodic work check for persistent websocket connection")
         startPersistentWebsocketIfNecessary()
+        checkAndRestartUnhealthyConnection()
         Result.success()
+    }
+
+    private suspend fun checkAndRestartUnhealthyConnection() {
+        if (!servicesManager.isPersistentWebSocketServiceRunning()) {
+            appLogger.i("${TAG}: Service not running, skipping health check")
+            return
+        }
+
+        isWebSocketConnectionUnhealthy()
+            .onSuccess { isUnhealthy ->
+                if (isUnhealthy) {
+                    appLogger.w("${TAG}: WebSocket connection is unhealthy (no events received in threshold period), restarting service")
+                    servicesManager.restartPersistentWebSocketService()
+                } else {
+                    appLogger.i("${TAG}: WebSocket connection is healthy")
+                }
+            }
+            .onFailure {
+                appLogger.e("${TAG}: Failed to check WebSocket connection health", it)
+            }
     }
 
     override suspend fun getForegroundInfo(): ForegroundInfo {
@@ -83,7 +108,7 @@ class PersistentWebsocketCheckWorker
     companion object {
         const val NAME = "wss_check_worker"
         const val TAG = "PersistentWebsocketCheckWorker"
-        val WORK_INTERVAL = 24.hours.toJavaDuration()
+        val WORK_INTERVAL = 12.hours.toJavaDuration()
     }
 }
 

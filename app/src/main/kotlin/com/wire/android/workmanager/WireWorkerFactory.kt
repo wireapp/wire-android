@@ -23,9 +23,11 @@ import androidx.work.ListenableWorker
 import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.feature.IsWebSocketConnectionUnhealthyUseCase
 import com.wire.android.feature.StartPersistentWebsocketIfNecessaryUseCase
 import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.WireNotificationManager
+import com.wire.android.services.ServicesManager
 import com.wire.android.sync.InitialSyncWorker
 import com.wire.android.workmanager.worker.DeleteConversationLocallyWorker
 import com.wire.android.workmanager.worker.NotificationFetchWorker
@@ -40,6 +42,8 @@ class WireWorkerFactory @Inject constructor(
     private val wireNotificationManager: WireNotificationManager,
     private val notificationChannelsManager: NotificationChannelsManager,
     private val startPersistentWebsocketIfNecessary: StartPersistentWebsocketIfNecessaryUseCase,
+    private val isWebSocketConnectionUnhealthyUseCase: IsWebSocketConnectionUnhealthyUseCase,
+    private val servicesManager: ServicesManager,
     @KaliumCoreLogic
     private val coreLogic: CoreLogic
 ) : WorkerFactory() {
@@ -58,6 +62,8 @@ class WireWorkerFactory @Inject constructor(
                     appContext,
                     workerParameters,
                     startPersistentWebsocketIfNecessary,
+                    isWebSocketConnectionUnhealthyUseCase,
+                    servicesManager,
                     notificationChannelsManager
                 )
 

@@ -134,6 +134,11 @@ class ServicesManager @Inject constructor(
         stopService(PersistentWebSocketService.newIntent(context))
     }
 
+    fun restartPersistentWebSocketService() {
+        stopPersistentWebSocketService()
+        startPersistentWebSocketService()
+    }
+
     fun isPersistentWebSocketServiceRunning(): Boolean =
         PersistentWebSocketService.isServiceStarted
 

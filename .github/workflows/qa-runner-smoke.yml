@@ -5,15 +5,13 @@ on:
   push:
     branches:
       - ci/WPB-21881-android-ui-tests-integration
+  pull_request:
+    branches:
+      - develop
 
 jobs:
   smoke:
-    runs-on:
-      - self-hosted
-      - Linux
-      - X64
-      - office
-
+    runs-on: [self-hosted, Linux, X64, office]
     timeout-minutes: 15
 
     steps:

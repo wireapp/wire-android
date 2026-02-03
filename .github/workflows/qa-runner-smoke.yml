@@ -2,9 +2,6 @@ name: QA Runner Smoke Check
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - ci/WPB-21881-android-ui-tests-integration
   pull_request:
     branches:
       - develop

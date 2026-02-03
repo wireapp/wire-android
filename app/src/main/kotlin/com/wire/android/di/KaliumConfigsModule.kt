@@ -21,6 +21,7 @@ package com.wire.android.di
 import android.content.Context
 import android.os.Build
 import com.wire.android.BuildConfig
+import com.wire.android.emm.ManagedConfigurationsManager
 import com.wire.android.util.isWebsocketEnabledByDefault
 import com.wire.kalium.logic.featureFlags.BuildFileRestrictionState
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
@@ -34,7 +35,10 @@ import dagger.hilt.components.SingletonComponent
 class KaliumConfigsModule {
 
     @Provides
-    fun provideKaliumConfigs(context: Context): KaliumConfigs {
+    fun provideKaliumConfigs(
+        context: Context,
+        managedConfigurationsManager: ManagedConfigurationsManager
+    ): KaliumConfigs {
         val fileRestriction: BuildFileRestrictionState = if (BuildConfig.FILE_RESTRICTION_ENABLED) {
             BuildConfig.FILE_RESTRICTION_LIST.split(",").map { it.trim() }.let {
                 BuildFileRestrictionState.AllowSome(it)
@@ -57,7 +61,10 @@ class KaliumConfigsModule {
             wipeOnCookieInvalid = BuildConfig.WIPE_ON_COOKIE_INVALID,
             wipeOnDeviceRemoval = BuildConfig.WIPE_ON_DEVICE_REMOVAL,
             wipeOnRootedDevice = BuildConfig.WIPE_ON_ROOTED_DEVICE,
-            isWebSocketEnabledByDefault = isWebsocketEnabledByDefault(context),
+            isWebSocketEnabledByDefault = isWebsocketEnabledByDefault(
+                context,
+                managedConfigurationsManager.persistentWebSocketEnforcedByMDM.value
+            ),
             certPinningConfig = BuildConfig.CERTIFICATE_PINNING_CONFIG,
             maxRemoteSearchResultCount = BuildConfig.MAX_REMOTE_SEARCH_RESULT_COUNT,
             limitTeamMembersFetchDuringSlowSync = BuildConfig.LIMIT_TEAM_MEMBERS_FETCH_DURING_SLOW_SYNC,

@@ -224,6 +224,7 @@ class WireActivity : AppCompatActivity() {
             lifecycleScope.launch(Dispatchers.IO) {
                 managedConfigurationsManager.refreshServerConfig()
                 managedConfigurationsManager.refreshSSOCodeConfig()
+                managedConfigurationsManager.refreshPersistentWebSocketConfig()
             }
         }
     }

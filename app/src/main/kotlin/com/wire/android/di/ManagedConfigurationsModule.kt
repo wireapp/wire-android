@@ -77,17 +77,4 @@ class ManagedConfigurationsModule {
             String.EMPTY
         }
     }
-    @Provides
-    @Named("backupServiceURL")
-    fun provideBackupServiceURL(
-        managedConfigurationsManager: ManagedConfigurationsManager
-    ): String {
-        return if (BuildConfig.EMM_SUPPORT_ENABLED) {
-            // Returns the current resolved SSO code from managed configurations, or empty if none
-            managedConfigurationsManager.currentSSOCodeConfig
-        } else {
-            // If EMM support is disabled, always return empty SSO code
-            String.EMPTY
-        }
-    }
 }

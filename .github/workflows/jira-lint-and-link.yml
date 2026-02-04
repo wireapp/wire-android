@@ -23,7 +23,7 @@ jobs:
 
   add-jira-description:
     needs: get-version
-    uses: wireapp/.github/.github/workflows/jira-link-pr-reusable.yml@9cdbae2796d849671d9877d8f444c869102d2c98
+    uses: wireapp/.github/.github/workflows/jira-link-pr-reusable.yml@3994924eb74e224fd2755dbe7fa6831928a4404a
     with:
       skip-branches: '^(production-release|main|master|release\/v\d+)$'
       skip-actors: 'dependabot[bot],AndroidBob'

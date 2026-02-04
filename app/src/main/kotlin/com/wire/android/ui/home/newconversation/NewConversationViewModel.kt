@@ -56,6 +56,7 @@ import kotlinx.collections.immutable.toImmutableSet
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.dropWhile
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @Suppress("LongParameterList", "TooManyFunctions")
@@ -75,7 +76,7 @@ class NewConversationViewModel @Inject constructor(
         GroupMetadataState().let {
             val defaultProtocol = CreateConversationParam
                 .Protocol
-                .fromSupportedProtocolToConversationOptionsProtocol(getDefaultProtocol())
+                .fromSupportedProtocolToConversationOptionsProtocol(runBlocking { getDefaultProtocol() })
             it.copy(groupProtocol = defaultProtocol)
         }
     )
@@ -123,7 +124,7 @@ class NewConversationViewModel @Inject constructor(
         newGroupState = GroupMetadataState().let {
             val defaultProtocol = CreateConversationParam
                 .Protocol
-                .fromSupportedProtocolToConversationOptionsProtocol(getDefaultProtocol())
+                .fromSupportedProtocolToConversationOptionsProtocol(runBlocking { getDefaultProtocol() })
             it.copy(
                 groupProtocol = defaultProtocol
             )

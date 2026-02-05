@@ -25,6 +25,8 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.feature.AccountSwitchUseCase
+import com.wire.android.feature.SwitchAccountParam
 import com.wire.android.notification.WireNotificationManager
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.auth.AccountInfo
@@ -50,6 +52,7 @@ class ForgotLockScreenViewModel @Inject constructor(
     private val getSessions: GetSessionsUseCase,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val endCall: EndCallUseCase,
+    private val accountSwitch: AccountSwitchUseCase,
 ) : ViewModel() {
 
     var state: ForgotLockCodeViewState by mutableStateOf(ForgotLockCodeViewState())
@@ -87,6 +90,7 @@ class ForgotLockScreenViewModel @Inject constructor(
                     }
                 }.joinAll() // wait until all accounts are logged out
                 globalDataStore.clearAppLockPasscode()
+                accountSwitch(SwitchAccountParam.Clear)
                 Result.Success
             }
         }

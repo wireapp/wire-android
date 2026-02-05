@@ -1282,11 +1282,6 @@
     <string name="team_app_lock_enabled">Блокировка приложения теперь обязательна. Wire блокируется спустя определенное время бездействия. Для разблокировки приложения необходимо ввести код доступа или использовать биометрическую аутентификацию.</string>
     <string name="team_app_lock_disabled">Блокировка приложения больше не является обязательной. Wire больше не будет блокироваться сам по истечении определенного времени бездействия.</string>
     <string name="settings_forgot_lock_screen_title">Забыли код доступа к приложению?</string>
-    <string name="settings_forgot_lock_screen_description">Доступ к данным, хранящимся на этом устройстве, возможен только с помощью кода доступа приложения. Если вы забудете свой код доступа, вы можете удалить это устройство.</string>
-    <string name="settings_forgot_lock_screen_warning">При удалении устройства вы навсегда теряете все локальные данные и сообщения всех аккаунтов на этом устройстве.</string>
-    <string name="settings_forgot_lock_screen_reset_device">Удалить устройство</string>
-    <string name="settings_forgot_lock_screen_reset_device_description">Введите пароль от аккаунта %s для подтверждения удаления всех данных для всех аккаунтов на этом устройстве. После удаления устройства вы cможете авторизоваться с использованием своих учетных данных.</string>
-    <string name="settings_forgot_lock_screen_reset_device_without_password_description">Подтвердите удаление всех данных для всех аккаунтов на этом устройстве. После удаления устройства вы cможете авторизоваться с использованием своих учетных данных.</string>
     <string name="settings_forgot_lock_screen_please_wait_label">Пожалуйста, подождите...</string>
     <!--Devices -->
     <string name="devices_title">Ваши устройства</string>

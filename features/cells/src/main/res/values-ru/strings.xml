@@ -66,7 +66,7 @@
     <string name="download">Скачать</string>
     <string name="downloading_file_message">Загрузка файла…</string>
     <string name="error_share_link">Не удается поделиться ссылкой.</string>
-    <string name="conversation_files_title">Файлы</string>
+    <string name="conversation_files_title">Общий диск</string>
     <string name="creating_link">Создание публичной ссылки…</string>
     <string name="cells_new_label">Новая</string>
     <string name="cells_new_label_content_description">Новая</string>

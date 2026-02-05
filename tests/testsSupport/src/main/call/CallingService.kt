@@ -20,7 +20,6 @@ import call.models.InstanceRequest
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.wire.android.testSupport.BuildConfig
-import logger.WireTestLogger
 import network.HttpRequestException
 import java.io.IOException
 import java.net.HttpCookie
@@ -317,7 +316,6 @@ class CallingService(
             val code = conn.responseCode
             val stream = if (code in 200..299) conn.inputStream else conn.errorStream
             val response = stream.bufferedReader().use { it.readText() }
-            WireTestLogger.getLog("Api response").info(response)
             assertResponseCode(code, acceptableCodes)
             response
         } finally {

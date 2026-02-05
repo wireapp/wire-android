@@ -45,11 +45,11 @@ jobs:
           # Add adb to PATH for the rest of this workflow
           echo "$HOME/platform-tools/platform-tools" >> "$GITHUB_PATH"
 
-          adb version
 
       - name: Check connected Android devices
         run: |
           set -e
+          adb version
           adb start-server
           adb devices -l
 

@@ -14,36 +14,53 @@ jobs:
     timeout-minutes: 10
 
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Show system info
-        run: |
-          echo "Runner hostname: $(hostname)"
-          echo "User:"
-          whoami
-          echo "OS:"
-          uname -a
-          echo "Disk usage:"
-          df -h
-          echo "Memory:"
-          free -h || true
-          echo "Java:"
-          java -version || true
-          echo "Gradle:"
-          ./gradlew -v || true
+      - name: Setup Java 17
+        uses: buildjet/setup-java@v4
+        with:
+          java-version: "17"
+          distribution: "temurin"
 
-      - name: Verify ADB
+      - name: Setup ADB (no sudo)
         run: |
+          set -e
+
+          # If adb already exists, use it
+          if command -v adb >/dev/null 2>&1; then
+            echo "adb already available"
+            adb version
+            exit 0
+          fi
+
+          # Otherwise download Android platform-tools (contains adb)
+          echo "Downloading Android platform-tools..."
+          mkdir -p "$HOME/platform-tools"
+          cd "$HOME/platform-tools"
+
+          curl -L -o platform-tools.zip https://dl.google.com/android/repository/platform-tools-latest-linux.zip
+          unzip -q platform-tools.zip
+
+          # Add adb to PATH for the rest of this workflow
+          echo "$HOME/platform-tools/platform-tools" >> "$GITHUB_PATH"
+
           adb version
+
+      - name: Check connected Android devices
+        run: |
+          set -e
           adb start-server
           adb devices -l
 
-      - name: Fail if no Android devices connected
-        run: |
           COUNT=$(adb devices | awk 'NR>1 && $2=="device"{print $1}' | wc -l | tr -d ' ')
-          echo "Connected devices: $COUNT"
+          echo "Authorized devices detected: $COUNT"
+
           if [ "$COUNT" -eq 0 ]; then
-            echo "ERROR: No Android devices detected by adb"
+            echo "ERROR: No authorized Android devices detected."
+            echo "Common causes:"
+            echo "- No phone connected to the runner USB hub"
+            echo "- Phone is 'unauthorized' (unlock and accept USB debugging prompt)"
+            echo "- USB mode/cable issue"
             exit 1
           fi

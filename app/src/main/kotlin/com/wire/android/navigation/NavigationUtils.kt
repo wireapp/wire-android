@@ -112,21 +112,9 @@ internal fun NavDestination.toDestination(): DestinationSpec? =
 
 fun String.getBaseRoute(): String {
     var slashCount = 0
-    for (i in indices) {
-        when (this[i]) {
-            '/' -> if (++slashCount == 2) return substring(0, i)
-            '?' -> return substring(0, i)
-        }
-    }
-    return this
+    val end = indexOfFirst { c -> (c == '/' && ++slashCount == 2) || c == '?' }
+    return if (end >= 0) substring(0, end) else this
 }
-//fun String.getBaseRoute(): String {
-//    val end = indexOf('?').takeIf { it >= 0 } ?: length
-//    val firstSlash = indexOf('/')
-//    if (firstSlash < 0 || firstSlash >= end) return substring(0, end)
-//    val secondSlash = indexOf('/', firstSlash + 1)
-//    return if (secondSlash < 0 || secondSlash >= end) substring(0, end) else substring(0, secondSlash)
-//}
 
 fun Direction.handleNavigation(context: Context, handleOtherDirection: (Direction) -> Unit) = when (this) {
     is ExternalUriDirection -> CustomTabsHelper.launchUri(context, this.uri)

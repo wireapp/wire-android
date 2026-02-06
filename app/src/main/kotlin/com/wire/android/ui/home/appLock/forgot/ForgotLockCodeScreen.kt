@@ -83,7 +83,7 @@ fun ForgotLockCodeScreen(
         }
         ForgotLockCodeScreenContent(
             scrollState = rememberScrollState(),
-            isLogoutEnabled = !isLoggingOut,
+            isLoggingOut = isLoggingOut,
             onLogout = {
                 logoutOptionsDialogState.show(
                     logoutOptionsDialogState.savedState ?: LogoutOptionsDialogState()
@@ -114,7 +114,7 @@ fun ForgotLockCodeScreen(
 @Composable
 fun ForgotLockCodeScreenContent(
     scrollState: ScrollState,
-    isLogoutEnabled: Boolean,
+    isLoggingOut: Boolean,
     onLogout: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -176,7 +176,7 @@ fun ForgotLockCodeScreenContent(
                 modifier = Modifier.semantics { testTagsAsResourceId = true }
             ) {
                 Box(modifier = Modifier.padding(MaterialTheme.wireDimensions.spacing16x)) {
-                    LogoutButton(enabled = isLogoutEnabled, onLogout = onLogout)
+                    LogoutButton(isLoggingOut = isLoggingOut, onLogout = onLogout)
                 }
             }
         }
@@ -185,7 +185,7 @@ fun ForgotLockCodeScreenContent(
 
 @Composable
 private fun LogoutButton(
-    enabled: Boolean,
+    isLoggingOut: Boolean,
     onLogout: () -> Unit,
     modifier: Modifier = Modifier.fillMaxWidth(),
 ) {
@@ -194,7 +194,8 @@ private fun LogoutButton(
         WirePrimaryButton(
             text = stringResource(R.string.user_profile_logout),
             onClick = onLogout,
-            state = if (enabled) WireButtonState.Default else WireButtonState.Disabled,
+            loading = isLoggingOut,
+            state = if (isLoggingOut) WireButtonState.Disabled else WireButtonState.Default,
             interactionSource = interactionSource,
             modifier = Modifier
                 .fillMaxWidth()
@@ -215,6 +216,6 @@ private fun startLoginActivity(activity: androidx.appcompat.app.AppCompatActivit
 @PreviewMultipleThemes
 fun PreviewForgotLockCodeScreen() {
     WireTheme {
-        ForgotLockCodeScreenContent(rememberScrollState(), true, {})
+        ForgotLockCodeScreenContent(rememberScrollState(), false, {})
     }
 }

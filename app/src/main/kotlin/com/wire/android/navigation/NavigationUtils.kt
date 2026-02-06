@@ -23,6 +23,7 @@ import android.content.Context
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
+import com.ramcosta.composedestinations.generated.app.navgraphs.WireRootGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavOptionsBuilder
 import com.ramcosta.composedestinations.spec.DestinationSpec
 import com.ramcosta.composedestinations.spec.Direction
@@ -32,9 +33,7 @@ import com.ramcosta.composedestinations.utils.navGraph
 import com.ramcosta.composedestinations.utils.route
 import com.ramcosta.composedestinations.utils.toDestinationsNavigator
 import com.wire.android.appLogger
-import com.ramcosta.composedestinations.generated.app.navgraphs.WireRootGraph
 import com.wire.android.util.CustomTabsHelper
-import com.wire.kalium.logger.obfuscateId
 
 @SuppressLint("RestrictedApi")
 @Suppress("CyclomaticComplexMethod")
@@ -48,7 +47,7 @@ internal fun NavController.navigateToItem(command: NavigationCommand) {
 
     fun lastDestinationFromOtherGraph(graph: NavGraphSpec) = currentBackStack.value.lastOrNull { it.navGraph() != graph }
 
-    appLogger.d("[$TAG] -> command: ${command.destination.route.obfuscateId()} backStackMode:${command.backStackMode}")
+    appLogger.d("[$TAG] -> command: ${command.destination.route} backStackMode:${command.backStackMode}")
     toDestinationsNavigator().navigate(command.destination) {
         when (command.backStackMode) {
             BackStackMode.CLEAR_WHOLE, BackStackMode.CLEAR_TILL_START -> {
@@ -101,7 +100,7 @@ private fun DestinationsNavOptionsBuilder.popUpTo(
     getNavBackStackEntry: () -> NavBackStackEntry?,
 ) {
     getNavBackStackEntry()?.let { entry ->
-        appLogger.d("[$TAG] -> popUpTo:${entry.destination.route?.obfuscateId()} inclusive:${getInclusive(entry)}")
+        appLogger.d("[$TAG] -> popUpTo:${entry.destination.route} inclusive:${getInclusive(entry)}")
         popUpTo(entry.route()) {
             this.inclusive = getInclusive(entry)
         }
@@ -111,14 +110,23 @@ private fun DestinationsNavOptionsBuilder.popUpTo(
 internal fun NavDestination.toDestination(): DestinationSpec? =
     this.route?.let { currentRoute -> WireRootGraph.findDestination(currentRoute) }
 
-fun String.getBaseRoute(): String =
-    this.indexOf("?").let {
-        if (it != -1) {
-            this.substring(0, it)
-        } else {
-            this
+fun String.getBaseRoute(): String {
+    var slashCount = 0
+    for (i in indices) {
+        when (this[i]) {
+            '/' -> if (++slashCount == 2) return substring(0, i)
+            '?' -> return substring(0, i)
         }
     }
+    return this
+}
+//fun String.getBaseRoute(): String {
+//    val end = indexOf('?').takeIf { it >= 0 } ?: length
+//    val firstSlash = indexOf('/')
+//    if (firstSlash < 0 || firstSlash >= end) return substring(0, end)
+//    val secondSlash = indexOf('/', firstSlash + 1)
+//    return if (secondSlash < 0 || secondSlash >= end) substring(0, end) else substring(0, secondSlash)
+//}
 
 fun Direction.handleNavigation(context: Context, handleOtherDirection: (Direction) -> Unit) = when (this) {
     is ExternalUriDirection -> CustomTabsHelper.launchUri(context, this.uri)

@@ -24,6 +24,8 @@ import com.ramcosta.composedestinations.generated.sketch.navgraphs.SketchGraph
 import com.wire.android.navigation.style.DefaultRootNavGraphAnimations
 
 @NavHostGraph(defaultTransitions = DefaultRootNavGraphAnimations::class)
-@ExternalNavGraph<CellsGraph>
-@ExternalNavGraph<SketchGraph>
-annotation class WireRootNavGraph
+annotation class WireRootNavGraph {
+    @ExternalNavGraph<CellsGraph>
+    @ExternalNavGraph<SketchGraph>
+    companion object Includes
+}

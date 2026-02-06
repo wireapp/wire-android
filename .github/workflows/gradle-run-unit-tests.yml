@@ -78,7 +78,7 @@ jobs:
           path: app/build/reports/kover
 
       - name: Download Test Reports Folder
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: report-${{ inputs.artifact-suffix }}
           path: app/build/reports/kover

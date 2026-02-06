@@ -153,11 +153,6 @@ class BackendClient(
         fun loadBackend(connectionName: String): BackendClient {
             val secrets = loadSecrets(connectionName)
 
-            WireTestLogger.getLog("This CLasss").info(
-                "Auths are ${secrets.basicAuthUsername} ${secrets.basicAuthPassword} " +
-                        "${secrets.basicAuthGeneral} ${secrets.inbucketUsername}"
-            )
-
             return BackendClient(
                 name = connectionName,
                 backendUrl = secrets.backendUrl,

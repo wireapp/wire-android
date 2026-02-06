@@ -24,28 +24,51 @@ jobs:
           distribution: "temurin"
 
       - name: Setup ADB (no sudo)
+        shell: bash
         run: |
-          set -e
+          set -euo pipefail
 
           if command -v adb >/dev/null 2>&1; then
-            echo "adb already available"
+            echo "adb already available: $(command -v adb)"
             adb version
-          else
-            echo "Downloading Android platform-tools..."
-            cd "$HOME"
-            curl -L -o platform-tools.zip https://dl.google.com/android/repository/platform-tools-latest-linux.zip
-            unzip -oq platform-tools.zip
-            echo "$HOME/platform-tools" >> "$GITHUB_PATH"
-            adb version
+            exit 0
           fi
 
-      - name: Check connected Android devices
-        run: |
-          set -e
-          adb start-server
+          TOOLS_DIR="$HOME/android-platform-tools"
+          ADB_DIR="$TOOLS_DIR/platform-tools"
+          ADB_BIN="$ADB_DIR/adb"
 
-          echo "=== adb devices -l ==="
-          adb devices -l || true
+          echo "Downloading Android platform-tools to $TOOLS_DIR"
+          mkdir -p "$TOOLS_DIR"
+          cd "$TOOLS_DIR"
+
+          curl -fsSL -o platform-tools.zip https://dl.google.com/android/repository/platform-tools-latest-linux.zip
+          unzip -oq platform-tools.zip
+
+          # Make sure adb exists where we expect it
+          if [ ! -x "$ADB_BIN" ]; then
+            echo "ERROR: adb not found at $ADB_BIN"
+            echo "Contents of $TOOLS_DIR:"
+            ls -la "$TOOLS_DIR" || true
+            echo "Contents of $ADB_DIR:"
+            ls -la "$ADB_DIR" || true
+            exit 1
+          fi
+
+          # Add to PATH for subsequent steps
+          echo "$ADB_DIR" >> "$GITHUB_PATH"
+
+          # Verify in THIS step using full path (PATH update may not apply yet)
+          "$ADB_BIN" version
+
+      - name: Check connected Android devices
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          adb version
+          adb start-server
+          adb devices -l
 
           COUNT=$(adb devices | awk 'NR>1 && $2=="device"{print $1}' | wc -l | tr -d ' ')
           echo "Authorized devices detected: $COUNT"

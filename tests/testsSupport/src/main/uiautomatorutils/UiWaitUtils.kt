@@ -42,6 +42,7 @@ import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withText
+import junit.framework.TestCase.assertTrue
 import java.io.File
 
 
@@ -228,36 +229,69 @@ object UiWaitUtils {
     }
 
 
+//    fun assertToastDisplayed(text: String, trigger: () -> Unit, timeoutMs: Long = 5_000L) {
+//        var toastDisplayed = false
+//        val startTimeMs = System.currentTimeMillis()
+//
+//        val uiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation
+//
+//        uiAutomation.setOnAccessibilityEventListener { event ->
+//            if (event.eventType == AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED) {
+//                val className = event.className?.toString().orEmpty()
+//                val eventText = event.text?.joinToString(" ").orEmpty()
+//
+//                if (className.contains("android.widget.Toast") && eventText.contains(text, ignoreCase = true)) {
+//                    toastDisplayed = true
+//                }
+//            }
+//        }
+//
+//        try {
+//            // IMPORTANT: trigger AFTER listener is set
+//            trigger()
+//
+//            while (!toastDisplayed && System.currentTimeMillis() - startTimeMs < timeoutMs) {
+//                Thread.sleep(50)
+//            }
+//
+//            assertTrue("Toast with text '$text' not found within ${timeoutMs}ms", toastDisplayed)
+//        } finally {
+//            uiAutomation.setOnAccessibilityEventListener(null)
+//        }
 
-    fun assertCantRecordAudioMessageViaDump(timeoutMs: Long = 5_000) {
-        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-
+    fun assertToastDisplayed(
+        text: String,
+        timeoutMs: Long = 5_000L,
+        trigger: () -> Unit
+    ) {
+        var found = false
         val deadline = System.currentTimeMillis() + timeoutMs
-        val needle1 = "record an audio message"
-        val needle2 = "record an audio"
-        val needle3 = "during a call"
+        val uiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation
 
-        while (System.currentTimeMillis() < deadline) {
-            val file = File(
-                InstrumentationRegistry.getInstrumentation().targetContext.cacheDir,
-                "window_dump.xml"
-            )
-            device.dumpWindowHierarchy(file)
-
-            val xml = file.readText()
-
-            if (xml.contains(needle1, ignoreCase = true) ||
-                xml.contains(needle2, ignoreCase = true) ||
-                xml.contains(needle3, ignoreCase = true)
+        uiAutomation.setOnAccessibilityEventListener { event ->
+            if (event.eventType == AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED &&
+                event.className?.toString() == "android.widget.Toast" &&
+                event.text.joinToString(" ").contains(text)
             ) {
-                return
+                found = true
             }
-
-            Thread.sleep(150)
         }
 
-        throw AssertionError("Expected message about not recording audio during a call was not found in window hierarchy dump.")
-    }
+        try {
+            // Trigger action AFTER listener is active
+            trigger()
 
+            while (!found && System.currentTimeMillis() < deadline) {
+                SystemClock.sleep(50)
+            }
+
+            assertTrue(
+                "Toast with text '$text' was not displayed",
+                found
+            )
+        } finally {
+            uiAutomation.setOnAccessibilityEventListener(null)
+        }
+    }
 
 }

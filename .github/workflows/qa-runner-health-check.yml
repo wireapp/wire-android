@@ -5,11 +5,13 @@ on:
 
 jobs:
   health-check:
+    name: Health check (qa-runner-01)
     runs-on:
       - self-hosted
       - Linux
       - X64
       - office
+      - qa-runner-01
 
     timeout-minutes: 10
 
@@ -23,7 +25,7 @@ jobs:
           java-version: "17"
           distribution: "temurin"
 
-      - name: Setup ADB (no sudo)
+      - name: Ensure ADB is available (no sudo)
         shell: bash
         run: |
           set -euo pipefail
@@ -34,34 +36,22 @@ jobs:
             exit 0
           fi
 
-          TOOLS_DIR="$HOME/android-platform-tools"
-          ADB_DIR="$TOOLS_DIR/platform-tools"
-          ADB_BIN="$ADB_DIR/adb"
+          echo "adb not found. Installing Android platform-tools locally..."
+          cd "$HOME"
 
-          echo "Downloading Android platform-tools to $TOOLS_DIR"
-          mkdir -p "$TOOLS_DIR"
-          cd "$TOOLS_DIR"
+          rm -rf platform-tools platform-tools.zip
+          curl -fsSL -o platform-tools.zip \
+            https://dl.google.com/android/repository/platform-tools-latest-linux.zip
 
-          curl -fsSL -o platform-tools.zip https://dl.google.com/android/repository/platform-tools-latest-linux.zip
           unzip -oq platform-tools.zip
 
-          # Make sure adb exists where we expect it
-          if [ ! -x "$ADB_BIN" ]; then
-            echo "ERROR: adb not found at $ADB_BIN"
-            echo "Contents of $TOOLS_DIR:"
-            ls -la "$TOOLS_DIR" || true
-            echo "Contents of $ADB_DIR:"
-            ls -la "$ADB_DIR" || true
-            exit 1
-          fi
+          # Make adb available for subsequent steps
+          echo "$HOME/platform-tools" >> "$GITHUB_PATH"
 
-          # Add to PATH for subsequent steps
-          echo "$ADB_DIR" >> "$GITHUB_PATH"
+          # Sanity check
+          "$HOME/platform-tools/adb" version
 
-          # Verify in THIS step using full path (PATH update may not apply yet)
-          "$ADB_BIN" version
-
-      - name: Check connected Android devices
+      - name: Check connected Android devices (must be authorized)
         shell: bash
         run: |
           set -euo pipefail
@@ -70,14 +60,26 @@ jobs:
           adb start-server
           adb devices -l
 
-          COUNT=$(adb devices | awk 'NR>1 && $2=="device"{print $1}' | wc -l | tr -d ' ')
-          echo "Authorized devices detected: $COUNT"
+          AUTHORIZED_COUNT=$(adb devices | awk 'NR>1 && $2=="device"{print $1}' | wc -l | tr -d ' ')
+          UNAUTHORIZED_COUNT=$(adb devices | awk 'NR>1 && $2=="unauthorized"{print $1}' | wc -l | tr -d ' ')
+          OFFLINE_COUNT=$(adb devices | awk 'NR>1 && $2=="offline"{print $1}' | wc -l | tr -d ' ')
 
-          if [ "$COUNT" -eq 0 ]; then
+          echo "Authorized devices:   $AUTHORIZED_COUNT"
+          echo "Unauthorized devices: $UNAUTHORIZED_COUNT"
+          echo "Offline devices:      $OFFLINE_COUNT"
+
+          if [ "$AUTHORIZED_COUNT" -eq 0 ]; then
             echo "ERROR: No authorized Android devices detected."
-            echo "Common causes:"
-            echo "- No phone connected to the runner USB hub"
-            echo "- Phone is 'unauthorized' (unlock and accept USB debugging prompt)"
-            echo "- USB mode/cable issue"
+            echo "If devices are connected but show as 'unauthorized':"
+            echo " - unlock the phone"
+            echo " - accept the 'Allow USB debugging' prompt"
+            echo " - optionally toggle USB debugging off/on"
             exit 1
           fi
+
+      - name: Runner identity (for audit)
+        shell: bash
+        run: |
+          echo "Runner hostname: $(hostname)"
+          echo "User: $(whoami)"
+          uname -a

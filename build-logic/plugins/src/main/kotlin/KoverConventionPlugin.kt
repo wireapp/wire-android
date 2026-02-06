@@ -23,9 +23,6 @@ import org.gradle.kotlin.dsl.configure
 class KoverConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
-            logger.lifecycle("Skipping Kover plugin during AGP/Kotlin migration.")
-            return
-
             pluginManager.apply("org.jetbrains.kotlinx.kover")
 
             extensions.configure<KoverReportExtension> {

@@ -64,7 +64,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
-import com.wire.android.navigation.style.TabletDialogPopUpNavigation
+import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesScreenDestination
@@ -134,7 +134,7 @@ import kotlinx.coroutines.launch
 @Suppress("CyclomaticComplexMethod")
 @WireRootDestination(
     navArgs = GroupConversationDetailsNavArgs::class,
-    style = TabletDialogPopUpNavigation::class, // default should be PopUpNavigationAnimation
+    style = PopUpNavigationAnimation::class, // default should be PopUpNavigationAnimation
 )
 @Composable
 fun GroupConversationDetailsScreen(

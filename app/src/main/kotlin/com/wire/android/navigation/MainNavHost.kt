@@ -44,7 +44,6 @@ import com.ramcosta.composedestinations.manualcomposablecalls.composable
 import com.ramcosta.composedestinations.navigation.dependency
 import com.ramcosta.composedestinations.navigation.destination
 import com.ramcosta.composedestinations.navigation.navGraph
-import com.ramcosta.composedestinations.rememberNavHostEngine
 import com.ramcosta.composedestinations.scope.resultBackNavigator
 import com.ramcosta.composedestinations.scope.resultRecipient
 import com.ramcosta.composedestinations.spec.Direction
@@ -64,9 +63,7 @@ fun MainNavHost(
     startDestination: Direction,
     modifier: Modifier = Modifier,
 ) {
-    val navHostEngine = rememberNavHostEngine(Alignment.Center)
-
-    AdjustDestinationStylesForTablets()
+    val navHostEngine = rememberWireNavHostEngine(Alignment.Center)
     DestinationsNavHost(
         modifier = modifier,
         navGraph = WireRootGraph,

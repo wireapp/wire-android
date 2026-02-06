@@ -18,12 +18,8 @@
 package com.wire.android.navigation
 
 import androidx.compose.runtime.Composable
-import com.wire.android.navigation.style.setTabletDestinationStylesEnabled
-import com.wire.android.ui.theme.isTablet
 
 // Todo(docs): Add ADR about this change introduced in navigation styles for tablets, which requires
 //  adjusting navigation styles for certain destinations when on tablets.
 @Composable
-fun AdjustDestinationStylesForTablets() {
-    setTabletDestinationStylesEnabled(isTablet)
-}
+fun AdjustDestinationStylesForTablets() = Unit

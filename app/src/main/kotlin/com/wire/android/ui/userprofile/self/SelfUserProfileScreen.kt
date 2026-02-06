@@ -54,7 +54,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.R
-import com.wire.android.navigation.style.TabletDialogPopUpNavigation
+import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.R as UICommonR
 import com.wire.android.appLogger
 import com.wire.android.feature.NavigationSwitchAccountActions
@@ -109,7 +109,7 @@ import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 
 @WireRootDestination(
-    style = TabletDialogPopUpNavigation::class, // default should be PopUpNavigationAnimation
+    style = PopUpNavigationAnimation::class, // default should be PopUpNavigationAnimation
 )
 @Composable
 @SuppressLint("ComposeModifierMissing")

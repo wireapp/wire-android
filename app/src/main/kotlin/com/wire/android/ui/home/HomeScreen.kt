@@ -63,18 +63,17 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.ramcosta.composedestinations.DestinationsNavHost
-import com.ramcosta.composedestinations.rememberNavHostEngine
 import com.ramcosta.composedestinations.navigation.dependency
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.R
 import com.wire.android.appLogger
-import com.wire.android.navigation.AdjustDestinationStylesForTablets
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.navigation.HomeDestination.FabOptions
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.handleNavigation
+import com.wire.android.navigation.rememberWireNavHostEngine
 import com.ramcosta.composedestinations.generated.app.navgraphs.HomeGraph
 import com.ramcosta.composedestinations.generated.app.navgraphs.WireRootGraph
 import com.wire.android.ui.analytics.AnalyticsUsageViewModel
@@ -363,9 +362,7 @@ fun HomeContent(
                          */
                         val lifecycleState by LocalLifecycleOwner.current.lifecycle.currentStateFlow.collectAsState()
                         if (lifecycleState != Lifecycle.State.DESTROYED) {
-                            val navHostEngine = rememberNavHostEngine()
-
-                            AdjustDestinationStylesForTablets()
+                            val navHostEngine = rememberWireNavHostEngine()
                             DestinationsNavHost(
                                 navGraph = WireRootGraph,
                                 start = HomeGraph,

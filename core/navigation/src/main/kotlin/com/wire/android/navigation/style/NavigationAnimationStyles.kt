@@ -55,23 +55,3 @@ object DialogNavigation : DestinationStyle.Dialog() {
             decorFitsSystemWindows = false,
         )
 }
-
-interface TabletDialogStyle
-
-object TabletDialogSlideNavigation : WireDestinationStyleAnimated(), BackgroundStyle, TabletDialogStyle {
-    override fun animationType(): TransitionAnimationType = tabletAnimationType(TransitionAnimationType.SLIDE)
-}
-
-object TabletDialogPopUpNavigation : WireDestinationStyleAnimated(), BackgroundStyle, TabletDialogStyle {
-    override fun animationType(): TransitionAnimationType = tabletAnimationType(TransitionAnimationType.POP_UP)
-}
-
-fun setTabletDestinationStylesEnabled(enabled: Boolean) {
-    tabletDestinationStylesEnabled = enabled
-}
-
-private fun tabletAnimationType(phoneAnimationType: TransitionAnimationType) =
-    if (tabletDestinationStylesEnabled) TransitionAnimationType.NONE else phoneAnimationType
-
-@Volatile
-private var tabletDestinationStylesEnabled = false

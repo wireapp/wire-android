@@ -42,7 +42,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.style.TabletDialogPopUpNavigation
+import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -59,7 +59,7 @@ import com.wire.kalium.logic.data.service.ServiceDetails
 
 @WireRootDestination(
     navArgs = ServiceDetailsNavArgs::class,
-    style = TabletDialogPopUpNavigation::class, // default should be PopUpNavigationAnimation
+    style = PopUpNavigationAnimation::class, // default should be PopUpNavigationAnimation
 )
 @Composable
 fun ServiceDetailsScreen(

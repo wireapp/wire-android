@@ -520,7 +520,6 @@
     <string name="channel_history_label">История беседы</string>
     <string name="channel_history_description">Выберите период. Когда участники присоединяются к этому каналу, они могут просматривать историю за этот период времени.</string>
     <string name="channel_history_freemium_upgrade_title">Показывать старые сообщения?</string>
-    <string name="channel_history_freemium_upgrade_description">Перейдите на платный план, чтобы открыть участникам канала всю историю.</string>
     <string name="channel_history_freemium_upgrade_now">Перейти сейчас</string>
     <string name="channel_history_off">Выкл.</string>
     <string name="channel_history_unlimited">Неограничено</string>

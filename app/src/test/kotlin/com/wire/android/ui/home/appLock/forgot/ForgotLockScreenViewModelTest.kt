@@ -120,24 +120,34 @@ class ForgotLockScreenViewModelTest {
     class Arrangement {
         @MockK
         lateinit var coreLogic: CoreLogic
+
         @MockK
         lateinit var userSessionScope: UserSessionScope
+
         @MockK
         lateinit var logoutUseCase: LogoutUseCase
+
         @MockK
         lateinit var globalDataStore: GlobalDataStore
+
         @MockK
         lateinit var userDataStoreProvider: UserDataStoreProvider
+
         @MockK
         lateinit var userDataStore: UserDataStore
+
         @MockK
         lateinit var notificationManager: WireNotificationManager
+
         @MockK
         lateinit var getSessionsUseCase: GetSessionsUseCase
+
         @MockK
         lateinit var observeEstablishedCallsUseCase: ObserveEstablishedCallsUseCase
+
         @MockK
         lateinit var endCallUseCase: EndCallUseCase
+
         @MockK
         lateinit var accountSwitchUseCase: AccountSwitchUseCase
 

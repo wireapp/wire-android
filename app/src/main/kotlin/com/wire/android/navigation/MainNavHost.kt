@@ -25,34 +25,33 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.DestinationsNavHost
-import com.ramcosta.composedestinations.rememberNavHostEngine
-import com.ramcosta.composedestinations.manualcomposablecalls.composable
-import com.ramcosta.composedestinations.generated.app.navtype.groupConversationDetailsNavBackArgsNavType
-import com.ramcosta.composedestinations.generated.app.navtype.imagesPreviewNavBackArgsNavType
-import com.ramcosta.composedestinations.generated.app.navtype.mediaGalleryNavBackArgsNavType
-import com.ramcosta.composedestinations.generated.sketch.navtype.drawingCanvasNavBackArgsNavType
-import com.ramcosta.composedestinations.navargs.primitives.booleanNavType
-import com.ramcosta.composedestinations.navigation.dependency
-import com.ramcosta.composedestinations.navigation.destination
-import com.ramcosta.composedestinations.navigation.navGraph
-import com.ramcosta.composedestinations.scope.resultBackNavigator
-import com.ramcosta.composedestinations.scope.resultRecipient
-import com.ramcosta.composedestinations.spec.Direction
-import com.ramcosta.composedestinations.generated.sketch.destinations.DrawingCanvasScreenDestination
-import com.wire.android.feature.sketch.model.DrawingCanvasNavBackArgs
-import com.ramcosta.composedestinations.generated.app.navgraphs.LoginGraph
-import com.ramcosta.composedestinations.generated.app.navgraphs.NewConversationGraph
-import com.ramcosta.composedestinations.generated.app.navgraphs.NewLoginGraph
-import com.ramcosta.composedestinations.generated.app.navgraphs.PersonalToTeamMigrationGraph
-import com.ramcosta.composedestinations.generated.app.navgraphs.WireRootGraph
-import com.wire.android.ui.authentication.login.email.LoginEmailViewModel
-import com.wire.android.ui.authentication.login.sso.SSOUrlConfigHolder
-import com.wire.android.ui.authentication.login.sso.SSOUrlConfigHolderImpl
 import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.LoginScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.NewLoginPasswordScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.NewLoginScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.NewLoginVerificationCodeScreenDestination
+import com.ramcosta.composedestinations.generated.app.navgraphs.LoginGraph
+import com.ramcosta.composedestinations.generated.app.navgraphs.NewConversationGraph
+import com.ramcosta.composedestinations.generated.app.navgraphs.NewLoginGraph
+import com.ramcosta.composedestinations.generated.app.navgraphs.PersonalToTeamMigrationGraph
+import com.ramcosta.composedestinations.generated.app.navgraphs.WireRootGraph
+import com.ramcosta.composedestinations.generated.app.navtype.groupConversationDetailsNavBackArgsNavType
+import com.ramcosta.composedestinations.generated.app.navtype.imagesPreviewNavBackArgsNavType
+import com.ramcosta.composedestinations.generated.app.navtype.mediaGalleryNavBackArgsNavType
+import com.ramcosta.composedestinations.generated.sketch.destinations.DrawingCanvasScreenDestination
+import com.ramcosta.composedestinations.generated.sketch.navtype.drawingCanvasNavBackArgsNavType
+import com.ramcosta.composedestinations.manualcomposablecalls.composable
+import com.ramcosta.composedestinations.navigation.dependency
+import com.ramcosta.composedestinations.navigation.destination
+import com.ramcosta.composedestinations.navigation.navGraph
+import com.ramcosta.composedestinations.rememberNavHostEngine
+import com.ramcosta.composedestinations.scope.resultBackNavigator
+import com.ramcosta.composedestinations.scope.resultRecipient
+import com.ramcosta.composedestinations.spec.Direction
+import com.wire.android.feature.sketch.model.DrawingCanvasNavBackArgs
+import com.wire.android.ui.authentication.login.email.LoginEmailViewModel
+import com.wire.android.ui.authentication.login.sso.SSOUrlConfigHolder
+import com.wire.android.ui.authentication.login.sso.SSOUrlConfigHolderImpl
 import com.wire.android.ui.home.conversations.ConversationScreen
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
 import com.wire.android.ui.userprofile.teammigration.TeamMigrationViewModel
@@ -154,7 +153,9 @@ fun MainNavHost(
                     groupDetailsScreenResultRecipient = resultRecipient(groupConversationDetailsNavBackArgsNavType),
                     mediaGalleryScreenResultRecipient = resultRecipient(mediaGalleryNavBackArgsNavType),
                     imagePreviewScreenResultRecipient = resultRecipient(imagesPreviewNavBackArgsNavType),
-                    drawingCanvasScreenResultRecipient = resultRecipient<DrawingCanvasScreenDestination, DrawingCanvasNavBackArgs>(drawingCanvasNavBackArgsNavType),
+                    drawingCanvasScreenResultRecipient = resultRecipient<DrawingCanvasScreenDestination, DrawingCanvasNavBackArgs>(
+                        drawingCanvasNavBackArgsNavType
+                    ),
                     resultNavigator = resultBackNavigator(groupConversationDetailsNavBackArgsNavType),
                 )
             }

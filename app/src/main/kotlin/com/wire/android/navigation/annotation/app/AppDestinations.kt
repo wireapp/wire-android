@@ -28,7 +28,7 @@ import com.wire.android.ui.authentication.create.common.CreatePersonalAccountNav
 import com.wire.android.ui.authentication.create.common.CreateTeamAccountNavGraph
 import com.wire.android.ui.authentication.login.LoginNavGraph
 import com.wire.android.ui.authentication.login.NewLoginNavGraph
-import com.wire.android.navigation.HomeNavGraph
+import com.wire.android.ui.home.HomeNavGraph
 import com.wire.android.ui.home.newconversation.common.NewConversationNavGraph
 import com.wire.android.ui.userprofile.teammigration.PersonalToTeamMigrationNavGraph
 import kotlin.reflect.KClass

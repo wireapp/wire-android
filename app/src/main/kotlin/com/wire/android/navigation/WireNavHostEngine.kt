@@ -55,11 +55,14 @@ internal fun rememberWireNavHostEngine(
  * a custom NavHostEngine implementation for Wire that:
  * 1. Sets a default content alignment for NavHost composable.
  * 2. Implements custom logic for determining when to apply animated transitions to navigation graphs and destinations
- * 3. Implements custom logic for determining when to apply dialog-style presentation to destinations, based on a tablet parity policy.
- *   This is done to ensure that all routes that should be presented as dialogs on tablets are registered as such in the NavGraph, even if they are not registered as dialogs on phones.
+ * 3. Implements custom logic for determining when to apply dialog-style presentation to destinations, based on a tablet
+ * parity policy.
+ * This is done to ensure that all routes that should be presented as dialogs on tablets are registered
+ * as such in the NavGraph, even if they are not registered as dialogs on phones.
  *
- *   Note: MUST BE KEPT IN SYNC WITH UPSTREAM WHEN UPDATING COMPOSE DESTINATIONS DEPENDENCY
+ * Note: MUST BE KEPT IN SYNC WITH UPSTREAM WHEN UPDATING COMPOSE DESTINATIONS DEPENDENCY
  */
+
 // Required because compose-destinations 2.3.0 exposes ManualComposableCalls
 // (@RestrictTo(LIBRARY_GROUP)) in the public NavHostEngine interface; implementing
 // that interface outside the library otherwise triggers RestrictedApi lint.

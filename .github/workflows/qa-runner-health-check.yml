@@ -11,7 +11,7 @@ jobs:
       - Linux
       - X64
       - office
-      - qa-runner-01
+      - android-qa
 
     timeout-minutes: 10
 

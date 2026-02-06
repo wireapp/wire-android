@@ -1,0 +1,49 @@
+name: QA Runner Health Check
+
+on:
+  workflow_dispatch:
+
+jobs:
+  health-check:
+    runs-on:
+      - self-hosted
+      - Linux
+      - X64
+      - office
+
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Show system info
+        run: |
+          echo "Runner hostname: $(hostname)"
+          echo "User:"
+          whoami
+          echo "OS:"
+          uname -a
+          echo "Disk usage:"
+          df -h
+          echo "Memory:"
+          free -h || true
+          echo "Java:"
+          java -version || true
+          echo "Gradle:"
+          ./gradlew -v || true
+
+      - name: Verify ADB
+        run: |
+          adb version
+          adb start-server
+          adb devices -l
+
+      - name: Fail if no Android devices connected
+        run: |
+          COUNT=$(adb devices | awk 'NR>1 && $2=="device"{print $1}' | wc -l | tr -d ' ')
+          echo "Connected devices: $COUNT"
+          if [ "$COUNT" -eq 0 ]; then
+            echo "ERROR: No Android devices detected by adb"
+            exit 1
+          fi

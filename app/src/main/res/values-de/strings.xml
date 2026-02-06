@@ -485,7 +485,6 @@
     <string name="channel_history_label">Gesprächsverlauf</string>
     <string name="channel_history_description">Wählen Sie einen Zeitraum. Wenn Teilnehmer diesem Channel beitreten, können sie den Verlauf für diese Zeitspanne verfolgen.</string>
     <string name="channel_history_freemium_upgrade_title">Ältere Nachrichten anzeigen?</string>
-    <string name="channel_history_freemium_upgrade_description">Upgraden Sie auf eine kostenpflichtige Version, um Channel-Mitgliedern den gesamten Gesprächsverlauf zu bieten.</string>
     <string name="channel_history_freemium_upgrade_now">Jetzt upgraden</string>
     <string name="channel_history_off">Aus</string>
     <string name="channel_history_unlimited">Unbegrenzt</string>

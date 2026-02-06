@@ -564,7 +564,7 @@
     <string name="channel_history_label">Conversation history</string>
     <string name="channel_history_description">Select a period. When participants join this channel, they can follow the history for this time frame.</string>
     <string name="channel_history_freemium_upgrade_title">Show older messages?</string>
-    <string name="channel_history_freemium_upgrade_description">Upgrade to a paid plan to offer channel members the whole history.</string>
+    <string name="channel_history_freemium_upgrade_description">To show older messages to channel members, your team needs configuration. Please contact your team admin.</string>
     <string name="channel_history_freemium_upgrade_now">Upgrade now</string>
     <string name="channel_history_off">Off</string>
     <string name="channel_history_unlimited">Unlimited</string>

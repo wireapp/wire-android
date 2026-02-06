@@ -48,7 +48,7 @@ compose-qr = "1.0.1"
 enterprise-feedback = "1.1.0"
 
 # Compose
-composeBom = "2026.01.00"
+composeBom = "2026.01.01"
 compose-activity = "1.10.0"
 compose-constraint = "1.1.1"
 compose-navigation = "2.9.5" # aligned with compose-destinations 2.3.0

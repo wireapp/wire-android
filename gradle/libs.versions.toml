@@ -4,7 +4,7 @@ androidJunit5 = "1.14.0.0"
 
 # Kotlin
 grgitCore = "5.3.2"
-kotlin = "2.3.0"
+kotlin = "2.3.10"
 
 # KotlinX
 coroutines = "1.10.2"

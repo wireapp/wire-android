@@ -18,6 +18,7 @@
 
 package com.wire.android.navigation
 
+import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -59,6 +60,10 @@ internal fun rememberWireNavHostEngine(
  *
  *   Note: MUST BE KEPT IN SYNC WITH UPSTREAM WHEN UPDATING COMPOSE DESTINATIONS DEPENDENCY
  */
+// Required because compose-destinations 2.3.0 exposes ManualComposableCalls
+// (@RestrictTo(LIBRARY_GROUP)) in the public NavHostEngine interface; implementing
+// that interface outside the library otherwise triggers RestrictedApi lint.
+@SuppressLint("RestrictedApi")
 internal class WireNavHostEngine(
     private val navHostContentAlignment: Alignment,
 ) : NavHostEngine {

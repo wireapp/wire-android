@@ -39,7 +39,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.wire.android.navigation.style.SlideNavigationAnimation
+import com.wire.android.navigation.style.TabletDialogSlideNavigation
 import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
@@ -64,7 +64,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.ui.common.R as commonR
 
 @WireRootDestination(
-    style = SlideNavigationAnimation::class, // default should be SlideNavigationAnimation
+    style = TabletDialogSlideNavigation::class, // default should be SlideNavigationAnimation
 )
 @Composable
 fun ChangeEmailScreen(

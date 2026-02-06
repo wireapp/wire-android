@@ -28,14 +28,18 @@ import androidx.compose.ui.draw.clip
 import com.ramcosta.composedestinations.scope.DestinationScope
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import com.ramcosta.composedestinations.wrapper.DestinationWrapper
+import com.wire.android.navigation.style.TabletDialogStyle
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.theme.isTablet
 
 object TabletDialogWrapper : DestinationWrapper {
 
     @Composable
     override fun <T> DestinationScope<T>.Wrap(screenContent: @Composable () -> Unit) {
         val movableContent = remember(screenContent) { movableContentOf(screenContent) }
-        if (this.destination.style is DestinationStyle.Dialog) {
+        val shouldWrapAsDialog = destination.style is DestinationStyle.Dialog ||
+            (isTablet && destination.style is TabletDialogStyle)
+        if (shouldWrapAsDialog) {
             Row(
                 modifier = Modifier
                     .clip(RoundedCornerShape(dimensions().spacing20x))

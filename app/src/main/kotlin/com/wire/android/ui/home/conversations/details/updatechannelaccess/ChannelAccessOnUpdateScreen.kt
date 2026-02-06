@@ -23,7 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.result.ResultBackNavigator
-import com.wire.android.navigation.style.SlideNavigationAnimation
+import com.wire.android.navigation.style.TabletDialogSlideNavigation
 import com.wire.android.R
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
@@ -33,7 +33,7 @@ import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessScree
 
 @WireRootDestination(
     navArgs = UpdateChannelAccessArgs::class,
-    style = SlideNavigationAnimation::class, // default should be SlideNavigationAnimation
+    style = TabletDialogSlideNavigation::class, // default should be SlideNavigationAnimation
 )
 @Composable
 fun ChannelAccessOnUpdateScreen(

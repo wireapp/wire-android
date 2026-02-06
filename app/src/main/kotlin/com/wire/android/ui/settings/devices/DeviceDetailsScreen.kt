@@ -50,7 +50,7 @@ import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.style.SlideNavigationAnimation
+import com.wire.android.navigation.style.TabletDialogSlideNavigation
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.authentication.devices.model.lastActiveDescription
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceDialog
@@ -102,7 +102,7 @@ import kotlinx.datetime.Instant
 
 @WireRootDestination(
     navArgs = DeviceDetailsNavArgs::class,
-    style = SlideNavigationAnimation::class, // default should be SlideNavigationAnimation
+    style = TabletDialogSlideNavigation::class, // default should be SlideNavigationAnimation
 )
 @Composable
 fun DeviceDetailsScreen(

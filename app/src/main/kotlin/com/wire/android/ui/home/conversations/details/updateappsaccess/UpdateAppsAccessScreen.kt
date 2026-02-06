@@ -31,7 +31,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.wire.android.navigation.style.SlideNavigationAnimation
+import com.wire.android.navigation.style.TabletDialogSlideNavigation
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.rememberTopBarElevationState
@@ -49,7 +49,7 @@ import kotlinx.coroutines.launch
 
 @WireRootDestination(
     navArgs = UpdateAppsAccessNavArgs::class,
-    style = SlideNavigationAnimation::class,
+    style = TabletDialogSlideNavigation::class,
 )
 @Composable
 fun UpdateAppsAccessScreen(

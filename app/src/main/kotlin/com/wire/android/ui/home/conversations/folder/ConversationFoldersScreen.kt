@@ -43,7 +43,7 @@ import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.style.PopUpNavigationAnimation
+import com.wire.android.navigation.style.TabletDialogSlideNavigation
 import com.wire.android.ui.common.bottomsheet.RichMenuItemState
 import com.wire.android.ui.common.bottomsheet.SelectableMenuBottomSheetItem
 import com.wire.android.ui.common.button.WireButton
@@ -62,7 +62,7 @@ import com.wire.kalium.logic.data.conversation.FolderType
 
 @WireRootDestination(
     navArgs = ConversationFoldersNavArgs::class,
-    style = PopUpNavigationAnimation::class, // default should be PopUpNavigationAnimation
+    style = TabletDialogSlideNavigation::class, // default should be SlideNavigationAnimation
 )
 @Composable
 fun ConversationFoldersScreen(

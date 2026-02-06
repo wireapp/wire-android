@@ -41,6 +41,7 @@ import com.wire.android.navigation.wrapper.setTabletDialogRouteMatcher
 internal fun rememberWireNavHostEngine(
     navHostContentAlignment: Alignment = Alignment.Center,
 ): NavHostEngine = remember(navHostContentAlignment) {
+    // Keep wrapper clipping aligned with the same tablet-dialog route policy used by style resolution.
     setTabletDialogRouteMatcher { route ->
         TabletDialogRoutePolicy.shouldShowAsDialog(route.getBaseRoute())
     }
@@ -49,6 +50,15 @@ internal fun rememberWireNavHostEngine(
     )
 }
 
+/**
+ * a custom NavHostEngine implementation for Wire that:
+ * 1. Sets a default content alignment for NavHost composable.
+ * 2. Implements custom logic for determining when to apply animated transitions to navigation graphs and destinations
+ * 3. Implements custom logic for determining when to apply dialog-style presentation to destinations, based on a tablet parity policy.
+ *   This is done to ensure that all routes that should be presented as dialogs on tablets are registered as such in the NavGraph, even if they are not registered as dialogs on phones.
+ *
+ *   Note: MUST BE KEPT IN SYNC WITH UPSTREAM WHEN UPDATING COMPOSE DESTINATIONS DEPENDENCY
+ */
 internal class WireNavHostEngine(
     private val navHostContentAlignment: Alignment,
 ) : NavHostEngine {
@@ -124,6 +134,7 @@ internal class WireNavHostEngine(
         dependenciesContainerBuilder: @Composable DependenciesContainerBuilder<*>.() -> Unit,
         manualComposableCalls: ManualComposableCalls,
     ) {
+        // Force true dialog registration for tablet parity routes; keep default/manual behavior otherwise.
         val resolvedStyle = resolveTabletDialogParityStyle(
             destinationRoute = destination.route,
             originalStyle = destination.style,

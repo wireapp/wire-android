@@ -21,5 +21,7 @@ import androidx.compose.runtime.Composable
 
 // Todo(docs): Add ADR about this change introduced in navigation styles for tablets, which requires
 //  adjusting navigation styles for certain destinations when on tablets.
+// See ADR-0010:
+// docs/adr/0010-tablet-dialog-navigation-parity-after-compose-destinations-upgrade.md
 @Composable
 fun AdjustDestinationStylesForTablets() = Unit

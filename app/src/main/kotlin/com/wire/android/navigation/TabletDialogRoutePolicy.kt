@@ -21,6 +21,12 @@ package com.wire.android.navigation
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import com.wire.android.navigation.style.DialogNavigation
 
+/**
+ * Single source of truth for destinations that must preserve pre-migration tablet dialog behavior.
+ *
+ * See ADR-0010 for rationale and maintenance rules:
+ * docs/adr/0010-tablet-dialog-navigation-parity-after-compose-destinations-upgrade.md
+ */
 internal object TabletDialogRoutePolicy {
     internal val destinationBaseRoutes: Set<String> = setOf(
         "app/service_details_screen",
@@ -46,6 +52,9 @@ internal object TabletDialogRoutePolicy {
         baseRoute in destinationBaseRoutes
 }
 
+/**
+ * Resolves the runtime style for a destination while preserving manual animation overrides.
+ */
 internal fun resolveTabletDialogParityStyle(
     destinationRoute: String,
     originalStyle: DestinationStyle,

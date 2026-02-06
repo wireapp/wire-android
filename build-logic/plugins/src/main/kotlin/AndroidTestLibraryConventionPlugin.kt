@@ -16,15 +16,13 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 import com.android.build.api.dsl.AndroidSourceSet
-import com.android.build.gradle.LibraryExtension
+import com.android.build.api.dsl.LibraryExtension
 import com.wire.android.gradle.configureCompose
 import com.wire.android.gradle.configureKotlinAndroid
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.get
-import org.gradle.kotlin.dsl.getByType
-import org.jetbrains.kotlin.gradle.dsl.KotlinBaseExtension
 
 class AndroidTestLibraryConventionPlugin : Plugin<Project> {
     override fun apply(target: Project): Unit = with(target) {
@@ -36,8 +34,7 @@ class AndroidTestLibraryConventionPlugin : Plugin<Project> {
         extensions.configure<LibraryExtension> {
             namespace = "com.wire.android.tests.${target.name.replace("-", "_")}"
 
-            configureKotlinAndroid(this, extensions.getByType<KotlinBaseExtension>())
-            defaultConfig.targetSdk = AndroidSdk.target
+            configureKotlinAndroid(this)
             configureCompose(this)
 
             defaultConfig {

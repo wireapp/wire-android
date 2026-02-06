@@ -18,8 +18,9 @@
 package com.wire.android.navigation
 
 import com.ramcosta.composedestinations.annotation.NavGraph
+import com.wire.android.navigation.WireRootNavGraph
 
-@NavGraph
+@NavGraph<WireRootNavGraph>
 annotation class HomeNavGraph(
     val start: Boolean = false
 )

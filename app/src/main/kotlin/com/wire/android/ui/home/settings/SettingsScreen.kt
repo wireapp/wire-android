@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.home.settings
 
+import com.wire.android.navigation.annotation.app.WireHomeDestination
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
@@ -34,20 +35,17 @@ import com.wire.android.appLogger
 import com.wire.android.model.Clickable
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.HomeDestination
-import com.wire.android.navigation.HomeNavGraph
 import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.handleNavigation
 import com.wire.android.ui.common.visbility.rememberVisibilityState
-import com.wire.android.ui.destinations.SetLockCodeScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.SetLockCodeScreenDestination
 import com.wire.android.ui.home.HomeStateHolder
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.ui.sectionWithElements
 import com.wire.android.util.ui.PreviewMultipleThemes
 
-@HomeNavGraph
-@WireDestination
+@WireHomeDestination
 @Composable
 fun SettingsScreen(
     homeStateHolder: HomeStateHolder,

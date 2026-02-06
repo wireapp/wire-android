@@ -32,6 +32,7 @@ import com.ramcosta.composedestinations.utils.navGraph
 import com.ramcosta.composedestinations.utils.route
 import com.ramcosta.composedestinations.utils.toDestinationsNavigator
 import com.wire.android.appLogger
+import com.ramcosta.composedestinations.generated.app.navgraphs.WireRootGraph
 import com.wire.android.util.CustomTabsHelper
 import com.wire.kalium.logger.obfuscateId
 
@@ -39,8 +40,8 @@ import com.wire.kalium.logger.obfuscateId
 @Suppress("CyclomaticComplexMethod")
 internal fun NavController.navigateToItem(command: NavigationCommand) {
 
-    fun firstDestination() = currentBackStack.value.firstOrNull { it.route() is DestinationSpec<*> }
-    fun lastDestination() = currentBackStack.value.lastOrNull { it.route() is DestinationSpec<*> }
+    fun firstDestination() = currentBackStack.value.firstOrNull { it.route() is DestinationSpec }
+    fun lastDestination() = currentBackStack.value.lastOrNull { it.route() is DestinationSpec }
     fun lastNestedGraph() = lastDestination()?.takeIf { it.navGraph() != navGraph }?.navGraph()
     fun firstDestinationWithRoute(route: String) =
         currentBackStack.value.firstOrNull { it.destination.route?.getBaseRoute() == route.getBaseRoute() }
@@ -107,11 +108,11 @@ private fun DestinationsNavOptionsBuilder.popUpTo(
     }
 }
 
-internal fun NavDestination.toDestination(): DestinationSpec<*>? =
-    this.route?.let { currentRoute -> WireMainNavGraph.findDestination(currentRoute) }
+internal fun NavDestination.toDestination(): DestinationSpec? =
+    this.route?.let { currentRoute -> WireRootGraph.findDestination(currentRoute) }
 
 fun String.getBaseRoute(): String =
-    this.indexOfAny(listOf("?", "/")).let {
+    this.indexOf("?").let {
         if (it != -1) {
             this.substring(0, it)
         } else {
@@ -127,6 +128,6 @@ fun Direction.handleNavigation(context: Context, handleOtherDirection: (Directio
 }
 
 @SuppressLint("RestrictedApi")
-fun NavController.startDestination() = currentBackStack.value.firstOrNull { it.route() is DestinationSpec<*> }
+fun NavController.startDestination() = currentBackStack.value.firstOrNull { it.route() is DestinationSpec }
 
 private const val TAG = "NavigationUtils"

@@ -22,13 +22,13 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.ramcosta.composedestinations.spec.Direction
 import com.wire.android.R
-import com.wire.android.ui.destinations.AllConversationsScreenDestination
-import com.wire.android.ui.destinations.ArchiveScreenDestination
-import com.wire.android.ui.destinations.GlobalCellsScreenDestination
-import com.wire.android.ui.destinations.MeetingsScreenDestination
-import com.wire.android.ui.destinations.SettingsScreenDestination
-import com.wire.android.ui.destinations.VaultScreenDestination
-import com.wire.android.ui.destinations.WhatsNewScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.AllConversationsScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.ArchiveScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.GlobalCellsScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.MeetingsScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.SettingsScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.VaultScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.WhatsNewScreenDestination
 import com.wire.android.util.ui.UIText
 
 @Suppress("LongParameterList")

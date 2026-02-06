@@ -86,7 +86,12 @@ android {
         val domainKeysJson: String? = System.getenv(domainRemovalKeysForRepair) ?: project.getLocalProperty(domainRemovalKeysForRepair, null)
         val domainKeysHashMap = if (domainKeysJson != null) {
             try {
-                val jsonMap = groovy.json.JsonSlurper().parseText(domainKeysJson) as Map<String, List<String>>
+                val parsed = groovy.json.JsonSlurper().parseText(domainKeysJson)
+                val jsonMap = (parsed as? Map<*, *>)?.mapNotNull { (domain, keys) ->
+                    val domainName = domain as? String ?: return@mapNotNull null
+                    val domainKeys = (keys as? List<*>)?.mapNotNull { it as? String } ?: return@mapNotNull null
+                    domainName to domainKeys
+                }?.toMap().orEmpty()
                 val javaMapEntries = jsonMap.entries.joinToString("; ") { (domain, keys) ->
                     val keysList = keys.joinToString("\", \"", "\"", "\"")
                     "put(\"$domain\", java.util.Arrays.asList($keysList))"
@@ -130,29 +135,30 @@ android {
         allFlavors.forEach { flavor ->
             getByName(flavor) {
                 if (flavor in internalFlavors) {
-                    java.srcDirs("src/private/kotlin")
+                    java.directories.add("src/private/kotlin")
                     println("Adding external datadog logger internal sourceSets to '$flavor' flavor")
                 } else {
-                    java.srcDirs("src/public/kotlin")
+                    java.directories.add("src/public/kotlin")
                     println("Adding external datadog logger sourceSets to '$flavor' flavor")
                 }
 
                 if (flavor in fossFlavors) {
-                    java.srcDirs("src/foss/kotlin", "src/prod/kotlin")
-                    res.srcDirs("src/prod/res")
+                    java.directories.add("src/foss/kotlin")
+                    java.directories.add("src/prod/kotlin")
+                    res.directories.add("src/prod/res")
                     println("Adding FOSS sourceSets to '$flavor' flavor")
                 } else {
-                    java.srcDirs("src/nonfree/kotlin")
+                    java.directories.add("src/nonfree/kotlin")
                     println("Adding non-free sourceSets to '$flavor' flavor")
                 }
             }
         }
         getByName("androidTest") {
-            java.srcDirs("src/androidTest/kotlin")
+            java.directories.add("src/androidTest/kotlin")
         }
         create("screenshotTest") {
-            java.srcDirs("src/screenshotTest/kotlin")
-            res.srcDirs("src/main/res")
+            java.directories.add("src/screenshotTest/kotlin")
+            res.directories.add("src/main/res")
         }
     }
 
@@ -161,10 +167,13 @@ android {
     }
 }
 
+ksp {
+    arg("compose-destinations.moduleName", "app")
+}
+
 // Skip AboutLibraries configuration when running lint to reduce memory usage
 if (!project.hasProperty("skip.aboutlibraries")) {
     aboutLibraries {
-        android.registerAndroidTasks = true
         export.excludeFields.add("generated")
     }
 }
@@ -178,7 +187,6 @@ dependencies {
 
     fun implementationWithCoverage(dependency: ProjectDependency) {
         implementation(dependency)
-        kover(dependency)
     }
     implementationWithCoverage(projects.core.uiCommon)
     implementationWithCoverage(projects.core.di)
@@ -196,14 +204,12 @@ dependencies {
         if (configs["analytics_enabled"] as? Boolean == true && !isCustomBuild) {
             println(">> Dependency Anonymous Analytics is enabled for [$key] flavor")
             add("${key}Implementation", project(":core:analytics-enabled"))
-            add("test${key.capitalize()}Implementation", project(":core:analytics-disabled"))
+            add("test${key.replaceFirstChar(Char::titlecase)}Implementation", project(":core:analytics-disabled"))
         } else {
             println(">> Dependency Anonymous Analytics is disabled for [$key] flavor")
             add("${key}Implementation", project(":core:analytics-disabled"))
         }
     }
-    // Analytics may not be added to the app build, but we always want the merged coverage report
-    kover(projects.core.analyticsEnabled)
 
     // Application dependencies
     implementation(libs.androidx.appcompat)

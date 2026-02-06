@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.userprofile.qr
 
+import com.wire.android.navigation.annotation.app.WireRootDestination
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.net.Uri
@@ -60,7 +61,6 @@ import com.lightspark.composeqr.QrCodeView
 import com.wire.android.R
 import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.colorsScheme
@@ -75,9 +75,9 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.launch
 
-@WireDestination(
+@WireRootDestination(
     style = SlideNavigationAnimation::class,
-    navArgsDelegate = SelfQrCodeNavArgs::class
+    navArgs = SelfQrCodeNavArgs::class
 )
 @Composable
 fun SelfQRCodeScreen(

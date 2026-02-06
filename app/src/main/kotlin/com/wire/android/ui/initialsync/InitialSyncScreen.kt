@@ -18,16 +18,16 @@
 
 package com.wire.android.ui.initialsync
 
+import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.common.SettingUpWireScreenContent
-import com.wire.android.ui.destinations.HomeScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.HomeScreenDestination
 
-@WireDestination
+@WireRootDestination
 @Composable
 fun InitialSyncScreen(
     navigator: Navigator,

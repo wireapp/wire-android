@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.home.settings.account
 
+import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -50,7 +51,6 @@ import com.wire.android.appLogger
 import com.wire.android.model.Clickable
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
@@ -60,10 +60,10 @@ import com.wire.android.ui.common.rowitem.RowItemTemplate
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.wire.android.ui.destinations.ChangeDisplayNameScreenDestination
-import com.wire.android.ui.destinations.ChangeEmailScreenDestination
-import com.wire.android.ui.destinations.ChangeHandleScreenDestination
-import com.wire.android.ui.destinations.ChangeUserColorScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.ChangeDisplayNameScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.ChangeEmailScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.ChangeHandleScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.ChangeUserColorScreenDestination
 import com.wire.android.ui.home.settings.account.AccountDetailsItem.DisplayName
 import com.wire.android.ui.home.settings.account.AccountDetailsItem.Domain
 import com.wire.android.ui.home.settings.account.AccountDetailsItem.Email
@@ -87,7 +87,7 @@ import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-@WireDestination
+@WireRootDestination
 @Composable
 fun MyAccountScreen(
     navigator: Navigator,
@@ -127,7 +127,7 @@ fun MyAccountScreen(
 }
 
 @Composable
-private fun <T : DestinationSpec<*>> HandleNavResult(
+private fun <T : DestinationSpec> HandleNavResult(
     scope: CoroutineScope,
     resultRecipient: ResultRecipient<T, Boolean>,
     tryAgainSnackBarMessage: String,

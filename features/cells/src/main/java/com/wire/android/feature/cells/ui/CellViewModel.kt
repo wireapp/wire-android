@@ -26,6 +26,7 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.filter
 import androidx.paging.map
+import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesScreenDestination
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.feature.cells.ui.model.CellNodeUi
@@ -97,7 +98,7 @@ class CellViewModel @Inject constructor(
     private val getWireCellsConfig: GetWireCellConfigurationUseCase,
 ) : ActionsViewModel<CellViewAction>() {
 
-    private val navArgs: CellFilesNavArgs = savedStateHandle.navArgs()
+    private val navArgs: CellFilesNavArgs = ConversationFilesScreenDestination.argsFrom(savedStateHandle)
 
     val isSearchByDefaultActive: Boolean = navArgs.isSearchByDefaultActive ?: false
 

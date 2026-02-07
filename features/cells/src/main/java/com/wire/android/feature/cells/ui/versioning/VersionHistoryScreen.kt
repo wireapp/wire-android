@@ -46,7 +46,7 @@ import com.wire.android.feature.cells.ui.versioning.download.DownloadState
 import com.wire.android.feature.cells.ui.versioning.restore.RestoreDialogState
 import com.wire.android.feature.cells.ui.versioning.restore.RestoreNodeVersionConfirmationDialog
 import com.wire.android.navigation.WireNavigator
-import com.wire.android.navigation.annotation.features.cells.WireDestination
+import com.wire.android.navigation.annotation.features.cells.WireCellsDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
@@ -64,9 +64,9 @@ import com.wire.android.util.openDownloadFolder
 import com.wire.android.util.ui.toUIText
 import kotlinx.coroutines.launch
 
-@WireDestination(
+@WireCellsDestination(
     style = PopUpNavigationAnimation::class,
-    navArgsDelegate = VersionHistoryNavArgs::class,
+    navArgs = VersionHistoryNavArgs::class,
 )
 @Composable
 fun VersionHistoryScreen(

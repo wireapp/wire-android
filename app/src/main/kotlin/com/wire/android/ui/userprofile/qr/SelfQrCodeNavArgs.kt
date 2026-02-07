@@ -22,6 +22,6 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class SelfQrCodeNavArgs(
-    val handle: String = "",
+    val userHandle: String = "",
     val isTeamMember: Boolean
 ) : Parcelable

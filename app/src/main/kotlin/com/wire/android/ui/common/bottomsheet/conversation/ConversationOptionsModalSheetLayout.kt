@@ -156,6 +156,8 @@ fun ConversationOptionsModalSheetLayout(
                 )
 
                 ConversationOptionsMenuState.NotAvailable -> sheetState.hide { // conversation not found - hide the sheet and show info
+                    @SuppressLint("LocalContextGetResourceValueCall")
+                    // TODO: think about better way to handle string resources in such cases
                     snackbarHostState.showSnackbar(context.getString(R.string.deleted_conversation_options_closed))
                 }
             }

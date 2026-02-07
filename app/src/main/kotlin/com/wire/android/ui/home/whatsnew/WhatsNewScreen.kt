@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.home.whatsnew
 
+import com.wire.android.navigation.annotation.app.WireHomeDestination
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
@@ -34,16 +35,13 @@ import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.navigation.HomeDestination
-import com.wire.android.navigation.HomeNavGraph
 import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.handleNavigation
 import com.wire.android.ui.home.HomeStateHolder
 import com.wire.android.util.ui.sectionWithElements
 import com.wire.android.util.ui.UIText
 
-@HomeNavGraph
-@WireDestination
+@WireHomeDestination
 @Composable
 fun WhatsNewScreen(
     homeStateHolder: HomeStateHolder,
@@ -89,7 +87,7 @@ fun WhatsNewScreenContent(
         }
 
         sectionWithElements(
-            header = context.getString(R.string.whats_new_release_notes_group_title),
+            header = UIText.StringResource(R.string.whats_new_release_notes_group_title),
             items = buildList {
                 if (state.isLoading) {
                     // placeholders with shimmer effect
@@ -130,14 +128,14 @@ fun WhatsNewScreenContent(
 }
 
 private fun LazyListScope.sectionWithElements(
-    header: String? = null,
+    header: UIText? = null,
     items: List<WhatsNewItem>,
     onItemClicked: (WhatsNewItem) -> Unit,
     onItemClickedDescription: String,
     isLoading: Boolean,
 ) {
     sectionWithElements(
-        header = header?.uppercase(),
+        header = header,
         items = items.associateBy { it.id }
     ) { item ->
         val contentDescription = when (item) {

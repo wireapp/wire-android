@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.home.conversations.folder
 
+import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -38,12 +39,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
-import com.ramcosta.composedestinations.spec.DestinationStyle
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
+import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.ui.common.bottomsheet.RichMenuItemState
 import com.wire.android.ui.common.bottomsheet.SelectableMenuBottomSheetItem
 import com.wire.android.ui.common.button.WireButton
@@ -56,13 +56,13 @@ import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.typography
-import com.wire.android.ui.destinations.NewConversationFolderScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.NewConversationFolderScreenDestination
 import com.wire.kalium.logic.data.conversation.ConversationFolder
 import com.wire.kalium.logic.data.conversation.FolderType
 
-@WireDestination(
-    navArgsDelegate = ConversationFoldersNavArgs::class,
-    style = DestinationStyle.Runtime::class, // default should be PopUpNavigationAnimation
+@WireRootDestination(
+    navArgs = ConversationFoldersNavArgs::class,
+    style = SlideNavigationAnimation::class, // default should be SlideNavigationAnimation
 )
 @Composable
 fun ConversationFoldersScreen(

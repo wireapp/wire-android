@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.newauthentication.login.password
 
+import com.wire.android.navigation.annotation.app.WireNewLoginDestination
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
@@ -52,14 +53,12 @@ import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.style.AuthSlideNavigationAnimation
 import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.authentication.login.DomainClaimedByOrg
 import com.wire.android.ui.authentication.login.LoginErrorDialog
 import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.LoginState
-import com.wire.android.ui.authentication.login.NewLoginNavGraph
 import com.wire.android.ui.authentication.login.PreFilledUserIdentifierType
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import com.wire.android.ui.authentication.login.email.ForgotPasswordLabel
@@ -84,13 +83,13 @@ import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.textfield.clearAutofillTree
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.common.visbility.rememberVisibilityState
-import com.wire.android.ui.destinations.CreateAccountSelectorScreenDestination
-import com.wire.android.ui.destinations.CreatePersonalAccountOverviewScreenDestination
-import com.wire.android.ui.destinations.E2EIEnrollmentScreenDestination
-import com.wire.android.ui.destinations.HomeScreenDestination
-import com.wire.android.ui.destinations.InitialSyncScreenDestination
-import com.wire.android.ui.destinations.NewLoginVerificationCodeScreenDestination
-import com.wire.android.ui.destinations.RemoveDeviceScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.CreateAccountSelectorScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.CreatePersonalAccountOverviewScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.E2EIEnrollmentScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.HomeScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.InitialSyncScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.NewLoginVerificationCodeScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.RemoveDeviceScreenDestination
 import com.wire.android.ui.newauthentication.login.NewAuthContainer
 import com.wire.android.ui.newauthentication.login.NewAuthHeader
 import com.wire.android.ui.newauthentication.login.NewAuthSubtitle
@@ -98,9 +97,8 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.configuration.server.ServerConfig
 
-@NewLoginNavGraph
-@WireDestination(
-    navArgsDelegate = LoginNavArgs::class,
+@WireNewLoginDestination(
+    navArgs = LoginNavArgs::class,
     style = AuthSlideNavigationAnimation::class,
 )
 @Composable

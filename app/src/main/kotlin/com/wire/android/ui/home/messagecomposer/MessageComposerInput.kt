@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.home.messagecomposer
 
-import android.view.KeyEvent
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
@@ -49,9 +48,6 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.nativeKeyCode
-import androidx.compose.ui.input.key.onPreInterceptKeyBeforeSoftKeyboard
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -97,7 +93,6 @@ fun ActiveMessageComposerInput(
     onEditButtonClicked: () -> Unit,
     onChangeSelfDeletionClicked: (currentlySelected: SelfDeletionTimer) -> Unit,
     onToggleInputSize: () -> Unit,
-    onTextCollapse: () -> Unit,
     onCancelReply: () -> Unit,
     onCancelEdit: () -> Unit,
     onFocused: () -> Unit,
@@ -107,7 +102,6 @@ fun ActiveMessageComposerInput(
     optionsSelected: Boolean,
     onPlusClick: () -> Unit,
     modifier: Modifier = Modifier,
-    onClearFocus: () -> Unit = { }
 ) {
     Column(
         modifier = modifier
@@ -149,8 +143,6 @@ fun ActiveMessageComposerInput(
             showOptions = showOptions,
             optionsSelected = optionsSelected,
             onPlusClick = onPlusClick,
-            onTextCollapse = onTextCollapse,
-            onClearFocus = onClearFocus,
             modifier = Modifier
                 .fillMaxWidth()
                 .let {
@@ -190,13 +182,11 @@ private fun InputContent(
     showOptions: Boolean,
     optionsSelected: Boolean,
     onPlusClick: () -> Unit,
-    onTextCollapse: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SelfDeletingMessageActionViewModel =
         hiltViewModelScoped<SelfDeletingMessageActionViewModelImpl, SelfDeletingMessageActionViewModel, SelfDeletingMessageActionArgs>(
             SelfDeletingMessageActionArgs(conversationId = conversationId)
         ),
-    onClearFocus: () -> Unit = { }
 ) {
     ConstraintLayout(modifier = modifier) {
         val (additionalOptionButton, input, actions) = createRefs()
@@ -219,7 +209,6 @@ private fun InputContent(
 
         val collapsedMaxHeight = dimensions().messageComposerActiveInputMaxHeight
         MessageComposerTextInput(
-            isTextExpanded = isTextExpanded,
             focusRequester = focusRequester,
             colors = inputType.inputTextColor(isSelfDeleting = viewModel.state().duration != null),
             messageTextState = messageTextState,
@@ -228,10 +217,8 @@ private fun InputContent(
             onFocused = onFocused,
             onSelectedLineIndexChanged = onSelectedLineIndexChanged,
             onLineBottomYCoordinateChanged = onLineBottomYCoordinateChanged,
-            onTextCollapse = onTextCollapse,
             keyboardOptions = keyboardOptions,
             onKeyBoardAction = onKeyboardAction,
-            onClearFocus = onClearFocus,
             modifier = Modifier
                 .fillMaxWidth()
                 .constrainAs(input) {
@@ -282,18 +269,15 @@ private fun InputContent(
 @Composable
 private fun MessageComposerTextInput(
     messageTextState: TextFieldState,
-    isTextExpanded: Boolean,
     focusRequester: FocusRequester,
     colors: WireTextFieldColors,
     placeHolderText: String,
-    onTextCollapse: () -> Unit,
     onFocused: () -> Unit,
     keyboardOptions: KeyboardOptions,
     onKeyBoardAction: KeyboardActionHandler?,
     modifier: Modifier = Modifier,
     onSelectedLineIndexChanged: (Int) -> Unit = { },
     onLineBottomYCoordinateChanged: (Float) -> Unit = { },
-    onClearFocus: () -> Unit = { },
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
@@ -319,19 +303,6 @@ private fun MessageComposerTextInput(
             .onFocusChanged { focusState ->
                 if (focusState.isFocused) {
                     onFocused()
-                }
-            }
-            .onPreInterceptKeyBeforeSoftKeyboard { event ->
-                if (event.key.nativeKeyCode == KeyEvent.KEYCODE_BACK) {
-                    onClearFocus()
-                    if (isTextExpanded) {
-                        onTextCollapse()
-                        true
-                    } else {
-                        false
-                    }
-                } else {
-                    false
                 }
             },
         interactionSource = interactionSource,
@@ -387,7 +358,6 @@ private fun PreviewActiveMessageComposerInput(inputType: InputType, isTextExpand
         onEditButtonClicked = {},
         onChangeSelfDeletionClicked = {},
         onToggleInputSize = {},
-        onTextCollapse = {},
         onCancelReply = {},
         onCancelEdit = {},
         onFocused = {},

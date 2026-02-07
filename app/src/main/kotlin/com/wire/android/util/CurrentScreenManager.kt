@@ -31,32 +31,32 @@ import com.wire.android.appLogger
 import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
 import com.wire.android.navigation.getBaseRoute
 import com.wire.android.navigation.toDestination
-import com.wire.android.ui.destinations.ConversationScreenDestination
-import com.wire.android.ui.destinations.CreateAccountDataDetailScreenDestination
-import com.wire.android.ui.destinations.CreateAccountDetailsScreenDestination
-import com.wire.android.ui.destinations.CreateAccountEmailScreenDestination
-import com.wire.android.ui.destinations.CreateAccountSelectorScreenDestination
-import com.wire.android.ui.destinations.CreateAccountSummaryScreenDestination
-import com.wire.android.ui.destinations.CreateAccountUsernameScreenDestination
-import com.wire.android.ui.destinations.CreateAccountVerificationCodeScreenDestination
-import com.wire.android.ui.destinations.CreatePersonalAccountOverviewScreenDestination
-import com.wire.android.ui.destinations.CreateTeamAccountOverviewScreenDestination
-import com.wire.android.ui.destinations.E2EIEnrollmentScreenDestination
-import com.wire.android.ui.destinations.E2eiCertificateDetailsScreenDestination
-import com.wire.android.ui.destinations.HomeScreenDestination
-import com.wire.android.ui.destinations.ImportMediaScreenDestination
-import com.wire.android.ui.destinations.InitialSyncScreenDestination
-import com.wire.android.ui.destinations.LoginScreenDestination
-import com.wire.android.ui.destinations.NewLoginPasswordScreenDestination
-import com.wire.android.ui.destinations.NewLoginScreenDestination
-import com.wire.android.ui.destinations.NewLoginVerificationCodeScreenDestination
-import com.wire.android.ui.destinations.NewWelcomeEmptyStartScreenDestination
-import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
-import com.wire.android.ui.destinations.RegisterDeviceScreenDestination
-import com.wire.android.ui.destinations.RemoveDeviceScreenDestination
-import com.wire.android.ui.destinations.SelfDevicesScreenDestination
-import com.wire.android.ui.destinations.WelcomeChooserScreenDestination
-import com.wire.android.ui.destinations.WelcomeScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.CreateAccountDataDetailScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.CreateAccountDetailsScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.CreateAccountEmailScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.CreateAccountSelectorScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.CreateAccountSummaryScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.CreateAccountUsernameScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.CreateAccountVerificationCodeScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.CreatePersonalAccountOverviewScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.CreateTeamAccountOverviewScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.E2EIEnrollmentScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.E2EiCertificateDetailsScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.HomeScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.ImportMediaScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.InitialSyncScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.LoginScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.NewLoginPasswordScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.NewLoginScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.NewLoginVerificationCodeScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.NewWelcomeEmptyStartScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.OtherUserProfileScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.RegisterDeviceScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.RemoveDeviceScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.SelfDevicesScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.WelcomeChooserScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.WelcomeScreenDestination
 import com.wire.kalium.logger.obfuscateId
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
@@ -231,7 +231,7 @@ sealed class CurrentScreen {
     companion object {
         @SuppressLint("RestrictedApi")
         @Suppress("ComplexMethod")
-        fun fromDestination(destination: DestinationSpec<*>?, arguments: Bundle?, isAppVisible: Boolean): CurrentScreen {
+        fun fromDestination(destination: DestinationSpec?, arguments: Bundle?, isAppVisible: Boolean): CurrentScreen {
             if (!isAppVisible) {
                 return InBackground
             }
@@ -261,15 +261,15 @@ sealed class CurrentScreen {
                 is CreateAccountSummaryScreenDestination,
                 is InitialSyncScreenDestination,
                 is E2EIEnrollmentScreenDestination,
-                is E2eiCertificateDetailsScreenDestination,
+                is E2EiCertificateDetailsScreenDestination,
                 is RegisterDeviceScreenDestination,
                 is CreateAccountUsernameScreenDestination,
                 is CreateAccountVerificationCodeScreenDestination,
                 is CreateAccountDataDetailScreenDestination,
                 is CreateAccountSelectorScreenDestination,
-                is RemoveDeviceScreenDestination -> AuthRelated(destination.baseRoute)
+                is RemoveDeviceScreenDestination -> AuthRelated(destination.route.getBaseRoute())
 
-                else -> SomeOther(destination?.baseRoute)
+                else -> SomeOther(destination?.route?.getBaseRoute())
             }
         }
     }

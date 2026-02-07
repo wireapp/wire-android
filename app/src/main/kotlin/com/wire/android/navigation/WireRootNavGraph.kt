@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2025 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,13 +15,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.authentication.login
+package com.wire.android.navigation
 
-import com.ramcosta.composedestinations.annotation.NavGraph
-import com.wire.android.navigation.WireRootNavGraph
+import com.ramcosta.composedestinations.annotation.ExternalNavGraph
+import com.ramcosta.composedestinations.annotation.NavHostGraph
+import com.ramcosta.composedestinations.generated.cells.navgraphs.CellsGraph
+import com.ramcosta.composedestinations.generated.sketch.navgraphs.SketchGraph
+import com.wire.android.navigation.style.DefaultRootNavGraphAnimations
 
-@NavGraph<WireRootNavGraph>
-annotation class LoginNavGraph(val start: Boolean = false)
-
-@NavGraph<WireRootNavGraph>
-annotation class NewLoginNavGraph(val start: Boolean = false)
+@NavHostGraph(defaultTransitions = DefaultRootNavGraphAnimations::class)
+annotation class WireRootNavGraph {
+    @ExternalNavGraph<CellsGraph>
+    @ExternalNavGraph<SketchGraph>
+    companion object Includes
+}

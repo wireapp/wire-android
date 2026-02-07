@@ -93,7 +93,6 @@ fun ActiveMessageComposerInput(
     onEditButtonClicked: () -> Unit,
     onChangeSelfDeletionClicked: (currentlySelected: SelfDeletionTimer) -> Unit,
     onToggleInputSize: () -> Unit,
-    onTextCollapse: () -> Unit,
     onCancelReply: () -> Unit,
     onCancelEdit: () -> Unit,
     onFocused: () -> Unit,
@@ -144,7 +143,6 @@ fun ActiveMessageComposerInput(
             showOptions = showOptions,
             optionsSelected = optionsSelected,
             onPlusClick = onPlusClick,
-            onTextCollapse = onTextCollapse,
             modifier = Modifier
                 .fillMaxWidth()
                 .let {
@@ -184,7 +182,6 @@ private fun InputContent(
     showOptions: Boolean,
     optionsSelected: Boolean,
     onPlusClick: () -> Unit,
-    onTextCollapse: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SelfDeletingMessageActionViewModel =
         hiltViewModelScoped<SelfDeletingMessageActionViewModelImpl, SelfDeletingMessageActionViewModel, SelfDeletingMessageActionArgs>(
@@ -212,7 +209,6 @@ private fun InputContent(
 
         val collapsedMaxHeight = dimensions().messageComposerActiveInputMaxHeight
         MessageComposerTextInput(
-            isTextExpanded = isTextExpanded,
             focusRequester = focusRequester,
             colors = inputType.inputTextColor(isSelfDeleting = viewModel.state().duration != null),
             messageTextState = messageTextState,
@@ -221,7 +217,6 @@ private fun InputContent(
             onFocused = onFocused,
             onSelectedLineIndexChanged = onSelectedLineIndexChanged,
             onLineBottomYCoordinateChanged = onLineBottomYCoordinateChanged,
-            onTextCollapse = onTextCollapse,
             keyboardOptions = keyboardOptions,
             onKeyBoardAction = onKeyboardAction,
             modifier = Modifier
@@ -274,11 +269,9 @@ private fun InputContent(
 @Composable
 private fun MessageComposerTextInput(
     messageTextState: TextFieldState,
-    isTextExpanded: Boolean,
     focusRequester: FocusRequester,
     colors: WireTextFieldColors,
     placeHolderText: String,
-    onTextCollapse: () -> Unit,
     onFocused: () -> Unit,
     keyboardOptions: KeyboardOptions,
     onKeyBoardAction: KeyboardActionHandler?,
@@ -365,7 +358,6 @@ private fun PreviewActiveMessageComposerInput(inputType: InputType, isTextExpand
         onEditButtonClicked = {},
         onChangeSelfDeletionClicked = {},
         onToggleInputSize = {},
-        onTextCollapse = {},
         onCancelReply = {},
         onCancelEdit = {},
         onFocused = {},

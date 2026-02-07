@@ -270,7 +270,6 @@ fun EnabledMessageComposer(
                             focusRequester = messageCompositionInputStateHolder.focusRequester,
                             onFocused = ::onInputFocused,
                             onToggleInputSize = messageCompositionInputStateHolder::toggleInputSize,
-                            onTextCollapse = messageCompositionInputStateHolder::collapseText,
                             onCancelReply = messageCompositionHolder.value::clearReply,
                             onCancelEdit = ::cancelEdit,
                             onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,

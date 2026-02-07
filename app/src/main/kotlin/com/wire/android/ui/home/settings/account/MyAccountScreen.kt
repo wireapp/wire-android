@@ -263,7 +263,7 @@ fun MyAccountContent(
                 .padding(internalPadding)
         ) {
             sectionWithElements(
-                header = context.getString(R.string.settings_myaccount_title),
+                header = UIText.StringResource(R.string.settings_myaccount_title),
                 items = accountDetailItems.associateBy { it.title.toString() },
                 factory = { item: AccountDetailsItem ->
                     RowItemTemplate(

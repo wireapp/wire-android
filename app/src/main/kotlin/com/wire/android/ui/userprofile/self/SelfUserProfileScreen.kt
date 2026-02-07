@@ -347,7 +347,7 @@ private fun SelfUserProfileContent(
                                                 if (isUserInCall()) {
                                                     Toast.makeText(
                                                         context,
-                                                        context.getString(R.string.cant_switch_account_in_call),
+                                                        R.string.cant_switch_account_in_call,
                                                         Toast.LENGTH_SHORT
                                                     ).show()
                                                 } else {

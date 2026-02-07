@@ -30,7 +30,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -81,7 +80,6 @@ fun SelfDevicesScreenContent(
     onDeviceClick: (Device) -> Unit = {},
 ) {
     val lazyListState = rememberLazyListState()
-    val context = LocalContext.current
 
     WireScaffold(
         modifier = modifier,

@@ -103,12 +103,13 @@ fun CreatePasswordProtectedGuestLinkScreenContent(
     val context = LocalContext.current
     val clipboardManager = LocalClipboardManager.current
     val passwordCurrentState by rememberUpdatedState(newValue = passwordTextState.text.toString())
+    val onCopyClickText = stringResource(R.string.conversation_options_create_password_protected_guest_link_password_copied)
     val onCopyClick = remember {
         {
             clipboardManager.setText(AnnotatedString(passwordCurrentState))
             Toast.makeText(
                 context,
-                context.getString(R.string.conversation_options_create_password_protected_guest_link_password_copied),
+                onCopyClickText,
                 Toast.LENGTH_SHORT
             ).show()
         }
@@ -168,12 +169,13 @@ fun CreatePasswordProtectedGuestLinkScreenContent(
                     Spacer(modifier = Modifier.height(dimensions().spacing24x))
                 }
                 item {
+                    val onClickText = stringResource(R.string.conversation_options_create_password_protected_guest_link_password_generated)
                     val onClick = remember {
                         {
                             onGenerateRandomPassword()
                             Toast.makeText(
                                 context,
-                                context.getString(R.string.conversation_options_create_password_protected_guest_link_password_generated),
+                                onClickText,
                                 Toast.LENGTH_SHORT
                             ).show()
                         }

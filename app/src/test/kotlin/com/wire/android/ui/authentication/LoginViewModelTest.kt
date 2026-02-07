@@ -25,7 +25,7 @@ import com.wire.android.di.ClientScopeProvider
 import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.LoginPasswordPath
 import com.wire.android.ui.authentication.login.LoginViewModel
-import com.wire.android.ui.navArgs
+import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.id.QualifiedID

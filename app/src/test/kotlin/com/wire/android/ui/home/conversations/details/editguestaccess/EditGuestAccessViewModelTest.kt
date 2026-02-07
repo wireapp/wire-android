@@ -29,7 +29,7 @@ import com.wire.android.framework.TestConversationDetails
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
-import com.wire.android.ui.navArgs
+import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreenViewModelTest
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.common.error.NetworkFailure

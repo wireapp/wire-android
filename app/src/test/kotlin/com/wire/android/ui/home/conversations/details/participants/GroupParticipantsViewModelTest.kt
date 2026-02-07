@@ -26,7 +26,7 @@ import com.wire.android.mapper.testUIParticipant
 import com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
-import com.wire.android.ui.navArgs
+import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import io.mockk.MockKAnnotations

@@ -975,7 +975,7 @@
     <string name="label_conversation_pictures_empty">Никто не делился фотографиями в этой беседе 🥲</string>
     <string name="label_conversation_files_empty">Никто не делился файлами в этой беседе 🙀</string>
     <!-- Search Contact-->
-    <string name="label_selected">Выбрано</string>
+    <string name="label_selected">Выбрано (%1$d)</string>
     <string name="label_contacts">Контакты</string>
     <string name="label_new_group">Новая группа</string>
     <string name="label_new_channel">Новый канал</string>

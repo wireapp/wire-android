@@ -17,19 +17,20 @@
  */
 package customization
 
-import com.android.build.gradle.BaseExtension
-import com.android.build.gradle.internal.api.DefaultAndroidSourceDirectorySet
+import com.android.build.api.dsl.ApplicationExtension
 import flavor.ProductFlavors
 import java.io.File
 
-fun BaseExtension.overrideResourcesForAllFlavors(
-    customResourcesRootDir: File
+fun ApplicationExtension.overrideResourcesForAllFlavors(
+    customResourcesRootDir: File,
+    projectDir: File
 ) {
 
     sourceSets {
         ProductFlavors.all.forEach {
             getByName(it.buildName).apply {
-                val resDir = (res as DefaultAndroidSourceDirectorySet).srcDirs.first()
+                val resDir = File(projectDir, "src/${it.buildName}/res")
+                resDir.mkdirs()
                 println("Copying files from '${customResourcesRootDir.absolutePath}' into '${resDir.absolutePath}'")
 
                 customResourcesRootDir.walkTopDown().filter { !it.isDirectory }.forEach { customContent ->

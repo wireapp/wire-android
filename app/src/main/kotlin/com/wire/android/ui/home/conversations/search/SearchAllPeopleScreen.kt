@@ -171,7 +171,7 @@ private fun SearchResult(
         ) {
             if (contactsSelectedSearchResult.isNotEmpty()) { // selected contacts section filtered by search query
                 internalSearchResults(
-                    searchTitle = context.getString(R.string.label_selected) + " (${contactsSelectedSearchResult.size})",
+                    searchTitle = UIText.StringResource(R.string.label_selected, contactsSelectedSearchResult.size),
                     searchQuery = searchQuery,
                     onChecked = onChecked,
                     searchResult = contactsSelectedSearchResult.map { it to true }.toImmutableList(),

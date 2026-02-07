@@ -76,9 +76,6 @@ android {
     }
 }
 
-// Just in case, enforce BuildConfig enabled flag (redundant but explicit)
-android.buildFeatures.buildConfig = true
-
 dependencies {
     // Android test dependencies
     androidTestImplementation(libs.androidx.test.runner)

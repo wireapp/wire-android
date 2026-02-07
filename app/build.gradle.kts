@@ -122,7 +122,9 @@ android {
         resources.pickFirsts.add("google/protobuf/*.proto")
         jniLibs.pickFirsts.add("**/libsodium.so")
     }
-    android.buildFeatures.buildConfig = true
+    buildFeatures {
+        buildConfig = true
+    }
     experimentalProperties["android.experimental.enableScreenshotTest"] = true
 
     testOptions {
@@ -135,29 +137,29 @@ android {
         allFlavors.forEach { flavor ->
             getByName(flavor) {
                 if (flavor in internalFlavors) {
-                    java.directories.add("src/private/kotlin")
+                    kotlin.directories.add("src/private/kotlin")
                     println("Adding external datadog logger internal sourceSets to '$flavor' flavor")
                 } else {
-                    java.directories.add("src/public/kotlin")
+                    kotlin.directories.add("src/public/kotlin")
                     println("Adding external datadog logger sourceSets to '$flavor' flavor")
                 }
 
                 if (flavor in fossFlavors) {
-                    java.directories.add("src/foss/kotlin")
-                    java.directories.add("src/prod/kotlin")
+                    kotlin.directories.add("src/foss/kotlin")
+                    kotlin.directories.add("src/prod/kotlin")
                     res.directories.add("src/prod/res")
                     println("Adding FOSS sourceSets to '$flavor' flavor")
                 } else {
-                    java.directories.add("src/nonfree/kotlin")
+                    kotlin.directories.add("src/nonfree/kotlin")
                     println("Adding non-free sourceSets to '$flavor' flavor")
                 }
             }
         }
         getByName("androidTest") {
-            java.directories.add("src/androidTest/kotlin")
+            kotlin.directories.add("src/androidTest/kotlin")
         }
         create("screenshotTest") {
-            java.directories.add("src/screenshotTest/kotlin")
+            kotlin.directories.add("src/screenshotTest/kotlin")
             res.directories.add("src/main/res")
         }
     }

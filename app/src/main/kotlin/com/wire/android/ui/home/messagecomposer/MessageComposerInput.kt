@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.home.messagecomposer
 
-import android.view.KeyEvent
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
@@ -49,9 +48,6 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.nativeKeyCode
-import androidx.compose.ui.input.key.onPreInterceptKeyBeforeSoftKeyboard
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -107,7 +103,6 @@ fun ActiveMessageComposerInput(
     optionsSelected: Boolean,
     onPlusClick: () -> Unit,
     modifier: Modifier = Modifier,
-    onClearFocus: () -> Unit = { }
 ) {
     Column(
         modifier = modifier
@@ -150,7 +145,6 @@ fun ActiveMessageComposerInput(
             optionsSelected = optionsSelected,
             onPlusClick = onPlusClick,
             onTextCollapse = onTextCollapse,
-            onClearFocus = onClearFocus,
             modifier = Modifier
                 .fillMaxWidth()
                 .let {
@@ -196,7 +190,6 @@ private fun InputContent(
         hiltViewModelScoped<SelfDeletingMessageActionViewModelImpl, SelfDeletingMessageActionViewModel, SelfDeletingMessageActionArgs>(
             SelfDeletingMessageActionArgs(conversationId = conversationId)
         ),
-    onClearFocus: () -> Unit = { }
 ) {
     ConstraintLayout(modifier = modifier) {
         val (additionalOptionButton, input, actions) = createRefs()
@@ -231,7 +224,6 @@ private fun InputContent(
             onTextCollapse = onTextCollapse,
             keyboardOptions = keyboardOptions,
             onKeyBoardAction = onKeyboardAction,
-            onClearFocus = onClearFocus,
             modifier = Modifier
                 .fillMaxWidth()
                 .constrainAs(input) {
@@ -293,7 +285,6 @@ private fun MessageComposerTextInput(
     modifier: Modifier = Modifier,
     onSelectedLineIndexChanged: (Int) -> Unit = { },
     onLineBottomYCoordinateChanged: (Float) -> Unit = { },
-    onClearFocus: () -> Unit = { },
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
@@ -319,19 +310,6 @@ private fun MessageComposerTextInput(
             .onFocusChanged { focusState ->
                 if (focusState.isFocused) {
                     onFocused()
-                }
-            }
-            .onPreInterceptKeyBeforeSoftKeyboard { event ->
-                if (event.key.nativeKeyCode == KeyEvent.KEYCODE_BACK) {
-                    onClearFocus()
-                    if (isTextExpanded) {
-                        onTextCollapse()
-                        true
-                    } else {
-                        false
-                    }
-                } else {
-                    false
                 }
             },
         interactionSource = interactionSource,

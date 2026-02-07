@@ -34,6 +34,7 @@ sealed class UIText {
     @Serializable
     data class DynamicString(
         val value: String,
+        //TODO: is this mention belong here? it is used in one place so it can have its own thingy
         val mentions: List<MessageMention> = listOf()
     ) : UIText()
 

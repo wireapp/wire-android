@@ -189,26 +189,27 @@ private fun AppsList(
 
     ) {
         sectionWithElements(
-            items = apps.associateBy { it.id }
-        ) {
+            header = null as String?,
+            items = apps.associateBy { it.id },
+            factory = { app ->
             val clickDescription = stringResource(id = R.string.content_description_open_service_label)
             RowItemTemplate(
                 leadingIcon = {
                     Row {
-                        UserProfileAvatar(it.avatarData)
+                        UserProfileAvatar(app.avatarData)
                     }
                 },
                 titleStartPadding = dimensions().spacing0x,
                 title = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         HighlightName(
-                            name = it.name,
+                            name = app.name,
                             searchQuery = searchQuery,
                             modifier = Modifier.weight(weight = 1f, fill = false)
                         )
                         UserBadge(
-                            membership = it.membership,
-                            connectionState = it.connectionState,
+                            membership = app.membership,
+                            connectionState = app.connectionState,
                             startPadding = dimensions().spacing8x
                         )
                     }
@@ -222,10 +223,10 @@ private fun AppsList(
                         ArrowRightIcon(Modifier.align(Alignment.TopEnd), R.string.content_description_empty)
                     }
                 },
-                clickable = remember(it) { Clickable(onClickDescription = clickDescription) { onServiceClicked(it) } },
+                clickable = remember(app) { Clickable(onClickDescription = clickDescription) { onServiceClicked(app) } },
                 modifier = Modifier.padding(start = dimensions().spacing8x)
             )
-        }
+        })
     }
 }
 

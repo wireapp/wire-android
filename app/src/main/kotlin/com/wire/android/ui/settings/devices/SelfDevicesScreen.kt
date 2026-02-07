@@ -50,6 +50,7 @@ import com.wire.android.ui.settings.devices.model.SelfDevicesState
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.ui.sectionWithElements
 import com.wire.android.util.lifecycle.rememberLifecycleEvent
+import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.ClientId
 
 @WireRootDestination
@@ -111,7 +112,7 @@ fun SelfDevicesScreenContent(
                     false -> {
                         state.currentDevice?.let { currentDevice ->
                             folderDeviceItems(
-                                header = context.getString(R.string.current_device_label),
+                                header = UIText.StringResource(R.string.current_device_label),
                                 items = listOf(currentDevice),
                                 shouldShowVerifyLabel = true,
                                 isCurrentClient = true,
@@ -120,7 +121,7 @@ fun SelfDevicesScreenContent(
                             )
                         }
                         folderDeviceItems(
-                            header = context.getString(R.string.other_devices_label),
+                            header = UIText.StringResource(R.string.other_devices_label),
                             items = state.deviceList,
                             shouldShowVerifyLabel = true,
                             isCurrentClient = false,
@@ -136,7 +137,7 @@ fun SelfDevicesScreenContent(
 
 @Suppress("LongParameterList")
 private fun LazyListScope.folderDeviceItems(
-    header: String?,
+    header: UIText?,
     items: List<Device>,
     shouldShowVerifyLabel: Boolean,
     isCurrentClient: Boolean,
@@ -145,7 +146,7 @@ private fun LazyListScope.folderDeviceItems(
     onDeviceClick: (Device) -> Unit = {}
 ) {
     sectionWithElements(
-        header = header?.uppercase(),
+        header = header,
         items = items.associateBy { it.clientId.value },
         divider = {
             HorizontalDivider(

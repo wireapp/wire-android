@@ -87,7 +87,7 @@ fun WhatsNewScreenContent(
         }
 
         sectionWithElements(
-            header = context.getString(R.string.whats_new_release_notes_group_title),
+            header = UIText.StringResource(R.string.whats_new_release_notes_group_title),
             items = buildList {
                 if (state.isLoading) {
                     // placeholders with shimmer effect
@@ -128,14 +128,14 @@ fun WhatsNewScreenContent(
 }
 
 private fun LazyListScope.sectionWithElements(
-    header: String? = null,
+    header: UIText? = null,
     items: List<WhatsNewItem>,
     onItemClicked: (WhatsNewItem) -> Unit,
     onItemClickedDescription: String,
     isLoading: Boolean,
 ) {
     sectionWithElements(
-        header = header?.uppercase(),
+        header = header,
         items = items.associateBy { it.id }
     ) { item ->
         val contentDescription = when (item) {

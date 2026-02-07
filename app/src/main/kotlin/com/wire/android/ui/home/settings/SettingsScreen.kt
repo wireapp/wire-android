@@ -44,6 +44,7 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.ui.sectionWithElements
 import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.android.util.ui.UIText
 
 @WireHomeDestination
 @Composable
@@ -97,7 +98,7 @@ fun SettingsScreenContent(
             modifier = modifier.fillMaxSize()
         ) {
             sectionWithElements(
-                header = context.getString(R.string.settings_account_settings_label),
+                header = UIText.StringResource(R.string.settings_account_settings_label),
                 items = buildList {
                     add(SettingsItem.YourAccount)
                     add(SettingsItem.PrivacySettings)
@@ -116,7 +117,7 @@ fun SettingsScreenContent(
             )
 
             sectionWithElements(
-                header = context.getString(R.string.app_settings_screen_title),
+                header = UIText.StringResource(R.string.app_settings_screen_title),
                 items = buildList {
                     add(SettingsItem.Customization)
                     if (AppSettings) {
@@ -152,7 +153,7 @@ fun SettingsScreenContent(
             )
 
             sectionWithElements(
-                header = context.getString(R.string.settings_other_group_title),
+                header = UIText.StringResource(R.string.settings_other_group_title),
                 items = buildList {
                     add(SettingsItem.Support)
                     if (BuildConfig.DEBUG_SCREEN_ENABLED) {
@@ -170,13 +171,13 @@ fun SettingsScreenContent(
 }
 
 private fun LazyListScope.sectionWithElements(
-    header: String,
+    header: UIText,
     items: List<SettingsItem>,
     trailingText: ((SettingsItem) -> String?)? = null,
     onItemClicked: (SettingsItem.DirectionItem) -> Unit
 ) {
     sectionWithElements(
-        header = header.uppercase(),
+        header = header,
         items = items.associateBy { it.id }
     ) { settingsItem ->
         SettingsItem(

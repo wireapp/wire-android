@@ -266,8 +266,7 @@ fun GroupConversationDetailsScreen(
         onLeftConversation = {
             resultNavigator.navigateBack(
                 GroupConversationDetailsNavBackArgs(
-                    groupConversationActionType = GroupConversationActionType.DELETE_GROUP,
-                    isGroupDeleted = true,
+                    groupConversationActionType = GroupConversationActionType.LEAVE_GROUP,
                     conversationName = groupOptions.groupName
                 )
             )
@@ -275,8 +274,7 @@ fun GroupConversationDetailsScreen(
         onDeletedConversation = {
             resultNavigator.navigateBack(
                 GroupConversationDetailsNavBackArgs(
-                    groupConversationActionType = GroupConversationActionType.LEAVE_GROUP,
-                    hasLeftGroup = true,
+                    groupConversationActionType = GroupConversationActionType.DELETE_GROUP,
                     conversationName = groupOptions.groupName
                 )
             )

@@ -91,7 +91,7 @@ internal class MessageComposerViewModelArrangement {
         every { savedStateHandle.navArgs<ConversationNavArgs>() } returns ConversationNavArgs(conversationId = conversationId)
 
         // Default empty values
-        every { isFileSharingEnabledUseCase() } returns FileSharingStatus(FileSharingStatus.Value.EnabledAll, null)
+        coEvery { isFileSharingEnabledUseCase() } returns FileSharingStatus(FileSharingStatus.Value.EnabledAll, null)
         coEvery { observeOngoingCallsUseCase() } returns flowOf(listOf())
         coEvery { observeEstablishedCallsUseCase() } returns flowOf(listOf())
         coEvery { observeSyncState() } returns flowOf(SyncState.Live)

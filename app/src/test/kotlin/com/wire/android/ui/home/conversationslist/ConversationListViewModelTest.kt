@@ -36,6 +36,8 @@ import com.wire.android.media.audiomessage.PlayingAudioMessage
 import com.wire.android.ui.home.conversations.usecase.GetConversationsFromSearchUseCase
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationsSource
+import com.wire.android.util.ui.UiTextResolver
+import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.ConversationDetailsWithEvents
 import com.wire.kalium.logic.data.conversation.ConversationFilter
 import com.wire.kalium.logic.data.id.ConversationId
@@ -291,6 +293,9 @@ class ConversationListViewModelTest {
         @MockK
         lateinit var audioMessagePlayer: ConversationAudioMessagePlayer
 
+        @MockK
+        lateinit var uiTextResolver: UiTextResolver
+
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             withConversationsPaginated(listOf(TestConversationItem.CONNECTION, TestConversationItem.PRIVATE, TestConversationItem.GROUP))
@@ -307,6 +312,15 @@ class ConversationListViewModelTest {
                 }
             )
             every { audioMessagePlayer.playingAudioMessageFlow } returns flowOf(PlayingAudioMessage.None)
+            coEvery { uiTextResolver.resolve(any()) } answers {
+                val text = firstArg<UIText>()
+                when (text) {
+                    is UIText.DynamicString -> text.value
+                    is UIText.StringResource -> "res_${text.resId}"
+                    is UIText.PluralResource -> "plural_${text.resId}_${text.count}"
+                }
+            }
+            coEvery { uiTextResolver.localeTag() } returns "test-locale"
             mockUri()
         }
 
@@ -344,6 +358,7 @@ class ConversationListViewModelTest {
             observeLegalHoldStateForSelfUser = observeLegalHoldStateForSelfUserUseCase,
             userTypeMapper = UserTypeMapper(),
             getSelfUser = getSelfUser,
+            uiTextResolver = uiTextResolver,
             usePagination = true,
             audioMessagePlayer = audioMessagePlayer,
         )

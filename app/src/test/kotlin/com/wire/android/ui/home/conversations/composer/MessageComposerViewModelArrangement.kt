@@ -58,6 +58,8 @@ import com.wire.kalium.logic.data.user.type.UserTypeInfo
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
 import com.wire.kalium.logic.feature.conversation.IsInteractionAvailableResult
+import com.wire.kalium.logic.feature.conversation.MarkConversationAsReadLocallyUseCase
+import com.wire.kalium.logic.feature.conversation.MarkConversationAsReadResult
 import com.wire.kalium.logic.feature.conversation.MembersToMentionUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationInteractionAvailabilityUseCase
 import com.wire.kalium.logic.feature.conversation.SendTypingEventUseCase
@@ -100,6 +102,7 @@ internal class MessageComposerViewModelArrangement {
         } returns flowOf(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID)))
         coEvery { globalDataStore.enterToSendFlow() } returns flowOf(false)
         coEvery { observeEstablishedCalls() } returns emptyFlow()
+        coEvery { markConversationAsReadLocallyUseCase(any(), any()) } returns MarkConversationAsReadResult.Success(false)
     }
 
     @MockK
@@ -119,6 +122,9 @@ internal class MessageComposerViewModelArrangement {
 
     @MockK
     private lateinit var updateConversationReadDateUseCase: UpdateConversationReadDateUseCase
+
+    @MockK
+    lateinit var markConversationAsReadLocallyUseCase: MarkConversationAsReadLocallyUseCase
 
     @MockK
     private lateinit var observeSyncState: ObserveSyncStateUseCase
@@ -158,6 +164,7 @@ internal class MessageComposerViewModelArrangement {
             dispatchers = TestDispatcherProvider(),
             isFileSharingEnabled = isFileSharingEnabledUseCase,
             updateConversationReadDate = updateConversationReadDateUseCase,
+            markConversationAsReadLocally = markConversationAsReadLocallyUseCase,
             observeConversationInteractionAvailability = observeConversationInteractionAvailabilityUseCase,
             contactMapper = contactMapper,
             membersToMention = membersToMention,

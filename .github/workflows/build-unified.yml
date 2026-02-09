@@ -16,6 +16,11 @@ on:
         description: "Suffix for the concurrency group"
         required: true
         type: string
+      lint-mode:
+        description: "Lint strategy: fast (targeted variant) or full (global lint)"
+        required: false
+        type: string
+        default: full
 
 permissions:
   contents: write
@@ -48,7 +53,24 @@ jobs:
         env:
           GRADLE_OPTS: "-Xmx6G -XX:+UseParallelGC -XX:MaxMetaspaceSize=2g"
         run: |
-          ./gradlew lint --no-daemon --no-configuration-cache -Pskip.aboutlibraries=true
+          PRIMARY_FLAVOR="${{ fromJson(inputs.build-config)[0].flavor }}"
+          LINT_MODE="${{ inputs['lint-mode'] }}"
+
+          case "$LINT_MODE" in
+            fast)
+              LINT_TASK=":app:lint${PRIMARY_FLAVOR}Debug"
+              ;;
+            full)
+              LINT_TASK="lint"
+              ;;
+            *)
+              echo "Unsupported lint mode: '$LINT_MODE'. Expected 'fast' or 'full'."
+              exit 1
+              ;;
+          esac
+
+          echo "Running lint mode '$LINT_MODE' with task '$LINT_TASK'"
+          ./gradlew "$LINT_TASK" -Pskip.aboutlibraries=true
       - name: Cleanup Gradle Cache
         # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.
         # Restoring these files from a GitHub Actions cache might cause problems for future builds.

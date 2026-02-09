@@ -20,6 +20,7 @@ jobs:
     uses: ./.github/workflows/build-unified.yml
     with:
       concurrency-group-suffix: pr
+      lint-mode: fast
       build-config: |
         [
           {

@@ -19,6 +19,7 @@ jobs:
     uses: ./.github/workflows/build-unified.yml
     with:
       concurrency-group-suffix: push
+      lint-mode: full
       build-config: |
         [
           {

@@ -1,3 +1,4 @@
+# Manual health check for QA Android runner and connected devices
 name: QA Runner Health Check
 
 on:
@@ -13,7 +14,7 @@ jobs:
       - office
       - android-qa
 
-    timeout-minutes: 10
+    timeout-minutes: 3
 
     steps:
       - name: Checkout

@@ -45,6 +45,7 @@ jobs:
             https://dl.google.com/android/repository/platform-tools-latest-linux.zip
 
           unzip -oq platform-tools.zip
+          rm -f platform-tools.zip
 
           # Make adb available for subsequent steps
           echo "$HOME/platform-tools" >> "$GITHUB_PATH"

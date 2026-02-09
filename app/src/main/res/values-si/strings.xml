@@ -107,7 +107,6 @@
     <string name="content_description_conversation_mention_someone">යමෙක් සඳහන් කරන්න</string>
     <string name="content_description_conversation_back_btn">සංවාද ලැයිස්තුවට ආපසු යන්න</string>
     <string name="content_description_conversation_open_details_label">සංවාද විස්තර විවෘත කරන්න</string>
-    <string name="content_description_new_conversation">පුද්ගලයින් සොයන්න හෝ නව සංවාදයක් සාදන්න</string>
     <string name="content_description_back_button">ආපසු බොත්තම</string>
     <string name="content_description_send_button">යවන්න</string>
     <string name="content_description_timed_message_button">ඉබේ මැකෙන පණිවිඩ බොත්තම</string>

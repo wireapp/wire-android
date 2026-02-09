@@ -107,7 +107,6 @@
     <string name="content_description_conversation_mention_someone">Birinden bahset</string>
     <string name="content_description_conversation_back_btn"> Sohbet listesine geri dön</string>
     <string name="content_description_conversation_open_details_label">konuşma detaylarını aç</string>
-    <string name="content_description_new_conversation">Kişileri arayın veya yeni bir sohbet oluşturun</string>
     <string name="content_description_back_button">Geri tuşu</string>
     <string name="content_description_send_button">Gönder</string>
     <string name="content_description_timed_message_button">Kendini yok eden iletiler, düğme</string>

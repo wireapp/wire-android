@@ -66,12 +66,12 @@ import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMess
 import com.wire.android.ui.home.conversations.model.messagetypes.image.VisualMediaParams
 import com.wire.android.ui.home.conversations.model.messagetypes.image.size
 import com.wire.android.ui.markdown.DisplayMention
-import com.wire.android.ui.markdown.MarkdownConstants.MENTION_MARK
 import com.wire.android.ui.markdown.MarkdownDocument
 import com.wire.android.ui.markdown.MessageColors
 import com.wire.android.ui.markdown.NodeActions
 import com.wire.android.ui.markdown.NodeData
 import com.wire.android.ui.markdown.toMarkdownDocument
+import com.wire.android.ui.markdown.toMarkdownTextWithMentions
 import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -138,9 +138,7 @@ internal fun MessageBody(
         accent = accent
     )
 
-    val markdownDocument = remember(text) {
-        text?.toMarkdownDocument()
-    }
+    val markdownDocument = messageBody?.markdownDocument ?: remember(text) { text?.toMarkdownDocument() }
 
     markdownDocument?.also {
         MarkdownDocument(
@@ -391,28 +389,7 @@ fun MediaAssetImage(
  */
 fun mapToDisplayMentions(uiText: UIText, resources: Resources): Pair<List<DisplayMention>, String> {
     return if (uiText is UIText.DynamicString) {
-        val stringBuilder: StringBuilder = StringBuilder(uiText.value)
-        val mentions = uiText.mentions
-            .filter { it.start >= 0 && it.length > 0 }
-            .sortedBy { it.start }
-            .reversed()
-        val mentionList = mentions.mapNotNull { mention ->
-            // secured crash for mentions caused by web when text without mentions contains mention data
-            if (mention.start + mention.length <= uiText.value.length && uiText.value.elementAt(mention.start) == '@') {
-                val mentionName = uiText.value.substring(mention.start, mention.start + mention.length)
-                stringBuilder.insert(mention.start + mention.length, MENTION_MARK)
-                stringBuilder.insert(mention.start, MENTION_MARK)
-                DisplayMention(
-                    mention.userId,
-                    mention.length,
-                    mention.isSelfMention,
-                    mentionName
-                )
-            } else {
-                null
-            }
-        }.reversed()
-        Pair(mentionList, stringBuilder.toString())
+        uiText.toMarkdownTextWithMentions()
     } else {
         Pair(listOf(), uiText.asString(resources))
     }

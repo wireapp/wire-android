@@ -26,6 +26,7 @@ import com.wire.android.ui.markdown.MarkdownPreview
 import com.wire.android.ui.markdown.getFirstInlines
 import com.wire.android.ui.markdown.toMarkdownDocument
 import com.wire.android.util.ui.UIText
+import com.wire.android.util.ui.UiTextResolver
 import com.wire.android.util.ui.toUIText
 import com.wire.kalium.logic.data.conversation.UnreadEventCount
 import com.wire.kalium.logic.data.message.AssetType
@@ -36,24 +37,29 @@ import com.wire.kalium.logic.data.message.MessagePreviewContent.WithUser
 import com.wire.kalium.logic.data.message.UnreadEventType
 
 @Suppress("ReturnCount")
-fun MessagePreview?.toUIPreview(unreadEventCount: UnreadEventCount): UILastMessageContent {
+fun MessagePreview?.toUIPreview(
+    unreadEventCount: UnreadEventCount,
+    uiTextResolver: UiTextResolver
+): UILastMessageContent {
     if (this == null) {
         return UILastMessageContent.None
     }
 
     return when {
         // when unread event count is empty show last message
-        unreadEventCount.isEmpty() -> uiLastMessageContent()
+        unreadEventCount.isEmpty() -> uiLastMessageContent(uiTextResolver)
         // when there are only unread message events also show last message
-        unreadEventCount.size == 1 && unreadEventCount.keys.first() == UnreadEventType.MESSAGE -> uiLastMessageContent()
+        unreadEventCount.size == 1 && unreadEventCount.keys.first() == UnreadEventType.MESSAGE ->
+            uiLastMessageContent(uiTextResolver)
         // for the one type events show last message only where their count equals one
-        unreadEventCount.size == 1 && unreadEventCount.values.first() == 1 -> uiLastMessageContent()
+        unreadEventCount.size == 1 && unreadEventCount.values.first() == 1 ->
+            uiLastMessageContent(uiTextResolver)
         // for the rest take 1 or 2 most prioritized events with count to last message
-        else -> multipleUnreadEventsToLastMessage(unreadEventCount)
+        else -> multipleUnreadEventsToLastMessage(unreadEventCount, uiTextResolver)
     }
 }
 
-private fun multipleUnreadEventsToLastMessage(unreadEventCount: UnreadEventCount): UILastMessageContent {
+private fun multipleUnreadEventsToLastMessage(unreadEventCount: UnreadEventCount, uiTextResolver: UiTextResolver): UILastMessageContent {
     val unreadContentTexts = unreadEventCount
         .toSortedMap()
         .mapNotNull { type ->
@@ -98,7 +104,14 @@ private fun multipleUnreadEventsToLastMessage(unreadEventCount: UnreadEventCount
         val second = unreadContentTexts.values.elementAt(1)
         UILastMessageContent.MultipleMessage(listOf(first, second))
     } else {
-        UILastMessageContent.TextMessage(MessageBody(first), markdownPreview = first.toMarkdownPreviewOrNull())
+        UILastMessageContent.TextMessage(
+            MessageBody(
+                message = first,
+                markdownDocument = (first as? UIText.DynamicString)?.value?.toMarkdownDocument()
+            ),
+            markdownPreview = first.toMarkdownPreviewOrNull(uiTextResolver),
+            markdownLocaleTag = uiTextResolver.localeTag()
+        )
     }
 }
 
@@ -109,7 +122,7 @@ private fun String?.userUiText(isSelfMessage: Boolean): UIText = when {
 }
 
 @Suppress("LongMethod", "ComplexMethod", "NestedBlockDepth")
-fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
+fun MessagePreview.uiLastMessageContent(uiTextResolver: UiTextResolver): UILastMessageContent {
     return when (content) {
         is WithUser -> {
             val userContent = (content as WithUser)
@@ -117,99 +130,141 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
             when ((userContent)) {
                 is WithUser.Asset -> when ((content as WithUser.Asset).type) {
                     AssetType.AUDIO ->
-                        UILastMessageContent.SenderWithMessage(
-                            userUIText,
-                            UIText.StringResource(R.string.last_message_self_user_shared_audio),
-                            markdownPreview = userUIText.toMarkdownPreviewOrNull()
-                        )
+                        UIText.StringResource(R.string.last_message_self_user_shared_audio).let { message ->
+                            UILastMessageContent.SenderWithMessage(
+                                userUIText,
+                                message,
+                                markdownPreview = message.toMarkdownPreviewOrNull(uiTextResolver),
+                                markdownLocaleTag = uiTextResolver.localeTag()
+                            )
+                        }
 
                     AssetType.IMAGE ->
-                        UILastMessageContent.SenderWithMessage(
-                            userUIText,
-                            UIText.StringResource(
-                                if (isSelfMessage) {
-                                    R.string.last_message_self_user_shared_image
-                                } else {
-                                    R.string.last_message_other_user_shared_image
-                                }
-                            ),
-                            markdownPreview = userUIText.toMarkdownPreviewOrNull()
-                        )
+                        UIText.StringResource(
+                            if (isSelfMessage) {
+                                R.string.last_message_self_user_shared_image
+                            } else {
+                                R.string.last_message_other_user_shared_image
+                            }
+                        ).let { message ->
+                            UILastMessageContent.SenderWithMessage(
+                                userUIText,
+                                message,
+                                markdownPreview = message.toMarkdownPreviewOrNull(uiTextResolver),
+                                markdownLocaleTag = uiTextResolver.localeTag()
+                            )
+                        }
 
                     AssetType.VIDEO ->
-                        UILastMessageContent.SenderWithMessage(
-                            userUIText,
-                            UIText.StringResource(
-                                if (isSelfMessage) {
-                                    R.string.last_message_self_user_shared_video
-                                } else {
-                                    R.string.last_message_other_user_shared_video
-                                }
-                            ),
-                            markdownPreview = userUIText.toMarkdownPreviewOrNull()
-                        )
+                        UIText.StringResource(
+                            if (isSelfMessage) {
+                                R.string.last_message_self_user_shared_video
+                            } else {
+                                R.string.last_message_other_user_shared_video
+                            }
+                        ).let { message ->
+                            UILastMessageContent.SenderWithMessage(
+                                userUIText,
+                                message,
+                                markdownPreview = message.toMarkdownPreviewOrNull(uiTextResolver),
+                                markdownLocaleTag = uiTextResolver.localeTag()
+                            )
+                        }
 
                     AssetType.GENERIC_ASSET ->
-                        UILastMessageContent.SenderWithMessage(
-                            userUIText,
-                            UIText.StringResource(
-                                if (isSelfMessage) {
-                                    R.string.last_message_self_user_shared_asset
-                                } else {
-                                    R.string.last_message_other_user_shared_asset
-                                }
-                            ),
-                            markdownPreview = userUIText.toMarkdownPreviewOrNull()
-                        )
+                        UIText.StringResource(
+                            if (isSelfMessage) {
+                                R.string.last_message_self_user_shared_asset
+                            } else {
+                                R.string.last_message_other_user_shared_asset
+                            }
+                        ).let { message ->
+                            UILastMessageContent.SenderWithMessage(
+                                userUIText,
+                                message,
+                                markdownPreview = message.toMarkdownPreviewOrNull(uiTextResolver),
+                                markdownLocaleTag = uiTextResolver.localeTag()
+                            )
+                        }
                 }
 
-                is WithUser.ConversationNameChange -> UILastMessageContent.SenderWithMessage(
-                    userUIText,
-                    UIText.StringResource(
-                        if (isSelfMessage) {
-                            R.string.last_message_self_changed_conversation_name
-                        } else {
-                            R.string.last_message_other_changed_conversation_name
-                        }
-                    ),
-                    markdownPreview = userUIText.toMarkdownPreviewOrNull()
-                )
+                is WithUser.ConversationNameChange -> UIText.StringResource(
+                    if (isSelfMessage) {
+                        R.string.last_message_self_changed_conversation_name
+                    } else {
+                        R.string.last_message_other_changed_conversation_name
+                    }
+                ).let { message ->
+                    UILastMessageContent.SenderWithMessage(
+                        userUIText,
+                        message,
+                        markdownPreview = message.toMarkdownPreviewOrNull(uiTextResolver),
+                        markdownLocaleTag = uiTextResolver.localeTag()
+                    )
+                }
 
-                is WithUser.Knock -> UILastMessageContent.SenderWithMessage(
-                    userUIText,
-                    UIText.StringResource(
-                        if (isSelfMessage) {
-                            R.string.last_message_self_user_knock
-                        } else {
-                            R.string.last_message_other_user_knock
-                        }
-                    ),
-                    markdownPreview = userUIText.toMarkdownPreviewOrNull()
-                )
+                is WithUser.Knock -> UIText.StringResource(
+                    if (isSelfMessage) {
+                        R.string.last_message_self_user_knock
+                    } else {
+                        R.string.last_message_other_user_knock
+                    }
+                ).let { message ->
+                    UILastMessageContent.SenderWithMessage(
+                        userUIText,
+                        message,
+                        markdownPreview = message.toMarkdownPreviewOrNull(uiTextResolver),
+                        markdownLocaleTag = uiTextResolver.localeTag()
+                    )
+                }
 
-                is WithUser.MemberJoined -> UILastMessageContent.SenderWithMessage(
-                    userUIText,
-                    UIText.StringResource(
-                        if (isSelfMessage) {
-                            R.string.last_message_self_user_joined_conversation
-                        } else {
-                            R.string.last_message_other_user_joined_conversation
-                        }
-                    ),
-                    markdownPreview = userUIText.toMarkdownPreviewOrNull()
-                )
+                is WithUser.MemberJoined -> UIText.StringResource(
+                    if (isSelfMessage) {
+                        R.string.last_message_self_user_joined_conversation
+                    } else {
+                        R.string.last_message_other_user_joined_conversation
+                    }
+                ).let { message ->
+                    UILastMessageContent.SenderWithMessage(
+                        userUIText,
+                        message,
+                        markdownPreview = message.toMarkdownPreviewOrNull(uiTextResolver),
+                        markdownLocaleTag = uiTextResolver.localeTag()
+                    )
+                }
 
-                is WithUser.MemberLeft -> UILastMessageContent.SenderWithMessage(
-                    userUIText,
-                    UIText.StringResource(
-                        if (isSelfMessage) {
-                            R.string.last_message_self_user_left_conversation
-                        } else {
-                            R.string.last_message_other_user_left_conversation
-                        }
-                    ),
-                    markdownPreview = userUIText.toMarkdownPreviewOrNull()
-                )
+                is WithUser.MemberLeft -> UIText.StringResource(
+                    if (isSelfMessage) {
+                        R.string.last_message_self_user_left_conversation
+                    } else {
+                        R.string.last_message_other_user_left_conversation
+                    }
+                ).let { message ->
+                    UILastMessageContent.SenderWithMessage(
+                        userUIText,
+                        message,
+                        markdownPreview = message.toMarkdownPreviewOrNull(uiTextResolver),
+                        markdownLocaleTag = uiTextResolver.localeTag()
+                    )
+                }
+
+                is WithUser.MentionedSelf -> UIText.StringResource(R.string.last_message_mentioned).let { message ->
+                    UILastMessageContent.SenderWithMessage(
+                        userUIText,
+                        message,
+                        markdownPreview = message.toMarkdownPreviewOrNull(uiTextResolver),
+                        markdownLocaleTag = uiTextResolver.localeTag()
+                    )
+                }
+
+                is WithUser.QuotedSelf -> UIText.StringResource(R.string.last_message_replied).let { message ->
+                    UILastMessageContent.SenderWithMessage(
+                        userUIText,
+                        message,
+                        markdownPreview = message.toMarkdownPreviewOrNull(uiTextResolver),
+                        markdownLocaleTag = uiTextResolver.localeTag()
+                    )
+                }
 
                 is WithUser.MembersAdded -> {
                     val membersAddedContent = (content as WithUser.MembersAdded)
@@ -234,7 +289,14 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
                         }
                     }
 
-                    UILastMessageContent.TextMessage(MessageBody(previewMessageContent), previewMessageContent.toMarkdownPreviewOrNull())
+                    UILastMessageContent.TextMessage(
+                        MessageBody(
+                            message = previewMessageContent,
+                            markdownDocument = (previewMessageContent as? UIText.DynamicString)?.value?.toMarkdownDocument()
+                        ),
+                        previewMessageContent.toMarkdownPreviewOrNull(uiTextResolver),
+                        uiTextResolver.localeTag()
+                    )
                 }
 
                 is WithUser.ConversationMembersRemoved -> {
@@ -264,7 +326,14 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
                         }
                     }
 
-                    UILastMessageContent.TextMessage(MessageBody(previewMessageContent), previewMessageContent.toMarkdownPreviewOrNull())
+                    UILastMessageContent.TextMessage(
+                        MessageBody(
+                            message = previewMessageContent,
+                            markdownDocument = (previewMessageContent as? UIText.DynamicString)?.value?.toMarkdownDocument()
+                        ),
+                        previewMessageContent.toMarkdownPreviewOrNull(uiTextResolver),
+                        uiTextResolver.localeTag()
+                    )
                 }
 
                 is WithUser.TeamMembersRemoved -> {
@@ -272,24 +341,24 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
                     val previewMessageContent =
                         UIText.PluralResource(R.plurals.last_message_team_member_removed, teamMembersRemovedContent.otherUserIdList.size)
 
-                    UILastMessageContent.TextMessage(MessageBody(previewMessageContent), previewMessageContent.toMarkdownPreviewOrNull())
+                    UILastMessageContent.TextMessage(
+                        MessageBody(
+                            message = previewMessageContent,
+                            markdownDocument = (previewMessageContent as? UIText.DynamicString)?.value?.toMarkdownDocument()
+                        ),
+                        previewMessageContent.toMarkdownPreviewOrNull(uiTextResolver),
+                        uiTextResolver.localeTag()
+                    )
                 }
-
-                is WithUser.MentionedSelf -> UILastMessageContent.SenderWithMessage(
-                    userUIText,
-                    UIText.StringResource(R.string.last_message_mentioned)
-                )
-
-                is WithUser.QuotedSelf -> UILastMessageContent.SenderWithMessage(
-                    userUIText,
-                    UIText.StringResource(R.string.last_message_replied)
-                )
 
                 is WithUser.TeamMemberRemoved -> UILastMessageContent.None
                 is WithUser.Text -> UILastMessageContent.SenderWithMessage(
                     sender = userUIText,
                     message = (content as WithUser.Text).messageBody.let { UIText.DynamicString(it) },
-                    separator = ":${MarkdownConstants.NON_BREAKING_SPACE}"
+                    separator = ":${MarkdownConstants.NON_BREAKING_SPACE}",
+                    markdownPreview = UIText.DynamicString((content as WithUser.Text).messageBody)
+                        .toMarkdownPreviewOrNull(uiTextResolver),
+                    markdownLocaleTag = uiTextResolver.localeTag()
                 )
 
                 is WithUser.Composite -> {
@@ -298,7 +367,9 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
                     UILastMessageContent.SenderWithMessage(
                         sender = userUIText,
                         message = text,
-                        separator = ":${MarkdownConstants.NON_BREAKING_SPACE}"
+                        separator = ":${MarkdownConstants.NON_BREAKING_SPACE}",
+                        markdownPreview = text.toMarkdownPreviewOrNull(uiTextResolver),
+                        markdownLocaleTag = uiTextResolver.localeTag()
                     )
                 }
 
@@ -308,22 +379,30 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
 
                 is WithUser.MembersCreationAdded -> UILastMessageContent.None
                 is WithUser.MembersFailedToAdd -> UILastMessageContent.None
-                is WithUser.Location -> UILastMessageContent.SenderWithMessage(
-                    userUIText,
-                    UIText.StringResource(
-                        if (isSelfMessage) {
-                            R.string.last_message_self_user_shared_location
-                        } else {
-                            R.string.last_message_other_user_shared_location
-                        }
+                is WithUser.Location -> UIText.StringResource(
+                    if (isSelfMessage) {
+                        R.string.last_message_self_user_shared_location
+                    } else {
+                        R.string.last_message_other_user_shared_location
+                    }
+                ).let { message ->
+                    UILastMessageContent.SenderWithMessage(
+                        userUIText,
+                        message,
+                        markdownPreview = message.toMarkdownPreviewOrNull(uiTextResolver),
+                        markdownLocaleTag = uiTextResolver.localeTag()
                     )
-                )
+                }
 
-                is WithUser.Deleted -> UILastMessageContent.SenderWithMessage(
-                    sender = userUIText,
-                    message = UIText.StringResource(R.string.deleted_message_text),
-                    separator = ":${MarkdownConstants.NON_BREAKING_SPACE}"
-                )
+                is WithUser.Deleted -> UIText.StringResource(R.string.deleted_message_text).let { message ->
+                    UILastMessageContent.SenderWithMessage(
+                        userUIText,
+                        message,
+                        separator = ":${MarkdownConstants.NON_BREAKING_SPACE}",
+                        markdownPreview = message.toMarkdownPreviewOrNull(uiTextResolver),
+                        markdownLocaleTag = uiTextResolver.localeTag()
+                    )
+                }
             }
         }
 
@@ -350,7 +429,14 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
                 }
             }
 
-            UILastMessageContent.TextMessage(MessageBody(previewMessageContent), previewMessageContent.toMarkdownPreviewOrNull())
+            UILastMessageContent.TextMessage(
+                MessageBody(
+                    message = previewMessageContent,
+                    markdownDocument = (previewMessageContent as? UIText.DynamicString)?.value?.toMarkdownDocument()
+                ),
+                previewMessageContent.toMarkdownPreviewOrNull(uiTextResolver),
+                uiTextResolver.localeTag()
+            )
         }
 
         is MessagePreviewContent.Ephemeral -> {
@@ -382,15 +468,17 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
         is MessagePreviewContent.Draft -> UILastMessageContent.SenderWithMessage(
             UIText.StringResource(R.string.label_draft),
             (content as MessagePreviewContent.Draft).message.toUIText(),
-            separator = ":${MarkdownConstants.NON_BREAKING_SPACE}"
+            separator = ":${MarkdownConstants.NON_BREAKING_SPACE}",
+            markdownPreview = (content as MessagePreviewContent.Draft).message.toUIText()
+                .toMarkdownPreviewOrNull(uiTextResolver),
+            markdownLocaleTag = uiTextResolver.localeTag()
         )
 
         Unknown -> UILastMessageContent.None
     }
 }
 
-private fun UIText.toMarkdownPreviewOrNull(): MarkdownPreview? =
-    when (this) {
-        is UIText.DynamicString -> value.toMarkdownDocument().getFirstInlines()
-        else -> null
-    }
+private fun UIText.toMarkdownPreviewOrNull(uiTextResolver: UiTextResolver): MarkdownPreview? {
+    val resolved = uiTextResolver.resolve(this)
+    return resolved.toMarkdownDocument().getFirstInlines()
+}

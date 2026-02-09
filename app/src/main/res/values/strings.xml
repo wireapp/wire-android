@@ -564,7 +564,7 @@
     <string name="channel_history_label">Conversation history</string>
     <string name="channel_history_description">Select a period. When participants join this channel, they can follow the history for this time frame.</string>
     <string name="channel_history_freemium_upgrade_title">Show older messages?</string>
-    <string name="channel_history_freemium_upgrade_description">Upgrade to a paid plan to offer channel members the whole history.</string>
+    <string name="channel_history_freemium_upgrade_description">To show older messages to channel members, your team needs configuration. Please contact your team admin.</string>
     <string name="channel_history_freemium_upgrade_now">Upgrade now</string>
     <string name="channel_history_off">Off</string>
     <string name="channel_history_unlimited">Unlimited</string>
@@ -978,6 +978,7 @@
     <string name="content_description_see_shared_drive_in_conversation_btn">Open Shared Drive</string>
     <string name="label_conversation_pictures_empty">Nobody shared pictures in this conversation yet 🥲</string>
     <string name="label_conversation_files_empty">Nobody shared files in this conversation yet 🙀</string>
+    <string name="conversation_search_files_button">Search files</string>
     <!-- Search Contact-->
     <string name="label_selected">Selected</string>
     <string name="label_contacts">Contacts</string>
@@ -1286,11 +1287,8 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="team_app_lock_enabled">App lock is now mandatory. Wire will lock itself after a certain time of inactivity. To unlock the app, you need to enter a passcode or use biometric authentication.</string>
     <string name="team_app_lock_disabled">App lock is not mandatory any more. Wire will no longer lock itself after a certain time of inactivity.</string>
     <string name="settings_forgot_lock_screen_title">Forgot your app lock passcode?</string>
-    <string name="settings_forgot_lock_screen_description">You can only access the data stored on this device with your app lock passcode. If you have forgotten your passcode, you can remove this device.</string>
-    <string name="settings_forgot_lock_screen_warning">If you remove your device, you lose all local data and messages for all accounts on this device permanently.</string>
-    <string name="settings_forgot_lock_screen_reset_device">Remove Device</string>
-    <string name="settings_forgot_lock_screen_reset_device_description">Enter your password for the account %s to confirm the deletion of all data for all accounts on this device. After removing your device, you can log in with your account credentials.</string>
-    <string name="settings_forgot_lock_screen_reset_device_without_password_description">Confirm the deletion of all data for all accounts on this device. After removing your device, you can log in with your account credentials.</string>
+    <string name="settings_forgot_lock_screen_description">The data stored on this device can only be accessed with your app lock passcode.</string>
+    <string name="settings_forgot_lock_screen_warning">If you have forgotten your passcode, you can log out and set a new passcode the next time you log in. Your data will stay on this device unless you choose to delete it.</string>
     <string name="settings_forgot_lock_screen_please_wait_label">Please wait...</string>
     <!--Devices -->
     <string name="devices_title">Your Devices</string>

@@ -29,6 +29,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.ClientScopeProvider
+import com.wire.android.di.DefaultWebSocketEnabledByDefault
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.LoginState
@@ -79,6 +80,7 @@ class LoginEmailViewModel @Inject constructor(
     private val resendCodeTimer: CountdownTimer,
     private val dispatchers: DispatcherProvider,
     defaultServerConfig: ServerConfig.Links,
+    @DefaultWebSocketEnabledByDefault private val defaultWebSocketEnabledByDefault: Boolean,
 ) : LoginViewModel(
     savedStateHandle,
     clientScopeProviderFactory,
@@ -203,8 +205,10 @@ class LoginEmailViewModel @Inject constructor(
                 addAuthenticatedUser(
                     authTokens = loginResult.authData,
                     ssoId = loginResult.ssoID,
+                    managedBy = loginResult.managedBy,
                     serverConfigId = loginResult.serverConfigId,
                     proxyCredentials = loginResult.proxyCredentials,
+                    isPersistentWebSocketEnabled = defaultWebSocketEnabledByDefault,
                     replace = false
                 )
             }.let {

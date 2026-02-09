@@ -61,7 +61,7 @@
     <string name="download">Herunterladen</string>
     <string name="downloading_file_message">Datei wird heruntergeladen…</string>
     <string name="error_share_link">Link kann nicht geteilt werden.</string>
-    <string name="conversation_files_title">Dateien</string>
+    <string name="conversation_files_title">Geteiltes Drive</string>
     <string name="creating_link">Öffentlicher Link wird erstellt…</string>
     <string name="cells_new_label">Neu</string>
     <string name="cells_new_label_content_description">Neu</string>
@@ -103,7 +103,6 @@
     <string name="rename_file_renamed">Datei wurde umbenannt</string>
     <string name="rename_folder_renamed">Ordner wurde umbenannt</string>
     <string name="rename_failure">Umbenennen nicht möglich</string>
-    <string name="rename_invalid_name">Verwenden Sie einen Namen ohne \"/\" und nicht mit \".\" beginnend</string>
     <string name="filter_label">Filter</string>
     <string name="tags_label">Tags</string>
     <string name="select_tags_label">Tags auswählen</string>

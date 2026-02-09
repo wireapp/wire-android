@@ -43,6 +43,7 @@ import com.wire.kalium.logic.feature.user.GetUserInfoUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import com.wire.kalium.logic.feature.user.IsReadOnlyAccountUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
+import com.wire.kalium.logic.feature.user.ObserveSelfUserWithTeamUseCase
 import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import com.wire.kalium.logic.feature.user.SetUserHandleUseCase
@@ -205,6 +206,11 @@ class UserModule {
     @Provides
     fun provideObserveSelfUseCase(userScope: UserScope): ObserveSelfUserUseCase =
         userScope.observeSelfUser
+
+    @ViewModelScoped
+    @Provides
+    fun provideObserveSelfUserWithTeamUseCase(userScope: UserScope): ObserveSelfUserWithTeamUseCase =
+        userScope.observeSelfUserWithTeam
 
     @ViewModelScoped
     @Provides

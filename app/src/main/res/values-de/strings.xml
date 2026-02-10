@@ -100,7 +100,6 @@
     <string name="content_description_conversation_mention_someone">Jemanden erwähnen</string>
     <string name="content_description_conversation_back_btn">Zurück zur Unterhaltungsliste</string>
     <string name="content_description_conversation_open_details_label">Unterhaltungsdetails öffnen</string>
-    <string name="content_description_new_conversation">Nach Personen suchen oder eine neue Unterhaltung erstellen</string>
     <string name="content_description_send_button">Senden</string>
     <string name="content_description_timed_message_button">Selbstlöschende Nachrichten, Taste</string>
     <string name="content_description_menu_button">Hauptnavigation</string>

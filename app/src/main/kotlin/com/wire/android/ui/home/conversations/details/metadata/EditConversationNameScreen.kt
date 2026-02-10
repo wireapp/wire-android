@@ -34,7 +34,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 
 @WireRootDestination(
     navArgs = EditConversationNameNavArgs::class,
-    style = SlideNavigationAnimation::class, // default should be SlideNavigationAnimation
+    style = SlideNavigationAnimation::class,
 )
 @Composable
 fun EditConversationNameScreen(

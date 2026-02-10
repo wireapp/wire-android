@@ -62,7 +62,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.SnackBarMessageHandler
 
 @WireRootDestination(
-    style = SlideNavigationAnimation::class, // default should be SlideNavigationAnimation
+    style = SlideNavigationAnimation::class,
 )
 @Composable
 fun NewConversationFolderScreen(

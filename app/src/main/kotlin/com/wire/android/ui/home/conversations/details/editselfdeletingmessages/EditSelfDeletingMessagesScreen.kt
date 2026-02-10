@@ -62,7 +62,7 @@ import com.wire.android.util.ui.sectionWithElements
 
 @WireRootDestination(
     navArgs = EditSelfDeletingMessagesNavArgs::class,
-    style = SlideNavigationAnimation::class, // default should be SlideNavigationAnimation
+    style = SlideNavigationAnimation::class,
 )
 @Composable
 fun EditSelfDeletingMessagesScreen(

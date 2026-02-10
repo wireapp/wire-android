@@ -19,10 +19,10 @@ package com.wire.android.ui.home.conversations.details.updatechannelaccess
 
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.framework.TestUser
-import com.wire.android.ui.destinations.ChannelAccessOnUpdateScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.ChannelAccessOnUpdateScreenDestination
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAddPermissionType
-import com.wire.android.ui.navArgs
+import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.conversation.channel.UpdateChannelAddPermissionUseCase
 import io.mockk.MockKAnnotations

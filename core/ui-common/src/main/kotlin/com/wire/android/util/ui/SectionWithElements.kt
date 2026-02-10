@@ -28,9 +28,28 @@ import androidx.compose.ui.Modifier
 import com.wire.android.ui.common.rowitem.CollapsingSectionHeader
 import com.wire.android.ui.common.rowitem.SectionHeader
 
-@Suppress("LongParameterList", "CyclomaticComplexMethod")
+@Suppress("LongParameterList")
 inline fun <T, K : Any> LazyListScope.sectionWithElements(
     header: String? = null,
+    items: Map<K, T>,
+    animateItemPlacement: Boolean = true,
+    folderType: FolderType = FolderType.Regular,
+    crossinline divider: @Composable () -> Unit = {},
+    crossinline factory: @Composable (T) -> Unit
+) {
+    sectionWithElements(
+        header = header?.let { UIText.DynamicString(it) },
+        items = items,
+        animateItemPlacement = animateItemPlacement,
+        folderType = folderType,
+        divider = divider,
+        factory = factory
+    )
+}
+
+@Suppress("LongParameterList", "CyclomaticComplexMethod")
+inline fun <T, K : Any> LazyListScope.sectionWithElements(
+    header: UIText? = null,
     items: Map<K, T>,
     animateItemPlacement: Boolean = true,
     folderType: FolderType = FolderType.Regular,
@@ -40,20 +59,21 @@ inline fun <T, K : Any> LazyListScope.sectionWithElements(
     val list = items.entries.toList()
 
     if (items.isNotEmpty()) {
-        if (!header.isNullOrEmpty()) {
+        if (header != null) {
             item(key = "header:$header") {
+                val headerText = header.asString()
                 when (folderType) {
                     is FolderType.Collapsing -> CollapsingSectionHeader(
                         expanded = folderType.expanded,
                         onClicked = folderType.onChanged,
-                        name = header,
+                        name = headerText,
                         modifier = Modifier
                             .fillMaxWidth()
                             .let { if (animateItemPlacement) it.animateItem() else it }
                     )
 
                     is FolderType.Regular -> SectionHeader(
-                        name = header,
+                        name = headerText,
                         modifier = Modifier
                             .fillMaxWidth()
                             .let { if (animateItemPlacement) it.animateItem() else it }

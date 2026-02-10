@@ -62,7 +62,7 @@ import com.wire.kalium.logic.data.conversation.FolderType
 
 @WireRootDestination(
     navArgs = ConversationFoldersNavArgs::class,
-    style = SlideNavigationAnimation::class, // default should be SlideNavigationAnimation
+    style = SlideNavigationAnimation::class,
 )
 @Composable
 fun ConversationFoldersScreen(

@@ -276,11 +276,11 @@ class ManagedConfigurationsReceiverTest {
         }
 
         fun arrange() = this to ManagedConfigurationsReceiver(
-            managedConfigurationsManager,
-            managedConfigurationsReporter,
-            lazy { coreLogic },
-            startPersistentWebsocketIfNecessary,
-            dispatchers
+            managedConfigurationsManager = managedConfigurationsManager,
+            managedConfigurationsReporter = managedConfigurationsReporter,
+            coreLogic = { coreLogic },
+            startPersistentWebsocketIfNecessary = startPersistentWebsocketIfNecessary,
+            dispatcher = dispatchers
         )
     }
 }

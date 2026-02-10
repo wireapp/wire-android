@@ -816,6 +816,9 @@ class WireActivityViewModelTest {
 
     private class Arrangement {
 
+        val managedConfigurationsManager: ManagedConfigurationsManager = mockk(relaxed = true)
+        private val persistentWebSocketEnforcedByMDMFlow = MutableStateFlow(false)
+
         init {
             // Tests setup
             MockKAnnotations.init(this, relaxUnitFun = true)
@@ -916,9 +919,6 @@ class WireActivityViewModelTest {
 
         @MockK
         lateinit var monitorSyncWorkUseCase: MonitorSyncWorkUseCase
-
-        val managedConfigurationsManager: ManagedConfigurationsManager = mockk(relaxed = true)
-        private val persistentWebSocketEnforcedByMDMFlow = MutableStateFlow(false)
 
         private val viewModel by lazy {
             WireActivityViewModel(

@@ -23,6 +23,7 @@ import android.content.Context
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
+import com.ramcosta.composedestinations.generated.app.navgraphs.WireRootGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavOptionsBuilder
 import com.ramcosta.composedestinations.spec.DestinationSpec
 import com.ramcosta.composedestinations.spec.Direction
@@ -33,21 +34,20 @@ import com.ramcosta.composedestinations.utils.route
 import com.ramcosta.composedestinations.utils.toDestinationsNavigator
 import com.wire.android.appLogger
 import com.wire.android.util.CustomTabsHelper
-import com.wire.kalium.logger.obfuscateId
 
 @SuppressLint("RestrictedApi")
 @Suppress("CyclomaticComplexMethod")
 internal fun NavController.navigateToItem(command: NavigationCommand) {
 
-    fun firstDestination() = currentBackStack.value.firstOrNull { it.route() is DestinationSpec<*> }
-    fun lastDestination() = currentBackStack.value.lastOrNull { it.route() is DestinationSpec<*> }
+    fun firstDestination() = currentBackStack.value.firstOrNull { it.route() is DestinationSpec }
+    fun lastDestination() = currentBackStack.value.lastOrNull { it.route() is DestinationSpec }
     fun lastNestedGraph() = lastDestination()?.takeIf { it.navGraph() != navGraph }?.navGraph()
     fun firstDestinationWithRoute(route: String) =
         currentBackStack.value.firstOrNull { it.destination.route?.getBaseRoute() == route.getBaseRoute() }
 
     fun lastDestinationFromOtherGraph(graph: NavGraphSpec) = currentBackStack.value.lastOrNull { it.navGraph() != graph }
 
-    appLogger.d("[$TAG] -> command: ${command.destination.route.obfuscateId()} backStackMode:${command.backStackMode}")
+    appLogger.d("[$TAG] -> command: ${command.destination.route} backStackMode:${command.backStackMode}")
     toDestinationsNavigator().navigate(command.destination) {
         when (command.backStackMode) {
             BackStackMode.CLEAR_WHOLE, BackStackMode.CLEAR_TILL_START -> {
@@ -100,24 +100,21 @@ private fun DestinationsNavOptionsBuilder.popUpTo(
     getNavBackStackEntry: () -> NavBackStackEntry?,
 ) {
     getNavBackStackEntry()?.let { entry ->
-        appLogger.d("[$TAG] -> popUpTo:${entry.destination.route?.obfuscateId()} inclusive:${getInclusive(entry)}")
+        appLogger.d("[$TAG] -> popUpTo:${entry.destination.route} inclusive:${getInclusive(entry)}")
         popUpTo(entry.route()) {
             this.inclusive = getInclusive(entry)
         }
     }
 }
 
-internal fun NavDestination.toDestination(): DestinationSpec<*>? =
-    this.route?.let { currentRoute -> WireMainNavGraph.findDestination(currentRoute) }
+internal fun NavDestination.toDestination(): DestinationSpec? =
+    this.route?.let { currentRoute -> WireRootGraph.findDestination(currentRoute) }
 
-fun String.getBaseRoute(): String =
-    this.indexOfAny(listOf("?", "/")).let {
-        if (it != -1) {
-            this.substring(0, it)
-        } else {
-            this
-        }
-    }
+fun String.getBaseRoute(): String {
+    var slashCount = 0
+    val end = indexOfFirst { c -> (c == '/' && ++slashCount == 2) || c == '?' }
+    return if (end >= 0) substring(0, end) else this
+}
 
 fun Direction.handleNavigation(context: Context, handleOtherDirection: (Direction) -> Unit) = when (this) {
     is ExternalUriDirection -> CustomTabsHelper.launchUri(context, this.uri)
@@ -127,6 +124,6 @@ fun Direction.handleNavigation(context: Context, handleOtherDirection: (Directio
 }
 
 @SuppressLint("RestrictedApi")
-fun NavController.startDestination() = currentBackStack.value.firstOrNull { it.route() is DestinationSpec<*> }
+fun NavController.startDestination() = currentBackStack.value.firstOrNull { it.route() is DestinationSpec }
 
 private const val TAG = "NavigationUtils"

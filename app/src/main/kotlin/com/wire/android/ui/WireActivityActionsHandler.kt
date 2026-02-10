@@ -30,12 +30,12 @@ import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.getBaseRoute
 import com.wire.android.ui.authentication.login.PreFilledUserIdentifierType
 import com.wire.android.ui.common.HandleActions
-import com.wire.android.ui.destinations.ConversationScreenDestination
-import com.wire.android.ui.destinations.HomeScreenDestination
-import com.wire.android.ui.destinations.ImportMediaScreenDestination
-import com.wire.android.ui.destinations.LoginScreenDestination
-import com.wire.android.ui.destinations.NewLoginScreenDestination
-import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.HomeScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.ImportMediaScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.LoginScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.NewLoginScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.OtherUserProfileScreenDestination
 import kotlinx.coroutines.flow.Flow
 
 @Composable

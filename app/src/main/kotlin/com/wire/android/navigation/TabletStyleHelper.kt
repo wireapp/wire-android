@@ -18,48 +18,10 @@
 package com.wire.android.navigation
 
 import androidx.compose.runtime.Composable
-import com.wire.android.navigation.style.DialogNavigation
-import com.wire.android.navigation.style.PopUpNavigationAnimation
-import com.wire.android.navigation.style.SlideNavigationAnimation
-import com.wire.android.ui.destinations.AvatarPickerScreenDestination
-import com.wire.android.ui.destinations.ChangeDisplayNameScreenDestination
-import com.wire.android.ui.destinations.ChangeEmailScreenDestination
-import com.wire.android.ui.destinations.ChangeHandleScreenDestination
-import com.wire.android.ui.destinations.ChangeUserColorScreenDestination
-import com.wire.android.ui.destinations.ChannelAccessOnUpdateScreenDestination
-import com.wire.android.ui.destinations.ConversationFoldersScreenDestination
-import com.wire.android.ui.destinations.DeviceDetailsScreenDestination
-import com.wire.android.ui.destinations.EditConversationNameScreenDestination
-import com.wire.android.ui.destinations.EditGuestAccessScreenDestination
-import com.wire.android.ui.destinations.EditSelfDeletingMessagesScreenDestination
-import com.wire.android.ui.destinations.GroupConversationDetailsScreenDestination
-import com.wire.android.ui.destinations.NewConversationFolderScreenDestination
-import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
-import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
-import com.wire.android.ui.destinations.ServiceDetailsScreenDestination
-import com.wire.android.ui.destinations.UpdateAppsAccessScreenDestination
-import com.wire.android.ui.theme.isTablet
 
 // Todo(docs): Add ADR about this change introduced in navigation styles for tablets, which requires
-//  adjusting navigation styles for certain destinations when on tablets when using DestinationStyle.Runtime
-@Suppress("CyclomaticComplexMethod")
+//  adjusting navigation styles for certain destinations when on tablets.
+// See ADR-0010:
+// docs/adr/0010-tablet-dialog-navigation-parity-after-compose-destinations-upgrade.md
 @Composable
-fun AdjustDestinationStylesForTablets() {
-    ServiceDetailsScreenDestination.style = if (isTablet) DialogNavigation else PopUpNavigationAnimation
-    OtherUserProfileScreenDestination.style = if (isTablet) DialogNavigation else PopUpNavigationAnimation
-    SelfUserProfileScreenDestination.style = if (isTablet) DialogNavigation else PopUpNavigationAnimation
-    DeviceDetailsScreenDestination.style = if (isTablet) DialogNavigation else SlideNavigationAnimation
-    ChangeDisplayNameScreenDestination.style = if (isTablet) DialogNavigation else SlideNavigationAnimation
-    ChangeHandleScreenDestination.style = if (isTablet) DialogNavigation else SlideNavigationAnimation
-    ChangeEmailScreenDestination.style = if (isTablet) DialogNavigation else SlideNavigationAnimation
-    AvatarPickerScreenDestination.style = if (isTablet) DialogNavigation else SlideNavigationAnimation
-    GroupConversationDetailsScreenDestination.style = if (isTablet) DialogNavigation else PopUpNavigationAnimation
-    EditConversationNameScreenDestination.style = if (isTablet) DialogNavigation else SlideNavigationAnimation
-    EditGuestAccessScreenDestination.style = if (isTablet) DialogNavigation else SlideNavigationAnimation
-    UpdateAppsAccessScreenDestination.style = if (isTablet) DialogNavigation else SlideNavigationAnimation
-    ChannelAccessOnUpdateScreenDestination.style = if (isTablet) DialogNavigation else SlideNavigationAnimation
-    EditSelfDeletingMessagesScreenDestination.style = if (isTablet) DialogNavigation else SlideNavigationAnimation
-    ConversationFoldersScreenDestination.style = if (isTablet) DialogNavigation else SlideNavigationAnimation
-    NewConversationFolderScreenDestination.style = if (isTablet) DialogNavigation else SlideNavigationAnimation
-    ChangeUserColorScreenDestination.style = if (isTablet) DialogNavigation else SlideNavigationAnimation
-}
+fun AdjustDestinationStylesForTablets() = Unit

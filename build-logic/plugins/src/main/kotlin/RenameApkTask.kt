@@ -82,13 +82,24 @@ abstract class RenameApkTask : DefaultTask() {
             buildType: String,
             isUniversalOutput: Boolean,
         ): String {
+            val safeApplicationId = sanitizeFileNameComponent(applicationId)
+            val safeVersionName = sanitizeFileNameComponent(versionName)
+            val safeBuildType = sanitizeFileNameComponent(buildType)
+
             val outputTypeSuffix = if (isUniversalOutput) {
                 "-universal"
             } else {
                 ""
             }
 
-            return "$applicationId-v$versionName-$buildType$outputTypeSuffix.apk"
+            return "$safeApplicationId-v$safeVersionName-$safeBuildType$outputTypeSuffix.apk"
+        }
+
+        private fun sanitizeFileNameComponent(value: String): String {
+            val sanitized = value
+                .replace(Regex("[^A-Za-z0-9._-]"), "_")
+                .trim('_')
+            return if (sanitized.isBlank()) "unknown" else sanitized
         }
     }
 }

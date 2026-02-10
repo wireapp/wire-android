@@ -53,4 +53,19 @@ class RenameApkTaskTest {
             fileName
         )
     }
+
+    @Test
+    fun `given path-like components when naming apk then result is sanitized to a single safe file name`() {
+        val fileName = RenameApkTask.buildLegacyApkFileName(
+            applicationId = "../com.wire/android",
+            versionName = "4.21.0:73661?internal",
+            buildType = "co/mpat",
+            isUniversalOutput = false,
+        )
+
+        assertEquals(
+            ".._com.wire_android-v4.21.0_73661_internal-co_mpat.apk",
+            fileName
+        )
+    }
 }

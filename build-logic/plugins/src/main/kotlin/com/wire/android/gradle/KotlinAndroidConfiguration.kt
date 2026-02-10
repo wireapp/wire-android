@@ -29,23 +29,18 @@ import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import versionCatalog
 import findLibrary
-import org.gradle.jvm.toolchain.JavaLanguageVersion
-import org.jetbrains.kotlin.gradle.dsl.KotlinBaseExtension
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 internal fun Project.configureKotlinAndroid(
-    commonExtension: CommonExtension<*, *, *, *, *, *>,
-    kotlinAndroidExtension: KotlinBaseExtension
+    commonExtension: CommonExtension
 ): Unit = with(commonExtension) {
     compileSdk = AndroidSdk.compile
 
-    defaultConfig {
-        minSdk = AndroidSdk.min
-    }
+    defaultConfig.minSdk = AndroidSdk.min
 
-    compileOptions {
-        targetCompatibility = JavaVersion.VERSION_17
-        isCoreLibraryDesugaringEnabled = true
-    }
+    compileOptions.targetCompatibility = JavaVersion.VERSION_17
+    compileOptions.isCoreLibraryDesugaringEnabled = true
+    buildFeatures.resValues = true
 
     configureKotlin()
     configureCompose(this)
@@ -54,12 +49,6 @@ internal fun Project.configureKotlinAndroid(
         add("coreLibraryDesugaring", versionCatalog.findLibrary("android.desugarJdkLibs").get())
     }
     configureLint(project)
-
-    with(kotlinAndroidExtension) {
-        jvmToolchain {
-            languageVersion.set(JavaLanguageVersion.of(JavaVersion.VERSION_17.majorVersion))
-        }
-    }
 }
 
 /**
@@ -67,29 +56,27 @@ internal fun Project.configureKotlinAndroid(
  */
 private fun Project.configureKotlin() {
     tasks.withType<KotlinCompile>().configureEach {
-        kotlinOptions {
+        compilerOptions {
             // Set JVM target to 17
-            jvmTarget = JavaVersion.VERSION_17.toString()
+            jvmTarget.set(JvmTarget.JVM_17)
             // Treat all Kotlin warnings as errors (disabled by default)
             // Override by setting warningsAsErrors=true in your ~/.gradle/gradle.properties
             val warningsAsErrors: String? by project
-            allWarningsAsErrors = warningsAsErrors.toBoolean()
-            freeCompilerArgs = freeCompilerArgs + listOf(
+            allWarningsAsErrors.set(warningsAsErrors.toBoolean())
+            freeCompilerArgs.addAll(
                 "-opt-in=kotlin.RequiresOptIn",
                 // Enable experimental coroutines APIs, including Flow
                 "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",
                 "-opt-in=kotlinx.coroutines.FlowPreview",
+                "-P",
+                "plugin:androidx.compose.compiler.plugins.kotlin:experimentalStrongSkipping=true",
             )
         }
-        compilerOptions.freeCompilerArgs.addAll(
-            "-P",
-            "plugin:androidx.compose.compiler.plugins.kotlin:experimentalStrongSkipping=true",
-        )
     }
 }
 
-private fun CommonExtension<*, *, *, *, *, *>.configureLint(project: Project) {
-    lint {
+private fun CommonExtension.configureLint(project: Project) {
+    lint.apply {
         showAll = true
         explainIssues = true
         quiet = false
@@ -112,16 +99,14 @@ private fun CommonExtension<*, *, *, *, *, *>.configureLint(project: Project) {
     }
 }
 
-internal fun CommonExtension<*, *, *, *, *, *>.configureAndroidKotlinTests() {
-    defaultConfig {
-        testInstrumentationRunner = "com.wire.android.CustomTestRunner"
-        testInstrumentationRunnerArguments.putAll(
-            mapOf(
-                "clearPackageData" to "true",
-                "force-queryable" to "true"
-            )
+internal fun CommonExtension.configureAndroidKotlinTests() {
+    defaultConfig.testInstrumentationRunner = "com.wire.android.CustomTestRunner"
+    defaultConfig.testInstrumentationRunnerArguments.putAll(
+        mapOf(
+            "clearPackageData" to "true",
+            "force-queryable" to "true"
         )
-    }
+    )
 
     // This enables us to share some code between UI and Unit tests!
     fun AndroidSourceSet.includeCommonTestSourceDir() = java {
@@ -130,10 +115,8 @@ internal fun CommonExtension<*, *, *, *, *, *>.configureAndroidKotlinTests() {
     sourceSets["test"].includeCommonTestSourceDir()
     sourceSets["androidTest"].includeCommonTestSourceDir()
 
-    testOptions {
-        execution = "ANDROIDX_TEST_ORCHESTRATOR"
-        animationsDisabled = true
-        unitTests.isReturnDefaultValues = true
-        unitTests.isIncludeAndroidResources = true
-    }
+    testOptions.execution = "ANDROIDX_TEST_ORCHESTRATOR"
+    testOptions.animationsDisabled = true
+    testOptions.unitTests.isReturnDefaultValues = true
+    testOptions.unitTests.isIncludeAndroidResources = true
 }

@@ -80,7 +80,9 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                 }}ApkForLegacyName"
                 val renameApkTask = project.tasks.register(taskName, RenameApkTask::class.java)
                 renameApkTask.configure {
-                    applicationId.set(variant.applicationId)
+                    // Keep legacy behavior: APK file name prefix uses the base app id,
+                    // not the flavor-specific final variant applicationId.
+                    applicationId.set(AndroidApp.id)
                     buildType.set(variant.buildType)
                 }
 

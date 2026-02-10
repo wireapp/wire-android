@@ -18,6 +18,7 @@
 package com.wire.android.ui.home.appLock.forgot
 
 import com.wire.android.navigation.annotation.app.WireRootDestination
+import android.content.Intent
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -48,6 +49,9 @@ import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.navigation.annotation.app.WireDestination
+import com.wire.android.ui.LocalActivity
+import com.wire.android.ui.WireActivity
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.navigation.NavigationCommand
@@ -59,46 +63,44 @@ import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.rememberBottomBarElevationState
 import com.wire.android.ui.common.scaffold.WireScaffold
+import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.ramcosta.composedestinations.generated.app.destinations.NewLoginScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.WelcomeScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.ui.userprofile.self.dialog.LogoutOptionsDialog
+import com.wire.android.ui.userprofile.self.dialog.LogoutOptionsDialogState
 import com.wire.android.util.dialogErrorStrings
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @WireRootDestination
 @Composable
 fun ForgotLockCodeScreen(
-    navigator: Navigator,
-    loginTypeSelector: LoginTypeSelector,
     viewModel: ForgotLockScreenViewModel = hiltViewModel(),
 ) {
+    val activity = LocalActivity.current
+    val logoutOptionsDialogState = rememberVisibilityState<LogoutOptionsDialogState>()
     with(viewModel.state) {
         LaunchedEffect(completed) {
-            val destination = if (loginTypeSelector.canUseNewLogin()) NewLoginScreenDestination() else WelcomeScreenDestination()
-            if (completed) navigator.navigate(NavigationCommand(destination, BackStackMode.CLEAR_WHOLE))
+            if (completed) {
+                startLoginActivity(activity)
+            }
         }
         ForgotLockCodeScreenContent(
             scrollState = rememberScrollState(),
-            onResetDevice = viewModel::onResetDevice,
-        )
-        if (dialogState is ForgotLockCodeDialogState.Visible) {
-            if (dialogState.loading) {
-                ForgotLockCodeResettingDeviceDialog()
-            } else {
-                ForgotLockCodeResetDeviceDialog(
-                    passwordTextState = viewModel.passwordTextState,
-                    username = dialogState.username,
-                    isPasswordRequired = dialogState.passwordRequired,
-                    isPasswordValid = dialogState.passwordValid,
-                    isResetDeviceEnabled = dialogState.resetDeviceEnabled,
-                    onResetDeviceClicked = viewModel::onResetDeviceConfirmed,
-                    onDialogDismissed = viewModel::onDialogDismissed,
+            isLoggingOut = isLoggingOut,
+            onLogout = {
+                logoutOptionsDialogState.show(
+                    logoutOptionsDialogState.savedState ?: LogoutOptionsDialogState()
                 )
-            }
-        }
+            },
+        )
+        LogoutOptionsDialog(
+            dialogState = logoutOptionsDialogState,
+            logout = viewModel::onLogoutConfirmed,
+        )
         if (error != null) {
             val (title, message) = error.dialogErrorStrings(LocalContext.current.resources)
             WireDialog(
@@ -119,7 +121,8 @@ fun ForgotLockCodeScreen(
 @Composable
 fun ForgotLockCodeScreenContent(
     scrollState: ScrollState,
-    onResetDevice: () -> Unit,
+    isLoggingOut: Boolean,
+    onLogout: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     WireScaffold { internalPadding ->
@@ -165,7 +168,7 @@ fun ForgotLockCodeScreenContent(
                     text = stringResource(id = R.string.settings_forgot_lock_screen_warning),
                     style = MaterialTheme.wireTypography.body01,
                     textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.error,
+                    color = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier.padding(
                         top = MaterialTheme.wireDimensions.spacing8x,
                         bottom = MaterialTheme.wireDimensions.spacing8x
@@ -180,7 +183,7 @@ fun ForgotLockCodeScreenContent(
                 modifier = Modifier.semantics { testTagsAsResourceId = true }
             ) {
                 Box(modifier = Modifier.padding(MaterialTheme.wireDimensions.spacing16x)) {
-                    ContinueButton(enabled = true, onContinue = onResetDevice)
+                    LogoutButton(isLoggingOut = isLoggingOut, onLogout = onLogout)
                 }
             }
         }
@@ -188,29 +191,38 @@ fun ForgotLockCodeScreenContent(
 }
 
 @Composable
-private fun ContinueButton(
-    enabled: Boolean,
-    onContinue: () -> Unit,
+private fun LogoutButton(
+    isLoggingOut: Boolean,
+    onLogout: () -> Unit,
     modifier: Modifier = Modifier.fillMaxWidth(),
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     Column(modifier = modifier) {
         WirePrimaryButton(
-            text = stringResource(R.string.settings_forgot_lock_screen_reset_device),
-            onClick = onContinue,
-            state = if (enabled) WireButtonState.Default else WireButtonState.Disabled,
+            text = stringResource(R.string.user_profile_logout),
+            onClick = onLogout,
+            loading = isLoggingOut,
+            state = if (isLoggingOut) WireButtonState.Disabled else WireButtonState.Default,
             interactionSource = interactionSource,
             modifier = Modifier
                 .fillMaxWidth()
-                .testTag("reset_device_button")
+                .testTag("logout_button")
         )
     }
+}
+
+private fun startLoginActivity(activity: androidx.appcompat.app.AppCompatActivity) {
+    val intent = Intent(activity, WireActivity::class.java).apply {
+        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+    }
+    activity.startActivity(intent)
+    activity.finish()
 }
 
 @Composable
 @PreviewMultipleThemes
 fun PreviewForgotLockCodeScreen() {
     WireTheme {
-        ForgotLockCodeScreenContent(rememberScrollState(), {})
+        ForgotLockCodeScreenContent(rememberScrollState(), false, {})
     }
 }

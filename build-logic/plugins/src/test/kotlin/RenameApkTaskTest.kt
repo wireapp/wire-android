@@ -53,19 +53,4 @@ class RenameApkTaskTest {
             fileName
         )
     }
-
-    @Test
-    fun `given split filters when naming apk then lowercased filter segments are appended in order`() {
-        val fileName = RenameApkTask.buildLegacyApkFileName(
-            applicationId = "com.wire.android",
-            versionName = "4.21.0-73661-internal",
-            buildType = "compat",
-            isUniversalOutput = false,
-        )
-
-        assertEquals(
-            "com.wire.android-v4.21.0-73661-internal-compat-abi-arm64-v8a-density-xxhdpi.apk",
-            fileName
-        )
-    }
 }

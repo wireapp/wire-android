@@ -209,8 +209,8 @@ private fun ColumnScope.DeviceItemTexts(
                 .then(semantic)
         )
         if (shouldShowVerifyLabel) {
-            if (shouldShowE2EIInfo) {
-                MLSVerificationIcon(device.mlsClientIdentity?.e2eiStatus)
+            if (shouldShowE2EIInfo && device.mlsClientIdentity != null) {
+                MLSVerificationIcon(device.mlsClientIdentity.e2eiStatus)
             }
             if (device.isVerifiedProteus && !isCurrentClient) {
                 ProteusVerifiedIcon(

@@ -57,6 +57,7 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUs
 import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
+import com.wire.kalium.logic.feature.conversation.MarkConversationAsReadLocallyUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReceiptModeUseCase
 import com.wire.kalium.logic.feature.conversation.apps.ChangeAccessForAppsInConversationUseCase
@@ -186,6 +187,11 @@ class ConversationModule {
     @Provides
     fun provideUpdateConversationReadDateUseCase(conversationScope: ConversationScope): UpdateConversationReadDateUseCase =
         conversationScope.updateConversationReadDateUseCase
+
+    @ViewModelScoped
+    @Provides
+    fun provideMarkConversationAsReadLocallyUseCase(conversationScope: ConversationScope): MarkConversationAsReadLocallyUseCase =
+        conversationScope.markConversationAsReadLocally
 
     @ViewModelScoped
     @Provides

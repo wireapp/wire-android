@@ -26,6 +26,8 @@ import com.wire.android.framework.TestUser
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.util.ui.UiTextResolver
+import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.ConversationDetailsWithEvents
 import com.wire.kalium.logic.data.conversation.ConversationFilter
 import com.wire.kalium.logic.data.conversation.ConversationFolder
@@ -202,6 +204,9 @@ class GetConversationsFromSearchUseCaseTest {
         @MockK
         lateinit var getSelfUser: GetSelfUserUseCase
 
+        @MockK
+        lateinit var uiTextResolver: UiTextResolver
+
         val queryConfig = ConversationQueryConfig(
             searchQuery = "search",
             fromArchive = false,
@@ -212,6 +217,15 @@ class GetConversationsFromSearchUseCaseTest {
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             coEvery { userTypeMapper.toMembership(any()) } returns Membership.Standard
+            coEvery { uiTextResolver.resolve(any()) } answers {
+                val text = firstArg<UIText>()
+                when (text) {
+                    is UIText.DynamicString -> text.value
+                    is UIText.StringResource -> "res_${text.resId}"
+                    is UIText.PluralResource -> "plural_${text.resId}_${text.count}"
+                }
+            }
+            coEvery { uiTextResolver.localeTag() } returns "test-locale"
             withPaginatedResult(emptyList())
         }
 
@@ -236,7 +250,13 @@ class GetConversationsFromSearchUseCaseTest {
         }
 
         fun arrange() = this to GetConversationsFromSearchUseCase(
-            useCase, getFavoriteFolderUseCase, observeConversationsFromFolderUseCase, userTypeMapper, dispatcherProvider, getSelfUser
+            useCase,
+            getFavoriteFolderUseCase,
+            observeConversationsFromFolderUseCase,
+            userTypeMapper,
+            dispatcherProvider,
+            getSelfUser,
+            uiTextResolver
         )
     }
 }

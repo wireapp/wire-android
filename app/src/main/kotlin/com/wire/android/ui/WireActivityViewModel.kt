@@ -99,6 +99,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.InputStream
@@ -155,6 +156,7 @@ class WireActivityViewModel @Inject constructor(
         .shareIn(viewModelScope, SharingStarted.WhileSubscribed(), 1)
 
     private lateinit var validSessions: StateFlow<List<AccountInfo>>
+    private var observePersistentConnectionStatusJob: Job? = null
 
     init {
         observeSyncState()
@@ -513,7 +515,10 @@ class WireActivityViewModel @Inject constructor(
     }
 
     fun observePersistentConnectionStatus() {
-        viewModelScope.launch {
+        if (observePersistentConnectionStatusJob?.isActive == true) {
+            return
+        }
+        observePersistentConnectionStatusJob = viewModelScope.launch {
             coreLogic.get().getGlobalScope().observePersistentWebSocketConnectionStatus()
                 .let { result ->
                     when (result) {
@@ -522,21 +527,20 @@ class WireActivityViewModel @Inject constructor(
                         }
 
                         is ObservePersistentWebSocketConnectionStatusUseCase.Result.Success -> {
-                            result.persistentWebSocketStatusListFlow.collect { statuses ->
-
-                                if (statuses.any { it.isPersistentWebSocketEnabled }) {
-                                    if (!servicesManager.get()
-                                            .isPersistentWebSocketServiceRunning()
-                                    ) {
-                                        servicesManager.get().startPersistentWebSocketService()
-                                        workManager.get()
-                                            .enqueuePeriodicPersistentWebsocketCheckWorker()
+                            result.persistentWebSocketStatusListFlow
+                                .map { statuses -> statuses.any { it.isPersistentWebSocketEnabled } }
+                                .distinctUntilChanged()
+                                .collect { hasEnabledPersistentWebSocket ->
+                                    if (hasEnabledPersistentWebSocket) {
+                                        if (!servicesManager.get().isPersistentWebSocketServiceRunning()) {
+                                            servicesManager.get().startPersistentWebSocketService()
+                                            workManager.get().enqueuePeriodicPersistentWebsocketCheckWorker()
+                                        }
+                                    } else {
+                                        servicesManager.get().stopPersistentWebSocketService()
+                                        workManager.get().cancelPeriodicPersistentWebsocketCheckWorker()
                                     }
-                                } else {
-                                    servicesManager.get().stopPersistentWebSocketService()
-                                    workManager.get().cancelPeriodicPersistentWebsocketCheckWorker()
                                 }
-                            }
                         }
                     }
                 }

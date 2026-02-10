@@ -79,17 +79,20 @@ class NewConversationViewModel @Inject constructor(
     var createGroupState: CreateGroupState by mutableStateOf(CreateGroupState.Default)
 
     init {
-        initNewGroupState()
+        loadDefaultProtocol()
         observeAllowanceOfAppsUsageInitialState()
         setConversationCreationParam()
         observeChannelCreationPermission()
         getWireCellFeatureState()
     }
 
-    private fun initNewGroupState() = viewModelScope.launch {
-        val defaultProtocol = CreateConversationParam
-            .Protocol.fromSupportedProtocolToConversationOptionsProtocol(getDefaultProtocol())
-        newGroupState = newGroupState.copy(groupProtocol = defaultProtocol)
+    private fun loadDefaultProtocol() {
+        viewModelScope.launch {
+            val defaultProtocol = CreateConversationParam
+                .Protocol
+                .fromSupportedProtocolToConversationOptionsProtocol(getDefaultProtocol())
+            newGroupState = newGroupState.copy(groupProtocol = defaultProtocol)
+        }
     }
 
     private fun observeAllowanceOfAppsUsageInitialState() {
@@ -118,16 +121,10 @@ class NewConversationViewModel @Inject constructor(
         appsAllowed
     }
 
-    fun resetState() = viewModelScope.launch {
+    fun resetState() {
         newGroupNameTextState.clearText()
-        newGroupState = GroupMetadataState().let {
-            val defaultProtocol = CreateConversationParam
-                .Protocol
-                .fromSupportedProtocolToConversationOptionsProtocol(getDefaultProtocol())
-            it.copy(
-                groupProtocol = defaultProtocol
-            )
-        }
+        newGroupState = GroupMetadataState()
+        loadDefaultProtocol()
         observeAllowanceOfAppsUsageInitialState()
         createGroupState = CreateGroupState.Default
         setConversationCreationParam()

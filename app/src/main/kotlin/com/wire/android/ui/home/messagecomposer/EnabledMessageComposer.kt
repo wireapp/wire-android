@@ -259,6 +259,9 @@ fun EnabledMessageComposer(
                         }
 
                         ActiveMessageComposerInput(
+                            onClearFocus = {
+                                messageCompositionInputStateHolder.clearFocus()
+                            },
                             conversationId = conversationId,
                             messageComposition = messageComposition.value,
                             keyboardOptions = keyboardOptions,
@@ -270,6 +273,7 @@ fun EnabledMessageComposer(
                             focusRequester = messageCompositionInputStateHolder.focusRequester,
                             onFocused = ::onInputFocused,
                             onToggleInputSize = messageCompositionInputStateHolder::toggleInputSize,
+                            onTextCollapse = messageCompositionInputStateHolder::collapseText,
                             onCancelReply = messageCompositionHolder.value::clearReply,
                             onCancelEdit = ::cancelEdit,
                             onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,

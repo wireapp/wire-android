@@ -33,7 +33,7 @@ import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessScree
 
 @WireRootDestination(
     navArgs = UpdateChannelAccessArgs::class,
-    style = SlideNavigationAnimation::class, // default should be SlideNavigationAnimation
+    style = SlideNavigationAnimation::class,
 )
 @Composable
 fun ChannelAccessOnUpdateScreen(

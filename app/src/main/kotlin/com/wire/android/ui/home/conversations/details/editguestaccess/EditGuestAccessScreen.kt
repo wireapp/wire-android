@@ -64,7 +64,7 @@ import com.wire.android.util.shareViaIntent
 @Suppress("ComplexMethod")
 @WireRootDestination(
     navArgs = EditGuestAccessNavArgs::class,
-    style = SlideNavigationAnimation::class, // default should be SlideNavigationAnimation
+    style = SlideNavigationAnimation::class,
 )
 @Composable
 fun EditGuestAccessScreen(

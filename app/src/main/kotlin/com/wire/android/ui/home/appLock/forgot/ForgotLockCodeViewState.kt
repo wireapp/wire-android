@@ -22,16 +22,5 @@ import com.wire.kalium.common.error.CoreFailure
 data class ForgotLockCodeViewState(
     val completed: Boolean = false,
     val error: CoreFailure? = null,
-    val dialogState: ForgotLockCodeDialogState = ForgotLockCodeDialogState.Hidden,
+    val isLoggingOut: Boolean = false,
 )
-
-sealed class ForgotLockCodeDialogState {
-    data object Hidden : ForgotLockCodeDialogState()
-    data class Visible(
-        val username: String,
-        val passwordRequired: Boolean = false,
-        val passwordValid: Boolean = true,
-        val resetDeviceEnabled: Boolean = false,
-        val loading: Boolean = false,
-    ) : ForgotLockCodeDialogState()
-}

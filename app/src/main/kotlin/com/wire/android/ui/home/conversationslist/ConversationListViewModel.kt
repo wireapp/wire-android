@@ -44,6 +44,7 @@ import com.wire.android.ui.home.conversationslist.model.ConversationItemType
 import com.wire.android.ui.home.conversationslist.model.ConversationSection
 import com.wire.android.ui.home.conversationslist.model.ConversationsSource
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.android.util.ui.UiTextResolver
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationFilter
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
@@ -108,6 +109,7 @@ class ConversationListViewModelImpl @AssistedInject constructor(
     @CurrentAccount val currentAccount: UserId,
     private val userTypeMapper: UserTypeMapper,
     private val getSelfUser: GetSelfUserUseCase,
+    private val uiTextResolver: UiTextResolver,
 ) : ConversationListViewModel, ViewModel() {
 
     @AssistedFactory
@@ -225,6 +227,7 @@ class ConversationListViewModelImpl @AssistedInject constructor(
                         conversations.map { conversationDetails ->
                             conversationDetails.toConversationItem(
                                 userTypeMapper = userTypeMapper,
+                                uiTextResolver = uiTextResolver,
                                 searchQuery = searchQuery,
                                 selfUserTeamId = getSelfUser()?.teamId,
                                 playingAudioMessage = playingAudioMessage

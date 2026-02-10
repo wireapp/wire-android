@@ -124,6 +124,8 @@
     <string name="content_description_close_button">Close button</string>
     <string name="content_description_menu_button">Main navigation</string>
     <string name="content_description_drop_down_icon">Drop down arrow</string>
+    <string name="content_description_expand_text_icon">Expand text input field</string>
+    <string name="content_description_collapse_text_icon">Collapse text input field</string>
     <string name="content_description_remove_devices_screen_device_item_icon">Device item</string>
     <string name="content_description_remove_devices_screen_remove_icon">Remove device</string>
     <string name="content_description_avatar_preview">Preview of profile picture</string>

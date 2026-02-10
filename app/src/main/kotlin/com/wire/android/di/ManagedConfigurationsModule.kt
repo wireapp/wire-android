@@ -63,7 +63,7 @@ class ManagedConfigurationsModule {
         @ApplicationContext context: Context,
         dispatcherProvider: DispatcherProvider,
         serverConfigProvider: ServerConfigProvider,
-        configParser: ManagedConfigParser
+        configParser: ManagedConfigParser,
         globalDataStore: GlobalDataStore
     ): ManagedConfigurationsManager {
         return ManagedConfigurationsManagerImpl(

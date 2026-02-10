@@ -88,7 +88,7 @@ abstract class RenameApkTask : DefaultTask() {
                 ""
             }
 
-            return "${applicationId}-v${versionName}-${buildType}${outputTypeSuffix}.apk"
+            return "$applicationId-v$versionName-$buildType$outputTypeSuffix.apk"
         }
     }
 }

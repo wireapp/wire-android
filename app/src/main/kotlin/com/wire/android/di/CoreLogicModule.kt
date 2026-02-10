@@ -21,6 +21,7 @@ package com.wire.android.di
 import android.content.Context
 import androidx.work.WorkManager
 import com.wire.android.datastore.UserDataStoreProvider
+import com.wire.android.emm.ManagedConfigurationsManager
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.UserAgentProvider
 import com.wire.android.util.isWebsocketEnabledByDefault
@@ -152,8 +153,13 @@ class CoreLogicModule {
 
     @DefaultWebSocketEnabledByDefault
     @Provides
-    fun provideDefaultWebSocketEnabledByDefault(@ApplicationContext context: Context): Boolean =
-        isWebsocketEnabledByDefault(context)
+    fun provideDefaultWebSocketEnabledByDefault(
+        @ApplicationContext context: Context,
+        managedConfigurationsManager: ManagedConfigurationsManager
+    ): Boolean = isWebsocketEnabledByDefault(
+        context,
+        managedConfigurationsManager.persistentWebSocketEnforcedByMDM.value
+    )
 }
 
 @Module

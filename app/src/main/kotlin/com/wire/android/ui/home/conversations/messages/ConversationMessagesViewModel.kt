@@ -39,7 +39,7 @@ import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
-import com.wire.android.ui.navArgs
+import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.startFileShareIntent

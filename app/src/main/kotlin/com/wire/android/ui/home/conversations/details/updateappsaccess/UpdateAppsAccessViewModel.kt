@@ -24,7 +24,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
-import com.wire.android.ui.navArgs
+import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.debug.FeatureVisibilityFlags
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.conversation.Conversation

@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.authentication.create.details
 
+import com.wire.android.navigation.annotation.app.WireCreateTeamAccountDestination
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -47,12 +48,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
-import com.wire.android.ui.authentication.create.common.CreatePersonalAccountNavGraph
-import com.wire.android.ui.authentication.create.common.CreateTeamAccountNavGraph
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
@@ -64,7 +62,7 @@ import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.wire.android.ui.destinations.CreateAccountCodeScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.CreateAccountCodeScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -72,9 +70,7 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.configuration.server.ServerConfig
 
-@CreatePersonalAccountNavGraph
-@CreateTeamAccountNavGraph
-@WireDestination(navArgsDelegate = CreateAccountNavArgs::class)
+@WireCreateTeamAccountDestination(navArgs = CreateAccountNavArgs::class)
 @Composable
 fun CreateAccountDetailsScreen(
     navigator: Navigator,

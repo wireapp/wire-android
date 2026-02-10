@@ -49,13 +49,8 @@ import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.WireActivity
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.LoginTypeSelector
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
@@ -64,8 +59,6 @@ import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.rememberBottomBarElevationState
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.visbility.rememberVisibilityState
-import com.ramcosta.composedestinations.generated.app.destinations.NewLoginScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.WelcomeScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions

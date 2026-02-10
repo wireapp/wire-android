@@ -16,6 +16,8 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 import com.android.build.api.dsl.ApplicationExtension
+import com.android.build.api.artifact.SingleArtifact
+import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import com.wire.android.gradle.configureAndroidKotlinTests
 import com.wire.android.gradle.configureCompose
 import com.wire.android.gradle.configureKotlinAndroid
@@ -69,6 +71,28 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
             }
 
             configureAndroidKotlinTests()
+        }
+
+        extensions.configure<ApplicationAndroidComponentsExtension> {
+            onVariants(selector().all()) { variant ->
+                val taskName = "rename${variant.name.replaceFirstChar { firstChar ->
+                    if (firstChar.isLowerCase()) firstChar.titlecase() else firstChar.toString()
+                }}ApkForLegacyName"
+                val renameApkTask = project.tasks.register(taskName, RenameApkTask::class.java)
+                renameApkTask.configure {
+                    applicationId.set(variant.applicationId)
+                    buildType.set(variant.buildType)
+                }
+
+                val transformationRequest = variant.artifacts
+                    .use(renameApkTask)
+                    .wiredWithDirectories(RenameApkTask::inputApkFolder, RenameApkTask::outputApkFolder)
+                    .toTransformMany(SingleArtifact.APK)
+
+                renameApkTask.configure {
+                    this.transformationRequest.set(transformationRequest)
+                }
+            }
         }
     }
 }

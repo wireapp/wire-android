@@ -47,7 +47,7 @@ internal fun NavController.navigateToItem(command: NavigationCommand) {
 
     fun lastDestinationFromOtherGraph(graph: NavGraphSpec) = currentBackStack.value.lastOrNull { it.navGraph() != graph }
 
-    appLogger.d("[$TAG] -> command: ${command.destination.route} backStackMode:${command.backStackMode}")
+    appLogger.d("[$TAG] -> command: ${command.destination.route.getBaseRoute()} backStackMode:${command.backStackMode}")
     toDestinationsNavigator().navigate(command.destination) {
         when (command.backStackMode) {
             BackStackMode.CLEAR_WHOLE, BackStackMode.CLEAR_TILL_START -> {
@@ -100,7 +100,7 @@ private fun DestinationsNavOptionsBuilder.popUpTo(
     getNavBackStackEntry: () -> NavBackStackEntry?,
 ) {
     getNavBackStackEntry()?.let { entry ->
-        appLogger.d("[$TAG] -> popUpTo:${entry.destination.route} inclusive:${getInclusive(entry)}")
+        appLogger.d("[$TAG] -> popUpTo:${entry.destination.route?.getBaseRoute()} inclusive:${getInclusive(entry)}")
         popUpTo(entry.route()) {
             this.inclusive = getInclusive(entry)
         }

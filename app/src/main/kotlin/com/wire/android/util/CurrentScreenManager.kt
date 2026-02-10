@@ -197,13 +197,13 @@ sealed class CurrentScreen {
 
     // Some Conversation is opened
     data class Conversation(val id: ConversationId) : CurrentScreen() {
-        override fun toString(): String = "Conversation(${id.toString().obfuscateId()})"
+        override fun toString(): String = "Conversation(${id.value.obfuscateId()})"
         override fun toScreenName() = "ConversationScreen"
     }
 
     // Another User Profile Screen is opened
     data class OtherUserProfile(val userId: UserId, val groupConversationId: ConversationId?) : CurrentScreen() {
-        override fun toString(): String = "OtherUserProfile(${userId.toLogString()}, ${groupConversationId?.toLogString()})"
+        override fun toString(): String = "OtherUserProfile(${userId.value.obfuscateId()}, ${groupConversationId?.value?.obfuscateId()})"
         override fun toScreenName() = "OtherUserProfileScreen"
     }
 

@@ -107,7 +107,6 @@
     <string name="content_description_conversation_mention_someone">Valaki megemlítése</string>
     <string name="content_description_conversation_back_btn">Vissza a beszélgetések listájához</string>
     <string name="content_description_conversation_open_details_label">beszélgetés részleteinek megnyitása</string>
-    <string name="content_description_new_conversation">Személyek keresése vagy új beszélgetés létrehozása</string>
     <string name="content_description_back_button">Vissza gomb</string>
     <string name="content_description_send_button">Küldés</string>
     <string name="content_description_timed_message_button">Önmegsemmisítő üzenetek gomb</string>

@@ -68,6 +68,7 @@ import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.navigation.MainNavHost
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.baseRoute
 import com.wire.android.navigation.getBaseRoute
 import com.wire.android.navigation.rememberNavigator
 import com.wire.android.navigation.startDestination
@@ -267,7 +268,7 @@ class WireActivity : AppCompatActivity() {
                         finish = this@WireActivity::finish,
                         isAllowedToNavigate = { navigationCommand ->
                             when {
-                                navigationCommand.destination.route.getBaseRoute() == NewLoginScreenDestination.route.getBaseRoute() -> {
+                                navigationCommand.destination.baseRoute == NewLoginScreenDestination.baseRoute -> {
                                     /**
                                      * This is a case when the app tries to open the "enterprise login" screen so first it needs to verify
                                      * whether it's possible to have another session, if not then do not navigate and show proper dialog.
@@ -759,7 +760,7 @@ class WireActivity : AppCompatActivity() {
     private fun handleLogManagementShake(navigator: Navigator) {
         runOnUiThread {
             val currentRoute = navigator.navController.currentDestination?.route?.getBaseRoute()
-            val targetRoute = LogManagementScreenDestination.route.getBaseRoute()
+            val targetRoute = LogManagementScreenDestination.baseRoute
             if (currentRoute == targetRoute) return@runOnUiThread
             navigator.navigate(NavigationCommand(LogManagementScreenDestination, BackStackMode.UPDATE_EXISTED))
         }
@@ -782,16 +783,16 @@ class WireActivity : AppCompatActivity() {
 }
 
 internal fun Navigator.shouldReplaceWelcomeLoginStartDestination(): Boolean {
-    val firstDestinationBaseRoute = navController.startDestination()?.route()?.route?.getBaseRoute()
+    val firstDestinationBaseRoute = navController.startDestination()?.route()?.baseRoute
     val welcomeScreens = listOf(WelcomeScreenDestination, NewWelcomeEmptyStartScreenDestination)
     val loginScreens = listOf(LoginScreenDestination, NewLoginScreenDestination)
-    val welcomeAndLoginBaseRoutes = (welcomeScreens + loginScreens).map { it.route.getBaseRoute() }
+    val welcomeAndLoginBaseRoutes = (welcomeScreens + loginScreens).map { it.baseRoute }
     return welcomeAndLoginBaseRoutes.contains(firstDestinationBaseRoute)
 }
 
 internal fun Navigator.isEmptyWelcomeStartDestination(): Boolean {
-    val firstDestinationBaseRoute = navController.startDestination()?.route()?.route?.getBaseRoute()
-    return firstDestinationBaseRoute == NewWelcomeEmptyStartScreenDestination.route.getBaseRoute()
+    val firstDestinationBaseRoute = navController.startDestination()?.route()?.baseRoute
+    return firstDestinationBaseRoute == NewWelcomeEmptyStartScreenDestination.baseRoute
 }
 
 val LocalActivity = staticCompositionLocalOf<AppCompatActivity> {

@@ -29,7 +29,6 @@ import androidx.navigation.NavDestination
 import com.ramcosta.composedestinations.spec.DestinationSpec
 import com.wire.android.appLogger
 import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
-import com.wire.android.navigation.getBaseRoute
 import com.wire.android.navigation.toDestination
 import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.CreateAccountDataDetailScreenDestination
@@ -158,8 +157,8 @@ class CurrentScreenManager @Inject constructor(
             is CurrentScreen.ImportMedia,
             is CurrentScreen.DeviceManager -> return@let currentScreen.toScreenName()
 
-            is CurrentScreen.AuthRelated -> return@let currentScreen.route?.getBaseRoute() ?: currentScreen.toString()
-            else -> return@let (currentScreen as? CurrentScreen.SomeOther)?.route?.getBaseRoute() ?: currentScreen.toString()
+            is CurrentScreen.AuthRelated -> return@let currentScreen.route ?: currentScreen.toString()
+            else -> return@let (currentScreen as? CurrentScreen.SomeOther)?.route ?: currentScreen.toString()
         }
     }
 
@@ -197,13 +196,13 @@ sealed class CurrentScreen {
 
     // Some Conversation is opened
     data class Conversation(val id: ConversationId) : CurrentScreen() {
-        override fun toString(): String = "Conversation(${id.toString().obfuscateId()})"
+        override fun toString(): String = "Conversation(${id.value.obfuscateId()})"
         override fun toScreenName() = "ConversationScreen"
     }
 
     // Another User Profile Screen is opened
     data class OtherUserProfile(val userId: UserId, val groupConversationId: ConversationId?) : CurrentScreen() {
-        override fun toString(): String = "OtherUserProfile(${userId.toLogString()}, ${groupConversationId?.toLogString()})"
+        override fun toString(): String = "OtherUserProfile(${userId.value.obfuscateId()}, ${groupConversationId?.value?.obfuscateId()})"
         override fun toScreenName() = "OtherUserProfileScreen"
     }
 
@@ -267,9 +266,9 @@ sealed class CurrentScreen {
                 is CreateAccountVerificationCodeScreenDestination,
                 is CreateAccountDataDetailScreenDestination,
                 is CreateAccountSelectorScreenDestination,
-                is RemoveDeviceScreenDestination -> AuthRelated(destination.route.getBaseRoute())
+                is RemoveDeviceScreenDestination -> AuthRelated(destination.baseRoute)
 
-                else -> SomeOther(destination?.route?.getBaseRoute())
+                else -> SomeOther(destination?.baseRoute)
             }
         }
     }

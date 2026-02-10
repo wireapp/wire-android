@@ -28,6 +28,7 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavOptionsBuilder
 import com.ramcosta.composedestinations.spec.DestinationSpec
 import com.ramcosta.composedestinations.spec.Direction
 import com.ramcosta.composedestinations.spec.NavGraphSpec
+import com.ramcosta.composedestinations.spec.Route
 import com.ramcosta.composedestinations.utils.findDestination
 import com.ramcosta.composedestinations.utils.navGraph
 import com.ramcosta.composedestinations.utils.route
@@ -47,7 +48,7 @@ internal fun NavController.navigateToItem(command: NavigationCommand) {
 
     fun lastDestinationFromOtherGraph(graph: NavGraphSpec) = currentBackStack.value.lastOrNull { it.navGraph() != graph }
 
-    appLogger.d("[$TAG] -> command: ${command.destination.route} backStackMode:${command.backStackMode}")
+    appLogger.d("[$TAG] -> command: ${command.destination.baseRoute} backStackMode:${command.backStackMode}")
     toDestinationsNavigator().navigate(command.destination) {
         when (command.backStackMode) {
             BackStackMode.CLEAR_WHOLE, BackStackMode.CLEAR_TILL_START -> {
@@ -100,7 +101,7 @@ private fun DestinationsNavOptionsBuilder.popUpTo(
     getNavBackStackEntry: () -> NavBackStackEntry?,
 ) {
     getNavBackStackEntry()?.let { entry ->
-        appLogger.d("[$TAG] -> popUpTo:${entry.destination.route} inclusive:${getInclusive(entry)}")
+        appLogger.d("[$TAG] -> popUpTo:${entry.destination.route?.getBaseRoute()} inclusive:${getInclusive(entry)}")
         popUpTo(entry.route()) {
             this.inclusive = getInclusive(entry)
         }
@@ -115,6 +116,14 @@ fun String.getBaseRoute(): String {
     val end = indexOfFirst { c -> (c == '/' && ++slashCount == 2) || c == '?' }
     return if (end >= 0) substring(0, end) else this
 }
+
+/**
+ * Returns the base route of a [Direction] without argument values.
+ * Uses the pre-computed [Route.baseRoute] when available (zero-cost),
+ * falling back to [String.getBaseRoute] for plain [Direction] instances.
+ */
+val Direction.baseRoute: String
+    get() = (this as? Route)?.baseRoute ?: route.getBaseRoute()
 
 fun Direction.handleNavigation(context: Context, handleOtherDirection: (Direction) -> Unit) = when (this) {
     is ExternalUriDirection -> CustomTabsHelper.launchUri(context, this.uri)

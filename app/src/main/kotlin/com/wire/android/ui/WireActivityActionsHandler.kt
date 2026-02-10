@@ -27,7 +27,6 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.getBaseRoute
 import com.wire.android.ui.authentication.login.PreFilledUserIdentifierType
 import com.wire.android.ui.common.HandleActions
 import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
@@ -89,9 +88,9 @@ private fun openImportMediaScreen(navigator: Navigator) {
 private fun openSsoLogin(navigator: Navigator, action: OnSSOLogin) {
     navigator.navigate(
         NavigationCommand(
-            when (navigator.navController.currentBackStackEntry?.destination()?.route?.getBaseRoute()) {
+            when (navigator.navController.currentBackStackEntry?.destination()?.baseRoute) {
                 // if SSO login started from new login screen then go back to the new login flow
-                NewLoginScreenDestination.route.getBaseRoute() -> NewLoginScreenDestination(
+                NewLoginScreenDestination.baseRoute -> NewLoginScreenDestination(
                     ssoLoginResult = action.result
                 )
 

@@ -316,8 +316,11 @@ class WireApplication : BaseApp() {
         // 2. Initialize our internal logging framework
         AppLogger.init(config)
         CoreLogger.init(config)
-        // 3. Initialize our internal FILE logging framework
-        logFileWriter.get().start()
+        // 3. Initialize file logging only when logging is enabled.
+        // Starting logcat capture unconditionally can keep CPU/disk activity high.
+        if (isLoggingEnabled) {
+            logFileWriter.get().start()
+        }
         // 4. Everything ready, now we can log device info
         appLogger.i("Logger enabled")
         logDeviceInformation()

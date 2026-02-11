@@ -113,14 +113,12 @@ on:
 
 jobs:
   validate-and-resolve-inputs:
-    name: Validate + resolve selectors (no execution)
+    name: Validate + resolve selector (no execution)
     runs-on: ubuntu-latest
 
     outputs:
       resolvedTestCaseId: ${{ steps.resolve.outputs.testCaseId }}
       resolvedCategory: ${{ steps.resolve.outputs.category }}
-      resolvedTagKey: ${{ steps.resolve.outputs.tagKey }}
-      resolvedTagValue: ${{ steps.resolve.outputs.tagValue }}
 
     steps:
       - name: Validate upgrade inputs
@@ -138,17 +136,12 @@ jobs:
         run: |
           set -euo pipefail
 
-          # We only use TAGS in this UI (no extra selector inputs)
           TESTCASE_ID=""
           CATEGORY=""
-          TAG_KEY=""
-          TAG_VALUE=""
-
           TAGS_RAW="${{ inputs.TAGS }}"
 
           trim() { echo "$1" | xargs; }
 
-          # If TAGS is provided, derive selector
           if [[ -n "$(trim "${TAGS_RAW}")" ]]; then
             # TAGS can be comma-separated; use first non-empty token
             sel=""
@@ -161,71 +154,31 @@ jobs:
               fi
             done
 
-            # Strip leading @ if present
+            # Allow user to type with or without '@'
             sel="${sel#@}"
             sel="$(trim "$sel")"
 
-            # @TC-8143 -> testCaseId
+            # We dropped Tag(key,value). If someone types key:value, fail fast to avoid confusion.
+            if [[ "$sel" == *:* ]]; then
+              echo "ERROR: TAGS must be '@TC-####' or '@category'. (Tag key:value is not supported.)"
+              exit 1
+            fi
+
+            # TC-8143 -> testCaseId
             if [[ "$sel" =~ ^TC-[0-9]+$ ]]; then
               TESTCASE_ID="$sel"
-
-            # @key:value -> tagKey/tagValue (kept for future parity)
-            elif [[ "$sel" == *:* ]]; then
-              k="$(trim "${sel%%:*}")"
-              v="$(trim "${sel#*:}")"
-              if [[ -z "$k" || -z "$v" ]]; then
-                echo "ERROR: Invalid TAGS format '${TAGS_RAW}'. Expected '@key:value' e.g. @criticalFlow:groupCallChat"
-                exit 1
-              fi
-              TAG_KEY="$k"
-              TAG_VALUE="$v"
-
-            # @regression -> category
             else
+              # regression -> category
               CATEGORY="$sel"
             fi
           fi
 
-          # Safety: prevent partial key/value
-          if [[ -n "$TAG_KEY" && -z "$TAG_VALUE" ]]; then
-            echo "ERROR: tagKey provided but tagValue is empty."
-            exit 1
-          fi
-          if [[ -z "$TAG_KEY" && -n "$TAG_VALUE" ]]; then
-            echo "ERROR: tagValue provided but tagKey is empty."
-            exit 1
-          fi
-
           echo "testCaseId=$TESTCASE_ID" >> "$GITHUB_OUTPUT"
           echo "category=$CATEGORY" >> "$GITHUB_OUTPUT"
-          echo "tagKey=$TAG_KEY" >> "$GITHUB_OUTPUT"
-          echo "tagValue=$TAG_VALUE" >> "$GITHUB_OUTPUT"
 
-      - name: Print final resolved inputs (for reviewers)
-        shell: bash
-        run: |
-          set -euo pipefail
-          echo "=== RAW INPUTS ==="
-          echo "appBuildNumber=${{ inputs.appBuildNumber }}"
-          echo "isUpgrade=${{ inputs.isUpgrade }}"
-          echo "oldBuildNumber=${{ inputs.oldBuildNumber }}"
-          echo "enforceAppInstall=${{ inputs.enforceAppInstall }}"
-          echo "flavor=${{ inputs.flavor }}"
-          echo "buildType=${{ inputs.buildType }}"
-          echo "TAGS=${{ inputs.TAGS }}"
-          echo "branch=${{ inputs.branch }}"
-          echo "backendType=${{ inputs.backendType }}"
-          echo "testinyRunName=${{ inputs.testinyRunName }}"
-          echo "androidDeviceId=${{ inputs.androidDeviceId }}"
-          echo "callingServiceEnv=${{ inputs.callingServiceEnv }}"
-          echo "callingServiceUrl=${{ inputs.callingServiceUrl }}"
-          echo "deflakeCount=${{ inputs.deflakeCount }}"
-          echo ""
-          echo "=== RESOLVED SELECTORS ==="
-          echo "testCaseId=${{ steps.resolve.outputs.testCaseId }}"
-          echo "category=${{ steps.resolve.outputs.category }}"
-          echo "tagKey=${{ steps.resolve.outputs.tagKey }}"
-          echo "tagValue=${{ steps.resolve.outputs.tagValue }}"
+          echo "Resolved selector:"
+          echo "  testCaseId=$TESTCASE_ID"
+          echo "  category=$CATEGORY"
 
   run-android-ui-tests-placeholder:
     name: Runner smoke check + checkout (no test execution yet)
@@ -251,45 +204,24 @@ jobs:
           set -euo pipefail
           echo "Checked out ref input: ${{ inputs.branch }}"
           echo "Git HEAD commit: $(git rev-parse HEAD)"
-          echo "Git branch (may be 'HEAD' if detached): $(git rev-parse --abbrev-ref HEAD)"
 
-      - name: Ensure ADB is available (no sudo)
+      - name: Verify ADB is available
         shell: bash
         run: |
           set -euo pipefail
-
-          if command -v adb >/dev/null 2>&1; then
-            echo "adb already available: $(command -v adb)"
-            adb version
-            exit 0
+          if ! command -v adb >/dev/null 2>&1; then
+            echo "ERROR: adb is not available on this runner. Install Android platform-tools on the self-hosted runner."
+            exit 1
           fi
-
-          echo "adb not found. Installing Android platform-tools locally..."
-          cd "$HOME"
-
-          rm -rf platform-tools platform-tools.zip
-          curl -fsSL -o platform-tools.zip \
-            https://dl.google.com/android/repository/platform-tools-latest-linux.zip
-
-          unzip -oq platform-tools.zip
-          rm -f platform-tools.zip
-
-          # Make adb available for subsequent steps
-          echo "$HOME/platform-tools" >> "$GITHUB_PATH"
-
-          # Sanity check
-          "$HOME/platform-tools/adb" version
+          adb version
 
       - name: Show connected devices (ADB)
         shell: bash
         run: |
           set -euo pipefail
-          adb version
-          echo ""
           echo "adb devices -l"
           adb devices -l
 
-          # Fail fast if no devices are connected/online
           online_count="$(adb devices | awk 'NR>1 && $2=="device"{c++} END{print c+0}')"
           if [[ "$online_count" -eq 0 ]]; then
             echo "ERROR: No online Android devices found on this runner."
@@ -318,33 +250,35 @@ jobs:
         run: |
           set -euo pipefail
 
-          echo "=== PLACEHOLDER JOB (NO EXECUTION) ==="
+          RESOLVED_TC="${{ needs.validate-and-resolve-inputs.outputs.resolvedTestCaseId }}"
+          RESOLVED_CAT="${{ needs.validate-and-resolve-inputs.outputs.resolvedCategory }}"
+
+          echo "=== PREVIEW ONLY (NO TEST EXECUTION) ==="
           echo ""
-          echo "=== RAW INPUTS ==="
-          echo "appBuildNumber=${{ inputs.appBuildNumber }}"
-          echo "isUpgrade=${{ inputs.isUpgrade }}"
-          echo "oldBuildNumber=${{ inputs.oldBuildNumber }}"
-          echo "enforceAppInstall=${{ inputs.enforceAppInstall }}"
-          echo "flavor=${{ inputs.flavor }}"
-          echo "buildType=${{ inputs.buildType }}"
-          echo "TAGS=${{ inputs.TAGS }}"
-          echo "branch=${{ inputs.branch }}"
-          echo "backendType=${{ inputs.backendType }}"
-          echo "testinyRunName=${{ inputs.testinyRunName }}"
-          echo "androidDeviceId=${{ inputs.androidDeviceId }}"
-          echo "callingServiceEnv=${{ inputs.callingServiceEnv }}"
-          echo "callingServiceUrl=${{ inputs.callingServiceUrl }}"
-          echo "deflakeCount=${{ inputs.deflakeCount }}"
+          echo "Inputs:"
+          echo "  appBuildNumber=${{ inputs.appBuildNumber }}"
+          echo "  isUpgrade=${{ inputs.isUpgrade }}"
+          echo "  oldBuildNumber=${{ inputs.oldBuildNumber }}"
+          echo "  enforceAppInstall=${{ inputs.enforceAppInstall }}"
+          echo "  flavor=${{ inputs.flavor }}"
+          echo "  buildType=${{ inputs.buildType }}"
+          echo "  TAGS=${{ inputs.TAGS }}"
+          echo "  branch=${{ inputs.branch }}"
+          echo "  backendType=${{ inputs.backendType }}"
+          echo "  testinyRunName=${{ inputs.testinyRunName }}"
+          echo "  androidDeviceId=${{ inputs.androidDeviceId }}"
+          echo "  callingServiceEnv=${{ inputs.callingServiceEnv }}"
+          echo "  callingServiceUrl=${{ inputs.callingServiceUrl }}"
+          echo "  deflakeCount=${{ inputs.deflakeCount }}"
           echo ""
-          echo "=== RESOLVED SELECTORS ==="
-          echo "testCaseId=${{ needs.validate-and-resolve-inputs.outputs.resolvedTestCaseId }}"
-          echo "category=${{ needs.validate-and-resolve-inputs.outputs.resolvedCategory }}"
-          echo "tagKey=${{ needs.validate-and-resolve-inputs.outputs.resolvedTagKey }}"
-          echo "tagValue=${{ needs.validate-and-resolve-inputs.outputs.resolvedTagValue }}"
+          echo "Resolved selector:"
+          echo "  testCaseId=${RESOLVED_TC}"
+          echo "  category=${RESOLVED_CAT}"
           echo ""
-          echo "=== FUTURE GRADLE COMMAND (PREVIEW ONLY) ==="
-          echo "./gradlew :tests:testsCore:connectedDebugAndroidTest \\"
-          echo "  -Pandroid.testInstrumentationRunnerArguments.testCaseId=${{ needs.validate-and-resolve-inputs.outputs.resolvedTestCaseId }} \\"
-          echo "  -Pandroid.testInstrumentationRunnerArguments.category=${{ needs.validate-and-resolve-inputs.outputs.resolvedCategory }} \\"
-          echo "  -Pandroid.testInstrumentationRunnerArguments.tagKey=${{ needs.validate-and-resolve-inputs.outputs.resolvedTagKey }} \\"
-          echo "  -Pandroid.testInstrumentationRunnerArguments.tagValue=${{ needs.validate-and-resolve-inputs.outputs.resolvedTagValue }}"
+
+          ARGS=()
+          [[ -n "${RESOLVED_TC}" ]] && ARGS+=("-Pandroid.testInstrumentationRunnerArguments.testCaseId=${RESOLVED_TC}")
+          [[ -n "${RESOLVED_CAT}" ]] && ARGS+=("-Pandroid.testInstrumentationRunnerArguments.category=${RESOLVED_CAT}")
+
+          echo "Future Gradle command (preview):"
+          echo "./gradlew :tests:testsCore:connectedDebugAndroidTest ${ARGS[*]}"

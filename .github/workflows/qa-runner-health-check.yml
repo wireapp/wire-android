@@ -1,0 +1,87 @@
+# Manual health check for QA Android runner and connected devices
+name: QA Runner Health Check
+
+on:
+  workflow_dispatch:
+
+jobs:
+  health-check:
+    name: Health check (qa-runner-01)
+    runs-on:
+      - self-hosted
+      - Linux
+      - X64
+      - office
+      - android-qa
+
+    timeout-minutes: 4
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java 17
+        uses: buildjet/setup-java@v4
+        with:
+          java-version: "17"
+          distribution: "temurin"
+
+      - name: Ensure ADB is available (no sudo)
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if command -v adb >/dev/null 2>&1; then
+            echo "adb already available: $(command -v adb)"
+            adb version
+            exit 0
+          fi
+
+          echo "adb not found. Installing Android platform-tools locally..."
+          cd "$HOME"
+
+          rm -rf platform-tools platform-tools.zip
+          curl -fsSL -o platform-tools.zip \
+            https://dl.google.com/android/repository/platform-tools-latest-linux.zip
+
+          unzip -oq platform-tools.zip
+          rm -f platform-tools.zip
+
+          # Make adb available for subsequent steps
+          echo "$HOME/platform-tools" >> "$GITHUB_PATH"
+
+          # Sanity check
+          "$HOME/platform-tools/adb" version
+
+      - name: Check connected Android devices (must be authorized)
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          adb version
+          adb start-server
+          adb devices -l
+
+          AUTHORIZED_COUNT=$(adb devices | awk 'NR>1 && $2=="device"{print $1}' | wc -l | tr -d ' ')
+          UNAUTHORIZED_COUNT=$(adb devices | awk 'NR>1 && $2=="unauthorized"{print $1}' | wc -l | tr -d ' ')
+          OFFLINE_COUNT=$(adb devices | awk 'NR>1 && $2=="offline"{print $1}' | wc -l | tr -d ' ')
+
+          echo "Authorized devices:   $AUTHORIZED_COUNT"
+          echo "Unauthorized devices: $UNAUTHORIZED_COUNT"
+          echo "Offline devices:      $OFFLINE_COUNT"
+
+          if [ "$AUTHORIZED_COUNT" -eq 0 ]; then
+            echo "ERROR: No authorized Android devices detected."
+            echo "If devices are connected but show as 'unauthorized':"
+            echo " - unlock the phone"
+            echo " - accept the 'Allow USB debugging' prompt"
+            echo " - optionally toggle USB debugging off/on"
+            exit 1
+          fi
+
+      - name: Runner identity (for audit)
+        shell: bash
+        run: |
+          echo "Runner hostname: $(hostname)"
+          echo "User: $(whoami)"
+          uname -a

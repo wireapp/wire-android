@@ -38,7 +38,7 @@ fun ConversationSharedDriveButton(
 ) {
     WireSecondaryButton(
         modifier = modifier,
-        text = stringResource(R.string.label_conversation_files),
+        text = stringResource(R.string.conversation_options_shared_drive_label),
         onClick = onClick,
         minSize = MaterialTheme.wireDimensions.buttonMinSize,
         fillMaxWidth = true,

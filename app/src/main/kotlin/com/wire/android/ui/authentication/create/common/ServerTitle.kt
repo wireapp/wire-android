@@ -91,7 +91,7 @@ fun ServerTitle(
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_info),
-                contentDescription = null,
+                contentDescription = stringResource(R.string.more_information_about_this_server),
                 modifier = Modifier
                     .size(iconSizeDp)
                     .clickable(Clickable(true, onClick = { serverFullDetailsDialogState = true })),

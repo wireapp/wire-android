@@ -17,15 +17,18 @@
  */
 package com.wire.android.feature
 
+import com.wire.android.emm.ManagedConfigurationsManager
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.auth.PersistentWebSocketStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceTimeBy
@@ -126,17 +129,70 @@ class ShouldStartPersistentWebSocketServiceUseCaseTest {
             assertInstanceOf(ShouldStartPersistentWebSocketServiceUseCase.Result.Failure::class.java, result)
         }
 
+    @Test
+    fun givenMDMEnforcesPersistentWebSocket_whenInvoking_shouldReturnSuccessTrue() =
+        runTest {
+            // given
+            val (_, useCase) = Arrangement()
+                .withMDMEnforcedPersistentWebSocket(true)
+                .arrange()
+            // when
+            val result = useCase.invoke()
+            // then
+            assertInstanceOf(ShouldStartPersistentWebSocketServiceUseCase.Result.Success::class.java, result).also {
+                assertEquals(true, it.shouldStartPersistentWebSocketService)
+            }
+        }
+
+    @Test
+    fun givenMDMEnforcesPersistentWebSocket_whenInvoking_shouldNotCheckUserPreferences() =
+        runTest {
+            // given - MDM enforces, but user has it disabled
+            val (_, useCase) = Arrangement()
+                .withMDMEnforcedPersistentWebSocket(true)
+                .withObservePersistentWebSocketConnectionStatusSuccess(flowOf(listOf(PersistentWebSocketStatus(userId, false))))
+                .arrange()
+            // when
+            val result = useCase.invoke()
+            // then - should still return true because MDM takes priority
+            assertInstanceOf(ShouldStartPersistentWebSocketServiceUseCase.Result.Success::class.java, result).also {
+                assertEquals(true, it.shouldStartPersistentWebSocketService)
+            }
+        }
+
+    @Test
+    fun givenMDMDoesNotEnforcePersistentWebSocket_whenInvoking_shouldCheckUserPreferences() =
+        runTest {
+            // given - MDM does not enforce, user has it disabled
+            val (_, useCase) = Arrangement()
+                .withMDMEnforcedPersistentWebSocket(false)
+                .withObservePersistentWebSocketConnectionStatusSuccess(flowOf(listOf(PersistentWebSocketStatus(userId, false))))
+                .arrange()
+            // when
+            val result = useCase.invoke()
+            // then - should return false because user has it disabled
+            assertInstanceOf(ShouldStartPersistentWebSocketServiceUseCase.Result.Success::class.java, result).also {
+                assertEquals(false, it.shouldStartPersistentWebSocketService)
+            }
+        }
+
     inner class Arrangement {
 
         @MockK
         private lateinit var coreLogic: CoreLogic
 
+        @MockK
+        private lateinit var managedConfigurationsManager: ManagedConfigurationsManager
+
+        private val persistentWebSocketEnforcedByMDMFlow = MutableStateFlow(false)
+
         val useCase by lazy {
-            ShouldStartPersistentWebSocketServiceUseCase(coreLogic)
+            ShouldStartPersistentWebSocketServiceUseCase(coreLogic, managedConfigurationsManager)
         }
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
+            every { managedConfigurationsManager.persistentWebSocketEnforcedByMDM } returns persistentWebSocketEnforcedByMDMFlow
         }
 
         fun arrange() = this to useCase
@@ -148,6 +204,9 @@ class ShouldStartPersistentWebSocketServiceUseCaseTest {
         fun withObservePersistentWebSocketConnectionStatusFailure() = apply {
             coEvery { coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus() } returns
                     ObservePersistentWebSocketConnectionStatusUseCase.Result.Failure.StorageFailure
+        }
+        fun withMDMEnforcedPersistentWebSocket(enforced: Boolean) = apply {
+            persistentWebSocketEnforcedByMDMFlow.value = enforced
         }
     }
 

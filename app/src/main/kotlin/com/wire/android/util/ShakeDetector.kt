@@ -31,19 +31,30 @@ import kotlin.math.sqrt
 class ShakeDetector(
     context: Context,
     private val shakeThresholdGravity: Float = DEFAULT_SHAKE_THRESHOLD_GRAVITY,
-    private val debounceMs: Long = DEFAULT_DEBOUNCE_MS
+    private val debounceMs: Long = DEFAULT_DEBOUNCE_MS,
+    private val startupIgnoreMs: Long = DEFAULT_STARTUP_IGNORE_MS,
+    private val shakeSlopMs: Long = DEFAULT_SHAKE_SLOP_MS,
+    private val shakeCountResetMs: Long = DEFAULT_SHAKE_COUNT_RESET_MS,
+    private val requiredShakes: Int = DEFAULT_REQUIRED_SHAKES
 ) : SensorEventListener {
 
     private val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
     private val accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
 
+    private var startTimestamp = 0L
     private var lastShakeTimestamp = 0L
+    private var lastEmitTimestamp = 0L
+    private var shakeCount = 0
     private val shakeEvents = MutableSharedFlow<Unit>(replay = 0, extraBufferCapacity = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
 
     fun observeShakes(): Flow<Unit> = shakeEvents
 
     fun start() {
         if (accelerometer != null) {
+            startTimestamp = SystemClock.elapsedRealtime()
+            lastShakeTimestamp = 0L
+            lastEmitTimestamp = 0L
+            shakeCount = 0
             sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI)
         }
     }
@@ -61,8 +72,19 @@ class ShakeDetector(
             val gForce = sqrt(x * x + y * y + z * z)
             if (gForce >= shakeThresholdGravity) {
                 val now = SystemClock.elapsedRealtime()
-                if (now - lastShakeTimestamp >= debounceMs) {
-                    lastShakeTimestamp = now
+                if (now - startTimestamp < startupIgnoreMs) return
+                if (now - lastShakeTimestamp < shakeSlopMs) return
+
+                if (now - lastShakeTimestamp > shakeCountResetMs) {
+                    shakeCount = 0
+                }
+
+                lastShakeTimestamp = now
+                shakeCount += 1
+
+                if (shakeCount >= requiredShakes && now - lastEmitTimestamp >= debounceMs) {
+                    lastEmitTimestamp = now
+                    shakeCount = 0
                     shakeEvents.tryEmit(Unit)
                 }
             }
@@ -72,7 +94,11 @@ class ShakeDetector(
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) = Unit
 
     companion object {
-        private const val DEFAULT_SHAKE_THRESHOLD_GRAVITY = 2.7f
+        private const val DEFAULT_SHAKE_THRESHOLD_GRAVITY = 3.0f
         private const val DEFAULT_DEBOUNCE_MS = 2000L
+        private const val DEFAULT_STARTUP_IGNORE_MS = 1500L
+        private const val DEFAULT_SHAKE_SLOP_MS = 250L
+        private const val DEFAULT_SHAKE_COUNT_RESET_MS = 1000L
+        private const val DEFAULT_REQUIRED_SHAKES = 2
     }
 }

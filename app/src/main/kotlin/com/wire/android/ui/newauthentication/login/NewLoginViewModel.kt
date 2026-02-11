@@ -29,6 +29,7 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.ClientScopeProvider
+import com.wire.android.di.DefaultWebSocketEnabledByDefault
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.ui.authentication.login.DomainClaimedByOrg
 import com.wire.android.ui.authentication.login.LoginNavArgs
@@ -91,6 +92,7 @@ class NewLoginViewModel(
         dispatchers: DispatcherProvider,
         defaultServerConfig: ServerConfig.Links,
         @Named("ssoCodeConfig") defaultSSOCodeConfig: String,
+        @DefaultWebSocketEnabledByDefault defaultWebSocketEnabledByDefault: Boolean,
     ) : this(
         validateEmailOrSSOCode,
         coreLogic,
@@ -98,7 +100,7 @@ class NewLoginViewModel(
         clientScopeProviderFactory,
         userDataStoreProvider,
         LoginViewModelExtension(clientScopeProviderFactory, userDataStoreProvider),
-        LoginSSOViewModelExtension(addAuthenticatedUser, coreLogic),
+        LoginSSOViewModelExtension(addAuthenticatedUser, coreLogic, defaultWebSocketEnabledByDefault),
         dispatchers,
         defaultServerConfig,
         defaultSSOCodeConfig

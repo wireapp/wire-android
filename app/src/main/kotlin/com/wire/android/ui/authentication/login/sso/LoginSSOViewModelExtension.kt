@@ -32,6 +32,7 @@ import com.wire.kalium.logic.feature.auth.sso.ValidateSSOCodeUseCase.Companion.S
 class LoginSSOViewModelExtension(
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
     private val coreLogic: CoreLogic,
+    private val defaultWebSocketEnabledByDefault: Boolean,
 ) {
     suspend fun withAuthenticationScope(
         serverConfig: ServerConfig.Links,
@@ -100,6 +101,7 @@ class LoginSSOViewModelExtension(
                             serverConfigId = serverConfigId,
                             proxyCredentials = ssoLoginResult.proxyCredentials,
                             managedBy = ssoLoginResult.managedBy,
+                            isPersistentWebSocketEnabled = defaultWebSocketEnabledByDefault,
                             replace = false
                         ).let { authenticatedUserResult ->
                             when (authenticatedUserResult) {

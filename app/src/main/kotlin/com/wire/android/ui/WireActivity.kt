@@ -225,6 +225,7 @@ class WireActivity : AppCompatActivity() {
                 managedConfigurationsManager.refreshServerConfig()
                 managedConfigurationsManager.refreshSSOCodeConfig()
             }
+            viewModel.applyPersistentWebSocketConfigFromMDM()
         }
     }
 

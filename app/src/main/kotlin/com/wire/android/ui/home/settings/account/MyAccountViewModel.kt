@@ -28,16 +28,18 @@ import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.ui.theme.Accent
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.kalium.logic.feature.team.GetUpdatedSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.IsE2EIEnabledUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import com.wire.kalium.logic.feature.user.IsReadOnlyAccountUseCase
 import com.wire.kalium.logic.feature.user.IsSelfATeamMemberUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
+import com.wire.kalium.logic.feature.user.ObserveSelfUserWithTeamUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -49,7 +51,7 @@ import kotlin.properties.Delegates
 @HiltViewModel
 class MyAccountViewModel @Inject constructor(
     private val getSelf: ObserveSelfUserUseCase,
-    private val getSelfTeam: GetUpdatedSelfTeamUseCase,
+    private val observeSelfUserWithTeam: ObserveSelfUserWithTeamUseCase,
     private val isSelfATeamMember: IsSelfATeamMemberUseCase,
     private val serverConfig: SelfServerConfigUseCase,
     private val isPasswordRequired: IsPasswordRequiredUseCase,
@@ -105,9 +107,7 @@ class MyAccountViewModel @Inject constructor(
         viewModelScope.launch {
             fetchSelfUser()
         }
-        viewModelScope.launch {
-            fetchSelfUserTeam()
-        }
+        fetchSelfUserTeam()
     }
 
     private suspend fun loadChangePasswordUrl() {
@@ -143,11 +143,18 @@ class MyAccountViewModel @Inject constructor(
         )
     }
 
-    private suspend fun fetchSelfUserTeam() {
-        val selfTeam = getSelfTeam()
-        myAccountState = myAccountState.copy(
-            teamName = selfTeam?.name.orEmpty(),
-        )
+    private fun fetchSelfUserTeam() {
+        viewModelScope.launch {
+            observeSelfUserWithTeam()
+                .flowOn(dispatchers.io())
+                .map { (_, team) -> team?.name.orEmpty() }
+                .distinctUntilChanged()
+                .collect { teamName ->
+                    myAccountState = myAccountState.copy(
+                        teamName = teamName,
+                    )
+                }
+        }
     }
 
     companion object {

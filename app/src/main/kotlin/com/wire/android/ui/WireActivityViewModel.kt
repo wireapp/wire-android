@@ -56,6 +56,7 @@ import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.deeplink.LoginType
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
+import com.wire.android.emm.ManagedConfigurationsManager
 import com.wire.android.workmanager.worker.cancelPeriodicPersistentWebsocketCheckWorker
 import com.wire.android.workmanager.worker.enqueuePeriodicPersistentWebsocketCheckWorker
 import com.wire.kalium.logic.CoreLogic
@@ -96,6 +97,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
@@ -132,6 +134,7 @@ class WireActivityViewModel @Inject constructor(
     private val isProfileQRCodeEnabledFactory: IsProfileQRCodeEnabledUseCaseProvider.Factory,
     private val observeSelfUserFactory: ObserveSelfUserUseCaseProvider.Factory,
     private val monitorSyncWorkUseCase: MonitorSyncWorkUseCase,
+    private val managedConfigurationsManager: ManagedConfigurationsManager,
 ) : ActionsViewModel<WireActivityViewAction>() {
 
     var globalAppState: GlobalAppState by mutableStateOf(GlobalAppState())
@@ -512,6 +515,16 @@ class WireActivityViewModel @Inject constructor(
         globalAppState = globalAppState.copy(maxAccountDialog = false)
     }
 
+    fun applyPersistentWebSocketConfigFromMDM() {
+        viewModelScope.launch(dispatchers.io()) {
+            val wasEnforced = managedConfigurationsManager.persistentWebSocketEnforcedByMDM.value
+            val isEnforced = managedConfigurationsManager.refreshPersistentWebSocketConfig()
+            if (!wasEnforced && isEnforced) {
+                coreLogic.get().getGlobalScope().setAllPersistentWebSocketEnabled(true)
+            }
+        }
+    }
+
     fun observePersistentConnectionStatus() {
         viewModelScope.launch {
             coreLogic.get().getGlobalScope().observePersistentWebSocketConnectionStatus()
@@ -522,15 +535,16 @@ class WireActivityViewModel @Inject constructor(
                         }
 
                         is ObservePersistentWebSocketConnectionStatusUseCase.Result.Success -> {
-                            result.persistentWebSocketStatusListFlow.collect { statuses ->
-
-                                if (statuses.any { it.isPersistentWebSocketEnabled }) {
-                                    if (!servicesManager.get()
-                                            .isPersistentWebSocketServiceRunning()
-                                    ) {
+                            combine(
+                                result.persistentWebSocketStatusListFlow,
+                                managedConfigurationsManager.persistentWebSocketEnforcedByMDM
+                            ) { statuses, mdmEnforced ->
+                                mdmEnforced || statuses.any { it.isPersistentWebSocketEnabled }
+                            }.collect { shouldBeRunning ->
+                                if (shouldBeRunning) {
+                                    if (!servicesManager.get().isPersistentWebSocketServiceRunning()) {
                                         servicesManager.get().startPersistentWebSocketService()
-                                        workManager.get()
-                                            .enqueuePeriodicPersistentWebsocketCheckWorker()
+                                        workManager.get().enqueuePeriodicPersistentWebsocketCheckWorker()
                                     }
                                 } else {
                                     servicesManager.get().stopPersistentWebSocketService()

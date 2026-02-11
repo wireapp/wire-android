@@ -2,6 +2,7 @@ name: Link and Lint PR with Jira Ticket Number
 on:
   pull_request:
     types: [opened, edited, synchronize]
+  merge_group:
 
 permissions:
   contents: read
@@ -11,7 +12,7 @@ jobs:
   get-version:
     runs-on: ubuntu-latest
     # Run only if the PR is not from a Fork / external contributor
-    if: ${{ github.repository_owner == 'wireapp' }}
+    if: ${{ github.event_name == 'pull_request' && github.repository_owner == 'wireapp' }}
     outputs:
       version_name: ${{ steps.version.outputs.version_name }}
     steps:
@@ -22,8 +23,9 @@ jobs:
           echo "version_name=$VERSION" >> $GITHUB_OUTPUT
 
   add-jira-description:
+    if: ${{ github.event_name == 'pull_request' }}
     needs: get-version
-    uses: wireapp/.github/.github/workflows/jira-link-pr-reusable.yml@9dc8b7e52fc073667a6b8afda5057fdb2880e86c
+    uses: wireapp/.github/.github/workflows/jira-link-pr-reusable.yml@b00595235816b9a935c7463b990fae39864903a5
     with:
       skip-branches: '^(production-release|main|master|release\/v\d+)$'
       skip-actors: 'dependabot[bot],AndroidBob'
@@ -32,3 +34,11 @@ jobs:
     secrets:
       github-token: ${{ secrets.GITHUB_TOKEN }}
       jira-token: ${{ secrets.JIRA_TOKEN }}
+
+  add-jira-description-merge:
+    if: ${{ github.event_name == 'merge_group' }}
+    name: add-jira-description
+    runs-on: ubuntu-latest
+    steps:
+      - name: Skip Jira check on merge queue
+        run: echo "Skipping Jira check on merge queue"

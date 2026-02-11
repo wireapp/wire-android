@@ -22,8 +22,16 @@ import com.wire.android.BuildConfig
 import com.wire.android.util.extension.isGoogleServicesAvailable
 
 /**
- * If [BuildConfig.WEBSOCKET_ENABLED_BY_DEFAULT] is true, the websocket should be enabled by default always.
- * Otherwise, it should be enabled by default only if Google Play Services are not available.
+ * Determines if websocket should be enabled by default.
+ *
+ * Returns true if:
+ * - MDM enforces persistent websocket, OR
+ * - [BuildConfig.WEBSOCKET_ENABLED_BY_DEFAULT] is true, OR
+ * - Google Play Services are not available
  */
-fun isWebsocketEnabledByDefault(context: Context) =
-    BuildConfig.WEBSOCKET_ENABLED_BY_DEFAULT || !context.isGoogleServicesAvailable()
+fun isWebsocketEnabledByDefault(
+    context: Context,
+    persistentWebSocketEnforcedByMDM: Boolean = false
+) = persistentWebSocketEnforcedByMDM ||
+    BuildConfig.WEBSOCKET_ENABLED_BY_DEFAULT ||
+    !context.isGoogleServicesAvailable()

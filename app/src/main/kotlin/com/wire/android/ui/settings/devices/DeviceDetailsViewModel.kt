@@ -142,6 +142,13 @@ class DeviceDetailsViewModel @Inject constructor(
     private fun getE2eiCertificate() {
         viewModelScope.launch {
             state = when (val result = mlsClientIdentity(deviceId)) {
+                is GetMLSClientIdentityResult.Failure.E2EINotAvailable -> {
+                    state.copy(
+                        isE2eiCertificateActivated = false,
+                        isLoadingCertificate = false,
+                        isE2eiCertificateDataAvailable = false
+                    )
+                }
                 is GetMLSClientIdentityResult.Failure -> {
                     state.copy(isE2eiCertificateActivated = false, isLoadingCertificate = false)
                 }

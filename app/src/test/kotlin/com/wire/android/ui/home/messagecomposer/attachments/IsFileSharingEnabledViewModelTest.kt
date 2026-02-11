@@ -21,8 +21,8 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.kalium.logic.configuration.FileSharingStatus
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
 import io.mockk.MockKAnnotations
+import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -80,7 +80,7 @@ class IsFileSharingEnabledViewModelTest {
         }
 
         fun withFileSharingStatus(result: FileSharingStatus.Value) = apply {
-            every { isFileSharingEnabledUseCase() } returns FileSharingStatus(
+            coEvery { isFileSharingEnabledUseCase() } returns FileSharingStatus(
                 result,
                 true
             )

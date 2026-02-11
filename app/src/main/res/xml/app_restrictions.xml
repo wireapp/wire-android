@@ -31,4 +31,12 @@
             android:restrictionType="string"
             android:title="@string/restriction_sso_code_title" />
 
+    <!-- Keep WebSocket Connection Configuration -->
+    <restriction
+            android:key="keep_websocket_connection"
+            android:restrictionType="bool"
+            android:defaultValue="false"
+            android:title="@string/restriction_keep_websocket_title"
+            android:description="@string/restriction_keep_websocket_description" />
+
 </restrictions>

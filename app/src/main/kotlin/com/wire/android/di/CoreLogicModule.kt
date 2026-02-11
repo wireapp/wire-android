@@ -21,8 +21,10 @@ package com.wire.android.di
 import android.content.Context
 import androidx.work.WorkManager
 import com.wire.android.datastore.UserDataStoreProvider
+import com.wire.android.emm.ManagedConfigurationsManager
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.UserAgentProvider
+import com.wire.android.util.isWebsocketEnabledByDefault
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.id.FederatedIdMapper
@@ -80,6 +82,10 @@ annotation class CurrentAccount
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
 annotation class NoSession
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class DefaultWebSocketEnabledByDefault
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -144,6 +150,16 @@ class CoreLogicModule {
     @Provides
     fun provideAudioNormalizedLoudnessBuilder(@KaliumCoreLogic coreLogic: CoreLogic): AudioNormalizedLoudnessBuilder =
         coreLogic.audioNormalizedLoudnessBuilder
+
+    @DefaultWebSocketEnabledByDefault
+    @Provides
+    fun provideDefaultWebSocketEnabledByDefault(
+        @ApplicationContext context: Context,
+        managedConfigurationsManager: ManagedConfigurationsManager
+    ): Boolean = isWebsocketEnabledByDefault(
+        context,
+        managedConfigurationsManager.persistentWebSocketEnforcedByMDM.value
+    )
 }
 
 @Module

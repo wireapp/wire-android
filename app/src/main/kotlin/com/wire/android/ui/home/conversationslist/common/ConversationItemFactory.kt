@@ -23,6 +23,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -30,6 +31,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
@@ -57,6 +59,7 @@ import com.wire.android.ui.home.conversationslist.model.toUserInfoLabel
 import com.wire.android.ui.markdown.MarkdownConstants
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.toUIText
@@ -123,7 +126,8 @@ fun ConversationItemFactory(
                 when (val messageContent = conversation.lastMessageContent) {
                     is UILastMessageContent.TextMessage -> LastMessageSubtitle(
                         messageContent.messageBody.message,
-                        messageContent.markdownPreview
+                        messageContent.markdownPreview,
+                        messageContent.markdownLocaleTag
                     )
 
                     is UILastMessageContent.MultipleMessage -> LastMultipleMessages(messageContent.messages, messageContent.separator)
@@ -131,7 +135,8 @@ fun ConversationItemFactory(
                         messageContent.sender,
                         messageContent.message,
                         messageContent.separator,
-                        messageContent.markdownPreview
+                        messageContent.markdownPreview,
+                        messageContent.markdownLocaleTag
                     )
 
                     is UILastMessageContent.Connection -> ConnectionLabel(connectionInfo = messageContent)
@@ -184,7 +189,9 @@ private fun GeneralConversationItem(
                             } else {
                                 ConversationAvatar.Group.Regular(conversationId)
                             }
-                            GroupConversationAvatar(avatar)
+                            ConversationLeadingAvatar {
+                                GroupConversationAvatar(avatar)
+                            }
                         }
                     },
                     title = {
@@ -229,6 +236,7 @@ private fun GeneralConversationItem(
             with(conversation) {
                 RowItemTemplate(
                     modifier = modifier.padding(start = dimensions().spacing8x),
+                    titleStartPadding = dimensions().spacing0x,
                     leadingIcon = {
                         Row {
                             if (isSelectable) {
@@ -236,7 +244,9 @@ private fun GeneralConversationItem(
                                     selectOnRadioGroup()
                                 })
                             }
-                            ConversationUserAvatar(userAvatarData)
+                            ConversationLeadingAvatar {
+                                ConversationUserAvatar(userAvatarData)
+                            }
                         }
                     },
                     title = {
@@ -275,7 +285,12 @@ private fun GeneralConversationItem(
             with(conversation) {
                 RowItemTemplate(
                     modifier = modifier.padding(start = dimensions().spacing8x),
-                    leadingIcon = { ConversationUserAvatar(userAvatarData) },
+                    titleStartPadding = dimensions().spacing0x,
+                    leadingIcon = {
+                        ConversationLeadingAvatar {
+                            ConversationUserAvatar(userAvatarData)
+                        }
+                    },
                     title = {
                         UserLabel(
                             userInfoLabel = toUserInfoLabel(),
@@ -290,6 +305,21 @@ private fun GeneralConversationItem(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun ConversationLeadingAvatar(
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
+) {
+    val leadingSize = MaterialTheme.wireDimensions.avatarDefaultSize +
+            (MaterialTheme.wireDimensions.avatarClickablePadding * 2)
+    Box(
+        modifier = modifier.size(leadingSize),
+        contentAlignment = Alignment.Center
+    ) {
+        content()
     }
 }
 

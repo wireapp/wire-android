@@ -72,7 +72,6 @@ fun ChannelHistoryScreen(
             navigator.navigate(NavigationCommand(ChannelHistoryCustomScreenDestination(navArgs)))
         },
         onBackPressed = navigator::navigateBack,
-        onUpgradeNowClicked = { /* TODO: Implement upgrade action */ },
         modifier = modifier,
     )
 }
@@ -84,7 +83,6 @@ fun ChannelHistoryScreenContent(
     onHistoryOptionSelected: (ChannelHistoryType) -> Unit,
     onOpenCustomChooser: () -> Unit,
     onBackPressed: () -> Unit,
-    onUpgradeNowClicked: () -> Unit,
     modifier: Modifier = Modifier,
     isFreemiumAccount: Boolean = false
 ) {
@@ -150,9 +148,7 @@ fun ChannelHistoryScreenContent(
             }
             if (isFreemiumAccount) {
                 item {
-                    ChannelHistoryFreemiumUpgradeCard(
-                        onUpgradeNowClicked = onUpgradeNowClicked,
-                    )
+                    ChannelHistoryFreemiumUpgradeCard()
                 }
             }
         }
@@ -160,14 +156,10 @@ fun ChannelHistoryScreenContent(
 }
 
 @Composable
-private fun ChannelHistoryFreemiumUpgradeCard(
-    onUpgradeNowClicked: () -> Unit,
-) {
+private fun ChannelHistoryFreemiumUpgradeCard() {
     WirePromotionCard(
         title = stringResource(id = R.string.channel_history_freemium_upgrade_title),
         description = stringResource(id = R.string.channel_history_freemium_upgrade_description),
-        buttonLabel = stringResource(id = R.string.channel_history_freemium_upgrade_now),
-        onButtonClick = onUpgradeNowClicked,
         modifier = Modifier.padding(horizontal = dimensions().spacing16x, vertical = dimensions().spacing8x),
     )
 }
@@ -180,7 +172,6 @@ fun PreviewChannelHistoryScreenPremium() = WireTheme {
         selectedHistoryOption = ChannelHistoryType.On.Specific(2, ChannelHistoryType.On.Specific.AmountType.Weeks),
         onHistoryOptionSelected = {},
         onOpenCustomChooser = {},
-        onUpgradeNowClicked = {},
         onBackPressed = {},
     )
 }
@@ -193,7 +184,6 @@ fun PreviewChannelHistoryScreenFreemium() = WireTheme {
         selectedHistoryOption = ChannelHistoryType.On.Specific(1, ChannelHistoryType.On.Specific.AmountType.Days),
         onHistoryOptionSelected = {},
         onOpenCustomChooser = {},
-        onUpgradeNowClicked = {},
         onBackPressed = {},
     )
 }

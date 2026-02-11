@@ -43,8 +43,6 @@ import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.toQualifiedID
 import com.wire.kalium.logic.data.logout.LogoutReason
-import com.wire.kalium.logic.data.team.Team
-import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
@@ -57,9 +55,10 @@ import com.wire.kalium.logic.feature.legalhold.LegalHoldStateForSelfUser
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserUseCase
 import com.wire.kalium.logic.feature.personaltoteamaccount.CanMigrateFromPersonalToTeamUseCase
 import com.wire.kalium.logic.feature.server.GetTeamUrlUseCase
-import com.wire.kalium.logic.feature.team.GetUpdatedSelfTeamUseCase
+import com.wire.kalium.logic.feature.team.SyncSelfTeamInfoUseCase
 import com.wire.kalium.logic.feature.user.IsReadOnlyAccountUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
+import com.wire.kalium.logic.feature.user.ObserveSelfUserWithTeamUseCase
 import com.wire.kalium.logic.feature.user.ObserveValidAccountsUseCase
 import com.wire.kalium.logic.feature.user.UpdateSelfAvailabilityStatusUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -85,7 +84,8 @@ class SelfUserProfileViewModel @Inject constructor(
     @CurrentAccount private val selfUserId: UserId,
     private val dataStore: UserDataStore,
     private val observeSelf: ObserveSelfUserUseCase,
-    private val getSelfTeam: GetUpdatedSelfTeamUseCase,
+    private val observeSelfUserWithTeam: ObserveSelfUserWithTeamUseCase,
+    private val syncSelfTeamInfo: SyncSelfTeamInfoUseCase,
     private val canMigrateFromPersonalToTeam: CanMigrateFromPersonalToTeamUseCase,
     private val observeValidAccounts: ObserveValidAccountsUseCase,
     private val updateStatus: UpdateSelfAvailabilityStatusUseCase,
@@ -161,20 +161,26 @@ class SelfUserProfileViewModel @Inject constructor(
 
     private fun fetchSelfUser() {
         viewModelScope.launch {
-            val self = observeSelf().flowOn(dispatchers.io()).shareIn(this, SharingStarted.WhileSubscribed(1))
-            val selfTeam = getSelfTeam()
+            viewModelScope.launch(dispatchers.io()) {
+                syncSelfTeamInfo()
+            }
+
+            val selfWithTeam = observeSelfUserWithTeam()
+                .flowOn(dispatchers.io())
+                .shareIn(this, SharingStarted.WhileSubscribed(1))
             val validAccounts =
                 observeValidAccounts().flowOn(dispatchers.io()).shareIn(this, SharingStarted.WhileSubscribed(1))
 
-            combine(self, validAccounts) { selfUser: SelfUser, list: List<Pair<SelfUser, Team?>> ->
-                Pair(
+            combine(selfWithTeam, validAccounts) { (selfUser, selfTeam), list ->
+                Triple(
                     selfUser,
+                    selfTeam,
                     list.filter { it.first.id != selfUser.id }
                         .map { (selfUser, _) -> otherAccountMapper.toOtherAccount(selfUser) }
                 )
             }
                 .distinctUntilChanged()
-                .collect { (selfUser, otherAccounts) ->
+                .collect { (selfUser, selfTeam, otherAccounts) ->
                     with(selfUser) {
                         // Load user avatar raw image data
                         completePicture?.let { updateUserAvatar(it) }

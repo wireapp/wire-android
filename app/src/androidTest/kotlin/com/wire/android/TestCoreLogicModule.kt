@@ -21,6 +21,7 @@ package com.wire.android
 import android.content.Context
 import androidx.work.WorkManager
 import com.wire.android.di.CoreLogicModule
+import com.wire.android.di.DefaultWebSocketEnabledByDefault
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.di.NoSession
 import com.wire.android.util.UserAgentProvider
@@ -119,4 +120,8 @@ class TestCoreLogicModule {
     @Provides
     fun provideAudioNormalizedLoudnessBuilder(@KaliumCoreLogic coreLogic: CoreLogic): AudioNormalizedLoudnessBuilder =
         coreLogic.audioNormalizedLoudnessBuilder
+
+    @DefaultWebSocketEnabledByDefault
+    @Provides
+    fun provideDefaultWebSocketEnabledByDefault(): Boolean = true
 }

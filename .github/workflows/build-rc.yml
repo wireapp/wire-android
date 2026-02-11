@@ -150,13 +150,6 @@ jobs:
                 "type": "s3"
               },
               {
-                "type": "google-play",
-                "package-name": "com.wire",
-                "track": "${{ vars.PROD_APP_RC_TRACK }}",
-                "user-fraction": 0.1,
-                "status": "inProgress"
-              },
-              {
                 "type": "github-release",
                 "additional-files": "app/build/outputs/version.txt"
               }

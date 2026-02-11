@@ -28,6 +28,7 @@ import com.wire.android.mapper.toConversationItem
 import com.wire.android.media.audiomessage.PlayingAudioMessage
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.android.util.ui.UiTextResolver
 import com.wire.kalium.logic.data.conversation.ConversationDetailsWithEvents
 import com.wire.kalium.logic.data.conversation.ConversationFilter
 import com.wire.kalium.logic.data.conversation.ConversationQueryConfig
@@ -48,6 +49,7 @@ class GetConversationsFromSearchUseCase @Inject constructor(
     private val userTypeMapper: UserTypeMapper,
     private val dispatchers: DispatcherProvider,
     private val getSelfUser: GetSelfUserUseCase,
+    private val uiTextResolver: UiTextResolver,
 ) {
     @Suppress("LongParameterList")
     suspend operator fun invoke(
@@ -100,6 +102,7 @@ class GetConversationsFromSearchUseCase @Inject constructor(
                 pagingData.map {
                     it.toConversationItem(
                         userTypeMapper = userTypeMapper,
+                        uiTextResolver = uiTextResolver,
                         searchQuery = searchQuery,
                         selfUserTeamId = getSelfUser()?.teamId,
                         playingAudioMessage = playingAudioMessage

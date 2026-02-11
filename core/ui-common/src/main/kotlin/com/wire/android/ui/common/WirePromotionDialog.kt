@@ -60,9 +60,9 @@ fun WirePromotionDialog(
 fun WirePromotionCard(
     title: String,
     description: String,
-    buttonLabel: String,
-    onButtonClick: () -> Unit,
     modifier: Modifier = Modifier,
+    buttonLabel: String? = null,
+    onButtonClick: () -> Unit = {},
     shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.dialogCornerSize),
     contentPadding: PaddingValues = PaddingValues(MaterialTheme.wireDimensions.dialogContentPadding)
 ) {
@@ -95,13 +95,15 @@ fun WirePromotionCard(
                             bottom = dimensions().spacing16x
                         ),
                     )
-                    WireSecondaryButton(
-                        text = buttonLabel,
-                        onClick = onButtonClick,
-                        fillMaxWidth = false,
-                        minSize = dimensions().buttonSmallMinSize,
-                        minClickableSize = dimensions().buttonSmallMinSize,
-                    )
+                    buttonLabel?.let {
+                        WireSecondaryButton(
+                            text = buttonLabel,
+                            onClick = onButtonClick,
+                            fillMaxWidth = false,
+                            minSize = dimensions().buttonSmallMinSize,
+                            minClickableSize = dimensions().buttonSmallMinSize,
+                        )
+                    }
                 }
                 Box(
                     modifier = Modifier

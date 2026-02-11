@@ -63,7 +63,6 @@ object InbucketClient {
         val subject = json.getString("subject")
         val verificationCode = subject.take(6)
 
-        println("Verification Code Found: $verificationCode for $email")
         return verificationCode
     }
 
@@ -109,7 +108,6 @@ object InbucketClient {
             ?: throw IllegalStateException("Verification link not found in email body")
 
         val verificationLink = match.value
-        println("Verification Link Found: $verificationLink for $email")
         return verificationLink
     }
 

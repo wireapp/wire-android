@@ -49,6 +49,7 @@ fun NetworkSettingsScreen(
     NetworkSettingsScreenContent(
         onBackPressed = navigator::navigateBack,
         isWebSocketEnabled = networkSettingsViewModel.networkSettingsState.isPersistentWebSocketConnectionEnabled,
+        isEnforcedByMDM = networkSettingsViewModel.networkSettingsState.isEnforcedByMDM,
         setWebSocketState = { networkSettingsViewModel.setWebSocketState(it) },
     )
 }
@@ -57,6 +58,7 @@ fun NetworkSettingsScreen(
 fun NetworkSettingsScreenContent(
     onBackPressed: () -> Unit,
     isWebSocketEnabled: Boolean,
+    isEnforcedByMDM: Boolean,
     setWebSocketState: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -79,20 +81,26 @@ fun NetworkSettingsScreenContent(
             val isWebSocketEnforcedByDefault = remember {
                 isWebsocketEnabledByDefault(appContext)
             }
-            val switchState = remember(isWebSocketEnabled) {
-                if (isWebSocketEnforcedByDefault) {
-                    SwitchState.TextOnly(true)
-                } else {
-                    SwitchState.Enabled(
+            val switchState = remember(isWebSocketEnabled, isEnforcedByMDM) {
+                when {
+                    isEnforcedByMDM -> SwitchState.TextOnly(true)
+                    isWebSocketEnforcedByDefault -> SwitchState.TextOnly(true)
+                    else -> SwitchState.Enabled(
                         value = isWebSocketEnabled,
                         onCheckedChange = setWebSocketState
                     )
                 }
             }
 
+            val subtitle = if (isEnforcedByMDM) {
+                stringResource(R.string.settings_keep_websocket_enforced_by_organization)
+            } else {
+                stringResource(R.string.settings_keep_connection_to_websocket_description)
+            }
+
             GroupConversationOptionsItem(
                 title = stringResource(R.string.settings_keep_connection_to_websocket),
-                subtitle = stringResource(R.string.settings_keep_connection_to_websocket_description),
+                subtitle = subtitle,
                 switchState = switchState,
                 arrowType = ArrowType.NONE
             )
@@ -106,6 +114,7 @@ fun PreviewNetworkSettingsScreen() = WireTheme {
     NetworkSettingsScreenContent(
         onBackPressed = {},
         isWebSocketEnabled = true,
+        isEnforcedByMDM = false,
         setWebSocketState = {},
     )
 }

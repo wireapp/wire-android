@@ -20,6 +20,7 @@
 package com.wire.android.ui.markdown
 
 import com.wire.android.appLogger
+import com.wire.android.util.ui.UIText
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
 import org.commonmark.ext.gfm.strikethrough.Strikethrough
@@ -52,6 +53,32 @@ import org.commonmark.node.Text
 import org.commonmark.node.ThematicBreak
 
 fun String.toMarkdownDocument(): MarkdownNode.Document = MarkdownParser.parse(this)
+
+// Builds a markdown-ready string by inserting mention markers and returning display mentions.
+fun UIText.DynamicString.toMarkdownTextWithMentions(): Pair<List<DisplayMention>, String> {
+    val stringBuilder: StringBuilder = StringBuilder(value)
+    val mentions = mentions
+        .filter { it.start >= 0 && it.length > 0 }
+        .sortedBy { it.start }
+        .reversed()
+    val mentionList = mentions.mapNotNull { mention ->
+        // Guard against invalid mention ranges (e.g. inconsistent backend data).
+        if (mention.start + mention.length <= value.length && value[mention.start] == '@') {
+            val mentionName = value.substring(mention.start, mention.start + mention.length)
+            stringBuilder.insert(mention.start + mention.length, MarkdownConstants.MENTION_MARK)
+            stringBuilder.insert(mention.start, MarkdownConstants.MENTION_MARK)
+            DisplayMention(
+                mention.userId,
+                mention.length,
+                mention.isSelfMention,
+                mentionName
+            )
+        } else {
+            null
+        }
+    }.reversed()
+    return Pair(mentionList, stringBuilder.toString())
+}
 
 fun <T : Node> T.toContent(isParentDocument: Boolean = false): MarkdownNode {
     return when (this) {

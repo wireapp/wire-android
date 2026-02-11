@@ -97,7 +97,7 @@ private fun SecurityClassificationBanner(
                 Icon(
                     painter = getIconFor(state),
                     tint = getColorTextFor(state),
-                    contentDescription = getTextFor(state),
+                    contentDescription = null,
                     modifier = Modifier.padding(end = dimensions().spacing8x)
                 )
                 Text(

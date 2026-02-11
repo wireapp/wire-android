@@ -226,3 +226,46 @@ jobs:
           echo "category=${{ steps.resolve.outputs.category }}"
           echo "tagKey=${{ steps.resolve.outputs.tagKey }}"
           echo "tagValue=${{ steps.resolve.outputs.tagValue }}"
+
+  run-android-ui-tests-placeholder:
+    name: Run Android UI tests (placeholder)
+    runs-on: ubuntu-latest
+    needs: validate-and-resolve-inputs
+
+    steps:
+      - name: Show what would run (no execution yet)
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          echo "=== PLACEHOLDER JOB (NO EXECUTION) ==="
+          echo ""
+          echo "=== RAW INPUTS ==="
+          echo "appBuildNumber=${{ inputs.appBuildNumber }}"
+          echo "isUpgrade=${{ inputs.isUpgrade }}"
+          echo "oldBuildNumber=${{ inputs.oldBuildNumber }}"
+          echo "enforceAppInstall=${{ inputs.enforceAppInstall }}"
+          echo "flavor=${{ inputs.flavor }}"
+          echo "buildType=${{ inputs.buildType }}"
+          echo "TAGS=${{ inputs.TAGS }}"
+          echo "branch=${{ inputs.branch }}"
+          echo "backendType=${{ inputs.backendType }}"
+          echo "testinyRunName=${{ inputs.testinyRunName }}"
+          echo "androidDeviceId=${{ inputs.androidDeviceId }}"
+          echo "callingServiceEnv=${{ inputs.callingServiceEnv }}"
+          echo "callingServiceUrl=${{ inputs.callingServiceUrl }}"
+          echo "deflakeCount=${{ inputs.deflakeCount }}"
+          echo ""
+          echo "=== RESOLVED SELECTORS ==="
+          echo "testCaseId=${{ needs.validate-and-resolve-inputs.outputs.resolvedTestCaseId }}"
+          echo "category=${{ needs.validate-and-resolve-inputs.outputs.resolvedCategory }}"
+          echo "tagKey=${{ needs.validate-and-resolve-inputs.outputs.resolvedTagKey }}"
+          echo "tagValue=${{ needs.validate-and-resolve-inputs.outputs.resolvedTagValue }}"
+          echo ""
+          echo "=== FUTURE GRADLE COMMAND (PREVIEW ONLY) ==="
+          echo "./gradlew :tests:testsCore:connectedDebugAndroidTest \\"
+          echo "  -Pandroid.testInstrumentationRunnerArguments.testCaseId=${{ needs.validate-and-resolve-inputs.outputs.resolvedTestCaseId }} \\"
+          echo "  -Pandroid.testInstrumentationRunnerArguments.category=${{ needs.validate-and-resolve-inputs.outputs.resolvedCategory }} \\"
+          echo "  -Pandroid.testInstrumentationRunnerArguments.tagKey=${{ needs.validate-and-resolve-inputs.outputs.resolvedTagKey }} \\"
+          echo "  -Pandroid.testInstrumentationRunnerArguments.tagValue=${{ needs.validate-and-resolve-inputs.outputs.resolvedTagValue }}"
+

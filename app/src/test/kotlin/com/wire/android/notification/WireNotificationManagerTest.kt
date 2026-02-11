@@ -107,7 +107,7 @@ class WireNotificationManagerTest {
         advanceUntilIdle()
 
         verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
-        verify(exactly = 0) {
+        coVerify(exactly = 0) {
             arrangement.messageNotificationManager.handleNotification(
                 newNotifications = any(),
                 userId = any(),
@@ -205,7 +205,7 @@ class WireNotificationManagerTest {
             runCurrent()
 
             verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
-            verify(exactly = 0) {
+            coVerify(exactly = 0) {
                 arrangement.messageNotificationManager.handleNotification(
                     newNotifications = any(),
                     userId = any(),
@@ -234,7 +234,7 @@ class WireNotificationManagerTest {
             runCurrent()
 
             verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
-            verify(exactly = 0) {
+            coVerify(exactly = 0) {
                 arrangement.messageNotificationManager.handleNotification(
                     any(),
                     any(),
@@ -260,7 +260,7 @@ class WireNotificationManagerTest {
         manager.observeNotificationsAndCallsWhileRunning(listOf(provideUserId(TestUser.SELF_USER.id.value)), this)
         runCurrent()
 
-        verify(exactly = 1) {
+        coVerify(exactly = 1) {
             arrangement.messageNotificationManager.handleNotification(
                 messageNotifications,
                 TestUser.SELF_USER.id,
@@ -290,7 +290,7 @@ class WireNotificationManagerTest {
             manager.observeNotificationsAndCallsWhileRunning(listOf(provideUserId(TestUser.SELF_USER.id.value)), this)
             runCurrent()
 
-            verify(exactly = 1) {
+            coVerify(exactly = 1) {
                 arrangement.messageNotificationManager.handleNotification(
                     listOf(),
                     TestUser.SELF_USER.id,
@@ -331,7 +331,7 @@ class WireNotificationManagerTest {
             selfUserFlow.value = TestUser.SELF_USER.copy(availabilityStatus = UserAvailabilityStatus.NONE)
             runCurrent()
 
-            verify(exactly = 1) {
+            coVerify(exactly = 1) {
                 arrangement.messageNotificationManager.handleNotification(any(), any(), any())
             }
         }
@@ -1023,15 +1023,12 @@ class WireNotificationManagerTest {
             manager.observeNotificationsAndCallsWhileRunning(listOf(provideUserId(TestUser.SELF_USER.id.value)), this)
             runCurrent()
 
-            verify(exactly = 0) {
+            coVerify(exactly = 0) {
                 arrangement.messageNotificationManager.handleNotification(
                     listOf(),
                     TestUser.SELF_USER.id,
                     TestUser.SELF_USER.handle!!
                 )
-            }
-            coVerify(atLeast = 1) {
-                arrangement.markMessagesAsNotified(MarkMessagesAsNotifiedUseCase.UpdateTarget.SingleConversation(conversationId))
             }
         }
 

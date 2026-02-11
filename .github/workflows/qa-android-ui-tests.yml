@@ -230,11 +230,11 @@ jobs:
   run-android-ui-tests-placeholder:
     name: Runner smoke check + checkout (no test execution yet)
     runs-on:
-        - self-hosted
-        - Linux
-        - X64
-        - office
-        - android-qa
+      - self-hosted
+      - Linux
+      - X64
+      - office
+      - android-qa
 
     needs: validate-and-resolve-inputs
 
@@ -252,6 +252,33 @@ jobs:
           echo "Checked out ref input: ${{ inputs.branch }}"
           echo "Git HEAD commit: $(git rev-parse HEAD)"
           echo "Git branch (may be 'HEAD' if detached): $(git rev-parse --abbrev-ref HEAD)"
+
+      - name: Ensure ADB is available (no sudo)
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if command -v adb >/dev/null 2>&1; then
+            echo "adb already available: $(command -v adb)"
+            adb version
+            exit 0
+          fi
+
+          echo "adb not found. Installing Android platform-tools locally..."
+          cd "$HOME"
+
+          rm -rf platform-tools platform-tools.zip
+          curl -fsSL -o platform-tools.zip \
+            https://dl.google.com/android/repository/platform-tools-latest-linux.zip
+
+          unzip -oq platform-tools.zip
+          rm -f platform-tools.zip
+
+          # Make adb available for subsequent steps
+          echo "$HOME/platform-tools" >> "$GITHUB_PATH"
+
+          # Sanity check
+          "$HOME/platform-tools/adb" version
 
       - name: Show connected devices (ADB)
         shell: bash

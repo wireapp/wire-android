@@ -63,6 +63,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.datetime.Instant
 import java.net.UnknownHostException
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicReference
@@ -476,9 +477,14 @@ class WireNotificationManager @Inject constructor(
                     )
                 }
 
-                newNotifications.map { it.conversationId }.distinct().forEach { notifiedConversationId ->
-                    markMessagesAsNotified(userId, notifiedConversationId)
-                }
+                newNotifications
+                    .filterIsInstance<LocalNotification.Conversation>()
+                    .filter { it.messages.isNotEmpty() }
+                    .forEach { conversation ->
+                        val lastNotified = conversation.messages.maxOf { it.time }
+                        markMessagesAsNotified(userId, conversation.id, lastNotified)
+                    }
+
                 markConnectionAsNotified(userId)
             }
     }
@@ -521,10 +527,11 @@ class WireNotificationManager @Inject constructor(
 
     private suspend fun markMessagesAsNotified(
         userId: QualifiedID,
-        conversationId: ConversationId? = null
+        conversationId: ConversationId? = null,
+        lastNotified: Instant? = null,
     ) {
         val markNotified = conversationId?.let {
-            MarkMessagesAsNotifiedUseCase.UpdateTarget.SingleConversation(conversationId)
+            MarkMessagesAsNotifiedUseCase.UpdateTarget.SingleConversation(conversationId, lastNotified)
         } ?: MarkMessagesAsNotifiedUseCase.UpdateTarget.AllConversations
         coreLogic.getSessionScope(userId)
             .messages

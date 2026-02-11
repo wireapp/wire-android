@@ -7,6 +7,7 @@ import android.os.Bundle
 import androidx.test.core.app.ApplicationProvider
 import com.wire.android.config.ServerConfigProvider
 import com.wire.android.config.TestDispatcherProvider
+import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.util.EMPTY
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -126,6 +127,39 @@ class ManagedConfigurationsManagerTest {
         assertEquals(ServerConfigProvider().getDefaultServerConfig(), serverConfig)
     }
 
+    @Test
+    fun `given keep_websocket_connection is true, then persistentWebSocketEnforcedByMDM returns true`() = runTest {
+        val (_, manager) = Arrangement()
+            .withBooleanRestrictions(mapOf(ManagedConfigurationsKeys.KEEP_WEBSOCKET_CONNECTION.asKey() to true))
+            .arrange()
+
+        val result = manager.refreshPersistentWebSocketConfig()
+        assertEquals(true, result)
+        assertEquals(true, manager.persistentWebSocketEnforcedByMDM.value)
+    }
+
+    @Test
+    fun `given keep_websocket_connection is false, then persistentWebSocketEnforcedByMDM returns false`() = runTest {
+        val (_, manager) = Arrangement()
+            .withBooleanRestrictions(mapOf(ManagedConfigurationsKeys.KEEP_WEBSOCKET_CONNECTION.asKey() to false))
+            .arrange()
+
+        val result = manager.refreshPersistentWebSocketConfig()
+        assertEquals(false, result)
+        assertEquals(false, manager.persistentWebSocketEnforcedByMDM.value)
+    }
+
+    @Test
+    fun `given no keep_websocket_connection restriction, then persistentWebSocketEnforcedByMDM returns false`() = runTest {
+        val (_, manager) = Arrangement()
+            .withRestrictions(emptyMap())
+            .arrange()
+
+        val result = manager.refreshPersistentWebSocketConfig()
+        assertEquals(false, result)
+        assertEquals(false, manager.persistentWebSocketEnforcedByMDM.value)
+    }
+
     private class Arrangement {
 
         private val context: Context = ApplicationProvider.getApplicationContext()
@@ -143,10 +177,24 @@ class ManagedConfigurationsManagerTest {
             )
         }
 
+        fun withBooleanRestrictions(restrictions: Map<String, Boolean>) = apply {
+            val restrictionsManager =
+                context.getSystemService(Context.RESTRICTIONS_SERVICE) as RestrictionsManager
+            val shadowRestrictionsManager = Shadows.shadowOf(restrictionsManager)
+            shadowRestrictionsManager.setApplicationRestrictions(
+                Bundle().apply {
+                    restrictions.forEach { (key, value) ->
+                        putBoolean(key, value)
+                    }
+                }
+            )
+        }
+
         fun arrange() = this to ManagedConfigurationsManagerImpl(
             context = context,
             serverConfigProvider = ServerConfigProvider(),
-            dispatchers = TestDispatcherProvider()
+            dispatchers = TestDispatcherProvider(),
+            globalDataStore = GlobalDataStore(context)
         )
     }
 

@@ -229,7 +229,13 @@ jobs:
 
   run-android-ui-tests-placeholder:
     name: Runner smoke check + checkout (no test execution yet)
-    runs-on: [ self-hosted, android ]
+    runs-on:
+        - self-hosted
+        - Linux
+        - X64
+        - office
+        - android-qa
+
     needs: validate-and-resolve-inputs
 
     steps:

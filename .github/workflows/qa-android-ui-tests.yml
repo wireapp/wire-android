@@ -113,7 +113,7 @@ on:
 
 jobs:
   validate-and-resolve-inputs:
-    name: Validate + resolve selector (no execution)
+    name: Validate + resolve selectors (no execution)
     runs-on: ubuntu-latest
 
     outputs:
@@ -143,7 +143,6 @@ jobs:
           trim() { echo "$1" | xargs; }
 
           if [[ -n "$(trim "${TAGS_RAW}")" ]]; then
-            # TAGS can be comma-separated; use first non-empty token
             sel=""
             IFS=',' read -ra parts <<< "${TAGS_RAW}"
             for p in "${parts[@]}"; do
@@ -154,21 +153,17 @@ jobs:
               fi
             done
 
-            # Allow user to type with or without '@'
             sel="${sel#@}"
             sel="$(trim "$sel")"
 
-            # We dropped Tag(key,value). If someone types key:value, fail fast to avoid confusion.
             if [[ "$sel" == *:* ]]; then
-              echo "ERROR: TAGS must be '@TC-####' or '@category'. (Tag key:value is not supported.)"
+              echo "ERROR: TAGS format '@key:value' is not supported. Use '@TC-1234' or '@category'."
               exit 1
             fi
 
-            # TC-8143 -> testCaseId
             if [[ "$sel" =~ ^TC-[0-9]+$ ]]; then
               TESTCASE_ID="$sel"
             else
-              # regression -> category
               CATEGORY="$sel"
             fi
           fi
@@ -176,9 +171,13 @@ jobs:
           echo "testCaseId=$TESTCASE_ID" >> "$GITHUB_OUTPUT"
           echo "category=$CATEGORY" >> "$GITHUB_OUTPUT"
 
-          echo "Resolved selector:"
-          echo "  testCaseId=$TESTCASE_ID"
-          echo "  category=$CATEGORY"
+      - name: Print resolved selectors
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "TAGS=${{ inputs.TAGS }}"
+          echo "resolvedTestCaseId=${{ steps.resolve.outputs.testCaseId }}"
+          echo "resolvedCategory=${{ steps.resolve.outputs.category }}"
 
   run-android-ui-tests-placeholder:
     name: Runner smoke check + checkout (no test execution yet)
@@ -191,6 +190,10 @@ jobs:
 
     needs: validate-and-resolve-inputs
 
+    defaults:
+      run:
+        shell: bash
+
     steps:
       - name: Checkout code at selected branch/ref
         uses: actions/checkout@v4
@@ -199,26 +202,53 @@ jobs:
           fetch-depth: 0
 
       - name: Show checked out ref
-        shell: bash
         run: |
           set -euo pipefail
           echo "Checked out ref input: ${{ inputs.branch }}"
           echo "Git HEAD commit: $(git rev-parse HEAD)"
+          echo "Git branch (may be 'HEAD' if detached): $(git rev-parse --abbrev-ref HEAD)"
 
-      - name: Verify ADB is available
-        shell: bash
+      - name: Ensure ADB is available (no sudo)
         run: |
           set -euo pipefail
-          if ! command -v adb >/dev/null 2>&1; then
-            echo "ERROR: adb is not available on this runner. Install Android platform-tools on the self-hosted runner."
+
+          if command -v adb >/dev/null 2>&1; then
+            echo "adb already available: $(command -v adb)"
+            adb version
+            exit 0
+          fi
+
+          if ! command -v curl >/dev/null 2>&1; then
+            echo "ERROR: 'curl' is not available on this runner."
             exit 1
           fi
-          adb version
 
-      - name: Show connected devices (ADB)
-        shell: bash
+          if ! command -v unzip >/dev/null 2>&1; then
+            echo "ERROR: 'unzip' is not available on this runner."
+            exit 1
+          fi
+
+          echo "adb not found. Installing Android platform-tools locally..."
+          ADB_ROOT="${RUNNER_TEMP}/android-platform-tools"
+          ZIP_PATH="${RUNNER_TEMP}/platform-tools.zip"
+
+          rm -rf "${ADB_ROOT}" "${ZIP_PATH}"
+          mkdir -p "${ADB_ROOT}"
+
+          curl -fsSL -o "${ZIP_PATH}" \
+            https://dl.google.com/android/repository/platform-tools-latest-linux.zip
+
+          unzip -oq "${ZIP_PATH}" -d "${ADB_ROOT}"
+          rm -f "${ZIP_PATH}"
+
+          echo "${ADB_ROOT}/platform-tools" >> "${GITHUB_PATH}"
+
+          "${ADB_ROOT}/platform-tools/adb" version
+
+      - name: Check connected devices (and validate androidDeviceId if provided)
         run: |
           set -euo pipefail
+
           echo "adb devices -l"
           adb devices -l
 
@@ -228,12 +258,7 @@ jobs:
             exit 1
           fi
 
-      - name: Validate androidDeviceId (if provided)
-        shell: bash
-        run: |
-          set -euo pipefail
           TARGET="${{ inputs.androidDeviceId }}"
-
           if [[ -n "$TARGET" ]]; then
             echo "Target device requested: $TARGET"
             if ! adb devices | awk 'NR>1 && $2=="device"{print $1}' | grep -qx "$TARGET"; then
@@ -246,39 +271,40 @@ jobs:
           fi
 
       - name: Show what would run (preview only)
-        shell: bash
         run: |
           set -euo pipefail
 
-          RESOLVED_TC="${{ needs.validate-and-resolve-inputs.outputs.resolvedTestCaseId }}"
-          RESOLVED_CAT="${{ needs.validate-and-resolve-inputs.outputs.resolvedCategory }}"
-
-          echo "=== PREVIEW ONLY (NO TEST EXECUTION) ==="
+          echo "=== PLACEHOLDER (NO TEST EXECUTION YET) ==="
+          echo "branch=${{ inputs.branch }}"
+          echo "appBuildNumber=${{ inputs.appBuildNumber }}"
+          echo "isUpgrade=${{ inputs.isUpgrade }}"
+          echo "oldBuildNumber=${{ inputs.oldBuildNumber }}"
+          echo "enforceAppInstall=${{ inputs.enforceAppInstall }}"
+          echo "flavor=${{ inputs.flavor }}"
+          echo "buildType=${{ inputs.buildType }}"
+          echo "backendType=${{ inputs.backendType }}"
+          echo "testinyRunName=${{ inputs.testinyRunName }}"
+          echo "androidDeviceId=${{ inputs.androidDeviceId }}"
+          echo "callingServiceEnv=${{ inputs.callingServiceEnv }}"
+          echo "callingServiceUrl=${{ inputs.callingServiceUrl }}"
+          echo "deflakeCount=${{ inputs.deflakeCount }}"
+          echo "TAGS=${{ inputs.TAGS }}"
           echo ""
-          echo "Inputs:"
-          echo "  appBuildNumber=${{ inputs.appBuildNumber }}"
-          echo "  isUpgrade=${{ inputs.isUpgrade }}"
-          echo "  oldBuildNumber=${{ inputs.oldBuildNumber }}"
-          echo "  enforceAppInstall=${{ inputs.enforceAppInstall }}"
-          echo "  flavor=${{ inputs.flavor }}"
-          echo "  buildType=${{ inputs.buildType }}"
-          echo "  TAGS=${{ inputs.TAGS }}"
-          echo "  branch=${{ inputs.branch }}"
-          echo "  backendType=${{ inputs.backendType }}"
-          echo "  testinyRunName=${{ inputs.testinyRunName }}"
-          echo "  androidDeviceId=${{ inputs.androidDeviceId }}"
-          echo "  callingServiceEnv=${{ inputs.callingServiceEnv }}"
-          echo "  callingServiceUrl=${{ inputs.callingServiceUrl }}"
-          echo "  deflakeCount=${{ inputs.deflakeCount }}"
-          echo ""
-          echo "Resolved selector:"
-          echo "  testCaseId=${RESOLVED_TC}"
-          echo "  category=${RESOLVED_CAT}"
+          echo "resolvedTestCaseId=${{ needs.validate-and-resolve-inputs.outputs.resolvedTestCaseId }}"
+          echo "resolvedCategory=${{ needs.validate-and-resolve-inputs.outputs.resolvedCategory }}"
           echo ""
 
-          ARGS=()
-          [[ -n "${RESOLVED_TC}" ]] && ARGS+=("-Pandroid.testInstrumentationRunnerArguments.testCaseId=${RESOLVED_TC}")
-          [[ -n "${RESOLVED_CAT}" ]] && ARGS+=("-Pandroid.testInstrumentationRunnerArguments.category=${RESOLVED_CAT}")
+          tc="${{ needs.validate-and-resolve-inputs.outputs.resolvedTestCaseId }}"
+          cat="${{ needs.validate-and-resolve-inputs.outputs.resolvedCategory }}"
 
-          echo "Future Gradle command (preview):"
-          echo "./gradlew :tests:testsCore:connectedDebugAndroidTest ${ARGS[*]}"
+          cmd=( "./gradlew" ":tests:testsCore:connectedDebugAndroidTest" )
+          if [[ -n "$tc" ]]; then
+            cmd+=( "-Pandroid.testInstrumentationRunnerArguments.testCaseId=${tc}" )
+          fi
+          if [[ -n "$cat" ]]; then
+            cmd+=( "-Pandroid.testInstrumentationRunnerArguments.category=${cat}" )
+          fi
+
+          echo "=== FUTURE GRADLE COMMAND (PREVIEW ONLY) ==="
+          printf '%q ' "${cmd[@]}"
+          echo

@@ -1,0 +1,12 @@
+Neu
+- Drive: Suche zum schnellen Finden von Dateien
+- Zitierte mehrteilige Nachrichten sind auf eine einzige Zeile gekürzt
+- Backups mit Reaktionen, Antworten und Erwähnungen
+
+Verbessert
+- Umgang mit Anrufen beim Wechseln des Netzwerks
+- Erstellung von Benutzerkonten und Anmeldung, auch wenn App im Hintergrund
+- Drive: Beim Umbenennen von Dateien und Ordnern sind ungültige Zeichen unzulässig
+
+Behoben
+- Wird SCIM verwendet: Benutzernamen, Profilnamen oder E-Mail-Adresse nicht mehr bearbeitbar

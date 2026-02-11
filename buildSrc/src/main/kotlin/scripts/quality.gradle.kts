@@ -32,7 +32,7 @@ dependencies {
     detekt("io.gitlab.arturbosch.detekt:detekt-cli:$detektVersion")
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:$detektVersion")
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-rules-libraries:$detektVersion")
-    detektPlugins("com.wire:detekt-rules:1.0.0-1.23.6") {
+    detektPlugins("com.wire:detekt-rules:20260128-162246") {
         isChanging = true
     }
 }

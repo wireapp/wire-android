@@ -1,6 +1,5 @@
 name: "UI Tests"
 
-
 on:
   workflow_call:
     inputs:
@@ -24,6 +23,21 @@ jobs:
         with:
           submodules: recursive # Needed in order to fetch Kalium sources for building
           fetch-depth: 0
+
+      # trying https://github.com/actions/runner-images/issues/10386#issuecomment-2271613335
+      - name: Free Disk Space Before Build
+        run: |
+          echo "Disk space before cleanup:"
+          df -h
+          sudo rm -rf /usr/local/.ghcup
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          sudo rm -rf /usr/local/lib/android/sdk/ndk
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /usr/local/share/boost
+          sudo apt-get clean
+          echo "Disk space after cleanup:"
+          df -h
 
       - name: Set up JDK 17
         uses: buildjet/setup-java@v4

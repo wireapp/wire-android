@@ -71,14 +71,7 @@ class NewConversationViewModel @Inject constructor(
 ) : ViewModel() {
 
     var newGroupNameTextState: TextFieldState = TextFieldState()
-    var newGroupState: GroupMetadataState by mutableStateOf(
-        GroupMetadataState().let {
-            val defaultProtocol = CreateConversationParam
-                .Protocol
-                .fromSupportedProtocolToConversationOptionsProtocol(getDefaultProtocol())
-            it.copy(groupProtocol = defaultProtocol)
-        }
-    )
+    var newGroupState: GroupMetadataState by mutableStateOf(GroupMetadataState())
 
     var groupOptionsState: GroupOptionState by mutableStateOf(GroupOptionState())
     var isChannelCreationPossible: Boolean by mutableStateOf(true)
@@ -86,10 +79,20 @@ class NewConversationViewModel @Inject constructor(
     var createGroupState: CreateGroupState by mutableStateOf(CreateGroupState.Default)
 
     init {
+        loadDefaultProtocol()
         observeAllowanceOfAppsUsageInitialState()
         setConversationCreationParam()
         observeChannelCreationPermission()
         getWireCellFeatureState()
+    }
+
+    private fun loadDefaultProtocol() {
+        viewModelScope.launch {
+            val defaultProtocol = CreateConversationParam
+                .Protocol
+                .fromSupportedProtocolToConversationOptionsProtocol(getDefaultProtocol())
+            newGroupState = newGroupState.copy(groupProtocol = defaultProtocol)
+        }
     }
 
     private fun observeAllowanceOfAppsUsageInitialState() {
@@ -120,14 +123,8 @@ class NewConversationViewModel @Inject constructor(
 
     fun resetState() {
         newGroupNameTextState.clearText()
-        newGroupState = GroupMetadataState().let {
-            val defaultProtocol = CreateConversationParam
-                .Protocol
-                .fromSupportedProtocolToConversationOptionsProtocol(getDefaultProtocol())
-            it.copy(
-                groupProtocol = defaultProtocol
-            )
-        }
+        newGroupState = GroupMetadataState()
+        loadDefaultProtocol()
         observeAllowanceOfAppsUsageInitialState()
         createGroupState = CreateGroupState.Default
         setConversationCreationParam()

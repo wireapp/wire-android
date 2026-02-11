@@ -216,7 +216,7 @@ fun DeviceDetailsContent(
                 }
             }
 
-            if (state.isE2EIEnabled) {
+            if (state.isE2EIEnabled && state.isE2eiCertificateDataAvailable) {
                 item {
                     EndToEndIdentityCertificateItem(
                         isE2eiCertificateActivated = state.isE2eiCertificateActivated,
@@ -363,8 +363,8 @@ private fun DeviceDetailsTopBar(
                     maxLines = 2
                 )
 
-                if (shouldShowE2EIInfo) {
-                    MLSVerificationIcon(device.mlsClientIdentity?.e2eiStatus)
+                if (shouldShowE2EIInfo && device.mlsClientIdentity != null) {
+                    MLSVerificationIcon(device.mlsClientIdentity.e2eiStatus)
                 }
 
                 if (!isCurrentDevice && device.isVerifiedProteus) {

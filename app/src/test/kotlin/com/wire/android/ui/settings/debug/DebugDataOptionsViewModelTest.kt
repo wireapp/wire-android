@@ -333,7 +333,7 @@ internal class DebugDataOptionsHiltArrangement {
                     )
                 )
             )
-            every {
+            coEvery {
                 getDefaultProtocolUseCase()
             } returns SupportedProtocol.PROTEUS
 
@@ -378,13 +378,13 @@ internal class DebugDataOptionsHiltArrangement {
     }
 
     fun withProteusProtocolSetup() = apply {
-        every {
+        coEvery {
             getDefaultProtocolUseCase()
         } returns SupportedProtocol.PROTEUS
     }
 
     fun withMlsProtocolSetup() = apply {
-        every {
+        coEvery {
             getDefaultProtocolUseCase()
         } returns SupportedProtocol.MLS
     }

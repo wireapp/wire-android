@@ -116,7 +116,7 @@
     <string name="content_description_conversation_mention_someone">Mention someone</string>
     <string name="content_description_conversation_back_btn">Go back to conversation list</string>
     <string name="content_description_conversation_open_details_label">open conversation details</string>
-    <string name="content_description_new_conversation">Search for people or create a new conversation</string>
+    <string name="content_description_new_conversation">New. Start a new conversation</string>
     <string name="content_description_new_meeting">Start or schedule a new Wire Meeting</string>
     <string name="content_description_back_button">Back button</string>
     <string name="content_description_send_button">Send</string>
@@ -1914,4 +1914,5 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="label_system_message_apps_access_enabled_by_other">%1$s enabled **apps** for this conversation</string>
     <string name="label_system_message_apps_access_disabled_by_other">%1$s disabled **apps** for this conversation</string>
     <string name="label_system_message_apps_access_enabled_disclaimer">Added apps have access to the content of this conversation.</string>
+    <string name="more_information_about_this_server">More information about this backend</string>
 </resources>

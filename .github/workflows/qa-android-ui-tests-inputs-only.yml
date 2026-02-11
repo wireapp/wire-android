@@ -1,0 +1,244 @@
+name: Android UI Tests (Manual Inputs Only)
+
+on:
+  workflow_dispatch:
+    inputs:
+      appBuildNumber:
+        description: "APK build to test. Use 'latest' or an exact build number (e.g. 56337) or a full .apk path."
+        required: true
+        default: "latest"
+        type: string
+
+      isUpgrade:
+        description: "Upgrade test? If true, oldBuildNumber is REQUIRED."
+        required: true
+        default: false
+        type: boolean
+
+      oldBuildNumber:
+        description: "Old build for upgrade tests (REQUIRED when isUpgrade=true). Build number or full .apk path."
+        required: false
+        default: ""
+        type: string
+
+      enforceAppInstall:
+        description: "If true, force reinstall even if a lower version is on the device."
+        required: true
+        default: false
+        type: boolean
+
+      flavor:
+        description: "App flavor (match Jenkins). Used later to map S3 folder + applicationId."
+        required: true
+        type: choice
+        options:
+          - internal release candidate
+          - internal beta
+          - staging compat
+          - experimental
+          - column-1
+          - column-2
+          - column-3
+          - debug
+          - fdroid
+          - production
+        default: internal release candidate
+
+      buildType:
+        description: "Build type"
+        required: true
+        type: choice
+        options:
+          - release
+          - debug
+          - compat
+        default: release
+
+      TAGS:
+        description: "Examples: '@regression' OR '@TC-8143' OR '@criticalFlow:groupCallChat' (comma-separated allowed; first is used)."
+        required: false
+        default: ""
+        type: string
+
+      testCaseId:
+        description: "Run by @TestCaseId(\"TC-....\") e.g. TC-8602 (NO '@'). Overrides TAGS."
+        required: false
+        default: ""
+        type: string
+
+      category:
+        description: "Run by @Category(\"...\") e.g. criticalFlow or regression. Overrides TAGS."
+        required: false
+        default: ""
+        type: string
+
+      tagKey:
+        description: "Run by @Tag(key=..., value=...) → key. Overrides TAGS."
+        required: false
+        default: ""
+        type: string
+
+      tagValue:
+        description: "Run by @Tag(key=..., value=...) → value. Overrides TAGS."
+        required: false
+        default: ""
+        type: string
+
+      branch:
+        description: "Git ref to test (branch/tag/SHA). Default: develop"
+        required: true
+        default: "develop"
+        type: string
+
+      backendType:
+        description: "Backend profile name."
+        required: true
+        default: "staging"
+        type: string
+
+      testinyRunName:
+        description: "Testiny run name (optional). If provided, later steps can publish results to that run."
+        required: false
+        default: ""
+        type: string
+
+      androidDeviceId:
+        description: "Optional. Target a specific device. Leave empty for auto."
+        required: false
+        default: ""
+        type: string
+
+      callingServiceEnv:
+        description: "Calling service environment."
+        required: true
+        type: choice
+        options:
+          - dev
+          - custom
+          - staging
+          - prod
+        default: dev
+
+      callingServiceUrl:
+        description: "Calling service URL mode/value Example: 'loadbalanced'."
+        required: true
+        default: "loadbalanced"
+        type: string
+
+      deflakeCount:
+        description: "How many times to re-run on flake."
+        required: true
+        default: 1
+        type: number
+
+      retryCount:
+        description: "How many retries when a run fails."
+        required: true
+        default: 0
+        type: number
+
+jobs:
+  validate-and-resolve-inputs:
+    name: Validate + resolve selectors (no execution)
+    runs-on: ubuntu-latest
+
+    outputs:
+      resolvedTestCaseId: ${{ steps.resolve.outputs.testCaseId }}
+      resolvedCategory: ${{ steps.resolve.outputs.category }}
+      resolvedTagKey: ${{ steps.resolve.outputs.tagKey }}
+      resolvedTagValue: ${{ steps.resolve.outputs.tagValue }}
+
+    steps:
+      - name: Validate upgrade inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "${{ inputs.isUpgrade }}" == "true" && -z "${{ inputs.oldBuildNumber }}" ]]; then
+            echo "ERROR: oldBuildNumber is REQUIRED when isUpgrade=true"
+            exit 1
+          fi
+
+      - name: Resolve selectors (native overrides TAGS)
+        id: resolve
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          TESTCASE_ID="${{ inputs.testCaseId }}"
+          CATEGORY="${{ inputs.category }}"
+          TAG_KEY="${{ inputs.tagKey }}"
+          TAG_VALUE="${{ inputs.tagValue }}"
+          TAGS_RAW="${{ inputs.TAGS }}"
+
+          trim() { echo "$1" | xargs; }
+
+          if [[ -z "${TESTCASE_ID}${CATEGORY}${TAG_KEY}${TAG_VALUE}" && -n "$(trim "${TAGS_RAW}")" ]]; then
+            sel=""
+            IFS=',' read -ra parts <<< "${TAGS_RAW}"
+            for p in "${parts[@]}"; do
+              t="$(trim "$p")"
+              if [[ -n "$t" ]]; then
+                sel="$t"
+                break
+              fi
+            done
+
+            sel="${sel#@}"
+            sel="$(trim "$sel")"
+
+            if [[ "$sel" =~ ^TC-[0-9]+$ ]]; then
+              TESTCASE_ID="$sel"
+            elif [[ "$sel" == *:* ]]; then
+              k="$(trim "${sel%%:*}")"
+              v="$(trim "${sel#*:}")"
+              if [[ -z "$k" || -z "$v" ]]; then
+                echo "ERROR: Invalid TAGS format '${TAGS_RAW}'. Expected '@key:value' e.g. @criticalFlow:groupCallChat"
+                exit 1
+              fi
+              TAG_KEY="$k"
+              TAG_VALUE="$v"
+            else
+              CATEGORY="$sel"
+            fi
+          fi
+
+          if [[ -n "$TAG_KEY" && -z "$TAG_VALUE" ]]; then
+            echo "ERROR: tagKey provided but tagValue is empty."
+            exit 1
+          fi
+          if [[ -z "$TAG_KEY" && -n "$TAG_VALUE" ]]; then
+            echo "ERROR: tagValue provided but tagKey is empty."
+            exit 1
+          fi
+
+          echo "testCaseId=$TESTCASE_ID" >> "$GITHUB_OUTPUT"
+          echo "category=$CATEGORY" >> "$GITHUB_OUTPUT"
+          echo "tagKey=$TAG_KEY" >> "$GITHUB_OUTPUT"
+          echo "tagValue=$TAG_VALUE" >> "$GITHUB_OUTPUT"
+
+      - name: Print final resolved inputs (for reviewers)
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "=== RAW INPUTS ==="
+          echo "appBuildNumber=${{ inputs.appBuildNumber }}"
+          echo "isUpgrade=${{ inputs.isUpgrade }}"
+          echo "oldBuildNumber=${{ inputs.oldBuildNumber }}"
+          echo "enforceAppInstall=${{ inputs.enforceAppInstall }}"
+          echo "flavor=${{ inputs.flavor }}"
+          echo "buildType=${{ inputs.buildType }}"
+          echo "TAGS=${{ inputs.TAGS }}"
+          echo "branch=${{ inputs.branch }}"
+          echo "backendType=${{ inputs.backendType }}"
+          echo "testinyRunName=${{ inputs.testinyRunName }}"
+          echo "androidDeviceId=${{ inputs.androidDeviceId }}"
+          echo "callingServiceEnv=${{ inputs.callingServiceEnv }}"
+          echo "callingServiceUrl=${{ inputs.callingServiceUrl }}"
+          echo "deflakeCount=${{ inputs.deflakeCount }}"
+          echo "retryCount=${{ inputs.retryCount }}"
+          echo ""
+          echo "=== RESOLVED SELECTORS ==="
+          echo "testCaseId=${{ steps.resolve.outputs.testCaseId }}"
+          echo "category=${{ steps.resolve.outputs.category }}"
+          echo "tagKey=${{ steps.resolve.outputs.tagKey }}"
+          echo "tagValue=${{ steps.resolve.outputs.tagValue }}"

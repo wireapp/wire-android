@@ -228,12 +228,59 @@ jobs:
           echo "tagValue=${{ steps.resolve.outputs.tagValue }}"
 
   run-android-ui-tests-placeholder:
-    name: Run Android UI tests (placeholder)
-    runs-on: ubuntu-latest
+    name: Runner smoke check + checkout (no test execution yet)
+    runs-on: [ self-hosted, android ]
     needs: validate-and-resolve-inputs
 
     steps:
-      - name: Show what would run (no execution yet)
+      - name: Checkout code at selected branch/ref
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.branch }}
+          fetch-depth: 0
+
+      - name: Show checked out ref
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "Checked out ref input: ${{ inputs.branch }}"
+          echo "Git HEAD commit: $(git rev-parse HEAD)"
+          echo "Git branch (may be 'HEAD' if detached): $(git rev-parse --abbrev-ref HEAD)"
+
+      - name: Show connected devices (ADB)
+        shell: bash
+        run: |
+          set -euo pipefail
+          adb version
+          echo ""
+          echo "adb devices -l"
+          adb devices -l
+
+          # Fail fast if no devices are connected/online
+          online_count="$(adb devices | awk 'NR>1 && $2=="device"{c++} END{print c+0}')"
+          if [[ "$online_count" -eq 0 ]]; then
+            echo "ERROR: No online Android devices found on this runner."
+            exit 1
+          fi
+
+      - name: Validate androidDeviceId (if provided)
+        shell: bash
+        run: |
+          set -euo pipefail
+          TARGET="${{ inputs.androidDeviceId }}"
+
+          if [[ -n "$TARGET" ]]; then
+            echo "Target device requested: $TARGET"
+            if ! adb devices | awk 'NR>1 && $2=="device"{print $1}' | grep -qx "$TARGET"; then
+              echo "ERROR: androidDeviceId '$TARGET' not found in 'adb devices'."
+              exit 1
+            fi
+            echo "OK: Target device is connected."
+          else
+            echo "No androidDeviceId provided -> will use any available device later."
+          fi
+
+      - name: Show what would run (preview only)
         shell: bash
         run: |
           set -euo pipefail
@@ -268,4 +315,3 @@ jobs:
           echo "  -Pandroid.testInstrumentationRunnerArguments.category=${{ needs.validate-and-resolve-inputs.outputs.resolvedCategory }} \\"
           echo "  -Pandroid.testInstrumentationRunnerArguments.tagKey=${{ needs.validate-and-resolve-inputs.outputs.resolvedTagKey }} \\"
           echo "  -Pandroid.testInstrumentationRunnerArguments.tagValue=${{ needs.validate-and-resolve-inputs.outputs.resolvedTagValue }}"
-

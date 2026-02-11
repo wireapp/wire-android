@@ -1,12 +1,12 @@
 New
 - Drive: Search button to find files quickly
 - Quoted multipart messages are shortened to a single line to improve readability
-- Backups include reactions, replies and mentions
+- Backups include reactions, replies, and mentions
 
 Improvements
 - Call handling when changing networks
-- Faster and more reliable account creation and login process, even when the app is running in the background
+- Faster, more reliable account creation and login process, even when the app is running in the background
 - Drive: File and folder renaming disallows invalid characters
 
 Fix
-- When a person uses SCIM, they can no longer edit their username, profile name or email
+- When a person uses SCIM, they can no longer edit their username, profile name, or email

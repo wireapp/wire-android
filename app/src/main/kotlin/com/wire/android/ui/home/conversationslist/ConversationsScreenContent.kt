@@ -22,11 +22,15 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
+import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.wire.android.R
 import com.wire.android.appLogger
@@ -57,6 +61,7 @@ import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.ui.home.conversationslist.common.ConversationList
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
+import com.wire.android.ui.home.conversationslist.model.ConversationItemType
 import com.wire.android.ui.home.conversationslist.model.ConversationsSource
 import com.wire.android.ui.home.conversationslist.search.SearchConversationsEmptyContent
 import com.wire.android.ui.theme.WireTheme
@@ -160,11 +165,10 @@ fun ConversationsScreenContent(
     when (val state = conversationListViewModel.conversationListState) {
         is ConversationListState.Paginated -> {
             val lazyPagingItems = state.conversations.collectAsLazyPagingItems()
-            val showLoading = lazyPagingItems.loadState.refresh == LoadState.Loading && lazyPagingItems.itemCount == 0
             searchBarState.searchVisibleChanged(lazyPagingItems.itemCount > 0 || searchBarState.isSearchActive)
             when {
                 // when conversation list is not yet fetched, show loading indicator
-                showLoading -> loadingListContent(lazyListState)
+                lazyPagingItems.isLoading() -> loadingListContent(lazyListState)
                 // when there is at least one conversation
                 lazyPagingItems.itemCount > 0 -> ConversationList(
                     lazyPagingConversations = lazyPagingItems,
@@ -255,6 +259,15 @@ fun ConversationsScreenContent(
     SnackBarMessageHandler(infoMessages = conversationListViewModel.infoMessage, onEmitted = {
         sheetState.hide()
     })
+}
+
+@Composable
+private fun LazyPagingItems<ConversationItemType>.isLoading(): Boolean {
+    var initialLoadCompleted by remember { mutableStateOf(false) }
+    if (loadState.refresh is LoadState.NotLoading) {
+        initialLoadCompleted = true
+    }
+    return !initialLoadCompleted && loadState.refresh == LoadState.Loading && itemCount == 0
 }
 
 private const val TAG = "BaseConversationsScreen"

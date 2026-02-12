@@ -98,9 +98,6 @@ tasks.register("fetchSecrets") {
                 ?.takeIf { it.isNotEmpty() }
                 ?: "Test Automation"
 
-            // IMPORTANT: use a single-arg vault flag so op CLI always treats it as a vault query
-            val vaultArg = "--vault=$vaultName"
-
             // Helper function to execute shell commands and capture output
             fun runCommand(command: List<String>): String {
                 val stdout = ByteArrayOutputStream()
@@ -130,7 +127,9 @@ tasks.register("fetchSecrets") {
             }
 
             // 1. List all items in the vault, output in JSON format
-            val listOutput = runCommand(listOf("op", "item", "list", vaultArg, "--format", "json"))
+            val listOutput = runCommand(
+                listOf("op", "item", "list", "--vault", vaultName, "--format", "json")
+            )
 
             // Parse the list output into a List of maps
             val items = JsonSlurper().parseText(listOutput) as List<Map<String, Any>>
@@ -143,7 +142,10 @@ tasks.register("fetchSecrets") {
                 val itemTitle = item["title"] as? String ?: return@forEach
 
                 // 2. Fetch each secret item's full details
-                val itemOutput = runCommand(listOf("op", "item", "get", vaultArg, itemId, "--format", "json"))
+                // IMPORTANT: itemId must come immediately after "get", and vault must be a proper flag
+                val itemOutput = runCommand(
+                    listOf("op", "item", "get", itemId, "--vault", vaultName, "--format", "json")
+                )
                 val itemData = JsonSlurper().parseText(itemOutput) as Map<String, Any>
 
                 // 3. Convert fields from List to Map where label is the key (simplify structure)

@@ -156,11 +156,9 @@ jobs:
               fi
             done
 
-            # Allow optional leading "@"
             sel="${sel#@}"
             sel="$(trim "$sel")"
 
-            # Reject legacy key:value format (we dropped tagKey/tagValue)
             if [[ "$sel" == *:* ]]; then
               echo "ERROR: TAGS format '@key:value' is not supported. Use '@TC-1234' or '@category'."
               exit 1
@@ -207,7 +205,7 @@ jobs:
           fetch-depth: 0
           clean: true
 
-      - name: Remove any leftover secrets.json (safety)
+      - name: Remove any leftover secrets files (safety)
         run: |
           set -euo pipefail
           rm -f secrets.json
@@ -285,9 +283,7 @@ jobs:
           echo "ANDROID_SERIAL=$SELECTED" >> "$GITHUB_ENV"
 
       - name: Install 1Password CLI
-        uses: 1Password/install-cli-action@v1
-        with:
-          version: 2
+        uses: 1password/install-cli-action@v2
 
       - name: Fetch secrets.json from 1Password (runtime only)
         env:
@@ -302,30 +298,20 @@ jobs:
 
           chmod +x ./gradlew
 
-          SECRETS_PATH="${RUNNER_TEMP}/secrets.json"
-          rm -f "${SECRETS_PATH}"
+          SECRETS_FILE="${RUNNER_TEMP}/secrets.json"
+          export SECRETS_JSON_PATH="${SECRETS_FILE}"
+          echo "SECRETS_JSON_PATH=${SECRETS_FILE}" >> "$GITHUB_ENV"
 
-          # Make the path available to later steps
-          echo "SECRETS_JSON_PATH=${SECRETS_PATH}" >> "$GITHUB_ENV"
+          ./gradlew :tests:testsSupport:fetchSecrets --no-daemon -PsecretsJsonPath="${SECRETS_FILE}"
 
-          # Write secrets to RUNNER_TEMP (not repo root)
-          ./gradlew :tests:testsSupport:fetchSecrets \
-            -PsecretsJsonPath="${SECRETS_PATH}" \
-            --no-daemon
-
-      - name: Verify secrets.json exists (do not print contents)
-        run: |
-          set -euo pipefail
-          test -s "${SECRETS_JSON_PATH}"
-          chmod 600 "${SECRETS_JSON_PATH}"
-          echo "OK: secrets.json created at ${SECRETS_JSON_PATH}"
+          test -s "${SECRETS_FILE}"
+          chmod 600 "${SECRETS_FILE}"
+          echo "OK: secrets.json created at ${SECRETS_FILE}"
 
       - name: Gradle sanity check (assemble only, still no test execution)
         run: |
           set -euo pipefail
-          ./gradlew :tests:testsCore:assembleDebugAndroidTest \
-            -PsecretsJsonPath="${SECRETS_JSON_PATH}" \
-            --no-daemon
+          ./gradlew :tests:testsCore:assembleDebugAndroidTest --no-daemon
 
       - name: Show what would run (preview only)
         run: |
@@ -355,7 +341,7 @@ jobs:
           tc="${{ needs.validate-and-resolve-inputs.outputs.resolvedTestCaseId }}"
           cat="${{ needs.validate-and-resolve-inputs.outputs.resolvedCategory }}"
 
-          cmd=( "./gradlew" ":tests:testsCore:connectedDebugAndroidTest" "-PsecretsJsonPath=${SECRETS_JSON_PATH}" )
+          cmd=( "./gradlew" ":tests:testsCore:connectedDebugAndroidTest" )
           if [[ -n "$tc" ]]; then
             cmd+=( "-Pandroid.testInstrumentationRunnerArguments.testCaseId=${tc}" )
           fi
@@ -367,12 +353,10 @@ jobs:
           printf '%q ' "${cmd[@]}"
           echo
 
-      - name: Cleanup secrets.json
+      - name: Cleanup secrets + workspace outputs
         if: always()
         run: |
           set -euo pipefail
-          if [[ -n "${SECRETS_JSON_PATH:-}" ]]; then
-            rm -f "${SECRETS_JSON_PATH}"
-          fi
           rm -f secrets.json
           rm -f "${RUNNER_TEMP}/secrets.json"
+          git clean -ffdx

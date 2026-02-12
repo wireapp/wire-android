@@ -198,7 +198,7 @@ jobs:
         shell: bash
 
     steps:
-      - name: Checkout code at selected branch/ref (with submodules)
+      - name: Checkout code (with submodules)
         uses: actions/checkout@v4
         with:
           # FIX: ensure we checkout the SAME branch the workflow is running from (no mismatch with inputs.branch)
@@ -207,17 +207,10 @@ jobs:
           clean: true
           submodules: recursive
 
-      - name: Verify required repo files (kalium version catalog)
+      - name: Verify Gradle contains opVault support (quick check)
         run: |
           set -euo pipefail
-          if [[ ! -f "kalium/gradle/libs.versions.toml" ]]; then
-            echo "ERROR: Missing kalium/gradle/libs.versions.toml"
-            echo "This usually means submodules were not fetched or the selected ref does not include kalium."
-            echo "Listing kalium/gradle contents (if present):"
-            ls -la kalium/gradle || true
-            exit 1
-          fi
-          echo "OK: kalium/gradle/libs.versions.toml found"
+          grep -n "opVault" tests/testsSupport/build.gradle.kts
 
       # Gradle needs Java. Ensure a consistent JDK on the self-hosted runner.
       - name: Set up Java
@@ -227,11 +220,15 @@ jobs:
           java-version: "17"
           cache: gradle
 
-      - name: Verify Java
+      - name: Set up Android SDK (sets ANDROID_HOME + adb)
+        uses: android-actions/setup-android@v3
+
+      - name: Verify toolchain
         run: |
           set -euo pipefail
-          echo "JAVA_HOME=$JAVA_HOME"
           java -version
+          echo "ANDROID_HOME=${ANDROID_HOME:-}"
+          adb version
 
       - name: Remove any leftover secrets files (safety)
         run: |
@@ -239,56 +236,10 @@ jobs:
           rm -f secrets.json
           rm -f "${RUNNER_TEMP}/secrets.json"
 
-      - name: Show checked out ref
-        run: |
-          set -euo pipefail
-          echo "Workflow ref (github.ref_name): ${{ github.ref_name }}"
-          echo "Git HEAD commit: $(git rev-parse HEAD)"
-          echo "Git branch (may be 'HEAD' if detached): $(git rev-parse --abbrev-ref HEAD)"
-          echo "Submodules status:"
-          git submodule status --recursive || true
-
-      - name: Ensure ADB is available (no sudo)
-        run: |
-          set -euo pipefail
-
-          if command -v adb >/dev/null 2>&1; then
-            echo "adb already available: $(command -v adb)"
-            adb version
-            exit 0
-          fi
-
-          if ! command -v curl >/dev/null 2>&1; then
-            echo "ERROR: 'curl' is not available on this runner."
-            exit 1
-          fi
-
-          if ! command -v unzip >/dev/null 2>&1; then
-            echo "ERROR: 'unzip' is not available on this runner."
-            exit 1
-          fi
-
-          echo "adb not found. Installing Android platform-tools locally..."
-          ADB_ROOT="${RUNNER_TEMP}/android-platform-tools"
-          ZIP_PATH="${RUNNER_TEMP}/platform-tools.zip"
-
-          rm -rf "${ADB_ROOT}" "${ZIP_PATH}"
-          mkdir -p "${ADB_ROOT}"
-
-          curl -fsSL -o "${ZIP_PATH}" \
-            https://dl.google.com/android/repository/platform-tools-latest-linux.zip
-
-          unzip -oq "${ZIP_PATH}" -d "${ADB_ROOT}"
-          rm -f "${ZIP_PATH}"
-
-          echo "${ADB_ROOT}/platform-tools" >> "${GITHUB_PATH}"
-          "${ADB_ROOT}/platform-tools/adb" version
-
       - name: Select target device (androidDeviceId optional)
         run: |
           set -euo pipefail
 
-          echo "adb devices -l"
           adb devices -l
 
           online_count="$(adb devices | awk 'NR>1 && $2=="device"{c++} END{print c+0}')"
@@ -304,13 +255,12 @@ jobs:
               exit 1
             fi
             SELECTED="$TARGET"
-            echo "Using requested device: $SELECTED"
           else
             SELECTED="$(adb devices | awk 'NR>1 && $2=="device"{print $1; exit}')"
-            echo "No androidDeviceId provided -> auto-selected: $SELECTED"
           fi
 
           echo "ANDROID_SERIAL=$SELECTED" >> "$GITHUB_ENV"
+          echo "Using device: $SELECTED"
 
       - name: Install 1Password CLI
         uses: 1password/install-cli-action@v2
@@ -320,11 +270,6 @@ jobs:
           OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
         run: |
           set -euo pipefail
-
-          if [[ -z "${OP_SERVICE_ACCOUNT_TOKEN:-}" ]]; then
-            echo "ERROR: OP_SERVICE_ACCOUNT_TOKEN is not set in GitHub repo secrets."
-            exit 1
-          fi
 
           chmod +x ./gradlew
 
@@ -345,47 +290,6 @@ jobs:
         run: |
           set -euo pipefail
           ./gradlew :tests:testsCore:assembleDebugAndroidTest --no-daemon
-
-      - name: Show what would run (preview only)
-        run: |
-          set -euo pipefail
-
-          echo "=== PLACEHOLDER (NO TEST EXECUTION YET) ==="
-          echo "branch(input)=${{ inputs.branch }}"
-          echo "workflow ref=${{ github.ref_name }}"
-          echo "appBuildNumber=${{ inputs.appBuildNumber }}"
-          echo "isUpgrade=${{ inputs.isUpgrade }}"
-          echo "oldBuildNumber=${{ inputs.oldBuildNumber }}"
-          echo "enforceAppInstall=${{ inputs.enforceAppInstall }}"
-          echo "flavor=${{ inputs.flavor }}"
-          echo "buildType=${{ inputs.buildType }}"
-          echo "backendType=${{ inputs.backendType }}"
-          echo "testinyRunName=${{ inputs.testinyRunName }}"
-          echo "androidDeviceId=${{ inputs.androidDeviceId }}"
-          echo "callingServiceEnv=${{ inputs.callingServiceEnv }}"
-          echo "callingServiceUrl=${{ inputs.callingServiceUrl }}"
-          echo "deflakeCount=${{ inputs.deflakeCount }}"
-          echo "TAGS=${{ inputs.TAGS }}"
-          echo "ANDROID_SERIAL=${ANDROID_SERIAL}"
-          echo ""
-          echo "resolvedTestCaseId=${{ needs.validate-and-resolve-inputs.outputs.resolvedTestCaseId }}"
-          echo "resolvedCategory=${{ needs.validate-and-resolve-inputs.outputs.resolvedCategory }}"
-          echo ""
-
-          tc="${{ needs.validate-and-resolve-inputs.outputs.resolvedTestCaseId }}"
-          cat="${{ needs.validate-and-resolve-inputs.outputs.resolvedCategory }}"
-
-          cmd=( "./gradlew" ":tests:testsCore:connectedDebugAndroidTest" )
-          if [[ -n "$tc" ]]; then
-            cmd+=( "-Pandroid.testInstrumentationRunnerArguments.testCaseId=${tc}" )
-          fi
-          if [[ -n "$cat" ]]; then
-            cmd+=( "-Pandroid.testInstrumentationRunnerArguments.category=${cat}" )
-          fi
-
-          echo "=== FUTURE GRADLE COMMAND (PREVIEW ONLY) ==="
-          printf '%q ' "${cmd[@]}"
-          echo
 
       - name: Cleanup secrets + workspace outputs
         if: always()

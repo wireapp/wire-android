@@ -250,52 +250,52 @@ jobs:
       - name: Ensure ADB is available (no sudo)
         run: |
           set -euo pipefail
-          
+
           if command -v adb >/dev/null 2>&1; then
             echo "adb already available: $(command -v adb)"
             adb version
             exit 0
           fi
-          
+
           if ! command -v curl >/dev/null 2>&1; then
             echo "ERROR: 'curl' is not available on this runner."
             exit 1
           fi
-          
+
           if ! command -v unzip >/dev/null 2>&1; then
             echo "ERROR: 'unzip' is not available on this runner."
             exit 1
           fi
-          
+
           echo "adb not found. Installing Android platform-tools locally..."
           ADB_ROOT="${RUNNER_TEMP}/android-platform-tools"
           ZIP_PATH="${RUNNER_TEMP}/platform-tools.zip"
-          
+
           rm -rf "${ADB_ROOT}" "${ZIP_PATH}"
           mkdir -p "${ADB_ROOT}"
-          
+
           curl -fsSL -o "${ZIP_PATH}" \
             https://dl.google.com/android/repository/platform-tools-latest-linux.zip
-          
+
           unzip -oq "${ZIP_PATH}" -d "${ADB_ROOT}"
           rm -f "${ZIP_PATH}"
-          
+
           echo "${ADB_ROOT}/platform-tools" >> "${GITHUB_PATH}"
           "${ADB_ROOT}/platform-tools/adb" version
 
       - name: Select target device (androidDeviceId optional)
         run: |
           set -euo pipefail
-          
+
           echo "adb devices -l"
           adb devices -l
-          
+
           online_count="$(adb devices | awk 'NR>1 && $2=="device"{c++} END{print c+0}')"
           if [[ "$online_count" -eq 0 ]]; then
             echo "ERROR: No online Android devices found on this runner."
             exit 1
           fi
-          
+
           TARGET="${{ inputs.androidDeviceId }}"
           if [[ -n "$TARGET" ]]; then
             if ! adb devices | awk 'NR>1 && $2=="device"{print $1}' | grep -qx "$TARGET"; then
@@ -308,31 +308,39 @@ jobs:
             SELECTED="$(adb devices | awk 'NR>1 && $2=="device"{print $1; exit}')"
             echo "No androidDeviceId provided -> auto-selected: $SELECTED"
           fi
-          
+
           echo "ANDROID_SERIAL=$SELECTED" >> "$GITHUB_ENV"
 
       - name: Install 1Password CLI
         uses: 1password/install-cli-action@v2
+
+      - name: Validate 1Password vault access (safe)
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+        run: |
+          set -euo pipefail
+          op vault get "Test Automation" --format json >/dev/null
+          echo "OK: service account can access 'Test Automation' vault"
 
       - name: Fetch secrets.json from 1Password (runtime only)
         env:
           OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
         run: |
           set -euo pipefail
-          
+
           if [[ -z "${OP_SERVICE_ACCOUNT_TOKEN:-}" ]]; then
             echo "ERROR: OP_SERVICE_ACCOUNT_TOKEN is not set in GitHub repo secrets."
             exit 1
           fi
-          
+
           chmod +x ./gradlew
-          
+
           SECRETS_FILE="${RUNNER_TEMP}/secrets.json"
           export SECRETS_JSON_PATH="${SECRETS_FILE}"
           echo "SECRETS_JSON_PATH=${SECRETS_FILE}" >> "$GITHUB_ENV"
-          
+
           ./gradlew :tests:testsSupport:fetchSecrets --no-daemon -PsecretsJsonPath="${SECRETS_FILE}"
-          
+
           test -s "${SECRETS_FILE}"
           chmod 600 "${SECRETS_FILE}"
           echo "OK: secrets.json created at ${SECRETS_FILE}"
@@ -345,7 +353,7 @@ jobs:
       - name: Show what would run (preview only)
         run: |
           set -euo pipefail
-          
+
           echo "=== PLACEHOLDER (NO TEST EXECUTION YET) ==="
           echo "branch=${{ inputs.branch }}"
           echo "appBuildNumber=${{ inputs.appBuildNumber }}"
@@ -366,10 +374,10 @@ jobs:
           echo "resolvedTestCaseId=${{ needs.validate-and-resolve-inputs.outputs.resolvedTestCaseId }}"
           echo "resolvedCategory=${{ needs.validate-and-resolve-inputs.outputs.resolvedCategory }}"
           echo ""
-          
+
           tc="${{ needs.validate-and-resolve-inputs.outputs.resolvedTestCaseId }}"
           cat="${{ needs.validate-and-resolve-inputs.outputs.resolvedCategory }}"
-          
+
           cmd=( "./gradlew" ":tests:testsCore:connectedDebugAndroidTest" )
           if [[ -n "$tc" ]]; then
             cmd+=( "-Pandroid.testInstrumentationRunnerArguments.testCaseId=${tc}" )
@@ -377,7 +385,7 @@ jobs:
           if [[ -n "$cat" ]]; then
             cmd+=( "-Pandroid.testInstrumentationRunnerArguments.category=${cat}" )
           fi
-          
+
           echo "=== FUTURE GRADLE COMMAND (PREVIEW ONLY) ==="
           printf '%q ' "${cmd[@]}"
           echo

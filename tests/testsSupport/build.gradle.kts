@@ -126,10 +126,17 @@ tasks.register("fetchSecrets") {
                 return out
             }
 
+            // Service accounts can require an explicit vault. Use the vault ID to avoid extra lookups.
+            val vaultJson = runCommand(listOf("op", "vault", "get", vaultName, "--format", "json"))
+            val vaultMap = JsonSlurper().parseText(vaultJson) as Map<String, Any>
+            val vaultId = vaultMap["id"]?.toString()?.trim().orEmpty()
+
+            if (vaultId.isBlank()) {
+                throw GradleException("Unable to resolve vault id for vault '$vaultName'")
+            }
+
             // 1. List all items in the vault, output in JSON format
-            val listOutput = runCommand(
-                listOf("op", "item", "list", "--vault", vaultName, "--format", "json")
-            )
+            val listOutput = runCommand(listOf("op", "item", "list", "--vault", vaultId, "--format", "json"))
 
             // Parse the list output into a List of maps
             val items = JsonSlurper().parseText(listOutput) as List<Map<String, Any>>
@@ -142,10 +149,7 @@ tasks.register("fetchSecrets") {
                 val itemTitle = item["title"] as? String ?: return@forEach
 
                 // 2. Fetch each secret item's full details
-                // IMPORTANT: itemId must come immediately after "get", and vault must be a proper flag
-                val itemOutput = runCommand(
-                    listOf("op", "item", "get", itemId, "--vault", vaultName, "--format", "json")
-                )
+                val itemOutput = runCommand(listOf("op", "item", "get", itemId, "--vault", vaultId, "--format", "json"))
                 val itemData = JsonSlurper().parseText(itemOutput) as Map<String, Any>
 
                 // 3. Convert fields from List to Map where label is the key (simplify structure)

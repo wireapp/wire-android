@@ -22,6 +22,7 @@ import android.content.RestrictionsManager
 import com.wire.android.appLogger
 import com.wire.android.config.ServerConfigProvider
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.feature.IsSecureFolderUseCase
 import com.wire.android.util.EMPTY
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.configuration.server.ServerConfig
@@ -32,6 +33,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
 import java.util.concurrent.atomic.AtomicReference
 
 interface ManagedConfigurationsManager {
@@ -92,6 +94,7 @@ internal class ManagedConfigurationsManagerImpl(
     private val dispatchers: DispatcherProvider,
     private val serverConfigProvider: ServerConfigProvider,
     private val globalDataStore: GlobalDataStore,
+    private val isSecureFolder: IsSecureFolderUseCase,
 ) : ManagedConfigurationsManager {
 
     private val json: Json = Json { ignoreUnknownKeys = true }
@@ -214,16 +217,61 @@ internal class ManagedConfigurationsManagerImpl(
 
     @Suppress("TooGenericExceptionCaught")
     private inline fun <reified T> getJsonRestrictionByKey(key: String): T? =
-        restrictionsManager.applicationRestrictions.getString(key)?.let {
+        restrictionsManager.applicationRestrictions.getString(key)?.let { rawJson ->
             try {
-                json.decodeFromString<T>(it)
+                val resolvedJson = resolveContextAwareConfig(rawJson) ?: return@let null
+                json.decodeFromString<T>(resolvedJson)
             } catch (e: Exception) {
                 throw InvalidManagedConfig("Failed to parse managed config for key $key: ${e.message}")
             }
         }
 
+    @Suppress("ReturnCount")
+    private fun resolveContextAwareConfig(rawJson: String): String? {
+        val jsonObject = try {
+            json.parseToJsonElement(rawJson)
+        } catch (_: Exception) {
+            return rawJson
+        } as? JsonObject ?: return rawJson
+
+        val contextKey = if (isSecureFolder()) CONTEXT_KEY_SECURE else CONTEXT_KEY_REGULAR
+
+        jsonObject[contextKey]?.let { element ->
+            if (element is JsonObject) {
+                logger.i("Context-mapped config resolved via '$contextKey' key")
+                return element.toString()
+            }
+        }
+        jsonObject[CONTEXT_KEY_DEFAULT]?.let { element ->
+            if (element is JsonObject) {
+                logger.i("Context-mapped config resolved via '$CONTEXT_KEY_DEFAULT' fallback (no '$contextKey' key)")
+                return element.toString()
+            }
+        }
+
+        // At this point neither contextKey nor "default" matched. However, the JSON might still
+        // be a context-mapped config intended for the *other* app instance. For example, an admin
+        // might push {"secure": {...}} without a "regular" or "default" entry — meaning the primary
+        // instance should get no managed config at all (fall back to app defaults).
+        // We detect this by checking whether the opposite context key holds a JsonObject.
+        // Returning null here causes getJsonRestrictionByKey to return null, which downstream
+        // translates to ServerConfigResult.Failure / SSOCodeConfigResult.Failure → app defaults.
+        val otherContextKey = if (contextKey == CONTEXT_KEY_REGULAR) CONTEXT_KEY_SECURE else CONTEXT_KEY_REGULAR
+        if (jsonObject[otherContextKey] is JsonObject) {
+            logger.w("Context-mapped config has no '$contextKey' or '$CONTEXT_KEY_DEFAULT' key, returning null")
+            return null
+        }
+
+        // Non context-mapped config. Backwards compatibility.
+        logger.i("Non-context-mapped config resolved")
+        return rawJson
+    }
+
     companion object {
         private const val TAG = "ManagedConfigurationsManager"
+        private const val CONTEXT_KEY_REGULAR = "regular"
+        private const val CONTEXT_KEY_SECURE = "secure"
+        private const val CONTEXT_KEY_DEFAULT = "default"
     }
 }
 

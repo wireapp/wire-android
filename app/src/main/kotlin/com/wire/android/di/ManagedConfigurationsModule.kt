@@ -23,6 +23,7 @@ import com.wire.android.config.ServerConfigProvider
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.emm.ManagedConfigurationsManager
 import com.wire.android.emm.ManagedConfigurationsManagerImpl
+import com.wire.android.feature.IsSecureFolderUseCase
 import com.wire.android.util.EMPTY
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.configuration.server.ServerConfig
@@ -48,9 +49,10 @@ class ManagedConfigurationsModule {
         @ApplicationContext context: Context,
         dispatcherProvider: DispatcherProvider,
         serverConfigProvider: ServerConfigProvider,
-        globalDataStore: GlobalDataStore
+        globalDataStore: GlobalDataStore,
+        isSecureFolderUseCase: IsSecureFolderUseCase
     ): ManagedConfigurationsManager {
-        return ManagedConfigurationsManagerImpl(context, dispatcherProvider, serverConfigProvider, globalDataStore)
+        return ManagedConfigurationsManagerImpl(context, dispatcherProvider, serverConfigProvider, globalDataStore, isSecureFolderUseCase)
     }
 
     @Provides

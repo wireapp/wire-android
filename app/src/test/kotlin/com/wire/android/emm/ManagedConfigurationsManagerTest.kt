@@ -8,7 +8,10 @@ import androidx.test.core.app.ApplicationProvider
 import com.wire.android.config.ServerConfigProvider
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.feature.IsSecureFolderUseCase
 import com.wire.android.util.EMPTY
+import io.mockk.every
+import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -127,6 +130,105 @@ class ManagedConfigurationsManagerTest {
         assertEquals(ServerConfigProvider().getDefaultServerConfig(), serverConfig)
     }
 
+    // region context-mapped server config
+
+    @Test
+    fun `given context-mapped server config and regular context, then resolve regular sub-config`() = runTest {
+        val (_, manager) = Arrangement()
+            .withRestrictions(mapOf(ManagedConfigurationsKeys.DEFAULT_SERVER_URLS.asKey() to contextMappedServerConfigJson))
+            .arrange(isSecureFolder = false)
+
+        val result = manager.refreshServerConfig()
+        assertInstanceOf<ServerConfigResult.Success>(result)
+        assertEquals("Primary", manager.currentServerConfig.title)
+        assertEquals("https://nginz-https.regular.wire.link", manager.currentServerConfig.api)
+    }
+
+    @Test
+    fun `given context-mapped server config and secure context, then resolve secure sub-config`() = runTest {
+        val (_, manager) = Arrangement()
+            .withRestrictions(mapOf(ManagedConfigurationsKeys.DEFAULT_SERVER_URLS.asKey() to contextMappedServerConfigJson))
+            .arrange(isSecureFolder = true)
+
+        val result = manager.refreshServerConfig()
+        assertInstanceOf<ServerConfigResult.Success>(result)
+        assertEquals("Secure Folder", manager.currentServerConfig.title)
+        assertEquals("https://nginz-https.secure.wire.link", manager.currentServerConfig.api)
+    }
+
+    @Test
+    fun `given context-mapped server config with only default, then resolve default sub-config`() = runTest {
+        val (_, manager) = Arrangement()
+            .withRestrictions(mapOf(ManagedConfigurationsKeys.DEFAULT_SERVER_URLS.asKey() to contextMappedServerConfigDefaultOnlyJson))
+            .arrange(isSecureFolder = false)
+
+        val result = manager.refreshServerConfig()
+        assertInstanceOf<ServerConfigResult.Success>(result)
+        assertEquals("Default", manager.currentServerConfig.title)
+        assertEquals("https://nginz-https.default.wire.link", manager.currentServerConfig.api)
+    }
+
+    @Test
+    fun `given context-mapped server config with no match and no default, then fall back to app defaults`() = runTest {
+        val (_, manager) = Arrangement()
+            .withRestrictions(mapOf(ManagedConfigurationsKeys.DEFAULT_SERVER_URLS.asKey() to contextMappedServerConfigNoMatchJson))
+            .arrange(isSecureFolder = false)
+
+        val result = manager.refreshServerConfig()
+        assertInstanceOf<ServerConfigResult.Failure>(result)
+        assertEquals(ServerConfigProvider().getDefaultServerConfig(), manager.currentServerConfig)
+    }
+
+    // endregion
+
+    // region context-mapped SSO code
+
+    @Test
+    fun `given context-mapped SSO code and regular context, then resolve regular sso code`() = runTest {
+        val (_, manager) = Arrangement()
+            .withRestrictions(mapOf(ManagedConfigurationsKeys.SSO_CODE.asKey() to contextMappedSSOCodeConfigJson))
+            .arrange(isSecureFolder = false)
+
+        val result = manager.refreshSSOCodeConfig()
+        assertInstanceOf<SSOCodeConfigResult.Success>(result)
+        assertEquals("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", manager.currentSSOCodeConfig)
+    }
+
+    @Test
+    fun `given context-mapped SSO code and secure context, then resolve secure sso code`() = runTest {
+        val (_, manager) = Arrangement()
+            .withRestrictions(mapOf(ManagedConfigurationsKeys.SSO_CODE.asKey() to contextMappedSSOCodeConfigJson))
+            .arrange(isSecureFolder = true)
+
+        val result = manager.refreshSSOCodeConfig()
+        assertInstanceOf<SSOCodeConfigResult.Success>(result)
+        assertEquals("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb", manager.currentSSOCodeConfig)
+    }
+
+    @Test
+    fun `given context-mapped SSO code with only default, then resolve default sso code`() = runTest {
+        val (_, manager) = Arrangement()
+            .withRestrictions(mapOf(ManagedConfigurationsKeys.SSO_CODE.asKey() to contextMappedSSOCodeDefaultOnlyJson))
+            .arrange(isSecureFolder = true)
+
+        val result = manager.refreshSSOCodeConfig()
+        assertInstanceOf<SSOCodeConfigResult.Success>(result)
+        assertEquals("cccccccc-cccc-cccc-cccc-cccccccccccc", manager.currentSSOCodeConfig)
+    }
+
+    @Test
+    fun `given context-mapped SSO code with no match and no default, then return empty string`() = runTest {
+        val (_, manager) = Arrangement()
+            .withRestrictions(mapOf(ManagedConfigurationsKeys.SSO_CODE.asKey() to contextMappedSSOCodeNoMatchJson))
+            .arrange(isSecureFolder = false)
+
+        val result = manager.refreshSSOCodeConfig()
+        assertInstanceOf<SSOCodeConfigResult.Failure>(result)
+        assertEquals(String.EMPTY, manager.currentSSOCodeConfig)
+    }
+
+    // endregion
+
     @Test
     fun `given keep_websocket_connection is true, then persistentWebSocketEnforcedByMDM returns true`() = runTest {
         val (_, manager) = Arrangement()
@@ -190,12 +292,17 @@ class ManagedConfigurationsManagerTest {
             )
         }
 
-        fun arrange() = this to ManagedConfigurationsManagerImpl(
-            context = context,
-            serverConfigProvider = ServerConfigProvider(),
-            dispatchers = TestDispatcherProvider(),
-            globalDataStore = GlobalDataStore(context)
-        )
+        fun arrange(isSecureFolder: Boolean = false): Pair<Arrangement, ManagedConfigurationsManagerImpl> {
+            val isSecureFolderUseCase = mockk<IsSecureFolderUseCase>()
+            every { isSecureFolderUseCase() } returns isSecureFolder
+            return this to ManagedConfigurationsManagerImpl(
+                context = context,
+                serverConfigProvider = ServerConfigProvider(),
+                dispatchers = TestDispatcherProvider(),
+                globalDataStore = GlobalDataStore(context),
+                isSecureFolder = isSecureFolderUseCase
+            )
+        }
     }
 
     companion object {
@@ -236,6 +343,57 @@ class ManagedConfigurationsManagerTest {
         val invalidSSOCodeConfigJson = """
             {
               "sso_code": "invalid-sso-code"
+            }
+        """.trimIndent()
+
+        private fun serverEndpoints(subdomain: String) = """
+            {
+              "accountsURL": "https://account.$subdomain.wire.link",
+              "backendURL": "https://nginz-https.$subdomain.wire.link",
+              "backendWSURL": "https://nginz-ssl.$subdomain.wire.link",
+              "blackListURL": "https://disallowed-clients.$subdomain.wire.link",
+              "teamsURL": "https://teams.$subdomain.wire.link",
+              "websiteURL": "https://wire.com"
+            }
+        """.trimIndent()
+
+        val contextMappedServerConfigJson = """
+            {
+              "regular": { "title": "Primary", "endpoints": ${serverEndpoints("regular")} },
+              "secure": { "title": "Secure Folder", "endpoints": ${serverEndpoints("secure")} },
+              "default": { "title": "Default", "endpoints": ${serverEndpoints("default")} }
+            }
+        """.trimIndent()
+
+        val contextMappedServerConfigDefaultOnlyJson = """
+            {
+              "default": { "title": "Default", "endpoints": ${serverEndpoints("default")} }
+            }
+        """.trimIndent()
+
+        val contextMappedServerConfigNoMatchJson = """
+            {
+              "secure": { "title": "Secure Only", "endpoints": ${serverEndpoints("secure")} }
+            }
+        """.trimIndent()
+
+        val contextMappedSSOCodeConfigJson = """
+            {
+              "regular": { "sso_code": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" },
+              "secure": { "sso_code": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb" },
+              "default": { "sso_code": "cccccccc-cccc-cccc-cccc-cccccccccccc" }
+            }
+        """.trimIndent()
+
+        val contextMappedSSOCodeDefaultOnlyJson = """
+            {
+              "default": { "sso_code": "cccccccc-cccc-cccc-cccc-cccccccccccc" }
+            }
+        """.trimIndent()
+
+        val contextMappedSSOCodeNoMatchJson = """
+            {
+              "secure": { "sso_code": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb" }
             }
         """.trimIndent()
     }

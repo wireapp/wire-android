@@ -205,6 +205,20 @@ jobs:
           fetch-depth: 0
           clean: true
 
+      #  Gradle needs Java. Self-hosted runner doesn't have it configured.
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: gradle
+
+      - name: Verify Java (debug)
+        run: |
+          set -euo pipefail
+          echo "JAVA_HOME=$JAVA_HOME"
+          java -version
+
       - name: Remove any leftover secrets files (safety)
         run: |
           set -euo pipefail
@@ -360,3 +374,4 @@ jobs:
           rm -f secrets.json
           rm -f "${RUNNER_TEMP}/secrets.json"
           git clean -ffdx
+

@@ -129,12 +129,14 @@ aboutLibraries = { id = "com.mikepenz.aboutlibraries.plugin", version.ref = "abo
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 screenshot = { id = "com.android.compose.screenshot", version.ref = "screenshot"}
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+jetbrains-compose = { id = "org.jetbrains.compose", version = "1.8.2" }
 
 # Home-made convention plugins defined in build-logic
 wire-android-application = { id = "com.wire.android.application" }
 wire-android-library = { id = "com.wire.android.library" }
 wire-android-test-library = { id = "com.wire.android.test.library" }
 wire-android-navigation = { id = "com.wire.android.navigation" }
+wire-kmp-library = { id = "com.wire.android.kmp.library" }
 wire-hilt = { id = "com.wire.android.hilt" }
 wire-kover = { id = "com.wire.android.kover" }
 wire-versionizer = { id = "com.wire.android.versionizer" }

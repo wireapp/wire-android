@@ -96,12 +96,30 @@ tasks.register("fetchSecrets") {
 
             // Helper function to execute shell commands and capture output
             fun runCommand(command: List<String>): String {
-                val output = ByteArrayOutputStream()
-                project.exec {
+                val stdout = ByteArrayOutputStream()
+                val stderr = ByteArrayOutputStream()
+
+                val result = project.exec {
                     commandLine = command
-                    standardOutput = output
+                    standardOutput = stdout
+                    errorOutput = stderr
+                    isIgnoreExitValue = true
                 }
-                return output.toString().trim()
+
+                val out = stdout.toString().trim()
+                val err = stderr.toString().trim()
+
+                if (result.exitValue != 0) {
+                    throw GradleException(
+                        buildString {
+                            appendLine("Command failed: ${command.joinToString(" ")}")
+                            if (err.isNotBlank()) appendLine(err)
+                            if (out.isNotBlank()) appendLine(out)
+                        }
+                    )
+                }
+
+                return out
             }
 
             // 1. List all items in the vault, output in JSON format
@@ -118,7 +136,7 @@ tasks.register("fetchSecrets") {
                 val itemTitle = item["title"] as? String ?: return@forEach
 
                 // 2. Fetch each secret item's full details
-                val itemOutput = runCommand(listOf("op", "item", "get", itemId, "--format", "json"))
+                val itemOutput = runCommand(listOf("op", "item", "get", itemId, "--vault", vaultName, "--format", "json"))
                 val itemData = JsonSlurper().parseText(itemOutput) as Map<String, Any>
 
                 // 3. Convert fields from List to Map where label is the key (simplify structure)

@@ -201,7 +201,8 @@ jobs:
       - name: Checkout code at selected branch/ref (with submodules)
         uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.branch }}
+          # FIX: ensure we checkout the SAME branch the workflow is running from (no mismatch with inputs.branch)
+          ref: ${{ github.ref_name }}
           fetch-depth: 0
           clean: true
           submodules: recursive
@@ -241,7 +242,7 @@ jobs:
       - name: Show checked out ref
         run: |
           set -euo pipefail
-          echo "Checked out ref input: ${{ inputs.branch }}"
+          echo "Workflow ref (github.ref_name): ${{ github.ref_name }}"
           echo "Git HEAD commit: $(git rev-parse HEAD)"
           echo "Git branch (may be 'HEAD' if detached): $(git rev-parse --abbrev-ref HEAD)"
           echo "Submodules status:"
@@ -314,14 +315,6 @@ jobs:
       - name: Install 1Password CLI
         uses: 1password/install-cli-action@v2
 
-      - name: Validate 1Password vault access (safe)
-        env:
-          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
-        run: |
-          set -euo pipefail
-          op vault get "Test Automation" --format json >/dev/null
-          echo "OK: service account can access 'Test Automation' vault"
-
       - name: Fetch secrets.json from 1Password (runtime only)
         env:
           OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
@@ -339,7 +332,10 @@ jobs:
           export SECRETS_JSON_PATH="${SECRETS_FILE}"
           echo "SECRETS_JSON_PATH=${SECRETS_FILE}" >> "$GITHUB_ENV"
 
-          ./gradlew :tests:testsSupport:fetchSecrets --no-daemon -PsecretsJsonPath="${SECRETS_FILE}" -PopVault="Test Automation"
+          # FIX: pass vault explicitly so Gradle can use it (service account requirement)
+          ./gradlew :tests:testsSupport:fetchSecrets --no-daemon \
+            -PsecretsJsonPath="${SECRETS_FILE}" \
+            -PopVault="Test Automation"
 
           test -s "${SECRETS_FILE}"
           chmod 600 "${SECRETS_FILE}"
@@ -355,7 +351,8 @@ jobs:
           set -euo pipefail
 
           echo "=== PLACEHOLDER (NO TEST EXECUTION YET) ==="
-          echo "branch=${{ inputs.branch }}"
+          echo "branch(input)=${{ inputs.branch }}"
+          echo "workflow ref=${{ github.ref_name }}"
           echo "appBuildNumber=${{ inputs.appBuildNumber }}"
           echo "isUpgrade=${{ inputs.isUpgrade }}"
           echo "oldBuildNumber=${{ inputs.oldBuildNumber }}"

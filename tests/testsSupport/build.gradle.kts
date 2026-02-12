@@ -92,7 +92,11 @@ tasks.register("fetchSecrets") {
     doLast {
         val secretsFile = secretsJson
         if (!secretsFile.exists()) {
-            val vaultName = "Test Automation"
+            // Allow CI to override vault (service accounts need an explicit vault)
+            val vaultName = (project.findProperty("opVault") as String?)
+                ?.trim()
+                ?.takeIf { it.isNotEmpty() }
+                ?: "Test Automation"
 
             // Helper function to execute shell commands and capture output
             fun runCommand(command: List<String>): String {
@@ -136,7 +140,10 @@ tasks.register("fetchSecrets") {
                 val itemTitle = item["title"] as? String ?: return@forEach
 
                 // 2. Fetch each secret item's full details
-                val itemOutput = runCommand(listOf("op", "item", "get", itemId, "--vault", vaultName, "--format", "json"))
+                // Put --vault BEFORE the item identifier to avoid service-account parsing edge cases
+                val itemOutput = runCommand(
+                    listOf("op", "item", "get", "--vault", vaultName, itemId, "--format", "json")
+                )
                 val itemData = JsonSlurper().parseText(itemOutput) as Map<String, Any>
 
                 // 3. Convert fields from List to Map where label is the key (simplify structure)

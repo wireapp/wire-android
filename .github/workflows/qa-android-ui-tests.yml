@@ -339,7 +339,7 @@ jobs:
           export SECRETS_JSON_PATH="${SECRETS_FILE}"
           echo "SECRETS_JSON_PATH=${SECRETS_FILE}" >> "$GITHUB_ENV"
 
-          ./gradlew :tests:testsSupport:fetchSecrets --no-daemon -PsecretsJsonPath="${SECRETS_FILE}"
+          ./gradlew :tests:testsSupport:fetchSecrets --no-daemon -PsecretsJsonPath="${SECRETS_FILE}" -PopVault="Test Automation"
 
           test -s "${SECRETS_FILE}"
           chmod 600 "${SECRETS_FILE}"

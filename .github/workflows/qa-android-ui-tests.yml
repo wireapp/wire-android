@@ -111,6 +111,9 @@ on:
         default: 1
         type: number
 
+permissions:
+  contents: read
+
 jobs:
   validate-and-resolve-inputs:
     name: Validate + resolve selectors (no execution)
@@ -202,11 +205,13 @@ jobs:
         with:
           ref: ${{ inputs.branch }}
           fetch-depth: 0
+          clean: true
 
       - name: Remove any leftover secrets.json (safety)
         run: |
           set -euo pipefail
           rm -f secrets.json
+          rm -f "${RUNNER_TEMP}/secrets.json"
 
       - name: Show checked out ref
         run: |
@@ -249,10 +254,9 @@ jobs:
           rm -f "${ZIP_PATH}"
 
           echo "${ADB_ROOT}/platform-tools" >> "${GITHUB_PATH}"
-
           "${ADB_ROOT}/platform-tools/adb" version
 
-      - name: Check connected devices (and validate androidDeviceId if provided)
+      - name: Select target device (androidDeviceId optional)
         run: |
           set -euo pipefail
 
@@ -267,15 +271,61 @@ jobs:
 
           TARGET="${{ inputs.androidDeviceId }}"
           if [[ -n "$TARGET" ]]; then
-            echo "Target device requested: $TARGET"
             if ! adb devices | awk 'NR>1 && $2=="device"{print $1}' | grep -qx "$TARGET"; then
               echo "ERROR: androidDeviceId '$TARGET' not found in 'adb devices'."
               exit 1
             fi
-            echo "OK: Target device is connected."
+            SELECTED="$TARGET"
+            echo "Using requested device: $SELECTED"
           else
-            echo "No androidDeviceId provided -> will use any available device later."
+            SELECTED="$(adb devices | awk 'NR>1 && $2=="device"{print $1; exit}')"
+            echo "No androidDeviceId provided -> auto-selected: $SELECTED"
           fi
+
+          echo "ANDROID_SERIAL=$SELECTED" >> "$GITHUB_ENV"
+
+      - name: Install 1Password CLI
+        uses: 1Password/install-cli-action@v1
+        with:
+          version: 2
+
+      - name: Fetch secrets.json from 1Password (runtime only)
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          if [[ -z "${OP_SERVICE_ACCOUNT_TOKEN:-}" ]]; then
+            echo "ERROR: OP_SERVICE_ACCOUNT_TOKEN is not set in GitHub repo secrets."
+            exit 1
+          fi
+
+          chmod +x ./gradlew
+
+          SECRETS_PATH="${RUNNER_TEMP}/secrets.json"
+          rm -f "${SECRETS_PATH}"
+
+          # Make the path available to later steps
+          echo "SECRETS_JSON_PATH=${SECRETS_PATH}" >> "$GITHUB_ENV"
+
+          # Write secrets to RUNNER_TEMP (not repo root)
+          ./gradlew :tests:testsSupport:fetchSecrets \
+            -PsecretsJsonPath="${SECRETS_PATH}" \
+            --no-daemon
+
+      - name: Verify secrets.json exists (do not print contents)
+        run: |
+          set -euo pipefail
+          test -s "${SECRETS_JSON_PATH}"
+          chmod 600 "${SECRETS_JSON_PATH}"
+          echo "OK: secrets.json created at ${SECRETS_JSON_PATH}"
+
+      - name: Gradle sanity check (assemble only, still no test execution)
+        run: |
+          set -euo pipefail
+          ./gradlew :tests:testsCore:assembleDebugAndroidTest \
+            -PsecretsJsonPath="${SECRETS_JSON_PATH}" \
+            --no-daemon
 
       - name: Show what would run (preview only)
         run: |
@@ -296,6 +346,7 @@ jobs:
           echo "callingServiceUrl=${{ inputs.callingServiceUrl }}"
           echo "deflakeCount=${{ inputs.deflakeCount }}"
           echo "TAGS=${{ inputs.TAGS }}"
+          echo "ANDROID_SERIAL=${ANDROID_SERIAL}"
           echo ""
           echo "resolvedTestCaseId=${{ needs.validate-and-resolve-inputs.outputs.resolvedTestCaseId }}"
           echo "resolvedCategory=${{ needs.validate-and-resolve-inputs.outputs.resolvedCategory }}"
@@ -304,7 +355,7 @@ jobs:
           tc="${{ needs.validate-and-resolve-inputs.outputs.resolvedTestCaseId }}"
           cat="${{ needs.validate-and-resolve-inputs.outputs.resolvedCategory }}"
 
-          cmd=( "./gradlew" ":tests:testsCore:connectedDebugAndroidTest" )
+          cmd=( "./gradlew" ":tests:testsCore:connectedDebugAndroidTest" "-PsecretsJsonPath=${SECRETS_JSON_PATH}" )
           if [[ -n "$tc" ]]; then
             cmd+=( "-Pandroid.testInstrumentationRunnerArguments.testCaseId=${tc}" )
           fi
@@ -319,4 +370,9 @@ jobs:
       - name: Cleanup secrets.json
         if: always()
         run: |
+          set -euo pipefail
+          if [[ -n "${SECRETS_JSON_PATH:-}" ]]; then
+            rm -f "${SECRETS_JSON_PATH}"
+          fi
           rm -f secrets.json
+          rm -f "${RUNNER_TEMP}/secrets.json"

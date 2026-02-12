@@ -12,8 +12,16 @@ plugins {
 // Map to store environment variables (secrets)
 val env = Properties()
 
-// File where secrets will be saved/generated
-val secretsJson = rootProject.file("secrets.json")
+// File where secrets will be saved/generated (supports CI path override)
+val secretsJsonPath = (project.findProperty("secretsJsonPath") as String?)
+    ?.trim()
+    ?.takeIf { it.isNotEmpty() }
+    ?: System.getenv("SECRETS_JSON_PATH")
+        ?.trim()
+        ?.takeIf { it.isNotEmpty() }
+    ?: "secrets.json"
+
+val secretsJson = rootProject.file(secretsJsonPath)
 
 // Function to sanitize keys by replacing spaces and dashes with underscores, and making uppercase
 fun sanitize(text: String): String {
@@ -79,11 +87,10 @@ dependencies {
 
 // Register a custom Gradle task 'fetchSecrets' to fetch secrets from 1Password CLI and generate secrets.json
 tasks.register("fetchSecrets") {
-    // Only run if secrets.json doesn't exist or needs updating
-    outputs.file(rootProject.file("secrets.json"))
+    outputs.file(secretsJson)
 
     doLast {
-        val secretsFile = rootProject.file("secrets.json")
+        val secretsFile = secretsJson
         if (!secretsFile.exists()) {
             val vaultName = "Test Automation"
 
@@ -144,8 +151,8 @@ tasks.register("fetchSecrets") {
             println("ℹ️ secrets.json already exists - skipping fetch")
         }
     }
-
 }
+
 // workaround for now, we should configure the action https://github.com/1Password/install-cli-action when running tests on CI
 // By default, fetchSecrets is disabled. Enable it by setting enableFetchSecrets=true in local.properties or gradle.properties
 val enableFetchSecrets = project.getLocalProperty("enableFetchSecrets", "false").toBoolean()

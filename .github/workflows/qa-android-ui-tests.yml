@@ -153,9 +153,11 @@ jobs:
               fi
             done
 
+            # Allow optional leading "@"
             sel="${sel#@}"
             sel="$(trim "$sel")"
 
+            # Reject legacy key:value format (we dropped tagKey/tagValue)
             if [[ "$sel" == *:* ]]; then
               echo "ERROR: TAGS format '@key:value' is not supported. Use '@TC-1234' or '@category'."
               exit 1
@@ -200,6 +202,11 @@ jobs:
         with:
           ref: ${{ inputs.branch }}
           fetch-depth: 0
+
+      - name: Remove any leftover secrets.json (safety)
+        run: |
+          set -euo pipefail
+          rm -f secrets.json
 
       - name: Show checked out ref
         run: |
@@ -308,3 +315,8 @@ jobs:
           echo "=== FUTURE GRADLE COMMAND (PREVIEW ONLY) ==="
           printf '%q ' "${cmd[@]}"
           echo
+
+      - name: Cleanup secrets.json
+        if: always()
+        run: |
+          rm -f secrets.json

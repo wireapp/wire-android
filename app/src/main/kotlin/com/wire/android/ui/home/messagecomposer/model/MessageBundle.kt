@@ -44,36 +44,42 @@ sealed class ComposableMessageBundle(override val conversationId: ConversationId
         override val conversationId: ConversationId,
         val message: String,
         val mentions: List<UIMention>,
-        val quotedMessageId: String? = null
+        val quotedMessageId: String? = null,
+        val threadId: String? = null,
     ) : ComposableMessageBundle(conversationId)
 
     data class SendMultipartMessageBundle(
         override val conversationId: ConversationId,
         val message: String,
         val mentions: List<UIMention>,
-        val quotedMessageId: String? = null
+        val quotedMessageId: String? = null,
+        val threadId: String? = null,
     ) : ComposableMessageBundle(conversationId)
 
     data class AttachmentPickedBundle(
         override val conversationId: ConversationId,
-        val assetBundle: AssetBundle
+        val assetBundle: AssetBundle,
+        val threadId: String? = null,
     ) : ComposableMessageBundle(conversationId)
 
     data class UriPickedBundle(
         override val conversationId: ConversationId,
-        val attachmentUri: UriAsset
+        val attachmentUri: UriAsset,
+        val threadId: String? = null,
     ) : ComposableMessageBundle(conversationId)
 
     data class AudioMessageBundle(
         override val conversationId: ConversationId,
-        val attachmentUri: UriAsset
+        val attachmentUri: UriAsset,
+        val threadId: String? = null,
     ) : ComposableMessageBundle(conversationId)
 
     data class LocationBundle(
         override val conversationId: ConversationId,
         val locationName: String,
         val location: Location,
-        val zoom: Int = 20
+        val zoom: Int = 20,
+        val threadId: String? = null,
     ) : ComposableMessageBundle(conversationId)
 }
 

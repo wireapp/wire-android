@@ -39,7 +39,11 @@ class GetMessagesForConversationUseCase @Inject constructor(
     private val dispatchers: DispatcherProvider,
 ) {
 
-    suspend operator fun invoke(conversationId: ConversationId, lastReadIndex: Int): Flow<PagingData<UIMessage>> {
+    suspend operator fun invoke(
+        conversationId: ConversationId,
+        lastReadIndex: Int,
+        threadId: String? = null,
+    ): Flow<PagingData<UIMessage>> {
         val pagingConfig = PagingConfig(
             pageSize = PAGE_SIZE,
             prefetchDistance = PREFETCH_DISTANCE,
@@ -48,6 +52,7 @@ class GetMessagesForConversationUseCase @Inject constructor(
         )
         return getMessages(
             conversationId,
+            threadId = threadId,
             pagingConfig = pagingConfig,
             startingOffset = max(0, lastReadIndex - PREFETCH_DISTANCE).toLong()
         ).map { pagingData ->

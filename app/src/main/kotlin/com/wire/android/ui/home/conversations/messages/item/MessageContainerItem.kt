@@ -25,6 +25,7 @@ import com.wire.android.ui.common.applyIf
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.home.conversations.SelfDeletionTimerHelper
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
+import com.wire.android.ui.home.conversations.messages.ThreadSummaryUi
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.rememberSelfDeletionTimer
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
@@ -46,6 +47,8 @@ fun MessageContainerItem(
     shouldDisplayFooter: Boolean = true,
     isSelectedMessage: Boolean = false,
     failureInteractionAvailable: Boolean = true,
+    threadSummary: ThreadSummaryUi? = null,
+    isThreadNavigationEnabled: Boolean = true,
     defaultBackgroundColor: Color = colorsScheme().surfaceContainerLow,
     isBubbleUiEnabled: Boolean = false,
     isWireCellsEnabled: Boolean = false,
@@ -91,6 +94,8 @@ fun MessageContainerItem(
                 assetStatus = assetStatus,
                 swipeableMessageConfiguration = swipeableMessageConfiguration,
                 failureInteractionAvailable = failureInteractionAvailable,
+                threadSummary = threadSummary,
+                isThreadNavigationEnabled = isThreadNavigationEnabled,
                 searchQuery = searchQuery,
                 shouldDisplayMessageStatus = shouldDisplayMessageStatus,
                 shouldDisplayFooter = shouldDisplayFooter,

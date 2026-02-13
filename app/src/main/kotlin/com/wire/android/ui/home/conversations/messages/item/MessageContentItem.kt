@@ -17,16 +17,24 @@
  */
 package com.wire.android.ui.home.conversations.messages.item
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.ui.common.dimensions
@@ -34,6 +42,7 @@ import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversations.SelfDeletionTimerHelper
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
+import com.wire.android.ui.home.conversations.messages.ThreadSummaryUi
 import com.wire.android.ui.home.conversations.model.MessageEditStatus
 import com.wire.android.ui.home.conversations.model.MessageFlowStatus
 import com.wire.android.ui.home.conversations.model.MessageSource
@@ -57,6 +66,8 @@ fun MessageContentItem(
     shouldDisplayFooter: Boolean = true,
     failureInteractionAvailable: Boolean = true,
     useSmallBottomPadding: Boolean = false,
+    threadSummary: ThreadSummaryUi? = null,
+    isThreadNavigationEnabled: Boolean = true,
     selfDeletionTimerState: SelfDeletionTimerHelper.SelfDeletionTimerState = SelfDeletionTimerHelper.SelfDeletionTimerState.NotExpirable,
     innerPadding: PaddingValues = PaddingValues(),
 ) {
@@ -138,6 +149,20 @@ fun MessageContentItem(
                     }
                 )
             }
+            if (threadSummary != null) {
+                VerticalSpace.x4()
+                ThreadSummaryChip(
+                    visibleReplyCount = threadSummary.visibleReplyCount,
+                    messageStyle = messageStyle,
+                    enabled = isThreadNavigationEnabled,
+                    onClick = remember(threadSummary.threadId, message.header.messageId) {
+                        {
+                            clickActions.onThreadClicked(message.header.messageId, threadSummary.threadId)
+                        }
+                    },
+                    modifier = Modifier.padding(innerPadding)
+                )
+            }
             if (shouldShowBottomLabels(
                     messageStyle = messageStyle,
                     messageStatus = header.messageStatus,
@@ -193,6 +218,43 @@ fun MessageContentItem(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun ThreadSummaryChip(
+    visibleReplyCount: Long,
+    messageStyle: MessageStyle,
+    enabled: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val replyCount = visibleReplyCount.coerceAtMost(Int.MAX_VALUE.toLong()).toInt()
+    Row(
+        modifier = modifier
+            .background(
+                color = messageStyle.surface().copy(alpha = if (enabled) 0.35f else 0.2f),
+                shape = RoundedCornerShape(dimensions().corner12x)
+            )
+            .clickable(enabled = enabled, onClick = onClick)
+            .padding(
+                horizontal = dimensions().spacing8x,
+                vertical = dimensions().spacing4x
+            ),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(
+            painter = painterResource(id = R.drawable.ic_unread_reply),
+            contentDescription = null,
+            tint = messageStyle.highlighted(),
+            modifier = Modifier.size(dimensions().spacing14x),
+        )
+        HorizontalSpace.x4()
+        Text(
+            text = pluralStringResource(R.plurals.unread_event_reply, replyCount, replyCount),
+            style = MaterialTheme.typography.labelSmall,
+            color = if (enabled) messageStyle.highlighted() else messageStyle.onSurface(),
+        )
     }
 }
 

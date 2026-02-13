@@ -42,7 +42,9 @@ import com.wire.kalium.logic.feature.message.MessageScope
 import com.wire.kalium.logic.feature.message.ObserveMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.ObserveMessageReactionsUseCase
 import com.wire.kalium.logic.feature.message.ObserveMessageReceiptsUseCase
+import com.wire.kalium.logic.feature.message.ObserveThreadSummariesForRootsUseCase
 import com.wire.kalium.logic.feature.message.RetryFailedMessageUseCase
+import com.wire.kalium.logic.feature.message.StartThreadFromMessageUseCase
 import com.wire.kalium.logic.feature.message.SendEditMultipartMessageUseCase
 import com.wire.kalium.logic.feature.message.SendEditTextMessageUseCase
 import com.wire.kalium.logic.feature.message.SendKnockUseCase
@@ -100,8 +102,18 @@ class MessageModule {
 
     @ViewModelScoped
     @Provides
+    fun provideStartThreadFromMessageUseCase(messageScope: MessageScope): StartThreadFromMessageUseCase =
+        messageScope.startThreadFromMessage
+
+    @ViewModelScoped
+    @Provides
     fun provideMarkMessagesAsNotifiedUseCase(messageScope: MessageScope): MarkMessagesAsNotifiedUseCase =
         messageScope.markMessagesAsNotified
+
+    @ViewModelScoped
+    @Provides
+    fun provideObserveThreadSummariesForRootsUseCase(messageScope: MessageScope): ObserveThreadSummariesForRootsUseCase =
+        messageScope.observeThreadSummariesForRoots
 
     @ViewModelScoped
     @Provides

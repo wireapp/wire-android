@@ -49,11 +49,23 @@ allprojects {
         maven(url = "https://jitpack.io")
         maven(url = "https://oss.sonatype.org/content/repositories/snapshots")
     }
+    tasks.withType<org.cyclonedx.gradle.CyclonedxDirectTask>().configureEach {
+        includeConfigs.set(listOf(".*[Rr]untimeClasspath.*"))
+        skipConfigs.set(listOf(".*[Tt]est.*", ".*[Ll]int.*", ".*[Aa]nnotation.*", ".*[Kk]sp.*"))
+    }
 }
 
 plugins {
     id(ScriptPlugins.infrastructure)
     alias(libs.plugins.ksp) apply false // https://github.com/google/dagger/issues/3965
     alias(libs.plugins.compose.compiler) apply false
+    alias(libs.plugins.cyclonedx)
 }
 
+tasks.cyclonedxBom {
+    includeBomSerialNumber = true
+    includeLicenseText = false
+    componentName = "wire-android"
+}
+
+apply(from = "sbom.gradle.kts")

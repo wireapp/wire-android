@@ -201,7 +201,7 @@ jobs:
       - name: Checkout code (with submodules)
         uses: actions/checkout@v4
         with:
-          # FIX: ensure we checkout the SAME branch the workflow is running from (no mismatch with inputs.branch)
+          # Ensure we checkout the SAME branch the workflow is running from (no mismatch with inputs.branch)
           ref: ${{ github.ref_name }}
           fetch-depth: 0
           clean: true
@@ -306,11 +306,54 @@ jobs:
           echo "S3_FOLDER=$S3_FOLDER" >> "$GITHUB_OUTPUT"
           echo "APP_ID=$APP_ID" >> "$GITHUB_OUTPUT"
 
+      # Install aws cli (no sudo).
+      - name: Ensure AWS CLI is available (no sudo)
+        run: |
+          set -euo pipefail
+
+          if command -v aws >/dev/null 2>&1; then
+            aws --version
+            exit 0
+          fi
+
+          if ! command -v curl >/dev/null 2>&1; then
+            echo "ERROR: 'curl' is not available on this runner."
+            exit 1
+          fi
+          if ! command -v unzip >/dev/null 2>&1; then
+            echo "ERROR: 'unzip' is not available on this runner."
+            exit 1
+          fi
+
+          AWS_ROOT="${RUNNER_TEMP}/awscli"
+          ZIP_PATH="${RUNNER_TEMP}/awscliv2.zip"
+
+          rm -rf "${AWS_ROOT}" "${ZIP_PATH}"
+          mkdir -p "${AWS_ROOT}"
+
+          curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "${ZIP_PATH}"
+          unzip -oq "${ZIP_PATH}" -d "${AWS_ROOT}"
+          rm -f "${ZIP_PATH}"
+
+          "${AWS_ROOT}/aws/install" --install-dir "${AWS_ROOT}/install" --bin-dir "${AWS_ROOT}/bin" --update
+          echo "${AWS_ROOT}/bin" >> "${GITHUB_PATH}"
+
+          aws --version
+
+      # configure AWS creds for aws cli
+      - name: Configure AWS credentials (for S3)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-1
+          mask-aws-account-id: true
+
       - name: Download APK(s) from S3 (latest/build/upgrade)
         id: download_apks
         env:
           AWS_REGION: eu-west-1
-          S3_BUCKET: z-lohika
+          S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
           APP_BUILD_NUMBER: ${{ inputs.appBuildNumber }}
           IS_UPGRADE: ${{ inputs.isUpgrade }}
           OLD_BUILD_NUMBER: ${{ inputs.oldBuildNumber }}
@@ -320,9 +363,237 @@ jobs:
 
           if ! command -v aws >/dev/null 2>&1; then
             echo "ERROR: aws CLI not found on this runner."
-            echo "Fix: install awscli on the self-hosted runner or add an aws setup step."
             exit 1
           fi
+
+          if ! command -v python3 >/dev/null 2>&1; then
+            echo "ERROR: python3 not found on this runner (needed for version selection)."
+            exit 1
+          fi
+
+          # Verify AWS credentials are available (does NOT print secrets)
+          aws sts get-caller-identity --output json >/dev/null
+
+          : "${S3_BUCKET:?S3_BUCKET is missing (check repo secret AWS_S3_BUCKET)}"
+          : "${S3_FOLDER:?S3_FOLDER is missing}"
+          echo "Listing APKs in s3://${S3_BUCKET}/${S3_FOLDER} ..."
+
+          KEYS_JSON="${RUNNER_TEMP}/s3_keys.json"
+          aws s3api list-objects-v2 \
+            --bucket "${S3_BUCKET}" \
+            --prefix "${S3_FOLDER}" \
+            --query "Contents[].Key" \
+            --output json \
+            --page-size 1000 \
+            --max-items 10000 > "${KEYS_JSON}"
+
+          python3 - <<'PY' > "${RUNNER_TEMP}/apk_env.txt"
+          import json, os, re, sys
+          from pathlib import Path
+
+          keys_path = Path(os.environ["RUNNER_TEMP"]) / "s3_keys.json"
+          keys = json.loads(keys_path.read_text() or "[]")
+          apks = [k for k in keys if isinstance(k, str) and k.lower().endswith(".apk")]
+
+          if not apks:
+            print("ERROR: No .apk files found under S3_FOLDER prefix.", file=sys.stderr)
+            sys.exit(1)
+
+          app_build = (os.environ.get("APP_BUILD_NUMBER") or "").strip()
+          is_upgrade = (os.environ.get("IS_UPGRADE", "false").strip().lower() == "true")
+          old_input = (os.environ.get("OLD_BUILD_NUMBER") or "").strip()
+
+          def parse_version(fname: str):
+            m = re.search(r"-v(\d+)\.(\d+)\.(\d+)-(\d+)", fname)
+            if m:
+              return (int(m.group(1)), int(m.group(2)), int(m.group(3)), int(m.group(4)))
+            m = re.search(r"-v(\d+)\.(\d+)\.(\d+)-fdroid", fname)
+            if m:
+              return (int(m.group(1)), int(m.group(2)), int(m.group(3)), 0)
+            m = re.search(r"-v(\d+)\.(\d+)\.(\d+)", fname)
+            if m:
+              return (int(m.group(1)), int(m.group(2)), int(m.group(3)), 0)
+            return None
+
+          def build_label(fname: str):
+            m = re.search(r"-v(\d+\.\d+\.\d+-\d+)", fname)
+            if m: return m.group(1)
+            m = re.search(r"-v(\d+\.\d+\.\d+)-fdroid", fname)
+            if m: return m.group(1)
+            m = re.search(r"-v(\d+\.\d+\.\d+)", fname)
+            if m: return m.group(1)
+            return ""
+
+          def pick_by_substring(substr: str):
+            if not substr:
+              return None
+            for k in apks:
+              if substr in k.split("/")[-1]:
+                return k
+            return None
+
+          parsed = []
+          for k in apks:
+            fname = k.split("/")[-1]
+            pv = parse_version(fname)
+            if pv is not None:
+              parsed.append((pv, k))
+
+          parsed.sort(key=lambda x: x[0])
+
+          latest_key = parsed[-1][1] if parsed else None
+          second_latest_key = parsed[-2][1] if len(parsed) >= 2 else None
+
+          new_key = None
+          old_key = None
+
+          if app_build.lower().endswith(".apk"):
+            if app_build.startswith("s3://"):
+              parts = app_build.split("/", 3)
+              if len(parts) < 4:
+                print("ERROR: Invalid s3:// path in appBuildNumber", file=sys.stderr)
+                sys.exit(1)
+              new_key = parts[3]
+            else:
+              new_key = app_build.lstrip("/")
+            if is_upgrade:
+              if old_input:
+                old_key = pick_by_substring(old_input)
+              else:
+                old_key = second_latest_key
+
+          elif app_build == "latest":
+            if not latest_key:
+              print("ERROR: Could not resolve latest build (no parseable versions).", file=sys.stderr)
+              sys.exit(1)
+            new_key = latest_key
+            if is_upgrade:
+              if old_input:
+                old_key = pick_by_substring(old_input)
+              else:
+                old_key = second_latest_key
+
+          else:
+            new_key = pick_by_substring(app_build)
+            if is_upgrade:
+              if not old_input:
+                print("ERROR: isUpgrade=true but oldBuildNumber is empty.", file=sys.stderr)
+                sys.exit(1)
+              old_key = pick_by_substring(old_input)
+
+          if not new_key:
+            print(f"ERROR: Could not resolve NEW apk for appBuildNumber='{app_build}'", file=sys.stderr)
+            sys.exit(1)
+
+          if is_upgrade and not old_key:
+            print("ERROR: Upgrade requested but OLD apk could not be resolved.", file=sys.stderr)
+            sys.exit(1)
+
+          new_name = new_key.split("/")[-1]
+          old_name = old_key.split("/")[-1] if old_key else ""
+
+          print(f"NEW_S3_KEY={new_key}")
+          print(f"OLD_S3_KEY={old_key or ''}")
+          print(f"NEW_APK_NAME={new_name}")
+          print(f"OLD_APK_NAME={old_name}")
+          print(f"REAL_BUILD_NUMBER={build_label(new_name)}")
+          print(f"OLD_BUILD_NUMBER={build_label(old_name) if old_name else ''}")
+          PY
+
+          cat "${RUNNER_TEMP}/apk_env.txt" >> "$GITHUB_ENV"
+          cat "${RUNNER_TEMP}/apk_env.txt" >> "$GITHUB_OUTPUT"
+
+          NEW_APK_PATH="${RUNNER_TEMP}/Wire.apk"
+          echo "NEW_APK_PATH=${NEW_APK_PATH}" >> "$GITHUB_ENV"
+
+          echo "Downloading NEW apk: s3://${S3_BUCKET}/${NEW_S3_KEY}"
+          aws s3 cp "s3://${S3_BUCKET}/${NEW_S3_KEY}" "${NEW_APK_PATH}" --only-show-errors
+          test -s "${NEW_APK_PATH}"
+
+          if [[ "${IS_UPGRADE}" == "true" ]]; then
+            OLD_APK_PATH="${RUNNER_TEMP}/Wire.old.apk"
+            echo "OLD_APK_PATH=${OLD_APK_PATH}" >> "$GITHUB_ENV"
+
+            echo "Downloading OLD apk: s3://${S3_BUCKET}/${OLD_S3_KEY}"
+            aws s3 cp "s3://${S3_BUCKET}/${OLD_S3_KEY}" "${OLD_APK_PATH}" --only-show-errors
+            test -s "${OLD_APK_PATH}"
+          fi
+
+          echo "OK: Downloaded APK(s)"
+          echo "NEW_APK_NAME=${NEW_APK_NAME}"
+          echo "OLD_APK_NAME=${OLD_APK_NAME}"
+          echo "REAL_BUILD_NUMBER=${REAL_BUILD_NUMBER}"
+          echo "OLD_BUILD_NUMBER=${OLD_BUILD_NUMBER}"
+
+      - name: Remove any leftover secrets files (safety)
+        run: |
+          set -euo pipefail
+          rm -f secrets.json
+          rm -f "${RUNNER_TEMP}/secrets.json"
+
+      - name: Select target device (androidDeviceId optional)
+        run: |
+          set -euo pipefail
+
+          adb devices -l
+
+          online_count="$(adb devices | awk 'NR>1 && $2=="device"{c++} END{print c+0}')"
+          if [[ "$online_count" -eq 0 ]]; then
+            echo "ERROR: No online Android devices found on this runner."
+            exit 1
+          fi
+
+          TARGET="${{ inputs.androidDeviceId }}"
+          if [[ -n "$TARGET" ]]; then
+            if ! adb devices | awk 'NR>1 && $2=="device"{print $1}' | grep -qx "$TARGET"; then
+              echo "ERROR: androidDeviceId '$TARGET' not found in 'adb devices'."
+              exit 1
+            fi
+            SELECTED="$TARGET"
+          else
+            SELECTED="$(adb devices | awk 'NR>1 && $2=="device"{print $1; exit}')"
+          fi
+
+          echo "ANDROID_SERIAL=$SELECTED" >> "$GITHUB_ENV"
+          echo "Using device: $SELECTED"
+
+      - name: Install 1Password CLI
+        uses: 1password/install-cli-action@v2
+
+      - name: Fetch secrets.json from 1Password (runtime only)
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          chmod +x ./gradlew
+
+          SECRETS_FILE="${RUNNER_TEMP}/secrets.json"
+          export SECRETS_JSON_PATH="${SECRETS_FILE}"
+          echo "SECRETS_JSON_PATH=${SECRETS_FILE}" >> "$GITHUB_ENV"
+
+          # FIX: pass vault explicitly so Gradle can use it (service account requirement)
+          ./gradlew :tests:testsSupport:fetchSecrets --no-daemon \
+            -PsecretsJsonPath="${SECRETS_FILE}" \
+            -PopVault="Test Automation"
+
+          test -s "${SECRETS_FILE}"
+          chmod 600 "${SECRETS_FILE}"
+          echo "OK: secrets.json created at ${SECRETS_FILE}"
+
+      - name: Gradle sanity check (assemble only, still no test execution)
+        run: |
+          set -euo pipefail
+          ./gradlew :tests:testsCore:assembleDebugAndroidTest --no-daemon
+
+      - name: Cleanup secrets + workspace outputs
+        if: always()
+        run: |
+          set -euo pipefail
+          rm -f secrets.json
+          rm -f "${RUNNER_TEMP}/secrets.json"
+          rm -f "${RUNNER_TEMP}/Wire.apk" "${RUNNER_TEMP}/Wire.old.apk" || true
+          git clean -ffdx
 
           if ! command -v python3 >/dev/null 2>&1; then
             echo "ERROR: python3 not found on this runner (needed for version selection)."

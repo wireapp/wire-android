@@ -100,6 +100,7 @@
     <string name="content_description_conversation_mention_someone">Jemanden erwähnen</string>
     <string name="content_description_conversation_back_btn">Zurück zur Unterhaltungsliste</string>
     <string name="content_description_conversation_open_details_label">Unterhaltungsdetails öffnen</string>
+    <string name="content_description_new_conversation">Neu. Neue Unterhaltung beginnen</string>
     <string name="content_description_send_button">Senden</string>
     <string name="content_description_timed_message_button">Selbstlöschende Nachrichten, Taste</string>
     <string name="content_description_menu_button">Hauptnavigation</string>
@@ -896,7 +897,6 @@
     <string name="label_conversation_pictures_empty">Bislang hat niemand Bilder in dieser Unterhaltung geteilt 🥲</string>
     <string name="label_conversation_files_empty">Bislang hat niemand Dateien in dieser Unterhaltung geteilt 🙀</string>
     <!-- Search Contact-->
-    <string name="label_selected">Ausgewählt (%1$d)</string>
     <string name="label_contacts">Kontakte</string>
     <string name="label_new_group">Neue Gruppe</string>
     <string name="label_new_channel">Neuer Channel</string>

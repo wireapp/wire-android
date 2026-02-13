@@ -183,7 +183,7 @@ jobs:
           echo "resolvedCategory=${{ steps.resolve.outputs.category }}"
 
   run-android-ui-tests-placeholder:
-    name: Runner smoke check + checkout (no test execution yet)
+    name: Run Android UI tests
     runs-on:
       - self-hosted
       - Linux
@@ -533,48 +533,50 @@ jobs:
           rm -f secrets.json
           rm -f "${RUNNER_TEMP}/secrets.json"
 
-      - name: Select target device (androidDeviceId optional)
+      - name: Select target device(s)
         run: |
           set -euo pipefail
 
           adb devices -l
 
-          online_count="$(adb devices | awk 'NR>1 && $2=="device"{c++} END{print c+0}')"
-          if [[ "$online_count" -eq 0 ]]; then
+          DEVICE_LINES="$(adb devices | awk 'NR>1 && $2=="device"{print $1}')"
+          if [[ -z "${DEVICE_LINES}" ]]; then
             echo "ERROR: No online Android devices found on this runner."
             exit 1
           fi
 
           TARGET="${{ inputs.androidDeviceId }}"
           if [[ -n "$TARGET" ]]; then
-            if ! adb devices | awk 'NR>1 && $2=="device"{print $1}' | grep -qx "$TARGET"; then
+            if ! printf '%s\n' "$DEVICE_LINES" | grep -qx "$TARGET"; then
               echo "ERROR: androidDeviceId '$TARGET' not found in 'adb devices'."
               exit 1
             fi
-            SELECTED="$TARGET"
+            DEVICE_LIST="$TARGET"
+            DEVICE_COUNT="1"
+            echo "ANDROID_SERIAL=$TARGET" >> "$GITHUB_ENV"
+            echo "Using device: $TARGET"
           else
-            SELECTED="$(adb devices | awk 'NR>1 && $2=="device"{print $1; exit}')"
+            DEVICE_LIST="$(printf '%s\n' "$DEVICE_LINES" | xargs)"
+            DEVICE_COUNT="$(printf '%s\n' "$DEVICE_LINES" | wc -l | tr -d ' ')"
+            echo "Using all devices: $DEVICE_LIST"
           fi
 
-          echo "ANDROID_SERIAL=$SELECTED" >> "$GITHUB_ENV"
-          echo "Using device: $SELECTED"
+          echo "DEVICE_LIST=$DEVICE_LIST" >> "$GITHUB_ENV"
+          echo "DEVICE_COUNT=$DEVICE_COUNT" >> "$GITHUB_ENV"
 
       - name: Prepare device + install APK(s)
         run: |
           set -euo pipefail
 
-          : "${ANDROID_SERIAL:?ANDROID_SERIAL not set}"
+          : "${DEVICE_LIST:?DEVICE_LIST not set}"
           : "${NEW_APK_PATH:?NEW_APK_PATH missing}"
+          : "${APP_ID:?APP_ID missing}"
 
           if [[ ! -s "${NEW_APK_PATH}" ]]; then
             echo "ERROR: NEW_APK_PATH not found or empty: ${NEW_APK_PATH}"
             exit 1
           fi
 
-          ADB="adb -s ${ANDROID_SERIAL}"
-          ${ADB} wait-for-device
-
-          INSTALLED_PKGS="$(${ADB} shell pm list packages)"
           PACKAGES=(
             "com.wire"
             "com.waz.zclient.dev"
@@ -586,36 +588,43 @@ jobs:
             "com.waz.zclient.dev.debug"
           )
 
-          for pkg in "${PACKAGES[@]}"; do
-            if echo "${INSTALLED_PKGS}" | grep -qx "package:${pkg}"; then
-              echo "Uninstalling ${pkg}"
-              ${ADB} uninstall "${pkg}" || true
-            fi
-          done
-
           INSTALL_FLAGS="-r"
           if [[ "${{ inputs.enforceAppInstall }}" == "true" ]]; then
             INSTALL_FLAGS="-r -d"
           fi
 
-          if [[ "${{ inputs.isUpgrade }}" == "true" ]]; then
-            : "${OLD_APK_PATH:?OLD_APK_PATH missing for upgrade}"
-            if [[ ! -s "${OLD_APK_PATH}" ]]; then
-              echo "ERROR: OLD_APK_PATH not found or empty: ${OLD_APK_PATH}"
+          read -ra DEVICES <<< "${DEVICE_LIST}"
+          for SERIAL in "${DEVICES[@]}"; do
+            echo "Preparing device: ${SERIAL}"
+            ADB="adb -s ${SERIAL}"
+            ${ADB} wait-for-device
+
+            INSTALLED_PKGS="$(${ADB} shell pm list packages)"
+            for pkg in "${PACKAGES[@]}"; do
+              if echo "${INSTALLED_PKGS}" | grep -qx "package:${pkg}"; then
+                echo "Uninstalling ${pkg} on ${SERIAL}"
+                ${ADB} uninstall "${pkg}" || true
+              fi
+            done
+
+            if [[ "${{ inputs.isUpgrade }}" == "true" ]]; then
+              : "${OLD_APK_PATH:?OLD_APK_PATH missing for upgrade}"
+              if [[ ! -s "${OLD_APK_PATH}" ]]; then
+                echo "ERROR: OLD_APK_PATH not found or empty: ${OLD_APK_PATH}"
+                exit 1
+              fi
+              echo "Installing OLD apk on ${SERIAL}..."
+              ${ADB} install ${INSTALL_FLAGS} "${OLD_APK_PATH}"
+            fi
+
+            echo "Installing NEW apk on ${SERIAL}..."
+            ${ADB} install ${INSTALL_FLAGS} "${NEW_APK_PATH}"
+
+            if ! ${ADB} shell pm list packages | grep -qx "package:${APP_ID}"; then
+              echo "ERROR: APP_ID '${APP_ID}' is not installed on ${SERIAL} after install step."
               exit 1
             fi
-            echo "Installing OLD apk..."
-            ${ADB} install ${INSTALL_FLAGS} "${OLD_APK_PATH}"
-          fi
-
-          echo "Installing NEW apk..."
-          ${ADB} install ${INSTALL_FLAGS} "${NEW_APK_PATH}"
-
-          : "${APP_ID:?APP_ID missing}"
-          if ! ${ADB} shell pm list packages | grep -qx "package:${APP_ID}"; then
-            echo "ERROR: APP_ID '${APP_ID}' is not installed after install step."
-            exit 1
-          fi
+          done
 
       - name: Install 1Password CLI
         uses: 1password/install-cli-action@v2
@@ -641,10 +650,65 @@ jobs:
           chmod 600 "${SECRETS_FILE}"
           echo "OK: secrets.json created at ${SECRETS_FILE}"
 
-      - name: Gradle sanity check (assemble only, still no test execution)
+      - name: Build test APK (assemble only)
         run: |
           set -euo pipefail
           ./gradlew :tests:testsCore:assembleDebugAndroidTest --no-daemon
+
+      - name: Run UI tests (sharded across devices)
+        env:
+          RESOLVED_TESTCASE_ID: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTestCaseId }}
+          RESOLVED_CATEGORY: ${{ needs.validate-and-resolve-inputs.outputs.resolvedCategory }}
+        run: |
+          set -euo pipefail
+
+          : "${DEVICE_LIST:?DEVICE_LIST not set}"
+          : "${DEVICE_COUNT:?DEVICE_COUNT not set}"
+
+          GRADLE_ARGS=(
+            ":tests:testsCore:connectedDebugAndroidTest"
+            "--no-daemon"
+          )
+
+          if [[ -n "${RESOLVED_TESTCASE_ID}" ]]; then
+            GRADLE_ARGS+=("-Pandroid.testInstrumentationRunnerArguments.testCaseId=${RESOLVED_TESTCASE_ID}")
+          fi
+
+          if [[ -n "${RESOLVED_CATEGORY}" ]]; then
+            GRADLE_ARGS+=("-Pandroid.testInstrumentationRunnerArguments.category=${RESOLVED_CATEGORY}")
+          fi
+
+          NUM_SHARDS="${DEVICE_COUNT}"
+          read -ra DEVICES <<< "${DEVICE_LIST}"
+
+          echo "Sharding across ${NUM_SHARDS} device(s): ${DEVICE_LIST}"
+
+          pids=()
+          shard_index=0
+          for SERIAL in "${DEVICES[@]}"; do
+            echo "Starting shard ${shard_index}/${NUM_SHARDS} on ${SERIAL}"
+            (
+              set -euo pipefail
+              export ANDROID_SERIAL="${SERIAL}"
+              ./gradlew "${GRADLE_ARGS[@]}" \
+                "-Pandroid.testInstrumentationRunnerArguments.numShards=${NUM_SHARDS}" \
+                "-Pandroid.testInstrumentationRunnerArguments.shardIndex=${shard_index}"
+            ) &
+            pids+=("$!")
+            shard_index=$((shard_index + 1))
+          done
+
+          failed=0
+          for pid in "${pids[@]}"; do
+            if ! wait "$pid"; then
+              failed=1
+            fi
+          done
+
+          if [[ "$failed" -ne 0 ]]; then
+            echo "ERROR: One or more shards failed."
+            exit 1
+          fi
 
       - name: Cleanup secrets + workspace outputs
         if: always()

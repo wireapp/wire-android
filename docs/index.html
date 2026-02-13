@@ -549,6 +549,87 @@ style J fill:#BBDEFB
                 </div>
             </div>
             
+            <div class="panel panel-default">
+                <div class="panel-heading adr-accepted">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" href="#collapse10">10. Tablet dialog navigation parity after Compose Destinations upgrade</a>
+
+                        
+                        <i class="adr-icon fas fa-fw fa-check"></i>
+                        
+
+                    </h4>
+                </div>
+                <div id="collapse10" class="panel-collapse collapse">
+                    <div class="panel-body"><h1>10. Tablet dialog navigation parity after Compose Destinations upgrade</h1>
+<p>Date: 2026-02-06</p>
+<h2>Status</h2>
+<p>Accepted</p>
+<h2>Context</h2>
+<p>Before the Kotlin/navigation migration (commit <code>18a563754</code>), the app used <code>DestinationStyle.Runtime</code> and <code>AdjustDestinationStylesForTablets()</code> to switch 17 destinations at runtime:</p>
+<ul>
+<li>tablet -&gt; <code>DialogNavigation</code></li>
+<li>phone -&gt; <code>SlideNavigationAnimation</code> or <code>PopUpNavigationAnimation</code></li>
+</ul>
+<p>After the migration, generated destination styles became immutable (<code>val style</code>), so mutating <code>Destination.style</code> at runtime was no longer possible. This caused tablet screens to be shown as phone-style transitions, and not as true dialogs.</p>
+<p>We also need to preserve:</p>
+<ul>
+<li>true dialog presentation semantics on tablet (not only animation changes)</li>
+<li>existing phone behavior for the same destinations</li>
+<li>one source of truth for the target destinations</li>
+</ul>
+<h2>Decision</h2>
+<p>We introduced an app-level nav host engine wrapper and centralized route policy:</p>
+<ol>
+<li><code>WireNavHostEngine</code> (app module) mirrors default Compose Destinations engine behavior.</li>
+<li>For each destination registration, style is resolved by <code>resolveTabletDialogParityStyle(...)</code>:<ul>
+<li>if tablet + route is in parity list -&gt; force <code>DialogNavigation</code></li>
+<li>otherwise -&gt; keep existing behavior (<code>manualAnimation ?: destination.style</code>)</li>
+</ul>
+</li>
+<li>The parity list of 17 routes is defined in <code>TabletDialogRoutePolicy</code>.</li>
+<li><code>TabletDialogWrapper</code> receives the same route matcher and applies rounded clipping for tablet parity routes as well, so visual corners match dialog expectations.</li>
+</ol>
+<p>Implementation files:</p>
+<ul>
+<li><code>app/src/main/kotlin/com/wire/android/navigation/WireNavHostEngine.kt</code></li>
+<li><code>app/src/main/kotlin/com/wire/android/navigation/TabletDialogRoutePolicy.kt</code></li>
+<li><code>core/navigation/src/main/kotlin/com/wire/android/navigation/wrapper/TabletDialogWrapper.kt</code></li>
+</ul>
+<p>Both app nav hosts use <code>rememberWireNavHostEngine(...)</code>:</p>
+<ul>
+<li><code>MainNavHost</code></li>
+<li>nested host in <code>HomeScreen</code></li>
+</ul>
+<h2>Consequences</h2>
+<h3>Positive</h3>
+<ul>
+<li>Restores pre-migration tablet behavior for the 17 destinations as true dialogs.</li>
+<li>Preserves phone behavior without changing navigation call sites.</li>
+<li>Keeps route ownership centralized, making future additions/removals explicit.</li>
+<li>Keeps compatibility with Compose Destinations <code>2.3.x</code> immutable destination style generation.</li>
+</ul>
+<h3>Trade-offs</h3>
+<ul>
+<li>We maintain a small custom engine implementation that mirrors upstream behavior and should be kept in sync when upgrading Compose Destinations.</li>
+<li>Wrapper clipping now depends on an injected route matcher, which is another integration point to keep aligned with route policy.</li>
+</ul>
+<h3>Maintenance rules</h3>
+<p>When adding/removing tablet dialog parity screens:</p>
+<ol>
+<li>Update <code>TabletDialogRoutePolicy.destinationBaseRoutes</code>.</li>
+<li>Add/update tests in <code>TabletDialogRoutePolicyTest</code>.</li>
+<li>Verify both tablet and phone behavior manually.</li>
+</ol>
+<p>When upgrading Compose Destinations:</p>
+<ol>
+<li>Diff upstream default engine behavior against <code>WireNavHostEngine</code>.</li>
+<li>Re-validate style resolution and manual animation precedence.</li>
+</ol>
+</div>
+                </div>
+            </div>
+            
         </div>
         <footer>
             Generated with &lt;3 using ADR Viewer

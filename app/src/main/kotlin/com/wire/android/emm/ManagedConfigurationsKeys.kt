@@ -19,7 +19,8 @@ package com.wire.android.emm
 
 enum class ManagedConfigurationsKeys {
     DEFAULT_SERVER_URLS,
-    SSO_CODE;
+    SSO_CODE,
+    KEEP_WEBSOCKET_CONNECTION;
 
     fun asKey() = name.lowercase()
 }

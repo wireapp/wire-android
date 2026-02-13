@@ -334,7 +334,11 @@ fun CollapseButton(
         ) {
             Icon(
                 painter = painterResource(id = com.wire.android.ui.common.R.drawable.ic_collapse),
-                contentDescription = stringResource(R.string.content_description_drop_down_icon),
+                contentDescription = if (isCollapsed) {
+                    stringResource(R.string.content_description_expand_text_icon)
+                } else {
+                    stringResource(R.string.content_description_collapse_text_icon)
+                },
                 tint = colorsScheme().onSecondaryButtonDisabled,
                 modifier = Modifier.rotate(collapseButtonRotationDegree)
             )

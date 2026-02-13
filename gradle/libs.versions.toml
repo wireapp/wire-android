@@ -61,7 +61,7 @@ compose-edgetoedge-preview = "0.3.0" # aligned with target sdk 36 and androidx-c
 # Hilt
 hilt = "2.59.1"
 hilt-composeNavigation = "1.2.0"
-hilt-work = "1.2.0"
+hilt-work = "1.3.0"
 
 # Android UI
 accompanist = "0.32.0"

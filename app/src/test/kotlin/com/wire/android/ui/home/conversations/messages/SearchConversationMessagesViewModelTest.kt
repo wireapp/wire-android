@@ -36,7 +36,7 @@ import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.search.messages.SearchConversationMessagesNavArgs
 import com.wire.android.ui.home.conversations.search.messages.SearchConversationMessagesViewModel
 import com.wire.android.ui.home.conversations.usecase.GetConversationMessagesFromSearchUseCase
-import com.wire.android.ui.navArgs
+import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.id.ConversationId
 import io.mockk.MockKAnnotations

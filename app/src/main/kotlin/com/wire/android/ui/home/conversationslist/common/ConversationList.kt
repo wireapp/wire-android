@@ -35,7 +35,6 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -95,8 +94,6 @@ fun ConversationList(
     onStopCurrentAudio: () -> Unit = {},
     onBrowsePublicChannels: () -> Unit = {}
 ) {
-    val context = LocalContext.current
-
     LazyColumn(
         state = lazyListState,
         modifier = modifier.fillMaxSize()
@@ -105,10 +102,13 @@ fun ConversationList(
             count = lazyPagingConversations.itemCount,
             key = lazyPagingConversations.itemKey {
                 when (it) {
-                    is ConversationSection.Predefined -> "section_predefined_${context.getString(it.sectionNameResId)}"
                     is ConversationSection.Custom -> "section_custom_${it.sectionName}"
                     is ConversationSection.WithoutHeader -> "section_without_header"
                     is ConversationItem -> it.conversationId.toString()
+                    ConversationSection.Predefined.BrowseChannels -> "section_predefined_browse_channels"
+                    ConversationSection.Predefined.Conversations -> "section_predefined_conversations"
+                    ConversationSection.Predefined.Favorites -> "section_predefined_favorites"
+                    ConversationSection.Predefined.NewActivities -> "section_predefined_new_activities"
                 }
             },
             contentType = lazyPagingConversations.itemContentType {
@@ -133,7 +133,7 @@ fun ConversationList(
                 }
                 when (item) {
                     is ConversationSection -> when (item) {
-                        is ConversationSection.Predefined -> SectionHeader(context.getString(item.sectionNameResId))
+                        is ConversationSection.Predefined -> SectionHeader(item.sectionNameResId)
                         is ConversationSection.Custom -> SectionHeader(item.sectionName)
                         is ConversationSection.WithoutHeader -> {}
                     }
@@ -218,8 +218,6 @@ fun ConversationList(
     onPlayPauseCurrentAudio: () -> Unit = { },
     onStopCurrentAudio: () -> Unit = {}
 ) {
-    val context = LocalContext.current
-
     LazyColumn(
         state = lazyListState,
         modifier = modifier.fillMaxSize()
@@ -227,8 +225,8 @@ fun ConversationList(
         conversationListItems.forEach { (conversationSection, conversationList) ->
             sectionWithElements(
                 header = when (conversationSection) {
-                    is ConversationSection.Predefined -> context.getString(conversationSection.sectionNameResId)
-                    is ConversationSection.Custom -> conversationSection.sectionName
+                    is ConversationSection.Predefined -> UIText.StringResource(conversationSection.sectionNameResId)
+                    is ConversationSection.Custom -> UIText.DynamicString(conversationSection.sectionName)
                     is ConversationSection.WithoutHeader -> null
                 },
                 items = conversationList.associateBy {

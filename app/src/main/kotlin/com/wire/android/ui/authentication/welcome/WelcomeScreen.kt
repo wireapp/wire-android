@@ -20,6 +20,7 @@
 
 package com.wire.android.ui.authentication.welcome
 
+import com.wire.android.navigation.annotation.app.WireRootDestination
 import android.content.res.TypedArray
 import androidx.annotation.ArrayRes
 import androidx.annotation.DrawableRes
@@ -71,7 +72,6 @@ import com.wire.android.R
 import com.wire.android.config.LocalCustomUiConfigurationProvider
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.authentication.create.common.CreateAccountDataNavArgs
 import com.wire.android.ui.authentication.create.common.ServerTitle
@@ -87,10 +87,10 @@ import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
-import com.wire.android.ui.destinations.CreateAccountDataDetailScreenDestination
-import com.wire.android.ui.destinations.CreatePersonalAccountOverviewScreenDestination
-import com.wire.android.ui.destinations.CreateTeamAccountOverviewScreenDestination
-import com.wire.android.ui.destinations.LoginScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.CreateAccountDataDetailScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.CreatePersonalAccountOverviewScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.CreateTeamAccountOverviewScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.LoginScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -104,9 +104,9 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.scan
 
-@WireDestination(
+@WireRootDestination(
     style = PopUpNavigationAnimation::class,
-    navArgsDelegate = WelcomeNavArgs::class
+    navArgs = WelcomeNavArgs::class
 )
 @Composable
 fun WelcomeScreen(

@@ -32,6 +32,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import com.google.accompanist.placeholder.PlaceholderHighlight
 import com.google.accompanist.placeholder.placeholder
@@ -68,15 +69,17 @@ fun Modifier.shimmerPlaceholder(
 fun rememberClickBlockAction(clickBlockParams: ClickBlockParams, clickAction: () -> Unit): () -> Unit {
     val syncStateObserver = LocalSyncStateObserver.current
     val context = LocalContext.current
+    val waitUntilConnected = stringResource(R.string.label_wait_until_connected)
+    val waitUntilSynchronised = stringResource(R.string.label_wait_until_synchronised)
     val clickerHandler = remember { SingleClickHandler() }
-    return remember(clickBlockParams, syncStateObserver, clickAction) {
+    return remember(clickBlockParams, syncStateObserver, waitUntilConnected, waitUntilSynchronised, clickAction) {
         {
             when {
                 clickBlockParams.blockWhenConnecting && syncStateObserver.isConnecting ->
-                    Toast.makeText(context, context.getString(R.string.label_wait_until_connected), Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, waitUntilConnected, Toast.LENGTH_SHORT).show()
 
                 clickBlockParams.blockWhenSyncing && syncStateObserver.isSyncing ->
-                    Toast.makeText(context, context.getString(R.string.label_wait_until_synchronised), Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, waitUntilSynchronised, Toast.LENGTH_SHORT).show()
 
                 else -> clickerHandler.ensureSingleClick { clickAction() }
             }

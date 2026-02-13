@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.debug
 
+import com.wire.android.navigation.annotation.app.WireRootDestination
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
@@ -47,12 +48,11 @@ import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.model.Clickable
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.wire.android.ui.destinations.DebugFeatureFlagsScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.DebugFeatureFlagsScreenDestination
 import com.wire.android.ui.common.rowitem.SectionHeader
 import com.wire.android.ui.home.settings.SettingsItem
 import com.wire.android.ui.home.settings.backup.BackupAndRestoreDialog
@@ -68,7 +68,7 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.launch
 import java.io.File
 
-@WireDestination
+@WireRootDestination
 @Composable
 fun DebugScreen(
     navigator: Navigator,

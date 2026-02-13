@@ -32,7 +32,7 @@ import com.wire.android.ui.home.conversations.InvalidLinkDialogState
 import com.wire.android.ui.home.conversations.MessageComposerViewState
 import com.wire.android.ui.home.conversations.VisitLinkDialogState
 import com.wire.android.ui.home.conversations.model.UIMessage
-import com.wire.android.ui.navArgs
+import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.EMPTY
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider

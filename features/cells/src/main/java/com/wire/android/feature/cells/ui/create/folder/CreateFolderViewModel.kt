@@ -23,9 +23,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.ramcosta.composedestinations.generated.cells.destinations.CreateFolderScreenDestination
 import com.wire.android.feature.cells.ui.common.FileNameError
 import com.wire.android.feature.cells.ui.common.validateFileName
-import com.wire.android.feature.cells.ui.navArgs
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.kalium.cells.domain.usecase.create.CreateFolderUseCase
@@ -43,7 +43,7 @@ class CreateFolderViewModel @Inject constructor(
     private val createFolderUseCase: CreateFolderUseCase,
 ) : ActionsViewModel<CreateFolderViewModelAction>() {
 
-    private val navArgs: CreateFolderScreenNavArgs = savedStateHandle.navArgs()
+    private val navArgs: CreateFolderScreenNavArgs = CreateFolderScreenDestination.argsFrom(savedStateHandle)
 
     val folderNameTextFieldState: TextFieldState = TextFieldState()
 

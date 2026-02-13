@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.home.settings.account.email.updateEmail
 
+import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -38,12 +39,11 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.spec.DestinationStyle
+import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.common.button.WireButtonState.Default
 import com.wire.android.ui.common.button.WireButtonState.Disabled
 import com.wire.android.ui.common.button.WirePrimaryButton
@@ -55,7 +55,7 @@ import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.textfield.forceLowercase
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.wire.android.ui.destinations.VerifyEmailScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.VerifyEmailScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -63,8 +63,8 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.ui.common.R as commonR
 
-@WireDestination(
-    style = DestinationStyle.Runtime::class, // default should be SlideNavigationAnimation
+@WireRootDestination(
+    style = SlideNavigationAnimation::class, // default should be SlideNavigationAnimation
 )
 @Composable
 fun ChangeEmailScreen(

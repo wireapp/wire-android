@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.home.newconversation.channelhistory
 
+import com.wire.android.navigation.annotation.app.WireNewConversationDestination
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Text
@@ -29,7 +30,6 @@ import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.WireNavigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.ui.common.WirePromotionCard
 import com.wire.android.ui.common.colorsScheme
@@ -38,16 +38,14 @@ import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.typography
-import com.wire.android.ui.destinations.ChannelHistoryCustomScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.ChannelHistoryCustomScreenDestination
 import com.wire.android.ui.home.conversations.details.options.ArrowType
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsItem
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
-import com.wire.android.ui.home.newconversation.common.NewConversationNavGraph
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 
-@NewConversationNavGraph
-@WireDestination(
+@WireNewConversationDestination(
     style = SlideNavigationAnimation::class,
 )
 @Composable

@@ -22,7 +22,6 @@ import androidx.compose.material.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -57,7 +56,7 @@ fun MeetingOptionsModalSheetLayout(
         else -> hiltViewModel<MeetingOptionsMenuViewModelImpl>()
     }
 ) {
-    val context = LocalContext.current
+    val deletedMeetingOptionsClosedMessage = stringResource(R.string.deleted_meeting_options_closed)
     val snackbarHostState = LocalSnackbarHostState.current
     WireModalSheetLayout(
         sheetState = sheetState,
@@ -73,7 +72,7 @@ fun MeetingOptionsModalSheetLayout(
                 )
 
                 MeetingOptionsMenuState.NotAvailable -> sheetState.hide { // meeting not found - hide the sheet and show info
-                    snackbarHostState.showSnackbar(context.getString(R.string.deleted_meeting_options_closed))
+                    snackbarHostState.showSnackbar(deletedMeetingOptionsClosedMessage)
                 }
             }
         }

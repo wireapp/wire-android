@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.home.settings.backup
 
+import com.wire.android.navigation.annotation.app.WireRootDestination
 import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -42,14 +43,13 @@ import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
-import com.wire.android.ui.destinations.HomeScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.HomeScreenDestination
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.ui.home.settings.backup.dialog.create.CreateBackupDialogFlow
 import com.wire.android.ui.home.settings.backup.dialog.restore.RestoreBackupDialogFlow
@@ -60,7 +60,7 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.time.convertTimestampToDateTime
 import com.wire.android.util.ui.PreviewMultipleThemes
 
-@WireDestination
+@WireRootDestination
 @Composable
 fun BackupAndRestoreScreen(
     navigator: Navigator,

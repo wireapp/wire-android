@@ -1,10 +1,10 @@
-name: Android UI Tests (Manual Inputs Only)
+name: QA Android UI Tests
 
 on:
   workflow_dispatch:
     inputs:
       appBuildNumber:
-        description: "APK build to test. Use 'latest' or an exact build number (e.g. 56337) or a full .apk path."
+        description: "AppBuildNumber. Use 'latest' or build number(e.g 71389)"
         required: true
         default: "latest"
         type: string
@@ -16,19 +16,19 @@ on:
         type: boolean
 
       oldBuildNumber:
-        description: "Old build for upgrade tests (REQUIRED when isUpgrade=true). Build number or full .apk path."
+        description: "For upgrade runs: type the old build number here"
         required: false
         default: ""
         type: string
 
       enforceAppInstall:
-        description: "If true, force reinstall even if a lower version is on the device."
+        description: "If you want to run with a lower version than currently on the device, set this value to true."
         required: true
         default: false
         type: boolean
 
       flavor:
-        description: "App flavor (match Jenkins). Used later to map S3 folder + applicationId."
+        description: "App flavor."
         required: true
         type: choice
         options:
@@ -55,55 +55,31 @@ on:
         default: release
 
       TAGS:
-        description: "Examples: '@regression' OR '@TC-8143' OR '@criticalFlow:groupCallChat' (comma-separated allowed; first is used)."
-        required: false
-        default: ""
-        type: string
-
-      testCaseId:
-        description: "Run by @TestCaseId(\"TC-....\") e.g. TC-8602 (NO '@'). Overrides TAGS."
-        required: false
-        default: ""
-        type: string
-
-      category:
-        description: "Run by @Category(\"...\") e.g. criticalFlow or regression. Overrides TAGS."
-        required: false
-        default: ""
-        type: string
-
-      tagKey:
-        description: "Run by @Tag(key=..., value=...) → key. Overrides TAGS."
-        required: false
-        default: ""
-        type: string
-
-      tagValue:
-        description: "Run by @Tag(key=..., value=...) → value. Overrides TAGS."
+        description: "Tags: '@regression' OR '@TC-8143'."
         required: false
         default: ""
         type: string
 
       branch:
-        description: "Git ref to test (branch/tag/SHA). Default: develop"
+        description: "Branch"
         required: true
         default: "develop"
         type: string
 
       backendType:
-        description: "Backend profile name."
+        description: "Backend."
         required: true
         default: "staging"
         type: string
 
       testinyRunName:
-        description: "Testiny run name (optional). If provided, later steps can publish results to that run."
+        description: "TESTINY_RUN_NAME."
         required: false
         default: ""
         type: string
 
       androidDeviceId:
-        description: "Optional. Target a specific device. Leave empty for auto."
+        description: "androidDeviceId. Target a specific device. Leave empty for auto."
         required: false
         default: ""
         type: string
@@ -115,26 +91,24 @@ on:
         options:
           - dev
           - custom
+          - master
+          - avs
+          - qa
+          - edge
           - staging
           - prod
         default: dev
 
       callingServiceUrl:
-        description: "Calling service URL mode/value Example: 'loadbalanced'."
+        description: "Calling service URL."
         required: true
         default: "loadbalanced"
         type: string
 
       deflakeCount:
-        description: "How many times to re-run on flake."
+        description: "Rerun only failed tests."
         required: true
         default: 1
-        type: number
-
-      retryCount:
-        description: "How many retries when a run fails."
-        required: true
-        default: 0
         type: number
 
 jobs:
@@ -158,21 +132,25 @@ jobs:
             exit 1
           fi
 
-      - name: Resolve selectors (native overrides TAGS)
+      - name: Resolve selector from TAGS
         id: resolve
         shell: bash
         run: |
           set -euo pipefail
 
-          TESTCASE_ID="${{ inputs.testCaseId }}"
-          CATEGORY="${{ inputs.category }}"
-          TAG_KEY="${{ inputs.tagKey }}"
-          TAG_VALUE="${{ inputs.tagValue }}"
+          # We only use TAGS in this UI (no extra selector inputs)
+          TESTCASE_ID=""
+          CATEGORY=""
+          TAG_KEY=""
+          TAG_VALUE=""
+
           TAGS_RAW="${{ inputs.TAGS }}"
 
           trim() { echo "$1" | xargs; }
 
-          if [[ -z "${TESTCASE_ID}${CATEGORY}${TAG_KEY}${TAG_VALUE}" && -n "$(trim "${TAGS_RAW}")" ]]; then
+          # If TAGS is provided, derive selector
+          if [[ -n "$(trim "${TAGS_RAW}")" ]]; then
+            # TAGS can be comma-separated; use first non-empty token
             sel=""
             IFS=',' read -ra parts <<< "${TAGS_RAW}"
             for p in "${parts[@]}"; do
@@ -183,11 +161,15 @@ jobs:
               fi
             done
 
+            # Strip leading @ if present
             sel="${sel#@}"
             sel="$(trim "$sel")"
 
+            # @TC-8143 -> testCaseId
             if [[ "$sel" =~ ^TC-[0-9]+$ ]]; then
               TESTCASE_ID="$sel"
+
+            # @key:value -> tagKey/tagValue (kept for future parity)
             elif [[ "$sel" == *:* ]]; then
               k="$(trim "${sel%%:*}")"
               v="$(trim "${sel#*:}")"
@@ -197,11 +179,14 @@ jobs:
               fi
               TAG_KEY="$k"
               TAG_VALUE="$v"
+
+            # @regression -> category
             else
               CATEGORY="$sel"
             fi
           fi
 
+          # Safety: prevent partial key/value
           if [[ -n "$TAG_KEY" && -z "$TAG_VALUE" ]]; then
             echo "ERROR: tagKey provided but tagValue is empty."
             exit 1
@@ -235,7 +220,6 @@ jobs:
           echo "callingServiceEnv=${{ inputs.callingServiceEnv }}"
           echo "callingServiceUrl=${{ inputs.callingServiceUrl }}"
           echo "deflakeCount=${{ inputs.deflakeCount }}"
-          echo "retryCount=${{ inputs.retryCount }}"
           echo ""
           echo "=== RESOLVED SELECTORS ==="
           echo "testCaseId=${{ steps.resolve.outputs.testCaseId }}"

@@ -35,7 +35,6 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.settings.devices.button.GetE2eiCertificateButton
 import com.wire.android.ui.settings.devices.button.ShowE2eiCertificateButton
-import com.wire.android.ui.settings.devices.button.UpdateE2eiCertificateButton
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -93,39 +92,23 @@ fun EndToEndIdentityCertificateItem(
                             labelColor = colorsScheme().error,
                             icon = R.drawable.ic_certificate_revoked_mls
                         )
-                        SerialNumberBlock(mlsClientIdentity.x509Identity!!.serialNumber)
+                        mlsClientIdentity.x509Identity?.serialNumber?.let { SerialNumberBlock(it) }
                     }
-
                     MLSClientE2EIStatus.EXPIRED -> {
                         E2EIStatusRow(
                             label = stringResource(id = R.string.e2ei_certificat_status_expired),
                             labelColor = colorsScheme().error,
                             icon = R.drawable.ic_certificate_not_activated_mls
                         )
-                        SerialNumberBlock(mlsClientIdentity.x509Identity!!.serialNumber)
-                        if (isCurrentDevice) {
-                            UpdateE2eiCertificateButton(
-                                enabled = true,
-                                isLoading = isLoadingCertificate,
-                                onUpdateCertificateClicked = enrollE2eiCertificate
-                            )
-                        }
+                        mlsClientIdentity.x509Identity?.serialNumber?.let { SerialNumberBlock(it) }
                     }
-
                     MLSClientE2EIStatus.VALID -> {
                         E2EIStatusRow(
                             label = stringResource(id = R.string.e2ei_certificat_status_valid),
                             labelColor = colorsScheme().positive,
                             icon = R.drawable.ic_certificate_valid_mls
                         )
-                        SerialNumberBlock(mlsClientIdentity.x509Identity!!.serialNumber)
-                        if (isCurrentDevice) {
-                            UpdateE2eiCertificateButton(
-                                enabled = true,
-                                isLoading = isLoadingCertificate,
-                                onUpdateCertificateClicked = enrollE2eiCertificate
-                            )
-                        }
+                        mlsClientIdentity.x509Identity?.serialNumber?.let { SerialNumberBlock(it) }
                     }
                     MLSClientE2EIStatus.NOT_ACTIVATED -> {
                         E2EIStatusRow(
@@ -133,14 +116,14 @@ fun EndToEndIdentityCertificateItem(
                             labelColor = colorsScheme().error,
                             icon = R.drawable.ic_certificate_not_activated_mls
                         )
-                        if (isCurrentDevice) {
-                            GetE2eiCertificateButton(
-                                enabled = true,
-                                isLoading = isLoadingCertificate,
-                                onGetCertificateClicked = enrollE2eiCertificate
-                            )
-                        }
                     }
+                }
+                if (isCurrentDevice) {
+                    GetE2eiCertificateButton(
+                        enabled = true,
+                        isLoading = isLoadingCertificate,
+                        onGetCertificateClicked = enrollE2eiCertificate
+                    )
                 }
                 ShowE2eiCertificateButton(
                     enabled = true,

@@ -230,6 +230,62 @@ jobs:
           echo "ANDROID_HOME=${ANDROID_HOME:-}"
           adb version
 
+      # Flavor -> S3 folder + APP_ID
+      - name: Resolve flavor -> S3_FOLDER + APP_ID
+        run: |
+          set -euo pipefail
+
+          flavor="${{ inputs.flavor }}"
+
+          case "$flavor" in
+            "staging compat"|"staging-compat")
+              echo "S3_FOLDER=artifacts/megazord/android/reloaded/staging/compat/" >> "$GITHUB_ENV"
+              echo "APP_ID=com.waz.zclient.dev" >> "$GITHUB_ENV"
+              ;;
+            "internal beta"|"internal-beta")
+              echo "S3_FOLDER=artifacts/megazord/android/reloaded/beta/release/" >> "$GITHUB_ENV"
+              echo "APP_ID=com.wire.android.internal" >> "$GITHUB_ENV"
+              ;;
+            "internal release candidate"|"internal-rc"|"internal-release-candidate")
+              echo "S3_FOLDER=artifacts/megazord/android/reloaded/internal/compat/" >> "$GITHUB_ENV"
+              echo "APP_ID=com.wire.internal" >> "$GITHUB_ENV"
+              ;;
+            "experimental")
+              echo "S3_FOLDER=artifacts/megazord/android/reloaded/staging/compat/" >> "$GITHUB_ENV"
+              echo "APP_ID=com.waz.zclient.dev" >> "$GITHUB_ENV"
+              ;;
+            "column-1")
+              echo "S3_FOLDER=android/custom/bund/column1/prod/compatrelease/" >> "$GITHUB_ENV"
+              echo "APP_ID=com.wire.android.bund" >> "$GITHUB_ENV"
+              ;;
+            "column-2")
+              echo "S3_FOLDER=android/custom/bund/column2/prod/compatrelease/" >> "$GITHUB_ENV"
+              echo "APP_ID=com.wire.android.bund.column2" >> "$GITHUB_ENV"
+              ;;
+            "column-3")
+              echo "S3_FOLDER=android/custom/bund/column3/prod/compatrelease/" >> "$GITHUB_ENV"
+              echo "APP_ID=com.wire.android.bund.column3" >> "$GITHUB_ENV"
+              ;;
+            "debug")
+              echo "S3_FOLDER=artifacts/megazord/android/reloaded/dev/debug/" >> "$GITHUB_ENV"
+              echo "APP_ID=com.waz.zclient.dev.debug" >> "$GITHUB_ENV"
+              ;;
+            "fdroid")
+              echo "S3_FOLDER=artifacts/megazord/android/reloaded/fdroid/compatrelease/" >> "$GITHUB_ENV"
+              echo "APP_ID=com.wire" >> "$GITHUB_ENV"
+              ;;
+            "production"|"prod")
+              echo "S3_FOLDER=artifacts/megazord/android/reloaded/prod/compatrelease/" >> "$GITHUB_ENV"
+              echo "APP_ID=com.wire" >> "$GITHUB_ENV"
+              ;;
+            *)
+              echo "ERROR: Unknown flavor '$flavor'"
+              exit 1
+              ;;
+          esac
+
+          echo "Resolved flavor '$flavor' -> S3_FOLDER=$S3_FOLDER, APP_ID=$APP_ID"
+
       - name: Remove any leftover secrets files (safety)
         run: |
           set -euo pipefail

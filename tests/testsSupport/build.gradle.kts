@@ -114,17 +114,18 @@ tasks.register("fetchSecrets") {
                 val err = stderr.toString().trim()
 
                 if (result.exitValue != 0) {
+                    // SECURITY: never print stdout on failure (it may contain partial JSON / secrets)
                     throw GradleException(
                         buildString {
-                            appendLine("Command failed: ${command.joinToString(" ")}")
+                            appendLine("Command failed (exit=${result.exitValue}): ${command.joinToString(" ")}")
                             if (err.isNotBlank()) appendLine(err)
-                            if (out.isNotBlank()) appendLine(out)
                         }
                     )
                 }
 
                 return out
             }
+
 
             // Service accounts can require an explicit vault. Use the vault ID to avoid extra lookups.
             val vaultJson = runCommand(listOf("op", "vault", "get", vaultName, "--format", "json"))

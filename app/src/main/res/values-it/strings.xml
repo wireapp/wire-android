@@ -838,11 +838,6 @@ Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
     <string name="team_app_lock_enabled">Il blocco dell\'app è ora obbligatorio. Wire si bloccherà dopo un certo periodo di inattività. Per sbloccare l\'app, necessiti di inserire un codice d\'accesso, o di utilizzare l\'autenticazione biometrica.</string>
     <string name="team_app_lock_disabled">Il blocco dell\'app è ora obbligatorio. Wire si bloccherà dopo un certo periodo di inattività.</string>
     <string name="settings_forgot_lock_screen_title">Hai dimenticato il codice d\'accesso del blocco della tua app?</string>
-    <string name="settings_forgot_lock_screen_description">Puoi accedere ai dati memorizzati su questo dispositivo soltanto con il codice d\'accesso del blocco della tua app. Se lo hai dimenticato, puoi rimuovere questo dispositivo.</string>
-    <string name="settings_forgot_lock_screen_warning">Se rimuovi il tuo dispositivo, perdi tutti i dati e messaggi locali per tutti i profili su questo dispositivo, permanentemente.</string>
-    <string name="settings_forgot_lock_screen_reset_device">Rimuovi il dispositivo</string>
-    <string name="settings_forgot_lock_screen_reset_device_description">Inserisci la tua password per il profilo %s per confermare l\'eliminazione di tutti i dati per tutti i profili su questo dispositivo. Dopo aver rimosso il tuo dispositivo, puoi accedere con le credenziali del tuo profilo.</string>
-    <string name="settings_forgot_lock_screen_reset_device_without_password_description">Conferma l\'eliminazione di tutti i dati per tutti i profili su questo dispositivo. Dopo aver rimosso il tuo dispositivo, puoi accedere con le credenziali del tuo profilo.</string>
     <string name="settings_forgot_lock_screen_please_wait_label">Ti preghiamo d\'attendere...</string>
     <!--Devices -->
     <string name="devices_title">I tuoi Dispositivi</string>

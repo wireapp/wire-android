@@ -1,0 +1,228 @@
+name: QA Android UI Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      appBuildNumber:
+        description: "AppBuildNumber. Use 'latest' or build number(e.g 71389)"
+        required: true
+        default: "latest"
+        type: string
+
+      isUpgrade:
+        description: "Upgrade test? If true, oldBuildNumber is REQUIRED."
+        required: true
+        default: false
+        type: boolean
+
+      oldBuildNumber:
+        description: "For upgrade runs: type the old build number here"
+        required: false
+        default: ""
+        type: string
+
+      enforceAppInstall:
+        description: "If you want to run with a lower version than currently on the device, set this value to true."
+        required: true
+        default: false
+        type: boolean
+
+      flavor:
+        description: "App flavor."
+        required: true
+        type: choice
+        options:
+          - internal release candidate
+          - internal beta
+          - staging compat
+          - experimental
+          - column-1
+          - column-2
+          - column-3
+          - debug
+          - fdroid
+          - production
+        default: internal release candidate
+
+      buildType:
+        description: "Build type"
+        required: true
+        type: choice
+        options:
+          - release
+          - debug
+          - compat
+        default: release
+
+      TAGS:
+        description: "Tags: '@regression' OR '@TC-8143'."
+        required: false
+        default: ""
+        type: string
+
+      branch:
+        description: "Branch"
+        required: true
+        default: "develop"
+        type: string
+
+      backendType:
+        description: "Backend."
+        required: true
+        default: "staging"
+        type: string
+
+      testinyRunName:
+        description: "TESTINY_RUN_NAME."
+        required: false
+        default: ""
+        type: string
+
+      androidDeviceId:
+        description: "androidDeviceId. Target a specific device. Leave empty for auto."
+        required: false
+        default: ""
+        type: string
+
+      callingServiceEnv:
+        description: "Calling service environment."
+        required: true
+        type: choice
+        options:
+          - dev
+          - custom
+          - master
+          - avs
+          - qa
+          - edge
+          - staging
+          - prod
+        default: dev
+
+      callingServiceUrl:
+        description: "Calling service URL."
+        required: true
+        default: "loadbalanced"
+        type: string
+
+      deflakeCount:
+        description: "Rerun only failed tests."
+        required: true
+        default: 1
+        type: number
+
+jobs:
+  validate-and-resolve-inputs:
+    name: Validate + resolve selectors (no execution)
+    runs-on: ubuntu-latest
+
+    outputs:
+      resolvedTestCaseId: ${{ steps.resolve.outputs.testCaseId }}
+      resolvedCategory: ${{ steps.resolve.outputs.category }}
+      resolvedTagKey: ${{ steps.resolve.outputs.tagKey }}
+      resolvedTagValue: ${{ steps.resolve.outputs.tagValue }}
+
+    steps:
+      - name: Validate upgrade inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "${{ inputs.isUpgrade }}" == "true" && -z "${{ inputs.oldBuildNumber }}" ]]; then
+            echo "ERROR: oldBuildNumber is REQUIRED when isUpgrade=true"
+            exit 1
+          fi
+
+      - name: Resolve selector from TAGS
+        id: resolve
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # We only use TAGS in this UI (no extra selector inputs)
+          TESTCASE_ID=""
+          CATEGORY=""
+          TAG_KEY=""
+          TAG_VALUE=""
+
+          TAGS_RAW="${{ inputs.TAGS }}"
+
+          trim() { echo "$1" | xargs; }
+
+          # If TAGS is provided, derive selector
+          if [[ -n "$(trim "${TAGS_RAW}")" ]]; then
+            # TAGS can be comma-separated; use first non-empty token
+            sel=""
+            IFS=',' read -ra parts <<< "${TAGS_RAW}"
+            for p in "${parts[@]}"; do
+              t="$(trim "$p")"
+              if [[ -n "$t" ]]; then
+                sel="$t"
+                break
+              fi
+            done
+
+            # Strip leading @ if present
+            sel="${sel#@}"
+            sel="$(trim "$sel")"
+
+            # @TC-8143 -> testCaseId
+            if [[ "$sel" =~ ^TC-[0-9]+$ ]]; then
+              TESTCASE_ID="$sel"
+
+            # @key:value -> tagKey/tagValue (kept for future parity)
+            elif [[ "$sel" == *:* ]]; then
+              k="$(trim "${sel%%:*}")"
+              v="$(trim "${sel#*:}")"
+              if [[ -z "$k" || -z "$v" ]]; then
+                echo "ERROR: Invalid TAGS format '${TAGS_RAW}'. Expected '@key:value' e.g. @criticalFlow:groupCallChat"
+                exit 1
+              fi
+              TAG_KEY="$k"
+              TAG_VALUE="$v"
+
+            # @regression -> category
+            else
+              CATEGORY="$sel"
+            fi
+          fi
+
+          # Safety: prevent partial key/value
+          if [[ -n "$TAG_KEY" && -z "$TAG_VALUE" ]]; then
+            echo "ERROR: tagKey provided but tagValue is empty."
+            exit 1
+          fi
+          if [[ -z "$TAG_KEY" && -n "$TAG_VALUE" ]]; then
+            echo "ERROR: tagValue provided but tagKey is empty."
+            exit 1
+          fi
+
+          echo "testCaseId=$TESTCASE_ID" >> "$GITHUB_OUTPUT"
+          echo "category=$CATEGORY" >> "$GITHUB_OUTPUT"
+          echo "tagKey=$TAG_KEY" >> "$GITHUB_OUTPUT"
+          echo "tagValue=$TAG_VALUE" >> "$GITHUB_OUTPUT"
+
+      - name: Print final resolved inputs (for reviewers)
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "=== RAW INPUTS ==="
+          echo "appBuildNumber=${{ inputs.appBuildNumber }}"
+          echo "isUpgrade=${{ inputs.isUpgrade }}"
+          echo "oldBuildNumber=${{ inputs.oldBuildNumber }}"
+          echo "enforceAppInstall=${{ inputs.enforceAppInstall }}"
+          echo "flavor=${{ inputs.flavor }}"
+          echo "buildType=${{ inputs.buildType }}"
+          echo "TAGS=${{ inputs.TAGS }}"
+          echo "branch=${{ inputs.branch }}"
+          echo "backendType=${{ inputs.backendType }}"
+          echo "testinyRunName=${{ inputs.testinyRunName }}"
+          echo "androidDeviceId=${{ inputs.androidDeviceId }}"
+          echo "callingServiceEnv=${{ inputs.callingServiceEnv }}"
+          echo "callingServiceUrl=${{ inputs.callingServiceUrl }}"
+          echo "deflakeCount=${{ inputs.deflakeCount }}"
+          echo ""
+          echo "=== RESOLVED SELECTORS ==="
+          echo "testCaseId=${{ steps.resolve.outputs.testCaseId }}"
+          echo "category=${{ steps.resolve.outputs.category }}"
+          echo "tagKey=${{ steps.resolve.outputs.tagKey }}"
+          echo "tagValue=${{ steps.resolve.outputs.tagValue }}"

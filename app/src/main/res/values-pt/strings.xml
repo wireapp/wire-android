@@ -1060,11 +1060,6 @@ Em conversas de grupo, o administrador do grupo pode substituir essa configuraç
     <string name="team_app_lock_enabled">O bloqueio de apps agora é obrigatório. O Wire se bloqueará após um certo tempo de inatividade. Para desbloquear o aplicativo, você precisa digitar uma senha ou usar a Autenticação Biométrica.</string>
     <string name="team_app_lock_disabled">O bloqueio de apps não é mais obrigatório. O Wire não se bloqueará mais após um certo tempo de inatividade.</string>
     <string name="settings_forgot_lock_screen_title">Esqueceu a senha de bloqueio do aplicativo?</string>
-    <string name="settings_forgot_lock_screen_description">Você só pode acessar os dados armazenados neste dispositivo com sua senha de bloqueio. Se você esqueceu sua senha, pode remover este dispositivo.</string>
-    <string name="settings_forgot_lock_screen_warning">Se você remover seu dispositivo, você perderá todos os dados e mensagens locais para todas as contas neste dispositivo permanentemente.</string>
-    <string name="settings_forgot_lock_screen_reset_device">Remover o dispositivo</string>
-    <string name="settings_forgot_lock_screen_reset_device_description">Digite sua senha para a conta %s para confirmar a exclusão de todos os dados para todas as contas neste dispositivo. Depois de remover o dispositivo, você poderá fazer login com as credenciais da sua conta.</string>
-    <string name="settings_forgot_lock_screen_reset_device_without_password_description">Confirme a exclusão de todos os dados para todas as contas neste dispositivo. Após remover seu dispositivo, você pode fazer login com as credenciais da sua conta.</string>
     <string name="settings_forgot_lock_screen_please_wait_label">Por favor, aguarde...</string>
     <!--Devices -->
     <string name="devices_title">Seus Dispositivos</string>

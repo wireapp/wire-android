@@ -55,6 +55,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
@@ -665,6 +666,15 @@ fun ConversationScreen(
         isWireCellsEnabled = conversationInfoViewModel.conversationInfoViewState.isWireCellEnabled,
     )
     BackHandler { conversationScreenOnBackButtonClick(messageComposerViewModel, messageComposerStateHolder, navigator) }
+
+    // Mark conversation as read when leaving, regardless of how the user exits
+    // (back button, system gesture, navigation to another screen, etc.)
+    DisposableEffect(messageComposerViewModel) {
+        onDispose {
+            messageComposerViewModel.onConversationClosed()
+        }
+    }
+
     DeleteMessageDialog(
         dialogState = conversationMessagesViewModel.deleteMessageDialogState,
         deleteMessage = conversationMessagesViewModel::deleteMessage,

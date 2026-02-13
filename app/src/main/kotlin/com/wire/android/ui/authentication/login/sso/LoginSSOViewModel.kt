@@ -29,6 +29,7 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.config.DefaultServerConfig
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.ClientScopeProvider
+import com.wire.android.di.DefaultWebSocketEnabledByDefault
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.authentication.login.LoginViewModel
@@ -82,7 +83,8 @@ class LoginSSOViewModel(
         @KaliumCoreLogic coreLogic: CoreLogic,
         clientScopeProviderFactory: ClientScopeProvider.Factory,
         userDataStoreProvider: UserDataStoreProvider,
-        serverConfig: ServerConfig.Links
+        serverConfig: ServerConfig.Links,
+        @DefaultWebSocketEnabledByDefault defaultWebSocketEnabledByDefault: Boolean,
     ) : this(
         savedStateHandle,
         addAuthenticatedUser,
@@ -90,7 +92,7 @@ class LoginSSOViewModel(
         coreLogic,
         clientScopeProviderFactory,
         userDataStoreProvider,
-        LoginSSOViewModelExtension(addAuthenticatedUser, coreLogic),
+        LoginSSOViewModelExtension(addAuthenticatedUser, coreLogic, defaultWebSocketEnabledByDefault),
         serverConfig
     )
 

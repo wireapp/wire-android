@@ -107,7 +107,6 @@
     <string name="content_description_conversation_mention_someone">යමෙක් සඳහන් කරන්න</string>
     <string name="content_description_conversation_back_btn">සංවාද ලැයිස්තුවට ආපසු යන්න</string>
     <string name="content_description_conversation_open_details_label">සංවාද විස්තර විවෘත කරන්න</string>
-    <string name="content_description_new_conversation">පුද්ගලයින් සොයන්න හෝ නව සංවාදයක් සාදන්න</string>
     <string name="content_description_back_button">ආපසු බොත්තම</string>
     <string name="content_description_send_button">යවන්න</string>
     <string name="content_description_timed_message_button">ඉබේ මැකෙන පණිවිඩ බොත්තම</string>
@@ -1131,11 +1130,6 @@
     <string name="team_app_lock_enabled">යෙදුමේ අගුල දැන් අනිවාර්යයි. නිශ්චිත නිෂ්ක්‍රියත්‍වයකින් පසුව වයර් යෙදුමට අගුළු වැටෙනු ඇත. යෙදුම අගුළු හැරීමට මුරකේතයක් හෝ වමිතික සත්‍යාපනය භාවිතා කළ යුතුය.</string>
     <string name="team_app_lock_disabled">යෙදුමේ අගුල තවදුරටත් අනිවාර්ය නොවේ. නිශ්චිත නිෂ්ක්‍රියත්‍වයකින් පසුව වයර් යෙදුමට අගුළු නොවැටෙනු ඇත.</string>
     <string name="settings_forgot_lock_screen_title">යෙදුමේ මුරකේතය අමතකද?</string>
-    <string name="settings_forgot_lock_screen_description">ඔබගේ යෙදුම අගුළු දමන මුර කේතයෙන් පමණක් මෙම උපාංගයේ ගබඩා කර ඇති දත්ත වෙත ප්‍රවේශ වීමට හැකිය. මුරකේතය අමතක වී ඇත්නම්, මෙම උපාංගය ඉවත් කිරීමට හැකිය.</string>
-    <string name="settings_forgot_lock_screen_warning">ඔබ උපාංගය ඉවත් කළහොත්, මෙම උපාංගයේ ඇති සියලුම ගිණුම්වල ස්ථානීය දත්ත සහ පණිවිඩ සදහටම අහිමි වේ.</string>
-    <string name="settings_forgot_lock_screen_reset_device">උපාංගය ඉවත් කරන්න</string>
-    <string name="settings_forgot_lock_screen_reset_device_description">මෙම උපාංගයේ අඩංගු සියලුම ගිණුම්වල දත්ත මැකීමට %s ගිණුම වෙත මුරපදය ඇතුල් කරන්න. මෙම උපාංගය ඉවත් කිරීමෙන් පසු, ඔබට නැවත ගිණුමේ අක්තපත්‍ර සමඟින් පිවිසීමට හැකිය.</string>
-    <string name="settings_forgot_lock_screen_reset_device_without_password_description">මෙම උපාංගයේ අඩංගු සියලුම ගිණුම්වල දත්ත මැකීමට තහවුරු කරන්න. ඔබගේ උපාංගය ඉවත් කිරීමෙන් පසු, ඔබට නැවත ගිණුමේ අක්තපත්‍ර සමඟින් පිවිසීමට හැකිය.</string>
     <string name="settings_forgot_lock_screen_please_wait_label">කරුණාකර රැඳෙන්න...</string>
     <!--Devices -->
     <string name="devices_title">ඔබගේ උපාංග</string>

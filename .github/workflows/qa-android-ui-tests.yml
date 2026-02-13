@@ -232,59 +232,80 @@ jobs:
 
       # Flavor -> S3 folder + APP_ID
       - name: Resolve flavor -> S3_FOLDER + APP_ID
+        id: resolve_flavor
         run: |
           set -euo pipefail
 
-          flavor="${{ inputs.flavor }}"
+          FLAVOR="$(echo "${{ inputs.flavor }}" | xargs)"
 
-          case "$flavor" in
-            "staging compat"|"staging-compat")
-              echo "S3_FOLDER=artifacts/megazord/android/reloaded/staging/compat/" >> "$GITHUB_ENV"
-              echo "APP_ID=com.waz.zclient.dev" >> "$GITHUB_ENV"
+          # IMPORTANT: initialize so set -u never crashes before assignment
+          S3_FOLDER=""
+          APP_ID=""
+
+          case "$FLAVOR" in
+            "staging compat")
+              S3_FOLDER="artifacts/megazord/android/reloaded/staging/compat/"
+              APP_ID="com.waz.zclient.dev"
               ;;
-            "internal beta"|"internal-beta")
-              echo "S3_FOLDER=artifacts/megazord/android/reloaded/beta/release/" >> "$GITHUB_ENV"
-              echo "APP_ID=com.wire.android.internal" >> "$GITHUB_ENV"
+            "internal beta")
+              S3_FOLDER="artifacts/megazord/android/reloaded/beta/release/"
+              APP_ID="com.wire.android.internal"
               ;;
-            "internal release candidate"|"internal-rc"|"internal-release-candidate")
-              echo "S3_FOLDER=artifacts/megazord/android/reloaded/internal/compat/" >> "$GITHUB_ENV"
-              echo "APP_ID=com.wire.internal" >> "$GITHUB_ENV"
+            "internal release candidate")
+              S3_FOLDER="artifacts/megazord/android/reloaded/internal/compat/"
+              APP_ID="com.wire.internal"
               ;;
             "experimental")
-              echo "S3_FOLDER=artifacts/megazord/android/reloaded/staging/compat/" >> "$GITHUB_ENV"
-              echo "APP_ID=com.waz.zclient.dev" >> "$GITHUB_ENV"
+              S3_FOLDER="artifacts/megazord/android/reloaded/staging/compat/"
+              APP_ID="com.waz.zclient.dev"
               ;;
             "column-1")
-              echo "S3_FOLDER=android/custom/bund/column1/prod/compatrelease/" >> "$GITHUB_ENV"
-              echo "APP_ID=com.wire.android.bund" >> "$GITHUB_ENV"
+              S3_FOLDER="android/custom/bund/column1/prod/compatrelease/"
+              APP_ID="com.wire.android.bund"
               ;;
             "column-2")
-              echo "S3_FOLDER=android/custom/bund/column2/prod/compatrelease/" >> "$GITHUB_ENV"
-              echo "APP_ID=com.wire.android.bund.column2" >> "$GITHUB_ENV"
+              S3_FOLDER="android/custom/bund/column2/prod/compatrelease/"
+              APP_ID="com.wire.android.bund.column2"
               ;;
             "column-3")
-              echo "S3_FOLDER=android/custom/bund/column3/prod/compatrelease/" >> "$GITHUB_ENV"
-              echo "APP_ID=com.wire.android.bund.column3" >> "$GITHUB_ENV"
+              S3_FOLDER="android/custom/bund/column3/prod/compatrelease/"
+              APP_ID="com.wire.android.bund.column3"
               ;;
             "debug")
-              echo "S3_FOLDER=artifacts/megazord/android/reloaded/dev/debug/" >> "$GITHUB_ENV"
-              echo "APP_ID=com.waz.zclient.dev.debug" >> "$GITHUB_ENV"
+              S3_FOLDER="artifacts/megazord/android/reloaded/dev/debug/"
+              APP_ID="com.waz.zclient.dev.debug"
               ;;
             "fdroid")
-              echo "S3_FOLDER=artifacts/megazord/android/reloaded/fdroid/compatrelease/" >> "$GITHUB_ENV"
-              echo "APP_ID=com.wire" >> "$GITHUB_ENV"
+              S3_FOLDER="artifacts/megazord/android/reloaded/fdroid/compatrelease/"
+              APP_ID="com.wire"
               ;;
-            "production"|"prod")
-              echo "S3_FOLDER=artifacts/megazord/android/reloaded/prod/compatrelease/" >> "$GITHUB_ENV"
-              echo "APP_ID=com.wire" >> "$GITHUB_ENV"
+            "production")
+              S3_FOLDER="artifacts/megazord/android/reloaded/prod/compatrelease/"
+              APP_ID="com.wire"
               ;;
             *)
-              echo "ERROR: Unknown flavor '$flavor'"
+              echo "ERROR: Unknown flavor: '$FLAVOR'"
+              echo "Expected one of: internal release candidate, internal beta, staging compat, experimental, column-1, column-2, column-3, debug, fdroid, production"
               exit 1
               ;;
           esac
 
-          echo "Resolved flavor '$flavor' -> S3_FOLDER=$S3_FOLDER, APP_ID=$APP_ID"
+          # extra safety
+          if [[ -z "$S3_FOLDER" || -z "$APP_ID" ]]; then
+            echo "ERROR: Flavor mapping produced empty values. flavor='$FLAVOR'"
+            exit 1
+          fi
+
+          echo "Resolved flavor='$FLAVOR'"
+          echo "S3_FOLDER=$S3_FOLDER"
+          echo "APP_ID=$APP_ID"
+
+          echo "S3_FOLDER=$S3_FOLDER" >> "$GITHUB_ENV"
+          echo "APP_ID=$APP_ID" >> "$GITHUB_ENV"
+
+          echo "S3_FOLDER=$S3_FOLDER" >> "$GITHUB_OUTPUT"
+          echo "APP_ID=$APP_ID" >> "$GITHUB_OUTPUT"
+
 
       - name: Remove any leftover secrets files (safety)
         run: |

@@ -26,7 +26,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.ui.home.conversations.search.AddMembersSearchNavArgs
 import com.wire.android.ui.home.newconversation.model.Contact
-import com.wire.android.ui.navArgs
+import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.AddMemberToConversationUseCase

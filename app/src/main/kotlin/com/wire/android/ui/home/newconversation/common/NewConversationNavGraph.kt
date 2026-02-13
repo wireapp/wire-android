@@ -20,9 +20,9 @@ package com.wire.android.ui.home.newconversation.common
 
 import com.ramcosta.composedestinations.annotation.NavGraph
 import com.wire.android.navigation.WireRootNavGraph
+import com.wire.android.navigation.style.DefaultNestedNavGraphAnimations
 
-@WireRootNavGraph
-@NavGraph
+@NavGraph<WireRootNavGraph>(defaultTransitions = DefaultNestedNavGraphAnimations::class)
 annotation class NewConversationNavGraph(
     val start: Boolean = false
 )

@@ -17,7 +17,7 @@ import com.wire.android.ui.authentication.login.LoginViewModelExtension
 import com.wire.android.ui.authentication.login.PreFilledUserIdentifierType
 import com.wire.android.ui.authentication.login.sso.LoginSSOViewModelExtension
 import com.wire.android.ui.authentication.login.sso.SSOUrlConfig
-import com.wire.android.ui.navArgs
+import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.ui.newauthentication.login.ValidateEmailOrSSOCodeUseCase.Result.ValidEmail
 import com.wire.android.util.EMPTY
 import com.wire.android.util.deeplink.DeepLinkResult

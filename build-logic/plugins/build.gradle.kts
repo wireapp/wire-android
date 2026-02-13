@@ -20,7 +20,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     `kotlin-dsl`
-    alias(libs.plugins.kotlin.serialization)
+    kotlin("plugin.serialization") version embeddedKotlinVersion
 }
 
 // Configure the build-logic plugins to target JDK 17

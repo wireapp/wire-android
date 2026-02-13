@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.home.conversations.media
 
+import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.annotation.StringRes
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration
@@ -45,7 +46,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
@@ -62,7 +62,7 @@ import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
-import com.wire.android.ui.destinations.MediaGalleryScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.MediaGalleryScreenDestination
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.DownloadedAssetDialog
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
@@ -80,8 +80,8 @@ import com.wire.kalium.logic.data.id.ConversationId
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 
-@WireDestination(
-    navArgsDelegate = ConversationMediaNavArgs::class,
+@WireRootDestination(
+    navArgs = ConversationMediaNavArgs::class,
     style = PopUpNavigationAnimation::class
 )
 @Composable

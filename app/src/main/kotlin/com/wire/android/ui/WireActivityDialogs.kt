@@ -62,7 +62,7 @@ import com.wire.android.ui.common.dialogs.CustomServerNoNetworkDialogState
 import com.wire.android.ui.common.dialogs.MaxAccountAllowedDialogContent
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.wireDialogPropertiesBuilder
-import com.wire.android.ui.destinations.ConversationScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
 import com.wire.android.ui.joinConversation.JoinConversationViaDeepLinkDialog

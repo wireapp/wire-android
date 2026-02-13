@@ -19,6 +19,7 @@
 
 package com.wire.android.ui.home.newconversation.groupOptions
 
+import com.wire.android.navigation.annotation.app.WireNewConversationDestination
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -41,7 +42,6 @@ import com.wire.android.model.Clickable
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.common.TextWithLinkSuffix
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
@@ -55,11 +55,11 @@ import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.common.upgradetoapps.UpgradeToGetAppsBanner
-import com.wire.android.ui.destinations.ChannelAccessOnCreateScreenDestination
-import com.wire.android.ui.destinations.ChannelHistoryScreenDestination
-import com.wire.android.ui.destinations.ConversationScreenDestination
-import com.wire.android.ui.destinations.HomeScreenDestination
-import com.wire.android.ui.destinations.NewGroupConversationSearchPeopleScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.ChannelAccessOnCreateScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.ChannelHistoryScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.HomeScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.NewGroupConversationSearchPeopleScreenDestination
 import com.wire.android.ui.home.conversations.details.options.ArrowType
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsItem
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
@@ -68,7 +68,6 @@ import com.wire.android.ui.home.newconversation.channelhistory.ChannelHistoryTyp
 import com.wire.android.ui.home.newconversation.channelhistory.name
 import com.wire.android.ui.home.newconversation.common.CreateGroupErrorDialog
 import com.wire.android.ui.home.newconversation.common.CreateGroupState
-import com.wire.android.ui.home.newconversation.common.NewConversationNavGraph
 import com.wire.android.ui.home.settings.SwitchState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
@@ -78,8 +77,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.conversation.CreateConversationParam
 import com.wire.kalium.logic.data.id.ConversationId
 
-@NewConversationNavGraph
-@WireDestination
+@WireNewConversationDestination
 @Composable
 fun GroupOptionScreen(
     navigator: Navigator,

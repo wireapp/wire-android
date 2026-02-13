@@ -17,13 +17,12 @@
  */
 plugins {
     id(libs.plugins.android.library.get().pluginId)
-    id(libs.plugins.kotlin.android.get().pluginId)
 }
 
 android {
     defaultConfig {
         minSdk = 23
-        compileSdk = 35
+        compileSdk = 36
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -46,10 +45,4 @@ dependencies {
     androidTestImplementation(libs.androidx.test.extJunit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.benchmark.macro.junit4)
-}
-
-kotlin {
-    jvmToolchain {
-        languageVersion.set(JavaLanguageVersion.of(JavaVersion.VERSION_17.majorVersion))
-    }
 }

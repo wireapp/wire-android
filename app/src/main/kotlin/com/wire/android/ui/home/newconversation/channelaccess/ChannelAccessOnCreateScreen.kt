@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.home.newconversation.channelaccess
 
+import com.wire.android.navigation.annotation.app.WireNewConversationDestination
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
@@ -29,20 +30,17 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
-import com.wire.android.ui.home.newconversation.common.NewConversationNavGraph
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 
-@NewConversationNavGraph
-@WireDestination
+@WireNewConversationDestination
 @Composable
 fun ChannelAccessOnCreateScreen(
     navigator: Navigator,

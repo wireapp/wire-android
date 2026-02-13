@@ -21,9 +21,9 @@ package com.wire.android.ui.home
 import com.wire.android.model.UserAvatarData
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
-import com.wire.android.ui.destinations.CreateAccountUsernameScreenDestination
-import com.wire.android.ui.destinations.InitialSyncScreenDestination
-import com.wire.android.ui.destinations.RegisterDeviceScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.CreateAccountUsernameScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.InitialSyncScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.RegisterDeviceScreenDestination
 
 data class HomeState(
     val userAvatarData: UserAvatarData = UserAvatarData(null),

@@ -39,7 +39,7 @@ import com.wire.android.ui.authentication.login.isProxyAuthRequired
 import com.wire.android.ui.authentication.login.toLoginError
 import com.wire.android.ui.authentication.verificationcode.VerificationCodeState
 import com.wire.android.ui.common.textfield.textAsFlow
-import com.wire.android.ui.navArgs
+import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.EMPTY
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.CountdownTimer

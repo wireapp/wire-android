@@ -29,7 +29,7 @@ import com.wire.android.appLogger
 import com.wire.android.di.CurrentAccount
 import com.wire.android.model.ImageAsset
 import com.wire.android.ui.home.conversations.ConversationNavArgs
-import com.wire.android.ui.navArgs
+import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.toUIText
 import com.wire.kalium.common.error.StorageFailure

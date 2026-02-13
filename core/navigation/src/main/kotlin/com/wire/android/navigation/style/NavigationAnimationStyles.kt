@@ -23,30 +23,30 @@ import com.ramcosta.composedestinations.spec.DestinationStyle
 
 typealias DefaultNavigationAnimation = SlideNavigationAnimation
 
-object SlideNavigationAnimation : WireDestinationStyleAnimated, BackgroundStyle {
+object SlideNavigationAnimation : WireDestinationStyleAnimated(), BackgroundStyle {
     override fun animationType(): TransitionAnimationType = TransitionAnimationType.SLIDE
 }
 
-object PopUpNavigationAnimation : WireDestinationStyleAnimated, BackgroundStyle {
+object PopUpNavigationAnimation : WireDestinationStyleAnimated(), BackgroundStyle {
     override fun animationType(): TransitionAnimationType = TransitionAnimationType.POP_UP
 }
 
-object AuthSlideNavigationAnimation : WireDestinationStyleAnimated, BackgroundStyle {
+object AuthSlideNavigationAnimation : WireDestinationStyleAnimated(), BackgroundStyle {
     override fun animationType(): TransitionAnimationType = TransitionAnimationType.SLIDE
     override fun backgroundType(): BackgroundType = BackgroundType.Auth
 }
 
-object AuthPopUpNavigationAnimation : WireDestinationStyleAnimated, BackgroundStyle {
+object AuthPopUpNavigationAnimation : WireDestinationStyleAnimated(), BackgroundStyle {
     override fun animationType(): TransitionAnimationType = TransitionAnimationType.POP_UP
     override fun backgroundType(): BackgroundType = BackgroundType.Auth
 }
 
-object AuthNoNavigationAnimation : WireDestinationStyleAnimated, BackgroundStyle {
+object AuthNoNavigationAnimation : WireDestinationStyleAnimated(), BackgroundStyle {
     override fun animationType(): TransitionAnimationType = TransitionAnimationType.NONE
     override fun backgroundType(): BackgroundType = BackgroundType.Auth
 }
 
-object DialogNavigation : DestinationStyle.Dialog {
+object DialogNavigation : DestinationStyle.Dialog() {
     override val properties: DialogProperties
         get() = DialogProperties(
             dismissOnBackPress = true,

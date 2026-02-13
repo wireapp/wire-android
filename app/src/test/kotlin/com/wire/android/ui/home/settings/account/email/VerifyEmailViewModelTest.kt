@@ -22,7 +22,7 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.ui.home.settings.account.email.verifyEmail.VerifyEmailNavArgs
 import com.wire.android.ui.home.settings.account.email.verifyEmail.VerifyEmailViewModel
-import com.wire.android.ui.navArgs
+import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.logic.feature.user.UpdateEmailUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery

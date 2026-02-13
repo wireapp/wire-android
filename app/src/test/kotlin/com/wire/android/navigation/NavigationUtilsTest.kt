@@ -114,14 +114,13 @@ internal class NavigationUtilsTest {
     }
 
     @Test
-    fun `given route with segments but without parameters, when getting primary route, then return only host part`() {
+    fun `given route with segments but without parameters, when getting primary route, then return host with first segment`() {
         // Given
-        val host = "route"
-        val route = "$host/segment1/segment2"
+        val route = "route/segment1/segment2"
         // When
         val result = route.getBaseRoute()
         // Then
-        assertEquals(host, result)
+        assertEquals("route/segment1", result)
     }
 
     @Test
@@ -136,13 +135,52 @@ internal class NavigationUtilsTest {
     }
 
     @Test
-    fun `given route with segments and parameters, when getting primary route, then return only host part`() {
+    fun `given route with segments and parameters, when getting primary route, then return host with first segment`() {
         // Given
-        val host = "route"
-        val route = "$host/segment1/segment2?param1=value1&param2=value2"
+        val route = "route/segment1/segment2?param1=value1&param2=value2"
         // When
         val result = route.getBaseRoute()
         // Then
-        assertEquals(host, result)
+        assertEquals("route/segment1", result)
+    }
+
+    @Test
+    fun `given empty string, when getting base route, then return empty string`() {
+        // Given
+        val route = ""
+        // When
+        val result = route.getBaseRoute()
+        // Then
+        assertEquals("", result)
+    }
+
+    @Test
+    fun `given route with single segment, when getting base route, then return full route`() {
+        // Given
+        val route = "route/segment"
+        // When
+        val result = route.getBaseRoute()
+        // Then
+        assertEquals("route/segment", result)
+    }
+
+    @Test
+    fun `given route with single segment and parameters, when getting base route, then return route with segment`() {
+        // Given
+        val route = "route/segment?param=value"
+        // When
+        val result = route.getBaseRoute()
+        // Then
+        assertEquals("route/segment", result)
+    }
+
+    @Test
+    fun `given route where query param appears before second slash, when getting base route, then stop at query param`() {
+        // Given
+        val route = "route/segment?param=value/other"
+        // When
+        val result = route.getBaseRoute()
+        // Then
+        assertEquals("route/segment", result)
     }
 }

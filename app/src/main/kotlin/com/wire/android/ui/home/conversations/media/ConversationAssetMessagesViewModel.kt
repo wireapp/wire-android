@@ -27,7 +27,7 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.usecase.GetAssetMessagesFromConversationUseCase
 import com.wire.android.ui.home.conversations.usecase.ObserveImageAssetMessagesFromConversationUseCase
-import com.wire.android.ui.navArgs
+import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.feature.asset.ObserveAssetStatusesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel

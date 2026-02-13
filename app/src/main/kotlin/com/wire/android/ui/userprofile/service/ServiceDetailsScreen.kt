@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.userprofile.service
 
+import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -38,11 +39,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.spec.DestinationStyle
 import com.wire.android.R
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
+import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -57,9 +57,9 @@ import com.wire.android.ui.userprofile.common.EditableState
 import com.wire.android.ui.userprofile.common.UserProfileInfo
 import com.wire.kalium.logic.data.service.ServiceDetails
 
-@WireDestination(
-    navArgsDelegate = ServiceDetailsNavArgs::class,
-    style = DestinationStyle.Runtime::class, // default should be PopUpNavigationAnimation
+@WireRootDestination(
+    navArgs = ServiceDetailsNavArgs::class,
+    style = PopUpNavigationAnimation::class, // default should be PopUpNavigationAnimation
 )
 @Composable
 fun ServiceDetailsScreen(

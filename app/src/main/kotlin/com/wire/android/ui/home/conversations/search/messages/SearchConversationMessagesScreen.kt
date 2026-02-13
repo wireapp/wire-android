@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.home.conversations.search.messages
 
+import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -31,18 +32,17 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.wire.android.R
-import com.wire.android.feature.cells.ui.destinations.ConversationFilesScreenDestination
+import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesScreenDestination
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
-import com.wire.android.ui.destinations.ConversationScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
@@ -51,8 +51,8 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.android.ui.common.R as commonR
 
-@WireDestination(
-    navArgsDelegate = SearchConversationMessagesNavArgs::class,
+@WireRootDestination(
+    navArgs = SearchConversationMessagesNavArgs::class,
     style = PopUpNavigationAnimation::class
 )
 @Composable

@@ -26,7 +26,7 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.di.CurrentAccount
 import com.wire.android.model.ImageAsset
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
-import com.wire.android.ui.navArgs
+import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.Conversation

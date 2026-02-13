@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.home.conversations.details
 
+import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
@@ -63,13 +64,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
-import com.ramcosta.composedestinations.spec.DestinationStyle
+import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.R
 import com.wire.android.appLogger
-import com.wire.android.feature.cells.ui.destinations.ConversationFilesScreenDestination
+import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesScreenDestination
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.LoadingWireTabRow
@@ -91,19 +91,19 @@ import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.WireTopAppBarTitle
 import com.wire.android.ui.common.visbility.rememberVisibilityState
-import com.wire.android.ui.destinations.AddMembersSearchScreenDestination
-import com.wire.android.ui.destinations.ChannelAccessOnUpdateScreenDestination
-import com.wire.android.ui.destinations.ConversationFoldersScreenDestination
-import com.wire.android.ui.destinations.ConversationMediaScreenDestination
-import com.wire.android.ui.destinations.DebugConversationScreenDestination
-import com.wire.android.ui.destinations.EditConversationNameScreenDestination
-import com.wire.android.ui.destinations.EditGuestAccessScreenDestination
-import com.wire.android.ui.destinations.EditSelfDeletingMessagesScreenDestination
-import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
-import com.wire.android.ui.destinations.SearchConversationMessagesScreenDestination
-import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
-import com.wire.android.ui.destinations.ServiceDetailsScreenDestination
-import com.wire.android.ui.destinations.UpdateAppsAccessScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.AddMembersSearchScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.ChannelAccessOnUpdateScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.ConversationFoldersScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.ConversationMediaScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.DebugConversationScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.EditConversationNameScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.EditGuestAccessScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.EditSelfDeletingMessagesScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.OtherUserProfileScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.SearchConversationMessagesScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.SelfUserProfileScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.ServiceDetailsScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.UpdateAppsAccessScreenDestination
 import com.wire.android.ui.home.conversations.details.editguestaccess.EditGuestAccessParams
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptions
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsState
@@ -132,9 +132,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 @Suppress("CyclomaticComplexMethod")
-@WireDestination(
-    navArgsDelegate = GroupConversationDetailsNavArgs::class,
-    style = DestinationStyle.Runtime::class, // default should be PopUpNavigationAnimation
+@WireRootDestination(
+    navArgs = GroupConversationDetailsNavArgs::class,
+    style = PopUpNavigationAnimation::class, // default should be PopUpNavigationAnimation
 )
 @Composable
 fun GroupConversationDetailsScreen(

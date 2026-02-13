@@ -161,7 +161,10 @@ android {
     }
 
     buildtimeConfiguration.customResourceOverrideDirectory?.let {
-        overrideResourcesForAllFlavors(it)
+        overrideResourcesForAllFlavors(
+            customResourcesRootDir = it,
+            projectDir = project.projectDir
+        )
     }
 
     /**

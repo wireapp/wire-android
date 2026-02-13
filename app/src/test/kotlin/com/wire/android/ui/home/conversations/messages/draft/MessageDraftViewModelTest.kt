@@ -27,7 +27,7 @@ import com.wire.android.framework.TestConversation
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
 import com.wire.android.ui.home.conversations.usecase.GetQuoteMessageForConversationUseCase
-import com.wire.android.ui.navArgs
+import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.ui.theme.Accent
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.message.draft.MessageDraft

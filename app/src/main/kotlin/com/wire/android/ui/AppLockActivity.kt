@@ -31,9 +31,9 @@ import com.wire.android.navigation.MainNavHost
 import com.wire.android.navigation.rememberNavigator
 import com.wire.android.ui.common.setupOrientationForDevice
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
-import com.wire.android.ui.destinations.AppUnlockWithBiometricsScreenDestination
-import com.wire.android.ui.destinations.EnterLockCodeScreenDestination
-import com.wire.android.ui.destinations.SetLockCodeScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.AppUnlockWithBiometricsScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.EnterLockCodeScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.SetLockCodeScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -60,17 +60,17 @@ class AppLockActivity : AppCompatActivity() {
                     val startDestination =
                         if (intent.getBooleanExtra(SET_TEAM_APP_LOCK, false)) {
                             appLogger.i("appLock: requesting set team app lock")
-                            SetLockCodeScreenDestination
+                            SetLockCodeScreenDestination()
                         } else {
                             val canAuthenticateWithBiometrics = BiometricManager
                                 .from(this)
                                 .canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG)
                             if (canAuthenticateWithBiometrics == BiometricManager.BIOMETRIC_SUCCESS) {
                                 appLogger.i("appLock: requesting app Unlock with biometrics")
-                                AppUnlockWithBiometricsScreenDestination
+                                AppUnlockWithBiometricsScreenDestination()
                             } else {
                                 appLogger.i("appLock: requesting app Unlock with passcode")
-                                EnterLockCodeScreenDestination
+                                EnterLockCodeScreenDestination()
                             }
                         }
 

@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.authentication.devices.remove
 
+import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.togetherWith
@@ -43,7 +44,6 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.navigation.style.TransitionAnimationType
 import com.wire.android.ui.authentication.devices.DeviceItem
@@ -63,15 +63,15 @@ import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.textfield.clearAutofillTree
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.common.wireDialogPropertiesBuilder
-import com.wire.android.ui.destinations.E2EIEnrollmentScreenDestination
-import com.wire.android.ui.destinations.HomeScreenDestination
-import com.wire.android.ui.destinations.InitialSyncScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.E2EIEnrollmentScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.HomeScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.InitialSyncScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.dialogErrorStrings
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.conversation.ClientId
 
-@WireDestination(
+@WireRootDestination(
     style = PopUpNavigationAnimation::class,
 )
 @Composable

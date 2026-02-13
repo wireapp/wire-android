@@ -896,7 +896,7 @@
     <string name="label_conversation_pictures_empty">Bislang hat niemand Bilder in dieser Unterhaltung geteilt 🥲</string>
     <string name="label_conversation_files_empty">Bislang hat niemand Dateien in dieser Unterhaltung geteilt 🙀</string>
     <!-- Search Contact-->
-    <string name="label_selected">Ausgewählt</string>
+    <string name="label_selected">Ausgewählt (%1$d)</string>
     <string name="label_contacts">Kontakte</string>
     <string name="label_new_group">Neue Gruppe</string>
     <string name="label_new_channel">Neuer Channel</string>

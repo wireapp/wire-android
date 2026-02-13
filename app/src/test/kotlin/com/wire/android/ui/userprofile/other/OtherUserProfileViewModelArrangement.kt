@@ -25,7 +25,7 @@ import com.wire.android.framework.TestUser
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
 import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.android.ui.navArgs
+import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreenViewModelTest.Companion.CONVERSATION_ID
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreenViewModelTest.Companion.USER_ID
 import com.wire.kalium.logic.data.id.ConversationId

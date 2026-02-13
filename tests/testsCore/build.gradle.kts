@@ -14,9 +14,9 @@ android {
     }
     sourceSets {
         getByName("androidTest") {
-            kotlin.srcDirs("src/androidTest/kotlin")
-            kotlin.srcDirs(project(":tests:testsSupport").file("src/androidTest/kotlin"))
-            kotlin.srcDirs(project(":tests:testsSupport").file("src/main"))
+            kotlin.directories.add("src/androidTest/kotlin")
+            kotlin.directories.add(project(":tests:testsSupport").file("src/androidTest/kotlin").path)
+            kotlin.directories.add(project(":tests:testsSupport").file("src/main").path)
         }
     }
 }
@@ -41,4 +41,3 @@ dependencies {
     androidTestUtil(libs.androidx.test.orchestrator)
     androidTestUtil(libs.androidx.test.services)
 }
-

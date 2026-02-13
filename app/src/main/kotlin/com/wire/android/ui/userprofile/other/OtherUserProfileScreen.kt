@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.userprofile.other
 
+import com.wire.android.navigation.annotation.app.WireRootDestination
 import android.annotation.SuppressLint
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
@@ -52,12 +53,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
-import com.ramcosta.composedestinations.spec.DestinationStyle
 import com.wire.android.R
+import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.HandleActions
@@ -81,12 +81,12 @@ import com.wire.android.ui.common.topappbar.WireTopAppBarTitle
 import com.wire.android.ui.common.visbility.VisibilityState
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.connection.ConnectionActionButton
-import com.wire.android.ui.destinations.ConversationFoldersScreenDestination
-import com.wire.android.ui.destinations.ConversationMediaScreenDestination
-import com.wire.android.ui.destinations.ConversationScreenDestination
-import com.wire.android.ui.destinations.DebugConversationScreenDestination
-import com.wire.android.ui.destinations.DeviceDetailsScreenDestination
-import com.wire.android.ui.destinations.SearchConversationMessagesScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.ConversationFoldersScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.ConversationMediaScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.DebugConversationScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.DeviceDetailsScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.SearchConversationMessagesScreenDestination
 import com.wire.android.ui.home.conversations.details.SearchAndMediaRow
 import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavArgs
 import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavBackArgs
@@ -110,9 +110,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 
-@WireDestination(
-    navArgsDelegate = OtherUserProfileNavArgs::class,
-    style = DestinationStyle.Runtime::class, // default should be PopUpNavigationAnimation
+@WireRootDestination(
+    navArgs = OtherUserProfileNavArgs::class,
+    style = PopUpNavigationAnimation::class, // default should be PopUpNavigationAnimation
 )
 @Composable
 fun OtherUserProfileScreen(

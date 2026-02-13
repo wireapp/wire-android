@@ -23,9 +23,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.ramcosta.composedestinations.generated.cells.destinations.RenameNodeScreenDestination
 import com.wire.android.feature.cells.ui.common.FileNameError
 import com.wire.android.feature.cells.ui.common.validateFileName
-import com.wire.android.feature.cells.ui.navArgs
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.kalium.cells.domain.usecase.RenameNodeFailure
@@ -48,7 +48,7 @@ class RenameNodeViewModel @Inject constructor(
     private val renameNodeUseCase: RenameNodeUseCase,
 ) : ActionsViewModel<RenameNodeViewModelAction>() {
 
-    private val navArgs: RenameNodeNavArgs = savedStateHandle.navArgs()
+    private val navArgs: RenameNodeNavArgs = RenameNodeScreenDestination.argsFrom(savedStateHandle)
 
     private var clearErrorJob: Job? = null
 

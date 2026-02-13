@@ -982,7 +982,7 @@
     <string name="label_conversation_files_empty">Nobody shared files in this conversation yet 🙀</string>
     <string name="conversation_search_files_button">Search files</string>
     <!-- Search Contact-->
-    <string name="label_selected">Selected</string>
+    <string name="label_selected">Selected (%1$d)</string>
     <string name="label_contacts">Contacts</string>
     <string name="label_new_group">New Group</string>
     <string name="label_new_channel">New Channel</string>

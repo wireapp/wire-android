@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.settings.devices
 
+import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -29,7 +30,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -38,21 +38,21 @@ import androidx.lifecycle.Lifecycle
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.authentication.devices.DeviceItem
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.wire.android.ui.destinations.DeviceDetailsScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.DeviceDetailsScreenDestination
 import com.wire.android.ui.settings.devices.model.SelfDevicesState
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.ui.sectionWithElements
 import com.wire.android.util.lifecycle.rememberLifecycleEvent
+import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.ClientId
 
-@WireDestination
+@WireRootDestination
 @Composable
 fun SelfDevicesScreen(
     navigator: Navigator,
@@ -80,7 +80,6 @@ fun SelfDevicesScreenContent(
     onDeviceClick: (Device) -> Unit = {},
 ) {
     val lazyListState = rememberLazyListState()
-    val context = LocalContext.current
 
     WireScaffold(
         modifier = modifier,
@@ -111,7 +110,7 @@ fun SelfDevicesScreenContent(
                     false -> {
                         state.currentDevice?.let { currentDevice ->
                             folderDeviceItems(
-                                header = context.getString(R.string.current_device_label),
+                                header = UIText.StringResource(R.string.current_device_label),
                                 items = listOf(currentDevice),
                                 shouldShowVerifyLabel = true,
                                 isCurrentClient = true,
@@ -120,7 +119,7 @@ fun SelfDevicesScreenContent(
                             )
                         }
                         folderDeviceItems(
-                            header = context.getString(R.string.other_devices_label),
+                            header = UIText.StringResource(R.string.other_devices_label),
                             items = state.deviceList,
                             shouldShowVerifyLabel = true,
                             isCurrentClient = false,
@@ -136,7 +135,7 @@ fun SelfDevicesScreenContent(
 
 @Suppress("LongParameterList")
 private fun LazyListScope.folderDeviceItems(
-    header: String?,
+    header: UIText?,
     items: List<Device>,
     shouldShowVerifyLabel: Boolean,
     isCurrentClient: Boolean,
@@ -145,7 +144,7 @@ private fun LazyListScope.folderDeviceItems(
     onDeviceClick: (Device) -> Unit = {}
 ) {
     sectionWithElements(
-        header = header?.uppercase(),
+        header = header,
         items = items.associateBy { it.clientId.value },
         divider = {
             HorizontalDivider(

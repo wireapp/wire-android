@@ -19,8 +19,8 @@ package com.wire.android.feature.cells.ui.publiclink
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.ramcosta.composedestinations.generated.cells.destinations.PublicLinkScreenDestination
 import com.wire.android.feature.cells.R
-import com.wire.android.feature.cells.ui.navArgs
 import com.wire.android.feature.cells.ui.publiclink.settings.expiration.PublicLinkExpirationResult
 import com.wire.android.feature.cells.util.FileHelper
 import com.wire.android.ui.common.ActionsViewModel
@@ -46,7 +46,7 @@ class PublicLinkViewModel @Inject constructor(
     private val fileHelper: FileHelper,
 ) : ActionsViewModel<PublicLinkViewAction>() {
 
-    private val navArgs: PublicLinkNavArgs = savedStateHandle.navArgs()
+    private val navArgs: PublicLinkNavArgs = PublicLinkScreenDestination.argsFrom(savedStateHandle)
 
     private val _state = MutableStateFlow(
         PublicLinkViewState(

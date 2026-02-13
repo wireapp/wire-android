@@ -8,7 +8,7 @@ import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.framework.TestUser
-import com.wire.android.ui.navArgs
+import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase

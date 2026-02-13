@@ -16,27 +16,26 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 import com.android.build.api.dsl.ApplicationExtension
+import com.android.build.api.artifact.SingleArtifact
+import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import com.wire.android.gradle.configureAndroidKotlinTests
 import com.wire.android.gradle.configureCompose
 import com.wire.android.gradle.configureKotlinAndroid
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
-import org.gradle.kotlin.dsl.getByType
-import org.jetbrains.kotlin.gradle.dsl.KotlinBaseExtension
 
 class AndroidApplicationConventionPlugin : Plugin<Project> {
     override fun apply(target: Project): Unit = with(target) {
         with(pluginManager) {
             apply("com.android.application")
-            apply("org.jetbrains.kotlin.android")
         }
 
         extensions.configure<ApplicationExtension> {
             // TODO: Handle flavors. Currently implemented in `variants.gradle.kts` script
 
             namespace = AndroidApp.id
-            configureKotlinAndroid(this, extensions.getByType<KotlinBaseExtension>())
+            configureKotlinAndroid(this)
 
             val isFDroidRelease = (project.properties["isFDroidRelease"] as? String)?.toBoolean() ?: false
 
@@ -53,7 +52,6 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                 defaultConfig.targetSdk = AndroidSdk.target
                 versionCode = AndroidApp.versionCode
                 versionName = resolvedVersionName
-                setProperty("archivesBaseName", "$applicationId-v$versionName")
             }
 
             configureCompose(this)
@@ -73,6 +71,30 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
             }
 
             configureAndroidKotlinTests()
+        }
+
+        extensions.configure<ApplicationAndroidComponentsExtension> {
+            onVariants(selector().all()) { variant ->
+                val taskName = "rename${variant.name.replaceFirstChar { firstChar ->
+                    if (firstChar.isLowerCase()) firstChar.titlecase() else firstChar.toString()
+                }}ApkForLegacyName"
+                val renameApkTask = project.tasks.register(taskName, RenameApkTask::class.java)
+                renameApkTask.configure {
+                    // Keep legacy behavior: APK file name prefix uses the base app id,
+                    // not the flavor-specific final variant applicationId.
+                    applicationId.set(AndroidApp.id)
+                    buildType.set(variant.buildType)
+                }
+
+                val transformationRequest = variant.artifacts
+                    .use(renameApkTask)
+                    .wiredWithDirectories(RenameApkTask::inputApkFolder, RenameApkTask::outputApkFolder)
+                    .toTransformMany(SingleArtifact.APK)
+
+                renameApkTask.configure {
+                    this.transformationRequest.set(transformationRequest)
+                }
+            }
         }
     }
 }

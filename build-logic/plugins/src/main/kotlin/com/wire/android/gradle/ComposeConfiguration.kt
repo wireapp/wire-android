@@ -21,9 +21,7 @@ import com.android.build.api.dsl.CommonExtension
 import org.gradle.api.Project
 
 internal fun Project.configureCompose(
-    commonExtension: CommonExtension<*, *, *, *, *, *>,
+    commonExtension: CommonExtension,
 ): Unit = with(commonExtension) {
-    buildFeatures {
-        compose = true
-    }
+    buildFeatures.compose = true
 }

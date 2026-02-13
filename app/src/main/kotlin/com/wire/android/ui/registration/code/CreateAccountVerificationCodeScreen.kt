@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.registration.code
 
+import com.wire.android.navigation.annotation.app.WireCreateAccountDestination
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
@@ -45,10 +46,8 @@ import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.style.AuthPopUpNavigationAnimation
 import com.wire.android.ui.authentication.create.common.CreateAccountDataNavArgs
-import com.wire.android.ui.authentication.create.common.CreateAccountNavGraph
 import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import com.wire.android.ui.authentication.verificationcode.ResendCodeText
@@ -61,8 +60,8 @@ import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.textfield.CodeTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
-import com.wire.android.ui.destinations.CreateAccountUsernameScreenDestination
-import com.wire.android.ui.destinations.RemoveDeviceScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.CreateAccountUsernameScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.RemoveDeviceScreenDestination
 import com.wire.android.ui.newauthentication.login.NewAuthContainer
 import com.wire.android.ui.newauthentication.login.NewAuthHeader
 import com.wire.android.ui.theme.WireTheme
@@ -74,9 +73,8 @@ import com.wire.android.util.dialogErrorStrings
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import kotlinx.coroutines.job
 
-@CreateAccountNavGraph
-@WireDestination(
-    navArgsDelegate = CreateAccountDataNavArgs::class,
+@WireCreateAccountDestination(
+    navArgs = CreateAccountDataNavArgs::class,
     style = AuthPopUpNavigationAnimation::class
 )
 @Composable

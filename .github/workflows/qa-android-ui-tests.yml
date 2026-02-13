@@ -564,6 +564,27 @@ jobs:
           echo "DEVICE_LIST=$DEVICE_LIST" >> "$GITHUB_ENV"
           echo "DEVICE_COUNT=$DEVICE_COUNT" >> "$GITHUB_ENV"
 
+      - name: Relax package verification (best effort)
+        run: |
+          set -euo pipefail
+
+          : "${DEVICE_LIST:?DEVICE_LIST not set}"
+          read -ra DEVICES <<< "${DEVICE_LIST}"
+          for SERIAL in "${DEVICES[@]}"; do
+            echo "Adjusting package verification on ${SERIAL}"
+            ADB="adb -s ${SERIAL}"
+            ${ADB} wait-for-device
+
+            ${ADB} shell settings put global verifier_verify_adb_installs 0 || true
+            ${ADB} shell settings put global package_verifier_enable 0 || true
+            ${ADB} shell settings put global package_verifier_user_consent -1 || true
+            ${ADB} shell settings put secure install_non_market_apps 1 || true
+            ${ADB} shell settings put global install_non_market_apps 1 || true
+
+            ${ADB} shell settings get global verifier_verify_adb_installs || true
+            ${ADB} shell settings get global package_verifier_enable || true
+          done
+
       - name: Prepare device + install APK(s)
         run: |
           set -euo pipefail
@@ -679,6 +700,9 @@ jobs:
           fi
 
           NUM_SHARDS="${DEVICE_COUNT}"
+          if [[ -n "${RESOLVED_TESTCASE_ID}" ]]; then
+            NUM_SHARDS="1"
+          fi
           read -ra DEVICES <<< "${DEVICE_LIST}"
 
           echo "Sharding across ${NUM_SHARDS} device(s): ${DEVICE_LIST}"

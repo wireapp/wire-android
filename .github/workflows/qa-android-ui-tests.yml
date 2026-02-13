@@ -559,6 +559,64 @@ jobs:
           echo "ANDROID_SERIAL=$SELECTED" >> "$GITHUB_ENV"
           echo "Using device: $SELECTED"
 
+      - name: Prepare device + install APK(s)
+        run: |
+          set -euo pipefail
+
+          : "${ANDROID_SERIAL:?ANDROID_SERIAL not set}"
+          : "${NEW_APK_PATH:?NEW_APK_PATH missing}"
+
+          if [[ ! -s "${NEW_APK_PATH}" ]]; then
+            echo "ERROR: NEW_APK_PATH not found or empty: ${NEW_APK_PATH}"
+            exit 1
+          fi
+
+          ADB="adb -s ${ANDROID_SERIAL}"
+          ${ADB} wait-for-device
+
+          INSTALLED_PKGS="$(${ADB} shell pm list packages)"
+          PACKAGES=(
+            "com.wire"
+            "com.waz.zclient.dev"
+            "com.wire.internal"
+            "com.wire.android.internal"
+            "com.wire.android.bund"
+            "com.wire.android.bund.column2"
+            "com.wire.android.bund.column3"
+            "com.waz.zclient.dev.debug"
+          )
+
+          for pkg in "${PACKAGES[@]}"; do
+            if echo "${INSTALLED_PKGS}" | grep -qx "package:${pkg}"; then
+              echo "Uninstalling ${pkg}"
+              ${ADB} uninstall "${pkg}" || true
+            fi
+          done
+
+          INSTALL_FLAGS="-r"
+          if [[ "${{ inputs.enforceAppInstall }}" == "true" ]]; then
+            INSTALL_FLAGS="-r -d"
+          fi
+
+          if [[ "${{ inputs.isUpgrade }}" == "true" ]]; then
+            : "${OLD_APK_PATH:?OLD_APK_PATH missing for upgrade}"
+            if [[ ! -s "${OLD_APK_PATH}" ]]; then
+              echo "ERROR: OLD_APK_PATH not found or empty: ${OLD_APK_PATH}"
+              exit 1
+            fi
+            echo "Installing OLD apk..."
+            ${ADB} install ${INSTALL_FLAGS} "${OLD_APK_PATH}"
+          fi
+
+          echo "Installing NEW apk..."
+          ${ADB} install ${INSTALL_FLAGS} "${NEW_APK_PATH}"
+
+          : "${APP_ID:?APP_ID missing}"
+          if ! ${ADB} shell pm list packages | grep -qx "package:${APP_ID}"; then
+            echo "ERROR: APP_ID '${APP_ID}' is not installed after install step."
+            exit 1
+          fi
+
       - name: Install 1Password CLI
         uses: 1password/install-cli-action@v2
 

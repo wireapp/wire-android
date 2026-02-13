@@ -311,36 +311,36 @@ jobs:
           set -euo pipefail
 
           if command -v aws >/dev/null 2>&1; then
-            echo "aws already available: $(command -v aws)"
             aws --version
             exit 0
           fi
 
           if ! command -v curl >/dev/null 2>&1; then
-            echo "ERROR: curl is not available on this runner."
+            echo "ERROR: 'curl' is not available on this runner."
             exit 1
           fi
           if ! command -v unzip >/dev/null 2>&1; then
-            echo "ERROR: unzip is not available on this runner."
+            echo "ERROR: 'unzip' is not available on this runner."
             exit 1
           fi
 
+          echo "aws not found. Installing AWS CLI v2 locally..."
           AWS_ROOT="${RUNNER_TEMP}/awscli"
-          AWS_ZIP="${RUNNER_TEMP}/awscliv2.zip"
+          ZIP_PATH="${RUNNER_TEMP}/awscliv2.zip"
 
-          rm -rf "${AWS_ROOT}" "${AWS_ZIP}"
+          rm -rf "${AWS_ROOT}" "${ZIP_PATH}" "${RUNNER_TEMP}/aws"
           mkdir -p "${AWS_ROOT}"
 
-          curl -fsSL -o "${AWS_ZIP}" "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip"
-          unzip -q "${AWS_ZIP}" -d "${RUNNER_TEMP}"
-          rm -f "${AWS_ZIP}"
+          curl -fsSL -o "${ZIP_PATH}" "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip"
+          unzip -oq "${ZIP_PATH}" -d "${RUNNER_TEMP}"
+          rm -f "${ZIP_PATH}"
 
-          # Install without sudo into RUNNER_TEMP
-          "${RUNNER_TEMP}/aws/install" -i "${AWS_ROOT}/install" -b "${AWS_ROOT}/bin"
+          # Install without sudo
+          "${RUNNER_TEMP}/aws/install" -i "${AWS_ROOT}" -b "${AWS_ROOT}/bin"
 
-          # Make it available in THIS step and future steps
-          export PATH="${AWS_ROOT}/bin:${PATH}"
+          # Make it available for subsequent steps + also this step
           echo "${AWS_ROOT}/bin" >> "${GITHUB_PATH}"
+          export PATH="${AWS_ROOT}/bin:${PATH}"
 
           aws --version
 
@@ -367,10 +367,18 @@ jobs:
             exit 1
           fi
 
+          if ! command -v aws >/dev/null 2>&1; then
+            echo "ERROR: aws CLI not found (should have been installed earlier)."
+            exit 1
+          fi
+
           if ! command -v python3 >/dev/null 2>&1; then
             echo "ERROR: python3 not found on this runner (needed for version selection)."
             exit 1
           fi
+
+          # Verify AWS creds are valid (does NOT print secrets)
+          aws sts get-caller-identity --output json >/dev/null
 
           : "${S3_FOLDER:?S3_FOLDER is missing}"
           echo "Listing APKs in s3://${S3_BUCKET}/${S3_FOLDER} ..."
@@ -489,8 +497,16 @@ jobs:
           print(f"OLD_BUILD_NUMBER={build_label(old_name) if old_name else ''}")
           PY
 
+          # ===== CRITICAL FIX =====
+          # Make vars available in THIS step (GITHUB_ENV only applies to NEXT steps)
+          set -a
+          source "${RUNNER_TEMP}/apk_env.txt"
+          set +a
+          # Persist for later steps too
           cat "${RUNNER_TEMP}/apk_env.txt" >> "$GITHUB_ENV"
           cat "${RUNNER_TEMP}/apk_env.txt" >> "$GITHUB_OUTPUT"
+          : "${NEW_S3_KEY:?NEW_S3_KEY missing after resolve}"
+          # ========================
 
           NEW_APK_PATH="${RUNNER_TEMP}/Wire.apk"
           echo "NEW_APK_PATH=${NEW_APK_PATH}" >> "$GITHUB_ENV"
@@ -500,6 +516,7 @@ jobs:
           test -s "${NEW_APK_PATH}"
 
           if [[ "${IS_UPGRADE}" == "true" ]]; then
+            : "${OLD_S3_KEY:?OLD_S3_KEY missing for upgrade}"
             OLD_APK_PATH="${RUNNER_TEMP}/Wire.old.apk"
             echo "OLD_APK_PATH=${OLD_APK_PATH}" >> "$GITHUB_ENV"
 
@@ -578,4 +595,4 @@ jobs:
           rm -f secrets.json
           rm -f "${RUNNER_TEMP}/secrets.json"
           rm -f "${RUNNER_TEMP}/Wire.apk" "${RUNNER_TEMP}/Wire.old.apk" || true
-          git clean -ffdx || true
+          git clean -ffdx

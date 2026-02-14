@@ -23,6 +23,7 @@ import com.wire.android.ui.edit.DeleteItemMenuOption
 import com.wire.android.ui.edit.EditMessageMenuOption
 import com.wire.android.ui.edit.MessageDetailsMenuOption
 import com.wire.android.ui.edit.ReactionOption
+import com.wire.android.ui.edit.ReplyInThreadMessageOption
 import com.wire.android.ui.edit.ReplyMessageOption
 
 @Composable
@@ -39,13 +40,19 @@ fun textMessageEditMenuItems(
     onCopyClick: () -> Unit,
     onReactionClick: (emoji: String) -> Unit,
     onEditClick: (() -> Unit),
+    showReplyInThreadOption: Boolean,
+    showLegacyReplyOption: Boolean,
 ): List<@Composable () -> Unit> {
     return buildList {
         if (!isUploading) {
             if (!isEphemeral && !isComposite) add { ReactionOption(ownReactions, onReactionClick) }
             add { MessageDetailsMenuOption(onDetailsClick) }
             if (isCopyable) { add { CopyItemMenuOption(onCopyClick) } }
-            if (!isEphemeral && !isComposite) add { ReplyMessageOption(onReplyClick) }
+            if (showReplyInThreadOption) {
+                add { ReplyInThreadMessageOption(onReplyClick) }
+            } else if (showLegacyReplyOption) {
+                add { ReplyMessageOption(onReplyClick) }
+            }
             if (isEditable) add { EditMessageMenuOption(onEditClick) }
         }
         add { DeleteItemMenuOption(onDeleteClick) }

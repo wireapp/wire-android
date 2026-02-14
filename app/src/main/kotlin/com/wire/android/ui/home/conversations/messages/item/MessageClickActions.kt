@@ -30,6 +30,7 @@ sealed class MessageClickActions {
     open val onImageClicked: (UIMessage.Regular, Boolean, String?) -> Unit = { _, _, _ -> }
     open val onLinkClicked: (String) -> Unit = {}
     open val onReplyClicked: (UIMessage.Regular) -> Unit = {}
+    open val onThreadClicked: (rootMessageId: String, threadId: String) -> Unit = { _, _ -> }
     open val onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit = { _, _ -> }
     open val onFailedMessageRetryClicked: (String, ConversationId) -> Unit = { _, _ -> }
     open val onFailedMessageCancelClicked: (String) -> Unit = {}
@@ -47,6 +48,7 @@ sealed class MessageClickActions {
         override val onImageClicked: (UIMessage.Regular, Boolean, String?) -> Unit = { _, _, _ -> },
         override val onLinkClicked: (String) -> Unit = {},
         override val onReplyClicked: (UIMessage.Regular) -> Unit = {},
+        override val onThreadClicked: (rootMessageId: String, threadId: String) -> Unit = { _, _ -> },
         override val onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit = { _, _ -> },
         override val onFailedMessageRetryClicked: (String, ConversationId) -> Unit = { _, _ -> },
         override val onFailedMessageCancelClicked: (String) -> Unit = {},

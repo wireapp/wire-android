@@ -34,6 +34,7 @@ import com.wire.android.ui.home.conversations.model.MessageFlowStatus
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent.PartialDeliverable
+import com.wire.android.ui.home.conversations.messages.ThreadSummaryUi
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 
 // TODO: a definite candidate for a refactor and cleanup WPB-14390
@@ -52,6 +53,8 @@ fun RegularMessageItem(
     shouldDisplayFooter: Boolean = true,
     failureInteractionAvailable: Boolean = true,
     useSmallBottomPadding: Boolean = false,
+    threadSummary: ThreadSummaryUi? = null,
+    isThreadNavigationEnabled: Boolean = true,
     selfDeletionTimerState: SelfDeletionTimerHelper.SelfDeletionTimerState = SelfDeletionTimerHelper.SelfDeletionTimerState.NotExpirable,
     isBubbleUiEnabled: Boolean = false
 ): Unit = with(message) {
@@ -192,6 +195,8 @@ fun RegularMessageItem(
                         shouldDisplayFooter = shouldDisplayFooter,
                         failureInteractionAvailable = failureInteractionAvailable,
                         useSmallBottomPadding = useSmallBottomPadding,
+                        threadSummary = threadSummary,
+                        isThreadNavigationEnabled = isThreadNavigationEnabled,
                         selfDeletionTimerState = selfDeletionTimerState,
                         innerPadding = innerPadding,
                         messageStyle = messageStyle
@@ -255,6 +260,8 @@ fun RegularMessageItem(
                         shouldDisplayFooter = shouldDisplayFooter,
                         failureInteractionAvailable = failureInteractionAvailable,
                         useSmallBottomPadding = useSmallBottomPadding,
+                        threadSummary = threadSummary,
+                        isThreadNavigationEnabled = isThreadNavigationEnabled,
                         selfDeletionTimerState = selfDeletionTimerState,
                         messageStyle = messageStyle
                     )

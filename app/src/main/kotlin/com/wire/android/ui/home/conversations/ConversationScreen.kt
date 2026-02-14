@@ -82,17 +82,25 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
+import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.GroupConversationDetailsScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.ImagesPreviewScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.MediaGalleryScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.MessageDetailsScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.OtherUserProfileScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.SelfUserProfileScreenDestination
+import com.ramcosta.composedestinations.generated.sketch.destinations.DrawingCanvasScreenDestination
 import com.ramcosta.composedestinations.result.NavResult.Canceled
 import com.ramcosta.composedestinations.result.NavResult.Value
 import com.ramcosta.composedestinations.result.OpenResultRecipient
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.BuildConfig.IS_BUBBLE_UI_ENABLED
+import com.wire.android.BuildConfig.REPLY_AS_THREAD_ENABLED
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
 import com.wire.android.feature.analytics.model.AnalyticsEvent
-import com.ramcosta.composedestinations.generated.sketch.destinations.DrawingCanvasScreenDestination
 import com.wire.android.feature.sketch.model.DrawingCanvasNavArgs
 import com.wire.android.feature.sketch.model.DrawingCanvasNavBackArgs
 import com.wire.android.mapper.MessageDateTimeGroup
@@ -128,13 +136,6 @@ import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.snackbar.SwipeableSnackbar
 import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.common.visbility.rememberVisibilityState
-import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.GroupConversationDetailsScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.ImagesPreviewScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.MediaGalleryScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.MessageDetailsScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.OtherUserProfileScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.SelfUserProfileScreenDestination
 import com.wire.android.ui.emoji.EmojiPickerBottomSheet
 import com.wire.android.ui.home.conversations.AuthorHeaderHelper.rememberShouldHaveSmallBottomPadding
 import com.wire.android.ui.home.conversations.AuthorHeaderHelper.rememberShouldShowHeader
@@ -156,6 +157,7 @@ import com.wire.android.ui.home.conversations.info.ConversationInfoViewState
 import com.wire.android.ui.home.conversations.media.preview.ImagesPreviewNavBackArgs
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewState
+import com.wire.android.ui.home.conversations.messages.ThreadSummaryUi
 import com.wire.android.ui.home.conversations.messages.draft.MessageDraftViewModel
 import com.wire.android.ui.home.conversations.messages.item.MessageClickActions
 import com.wire.android.ui.home.conversations.messages.item.MessageContainerItem
@@ -198,6 +200,7 @@ import com.wire.kalium.logic.data.user.type.isInternal
 import com.wire.kalium.logic.data.user.type.isTeamAdmin
 import com.wire.kalium.logic.feature.call.usecase.ConferenceCallingResult
 import kotlinx.collections.immutable.PersistentMap
+import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -255,6 +258,7 @@ fun ConversationScreen(
     val coroutineScope = rememberCoroutineScope()
     val uriHandler = LocalUriHandler.current
     val resources = LocalContext.current.resources
+    val isThreadMode = conversationMessagesViewModel.isThreadMode
     val showDialog = remember { mutableStateOf(ConversationScreenDialogType.NONE) }
     val messageComposerViewState = messageComposerViewModel.messageComposerViewState
     val messageComposerStateHolder = rememberMessageComposerStateHolder(
@@ -302,13 +306,15 @@ fun ConversationScreen(
         }
     }
 
-    LaunchedEffect(alreadyDeletedByUser) {
+    LaunchedEffect(alreadyDeletedByUser, isThreadMode) {
         if (!alreadyDeletedByUser) {
             conversationInfoViewModel.observeConversationDetails()
         }
     }
-    LaunchedEffect(conversationInfoViewModel.conversationInfoViewState.notFound) {
-        if (conversationInfoViewModel.conversationInfoViewState.notFound) navigator.navigateBack()
+    LaunchedEffect(conversationInfoViewModel.conversationInfoViewState.notFound, isThreadMode) {
+        if (!isThreadMode && conversationInfoViewModel.conversationInfoViewState.notFound) {
+            navigator.navigateBack()
+        }
     }
 
     // set message composer input to edit mode when editMessage is not null from MessageDraft
@@ -340,6 +346,23 @@ fun ConversationScreen(
         }
     }
 
+    LaunchedEffect(Unit) {
+        conversationMessagesViewModel.openThread.collect { threadData ->
+            navigator.navigate(
+                NavigationCommand(
+                    ConversationScreenDestination(
+                        ConversationNavArgs(
+                            conversationId = conversationMessagesViewModel.conversationId,
+                            threadId = threadData.threadId,
+                            threadRootMessageId = threadData.rootMessageId
+                        )
+                    ),
+                    launchSingleTop = false
+                )
+            )
+        }
+    }
+
     HandleActions(conversationCallViewModel.actions) { action ->
         when (action) {
             is ConversationCallViewActions.InitiatedCall -> {
@@ -354,13 +377,15 @@ fun ConversationScreen(
         }
     }
 
-    conversationMigrationViewModel.migratedConversationId?.let { migratedConversationId ->
-        navigator.navigate(
-            NavigationCommand(
-                ConversationScreenDestination(migratedConversationId),
-                BackStackMode.REMOVE_CURRENT
+    if (!isThreadMode) {
+        conversationMigrationViewModel.migratedConversationId?.let { migratedConversationId ->
+            navigator.navigate(
+                NavigationCommand(
+                    ConversationScreenDestination(migratedConversationId),
+                    BackStackMode.REMOVE_CURRENT
+                )
             )
-        )
+        }
     }
 
     with(conversationCallViewModel) {
@@ -607,9 +632,30 @@ fun ConversationScreen(
         },
         composerMessages = sendMessageViewModel.infoMessage,
         conversationMessages = conversationMessagesViewModel.infoMessage,
+        threadSummaryByRootMessageId = conversationMessagesViewModel.conversationViewState.threadSummaryByRootMessageId,
+        isThreadMode = isThreadMode,
         shareAsset = conversationMessagesViewModel::shareAsset,
         onDownloadAssetClick = conversationMessagesViewModel::openOrFetchAsset,
         onOpenAssetClick = conversationMessagesViewModel::downloadAndOpenAsset,
+        onReplyInThreadClick = (if (REPLY_AS_THREAD_ENABLED) {
+            conversationMessagesViewModel::startThreadFromMessage
+        } else {
+            messageComposerStateHolder::toReply
+        }) as (UIMessage.Regular) -> Unit,
+        onOpenThreadClick = { threadId, rootMessageId ->
+            navigator.navigate(
+                NavigationCommand(
+                    ConversationScreenDestination(
+                        ConversationNavArgs(
+                            conversationId = conversationMessagesViewModel.conversationId,
+                            threadId = threadId,
+                            threadRootMessageId = rootMessageId
+                        )
+                    ),
+                    launchSingleTop = false
+                )
+            )
+        },
         onNavigateToReplyOriginalMessage = conversationMessagesViewModel::navigateToReplyOriginalMessage,
         onSelfDeletingMessageRead = messageComposerViewModel::startSelfDeletion,
         onNewSelfDeletingMessagesStatus = messageComposerViewModel::updateSelfDeletingMessages,
@@ -663,6 +709,7 @@ fun ConversationScreen(
         currentTimeInMillisFlow = conversationMessagesViewModel.currentTimeInMillisFlow,
         onAttachmentClick = messageAttachmentsViewModel::onAttachmentClicked,
         onAttachmentMenuClick = messageAttachmentsViewModel::onAttachmentMenuClicked,
+        onVisibleRootMessagesChanged = conversationMessagesViewModel::observeThreadSummariesForVisibleRoots,
         isWireCellsEnabled = conversationInfoViewModel.conversationInfoViewState.isWireCellEnabled,
     )
     BackHandler { conversationScreenOnBackButtonClick(messageComposerViewModel, messageComposerStateHolder, navigator) }
@@ -736,16 +783,18 @@ fun ConversationScreen(
         )
     }
 
-    groupDetailsScreenResultRecipient.onNavResult { result ->
-        when (result) {
-            is Canceled -> {
-                appLogger.i("Error with receiving navigation back args from groupDetails in ConversationScreen")
-            }
+    if (!isThreadMode) {
+        groupDetailsScreenResultRecipient.onNavResult { result ->
+            when (result) {
+                is Canceled -> {
+                    appLogger.i("Error with receiving navigation back args from groupDetails in ConversationScreen")
+                }
 
-            is Value -> {
-                resultNavigator.setResult(result.value)
-                resultNavigator.navigateBack()
-                alreadyDeletedByUser = true
+                is Value -> {
+                    resultNavigator.setResult(result.value)
+                    resultNavigator.navigateBack()
+                    alreadyDeletedByUser = true
+                }
             }
         }
     }
@@ -927,8 +976,13 @@ private fun ConversationScreen(
     openDrawingCanvas: () -> Unit,
     onAttachmentClick: (AttachmentDraftUi) -> Unit,
     onAttachmentMenuClick: (AttachmentDraftUi) -> Unit,
+    threadSummaryByRootMessageId: PersistentMap<String, ThreadSummaryUi> = persistentMapOf(),
+    isThreadMode: Boolean = false,
+    onReplyInThreadClick: (UIMessage.Regular) -> Unit = {},
+    onOpenThreadClick: (threadId: String, rootMessageId: String) -> Unit = { _, _ -> },
+    onVisibleRootMessagesChanged: (List<String>) -> Unit = {},
     currentTimeInMillisFlow: Flow<Long> = flow { },
-    isWireCellsEnabled: Boolean = false,
+    isWireCellsEnabled: Boolean = false
 ) {
     val context = LocalContext.current
     val snackbarHostState = LocalSnackbarHostState.current
@@ -943,10 +997,14 @@ private fun ConversationScreen(
             topBar = {
                 Column {
                     ConversationScreenTopAppBar(
-                        conversationInfoViewState = conversationInfoViewState,
+                        conversationInfoViewState = if (isThreadMode) {
+                            conversationInfoViewState.copy(conversationName = UIText.StringResource(R.string.label_thread))
+                        } else {
+                            conversationInfoViewState
+                        },
                         onBackButtonClick = onBackButtonClick,
                         onDropDownClick = onDropDownClick,
-                        isDropDownEnabled = conversationInfoViewState.hasUserPermissionToEdit,
+                        isDropDownEnabled = !isThreadMode && conversationInfoViewState.hasUserPermissionToEdit,
                         onSearchButtonClick = { },
                         onPhoneButtonClick = onStartCall,
                         hasOngoingCall = conversationCallViewState.hasOngoingCall,
@@ -1000,6 +1058,8 @@ private fun ConversationScreen(
                         messageComposerStateHolder = messageComposerStateHolder,
                         attachments = attachments,
                         messages = conversationMessagesViewState.messages,
+                        threadSummaryByRootMessageId = threadSummaryByRootMessageId,
+                        isThreadMode = isThreadMode,
                         onSendMessage = onSendMessage,
                         onPingOptionClicked = onPingOptionClicked,
                         onImagesPicked = onImagesPicked,
@@ -1024,6 +1084,8 @@ private fun ConversationScreen(
                         tempWritableVideoUri = tempWritableVideoUri,
                         onLinkClick = onLinkClick,
                         onNavigateToReplyOriginalMessage = onNavigateToReplyOriginalMessage,
+                        onOpenThreadClick = onOpenThreadClick,
+                        onVisibleRootMessagesChanged = onVisibleRootMessagesChanged,
                         currentTimeInMillisFlow = currentTimeInMillisFlow,
                         openDrawingCanvas = openDrawingCanvas,
                         onAttachmentClick = onAttachmentClick,
@@ -1038,12 +1100,13 @@ private fun ConversationScreen(
 
         MessageOptionsModalSheetLayout(
             conversationId = conversationInfoViewState.conversationId,
+            isThreadMode = isThreadMode,
             sheetState = conversationScreenState.editSheetState,
             onCopyClick = conversationScreenState::copyMessage,
             onDeleteClick = onDeleteMessage,
             onReactionClick = onReactionClick,
             onDetailsClick = onMessageDetailsClick,
-            onReplyClick = messageComposerStateHolder::toReply,
+            onReplyClick = onReplyInThreadClick,
             onEditClick = messageComposerStateHolder::toEdit,
             onShareAssetClick = { shareAsset(context, it) },
             onDownloadAssetClick = onDownloadAssetClick,
@@ -1084,6 +1147,8 @@ private fun ConversationScreenContent(
     messageComposerStateHolder: MessageComposerStateHolder,
     attachments: List<AttachmentDraftUi>,
     messages: Flow<PagingData<UIMessage>>,
+    threadSummaryByRootMessageId: PersistentMap<String, ThreadSummaryUi>,
+    isThreadMode: Boolean,
     onSendMessage: (MessageBundle) -> Unit,
     onPingOptionClicked: () -> Unit,
     onImagesPicked: (List<Uri>, Boolean) -> Unit,
@@ -1109,9 +1174,11 @@ private fun ConversationScreenContent(
     tempWritableVideoUri: Uri?,
     onLinkClick: (String) -> Unit,
     onNavigateToReplyOriginalMessage: (UIMessage) -> Unit,
+    onOpenThreadClick: (threadId: String, rootMessageId: String) -> Unit,
     openDrawingCanvas: () -> Unit,
     onAttachmentClick: (AttachmentDraftUi) -> Unit,
     onAttachmentMenuClick: (AttachmentDraftUi) -> Unit,
+    onVisibleRootMessagesChanged: (List<String>) -> Unit,
     currentTimeInMillisFlow: Flow<Long> = flow {},
     showHistoryLoadingIndicator: Boolean = false,
     isBubbleUiEnabled: Boolean = false,
@@ -1146,6 +1213,11 @@ private fun ConversationScreenContent(
                     onImageClicked = onImageFullScreenMode,
                     onLinkClicked = onLinkClick,
                     onReplyClicked = onNavigateToReplyOriginalMessage,
+                    onThreadClicked = { rootMessageId, threadId ->
+                        if (!isThreadMode) {
+                            onOpenThreadClick(threadId, rootMessageId)
+                        }
+                    },
                     onResetSessionClicked = onResetSessionClicked,
                     onFailedMessageRetryClicked = onFailedMessageRetryClicked,
                     onFailedMessageCancelClicked = onFailedMessageCancelClicked,
@@ -1158,6 +1230,9 @@ private fun ConversationScreenContent(
                 conversationDetailsData = conversationDetailsData,
                 selectedMessageId = selectedMessageId,
                 interactionAvailability = messageComposerStateHolder.messageComposerViewState.value.interactionAvailability,
+                threadSummaryByRootMessageId = threadSummaryByRootMessageId,
+                isThreadMode = isThreadMode,
+                onVisibleRootMessageIdsChanged = onVisibleRootMessagesChanged,
                 currentTimeInMillisFlow = currentTimeInMillisFlow,
                 showHistoryLoadingIndicator = showHistoryLoadingIndicator,
                 isBubbleUiEnabled = isBubbleUiEnabled,
@@ -1239,6 +1314,9 @@ fun MessageList(
     selectedMessageId: String?,
     interactionAvailability: InteractionAvailability,
     clickActions: MessageClickActions.Content,
+    threadSummaryByRootMessageId: PersistentMap<String, ThreadSummaryUi>,
+    isThreadMode: Boolean,
+    onVisibleRootMessageIdsChanged: (List<String>) -> Unit,
     modifier: Modifier = Modifier,
     currentTimeInMillisFlow: Flow<Long> = flow { },
     showHistoryLoadingIndicator: Boolean = false,
@@ -1279,6 +1357,18 @@ fun MessageList(
                 readLastMessageAtStartTriggered.value = true
             }
             updateLastReadMessage(lastVisibleMessage, lastUnreadMessageInstant, onUpdateConversationReadDate)
+        }
+    }
+
+    LaunchedEffect(lazyPagingMessages.itemSnapshotList.items, isThreadMode) {
+        if (isThreadMode) {
+            onVisibleRootMessageIdsChanged(emptyList())
+        } else {
+            onVisibleRootMessageIdsChanged(
+                lazyPagingMessages.itemSnapshotList.items
+                    .filterIsInstance<UIMessage.Regular>()
+                    .map { it.header.messageId }
+            )
         }
     }
 
@@ -1371,6 +1461,10 @@ fun MessageList(
                         onSelfDeletingMessageRead = onSelfDeletingMessageRead,
                         isSelectedMessage = (message.header.messageId == selectedMessageId),
                         failureInteractionAvailable = interactionAvailability == InteractionAvailability.ENABLED,
+                        threadSummary = (message as? UIMessage.Regular)?.let {
+                            threadSummaryByRootMessageId[it.header.messageId]
+                        },
+                        isThreadNavigationEnabled = !isThreadMode,
                         isBubbleUiEnabled = isBubbleUiEnabled,
                         isWireCellsEnabled = isWireCellsEnabled,
                     )

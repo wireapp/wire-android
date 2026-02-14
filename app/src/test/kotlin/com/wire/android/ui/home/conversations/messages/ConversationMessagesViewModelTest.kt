@@ -33,12 +33,14 @@ import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.composer.mockUITextMessage
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogState
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogType
+import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.common.error.StorageFailure
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.GetConversationUnreadEventsCountUseCase
+import com.wire.kalium.logic.feature.message.StartThreadFromMessageResult
 import io.mockk.coVerify
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -247,6 +249,43 @@ class ConversationMessagesViewModelTest {
         coVerify(exactly = 1) {
             arrangement.toggleReaction(arrangement.conversationId, messageId, reaction)
         }
+    }
+
+    @Test
+    fun `given thread start succeeds, when starting from message, then emits open thread event`() = runTest {
+        val threadId = "thread-id"
+        val rootMessageId = "root-id"
+        val message = mockUITextMessage(id = rootMessageId) as UIMessage.Regular
+        val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .withStartThreadFromMessageResult(StartThreadFromMessageResult.Success(threadId, rootMessageId))
+            .arrange()
+
+        viewModel.openThread.test {
+            viewModel.startThreadFromMessage(message)
+
+            assertEquals(OpenThreadData(threadId = threadId, rootMessageId = rootMessageId), awaitItem())
+        }
+
+        coVerify(exactly = 1) { arrangement.startThreadFromMessageUseCase(arrangement.conversationId, rootMessageId) }
+    }
+
+    @Test
+    fun `given thread start fails, when starting from message, then does not emit open thread event`() = runTest {
+        val rootMessageId = "root-id"
+        val message = mockUITextMessage(id = rootMessageId) as UIMessage.Regular
+        val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .withStartThreadFromMessageResult(StartThreadFromMessageResult.Failure(StorageFailure.DataNotFound))
+            .arrange()
+
+        viewModel.openThread.test {
+            viewModel.startThreadFromMessage(message)
+            advanceUntilIdle()
+            expectNoEvents()
+        }
+
+        coVerify(exactly = 1) { arrangement.startThreadFromMessageUseCase(arrangement.conversationId, rootMessageId) }
     }
 
     @Test

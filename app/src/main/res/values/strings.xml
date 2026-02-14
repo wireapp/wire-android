@@ -163,6 +163,7 @@
     <string name="content_description_calling_in_call_reactions_hide">Hide in call reactions panel</string>
     <string name="content_description_reply_to_messge">Reply to the message</string>
     <string name="content_description_reply_cancel">Cancel message reply</string>
+    <string name="content_description_reply_in_thread">Reply in thread</string>
     <string name="content_description_ping_message">Ping message</string>
     <string name="content_description_copy">Copy</string>
     <string name="content_description_edit">Edit</string>
@@ -1078,6 +1079,8 @@
     <string name="notification_connection_request">Wants to connect</string>
     <string name="notification_conversation_deleted">Deleted the conversation</string>
     <string name="notification_action_reply">Reply</string>
+    <string name="label_reply_in_thread">Reply in thread</string>
+    <string name="label_thread">Thread</string>
     <string name="notification_receiver_name">You</string>
     <string name="label_type_a_message">Type a message</string>
     <string name="notification_action_open_call">Open Call</string>

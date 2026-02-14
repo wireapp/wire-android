@@ -162,6 +162,7 @@
     "background_notification_retry_enabled": true,
     "background_notification_stay_alive_seconds": 3,
     "is_bubble_ui_enabled": true,
+    "reply_as_thread_enabled": true,
     "collabora_integration": true,
     "db_invalidation_control_enabled": false
 }

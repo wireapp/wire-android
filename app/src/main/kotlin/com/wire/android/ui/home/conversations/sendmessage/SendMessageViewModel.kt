@@ -111,6 +111,7 @@ class SendMessageViewModel(
 
     private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
     val conversationId: QualifiedID = conversationNavArgs.conversationId
+    private val threadIdNavArgs: String? = conversationNavArgs.threadId
 
     private val _infoMessage = MutableSharedFlow<SnackBarMessage>()
     val infoMessage = _infoMessage.asSharedFlow()
@@ -143,7 +144,8 @@ class SendMessageViewModel(
                     assetBundles.map { assetBundle ->
                         ComposableMessageBundle.AttachmentPickedBundle(
                             conversationId,
-                            assetBundle
+                            assetBundle,
+                            threadIdNavArgs
                         )
                     }
                 )
@@ -242,20 +244,26 @@ class SendMessageViewModel(
             }
 
             is ComposableMessageBundle.AttachmentPickedBundle -> {
-                sendAttachment(messageBundle.assetBundle, messageBundle.conversationId)
+                sendAttachment(
+                    attachmentBundle = messageBundle.assetBundle,
+                    conversationId = messageBundle.conversationId,
+                    threadId = messageBundle.threadId ?: threadIdNavArgs,
+                )
             }
 
             is ComposableMessageBundle.UriPickedBundle -> {
                 handleAssetMessageBundle(
                     attachmentUri = messageBundle.attachmentUri,
-                    conversationId = messageBundle.conversationId
+                    conversationId = messageBundle.conversationId,
+                    threadId = messageBundle.threadId ?: threadIdNavArgs,
                 )
             }
 
             is ComposableMessageBundle.AudioMessageBundle -> {
                 handleAssetMessageBundle(
                     attachmentUri = messageBundle.attachmentUri,
-                    conversationId = messageBundle.conversationId
+                    conversationId = messageBundle.conversationId,
+                    threadId = messageBundle.threadId ?: threadIdNavArgs,
                 )
             }
 
@@ -267,7 +275,8 @@ class SendMessageViewModel(
                         conversationId = conversationId,
                         text = message,
                         mentions = mentions.map { it.intoMessageMention() },
-                        quotedMessageId = quotedMessageId
+                        quotedMessageId = quotedMessageId,
+                        threadId = threadId ?: threadIdNavArgs,
                     ).toEither()
                         .handleLegalHoldFailureAfterSendingMessage(conversationId)
                         .handleNonAssetContributionEvent(messageBundle)
@@ -282,7 +291,8 @@ class SendMessageViewModel(
                         conversationId = conversationId,
                         text = message,
                         mentions = mentions.map { it.intoMessageMention() },
-                        quotedMessageId = quotedMessageId
+                        quotedMessageId = quotedMessageId,
+                        threadId = threadId ?: threadIdNavArgs,
                     ).toEither()
                         .handleLegalHoldFailureAfterSendingMessage(conversationId)
                         .handleNonAssetContributionEvent(messageBundle)
@@ -310,7 +320,8 @@ class SendMessageViewModel(
 
     private suspend fun handleAssetMessageBundle(
         conversationId: ConversationId,
-        attachmentUri: UriAsset
+        attachmentUri: UriAsset,
+        threadId: String?,
     ) {
         when (
             val result = handleUriAsset.invoke(
@@ -333,7 +344,7 @@ class SendMessageViewModel(
             }
 
             is HandleUriAssetUseCase.Result.Success -> {
-                sendAttachment(result.assetBundle, conversationId)
+                sendAttachment(result.assetBundle, conversationId, threadId)
             }
         }
     }
@@ -528,6 +539,7 @@ class SendMessageViewModel(
         assetHeight: Int? = null,
         assetWidth: Int? = null,
         audioLengthInMs: Long = 0L,
+        threadId: String? = null,
     ) = AssetUploadParams(
         conversationId = conversationId,
         assetDataPath = dataPath,
@@ -537,7 +549,8 @@ class SendMessageViewModel(
         assetHeight = assetHeight,
         assetWidth = assetWidth,
         audioLengthInMs = audioLengthInMs,
-        audioNormalizedLoudness = audioWavesMask?.toNormalizedLoudness()
+        audioNormalizedLoudness = audioWavesMask?.toNormalizedLoudness(),
+        threadId = threadId,
     )
 
     private companion object {

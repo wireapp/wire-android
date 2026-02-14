@@ -234,8 +234,33 @@ jobs:
         run: |
           set -euo pipefail
           command -v adb >/dev/null 2>&1 || { echo "ERROR: adb not found"; exit 1; }
-          command -v aws >/dev/null 2>&1 || { echo "ERROR: aws CLI not found on this runner (install awscli on the runner)"; exit 1; }
           command -v python3 >/dev/null 2>&1 || { echo "ERROR: python3 not found on this runner"; exit 1; }
+
+          if command -v aws >/dev/null 2>&1; then
+            aws --version
+            exit 0
+          fi
+
+          command -v curl >/dev/null 2>&1 || { echo "ERROR: curl not found"; exit 1; }
+          command -v unzip >/dev/null 2>&1 || { echo "ERROR: unzip not found"; exit 1; }
+          : "${RUNNER_TEMP:?RUNNER_TEMP not set}"
+
+          echo "aws CLI not found. Installing AWS CLI v2 locally..."
+          AWS_ROOT="${RUNNER_TEMP}/awscli"
+          ZIP_PATH="${RUNNER_TEMP}/awscliv2.zip"
+
+          rm -rf "${AWS_ROOT}" "${ZIP_PATH}" "${RUNNER_TEMP}/aws"
+          mkdir -p "${AWS_ROOT}"
+
+          curl -fsSL -o "${ZIP_PATH}" "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip"
+          unzip -oq "${ZIP_PATH}" -d "${RUNNER_TEMP}"
+          rm -f "${ZIP_PATH}"
+
+          "${RUNNER_TEMP}/aws/install" -i "${AWS_ROOT}" -b "${AWS_ROOT}/bin"
+          echo "${AWS_ROOT}/bin" >> "${GITHUB_PATH}"
+          export PATH="${AWS_ROOT}/bin:${PATH}"
+
+          aws --version
 
       - name: Configure AWS credentials (for S3)
         uses: aws-actions/configure-aws-credentials@v4

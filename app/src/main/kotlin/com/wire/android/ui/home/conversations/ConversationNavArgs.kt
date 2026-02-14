@@ -32,7 +32,9 @@ data class ConversationNavArgs(
     val conversationId: ConversationId,
     val searchedMessageId: String? = null,
     val pendingBundles: ArrayList<AssetBundle>? = null,
-    val pendingTextBundle: String? = null
+    val pendingTextBundle: String? = null,
+    val threadId: String? = null,
+    val threadRootMessageId: String? = null
 ) : Parcelable
 
 object QualifiedIdParceler : Parceler<QualifiedID> {

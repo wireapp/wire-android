@@ -33,6 +33,7 @@ data class MessageComposition(
     val quotedMessageId: String? = null,
     val selectedMentions: List<UIMention> = emptyList(),
     val isMultipart: Boolean = false,
+    val threadId: String? = null,
 ) {
     fun getSelectedMentions(newMessageText: String): List<UIMention> {
         val result = mutableSetOf<UIMention>()
@@ -86,14 +87,16 @@ data class MessageComposition(
                     conversationId = conversationId,
                     message = messageText,
                     mentions = selectedMentions,
-                    quotedMessageId = quotedMessageId
+                    quotedMessageId = quotedMessageId,
+                    threadId = threadId
                 )
             } else {
                 ComposableMessageBundle.SendMultipartMessageBundle(
                     conversationId = conversationId,
                     message = messageText,
                     mentions = selectedMentions,
-                    quotedMessageId = quotedMessageId
+                    quotedMessageId = quotedMessageId,
+                    threadId = threadId
                 )
             }
         }

@@ -114,6 +114,7 @@ class SendMessageViewModel @Inject constructor(
 
     private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
     val conversationId: QualifiedID = conversationNavArgs.conversationId
+    private val threadIdNavArgs: String? = conversationNavArgs.threadId
 
     private val _infoMessage = MutableSharedFlow<SnackBarMessage>()
     val infoMessage = _infoMessage.asSharedFlow()
@@ -146,7 +147,8 @@ class SendMessageViewModel @Inject constructor(
                     assetBundles.map { assetBundle ->
                         ComposableMessageBundle.AttachmentPickedBundle(
                             conversationId,
-                            assetBundle
+                            assetBundle,
+                            threadIdNavArgs
                         )
                     }
                 )
@@ -245,20 +247,26 @@ class SendMessageViewModel @Inject constructor(
             }
 
             is ComposableMessageBundle.AttachmentPickedBundle -> {
-                sendAttachment(messageBundle.assetBundle, messageBundle.conversationId)
+                sendAttachment(
+                    attachmentBundle = messageBundle.assetBundle,
+                    conversationId = messageBundle.conversationId,
+                    threadId = messageBundle.threadId ?: threadIdNavArgs,
+                )
             }
 
             is ComposableMessageBundle.UriPickedBundle -> {
                 handleAssetMessageBundle(
                     attachmentUri = messageBundle.attachmentUri,
-                    conversationId = messageBundle.conversationId
+                    conversationId = messageBundle.conversationId,
+                    threadId = messageBundle.threadId ?: threadIdNavArgs,
                 )
             }
 
             is ComposableMessageBundle.AudioMessageBundle -> {
                 handleAssetMessageBundle(
                     attachmentUri = messageBundle.attachmentUri,
-                    conversationId = messageBundle.conversationId
+                    conversationId = messageBundle.conversationId,
+                    threadId = messageBundle.threadId ?: threadIdNavArgs,
                 )
             }
 
@@ -270,7 +278,8 @@ class SendMessageViewModel @Inject constructor(
                         conversationId = conversationId,
                         text = message,
                         mentions = mentions.map { it.intoMessageMention() },
-                        quotedMessageId = quotedMessageId
+                        quotedMessageId = quotedMessageId,
+                        threadId = threadId ?: threadIdNavArgs,
                     ).toEither()
                         .handleLegalHoldFailureAfterSendingMessage(conversationId)
                         .handleNonAssetContributionEvent(messageBundle)
@@ -285,7 +294,8 @@ class SendMessageViewModel @Inject constructor(
                         conversationId = conversationId,
                         text = message,
                         mentions = mentions.map { it.intoMessageMention() },
-                        quotedMessageId = quotedMessageId
+                        quotedMessageId = quotedMessageId,
+                        threadId = threadId ?: threadIdNavArgs,
                     ).toEither()
                         .handleLegalHoldFailureAfterSendingMessage(conversationId)
                         .handleNonAssetContributionEvent(messageBundle)
@@ -313,7 +323,8 @@ class SendMessageViewModel @Inject constructor(
 
     private suspend fun handleAssetMessageBundle(
         conversationId: ConversationId,
-        attachmentUri: UriAsset
+        attachmentUri: UriAsset,
+        threadId: String?,
     ) {
         when (
             val result = handleUriAsset.invoke(
@@ -336,12 +347,16 @@ class SendMessageViewModel @Inject constructor(
             }
 
             is HandleUriAssetUseCase.Result.Success -> {
-                sendAttachment(result.assetBundle, conversationId)
+                sendAttachment(result.assetBundle, conversationId, threadId)
             }
         }
     }
 
-    internal fun sendAttachment(attachmentBundle: AssetBundle?, conversationId: ConversationId) {
+    internal fun sendAttachment(
+        attachmentBundle: AssetBundle?,
+        conversationId: ConversationId,
+        threadId: String? = threadIdNavArgs
+    ) {
         viewModelScope.launch {
             withContext(dispatchers.io()) {
                 attachmentBundle?.run {
@@ -352,7 +367,7 @@ class SendMessageViewModel @Inject constructor(
                                     kaliumFileSystem,
                                     attachmentBundle.dataPath
                                 )
-                                sendAssetMessage(attachmentBundle.uploadParams(imgHeight, imgWidth))
+                                sendAssetMessage(attachmentBundle.uploadParams(imgHeight, imgWidth, threadId = threadId))
                                     .handleLegalHoldFailureAfterSendingMessage(conversationId)
                                     .handleAssetContributionEvent(assetType)
                             } else {
@@ -370,7 +385,8 @@ class SendMessageViewModel @Inject constructor(
                                         audioLengthInMs = getAudioLengthInMs(
                                             dataPath = dataPath,
                                             mimeType = mimeType
-                                        )
+                                        ),
+                                        threadId = threadId,
                                     )
                                 ).handleLegalHoldFailureAfterSendingMessage(conversationId)
                                     .handleAssetContributionEvent(assetType)
@@ -515,6 +531,7 @@ class SendMessageViewModel @Inject constructor(
         assetHeight: Int? = null,
         assetWidth: Int? = null,
         audioLengthInMs: Long = 0L,
+        threadId: String? = null,
     ) = AssetUploadParams(
         conversationId = conversationId,
         assetDataPath = dataPath,
@@ -524,7 +541,8 @@ class SendMessageViewModel @Inject constructor(
         assetHeight = assetHeight,
         assetWidth = assetWidth,
         audioLengthInMs = audioLengthInMs,
-        audioNormalizedLoudness = audioWavesMask?.toNormalizedLoudness()
+        audioNormalizedLoudness = audioWavesMask?.toNormalizedLoudness(),
+        threadId = threadId,
     )
 
     private companion object {

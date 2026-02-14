@@ -3,30 +3,6 @@ name: QA Android UI Tests
 on:
   workflow_dispatch:
     inputs:
-      appBuildNumber:
-        description: "AppBuildNumber. Use 'latest' or build number(e.g 71389)"
-        required: true
-        default: "latest"
-        type: string
-
-      isUpgrade:
-        description: "Upgrade test? If true, oldBuildNumber is REQUIRED."
-        required: true
-        default: false
-        type: boolean
-
-      oldBuildNumber:
-        description: "For upgrade runs: type the old build number here"
-        required: false
-        default: ""
-        type: string
-
-      enforceAppInstall:
-        description: "If you want to run with a lower version than currently on the device, set this value to true."
-        required: true
-        default: false
-        type: boolean
-
       flavor:
         description: "App flavor."
         required: true
@@ -44,84 +20,55 @@ on:
           - production
         default: internal release candidate
 
-      buildType:
-        description: "Build type"
+      appBuildNumber:
+        description: "Use 'latest' OR a build number substring (e.g. 71389) OR an .apk key/filename"
         required: true
-        type: choice
-        options:
-          - release
-          - debug
-          - compat
-        default: release
+        default: "latest"
+        type: string
 
-      TAGS:
-        description: "Tags: '@regression' OR '@TC-8143'."
+      isUpgrade:
+        description: "Upgrade test? If true, oldBuildNumber is REQUIRED."
+        required: true
+        default: false
+        type: boolean
+
+      oldBuildNumber:
+        description: "For upgrade runs: old build number substring (or an .apk filename)"
         required: false
         default: ""
         type: string
 
-      branch:
-        description: "Branch"
+      enforceAppInstall:
+        description: "Allow downgrade install (-d). Use true if device has higher version."
         required: true
-        default: "develop"
-        type: string
+        default: false
+        type: boolean
 
-      backendType:
-        description: "Backend."
-        required: true
-        default: "staging"
-        type: string
-
-      testinyRunName:
-        description: "TESTINY_RUN_NAME."
+      TAGS:
+        description: "Tags: '@regression' OR '@TC-8143'. (First non-empty wins.)"
         required: false
         default: ""
         type: string
 
       androidDeviceId:
-        description: "androidDeviceId. Target a specific device. Leave empty for auto."
+        description: "Target a specific device. Leave empty to use ALL connected devices."
         required: false
         default: ""
         type: string
-
-      callingServiceEnv:
-        description: "Calling service environment."
-        required: true
-        type: choice
-        options:
-          - dev
-          - custom
-          - master
-          - avs
-          - qa
-          - edge
-          - staging
-          - prod
-        default: dev
-
-      callingServiceUrl:
-        description: "Calling service URL."
-        required: true
-        default: "loadbalanced"
-        type: string
-
-      deflakeCount:
-        description: "Rerun only failed tests."
-        required: true
-        default: 1
-        type: number
 
 permissions:
   contents: read
 
 jobs:
   validate-and-resolve-inputs:
-    name: Validate + resolve selectors (no execution)
+    name: Validate + resolve selectors
     runs-on: ubuntu-latest
 
     outputs:
-      resolvedTestCaseId: ${{ steps.resolve.outputs.testCaseId }}
-      resolvedCategory: ${{ steps.resolve.outputs.category }}
+      resolvedTestCaseId: ${{ steps.resolve_selector.outputs.testCaseId }}
+      resolvedCategory: ${{ steps.resolve_selector.outputs.category }}
+      s3Folder: ${{ steps.resolve_flavor.outputs.s3Folder }}
+      appId: ${{ steps.resolve_flavor.outputs.appId }}
 
     steps:
       - name: Validate upgrade inputs
@@ -134,7 +81,7 @@ jobs:
           fi
 
       - name: Resolve selector from TAGS
-        id: resolve
+        id: resolve_selector
         shell: bash
         run: |
           set -euo pipefail
@@ -160,7 +107,7 @@ jobs:
             sel="$(trim "$sel")"
 
             if [[ "$sel" == *:* ]]; then
-              echo "ERROR: TAGS format '@key:value' is not supported. Use '@TC-1234' or '@category'."
+              echo "ERROR: TAGS format '@key:value' is not supported yet. Use '@TC-1234' or '@category'."
               exit 1
             fi
 
@@ -174,71 +121,13 @@ jobs:
           echo "testCaseId=$TESTCASE_ID" >> "$GITHUB_OUTPUT"
           echo "category=$CATEGORY" >> "$GITHUB_OUTPUT"
 
-      - name: Print resolved selectors
-        shell: bash
-        run: |
-          set -euo pipefail
-          echo "TAGS=${{ inputs.TAGS }}"
-          echo "resolvedTestCaseId=${{ steps.resolve.outputs.testCaseId }}"
-          echo "resolvedCategory=${{ steps.resolve.outputs.category }}"
-
-  run-android-ui-tests-placeholder:
-    name: Run Android UI tests
-    runs-on:
-      - self-hosted
-      - Linux
-      - X64
-      - office
-      - android-qa
-
-    needs: validate-and-resolve-inputs
-
-    defaults:
-      run:
-        shell: bash
-
-    steps:
-      - name: Checkout code (with submodules)
-        uses: actions/checkout@v4
-        with:
-          # FIX: ensure we checkout the SAME branch the workflow is running from (no mismatch with inputs.branch)
-          ref: ${{ github.ref_name }}
-          fetch-depth: 0
-          clean: true
-          submodules: recursive
-
-      - name: Verify Gradle contains opVault support (quick check)
-        run: |
-          set -euo pipefail
-          grep -n "opVault" tests/testsSupport/build.gradle.kts
-
-      # Gradle needs Java. Ensure a consistent JDK on the self-hosted runner.
-      - name: Set up Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: "17"
-          cache: gradle
-
-      - name: Set up Android SDK (sets ANDROID_HOME + adb)
-        uses: android-actions/setup-android@v3
-
-      - name: Verify toolchain
-        run: |
-          set -euo pipefail
-          java -version
-          echo "ANDROID_HOME=${ANDROID_HOME:-}"
-          adb version
-
-      # Flavor -> S3 folder + APP_ID
       - name: Resolve flavor -> S3_FOLDER + APP_ID
         id: resolve_flavor
+        shell: bash
         run: |
           set -euo pipefail
 
           FLAVOR="$(echo "${{ inputs.flavor }}" | xargs)"
-
-          # IMPORTANT: initialize so set -u never crashes before assignment
           S3_FOLDER=""
           APP_ID=""
 
@@ -285,64 +174,68 @@ jobs:
               ;;
             *)
               echo "ERROR: Unknown flavor: '$FLAVOR'"
-              echo "Expected one of: internal release candidate, internal beta, staging compat, experimental, column-1, column-2, column-3, debug, fdroid, production"
               exit 1
               ;;
           esac
 
-          # extra safety
-          if [[ -z "$S3_FOLDER" || -z "$APP_ID" ]]; then
-            echo "ERROR: Flavor mapping produced empty values. flavor='$FLAVOR'"
-            exit 1
-          fi
+          echo "s3Folder=$S3_FOLDER" >> "$GITHUB_OUTPUT"
+          echo "appId=$APP_ID" >> "$GITHUB_OUTPUT"
 
-          echo "Resolved flavor='$FLAVOR'"
-          echo "S3_FOLDER=$S3_FOLDER"
-          echo "APP_ID=$APP_ID"
-
-          echo "S3_FOLDER=$S3_FOLDER" >> "$GITHUB_ENV"
-          echo "APP_ID=$APP_ID" >> "$GITHUB_ENV"
-
-          echo "S3_FOLDER=$S3_FOLDER" >> "$GITHUB_OUTPUT"
-          echo "APP_ID=$APP_ID" >> "$GITHUB_OUTPUT"
-
-      - name: Ensure AWS CLI is available (no sudo)
+      - name: Print resolved values
+        shell: bash
         run: |
           set -euo pipefail
+          echo "flavor=${{ inputs.flavor }}"
+          echo "S3_FOLDER=${{ steps.resolve_flavor.outputs.s3Folder }}"
+          echo "APP_ID=${{ steps.resolve_flavor.outputs.appId }}"
+          echo "resolvedTestCaseId=${{ steps.resolve_selector.outputs.testCaseId }}"
+          echo "resolvedCategory=${{ steps.resolve_selector.outputs.category }}"
 
-          if command -v aws >/dev/null 2>&1; then
-            aws --version
-            exit 0
-          fi
+  run-android-ui-tests:
+    name: Run Android UI tests
+    runs-on:
+      - self-hosted
+      - Linux
+      - X64
+      - office
+      - android-qa
 
-          if ! command -v curl >/dev/null 2>&1; then
-            echo "ERROR: 'curl' is not available on this runner."
-            exit 1
-          fi
-          if ! command -v unzip >/dev/null 2>&1; then
-            echo "ERROR: 'unzip' is not available on this runner."
-            exit 1
-          fi
+    needs: validate-and-resolve-inputs
 
-          echo "aws not found. Installing AWS CLI v2 locally..."
-          AWS_ROOT="${RUNNER_TEMP}/awscli"
-          ZIP_PATH="${RUNNER_TEMP}/awscliv2.zip"
+    env:
+      AWS_REGION: eu-west-1
+      S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+      OP_VAULT: "Test Automation"
+      S3_FOLDER: ${{ needs.validate-and-resolve-inputs.outputs.s3Folder }}
+      APP_ID: ${{ needs.validate-and-resolve-inputs.outputs.appId }}
 
-          rm -rf "${AWS_ROOT}" "${ZIP_PATH}" "${RUNNER_TEMP}/aws"
-          mkdir -p "${AWS_ROOT}"
+    defaults:
+      run:
+        shell: bash
 
-          curl -fsSL -o "${ZIP_PATH}" "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip"
-          unzip -oq "${ZIP_PATH}" -d "${RUNNER_TEMP}"
-          rm -f "${ZIP_PATH}"
+    steps:
+      - name: Checkout (with submodules)
+        uses: actions/checkout@v4
+        with:
+          clean: true
+          submodules: recursive
 
-          # Install without sudo
-          "${RUNNER_TEMP}/aws/install" -i "${AWS_ROOT}" -b "${AWS_ROOT}/bin"
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: gradle
 
-          # Make it available for subsequent steps + also this step
-          echo "${AWS_ROOT}/bin" >> "${GITHUB_PATH}"
-          export PATH="${AWS_ROOT}/bin:${PATH}"
+      - name: Set up Android SDK (ANDROID_HOME + adb)
+        uses: android-actions/setup-android@v3
 
-          aws --version
+      - name: Ensure required tools exist
+        run: |
+          set -euo pipefail
+          command -v adb >/dev/null 2>&1 || { echo "ERROR: adb not found"; exit 1; }
+          command -v aws >/dev/null 2>&1 || { echo "ERROR: aws CLI not found on this runner (install awscli on the runner)"; exit 1; }
+          command -v python3 >/dev/null 2>&1 || { echo "ERROR: python3 not found on this runner"; exit 1; }
 
       - name: Configure AWS credentials (for S3)
         uses: aws-actions/configure-aws-credentials@v4
@@ -351,57 +244,38 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-west-1
 
-      - name: Download APK(s) from S3 (latest/build/upgrade)
+      - name: Download APK(s) from S3
         id: download_apks
         env:
-          S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
           APP_BUILD_NUMBER: ${{ inputs.appBuildNumber }}
           IS_UPGRADE: ${{ inputs.isUpgrade }}
           OLD_BUILD_NUMBER: ${{ inputs.oldBuildNumber }}
-          FLAVOR: ${{ inputs.flavor }}
         run: |
           set -euo pipefail
+          : "${S3_BUCKET:?ERROR: Missing secret AWS_S3_BUCKET}"
+          : "${S3_FOLDER:?ERROR: S3_FOLDER missing}"
+          echo "S3 prefix: s3://${S3_BUCKET}/${S3_FOLDER}"
 
-          if [[ -z "${S3_BUCKET:-}" ]]; then
-            echo "ERROR: Missing secret AWS_S3_BUCKET"
-            exit 1
-          fi
-
-          if ! command -v aws >/dev/null 2>&1; then
-            echo "ERROR: aws CLI not found (should have been installed earlier)."
-            exit 1
-          fi
-
-          if ! command -v python3 >/dev/null 2>&1; then
-            echo "ERROR: python3 not found on this runner (needed for version selection)."
-            exit 1
-          fi
-
-          # Verify AWS creds are valid (does NOT print secrets)
-          aws sts get-caller-identity --output json >/dev/null
-
-          : "${S3_FOLDER:?S3_FOLDER is missing}"
-          echo "Listing APKs in s3://${S3_BUCKET}/${S3_FOLDER} ..."
-
-          KEYS_JSON="${RUNNER_TEMP}/s3_keys.json"
           aws s3api list-objects-v2 \
             --bucket "${S3_BUCKET}" \
             --prefix "${S3_FOLDER}" \
-            --query "Contents[].Key" \
-            --output json \
-            --page-size 1000 \
-            --max-items 10000 > "${KEYS_JSON}"
+            --query "Contents[?ends_with(Key, '.apk')].Key" \
+            --output json > "${RUNNER_TEMP}/apk_keys.json"
 
-          python3 - <<'PY' > "${RUNNER_TEMP}/apk_env.txt"
+          python3 - <<'PY' | tee "${RUNNER_TEMP}/apk_env.txt"
           import json, os, re, sys
-          from pathlib import Path
 
-          keys_path = Path(os.environ["RUNNER_TEMP"]) / "s3_keys.json"
-          keys = json.loads(keys_path.read_text() or "[]")
-          apks = [k for k in keys if isinstance(k, str) and k.lower().endswith(".apk")]
+          keys_path = os.path.join(os.environ["RUNNER_TEMP"], "apk_keys.json")
+          try:
+            data = json.load(open(keys_path, "r", encoding="utf-8"))
+          except Exception:
+            data = []
+          if not isinstance(data, list):
+            data = []
 
+          apks = [k for k in data if isinstance(k, str) and k.lower().endswith(".apk")]
           if not apks:
-            print("ERROR: No .apk files found under S3_FOLDER prefix.", file=sys.stderr)
+            print("ERROR: No .apk files found in this prefix.", file=sys.stderr)
             sys.exit(1)
 
           app_build = (os.environ.get("APP_BUILD_NUMBER") or "").strip()
@@ -437,36 +311,51 @@ jobs:
                 return k
             return None
 
+          def pick_by_filename(filename: str):
+            if not filename:
+              return None
+            for k in apks:
+              if k.split("/")[-1] == filename:
+                return k
+            return None
+
           parsed = []
           for k in apks:
-            fname = k.split("/")[-1]
-            pv = parse_version(fname)
+            pv = parse_version(k.split("/")[-1])
             if pv is not None:
               parsed.append((pv, k))
           parsed.sort(key=lambda x: x[0])
 
-          latest_key = parsed[-1][1] if parsed else None
+          latest_key = parsed[-1][1] if parsed else apks[-1]
           second_latest_key = parsed[-2][1] if len(parsed) >= 2 else None
+
+          def normalize_direct(s: str):
+            s = s.strip()
+            if s.startswith("s3://"):
+              # s3://bucket/key...
+              parts = s.split("/", 3)
+              return parts[3] if len(parts) >= 4 else ""
+            return s.lstrip("/")
 
           new_key = None
           old_key = None
 
+          # Direct .apk input: allow s3://..., key..., or filename.apk
           if app_build.lower().endswith(".apk"):
-            if app_build.startswith("s3://"):
-              parts = app_build.split("/", 3)
-              if len(parts) < 4:
-                print("ERROR: Invalid s3:// path in appBuildNumber", file=sys.stderr)
-                sys.exit(1)
-              new_key = parts[3]
+            direct = normalize_direct(app_build)
+            if "/" in direct:
+              new_key = direct
             else:
-              new_key = app_build.lstrip("/")
+              new_key = pick_by_filename(direct) or pick_by_substring(direct)
+
             if is_upgrade:
-              old_key = pick_by_substring(old_input) if old_input else second_latest_key
+              if old_input.lower().endswith(".apk"):
+                od = normalize_direct(old_input)
+                old_key = (od if "/" in od else (pick_by_filename(od) or pick_by_substring(od)))
+              else:
+                old_key = pick_by_substring(old_input) if old_input else second_latest_key
 
           elif app_build == "latest":
-            if not latest_key:
-              print("ERROR: Could not resolve latest build (no parseable versions).", file=sys.stderr)
-              sys.exit(1)
             new_key = latest_key
             if is_upgrade:
               old_key = pick_by_substring(old_input) if old_input else second_latest_key
@@ -497,105 +386,67 @@ jobs:
           print(f"OLD_BUILD_NUMBER={build_label(old_name) if old_name else ''}")
           PY
 
-          # ===== CRITICAL FIX =====
-          # Make vars available in THIS step (GITHUB_ENV only applies to NEXT steps)
+          # Make vars available now + future steps
           set -a
           source "${RUNNER_TEMP}/apk_env.txt"
           set +a
-          # Persist for later steps too
           cat "${RUNNER_TEMP}/apk_env.txt" >> "$GITHUB_ENV"
           cat "${RUNNER_TEMP}/apk_env.txt" >> "$GITHUB_OUTPUT"
-          : "${NEW_S3_KEY:?NEW_S3_KEY missing after resolve}"
-          # ========================
 
           NEW_APK_PATH="${RUNNER_TEMP}/Wire.apk"
           echo "NEW_APK_PATH=${NEW_APK_PATH}" >> "$GITHUB_ENV"
-
-          echo "Downloading NEW apk..."
           aws s3 cp "s3://${S3_BUCKET}/${NEW_S3_KEY}" "${NEW_APK_PATH}" --only-show-errors
           test -s "${NEW_APK_PATH}"
 
           if [[ "${IS_UPGRADE}" == "true" ]]; then
-            : "${OLD_S3_KEY:?OLD_S3_KEY missing for upgrade}"
             OLD_APK_PATH="${RUNNER_TEMP}/Wire.old.apk"
             echo "OLD_APK_PATH=${OLD_APK_PATH}" >> "$GITHUB_ENV"
-
-            echo "Downloading OLD apk..."
             aws s3 cp "s3://${S3_BUCKET}/${OLD_S3_KEY}" "${OLD_APK_PATH}" --only-show-errors
             test -s "${OLD_APK_PATH}"
           fi
 
-          echo "OK: Downloaded APK(s): ${NEW_APK_NAME}${OLD_APK_NAME:+ and ${OLD_APK_NAME}}"
+          echo "Selected NEW=${NEW_APK_NAME}"
+          if [[ "${IS_UPGRADE}" == "true" ]]; then
+            echo "Selected OLD=${OLD_APK_NAME}"
+          fi
 
-      - name: Remove any leftover secrets files (safety)
+      - name: Detect target device(s)
         run: |
           set -euo pipefail
-          rm -f secrets.json
-          rm -f "${RUNNER_TEMP}/secrets.json"
-
-      - name: Select target device(s)
-        run: |
-          set -euo pipefail
-
-          adb devices -l
 
           DEVICE_LINES="$(adb devices | awk 'NR>1 && $2=="device"{print $1}')"
           if [[ -z "${DEVICE_LINES}" ]]; then
-            echo "ERROR: No online Android devices found on this runner."
+            echo "ERROR: No online Android devices found."
             exit 1
           fi
 
           TARGET="${{ inputs.androidDeviceId }}"
           if [[ -n "$TARGET" ]]; then
             if ! printf '%s\n' "$DEVICE_LINES" | grep -qx "$TARGET"; then
-              echo "ERROR: androidDeviceId '$TARGET' not found in 'adb devices'."
+              echo "ERROR: androidDeviceId '$TARGET' not found in adb devices."
               exit 1
             fi
             DEVICE_LIST="$TARGET"
-            DEVICE_COUNT="1"
-            echo "ANDROID_SERIAL=$TARGET" >> "$GITHUB_ENV"
-            echo "Using device: $TARGET"
           else
             DEVICE_LIST="$(printf '%s\n' "$DEVICE_LINES" | xargs)"
-            DEVICE_COUNT="$(printf '%s\n' "$DEVICE_LINES" | wc -l | tr -d ' ')"
-            echo "Using all devices: $DEVICE_LIST"
           fi
 
-          echo "DEVICE_LIST=$DEVICE_LIST" >> "$GITHUB_ENV"
-          echo "DEVICE_COUNT=$DEVICE_COUNT" >> "$GITHUB_ENV"
+          DEVICE_COUNT="$(wc -w <<<"${DEVICE_LIST}" | tr -d ' ')"
 
-      - name: Relax package verification (best effort)
+          echo "DEVICE_LIST=${DEVICE_LIST}" >> "$GITHUB_ENV"
+          echo "DEVICE_COUNT=${DEVICE_COUNT}" >> "$GITHUB_ENV"
+          echo "Using device(s): ${DEVICE_LIST}"
+
+      - name: Install APK(s) on device(s)
         run: |
           set -euo pipefail
-
-          : "${DEVICE_LIST:?DEVICE_LIST not set}"
-          read -ra DEVICES <<< "${DEVICE_LIST}"
-          for SERIAL in "${DEVICES[@]}"; do
-            echo "Adjusting package verification on ${SERIAL}"
-            ADB="adb -s ${SERIAL}"
-            ${ADB} wait-for-device
-
-            ${ADB} shell settings put global verifier_verify_adb_installs 0 || true
-            ${ADB} shell settings put global package_verifier_enable 0 || true
-            ${ADB} shell settings put global package_verifier_user_consent -1 || true
-            ${ADB} shell settings put secure install_non_market_apps 1 || true
-            ${ADB} shell settings put global install_non_market_apps 1 || true
-
-            ${ADB} shell settings get global verifier_verify_adb_installs || true
-            ${ADB} shell settings get global package_verifier_enable || true
-          done
-
-      - name: Prepare device + install APK(s)
-        run: |
-          set -euo pipefail
-
-          : "${DEVICE_LIST:?DEVICE_LIST not set}"
-          : "${NEW_APK_PATH:?NEW_APK_PATH missing}"
+          : "${DEVICE_LIST:?DEVICE_LIST missing}"
           : "${APP_ID:?APP_ID missing}"
+          : "${NEW_APK_PATH:?NEW_APK_PATH missing}"
 
-          if [[ ! -s "${NEW_APK_PATH}" ]]; then
-            echo "ERROR: NEW_APK_PATH not found or empty: ${NEW_APK_PATH}"
-            exit 1
+          INSTALL_FLAGS="-r"
+          if [[ "${{ inputs.enforceAppInstall }}" == "true" ]]; then
+            INSTALL_FLAGS="-r -d"
           fi
 
           PACKAGES=(
@@ -609,40 +460,28 @@ jobs:
             "com.waz.zclient.dev.debug"
           )
 
-          INSTALL_FLAGS="-r"
-          if [[ "${{ inputs.enforceAppInstall }}" == "true" ]]; then
-            INSTALL_FLAGS="-r -d"
-          fi
-
           read -ra DEVICES <<< "${DEVICE_LIST}"
           for SERIAL in "${DEVICES[@]}"; do
-            echo "Preparing device: ${SERIAL}"
             ADB="adb -s ${SERIAL}"
             ${ADB} wait-for-device
 
-            INSTALLED_PKGS="$(${ADB} shell pm list packages)"
+            # Clean baseline: uninstall known package ids if present
+            INSTALLED="$(${ADB} shell pm list packages || true)"
             for pkg in "${PACKAGES[@]}"; do
-              if echo "${INSTALLED_PKGS}" | grep -qx "package:${pkg}"; then
-                echo "Uninstalling ${pkg} on ${SERIAL}"
+              if echo "${INSTALLED}" | grep -qx "package:${pkg}"; then
                 ${ADB} uninstall "${pkg}" || true
               fi
             done
 
             if [[ "${{ inputs.isUpgrade }}" == "true" ]]; then
               : "${OLD_APK_PATH:?OLD_APK_PATH missing for upgrade}"
-              if [[ ! -s "${OLD_APK_PATH}" ]]; then
-                echo "ERROR: OLD_APK_PATH not found or empty: ${OLD_APK_PATH}"
-                exit 1
-              fi
-              echo "Installing OLD apk on ${SERIAL}..."
               ${ADB} install ${INSTALL_FLAGS} "${OLD_APK_PATH}"
             fi
 
-            echo "Installing NEW apk on ${SERIAL}..."
             ${ADB} install ${INSTALL_FLAGS} "${NEW_APK_PATH}"
 
             if ! ${ADB} shell pm list packages | grep -qx "package:${APP_ID}"; then
-              echo "ERROR: APP_ID '${APP_ID}' is not installed on ${SERIAL} after install step."
+              echo "ERROR: '${APP_ID}' not installed on ${SERIAL}."
               exit 1
             fi
           done
@@ -650,11 +489,15 @@ jobs:
       - name: Install 1Password CLI
         uses: 1password/install-cli-action@v2
 
-      - name: Fetch secrets.json from 1Password (runtime only)
+      - name: Fetch secrets.json (runtime only)
         env:
           OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
         run: |
           set -euo pipefail
+          if [[ -z "${OP_SERVICE_ACCOUNT_TOKEN:-}" ]]; then
+            echo "ERROR: Missing OP_SERVICE_ACCOUNT_TOKEN secret"
+            exit 1
+          fi
 
           chmod +x ./gradlew
 
@@ -662,39 +505,39 @@ jobs:
           export SECRETS_JSON_PATH="${SECRETS_FILE}"
           echo "SECRETS_JSON_PATH=${SECRETS_FILE}" >> "$GITHUB_ENV"
 
-          # FIX: pass vault explicitly so Gradle can use it (service account requirement)
-          ./gradlew :tests:testsSupport:fetchSecrets --no-daemon \
+          ./gradlew :tests:testsSupport:fetchSecrets \
+            --no-daemon \
+            --no-configuration-cache \
             -PsecretsJsonPath="${SECRETS_FILE}" \
-            -PopVault="Test Automation"
+            -PopVault="${OP_VAULT}"
 
           test -s "${SECRETS_FILE}"
           chmod 600 "${SECRETS_FILE}"
           echo "OK: secrets.json created at ${SECRETS_FILE}"
 
-      - name: Build test APK (assemble only)
+      - name: Build test APK (assemble)
         run: |
           set -euo pipefail
-          ./gradlew :tests:testsCore:assembleDebugAndroidTest --no-daemon
+          ./gradlew :tests:testsCore:assembleDebugAndroidTest --no-daemon --no-configuration-cache
 
-      - name: Run UI tests (sharded across devices)
+      - name: Run UI tests (one shard per device)
         env:
           RESOLVED_TESTCASE_ID: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTestCaseId }}
           RESOLVED_CATEGORY: ${{ needs.validate-and-resolve-inputs.outputs.resolvedCategory }}
         run: |
           set -euo pipefail
-
-          : "${DEVICE_LIST:?DEVICE_LIST not set}"
-          : "${DEVICE_COUNT:?DEVICE_COUNT not set}"
+          : "${DEVICE_LIST:?DEVICE_LIST missing}"
+          : "${DEVICE_COUNT:?DEVICE_COUNT missing}"
 
           GRADLE_ARGS=(
             ":tests:testsCore:connectedDebugAndroidTest"
             "--no-daemon"
+            "--no-configuration-cache"
           )
 
           if [[ -n "${RESOLVED_TESTCASE_ID}" ]]; then
             GRADLE_ARGS+=("-Pandroid.testInstrumentationRunnerArguments.testCaseId=${RESOLVED_TESTCASE_ID}")
           fi
-
           if [[ -n "${RESOLVED_CATEGORY}" ]]; then
             GRADLE_ARGS+=("-Pandroid.testInstrumentationRunnerArguments.category=${RESOLVED_CATEGORY}")
           fi
@@ -703,17 +546,19 @@ jobs:
           if [[ -n "${RESOLVED_TESTCASE_ID}" ]]; then
             NUM_SHARDS="1"
           fi
-          read -ra DEVICES <<< "${DEVICE_LIST}"
 
-          echo "Sharding across ${NUM_SHARDS} device(s): ${DEVICE_LIST}"
+          read -ra DEVICES <<< "${DEVICE_LIST}"
+          echo "Sharding: numShards=${NUM_SHARDS}, devices=${DEVICE_LIST}"
 
           pids=()
           shard_index=0
+
           for SERIAL in "${DEVICES[@]}"; do
-            echo "Starting shard ${shard_index}/${NUM_SHARDS} on ${SERIAL}"
             (
               set -euo pipefail
               export ANDROID_SERIAL="${SERIAL}"
+              export GRADLE_USER_HOME="${RUNNER_TEMP}/gradle-${SERIAL}"
+
               ./gradlew "${GRADLE_ARGS[@]}" \
                 "-Pandroid.testInstrumentationRunnerArguments.numShards=${NUM_SHARDS}" \
                 "-Pandroid.testInstrumentationRunnerArguments.shardIndex=${shard_index}"
@@ -734,11 +579,42 @@ jobs:
             exit 1
           fi
 
-      - name: Cleanup secrets + workspace outputs
+      - name: Pull Allure results from device(s)
         if: always()
         run: |
           set -euo pipefail
-          rm -f secrets.json
-          rm -f "${RUNNER_TEMP}/secrets.json"
+          if [[ -z "${DEVICE_LIST:-}" ]]; then
+            echo "No devices detected (skipping allure pull)"
+            exit 0
+          fi
+
+          OUT_DIR="${RUNNER_TEMP}/allure-results"
+          mkdir -p "${OUT_DIR}"
+
+          read -ra DEVICES <<< "${DEVICE_LIST}"
+          for SERIAL in "${DEVICES[@]}"; do
+            echo "Pulling allure-results from ${SERIAL}..."
+            mkdir -p "${OUT_DIR}/${SERIAL}"
+            adb -s "${SERIAL}" pull "/sdcard/googletest/test_outputfiles/allure-results" "${OUT_DIR}/${SERIAL}" >/dev/null 2>&1 || true
+          done
+
+      - name: Upload test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-ui-test-results
+          if-no-files-found: warn
+          path: |
+            tests/testsCore/build/reports/androidTests/connected
+            ${{ runner.temp }}/allure-results
+
+      - name: Cleanup (remove secrets + build outputs)
+        if: always()
+        run: |
+          set -euo pipefail
+          rm -f "${RUNNER_TEMP}/secrets.json" || true
           rm -f "${RUNNER_TEMP}/Wire.apk" "${RUNNER_TEMP}/Wire.old.apk" || true
-          git clean -ffdx
+          rm -rf "${RUNNER_TEMP}/allure-results" || true
+
+          # Remove build outputs (these can contain BuildConfig secrets) but keep Gradle caches
+          git clean -ffdx -e .gradle -e .kotlin

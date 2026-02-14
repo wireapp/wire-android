@@ -66,15 +66,21 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseC
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.FetchOlderNomadMessagesByConversationUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
+import com.wire.kalium.logic.feature.message.ObserveThreadSummariesForRootsResult
+import com.wire.kalium.logic.feature.message.ObserveThreadSummariesForRootsUseCase
 import com.wire.kalium.logic.feature.message.GetSearchedConversationMessagePositionUseCase
+import com.wire.kalium.logic.feature.message.StartThreadFromMessageResult
+import com.wire.kalium.logic.feature.message.StartThreadFromMessageUseCase
 import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionResult
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
 import com.wire.kalium.network.NetworkState
 import com.wire.kalium.network.NetworkStateObserver
 import kotlinx.collections.immutable.toPersistentMap
+import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -111,6 +117,8 @@ class ConversationMessagesViewModel(
     private val clearUsersTypingEvents: ClearUsersTypingEventsUseCase,
     private val getSearchedConversationMessagePosition: GetSearchedConversationMessagePositionUseCase,
     private val deleteMessage: DeleteMessageUseCase,
+    private val startThreadFromMessageUseCase: StartThreadFromMessageUseCase,
+    private val observeThreadSummariesForRoots: ObserveThreadSummariesForRootsUseCase,
     private val isWireCellFeatureEnabled: IsWireCellsEnabledUseCase,
     private val networkStateObserver: NetworkStateObserver,
 ) : ViewModel() {
@@ -118,6 +126,8 @@ class ConversationMessagesViewModel(
     private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
     val conversationId: QualifiedID = conversationNavArgs.conversationId
     private val searchedMessageIdNavArgs: String? = conversationNavArgs.searchedMessageId
+    private val threadIdNavArgs: String? = conversationNavArgs.threadId
+    val isThreadMode: Boolean = threadIdNavArgs != null
 
     private var isCellEnabledForConversation: Boolean = false
 
@@ -133,6 +143,10 @@ class ConversationMessagesViewModel(
     private var lastImageMessageShownOnGallery: UIMessage.Regular? = null
     private val _infoMessage = MutableSharedFlow<SnackBarMessage>()
     val infoMessage = _infoMessage.asSharedFlow()
+    private val _openThread = MutableSharedFlow<OpenThreadData>()
+    val openThread = _openThread.asSharedFlow()
+    private var observeThreadSummariesJob: Job? = null
+    private var observedRootMessageIds: List<String> = emptyList()
 
     init {
         clearOrphanedTypingEvents()
@@ -149,6 +163,58 @@ class ConversationMessagesViewModel(
                 conversationViewState = conversationViewState.copy(
                     isNetworkAvailable = networkState is NetworkState.ConnectedWithInternet
                 )
+            }
+        }
+    }
+
+    fun observeThreadSummariesForVisibleRoots(rootMessageIds: List<String>) {
+        val normalizedRootMessageIds = rootMessageIds.distinct()
+        if (isThreadMode) {
+            if (conversationViewState.threadSummaryByRootMessageId.isNotEmpty()) {
+                conversationViewState = conversationViewState.copy(threadSummaryByRootMessageId = persistentMapOf())
+            }
+            return
+        }
+        if (normalizedRootMessageIds == observedRootMessageIds) return
+        observedRootMessageIds = normalizedRootMessageIds
+        observeThreadSummariesJob?.cancel()
+        if (normalizedRootMessageIds.isEmpty()) {
+            conversationViewState = conversationViewState.copy(threadSummaryByRootMessageId = persistentMapOf())
+            return
+        }
+
+        observeThreadSummariesJob = viewModelScope.launch {
+            observeThreadSummariesForRoots(conversationId, normalizedRootMessageIds).collectLatest { result ->
+                when (result) {
+                    is ObserveThreadSummariesForRootsResult.Success -> {
+                        conversationViewState = conversationViewState.copy(
+                            threadSummaryByRootMessageId = result.summaries.associate { summary ->
+                                summary.rootMessageId to ThreadSummaryUi(
+                                    threadId = summary.threadId,
+                                    visibleReplyCount = summary.visibleReplyCount
+                                )
+                            }.toPersistentMap()
+                        )
+                    }
+
+                    ObserveThreadSummariesForRootsResult.Failure -> {
+                        conversationViewState = conversationViewState.copy(
+                            threadSummaryByRootMessageId = persistentMapOf()
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    fun startThreadFromMessage(message: UIMessage.Regular) = viewModelScope.launch {
+        when (val result = startThreadFromMessageUseCase(conversationId, message.header.messageId)) {
+            is StartThreadFromMessageResult.Success -> {
+                _openThread.emit(OpenThreadData(result.threadId, result.rootMessageId))
+            }
+
+            is StartThreadFromMessageResult.Failure -> {
+                appLogger.e("Failed to start thread from message. conversationId=$conversationId messageId=${message.header.messageId}")
             }
         }
     }
@@ -210,26 +276,33 @@ class ConversationMessagesViewModel(
     }
 
     private fun loadPaginatedMessages() = viewModelScope.launch {
-        val searchedMessageId = conversationViewState.searchedMessageId
         val lastReadIndex = withContext(dispatchers.io()) {
-            searchedMessageId?.let { messageId ->
-                when (
-                    val result = getSearchedConversationMessagePosition(
-                        conversationId = conversationId,
-                        messageId = messageId
-                    )
-                ) {
-                    is GetSearchedConversationMessagePositionUseCase.Result.Success -> result.position
-                    is GetSearchedConversationMessagePositionUseCase.Result.Failure -> 0
+            if (threadIdNavArgs != null) {
+                0
+            } else {
+                conversationViewState.searchedMessageId?.let { messageId ->
+                    when (
+                        val result = getSearchedConversationMessagePosition(
+                            conversationId = conversationId,
+                            messageId = messageId
+                        )
+                    ) {
+                        is GetSearchedConversationMessagePositionUseCase.Result.Success -> result.position
+                        is GetSearchedConversationMessagePositionUseCase.Result.Failure -> 0
+                    }
+                } ?: when (val result = getConversationUnreadEventsCount(conversationId)) {
+                    is GetConversationUnreadEventsCountUseCase.Result.Success -> result.amount.toInt()
+                    is GetConversationUnreadEventsCountUseCase.Result.Failure -> 0
                 }
-            } ?: when (val result = getConversationUnreadEventsCount(conversationId)) {
-                is GetConversationUnreadEventsCountUseCase.Result.Success -> result.amount.toInt()
-                is GetConversationUnreadEventsCountUseCase.Result.Failure -> 0
             }
         }
 
         val paginatedMessagesFlow = networkStateObserver.observeNetworkState().flatMapLatest { networkState ->
-            getMessageForConversation(conversationId, lastReadIndex).map { pagingData ->
+            getMessageForConversation(
+                conversationId = conversationId,
+                lastReadIndex = lastReadIndex,
+                threadId = threadIdNavArgs
+            ).map { pagingData ->
                 pagingData.withOfflineIndicator(
                     conversationId = conversationId,
                     isOffline = networkState !is NetworkState.ConnectedWithInternet,
@@ -475,5 +548,17 @@ class ConversationMessagesViewModel(
         const val REMOTE_PAGE_SIZE = 20
     }
 }
+
+data class OpenThreadData(
+    val threadId: String,
+    val rootMessageId: String,
+)
+
+private fun GetMessageByIdUseCase.Result.getAssetContent(): MessageContent.Asset? = when (this) {
+    is GetMessageByIdUseCase.Result.Success -> this.message.content as? MessageContent.Asset
+    else -> null
+}
+
+private fun MessageContent.Asset.localAssetPath(): String? = value.localData?.assetDataPath
 
 private fun ConversationDetails.isWireCellEnabled() = (this as? ConversationDetails.Group)?.wireCell != null

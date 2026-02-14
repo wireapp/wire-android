@@ -50,6 +50,7 @@ import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.message.paging.NomadMessagePagingResult
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.GetConversationUnreadEventsCountUseCase
+import com.wire.kalium.logic.feature.message.StartThreadFromMessageResult
 import com.wire.kalium.network.NetworkState
 import io.mockk.coVerify
 import io.mockk.verify
@@ -513,6 +514,43 @@ class ConversationMessagesViewModelTest {
     }
 
     @Test
+    fun `given thread start succeeds, when starting from message, then emits open thread event`() = runTest {
+        val threadId = "thread-id"
+        val rootMessageId = "root-id"
+        val message = mockUITextMessage(id = rootMessageId) as UIMessage.Regular
+        val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .withStartThreadFromMessageResult(StartThreadFromMessageResult.Success(threadId, rootMessageId))
+            .arrange()
+
+        viewModel.openThread.test {
+            viewModel.startThreadFromMessage(message)
+
+            assertEquals(OpenThreadData(threadId = threadId, rootMessageId = rootMessageId), awaitItem())
+        }
+
+        coVerify(exactly = 1) { arrangement.startThreadFromMessageUseCase(arrangement.conversationId, rootMessageId) }
+    }
+
+    @Test
+    fun `given thread start fails, when starting from message, then does not emit open thread event`() = runTest {
+        val rootMessageId = "root-id"
+        val message = mockUITextMessage(id = rootMessageId) as UIMessage.Regular
+        val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .withStartThreadFromMessageResult(StartThreadFromMessageResult.Failure(StorageFailure.DataNotFound))
+            .arrange()
+
+        viewModel.openThread.test {
+            viewModel.startThreadFromMessage(message)
+            advanceUntilIdle()
+            expectNoEvents()
+        }
+
+        coVerify(exactly = 1) { arrangement.startThreadFromMessageUseCase(arrangement.conversationId, rootMessageId) }
+    }
+
+    @Test
     fun `given getting UnreadEventsCount failed, then messages requested anyway`() = runTest {
         val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
             .withConversationUnreadEventsCount(GetConversationUnreadEventsCountUseCase.Result.Failure(StorageFailure.DataNotFound))
@@ -523,7 +561,7 @@ class ConversationMessagesViewModelTest {
             arrangement.withPaginatedMessagesReturning(PagingData.from(emptyList<UIMessage>()))
             awaitItem()
 
-            coVerify(exactly = 1) { arrangement.getMessagesForConversationUseCase(any(), 0) }
+            coVerify(exactly = 1) { arrangement.getMessagesForConversationUseCase(any(), 0, null) }
         }
     }
 
@@ -538,7 +576,7 @@ class ConversationMessagesViewModelTest {
             arrangement.withPaginatedMessagesReturning(PagingData.from(emptyList<UIMessage>()))
             awaitItem()
 
-            coVerify(exactly = 1) { arrangement.getMessagesForConversationUseCase(any(), 12) }
+            coVerify(exactly = 1) { arrangement.getMessagesForConversationUseCase(any(), 12, null) }
         }
     }
 

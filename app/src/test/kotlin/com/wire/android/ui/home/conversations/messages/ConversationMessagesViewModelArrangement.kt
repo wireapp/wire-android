@@ -56,6 +56,10 @@ import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.GetSearchedConversationMessagePositionUseCase
 import com.wire.kalium.logic.data.message.paging.NomadMessagePagingResult
 import com.wire.kalium.logic.feature.message.MessageOperationResult
+import com.wire.kalium.logic.feature.message.ObserveThreadSummariesForRootsResult
+import com.wire.kalium.logic.feature.message.ObserveThreadSummariesForRootsUseCase
+import com.wire.kalium.logic.feature.message.StartThreadFromMessageResult
+import com.wire.kalium.logic.feature.message.StartThreadFromMessageUseCase
 import com.wire.kalium.logic.feature.message.ToggleReactionResult
 import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionResult
@@ -131,6 +135,12 @@ class ConversationMessagesViewModelArrangement {
     lateinit var deleteMessage: DeleteMessageUseCase
 
     @MockK
+    lateinit var startThreadFromMessageUseCase: StartThreadFromMessageUseCase
+
+    @MockK
+    lateinit var observeThreadSummariesForRootsUseCase: ObserveThreadSummariesForRootsUseCase
+
+    @MockK
     lateinit var isWireCellFeatureEnabled: IsWireCellsEnabledUseCase
 
     @MockK
@@ -155,6 +165,8 @@ class ConversationMessagesViewModelArrangement {
             clearUsersTypingEvents,
             getSearchedConversationMessagePosition,
             deleteMessage,
+            startThreadFromMessageUseCase,
+            observeThreadSummariesForRootsUseCase,
             isWireCellFeatureEnabled,
             networkStateObserver,
         )
@@ -167,7 +179,7 @@ class ConversationMessagesViewModelArrangement {
         every { savedStateHandle.navArgs<ConversationNavArgs>() } returns ConversationNavArgs(conversationId = conversationId)
         coEvery { toggleReaction(any(), any(), any()) } returns ToggleReactionResult.Success
         coEvery { observeConversationDetails(any()) } returns flowOf()
-        coEvery { getMessagesForConversationUseCase(any(), any()) } returns messagesFlow
+        coEvery { getMessagesForConversationUseCase(any(), any(), any()) } returns messagesFlow
         coEvery { fetchOlderNomadMessagesByConversationUseCase(any(), any()) } returns NomadMessagePagingResult(hasMore = false)
         coEvery { getConversationUnreadEventsCount(any()) } returns GetConversationUnreadEventsCountUseCase.Result.Success(0L)
         coEvery { updateAssetMessageDownloadStatus(any(), any(), any()) } returns UpdateTransferStatusResult.Success
@@ -178,6 +190,8 @@ class ConversationMessagesViewModelArrangement {
 
         coEvery { observeAssetStatuses(any()) } returns flowOf(mapOf())
         every { networkStateObserver.observeNetworkState() } returns networkState
+        coEvery { startThreadFromMessageUseCase(any(), any()) } returns StartThreadFromMessageResult.Success("threadId", "rootMessageId")
+        coEvery { observeThreadSummariesForRootsUseCase(any(), any()) } returns flowOf(ObserveThreadSummariesForRootsResult.Success(emptyList()))
 
         coEvery { conversationAudioMessagePlayer.audioSpeed } returns flowOf(AudioSpeed.NORMAL)
         coEvery { conversationAudioMessagePlayer.playingAudioMessageFlow } returns flowOf(PlayingAudioMessage.None)
@@ -273,6 +287,10 @@ class ConversationMessagesViewModelArrangement {
 
     fun withFailureOnDeletingMessages() = apply {
         coEvery { deleteMessage(any(), any(), any()) } returns MessageOperationResult.Failure(CoreFailure.Unknown(null))
+    }
+
+    fun withStartThreadFromMessageResult(result: StartThreadFromMessageResult) = apply {
+        coEvery { startThreadFromMessageUseCase(any(), any()) } returns result
     }
 
     fun withWireCellEnabled() = apply {

@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.home.conversations.edit
 
-import android.R.id.message
 import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -52,6 +51,7 @@ import com.wire.kalium.logic.data.message.mention.MessageMention
 @SuppressLint("ComposeModifierMissing")
 fun MessageOptionsModalSheetLayout(
     conversationId: ConversationId,
+    isThreadMode: Boolean = false,
     sheetState: WireModalSheetState<String>,
     isNetworkAvailable: Boolean,
     onCopyClick: (text: String) -> Unit,
@@ -88,7 +88,8 @@ fun MessageOptionsModalSheetLayout(
                     onShareAssetExternallyClick = onShareAssetExternallyClick,
                     onShareAssetViaWireClick = onShareAssetViaWireClick,
                     onDownloadAssetClick = onDownloadAssetClick,
-                    onOpenAssetClick = onOpenAssetClick
+                    onOpenAssetClick = onOpenAssetClick,
+                    isThreadMode = isThreadMode,
                 ).also {
                     sheetState.updateContent()
                 }
@@ -124,12 +125,15 @@ private fun MessageOptionsModalContent(
     onShareAssetViaWireClick: (messageId: String) -> Unit,
     onDownloadAssetClick: (messageId: String) -> Unit,
     onOpenAssetClick: (messageId: String) -> Unit,
+    isThreadMode: Boolean,
 ) {
     val context = LocalContext.current
     val isPending = message.isPending
     val isDeleted = message.isDeleted
     val isMyMessage = message.isMyMessage
     val isEphemeral = message.header.messageStatus.expirationStatus is ExpirationStatus.Expirable
+    val showReplyInThreadOption = BuildConfig.REPLY_AS_THREAD_ENABLED && !isThreadMode && message.isThreadConvertible()
+    val showLegacyReplyOption = !BuildConfig.REPLY_AS_THREAD_ENABLED && message.isReplyable
     WireMenuModalSheetContent(
         header = MenuModalSheetHeader.Gone,
         menuItems = messageOptionsMenuItems(
@@ -148,6 +152,8 @@ private fun MessageOptionsModalContent(
             ),
             isCopyable = message.isCopyable(),
             isOpenable = true,
+            showReplyInThreadOption = showReplyInThreadOption,
+            showLegacyReplyOption = showLegacyReplyOption,
             onCopyClick = remember(message.messageContent) {
                 (message.messageContent as? Copyable)?.textToCopy(context.resources)?.let {
                     {
@@ -263,6 +269,23 @@ internal fun isMessageEditOptionAvailable(
             isMyMessage &&
             (!isPending || pendingMessagesEnabled && !isNetworkAvailable)
 
+private fun UIMessage.Regular.isThreadConvertible(): Boolean {
+    val isEphemeral = header.messageStatus.expirationStatus is ExpirationStatus.Expirable
+    if (isDeleted || isPending || isEphemeral) return false
+
+    return when (messageContent) {
+        is UIMessageContent.TextMessage,
+        is UIMessageContent.Multipart,
+        is UIMessageContent.Composite,
+        is UIMessageContent.AssetMessage,
+        is UIMessageContent.ImageMessage,
+        is UIMessageContent.VideoMessage,
+        is UIMessageContent.AudioAssetMessage -> true
+
+        else -> false
+    }
+}
+
 private fun UIMessage.Regular.isCopyable() =
     when {
         isPending -> false
@@ -286,6 +309,7 @@ private fun UIMessageContent.Regular?.isEmptyMultipartText() =
 fun PreviewMessageOptionsModalSheetLayout() = WireTheme {
     MessageOptionsModalSheetLayout(
         conversationId = ConversationId("cid", "domain"),
+        isThreadMode = false,
         sheetState = rememberWireModalSheetState(initialValue = WireSheetValue.Expanded("id")),
         isNetworkAvailable = true,
         onCopyClick = {},
@@ -297,6 +321,6 @@ fun PreviewMessageOptionsModalSheetLayout() = WireTheme {
         onShareAssetExternallyClick = { },
         onShareAssetViaWireClick = { },
         onDownloadAssetClick = { },
-        onOpenAssetClick = { }
+        onOpenAssetClick = { },
     )
 }

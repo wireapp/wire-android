@@ -49,6 +49,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -77,6 +78,7 @@ import com.wire.android.ui.home.conversations.LocalAssetLocalPathKeyInScopeResol
 import com.wire.android.ui.home.conversations.LocalAudioMessageKeyInScopeResolver
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.messages.item.AssetLocalPathArgs
+import com.wire.android.ui.home.conversations.messages.ThreadSummaryUi
 import com.wire.android.ui.home.conversations.messages.item.MessageClickActions
 import com.wire.android.ui.home.conversations.messages.item.MessageContainerItem
 import com.wire.android.ui.home.conversations.messages.item.SwipeableMessageConfiguration
@@ -91,6 +93,7 @@ import com.wire.kalium.logic.data.message.MessageAssetStatus
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
@@ -116,6 +119,9 @@ fun ConversationMessageList(
     selectedMessageId: String?,
     interactionAvailability: InteractionAvailability,
     clickActions: MessageClickActions.Content,
+    threadSummaryByRootMessageId: PersistentMap<String, ThreadSummaryUi>,
+    isThreadMode: Boolean,
+    onVisibleRootMessageIdsChanged: (List<String>) -> Unit,
     modifier: Modifier = Modifier,
     currentTimeInMillisFlow: Flow<Long> = flow { },
     showHistoryLoadingIndicator: Boolean = false,
@@ -194,6 +200,21 @@ fun ConversationMessageList(
         derivedStateOf {
             lazyPagingMessages.peekVisibleWindowItems(lazyListState, SCOPED_VIEW_MODEL_PREFETCH_WINDOW)
         }
+    }
+    LaunchedEffect(isThreadMode, lazyPagingMessages) {
+        if (isThreadMode) {
+            onVisibleRootMessageIdsChanged(emptyList())
+            return@LaunchedEffect
+        }
+
+        snapshotFlow {
+            lazyListState.layoutInfo.visibleItemsInfo
+                .mapNotNull { itemInfo -> lazyPagingMessages.peekOrNull(itemInfo.index) as? UIMessage.Regular }
+                .map { message -> message.header.messageId }
+                .distinct()
+        }
+            .distinctUntilChanged()
+            .collect(onVisibleRootMessageIdsChanged)
     }
     val playingAudioMessageKey = (playingAudioMessage as? PlayingAudioMessage.Some)?.let {
         AudioMessageArgs(it.conversationId, it.messageId).key
@@ -296,6 +317,10 @@ fun ConversationMessageList(
                         onSelfDeletingMessageRead = onSelfDeletingMessageRead,
                         isSelectedMessage = message.header.messageId == selectedMessageId,
                         failureInteractionAvailable = interactionAvailability == InteractionAvailability.ENABLED,
+                        threadSummary = (message as? UIMessage.Regular)?.let {
+                            threadSummaryByRootMessageId[it.header.messageId]
+                        },
+                        isThreadNavigationEnabled = !isThreadMode,
                         isBubbleUiEnabled = isBubbleUiEnabled,
                         isWireCellsEnabled = isWireCellsEnabled,
                     )

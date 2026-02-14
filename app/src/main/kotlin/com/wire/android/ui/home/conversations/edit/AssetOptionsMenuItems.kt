@@ -23,6 +23,7 @@ import com.wire.android.ui.edit.DownloadAssetExternallyOption
 import com.wire.android.ui.edit.MessageDetailsMenuOption
 import com.wire.android.ui.edit.OpenAssetExternallyOption
 import com.wire.android.ui.edit.ReactionOption
+import com.wire.android.ui.edit.ReplyInThreadMessageOption
 import com.wire.android.ui.edit.ReplyMessageOption
 import com.wire.android.ui.edit.shareAssetMenuOptions
 
@@ -41,6 +42,8 @@ fun assetMessageOptionsMenuItems(
     isOpenable: Boolean = false,
     onOpenAsset: () -> Unit = {},
     isUploading: Boolean = false,
+    showReplyInThreadOption: Boolean = false,
+    showLegacyReplyOption: Boolean = false,
 ): List<@Composable () -> Unit> {
     return buildList {
         when {
@@ -58,7 +61,11 @@ fun assetMessageOptionsMenuItems(
             else -> {
                 add { ReactionOption(ownReactions, onReactionClick) }
                 add { MessageDetailsMenuOption(onDetailsClick) }
-                add { ReplyMessageOption(onReplyClick) }
+                if (showReplyInThreadOption) {
+                    add { ReplyInThreadMessageOption(onReplyClick) }
+                } else if (showLegacyReplyOption) {
+                    add { ReplyMessageOption(onReplyClick) }
+                }
                 add { DownloadAssetExternallyOption(onDownloadAsset) }
                 addAll(shareAssetMenuOptions(onShareAssetExternally, onShareAssetViaWire))
                 if (isOpenable) add { OpenAssetExternallyOption(onOpenAsset) }

@@ -63,6 +63,7 @@ import com.ramcosta.composedestinations.result.OpenResultRecipient
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.BuildConfig.IS_BUBBLE_UI_ENABLED
+import com.wire.android.BuildConfig.REPLY_AS_THREAD_ENABLED
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.feature.sketch.model.DrawingCanvasNavArgs
@@ -100,6 +101,7 @@ import com.wire.android.ui.home.conversations.info.ConversationInfoViewState
 import com.wire.android.ui.home.conversations.media.preview.ImagesPreviewNavBackArgs
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewState
+import com.wire.android.ui.home.conversations.messages.ThreadSummaryUi
 import com.wire.android.ui.home.conversations.messages.draft.MessageDraftViewModel
 import com.wire.android.ui.home.conversations.migration.ConversationMigrationViewModel
 import com.wire.android.ui.home.conversations.model.ExpirationStatus
@@ -131,6 +133,8 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserTypeInfo
+import kotlinx.collections.immutable.PersistentMap
+import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -172,6 +176,7 @@ fun ConversationScreen(
     val uriHandler = LocalUriHandler.current
     val context = LocalContext.current
     val resources = context.resources
+    val isThreadMode = conversationMessagesViewModel.isThreadMode
     val showDialog = remember { mutableStateOf(ConversationScreenDialogType.NONE) }
     val messageComposerViewState = messageComposerViewModel.messageComposerViewState
     val messageComposerStateHolder = rememberMessageComposerStateHolder(
@@ -217,13 +222,13 @@ fun ConversationScreen(
         }
     }
 
-    LaunchedEffect(alreadyDeletedByUser) {
+    LaunchedEffect(alreadyDeletedByUser, isThreadMode) {
         if (!alreadyDeletedByUser) {
             conversationInfoViewModel.observeConversationDetails()
         }
     }
-    LaunchedEffect(conversationInfoViewModel.conversationInfoViewState.notFound) {
-        if (conversationInfoViewModel.conversationInfoViewState.notFound) navigator.navigateBack()
+    LaunchedEffect(conversationInfoViewModel.conversationInfoViewState.notFound, isThreadMode) {
+        if (!isThreadMode && conversationInfoViewModel.conversationInfoViewState.notFound) navigator.navigateBack()
     }
 
     // set message composer input to edit mode when editMessage is not null from MessageDraft
@@ -277,13 +282,32 @@ fun ConversationScreen(
             }
     }
 
-    conversationMigrationViewModel.migratedConversationId?.let { migratedConversationId ->
-        navigator.navigate(
-            NavigationCommand(
-                ConversationScreenDestination(migratedConversationId),
-                BackStackMode.REMOVE_CURRENT
+    LaunchedEffect(Unit) {
+        conversationMessagesViewModel.openThread.collect { threadData ->
+            navigator.navigate(
+                NavigationCommand(
+                    ConversationScreenDestination(
+                        ConversationNavArgs(
+                            conversationId = conversationMessagesViewModel.conversationId,
+                            threadId = threadData.threadId,
+                            threadRootMessageId = threadData.rootMessageId,
+                        )
+                    ),
+                    launchSingleTop = false,
+                )
             )
-        )
+        }
+    }
+
+    if (!isThreadMode) {
+        conversationMigrationViewModel.migratedConversationId?.let { migratedConversationId ->
+            navigator.navigate(
+                NavigationCommand(
+                    ConversationScreenDestination(migratedConversationId),
+                    BackStackMode.REMOVE_CURRENT,
+                )
+            )
+        }
     }
 
     when (showDialog.value) {
@@ -488,6 +512,8 @@ fun ConversationScreen(
         },
         composerMessages = sendMessageViewModel.infoMessage,
         conversationMessages = conversationMessagesViewModel.infoMessage,
+        threadSummaryByRootMessageId = conversationMessagesViewModel.conversationViewState.threadSummaryByRootMessageId,
+        isThreadMode = isThreadMode,
         shareAssetExternally = conversationMessagesViewModel::shareAsset,
         shareAssetViaWire = { messageId ->
             conversationMessagesViewModel.prepareAssetForWireShare(messageId) { path, assetName ->
@@ -506,6 +532,25 @@ fun ConversationScreen(
         },
         onDownloadAssetClick = conversationMessagesViewModel::openOrFetchAsset,
         onOpenAssetClick = conversationMessagesViewModel::downloadAndOpenAsset,
+        onReplyInThreadClick = if (REPLY_AS_THREAD_ENABLED) {
+            conversationMessagesViewModel::startThreadFromMessage
+        } else {
+            messageComposerStateHolder::toReply
+        },
+        onOpenThreadClick = { threadId, rootMessageId ->
+            navigator.navigate(
+                NavigationCommand(
+                    ConversationScreenDestination(
+                        ConversationNavArgs(
+                            conversationId = conversationMessagesViewModel.conversationId,
+                            threadId = threadId,
+                            threadRootMessageId = rootMessageId,
+                        )
+                    ),
+                    launchSingleTop = false,
+                )
+            )
+        },
         onNavigateToReplyOriginalMessage = conversationMessagesViewModel::navigateToReplyOriginalMessage,
         onSelfDeletingMessageRead = messageComposerViewModel::startSelfDeletion,
         onNewSelfDeletingMessagesStatus = messageComposerViewModel::updateSelfDeletingMessages,
@@ -564,6 +609,7 @@ fun ConversationScreen(
         onAttachmentMenuClick = messageAttachmentsViewModel::onAttachmentMenuClicked,
         isFetchingOlderMessages = conversationMessagesViewModel.conversationViewState.isFetchingOlderMessages,
         hasMoreRemoteMessages = conversationMessagesViewModel.conversationViewState.hasMoreRemoteMessages,
+        onVisibleRootMessagesChanged = conversationMessagesViewModel::observeThreadSummariesForVisibleRoots,
         isWireCellsEnabled = conversationInfoViewModel.conversationInfoViewState.isWireCellEnabled,
     )
     BackHandler { conversationScreenOnBackButtonClick(messageComposerViewModel, messageComposerStateHolder, navigator) }
@@ -629,6 +675,7 @@ fun ConversationScreen(
         trySendMessages = sendMessageViewModel::trySendMessages,
         trySendMessage = sendMessageViewModel::trySendMessage,
         onConversationDeleted = { alreadyDeletedByUser = true },
+        handleGroupDetailsResult = !isThreadMode,
     )
 }
 
@@ -699,6 +746,11 @@ private fun ConversationScreenContent(
     openDrawingCanvas: () -> Unit,
     onAttachmentClick: (AttachmentDraftUi) -> Unit,
     onAttachmentMenuClick: (AttachmentDraftUi) -> Unit,
+    threadSummaryByRootMessageId: PersistentMap<String, ThreadSummaryUi> = persistentMapOf(),
+    isThreadMode: Boolean = false,
+    onReplyInThreadClick: (UIMessage.Regular) -> Unit = {},
+    onOpenThreadClick: (threadId: String, rootMessageId: String) -> Unit = { _, _ -> },
+    onVisibleRootMessagesChanged: (List<String>) -> Unit = {},
     currentTimeInMillisFlow: Flow<Long> = flow { },
     onReachedOldestMessage: () -> Unit = {},
     isFetchingOlderMessages: Boolean = false,
@@ -718,10 +770,14 @@ private fun ConversationScreenContent(
             topBar = {
                 Column {
                     ConversationScreenTopAppBar(
-                        conversationInfoViewState = conversationInfoViewState,
+                        conversationInfoViewState = if (isThreadMode) {
+                            conversationInfoViewState.copy(conversationName = UIText.StringResource(R.string.label_thread))
+                        } else {
+                            conversationInfoViewState
+                        },
                         onBackButtonClick = onBackButtonClick,
                         onDropDownClick = onDropDownClick,
-                        isDropDownEnabled = conversationInfoViewState.hasUserPermissionToEdit,
+                        isDropDownEnabled = !isThreadMode && conversationInfoViewState.hasUserPermissionToEdit,
                         onSearchButtonClick = { },
                         onPhoneButtonClick = onStartCall,
                         hasOngoingCall = conversationCallViewState.hasOngoingCall,
@@ -776,6 +832,8 @@ private fun ConversationScreenContent(
                         messageComposerStateHolder = messageComposerStateHolder,
                         attachments = attachments,
                         messages = conversationMessagesViewState.messages,
+                        threadSummaryByRootMessageId = threadSummaryByRootMessageId,
+                        isThreadMode = isThreadMode,
                         onSendMessage = onSendMessage,
                         onPingOptionClicked = onPingOptionClicked,
                         onImagesPicked = onImagesPicked,
@@ -801,6 +859,8 @@ private fun ConversationScreenContent(
                         tempWritableVideoUri = tempWritableVideoUri,
                         onLinkClick = onLinkClick,
                         onNavigateToReplyOriginalMessage = onNavigateToReplyOriginalMessage,
+                        onOpenThreadClick = onOpenThreadClick,
+                        onVisibleRootMessagesChanged = onVisibleRootMessagesChanged,
                         currentTimeInMillisFlow = currentTimeInMillisFlow,
                         onReachedOldestMessage = onReachedOldestMessage,
                         openDrawingCanvas = openDrawingCanvas,
@@ -818,13 +878,14 @@ private fun ConversationScreenContent(
 
         MessageOptionsModalSheetLayout(
             conversationId = conversationInfoViewState.conversationId,
+            isThreadMode = isThreadMode,
             sheetState = conversationScreenState.editSheetState,
             isNetworkAvailable = conversationMessagesViewState.isNetworkAvailable,
             onCopyClick = conversationScreenState::copyMessage,
             onDeleteClick = onDeleteMessage,
             onReactionClick = onReactionClick,
             onDetailsClick = onMessageDetailsClick,
-            onReplyClick = messageComposerStateHolder::toReply,
+            onReplyClick = onReplyInThreadClick,
             onEditClick = messageComposerStateHolder::toEdit,
             onShareAssetExternallyClick = { shareAssetExternally(context, it) },
             onShareAssetViaWireClick = shareAssetViaWire,

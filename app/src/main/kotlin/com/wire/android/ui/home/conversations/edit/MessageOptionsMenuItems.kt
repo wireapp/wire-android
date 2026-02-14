@@ -29,6 +29,8 @@ fun messageOptionsMenuItems(
     isComposite: Boolean,
     isEditable: Boolean,
     isCopyable: Boolean,
+    showReplyInThreadOption: Boolean,
+    showLegacyReplyOption: Boolean,
     ownReactions: Set<String>,
     onCopyClick: () -> Unit,
     onDeleteClick: () -> Unit,
@@ -39,7 +41,7 @@ fun messageOptionsMenuItems(
     onShareAssetExternallyClick: () -> Unit,
     onShareAssetViaWireClick: () -> Unit,
     onDownloadAssetClick: () -> Unit,
-    onOpenAssetClick: () -> Unit
+    onOpenAssetClick: () -> Unit,
 ): List<@Composable () -> Unit> {
     return if (isAssetMessage) {
         assetMessageOptionsMenuItems(
@@ -55,6 +57,8 @@ fun messageOptionsMenuItems(
             onReplyClick = onReplyClick,
             onReactionClick = onReactionClick,
             onOpenAsset = onOpenAssetClick,
+            showReplyInThreadOption = showReplyInThreadOption,
+            showLegacyReplyOption = showLegacyReplyOption,
         )
     } else {
         textMessageEditMenuItems(
@@ -69,7 +73,9 @@ fun messageOptionsMenuItems(
             onReactionClick = onReactionClick,
             onEditClick = onEditClick,
             onCopyClick = onCopyClick,
-            onReplyClick = onReplyClick
+            onReplyClick = onReplyClick,
+            showReplyInThreadOption = showReplyInThreadOption,
+            showLegacyReplyOption = showLegacyReplyOption,
         )
     }
 }

@@ -20,6 +20,7 @@ import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.emoji.EmojiPickerBottomSheet
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.messagelist.ConversationMessageList
+import com.wire.android.ui.home.conversations.messages.ThreadSummaryUi
 import com.wire.android.ui.home.conversations.messages.item.MessageClickActions
 import com.wire.android.ui.home.conversations.model.MessageSenderId
 import com.wire.android.ui.home.conversations.model.UIMessage
@@ -50,6 +51,8 @@ internal fun ConversationMessageComposer(
     messageComposerStateHolder: MessageComposerStateHolder,
     attachments: List<AttachmentDraftUi>,
     messages: Flow<PagingData<UIMessage>>,
+    threadSummaryByRootMessageId: PersistentMap<String, ThreadSummaryUi>,
+    isThreadMode: Boolean,
     onSendMessage: (MessageBundle) -> Unit,
     onPingOptionClicked: () -> Unit,
     onImagesPicked: (List<Uri>, Boolean) -> Unit,
@@ -76,9 +79,11 @@ internal fun ConversationMessageComposer(
     tempWritableVideoUri: Uri?,
     onLinkClick: (String) -> Unit,
     onNavigateToReplyOriginalMessage: (UIMessage) -> Unit,
+    onOpenThreadClick: (threadId: String, rootMessageId: String) -> Unit,
     openDrawingCanvas: () -> Unit,
     onAttachmentClick: (AttachmentDraftUi) -> Unit,
     onAttachmentMenuClick: (AttachmentDraftUi) -> Unit,
+    onVisibleRootMessagesChanged: (List<String>) -> Unit,
     currentTimeInMillisFlow: Flow<Long> = flow {},
     onReachedOldestMessage: () -> Unit = {},
     showHistoryLoadingIndicator: Boolean = false,
@@ -117,6 +122,9 @@ internal fun ConversationMessageComposer(
                     onVideoClicked = onVideoClick,
                     onLinkClicked = onLinkClick,
                     onReplyClicked = onNavigateToReplyOriginalMessage,
+                    onThreadClicked = { rootMessageId, threadId ->
+                        if (!isThreadMode) onOpenThreadClick(threadId, rootMessageId)
+                    },
                     onResetSessionClicked = onResetSessionClicked,
                     onFailedMessageRetryClicked = onFailedMessageRetryClicked,
                     onFailedMessageCancelClicked = onFailedMessageCancelClicked,
@@ -129,6 +137,9 @@ internal fun ConversationMessageComposer(
                 conversationDetailsData = conversationDetailsData,
                 selectedMessageId = selectedMessageId,
                 interactionAvailability = messageComposerStateHolder.messageComposerViewState.value.interactionAvailability,
+                threadSummaryByRootMessageId = threadSummaryByRootMessageId,
+                isThreadMode = isThreadMode,
+                onVisibleRootMessageIdsChanged = onVisibleRootMessagesChanged,
                 currentTimeInMillisFlow = currentTimeInMillisFlow,
                 onReachedOldestMessage = onReachedOldestMessage,
                 showHistoryLoadingIndicator = showHistoryLoadingIndicator,

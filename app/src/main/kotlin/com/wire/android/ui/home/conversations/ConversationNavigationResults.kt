@@ -56,19 +56,22 @@ internal fun ConversationNavigationResults(
     trySendMessages: (List<MessageBundle>) -> Unit,
     trySendMessage: (MessageBundle) -> Unit,
     onConversationDeleted: () -> Unit,
+    handleGroupDetailsResult: Boolean = true,
 ) {
     val coroutineScope = rememberCoroutineScope()
 
-    groupDetailsScreenResultRecipient.onNavResult { result ->
-        when (result) {
-            is Canceled -> {
-                appLogger.i("Error with receiving navigation back args from groupDetails in ConversationScreen")
-            }
+    if (handleGroupDetailsResult) {
+        groupDetailsScreenResultRecipient.onNavResult { result ->
+            when (result) {
+                is Canceled -> {
+                    appLogger.i("Error with receiving navigation back args from groupDetails in ConversationScreen")
+                }
 
-            is Value -> {
-                resultNavigator.setResult(result.value)
-                resultNavigator.navigateBack()
-                onConversationDeleted()
+                is Value -> {
+                    resultNavigator.setResult(result.value)
+                    resultNavigator.navigateBack()
+                    onConversationDeleted()
+                }
             }
         }
     }

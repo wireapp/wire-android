@@ -60,6 +60,7 @@ fun MessageComposeActions(
     onRichEditingButtonClicked: () -> Unit,
     isFileSharingEnabled: Boolean,
     isMentionActive: Boolean = true,
+    isThreadMode: Boolean = false,
     onDrawingModeClicked: () -> Unit
 ) {
     if (isEditing) {
@@ -81,6 +82,7 @@ fun MessageComposeActions(
             onSelfDeletionOptionButtonClicked = onSelfDeletionOptionButtonClicked,
             onPingButtonClicked = onPingButtonClicked,
             onMentionButtonClicked = onMentionButtonClicked,
+            isThreadMode = isThreadMode,
             onDrawingModeClicked = onDrawingModeClicked,
             isFileSharingEnabled = isFileSharingEnabled
         )
@@ -100,6 +102,7 @@ private fun ComposingActions(
     onSelfDeletionOptionButtonClicked: (SelfDeletionTimer) -> Unit,
     onPingButtonClicked: () -> Unit,
     onMentionButtonClicked: () -> Unit,
+    isThreadMode: Boolean,
     onDrawingModeClicked: () -> Unit
 ) {
     val localFeatureVisibilityFlags = LocalFeatureVisibilityFlags.current
@@ -129,7 +132,7 @@ private fun ComposingActions(
                 conversationId = conversationId,
                 onButtonClicked = onSelfDeletionOptionButtonClicked
             )
-            if (PingIcon) PingAction(onPingButtonClicked)
+            if (PingIcon && !isThreadMode) PingAction(onPingButtonClicked)
             AddMentionAction(
                 isActive = isMentionActive,
                 onButtonClicked = onMentionButtonClicked

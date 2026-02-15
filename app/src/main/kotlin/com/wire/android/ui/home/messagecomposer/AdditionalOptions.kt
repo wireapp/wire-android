@@ -56,6 +56,7 @@ fun AdditionalOptionsMenu(
     onRichOptionButtonClicked: (RichTextMarkdown) -> Unit,
     onDrawingModeClicked: () -> Unit,
     modifier: Modifier = Modifier,
+    isThreadMode: Boolean = false,
     onOnSelfDeletingOptionClicked: ((SelfDeletionTimer) -> Unit)? = null,
     onGifOptionClicked: (() -> Unit)? = null
 ) {
@@ -75,7 +76,8 @@ fun AdditionalOptionsMenu(
                     onRichEditingButtonClicked = onRichEditingButtonClicked,
                     onPingClicked = onPingOptionClicked,
                     onDrawingModeClicked = onDrawingModeClicked,
-                    isFileSharingEnabled = isFileSharingEnabled
+                    isFileSharingEnabled = isFileSharingEnabled,
+                    isThreadMode = isThreadMode
                 )
             }
 
@@ -105,6 +107,7 @@ fun AdditionalOptionSubMenu(
     onAudioRecorded: (UriAsset) -> Unit,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
+    isThreadMode: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
     AttachmentOptionsComponent(
@@ -115,6 +118,7 @@ fun AdditionalOptionSubMenu(
         tempWritableImageUri = tempWritableImageUri,
         tempWritableVideoUri = tempWritableVideoUri,
         isFileSharingEnabled = isFileSharingEnabled,
+        isThreadMode = isThreadMode,
         onRecordAudioMessageClicked = onRecordAudioMessageClicked,
         onLocationPickerClicked = onLocationPickerClicked,
         onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
@@ -142,6 +146,7 @@ fun AttachmentAndAdditionalOptionsMenuItems(
     onMentionButtonClicked: () -> Unit,
     onSelfDeletionOptionButtonClicked: (SelfDeletionTimer) -> Unit,
     modifier: Modifier = Modifier,
+    isThreadMode: Boolean = false,
     onAdditionalOptionsMenuClicked: () -> Unit = {},
     onPingClicked: () -> Unit = {},
     onGifButtonClicked: () -> Unit = {},
@@ -163,7 +168,8 @@ fun AttachmentAndAdditionalOptionsMenuItems(
             onGifButtonClicked = onGifButtonClicked,
             onRichEditingButtonClicked = onRichEditingButtonClicked,
             onDrawingModeClicked = onDrawingModeClicked,
-            isFileSharingEnabled = isFileSharingEnabled
+            isFileSharingEnabled = isFileSharingEnabled,
+            isThreadMode = isThreadMode
         )
     }
 }

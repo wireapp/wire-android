@@ -370,7 +370,8 @@ fun ConversationScreen(
                         ConversationNavArgs(
                             conversationId = conversationMessagesViewModel.conversationId,
                             threadId = threadData.threadId,
-                            threadRootMessageId = threadData.rootMessageId
+                            threadRootMessageId = threadData.rootMessageId,
+                            threadRootSelfDeletionDurationMillis = threadData.rootMessageSelfDeletionDurationMillis,
                         )
                     ),
                     launchSingleTop = false
@@ -701,14 +702,15 @@ fun ConversationScreen(
         } else {
             messageComposerStateHolder::toReply
         }) as (UIMessage.Regular) -> Unit,
-        onOpenThreadClick = { threadId, rootMessageId ->
+        onOpenThreadClick = { threadId, rootMessageId, rootMessageSelfDeletionDurationMillis ->
             navigator.navigate(
                 NavigationCommand(
                     ConversationScreenDestination(
                         ConversationNavArgs(
                             conversationId = conversationMessagesViewModel.conversationId,
                             threadId = threadId,
-                            threadRootMessageId = rootMessageId
+                            threadRootMessageId = rootMessageId,
+                            threadRootSelfDeletionDurationMillis = rootMessageSelfDeletionDurationMillis,
                         )
                     ),
                     launchSingleTop = false
@@ -1050,7 +1052,7 @@ private fun ConversationScreen(
     threadSummaryByRootMessageId: PersistentMap<String, ThreadSummaryUi> = persistentMapOf(),
     isThreadMode: Boolean = false,
     onReplyInThreadClick: (UIMessage.Regular) -> Unit = {},
-    onOpenThreadClick: (threadId: String, rootMessageId: String) -> Unit = { _, _ -> },
+    onOpenThreadClick: (threadId: String, rootMessageId: String, rootMessageSelfDeletionDurationMillis: Long?) -> Unit = { _, _, _ -> },
     onVisibleRootMessagesChanged: (List<String>) -> Unit = {},
     currentTimeInMillisFlow: Flow<Long> = flow { },
     onReachedOldestMessage: () -> Unit = {},
@@ -1251,7 +1253,7 @@ private fun ConversationScreenContent(
     tempWritableVideoUri: Uri?,
     onLinkClick: (String) -> Unit,
     onNavigateToReplyOriginalMessage: (UIMessage) -> Unit,
-    onOpenThreadClick: (threadId: String, rootMessageId: String) -> Unit,
+    onOpenThreadClick: (threadId: String, rootMessageId: String, rootMessageSelfDeletionDurationMillis: Long?) -> Unit,
     openDrawingCanvas: () -> Unit,
     onAttachmentClick: (AttachmentDraftUi) -> Unit,
     onAttachmentMenuClick: (AttachmentDraftUi) -> Unit,
@@ -1294,9 +1296,9 @@ private fun ConversationScreenContent(
                     onImageClicked = onImageFullScreenMode,
                     onLinkClicked = onLinkClick,
                     onReplyClicked = onNavigateToReplyOriginalMessage,
-                    onThreadClicked = { rootMessageId, threadId ->
+                    onThreadClicked = { rootMessageId, threadId, rootMessageSelfDeletionDurationMillis ->
                         if (!isThreadMode) {
-                            onOpenThreadClick(threadId, rootMessageId)
+                            onOpenThreadClick(threadId, rootMessageId, rootMessageSelfDeletionDurationMillis)
                         }
                     },
                     onResetSessionClicked = onResetSessionClicked,

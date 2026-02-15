@@ -83,6 +83,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 
 @Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
@@ -115,6 +117,8 @@ class SendMessageViewModel @Inject constructor(
     private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
     val conversationId: QualifiedID = conversationNavArgs.conversationId
     private val threadIdNavArgs: String? = conversationNavArgs.threadId
+    private val threadRootMessageSelfDeletionDurationMillisNavArgs: Long? =
+        conversationNavArgs.threadRootSelfDeletionDurationMillis
 
     private val _infoMessage = MutableSharedFlow<SnackBarMessage>()
     val infoMessage = _infoMessage.asSharedFlow()
@@ -247,26 +251,32 @@ class SendMessageViewModel @Inject constructor(
             }
 
             is ComposableMessageBundle.AttachmentPickedBundle -> {
+                val resolvedThreadId = messageBundle.threadId ?: threadIdNavArgs
                 sendAttachment(
                     attachmentBundle = messageBundle.assetBundle,
                     conversationId = messageBundle.conversationId,
-                    threadId = messageBundle.threadId ?: threadIdNavArgs,
+                    threadId = resolvedThreadId,
+                    threadMessageSelfDeletionDurationMillis = resolveThreadMessageSelfDeletionDurationMillis(resolvedThreadId)
                 )
             }
 
             is ComposableMessageBundle.UriPickedBundle -> {
+                val resolvedThreadId = messageBundle.threadId ?: threadIdNavArgs
                 handleAssetMessageBundle(
                     attachmentUri = messageBundle.attachmentUri,
                     conversationId = messageBundle.conversationId,
-                    threadId = messageBundle.threadId ?: threadIdNavArgs,
+                    threadId = resolvedThreadId,
+                    threadMessageSelfDeletionDurationMillis = resolveThreadMessageSelfDeletionDurationMillis(resolvedThreadId)
                 )
             }
 
             is ComposableMessageBundle.AudioMessageBundle -> {
+                val resolvedThreadId = messageBundle.threadId ?: threadIdNavArgs
                 handleAssetMessageBundle(
                     attachmentUri = messageBundle.attachmentUri,
                     conversationId = messageBundle.conversationId,
-                    threadId = messageBundle.threadId ?: threadIdNavArgs,
+                    threadId = resolvedThreadId,
+                    threadMessageSelfDeletionDurationMillis = resolveThreadMessageSelfDeletionDurationMillis(resolvedThreadId)
                 )
             }
 
@@ -274,12 +284,14 @@ class SendMessageViewModel @Inject constructor(
                 removeMessageDraft(messageBundle.conversationId)
                 sendTypingEvent(messageBundle.conversationId, TypingIndicatorMode.STOPPED)
                 with(messageBundle) {
+                    val resolvedThreadId = threadId ?: threadIdNavArgs
                     sendTextMessage(
                         conversationId = conversationId,
                         text = message,
                         mentions = mentions.map { it.intoMessageMention() },
                         quotedMessageId = quotedMessageId,
-                        threadId = threadId ?: threadIdNavArgs,
+                        threadId = resolvedThreadId,
+                        threadSelfDeletionDuration = resolveThreadMessageSelfDeletionDurationMillis(resolvedThreadId)?.milliseconds
                     ).toEither()
                         .handleLegalHoldFailureAfterSendingMessage(conversationId)
                         .handleNonAssetContributionEvent(messageBundle)
@@ -290,12 +302,14 @@ class SendMessageViewModel @Inject constructor(
                 removeMessageDraft(messageBundle.conversationId)
                 sendTypingEvent(messageBundle.conversationId, TypingIndicatorMode.STOPPED)
                 with(messageBundle) {
+                    val resolvedThreadId = threadId ?: threadIdNavArgs
                     sendMultipartMessage(
                         conversationId = conversationId,
                         text = message,
                         mentions = mentions.map { it.intoMessageMention() },
                         quotedMessageId = quotedMessageId,
-                        threadId = threadId ?: threadIdNavArgs,
+                        threadId = resolvedThreadId,
+                        threadSelfDeletionDuration = resolveThreadMessageSelfDeletionDurationMillis(resolvedThreadId)?.milliseconds
                     ).toEither()
                         .handleLegalHoldFailureAfterSendingMessage(conversationId)
                         .handleNonAssetContributionEvent(messageBundle)
@@ -325,6 +339,7 @@ class SendMessageViewModel @Inject constructor(
         conversationId: ConversationId,
         attachmentUri: UriAsset,
         threadId: String?,
+        threadMessageSelfDeletionDurationMillis: Long?,
     ) {
         when (
             val result = handleUriAsset.invoke(
@@ -347,7 +362,12 @@ class SendMessageViewModel @Inject constructor(
             }
 
             is HandleUriAssetUseCase.Result.Success -> {
-                sendAttachment(result.assetBundle, conversationId, threadId)
+                sendAttachment(
+                    attachmentBundle = result.assetBundle,
+                    conversationId = conversationId,
+                    threadId = threadId,
+                    threadMessageSelfDeletionDurationMillis = threadMessageSelfDeletionDurationMillis
+                )
             }
         }
     }
@@ -543,6 +563,7 @@ class SendMessageViewModel @Inject constructor(
         assetWidth: Int? = null,
         audioLengthInMs: Long = 0L,
         threadId: String? = null,
+        threadMessageSelfDeletionDuration: Duration? = null,
     ) = AssetUploadParams(
         conversationId = conversationId,
         assetDataPath = dataPath,
@@ -554,7 +575,16 @@ class SendMessageViewModel @Inject constructor(
         audioLengthInMs = audioLengthInMs,
         audioNormalizedLoudness = audioWavesMask?.toNormalizedLoudness(),
         threadId = threadId,
+        threadMessageSelfDeletionDuration = threadMessageSelfDeletionDuration,
     )
+
+    private fun resolveThreadMessageSelfDeletionDurationMillis(
+        threadId: String?,
+        threadMessageSelfDeletionDurationMillis: Long? = null,
+    ): Long? {
+        if (threadId == null) return null
+        return threadMessageSelfDeletionDurationMillis ?: threadRootMessageSelfDeletionDurationMillisNavArgs
+    }
 
     private companion object {
         const val MAX_LIMIT_MESSAGE_SEND = 20

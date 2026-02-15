@@ -53,6 +53,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
@@ -763,12 +764,41 @@ class SendMessageViewModelTest {
             .arrange()
         advanceUntilIdle()
 
-        coVerify { arrangement.sendTextMessage(any(), eq(textToShare), any(), any()) }
+        coVerify { arrangement.sendTextMessage(any(), eq(textToShare), any(), any(), any(), any(), any()) }
         verify(exactly = 1) {
             arrangement.analyticsManager.sendEvent(
                 match {
                     it is AnalyticsEvent.Contributed.Text
                 }
+            )
+        }
+    }
+
+    @Test
+    fun `given text is being shared in thread with root self-delete timer, when initializing the viewmodel, then timer is propagated`() = runTest {
+        val textToShare = "my nice text to share"
+        val threadId = "thread-id"
+        val rootSelfDeletionDurationMillis = 10_000L
+        val (arrangement, _) = SendMessageViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .withPendingTextBundleInThread(
+                textToShare = textToShare,
+                threadId = threadId,
+                threadRootSelfDeletionDurationMillis = rootSelfDeletionDurationMillis,
+            )
+            .withSuccessfulSendTextMessage()
+            .arrange()
+        advanceUntilIdle()
+
+        coVerify {
+            arrangement.sendTextMessage(
+                any(),
+                eq(textToShare),
+                any(),
+                any(),
+                any(),
+                eq(threadId),
+                eq(rootSelfDeletionDurationMillis.milliseconds)
             )
         }
     }

@@ -211,7 +211,10 @@ internal class SendMessageViewModelArrangement {
                 any(),
                 any(),
                 any(),
-                any()
+                any(),
+                any(),
+                any(),
+                any(),
             )
         } returns MessageOperationResult.Success
     }
@@ -222,7 +225,10 @@ internal class SendMessageViewModelArrangement {
                 any(),
                 any(),
                 any(),
-                any()
+                any(),
+                any(),
+                any(),
+                any(),
             )
         } returns MessageOperationResult.Failure(failure)
     }
@@ -283,6 +289,19 @@ internal class SendMessageViewModelArrangement {
         every { savedStateHandle.navArgs<ConversationNavArgs>() } returns ConversationNavArgs(
             conversationId = conversationId,
             pendingTextBundle = textToShare
+        )
+    }
+
+    fun withPendingTextBundleInThread(
+        textToShare: String = "some text",
+        threadId: String = "thread-id",
+        threadRootSelfDeletionDurationMillis: Long? = null,
+    ) = apply {
+        every { savedStateHandle.navArgs<ConversationNavArgs>() } returns ConversationNavArgs(
+            conversationId = conversationId,
+            pendingTextBundle = textToShare,
+            threadId = threadId,
+            threadRootSelfDeletionDurationMillis = threadRootSelfDeletionDurationMillis,
         )
     }
 

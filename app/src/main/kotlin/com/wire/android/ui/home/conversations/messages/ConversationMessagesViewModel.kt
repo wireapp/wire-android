@@ -35,6 +35,7 @@ import com.wire.android.ui.common.visbility.VisibilityState
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnResetSession
+import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogState
 import com.wire.android.ui.home.conversations.messages.item.withOfflineIndicator
 import com.wire.android.ui.home.conversations.model.AssetBundle
@@ -210,7 +211,13 @@ class ConversationMessagesViewModel(
     fun startThreadFromMessage(message: UIMessage.Regular) = viewModelScope.launch {
         when (val result = startThreadFromMessageUseCase(conversationId, message.header.messageId)) {
             is StartThreadFromMessageResult.Success -> {
-                _openThread.emit(OpenThreadData(result.threadId, result.rootMessageId))
+                _openThread.emit(
+                    OpenThreadData(
+                        threadId = result.threadId,
+                        rootMessageId = result.rootMessageId,
+                        rootMessageSelfDeletionDurationMillis = message.rootMessageSelfDeletionDurationMillis()
+                    )
+                )
             }
 
             is StartThreadFromMessageResult.Failure -> {
@@ -552,6 +559,7 @@ class ConversationMessagesViewModel(
 data class OpenThreadData(
     val threadId: String,
     val rootMessageId: String,
+    val rootMessageSelfDeletionDurationMillis: Long? = null,
 )
 
 private fun GetMessageByIdUseCase.Result.getAssetContent(): MessageContent.Asset? = when (this) {
@@ -562,3 +570,6 @@ private fun GetMessageByIdUseCase.Result.getAssetContent(): MessageContent.Asset
 private fun MessageContent.Asset.localAssetPath(): String? = value.localData?.assetDataPath
 
 private fun ConversationDetails.isWireCellEnabled() = (this as? ConversationDetails.Group)?.wireCell != null
+
+private fun UIMessage.Regular.rootMessageSelfDeletionDurationMillis(): Long? =
+    (header.messageStatus.expirationStatus as? ExpirationStatus.Expirable)?.expireAfter?.inWholeMilliseconds

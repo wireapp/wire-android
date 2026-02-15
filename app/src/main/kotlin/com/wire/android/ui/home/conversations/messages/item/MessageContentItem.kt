@@ -47,6 +47,7 @@ import com.wire.android.ui.home.conversations.model.MessageEditStatus
 import com.wire.android.ui.home.conversations.model.MessageFlowStatus
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
+import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.theme.Accent
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
@@ -157,7 +158,15 @@ fun MessageContentItem(
                     enabled = isThreadNavigationEnabled,
                     onClick = remember(threadSummary.threadId, message.header.messageId) {
                         {
-                            clickActions.onThreadClicked(message.header.messageId, threadSummary.threadId)
+                            val rootMessageSelfDeletionDurationMillis =
+                                (message.header.messageStatus.expirationStatus as? ExpirationStatus.Expirable)
+                                    ?.expireAfter
+                                    ?.inWholeMilliseconds
+                            clickActions.onThreadClicked(
+                                message.header.messageId,
+                                threadSummary.threadId,
+                                rootMessageSelfDeletionDurationMillis
+                            )
                         }
                     },
                     modifier = Modifier.padding(innerPadding)

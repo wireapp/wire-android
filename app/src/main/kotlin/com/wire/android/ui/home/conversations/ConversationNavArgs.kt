@@ -34,7 +34,8 @@ data class ConversationNavArgs(
     val pendingBundles: ArrayList<AssetBundle>? = null,
     val pendingTextBundle: String? = null,
     val threadId: String? = null,
-    val threadRootMessageId: String? = null
+    val threadRootMessageId: String? = null,
+    val threadRootSelfDeletionDurationMillis: Long? = null,
 ) : Parcelable
 
 object QualifiedIdParceler : Parceler<QualifiedID> {

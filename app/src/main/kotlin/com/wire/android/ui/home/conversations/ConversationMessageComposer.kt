@@ -79,7 +79,7 @@ internal fun ConversationMessageComposer(
     tempWritableVideoUri: Uri?,
     onLinkClick: (String) -> Unit,
     onNavigateToReplyOriginalMessage: (UIMessage) -> Unit,
-    onOpenThreadClick: (threadId: String, rootMessageId: String) -> Unit,
+    onOpenThreadClick: (threadId: String, rootMessageId: String, rootMessageSelfDeletionDurationMillis: Long?) -> Unit,
     openDrawingCanvas: () -> Unit,
     onAttachmentClick: (AttachmentDraftUi) -> Unit,
     onAttachmentMenuClick: (AttachmentDraftUi) -> Unit,
@@ -123,8 +123,8 @@ internal fun ConversationMessageComposer(
                     onVideoClicked = onVideoClick,
                     onLinkClicked = onLinkClick,
                     onReplyClicked = onNavigateToReplyOriginalMessage,
-                    onThreadClicked = { rootMessageId, threadId ->
-                        if (!isThreadMode) onOpenThreadClick(threadId, rootMessageId)
+                    onThreadClicked = { rootMessageId, threadId, rootMessageSelfDeletionDurationMillis ->
+                        if (!isThreadMode) onOpenThreadClick(threadId, rootMessageId, rootMessageSelfDeletionDurationMillis)
                     },
                     onResetSessionClicked = onResetSessionClicked,
                     onFailedMessageRetryClicked = onFailedMessageRetryClicked,

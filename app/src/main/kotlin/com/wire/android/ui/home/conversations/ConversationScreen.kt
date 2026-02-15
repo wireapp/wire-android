@@ -291,6 +291,7 @@ fun ConversationScreen(
                             conversationId = conversationMessagesViewModel.conversationId,
                             threadId = threadData.threadId,
                             threadRootMessageId = threadData.rootMessageId,
+                            threadRootSelfDeletionDurationMillis = threadData.rootMessageSelfDeletionDurationMillis,
                         )
                     ),
                     launchSingleTop = false,
@@ -537,7 +538,7 @@ fun ConversationScreen(
         } else {
             messageComposerStateHolder::toReply
         },
-        onOpenThreadClick = { threadId, rootMessageId ->
+        onOpenThreadClick = { threadId, rootMessageId, rootMessageSelfDeletionDurationMillis ->
             navigator.navigate(
                 NavigationCommand(
                     ConversationScreenDestination(
@@ -545,6 +546,7 @@ fun ConversationScreen(
                             conversationId = conversationMessagesViewModel.conversationId,
                             threadId = threadId,
                             threadRootMessageId = rootMessageId,
+                            threadRootSelfDeletionDurationMillis = rootMessageSelfDeletionDurationMillis,
                         )
                     ),
                     launchSingleTop = false,
@@ -749,7 +751,7 @@ private fun ConversationScreenContent(
     threadSummaryByRootMessageId: PersistentMap<String, ThreadSummaryUi> = persistentMapOf(),
     isThreadMode: Boolean = false,
     onReplyInThreadClick: (UIMessage.Regular) -> Unit = {},
-    onOpenThreadClick: (threadId: String, rootMessageId: String) -> Unit = { _, _ -> },
+    onOpenThreadClick: (threadId: String, rootMessageId: String, rootMessageSelfDeletionDurationMillis: Long?) -> Unit = { _, _, _ -> },
     onVisibleRootMessagesChanged: (List<String>) -> Unit = {},
     currentTimeInMillisFlow: Flow<Long> = flow { },
     onReachedOldestMessage: () -> Unit = {},

@@ -1278,6 +1278,7 @@ private fun ConversationScreenContent(
     MessageComposer(
         conversationId = conversationId,
         bottomSheetVisible = bottomSheetVisible,
+        isThreadMode = isThreadMode,
         messageComposerStateHolder = messageComposerStateHolder,
         attachments = attachments,
         messageListContent = {

@@ -57,6 +57,7 @@ fun AdditionalOptionsMenu(
     onRichOptionButtonClicked: (RichTextMarkdown) -> Unit,
     onDrawingModeClicked: () -> Unit,
     modifier: Modifier = Modifier,
+    isThreadMode: Boolean = false,
     onOnSelfDeletingOptionClicked: ((SelfDeletionTimer) -> Unit)? = null,
     onGifOptionClicked: (() -> Unit)? = null
 ) {
@@ -78,6 +79,7 @@ fun AdditionalOptionsMenu(
                     onDrawingModeClicked = onDrawingModeClicked,
                     isFileSharingEnabled = isFileSharingEnabled,
                     areAttachmentOptionsEnabled = areAttachmentOptionsEnabled,
+                    isThreadMode = isThreadMode
                 )
             }
 
@@ -108,6 +110,7 @@ fun AdditionalOptionSubMenu(
     onAudioRecorded: (UriAsset) -> Unit,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
+    isThreadMode: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
     AttachmentOptionsComponent(
@@ -119,6 +122,7 @@ fun AdditionalOptionSubMenu(
         tempWritableVideoUri = tempWritableVideoUri,
         isFileSharingEnabled = isFileSharingEnabled,
         areAttachmentOptionsEnabled = areAttachmentOptionsEnabled,
+        isThreadMode = isThreadMode,
         onRecordAudioMessageClicked = onRecordAudioMessageClicked,
         onLocationPickerClicked = onLocationPickerClicked,
         onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
@@ -147,6 +151,7 @@ fun AttachmentAndAdditionalOptionsMenuItems(
     onMentionButtonClicked: () -> Unit,
     onSelfDeletionOptionButtonClicked: (SelfDeletionTimer) -> Unit,
     modifier: Modifier = Modifier,
+    isThreadMode: Boolean = false,
     onAdditionalOptionsMenuClicked: () -> Unit = {},
     onPingClicked: () -> Unit = {},
     onGifButtonClicked: () -> Unit = {},
@@ -170,6 +175,7 @@ fun AttachmentAndAdditionalOptionsMenuItems(
             onDrawingModeClicked = onDrawingModeClicked,
             isFileSharingEnabled = isFileSharingEnabled,
             areAttachmentOptionsEnabled = areAttachmentOptionsEnabled,
+            isThreadMode = isThreadMode
         )
     }
 }

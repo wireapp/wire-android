@@ -126,6 +126,7 @@ fun EnabledMessageComposer(
     onAttachmentMenuClick: (AttachmentDraftUi) -> Unit,
     tempWritableVideoUri: Uri?,
     tempWritableImageUri: Uri?,
+    isThreadMode: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -397,6 +398,7 @@ fun EnabledMessageComposer(
                             },
                             isFileSharingEnabled = messageComposerViewState.value.isFileSharingEnabled,
                             areAttachmentOptionsEnabled = messageComposerViewState.value.areAttachmentOptionsEnabled,
+                            isThreadMode = isThreadMode,
                         )
                     }
                 }
@@ -477,6 +479,7 @@ fun EnabledMessageComposer(
                             onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
                             tempWritableImageUri = tempWritableImageUri,
                             tempWritableVideoUri = tempWritableVideoUri,
+                            isThreadMode = isThreadMode,
                             modifier = Modifier.fillMaxSize()
                         )
                     }

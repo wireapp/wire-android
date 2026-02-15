@@ -82,6 +82,7 @@ import kotlin.math.roundToInt
 fun MessageComposer(
     conversationId: ConversationId,
     bottomSheetVisible: Boolean,
+    isThreadMode: Boolean = false,
     messageComposerStateHolder: MessageComposerStateHolder,
     attachments: List<AttachmentDraftUi>,
     messageListContent: @Composable () -> Unit,
@@ -166,6 +167,7 @@ fun MessageComposer(
                     tempWritableImageUri = tempWritableImageUri,
                     onAttachmentClick = onAttachmentClick,
                     onAttachmentMenuClick = onAttachmentMenuClick,
+                    isThreadMode = isThreadMode,
                 )
             }
         }

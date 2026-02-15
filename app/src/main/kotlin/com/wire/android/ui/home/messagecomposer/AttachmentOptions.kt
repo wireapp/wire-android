@@ -71,6 +71,7 @@ fun AttachmentOptionsComponent(
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
     isFileSharingEnabled: Boolean,
+    isThreadMode: Boolean = false,
     onLocationPickerClicked: () -> Unit,
     onPermissionPermanentlyDenied: (type: ConversationActionPermissionType) -> Unit,
     modifier: Modifier = Modifier,
@@ -85,6 +86,7 @@ fun AttachmentOptionsComponent(
         onImagesPicked = onImagesPicked,
         onFilePicked = onAttachmentPicked,
         onRecordAudioMessageClicked = onRecordAudioMessageClicked,
+        isThreadMode = isThreadMode,
         onLocationPickerClicked = onLocationPickerClicked,
         onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
     )
@@ -278,6 +280,7 @@ private fun rememberCaptureVideoFlow(
 @Composable
 private fun buildAttachmentOptionItems(
     isFileSharingEnabled: Boolean,
+    isThreadMode: Boolean,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
     onImagesPicked: (List<Uri>) -> Unit,
@@ -347,7 +350,7 @@ private fun buildAttachmentOptionItems(
                     )
                 )
             }
-            if (ShareLocationIcon) {
+            if (ShareLocationIcon && !isThreadMode) {
                 add(
                     AttachmentOptionItem(
                         text = R.string.attachment_share_location,

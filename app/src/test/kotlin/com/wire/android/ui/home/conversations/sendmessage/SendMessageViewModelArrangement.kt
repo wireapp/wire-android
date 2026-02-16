@@ -26,6 +26,7 @@ import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.media.PingRinger
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.MessageSharedState
+import com.wire.android.ui.home.conversations.ThreadConversationNavArgs
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
 import com.ramcosta.composedestinations.generated.app.navArgs
@@ -292,15 +293,14 @@ internal class SendMessageViewModelArrangement {
         )
     }
 
-    fun withPendingTextBundleInThread(
-        textToShare: String = "some text",
+    fun withThreadNavArgs(
         threadId: String = "thread-id",
         threadRootSelfDeletionDurationMillis: Long? = null,
     ) = apply {
-        every { savedStateHandle.navArgs<ConversationNavArgs>() } returns ConversationNavArgs(
+        every { savedStateHandle.navArgs<ThreadConversationNavArgs>() } returns ThreadConversationNavArgs(
             conversationId = conversationId,
-            pendingTextBundle = textToShare,
             threadId = threadId,
+            threadRootMessageId = "root-message-id",
             threadRootSelfDeletionDurationMillis = threadRootSelfDeletionDurationMillis,
         )
     }

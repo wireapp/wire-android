@@ -24,6 +24,8 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.di.scopedArgs
+import com.wire.android.ui.home.conversations.model.CompositeMessageArgs
 import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.di.ViewModelScopedPreview
 import com.wire.android.ui.home.conversations.model.CompositeMessageArgs
@@ -44,8 +46,8 @@ class CompositeMessageViewModelImpl(
     scopedArgs: CompositeMessageArgs,
 ) : CompositeMessageViewModel, ViewModel() {
 
-    private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
-    val conversationId: QualifiedID = conversationNavArgs.conversationId
+    private val conversationEntryArgs = savedStateHandle.resolveConversationEntryArgs()
+    val conversationId: QualifiedID = conversationEntryArgs.conversationId
     private val messageId: String = scopedArgs.messageId
 
     override var pendingButtonId: MessageButtonId? by mutableStateOf(null)

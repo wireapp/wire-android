@@ -28,8 +28,7 @@ import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.di.CurrentAccount
 import com.wire.android.model.ImageAsset
-import com.wire.android.ui.home.conversations.ConversationNavArgs
-import com.ramcosta.composedestinations.generated.app.navArgs
+import com.wire.android.ui.home.conversations.resolveConversationEntryArgs
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.toUIText
 import com.wire.kalium.common.error.StorageFailure
@@ -56,8 +55,8 @@ class ConversationInfoViewModel @Inject constructor(
     @CurrentAccount private val selfUserId: UserId,
 ) : ViewModel() {
 
-    private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
-    val conversationId: QualifiedID = conversationNavArgs.conversationId
+    private val conversationEntryArgs = savedStateHandle.resolveConversationEntryArgs()
+    val conversationId: QualifiedID = conversationEntryArgs.conversationId
 
     var conversationInfoViewState by mutableStateOf(ConversationInfoViewState(conversationId))
 

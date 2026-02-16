@@ -23,8 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.ui.home.conversations.ConversationNavArgs
-import com.ramcosta.composedestinations.generated.app.navArgs
+import com.wire.android.ui.home.conversations.resolveConversationEntryArgs
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -51,8 +50,8 @@ class ConversationMigrationViewModel @Inject constructor(
     var migratedConversationId by mutableStateOf<ConversationId?>(null)
         private set
 
-    private val conversationNavArgs = savedStateHandle.navArgs<ConversationNavArgs>()
-    private val conversationId: QualifiedID = conversationNavArgs.conversationId
+    private val conversationEntryArgs = savedStateHandle.resolveConversationEntryArgs()
+    private val conversationId: QualifiedID = conversationEntryArgs.conversationId
 
     init {
         viewModelScope.launch {

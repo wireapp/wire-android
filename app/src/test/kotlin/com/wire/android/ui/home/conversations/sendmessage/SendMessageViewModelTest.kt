@@ -775,19 +775,20 @@ class SendMessageViewModelTest {
     }
 
     @Test
-    fun `given text is being shared in thread with root self-delete timer, when initializing the viewmodel, then timer is propagated`() = runTest {
+    fun `given thread nav args with root self-delete timer, when sending text message, then timer is propagated`() = runTest {
         val textToShare = "my nice text to share"
         val threadId = "thread-id"
         val rootSelfDeletionDurationMillis = 10_000L
-        val (arrangement, _) = SendMessageViewModelArrangement()
+        val (arrangement, viewModel) = SendMessageViewModelArrangement()
             .withSuccessfulViewModelInit()
-            .withPendingTextBundleInThread(
-                textToShare = textToShare,
+            .withThreadNavArgs(
                 threadId = threadId,
                 threadRootSelfDeletionDurationMillis = rootSelfDeletionDurationMillis,
             )
             .withSuccessfulSendTextMessage()
             .arrange()
+
+        viewModel.trySendMessage(ComposableMessageBundle.SendTextMessageBundle(conversationId, textToShare, emptyList()))
         advanceUntilIdle()
 
         coVerify {

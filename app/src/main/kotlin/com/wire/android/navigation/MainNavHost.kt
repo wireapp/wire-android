@@ -30,6 +30,7 @@ import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.NewLoginPasswordScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.NewLoginVerificationCodeScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.ThreadConversationScreenDestination
 import com.ramcosta.composedestinations.generated.app.navArgs
 import com.ramcosta.composedestinations.generated.app.navgraphs.NewConversationGraph
 import com.ramcosta.composedestinations.generated.app.navgraphs.PersonalToTeamMigrationGraph
@@ -54,6 +55,7 @@ import com.wire.android.navigation.transition.LocalSharedTransitionScope
 import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.email.LoginEmailViewModel
 import com.wire.android.ui.home.conversations.ConversationScreen
+import com.wire.android.ui.home.conversations.ThreadConversationScreen
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
 import com.wire.android.ui.userprofile.teammigration.TeamMigrationViewModel
 
@@ -128,6 +130,18 @@ fun MainNavHost(
                      */
                     composable(ConversationScreenDestination) {
                         ConversationScreen(
+                            navigator = navigator,
+                            groupDetailsScreenResultRecipient = resultRecipient(groupConversationDetailsNavBackArgsNavType),
+                            mediaGalleryScreenResultRecipient = resultRecipient(mediaGalleryNavBackArgsNavType),
+                            imagePreviewScreenResultRecipient = resultRecipient(imagesPreviewNavBackArgsNavType),
+                            drawingCanvasScreenResultRecipient = resultRecipient<DrawingCanvasScreenDestination, DrawingCanvasNavBackArgs>(
+                                drawingCanvasNavBackArgsNavType
+                            ),
+                            resultNavigator = resultBackNavigator(groupConversationDetailsNavBackArgsNavType),
+                        )
+                    }
+                    composable(ThreadConversationScreenDestination) {
+                        ThreadConversationScreen(
                             navigator = navigator,
                             groupDetailsScreenResultRecipient = resultRecipient(groupConversationDetailsNavBackArgsNavType),
                             mediaGalleryScreenResultRecipient = resultRecipient(mediaGalleryNavBackArgsNavType),

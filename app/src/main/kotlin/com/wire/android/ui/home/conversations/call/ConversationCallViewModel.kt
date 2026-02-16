@@ -26,9 +26,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.di.CurrentAccount
 import com.wire.android.ui.common.ActionsViewModel
-import com.wire.android.ui.home.conversations.ConversationNavArgs
+import com.wire.android.ui.home.conversations.resolveConversationEntryArgs
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.ConversationId
@@ -78,8 +77,8 @@ class ConversationCallViewModel @Inject constructor(
     private val observeSelf: ObserveSelfUserUseCase
 ) : ActionsViewModel<ConversationCallViewActions>() {
 
-    private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
-    val conversationId: QualifiedID = conversationNavArgs.conversationId
+    private val conversationEntryArgs = savedStateHandle.resolveConversationEntryArgs()
+    val conversationId: QualifiedID = conversationEntryArgs.conversationId
 
     var conversationCallViewState by mutableStateOf(ConversationCallViewState())
     val shouldInformAboutVerification = mutableStateOf(false)

@@ -89,6 +89,7 @@ import com.ramcosta.composedestinations.generated.app.destinations.MediaGalleryS
 import com.ramcosta.composedestinations.generated.app.destinations.MessageDetailsScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.OtherUserProfileScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.SelfUserProfileScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.ThreadConversationScreenDestination
 import com.ramcosta.composedestinations.generated.sketch.destinations.DrawingCanvasScreenDestination
 import com.ramcosta.composedestinations.result.NavResult.Canceled
 import com.ramcosta.composedestinations.result.NavResult.Value
@@ -231,6 +232,11 @@ private const val MAX_GROUP_SIZE_FOR_CALL_WITHOUT_ALERT = 5
  */
 private const val MAX_GROUP_SIZE_FOR_PING = 3
 
+internal enum class ConversationScreenMode {
+    Main,
+    Thread,
+}
+
 // TODO: !! this screen definitely needs a refactor and some cleanup !!
 @Suppress("ComplexMethod")
 @WireRootDestination(
@@ -255,10 +261,51 @@ fun ConversationScreen(
     messageDraftViewModel: MessageDraftViewModel = hiltViewModel(),
     messageAttachmentsViewModel: MessageAttachmentsViewModel = hiltViewModel(),
 ) {
+    ConversationScreenHost(
+        screenMode = ConversationScreenMode.Main,
+        navigator = navigator,
+        groupDetailsScreenResultRecipient = groupDetailsScreenResultRecipient,
+        mediaGalleryScreenResultRecipient = mediaGalleryScreenResultRecipient,
+        imagePreviewScreenResultRecipient = imagePreviewScreenResultRecipient,
+        drawingCanvasScreenResultRecipient = drawingCanvasScreenResultRecipient,
+        resultNavigator = resultNavigator,
+        conversationInfoViewModel = conversationInfoViewModel,
+        conversationBannerViewModel = conversationBannerViewModel,
+        conversationCallViewModel = conversationCallViewModel,
+        conversationMessagesViewModel = conversationMessagesViewModel,
+        messageComposerViewModel = messageComposerViewModel,
+        sendMessageViewModel = sendMessageViewModel,
+        conversationMigrationViewModel = conversationMigrationViewModel,
+        messageDraftViewModel = messageDraftViewModel,
+        messageAttachmentsViewModel = messageAttachmentsViewModel,
+    )
+}
+
+@Suppress("ComplexMethod")
+@Composable
+internal fun ConversationScreenHost(
+    screenMode: ConversationScreenMode,
+    navigator: Navigator,
+    groupDetailsScreenResultRecipient:
+    ResultRecipient<GroupConversationDetailsScreenDestination, GroupConversationDetailsNavBackArgs>,
+    mediaGalleryScreenResultRecipient: ResultRecipient<MediaGalleryScreenDestination, MediaGalleryNavBackArgs>,
+    imagePreviewScreenResultRecipient: ResultRecipient<ImagesPreviewScreenDestination, ImagesPreviewNavBackArgs>,
+    drawingCanvasScreenResultRecipient: OpenResultRecipient<DrawingCanvasNavBackArgs>,
+    resultNavigator: ResultBackNavigator<GroupConversationDetailsNavBackArgs>,
+    conversationInfoViewModel: ConversationInfoViewModel,
+    conversationBannerViewModel: ConversationBannerViewModel,
+    conversationCallViewModel: ConversationCallViewModel,
+    conversationMessagesViewModel: ConversationMessagesViewModel,
+    messageComposerViewModel: MessageComposerViewModel,
+    sendMessageViewModel: SendMessageViewModel,
+    conversationMigrationViewModel: ConversationMigrationViewModel,
+    messageDraftViewModel: MessageDraftViewModel,
+    messageAttachmentsViewModel: MessageAttachmentsViewModel,
+) {
     val coroutineScope = rememberCoroutineScope()
     val uriHandler = LocalUriHandler.current
     val resources = LocalContext.current.resources
-    val isThreadMode = conversationMessagesViewModel.isThreadMode
+    val isThreadMode = screenMode == ConversationScreenMode.Thread
     val showDialog = remember { mutableStateOf(ConversationScreenDialogType.NONE) }
     val messageComposerViewState = messageComposerViewModel.messageComposerViewState
     val messageComposerStateHolder = rememberMessageComposerStateHolder(
@@ -311,8 +358,8 @@ fun ConversationScreen(
             conversationInfoViewModel.observeConversationDetails()
         }
     }
-    LaunchedEffect(conversationInfoViewModel.conversationInfoViewState.notFound, isThreadMode) {
-        if (!isThreadMode && conversationInfoViewModel.conversationInfoViewState.notFound) {
+    LaunchedEffect(conversationInfoViewModel.conversationInfoViewState.notFound, screenMode) {
+        if (screenMode == ConversationScreenMode.Main && conversationInfoViewModel.conversationInfoViewState.notFound) {
             navigator.navigateBack()
         }
     }
@@ -349,16 +396,11 @@ fun ConversationScreen(
     LaunchedEffect(Unit) {
         conversationMessagesViewModel.openThread.collect { threadData ->
             navigator.navigate(
-                NavigationCommand(
-                    ConversationScreenDestination(
-                        ConversationNavArgs(
-                            conversationId = conversationMessagesViewModel.conversationId,
-                            threadId = threadData.threadId,
-                            threadRootMessageId = threadData.rootMessageId,
-                            threadRootSelfDeletionDurationMillis = threadData.rootMessageSelfDeletionDurationMillis,
-                        )
-                    ),
-                    launchSingleTop = false
+                threadNavigationCommand(
+                    conversationId = conversationMessagesViewModel.conversationId,
+                    threadId = threadData.threadId,
+                    rootMessageId = threadData.rootMessageId,
+                    rootMessageSelfDeletionDurationMillis = threadData.rootMessageSelfDeletionDurationMillis
                 )
             )
         }
@@ -378,7 +420,7 @@ fun ConversationScreen(
         }
     }
 
-    if (!isThreadMode) {
+    if (screenMode == ConversationScreenMode.Main) {
         conversationMigrationViewModel.migratedConversationId?.let { migratedConversationId ->
             navigator.navigate(
                 NavigationCommand(
@@ -645,16 +687,11 @@ fun ConversationScreen(
         }) as (UIMessage.Regular) -> Unit,
         onOpenThreadClick = { threadId, rootMessageId, rootMessageSelfDeletionDurationMillis ->
             navigator.navigate(
-                NavigationCommand(
-                    ConversationScreenDestination(
-                        ConversationNavArgs(
-                            conversationId = conversationMessagesViewModel.conversationId,
-                            threadId = threadId,
-                            threadRootMessageId = rootMessageId,
-                            threadRootSelfDeletionDurationMillis = rootMessageSelfDeletionDurationMillis,
-                        )
-                    ),
-                    launchSingleTop = false
+                threadNavigationCommand(
+                    conversationId = conversationMessagesViewModel.conversationId,
+                    threadId = threadId,
+                    rootMessageId = rootMessageId,
+                    rootMessageSelfDeletionDurationMillis = rootMessageSelfDeletionDurationMillis
                 )
             )
         },
@@ -785,7 +822,7 @@ fun ConversationScreen(
         )
     }
 
-    if (!isThreadMode) {
+    if (screenMode == ConversationScreenMode.Main) {
         groupDetailsScreenResultRecipient.onNavResult { result ->
             when (result) {
                 is Canceled -> {
@@ -881,6 +918,23 @@ private fun conversationScreenOnBackButtonClick(
     messageComposerStateHolder.messageCompositionInputStateHolder.collapseComposer(null)
     navigator.navigateBack()
 }
+
+internal fun threadNavigationCommand(
+    conversationId: ConversationId,
+    threadId: String,
+    rootMessageId: String,
+    rootMessageSelfDeletionDurationMillis: Long?,
+) = NavigationCommand(
+    ThreadConversationScreenDestination(
+        ThreadConversationNavArgs(
+            conversationId = conversationId,
+            threadId = threadId,
+            threadRootMessageId = rootMessageId,
+            threadRootSelfDeletionDurationMillis = rootMessageSelfDeletionDurationMillis,
+        )
+    ),
+    launchSingleTop = false
+)
 
 @Suppress("LongParameterList")
 private fun startCallIfPossible(

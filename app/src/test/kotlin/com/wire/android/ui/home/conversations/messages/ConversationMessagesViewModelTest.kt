@@ -309,6 +309,33 @@ class ConversationMessagesViewModelTest {
     }
 
     @Test
+    fun `given thread nav args, when initializing viewmodel, then thread mode is enabled and messages are requested with thread id`() = runTest {
+        val threadId = "thread-id"
+        val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
+            .withThreadNavArgs(threadId)
+            .withSuccessfulViewModelInit()
+            .arrange()
+
+        advanceUntilIdle()
+
+        assertTrue(viewModel.isThreadMode)
+        coVerify(exactly = 1) { arrangement.getMessagesForConversationUseCase(any(), 0, threadId) }
+    }
+
+    @Test
+    fun `given thread mode, when observing visible roots, then thread summaries are not observed`() = runTest {
+        val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
+            .withThreadNavArgs()
+            .withSuccessfulViewModelInit()
+            .arrange()
+
+        viewModel.observeThreadSummariesForVisibleRoots(listOf("root1", "root2"))
+
+        assertTrue(viewModel.conversationViewState.threadSummaryByRootMessageId.isEmpty())
+        coVerify(exactly = 0) { arrangement.observeThreadSummariesForRootsUseCase(any(), any()) }
+    }
+
+    @Test
     fun `given a message with failed decryption, when resetting the session, then should call ResetSessionUseCase`() = runTest {
         val userId = UserId("someID", "someDomain")
         val clientId = "someClientId"

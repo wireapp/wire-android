@@ -21,14 +21,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.ui.home.conversations.ConversationNavArgs
+import com.wire.android.ui.home.conversations.resolveConversationEntryArgs
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
 import com.wire.android.ui.home.conversations.model.toUiMention
 import com.wire.android.ui.home.conversations.usecase.GetQuoteMessageForConversationUseCase
 import com.wire.android.ui.home.messagecomposer.model.MessageComposition
 import com.wire.android.ui.home.messagecomposer.model.toDraft
 import com.wire.android.ui.home.messagecomposer.model.update
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.draft.MessageDraft
@@ -46,8 +45,8 @@ class MessageDraftViewModel @Inject constructor(
     private val saveMessageDraft: SaveMessageDraftUseCase,
 ) : ViewModel() {
 
-    private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
-    val conversationId: QualifiedID = conversationNavArgs.conversationId
+    private val conversationEntryArgs = savedStateHandle.resolveConversationEntryArgs()
+    val conversationId: QualifiedID = conversationEntryArgs.conversationId
 
     var state = mutableStateOf(MessageComposition(conversationId, String.EMPTY))
         private set

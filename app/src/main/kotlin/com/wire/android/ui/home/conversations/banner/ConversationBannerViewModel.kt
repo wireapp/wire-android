@@ -25,9 +25,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
-import com.wire.android.ui.home.conversations.ConversationNavArgs
+import com.wire.android.ui.home.conversations.resolveConversationEntryArgs
 import com.wire.android.ui.home.conversations.banner.usecase.ObserveConversationMembersByTypesUseCase
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -56,8 +55,8 @@ class ConversationBannerViewModel @Inject constructor(
 
     var bannerState by mutableStateOf<UIText?>(null)
 
-    private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
-    val conversationId: QualifiedID = conversationNavArgs.conversationId
+    private val conversationEntryArgs = savedStateHandle.resolveConversationEntryArgs()
+    val conversationId: QualifiedID = conversationEntryArgs.conversationId
 
     init {
         viewModelScope.launch {

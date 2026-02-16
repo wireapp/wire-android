@@ -30,6 +30,7 @@ import com.ramcosta.composedestinations.generated.app.destinations.LoginScreenDe
 import com.ramcosta.composedestinations.generated.app.destinations.NewLoginPasswordScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.NewLoginScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.NewLoginVerificationCodeScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.ThreadConversationScreenDestination
 import com.ramcosta.composedestinations.generated.app.navgraphs.LoginGraph
 import com.ramcosta.composedestinations.generated.app.navgraphs.NewConversationGraph
 import com.ramcosta.composedestinations.generated.app.navgraphs.NewLoginGraph
@@ -52,6 +53,7 @@ import com.wire.android.ui.authentication.login.email.LoginEmailViewModel
 import com.wire.android.ui.authentication.login.sso.SSOUrlConfigHolder
 import com.wire.android.ui.authentication.login.sso.SSOUrlConfigHolderImpl
 import com.wire.android.ui.home.conversations.ConversationScreen
+import com.wire.android.ui.home.conversations.ThreadConversationScreen
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
 import com.wire.android.ui.userprofile.teammigration.TeamMigrationViewModel
 
@@ -91,7 +93,8 @@ fun MainNavHost(
                 val parentEntry = remember(navBackStackEntry) {
                     navController.getBackStackEntry(NewConversationGraph.route)
                 }
-                hiltViewModel<NewConversationViewModel>(parentEntry)
+                val newConversationViewModel = hiltViewModel<NewConversationViewModel>(parentEntry)
+                dependency(newConversationViewModel)
             }
 
             // 👇 To reuse LoginEmailViewModel from NewLoginPasswordScreen on NewLoginVerificationCodeScreen
@@ -146,6 +149,18 @@ fun MainNavHost(
              */
             composable(ConversationScreenDestination) {
                 ConversationScreen(
+                    navigator = navigator,
+                    groupDetailsScreenResultRecipient = resultRecipient(groupConversationDetailsNavBackArgsNavType),
+                    mediaGalleryScreenResultRecipient = resultRecipient(mediaGalleryNavBackArgsNavType),
+                    imagePreviewScreenResultRecipient = resultRecipient(imagesPreviewNavBackArgsNavType),
+                    drawingCanvasScreenResultRecipient = resultRecipient<DrawingCanvasScreenDestination, DrawingCanvasNavBackArgs>(
+                        drawingCanvasNavBackArgsNavType
+                    ),
+                    resultNavigator = resultBackNavigator(groupConversationDetailsNavBackArgsNavType),
+                )
+            }
+            composable(ThreadConversationScreenDestination) {
+                ThreadConversationScreen(
                     navigator = navigator,
                     groupDetailsScreenResultRecipient = resultRecipient(groupConversationDetailsNavBackArgsNavType),
                     mediaGalleryScreenResultRecipient = resultRecipient(mediaGalleryNavBackArgsNavType),

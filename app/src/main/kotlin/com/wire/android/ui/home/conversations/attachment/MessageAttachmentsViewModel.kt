@@ -30,11 +30,10 @@ import com.wire.android.appLogger
 import com.wire.android.media.audiomessage.toNormalizedLoudness
 import com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi
 import com.wire.android.ui.common.attachmentdraft.model.toUiModel
-import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.MessageSharedState
+import com.wire.android.ui.home.conversations.resolveConversationEntryArgs
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.ui.sharing.ImportedMediaAsset
 import com.wire.android.util.FileManager
 import com.wire.android.util.MediaMetadata
@@ -78,8 +77,8 @@ class MessageAttachmentsViewModel @Inject constructor(
     private val sharedState: MessageSharedState,
 ) : ViewModel() {
 
-    private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
-    private val conversationId: QualifiedID = conversationNavArgs.conversationId
+    private val conversationEntryArgs = savedStateHandle.resolveConversationEntryArgs()
+    private val conversationId: QualifiedID = conversationEntryArgs.conversationId
     private val uploadObservers = mutableMapOf<String, Job>()
     private val removedAttachments = MutableStateFlow(emptyList<String>())
 

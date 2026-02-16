@@ -32,17 +32,16 @@ import com.wire.android.media.PingRinger
 import com.wire.android.media.audiomessage.toNormalizedLoudness
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.ui.home.conversations.AssetTooLargeDialogState
-import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.MessageSharedState
 import com.wire.android.ui.home.conversations.SureAboutMessagingDialogState
+import com.wire.android.ui.home.conversations.resolveConversationEntryArgs
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
 import com.wire.android.ui.home.messagecomposer.model.ComposableMessageBundle
 import com.wire.android.ui.home.messagecomposer.model.MessageBundle
 import com.wire.android.ui.home.messagecomposer.model.Ping
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.ui.sharing.SendMessagesSnackbarMessages
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -114,11 +113,11 @@ class SendMessageViewModel @Inject constructor(
     private val sharedState: MessageSharedState
 ) : ViewModel() {
 
-    private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
-    val conversationId: QualifiedID = conversationNavArgs.conversationId
-    private val threadIdNavArgs: String? = conversationNavArgs.threadId
+    private val conversationEntryArgs = savedStateHandle.resolveConversationEntryArgs()
+    val conversationId: QualifiedID = conversationEntryArgs.conversationId
+    private val threadIdNavArgs: String? = conversationEntryArgs.threadContext?.threadId
     private val threadRootMessageSelfDeletionDurationMillisNavArgs: Long? =
-        conversationNavArgs.threadRootSelfDeletionDurationMillis
+        conversationEntryArgs.threadContext?.threadRootSelfDeletionDurationMillis
 
     private val _infoMessage = MutableSharedFlow<SnackBarMessage>()
     val infoMessage = _infoMessage.asSharedFlow()
@@ -132,10 +131,10 @@ class SendMessageViewModel @Inject constructor(
     )
 
     init {
-        conversationNavArgs.pendingTextBundle?.let { text ->
+        conversationEntryArgs.pendingTextBundle?.let { text ->
             trySendPendingMessageBundle(text)
         }
-        conversationNavArgs.pendingBundles?.let {
+        conversationEntryArgs.pendingBundles?.let {
             handlePendingBundles(it)
         }
     }

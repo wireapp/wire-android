@@ -26,7 +26,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.di.scopedArgs
 import com.wire.android.ui.home.conversations.model.CompositeMessageArgs
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.di.ViewModelScopedPreview
 import com.wire.kalium.logic.data.id.MessageButtonId
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -48,8 +47,8 @@ class CompositeMessageViewModelImpl @Inject constructor(
     savedStateHandle: SavedStateHandle,
 ) : CompositeMessageViewModel, ViewModel() {
 
-    private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
-    val conversationId: QualifiedID = conversationNavArgs.conversationId
+    private val conversationEntryArgs = savedStateHandle.resolveConversationEntryArgs()
+    val conversationId: QualifiedID = conversationEntryArgs.conversationId
 
     private val scopedArgs: CompositeMessageArgs = savedStateHandle.scopedArgs()
     private val messageId: String = scopedArgs.messageId

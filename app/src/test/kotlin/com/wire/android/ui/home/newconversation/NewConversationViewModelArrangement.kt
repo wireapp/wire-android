@@ -46,7 +46,6 @@ import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
@@ -61,7 +60,7 @@ internal class NewConversationViewModelArrangement {
         coEvery { isMLSEnabledUseCase() } returns true
         coEvery { createRegularGroup(any(), any(), any()) } returns ConversationCreationResult.Success(CONVERSATION)
         coEvery { observeChannelsCreationPermissionUseCase() } returns flowOf(ChannelCreationPermission.Forbidden)
-        every { getDefaultProtocol() } returns SupportedProtocol.PROTEUS
+        coEvery { getDefaultProtocol() } returns SupportedProtocol.PROTEUS
         coEvery { isWireCellsEnabled() } returns false
         withAppsAllowedResult(false)
     }
@@ -209,7 +208,7 @@ internal class NewConversationViewModelArrangement {
     }
 
     fun withDefaultProtocol(supportedProtocol: SupportedProtocol) = apply {
-        every { getDefaultProtocol() } returns supportedProtocol
+        coEvery { getDefaultProtocol() } returns supportedProtocol
     }
 
     fun withAppsAllowedResult(result: Boolean) = apply {

@@ -29,7 +29,7 @@ import com.wire.android.framework.TestConversationDetails
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
-import com.wire.android.ui.navArgs
+import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreenViewModelTest
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.common.error.NetworkFailure
@@ -326,7 +326,7 @@ class EditGuestAccessViewModelTest {
             coEvery { observeGuestRoomLinkFeatureFlag() } returns flowOf()
             coEvery { canCreatePasswordProtectedLinks() } returns true
             coEvery { observeSelfUserUseCase() } returns flowOf(TestUser.SELF_USER)
-            every { getDefaultProtocolUseCase() } returns SupportedProtocol.PROTEUS
+            coEvery { getDefaultProtocolUseCase() } returns SupportedProtocol.PROTEUS
         }
 
         fun withSyncConversationCodeSuccess() = apply {
@@ -355,7 +355,7 @@ class EditGuestAccessViewModelTest {
         }
 
         fun withDefaultProtocol(protocol: SupportedProtocol) = apply {
-            every { getDefaultProtocolUseCase() } returns protocol
+            coEvery { getDefaultProtocolUseCase() } returns protocol
         }
 
         fun arrange() = this to editGuestAccessViewModel

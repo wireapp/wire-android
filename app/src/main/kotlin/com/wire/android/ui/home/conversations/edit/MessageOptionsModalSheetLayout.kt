@@ -94,6 +94,8 @@ fun MessageOptionsModalSheetLayout(
                 )
 
                 MessageOptionsMenuState.NotAvailable -> sheetState.hide { // message not found - hide the sheet and show info
+                    @SuppressLint("LocalContextGetResourceValueCall")
+                    // TODO: Refactor to avoid using context in the ViewModel callback
                     snackbarHostState.showSnackbar(context.getString(R.string.deleted_message_options_closed))
                 }
             }

@@ -79,6 +79,6 @@ fun EmptyListArrowFooter(modifier: Modifier = Modifier) {
         painter = painterResource(
             id = R.drawable.ic_empty_conversation_arrow
         ),
-        contentDescription = ""
+        contentDescription = null
     )
 }

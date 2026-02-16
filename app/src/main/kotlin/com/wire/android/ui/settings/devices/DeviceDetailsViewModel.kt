@@ -31,7 +31,7 @@ import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceDialogState
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceError
 import com.wire.android.ui.common.textfield.textAsFlow
-import com.wire.android.ui.navArgs
+import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.ui.settings.devices.model.DeviceDetailsState
 import com.wire.kalium.logic.data.client.ClientType
 import com.wire.kalium.logic.data.client.DeleteClientParam
@@ -142,6 +142,13 @@ class DeviceDetailsViewModel @Inject constructor(
     private fun getE2eiCertificate() {
         viewModelScope.launch {
             state = when (val result = mlsClientIdentity(deviceId)) {
+                is GetMLSClientIdentityResult.Failure.E2EINotAvailable -> {
+                    state.copy(
+                        isE2eiCertificateActivated = false,
+                        isLoadingCertificate = false,
+                        isE2eiCertificateDataAvailable = false
+                    )
+                }
                 is GetMLSClientIdentityResult.Failure -> {
                     state.copy(isE2eiCertificateActivated = false, isLoadingCertificate = false)
                 }

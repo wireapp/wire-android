@@ -23,6 +23,7 @@ dependencies {
     // hilt
     implementation(libs.hilt.navigationCompose)
     implementation(libs.hilt.work)
+    implementation(libs.androidx.work)
 
     // smaller view models
     implementation(libs.resaca.core)

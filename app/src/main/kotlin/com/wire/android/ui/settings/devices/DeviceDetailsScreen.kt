@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.settings.devices
 
+import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -45,12 +46,11 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.spec.DestinationStyle
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
+import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.authentication.devices.model.lastActiveDescription
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceDialog
@@ -71,7 +71,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.WireTopAppBarTitle
-import com.wire.android.ui.destinations.E2eiCertificateDetailsScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.E2EiCertificateDetailsScreenDestination
 import com.wire.android.ui.e2eiEnrollment.GetE2EICertificateUI
 import com.wire.android.ui.home.E2EISuccessDialog
 import com.wire.android.ui.home.E2EIUpdateErrorWithDismissDialog
@@ -100,9 +100,9 @@ import com.wire.kalium.logic.feature.e2ei.X509Identity
 import com.wire.kalium.logic.feature.e2ei.usecase.FinalizeEnrollmentResult
 import kotlinx.datetime.Instant
 
-@WireDestination(
-    navArgsDelegate = DeviceDetailsNavArgs::class,
-    style = DestinationStyle.Runtime::class, // default should be SlideNavigationAnimation
+@WireRootDestination(
+    navArgs = DeviceDetailsNavArgs::class,
+    style = SlideNavigationAnimation::class, // default should be SlideNavigationAnimation
 )
 @Composable
 fun DeviceDetailsScreen(
@@ -126,7 +126,7 @@ fun DeviceDetailsScreen(
             onNavigateToE2eiCertificateDetailsScreen = {
                 navigator.navigate(
                     NavigationCommand(
-                        E2eiCertificateDetailsScreenDestination(
+                        E2EiCertificateDetailsScreenDestination(
                             E2EICertificateDetails.AfterLoginCertificateDetails(it)
                         )
                     )
@@ -216,7 +216,7 @@ fun DeviceDetailsContent(
                 }
             }
 
-            if (state.isE2EIEnabled) {
+            if (state.isE2EIEnabled && state.isE2eiCertificateDataAvailable) {
                 item {
                     EndToEndIdentityCertificateItem(
                         isE2eiCertificateActivated = state.isE2eiCertificateActivated,
@@ -363,8 +363,8 @@ private fun DeviceDetailsTopBar(
                     maxLines = 2
                 )
 
-                if (shouldShowE2EIInfo) {
-                    MLSVerificationIcon(device.mlsClientIdentity?.e2eiStatus)
+                if (shouldShowE2EIInfo && device.mlsClientIdentity != null) {
+                    MLSVerificationIcon(device.mlsClientIdentity.e2eiStatus)
                 }
 
                 if (!isCurrentDevice && device.isVerifiedProteus) {

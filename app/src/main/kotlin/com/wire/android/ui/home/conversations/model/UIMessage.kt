@@ -31,6 +31,7 @@ import com.wire.android.ui.home.conversations.model.messagetypes.image.VisualMed
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
 import com.wire.android.ui.markdown.MarkdownConstants
+import com.wire.android.ui.markdown.MarkdownNode
 import com.wire.android.ui.markdown.MarkdownPreview
 import com.wire.android.ui.theme.Accent
 import com.wire.android.util.Copyable
@@ -290,7 +291,9 @@ sealed interface UILastMessageContent {
     data class TextMessage(
         val messageBody: MessageBody,
         @Transient
-        val markdownPreview: MarkdownPreview? = null
+        val markdownPreview: MarkdownPreview? = null,
+        @Transient
+        val markdownLocaleTag: String? = null
     ) : UILastMessageContent
 
     @Serializable
@@ -299,7 +302,9 @@ sealed interface UILastMessageContent {
         val message: UIText,
         val separator: String = MarkdownConstants.NON_BREAKING_SPACE,
         @Transient
-        val markdownPreview: MarkdownPreview? = null
+        val markdownPreview: MarkdownPreview? = null,
+        @Transient
+        val markdownLocaleTag: String? = null
     ) : UILastMessageContent
 
     @Serializable
@@ -627,7 +632,9 @@ sealed interface UIMessageContent {
 @Serializable
 data class MessageBody(
     val message: UIText,
-    val quotedMessage: UIQuotedMessage? = null
+    val quotedMessage: UIQuotedMessage? = null,
+    @Transient
+    val markdownDocument: MarkdownNode.Document? = null
 )
 
 enum class MessageSource {

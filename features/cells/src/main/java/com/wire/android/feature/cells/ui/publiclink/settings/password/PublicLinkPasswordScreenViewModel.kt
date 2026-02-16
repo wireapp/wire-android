@@ -22,8 +22,8 @@ import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.ramcosta.composedestinations.generated.cells.destinations.PublicLinkPasswordScreenDestination
 import com.wire.android.feature.cells.R
-import com.wire.android.feature.cells.ui.navArgs
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.kalium.cells.domain.usecase.publiclink.CreatePublicLinkPasswordUseCase
@@ -49,7 +49,7 @@ internal class PublicLinkPasswordScreenViewModel @Inject constructor(
     val savedStateHandle: SavedStateHandle,
 ) : ActionsViewModel<PublicLinkPasswordScreenAction>() {
 
-    private val navArgs: PublicLinkPasswordNavArgs = savedStateHandle.navArgs()
+    private val navArgs: PublicLinkPasswordNavArgs = PublicLinkPasswordScreenDestination.argsFrom(savedStateHandle)
 
     internal var isPasswordCreated = navArgs.passwordEnabled
         private set

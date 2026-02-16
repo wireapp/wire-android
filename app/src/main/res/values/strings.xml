@@ -116,7 +116,7 @@
     <string name="content_description_conversation_mention_someone">Mention someone</string>
     <string name="content_description_conversation_back_btn">Go back to conversation list</string>
     <string name="content_description_conversation_open_details_label">open conversation details</string>
-    <string name="content_description_new_conversation">Search for people or create a new conversation</string>
+    <string name="content_description_new_conversation">New. Start a new conversation</string>
     <string name="content_description_new_meeting">Start or schedule a new Wire Meeting</string>
     <string name="content_description_back_button">Back button</string>
     <string name="content_description_send_button">Send</string>
@@ -124,6 +124,8 @@
     <string name="content_description_close_button">Close button</string>
     <string name="content_description_menu_button">Main navigation</string>
     <string name="content_description_drop_down_icon">Drop down arrow</string>
+    <string name="content_description_expand_text_icon">Expand text input field</string>
+    <string name="content_description_collapse_text_icon">Collapse text input field</string>
     <string name="content_description_remove_devices_screen_device_item_icon">Device item</string>
     <string name="content_description_remove_devices_screen_remove_icon">Remove device</string>
     <string name="content_description_avatar_preview">Preview of profile picture</string>
@@ -564,7 +566,7 @@
     <string name="channel_history_label">Conversation history</string>
     <string name="channel_history_description">Select a period. When participants join this channel, they can follow the history for this time frame.</string>
     <string name="channel_history_freemium_upgrade_title">Show older messages?</string>
-    <string name="channel_history_freemium_upgrade_description">Upgrade to a paid plan to offer channel members the whole history.</string>
+    <string name="channel_history_freemium_upgrade_description">To show older messages to channel members, your team needs configuration. Please contact your team admin.</string>
     <string name="channel_history_freemium_upgrade_now">Upgrade now</string>
     <string name="channel_history_off">Off</string>
     <string name="channel_history_unlimited">Unlimited</string>
@@ -980,7 +982,7 @@
     <string name="label_conversation_files_empty">Nobody shared files in this conversation yet 🙀</string>
     <string name="conversation_search_files_button">Search files</string>
     <!-- Search Contact-->
-    <string name="label_selected">Selected</string>
+    <string name="label_selected">Selected (%1$d)</string>
     <string name="label_contacts">Contacts</string>
     <string name="label_new_group">New Group</string>
     <string name="label_new_channel">New Channel</string>
@@ -1287,11 +1289,8 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="team_app_lock_enabled">App lock is now mandatory. Wire will lock itself after a certain time of inactivity. To unlock the app, you need to enter a passcode or use biometric authentication.</string>
     <string name="team_app_lock_disabled">App lock is not mandatory any more. Wire will no longer lock itself after a certain time of inactivity.</string>
     <string name="settings_forgot_lock_screen_title">Forgot your app lock passcode?</string>
-    <string name="settings_forgot_lock_screen_description">You can only access the data stored on this device with your app lock passcode. If you have forgotten your passcode, you can remove this device.</string>
-    <string name="settings_forgot_lock_screen_warning">If you remove your device, you lose all local data and messages for all accounts on this device permanently.</string>
-    <string name="settings_forgot_lock_screen_reset_device">Remove Device</string>
-    <string name="settings_forgot_lock_screen_reset_device_description">Enter your password for the account %s to confirm the deletion of all data for all accounts on this device. After removing your device, you can log in with your account credentials.</string>
-    <string name="settings_forgot_lock_screen_reset_device_without_password_description">Confirm the deletion of all data for all accounts on this device. After removing your device, you can log in with your account credentials.</string>
+    <string name="settings_forgot_lock_screen_description">The data stored on this device can only be accessed with your app lock passcode.</string>
+    <string name="settings_forgot_lock_screen_warning">If you have forgotten your passcode, you can log out and set a new passcode the next time you log in. Your data will stay on this device unless you choose to delete it.</string>
     <string name="settings_forgot_lock_screen_please_wait_label">Please wait...</string>
     <!--Devices -->
     <string name="devices_title">Your Devices</string>
@@ -1875,6 +1874,9 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="restriction_sso_code_title">SSO code configuration</string>
     <string name="restriction_server_urls_description">JSON value with the server endpoints configuration</string>
     <string name="restriction_sso_code_description">JSON value with the default SSO code configuration</string>
+    <string name="restriction_keep_websocket_title">Keep WebSocket Connection</string>
+    <string name="restriction_keep_websocket_description">Force persistent WebSocket connection for all users</string>
+    <string name="settings_keep_websocket_enforced_by_organization">This setting is managed by your organization.</string>
 
     <!--    channel not available dialog-->
     <string name="channel_not_available_dialog_title">Channels are available for team members.</string>
@@ -1914,4 +1916,5 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="label_system_message_apps_access_enabled_by_other">%1$s enabled **apps** for this conversation</string>
     <string name="label_system_message_apps_access_disabled_by_other">%1$s disabled **apps** for this conversation</string>
     <string name="label_system_message_apps_access_enabled_disclaimer">Added apps have access to the content of this conversation.</string>
+    <string name="more_information_about_this_server">More information about this backend</string>
 </resources>

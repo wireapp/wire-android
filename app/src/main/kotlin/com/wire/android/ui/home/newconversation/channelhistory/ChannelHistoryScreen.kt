@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.home.newconversation.channelhistory
 
+import com.wire.android.navigation.annotation.app.WireNewConversationDestination
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Text
@@ -29,7 +30,6 @@ import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.WireNavigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.ui.common.WirePromotionCard
 import com.wire.android.ui.common.colorsScheme
@@ -38,16 +38,14 @@ import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.typography
-import com.wire.android.ui.destinations.ChannelHistoryCustomScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.ChannelHistoryCustomScreenDestination
 import com.wire.android.ui.home.conversations.details.options.ArrowType
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsItem
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
-import com.wire.android.ui.home.newconversation.common.NewConversationNavGraph
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 
-@NewConversationNavGraph
-@WireDestination(
+@WireNewConversationDestination(
     style = SlideNavigationAnimation::class,
 )
 @Composable
@@ -72,7 +70,6 @@ fun ChannelHistoryScreen(
             navigator.navigate(NavigationCommand(ChannelHistoryCustomScreenDestination(navArgs)))
         },
         onBackPressed = navigator::navigateBack,
-        onUpgradeNowClicked = { /* TODO: Implement upgrade action */ },
         modifier = modifier,
     )
 }
@@ -84,7 +81,6 @@ fun ChannelHistoryScreenContent(
     onHistoryOptionSelected: (ChannelHistoryType) -> Unit,
     onOpenCustomChooser: () -> Unit,
     onBackPressed: () -> Unit,
-    onUpgradeNowClicked: () -> Unit,
     modifier: Modifier = Modifier,
     isFreemiumAccount: Boolean = false
 ) {
@@ -150,9 +146,7 @@ fun ChannelHistoryScreenContent(
             }
             if (isFreemiumAccount) {
                 item {
-                    ChannelHistoryFreemiumUpgradeCard(
-                        onUpgradeNowClicked = onUpgradeNowClicked,
-                    )
+                    ChannelHistoryFreemiumUpgradeCard()
                 }
             }
         }
@@ -160,14 +154,10 @@ fun ChannelHistoryScreenContent(
 }
 
 @Composable
-private fun ChannelHistoryFreemiumUpgradeCard(
-    onUpgradeNowClicked: () -> Unit,
-) {
+private fun ChannelHistoryFreemiumUpgradeCard() {
     WirePromotionCard(
         title = stringResource(id = R.string.channel_history_freemium_upgrade_title),
         description = stringResource(id = R.string.channel_history_freemium_upgrade_description),
-        buttonLabel = stringResource(id = R.string.channel_history_freemium_upgrade_now),
-        onButtonClick = onUpgradeNowClicked,
         modifier = Modifier.padding(horizontal = dimensions().spacing16x, vertical = dimensions().spacing8x),
     )
 }
@@ -180,7 +170,6 @@ fun PreviewChannelHistoryScreenPremium() = WireTheme {
         selectedHistoryOption = ChannelHistoryType.On.Specific(2, ChannelHistoryType.On.Specific.AmountType.Weeks),
         onHistoryOptionSelected = {},
         onOpenCustomChooser = {},
-        onUpgradeNowClicked = {},
         onBackPressed = {},
     )
 }
@@ -193,7 +182,6 @@ fun PreviewChannelHistoryScreenFreemium() = WireTheme {
         selectedHistoryOption = ChannelHistoryType.On.Specific(1, ChannelHistoryType.On.Specific.AmountType.Days),
         onHistoryOptionSelected = {},
         onOpenCustomChooser = {},
-        onUpgradeNowClicked = {},
         onBackPressed = {},
     )
 }

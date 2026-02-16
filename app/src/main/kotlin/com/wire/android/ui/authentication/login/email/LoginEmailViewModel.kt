@@ -29,6 +29,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.ClientScopeProvider
+import com.wire.android.di.DefaultWebSocketEnabledByDefault
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.LoginState
@@ -38,7 +39,7 @@ import com.wire.android.ui.authentication.login.isProxyAuthRequired
 import com.wire.android.ui.authentication.login.toLoginError
 import com.wire.android.ui.authentication.verificationcode.VerificationCodeState
 import com.wire.android.ui.common.textfield.textAsFlow
-import com.wire.android.ui.navArgs
+import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.EMPTY
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.CountdownTimer
@@ -79,6 +80,7 @@ class LoginEmailViewModel @Inject constructor(
     private val resendCodeTimer: CountdownTimer,
     private val dispatchers: DispatcherProvider,
     defaultServerConfig: ServerConfig.Links,
+    @DefaultWebSocketEnabledByDefault private val defaultWebSocketEnabledByDefault: Boolean,
 ) : LoginViewModel(
     savedStateHandle,
     clientScopeProviderFactory,
@@ -206,6 +208,7 @@ class LoginEmailViewModel @Inject constructor(
                     managedBy = loginResult.managedBy,
                     serverConfigId = loginResult.serverConfigId,
                     proxyCredentials = loginResult.proxyCredentials,
+                    isPersistentWebSocketEnabled = defaultWebSocketEnabledByDefault,
                     replace = false
                 )
             }.let {

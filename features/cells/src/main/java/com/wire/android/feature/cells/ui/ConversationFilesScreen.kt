@@ -54,15 +54,15 @@ import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.feature.cells.ui.common.Breadcrumbs
 import com.wire.android.feature.cells.ui.create.FileTypeBottomSheetDialog
 import com.wire.android.feature.cells.ui.create.file.CreateFileScreenNavArgs
-import com.wire.android.feature.cells.ui.destinations.AddRemoveTagsScreenDestination
-import com.wire.android.feature.cells.ui.destinations.ConversationFilesWithSlideInTransitionScreenDestination
-import com.wire.android.feature.cells.ui.destinations.CreateFileScreenDestination
-import com.wire.android.feature.cells.ui.destinations.CreateFolderScreenDestination
-import com.wire.android.feature.cells.ui.destinations.MoveToFolderScreenDestination
-import com.wire.android.feature.cells.ui.destinations.PublicLinkScreenDestination
-import com.wire.android.feature.cells.ui.destinations.RecycleBinScreenDestination
-import com.wire.android.feature.cells.ui.destinations.RenameNodeScreenDestination
-import com.wire.android.feature.cells.ui.destinations.VersionHistoryScreenDestination
+import com.ramcosta.composedestinations.generated.cells.destinations.AddRemoveTagsScreenDestination
+import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesWithSlideInTransitionScreenDestination
+import com.ramcosta.composedestinations.generated.cells.destinations.CreateFileScreenDestination
+import com.ramcosta.composedestinations.generated.cells.destinations.CreateFolderScreenDestination
+import com.ramcosta.composedestinations.generated.cells.destinations.MoveToFolderScreenDestination
+import com.ramcosta.composedestinations.generated.cells.destinations.PublicLinkScreenDestination
+import com.ramcosta.composedestinations.generated.cells.destinations.RecycleBinScreenDestination
+import com.ramcosta.composedestinations.generated.cells.destinations.RenameNodeScreenDestination
+import com.ramcosta.composedestinations.generated.cells.destinations.VersionHistoryScreenDestination
 import com.wire.android.feature.cells.ui.dialog.CellsNewActionBottomSheet
 import com.wire.android.feature.cells.ui.dialog.CellsOptionsBottomSheet
 import com.wire.android.feature.cells.ui.model.CellNodeUi
@@ -70,7 +70,7 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.PreviewNavigator
 import com.wire.android.navigation.WireNavigator
-import com.wire.android.navigation.annotation.features.cells.WireDestination
+import com.wire.android.navigation.annotation.features.cells.WireCellsDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.MoreOptionIcon
@@ -96,9 +96,10 @@ import kotlinx.coroutines.flow.flowOf
  * Show files in one conversation.
  * Conversation id is passed to view model via navigation parameters [CellFilesNavArgs].
  */
-@WireDestination(
+@WireCellsDestination(
+    start = true,
     style = PopUpNavigationAnimation::class,
-    navArgsDelegate = CellFilesNavArgs::class,
+    navArgs = CellFilesNavArgs::class,
 )
 @Composable
 fun ConversationFilesScreen(

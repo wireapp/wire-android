@@ -20,13 +20,13 @@ import java.io.File
 
 object AndroidSdk {
     const val min = 26
-    const val compile = 35
+    const val compile = 36
     const val target = compile
 }
 
 object AndroidApp {
     const val id = "com.wire.android"
-    const val versionName = "4.21.0"
+    const val versionName = "4.22.0"
     val versionCode by lazy {
         Versionizer(_rootDir).versionCode
     }
@@ -37,7 +37,7 @@ object AndroidApp {
     }
 
     /**
-     * The last 5 digits of the VersionCode. From 0 to 99_999.Œ
+     * The last 5 digits of the VersionCode. From 0 to 99_999.
      * It's an [Int], so it can be less than 5 digits when doing [toString], of course.
      * Considering versionCode bumps every 5min, these are
      * 288 per day

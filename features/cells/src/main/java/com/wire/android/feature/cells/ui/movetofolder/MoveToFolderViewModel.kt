@@ -19,9 +19,9 @@ package com.wire.android.feature.cells.ui.movetofolder
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.ramcosta.composedestinations.generated.cells.destinations.MoveToFolderScreenDestination
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.toUiModel
-import com.wire.android.feature.cells.ui.navArgs
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.kalium.cells.domain.usecase.GetFoldersUseCase
 import com.wire.kalium.cells.domain.usecase.MoveNodeUseCase
@@ -41,7 +41,7 @@ class MoveToFolderViewModel @Inject constructor(
     private val moveNodeUseCase: MoveNodeUseCase
 ) : ActionsViewModel<MoveToFolderViewAction>() {
 
-    private val navArgs: MoveToFolderNavArgs = savedStateHandle.navArgs()
+    private val navArgs: MoveToFolderNavArgs = MoveToFolderScreenDestination.argsFrom(savedStateHandle)
 
     private val currentPath: String = navArgs.currentPath
     private val nodeToMovePath: String = navArgs.nodeToMovePath

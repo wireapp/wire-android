@@ -18,6 +18,7 @@
 package com.wire.android.feature
 
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.emm.ManagedConfigurationsManager
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import kotlinx.coroutines.flow.firstOrNull
@@ -27,9 +28,15 @@ import javax.inject.Singleton
 
 @Singleton
 class ShouldStartPersistentWebSocketServiceUseCase @Inject constructor(
-    @KaliumCoreLogic private val coreLogic: CoreLogic
+    @KaliumCoreLogic private val coreLogic: CoreLogic,
+    private val managedConfigurationsManager: ManagedConfigurationsManager
 ) {
     suspend operator fun invoke(): Result {
+        // MDM takes priority - if enforced, always start service
+        if (managedConfigurationsManager.persistentWebSocketEnforcedByMDM.value) {
+            return Result.Success(true)
+        }
+
         return coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus().let { result ->
             when (result) {
                 is ObservePersistentWebSocketConnectionStatusUseCase.Result.Failure -> Result.Failure

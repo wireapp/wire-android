@@ -50,7 +50,7 @@ import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.common.WireCellErrorDialog
 import com.wire.android.feature.cells.ui.publiclink.settings.RemovePasswordDialog
 import com.wire.android.feature.cells.ui.util.PreviewMultipleThemes
-import com.wire.android.navigation.annotation.features.cells.WireDestination
+import com.wire.android.navigation.annotation.features.cells.WireCellsDestination
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.button.WireSwitch
 import com.wire.android.ui.common.colorsScheme
@@ -62,8 +62,8 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.theme.WireTheme
 
-@WireDestination(
-    navArgsDelegate = PublicLinkPasswordNavArgs::class,
+@WireCellsDestination(
+    navArgs = PublicLinkPasswordNavArgs::class,
 )
 @Composable
 internal fun PublicLinkPasswordScreen(

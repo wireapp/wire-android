@@ -1,0 +1,346 @@
+--------- beginning of main
+02-16 15:11:17.680 10160 10173 E TestRunner: failed: givenSSOTeamWithOkta_whenSettingUpNewDeviceAndRestoringBackup_thenMessageIsRestored(com.wire.android.tests.core.criticalFlows.SSODeviceBackup)
+02-16 15:11:17.681 10160 10173 E TestRunner: ----- begin exception -----
+02-16 15:11:17.681 10160 10173 E TestRunner: java.lang.AssertionError: Element not found with selector: resourceId='com.android.permissioncontroller:id/permission_allow_button'
+02-16 15:11:17.681 10160 10173 E TestRunner: 	at uiautomatorutils.UiWaitUtils.waitElement(UiWaitUtils.kt:94)
+02-16 15:11:17.681 10160 10173 E TestRunner: 	at uiautomatorutils.UiWaitUtils.waitElement$default(UiWaitUtils.kt:84)
+02-16 15:11:17.681 10160 10173 E TestRunner: 	at com.wire.android.tests.core.pages.RegistrationPage.clickAllowNotificationButton(RegistrationPage.kt:191)
+02-16 15:11:17.681 10160 10173 E TestRunner: 	at com.wire.android.tests.core.criticalFlows.SSODeviceBackup.givenSSOTeamWithOkta_whenSettingUpNewDeviceAndRestoringBackup_thenMessageIsRestored$lambda$44$lambda$43$lambda$8(SSODeviceBackup.kt:138)
+02-16 15:11:17.681 10160 10173 E TestRunner: 	at com.wire.android.tests.core.criticalFlows.SSODeviceBackup.$r8$lambda$ozT_qFdRmYH41ppzhHiBFt1SFx4(Unknown Source:0)
+02-16 15:11:17.681 10160 10173 E TestRunner: 	at com.wire.android.tests.core.criticalFlows.SSODeviceBackup$$ExternalSyntheticLambda1.invoke(D8$$SyntheticClass:0)
+02-16 15:11:17.681 10160 10173 E TestRunner: 	at com.wire.android.tests.core.BaseUiTest.step$lambda$1(BaseUiTest.kt:54)
+02-16 15:11:17.681 10160 10173 E TestRunner: 	at com.wire.android.tests.core.BaseUiTest.$r8$lambda$CSKDAIjp6271vtVFMpsHBDVw5qY(Unknown Source:0)
+02-16 15:11:17.681 10160 10173 E TestRunner: 	at com.wire.android.tests.core.BaseUiTest$$ExternalSyntheticLambda1.invoke(D8$$SyntheticClass:0)
+02-16 15:11:17.681 10160 10173 E TestRunner: 	at io.qameta.allure.kotlin.Allure.step(Allure.kt:60)
+02-16 15:11:17.681 10160 10173 E TestRunner: 	at com.wire.android.tests.core.BaseUiTest.step(BaseUiTest.kt:54)
+02-16 15:11:17.681 10160 10173 E TestRunner: 	at com.wire.android.tests.core.criticalFlows.SSODeviceBackup.givenSSOTeamWithOkta_whenSettingUpNewDeviceAndRestoringBackup_thenMessageIsRestored$lambda$44$lambda$43(SSODeviceBackup.kt:135)
+02-16 15:11:17.681 10160 10173 E TestRunner: 	at com.wire.android.tests.core.criticalFlows.SSODeviceBackup.$r8$lambda$2Sx9bia__ZfD5jsfI_ijV2L4_hM(Unknown Source:0)
+02-16 15:11:17.681 10160 10173 E TestRunner: 	at com.wire.android.tests.core.criticalFlows.SSODeviceBackup$$ExternalSyntheticLambda9.invoke(D8$$SyntheticClass:0)
+02-16 15:11:17.681 10160 10173 E TestRunner: 	at com.wire.android.tests.core.BaseUiTest.step$lambda$1(BaseUiTest.kt:54)
+02-16 15:11:17.681 10160 10173 E TestRunner: 	at com.wire.android.tests.core.BaseUiTest.$r8$lambda$CSKDAIjp6271vtVFMpsHBDVw5qY(Unknown Source:0)
+02-16 15:11:17.681 10160 10173 E TestRunner: 	at com.wire.android.tests.core.BaseUiTest$$ExternalSyntheticLambda1.invoke(D8$$SyntheticClass:0)
+02-16 15:11:17.681 10160 10173 E TestRunner: 	at io.qameta.allure.kotlin.Allure.step(Allure.kt:60)
+02-16 15:11:17.681 10160 10173 E TestRunner: 	at com.wire.android.tests.core.BaseUiTest.step(BaseUiTest.kt:54)
+02-16 15:11:17.681 10160 10173 E TestRunner: 	at com.wire.android.tests.core.criticalFlows.SSODeviceBackup.givenSSOTeamWithOkta_whenSettingUpNewDeviceAndRestoringBackup_thenMessageIsRestored$lambda$44(SSODeviceBackup.kt:107)
+02-16 15:11:17.681 10160 10173 E TestRunner: 	at com.wire.android.tests.core.criticalFlows.SSODeviceBackup.$r8$lambda$e0h6Q-P1rhGDMp8HRDgFA8Y9QaU(Unknown Source:0)
+02-16 15:11:17.681 10160 10173 E TestRunner: 	at com.wire.android.tests.core.criticalFlows.SSODeviceBackup$$ExternalSyntheticLambda0.invoke(D8$$SyntheticClass:0)
+02-16 15:11:17.681 10160 10173 E TestRunner: 	at com.wire.android.tests.core.BaseUiTest.step$lambda$1(BaseUiTest.kt:54)
+02-16 15:11:17.681 10160 10173 E TestRunner: 	at com.wire.android.tests.core.BaseUiTest.$r8$lambda$CSKDAIjp6271vtVFMpsHBDVw5qY(Unknown Source:0)
+02-16 15:11:17.681 10160 10173 E TestRunner: 	at com.wire.android.tests.core.BaseUiTest$$ExternalSyntheticLambda1.invoke(D8$$SyntheticClass:0)
+02-16 15:11:17.681 10160 10173 E TestRunner: 	at io.qameta.allure.kotlin.Allure.step(Allure.kt:60)
+02-16 15:11:17.681 10160 10173 E TestRunner: 	at com.wire.android.tests.core.BaseUiTest.step(BaseUiTest.kt:54)
+02-16 15:11:17.681 10160 10173 E TestRunner: 	at com.wire.android.tests.core.criticalFlows.SSODeviceBackup.givenSSOTeamWithOkta_whenSettingUpNewDeviceAndRestoringBackup_thenMessageIsRestored(SSODeviceBackup.kt:84)
+02-16 15:11:17.681 10160 10173 E TestRunner: 	at java.lang.reflect.Method.invoke(Native Method)
+02-16 15:11:17.681 10160 10173 E TestRunner: 	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+02-16 15:11:17.681 10160 10173 E TestRunner: 	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+02-16 15:11:17.681 10160 10173 E TestRunner: 	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+02-16 15:11:17.681 10160 10173 E TestRunner: 	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+02-16 15:11:17.681 10160 10173 E TestRunner: 	at androidx.test.internal.runner.junit4.statement.RunBefores.evaluate(RunBefores.java:80)
+02-16 15:11:17.681 10160 10173 E TestRunner: 	at androidx.test.internal.runner.junit4.statement.RunAfters.evaluate(RunAfters.java:61)
+02-16 15:11:17.681 10160 10173 E TestRunner: 	at com.wire.android.tests.support.suite.AllureFailureScreenshotRule$apply$1.evaluate(AllureFailureScreenshotRule.kt:44)
+02-16 15:11:17.681 10160 10173 E TestRunner: 	at com.wire.android.tests.support.suite.AllureLabelsRule$apply$1.evaluate(AllureLabelsRule.kt:70)
+02-16 15:11:17.681 10160 10173 E TestRunner: 	at org.junit.rules.TestWatcher$1.evaluate(TestWatcher.java:61)
+02-16 15:11:17.681 10160 10173 E TestRunner: 	at com.wire.android.tests.support.suite.AllureLogcatRule$apply$1.evaluate(AllureLogcatRule.kt:41)
+02-16 15:11:17.682 10160 10173 E TestRunner: 	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+02-16 15:11:17.682 10160 10173 E TestRunner: 	at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+02-16 15:11:17.682 10160 10173 E TestRunner: 	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+02-16 15:11:17.682 10160 10173 E TestRunner: 	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+02-16 15:11:17.682 10160 10173 E TestRunner: 	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+02-16 15:11:17.682 10160 10173 E TestRunner: 	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+02-16 15:11:17.682 10160 10173 E TestRunner: 	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+02-16 15:11:17.682 10160 10173 E TestRunner: 	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+02-16 15:11:17.682 10160 10173 E TestRunner: 	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+02-16 15:11:17.682 10160 10173 E TestRunner: 	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+02-16 15:11:17.682 10160 10173 E TestRunner: 	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+02-16 15:11:17.682 10160 10173 E TestRunner: 	at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+02-16 15:11:17.682 10160 10173 E TestRunner: 	at androidx.test.ext.junit.runners.AndroidJUnit4.run(AndroidJUnit4.java:162)
+02-16 15:11:17.682 10160 10173 E TestRunner: 	at org.junit.runners.Suite.runChild(Suite.java:128)
+02-16 15:11:17.682 10160 10173 E TestRunner: 	at org.junit.runners.Suite.runChild(Suite.java:27)
+02-16 15:11:17.682 10160 10173 E TestRunner: 	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+02-16 15:11:17.682 10160 10173 E TestRunner: 	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+02-16 15:11:17.682 10160 10173 E TestRunner: 	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+02-16 15:11:17.682 10160 10173 E TestRunner: 	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+02-16 15:11:17.682 10160 10173 E TestRunner: 	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+02-16 15:11:17.682 10160 10173 E TestRunner: 	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+02-16 15:11:17.682 10160 10173 E TestRunner: 	at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+02-16 15:11:17.682 10160 10173 E TestRunner: 	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+02-16 15:11:17.682 10160 10173 E TestRunner: 	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+02-16 15:11:17.682 10160 10173 E TestRunner: 	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:68)
+02-16 15:11:17.682 10160 10173 E TestRunner: 	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:59)
+02-16 15:11:17.682 10160 10173 E TestRunner: 	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:467)
+02-16 15:11:17.682 10160 10173 E TestRunner: 	at com.wire.android.tests.support.suite.TaggedTestRunner.onStart(TaggedTestRunner.kt:51)
+02-16 15:11:17.682 10160 10173 E TestRunner: 	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2278)
+02-16 15:11:17.682 10160 10173 E TestRunner: ----- end exception -----
+02-16 15:11:17.688 10160 10173 I TestRunner: finished: givenSSOTeamWithOkta_whenSettingUpNewDeviceAndRestoringBackup_thenMessageIsRestored(com.wire.android.tests.core.criticalFlows.SSODeviceBackup)
+02-16 15:11:17.764 10160 10173 I TestRunner: started: givenUserWantsToRegister_whenTheyProvideValidDetails_thenAccountIsCreatedSuccessfully(com.wire.android.tests.core.tests.PersonalUserRegistrationTest)
+02-16 15:11:17.796 10160 10173 D UiDevice: Executing shell command: pm clear com.wire.internal
+02-16 15:11:17.968 10160 10173 D UiDevice: Executing shell command: settings put secure show_ime_with_hard_keyboard 0
+02-16 15:11:18.010 10160 10173 D UiDevice: Executing shell command: settings put global window_animation_scale 0
+02-16 15:11:18.058 10160 10173 D UiDevice: Executing shell command: settings put global transition_animation_scale 0
+02-16 15:11:18.099 10160 10173 D UiDevice: Executing shell command: settings put global animator_duration_scale .5
+02-16 15:11:18.662 10160 10173 D UiDevice: Pressing home button.
+02-16 15:11:18.741 10160 10173 D UiDevice: Waiting 20000ms for SearchCondition[hasObject=BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E']].
+02-16 15:11:18.742 10160 10173 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-16 15:11:19.332 10160 10173 D UiDevice: Waiting 20000ms for SearchCondition[hasObject=BySelector [PKG='\Qcom.wire.internal\E']].
+02-16 15:11:19.332 10160 10173 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-16 15:11:19.506 10160 10173 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-16 15:11:19.955 10160 10173 W UiDevice: Active window root not found.
+02-16 15:11:19.959 10160 10173 W UiDevice: Skipping null root node for window: AccessibilityWindowInfo[title=Pixel Launcher, displayId=0, id=431, taskId=140, type=TYPE_APPLICATION, layer=0, region=SkRegion((0,0,1080,2220)), bounds=Rect(0, 0 - 1080, 2220), focused=true, active=true, pictureInPicture=false, hasParent=false, isAnchored=false, hasChildren=false]
+02-16 15:11:20.063 10160 10173 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-16 15:11:20.065 10160 10173 W UiDevice: Active window root not found.
+02-16 15:11:20.069 10160 10173 W UiDevice: Skipping null root node for window: AccessibilityWindowInfo[title=Pixel Launcher, displayId=0, id=431, taskId=140, type=TYPE_APPLICATION, layer=0, region=SkRegion((0,0,1080,2220)), bounds=Rect(0, 0 - 1080, 2220), focused=true, active=true, pictureInPicture=false, hasParent=false, isAnchored=false, hasChildren=false]
+02-16 15:11:20.170 10160 10173 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-16 15:11:20.173 10160 10173 W UiDevice: Active window root not found.
+02-16 15:11:20.176 10160 10173 W UiDevice: Skipping null root node for window: AccessibilityWindowInfo[title=Pixel Launcher, displayId=0, id=431, taskId=140, type=TYPE_APPLICATION, layer=0, region=SkRegion((0,0,1080,2220)), bounds=Rect(0, 0 - 1080, 2220), focused=true, active=true, pictureInPicture=false, hasParent=false, isAnchored=false, hasChildren=false]
+02-16 15:11:20.277 10160 10173 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-16 15:11:20.279 10160 10173 W UiDevice: Active window root not found.
+02-16 15:11:20.282 10160 10173 W UiDevice: Skipping null root node for window: AccessibilityWindowInfo[title=Pixel Launcher, displayId=0, id=431, taskId=140, type=TYPE_APPLICATION, layer=0, region=SkRegion((0,0,1080,2220)), bounds=Rect(0, 0 - 1080, 2220), focused=true, active=true, pictureInPicture=false, hasParent=false, isAnchored=false, hasChildren=false]
+02-16 15:11:20.384 10160 10173 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-16 15:11:20.386 10160 10173 W UiDevice: Active window root not found.
+02-16 15:11:20.389 10160 10173 W UiDevice: Skipping null root node for window: AccessibilityWindowInfo[title=Pixel Launcher, displayId=0, id=431, taskId=140, type=TYPE_APPLICATION, layer=0, region=SkRegion((0,0,1080,2220)), bounds=Rect(0, 0 - 1080, 2220), focused=true, active=true, pictureInPicture=false, hasParent=false, isAnchored=false, hasChildren=false]
+02-16 15:11:20.491 10160 10173 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-16 15:11:20.493 10160 10173 W UiDevice: Active window root not found.
+02-16 15:11:20.496 10160 10173 W UiDevice: Skipping null root node for window: AccessibilityWindowInfo[title=Pixel Launcher, displayId=0, id=431, taskId=140, type=TYPE_APPLICATION, layer=0, region=SkRegion((0,0,1080,2220)), bounds=Rect(0, 0 - 1080, 2220), focused=true, active=true, pictureInPicture=false, hasParent=false, isAnchored=false, hasChildren=false]
+02-16 15:11:20.597 10160 10173 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-16 15:11:20.600 10160 10173 W UiDevice: Active window root not found.
+02-16 15:11:20.606 10160 10173 W UiDevice: Skipping null root node for window: AccessibilityWindowInfo[title=Pixel Launcher, displayId=0, id=431, taskId=140, type=TYPE_APPLICATION, layer=0, region=SkRegion((0,0,1080,2220)), bounds=Rect(0, 0 - 1080, 2220), focused=true, active=true, pictureInPicture=false, hasParent=false, isAnchored=false, hasChildren=false]
+02-16 15:11:20.708 10160 10173 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-16 15:11:21.488 10160 10173 I System.out: Could not access BuildConfig field 'BACKENDCONNECTION_STAGING_SOCKSPROXY': No field BACKENDCONNECTION_STAGING_SOCKSPROXY in class Lcom/wire/android/testSupport/BuildConfig; (declaration of 'com.wire.android.testSupport.BuildConfig' appears in /data/app/~~4MdPVo-SZwjrsXzvsdYtJA==/com.wire.android.tests.testsCore.test-tfA3_OU2JxYcpxfqSui0Bw==/base.apk!classes2.dex)
+02-16 15:11:21.490 10160 10173 D UiDevice: Waiting 10000ms for SearchCondition[hasObject=BySelector [TEXT='\QEnter your email to start!\E']].
+02-16 15:11:21.490 10160 10173 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-16 15:11:22.060 10160 10173 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-16 15:11:22.185 10160 10173 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-16 15:11:22.215 10160 10173 D UiDevice: Waiting 10000ms for SearchCondition[hasObject=BySelector [RES='\QuserIdentifierInput\E']].
+02-16 15:11:22.215 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\QuserIdentifierInput\E'].
+02-16 15:11:22.226 10160 10173 D UiDevice: Retrieving node with selector: BySelector [RES='\QuserIdentifierInput\E'].
+02-16 15:11:22.342 10160 10173 D UiDevice: Retrieving node with selector: BySelector [RES='\QuserIdentifierInput\E'].
+02-16 15:11:22.372 10160 10173 D UiObject2: Clicking on (540, 1758).
+02-16 15:11:22.412 10160 10173 W GestureController: Gestures took longer than expected (40ms >> 16ms), device might be in a busy state.
+02-16 15:11:22.437 10160 10173 D UiObject2: Setting text to 'smoke1771251081485@wire.engineering'.
+02-16 15:11:22.446 10160 10173 D UiDevice: Waiting 10000ms for SearchCondition[hasObject=BySelector [RES='\QloginButton\E']].
+02-16 15:11:22.446 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\QloginButton\E'].
+02-16 15:11:23.152 10160 10173 D UiDevice: Retrieving node with selector: BySelector [RES='\QloginButton\E'].
+02-16 15:11:23.285 10160 10173 D UiDevice: Retrieving node with selector: BySelector [RES='\QloginButton\E'].
+02-16 15:11:23.339 10160 10173 D UiObject2: Clicking on (540, 1108).
+02-16 15:11:23.378 10160 10173 W GestureController: Gestures took longer than expected (38ms >> 16ms), device might be in a busy state.
+02-16 15:11:23.379 10160 10173 D UiDevice: Waiting 10000ms for SearchCondition[hasObject=BySelector [TEXT='\QCreate account or team\E']].
+02-16 15:11:23.379 10160 10173 D UiDevice: Searching for node with selector: BySelector [TEXT='\QCreate account or team\E'].
+02-16 15:11:24.487 10160 10173 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QCreate account or team\E'].
+02-16 15:11:24.624 10160 10173 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QCreate account or team\E'].
+02-16 15:11:24.683 10160 10173 D UiObject2: Clicking on (540, 1976).
+02-16 15:11:24.744 10160 10173 W GestureController: Gestures took longer than expected (60ms >> 16ms), device might be in a busy state.
+02-16 15:11:24.745 10160 10173 D UiDevice: Waiting 10000ms for SearchCondition[hasObject=BySelector [TEXT='\QCreate Personal Account\E']].
+02-16 15:11:24.745 10160 10173 D UiDevice: Searching for node with selector: BySelector [TEXT='\QCreate Personal Account\E'].
+02-16 15:11:24.963 10160 10173 D UiDevice: Searching for node with selector: BySelector [TEXT='\QCreate Personal Account\E'].
+02-16 15:11:25.045 10160 10173 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QCreate Personal Account\E'].
+02-16 15:11:25.170 10160 10173 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QCreate Personal Account\E'].
+02-16 15:11:25.224 10160 10173 D UiObject2: Clicking on (540, 1846).
+02-16 15:11:25.225 10160 10173 W UiObject2: Clicking on non-clickable object: android.view.accessibility.AccessibilityNodeInfo@ad42; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(302, 1822 - 778, 1870); packageName: com.wire.internal; className: android.widget.TextView; text: Create Personal Account; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; viewIdResName: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: true; visible: true; actions: [AccessibilityAction: ACTION_NEXT_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SET_SELECTION - null]
+02-16 15:11:25.261 10160 10173 W GestureController: Gestures took longer than expected (36ms >> 16ms), device might be in a busy state.
+02-16 15:11:25.263 10160 10173 D UiDevice: Waiting 10000ms for SearchCondition[hasObject=BySelector [RES='\Qname\E']].
+02-16 15:11:25.263 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qname\E'].
+02-16 15:11:25.385 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qname\E'].
+02-16 15:11:25.576 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qname\E'].
+02-16 15:11:26.164 10160 10173 D UiDevice: Retrieving node with selector: BySelector [RES='\Qname\E'].
+02-16 15:11:26.298 10160 10173 D UiDevice: Retrieving node with selector: BySelector [RES='\Qname\E'].
+02-16 15:11:26.357 10160 10173 D UiObject2: Retrieving node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+02-16 15:11:26.376 10160 10173 D UiObject2: Setting text to 'Smoke1771251081485'.
+02-16 15:11:26.383 10160 10173 D UiDevice: Waiting 10000ms for SearchCondition[hasObject=BySelector [RES='\Qpassword\E']].
+02-16 15:11:26.383 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qpassword\E'].
+02-16 15:11:27.026 10160 10173 W QueryController: Could not detect idle state.
+02-16 15:11:27.027 10160 10173 D UiDevice: Retrieving node with selector: BySelector [RES='\Qpassword\E'].
+02-16 15:11:27.195 10160 10173 D UiDevice: Retrieving node with selector: BySelector [RES='\Qpassword\E'].
+02-16 15:11:27.253 10160 10173 D UiObject2: Retrieving node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+02-16 15:11:27.270 10160 10173 D UiObject2: Setting text to '9zN,Oyt8+c(D!A,;4X'.
+02-16 15:11:27.276 10160 10173 D UiDevice: Waiting 10000ms for SearchCondition[hasObject=BySelector [RES='\QconfirmPassword\E']].
+02-16 15:11:27.276 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\QconfirmPassword\E'].
+02-16 15:11:27.318 10160 10173 D UiDevice: Retrieving node with selector: BySelector [RES='\QconfirmPassword\E'].
+02-16 15:11:27.445 10160 10173 D UiDevice: Retrieving node with selector: BySelector [RES='\QconfirmPassword\E'].
+02-16 15:11:27.490 10160 10173 D UiObject2: Retrieving node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+02-16 15:11:27.506 10160 10173 D UiObject2: Setting text to '9zN,Oyt8+c(D!A,;4X'.
+02-16 15:11:27.513 10160 10173 D UiDevice: Waiting 10000ms for SearchCondition[hasObject=BySelector [DESC='\QShow password\E']].
+02-16 15:11:27.513 10160 10173 D UiDevice: Searching for node with selector: BySelector [DESC='\QShow password\E'].
+02-16 15:11:27.547 10160 10173 D UiDevice: Retrieving node with selector: BySelector [DESC='\QShow password\E'].
+02-16 15:11:27.681 10160 10173 D UiDevice: Retrieving node with selector: BySelector [DESC='\QShow password\E'].
+02-16 15:11:27.711 10160 10173 D UiObject2: Clicking on (926, 843).
+02-16 15:11:27.711 10160 10173 W UiObject2: Clicking on non-clickable object: android.view.accessibility.AccessibilityNodeInfo@b619; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(899, 816 - 954, 871); packageName: com.wire.internal; className: android.view.View; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: Show password; tooltipText: null; viewIdResName: hidePassword; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: true; visible: true; actions: [AccessibilityAction: ACTION_NEXT_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SET_SELECTION - null]
+02-16 15:11:27.759 10160 10173 W GestureController: Gestures took longer than expected (47ms >> 16ms), device might be in a busy state.
+02-16 15:11:27.760 10160 10173 D UiDevice: Waiting 10000ms for SearchCondition[hasObject=BySelector [RES='\QconfirmPassword\E']].
+02-16 15:11:27.761 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\QconfirmPassword\E'].
+02-16 15:11:28.274 10160 10173 D UiDevice: Retrieving node with selector: BySelector [RES='\QconfirmPassword\E'].
+02-16 15:11:28.400 10160 10173 D UiDevice: Retrieving node with selector: BySelector [RES='\QconfirmPassword\E'].
+02-16 15:11:28.459 10160 10173 D UiObject2: Retrieving node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+02-16 15:11:28.496 10160 10173 D UiDevice: Waiting 10000ms for SearchCondition[hasObject=BySelector [DESC='\QHide password\E']].
+02-16 15:11:28.497 10160 10173 D UiDevice: Searching for node with selector: BySelector [DESC='\QHide password\E'].
+02-16 15:11:28.527 10160 10173 D UiDevice: Retrieving node with selector: BySelector [DESC='\QHide password\E'].
+02-16 15:11:28.671 10160 10173 D UiDevice: Retrieving node with selector: BySelector [DESC='\QHide password\E'].
+02-16 15:11:28.730 10160 10173 D UiObject2: Clicking on (926, 843).
+02-16 15:11:28.731 10160 10173 W UiObject2: Clicking on non-clickable object: android.view.accessibility.AccessibilityNodeInfo@b619; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(899, 816 - 954, 871); packageName: com.wire.internal; className: android.view.View; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: Hide password; tooltipText: null; viewIdResName: hidePassword; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: true; visible: true; actions: [AccessibilityAction: ACTION_NEXT_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SET_SELECTION - null]
+02-16 15:11:28.793 10160 10173 W GestureController: Gestures took longer than expected (61ms >> 16ms), device might be in a busy state.
+02-16 15:11:28.793 10160 10173 D UiDevice: Executing shell command: ime reset
+02-16 15:11:29.462 10160 10173 D UiDevice: Retrieving node with selector: BySelector [CLASS='\Qandroid.widget.CheckBox\E'].
+02-16 15:11:29.538 10160 10173 D UiObject2: Clicking on (111, 1626).
+02-16 15:11:29.575 10160 10173 W GestureController: Gestures took longer than expected (36ms >> 16ms), device might be in a busy state.
+02-16 15:11:29.576 10160 10173 D UiDevice: Waiting 10000ms for SearchCondition[hasObject=BySelector [TEXT='\QContinue\E']].
+02-16 15:11:29.576 10160 10173 D UiDevice: Searching for node with selector: BySelector [TEXT='\QContinue\E'].
+02-16 15:11:30.269 10160 10173 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QContinue\E'].
+02-16 15:11:30.418 10160 10173 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QContinue\E'].
+02-16 15:11:30.472 10160 10173 D UiObject2: Clicking on (540, 1801).
+02-16 15:11:30.473 10160 10173 W UiObject2: Clicking on non-clickable object: android.view.accessibility.AccessibilityNodeInfo@b95e; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(454, 1777 - 627, 1825); packageName: com.wire.internal; className: android.widget.TextView; text: Continue; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; viewIdResName: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: true; visible: true; actions: [AccessibilityAction: ACTION_NEXT_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SET_SELECTION - null]
+02-16 15:11:30.508 10160 10173 W GestureController: Gestures took longer than expected (34ms >> 16ms), device might be in a busy state.
+02-16 15:11:30.510 10160 10173 D UiDevice: Waiting 10000ms for SearchCondition[hasObject=BySelector [TEXT='\QTerms of Use\E']].
+02-16 15:11:30.510 10160 10173 D UiDevice: Searching for node with selector: BySelector [TEXT='\QTerms of Use\E'].
+02-16 15:11:31.353 10160 10173 D UiDevice: Searching for node with selector: BySelector [TEXT='\QTerms of Use\E'].
+02-16 15:11:31.478 10160 10173 D UiDevice: Searching for node with selector: BySelector [TEXT='\QTerms of Use\E'].
+02-16 15:11:31.623 10160 10173 W ByMatcher: Node returned null child: android.view.accessibility.AccessibilityNodeInfo@b676; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(88, 1333 - 992, 1515); packageName: com.wire.internal; className: android.view.View; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; viewIdResName: confirmPassword; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: false; visible: true; actions: [AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null]
+02-16 15:11:31.623 10160 10173 W ByMatcher: Skipping null child (0 of 3)
+02-16 15:11:31.624 10160 10173 W ByMatcher: Node returned null child: android.view.accessibility.AccessibilityNodeInfo@b103; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(0, 555 - 1080, 2088); packageName: com.wire.internal; className: android.widget.ScrollView; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; viewIdResName: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: true; visible: true; actions: [AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null]
+02-16 15:11:31.625 10160 10173 W ByMatcher: Skipping null child (5 of 9)
+02-16 15:11:31.625 10160 10173 W ByMatcher: Skipping null child (6 of 9)
+02-16 15:11:31.625 10160 10173 W ByMatcher: Skipping null child (7 of 9)
+02-16 15:11:31.626 10160 10173 W ByMatcher: Skipping null child (8 of 9)
+02-16 15:11:31.626 10160 10173 W ByMatcher: Node returned null child: android.view.accessibility.AccessibilityNodeInfo@80006e88; boundsInParent: Rect(0, 0 - 1080, 2220); boundsInScreen: Rect(0, 0 - 1080, 2220); packageName: com.wire.internal; className: android.widget.FrameLayout; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; viewIdResName: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: true; visible: true; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
+02-16 15:11:31.626 10160 10173 W ByMatcher: Skipping null child (1 of 2)
+02-16 15:11:31.627 10160 10173 W ByMatcher: Node returned null child: android.view.accessibility.AccessibilityNodeInfo@80006e88; boundsInParent: Rect(0, 0 - 1080, 2220); boundsInScreen: Rect(0, 0 - 1080, 2220); packageName: com.wire.internal; className: android.widget.FrameLayout; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; viewIdResName: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: true; visible: true; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
+02-16 15:11:31.627 10160 10173 W ByMatcher: Skipping null child (0 of 2)
+02-16 15:11:31.628 10160 10173 W ByMatcher: Skipping null child (1 of 2)
+02-16 15:11:31.768 10160 10173 D UiDevice: Searching for node with selector: BySelector [TEXT='\QTerms of Use\E'].
+02-16 15:11:32.726 10160 10173 W QueryController: Could not detect idle state.
+02-16 15:11:32.727 10160 10173 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QTerms of Use\E'].
+02-16 15:11:32.881 10160 10173 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QTerms of Use\E'].
+02-16 15:11:32.933 10160 10173 D UiDevice: Waiting 10000ms for SearchCondition[hasObject=BySelector [TEXT='^.*\QTerms of Use and Privacy Policy\E.*$']].
+02-16 15:11:32.934 10160 10173 D UiDevice: Searching for node with selector: BySelector [TEXT='^.*\QTerms of Use and Privacy Policy\E.*$'].
+02-16 15:11:32.958 10160 10173 D UiDevice: Retrieving node with selector: BySelector [TEXT='^.*\QTerms of Use and Privacy Policy\E.*$'].
+02-16 15:11:33.099 10160 10173 D UiDevice: Retrieving node with selector: BySelector [TEXT='^.*\QTerms of Use and Privacy Policy\E.*$'].
+02-16 15:11:33.139 10160 10173 D UiDevice: Waiting 10000ms for SearchCondition[hasObject=BySelector [TEXT='\QCancel\E']].
+02-16 15:11:33.140 10160 10173 D UiDevice: Searching for node with selector: BySelector [TEXT='\QCancel\E'].
+02-16 15:11:33.162 10160 10173 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QCancel\E'].
+02-16 15:11:33.302 10160 10173 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QCancel\E'].
+02-16 15:11:33.353 10160 10173 D UiDevice: Waiting 10000ms for SearchCondition[hasObject=BySelector [TEXT='\QView ToU and Privacy Policy\E']].
+02-16 15:11:33.353 10160 10173 D UiDevice: Searching for node with selector: BySelector [TEXT='\QView ToU and Privacy Policy\E'].
+02-16 15:11:33.377 10160 10173 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QView ToU and Privacy Policy\E'].
+02-16 15:11:33.522 10160 10173 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QView ToU and Privacy Policy\E'].
+02-16 15:11:33.564 10160 10173 D UiDevice: Waiting 10000ms for SearchCondition[hasObject=BySelector [TEXT='\QContinue\E']].
+02-16 15:11:33.564 10160 10173 D UiDevice: Searching for node with selector: BySelector [TEXT='\QContinue\E'].
+02-16 15:11:33.582 10160 10173 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QContinue\E'].
+02-16 15:11:33.715 10160 10173 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QContinue\E'].
+02-16 15:11:33.782 10160 10173 D UiDevice: Waiting 10000ms for SearchCondition[hasObject=BySelector [TEXT='\QContinue\E']].
+02-16 15:11:33.782 10160 10173 D UiDevice: Searching for node with selector: BySelector [TEXT='\QContinue\E'].
+02-16 15:11:33.802 10160 10173 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QContinue\E'].
+02-16 15:11:33.931 10160 10173 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QContinue\E'].
+02-16 15:11:33.986 10160 10173 D UiObject2: Clicking on (540, 1335).
+02-16 15:11:33.986 10160 10173 W UiObject2: Clicking on non-clickable object: android.view.accessibility.AccessibilityNodeInfo@e117; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(454, 1311 - 627, 1359); packageName: com.wire.internal; className: android.widget.TextView; text: Continue; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; viewIdResName: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: true; visible: true; actions: [AccessibilityAction: ACTION_NEXT_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SET_SELECTION - null]
+02-16 15:11:34.024 10160 10173 W GestureController: Gestures took longer than expected (37ms >> 16ms), device might be in a busy state.
+02-16 15:11:34.029 10160 10173 I Inbucket: 15:11:34 INFO [371] (InbucketC) Url is :  https://inbucket.wire.engineering//api/v1/mailbox/smoke1771251081485@wire.engineering/latest 
+02-16 15:11:35.436 10160 10173 D UiDevice: Waiting 10000ms for SearchCondition[hasObject=BySelector [CLASS='\Qandroid.widget.EditText\E']].
+02-16 15:11:35.436 10160 10173 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+02-16 15:11:35.465 10160 10173 D UiDevice: Retrieving node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+02-16 15:11:35.600 10160 10173 D UiDevice: Retrieving node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+02-16 15:11:35.668 10160 10173 D UiObject2: Clicking on (540, 1065).
+02-16 15:11:35.722 10160 10173 W GestureController: Gestures took longer than expected (54ms >> 16ms), device might be in a busy state.
+02-16 15:11:35.728 10160 10173 D UiObject2: Setting text to '132578'.
+02-16 15:11:40.733 10160 10173 D UiObject: Waiting 0ms for UiSelector[TEXT=Resend code].
+02-16 15:11:40.794 10160 10173 I QueryController: Matched selector: UiSelector[TEXT=Resend code] <<==>> [android.view.accessibility.AccessibilityNodeInfo@c6b0; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(421, 1150 - 660, 1282); packageName: com.wire.internal; className: android.widget.TextView; text: Resend code; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; viewIdResName: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: true; longClickable: false; contextClickable: false; enabled: false; password: false; scrollable: false; importantForAccessibility: true; visible: true; actions: [AccessibilityAction: ACTION_NEXT_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SET_SELECTION - null]]
+02-16 15:11:41.295 10160 10173 D UiObject: Waiting 0ms for UiSelector[TEXT=Resend code].
+02-16 15:11:41.302 10160 10173 I QueryController: Matched selector: UiSelector[TEXT=Resend code] <<==>> [android.view.accessibility.AccessibilityNodeInfo@c6b0; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(421, 1150 - 660, 1282); packageName: com.wire.internal; className: android.widget.TextView; text: Resend code; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; viewIdResName: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: true; longClickable: false; contextClickable: false; enabled: false; password: false; scrollable: false; importantForAccessibility: true; visible: true; actions: [AccessibilityAction: ACTION_NEXT_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SET_SELECTION - null]]
+02-16 15:11:41.803 10160 10173 D UiObject: Waiting 0ms for UiSelector[TEXT=Resend code].
+02-16 15:11:41.811 10160 10173 I QueryController: Matched selector: UiSelector[TEXT=Resend code] <<==>> [android.view.accessibility.AccessibilityNodeInfo@c6b0; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(421, 1150 - 660, 1282); packageName: com.wire.internal; className: android.widget.TextView; text: Resend code; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; viewIdResName: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: true; longClickable: false; contextClickable: false; enabled: false; password: false; scrollable: false; importantForAccessibility: true; visible: true; actions: [AccessibilityAction: ACTION_NEXT_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SET_SELECTION - null]]
+02-16 15:11:42.313 10160 10173 D UiObject: Waiting 0ms for UiSelector[TEXT=Resend code].
+02-16 15:11:42.322 10160 10173 I QueryController: Matched selector: UiSelector[TEXT=Resend code] <<==>> [android.view.accessibility.AccessibilityNodeInfo@c6b0; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(421, 1150 - 660, 1282); packageName: com.wire.internal; className: android.widget.TextView; text: Resend code; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; viewIdResName: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: true; longClickable: false; contextClickable: false; enabled: false; password: false; scrollable: false; importantForAccessibility: true; visible: true; actions: [AccessibilityAction: ACTION_NEXT_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SET_SELECTION - null]]
+02-16 15:11:42.823 10160 10173 D UiObject: Waiting 0ms for UiSelector[TEXT=Resend code].
+02-16 15:11:43.647 10160 10173 D UiDevice: Waiting 10000ms for SearchCondition[hasObject=BySelector [TEXT='^.*\QEnter your username. It helps others to find\E.*$']].
+02-16 15:11:43.647 10160 10173 D UiDevice: Searching for node with selector: BySelector [TEXT='^.*\QEnter your username. It helps others to find\E.*$'].
+02-16 15:11:43.661 10160 10173 D UiDevice: Retrieving node with selector: BySelector [TEXT='^.*\QEnter your username. It helps others to find\E.*$'].
+02-16 15:11:43.786 10160 10173 D UiDevice: Retrieving node with selector: BySelector [TEXT='^.*\QEnter your username. It helps others to find\E.*$'].
+02-16 15:11:43.817 10160 10173 D UiDevice: Waiting 10000ms for SearchCondition[hasObject=BySelector [TEXT='^.*\QAt least 2 character\E.*$']].
+02-16 15:11:43.817 10160 10173 D UiDevice: Searching for node with selector: BySelector [TEXT='^.*\QAt least 2 character\E.*$'].
+02-16 15:11:43.831 10160 10173 D UiDevice: Retrieving node with selector: BySelector [TEXT='^.*\QAt least 2 character\E.*$'].
+02-16 15:11:43.950 10160 10173 D UiDevice: Retrieving node with selector: BySelector [TEXT='^.*\QAt least 2 character\E.*$'].
+02-16 15:11:43.981 10160 10173 D UiDevice: Waiting 10000ms for SearchCondition[hasObject=BySelector [CLASS='\Qandroid.widget.EditText\E']].
+02-16 15:11:43.981 10160 10173 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+02-16 15:11:43.994 10160 10173 D UiDevice: Retrieving node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+02-16 15:11:44.124 10160 10173 D UiDevice: Retrieving node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+02-16 15:11:44.166 10160 10173 D UiObject2: Clicking on (540, 1702).
+02-16 15:11:44.201 10160 10173 W GestureController: Gestures took longer than expected (34ms >> 16ms), device might be in a busy state.
+02-16 15:11:44.220 10160 10173 D UiObject2: Setting text to 'smoke1771251081485'.
+02-16 15:11:44.225 10160 10173 D UiDevice: Waiting 10000ms for SearchCondition[hasObject=BySelector [TEXT='\QConfirm\E']].
+02-16 15:11:44.225 10160 10173 D UiDevice: Searching for node with selector: BySelector [TEXT='\QConfirm\E'].
+02-16 15:11:44.996 10160 10173 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QConfirm\E'].
+02-16 15:11:45.142 10160 10173 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QConfirm\E'].
+02-16 15:11:45.198 10160 10173 D UiObject2: Clicking on (540, 1130).
+02-16 15:11:45.199 10160 10173 W UiObject2: Clicking on non-clickable object: android.view.accessibility.AccessibilityNodeInfo@cd1b; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(463, 1106 - 617, 1154); packageName: com.wire.internal; className: android.widget.TextView; text: Confirm; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; viewIdResName: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: true; visible: true; actions: [AccessibilityAction: ACTION_NEXT_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SET_SELECTION - null]
+02-16 15:11:45.234 10160 10173 W GestureController: Gestures took longer than expected (34ms >> 16ms), device might be in a busy state.
+02-16 15:11:45.236 10160 10173 D UiObject: Waiting 0ms for UiSelector[TEXT=Confirm].
+02-16 15:11:45.320 10160 10173 I QueryController: Matched selector: UiSelector[TEXT=Confirm] <<==>> [android.view.accessibility.AccessibilityNodeInfo@cd1b; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(463, 1106 - 617, 1154); packageName: com.wire.internal; className: android.widget.TextView; text: Confirm; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; viewIdResName: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: true; visible: true; actions: [AccessibilityAction: ACTION_NEXT_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SET_SELECTION - null]]
+02-16 15:11:45.821 10160 10173 D UiObject: Waiting 0ms for UiSelector[TEXT=Confirm].
+02-16 15:11:46.726 10160 10173 D UiDevice: Waiting 10000ms for SearchCondition[hasObject=BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E']].
+02-16 15:11:46.726 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:47.433 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:47.561 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:47.694 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:47.829 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:47.975 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:48.122 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:48.264 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:48.407 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:48.556 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:48.698 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:48.846 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:48.992 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:49.136 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:49.281 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:49.418 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:49.570 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:49.706 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:49.852 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:50.008 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:50.148 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:50.291 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:50.439 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:50.585 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:50.720 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:50.866 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:51.019 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:51.166 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:51.305 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:51.451 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:51.621 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:51.743 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:51.867 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:52.009 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:52.158 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:52.303 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:52.450 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:52.585 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:52.725 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:52.860 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:52.995 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:53.139 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:53.288 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:53.433 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:53.575 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:53.750 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:53.889 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:53.926 10160 10165 I .testsCore.tes: Background concurrent copying GC freed 21MB AllocSpace bytes, 35(920KB) LOS objects, 70% free, 10MB/34MB, paused 89us,39us total 143.460ms
+02-16 15:11:54.020 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:54.150 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:54.295 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:54.443 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:54.595 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:54.738 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:54.886 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:55.024 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:55.171 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:55.316 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:55.460 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:55.601 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:55.770 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:55.920 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:56.067 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:56.200 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:56.336 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:56.485 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:56.629 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:56.775 10160 10173 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-16 15:11:56.821 10160 10173 I AllureFailureScreenshotRule: Taking failure screenshot for givenUserWantsToRegister_whenTheyProvideValidDetails_thenAccountIsCreatedSuccessfully(com.wire.android.tests.core.tests.PersonalUserRegistrationTest)
+02-16 15:11:56.823 10160 10173 D UiDevice: Taking screenshot (scale=1,000000, quality=80) and storing at /data/user/0/com.wire.android.tests.testsCore.test/cache/screenshot916523241654873190.tmp.

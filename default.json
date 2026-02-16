@@ -88,6 +88,17 @@
             "conversation_feeder_enabled": true,
             "db_invalidation_control_enabled": false,
         },
+        "nomaddevice": {
+            "application_id": "com.wire.nomaddevice",
+            "developer_features_enabled": false,
+            "logging_enabled": false,
+            "application_is_private_build": false,
+            "development_api_enabled": false,
+            "analytics_enabled": true,
+            "analytics_app_key": "4483f7a58ae3e70b3780319c4ccb5c88a037be49",
+            "analytics_server_url": "https://wire.count.ly/",
+            "enable_new_registration": true
+        },
         "fdroid": {
             "application_id": "com.wire",
             "developer_features_enabled": false,

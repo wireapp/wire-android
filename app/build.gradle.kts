@@ -49,7 +49,7 @@ repositories {
     google()
 }
 
-val nonFreeFlavors = setOf("prod", "internal", "staging", "beta", "dev")
+val nonFreeFlavors = setOf("prod", "internal", "staging", "beta", "dev", "nomaddevice")
 val fossFlavors = setOf("fdroid")
 val internalFlavors = setOf("internal", "staging", "beta", "dev")
 val allFlavors = nonFreeFlavors + fossFlavors
@@ -184,6 +184,7 @@ dependencies {
     implementation("com.wire.kalium:kalium-logic")
     implementation("com.wire.kalium:kalium-util")
     implementation("com.wire.kalium:kalium-cells")
+    nomaddeviceImplementation("com.wire.kalium:kalium-nomaddevice")
     androidTestImplementation("com.wire.kalium:kalium-mocks")
     androidTestImplementation("com.wire.kalium:kalium-network")
 

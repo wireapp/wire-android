@@ -25,13 +25,12 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.mapper.ContactMapper
-import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.InvalidLinkDialogState
 import com.wire.android.ui.home.conversations.MessageComposerViewState
 import com.wire.android.ui.home.conversations.VisitLinkDialogState
+import com.wire.android.ui.home.conversations.resolveConversationEntryArgs
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.util.EMPTY
 import com.wire.android.util.FileManager
@@ -105,8 +104,8 @@ class MessageComposerViewModel @AssistedInject constructor(
     var tempWritableImageUri: Uri? = null
         private set
 
-    private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
-    val conversationId: QualifiedID = conversationNavArgs.conversationId
+    private val conversationEntryArgs = savedStateHandle.resolveConversationEntryArgs()
+    val conversationId: QualifiedID = conversationEntryArgs.conversationId
 
     var visitLinkDialogState: VisitLinkDialogState by mutableStateOf(
         VisitLinkDialogState.Hidden

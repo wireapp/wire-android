@@ -29,6 +29,7 @@ import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer.MessageIdWrapper
 import com.wire.android.media.audiomessage.PlayingAudioMessage
 import com.wire.android.ui.home.conversations.ConversationNavArgs
+import com.wire.android.ui.home.conversations.ThreadConversationNavArgs
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
@@ -291,6 +292,14 @@ class ConversationMessagesViewModelArrangement {
 
     fun withStartThreadFromMessageResult(result: StartThreadFromMessageResult) = apply {
         coEvery { startThreadFromMessageUseCase(any(), any()) } returns result
+    }
+
+    fun withThreadNavArgs(threadId: String = "thread-id") = apply {
+        every { savedStateHandle.navArgs<ThreadConversationNavArgs>() } returns ThreadConversationNavArgs(
+            conversationId = conversationId,
+            threadId = threadId,
+            threadRootMessageId = "root-message-id"
+        )
     }
 
     fun withWireCellEnabled() = apply {

@@ -26,16 +26,15 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.ui.common.visbility.VisibilityState
-import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnResetSession
+import com.wire.android.ui.home.conversations.resolveConversationEntryArgs
 import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogState
 import com.wire.android.ui.home.conversations.messages.item.withOfflineIndicator
@@ -133,11 +132,11 @@ class ConversationMessagesViewModel @AssistedInject constructor(
         fun create(savedStateHandle: SavedStateHandle): ConversationMessagesViewModel
     }
 
-    private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
-    val conversationId: QualifiedID = conversationNavArgs.conversationId
-    private val searchedMessageIdNavArgs: String? = conversationNavArgs.searchedMessageId
-    private val threadIdNavArgs: String? = conversationNavArgs.threadId
-    val isThreadMode: Boolean = threadIdNavArgs != null
+    private val conversationEntryArgs = savedStateHandle.resolveConversationEntryArgs()
+    val conversationId: QualifiedID = conversationEntryArgs.conversationId
+    private val searchedMessageIdNavArgs: String? = conversationEntryArgs.searchedMessageId
+    private val threadIdNavArgs: String? = conversationEntryArgs.threadContext?.threadId
+    val isThreadMode: Boolean = conversationEntryArgs.threadContext != null
 
     private var isCellEnabledForConversation: Boolean = false
 

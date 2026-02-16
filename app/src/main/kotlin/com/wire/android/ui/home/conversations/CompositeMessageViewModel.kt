@@ -17,10 +17,6 @@
  */
 package com.wire.android.ui.home.conversations
 
-import dev.zacsweers.metro.Assisted
-import dev.zacsweers.metro.AssistedFactory
-import dev.zacsweers.metro.AssistedInject
-
 import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -28,13 +24,16 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.di.ViewModelScopedPreview
 import com.wire.android.ui.home.conversations.model.CompositeMessageArgs
 import com.wire.kalium.logic.data.id.MessageButtonId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.feature.message.composite.SendButtonActionMessageUseCase
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.launch
+
 @ViewModelScopedPreview
 interface CompositeMessageViewModel {
     val pendingButtonId: MessageButtonId?
@@ -52,8 +51,8 @@ class CompositeMessageViewModelImpl @AssistedInject constructor(
         fun create(savedStateHandle: SavedStateHandle, scopedArgs: CompositeMessageArgs): CompositeMessageViewModelImpl
     }
 
-    private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
-    val conversationId: QualifiedID = conversationNavArgs.conversationId
+    private val conversationEntryArgs = savedStateHandle.resolveConversationEntryArgs()
+    val conversationId: QualifiedID = conversationEntryArgs.conversationId
     private val messageId: String = scopedArgs.messageId
 
     override var pendingButtonId: MessageButtonId? by mutableStateOf(null)

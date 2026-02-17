@@ -549,20 +549,50 @@ jobs:
 
           chmod +x ./gradlew
 
-          SECRETS_FILE="${RUNNER_TEMP}/secrets.json"
-          export SECRETS_JSON_PATH="${SECRETS_FILE}"
-          echo "SECRETS_JSON_PATH=${SECRETS_FILE}" >> "$GITHUB_ENV"
+          python3 - <<'PY'
+          import json
+          import os
+          import subprocess
+          import sys
 
-          ./gradlew :tests:testsSupport:fetchSecrets \
-            --no-daemon \
-            --no-configuration-cache \
-            --quiet \
-            -PsecretsJsonPath="${SECRETS_FILE}" \
-            -PopVault="${OP_VAULT}"
+          vault = os.environ.get("OP_VAULT", "Test Automation")
+          items = [
+              "BACKENDCONNECTION_STAGING",
+              "SOCKS_PROXY_PASSWORD",
+              "CALLINGSERVICE_BASIC_AUTH",
+              "OKTA_API_KEY",
+          ]
 
-          test -s "${SECRETS_FILE}"
-          chmod 600 "${SECRETS_FILE}"
-          echo "OK: secrets.json created at ${SECRETS_FILE}"
+          def run_op(cmd):
+              result = subprocess.run(cmd, capture_output=True, text=True)
+              if result.returncode != 0:
+                  sys.stderr.write(result.stderr or result.stdout)
+                  sys.exit(result.returncode)
+              return result.stdout
+
+          combined = {}
+          for item in items:
+              out = run_op(["op", "item", "get", item, "--vault", vault, "--format", "json"])
+              data = json.loads(out)
+              fields_list = data.get("fields") or []
+              fields_map = {}
+              for idx, field in enumerate(fields_list):
+                  label = field.get("label")
+                  if not label:
+                      continue
+                  key = label if label not in fields_map else f"{label}_{idx}"
+                  fields_map[key] = {"type": field.get("type"), "value": field.get("value")}
+              data["fields"] = fields_map
+              title = data.get("title") or item
+              combined[title] = data
+
+          with open("secrets.json", "w", encoding="utf-8") as handle:
+              json.dump(combined, handle, ensure_ascii=True, indent=2)
+          PY
+
+          test -s "secrets.json"
+          chmod 600 "secrets.json"
+          echo "OK: secrets.json created at $(pwd)/secrets.json"
 
       # Build the instrumentation test APK.
       - name: Build test APK (assemble)
@@ -931,7 +961,7 @@ jobs:
         if: always()
         run: |
           set -euo pipefail
-          rm -f "${RUNNER_TEMP}/secrets.json" || true
+          rm -f "secrets.json" "${RUNNER_TEMP}/secrets.json" || true
           rm -f "${RUNNER_TEMP}/Wire.apk" "${RUNNER_TEMP}/Wire.old.apk" || true
           rm -rf "${RUNNER_TEMP}/allure-results" || true
           rm -rf "${RUNNER_TEMP}/allure-results-merged" || true

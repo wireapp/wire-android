@@ -1,0 +1,2 @@
+"Status","Start Time","Stop Time","Duration in ms","Parent Suite","Suite","Sub Suite","Test Class","Test Method","Name","Description"
+"passed","Tue Feb 17 09:09:54 CET 2026","Tue Feb 17 09:11:30 CET 2026","96193","","com.wire.android.tests.core.criticalFlows.PersonalAccountLifeCycle","","com.wire.android.tests.core.criticalFlows.PersonalAccountLifeCycle","givenNoAccount_whenCreatingAndDeletingPersonalAccount_thenAccountIsRemoved","givenNoAccount_whenCreatingAndDeletingPersonalAccount_thenAccountIsRemoved",""

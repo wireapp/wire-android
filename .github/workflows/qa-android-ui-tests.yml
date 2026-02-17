@@ -200,3 +200,46 @@ jobs:
           echo "resolvedTestCaseId=${{ steps.resolve_selector.outputs.testCaseId }}"
           echo "resolvedCategory=${{ steps.resolve_selector.outputs.category }}"
 
+  # Run UI tests on self-hosted Android devices and publish Allure report.
+  run-android-ui-tests:
+    name: Run Android UI tests
+    runs-on:
+      - self-hosted
+      - Linux
+      - X64
+      - office
+      - android-qa
+
+    needs: validate-and-resolve-inputs
+    permissions:
+      contents: write
+
+    env:
+      AWS_REGION: eu-west-1
+      S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+      OP_VAULT: "Test Automation"
+      S3_FOLDER: ${{ needs.validate-and-resolve-inputs.outputs.s3Folder }}
+      APP_ID: ${{ needs.validate-and-resolve-inputs.outputs.appId }}
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      # Checkout source and set up toolchain.
+      - name: Checkout (with submodules)
+        uses: actions/checkout@v4
+        with:
+          clean: true
+          submodules: recursive
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: gradle
+
+      - name: Set up Android SDK (ANDROID_HOME + adb)
+        uses: android-actions/setup-android@v3
+

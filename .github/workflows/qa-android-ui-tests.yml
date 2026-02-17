@@ -44,32 +44,10 @@ on:
           - production
         default: internal release candidate
 
-      buildType:
-        description: "Build type"
-        required: true
-        type: choice
-        options:
-          - release
-          - debug
-          - compat
-        default: release
-
       TAGS:
         description: "Tags: '@regression' OR '@TC-8143'."
         required: false
         default: ""
-        type: string
-
-      branch:
-        description: "Branch"
-        required: true
-        default: "develop"
-        type: string
-
-      backendType:
-        description: "Backend."
-        required: true
-        default: "staging"
         type: string
 
       testinyRunName:
@@ -84,45 +62,23 @@ on:
         default: ""
         type: string
 
-      callingServiceEnv:
-        description: "Calling service environment."
-        required: true
-        type: choice
-        options:
-          - dev
-          - custom
-          - master
-          - avs
-          - qa
-          - edge
-          - staging
-          - prod
-        default: dev
-
-      callingServiceUrl:
-        description: "Calling service URL."
-        required: true
-        default: "loadbalanced"
-        type: string
-
-      deflakeCount:
-        description: "Rerun only failed tests."
-        required: true
-        default: 1
-        type: number
+permissions:
+  contents: read
 
 jobs:
+  # Validate user inputs and derive selectors and flavor metadata.
   validate-and-resolve-inputs:
-    name: Validate + resolve selectors (no execution)
+    name: Validate + resolve selectors
     runs-on: ubuntu-latest
 
     outputs:
-      resolvedTestCaseId: ${{ steps.resolve.outputs.testCaseId }}
-      resolvedCategory: ${{ steps.resolve.outputs.category }}
-      resolvedTagKey: ${{ steps.resolve.outputs.tagKey }}
-      resolvedTagValue: ${{ steps.resolve.outputs.tagValue }}
+      resolvedTestCaseId: ${{ steps.resolve_selector.outputs.testCaseId }}
+      resolvedCategory: ${{ steps.resolve_selector.outputs.category }}
+      s3Folder: ${{ steps.resolve_flavor.outputs.s3Folder }}
+      appId: ${{ steps.resolve_flavor.outputs.appId }}
 
     steps:
+      # Validate upgrade inputs for consistency.
       - name: Validate upgrade inputs
         shell: bash
         run: |
@@ -132,25 +88,20 @@ jobs:
             exit 1
           fi
 
+      # Parse TAGS into a single selector (testCaseId or category).
       - name: Resolve selector from TAGS
-        id: resolve
+        id: resolve_selector
         shell: bash
         run: |
           set -euo pipefail
 
-          # We only use TAGS in this UI (no extra selector inputs)
           TESTCASE_ID=""
           CATEGORY=""
-          TAG_KEY=""
-          TAG_VALUE=""
-
           TAGS_RAW="${{ inputs.TAGS }}"
 
           trim() { echo "$1" | xargs; }
 
-          # If TAGS is provided, derive selector
           if [[ -n "$(trim "${TAGS_RAW}")" ]]; then
-            # TAGS can be comma-separated; use first non-empty token
             sel=""
             IFS=',' read -ra parts <<< "${TAGS_RAW}"
             for p in "${parts[@]}"; do
@@ -161,68 +112,91 @@ jobs:
               fi
             done
 
-            # Strip leading @ if present
             sel="${sel#@}"
             sel="$(trim "$sel")"
 
-            # @TC-8143 -> testCaseId
+            if [[ "$sel" == *:* ]]; then
+              echo "ERROR: TAGS format '@key:value' is not supported yet. Use '@TC-1234' or '@category'."
+              exit 1
+            fi
+
             if [[ "$sel" =~ ^TC-[0-9]+$ ]]; then
               TESTCASE_ID="$sel"
-
-            # @key:value -> tagKey/tagValue (kept for future parity)
-            elif [[ "$sel" == *:* ]]; then
-              k="$(trim "${sel%%:*}")"
-              v="$(trim "${sel#*:}")"
-              if [[ -z "$k" || -z "$v" ]]; then
-                echo "ERROR: Invalid TAGS format '${TAGS_RAW}'. Expected '@key:value' e.g. @criticalFlow:groupCallChat"
-                exit 1
-              fi
-              TAG_KEY="$k"
-              TAG_VALUE="$v"
-
-            # @regression -> category
             else
               CATEGORY="$sel"
             fi
           fi
 
-          # Safety: prevent partial key/value
-          if [[ -n "$TAG_KEY" && -z "$TAG_VALUE" ]]; then
-            echo "ERROR: tagKey provided but tagValue is empty."
-            exit 1
-          fi
-          if [[ -z "$TAG_KEY" && -n "$TAG_VALUE" ]]; then
-            echo "ERROR: tagValue provided but tagKey is empty."
-            exit 1
-          fi
-
           echo "testCaseId=$TESTCASE_ID" >> "$GITHUB_OUTPUT"
           echo "category=$CATEGORY" >> "$GITHUB_OUTPUT"
-          echo "tagKey=$TAG_KEY" >> "$GITHUB_OUTPUT"
-          echo "tagValue=$TAG_VALUE" >> "$GITHUB_OUTPUT"
 
-      - name: Print final resolved inputs (for reviewers)
+      # Map flavor to S3 path and Android package id.
+      - name: Resolve flavor -> S3_FOLDER + APP_ID
+        id: resolve_flavor
         shell: bash
         run: |
           set -euo pipefail
-          echo "=== RAW INPUTS ==="
-          echo "appBuildNumber=${{ inputs.appBuildNumber }}"
-          echo "isUpgrade=${{ inputs.isUpgrade }}"
-          echo "oldBuildNumber=${{ inputs.oldBuildNumber }}"
-          echo "enforceAppInstall=${{ inputs.enforceAppInstall }}"
+
+          FLAVOR="$(echo "${{ inputs.flavor }}" | xargs)"
+          S3_FOLDER=""
+          APP_ID=""
+
+          case "$FLAVOR" in
+            "staging compat")
+              S3_FOLDER="artifacts/megazord/android/reloaded/staging/compat/"
+              APP_ID="com.waz.zclient.dev"
+              ;;
+            "internal beta")
+              S3_FOLDER="artifacts/megazord/android/reloaded/beta/release/"
+              APP_ID="com.wire.android.internal"
+              ;;
+            "internal release candidate")
+              S3_FOLDER="artifacts/megazord/android/reloaded/internal/compat/"
+              APP_ID="com.wire.internal"
+              ;;
+            "experimental")
+              S3_FOLDER="artifacts/megazord/android/reloaded/staging/compat/"
+              APP_ID="com.waz.zclient.dev"
+              ;;
+            "column-1")
+              S3_FOLDER="android/custom/bund/column1/prod/compatrelease/"
+              APP_ID="com.wire.android.bund"
+              ;;
+            "column-2")
+              S3_FOLDER="android/custom/bund/column2/prod/compatrelease/"
+              APP_ID="com.wire.android.bund.column2"
+              ;;
+            "column-3")
+              S3_FOLDER="android/custom/bund/column3/prod/compatrelease/"
+              APP_ID="com.wire.android.bund.column3"
+              ;;
+            "debug")
+              S3_FOLDER="artifacts/megazord/android/reloaded/dev/debug/"
+              APP_ID="com.waz.zclient.dev.debug"
+              ;;
+            "fdroid")
+              S3_FOLDER="artifacts/megazord/android/reloaded/fdroid/compatrelease/"
+              APP_ID="com.wire"
+              ;;
+            "production")
+              S3_FOLDER="artifacts/megazord/android/reloaded/prod/compatrelease/"
+              APP_ID="com.wire"
+              ;;
+            *)
+              echo "ERROR: Unknown flavor: '$FLAVOR'"
+              exit 1
+              ;;
+          esac
+
+          echo "s3Folder=$S3_FOLDER" >> "$GITHUB_OUTPUT"
+          echo "appId=$APP_ID" >> "$GITHUB_OUTPUT"
+
+      # Log resolved values for troubleshooting.
+      - name: Print resolved values
+        shell: bash
+        run: |
+          set -euo pipefail
           echo "flavor=${{ inputs.flavor }}"
-          echo "buildType=${{ inputs.buildType }}"
-          echo "TAGS=${{ inputs.TAGS }}"
-          echo "branch=${{ inputs.branch }}"
-          echo "backendType=${{ inputs.backendType }}"
-          echo "testinyRunName=${{ inputs.testinyRunName }}"
-          echo "androidDeviceId=${{ inputs.androidDeviceId }}"
-          echo "callingServiceEnv=${{ inputs.callingServiceEnv }}"
-          echo "callingServiceUrl=${{ inputs.callingServiceUrl }}"
-          echo "deflakeCount=${{ inputs.deflakeCount }}"
-          echo ""
-          echo "=== RESOLVED SELECTORS ==="
-          echo "testCaseId=${{ steps.resolve.outputs.testCaseId }}"
-          echo "category=${{ steps.resolve.outputs.category }}"
-          echo "tagKey=${{ steps.resolve.outputs.tagKey }}"
-          echo "tagValue=${{ steps.resolve.outputs.tagValue }}"
+          echo "resolvedTestCaseId=${{ steps.resolve_selector.outputs.testCaseId }}"
+          echo "resolvedCategory=${{ steps.resolve_selector.outputs.category }}"
+

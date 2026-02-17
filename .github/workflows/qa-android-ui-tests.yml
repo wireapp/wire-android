@@ -531,3 +531,36 @@ jobs:
             fi
           done
 
+      # Fetch runtime secrets needed by tests.
+      - name: Install 1Password CLI
+        uses: 1password/install-cli-action@v2
+
+      - name: Fetch secrets.json (runtime only)
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [[ -z "${OP_SERVICE_ACCOUNT_TOKEN:-}" ]]; then
+            echo "ERROR: Missing OP_SERVICE_ACCOUNT_TOKEN secret"
+            exit 1
+          fi
+
+          echo "::add-mask::${OP_SERVICE_ACCOUNT_TOKEN}"
+
+          chmod +x ./gradlew
+
+          SECRETS_FILE="${RUNNER_TEMP}/secrets.json"
+          export SECRETS_JSON_PATH="${SECRETS_FILE}"
+          echo "SECRETS_JSON_PATH=${SECRETS_FILE}" >> "$GITHUB_ENV"
+
+          ./gradlew :tests:testsSupport:fetchSecrets \
+            --no-daemon \
+            --no-configuration-cache \
+            --quiet \
+            -PsecretsJsonPath="${SECRETS_FILE}" \
+            -PopVault="${OP_VAULT}"
+
+          test -s "${SECRETS_FILE}"
+          chmod 600 "${SECRETS_FILE}"
+          echo "OK: secrets.json created at ${SECRETS_FILE}"
+

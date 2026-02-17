@@ -220,6 +220,8 @@ jobs:
       OP_VAULT: "Test Automation"
       S3_FOLDER: ${{ needs.validate-and-resolve-inputs.outputs.s3Folder }}
       APP_ID: ${{ needs.validate-and-resolve-inputs.outputs.appId }}
+      # Required for Build Tools 36 to avoid D8 global-synthetics failures in CI.
+      ORG_GRADLE_PROJECT_android.enableGlobalSyntheticsGeneration: "true"
 
     defaults:
       run:

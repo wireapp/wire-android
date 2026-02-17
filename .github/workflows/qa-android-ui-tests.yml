@@ -564,3 +564,73 @@ jobs:
           chmod 600 "${SECRETS_FILE}"
           echo "OK: secrets.json created at ${SECRETS_FILE}"
 
+      # Build the instrumentation test APK.
+      - name: Build test APK (assemble)
+        run: |
+          set -euo pipefail
+          ./gradlew :tests:testsCore:assembleDebugAndroidTest --no-daemon --no-configuration-cache
+
+      # Execute UI tests with per-device sharding.
+      - name: Run UI tests (one shard per device)
+        env:
+          RESOLVED_TESTCASE_ID: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTestCaseId }}
+          RESOLVED_CATEGORY: ${{ needs.validate-and-resolve-inputs.outputs.resolvedCategory }}
+        run: |
+          set -euo pipefail
+          : "${DEVICE_LIST:?DEVICE_LIST missing}"
+          : "${DEVICE_COUNT:?DEVICE_COUNT missing}"
+
+          GRADLE_ARGS=(
+            ":tests:testsCore:connectedDebugAndroidTest"
+            "--no-daemon"
+            "--no-configuration-cache"
+          )
+
+          if [[ -n "${RESOLVED_TESTCASE_ID}" ]]; then
+            GRADLE_ARGS+=("-Pandroid.testInstrumentationRunnerArguments.testCaseId=${RESOLVED_TESTCASE_ID}")
+          fi
+          if [[ -n "${RESOLVED_CATEGORY}" ]]; then
+            GRADLE_ARGS+=("-Pandroid.testInstrumentationRunnerArguments.category=${RESOLVED_CATEGORY}")
+          fi
+          if [[ "${{ inputs.isUpgrade }}" == "true" ]]; then
+            GRADLE_ARGS+=("-Pandroid.testInstrumentationRunnerArguments.newApkPath=${NEW_APK_DEVICE_PATH}")
+            GRADLE_ARGS+=("-Pandroid.testInstrumentationRunnerArguments.oldApkPath=${OLD_APK_DEVICE_PATH}")
+          fi
+
+          NUM_SHARDS="${DEVICE_COUNT}"
+          if [[ -n "${RESOLVED_TESTCASE_ID}" ]]; then
+            NUM_SHARDS="1"
+          fi
+
+          read -ra DEVICES <<< "${DEVICE_LIST}"
+          echo "Sharding: numShards=${NUM_SHARDS}, deviceCount=${DEVICE_COUNT}"
+
+          pids=()
+          shard_index=0
+
+          for SERIAL in "${DEVICES[@]}"; do
+            (
+              set -euo pipefail
+              export ANDROID_SERIAL="${SERIAL}"
+              export GRADLE_USER_HOME="${RUNNER_TEMP}/gradle-${SERIAL}"
+
+              ./gradlew "${GRADLE_ARGS[@]}" \
+                "-Pandroid.testInstrumentationRunnerArguments.numShards=${NUM_SHARDS}" \
+                "-Pandroid.testInstrumentationRunnerArguments.shardIndex=${shard_index}"
+            ) &
+            pids+=("$!")
+            shard_index=$((shard_index + 1))
+          done
+
+          failed=0
+          for pid in "${pids[@]}"; do
+            if ! wait "$pid"; then
+              failed=1
+            fi
+          done
+
+          if [[ "$failed" -ne 0 ]]; then
+            echo "ERROR: One or more shards failed."
+            exit 1
+          fi
+

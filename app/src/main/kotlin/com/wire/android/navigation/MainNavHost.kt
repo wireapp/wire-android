@@ -91,7 +91,7 @@ fun MainNavHost(
                 val parentEntry = remember(navBackStackEntry) {
                     navController.getBackStackEntry(NewConversationGraph.route)
                 }
-                hiltViewModel<NewConversationViewModel>(parentEntry)
+                dependency(hiltViewModel<NewConversationViewModel>(parentEntry))
             }
 
             // 👇 To reuse LoginEmailViewModel from NewLoginPasswordScreen on NewLoginVerificationCodeScreen
@@ -99,7 +99,7 @@ fun MainNavHost(
                 val loginPasswordEntry = remember(navBackStackEntry) {
                     navController.getBackStackEntry(NewLoginPasswordScreenDestination.route)
                 }
-                hiltViewModel<LoginEmailViewModel>(loginPasswordEntry)
+                dependency(hiltViewModel<LoginEmailViewModel>(loginPasswordEntry))
             }
 
             // 👇 To tie SSOUrlConfigHolder to nested LoginNavGraph, making it shared between all screens that belong to it
@@ -136,7 +136,7 @@ fun MainNavHost(
                 val parentEntry = remember(navBackStackEntry) {
                     navController.getBackStackEntry(PersonalToTeamMigrationGraph.route)
                 }
-                hiltViewModel<TeamMigrationViewModel>(parentEntry)
+                dependency(hiltViewModel<TeamMigrationViewModel>(parentEntry))
             }
         },
         manualComposableCallsBuilder = {

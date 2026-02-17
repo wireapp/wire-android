@@ -94,7 +94,10 @@ tasks.register("fetchSecrets") {
     doLast {
         val secretsFile = rootProject.file("secrets.json")
         if (!secretsFile.exists()) {
-            val vaultName = "Test Automation"
+            val vaultName = (project.findProperty("opVault") as String?)
+                ?.trim()
+                ?.takeIf { it.isNotEmpty() }
+                ?: "Test Automation"
 
             // Helper function to execute shell commands and capture output
             fun runCommand(command: List<String>): String {
@@ -123,7 +126,7 @@ tasks.register("fetchSecrets") {
                 val itemTitle = item["title"] as? String ?: return@forEach
 
                 // 2. Fetch each secret item's full details
-                val itemOutput = runCommand(listOf("op", "item", "get", itemId, "--format", "json"))
+                val itemOutput = runCommand(listOf("op", "item", "get", itemId, "--vault", vaultName, "--format", "json"))
                 val itemData = JsonSlurper().parseText(itemOutput).asStringAnyMap()
 
                 // 3. Convert fields from List to Map where label is the key (simplify structure)

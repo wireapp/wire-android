@@ -1,0 +1,1 @@
+{"d7f33fff9e223c9263805597bb605ac7":{"statistic":{"failed":1,"broken":0,"skipped":0,"passed":0,"unknown":0,"total":1},"items":[{"uid":"5b5fbbaba93b36ec","status":"failed","statusDetails":"Element not found with selector: text='Decline'","time":{"start":1771318643288,"stop":1771318698338,"duration":55050}}]}}

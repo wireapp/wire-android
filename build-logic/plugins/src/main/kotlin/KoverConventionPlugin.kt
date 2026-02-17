@@ -27,10 +27,16 @@ class KoverConventionPlugin : Plugin<Project> {
 
             extensions.configure<KoverReportExtension> {
                 defaults {
-                    if (project.name == "app") {
-                        mergeWith("devDebug")
-                    } else {
-                        mergeWith("debug")
+                    val hasLegacyKotlinPlugin = pluginManager.hasPlugin("org.jetbrains.kotlin.android")
+                        || pluginManager.hasPlugin("org.jetbrains.kotlin.jvm")
+                        || pluginManager.hasPlugin("org.jetbrains.kotlin.multiplatform")
+
+                    if (hasLegacyKotlinPlugin) {
+                        if (project.name == "app") {
+                            mergeWith("devDebug")
+                        } else {
+                            mergeWith("debug")
+                        }
                     }
 
                     filters {

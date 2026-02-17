@@ -23,7 +23,7 @@ import com.wire.android.config.ScopedArgsTestExtension
 import com.wire.android.di.scopedArgs
 import com.wire.android.ui.home.conversations.model.CompositeMessageArgs
 import com.wire.android.config.NavigationTestExtension
-import com.wire.android.ui.navArgs
+import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.message.composite.SendButtonActionMessageUseCase
 import io.mockk.MockKAnnotations

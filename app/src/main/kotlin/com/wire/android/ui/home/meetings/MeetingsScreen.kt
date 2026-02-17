@@ -17,15 +17,13 @@
  */
 package com.wire.android.ui.home.meetings
 
+import com.wire.android.navigation.annotation.app.WireHomeDestination
 import androidx.compose.runtime.Composable
 import com.wire.android.feature.meetings.ui.AllMeetingsScreen
 import com.wire.android.feature.meetings.ui.NewMeetingBottomSheet
-import com.wire.android.navigation.HomeNavGraph
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.home.HomeStateHolder
 
-@HomeNavGraph
-@WireDestination
+@WireHomeDestination
 @Composable
 fun MeetingsScreen(homeStateHolder: HomeStateHolder) {
     AllMeetingsScreen()

@@ -36,7 +36,7 @@ abstract class WriteKeyValuesToFileTask : DefaultTask() {
      * Map of key-value pairs that will be written to the [outputJsonFile].
      */
     @get:Input
-    abstract val keyValues: MapProperty<String, String?>
+    abstract val keyValues: MapProperty<String, String>
 
     init {
         group = "build"

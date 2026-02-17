@@ -1,0 +1,2 @@
+"Status","Start Time","Stop Time","Duration in ms","Parent Suite","Suite","Sub Suite","Test Class","Test Method","Name","Description"
+"broken","Tue Feb 17 09:43:39 CET 2026","Tue Feb 17 09:46:42 CET 2026","182778","","com.wire.android.tests.core.criticalFlows.GroupCallChat","","com.wire.android.tests.core.criticalFlows.GroupCallChat","givenIStartGroupCall_whenParticipantShareMessageFileAndLocation_thenAllVisibleAndCallContinues","givenIStartGroupCall_whenParticipantShareMessageFileAndLocation_thenAllVisibleAndCallContinues",""

@@ -56,7 +56,7 @@ class NetworkSettingsViewModelTest {
     fun setup() {
         MockKAnnotations.init(this, relaxUnitFun = true)
         mockkStatic(::isWebsocketEnabledByDefault)
-        
+
         context = mockk(relaxed = true)
         persistPersistentWebSocketConnectionStatus = mockk()
         observePersistentWebSocketConnectionStatus = mockk()

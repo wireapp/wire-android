@@ -1,5 +1,12 @@
 name: QA Android UI Tests
 
+# Concurrency lock:
+# - If androidDeviceId is set, we lock per-device so only one run can use that specific phone at a time (other devices can run in parallel).
+# - If androidDeviceId is empty ("auto"), we lock the shared device pool so only one auto-run uses the farm at a time (other auto-runs queue).
+concurrency:
+  group: qa-android-ui-tests-office-${{ inputs.androidDeviceId || 'auto' }}
+  cancel-in-progress: false
+
 on:
   workflow_dispatch:
     inputs:

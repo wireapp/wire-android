@@ -17,20 +17,25 @@
  */
 package com.wire.android.ui.common.chip
 
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.painterResource
-import com.wire.android.ui.common.R
 import com.wire.android.ui.common.button.wireChipColors
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.theme.WireTheme
@@ -41,38 +46,74 @@ fun WireFilterChip(
     label: String,
     isSelected: Boolean,
     modifier: Modifier = Modifier,
+    count: Int? = null,
     isEnabled: Boolean = true,
-    onSelectChip: (String) -> Unit = {}
+    onClick: (String) -> Unit = {},
+    trailingIconResource: Int? = null
 ) {
-
-    val rotationAngle by animateFloatAsState(
-        targetValue = if (isSelected) 0f else 45f,
-    )
 
     FilterChip(
         modifier = modifier.wrapContentSize(),
-        onClick = { onSelectChip(label) },
+        onClick = { onClick(label) },
         label = {
-            Text(
-                text = label,
-                style = MaterialTheme.wireTypography.button02,
-                maxLines = 1
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(dimensions().spacing8x)
+            ) {
+                Text(
+                    text = label,
+                    style = MaterialTheme.wireTypography.button02,
+                    maxLines = 1
+                )
+
+                if (count != null && count > 0) {
+                    CountBadge(count = count)
+                }
+            }
         },
         enabled = isEnabled,
         selected = isSelected,
         colors = wireChipColors(),
         trailingIcon = {
-            Icon(
-                modifier = Modifier
-                    .size(dimensions().spacing12x)
-                    .rotate(rotationAngle),
-                painter = painterResource(id = R.drawable.ic_close),
-                contentDescription = null,
-            )
+            trailingIconResource ?.let {
+                Icon(
+                    modifier = Modifier.width(dimensions().spacing14x),
+                    painter = painterResource(id = it),
+                    contentDescription = null,
+                )
+            }
         },
+        border = FilterChipDefaults.filterChipBorder(
+            enabled = isEnabled,
+            selected = isSelected,
+            borderColor = colorsScheme().outline,
+            selectedBorderColor = colorsScheme().primary,
+        )
     )
 }
+
+@Composable
+fun CountBadge(
+    count: Int,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .background(
+                color = MaterialTheme.colorScheme.primary,
+                shape = RoundedCornerShape(36)
+            )
+            .padding(horizontal = dimensions().spacing4x, vertical = dimensions().spacing1x),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = count.toString(),
+            style = MaterialTheme.wireTypography.label02,
+            color = colorsScheme().onPrimary
+        )
+    }
+}
+
 
 @MultipleThemePreviews
 @Composable
@@ -86,7 +127,7 @@ fun PreviewFilterChip() {
 @Composable
 fun PreviewSelectedFilterChip() {
     WireTheme {
-        WireFilterChip(label = "Selected", isSelected = true)
+        WireFilterChip(label = "Selected", count = 4, isSelected = true)
     }
 }
 

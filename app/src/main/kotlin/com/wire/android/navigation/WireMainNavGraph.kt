@@ -31,6 +31,7 @@ import com.wire.android.feature.cells.ui.destinations.PublicLinkPasswordScreenDe
 import com.wire.android.feature.cells.ui.destinations.PublicLinkScreenDestination
 import com.wire.android.feature.cells.ui.destinations.RecycleBinScreenDestination
 import com.wire.android.feature.cells.ui.destinations.RenameNodeScreenDestination
+import com.wire.android.feature.cells.ui.destinations.SearchScreenDestination
 import com.wire.android.feature.cells.ui.destinations.VersionHistoryScreenDestination
 import com.wire.android.feature.sketch.destinations.DrawingCanvasScreenDestination
 import com.wire.android.ui.NavGraphs
@@ -42,6 +43,7 @@ object WireMainNavGraph : NavGraphSpec {
         .plus(DrawingCanvasScreenDestination)
         .plus(PublicLinkScreenDestination)
         .plus(ConversationFilesScreenDestination)
+        .plus(SearchScreenDestination)
         .plus(ConversationFilesWithSlideInTransitionScreenDestination)
         .plus(CreateFolderScreenDestination)
         .plus(CreateFileScreenDestination)

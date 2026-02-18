@@ -79,6 +79,7 @@ import okio.Path.Companion.toPath
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.seconds
 
+// TODO: to cleanup this viewModel as search has been moved to a separate screen in upcoming PRs
 @Suppress("TooManyFunctions", "LongParameterList")
 @HiltViewModel
 class CellViewModel @Inject constructor(

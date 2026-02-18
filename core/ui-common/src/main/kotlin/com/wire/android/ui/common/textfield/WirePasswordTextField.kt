@@ -86,7 +86,7 @@ fun WirePasswordTextField(
     inputMinHeight: Dp = MaterialTheme.wireDimensions.textFieldMinHeight,
     shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.textFieldCornerSize),
     colors: WireTextFieldColors = wireTextFieldColors(),
-    onTap: ((Offset) -> Unit)? = null,
+    onTap: (() -> Unit)? = null,
     testTag: String = String.EMPTY
 ) {
     val autoFillType = if (autoFill) WireAutoFillType.Password else WireAutoFillType.None

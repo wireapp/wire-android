@@ -22,7 +22,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
@@ -56,6 +58,7 @@ private fun Content(
     modifier: Modifier = Modifier
 ) {
     val lazyListState = rememberLazyListState()
+    val focusRequester = remember { FocusRequester() }
     WireScaffold(
         modifier = modifier,
         topBar = {
@@ -69,7 +72,8 @@ private fun Content(
                     isSearchActive = true,
                     searchBarHint = stringResource(id = R.string.label_search_public_channels),
                     searchQueryTextState = searchQueryTextState,
-                    isLoading = false
+                    isLoading = false,
+                    focusRequester = focusRequester,
                 )
             }
         },

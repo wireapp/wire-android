@@ -59,7 +59,8 @@ fun SearchBarInput(
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     textStyle: TextStyle = LocalTextStyle.current,
     isLoading: Boolean = false,
-    semanticDescription: String? = null
+    semanticDescription: String? = null,
+    onTap: (() -> Unit)? = null
 ) {
 
     WireTextField(
@@ -108,7 +109,8 @@ fun SearchBarInput(
         placeholderAlignment = placeholderAlignment,
         placeholderText = placeholderText,
         lineLimits = TextFieldLineLimits.SingleLine,
-        semanticDescription = semanticDescription
+        semanticDescription = semanticDescription,
+        onTap = onTap,
     )
 }
 

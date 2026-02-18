@@ -49,6 +49,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
@@ -346,6 +347,7 @@ fun HomeContent(
                                     searchBarHint = stringResource(searchBar.hint),
                                     searchQueryTextState = searchBarState.searchQueryTextState,
                                     onActiveChanged = searchBarState::searchActiveChanged,
+                                    focusRequester = remember { FocusRequester() }
                                 )
                             }
                         }

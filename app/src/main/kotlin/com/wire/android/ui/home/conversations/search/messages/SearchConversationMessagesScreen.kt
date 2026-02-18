@@ -25,7 +25,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -117,7 +119,8 @@ fun SearchConversationMessagesResultContent(
                         searchBarHint = stringResource(id = R.string.label_search_messages),
                         searchQueryTextState = searchQueryTextState,
                         onCloseSearchClicked = onCloseSearchClicked,
-                        isLoading = state.isLoading
+                        isLoading = state.isLoading,
+                        focusRequester = remember { FocusRequester() },
                     )
                 }
                 if (isCellsConversation) {

@@ -44,6 +44,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
@@ -140,6 +141,7 @@ fun SearchUsersAndAppsScreen(
             }
         },
         topBarCollapsing = {
+            val focusRequester = remember { FocusRequester() }
             SearchTopBar(
                 isSearchActive = searchBarState.isSearchActive,
                 searchBarHint = searchBarTitle,
@@ -147,6 +149,7 @@ fun SearchUsersAndAppsScreen(
                 searchBarDescription = stringResource(R.string.content_description_add_participants_search_field),
                 searchQueryTextState = searchBarState.searchQueryTextState,
                 onActiveChanged = searchBarState::searchActiveChanged,
+                focusRequester = focusRequester,
             )
         },
         topBarFooter = {

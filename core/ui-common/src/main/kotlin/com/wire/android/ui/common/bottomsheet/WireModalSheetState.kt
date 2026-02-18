@@ -32,6 +32,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filter
@@ -43,15 +44,17 @@ open class WireModalSheetState<T : Any>(
     private val scope: CoroutineScope,
     private val keyboardController: SoftwareKeyboardController? = null,
     private val onDismissAction: () -> Unit = {},
+    positionalThreshold: () -> Float = { with(density) { 56.dp.toPx() } },
+    velocityThreshold: () -> Float = { with(density) { 125.dp.toPx() } },
     initialValue: WireSheetValue<T> = WireSheetValue.Hidden,
     skipPartiallyExpanded: Boolean = true,
 ) {
     val sheetState: SheetState = SheetState(
-        density = density,
         skipPartiallyExpanded = skipPartiallyExpanded,
         initialValue = initialValue.originalValue,
+        positionalThreshold = positionalThreshold,
+        velocityThreshold = velocityThreshold,
         confirmValueChange = { true },
-        skipHiddenState = false
     )
 
     var currentValue: WireSheetValue<T> by mutableStateOf(initialValue)

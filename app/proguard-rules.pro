@@ -46,3 +46,8 @@
 -dontwarn java.awt.GraphicsEnvironment
 -dontwarn java.awt.HeadlessException
 -dontwarn java.awt.Window
+
+# Room/WorkManager instantiate generated DB classes via reflection.
+# Keep *_Impl classes (including constructors) to avoid startup crash
+# when R8 strips default constructors.
+-keep class **_Impl extends androidx.room.RoomDatabase { *; }

@@ -53,7 +53,7 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.ramcosta.composedestinations.spec.Route
+import com.ramcosta.composedestinations.spec.Direction
 import com.ramcosta.composedestinations.utils.destination
 import com.ramcosta.composedestinations.utils.route
 import com.wire.android.BuildConfig
@@ -68,6 +68,7 @@ import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.navigation.MainNavHost
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.baseRoute
 import com.wire.android.navigation.getBaseRoute
 import com.wire.android.navigation.rememberNavigator
 import com.wire.android.navigation.startDestination
@@ -87,16 +88,16 @@ import com.wire.android.ui.common.topappbar.CommonTopAppBar
 import com.wire.android.ui.common.topappbar.CommonTopAppBarState
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
 import com.wire.android.ui.common.visbility.rememberVisibilityState
-import com.wire.android.ui.destinations.E2EIEnrollmentScreenDestination
-import com.wire.android.ui.destinations.E2eiCertificateDetailsScreenDestination
-import com.wire.android.ui.destinations.HomeScreenDestination
-import com.wire.android.ui.destinations.LogManagementScreenDestination
-import com.wire.android.ui.destinations.LoginScreenDestination
-import com.wire.android.ui.destinations.NewLoginScreenDestination
-import com.wire.android.ui.destinations.NewWelcomeEmptyStartScreenDestination
-import com.wire.android.ui.destinations.SelfDevicesScreenDestination
-import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
-import com.wire.android.ui.destinations.WelcomeScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.E2EIEnrollmentScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.E2EiCertificateDetailsScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.HomeScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.LogManagementScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.LoginScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.NewLoginScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.NewWelcomeEmptyStartScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.SelfDevicesScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.SelfUserProfileScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.WelcomeScreenDestination
 import com.wire.android.ui.e2eiEnrollment.GetE2EICertificateUI
 import com.wire.android.ui.home.E2EICertificateRevokedDialog
 import com.wire.android.ui.home.E2EIRequiredDialog
@@ -200,12 +201,12 @@ class WireActivity : AppCompatActivity() {
             appLogger.i("$TAG start destination")
             val startDestination = when (viewModel.initialAppState()) {
                 InitialAppState.NOT_LOGGED_IN -> when (loginTypeSelector.canUseNewLogin()) {
-                    true -> NewWelcomeEmptyStartScreenDestination
-                    false -> WelcomeScreenDestination
+                    true -> NewWelcomeEmptyStartScreenDestination()
+                    false -> WelcomeScreenDestination()
                 }
 
-                InitialAppState.ENROLL_E2EI -> E2EIEnrollmentScreenDestination
-                InitialAppState.LOGGED_IN -> HomeScreenDestination
+                InitialAppState.ENROLL_E2EI -> E2EIEnrollmentScreenDestination()
+                InitialAppState.LOGGED_IN -> HomeScreenDestination()
             }
             appLogger.i("$TAG composable content")
             setComposableContent(startDestination)
@@ -225,6 +226,7 @@ class WireActivity : AppCompatActivity() {
                 managedConfigurationsManager.refreshServerConfig()
                 managedConfigurationsManager.refreshSSOCodeConfig()
             }
+            viewModel.applyPersistentWebSocketConfigFromMDM()
         }
     }
 
@@ -249,7 +251,7 @@ class WireActivity : AppCompatActivity() {
     }
 
     @Suppress("LongMethod")
-    private fun setComposableContent(startDestination: Route) {
+    private fun setComposableContent(startDestination: Direction) {
         setContent {
             val snackbarHostState = remember { SnackbarHostState() }
 
@@ -267,7 +269,7 @@ class WireActivity : AppCompatActivity() {
                         finish = this@WireActivity::finish,
                         isAllowedToNavigate = { navigationCommand ->
                             when {
-                                navigationCommand.destination.route.getBaseRoute() == NewLoginScreenDestination.route.getBaseRoute() -> {
+                                navigationCommand.destination.baseRoute == NewLoginScreenDestination.baseRoute -> {
                                     /**
                                      * This is a case when the app tries to open the "enterprise login" screen so first it needs to verify
                                      * whether it's possible to have another session, if not then do not navigate and show proper dialog.
@@ -564,7 +566,7 @@ class WireActivity : AppCompatActivity() {
                         openCertificateDetails = {
                             navigate(
                                 NavigationCommand(
-                                    E2eiCertificateDetailsScreenDestination(
+                                    E2EiCertificateDetailsScreenDestination(
                                         E2EICertificateDetails.DuringLoginCertificateDetails(it)
                                     )
                                 )
@@ -759,7 +761,7 @@ class WireActivity : AppCompatActivity() {
     private fun handleLogManagementShake(navigator: Navigator) {
         runOnUiThread {
             val currentRoute = navigator.navController.currentDestination?.route?.getBaseRoute()
-            val targetRoute = LogManagementScreenDestination.route.getBaseRoute()
+            val targetRoute = LogManagementScreenDestination.baseRoute
             if (currentRoute == targetRoute) return@runOnUiThread
             navigator.navigate(NavigationCommand(LogManagementScreenDestination, BackStackMode.UPDATE_EXISTED))
         }
@@ -782,16 +784,16 @@ class WireActivity : AppCompatActivity() {
 }
 
 internal fun Navigator.shouldReplaceWelcomeLoginStartDestination(): Boolean {
-    val firstDestinationBaseRoute = navController.startDestination()?.route()?.route?.getBaseRoute()
+    val firstDestinationBaseRoute = navController.startDestination()?.route()?.baseRoute
     val welcomeScreens = listOf(WelcomeScreenDestination, NewWelcomeEmptyStartScreenDestination)
     val loginScreens = listOf(LoginScreenDestination, NewLoginScreenDestination)
-    val welcomeAndLoginBaseRoutes = (welcomeScreens + loginScreens).map { it.route.getBaseRoute() }
+    val welcomeAndLoginBaseRoutes = (welcomeScreens + loginScreens).map { it.baseRoute }
     return welcomeAndLoginBaseRoutes.contains(firstDestinationBaseRoute)
 }
 
 internal fun Navigator.isEmptyWelcomeStartDestination(): Boolean {
-    val firstDestinationBaseRoute = navController.startDestination()?.route()?.route?.getBaseRoute()
-    return firstDestinationBaseRoute == NewWelcomeEmptyStartScreenDestination.route.getBaseRoute()
+    val firstDestinationBaseRoute = navController.startDestination()?.route()?.baseRoute
+    return firstDestinationBaseRoute == NewWelcomeEmptyStartScreenDestination.baseRoute
 }
 
 val LocalActivity = staticCompositionLocalOf<AppCompatActivity> {

@@ -17,19 +17,37 @@
  */
 package com.wire.android.navigation.style
 
-import com.ramcosta.composedestinations.animations.defaults.NestedNavGraphDefaultAnimations
-import com.ramcosta.composedestinations.animations.defaults.RootNavGraphDefaultAnimations
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.navigation.NavBackStackEntry
+import com.ramcosta.composedestinations.animations.NavHostAnimatedDestinationStyle
+import com.ramcosta.composedestinations.spec.DestinationStyle
 
-val DefaultRootNavGraphAnimations = RootNavGraphDefaultAnimations(
-    enterTransition = { with(DefaultNavigationAnimation) { enterTransition() } },
-    exitTransition = { with(DefaultNavigationAnimation) { exitTransition() } },
-    popEnterTransition = { with(DefaultNavigationAnimation) { popEnterTransition() } },
-    popExitTransition = { with(DefaultNavigationAnimation) { popExitTransition() } },
-)
+object DefaultRootNavGraphAnimations : NavHostAnimatedDestinationStyle() {
+    override val enterTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition
+        get() = DefaultNavigationAnimation.enterTransition
 
-val DefaultNestedNavGraphAnimations = NestedNavGraphDefaultAnimations(
-    enterTransition = { with(DefaultNavigationAnimation) { enterTransition() } },
-    exitTransition = { with(DefaultNavigationAnimation) { exitTransition() } },
-    popEnterTransition = { with(DefaultNavigationAnimation) { popEnterTransition() } },
-    popExitTransition = { with(DefaultNavigationAnimation) { popExitTransition() } },
-)
+    override val exitTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition
+        get() = DefaultNavigationAnimation.exitTransition
+
+    override val popEnterTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition
+        get() = DefaultNavigationAnimation.popEnterTransition
+
+    override val popExitTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition
+        get() = DefaultNavigationAnimation.popExitTransition
+}
+
+object DefaultNestedNavGraphAnimations : DestinationStyle.Animated() {
+    override val enterTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition
+        get() = DefaultNavigationAnimation.enterTransition
+
+    override val exitTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition
+        get() = DefaultNavigationAnimation.exitTransition
+
+    override val popEnterTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition
+        get() = DefaultNavigationAnimation.popEnterTransition
+
+    override val popExitTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition
+        get() = DefaultNavigationAnimation.popExitTransition
+}

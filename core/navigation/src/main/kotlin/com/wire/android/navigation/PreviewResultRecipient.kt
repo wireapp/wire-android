@@ -21,11 +21,12 @@ import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisallowComposableCalls
 import com.ramcosta.composedestinations.result.NavResult
+import com.ramcosta.composedestinations.result.OpenResultRecipient
 import com.ramcosta.composedestinations.result.ResultRecipient
-import com.ramcosta.composedestinations.spec.DestinationSpec
+import com.ramcosta.composedestinations.spec.TypedDestinationSpec
 
 @SuppressLint("ComposeNamingUppercase")
-object PreviewResultRecipient : ResultRecipient<DestinationSpec<Unit>, String> {
+object PreviewResultRecipient : ResultRecipient<TypedDestinationSpec<*>, String> {
 
     @Composable
     override fun onNavResult(
@@ -34,10 +35,10 @@ object PreviewResultRecipient : ResultRecipient<DestinationSpec<Unit>, String> {
         // fake result
     }
 
-    @Deprecated("Use onNavResult instead")
     @Composable
-    override fun onResult(
-        listener: @DisallowComposableCalls (String) -> Unit
+    override fun onNavResult(
+        deliverResultOn: OpenResultRecipient.DeliverResultOn,
+        listener: @DisallowComposableCalls (NavResult<String>) -> Unit
     ) {
         // fake result
     }

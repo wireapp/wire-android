@@ -18,6 +18,8 @@
 
 package com.wire.android.ui.authentication.create.overview
 
+import com.wire.android.navigation.annotation.app.WireCreatePersonalAccountDestination
+import com.wire.android.navigation.annotation.app.WireCreateTeamAccountDestination
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -43,26 +45,22 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
-import com.wire.android.ui.authentication.create.common.CreatePersonalAccountNavGraph
-import com.wire.android.ui.authentication.create.common.CreateTeamAccountNavGraph
 import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.wire.android.ui.destinations.CreateAccountEmailScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.CreateAccountEmailScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
 import com.wire.kalium.logic.configuration.server.ServerConfig
 
-@CreatePersonalAccountNavGraph(start = true)
-@WireDestination(navArgsDelegate = CreateAccountOverviewNavArgs::class)
+@WireCreatePersonalAccountDestination(start = true, navArgs = CreateAccountOverviewNavArgs::class)
 @Composable
 fun CreatePersonalAccountOverviewScreen(
     navigator: Navigator,
@@ -71,8 +69,7 @@ fun CreatePersonalAccountOverviewScreen(
     CreateAccountOverviewScreen(navigator, CreateAccountFlowType.CreatePersonalAccount, viewModel)
 }
 
-@CreateTeamAccountNavGraph(start = true)
-@WireDestination(navArgsDelegate = CreateAccountOverviewNavArgs::class)
+@WireCreateTeamAccountDestination(start = true, navArgs = CreateAccountOverviewNavArgs::class)
 @Composable
 fun CreateTeamAccountOverviewScreen(
     navigator: Navigator,

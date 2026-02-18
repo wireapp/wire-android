@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.home.settings.account.color
 
+import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -37,11 +38,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.result.ResultBackNavigator
-import com.ramcosta.composedestinations.spec.DestinationStyle
+import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.BuildConfig.IS_BUBBLE_UI_ENABLED
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.common.WireDropDown
@@ -76,8 +76,8 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.id.QualifiedID
 
-@WireDestination(
-    style = DestinationStyle.Runtime::class, // default should be SlideNavigationAnimation
+@WireRootDestination(
+    style = SlideNavigationAnimation::class, // default should be SlideNavigationAnimation
 )
 @Composable
 fun ChangeUserColorScreen(

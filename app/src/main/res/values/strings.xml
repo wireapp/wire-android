@@ -124,6 +124,8 @@
     <string name="content_description_close_button">Close button</string>
     <string name="content_description_menu_button">Main navigation</string>
     <string name="content_description_drop_down_icon">Drop down arrow</string>
+    <string name="content_description_expand_text_icon">Expand text input field</string>
+    <string name="content_description_collapse_text_icon">Collapse text input field</string>
     <string name="content_description_remove_devices_screen_device_item_icon">Device item</string>
     <string name="content_description_remove_devices_screen_remove_icon">Remove device</string>
     <string name="content_description_avatar_preview">Preview of profile picture</string>
@@ -980,7 +982,7 @@
     <string name="label_conversation_files_empty">Nobody shared files in this conversation yet 🙀</string>
     <string name="conversation_search_files_button">Search files</string>
     <!-- Search Contact-->
-    <string name="label_selected">Selected</string>
+    <string name="label_selected">Selected (%1$d)</string>
     <string name="label_contacts">Contacts</string>
     <string name="label_new_group">New Group</string>
     <string name="label_new_channel">New Channel</string>
@@ -1872,6 +1874,9 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="restriction_sso_code_title">SSO code configuration</string>
     <string name="restriction_server_urls_description">JSON value with the server endpoints configuration</string>
     <string name="restriction_sso_code_description">JSON value with the default SSO code configuration</string>
+    <string name="restriction_keep_websocket_title">Keep WebSocket Connection</string>
+    <string name="restriction_keep_websocket_description">Force persistent WebSocket connection for all users</string>
+    <string name="settings_keep_websocket_enforced_by_organization">This setting is managed by your organization.</string>
 
     <!--    channel not available dialog-->
     <string name="channel_not_available_dialog_title">Channels are available for team members.</string>

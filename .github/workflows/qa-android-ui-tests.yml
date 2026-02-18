@@ -605,11 +605,7 @@ jobs:
       - name: Build test APK (assemble)
         run: |
           set -euo pipefail
-          # Enable global synthetics for Build Tools 36 (AGP 9).
-          ./gradlew :tests:testsCore:assembleDebugAndroidTest \
-            --no-daemon \
-            --no-configuration-cache \
-            -Pandroid.enableGlobalSyntheticsGeneration=true
+          ./gradlew :tests:testsCore:assembleDebugAndroidTest --no-daemon --no-configuration-cache
 
       # Execute UI tests with per-device sharding.
       - name: Run UI tests (one shard per device)
@@ -625,8 +621,6 @@ jobs:
             ":tests:testsCore:connectedDebugAndroidTest"
             "--no-daemon"
             "--no-configuration-cache"
-            # Enable global synthetics for Build Tools 36 (AGP 9).
-            "-Pandroid.enableGlobalSyntheticsGeneration=true"
           )
 
           if [[ -n "${RESOLVED_TESTCASE_ID}" ]]; then

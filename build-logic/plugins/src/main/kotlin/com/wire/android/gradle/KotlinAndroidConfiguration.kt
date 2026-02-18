@@ -35,8 +35,6 @@ internal fun Project.configureKotlinAndroid(
     commonExtension: CommonExtension
 ): Unit = with(commonExtension) {
     compileSdk = AndroidSdk.compile
-    // Pin build-tools to avoid D8 global-synthetics failures with 36.0.0.
-    buildToolsVersion = "35.0.0"
 
     defaultConfig.minSdk = AndroidSdk.min
 

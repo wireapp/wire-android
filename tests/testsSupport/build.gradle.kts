@@ -1,6 +1,5 @@
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
-import java.io.ByteArrayOutputStream
 import java.util.Properties
 
 // Apply your test library plugin
@@ -14,6 +13,19 @@ val env = Properties()
 
 // File where secrets will be saved/generated
 val secretsJson = rootProject.file("secrets.json")
+
+fun Any?.asStringAnyMap(): Map<String, Any?> = when (this) {
+    is Map<*, *> -> entries.mapNotNull { (key, value) ->
+        val stringKey = key as? String ?: return@mapNotNull null
+        stringKey to value
+    }.toMap()
+    else -> emptyMap()
+}
+
+fun Any?.asListOfStringAnyMaps(): List<Map<String, Any?>> = when (this) {
+    is List<*> -> mapNotNull { it.asStringAnyMap().takeIf { map -> map.isNotEmpty() } }
+    else -> emptyList()
+}
 
 // Function to sanitize keys by replacing spaces and dashes with underscores, and making uppercase
 fun sanitize(text: String): String {
@@ -32,18 +44,18 @@ fun escapeForBuildConfig(value: String): String {
 // If secrets.json exists, parse and load values into env map
 if (secretsJson.exists()) {
     // Parse secrets JSON as a map of item title -> item details
-    val parsed = JsonSlurper().parse(secretsJson) as Map<String, Map<String, Any>>
+    val parsed = JsonSlurper().parse(secretsJson).asStringAnyMap()
 
     parsed.forEach { (title, item) ->
         val sectionName = sanitize(title)  // Sanitize the section/item title
 
         // Get the fields as a map of label -> field details
-        val fields = item["fields"] as? Map<String, Map<String, Any>> ?: emptyMap()
+        val fields = item.asStringAnyMap()["fields"].asStringAnyMap()
 
         // For each field, create env variable with sanitized key and store value
         for ((label, field) in fields) {
             val key = "${sectionName}_${sanitize(label)}"
-            val value = field["value"]?.toString() ?: ""
+            val value = field.asStringAnyMap()["value"]?.toString() ?: ""
             env[key] = value
         }
     }
@@ -63,9 +75,6 @@ android {
         buildConfig = true  // Enable generation of BuildConfig class
     }
 }
-
-// Just in case, enforce BuildConfig enabled flag (redundant but explicit)
-android.buildFeatures.buildConfig = true
 
 dependencies {
     // Android test dependencies
@@ -89,19 +98,22 @@ tasks.register("fetchSecrets") {
 
             // Helper function to execute shell commands and capture output
             fun runCommand(command: List<String>): String {
-                val output = ByteArrayOutputStream()
-                project.exec {
-                    commandLine = command
-                    standardOutput = output
+                val process = ProcessBuilder(command)
+                    .redirectErrorStream(true)
+                    .start()
+                val output = process.inputStream.bufferedReader().use { it.readText() }
+                val exitCode = process.waitFor()
+                check(exitCode == 0) {
+                    "Command failed (${command.joinToString(" ")}): $output"
                 }
-                return output.toString().trim()
+                return output.trim()
             }
 
             // 1. List all items in the vault, output in JSON format
             val listOutput = runCommand(listOf("op", "item", "list", "--vault", vaultName, "--format", "json"))
 
             // Parse the list output into a List of maps
-            val items = JsonSlurper().parseText(listOutput) as List<Map<String, Any>>
+            val items = JsonSlurper().parseText(listOutput).asListOfStringAnyMaps()
 
             // Mutable map to combine all fetched secrets into one JSON object
             val combinedSecrets = mutableMapOf<String, Any>()
@@ -112,10 +124,10 @@ tasks.register("fetchSecrets") {
 
                 // 2. Fetch each secret item's full details
                 val itemOutput = runCommand(listOf("op", "item", "get", itemId, "--format", "json"))
-                val itemData = JsonSlurper().parseText(itemOutput) as Map<String, Any>
+                val itemData = JsonSlurper().parseText(itemOutput).asStringAnyMap()
 
                 // 3. Convert fields from List to Map where label is the key (simplify structure)
-                val rawFields = itemData["fields"] as? List<Map<String, Any>> ?: emptyList()
+                val rawFields = itemData["fields"].asListOfStringAnyMaps()
                 val fieldsMap = mutableMapOf<String, Map<String, Any?>>()
                 rawFields.forEachIndexed { index, field ->
                     val label = field["label"] as? String ?: return@forEachIndexed

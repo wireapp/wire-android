@@ -44,7 +44,7 @@ import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.common.WireCellErrorDialog
 import com.wire.android.feature.cells.ui.util.PreviewMultipleThemes
-import com.wire.android.navigation.annotation.features.cells.WireDestination
+import com.wire.android.navigation.annotation.features.cells.WireCellsDestination
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
@@ -65,8 +65,8 @@ import com.wire.android.ui.theme.WireTheme
 import kotlinx.parcelize.Parcelize
 
 @OptIn(ExperimentalMaterial3Api::class)
-@WireDestination(
-    navArgsDelegate = PublicLinkExpirationScreenNavArgs::class
+@WireCellsDestination(
+    navArgs = PublicLinkExpirationScreenNavArgs::class
 )
 @Composable
 internal fun PublicLinkExpirationScreen(

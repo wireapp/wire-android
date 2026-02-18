@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.home.appLock.forgot
 
+import com.wire.android.navigation.annotation.app.WireRootDestination
 import android.content.Intent
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -48,7 +49,6 @@ import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.WireActivity
 import com.wire.android.ui.common.WireDialog
@@ -68,7 +68,7 @@ import com.wire.android.ui.userprofile.self.dialog.LogoutOptionsDialogState
 import com.wire.android.util.dialogErrorStrings
 import com.wire.android.util.ui.PreviewMultipleThemes
 
-@WireDestination
+@WireRootDestination
 @Composable
 fun ForgotLockCodeScreen(
     viewModel: ForgotLockScreenViewModel = hiltViewModel(),

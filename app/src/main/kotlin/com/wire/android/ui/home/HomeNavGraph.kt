@@ -15,11 +15,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.navigation
+package com.wire.android.ui.home
 
 import com.ramcosta.composedestinations.annotation.NavGraph
+import com.wire.android.navigation.WireRootNavGraph
 
-@NavGraph
+@NavGraph<WireRootNavGraph>
 annotation class HomeNavGraph(
     val start: Boolean = false
 )

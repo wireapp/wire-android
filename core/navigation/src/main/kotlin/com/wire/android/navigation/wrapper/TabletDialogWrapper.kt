@@ -29,13 +29,16 @@ import com.ramcosta.composedestinations.scope.DestinationScope
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import com.ramcosta.composedestinations.wrapper.DestinationWrapper
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.theme.isTablet
 
 object TabletDialogWrapper : DestinationWrapper {
 
     @Composable
     override fun <T> DestinationScope<T>.Wrap(screenContent: @Composable () -> Unit) {
         val movableContent = remember(screenContent) { movableContentOf(screenContent) }
-        if (this.destination.style is DestinationStyle.Dialog) {
+        val shouldWrapAsDialog = destination.style is DestinationStyle.Dialog ||
+            (isTablet && shouldWrapTabletRouteAsDialog(destination.route))
+        if (shouldWrapAsDialog) {
             Row(
                 modifier = Modifier
                     .clip(RoundedCornerShape(dimensions().spacing20x))
@@ -48,3 +51,10 @@ object TabletDialogWrapper : DestinationWrapper {
         }
     }
 }
+
+fun setTabletDialogRouteMatcher(routeMatcher: (String) -> Boolean) {
+    shouldWrapTabletRouteAsDialog = routeMatcher
+}
+
+@Volatile
+private var shouldWrapTabletRouteAsDialog: (String) -> Boolean = { false }

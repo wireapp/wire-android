@@ -4,7 +4,7 @@ androidJunit5 = "1.14.0.0"
 
 # Kotlin
 grgitCore = "5.3.2"
-kotlin = "2.1.0"
+kotlin = "2.3.10"
 
 # KotlinX
 coroutines = "1.10.2"
@@ -18,7 +18,7 @@ datafaker = "2.4.2"
 detekt = "1.23.8"
 google-gms = "4.4.2"
 gms-location = "21.3.0"
-android-gradlePlugin = "8.10.1"
+android-gradlePlugin = "9.0.0"
 desugaring = "2.1.5"
 firebaseBOM = "34.7.0"
 fragment = "1.5.6"
@@ -30,7 +30,7 @@ kover = "0.7.6"
 
 # AndroidX
 androidx-appcompat = "1.7.1"
-androidx-core = "1.13.1"
+androidx-core = "1.15.0"
 androidx-dataStore = "1.1.7"
 androidx-exif = "1.3.7"
 androidx-emoji = "1.5.0"
@@ -48,23 +48,23 @@ compose-qr = "1.0.1"
 enterprise-feedback = "1.1.0"
 
 # Compose
-composeBom = "2025.09.00"
+composeBom = "2026.01.01"
 compose-activity = "1.10.0"
 compose-constraint = "1.1.1"
-compose-navigation = "2.7.7" # adjusted to work with compose-destinations "1.9.54"
-compose-destinations = "1.11.9"
+compose-navigation = "2.9.5" # aligned with compose-destinations 2.3.0
+compose-destinations = "2.3.0"
 screenshot = "0.0.1-alpha13"
 
 # Compose Preview
-compose-edgetoedge-preview = "0.3.0" # update after changing target sdk to 35 and androidx-core to 1.15.0
+compose-edgetoedge-preview = "0.3.0" # aligned with target sdk 36 and androidx-core 1.15.0
 
 # Hilt
-hilt = "2.55"
+hilt = "2.59.1"
 hilt-composeNavigation = "1.2.0"
 hilt-work = "1.3.0"
 
 # Android UI
-accompanist = "0.32.0" # adjusted to work with compose-destinations "1.9.54"
+accompanist = "0.32.0"
 material = "1.12.0"
 material3 = "1.3.2"
 coil = "3.3.0"
@@ -86,9 +86,10 @@ lint-compose = "1.4.2"
 openIdAppAuth = "0.11.1"
 
 # Other Tools
-aboutLibraries = "12.2.4"
+aboutLibraries = "13.0.0"
+cyclonedx = "3.1.0"
 leakCanary = "2.14"
-ksp = "2.1.0-1.0.28"
+ksp = "2.3.4"
 
 # Benchmark
 benchmark-macro-junit4 = "1.3.3"
@@ -122,12 +123,14 @@ androidx-test-services = "1.6.0"
 # 3rd Party plugins
 android-library = { id = "com.android.library", version.ref = "android-gradlePlugin" }
 android-application = { id = "com.android.application", version.ref = "android-gradlePlugin" }
+kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 aboutLibraries = { id = "com.mikepenz.aboutlibraries.plugin", version.ref = "aboutLibraries" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 screenshot = { id = "com.android.compose.screenshot", version.ref = "screenshot"}
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+cyclonedx = { id = "org.cyclonedx.bom", version.ref = "cyclonedx" }
 
 # Home-made convention plugins defined in build-logic
 wire-android-application = { id = "com.wire.android.application" }
@@ -233,7 +236,7 @@ compose-ui-graphics = { module = "androidx.compose.ui:ui-graphics" }
 compose-activity = { module = "androidx.activity:activity-compose", version.ref = "compose-activity" }
 compose-constraintLayout = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "compose-constraint" }
 compose-navigation = { module = "androidx.navigation:navigation-compose", version.ref = "compose-navigation" }
-compose-destinations-core = { module = "io.github.raamcosta.compose-destinations:animations-core", version.ref = "compose-destinations" }
+compose-destinations-core = { module = "io.github.raamcosta.compose-destinations:core", version.ref = "compose-destinations" }
 compose-destinations-ksp = { module = "io.github.raamcosta.compose-destinations:ksp", version.ref = "compose-destinations" }
 
 # Compose Preview
@@ -243,7 +246,7 @@ compose-edgetoedge-preview = { module = "de.drick.compose:edge-to-edge-preview",
 accompanist-placeholder = { module = "com.google.accompanist:accompanist-placeholder", version.ref = "accompanist" }
 
 # Image Loading
-coil-core = { module = "io.coil-kt.coil3:coil-core-android", version.ref = "coil" }
+coil-core = { module = "io.coil-kt.coil3:coil-core", version.ref = "coil" }
 coil-gif = { module = "io.coil-kt.coil3:coil-gif", version.ref = "coil" }
 coil-video = { module = "io.coil-kt.coil3:coil-video", version.ref = "coil" }
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }

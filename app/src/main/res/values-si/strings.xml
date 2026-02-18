@@ -848,7 +848,6 @@
     <string name="label_conversation_pictures_empty">කිසිවෙක් මෙම සංවාදයෙහි ඡායාරූප බෙදාගෙන නැත 🥲</string>
     <string name="label_conversation_files_empty">කිසිවෙක් මෙම සංවාදයෙහි ගොනු බෙදාගෙන නැත 🙀</string>
     <!-- Search Contact-->
-    <string name="label_selected">තෝරා ගන්නා ලදී</string>
     <string name="label_contacts">සම්බන්ධතා</string>
     <string name="label_new_group">නව සමූහයක්</string>
     <string name="label_new_channel">නව නාලිකාව</string>

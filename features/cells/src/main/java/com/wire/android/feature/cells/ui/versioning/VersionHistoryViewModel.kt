@@ -22,9 +22,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ramcosta.composedestinations.generated.cells.destinations.VersionHistoryScreenDestination
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
-import com.wire.android.feature.cells.ui.navArgs
 import com.wire.android.feature.cells.ui.versioning.download.DownloadState
 import com.wire.android.feature.cells.ui.versioning.restore.RestoreDialogState
 import com.wire.android.feature.cells.ui.versioning.restore.RestoreVersionState
@@ -65,7 +65,7 @@ class VersionHistoryViewModel @Inject constructor(
     private val dispatchers: DispatcherProvider,
 ) : ViewModel() {
 
-    private val navArgs: VersionHistoryNavArgs = savedStateHandle.navArgs()
+    private val navArgs: VersionHistoryNavArgs = VersionHistoryScreenDestination.argsFrom(savedStateHandle)
 
     val fileName = navArgs.fileName
 

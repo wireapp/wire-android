@@ -21,7 +21,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.togetherWith
 import androidx.compose.material3.SnackbarHostState
@@ -95,8 +94,6 @@ class StartingCallActivity : CallActivity() {
 
         setUpScreenshotPreventionFlag()
         setUpCallingFlags()
-
-        enableEdgeToEdge()
 
         handleNewIntent(intent)
 

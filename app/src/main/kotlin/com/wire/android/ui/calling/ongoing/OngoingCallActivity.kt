@@ -26,7 +26,6 @@ import android.graphics.drawable.Icon
 import android.os.Bundle
 import android.util.Rational
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.togetherWith
 import androidx.compose.material3.SnackbarHostState
@@ -105,8 +104,6 @@ class OngoingCallActivity : CallActivity() {
         setupOrientationForDevice()
         setUpScreenshotPreventionFlag()
         setUpCallingFlags()
-
-        enableEdgeToEdge()
 
         handleNewIntent(intent)
 

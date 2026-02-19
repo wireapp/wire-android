@@ -46,6 +46,22 @@
 -dontwarn java.awt.GraphicsEnvironment
 -dontwarn java.awt.HeadlessException
 -dontwarn java.awt.Window
+-keep class com.sun.jna.** { *; }
+-keep class * extends com.sun.jna.** { *; }
+-keepclassmembers class com.sun.jna.Pointer { long peer; }
+
+# AVS/WebRTC classes are accessed from native code (FlowManager_attach).
+# Keep concrete names and members to avoid NoSuchMethodError/ClassNotFoundException at runtime.
+-keep class org.webrtc.** { *; }
+-keep class com.waz.call.FlowManager { *; }
+-keep class com.waz.avs.VideoRenderer { *; }
+-keep class com.waz.call.CaptureDevice { *; }
+-keep class com.waz.media.manager.** { *; }
+-keep class com.waz.service.call.** { *; }
+-keep class com.waz.soundlink.SoundLinkAPI { *; }
+-dontwarn org.webrtc.CalledByNative
+-dontwarn org.webrtc.JniCommon
+-dontwarn org.webrtc.audio.AudioDeviceModule
 
 # Room/WorkManager instantiate generated DB classes via reflection.
 # Keep *_Impl classes (including constructors) to avoid startup crash

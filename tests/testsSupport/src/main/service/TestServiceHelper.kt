@@ -133,6 +133,34 @@ class TestServiceHelper(
         )
     }
 
+    fun contactSendsLocalAudioConversation(
+        context: Context,
+        fileName: String,
+        senderAlias: String,
+        deviceName: String,
+        dstConvoName: String
+    ) {
+        val audio = getRawResourceAsFile(context, R.raw.test, fileName)
+        val conversation = toConvoObj(senderAlias, dstConvoName) // ✅ calls alias overload
+
+        if (audio?.exists() != true) {
+            throw Exception("Audio file not found")
+        }
+
+        val convoId = conversation.qualifiedID.id
+        val convoDomain = conversation.qualifiedID.domain
+
+        testServiceClient.sendFile(
+            toClientUser(senderAlias),
+            deviceName,
+            convoId,
+            convoDomain,
+            getSelfDeletingMessageTimeout(senderAlias, dstConvoName),
+            audio.absolutePath.orEmpty(),
+            "audio/mp4"
+        )
+    }
+
     fun userXAddedContactsToGroupChat(
         userAsNameAlias: String,
         contactsToAddNameAliases: String,
@@ -250,6 +278,9 @@ class TestServiceHelper(
         val backend = BackendClient.loadBackend(owner.backendName.orEmpty())
         return backend.getPersonalConversationByName(owner, convoName)
     }
+
+    fun toConvoObj(ownerAlias: String, convoName: String): Conversation =
+        toConvoObj(toClientUser(ownerAlias), convoName)
 
     fun toConvoObj(owner: ClientUser, convoName: String): Conversation {
         val convoName = usersManager.replaceAliasesOccurrences(convoName, ClientUserManager.FindBy.NAME_ALIAS)

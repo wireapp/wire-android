@@ -43,7 +43,7 @@ data class ConversationListPage(private val device: UiDevice) {
     private val conversationNameSelector: (String) -> UiSelectorParams = { conversationName ->
         UiSelectorParams(text = conversationName)
     }
-    private val startNewConversation = UiSelectorParams(description = "Search for people or create a new conversation")
+    private val startNewConversation = UiSelectorParams(description = "New. Start a new conversation")
     private val backArrowButtonInsideSearchField = UiSelectorParams(
         className = "android.view.View",
         description = "Go back to add participants view"

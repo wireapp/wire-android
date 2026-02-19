@@ -63,6 +63,13 @@ on:
         default: ""
         type: string
 
+      # deflake retries per shard
+      retryCount:
+        description: "Deflake: Default 1."
+        required: true
+        default: 1
+        type: number
+
       androidDeviceId:
         description: "androidDeviceId. Target a specific device. Leave empty for auto."
         required: false
@@ -624,15 +631,23 @@ jobs:
           set -euo pipefail
           ./gradlew :tests:testsCore:assembleDebugAndroidTest --no-daemon --no-configuration-cache
 
-      # Execute UI tests with per-device sharding.
+      # Execute UI tests with per-device sharding + deflake retry per shard.
       - name: Run UI tests (one shard per device)
         env:
           RESOLVED_TESTCASE_ID: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTestCaseId }}
           RESOLVED_CATEGORY: ${{ needs.validate-and-resolve-inputs.outputs.resolvedCategory }}
+          RETRY_COUNT: ${{ inputs.retryCount }}
         run: |
           set -euo pipefail
           : "${DEVICE_LIST:?DEVICE_LIST missing}"
           : "${DEVICE_COUNT:?DEVICE_COUNT missing}"
+
+          # Validate retry count (default 1 if missing)
+          RETRY_COUNT="${RETRY_COUNT:-1}"
+          if ! [[ "${RETRY_COUNT}" =~ ^[0-9]+$ ]]; then
+            echo "ERROR: retryCount must be a non-negative integer. Got: '${RETRY_COUNT}'"
+            exit 1
+          fi
 
           GRADLE_ARGS=(
             ":tests:testsCore:connectedDebugAndroidTest"
@@ -653,6 +668,7 @@ jobs:
 
           NUM_SHARDS="${DEVICE_COUNT}"
           if [[ -n "${RESOLVED_TESTCASE_ID}" ]]; then
+            # Keep sharding disabled for single testcase runs (but still allow running it on multiple devices).
             NUM_SHARDS="1"
           fi
 
@@ -661,7 +677,7 @@ jobs:
           mkdir -p "${GRADLE_USER_HOME_BASE}"
 
           read -ra DEVICES <<< "${DEVICE_LIST}"
-          echo "Sharding: numShards=${NUM_SHARDS}, deviceCount=${DEVICE_COUNT}"
+          echo "Sharding: numShards=${NUM_SHARDS}, deviceCount=${DEVICE_COUNT}, retryCount=${RETRY_COUNT}"
 
           pids=()
           shard_index=0
@@ -673,11 +689,55 @@ jobs:
               export GRADLE_USER_HOME="${GRADLE_USER_HOME_BASE}/${SERIAL}"
               mkdir -p "${GRADLE_USER_HOME}"
 
-              ./gradlew "${GRADLE_ARGS[@]}" \
-                "-Pandroid.testInstrumentationRunnerArguments.numShards=${NUM_SHARDS}" \
-                "-Pandroid.testInstrumentationRunnerArguments.shardIndex=${shard_index}"
+              # IMPORTANT:
+              # If NUM_SHARDS=1 (single testcase), shardIndex must be 0.
+              THIS_SHARD_INDEX="${shard_index}"
+              if [[ "${NUM_SHARDS}" == "1" ]]; then
+                THIS_SHARD_INDEX="0"
+              fi
+
+              ALLURE_DEVICE_DIR="/sdcard/googletest/test_outputfiles/allure-results"
+
+              max_attempts=$((RETRY_COUNT + 1))
+              attempt=1
+
+              while (( attempt <= max_attempts )); do
+                echo "[${SERIAL}] shardIndex=${THIS_SHARD_INDEX}/${NUM_SHARDS} attempt=${attempt}/${max_attempts}"
+
+                # Deflake hygiene:
+                # - ensure device is ready
+                # - clear previous allure output to avoid mixing attempts
+                adb -s "${SERIAL}" wait-for-device
+                adb -s "${SERIAL}" shell "rm -rf '${ALLURE_DEVICE_DIR}' && mkdir -p '${ALLURE_DEVICE_DIR}'" >/dev/null 2>&1 || true
+
+                # Run Gradle (capture exit code without breaking on set -e)
+                set +e
+                ./gradlew "${GRADLE_ARGS[@]}" \
+                  "-Pandroid.testInstrumentationRunnerArguments.numShards=${NUM_SHARDS}" \
+                  "-Pandroid.testInstrumentationRunnerArguments.shardIndex=${THIS_SHARD_INDEX}"
+                rc=$?
+                set -e
+
+                if [[ "$rc" -eq 0 ]]; then
+                  echo "[${SERIAL}] PASS (attempt ${attempt})"
+                  exit 0
+                fi
+
+                if (( attempt == max_attempts )); then
+                  echo "[${SERIAL}] FAIL after ${attempt} attempt(s)."
+                  exit "$rc"
+                fi
+
+                echo "[${SERIAL}] shard failed (rc=${rc}) -> deflake retry in 10s..."
+                # Light cleanup before retry
+                adb -s "${SERIAL}" shell "am force-stop '${APP_ID}'" >/dev/null 2>&1 || true
+                sleep 10
+
+                attempt=$((attempt + 1))
+              done
             ) &
             pids+=("$!")
+
             shard_index=$((shard_index + 1))
           done
 
@@ -689,7 +749,7 @@ jobs:
           done
 
           if [[ "$failed" -ne 0 ]]; then
-            echo "ERROR: One or more shards failed."
+            echo "ERROR: One or more shards failed (even after retries)."
             exit 1
           fi
 

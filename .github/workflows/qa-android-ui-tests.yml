@@ -556,6 +556,11 @@ jobs:
 
           chmod +x ./gradlew
 
+          # (A) Store the real secrets file in RUNNER_TEMP, and only symlink it into the repo root
+          : "${RUNNER_TEMP:?RUNNER_TEMP not set}"
+          SECRETS_JSON_PATH="${RUNNER_TEMP}/secrets.json"
+          echo "SECRETS_JSON_PATH=${SECRETS_JSON_PATH}" >> "$GITHUB_ENV"
+
           python3 - <<'PY'
           import json
           import os
@@ -563,6 +568,7 @@ jobs:
           import sys
 
           vault = os.environ.get("OP_VAULT", "Test Automation")
+          out_path = os.environ.get("SECRETS_JSON_PATH") or "secrets.json"
 
           def run_op(cmd):
               result = subprocess.run(cmd, capture_output=True, text=True)
@@ -600,13 +606,23 @@ jobs:
               title = data.get("title") or item.get("title") or item_id
               combined[title] = data
 
-          with open("secrets.json", "w", encoding="utf-8") as handle:
+          with open(out_path, "w", encoding="utf-8") as handle:
               json.dump(combined, handle, ensure_ascii=True, indent=2)
           PY
 
-          test -s "secrets.json"
-          chmod 600 "secrets.json"
-          echo "OK: secrets.json created at $(pwd)/secrets.json"
+          test -s "${SECRETS_JSON_PATH}"
+          chmod 600 "${SECRETS_JSON_PATH}"
+
+          # Keep existing build behavior: Gradle expects ./secrets.json at repo root
+          rm -f "secrets.json" || true
+          ln -s "${SECRETS_JSON_PATH}" "secrets.json"
+          chmod 600 "secrets.json" || true
+
+          # Extra safety: prevent accidental staging in this job (local-only; does not change repo)
+          mkdir -p .git/info
+          grep -qxF "secrets.json" .git/info/exclude 2>/dev/null || echo "secrets.json" >> .git/info/exclude
+
+          echo "OK: secrets.json created at ${SECRETS_JSON_PATH} and linked to $(pwd)/secrets.json"
 
       # Build the instrumentation test APK.
       - name: Build test APK (assemble)
@@ -646,6 +662,11 @@ jobs:
             NUM_SHARDS="1"
           fi
 
+          # (C) Put all per-device Gradle homes under a single run-scoped folder, so we can delete it safely in cleanup
+          GRADLE_USER_HOME_BASE="${RUNNER_TEMP}/gradle-${GITHUB_RUN_ID}"
+          echo "GRADLE_USER_HOME_BASE=${GRADLE_USER_HOME_BASE}" >> "$GITHUB_ENV"
+          mkdir -p "${GRADLE_USER_HOME_BASE}"
+
           read -ra DEVICES <<< "${DEVICE_LIST}"
           echo "Sharding: numShards=${NUM_SHARDS}, deviceCount=${DEVICE_COUNT}"
 
@@ -656,7 +677,8 @@ jobs:
             (
               set -euo pipefail
               export ANDROID_SERIAL="${SERIAL}"
-              export GRADLE_USER_HOME="${RUNNER_TEMP}/gradle-${SERIAL}"
+              export GRADLE_USER_HOME="${GRADLE_USER_HOME_BASE}/${SERIAL}"
+              mkdir -p "${GRADLE_USER_HOME}"
 
               ./gradlew "${GRADLE_ARGS[@]}" \
                 "-Pandroid.testInstrumentationRunnerArguments.numShards=${NUM_SHARDS}" \
@@ -676,6 +698,16 @@ jobs:
           if [[ "$failed" -ne 0 ]]; then
             echo "ERROR: One or more shards failed."
             exit 1
+          fi
+
+      # Cleanup: remove runtime secrets before Allure/Pages
+      - name: Remove runtime secrets (before Allure/Pages)
+        if: always()
+        run: |
+          set -euo pipefail
+          rm -f secrets.json || true
+          if [[ -n "${SECRETS_JSON_PATH:-}" ]]; then
+            rm -f "${SECRETS_JSON_PATH}" || true
           fi
 
       # Collect Allure result files from devices.
@@ -980,6 +1012,9 @@ jobs:
           rm -rf "${RUNNER_TEMP}/allure-results" || true
           rm -rf "${RUNNER_TEMP}/allure-results-merged" || true
           rm -rf "${RUNNER_TEMP}/allure-report" || true
+
+          # (C) Remove per-run, per-device Gradle homes (can contain cached build outputs)
+          rm -rf "${GRADLE_USER_HOME_BASE:-}" || true
 
           # Remove build outputs (these can contain BuildConfig secrets) but keep Gradle caches
           git clean -ffdx -e .gradle -e .kotlin

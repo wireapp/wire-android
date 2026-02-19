@@ -210,7 +210,6 @@ fun PreviewFilterByTypeBottomSheet() {
             mimeType = MIMEType.DOCUMENT
         ),
         FilterTypeUi(id = "4", label = R.string.filter_audio_type, iconRes = android.R.drawable.ic_media_play, selected = false, mimeType = MIMEType.AUDIOS),
-        FilterTypeUi(id = "5", label = R.string.filter_presentations_type, iconRes = android.R.drawable.ic_menu_save, selected = false, mimeType = MIMEType.OTHERS),
         FilterTypeUi(id = "6", label = R.string.filter_spreadsheets_type, iconRes = android.R.drawable.ic_menu_edit, selected = false, mimeType = MIMEType.EXCEL),
         FilterTypeUi(id = "7", label = R.string.filter_pdf_type, iconRes = android.R.drawable.ic_menu_view, selected = false, mimeType = MIMEType.PDF),
     )

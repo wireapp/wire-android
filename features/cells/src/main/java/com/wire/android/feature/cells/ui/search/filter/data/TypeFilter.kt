@@ -76,11 +76,4 @@ fun MIMEType.toFilterTypeUi(): FilterTypeUi =
             iconRes = R.drawable.ic_file_type_audio,
             mimeType = this
         )
-
-        MIMEType.OTHERS -> FilterTypeUi(
-            id = name,
-            label = R.string.filter_other_type,
-            iconRes = R.drawable.ic_file_type_other,
-            mimeType = this
-        )
     }

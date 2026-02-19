@@ -63,9 +63,9 @@ on:
         default: ""
         type: string
 
-      # deflake retries per shard
+      # retries for failed test per shard
       retryCount:
-        description: "Deflake: Default 1."
+        description: "Retry: Default 1."
         required: true
         default: 1
         type: number

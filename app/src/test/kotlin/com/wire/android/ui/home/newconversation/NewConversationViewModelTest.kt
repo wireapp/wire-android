@@ -408,6 +408,7 @@ class NewConversationViewModelTest {
 
         // When
         viewModel.resetState()
+        advanceUntilIdle()
 
         assertTrue(viewModel.groupOptionsState.isTeamAllowedToUseApps)
         assertTrue(viewModel.groupOptionsState.isAllowAppsEnabled)

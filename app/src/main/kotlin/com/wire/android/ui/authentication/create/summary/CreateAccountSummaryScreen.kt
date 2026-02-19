@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.authentication.create.summary
 
+import com.wire.android.navigation.annotation.app.WireCreateTeamAccountDestination
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -39,20 +40,15 @@ import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
-import com.wire.android.ui.authentication.create.common.CreatePersonalAccountNavGraph
-import com.wire.android.ui.authentication.create.common.CreateTeamAccountNavGraph
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.wire.android.ui.destinations.CreateAccountUsernameScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.CreateAccountUsernameScreenDestination
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
-@CreatePersonalAccountNavGraph
-@CreateTeamAccountNavGraph
-@WireDestination(navArgsDelegate = CreateAccountSummaryNavArgs::class)
+@WireCreateTeamAccountDestination(navArgs = CreateAccountSummaryNavArgs::class)
 @Composable
 fun CreateAccountSummaryScreen(
     navigator: Navigator,

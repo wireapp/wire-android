@@ -109,7 +109,7 @@
     <string name="content_description_conversation_mention_someone">Упомянуть кого-нибудь</string>
     <string name="content_description_conversation_back_btn">Вернуться к списку бесед</string>
     <string name="content_description_conversation_open_details_label">открыть информацию о беседе</string>
-    <string name="content_description_new_conversation">Поиск друзей или создание новой беседы</string>
+    <string name="content_description_new_conversation">Новый. Начать новую беседу</string>
     <string name="content_description_new_meeting">Начните или запланируйте новую встречу Wire</string>
     <string name="content_description_back_button">Кнопка назад</string>
     <string name="content_description_send_button">Отправить</string>
@@ -117,6 +117,8 @@
     <string name="content_description_close_button">Кнопка закрытия</string>
     <string name="content_description_menu_button">Основное меню</string>
     <string name="content_description_drop_down_icon">Курсор вниз</string>
+    <string name="content_description_expand_text_icon">Развернуть поле ввода текста</string>
+    <string name="content_description_collapse_text_icon">Свернуть поле ввода текста</string>
     <string name="content_description_remove_devices_screen_device_item_icon">Элемент устройства</string>
     <string name="content_description_remove_devices_screen_remove_icon">Удалить устройство</string>
     <string name="content_description_avatar_preview">Предпросмотр изображения профиля</string>
@@ -520,7 +522,7 @@
     <string name="channel_history_label">История беседы</string>
     <string name="channel_history_description">Выберите период. Когда участники присоединяются к этому каналу, они могут просматривать историю за этот период времени.</string>
     <string name="channel_history_freemium_upgrade_title">Показывать старые сообщения?</string>
-    <string name="channel_history_freemium_upgrade_description">Перейдите на платный план, чтобы открыть участникам канала всю историю.</string>
+    <string name="channel_history_freemium_upgrade_description">Чтобы показывать старые сообщения пользователям канала, вашей команде необходимо настроить их. Пожалуйста, свяжитесь с администратором вашей команды.</string>
     <string name="channel_history_freemium_upgrade_now">Перейти сейчас</string>
     <string name="channel_history_off">Выкл.</string>
     <string name="channel_history_unlimited">Неограничено</string>
@@ -971,12 +973,13 @@
     <!-- Conversation Media -->
     <string name="label_conversation_media">Медиа</string>
     <string name="label_conversation_pictures">Изображения</string>
-    <string name="label_conversation_shared_drive">Общий диск</string>
+    <string name="label_conversation_files">Файлы</string>
     <string name="content_description_see_shared_drive_in_conversation_btn">Открыть общий диск</string>
     <string name="label_conversation_pictures_empty">Никто не делился фотографиями в этой беседе 🥲</string>
     <string name="label_conversation_files_empty">Никто не делился файлами в этой беседе 🙀</string>
+    <string name="conversation_search_files_button">Поиск файлов</string>
     <!-- Search Contact-->
-    <string name="label_selected">Выбрано</string>
+    <string name="label_selected">Выбрано (%1$d)</string>
     <string name="label_contacts">Контакты</string>
     <string name="label_new_group">Новая группа</string>
     <string name="label_new_channel">Новый канал</string>
@@ -1282,11 +1285,8 @@
     <string name="team_app_lock_enabled">Блокировка приложения теперь обязательна. Wire блокируется спустя определенное время бездействия. Для разблокировки приложения необходимо ввести код доступа или использовать биометрическую аутентификацию.</string>
     <string name="team_app_lock_disabled">Блокировка приложения больше не является обязательной. Wire больше не будет блокироваться сам по истечении определенного времени бездействия.</string>
     <string name="settings_forgot_lock_screen_title">Забыли код доступа к приложению?</string>
-    <string name="settings_forgot_lock_screen_description">Доступ к данным, хранящимся на этом устройстве, возможен только с помощью кода доступа приложения. Если вы забудете свой код доступа, вы можете удалить это устройство.</string>
-    <string name="settings_forgot_lock_screen_warning">При удалении устройства вы навсегда теряете все локальные данные и сообщения всех аккаунтов на этом устройстве.</string>
-    <string name="settings_forgot_lock_screen_reset_device">Удалить устройство</string>
-    <string name="settings_forgot_lock_screen_reset_device_description">Введите пароль от аккаунта %s для подтверждения удаления всех данных для всех аккаунтов на этом устройстве. После удаления устройства вы cможете авторизоваться с использованием своих учетных данных.</string>
-    <string name="settings_forgot_lock_screen_reset_device_without_password_description">Подтвердите удаление всех данных для всех аккаунтов на этом устройстве. После удаления устройства вы cможете авторизоваться с использованием своих учетных данных.</string>
+    <string name="settings_forgot_lock_screen_description">Доступ к данным, хранящимся на этом устройстве, возможен только с помощью вашего кода блокировки приложения.</string>
+    <string name="settings_forgot_lock_screen_warning">Если вы забыли свой код, разлогиньтесь и задайте новый код при следующей авторизации. Ваши данные останутся на этом устройстве, если вы не решите их удалить.</string>
     <string name="settings_forgot_lock_screen_please_wait_label">Пожалуйста, подождите...</string>
     <!--Devices -->
     <string name="devices_title">Ваши устройства</string>
@@ -1886,6 +1886,9 @@
     <string name="restriction_sso_code_title">Настройка кода SSO</string>
     <string name="restriction_server_urls_description">Значение JSON с конфигурацией конечных точек сервера</string>
     <string name="restriction_sso_code_description">Значение JSON с настройкой кода SSO по умолчанию</string>
+    <string name="restriction_keep_websocket_title">Сохранять WebSocket соединение</string>
+    <string name="restriction_keep_websocket_description">Принудительное подключение к WebSocket для всех пользователей</string>
+    <string name="settings_keep_websocket_enforced_by_organization">Этот параметр управляется вашей организацией.</string>
     <!--    channel not available dialog-->
     <string name="channel_not_available_dialog_title">Каналы доступны для членов команды.</string>
     <string name="channel_not_available_dialog_description">Создайте команду и начните взаимодействовать бесплатно!</string>
@@ -1922,4 +1925,5 @@
     <string name="label_system_message_apps_access_enabled_by_other">%1$s ** приложений** включено для этой беседы</string>
     <string name="label_system_message_apps_access_disabled_by_other">%1$s ** приложений** отключено для этой беседы</string>
     <string name="label_system_message_apps_access_enabled_disclaimer">Добавленные приложения имеют доступ к содержимому этой беседы.</string>
+    <string name="more_information_about_this_server">Больше информации об этом бэкенде</string>
 </resources>

@@ -42,12 +42,12 @@ import org.junit.jupiter.api.extension.ExtensionContext
  */
 class NavigationTestExtension : BeforeEachCallback, AfterEachCallback {
     override fun beforeEach(context: ExtensionContext?) {
-        mockkStatic("com.wire.android.feature.sketch.NavArgsGettersKt")
+        mockkStatic("com.ramcosta.composedestinations.generated.sketch.NavArgsGettersKt")
         sketchDestinations.forEach { mockkObject(it) }
     }
 
     override fun afterEach(context: ExtensionContext?) {
-        unmockkStatic("com.wire.android.feature.sketch.NavArgsGettersKt")
+        unmockkStatic("com.ramcosta.composedestinations.generated.sketch.NavArgsGettersKt")
         sketchDestinations.forEach { unmockkObject(it) }
     }
 }

@@ -20,27 +20,22 @@ package com.wire.android.mapper
 import com.wire.android.util.serverDate
 import java.time.LocalDate
 import java.time.ZoneId
-import java.time.temporal.ChronoUnit
 import java.util.Calendar
 
 private const val ONE_MINUTE_FROM_MILLIS = 60 * 1000
 private const val THIRTY_MINUTES = 30
 private const val ONE_WEEK_IN_DAYS = 7
 private const val ONE_DAY = 1
-private const val MINIMUM_DAYS_DIFFERENCE = 1
 
 fun String.shouldDisplayDatesDifferenceDivider(previousDate: String): Boolean {
     val currentDate = this@shouldDisplayDatesDifferenceDivider
 
-    val currentLocalDateTime = currentDate.serverDate()?.toInstant()?.atZone(ZoneId.systemDefault())?.toLocalDateTime()
-    val previousLocalDateTime = previousDate.serverDate()?.toInstant()?.atZone(ZoneId.systemDefault())?.toLocalDateTime()
+    val currentLocalDate = currentDate.serverDate()?.toInstant()?.atZone(ZoneId.systemDefault())?.toLocalDate()
+    val previousLocalDate = previousDate.serverDate()?.toInstant()?.atZone(ZoneId.systemDefault())?.toLocalDate()
 
-    val differenceInDays = ChronoUnit.DAYS.between(
-        currentLocalDateTime,
-        previousLocalDateTime
-    )
-
-    return differenceInDays >= MINIMUM_DAYS_DIFFERENCE
+    return currentLocalDate != null &&
+            previousLocalDate != null &&
+            currentLocalDate != previousLocalDate
 }
 
 fun String.groupedUIMessageDateTime(now: Long): MessageDateTimeGroup? = this

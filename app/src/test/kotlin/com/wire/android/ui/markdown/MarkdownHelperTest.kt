@@ -29,6 +29,9 @@ import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.message.mention.MessageMention
+import com.wire.kalium.logic.data.user.UserId
 
 class MarkdownHelperTest {
 
@@ -96,6 +99,43 @@ class MarkdownHelperTest {
     }
 
     @Test
+    fun `given text with blank line, when toMarkdownDocument is called, then it should insert a spacer paragraph`() {
+        val result = "test\n\ntest".toMarkdownDocument()
+
+        assertEquals(3, result.children.size)
+        val firstParagraph = result.children[0] as MarkdownNode.Block.Paragraph
+        val spacerParagraph = result.children[1] as MarkdownNode.Block.Paragraph
+        val lastParagraph = result.children[2] as MarkdownNode.Block.Paragraph
+        assertEquals(1, firstParagraph.children.size)
+        assertEquals(1, spacerParagraph.children.size)
+        assertEquals(1, lastParagraph.children.size)
+        assertTrue(firstParagraph.children[0] is MarkdownNode.Inline.Text)
+        assertTrue(spacerParagraph.children[0] is MarkdownNode.Inline.Break)
+        assertTrue(lastParagraph.children[0] is MarkdownNode.Inline.Text)
+        assertEquals("test", (firstParagraph.children[0] as MarkdownNode.Inline.Text).literal)
+        assertEquals("test", (lastParagraph.children[0] as MarkdownNode.Inline.Text).literal)
+    }
+
+    @Test
+    fun `given text with two blank lines, when toMarkdownDocument is called, then it should preserve extra empty line`() {
+        val result = "test\n\n\ntest".toMarkdownDocument()
+
+        assertEquals(3, result.children.size)
+        val firstParagraph = result.children[0] as MarkdownNode.Block.Paragraph
+        val spacerParagraph = result.children[1] as MarkdownNode.Block.Paragraph
+        val lastParagraph = result.children[2] as MarkdownNode.Block.Paragraph
+        assertEquals(1, firstParagraph.children.size)
+        assertEquals(2, spacerParagraph.children.size)
+        assertEquals(1, lastParagraph.children.size)
+        assertTrue(firstParagraph.children[0] is MarkdownNode.Inline.Text)
+        assertTrue(spacerParagraph.children[0] is MarkdownNode.Inline.Break)
+        assertTrue(spacerParagraph.children[1] is MarkdownNode.Inline.Break)
+        assertTrue(lastParagraph.children[0] is MarkdownNode.Inline.Text)
+        assertEquals("test", (firstParagraph.children[0] as MarkdownNode.Inline.Text).literal)
+        assertEquals("test", (lastParagraph.children[0] as MarkdownNode.Inline.Text).literal)
+    }
+
+    @Test
     fun `given bullet list node, when toContent is called, then it should return Block BulletList`() {
         val bulletListNode = BulletList()
         bulletListNode.appendChild(ListItem().apply { appendChild(Text("First bullet")) })
@@ -119,6 +159,28 @@ class MarkdownHelperTest {
     }
 
     @Test
+    fun `given dynamic text with mention, when toMarkdownTextWithMentions is called, then it should wrap mention with markers`() {
+        val text = "hi @john\n\nbye"
+        val mention = MessageMention(
+            start = 3,
+            length = 5,
+            userId = UserId("user-id", "domain"),
+            isSelfMention = false
+        )
+        val uiText = UIText.DynamicString(text, listOf(mention))
+
+        val (mentions, markedText) = uiText.toMarkdownTextWithMentions()
+
+        assertEquals(1, mentions.size)
+        assertEquals("@john", mentions.first().mentionUserName)
+        assertTrue(
+            markedText.contains(
+                "${MarkdownConstants.MENTION_MARK}@john${MarkdownConstants.MENTION_MARK}"
+            )
+        )
+    }
+
+    @Test
     fun `given fenced code block, when toContent is called, then it should return Block FencedCode`() {
         val codeBlockNode = FencedCodeBlock()
         codeBlockNode.literal = "Sample code"
@@ -134,19 +196,19 @@ class MarkdownHelperTest {
         val tableBlockNode = TableBlock()
         tableBlockNode.appendChild(
             TableHead().apply {
-            appendChild(
-                TableRow()
-                .apply { appendChild(TableCell().apply { appendChild(Text("Header")) }) }
-            )
-        }
+                appendChild(
+                    TableRow()
+                        .apply { appendChild(TableCell().apply { appendChild(Text("Header")) }) }
+                )
+            }
         )
         tableBlockNode.appendChild(
             TableBody().apply {
-            appendChild(
-                TableRow()
-                .apply { appendChild(TableCell().apply { appendChild(Text("Cell")) }) }
-            )
-        }
+                appendChild(
+                    TableRow()
+                        .apply { appendChild(TableCell().apply { appendChild(Text("Cell")) }) }
+                )
+            }
         )
 
         val result = tableBlockNode.toContent()

@@ -1,0 +1,16 @@
+New
+- Wire Drive feature:
+ • Share multiple files plus text message
+ • Let your team collaborate and edit documents
+ • Stay organized with folders and tags
+ • Find all files in Drive
+- Ringtone for incoming calls
+- Access debug settings by shaking the phone
+
+Fixes
+- Some notifications were not received
+- Crash when changing profile color on tablets
+- Decryption errors
+- Incorrect missed call indicators
+- Video appeared rotated in landscape mode
+- Speaker button shown as on when rejoining a call

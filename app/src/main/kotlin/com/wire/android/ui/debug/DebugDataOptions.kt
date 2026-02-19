@@ -19,14 +19,12 @@ package com.wire.android.ui.debug
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.di.hiltViewModelScoped
@@ -36,7 +34,6 @@ import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WirePrimaryButton
-import com.wire.android.ui.common.button.WireSwitch
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.rowitem.RowItemTemplate
 import com.wire.android.ui.common.rowitem.SectionHeader
@@ -214,18 +211,18 @@ fun DebugDataOptionsContent(
                     onRepairFaultyRemovalKeys = onRepairFaultyRemovalKeys
                 )
             }
-
-            DebugToolsOptions(
-                isEventProcessingEnabled = state.isEventProcessingDisabled,
-                onDisableEventProcessingChange = onDisableEventProcessingChange,
-                onRestartSlowSyncForRecovery = onRestartSlowSyncForRecovery,
-                onForceUpdateApiVersions = onForceUpdateApiVersions,
-                checkCrlRevocationList = checkCrlRevocationList,
-                onResendFCMToken = onResendFCMToken,
-                isAsyncNotificationsEnabled = state.isAsyncNotificationsEnabled,
-                onEnableAsyncNotificationsChange = onEnableAsyncNotificationsChange
-            )
         }
+
+        DebugToolsOptions(
+            isEventProcessingEnabled = state.isEventProcessingDisabled,
+            onDisableEventProcessingChange = onDisableEventProcessingChange,
+            onRestartSlowSyncForRecovery = onRestartSlowSyncForRecovery,
+            onForceUpdateApiVersions = onForceUpdateApiVersions,
+            checkCrlRevocationList = checkCrlRevocationList,
+            onResendFCMToken = onResendFCMToken,
+            isAsyncNotificationsEnabled = state.isAsyncNotificationsEnabled,
+            onEnableAsyncNotificationsChange = onEnableAsyncNotificationsChange
+        )
 
         if (state.startGettingE2EICertificate) {
             GetE2EICertificateUI(
@@ -321,227 +318,6 @@ private fun MLSOptions(
             )
         }
     }
-}
-//endregion
-
-//region Proteus Options
-
-@Composable
-private fun EnableEncryptedProteusStorageSwitch(
-    isEnabled: Boolean = false,
-    onCheckedChange: ((Boolean) -> Unit)?,
-) {
-    RowItemTemplate(
-        title = {
-            Text(
-                style = MaterialTheme.wireTypography.body01,
-                color = MaterialTheme.wireColorScheme.onBackground,
-                text = stringResource(R.string.label_enable_encrypted_proteus_storage),
-                modifier = Modifier.padding(start = dimensions().spacing8x)
-            )
-        },
-        actions = {
-            WireSwitch(
-                checked = isEnabled,
-                onCheckedChange = onCheckedChange,
-                enabled = !isEnabled,
-                modifier = Modifier
-                    .padding(end = dimensions().spacing8x)
-                    .size(
-                        width = dimensions().buttonSmallMinSize.width,
-                        height = dimensions().buttonSmallMinSize.height
-                    )
-            )
-        }
-    )
-}
-//endregion
-
-//region Debug Tools
-
-@Preview
-@Composable
-private fun DebugToolsOptionsPreview() {
-    WireTheme {
-        DebugToolsOptions(
-            isEventProcessingEnabled = true,
-            onDisableEventProcessingChange = {},
-            onRestartSlowSyncForRecovery = {},
-            onForceUpdateApiVersions = {},
-            checkCrlRevocationList = {},
-            onResendFCMToken = {},
-            isAsyncNotificationsEnabled = true,
-            onEnableAsyncNotificationsChange = {}
-        )
-    }
-}
-
-@Composable
-private fun DebugToolsOptions(
-    isEventProcessingEnabled: Boolean,
-    onDisableEventProcessingChange: (Boolean) -> Unit,
-    onRestartSlowSyncForRecovery: () -> Unit,
-    onForceUpdateApiVersions: () -> Unit,
-    checkCrlRevocationList: () -> Unit,
-    onResendFCMToken: () -> Unit,
-    isAsyncNotificationsEnabled: Boolean,
-    onEnableAsyncNotificationsChange: (Boolean) -> Unit,
-) {
-    SectionHeader(stringResource(R.string.label_debug_tools_title))
-    Column {
-        DisableEventProcessingSwitch(
-            isEnabled = isEventProcessingEnabled,
-            onCheckedChange = onDisableEventProcessingChange
-        )
-        RowItemTemplate(
-            modifier = Modifier.wrapContentWidth(),
-            title = {
-                Text(
-                    style = MaterialTheme.wireTypography.body01,
-                    color = MaterialTheme.wireColorScheme.onBackground,
-                    text = stringResource(R.string.label_restart_slowsync_for_recovery),
-                    modifier = Modifier.padding(start = dimensions().spacing8x)
-                )
-            },
-            actions = {
-                WirePrimaryButton(
-                    minSize = MaterialTheme.wireDimensions.buttonMediumMinSize,
-                    minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
-                    onClick = onRestartSlowSyncForRecovery,
-                    text = stringResource(R.string.restart_slowsync_for_recovery_button),
-                    fillMaxWidth = false
-                )
-            }
-        )
-
-        // checkCrlRevocationList
-        RowItemTemplate(
-            modifier = Modifier.wrapContentWidth(),
-            title = {
-                Text(
-                    style = MaterialTheme.wireTypography.body01,
-                    color = MaterialTheme.wireColorScheme.onBackground,
-                    text = "CRL revocation check",
-                    modifier = Modifier.padding(start = dimensions().spacing8x)
-                )
-            },
-            actions = {
-                WirePrimaryButton(
-                    minSize = MaterialTheme.wireDimensions.buttonMediumMinSize,
-                    minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
-                    onClick = checkCrlRevocationList,
-                    text = stringResource(R.string.debug_settings_force_api_versioning_update_button_text),
-                    fillMaxWidth = false
-                )
-            }
-        )
-
-        RowItemTemplate(
-            modifier = Modifier.wrapContentWidth(),
-            title = {
-                Text(
-                    style = MaterialTheme.wireTypography.body01,
-                    color = MaterialTheme.wireColorScheme.onBackground,
-                    text = stringResource(R.string.debug_settings_force_api_versioning_update),
-                    modifier = Modifier.padding(start = dimensions().spacing8x)
-                )
-            },
-            actions = {
-                WirePrimaryButton(
-                    minSize = MaterialTheme.wireDimensions.buttonMediumMinSize,
-                    minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
-                    onClick = onForceUpdateApiVersions,
-                    text = stringResource(R.string.debug_settings_force_api_versioning_update_button_text),
-                    fillMaxWidth = false
-                )
-            }
-        )
-
-        if (BuildConfig.PRIVATE_BUILD) {
-            RowItemTemplate(
-                modifier = Modifier.wrapContentWidth(),
-                title = {
-                    Text(
-                        style = MaterialTheme.wireTypography.body01,
-                        color = MaterialTheme.wireColorScheme.onBackground,
-                        text = stringResource(R.string.debug_settings_register_fcm_push_token),
-                        modifier = Modifier.padding(start = dimensions().spacing8x)
-                    )
-                },
-                actions = {
-                    WirePrimaryButton(
-                        minSize = MaterialTheme.wireDimensions.buttonMediumMinSize,
-                        minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
-                        onClick = onResendFCMToken,
-                        text = stringResource(R.string.debug_settings_force_api_versioning_update_button_text),
-                        fillMaxWidth = false
-                    )
-                }
-            )
-            if (BuildConfig.DEBUG) {
-                EnableAsyncNotifications(isAsyncNotificationsEnabled, onEnableAsyncNotificationsChange)
-            }
-        }
-    }
-}
-
-@Composable
-private fun DisableEventProcessingSwitch(
-    isEnabled: Boolean = false,
-    onCheckedChange: ((Boolean) -> Unit)?,
-) {
-    RowItemTemplate(
-        title = {
-            Text(
-                style = MaterialTheme.wireTypography.body01,
-                color = MaterialTheme.wireColorScheme.onBackground,
-                text = stringResource(R.string.label_disable_event_processing),
-                modifier = Modifier.padding(start = dimensions().spacing8x)
-            )
-        },
-        actions = {
-            WireSwitch(
-                checked = isEnabled,
-                onCheckedChange = onCheckedChange,
-                modifier = Modifier
-                    .padding(end = dimensions().spacing8x)
-                    .size(
-                        width = dimensions().buttonSmallMinSize.width,
-                        height = dimensions().buttonSmallMinSize.height
-                    )
-            )
-        }
-    )
-}
-
-@Composable
-private fun EnableAsyncNotifications(
-    isEnabled: Boolean = false,
-    onCheckedChange: ((Boolean) -> Unit)?,
-) {
-    RowItemTemplate(
-        title = {
-            Text(
-                style = MaterialTheme.wireTypography.body01,
-                color = MaterialTheme.wireColorScheme.onBackground,
-                text = stringResource(R.string.label_enable_async_notifications),
-                modifier = Modifier.padding(start = dimensions().spacing8x)
-            )
-        },
-        actions = {
-            WireSwitch(
-                enabled = !isEnabled,
-                checked = isEnabled,
-                onCheckedChange = onCheckedChange,
-                modifier = Modifier
-                    .padding(end = dimensions().spacing8x)
-                    .size(
-                        width = dimensions().buttonSmallMinSize.width,
-                        height = dimensions().buttonSmallMinSize.height
-                    )
-            )
-        }
-    )
 }
 //endregion
 

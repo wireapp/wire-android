@@ -28,6 +28,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.Instant
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -92,5 +93,73 @@ class MessageComposerViewModelTest {
 
         // then
         assertTrue(!viewModel.messageComposerViewState.value.enterToSend)
+    }
+
+    @Test
+    fun `given messages were viewed, when conversation is closed, then mark as read with last viewed timestamp`() = runTest {
+        // given
+        val (arrangement, viewModel) = MessageComposerViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .arrange()
+        val timestamp = "2024-01-15T10:30:00Z"
+        val expectedInstant = Instant.parse(timestamp)
+
+        // when
+        viewModel.updateConversationReadDate(timestamp)
+        advanceUntilIdle()
+        viewModel.onConversationClosed()
+        advanceUntilIdle()
+
+        // then
+        coVerify(exactly = 1) {
+            arrangement.markConversationAsReadLocallyUseCase(
+                arrangement.conversationId,
+                expectedInstant
+            )
+        }
+    }
+
+    @Test
+    fun `given no messages were viewed, when conversation is closed, then mark as read is not called`() = runTest {
+        // given
+        val (arrangement, viewModel) = MessageComposerViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .arrange()
+        advanceUntilIdle()
+
+        // when - close without calling updateConversationReadDate
+        viewModel.onConversationClosed()
+        advanceUntilIdle()
+
+        // then
+        coVerify(exactly = 0) {
+            arrangement.markConversationAsReadLocallyUseCase(any(), any())
+        }
+    }
+
+    @Test
+    fun `given multiple read date updates, when conversation is closed, then use the most recent timestamp`() = runTest {
+        // given
+        val (arrangement, viewModel) = MessageComposerViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .arrange()
+        val olderTimestamp = "2024-01-15T10:00:00Z"
+        val newerTimestamp = "2024-01-15T10:30:00Z"
+        val expectedInstant = Instant.parse(newerTimestamp)
+
+        // when
+        viewModel.updateConversationReadDate(olderTimestamp)
+        viewModel.updateConversationReadDate(newerTimestamp)
+        advanceUntilIdle()
+        viewModel.onConversationClosed()
+        advanceUntilIdle()
+
+        // then
+        coVerify(exactly = 1) {
+            arrangement.markConversationAsReadLocallyUseCase(
+                arrangement.conversationId,
+                expectedInstant
+            )
+        }
     }
 }

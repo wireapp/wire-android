@@ -31,12 +31,22 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import com.wire.android.assertions.shouldBeEqualTo
 import com.wire.android.assertions.shouldBeInstanceOf
+import com.wire.android.util.ui.UiTextResolver
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
 class MessagePreviewContentMapperTest {
+    private val uiTextResolver = object : UiTextResolver {
+        override fun resolve(text: UIText): String = when (text) {
+            is UIText.DynamicString -> text.value
+            is UIText.StringResource -> "res_${text.resId}"
+            is UIText.PluralResource -> "plural_${text.resId}_${text.count}"
+        }
+
+        override fun localeTag(): String = "test-locale"
+    }
 
     @Test
     fun givenMultipleUnreadEvents_whenMappingToUIPreview_thenCorrectSortedUILastMessageContentShouldBeReturned() = runTest {
@@ -48,7 +58,8 @@ class MessagePreviewContentMapperTest {
 
         val unreadEventCount = mapOf(UnreadEventType.MENTION to mentionCount, UnreadEventType.MISSED_CALL to missedCallCount)
 
-        val multipleMessage = messagePreview.toUIPreview(unreadEventCount).shouldBeInstanceOf<UILastMessageContent.MultipleMessage>()
+        val multipleMessage = messagePreview.toUIPreview(unreadEventCount, uiTextResolver)
+            .shouldBeInstanceOf<UILastMessageContent.MultipleMessage>()
         val results = multipleMessage.messages.filterIsInstance<UIText.PluralResource>()
 
         val sortedEventCount = unreadEventCount.toSortedMap()
@@ -65,7 +76,8 @@ class MessagePreviewContentMapperTest {
         val unreadCount = 2
         val unreadEventCount = mapOf(UnreadEventType.MISSED_CALL to unreadCount)
 
-        val textMessage = messagePreview.toUIPreview(unreadEventCount).shouldBeInstanceOf<UILastMessageContent.TextMessage>()
+        val textMessage = messagePreview.toUIPreview(unreadEventCount, uiTextResolver)
+            .shouldBeInstanceOf<UILastMessageContent.TextMessage>()
         val result = textMessage.messageBody.message.shouldBeInstanceOf<UIText.PluralResource>()
 
         result.resId shouldBeEqualTo R.plurals.unread_event_call
@@ -80,7 +92,8 @@ class MessagePreviewContentMapperTest {
         val unreadCount = 2
         val unreadEventCount = mapOf(UnreadEventType.MENTION to unreadCount)
 
-        val textMessage = messagePreview.toUIPreview(unreadEventCount).shouldBeInstanceOf<UILastMessageContent.TextMessage>()
+        val textMessage = messagePreview.toUIPreview(unreadEventCount, uiTextResolver)
+            .shouldBeInstanceOf<UILastMessageContent.TextMessage>()
         val result = textMessage.messageBody.message.shouldBeInstanceOf<UIText.PluralResource>()
 
         result.resId shouldBeEqualTo R.plurals.unread_event_mention
@@ -95,7 +108,8 @@ class MessagePreviewContentMapperTest {
         val unreadCount = 2
         val unreadEventCount = mapOf(UnreadEventType.REPLY to unreadCount)
 
-        val textMessage = messagePreview.toUIPreview(unreadEventCount).shouldBeInstanceOf<UILastMessageContent.TextMessage>()
+        val textMessage = messagePreview.toUIPreview(unreadEventCount, uiTextResolver)
+            .shouldBeInstanceOf<UILastMessageContent.TextMessage>()
         val result = textMessage.messageBody.message.shouldBeInstanceOf<UIText.PluralResource>()
 
         result.resId shouldBeEqualTo R.plurals.unread_event_reply
@@ -110,7 +124,8 @@ class MessagePreviewContentMapperTest {
         val unreadCount = 2
         val unreadEventCount = mapOf(UnreadEventType.KNOCK to unreadCount)
 
-        val textMessage = messagePreview.toUIPreview(unreadEventCount).shouldBeInstanceOf<UILastMessageContent.TextMessage>()
+        val textMessage = messagePreview.toUIPreview(unreadEventCount, uiTextResolver)
+            .shouldBeInstanceOf<UILastMessageContent.TextMessage>()
         val result = textMessage.messageBody.message.shouldBeInstanceOf<UIText.PluralResource>()
 
         result.resId shouldBeEqualTo R.plurals.unread_event_knock
@@ -127,7 +142,8 @@ class MessagePreviewContentMapperTest {
         val unreadCount = 2
         val unreadEventCount = mapOf(UnreadEventType.MESSAGE to unreadCount)
 
-        val senderWithMessage = messagePreview.toUIPreview(unreadEventCount).shouldBeInstanceOf<UILastMessageContent.SenderWithMessage>()
+        val senderWithMessage = messagePreview.toUIPreview(unreadEventCount, uiTextResolver)
+            .shouldBeInstanceOf<UILastMessageContent.SenderWithMessage>()
         val result = senderWithMessage.message.shouldBeInstanceOf<UIText.DynamicString>()
 
         result.value shouldBeEqualTo lastMessage
@@ -139,7 +155,8 @@ class MessagePreviewContentMapperTest {
             content = MessagePreviewContent.WithUser.Asset("admin", AssetType.AUDIO),
         )
 
-        val senderWithMessage = messagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.SenderWithMessage>()
+        val senderWithMessage = messagePreview.uiLastMessageContent(uiTextResolver)
+            .shouldBeInstanceOf<UILastMessageContent.SenderWithMessage>()
         val result = senderWithMessage.message.shouldBeInstanceOf<UIText.StringResource>()
 
         result.resId shouldBeEqualTo R.string.last_message_self_user_shared_audio
@@ -152,7 +169,8 @@ class MessagePreviewContentMapperTest {
             isSelfMessage = true
         )
 
-        val senderWithMessage = messagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.SenderWithMessage>()
+        val senderWithMessage = messagePreview.uiLastMessageContent(uiTextResolver)
+            .shouldBeInstanceOf<UILastMessageContent.SenderWithMessage>()
         val result = senderWithMessage.message.shouldBeInstanceOf<UIText.StringResource>()
 
         result.resId shouldBeEqualTo R.string.last_message_self_user_shared_image
@@ -162,7 +180,8 @@ class MessagePreviewContentMapperTest {
             isSelfMessage = false
         )
 
-        val otherUserWithMessage = otherUserPreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.SenderWithMessage>()
+        val otherUserWithMessage = otherUserPreview.uiLastMessageContent(uiTextResolver)
+            .shouldBeInstanceOf<UILastMessageContent.SenderWithMessage>()
         val otherSenderResult = otherUserWithMessage.message.shouldBeInstanceOf<UIText.StringResource>()
 
         otherSenderResult.resId shouldBeEqualTo R.string.last_message_other_user_shared_image
@@ -176,7 +195,8 @@ class MessagePreviewContentMapperTest {
                 isSelfMessage = true
             )
 
-            val senderWithMessage = messagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.SenderWithMessage>()
+            val senderWithMessage = messagePreview.uiLastMessageContent(uiTextResolver)
+                .shouldBeInstanceOf<UILastMessageContent.SenderWithMessage>()
             val result = senderWithMessage.message.shouldBeInstanceOf<UIText.StringResource>()
 
             result.resId shouldBeEqualTo R.string.last_message_self_user_shared_video
@@ -188,7 +208,8 @@ class MessagePreviewContentMapperTest {
             content = MessagePreviewContent.WithUser.ConversationNameChange("admin"),
         )
 
-        val senderWithMessage = messagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.SenderWithMessage>()
+        val senderWithMessage = messagePreview.uiLastMessageContent(uiTextResolver)
+            .shouldBeInstanceOf<UILastMessageContent.SenderWithMessage>()
         val result = senderWithMessage.message.shouldBeInstanceOf<UIText.StringResource>()
 
         result.resId shouldBeEqualTo R.string.last_message_other_changed_conversation_name
@@ -205,8 +226,10 @@ class MessagePreviewContentMapperTest {
             isSelfMessage = false
         )
 
-        val selfUserMessage = selfUserMessagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.SenderWithMessage>()
-        val otherUserMessage = otherUserMessagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.SenderWithMessage>()
+        val selfUserMessage = selfUserMessagePreview.uiLastMessageContent(uiTextResolver)
+            .shouldBeInstanceOf<UILastMessageContent.SenderWithMessage>()
+        val otherUserMessage = otherUserMessagePreview.uiLastMessageContent(uiTextResolver)
+            .shouldBeInstanceOf<UILastMessageContent.SenderWithMessage>()
         val selfUserResult = selfUserMessage.message.shouldBeInstanceOf<UIText.StringResource>()
         val otherUserResult = otherUserMessage.message.shouldBeInstanceOf<UIText.StringResource>()
 
@@ -226,9 +249,11 @@ class MessagePreviewContentMapperTest {
         )
 
         val selfSenderWithMessage =
-            selfUserMessagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.SenderWithMessage>()
+            selfUserMessagePreview.uiLastMessageContent(uiTextResolver)
+                .shouldBeInstanceOf<UILastMessageContent.SenderWithMessage>()
         val otherSenderWithMessage =
-            otherUserMessagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.SenderWithMessage>()
+            otherUserMessagePreview.uiLastMessageContent(uiTextResolver)
+                .shouldBeInstanceOf<UILastMessageContent.SenderWithMessage>()
         val result = selfSenderWithMessage.message.shouldBeInstanceOf<UIText.StringResource>()
         val otherUserResult = otherSenderWithMessage.message.shouldBeInstanceOf<UIText.StringResource>()
 
@@ -242,7 +267,8 @@ class MessagePreviewContentMapperTest {
             content = MessagePreviewContent.WithUser.MemberJoined("user"),
         )
 
-        val senderWithMessage = messagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.SenderWithMessage>()
+        val senderWithMessage = messagePreview.uiLastMessageContent(uiTextResolver)
+            .shouldBeInstanceOf<UILastMessageContent.SenderWithMessage>()
         val result = senderWithMessage.message.shouldBeInstanceOf<UIText.StringResource>()
 
         result.resId shouldBeEqualTo R.string.last_message_other_user_joined_conversation
@@ -254,7 +280,8 @@ class MessagePreviewContentMapperTest {
             content = MessagePreviewContent.WithUser.ConversationMembersRemoved("admin", isSelfUserRemoved = true, listOf()),
         )
 
-        val uiPreviewMessage = messagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.TextMessage>()
+        val uiPreviewMessage = messagePreview.uiLastMessageContent(uiTextResolver)
+            .shouldBeInstanceOf<UILastMessageContent.TextMessage>()
         val previewString = uiPreviewMessage.messageBody.message.shouldBeInstanceOf<UIText.StringResource>()
         previewString.resId shouldBeEqualTo R.string.last_message_other_removed_only_self_user
     }
@@ -268,7 +295,8 @@ class MessagePreviewContentMapperTest {
                 isSelfMessage = true
             )
 
-            val uiPreviewMessage = messagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.TextMessage>()
+            val uiPreviewMessage = messagePreview.uiLastMessageContent(uiTextResolver)
+                .shouldBeInstanceOf<UILastMessageContent.TextMessage>()
             val previewString = uiPreviewMessage.messageBody.message.shouldBeInstanceOf<UIText.PluralResource>()
             previewString.count shouldBeEqualTo otherRemovedUsers.size
             previewString.resId shouldBeEqualTo R.plurals.last_message_self_removed_users
@@ -286,7 +314,8 @@ class MessagePreviewContentMapperTest {
                 )
             )
 
-            val uiPreviewMessage = messagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.TextMessage>()
+            val uiPreviewMessage = messagePreview.uiLastMessageContent(uiTextResolver)
+                .shouldBeInstanceOf<UILastMessageContent.TextMessage>()
             val previewString = uiPreviewMessage.messageBody.message.shouldBeInstanceOf<UIText.PluralResource>()
             previewString.count shouldBeEqualTo otherRemovedUsers.size
             previewString.resId shouldBeEqualTo R.plurals.last_message_other_removed_self_user_and_others
@@ -304,7 +333,8 @@ class MessagePreviewContentMapperTest {
                 )
             )
 
-            val uiPreviewMessage = messagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.TextMessage>()
+            val uiPreviewMessage = messagePreview.uiLastMessageContent(uiTextResolver)
+                .shouldBeInstanceOf<UILastMessageContent.TextMessage>()
             val previewString = uiPreviewMessage.messageBody.message.shouldBeInstanceOf<UIText.PluralResource>()
             previewString.count shouldBeEqualTo otherUsersAdded.size
             previewString.resId shouldBeEqualTo R.plurals.last_message_other_added_self_user
@@ -322,7 +352,8 @@ class MessagePreviewContentMapperTest {
             isSelfMessage = true
         )
 
-        val uiPreviewMessage = messagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.TextMessage>()
+        val uiPreviewMessage = messagePreview.uiLastMessageContent(uiTextResolver)
+            .shouldBeInstanceOf<UILastMessageContent.TextMessage>()
         val previewString = uiPreviewMessage.messageBody.message.shouldBeInstanceOf<UIText.PluralResource>()
         previewString.count shouldBeEqualTo otherUsersAdded.size
         previewString.resId shouldBeEqualTo R.plurals.last_message_self_added_users
@@ -339,7 +370,7 @@ class MessagePreviewContentMapperTest {
             )
         )
 
-        val uiPreviewMessage = messagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.TextMessage>()
+        val uiPreviewMessage = messagePreview.uiLastMessageContent(uiTextResolver).shouldBeInstanceOf<UILastMessageContent.TextMessage>()
         val previewString = uiPreviewMessage.messageBody.message.shouldBeInstanceOf<UIText.PluralResource>()
         previewString.count shouldBeEqualTo otherUsersAdded.size
         previewString.resId shouldBeEqualTo R.plurals.last_message_other_added_other_users
@@ -356,7 +387,8 @@ class MessagePreviewContentMapperTest {
                 )
             )
 
-            val uiPreviewMessage = messagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.TextMessage>()
+            val uiPreviewMessage = messagePreview.uiLastMessageContent(uiTextResolver)
+                .shouldBeInstanceOf<UILastMessageContent.TextMessage>()
             val previewString = uiPreviewMessage.messageBody.message.shouldBeInstanceOf<UIText.PluralResource>()
             previewString.count shouldBeEqualTo otherRemovedUsers.size
             previewString.resId shouldBeEqualTo R.plurals.last_message_other_removed_self_user_and_others
@@ -373,7 +405,8 @@ class MessagePreviewContentMapperTest {
                 )
             )
 
-            val uiPreviewMessage = messagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.TextMessage>()
+            val uiPreviewMessage = messagePreview.uiLastMessageContent(uiTextResolver)
+                .shouldBeInstanceOf<UILastMessageContent.TextMessage>()
             val previewString = uiPreviewMessage.messageBody.message.shouldBeInstanceOf<UIText.PluralResource>()
             previewString.count shouldBeEqualTo otherRemovedUsers.size
             previewString.resId shouldBeEqualTo R.plurals.last_message_other_removed_other_users
@@ -386,7 +419,8 @@ class MessagePreviewContentMapperTest {
             isSelfMessage = false
         )
 
-        val senderWithMessage = messagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.SenderWithMessage>()
+        val senderWithMessage = messagePreview.uiLastMessageContent(uiTextResolver)
+            .shouldBeInstanceOf<UILastMessageContent.SenderWithMessage>()
         val result = senderWithMessage.message.shouldBeInstanceOf<UIText.StringResource>()
 
         result.resId shouldBeEqualTo R.string.deleted_message_text

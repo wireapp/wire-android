@@ -20,23 +20,21 @@ package com.wire.android.ui.authentication.create.common
 
 import com.ramcosta.composedestinations.annotation.NavGraph
 import com.wire.android.navigation.WireRootNavGraph
+import com.wire.android.navigation.style.DefaultNestedNavGraphAnimations
 
 @Deprecated("These destinations belongs to the old registration flow, please use the new one [CreateAccountNavGraph]")
-@WireRootNavGraph
-@NavGraph
+@NavGraph<WireRootNavGraph>(defaultTransitions = DefaultNestedNavGraphAnimations::class)
 annotation class CreatePersonalAccountNavGraph(
     val start: Boolean = false
 )
 
 @Deprecated("These destinations belongs to the old registration flow, please use the new one [CreateAccountNavGraph]")
-@WireRootNavGraph
-@NavGraph
+@NavGraph<WireRootNavGraph>(defaultTransitions = DefaultNestedNavGraphAnimations::class)
 annotation class CreateTeamAccountNavGraph(
     val start: Boolean = false
 )
 
-@WireRootNavGraph
-@NavGraph
+@NavGraph<WireRootNavGraph>
 annotation class CreateAccountNavGraph(
     val start: Boolean = false
 )

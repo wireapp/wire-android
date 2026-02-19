@@ -39,7 +39,7 @@ import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
-import com.wire.android.ui.navArgs
+import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.startFileShareIntent
@@ -197,9 +197,9 @@ class ConversationMessagesViewModel @Inject constructor(
         val lastReadIndex = conversationViewState.searchedMessageId?.let { messageId ->
             when (
                 val result = getSearchedConversationMessagePosition(
-                conversationId = conversationId,
-                messageId = messageId
-            )
+                    conversationId = conversationId,
+                    messageId = messageId
+                )
             ) {
                 is GetSearchedConversationMessagePositionUseCase.Result.Success -> result.position
                 is GetSearchedConversationMessagePositionUseCase.Result.Failure -> 0
@@ -422,6 +422,7 @@ class ConversationMessagesViewModel @Inject constructor(
         viewModelScope.launch {
             deleteMessageDialogState.update { it.copy(loading = true) }
             deleteMessage(conversationId = conversationId, messageId = messageId, deleteForEveryone = deleteForEveryone)
+                .toEither()
                 .onFailure { onSnackbarMessage(ConversationSnackbarMessages.ErrorDeletingMessage) }
             deleteMessageDialogState.dismiss()
         }

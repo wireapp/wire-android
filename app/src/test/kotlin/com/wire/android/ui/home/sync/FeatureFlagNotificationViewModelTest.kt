@@ -43,7 +43,6 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -98,7 +97,7 @@ class FeatureFlagNotificationViewModelTest {
         viewModel.dismissGuestRoomLinkDialog()
         advanceUntilIdle()
 
-        verify(exactly = 1) { arrangement.markGuestLinkFeatureFlagAsNotChanged() }
+        coVerify(exactly = 1) { arrangement.markGuestLinkFeatureFlagAsNotChanged() }
         assertEquals(
             false,
             viewModel.featureFlagState.shouldShowGuestRoomLinkDialog
@@ -356,6 +355,7 @@ class FeatureFlagNotificationViewModelTest {
             every { coreLogic.getSessionScope(any()).markNotifyForRevokedCertificateAsNotified } returns
                     markNotifyForRevokedCertificateAsNotified
             coEvery { ppLockTeamFeatureConfigObserver() } returns flowOf(null)
+            withIsAppLockSetup(true)
         }
 
         fun withCurrentSessionsFlow(result: Flow<CurrentSessionResult>) = apply {
@@ -363,7 +363,7 @@ class FeatureFlagNotificationViewModelTest {
         }
 
         fun withIsAppLockSetup(result: Boolean) = apply {
-            coEvery { globalDataStore.isAppLockPasscodeSet() } returns result
+            coEvery { globalDataStore.isAppLockPasscodeSetFlow() } returns flowOf(result)
         }
 
         fun withAppLockSource(source: AppLockSource) = apply {

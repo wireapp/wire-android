@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.settings.devices.e2ei
 
+import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
@@ -36,7 +37,6 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
@@ -54,8 +54,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-@WireDestination(
-    navArgsDelegate = E2eiCertificateDetailsScreenNavArgs::class,
+@WireRootDestination(
+    navArgs = E2eiCertificateDetailsScreenNavArgs::class,
     style = PopUpNavigationAnimation::class,
 )
 @Composable

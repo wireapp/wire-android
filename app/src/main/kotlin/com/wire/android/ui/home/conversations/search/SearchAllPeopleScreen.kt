@@ -38,7 +38,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.model.Clickable
@@ -52,6 +51,7 @@ import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.FolderType
 import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.keepOnTopWhenNotScrolled
 import com.wire.android.util.ui.sectionWithElements
 import com.wire.kalium.logic.data.user.ConnectionState
@@ -159,7 +159,6 @@ private fun SearchResult(
     lazyListState: LazyListState = rememberLazyListState()
 ) {
     val searchPeopleScreenState = rememberSearchPeopleScreenState()
-    val context = LocalContext.current
 
     Column {
         LazyColumn(
@@ -170,7 +169,7 @@ private fun SearchResult(
         ) {
             if (contactsSelectedSearchResult.isNotEmpty()) { // selected contacts section filtered by search query
                 internalSearchResults(
-                    searchTitle = context.getString(R.string.label_selected) + " (${contactsSelectedSearchResult.size})",
+                    searchTitle = UIText.StringResource(R.string.label_selected, contactsSelectedSearchResult.size),
                     searchQuery = searchQuery,
                     onChecked = onChecked,
                     searchResult = contactsSelectedSearchResult.map { it to true }.toImmutableList(),
@@ -186,7 +185,7 @@ private fun SearchResult(
 
             if (contactsSearchResult.isNotEmpty()) { // non-selected contacts section filtered by search query
                 internalSearchResults(
-                    searchTitle = context.getString(R.string.label_contacts),
+                    searchTitle = UIText.StringResource(R.string.label_contacts),
                     searchQuery = searchQuery,
                     onChecked = onChecked,
                     searchResult = contactsSearchResult.map { it to false }.toImmutableList(),
@@ -202,7 +201,7 @@ private fun SearchResult(
 
             if (publicSearchResult.isNotEmpty()) { // public results section filtered by search query
                 externalSearchResults(
-                    searchTitle = context.getString(R.string.label_public_wire),
+                    searchTitle = UIText.StringResource(R.string.label_public_wire),
                     searchQuery = searchQuery,
                     searchResult = publicSearchResult,
                     allItemsVisible = searchPeopleScreenState.publicResultsCollapsed,
@@ -223,7 +222,7 @@ private fun SearchResult(
 
 @Suppress("LongParameterList")
 private fun LazyListScope.internalSearchResults(
-    searchTitle: String,
+    searchTitle: UIText,
     allItemsVisible: Boolean,
     showMoreOrLessButtonVisible: Boolean,
     actionType: ItemActionType,
@@ -289,7 +288,7 @@ private fun LazyListScope.internalSearchResults(
 
 @Suppress("LongParameterList")
 private fun LazyListScope.externalSearchResults(
-    searchTitle: String,
+    searchTitle: UIText,
     allItemsVisible: Boolean,
     showMoreOrLessButtonVisible: Boolean,
     searchResult: List<Contact>,

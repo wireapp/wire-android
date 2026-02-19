@@ -42,8 +42,8 @@ import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import coil.compose.AsyncImage
-import coil.decode.VideoFrameDecoder
+import coil3.compose.AsyncImage
+import coil3.video.VideoFrameDecoder
 import com.wire.android.R
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.ui.common.applyIf

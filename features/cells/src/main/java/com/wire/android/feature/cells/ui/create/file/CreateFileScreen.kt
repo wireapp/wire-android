@@ -35,7 +35,7 @@ import com.wire.android.feature.cells.ui.common.FileNameError
 import com.wire.android.navigation.PreviewNavigator
 import com.wire.android.navigation.PreviewResultBackNavigator
 import com.wire.android.navigation.WireNavigator
-import com.wire.android.navigation.annotation.features.cells.WireDestination
+import com.wire.android.navigation.annotation.features.cells.WireCellsDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.WireDialog
@@ -55,9 +55,9 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import java.util.Locale
 
-@WireDestination(
+@WireCellsDestination(
     style = PopUpNavigationAnimation::class,
-    navArgsDelegate = CreateFileScreenNavArgs::class,
+    navArgs = CreateFileScreenNavArgs::class,
 )
 @Composable
 fun CreateFileScreen(

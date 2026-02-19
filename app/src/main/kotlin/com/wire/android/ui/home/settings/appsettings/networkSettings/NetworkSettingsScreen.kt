@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.home.settings.appsettings.networkSettings
 
+import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -30,7 +31,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
@@ -40,7 +40,7 @@ import com.wire.android.ui.home.settings.SwitchState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.isWebsocketEnabledByDefault
 
-@WireDestination
+@WireRootDestination
 @Composable
 fun NetworkSettingsScreen(
     navigator: Navigator,
@@ -49,6 +49,7 @@ fun NetworkSettingsScreen(
     NetworkSettingsScreenContent(
         onBackPressed = navigator::navigateBack,
         isWebSocketEnabled = networkSettingsViewModel.networkSettingsState.isPersistentWebSocketConnectionEnabled,
+        isEnforcedByMDM = networkSettingsViewModel.networkSettingsState.isEnforcedByMDM,
         setWebSocketState = { networkSettingsViewModel.setWebSocketState(it) },
     )
 }
@@ -57,6 +58,7 @@ fun NetworkSettingsScreen(
 fun NetworkSettingsScreenContent(
     onBackPressed: () -> Unit,
     isWebSocketEnabled: Boolean,
+    isEnforcedByMDM: Boolean,
     setWebSocketState: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -79,20 +81,26 @@ fun NetworkSettingsScreenContent(
             val isWebSocketEnforcedByDefault = remember {
                 isWebsocketEnabledByDefault(appContext)
             }
-            val switchState = remember(isWebSocketEnabled) {
-                if (isWebSocketEnforcedByDefault) {
-                    SwitchState.TextOnly(true)
-                } else {
-                    SwitchState.Enabled(
+            val switchState = remember(isWebSocketEnabled, isEnforcedByMDM) {
+                when {
+                    isEnforcedByMDM -> SwitchState.TextOnly(true)
+                    isWebSocketEnforcedByDefault -> SwitchState.TextOnly(true)
+                    else -> SwitchState.Enabled(
                         value = isWebSocketEnabled,
                         onCheckedChange = setWebSocketState
                     )
                 }
             }
 
+            val subtitle = if (isEnforcedByMDM) {
+                stringResource(R.string.settings_keep_websocket_enforced_by_organization)
+            } else {
+                stringResource(R.string.settings_keep_connection_to_websocket_description)
+            }
+
             GroupConversationOptionsItem(
                 title = stringResource(R.string.settings_keep_connection_to_websocket),
-                subtitle = stringResource(R.string.settings_keep_connection_to_websocket_description),
+                subtitle = subtitle,
                 switchState = switchState,
                 arrowType = ArrowType.NONE
             )
@@ -106,6 +114,7 @@ fun PreviewNetworkSettingsScreen() = WireTheme {
     NetworkSettingsScreenContent(
         onBackPressed = {},
         isWebSocketEnabled = true,
+        isEnforcedByMDM = false,
         setWebSocketState = {},
     )
 }

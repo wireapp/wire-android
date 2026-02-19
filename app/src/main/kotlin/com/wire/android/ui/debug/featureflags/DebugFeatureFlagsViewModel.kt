@@ -20,10 +20,9 @@ package com.wire.android.ui.debug.featureflags
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
-import com.wire.kalium.common.functional.onFailure
-import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.featureConfig.ChannelFeatureConfiguration
 import com.wire.kalium.logic.data.featureConfig.Status
+import com.wire.kalium.logic.feature.debug.GetFeatureConfigResult
 import com.wire.kalium.logic.feature.debug.GetFeatureConfigUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -45,10 +44,11 @@ class DebugFeatureFlagsViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            getFeatureConfig()
-                .onSuccess { model ->
+            when (val result = getFeatureConfig()) {
+                is GetFeatureConfigResult.Failure -> appLogger.e("Failed to load feature flags")
+                is GetFeatureConfigResult.Success -> {
                     val features = buildList {
-                        with(model) {
+                        with(result.featureConfigModel) {
                             addFeature("App Lock", appLockModel.status, appLockModel)
                             addFeature("Classified Domains", classifiedDomainsModel.status)
                             addFeature("Conference Calling", conferenceCallingModel.status)
@@ -81,12 +81,9 @@ class DebugFeatureFlagsViewModel @Inject constructor(
                             )
                         }
                     }.sortedWith(compareBy(Feature::status, Feature::name))
-
                     _state.update { current -> current.copy(features = features) }
                 }
-                .onFailure {
-                    appLogger.e("Failed to load feature flags")
-                }
+            }
         }
     }
 

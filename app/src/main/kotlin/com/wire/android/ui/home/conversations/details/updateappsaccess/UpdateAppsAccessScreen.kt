@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.home.conversations.details.updateappsaccess
 
+import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -30,10 +31,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.spec.DestinationStyle
+import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
@@ -47,9 +47,9 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 import kotlinx.coroutines.launch
 
-@WireDestination(
-    navArgsDelegate = UpdateAppsAccessNavArgs::class,
-    style = DestinationStyle.Runtime::class,
+@WireRootDestination(
+    navArgs = UpdateAppsAccessNavArgs::class,
+    style = SlideNavigationAnimation::class,
 )
 @Composable
 fun UpdateAppsAccessScreen(

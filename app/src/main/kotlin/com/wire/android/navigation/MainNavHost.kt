@@ -21,25 +21,36 @@ package com.wire.android.navigation
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.DestinationsNavHost
-import com.ramcosta.composedestinations.animations.rememberAnimatedNavHostEngine
+import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.LoginScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.NewLoginPasswordScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.NewLoginScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.NewLoginVerificationCodeScreenDestination
+import com.ramcosta.composedestinations.generated.app.navgraphs.LoginGraph
+import com.ramcosta.composedestinations.generated.app.navgraphs.NewConversationGraph
+import com.ramcosta.composedestinations.generated.app.navgraphs.NewLoginGraph
+import com.ramcosta.composedestinations.generated.app.navgraphs.PersonalToTeamMigrationGraph
+import com.ramcosta.composedestinations.generated.app.navgraphs.WireRootGraph
+import com.ramcosta.composedestinations.generated.app.navtype.groupConversationDetailsNavBackArgsNavType
+import com.ramcosta.composedestinations.generated.app.navtype.imagesPreviewNavBackArgsNavType
+import com.ramcosta.composedestinations.generated.app.navtype.mediaGalleryNavBackArgsNavType
+import com.ramcosta.composedestinations.generated.sketch.destinations.DrawingCanvasScreenDestination
+import com.ramcosta.composedestinations.generated.sketch.navtype.drawingCanvasNavBackArgsNavType
 import com.ramcosta.composedestinations.manualcomposablecalls.composable
 import com.ramcosta.composedestinations.navigation.dependency
+import com.ramcosta.composedestinations.navigation.destination
+import com.ramcosta.composedestinations.navigation.navGraph
 import com.ramcosta.composedestinations.scope.resultBackNavigator
 import com.ramcosta.composedestinations.scope.resultRecipient
-import com.ramcosta.composedestinations.spec.Route
-import com.wire.android.feature.sketch.destinations.DrawingCanvasScreenDestination
+import com.ramcosta.composedestinations.spec.Direction
 import com.wire.android.feature.sketch.model.DrawingCanvasNavBackArgs
-import com.wire.android.navigation.style.DefaultNestedNavGraphAnimations
-import com.wire.android.navigation.style.DefaultRootNavGraphAnimations
-import com.wire.android.ui.NavGraphs
 import com.wire.android.ui.authentication.login.email.LoginEmailViewModel
+import com.wire.android.ui.authentication.login.sso.SSOUrlConfigHolder
 import com.wire.android.ui.authentication.login.sso.SSOUrlConfigHolderImpl
-import com.wire.android.ui.destinations.ConversationScreenDestination
-import com.wire.android.ui.destinations.NewLoginPasswordScreenDestination
-import com.wire.android.ui.destinations.NewLoginVerificationCodeScreenDestination
 import com.wire.android.ui.home.conversations.ConversationScreen
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
 import com.wire.android.ui.userprofile.teammigration.TeamMigrationViewModel
@@ -49,88 +60,100 @@ import com.wire.android.ui.userprofile.teammigration.TeamMigrationViewModel
 fun MainNavHost(
     navigator: Navigator,
     loginTypeSelector: LoginTypeSelector?,
-    startDestination: Route,
+    startDestination: Direction,
     modifier: Modifier = Modifier,
 ) {
-    val navHostEngine = rememberAnimatedNavHostEngine(
-        rootDefaultAnimations = DefaultRootNavGraphAnimations,
-        defaultAnimationsForNestedNavGraph = mapOf(
-            NavGraphs.createPersonalAccount to DefaultNestedNavGraphAnimations,
-            NavGraphs.createTeamAccount to DefaultNestedNavGraphAnimations,
-            NavGraphs.newConversation to DefaultNestedNavGraphAnimations,
-        )
-    )
-
-    AdjustDestinationStylesForTablets()
+    val navHostEngine = rememberWireNavHostEngine(Alignment.Center)
     DestinationsNavHost(
         modifier = modifier,
-        navGraph = WireMainNavGraph,
+        navGraph = WireRootGraph,
+        defaultTransitions = WireRootGraph.defaultTransitions,
         engine = navHostEngine,
-        startRoute = startDestination,
+        start = startDestination,
         navController = navigator.navController,
         dependenciesContainerBuilder = {
             // 👇 To make Navigator available to all destinations as a non-navigation parameter
             dependency(navigator)
 
+            // Always provide a default SSO holder at root scope so destinations can resolve it
+            // even when navigated directly without going through the expected nested graph route.
+            val rootEntry = remember(navBackStackEntry) {
+                navController.getBackStackEntry(WireRootGraph.route)
+            }
+            val rootSSOHolder: SSOUrlConfigHolder = SSOUrlConfigHolderImpl(rootEntry.savedStateHandle)
+            dependency(rootSSOHolder)
+
             // 👇 To make LoginTypeSelector available to all destinations as a non-navigation parameter if provided
             if (loginTypeSelector != null) dependency(loginTypeSelector)
 
             // 👇 To tie NewConversationViewModel to nested NewConversationNavGraph, making it shared between all screens that belong to it
-            dependency(NavGraphs.newConversation) {
+            navGraph(NewConversationGraph) {
                 val parentEntry = remember(navBackStackEntry) {
-                    navController.getBackStackEntry(NavGraphs.newConversation.route)
+                    navController.getBackStackEntry(NewConversationGraph.route)
                 }
-                hiltViewModel<NewConversationViewModel>(parentEntry)
+                dependency(hiltViewModel<NewConversationViewModel>(parentEntry))
             }
 
             // 👇 To reuse LoginEmailViewModel from NewLoginPasswordScreen on NewLoginVerificationCodeScreen
-            dependency(NewLoginVerificationCodeScreenDestination) {
+            destination(NewLoginVerificationCodeScreenDestination) {
                 val loginPasswordEntry = remember(navBackStackEntry) {
                     navController.getBackStackEntry(NewLoginPasswordScreenDestination.route)
                 }
-                hiltViewModel<LoginEmailViewModel>(loginPasswordEntry)
+                dependency(hiltViewModel<LoginEmailViewModel>(loginPasswordEntry))
             }
 
             // 👇 To tie SSOUrlConfigHolder to nested LoginNavGraph, making it shared between all screens that belong to it
-            dependency(NavGraphs.login) {
+            navGraph(LoginGraph) {
                 val parentEntry = remember(navBackStackEntry) {
-                    navController.getBackStackEntry(NavGraphs.login.route)
+                    navController.getBackStackEntry(LoginGraph.route)
                 }
-                SSOUrlConfigHolderImpl(parentEntry.savedStateHandle)
+                val holder: SSOUrlConfigHolder = SSOUrlConfigHolderImpl(parentEntry.savedStateHandle)
+                dependency(holder)
             }
 
             // 👇 To tie SSOUrlConfigHolder to nested NewLoginNavGraph, making it shared between all screens that belong to it
-            dependency(NavGraphs.newLogin) {
+            navGraph(NewLoginGraph) {
                 val parentEntry = remember(navBackStackEntry) {
-                    navController.getBackStackEntry(NavGraphs.newLogin.route)
+                    navController.getBackStackEntry(NewLoginGraph.route)
                 }
-                SSOUrlConfigHolderImpl(parentEntry.savedStateHandle)
+                val holder: SSOUrlConfigHolder = SSOUrlConfigHolderImpl(parentEntry.savedStateHandle)
+                dependency(holder)
+            }
+
+            // Some flows navigate directly to screen destinations instead of the nav graph route.
+            // Provide the dependency at destination scope as a safe fallback.
+            destination(LoginScreenDestination) {
+                val holder: SSOUrlConfigHolder = SSOUrlConfigHolderImpl(navBackStackEntry.savedStateHandle)
+                dependency(holder)
+            }
+            destination(NewLoginScreenDestination) {
+                val holder: SSOUrlConfigHolder = SSOUrlConfigHolderImpl(navBackStackEntry.savedStateHandle)
+                dependency(holder)
             }
 
             // 👇 To tie TeamMigrationViewModel to PersonalToTeamMigrationNavGraph, making it shared between all screens that belong to it
-            dependency(NavGraphs.personalToTeamMigration) {
+            navGraph(PersonalToTeamMigrationGraph) {
                 val parentEntry = remember(navBackStackEntry) {
-                    navController.getBackStackEntry(NavGraphs.personalToTeamMigration.route)
+                    navController.getBackStackEntry(PersonalToTeamMigrationGraph.route)
                 }
-                hiltViewModel<TeamMigrationViewModel>(parentEntry)
+                dependency(hiltViewModel<TeamMigrationViewModel>(parentEntry))
             }
         },
         manualComposableCallsBuilder = {
             /**
-             * In compose-destinations v1 it's not possible for code generation to use destination generated in another module,
-             * that's why it's necessary to use "open" approach and manually call the composable function for the destination.
-             * In v2 this will be possible, so that we will be able to use regular `ResultRecipient` instead of `OpenResultRecipient`
-             * and provide it directly inside the destination's composable without the need to passing it manually.
-             * https://github.com/raamcosta/compose-destinations/issues/508#issuecomment-1883166574
+             * Keep manual composable calls for cross-module result wiring until we refactor
+             * those destinations to rely on generated dependencies directly.
              */
             composable(ConversationScreenDestination) {
                 ConversationScreen(
                     navigator = navigator,
-                    groupDetailsScreenResultRecipient = resultRecipient(),
-                    mediaGalleryScreenResultRecipient = resultRecipient(),
-                    imagePreviewScreenResultRecipient = resultRecipient(),
-                    drawingCanvasScreenResultRecipient = resultRecipient<DrawingCanvasScreenDestination, DrawingCanvasNavBackArgs>(),
-                    resultNavigator = resultBackNavigator(),
+                    groupDetailsScreenResultRecipient = resultRecipient(groupConversationDetailsNavBackArgsNavType),
+                    mediaGalleryScreenResultRecipient = resultRecipient(mediaGalleryNavBackArgsNavType),
+                    imagePreviewScreenResultRecipient = resultRecipient(imagesPreviewNavBackArgsNavType),
+                    drawingCanvasScreenResultRecipient = resultRecipient<DrawingCanvasScreenDestination, DrawingCanvasNavBackArgs>(
+                        drawingCanvasNavBackArgsNavType
+                    ),
+                    resultNavigator = resultBackNavigator(groupConversationDetailsNavBackArgsNavType),
                 )
             }
         }

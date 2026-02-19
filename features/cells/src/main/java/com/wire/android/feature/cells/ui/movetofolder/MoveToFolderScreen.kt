@@ -47,14 +47,14 @@ import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.common.Breadcrumbs
 import com.wire.android.feature.cells.ui.common.LoadingScreen
-import com.wire.android.feature.cells.ui.destinations.CreateFolderScreenDestination
-import com.wire.android.feature.cells.ui.destinations.MoveToFolderScreenDestination
+import com.ramcosta.composedestinations.generated.cells.destinations.CreateFolderScreenDestination
+import com.ramcosta.composedestinations.generated.cells.destinations.MoveToFolderScreenDestination
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.PreviewNavigator
 import com.wire.android.navigation.PreviewResultRecipient
 import com.wire.android.navigation.WireNavigator
-import com.wire.android.navigation.annotation.features.cells.WireDestination
+import com.wire.android.navigation.annotation.features.cells.WireCellsDestination
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
@@ -71,8 +71,8 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
 @Suppress("CyclomaticComplexMethod")
-@WireDestination(
-    navArgsDelegate = MoveToFolderNavArgs::class,
+@WireCellsDestination(
+    navArgs = MoveToFolderNavArgs::class,
 )
 @Composable
 fun MoveToFolderScreen(

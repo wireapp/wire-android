@@ -23,6 +23,7 @@ import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.TestDispatcherProvider
+import com.wire.android.framework.TestTeam
 import com.wire.android.framework.TestUser
 import com.wire.android.mapper.testUIParticipant
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsState
@@ -31,7 +32,7 @@ import com.wire.android.ui.home.conversations.details.participants.model.Convers
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAddPermissionType
-import com.wire.android.ui.navArgs
+import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Group.Channel.ChannelAccess
@@ -56,8 +57,7 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationReceiptModeU
 import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageUseCase
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
-import com.wire.kalium.logic.feature.team.GetUpdatedSelfTeamUseCase
-import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
+import com.wire.kalium.logic.feature.user.ObserveSelfUserWithTeamUseCase
 import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -703,13 +703,10 @@ internal class GroupConversationDetailsViewModelArrangement {
     lateinit var observeConversationDetails: ObserveConversationDetailsUseCase
 
     @MockK
-    lateinit var getSelfUser: GetSelfUserUseCase
+    lateinit var observeSelfUserWithTeam: ObserveSelfUserWithTeamUseCase
 
     @MockK
     lateinit var observeParticipantsForConversationUseCase: ObserveParticipantsForConversationUseCase
-
-    @MockK
-    lateinit var getSelfTeamUseCase: GetUpdatedSelfTeamUseCase
 
     @MockK
     lateinit var updateConversationMutedStatus: UpdateConversationMutedStatusUseCase
@@ -740,13 +737,15 @@ internal class GroupConversationDetailsViewModelArrangement {
     @MockK
     lateinit var isWireCellsEnabled: IsWireCellsEnabledUseCase
 
+    private var arrangedSelfUser: SelfUser = TestUser.SELF_USER
+    private var arrangedTeam: Team? = TestTeam.TEAM
+
     private val viewModel by lazy {
         GroupConversationDetailsViewModel(
             dispatcher = TestDispatcherProvider(),
-            getSelfUser = getSelfUser,
             observeConversationDetails = observeConversationDetails,
             observeConversationMembers = observeParticipantsForConversationUseCase,
-            getSelfTeam = getSelfTeamUseCase,
+            observeSelfUserWithTeam = observeSelfUserWithTeam,
             savedStateHandle = savedStateHandle,
             updateConversationReceiptMode = updateConversationReceiptMode,
             isMLSEnabled = isMLSEnabledUseCase,
@@ -773,9 +772,8 @@ internal class GroupConversationDetailsViewModelArrangement {
 
         // Default empty values
         coEvery { observeConversationDetails(any()) } returns flowOf()
-        coEvery { getSelfUser() } returns TestUser.SELF_USER
+        updateSelfUserWithTeamFlow()
         coEvery { observeParticipantsForConversationUseCase(any(), any()) } returns flowOf()
-        coEvery { getSelfTeamUseCase() } returns null
         coEvery { isMLSEnabledUseCase() } returns true
         coEvery { updateConversationMutedStatus(any(), any(), any()) } returns ConversationUpdateStatusResult.Success
         coEvery { observeSelfDeletionTimerSettingsForConversation(any(), any()) } returns flowOf(SelfDeletionTimer.Disabled)
@@ -789,7 +787,8 @@ internal class GroupConversationDetailsViewModelArrangement {
     }
 
     suspend fun withGetSelfUserReturns(user: SelfUser) = apply {
-        coEvery { getSelfUser() } returns user
+        arrangedSelfUser = user
+        updateSelfUserWithTeamFlow()
     }
 
     suspend fun withConversationDetailUpdate(conversationDetails: ConversationDetails) = apply {
@@ -804,7 +803,12 @@ internal class GroupConversationDetailsViewModelArrangement {
     }
 
     suspend fun withSelfTeamUseCaseReturns(result: Team?) = apply {
-        coEvery { getSelfTeamUseCase() } returns result
+        arrangedTeam = result
+        updateSelfUserWithTeamFlow()
+    }
+
+    private fun updateSelfUserWithTeamFlow() {
+        coEvery { observeSelfUserWithTeam() } returns flowOf(arrangedSelfUser to arrangedTeam)
     }
 
     suspend fun withUpdateConversationReceiptModeReturningSuccess() = apply {

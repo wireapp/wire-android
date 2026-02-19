@@ -35,7 +35,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.runBlocking
 import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -57,6 +56,7 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
         private val ENTER_TO_SENT = booleanPreferencesKey("enter_to_sent")
         private val ANONYMOUS_REGISTRATION_TRACK_ID = stringPreferencesKey("anonymous_registration_track_id")
         private val IS_ANONYMOUS_REGISTRATION_ENABLED = booleanPreferencesKey("is_anonymous_registration_enabled")
+        private val PERSISTENT_WEBSOCKET_ENFORCED_BY_MDM = booleanPreferencesKey("persistent_websocket_enforced_by_mdm")
 
         val APP_THEME_OPTION = stringPreferencesKey("app_theme_option")
         val RECORD_AUDIO_EFFECTS_CHECKBOX = booleanPreferencesKey("record_audio_effects_checkbox")
@@ -161,12 +161,6 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
             it.contains(APP_LOCK_PASSCODE)
         }
 
-    fun isAppLockPasscodeSet(): Boolean = runBlocking {
-        context.dataStore.data.map {
-            it.contains(APP_LOCK_PASSCODE)
-        }.first()
-    }
-
     suspend fun clearAppLockPasscode() {
         context.dataStore.edit {
             it.remove(APP_LOCK_PASSCODE)
@@ -211,5 +205,12 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
     fun enterToSendFlow(): Flow<Boolean> = getBooleanPreference(ENTER_TO_SENT, false)
     suspend fun setEnterToSend(enabled: Boolean) {
         context.dataStore.edit { it[ENTER_TO_SENT] = enabled }
+    }
+
+    fun isPersistentWebSocketEnforcedByMDM(): Flow<Boolean> =
+        getBooleanPreference(PERSISTENT_WEBSOCKET_ENFORCED_BY_MDM, false)
+
+    suspend fun setPersistentWebSocketEnforcedByMDM(enforced: Boolean) {
+        context.dataStore.edit { it[PERSISTENT_WEBSOCKET_ENFORCED_BY_MDM] = enforced }
     }
 }

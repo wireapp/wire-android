@@ -22,7 +22,7 @@ internal const val FILE_NAME_MAX_COUNT = 64
 internal fun CharSequence.validateFileName() = when {
     length > FILE_NAME_MAX_COUNT -> FileNameError.NameExceedLimit
     trim().isEmpty() -> FileNameError.NameEmpty
-    contains("/") -> FileNameError.InvalidName
+    contains("/") || contains("\\") || contains("\"") -> FileNameError.InvalidName
     startsWith(".") -> FileNameError.InvalidName
     else -> null
 }

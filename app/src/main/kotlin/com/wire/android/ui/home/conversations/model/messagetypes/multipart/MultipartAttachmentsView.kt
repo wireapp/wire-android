@@ -31,8 +31,9 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.hilt.navigation.compose.hiltViewModel
-import coil.decode.Decoder
-import coil.request.ImageRequest
+import coil3.decode.Decoder
+import coil3.request.ImageRequest
+import coil3.request.crossfade
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi

@@ -18,17 +18,22 @@
 
 package com.wire.android.util.ui
 
-import coil.decode.DataSource
-import coil.decode.ImageSource
-import coil.fetch.FetchResult
-import coil.fetch.SourceResult
+import coil3.decode.DataSource
+import coil3.decode.ImageSource
+import coil3.fetch.FetchResult
+import coil3.fetch.SourceFetchResult
+import okio.FileSystem
 import okio.Path
 
 internal class DrawableResultWrapper {
 
     internal fun toFetchResult(assetPath: Path): FetchResult {
-        return SourceResult(
-            source = ImageSource(file = assetPath, diskCacheKey = assetPath.name),
+        return SourceFetchResult(
+            source = ImageSource(
+                file = assetPath,
+                fileSystem = FileSystem.SYSTEM,
+                diskCacheKey = assetPath.name,
+            ),
             mimeType = null,
             dataSource = DataSource.DISK
         )

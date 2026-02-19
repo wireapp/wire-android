@@ -38,7 +38,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.rowitem.EmptyListArrowFooter
 import com.wire.android.ui.common.rowitem.EmptyListContent
 import com.wire.android.ui.common.spacers.VerticalSpace
-import com.wire.android.ui.destinations.BrowseChannelsScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.BrowseChannelsScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper

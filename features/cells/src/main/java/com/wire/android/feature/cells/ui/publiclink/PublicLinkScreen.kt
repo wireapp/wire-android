@@ -46,20 +46,19 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.result.NavResult
-import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
-import com.ramcosta.composedestinations.spec.DestinationSpec
+import com.ramcosta.composedestinations.spec.TypedDestinationSpec
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.common.WireCellErrorDialog
-import com.wire.android.feature.cells.ui.destinations.PublicLinkExpirationScreenDestination
-import com.wire.android.feature.cells.ui.destinations.PublicLinkPasswordScreenDestination
+import com.ramcosta.composedestinations.generated.cells.destinations.PublicLinkExpirationScreenDestination
+import com.ramcosta.composedestinations.generated.cells.destinations.PublicLinkPasswordScreenDestination
 import com.wire.android.feature.cells.ui.publiclink.settings.PublicLinkSettingsSection
 import com.wire.android.feature.cells.ui.publiclink.settings.RemovePublicLinkDialog
 import com.wire.android.feature.cells.ui.publiclink.settings.expiration.PublicLinkExpirationResult
 import com.wire.android.feature.cells.ui.util.PreviewMultipleThemes
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.WireNavigator
-import com.wire.android.navigation.annotation.features.cells.WireDestination
+import com.wire.android.navigation.annotation.features.cells.WireCellsDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.button.WireSwitch
@@ -73,14 +72,13 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.uiLinkExpirationDate
 import com.wire.android.util.uiLinkExpirationTime
 
-@WireDestination(
-    navArgsDelegate = PublicLinkNavArgs::class,
+@WireCellsDestination(
+    navArgs = PublicLinkNavArgs::class,
     style = PopUpNavigationAnimation::class,
 )
 @Composable
 fun PublicLinkScreen(
     navigator: WireNavigator,
-    resultNavigator: ResultBackNavigator<Unit>,
     onPasswordChange: ResultRecipient<PublicLinkPasswordScreenDestination, Boolean>,
     onExpirationChange: ResultRecipient<PublicLinkExpirationScreenDestination, PublicLinkExpirationResult>,
     modifier: Modifier = Modifier,
@@ -98,7 +96,7 @@ fun PublicLinkScreen(
         modifier = modifier,
         topBar = {
             WireCenterAlignedTopAppBar(
-                onNavigationPressed = { resultNavigator.navigateBack() },
+                onNavigationPressed = { navigator.navigateBack() },
                 title = if (state.isFolder) {
                     stringResource(R.string.share_folder_via_link)
                 } else {
@@ -174,7 +172,7 @@ fun PublicLinkScreen(
                 Toast.makeText(context, action.message, Toast.LENGTH_SHORT).show()
 
                 if (action.closeScreen) {
-                    resultNavigator.navigateBack()
+                    navigator.navigateBack()
                 }
             }
 
@@ -275,10 +273,10 @@ private fun showLinkCopiedToast(context: Context) {
 }
 
 @Composable
-private fun <D : DestinationSpec<*>, R> ResultRecipient<D, R>.handleNavResult(block: (R) -> Unit) {
+private fun <D : TypedDestinationSpec<*>, R> ResultRecipient<D, R>.handleNavResult(block: (R) -> Unit) {
     onNavResult { result ->
         when (result) {
-            is NavResult.Value<R> -> block(result.value)
+            is NavResult.Value -> block(result.value)
             NavResult.Canceled -> {}
         }
     }

@@ -26,17 +26,19 @@ import android.os.Build.VERSION.SDK_INT
 import android.os.ParcelFileDescriptor
 import androidx.core.graphics.applyCanvas
 import androidx.core.graphics.createBitmap
-import androidx.core.graphics.drawable.toDrawable
-import coil.decode.DecodeResult
-import coil.decode.DecodeUtils
-import coil.decode.Decoder
-import coil.decode.ImageSource
-import coil.request.Options
-import coil.size.Dimension
-import coil.size.Scale
-import coil.size.Size
-import coil.size.isOriginal
-import coil.size.pxOrElse
+import coil3.asImage
+import coil3.decode.DecodeResult
+import coil3.decode.DecodeUtils
+import coil3.decode.Decoder
+import coil3.decode.ImageSource
+import coil3.request.Options
+import coil3.request.bitmapConfig
+import coil3.size.Dimension
+import coil3.size.Precision
+import coil3.size.Scale
+import coil3.size.Size
+import coil3.size.isOriginal
+import coil3.size.pxOrElse
 import java.io.File
 import kotlin.math.roundToInt
 
@@ -61,7 +63,7 @@ class PdfPreviewDecoder(
                     dstHeight = dstHeight,
                     scale = options.scale
                 )
-                val scale = if (options.allowInexactSize) {
+                val scale = if (options.precision == Precision.INEXACT) {
                     rawScale.coerceAtMost(1.0)
                 } else {
                     rawScale
@@ -98,7 +100,7 @@ class PdfPreviewDecoder(
             }
 
             DecodeResult(
-                drawable = rawBitmap.toDrawable(options.context.resources),
+                image = rawBitmap.asImage(),
                 isSampled = isSampled
             )
         }
@@ -127,8 +129,8 @@ class PdfPreviewDecoder(
         val dstWidth = (scale * inBitmap.width).roundToInt()
         val dstHeight = (scale * inBitmap.height).roundToInt()
         val safeConfig = when {
-            SDK_INT >= android.os.Build.VERSION_CODES.O && options.config == Bitmap.Config.HARDWARE -> Bitmap.Config.ARGB_8888
-            else -> options.config
+            SDK_INT >= android.os.Build.VERSION_CODES.O && options.bitmapConfig == Bitmap.Config.HARDWARE -> Bitmap.Config.ARGB_8888
+            else -> options.bitmapConfig
         }
 
         val paint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
@@ -145,11 +147,11 @@ class PdfPreviewDecoder(
     private fun isConfigValid(bitmap: Bitmap, options: Options): Boolean {
         return SDK_INT < android.os.Build.VERSION_CODES.O ||
                 bitmap.config != Bitmap.Config.HARDWARE ||
-                options.config == Bitmap.Config.HARDWARE
+                options.bitmapConfig == Bitmap.Config.HARDWARE
     }
 
     private fun isSizeValid(bitmap: Bitmap, options: Options, size: Size): Boolean {
-        if (options.allowInexactSize) return true
+        if (options.precision == Precision.INEXACT) return true
         val multiplier = DecodeUtils.computeSizeMultiplier(
             srcWidth = bitmap.width,
             srcHeight = bitmap.height,

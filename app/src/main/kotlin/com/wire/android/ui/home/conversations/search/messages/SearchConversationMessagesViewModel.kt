@@ -26,7 +26,7 @@ import androidx.lifecycle.ViewModel
 import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.ui.common.DEFAULT_SEARCH_QUERY_DEBOUNCE
 import com.wire.android.ui.home.conversations.usecase.GetConversationMessagesFromSearchUseCase
-import com.wire.android.ui.navArgs
+import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.id.QualifiedID
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -45,7 +45,10 @@ class SearchConversationMessagesViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val searchConversationMessagesNavArgs: SearchConversationMessagesNavArgs = savedStateHandle.navArgs()
-    private val conversationId: QualifiedID = searchConversationMessagesNavArgs.conversationId
+
+    val conversationId: QualifiedID = searchConversationMessagesNavArgs.conversationId
+    val groupName: String = searchConversationMessagesNavArgs.groupName
+    val isCellsConversation: Boolean = searchConversationMessagesNavArgs.isCellsConversation
 
     val searchQueryTextState: TextFieldState = TextFieldState()
     var searchConversationMessagesState by mutableStateOf(SearchConversationMessagesState(conversationId))

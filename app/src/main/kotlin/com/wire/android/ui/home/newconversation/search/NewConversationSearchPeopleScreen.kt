@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.home.newconversation.search
 
+import com.wire.android.navigation.annotation.app.WireNewConversationDestination
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -24,20 +25,18 @@ import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
-import com.wire.android.ui.NavGraphs
-import com.wire.android.ui.destinations.NewGroupConversationSearchPeopleScreenDestination
-import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
+import com.ramcosta.composedestinations.generated.app.navgraphs.PersonalToTeamMigrationGraph
+import com.ramcosta.composedestinations.generated.app.destinations.NewGroupConversationSearchPeopleScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.home.conversations.search.SearchPeopleScreenType
 import com.wire.android.ui.home.conversations.search.SearchUsersAndAppsScreen
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
-import com.wire.android.ui.home.newconversation.common.NewConversationNavGraph
 import com.wire.kalium.logic.data.conversation.CreateConversationParam
 import com.wire.kalium.logic.data.id.QualifiedID
 
-@NewConversationNavGraph(start = true)
-@WireDestination(
+@WireNewConversationDestination(
+    start = true,
     style = PopUpNavigationAnimation::class
 )
 @Composable
@@ -45,12 +44,10 @@ fun NewConversationSearchPeopleScreen(
     navigator: Navigator,
     newConversationViewModel: NewConversationViewModel,
 ) {
-    val isSelfTeamMember = newConversationViewModel.newGroupState.isSelfTeamMember ?: false
-    val shouldShowChannelPromotion = !isSelfTeamMember
     val showCreateTeamDialog = remember { mutableStateOf(false) }
     SearchUsersAndAppsScreen(
         searchTitle = stringResource(id = R.string.label_new_conversation),
-        shouldShowChannelPromotion = shouldShowChannelPromotion,
+        shouldShowChannelPromotion = false,
         isUserAllowedToCreateChannels = newConversationViewModel.isChannelCreationPossible,
         onOpenUserProfile = { contact ->
             OtherUserProfileScreenDestination(QualifiedID(contact.id, contact.domain))
@@ -62,12 +59,8 @@ fun NewConversationSearchPeopleScreen(
             navigator.navigate(NavigationCommand(NewGroupConversationSearchPeopleScreenDestination))
         },
         onCreateNewChannel = {
-            if (!shouldShowChannelPromotion) {
-                newConversationViewModel.setIsChannel(true)
-                navigator.navigate(NavigationCommand(NewGroupConversationSearchPeopleScreenDestination))
-            } else {
-                showCreateTeamDialog.value = true
-            }
+            newConversationViewModel.setIsChannel(true)
+            navigator.navigate(NavigationCommand(NewGroupConversationSearchPeopleScreenDestination))
         },
         isGroupSubmitVisible = newConversationViewModel.newGroupState.isGroupCreatingAllowed == true,
         onClose = navigator::navigateBack,
@@ -84,7 +77,7 @@ fun NewConversationSearchPeopleScreen(
             },
             onCreateTeam = {
                 showCreateTeamDialog.value = false
-                navigator.navigate(NavigationCommand(NavGraphs.personalToTeamMigration))
+                navigator.navigate(NavigationCommand(PersonalToTeamMigrationGraph))
             }
         )
     }

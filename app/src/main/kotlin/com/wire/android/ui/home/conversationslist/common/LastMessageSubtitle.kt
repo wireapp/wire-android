@@ -21,15 +21,14 @@ package com.wire.android.ui.home.conversationslist.common
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.style.TextOverflow
 import com.wire.android.ui.markdown.MarkdownConstants
 import com.wire.android.ui.markdown.MarkdownInline
 import com.wire.android.ui.markdown.MarkdownPreview
+import com.wire.android.ui.markdown.MarkdownNode
 import com.wire.android.ui.markdown.MessageColors
 import com.wire.android.ui.markdown.NodeData
-import com.wire.android.ui.markdown.getFirstInlines
-import com.wire.android.ui.markdown.toMarkdownDocument
 import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
@@ -37,13 +36,24 @@ import com.wire.android.util.ui.UIText
 import kotlinx.collections.immutable.persistentListOf
 
 @Composable
-fun LastMessageSubtitle(text: UIText, markdownPreview: MarkdownPreview? = null) {
-    LastMessageMarkdown(text = text.asString(), markdownPreview = markdownPreview)
+fun LastMessageSubtitle(text: UIText, markdownPreview: MarkdownPreview? = null, markdownLocaleTag: String? = null) {
+    LastMessageMarkdown(text = text.asString(), markdownPreview = markdownPreview, markdownLocaleTag = markdownLocaleTag)
 }
 
 @Composable
-fun LastMessageSubtitleWithAuthor(author: UIText, text: UIText, separator: String, markdownPreview: MarkdownPreview? = null) {
-    LastMessageMarkdown(text = text.asString(), leadingText = "${author.asString()}$separator", markdownPreview = markdownPreview)
+fun LastMessageSubtitleWithAuthor(
+    author: UIText,
+    text: UIText,
+    separator: String,
+    markdownPreview: MarkdownPreview? = null,
+    markdownLocaleTag: String? = null
+) {
+    LastMessageMarkdown(
+        text = text.asString(),
+        leadingText = "${author.asString()}$separator",
+        markdownPreview = markdownPreview,
+        markdownLocaleTag = markdownLocaleTag
+    )
 }
 
 @Composable
@@ -55,7 +65,8 @@ fun LastMultipleMessages(messages: List<UIText>, separator: String) {
 private fun LastMessageMarkdown(
     text: String,
     leadingText: String = "",
-    markdownPreview: MarkdownPreview? = null
+    markdownPreview: MarkdownPreview? = null,
+    markdownLocaleTag: String? = null
 ) {
     val nodeData = NodeData(
         color = MaterialTheme.wireColorScheme.secondaryText,
@@ -69,22 +80,28 @@ private fun LastMessageMarkdown(
         accent = Accent.Unknown
     )
 
-    val effectivePreview = remember(text, markdownPreview) {
-        markdownPreview ?: text.toMarkdownDocument().getFirstInlines()
-    }
+    val locales = LocalConfiguration.current.locales
+    val currentLocaleTag = if (locales.isEmpty) "" else locales[0].toLanguageTag()
+    val shouldUsePreview = markdownPreview != null && (markdownLocaleTag == null || markdownLocaleTag == currentLocaleTag)
 
-    val leadingInlines = remember(leadingText) {
-        leadingText.toMarkdownDocument().getFirstInlines()?.children ?: persistentListOf()
-    }
-
-    if (effectivePreview != null) {
+    if (shouldUsePreview) {
+        val leadingInlines = if (leadingText.isBlank()) {
+            persistentListOf()
+        } else {
+            persistentListOf(
+                MarkdownNode.Inline.Text(
+                    leadingText.replace(MarkdownConstants.NON_BREAKING_SPACE, " ")
+                )
+            )
+        }
         MarkdownInline(
-            inlines = leadingInlines.plus(effectivePreview.children),
+            inlines = leadingInlines.plus(markdownPreview.children),
             nodeData = nodeData
         )
     } else {
         Text(
-            text = leadingText.replace(MarkdownConstants.NON_BREAKING_SPACE, " ") + text,
+            text = leadingText.replace(MarkdownConstants.NON_BREAKING_SPACE, " ") +
+                text.replace(MarkdownConstants.NON_BREAKING_SPACE, " "),
             style = nodeData.style,
             color = nodeData.color,
             maxLines = 1,

@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.home.newconversation.channelhistory
 
+import com.wire.android.navigation.annotation.app.WireNewConversationDestination
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -38,7 +39,6 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.R
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.ui.common.WireDropDown
 import com.wire.android.ui.common.dimensions
@@ -48,13 +48,11 @@ import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.maxLengthDigits
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.wire.android.ui.home.newconversation.common.NewConversationNavGraph
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 
-@NewConversationNavGraph
-@WireDestination(
-    navArgsDelegate = ChannelHistoryCustomArgs::class,
+@WireNewConversationDestination(
+    navArgs = ChannelHistoryCustomArgs::class,
     style = SlideNavigationAnimation::class,
 )
 @Composable

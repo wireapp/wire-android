@@ -44,7 +44,6 @@
     <string name="cell_files_download_failure_message">İndirme başarısız oldu.</string>
     <string name="download_file_message">Bu dosya henüz indirilmedi. Şimdi indirmek ister misiniz?</string>
     <string name="download">İndir</string>
-    <string name="conversation_files_title">Dosyalar</string>
     <string name="creating_link">Genel bağlantı oluşturuluyor…</string>
     <string name="cells_new_label">Yeni</string>
     <string name="cells_new_label_content_description">Yeni</string>

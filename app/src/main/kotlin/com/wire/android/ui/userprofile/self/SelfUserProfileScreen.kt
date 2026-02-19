@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.userprofile.self
 
+import com.wire.android.navigation.annotation.app.WireRootDestination
 import android.annotation.SuppressLint
 import android.content.Context
 import android.widget.Toast
@@ -52,8 +53,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
-import com.ramcosta.composedestinations.spec.DestinationStyle
 import com.wire.android.R
+import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.R as UICommonR
 import com.wire.android.appLogger
 import com.wire.android.feature.NavigationSwitchAccountActions
@@ -62,8 +63,7 @@ import com.wire.android.model.Clickable
 import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
-import com.wire.android.ui.NavGraphs
+import com.ramcosta.composedestinations.generated.app.navgraphs.PersonalToTeamMigrationGraph
 import com.wire.android.ui.common.VisibilityState
 import com.wire.android.ui.common.WireDropDown
 import com.wire.android.ui.common.avatar.UserStatusIndicator
@@ -79,12 +79,12 @@ import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.common.wireDialogPropertiesBuilder
-import com.wire.android.ui.destinations.AppSettingsScreenDestination
-import com.wire.android.ui.destinations.AvatarPickerScreenDestination
-import com.wire.android.ui.destinations.MyAccountScreenDestination
-import com.wire.android.ui.destinations.NewLoginScreenDestination
-import com.wire.android.ui.destinations.SelfQRCodeScreenDestination
-import com.wire.android.ui.destinations.WelcomeScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.AppSettingsScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.AvatarPickerScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.MyAccountScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.NewLoginScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.SelfQRCodeScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.WelcomeScreenDestination
 import com.wire.android.ui.common.rowitem.SectionHeader
 import com.wire.android.ui.legalhold.banner.LegalHoldPendingBanner
 import com.wire.android.ui.legalhold.banner.LegalHoldSubjectBanner
@@ -108,8 +108,8 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 
-@WireDestination(
-    style = DestinationStyle.Runtime::class, // default should be PopUpNavigationAnimation
+@WireRootDestination(
+    style = PopUpNavigationAnimation::class, // default should be PopUpNavigationAnimation
 )
 @Composable
 @SuppressLint("ComposeModifierMissing")
@@ -167,7 +167,7 @@ fun SelfUserProfileScreen(
             )
         },
         onCreateAccount = {
-            navigator.navigate(NavigationCommand(NavGraphs.personalToTeamMigration))
+            navigator.navigate(NavigationCommand(PersonalToTeamMigrationGraph))
         },
         onAccountDetailsClick = { navigator.navigate(NavigationCommand(MyAccountScreenDestination)) },
         isUserInCall = viewModelSelf::isUserInCall,
@@ -347,7 +347,7 @@ private fun SelfUserProfileContent(
                                                 if (isUserInCall()) {
                                                     Toast.makeText(
                                                         context,
-                                                        context.getString(R.string.cant_switch_account_in_call),
+                                                        R.string.cant_switch_account_in_call,
                                                         Toast.LENGTH_SHORT
                                                     ).show()
                                                 } else {

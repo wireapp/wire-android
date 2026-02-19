@@ -34,6 +34,7 @@ import androidx.core.net.toUri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ramcosta.composedestinations.generated.sketch.destinations.DrawingCanvasScreenDestination
 import com.wire.android.feature.sketch.model.DrawingCanvasNavArgs
 import com.wire.android.feature.sketch.model.DrawingMotionEvent
 import com.wire.android.feature.sketch.model.DrawingPathProperties
@@ -49,7 +50,7 @@ import java.io.FileOutputStream
 @Suppress("TooManyFunctions")
 class DrawingCanvasViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
 
-    private val drawingCanvasNavArgs: DrawingCanvasNavArgs = savedStateHandle.navArgs()
+    private val drawingCanvasNavArgs: DrawingCanvasNavArgs = DrawingCanvasScreenDestination.argsFrom(savedStateHandle)
 
     internal var state: DrawingState by mutableStateOf(DrawingState())
         private set

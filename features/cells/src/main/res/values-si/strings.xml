@@ -29,7 +29,6 @@
     <string name="cell_files_download_failure_message">බාගැනීම අසාර්ථක විය.</string>
     <string name="download_file_message">මෙම ගොනුව තවම බාගත කර නැත. ඔබට එය දැන් බාගත කිරීමට අවශ්‍යද?</string>
     <string name="download">බාගත කරන්න</string>
-    <string name="conversation_files_title">ගොනු</string>
     <string name="creating_link">පොදු සබැඳියක් නිර්මාණය කිරීම…</string>
     <string name="cells_new_label">අලුත්</string>
     <string name="cells_new_label_content_description">අලුත්</string>

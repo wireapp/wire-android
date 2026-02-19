@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.home.conversations.details.editguestaccess.createPasswordProtectedGuestLink
 
+import com.wire.android.navigation.annotation.app.WireRootDestination
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -48,7 +49,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.common.button.GeneratePasswordButton
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
@@ -67,8 +67,8 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 import kotlinx.coroutines.launch
 
-@WireDestination(
-    navArgsDelegate = CreatePasswordGuestLinkNavArgs::class
+@WireRootDestination(
+    navArgs = CreatePasswordGuestLinkNavArgs::class
 )
 @Composable
 fun CreatePasswordProtectedGuestLinkScreen(
@@ -103,12 +103,13 @@ fun CreatePasswordProtectedGuestLinkScreenContent(
     val context = LocalContext.current
     val clipboardManager = LocalClipboardManager.current
     val passwordCurrentState by rememberUpdatedState(newValue = passwordTextState.text.toString())
+    val onCopyClickText = stringResource(R.string.conversation_options_create_password_protected_guest_link_password_copied)
     val onCopyClick = remember {
         {
             clipboardManager.setText(AnnotatedString(passwordCurrentState))
             Toast.makeText(
                 context,
-                context.getString(R.string.conversation_options_create_password_protected_guest_link_password_copied),
+                onCopyClickText,
                 Toast.LENGTH_SHORT
             ).show()
         }
@@ -168,12 +169,13 @@ fun CreatePasswordProtectedGuestLinkScreenContent(
                     Spacer(modifier = Modifier.height(dimensions().spacing24x))
                 }
                 item {
+                    val onClickText = stringResource(R.string.conversation_options_create_password_protected_guest_link_password_generated)
                     val onClick = remember {
                         {
                             onGenerateRandomPassword()
                             Toast.makeText(
                                 context,
-                                context.getString(R.string.conversation_options_create_password_protected_guest_link_password_generated),
+                                onClickText,
                                 Toast.LENGTH_SHORT
                             ).show()
                         }

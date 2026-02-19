@@ -10,12 +10,14 @@ pipeline {
     environment { 
         CREDENTIALS = credentials('GITHUB_TOKEN_ANDROID')
         WIRE_BOT_SECRET = credentials('JENKINSBOT_ANDROID_CRITICAL_FLOWS')
+        // Toggle to enable/disable PR pipelines quickly.
+        ENABLE_PR_PIPELINE = "false"
     }
 
     stages {
         stage("Wait for GitHub action to finish") {
             when {
-                expression { BRANCH_NAME ==~ /PR-[0-9]+/ }
+                expression { env.ENABLE_PR_PIPELINE == 'true' && BRANCH_NAME ==~ /PR-[0-9]+/ }
             }
             steps {
                 script {
@@ -100,7 +102,7 @@ pipeline {
 
         stage("QA Tests") {
             when {
-                expression { BRANCH_NAME ==~ /PR-[0-9]+/ }
+                expression { env.ENABLE_PR_PIPELINE == 'true' && BRANCH_NAME ==~ /PR-[0-9]+/ }
             }
             steps {
                 script {
@@ -131,7 +133,7 @@ pipeline {
     post {
         success {
             script {
-                if (env.BRANCH_NAME ==~ /PR-[0-9]+/) {
+                if (env.ENABLE_PR_PIPELINE == 'true' && env.BRANCH_NAME ==~ /PR-[0-9]+/) {
                     wireSend(secret: env.WIRE_BOT_SECRET, message: "✅ **$BRANCH_NAME**\n[$CHANGE_TITLE](${CHANGE_URL})\nQA-Jenkins - Tests successful (see above report)")
                 }
             }

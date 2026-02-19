@@ -17,7 +17,6 @@
  */
 package network
 
-import logger.WireTestLogger
 import org.json.JSONObject
 import user.utils.AccessCookie
 import user.utils.AccessCredentials
@@ -127,7 +126,6 @@ object NetworkBackendClient {
 
     private fun handleResponseError(connection: HttpURLConnection, expectedResponseCodes: NumberSequence) {
         val responseCode = connection.responseCode
-        WireTestLogger.getLog("Null").info("Response is $responseCode")
 
         val hasError = when (expectedResponseCodes) {
             is NumberSequence.Range -> responseCode !in expectedResponseCodes.range

@@ -21,7 +21,7 @@ import com.wire.android.di.CurrentAccount
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.team.GetUpdatedSelfTeamUseCase
+import com.wire.kalium.logic.feature.team.SyncSelfTeamInfoUseCase
 import com.wire.kalium.logic.feature.team.TeamScope
 import com.wire.kalium.logic.feature.user.IsSelfATeamMemberUseCase
 import dagger.Module
@@ -43,8 +43,8 @@ class TeamModule {
 
     @ViewModelScoped
     @Provides
-    fun provideGetUpdatedSelfTeamUseCase(teamScope: TeamScope): GetUpdatedSelfTeamUseCase =
-        teamScope.getUpdatedSelfTeamUseCase
+    fun provideSyncSelfTeamInfoUseCase(teamScope: TeamScope): SyncSelfTeamInfoUseCase =
+        teamScope.syncSelfTeamInfoUseCase
 
     @ViewModelScoped
     @Provides

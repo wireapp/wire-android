@@ -35,6 +35,8 @@ import com.wire.android.ui.home.conversations.MessageSharedState
 import com.wire.android.ui.home.messagecomposer.location.LocationPickerParameters
 import com.wire.android.util.dispatchers.DefaultDispatcherProvider
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.android.util.ui.AndroidUiTextResolver
+import com.wire.android.util.ui.UiTextResolver
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -67,6 +69,11 @@ object AppModule {
 
     @Provides
     fun provideMessageResourceProvider(): MessageResourceProvider = MessageResourceProvider()
+
+    @Singleton
+    @Provides
+    fun provideUiTextResolver(@ApplicationContext appContext: Context): UiTextResolver =
+        AndroidUiTextResolver(appContext)
 
     @Provides
     fun provideNotificationManagerCompat(appContext: Context): NotificationManagerCompat =

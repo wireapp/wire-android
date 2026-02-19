@@ -25,18 +25,18 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.wire.android.feature.cells.R
-import com.wire.android.feature.cells.ui.destinations.ConversationFilesWithSlideInTransitionScreenDestination
-import com.wire.android.feature.cells.ui.destinations.RecycleBinScreenDestination
+import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesWithSlideInTransitionScreenDestination
+import com.ramcosta.composedestinations.generated.cells.destinations.RecycleBinScreenDestination
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.WireNavigator
-import com.wire.android.navigation.annotation.features.cells.WireDestination
+import com.wire.android.navigation.annotation.features.cells.WireCellsDestination
 import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.ui.common.search.rememberSearchbarState
 
-@WireDestination(
+@WireCellsDestination(
     style = SlideNavigationAnimation::class,
-    navArgsDelegate = CellFilesNavArgs::class,
+    navArgs = CellFilesNavArgs::class,
 )
 @Composable
 fun ConversationFilesWithSlideInTransitionScreen(

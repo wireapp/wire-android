@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.e2eiEnrollment
 
+import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -37,7 +38,6 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.authentication.devices.common.ClearSessionState
 import com.wire.android.ui.authentication.devices.common.ClearSessionViewModel
@@ -52,8 +52,8 @@ import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
-import com.wire.android.ui.destinations.E2eiCertificateDetailsScreenDestination
-import com.wire.android.ui.destinations.InitialSyncScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.E2EiCertificateDetailsScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.InitialSyncScreenDestination
 import com.wire.android.ui.home.E2EIEnrollmentErrorWithDismissDialog
 import com.wire.android.ui.home.E2EISuccessDialog
 import com.wire.android.ui.settings.devices.e2ei.E2EICertificateDetails
@@ -63,7 +63,7 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.feature.e2ei.usecase.FinalizeEnrollmentResult
 
-@WireDestination(
+@WireRootDestination(
     style = PopUpNavigationAnimation::class
 )
 @Composable
@@ -88,7 +88,7 @@ fun E2EIEnrollmentScreen(
         openCertificateDetails = {
             navigator.navigate(
                 NavigationCommand(
-                    E2eiCertificateDetailsScreenDestination(
+                    E2EiCertificateDetailsScreenDestination(
                         E2EICertificateDetails.DuringLoginCertificateDetails(state.certificate)
                     )
                 )

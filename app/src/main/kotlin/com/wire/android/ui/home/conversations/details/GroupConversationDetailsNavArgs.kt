@@ -28,8 +28,6 @@ data class GroupConversationDetailsNavArgs(
 @Parcelize
 data class GroupConversationDetailsNavBackArgs(
     val groupConversationActionType: GroupConversationActionType,
-    val hasLeftGroup: Boolean = false,
-    val isGroupDeleted: Boolean = false,
     val conversationName: String,
 ) : Parcelable
 

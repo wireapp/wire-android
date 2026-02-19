@@ -19,9 +19,9 @@
 package com.wire.android.util.ui
 
 import android.content.Context
-import coil.fetch.FetchResult
-import coil.request.Options
-import coil.request.Parameters
+import coil3.Extras
+import coil3.fetch.FetchResult
+import coil3.request.Options
 import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.model.ImageAsset
 import com.wire.android.util.ui.AssetImageFetcher.Companion.OPTION_PARAMETER_RETRY_KEY
@@ -298,7 +298,7 @@ internal class AssetImageFetcherTest {
             imageData = data
             options = Options(
                 context = mockContext,
-                parameters = Parameters.Builder().set(key = OPTION_PARAMETER_RETRY_KEY, value = retryAttempt, memoryCacheKey = null).build()
+                extras = Extras.Builder().set(OPTION_PARAMETER_RETRY_KEY, retryAttempt).build(),
             )
 
             coEvery { getPublicAsset.invoke((any())) }.returns(PublicAssetResult.Success(expectedAssetPath))
@@ -363,9 +363,9 @@ internal class AssetImageFetcherTest {
         fun arrange() = this to AssetImageFetcher(
             assetFetcherParameters = AssetFetcherParameters(
                 data = imageData,
-                    options ?: Options(
+                options ?: Options(
                     context = mockContext,
-                    parameters = Parameters.Builder().set(key = OPTION_PARAMETER_RETRY_KEY, value = 0, memoryCacheKey = null).build()
+                    extras = Extras.Builder().set(OPTION_PARAMETER_RETRY_KEY, 0).build(),
                 )
             ),
             getPublicAsset = getPublicAsset,

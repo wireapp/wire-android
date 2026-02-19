@@ -50,7 +50,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
-import coil.compose.AsyncImagePainter.State.Empty.painter
 import com.wire.android.ui.common.Tint
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireDimensions

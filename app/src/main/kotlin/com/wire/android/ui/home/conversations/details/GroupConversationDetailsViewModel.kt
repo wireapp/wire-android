@@ -29,7 +29,7 @@ import com.wire.android.ui.home.conversations.details.participants.usecase.Obser
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAddPermissionType
 import com.wire.android.ui.home.newconversation.channelaccess.toUiEnum
-import com.wire.android.ui.navArgs
+import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.debug.FeatureVisibilityFlags
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
@@ -46,8 +46,7 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseC
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReceiptModeUseCase
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
-import com.wire.kalium.logic.feature.team.GetUpdatedSelfTeamUseCase
-import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
+import com.wire.kalium.logic.feature.user.ObserveSelfUserWithTeamUseCase
 import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
@@ -70,8 +69,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
     private val dispatcher: DispatcherProvider,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     observeConversationMembers: ObserveParticipantsForConversationUseCase,
-    private val getSelfTeam: GetUpdatedSelfTeamUseCase,
-    private val getSelfUser: GetSelfUserUseCase,
+    private val observeSelfUserWithTeam: ObserveSelfUserWithTeamUseCase,
     private val updateConversationReceiptMode: UpdateConversationReceiptModeUseCase,
     private val observeSelfDeletionTimerSettingsForConversation: ObserveSelfDeletionTimerSettingsForConversationUseCase,
     savedStateHandle: SavedStateHandle,
@@ -110,27 +108,28 @@ class GroupConversationDetailsViewModel @Inject constructor(
         viewModelScope.launch {
             val groupDetailsFlow = groupDetailsFlow()
                 .shareIn(this, SharingStarted.WhileSubscribed(), 1)
-
-            val selfTeam = getSelfTeam()
-            val selfUser = getSelfUser()
+            val selfWithTeamFlow = observeSelfUserWithTeam()
+                .flowOn(dispatcher.io())
+                .shareIn(this, SharingStarted.WhileSubscribed(), 1)
 
             combine(
                 groupDetailsFlow,
+                selfWithTeamFlow,
                 observeSelfDeletionTimerSettingsForConversation(conversationId, considerSelfUserSettings = false),
-            ) { groupDetails, selfDeletionTimer ->
-                val selfType = selfUser?.userType
+            ) { groupDetails, (selfUser, selfTeam), selfDeletionTimer ->
+                val selfType = selfUser.userType
                 val isSelfInTeamThatOwnsConversation = selfTeam?.id != null && selfTeam.id == groupDetails.conversation.teamId?.value
-                val isSelfExternalMember = selfUser?.userType?.isExternal() == true
-                val isRegularTeamMember = selfType?.isRegularTeamMember() == true
+                val isSelfExternalMember = selfUser.userType.isExternal()
+                val isRegularTeamMember = selfType.isRegularTeamMember()
                 val isChannel = groupDetails is ConversationDetails.Group.Channel
-                val isSelfTeamAdmin = selfUser?.userType?.isTeamAdmin() == true
+                val isSelfTeamAdmin = selfUser.userType.isTeamAdmin()
                 val canPerformChannelAdminTasks = isChannel && isSelfInTeamThatOwnsConversation && isSelfTeamAdmin
                 val isRegularGroupAdmin = groupDetails.selfRole == Conversation.Member.Role.Admin
                 val canSelfPerformAdminTasks = (isRegularGroupAdmin) || (canPerformChannelAdminTasks)
                 val channelPermissionType = groupDetails.getChannelPermissionType()
                 val channelAccessType = groupDetails.getChannelAccessType()
                 val isExternalOrFederated =
-                    selfType?.isExternal() == true || selfType?.isFederated() == true
+                    selfType.isExternal() || selfType.isFederated()
                 val canSelfAddParticipants =
                     when {
                         !isChannel -> isRegularGroupAdmin && !isExternalOrFederated

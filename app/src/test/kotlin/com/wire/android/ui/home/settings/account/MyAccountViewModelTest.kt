@@ -25,13 +25,13 @@ import com.wire.android.framework.TestUser
 import com.wire.android.util.newServerConfig
 import com.wire.kalium.common.error.StorageFailure
 import com.wire.kalium.logic.data.id.TeamId
-import com.wire.kalium.logic.feature.team.GetUpdatedSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.IsE2EIEnabledUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase.Result.Success
 import com.wire.kalium.logic.feature.user.IsReadOnlyAccountUseCase
 import com.wire.kalium.logic.feature.user.IsSelfATeamMemberUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
+import com.wire.kalium.logic.feature.user.ObserveSelfUserWithTeamUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -204,7 +204,7 @@ class MyAccountViewModelTest {
         lateinit var observeSelfUserUseCase: ObserveSelfUserUseCase
 
         @MockK
-        lateinit var getSelfTeamUseCase: GetUpdatedSelfTeamUseCase
+        lateinit var observeSelfUserWithTeam: ObserveSelfUserWithTeamUseCase
 
         @MockK
         lateinit var selfServerConfigUseCase: SelfServerConfigUseCase
@@ -224,7 +224,7 @@ class MyAccountViewModelTest {
         private val viewModel by lazy {
             MyAccountViewModel(
                 observeSelfUserUseCase,
-                getSelfTeamUseCase,
+                observeSelfUserWithTeam,
                 isSelfATeamMember,
                 selfServerConfigUseCase,
                 isPasswordRequiredUseCase,
@@ -237,7 +237,7 @@ class MyAccountViewModelTest {
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             coEvery { observeSelfUserUseCase() } returns flowOf(TestUser.SELF_USER.copy(teamId = TeamId(TestTeam.TEAM.id)))
-            coEvery { getSelfTeamUseCase() } returns TestTeam.TEAM
+            coEvery { observeSelfUserWithTeam() } returns flowOf(TestUser.SELF_USER to TestTeam.TEAM)
             coEvery { selfServerConfigUseCase() } returns SelfServerConfigUseCase.Result.Success(newServerConfig(1))
             coEvery { isSelfATeamMember() } returns true
         }

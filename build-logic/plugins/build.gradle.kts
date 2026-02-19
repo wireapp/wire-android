@@ -20,6 +20,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     `kotlin-dsl`
+    kotlin("plugin.serialization") version embeddedKotlinVersion
 }
 
 // Configure the build-logic plugins to target JDK 17
@@ -41,6 +42,7 @@ dependencies {
     testImplementation(libs.junit4)
     testImplementation(kotlin("test"))
     implementation(libs.ksp.symbol.processing.plugin)
+    implementation(libs.ktx.serialization)
 }
 
 gradlePlugin {

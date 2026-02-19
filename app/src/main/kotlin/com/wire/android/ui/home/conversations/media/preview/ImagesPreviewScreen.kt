@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.home.conversations.media.preview
 
+import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.LocalOverscrollConfiguration
@@ -52,7 +53,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
@@ -81,8 +81,8 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.launch
 import okio.Path.Companion.toPath
 
-@WireDestination(
-    navArgsDelegate = ImagesPreviewNavArgs::class,
+@WireRootDestination(
+    navArgs = ImagesPreviewNavArgs::class,
     style = PopUpNavigationAnimation::class
 )
 @Composable

@@ -17,13 +17,12 @@
  */
 plugins {
     id(libs.plugins.android.library.get().pluginId)
-    id(libs.plugins.kotlin.android.get().pluginId)
 }
 
 android {
     defaultConfig {
         minSdk = 23
-        compileSdk = 35
+        compileSdk = 36
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 

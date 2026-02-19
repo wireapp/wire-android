@@ -40,10 +40,10 @@ import org.junit.jupiter.api.extension.ExtensionContext
  */
 class NavigationTestExtension : BeforeEachCallback, AfterEachCallback {
     override fun beforeEach(context: ExtensionContext?) {
-        mockkStatic("com.wire.android.feature.cells.ui.NavArgsGettersKt")
+        mockkStatic("com.ramcosta.composedestinations.generated.cells.NavArgsGettersKt")
     }
 
     override fun afterEach(context: ExtensionContext?) {
-        unmockkStatic("com.wire.android.feature.cells.ui.NavArgsGettersKt")
+        unmockkStatic("com.ramcosta.composedestinations.generated.cells.NavArgsGettersKt")
     }
 }

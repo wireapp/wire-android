@@ -1,0 +1,491 @@
+--------- beginning of main
+02-19 10:19:57.953  8040  8040 I .testsCore.tes: Late-enabling -Xcheck:jni
+02-19 10:19:57.996  8040  8040 I .testsCore.tes: Using CollectorTypeCC GC.
+02-19 10:19:57.997  8040  8040 W .testsCore.tes: Mismatch between instruction set variant of device (ISA: Arm64 Feature string: -a53,crc,lse,fp16,dotprod,-sve) and features returned by the hardware (ISA: Arm64 Feature string: -a53,crc,lse,fp16,-dotprod,-sve)
+02-19 10:19:58.014  8040  8040 D ProcessState: Binder ioctl to enable oneway spam detection failed: Invalid argument
+02-19 10:19:58.043  8040  8040 D CompatibilityChangeReporter: Compat change id reported: 171979766; UID 10881; state: ENABLED
+02-19 10:19:58.457  8040  8040 D nativeloader: Configuring clns-4 for other apk /data/app/~~DFQkVUL4JEjznBgvvY2XiQ==/com.wire.android.tests.testsCore.test-qbANNy7oFBmIvGA4brRB7A==/base.apk. target_sdk_version=36, uses_libraries=, library_path=/data/app/~~DFQkVUL4JEjznBgvvY2XiQ==/com.wire.android.tests.testsCore.test-qbANNy7oFBmIvGA4brRB7A==/lib/arm64:/data/app/~~DFQkVUL4JEjznBgvvY2XiQ==/com.wire.android.tests.testsCore.test-qbANNy7oFBmIvGA4brRB7A==/base.apk!/lib/arm64-v8a, permitted_path=/data:/mnt/expand:/data/user/0/com.wire.android.tests.testsCore.test
+02-19 10:19:58.468  8040  8040 V GraphicsEnvironment: ANGLE Developer option for 'com.wire.android.tests.testsCore.test' set to: 'default'
+02-19 10:19:58.469  8040  8040 V GraphicsEnvironment: ANGLE GameManagerService for com.wire.android.tests.testsCore.test: false
+02-19 10:19:58.469  8040  8040 V GraphicsEnvironment: Neither updatable production driver nor prerelease driver is supported.
+02-19 10:19:58.491  8040  8040 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+02-19 10:19:58.493  8040  8040 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+02-19 10:19:58.493  8040  8040 I AndroidJUnitRunner: newApplication android.app.Application
+02-19 10:19:58.539  8040  8040 I TaggedTestRunner: onCreate called. testCaseId=null, category=null, tagKey=null, tagValue=null
+02-19 10:19:58.691  8040  8040 I AndroidJUnitRunner: onCreate Bundle[{testTimeoutSeconds=31536000, shardIndex=0, clearPackageData=true, filter=com.wire.android.tests.support.suite.TaggedFilter, force-queryable=true, numShards=2, listener=io.qameta.allure.kotlin.junit4.AllureJunit4,io.qameta.allure.android.listeners.ExternalStoragePermissionsListener, additionalTestOutputDir=/sdcard/Android/media/com.wire.android.tests.testsCore.test/additional_test_output}]
+02-19 10:19:58.693  8040  8040 D AndroidJUnitRunner: Use the raw file system for managing file I/O.
+02-19 10:19:58.703  8040  8040 V TestEventClient: No service name argument was given (testDiscoveryService, testRunEventService or orchestratorService)
+02-19 10:19:58.746  8040  8055 I TaggedTestRunner: Cleared Allure results dir on device, exitCode=0
+02-19 10:19:58.746  8040  8055 D AndroidJUnitRunner: onStart is called.
+02-19 10:19:58.773  8040  8055 D TestRequestBuilder: Using class path scanning to discover tests
+02-19 10:19:58.774  8040  8055 I TestRequestBuilder: Scanning classpath to find tests in paths [/data/app/~~DFQkVUL4JEjznBgvvY2XiQ==/com.wire.android.tests.testsCore.test-qbANNy7oFBmIvGA4brRB7A==/base.apk]
+02-19 10:19:58.776  8040  8055 W .testsCore.tes: Opening an oat file without a class loader. Are you using the deprecated DexFile APIs?
+02-19 10:19:59.655  8040  8055 W ScanningTestLoader: Could not load class: androidx.compose.ui.graphics.layer.view.PlaceholderHardwareCanvas
+02-19 10:19:59.655  8040  8055 W ScanningTestLoader: java.lang.ClassNotFoundException: androidx.compose.ui.graphics.layer.view.PlaceholderHardwareCanvas
+02-19 10:19:59.655  8040  8055 W ScanningTestLoader: 	at java.lang.Class.classForName(Native Method)
+02-19 10:19:59.655  8040  8055 W ScanningTestLoader: 	at java.lang.Class.forName(Class.java:591)
+02-19 10:19:59.655  8040  8055 W ScanningTestLoader: 	at androidx.test.internal.runner.ScanningTestLoader.doCreateRunner(ScanningTestLoader.java:45)
+02-19 10:19:59.655  8040  8055 W ScanningTestLoader: 	at androidx.test.internal.runner.TestLoader.getRunnersFor(TestLoader.java:64)
+02-19 10:19:59.655  8040  8055 W ScanningTestLoader: 	at androidx.test.internal.runner.TestRequestBuilder.build(TestRequestBuilder.java:842)
+02-19 10:19:59.655  8040  8055 W ScanningTestLoader: 	at androidx.test.runner.AndroidJUnitRunner.buildRequest(AndroidJUnitRunner.java:672)
+02-19 10:19:59.655  8040  8055 W ScanningTestLoader: 	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:453)
+02-19 10:19:59.655  8040  8055 W ScanningTestLoader: 	at com.wire.android.tests.support.suite.TaggedTestRunner.onStart(TaggedTestRunner.kt:51)
+02-19 10:19:59.655  8040  8055 W ScanningTestLoader: 	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2278)
+02-19 10:19:59.655  8040  8055 W ScanningTestLoader: Caused by: java.lang.ClassNotFoundException: androidx.compose.ui.graphics.layer.view.PlaceholderHardwareCanvas
+02-19 10:19:59.655  8040  8055 W ScanningTestLoader: 	at java.lang.VMClassLoader.findLoadedClass(Native Method)
+02-19 10:19:59.655  8040  8055 W ScanningTestLoader: 	at java.lang.ClassLoader.findLoadedClass(ClassLoader.java:1281)
+02-19 10:19:59.655  8040  8055 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:626)
+02-19 10:19:59.655  8040  8055 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:578)
+02-19 10:19:59.655  8040  8055 W ScanningTestLoader: 	... 9 more
+02-19 10:19:59.655  8040  8055 W ScanningTestLoader: Caused by: java.lang.NoClassDefFoundError: Failed resolution of: Landroid/view/HardwareCanvas;
+02-19 10:19:59.655  8040  8055 W ScanningTestLoader: 	... 9 more
+02-19 10:19:59.655  8040  8055 W ScanningTestLoader: Caused by: java.lang.ClassNotFoundException: Didn't find class "android.view.HardwareCanvas" on path: DexPathList[[zip file "/data/app/~~DFQkVUL4JEjznBgvvY2XiQ==/com.wire.android.tests.testsCore.test-qbANNy7oFBmIvGA4brRB7A==/base.apk"],nativeLibraryDirectories=[/data/app/~~DFQkVUL4JEjznBgvvY2XiQ==/com.wire.android.tests.testsCore.test-qbANNy7oFBmIvGA4brRB7A==/lib/arm64, /data/app/~~DFQkVUL4JEjznBgvvY2XiQ==/com.wire.android.tests.testsCore.test-qbANNy7oFBmIvGA4brRB7A==/base.apk!/lib/arm64-v8a, /system/lib64, /system_ext/lib64, /product/lib64]]
+02-19 10:19:59.655  8040  8055 W ScanningTestLoader: 	at dalvik.system.BaseDexClassLoader.findClass(BaseDexClassLoader.java:259)
+02-19 10:19:59.655  8040  8055 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:642)
+02-19 10:19:59.655  8040  8055 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:578)
+02-19 10:19:59.655  8040  8055 W ScanningTestLoader: 	... 9 more
+02-19 10:20:00.314  8040  8055 W ScanningTestLoader: Could not load class: androidx.test.uiautomator.UiAutomatorInstrumentationTestRunner
+02-19 10:20:00.314  8040  8055 W ScanningTestLoader: java.lang.ClassNotFoundException: androidx.test.uiautomator.UiAutomatorInstrumentationTestRunner
+02-19 10:20:00.314  8040  8055 W ScanningTestLoader: 	at java.lang.Class.classForName(Native Method)
+02-19 10:20:00.314  8040  8055 W ScanningTestLoader: 	at java.lang.Class.forName(Class.java:591)
+02-19 10:20:00.314  8040  8055 W ScanningTestLoader: 	at androidx.test.internal.runner.ScanningTestLoader.doCreateRunner(ScanningTestLoader.java:45)
+02-19 10:20:00.314  8040  8055 W ScanningTestLoader: 	at androidx.test.internal.runner.TestLoader.getRunnersFor(TestLoader.java:64)
+02-19 10:20:00.314  8040  8055 W ScanningTestLoader: 	at androidx.test.internal.runner.TestRequestBuilder.build(TestRequestBuilder.java:842)
+02-19 10:20:00.314  8040  8055 W ScanningTestLoader: 	at androidx.test.runner.AndroidJUnitRunner.buildRequest(AndroidJUnitRunner.java:672)
+02-19 10:20:00.314  8040  8055 W ScanningTestLoader: 	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:453)
+02-19 10:20:00.314  8040  8055 W ScanningTestLoader: 	at com.wire.android.tests.support.suite.TaggedTestRunner.onStart(TaggedTestRunner.kt:51)
+02-19 10:20:00.314  8040  8055 W ScanningTestLoader: 	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2278)
+02-19 10:20:00.314  8040  8055 W ScanningTestLoader: Caused by: java.lang.ClassNotFoundException: androidx.test.uiautomator.UiAutomatorInstrumentationTestRunner
+02-19 10:20:00.314  8040  8055 W ScanningTestLoader: 	at java.lang.VMClassLoader.findLoadedClass(Native Method)
+02-19 10:20:00.314  8040  8055 W ScanningTestLoader: 	at java.lang.ClassLoader.findLoadedClass(ClassLoader.java:1281)
+02-19 10:20:00.314  8040  8055 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:626)
+02-19 10:20:00.314  8040  8055 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:578)
+02-19 10:20:00.314  8040  8055 W ScanningTestLoader: 	... 9 more
+02-19 10:20:00.314  8040  8055 W ScanningTestLoader: Caused by: java.lang.NoClassDefFoundError: Failed resolution of: Landroid/test/InstrumentationTestRunner;
+02-19 10:20:00.314  8040  8055 W ScanningTestLoader: 	... 9 more
+02-19 10:20:00.314  8040  8055 W ScanningTestLoader: Caused by: java.lang.ClassNotFoundException: Didn't find class "android.test.InstrumentationTestRunner" on path: DexPathList[[zip file "/data/app/~~DFQkVUL4JEjznBgvvY2XiQ==/com.wire.android.tests.testsCore.test-qbANNy7oFBmIvGA4brRB7A==/base.apk"],nativeLibraryDirectories=[/data/app/~~DFQkVUL4JEjznBgvvY2XiQ==/com.wire.android.tests.testsCore.test-qbANNy7oFBmIvGA4brRB7A==/lib/arm64, /data/app/~~DFQkVUL4JEjznBgvvY2XiQ==/com.wire.android.tests.testsCore.test-qbANNy7oFBmIvGA4brRB7A==/base.apk!/lib/arm64-v8a, /system/lib64, /system_ext/lib64, /product/lib64]]
+02-19 10:20:00.314  8040  8055 W ScanningTestLoader: 	at dalvik.system.BaseDexClassLoader.findClass(BaseDexClassLoader.java:259)
+02-19 10:20:00.314  8040  8055 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:642)
+02-19 10:20:00.314  8040  8055 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:578)
+02-19 10:20:00.314  8040  8055 W ScanningTestLoader: 	... 9 more
+02-19 10:20:00.315  8040  8055 W ScanningTestLoader: Could not load class: androidx.test.uiautomator.UiAutomatorTestCase
+02-19 10:20:00.315  8040  8055 W ScanningTestLoader: java.lang.ClassNotFoundException: androidx.test.uiautomator.UiAutomatorTestCase
+02-19 10:20:00.315  8040  8055 W ScanningTestLoader: 	at java.lang.Class.classForName(Native Method)
+02-19 10:20:00.315  8040  8055 W ScanningTestLoader: 	at java.lang.Class.forName(Class.java:591)
+02-19 10:20:00.315  8040  8055 W ScanningTestLoader: 	at androidx.test.internal.runner.ScanningTestLoader.doCreateRunner(ScanningTestLoader.java:45)
+02-19 10:20:00.315  8040  8055 W ScanningTestLoader: 	at androidx.test.internal.runner.TestLoader.getRunnersFor(TestLoader.java:64)
+02-19 10:20:00.315  8040  8055 W ScanningTestLoader: 	at androidx.test.internal.runner.TestRequestBuilder.build(TestRequestBuilder.java:842)
+02-19 10:20:00.315  8040  8055 W ScanningTestLoader: 	at androidx.test.runner.AndroidJUnitRunner.buildRequest(AndroidJUnitRunner.java:672)
+02-19 10:20:00.315  8040  8055 W ScanningTestLoader: 	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:453)
+02-19 10:20:00.315  8040  8055 W ScanningTestLoader: 	at com.wire.android.tests.support.suite.TaggedTestRunner.onStart(TaggedTestRunner.kt:51)
+02-19 10:20:00.315  8040  8055 W ScanningTestLoader: 	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2278)
+02-19 10:20:00.315  8040  8055 W ScanningTestLoader: Caused by: java.lang.ClassNotFoundException: androidx.test.uiautomator.UiAutomatorTestCase
+02-19 10:20:00.315  8040  8055 W ScanningTestLoader: 	at java.lang.VMClassLoader.findLoadedClass(Native Method)
+02-19 10:20:00.315  8040  8055 W ScanningTestLoader: 	at java.lang.ClassLoader.findLoadedClass(ClassLoader.java:1281)
+02-19 10:20:00.315  8040  8055 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:626)
+02-19 10:20:00.315  8040  8055 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:578)
+02-19 10:20:00.315  8040  8055 W ScanningTestLoader: 	... 9 more
+02-19 10:20:00.315  8040  8055 W ScanningTestLoader: Caused by: java.lang.NoClassDefFoundError: Failed resolution of: Landroid/test/InstrumentationTestCase;
+02-19 10:20:00.315  8040  8055 W ScanningTestLoader: 	... 9 more
+02-19 10:20:00.315  8040  8055 W ScanningTestLoader: Caused by: java.lang.ClassNotFoundException: Didn't find class "android.test.InstrumentationTestCase" on path: DexPathList[[zip file "/data/app/~~DFQkVUL4JEjznBgvvY2XiQ==/com.wire.android.tests.testsCore.test-qbANNy7oFBmIvGA4brRB7A==/base.apk"],nativeLibraryDirectories=[/data/app/~~DFQkVUL4JEjznBgvvY2XiQ==/com.wire.android.tests.testsCore.test-qbANNy7oFBmIvGA4brRB7A==/lib/arm64, /data/app/~~DFQkVUL4JEjznBgvvY2XiQ==/com.wire.android.tests.testsCore.test-qbANNy7oFBmIvGA4brRB7A==/base.apk!/lib/arm64-v8a, /system/lib64, /system_ext/lib64, /product/lib64]]
+02-19 10:20:00.315  8040  8055 W ScanningTestLoader: 	at dalvik.system.BaseDexClassLoader.findClass(BaseDexClassLoader.java:259)
+02-19 10:20:00.315  8040  8055 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:642)
+02-19 10:20:00.315  8040  8055 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:578)
+02-19 10:20:00.315  8040  8055 W ScanningTestLoader: 	... 9 more
+02-19 10:20:00.333  8040  8055 W ScanningTestLoader: Could not load class: androidx.transition.FragmentTransitionSupport
+02-19 10:20:00.333  8040  8055 W ScanningTestLoader: java.lang.ClassNotFoundException: androidx.transition.FragmentTransitionSupport
+02-19 10:20:00.333  8040  8055 W ScanningTestLoader: 	at java.lang.Class.classForName(Native Method)
+02-19 10:20:00.333  8040  8055 W ScanningTestLoader: 	at java.lang.Class.forName(Class.java:591)
+02-19 10:20:00.333  8040  8055 W ScanningTestLoader: 	at androidx.test.internal.runner.ScanningTestLoader.doCreateRunner(ScanningTestLoader.java:45)
+02-19 10:20:00.333  8040  8055 W ScanningTestLoader: 	at androidx.test.internal.runner.TestLoader.getRunnersFor(TestLoader.java:64)
+02-19 10:20:00.333  8040  8055 W ScanningTestLoader: 	at androidx.test.internal.runner.TestRequestBuilder.build(TestRequestBuilder.java:842)
+02-19 10:20:00.333  8040  8055 W ScanningTestLoader: 	at androidx.test.runner.AndroidJUnitRunner.buildRequest(AndroidJUnitRunner.java:672)
+02-19 10:20:00.333  8040  8055 W ScanningTestLoader: 	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:453)
+02-19 10:20:00.333  8040  8055 W ScanningTestLoader: 	at com.wire.android.tests.support.suite.TaggedTestRunner.onStart(TaggedTestRunner.kt:51)
+02-19 10:20:00.333  8040  8055 W ScanningTestLoader: 	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2278)
+02-19 10:20:00.333  8040  8055 W ScanningTestLoader: Caused by: java.lang.ClassNotFoundException: androidx.transition.FragmentTransitionSupport
+02-19 10:20:00.333  8040  8055 W ScanningTestLoader: 	at java.lang.VMClassLoader.findLoadedClass(Native Method)
+02-19 10:20:00.333  8040  8055 W ScanningTestLoader: 	at java.lang.ClassLoader.findLoadedClass(ClassLoader.java:1281)
+02-19 10:20:00.333  8040  8055 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:626)
+02-19 10:20:00.333  8040  8055 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:578)
+02-19 10:20:00.333  8040  8055 W ScanningTestLoader: 	... 9 more
+02-19 10:20:00.333  8040  8055 W ScanningTestLoader: Caused by: java.lang.NoClassDefFoundError: Failed resolution of: Landroidx/fragment/app/FragmentTransitionImpl;
+02-19 10:20:00.333  8040  8055 W ScanningTestLoader: 	... 9 more
+02-19 10:20:00.333  8040  8055 W ScanningTestLoader: Caused by: java.lang.ClassNotFoundException: Didn't find class "androidx.fragment.app.FragmentTransitionImpl" on path: DexPathList[[zip file "/data/app/~~DFQkVUL4JEjznBgvvY2XiQ==/com.wire.android.tests.testsCore.test-qbANNy7oFBmIvGA4brRB7A==/base.apk"],nativeLibraryDirectories=[/data/app/~~DFQkVUL4JEjznBgvvY2XiQ==/com.wire.android.tests.testsCore.test-qbANNy7oFBmIvGA4brRB7A==/lib/arm64, /data/app/~~DFQkVUL4JEjznBgvvY2XiQ==/com.wire.android.tests.testsCore.test-qbANNy7oFBmIvGA4brRB7A==/base.apk!/lib/arm64-v8a, /system/lib64, /system_ext/lib64, /product/lib64]]
+02-19 10:20:00.333  8040  8055 W ScanningTestLoader: 	at dalvik.system.BaseDexClassLoader.findClass(BaseDexClassLoader.java:259)
+02-19 10:20:00.333  8040  8055 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:642)
+02-19 10:20:00.333  8040  8055 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:578)
+02-19 10:20:00.333  8040  8055 W ScanningTestLoader: 	... 9 more
+02-19 10:20:00.371  8040  8055 W ScanningTestLoader: Could not load class: androidx.window.embedding.ActivityStackConsumer
+02-19 10:20:00.371  8040  8055 W ScanningTestLoader: java.lang.ClassNotFoundException: androidx.window.embedding.ActivityStackConsumer
+02-19 10:20:00.371  8040  8055 W ScanningTestLoader: 	at java.lang.Class.classForName(Native Method)
+02-19 10:20:00.371  8040  8055 W ScanningTestLoader: 	at java.lang.Class.forName(Class.java:591)
+02-19 10:20:00.371  8040  8055 W ScanningTestLoader: 	at androidx.test.internal.runner.ScanningTestLoader.doCreateRunner(ScanningTestLoader.java:45)
+02-19 10:20:00.371  8040  8055 W ScanningTestLoader: 	at androidx.test.internal.runner.TestLoader.getRunnersFor(TestLoader.java:64)
+02-19 10:20:00.371  8040  8055 W ScanningTestLoader: 	at androidx.test.internal.runner.TestRequestBuilder.build(TestRequestBuilder.java:842)
+02-19 10:20:00.371  8040  8055 W ScanningTestLoader: 	at androidx.test.runner.AndroidJUnitRunner.buildRequest(AndroidJUnitRunner.java:672)
+02-19 10:20:00.371  8040  8055 W ScanningTestLoader: 	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:453)
+02-19 10:20:00.371  8040  8055 W ScanningTestLoader: 	at com.wire.android.tests.support.suite.TaggedTestRunner.onStart(TaggedTestRunner.kt:51)
+02-19 10:20:00.371  8040  8055 W ScanningTestLoader: 	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2278)
+02-19 10:20:00.371  8040  8055 W ScanningTestLoader: Caused by: java.lang.ClassNotFoundException: androidx.window.embedding.ActivityStackConsumer
+02-19 10:20:00.371  8040  8055 W ScanningTestLoader: 	at java.lang.VMClassLoader.findLoadedClass(Native Method)
+02-19 10:20:00.371  8040  8055 W ScanningTestLoader: 	at java.lang.ClassLoader.findLoadedClass(ClassLoader.java:1281)
+02-19 10:20:00.371  8040  8055 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:626)
+02-19 10:20:00.371  8040  8055 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:578)
+02-19 10:20:00.371  8040  8055 W ScanningTestLoader: 	... 9 more
+02-19 10:20:00.371  8040  8055 W ScanningTestLoader: Caused by: java.lang.NoClassDefFoundError: Failed resolution of: Landroidx/window/reflection/Consumer2;
+02-19 10:20:00.371  8040  8055 W ScanningTestLoader: 	... 9 more
+02-19 10:20:00.371  8040  8055 W ScanningTestLoader: Caused by: java.lang.ClassNotFoundException: androidx.window.reflection.Consumer2
+02-19 10:20:00.371  8040  8055 W ScanningTestLoader: 	at java.lang.VMClassLoader.findLoadedClass(Native Method)
+02-19 10:20:00.371  8040  8055 W ScanningTestLoader: 	at java.lang.ClassLoader.findLoadedClass(ClassLoader.java:1281)
+02-19 10:20:00.371  8040  8055 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:626)
+02-19 10:20:00.371  8040  8055 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:578)
+02-19 10:20:00.371  8040  8055 W ScanningTestLoader: 	... 9 more
+02-19 10:20:00.371  8040  8055 W ScanningTestLoader: Caused by: java.lang.NoClassDefFoundError: Failed resolution of: Landroidx/window/extensions/core/util/function/Consumer;
+02-19 10:20:00.371  8040  8055 W ScanningTestLoader: 	... 9 more
+02-19 10:20:00.371  8040  8055 W ScanningTestLoader: Caused by: java.lang.ClassNotFoundException: Didn't find class "androidx.window.extensions.core.util.function.Consumer" on path: DexPathList[[zip file "/data/app/~~DFQkVUL4JEjznBgvvY2XiQ==/com.wire.android.tests.testsCore.test-qbANNy7oFBmIvGA4brRB7A==/base.apk"],nativeLibraryDirectories=[/data/app/~~DFQkVUL4JEjznBgvvY2XiQ==/com.wire.android.tests.testsCore.test-qbANNy7oFBmIvGA4brRB7A==/lib/arm64, /data/app/~~DFQkVUL4JEjznBgvvY2XiQ==/com.wire.android.tests.testsCore.test-qbANNy7oFBmIvGA4brRB7A==/base.apk!/lib/arm64-v8a, /system/lib64, /system_ext/lib64, /product/lib64]]
+02-19 10:20:00.371  8040  8055 W ScanningTestLoader: 	at dalvik.system.BaseDexClassLoader.findClass(BaseDexClassLoader.java:259)
+02-19 10:20:00.371  8040  8055 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:642)
+02-19 10:20:00.371  8040  8055 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:578)
+02-19 10:20:00.371  8040  8055 W ScanningTestLoader: 	... 9 more
+02-19 10:20:00.377  8040  8055 W ScanningTestLoader: Could not load class: androidx.window.embedding.OverlayControllerActivityStackConsumer
+02-19 10:20:00.377  8040  8055 W ScanningTestLoader: java.lang.ClassNotFoundException: androidx.window.embedding.OverlayControllerActivityStackConsumer
+02-19 10:20:00.377  8040  8055 W ScanningTestLoader: 	at java.lang.Class.classForName(Native Method)
+02-19 10:20:00.377  8040  8055 W ScanningTestLoader: 	at java.lang.Class.forName(Class.java:591)
+02-19 10:20:00.377  8040  8055 W ScanningTestLoader: 	at androidx.test.internal.runner.ScanningTestLoader.doCreateRunner(ScanningTestLoader.java:45)
+02-19 10:20:00.377  8040  8055 W ScanningTestLoader: 	at androidx.test.internal.runner.TestLoader.getRunnersFor(TestLoader.java:64)
+02-19 10:20:00.377  8040  8055 W ScanningTestLoader: 	at androidx.test.internal.runner.TestRequestBuilder.build(TestRequestBuilder.java:842)
+02-19 10:20:00.377  8040  8055 W ScanningTestLoader: 	at androidx.test.runner.AndroidJUnitRunner.buildRequest(AndroidJUnitRunner.java:672)
+02-19 10:20:00.377  8040  8055 W ScanningTestLoader: 	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:453)
+02-19 10:20:00.377  8040  8055 W ScanningTestLoader: 	at com.wire.android.tests.support.suite.TaggedTestRunner.onStart(TaggedTestRunner.kt:51)
+02-19 10:20:00.377  8040  8055 W ScanningTestLoader: 	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2278)
+02-19 10:20:00.377  8040  8055 W ScanningTestLoader: Caused by: java.lang.ClassNotFoundException: androidx.window.embedding.OverlayControllerActivityStackConsumer
+02-19 10:20:00.377  8040  8055 W ScanningTestLoader: 	at java.lang.VMClassLoader.findLoadedClass(Native Method)
+02-19 10:20:00.377  8040  8055 W ScanningTestLoader: 	at java.lang.ClassLoader.findLoadedClass(ClassLoader.java:1281)
+02-19 10:20:00.377  8040  8055 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:626)
+02-19 10:20:00.377  8040  8055 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:578)
+02-19 10:20:00.377  8040  8055 W ScanningTestLoader: 	... 9 more
+02-19 10:20:00.377  8040  8055 W ScanningTestLoader: Caused by: java.lang.NoClassDefFoundError: Failed resolution of: Landroidx/window/extensions/core/util/function/Consumer;
+02-19 10:20:00.377  8040  8055 W ScanningTestLoader: 	... 9 more
+02-19 10:20:00.377  8040  8055 W ScanningTestLoader: Caused by: java.lang.ClassNotFoundException: Didn't find class "androidx.window.extensions.core.util.function.Consumer" on path: DexPathList[[zip file "/data/app/~~DFQkVUL4JEjznBgvvY2XiQ==/com.wire.android.tests.testsCore.test-qbANNy7oFBmIvGA4brRB7A==/base.apk"],nativeLibraryDirectories=[/data/app/~~DFQkVUL4JEjznBgvvY2XiQ==/com.wire.android.tests.testsCore.test-qbANNy7oFBmIvGA4brRB7A==/lib/arm64, /data/app/~~DFQkVUL4JEjznBgvvY2XiQ==/com.wire.android.tests.testsCore.test-qbANNy7oFBmIvGA4brRB7A==/base.apk!/lib/arm64-v8a, /system/lib64, /system_ext/lib64, /product/lib64]]
+02-19 10:20:00.377  8040  8055 W ScanningTestLoader: 	at dalvik.system.BaseDexClassLoader.findClass(BaseDexClassLoader.java:259)
+02-19 10:20:00.377  8040  8055 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:642)
+02-19 10:20:00.377  8040  8055 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:578)
+02-19 10:20:00.377  8040  8055 W ScanningTestLoader: 	... 9 more
+02-19 10:20:00.387  8040  8055 W ScanningTestLoader: Could not load class: androidx.window.layout.adapter.extensions.MulticastConsumerApi2
+02-19 10:20:00.387  8040  8055 W ScanningTestLoader: java.lang.ClassNotFoundException: androidx.window.layout.adapter.extensions.MulticastConsumerApi2
+02-19 10:20:00.387  8040  8055 W ScanningTestLoader: 	at java.lang.Class.classForName(Native Method)
+02-19 10:20:00.387  8040  8055 W ScanningTestLoader: 	at java.lang.Class.forName(Class.java:591)
+02-19 10:20:00.387  8040  8055 W ScanningTestLoader: 	at androidx.test.internal.runner.ScanningTestLoader.doCreateRunner(ScanningTestLoader.java:45)
+02-19 10:20:00.387  8040  8055 W ScanningTestLoader: 	at androidx.test.internal.runner.TestLoader.getRunnersFor(TestLoader.java:64)
+02-19 10:20:00.387  8040  8055 W ScanningTestLoader: 	at androidx.test.internal.runner.TestRequestBuilder.build(TestRequestBuilder.java:842)
+02-19 10:20:00.387  8040  8055 W ScanningTestLoader: 	at androidx.test.runner.AndroidJUnitRunner.buildRequest(AndroidJUnitRunner.java:672)
+02-19 10:20:00.387  8040  8055 W ScanningTestLoader: 	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:453)
+02-19 10:20:00.387  8040  8055 W ScanningTestLoader: 	at com.wire.android.tests.support.suite.TaggedTestRunner.onStart(TaggedTestRunner.kt:51)
+02-19 10:20:00.387  8040  8055 W ScanningTestLoader: 	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2278)
+02-19 10:20:00.387  8040  8055 W ScanningTestLoader: Caused by: java.lang.ClassNotFoundException: androidx.window.layout.adapter.extensions.MulticastConsumerApi2
+02-19 10:20:00.387  8040  8055 W ScanningTestLoader: 	at java.lang.VMClassLoader.findLoadedClass(Native Method)
+02-19 10:20:00.387  8040  8055 W ScanningTestLoader: 	at java.lang.ClassLoader.findLoadedClass(ClassLoader.java:1281)
+02-19 10:20:00.387  8040  8055 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:626)
+02-19 10:20:00.387  8040  8055 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:578)
+02-19 10:20:00.387  8040  8055 W ScanningTestLoader: 	... 9 more
+02-19 10:20:00.387  8040  8055 W ScanningTestLoader: Caused by: java.lang.NoClassDefFoundError: Failed resolution of: Landroidx/window/extensions/core/util/function/Consumer;
+02-19 10:20:00.387  8040  8055 W ScanningTestLoader: 	... 9 more
+02-19 10:20:00.387  8040  8055 W ScanningTestLoader: Caused by: java.lang.ClassNotFoundException: Didn't find class "androidx.window.extensions.core.util.function.Consumer" on path: DexPathList[[zip file "/data/app/~~DFQkVUL4JEjznBgvvY2XiQ==/com.wire.android.tests.testsCore.test-qbANNy7oFBmIvGA4brRB7A==/base.apk"],nativeLibraryDirectories=[/data/app/~~DFQkVUL4JEjznBgvvY2XiQ==/com.wire.android.tests.testsCore.test-qbANNy7oFBmIvGA4brRB7A==/lib/arm64, /data/app/~~DFQkVUL4JEjznBgvvY2XiQ==/com.wire.android.tests.testsCore.test-qbANNy7oFBmIvGA4brRB7A==/base.apk!/lib/arm64-v8a, /system/lib64, /system_ext/lib64, /product/lib64]]
+02-19 10:20:00.387  8040  8055 W ScanningTestLoader: 	at dalvik.system.BaseDexClassLoader.findClass(BaseDexClassLoader.java:259)
+02-19 10:20:00.387  8040  8055 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:642)
+02-19 10:20:00.387  8040  8055 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:578)
+02-19 10:20:00.387  8040  8055 W ScanningTestLoader: 	... 9 more
+02-19 10:20:00.388  8040  8055 W ScanningTestLoader: Could not load class: androidx.window.layout.adapter.sidecar.DistinctElementSidecarCallback
+02-19 10:20:00.388  8040  8055 W ScanningTestLoader: java.lang.ClassNotFoundException: androidx.window.layout.adapter.sidecar.DistinctElementSidecarCallback
+02-19 10:20:00.388  8040  8055 W ScanningTestLoader: 	at java.lang.Class.classForName(Native Method)
+02-19 10:20:00.388  8040  8055 W ScanningTestLoader: 	at java.lang.Class.forName(Class.java:591)
+02-19 10:20:00.388  8040  8055 W ScanningTestLoader: 	at androidx.test.internal.runner.ScanningTestLoader.doCreateRunner(ScanningTestLoader.java:45)
+02-19 10:20:00.388  8040  8055 W ScanningTestLoader: 	at androidx.test.internal.runner.TestLoader.getRunnersFor(TestLoader.java:64)
+02-19 10:20:00.388  8040  8055 W ScanningTestLoader: 	at androidx.test.internal.runner.TestRequestBuilder.build(TestRequestBuilder.java:842)
+02-19 10:20:00.388  8040  8055 W ScanningTestLoader: 	at androidx.test.runner.AndroidJUnitRunner.buildRequest(AndroidJUnitRunner.java:672)
+02-19 10:20:00.388  8040  8055 W ScanningTestLoader: 	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:453)
+02-19 10:20:00.388  8040  8055 W ScanningTestLoader: 	at com.wire.android.tests.support.suite.TaggedTestRunner.onStart(TaggedTestRunner.kt:51)
+02-19 10:20:00.388  8040  8055 W ScanningTestLoader: 	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2278)
+02-19 10:20:00.388  8040  8055 W ScanningTestLoader: Caused by: java.lang.ClassNotFoundException: androidx.window.layout.adapter.sidecar.DistinctElementSidecarCallback
+02-19 10:20:00.388  8040  8055 W ScanningTestLoader: 	at java.lang.VMClassLoader.findLoadedClass(Native Method)
+02-19 10:20:00.388  8040  8055 W ScanningTestLoader: 	at java.lang.ClassLoader.findLoadedClass(ClassLoader.java:1281)
+02-19 10:20:00.388  8040  8055 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:626)
+02-19 10:20:00.388  8040  8055 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:578)
+02-19 10:20:00.388  8040  8055 W ScanningTestLoader: 	... 9 more
+02-19 10:20:00.388  8040  8055 W ScanningTestLoader: Caused by: java.lang.NoClassDefFoundError: Failed resolution of: Landroidx/window/sidecar/SidecarInterface$SidecarCallback;
+02-19 10:20:00.388  8040  8055 W ScanningTestLoader: 	... 9 more
+02-19 10:20:00.388  8040  8055 W ScanningTestLoader: Caused by: java.lang.ClassNotFoundException: Didn't find class "androidx.window.sidecar.SidecarInterface$SidecarCallback" on path: DexPathList[[zip file "/data/app/~~DFQkVUL4JEjznBgvvY2XiQ==/com.wire.android.tests.testsCore.test-qbANNy7oFBmIvGA4brRB7A==/base.apk"],nativeLibraryDirectories=[/data/app/~~DFQkVUL4JEjznBgvvY2XiQ==/com.wire.android.tests.testsCore.test-qbANNy7oFBmIvGA4brRB7A==/lib/arm64, /data/app/~~DFQkVUL4JEjznBgvvY2XiQ==/com.wire.android.tests.testsCore.test-qbANNy7oFBmIvGA4brRB7A==/base.apk!/lib/arm64-v8a, /system/lib64, /system_ext/lib64, /product/lib64]]
+02-19 10:20:00.388  8040  8055 W ScanningTestLoader: 	at dalvik.system.BaseDexClassLoader.findClass(BaseDexClassLoader.java:259)
+02-19 10:20:00.388  8040  8055 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:642)
+02-19 10:20:00.388  8040  8055 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:578)
+02-19 10:20:00.388  8040  8055 W ScanningTestLoader: 	... 9 more
+02-19 10:20:00.397  8040  8055 W ScanningTestLoader: Could not load class: androidx.window.reflection.Consumer2
+02-19 10:20:00.397  8040  8055 W ScanningTestLoader: java.lang.NoClassDefFoundError: Failed resolution of: Landroidx/window/extensions/core/util/function/Consumer;
+02-19 10:20:00.397  8040  8055 W ScanningTestLoader: 	at java.lang.Class.classForName(Native Method)
+02-19 10:20:00.397  8040  8055 W ScanningTestLoader: 	at java.lang.Class.forName(Class.java:591)
+02-19 10:20:00.397  8040  8055 W ScanningTestLoader: 	at androidx.test.internal.runner.ScanningTestLoader.doCreateRunner(ScanningTestLoader.java:45)
+02-19 10:20:00.397  8040  8055 W ScanningTestLoader: 	at androidx.test.internal.runner.TestLoader.getRunnersFor(TestLoader.java:64)
+02-19 10:20:00.397  8040  8055 W ScanningTestLoader: 	at androidx.test.internal.runner.TestRequestBuilder.build(TestRequestBuilder.java:842)
+02-19 10:20:00.397  8040  8055 W ScanningTestLoader: 	at androidx.test.runner.AndroidJUnitRunner.buildRequest(AndroidJUnitRunner.java:672)
+02-19 10:20:00.397  8040  8055 W ScanningTestLoader: 	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:453)
+02-19 10:20:00.397  8040  8055 W ScanningTestLoader: 	at com.wire.android.tests.support.suite.TaggedTestRunner.onStart(TaggedTestRunner.kt:51)
+02-19 10:20:00.397  8040  8055 W ScanningTestLoader: 	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2278)
+02-19 10:20:00.397  8040  8055 W ScanningTestLoader: Caused by: java.lang.ClassNotFoundException: Didn't find class "androidx.window.extensions.core.util.function.Consumer" on path: DexPathList[[zip file "/data/app/~~DFQkVUL4JEjznBgvvY2XiQ==/com.wire.android.tests.testsCore.test-qbANNy7oFBmIvGA4brRB7A==/base.apk"],nativeLibraryDirectories=[/data/app/~~DFQkVUL4JEjznBgvvY2XiQ==/com.wire.android.tests.testsCore.test-qbANNy7oFBmIvGA4brRB7A==/lib/arm64, /data/app/~~DFQkVUL4JEjznBgvvY2XiQ==/com.wire.android.tests.testsCore.test-qbANNy7oFBmIvGA4brRB7A==/base.apk!/lib/arm64-v8a, /system/lib64, /system_ext/lib64, /product/lib64]]
+02-19 10:20:00.397  8040  8055 W ScanningTestLoader: 	at dalvik.system.BaseDexClassLoader.findClass(BaseDexClassLoader.java:259)
+02-19 10:20:00.397  8040  8055 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:642)
+02-19 10:20:00.397  8040  8055 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:578)
+02-19 10:20:00.397  8040  8055 W ScanningTestLoader: 	... 9 more
+02-19 10:20:00.398  8040  8055 W ScanningTestLoader: Could not load class: androidx.window.reflection.JFunction2
+02-19 10:20:00.398  8040  8055 W ScanningTestLoader: java.lang.ClassNotFoundException: androidx.window.reflection.JFunction2
+02-19 10:20:00.398  8040  8055 W ScanningTestLoader: 	at java.lang.Class.classForName(Native Method)
+02-19 10:20:00.398  8040  8055 W ScanningTestLoader: 	at java.lang.Class.forName(Class.java:591)
+02-19 10:20:00.398  8040  8055 W ScanningTestLoader: 	at androidx.test.internal.runner.ScanningTestLoader.doCreateRunner(ScanningTestLoader.java:45)
+02-19 10:20:00.398  8040  8055 W ScanningTestLoader: 	at androidx.test.internal.runner.TestLoader.getRunnersFor(TestLoader.java:64)
+02-19 10:20:00.398  8040  8055 W ScanningTestLoader: 	at androidx.test.internal.runner.TestRequestBuilder.build(TestRequestBuilder.java:842)
+02-19 10:20:00.398  8040  8055 W ScanningTestLoader: 	at androidx.test.runner.AndroidJUnitRunner.buildRequest(AndroidJUnitRunner.java:672)
+02-19 10:20:00.398  8040  8055 W ScanningTestLoader: 	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:453)
+02-19 10:20:00.398  8040  8055 W ScanningTestLoader: 	at com.wire.android.tests.support.suite.TaggedTestRunner.onStart(TaggedTestRunner.kt:51)
+02-19 10:20:00.398  8040  8055 W ScanningTestLoader: 	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2278)
+02-19 10:20:00.398  8040  8055 W ScanningTestLoader: Caused by: java.lang.ClassNotFoundException: androidx.window.reflection.JFunction2
+02-19 10:20:00.398  8040  8055 W ScanningTestLoader: 	at java.lang.VMClassLoader.findLoadedClass(Native Method)
+02-19 10:20:00.398  8040  8055 W ScanningTestLoader: 	at java.lang.ClassLoader.findLoadedClass(ClassLoader.java:1281)
+02-19 10:20:00.398  8040  8055 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:626)
+02-19 10:20:00.398  8040  8055 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:578)
+02-19 10:20:00.398  8040  8055 W ScanningTestLoader: 	... 9 more
+02-19 10:20:00.398  8040  8055 W ScanningTestLoader: Caused by: java.lang.NoClassDefFoundError: Failed resolution of: Landroidx/window/extensions/core/util/function/Function;
+02-19 10:20:00.398  8040  8055 W ScanningTestLoader: 	... 9 more
+02-19 10:20:00.398  8040  8055 W ScanningTestLoader: Caused by: java.lang.ClassNotFoundException: Didn't find class "androidx.window.extensions.core.util.function.Function" on path: DexPathList[[zip file "/data/app/~~DFQkVUL4JEjznBgvvY2XiQ==/com.wire.android.tests.testsCore.test-qbANNy7oFBmIvGA4brRB7A==/base.apk"],nativeLibraryDirectories=[/data/app/~~DFQkVUL4JEjznBgvvY2XiQ==/com.wire.android.tests.testsCore.test-qbANNy7oFBmIvGA4brRB7A==/lib/arm64, /data/app/~~DFQkVUL4JEjznBgvvY2XiQ==/com.wire.android.tests.testsCore.test-qbANNy7oFBmIvGA4brRB7A==/base.apk!/lib/arm64-v8a, /system/lib64, /system_ext/lib64, /product/lib64]]
+02-19 10:20:00.398  8040  8055 W ScanningTestLoader: 	at dalvik.system.BaseDexClassLoader.findClass(BaseDexClassLoader.java:259)
+02-19 10:20:00.398  8040  8055 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:642)
+02-19 10:20:00.398  8040  8055 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:578)
+02-19 10:20:00.398  8040  8055 W ScanningTestLoader: 	... 9 more
+02-19 10:20:00.399  8040  8055 W ScanningTestLoader: Could not load class: androidx.window.reflection.Predicate2
+02-19 10:20:00.399  8040  8055 W ScanningTestLoader: java.lang.ClassNotFoundException: androidx.window.reflection.Predicate2
+02-19 10:20:00.399  8040  8055 W ScanningTestLoader: 	at java.lang.Class.classForName(Native Method)
+02-19 10:20:00.399  8040  8055 W ScanningTestLoader: 	at java.lang.Class.forName(Class.java:591)
+02-19 10:20:00.399  8040  8055 W ScanningTestLoader: 	at androidx.test.internal.runner.ScanningTestLoader.doCreateRunner(ScanningTestLoader.java:45)
+02-19 10:20:00.399  8040  8055 W ScanningTestLoader: 	at androidx.test.internal.runner.TestLoader.getRunnersFor(TestLoader.java:64)
+02-19 10:20:00.399  8040  8055 W ScanningTestLoader: 	at androidx.test.internal.runner.TestRequestBuilder.build(TestRequestBuilder.java:842)
+02-19 10:20:00.399  8040  8055 W ScanningTestLoader: 	at androidx.test.runner.AndroidJUnitRunner.buildRequest(AndroidJUnitRunner.java:672)
+02-19 10:20:00.399  8040  8055 W ScanningTestLoader: 	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:453)
+02-19 10:20:00.399  8040  8055 W ScanningTestLoader: 	at com.wire.android.tests.support.suite.TaggedTestRunner.onStart(TaggedTestRunner.kt:51)
+02-19 10:20:00.399  8040  8055 W ScanningTestLoader: 	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2278)
+02-19 10:20:00.399  8040  8055 W ScanningTestLoader: Caused by: java.lang.ClassNotFoundException: androidx.window.reflection.Predicate2
+02-19 10:20:00.399  8040  8055 W ScanningTestLoader: 	at java.lang.VMClassLoader.findLoadedClass(Native Method)
+02-19 10:20:00.399  8040  8055 W ScanningTestLoader: 	at java.lang.ClassLoader.findLoadedClass(ClassLoader.java:1281)
+02-19 10:20:00.399  8040  8055 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:626)
+02-19 10:20:00.399  8040  8055 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:578)
+02-19 10:20:00.399  8040  8055 W ScanningTestLoader: 	... 9 more
+02-19 10:20:00.399  8040  8055 W ScanningTestLoader: Caused by: java.lang.NoClassDefFoundError: Failed resolution of: Landroidx/window/extensions/core/util/function/Predicate;
+02-19 10:20:00.399  8040  8055 W ScanningTestLoader: 	... 9 more
+02-19 10:20:00.399  8040  8055 W ScanningTestLoader: Caused by: java.lang.ClassNotFoundException: Didn't find class "androidx.window.extensions.core.util.function.Predicate" on path: DexPathList[[zip file "/data/app/~~DFQkVUL4JEjznBgvvY2XiQ==/com.wire.android.tests.testsCore.test-qbANNy7oFBmIvGA4brRB7A==/base.apk"],nativeLibraryDirectories=[/data/app/~~DFQkVUL4JEjznBgvvY2XiQ==/com.wire.android.tests.testsCore.test-qbANNy7oFBmIvGA4brRB7A==/lib/arm64, /data/app/~~DFQkVUL4JEjznBgvvY2XiQ==/com.wire.android.tests.testsCore.test-qbANNy7oFBmIvGA4brRB7A==/base.apk!/lib/arm64-v8a, /system/lib64, /system_ext/lib64, /product/lib64]]
+02-19 10:20:00.399  8040  8055 W ScanningTestLoader: 	at dalvik.system.BaseDexClassLoader.findClass(BaseDexClassLoader.java:259)
+02-19 10:20:00.399  8040  8055 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:642)
+02-19 10:20:00.399  8040  8055 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:578)
+02-19 10:20:00.399  8040  8055 W ScanningTestLoader: 	... 9 more
+02-19 10:20:01.360  8040  8055 I TestRunner: run started: 5 tests
+02-19 10:20:01.404  8040  8055 I TestRunner: started: givenUserInAnotherTeam_whenFileIsSent_thenRecipientCanReceivePlayAndDownloadIt(com.wire.android.tests.core.criticalFlows.FileSharingBetweenTeams)
+02-19 10:20:01.464  8040  8055 I UiDevice: Creating a new instance, old instance exists: false
+02-19 10:20:01.466  8040  8055 D UiDevice: Setting accessibility service flags: 65618
+02-19 10:20:01.469  8040  8055 D UiDevice: Executing shell command: pm clear com.wire.internal
+02-19 10:20:01.541  8040  8055 D UiDevice: Executing shell command: settings put secure show_ime_with_hard_keyboard 0
+02-19 10:20:01.579  8040  8055 D UiDevice: Executing shell command: settings put global window_animation_scale 0
+02-19 10:20:01.616  8040  8055 D UiDevice: Executing shell command: settings put global transition_animation_scale 0
+02-19 10:20:01.646  8040  8055 D UiDevice: Executing shell command: settings put global animator_duration_scale .5
+02-19 10:20:01.994  8040  8055 D UiDevice: Pressing home button.
+02-19 10:20:02.082  8040  8055 D UiDevice: Waiting 20000ms for SearchCondition[hasObject=BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E']].
+02-19 10:20:02.082  8040  8055 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-19 10:20:02.675  8040  8055 D UiDevice: Waiting 20000ms for SearchCondition[hasObject=BySelector [PKG='\Qcom.wire.internal\E']].
+02-19 10:20:02.675  8040  8055 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-19 10:20:02.759  8040  8055 W ByMatcher: Node returned null child: android.view.accessibility.AccessibilityNodeInfo@86c0; boundsInParent: Rect(0, 0 - 1080, 2220); boundsInScreen: Rect(0, 0 - 1080, 2220); packageName: com.google.android.apps.nexuslauncher; className: android.widget.FrameLayout; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; viewIdResName: com.google.android.apps.nexuslauncher:id/drag_layer; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: false; visible: true; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
+02-19 10:20:02.759  8040  8055 W ByMatcher: Skipping null child (3 of 5)
+02-19 10:20:02.761  8040  8055 W ByMatcher: Skipping null child (4 of 5)
+02-19 10:20:02.763  8040  8055 W ByMatcher: Node returned null child: android.view.accessibility.AccessibilityNodeInfo@86c0; boundsInParent: Rect(0, 0 - 1080, 2220); boundsInScreen: Rect(0, 0 - 1080, 2220); packageName: com.google.android.apps.nexuslauncher; className: android.widget.FrameLayout; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; viewIdResName: com.google.android.apps.nexuslauncher:id/drag_layer; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: false; visible: true; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
+02-19 10:20:02.763  8040  8055 W ByMatcher: Skipping null child (3 of 5)
+02-19 10:20:02.765  8040  8055 W ByMatcher: Skipping null child (4 of 5)
+02-19 10:20:02.882  8040  8055 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-19 10:20:03.307  8040  8055 W UiDevice: Active window root not found.
+02-19 10:20:03.311  8040  8055 W UiDevice: Skipping null root node for window: AccessibilityWindowInfo[title=Pixel Launcher, displayId=0, id=892, taskId=140, type=TYPE_APPLICATION, layer=0, region=SkRegion((0,0,1080,2220)), bounds=Rect(0, 0 - 1080, 2220), focused=true, active=true, pictureInPicture=false, hasParent=false, isAnchored=false, hasChildren=false]
+02-19 10:20:03.416  8040  8055 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-19 10:20:03.418  8040  8055 W UiDevice: Active window root not found.
+02-19 10:20:03.422  8040  8055 W UiDevice: Skipping null root node for window: AccessibilityWindowInfo[title=Pixel Launcher, displayId=0, id=892, taskId=140, type=TYPE_APPLICATION, layer=0, region=SkRegion((0,0,1080,2220)), bounds=Rect(0, 0 - 1080, 2220), focused=true, active=true, pictureInPicture=false, hasParent=false, isAnchored=false, hasChildren=false]
+02-19 10:20:03.525  8040  8055 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-19 10:20:03.527  8040  8055 W UiDevice: Active window root not found.
+02-19 10:20:03.532  8040  8055 W UiDevice: Skipping null root node for window: AccessibilityWindowInfo[title=Pixel Launcher, displayId=0, id=892, taskId=140, type=TYPE_APPLICATION, layer=0, region=SkRegion((0,0,1080,2220)), bounds=Rect(0, 0 - 1080, 2220), focused=true, active=true, pictureInPicture=false, hasParent=false, isAnchored=false, hasChildren=false]
+02-19 10:20:03.641  8040  8055 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-19 10:20:03.643  8040  8055 W UiDevice: Active window root not found.
+02-19 10:20:03.646  8040  8055 W UiDevice: Skipping null root node for window: AccessibilityWindowInfo[title=Pixel Launcher, displayId=0, id=892, taskId=140, type=TYPE_APPLICATION, layer=0, region=SkRegion((0,0,1080,2220)), bounds=Rect(0, 0 - 1080, 2220), focused=true, active=true, pictureInPicture=false, hasParent=false, isAnchored=false, hasChildren=false]
+02-19 10:20:03.749  8040  8055 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-19 10:20:03.751  8040  8055 W UiDevice: Active window root not found.
+02-19 10:20:03.755  8040  8055 W UiDevice: Skipping null root node for window: AccessibilityWindowInfo[title=Pixel Launcher, displayId=0, id=892, taskId=140, type=TYPE_APPLICATION, layer=0, region=SkRegion((0,0,1080,2220)), bounds=Rect(0, 0 - 1080, 2220), focused=true, active=true, pictureInPicture=false, hasParent=false, isAnchored=false, hasChildren=false]
+02-19 10:20:03.857  8040  8055 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-19 10:20:03.859  8040  8055 W UiDevice: Active window root not found.
+02-19 10:20:03.862  8040  8055 W UiDevice: Skipping null root node for window: AccessibilityWindowInfo[title=Pixel Launcher, displayId=0, id=892, taskId=140, type=TYPE_APPLICATION, layer=0, region=SkRegion((0,0,1080,2220)), bounds=Rect(0, 0 - 1080, 2220), focused=true, active=true, pictureInPicture=false, hasParent=false, isAnchored=false, hasChildren=false]
+02-19 10:20:03.965  8040  8055 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-19 10:20:03.968  8040  8055 W UiDevice: Active window root not found.
+02-19 10:20:03.972  8040  8055 W UiDevice: Skipping null root node for window: AccessibilityWindowInfo[title=Pixel Launcher, displayId=0, id=892, taskId=140, type=TYPE_APPLICATION, layer=0, region=SkRegion((0,0,1080,2220)), bounds=Rect(0, 0 - 1080, 2220), focused=true, active=true, pictureInPicture=false, hasParent=false, isAnchored=false, hasChildren=false]
+02-19 10:20:04.076  8040  8055 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-19 10:20:04.562  8040  8055 I System.out: Could not access BuildConfig field 'BACKENDCONNECTION_STAGING_SOCKSPROXY': No field BACKENDCONNECTION_STAGING_SOCKSPROXY in class Lcom/wire/android/testSupport/BuildConfig; (declaration of 'com.wire.android.testSupport.BuildConfig' appears in /data/app/~~DFQkVUL4JEjznBgvvY2XiQ==/com.wire.android.tests.testsCore.test-qbANNy7oFBmIvGA4brRB7A==/base.apk!classes2.dex)
+02-19 10:20:04.568  8040  8055 I System.out: Could not access BuildConfig field 'BACKENDCONNECTION_STAGING_SOCKSPROXY': No field BACKENDCONNECTION_STAGING_SOCKSPROXY in class Lcom/wire/android/testSupport/BuildConfig; (declaration of 'com.wire.android.testSupport.BuildConfig' appears in /data/app/~~DFQkVUL4JEjznBgvvY2XiQ==/com.wire.android.tests.testsCore.test-qbANNy7oFBmIvGA4brRB7A==/base.apk!classes2.dex)
+02-19 10:20:04.569  8040  8055 I System.out: Could not access BuildConfig field 'BACKENDCONNECTION_STAGING_SOCKSPROXY': No field BACKENDCONNECTION_STAGING_SOCKSPROXY in class Lcom/wire/android/testSupport/BuildConfig; (declaration of 'com.wire.android.testSupport.BuildConfig' appears in /data/app/~~DFQkVUL4JEjznBgvvY2XiQ==/com.wire.android.tests.testsCore.test-qbANNy7oFBmIvGA4brRB7A==/base.apk!classes2.dex)
+02-19 10:20:04.709  8040  8201 D ProfileInstaller: Installing profile for com.wire.android.tests.testsCore.test
+02-19 10:20:06.860  8040  8055 I ClientUserManager: 10:20:06 INFO [561] (ClientUse) Cannot find user by: user1Name 
+02-19 10:20:06.862  8040  8055 I Hello   : 10:20:06 INFO [561] (ClientUse) Hello, my name is Alvaro Jakubowski and my email is jakubowskiwywdzmousg@wire.engineering and password is d!$p71Px and emailPassword is @0Ja[QD}5$I#innnnn 
+02-19 10:20:08.281  8040  8047 I .testsCore.tes: Background concurrent copying GC freed 37MB AllocSpace bytes, 14(340KB) LOS objects, 76% free, 7681KB/31MB, paused 122us,49us total 246.760ms
+02-19 10:20:08.343  8040  8049 W System  : A resource failed to call close. 
+02-19 10:20:08.890  8040  8055 I ClientUserManager: 10:20:08 INFO [561] (ClientUse) Cannot find user by: user3Name 
+02-19 10:20:08.892  8040  8055 I Hello   : 10:20:08 INFO [561] (ClientUse) Hello, my name is Bernetta Frami and my email is framiarkbmlqvah@wire.engineering and password is q44SoUt! and emailPassword is Ec-Q*_b?_q7Oinnnnn 
+02-19 10:20:10.626  8040  8055 I ClientUserManager: 10:20:10 INFO [561] (ClientUse) Cannot find user by: user3Name 
+02-19 10:20:10.678  8040  8055 I ClientUserManager: 10:20:10 INFO [561] (ClientUse) Cannot find user by: user4Name 
+02-19 10:20:12.470  8040  8055 I ClientUserManager: 10:20:12 INFO [561] (ClientUse) Cannot find user by: user1Name 
+02-19 10:20:12.518  8040  8055 I ClientUserManager: 10:20:12 INFO [561] (ClientUse) Cannot find user by: user2Name 
+02-19 10:20:14.324  8040  8055 I System.out: Could not access BuildConfig field 'BACKENDCONNECTION_STAGING_SOCKSPROXY': No field BACKENDCONNECTION_STAGING_SOCKSPROXY in class Lcom/wire/android/testSupport/BuildConfig; (declaration of 'com.wire.android.testSupport.BuildConfig' appears in /data/app/~~DFQkVUL4JEjznBgvvY2XiQ==/com.wire.android.tests.testsCore.test-qbANNy7oFBmIvGA4brRB7A==/base.apk!classes2.dex)
+02-19 10:20:14.332  8040  8055 D UiDevice: Waiting 10000ms for SearchCondition[hasObject=BySelector [TEXT='\QEnter your email to start!\E']].
+02-19 10:20:14.332  8040  8055 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-19 10:20:14.951  8040  8055 W QueryController: Could not detect idle state.
+02-19 10:20:14.952  8040  8055 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-19 10:20:14.998  8040  8055 I .testsCore.tes: hiddenapi: Accessing hidden method Landroid/view/MotionEvent;->setDisplayId(I)V (runtime_flags=0, domain=platform, api=blocked,test-api) from Landroidx/test/uiautomator/GestureController; (domain=app, TargetSdkVersion=36) using reflection: allowed
+02-19 10:20:15.128  8040  8055 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-19 10:20:15.226  8040  8055 D UiDevice: Waiting 10000ms for SearchCondition[hasObject=BySelector [TEXT='\QProceed\E']].
+02-19 10:20:15.226  8040  8055 D UiDevice: Searching for node with selector: BySelector [TEXT='\QProceed\E'].
+02-19 10:20:15.381  8040  8055 D UiDevice: Searching for node with selector: BySelector [TEXT='\QProceed\E'].
+02-19 10:20:15.522  8040  8055 D UiDevice: Searching for node with selector: BySelector [TEXT='\QProceed\E'].
+02-19 10:20:16.253  8040  8055 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QProceed\E'].
+02-19 10:20:16.398  8040  8055 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QProceed\E'].
+02-19 10:20:16.451  8040  8055 D UiObject2: Clicking on (760, 1433).
+02-19 10:20:16.452  8040  8055 W UiObject2: Clicking on non-clickable object: android.view.accessibility.AccessibilityNodeInfo@b35e; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(681, 1409 - 840, 1457); packageName: com.wire.internal; className: android.widget.TextView; text: Proceed; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; viewIdResName: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: true; visible: true; actions: [AccessibilityAction: ACTION_NEXT_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SET_SELECTION - null]
+02-19 10:20:16.495  8040  8055 W GestureController: Gestures took longer than expected (40ms >> 16ms), device might be in a busy state.
+02-19 10:20:17.272  8040  8055 I QueryController: Matched selector: UiSelector[RESOURCE_ID=userIdentifierInput] <<==>> [android.view.accessibility.AccessibilityNodeInfo@a741; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(66, 1692 - 1014, 1824); packageName: com.wire.internal; className: android.widget.EditText; text: ; error: null; maxTextLength: 8000; stateDescription: null; contentDescription: null; tooltipText: null; viewIdResName: userIdentifierInput; checkable: false; checked: false; focusable: true; focused: false; selected: false; clickable: true; longClickable: true; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: true; visible: true; actions: [AccessibilityAction: ACTION_FOCUS - null, AccessibilityAction: ACTION_NEXT_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_CLICK - null, AccessibilityAction: ACTION_LONG_CLICK - null, AccessibilityAction: ACTION_SET_TEXT - null, AccessibilityAction: ACTION_IME_ENTER - null, AccessibilityAction: ACTION_SET_SELECTION - null]]
+02-19 10:20:17.275  8040  8055 D UiObject: Clicking on (540, 1758).
+02-19 10:20:20.430  8040  8055 W InteractionController: Timed out waiting 3000ms for command and events.
+02-19 10:20:20.502  8040  8055 I QueryController: Matched selector: UiSelector[RESOURCE_ID=userIdentifierInput] <<==>> [android.view.accessibility.AccessibilityNodeInfo@a741; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(66, 888 - 1014, 1020); packageName: com.wire.internal; className: android.widget.EditText; text: ; error: null; maxTextLength: 8000; stateDescription: null; contentDescription: null; tooltipText: null; viewIdResName: userIdentifierInput; checkable: false; checked: false; focusable: true; focused: true; selected: false; clickable: true; longClickable: true; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: true; visible: true; actions: [AccessibilityAction: ACTION_CLEAR_FOCUS - null, AccessibilityAction: ACTION_NEXT_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_CLICK - null, AccessibilityAction: ACTION_LONG_CLICK - null, AccessibilityAction: ACTION_SET_TEXT - null, AccessibilityAction: ACTION_IME_ENTER - null, AccessibilityAction: ACTION_PASTE - null, AccessibilityAction: ACTION_SET_SELECTION - null]]
+02-19 10:20:20.503  8040  8055 D UiObject: Setting text to 'heidenreichehlasutnll@wire.engineering'.
+02-19 10:20:20.512  8040  8055 D UiDevice: Waiting 10000ms for SearchCondition[hasObject=BySelector [RES='\QloginButton\E']].
+02-19 10:20:20.512  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\QloginButton\E'].
+02-19 10:20:20.578  8040  8055 D UiDevice: Retrieving node with selector: BySelector [RES='\QloginButton\E'].
+02-19 10:20:20.713  8040  8055 D UiDevice: Retrieving node with selector: BySelector [RES='\QloginButton\E'].
+02-19 10:20:20.747  8040  8055 D UiObject2: Clicking on (540, 1108).
+02-19 10:20:20.794  8040  8055 W GestureController: Gestures took longer than expected (47ms >> 16ms), device might be in a busy state.
+02-19 10:20:20.794  8040  8055 D UiDevice: Waiting 10000ms for SearchCondition[hasObject=BySelector [RES='\QPasswordInput\E']].
+02-19 10:20:20.795  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\QPasswordInput\E'].
+02-19 10:20:21.702  8040  8055 D UiDevice: Retrieving node with selector: BySelector [RES='\QPasswordInput\E'].
+02-19 10:20:21.872  8040  8055 D UiDevice: Retrieving node with selector: BySelector [RES='\QPasswordInput\E'].
+02-19 10:20:21.945  8040  8055 D UiObject2: Clicking on (540, 1526).
+02-19 10:20:21.993  8040  8055 W GestureController: Gestures took longer than expected (47ms >> 16ms), device might be in a busy state.
+02-19 10:20:22.019  8040  8055 D UiObject2: Setting text to 'HJ3Dacn@'.
+02-19 10:20:22.027  8040  8055 D UiDevice: Waiting 10000ms for SearchCondition[hasObject=BySelector [RES='\QloginButton\E']].
+02-19 10:20:22.028  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\QloginButton\E'].
+02-19 10:20:22.713  8040  8055 D UiDevice: Retrieving node with selector: BySelector [RES='\QloginButton\E'].
+02-19 10:20:22.869  8040  8055 D UiDevice: Retrieving node with selector: BySelector [RES='\QloginButton\E'].
+02-19 10:20:22.933  8040  8055 D UiObject2: Clicking on (540, 995).
+02-19 10:20:22.994  8040  8055 W GestureController: Gestures took longer than expected (60ms >> 16ms), device might be in a busy state.
+02-19 10:20:22.994  8040  8055 D UiObject: Waiting 0ms for UiSelector[RESOURCE_ID=loginButton].
+02-19 10:20:23.007  8040  8055 I QueryController: Matched selector: UiSelector[RESOURCE_ID=loginButton] <<==>> [android.view.accessibility.AccessibilityNodeInfo@b18c; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(66, 929 - 1014, 1061); packageName: com.wire.internal; className: android.view.View; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; viewIdResName: loginButton; checkable: false; checked: false; focusable: true; focused: false; selected: false; clickable: true; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: true; visible: true; actions: [AccessibilityAction: ACTION_FOCUS - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_CLICK - null]]
+02-19 10:20:23.508  8040  8055 D UiObject: Waiting 0ms for UiSelector[RESOURCE_ID=loginButton].
+02-19 10:20:23.920  8040  8055 I QueryController: Matched selector: UiSelector[RESOURCE_ID=loginButton] <<==>> [android.view.accessibility.AccessibilityNodeInfo@b18c; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(66, 929 - 1014, 1061); packageName: com.wire.internal; className: android.view.View; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; viewIdResName: loginButton; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: true; longClickable: false; contextClickable: false; enabled: false; password: false; scrollable: false; importantForAccessibility: true; visible: true; actions: [AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null]]
+02-19 10:20:24.421  8040  8055 D UiObject: Waiting 0ms for UiSelector[RESOURCE_ID=loginButton].
+02-19 10:20:24.427  8040  8055 I QueryController: Matched selector: UiSelector[RESOURCE_ID=loginButton] <<==>> [android.view.accessibility.AccessibilityNodeInfo@b18c; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(66, 929 - 1014, 1061); packageName: com.wire.internal; className: android.view.View; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; viewIdResName: loginButton; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: true; longClickable: false; contextClickable: false; enabled: false; password: false; scrollable: false; importantForAccessibility: true; visible: true; actions: [AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null]]
+02-19 10:20:24.928  8040  8055 D UiObject: Waiting 0ms for UiSelector[RESOURCE_ID=loginButton].
+02-19 10:20:24.976  8040  8055 I QueryController: Matched selector: UiSelector[RESOURCE_ID=loginButton] <<==>> [android.view.accessibility.AccessibilityNodeInfo@b18c; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(66, 929 - 1014, 1061); packageName: com.wire.internal; className: android.view.View; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; viewIdResName: loginButton; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: true; longClickable: false; contextClickable: false; enabled: false; password: false; scrollable: false; importantForAccessibility: true; visible: true; actions: [AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null]]
+02-19 10:20:25.477  8040  8055 D UiObject: Waiting 0ms for UiSelector[RESOURCE_ID=loginButton].
+02-19 10:20:25.486  8040  8055 I QueryController: Matched selector: UiSelector[RESOURCE_ID=loginButton] <<==>> [android.view.accessibility.AccessibilityNodeInfo@b18c; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(66, 929 - 1014, 1061); packageName: com.wire.internal; className: android.view.View; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; viewIdResName: loginButton; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: true; longClickable: false; contextClickable: false; enabled: false; password: false; scrollable: false; importantForAccessibility: true; visible: true; actions: [AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null]]
+02-19 10:20:25.987  8040  8055 D UiObject: Waiting 0ms for UiSelector[RESOURCE_ID=loginButton].
+02-19 10:20:25.996  8040  8055 I QueryController: Matched selector: UiSelector[RESOURCE_ID=loginButton] <<==>> [android.view.accessibility.AccessibilityNodeInfo@b18c; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(66, 929 - 1014, 1061); packageName: com.wire.internal; className: android.view.View; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; viewIdResName: loginButton; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: true; longClickable: false; contextClickable: false; enabled: false; password: false; scrollable: false; importantForAccessibility: true; visible: true; actions: [AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null]]
+02-19 10:20:26.497  8040  8055 D UiObject: Waiting 0ms for UiSelector[RESOURCE_ID=loginButton].
+02-19 10:20:26.503  8040  8055 I QueryController: Matched selector: UiSelector[RESOURCE_ID=loginButton] <<==>> [android.view.accessibility.AccessibilityNodeInfo@b18c; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(66, 929 - 1014, 1061); packageName: com.wire.internal; className: android.view.View; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; viewIdResName: loginButton; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: true; longClickable: false; contextClickable: false; enabled: false; password: false; scrollable: false; importantForAccessibility: true; visible: true; actions: [AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null]]
+02-19 10:20:27.004  8040  8055 D UiObject: Waiting 0ms for UiSelector[RESOURCE_ID=loginButton].
+02-19 10:20:27.062  8040  8055 I QueryController: Matched selector: UiSelector[RESOURCE_ID=loginButton] <<==>> [android.view.accessibility.AccessibilityNodeInfo@b18c; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(66, 929 - 1014, 1061); packageName: com.wire.internal; className: android.view.View; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; viewIdResName: loginButton; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: true; longClickable: false; contextClickable: false; enabled: false; password: false; scrollable: false; importantForAccessibility: true; visible: true; actions: [AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null]]
+02-19 10:20:27.563  8040  8055 D UiObject: Waiting 0ms for UiSelector[RESOURCE_ID=loginButton].
+02-19 10:20:27.568  8040  8055 I QueryController: Matched selector: UiSelector[RESOURCE_ID=loginButton] <<==>> [android.view.accessibility.AccessibilityNodeInfo@b18c; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(66, 929 - 1014, 1061); packageName: com.wire.internal; className: android.view.View; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; viewIdResName: loginButton; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: true; longClickable: false; contextClickable: false; enabled: false; password: false; scrollable: false; importantForAccessibility: true; visible: true; actions: [AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null]]
+02-19 10:20:28.069  8040  8055 D UiObject: Waiting 0ms for UiSelector[RESOURCE_ID=loginButton].
+02-19 10:20:28.074  8040  8055 I QueryController: Matched selector: UiSelector[RESOURCE_ID=loginButton] <<==>> [android.view.accessibility.AccessibilityNodeInfo@b18c; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(66, 929 - 1014, 1061); packageName: com.wire.internal; className: android.view.View; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; viewIdResName: loginButton; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: true; longClickable: false; contextClickable: false; enabled: false; password: false; scrollable: false; importantForAccessibility: true; visible: true; actions: [AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null]]
+02-19 10:20:28.574  8040  8055 D UiObject: Waiting 0ms for UiSelector[RESOURCE_ID=loginButton].
+02-19 10:20:28.580  8040  8055 I QueryController: Matched selector: UiSelector[RESOURCE_ID=loginButton] <<==>> [android.view.accessibility.AccessibilityNodeInfo@b18c; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(66, 929 - 1014, 1061); packageName: com.wire.internal; className: android.view.View; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; viewIdResName: loginButton; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: true; longClickable: false; contextClickable: false; enabled: false; password: false; scrollable: false; importantForAccessibility: true; visible: true; actions: [AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null]]
+02-19 10:20:29.081  8040  8055 D UiObject: Waiting 0ms for UiSelector[RESOURCE_ID=loginButton].
+02-19 10:20:29.118  8040  8055 I QueryController: Matched selector: UiSelector[RESOURCE_ID=loginButton] <<==>> [android.view.accessibility.AccessibilityNodeInfo@b18c; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(66, 929 - 1014, 1061); packageName: com.wire.internal; className: android.view.View; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; viewIdResName: loginButton; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: true; longClickable: false; contextClickable: false; enabled: false; password: false; scrollable: false; importantForAccessibility: true; visible: true; actions: [AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null]]
+02-19 10:20:29.619  8040  8055 D UiObject: Waiting 0ms for UiSelector[RESOURCE_ID=loginButton].
+02-19 10:20:29.624  8040  8055 I QueryController: Matched selector: UiSelector[RESOURCE_ID=loginButton] <<==>> [android.view.accessibility.AccessibilityNodeInfo@b18c; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(66, 929 - 1014, 1061); packageName: com.wire.internal; className: android.view.View; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; viewIdResName: loginButton; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: true; longClickable: false; contextClickable: false; enabled: false; password: false; scrollable: false; importantForAccessibility: true; visible: true; actions: [AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null]]
+02-19 10:20:30.125  8040  8055 D UiObject: Waiting 0ms for UiSelector[RESOURCE_ID=loginButton].
+02-19 10:20:30.137  8040  8055 I QueryController: Matched selector: UiSelector[RESOURCE_ID=loginButton] <<==>> [android.view.accessibility.AccessibilityNodeInfo@b18c; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(66, 929 - 1014, 1061); packageName: com.wire.internal; className: android.view.View; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; viewIdResName: loginButton; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: true; longClickable: false; contextClickable: false; enabled: false; password: false; scrollable: false; importantForAccessibility: true; visible: true; actions: [AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null]]
+02-19 10:20:30.638  8040  8055 D UiObject: Waiting 0ms for UiSelector[RESOURCE_ID=loginButton].
+02-19 10:20:30.988  8040  8055 D UiObject: Waiting 0ms for UiSelector[TEXT=Setting up Wire, CLASS=android.widget.TextView].
+02-19 10:20:30.992  8040  8055 I QueryController: Matched selector: UiSelector[TEXT=Setting up Wire, CLASS=android.widget.TextView] <<==>> [android.view.accessibility.AccessibilityNodeInfo@b607; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(368, 136 - 700, 194); packageName: com.wire.internal; className: android.widget.TextView; text: Setting up Wire; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; viewIdResName: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: true; visible: true; actions: [AccessibilityAction: ACTION_NEXT_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SET_SELECTION - null]]
+02-19 10:20:31.494  8040  8055 D UiObject: Waiting 0ms for UiSelector[TEXT=Setting up Wire, CLASS=android.widget.TextView].
+02-19 10:20:31.508  8040  8055 I QueryController: Matched selector: UiSelector[TEXT=Setting up Wire, CLASS=android.widget.TextView] <<==>> [android.view.accessibility.AccessibilityNodeInfo@b607; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(368, 136 - 700, 194); packageName: com.wire.internal; className: android.widget.TextView; text: Setting up Wire; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; viewIdResName: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: true; visible: true; actions: [AccessibilityAction: ACTION_NEXT_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SET_SELECTION - null]]
+02-19 10:20:32.009  8040  8055 D UiObject: Waiting 0ms for UiSelector[TEXT=Setting up Wire, CLASS=android.widget.TextView].
+02-19 10:20:32.017  8040  8055 I QueryController: Matched selector: UiSelector[TEXT=Setting up Wire, CLASS=android.widget.TextView] <<==>> [android.view.accessibility.AccessibilityNodeInfo@b607; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(368, 136 - 700, 194); packageName: com.wire.internal; className: android.widget.TextView; text: Setting up Wire; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; viewIdResName: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: true; visible: true; actions: [AccessibilityAction: ACTION_NEXT_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SET_SELECTION - null]]
+02-19 10:20:32.519  8040  8055 D UiObject: Waiting 0ms for UiSelector[TEXT=Setting up Wire, CLASS=android.widget.TextView].
+02-19 10:20:32.526  8040  8055 I QueryController: Matched selector: UiSelector[TEXT=Setting up Wire, CLASS=android.widget.TextView] <<==>> [android.view.accessibility.AccessibilityNodeInfo@b607; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(368, 136 - 700, 194); packageName: com.wire.internal; className: android.widget.TextView; text: Setting up Wire; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; viewIdResName: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: true; visible: true; actions: [AccessibilityAction: ACTION_NEXT_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SET_SELECTION - null]]
+02-19 10:20:33.027  8040  8055 D UiObject: Waiting 0ms for UiSelector[TEXT=Setting up Wire, CLASS=android.widget.TextView].
+02-19 10:20:33.641  8040  8055 D UiDevice: Waiting 10000ms for SearchCondition[hasObject=BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E']].
+02-19 10:20:33.641  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:34.371  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:34.498  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:34.635  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:34.776  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:34.923  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:35.075  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:35.226  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:35.372  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:35.508  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:35.647  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:35.818  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:35.968  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:36.121  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:36.264  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:36.409  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:36.555  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:36.694  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:36.833  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:36.966  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:37.110  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:37.254  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:37.410  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:37.555  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:37.687  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:37.864  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:38.011  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:38.152  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:38.298  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:38.447  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:38.588  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:38.744  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:38.896  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:39.046  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:39.192  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:39.336  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:39.486  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:39.633  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:39.780  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:39.958  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:40.106  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:40.251  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:40.396  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:40.535  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:40.678  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:40.812  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:40.931  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:41.052  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:41.173  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:41.292  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:41.410  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:41.546  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:41.674  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:41.800  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:41.937  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:42.058  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:42.187  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:42.311  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:42.444  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:42.590  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:42.731  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:42.886  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:43.032  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:43.164  8040  8055 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-19 10:20:43.762  8040  8055 I TeamClient: 10:20:43 INFO [561] (TeamsExte) Accepted 
+02-19 10:20:43.988  8040  8055 I TeamClient: 10:20:43 INFO [561] (TeamsExte) Accepted 
+02-19 10:20:43.989  8040  8055 D UiDevice: Executing shell command: ls /sdcard/Download
+02-19 10:20:44.131  8040  8055 I System.out: No files found containing 'File'
+02-19 10:20:44.133  8040  8055 I AllureFailureScreenshotRule: Taking failure screenshot for givenUserInAnotherTeam_whenFileIsSent_thenRecipientCanReceivePlayAndDownloadIt(com.wire.android.tests.core.criticalFlows.FileSharingBetweenTeams)
+02-19 10:20:44.136  8040  8055 D UiDevice: Taking screenshot (scale=1,000000, quality=80) and storing at /data/user/0/com.wire.android.tests.testsCore.test/cache/screenshot1981151636566805518.tmp.

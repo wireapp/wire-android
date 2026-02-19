@@ -379,7 +379,6 @@ jobs:
           def normalize_direct(s: str):
             s = s.strip()
             if s.startswith("s3://"):
-              # s3://bucket/key...
               parts = s.split("/", 3)
               return parts[3] if len(parts) >= 4 else ""
             return s.lstrip("/")
@@ -387,7 +386,6 @@ jobs:
           new_key = None
           old_key = None
 
-          # Direct .apk input: allow s3://..., key..., or filename.apk
           if app_build.lower().endswith(".apk"):
             direct = normalize_direct(app_build)
             if "/" in direct:
@@ -433,7 +431,6 @@ jobs:
           print(f"OLD_BUILD_NUMBER={build_label(old_name) if old_name else ''}")
           PY
 
-          # Make vars available now + future steps
           set -a
           source "${RUNNER_TEMP}/apk_env.txt"
           set +a
@@ -514,7 +511,6 @@ jobs:
             ADB="adb -s ${SERIAL}"
             ${ADB} wait-for-device
 
-            # Clean baseline: uninstall known package ids if present
             INSTALLED="$(${ADB} shell pm list packages || true)"
             for pkg in "${PACKAGES[@]}"; do
               if echo "${INSTALLED}" | grep -qx "package:${pkg}"; then
@@ -556,9 +552,9 @@ jobs:
 
           chmod +x ./gradlew
 
-          # (A) Store the real secrets file in RUNNER_TEMP, and only symlink it into the repo root
           : "${RUNNER_TEMP:?RUNNER_TEMP not set}"
           SECRETS_JSON_PATH="${RUNNER_TEMP}/secrets.json"
+          export SECRETS_JSON_PATH   # <<< FIX: make it visible to python in this same step
           echo "SECRETS_JSON_PATH=${SECRETS_JSON_PATH}" >> "$GITHUB_ENV"
 
           python3 - <<'PY'
@@ -613,12 +609,10 @@ jobs:
           test -s "${SECRETS_JSON_PATH}"
           chmod 600 "${SECRETS_JSON_PATH}"
 
-          # Keep existing build behavior: Gradle expects ./secrets.json at repo root
           rm -f "secrets.json" || true
           ln -s "${SECRETS_JSON_PATH}" "secrets.json"
           chmod 600 "secrets.json" || true
 
-          # Extra safety: prevent accidental staging in this job (local-only; does not change repo)
           mkdir -p .git/info
           grep -qxF "secrets.json" .git/info/exclude 2>/dev/null || echo "secrets.json" >> .git/info/exclude
 
@@ -662,7 +656,6 @@ jobs:
             NUM_SHARDS="1"
           fi
 
-          # (C) Put all per-device Gradle homes under a single run-scoped folder, so we can delete it safely in cleanup
           GRADLE_USER_HOME_BASE="${RUNNER_TEMP}/gradle-${GITHUB_RUN_ID}"
           echo "GRADLE_USER_HOME_BASE=${GRADLE_USER_HOME_BASE}" >> "$GITHUB_ENV"
           mkdir -p "${GRADLE_USER_HOME_BASE}"
@@ -787,7 +780,7 @@ jobs:
               labels.append({"name": name, "value": value})
               data["labels"] = labels
               return data
-          
+
           def add_parameter(data: dict, name: str, value: str) -> dict:
               params = [p for p in data.get("parameters", []) if p.get("name") != name]
               params.append({"name": name, "value": value})
@@ -1013,8 +1006,6 @@ jobs:
           rm -rf "${RUNNER_TEMP}/allure-results-merged" || true
           rm -rf "${RUNNER_TEMP}/allure-report" || true
 
-          # (C) Remove per-run, per-device Gradle homes (can contain cached build outputs)
           rm -rf "${GRADLE_USER_HOME_BASE:-}" || true
 
-          # Remove build outputs (these can contain BuildConfig secrets) but keep Gradle caches
           git clean -ffdx -e .gradle -e .kotlin

@@ -3,7 +3,7 @@ name: "Main Push"
 on:
   push:
     branches:
-      - main
+      - ms/main-test
 
 permissions:
   contents: write
@@ -28,17 +28,8 @@ jobs:
             "build-type": "both",
             "generate-version-file": false,
             "deployment-targets": [
-              {
-                "type": "s3"
-              },
-              {
-                "type": "google-play",
-                "package-name": "com.wire.android.internal",
-                "track": "${{ vars.BETA_APP_TRACK_INTERNAL }}",
-                "status": "completed"
-              }
             ]
           }
         ]
-      enable-deployment: true
+      enable-deployment: false
     secrets: inherit

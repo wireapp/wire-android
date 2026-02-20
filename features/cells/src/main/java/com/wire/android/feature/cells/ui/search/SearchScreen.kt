@@ -143,7 +143,7 @@ fun SearchScreen(
                     )
                     FilterChipsRow(
                         shouldPlayHint = playScrollHint,
-                        isSharedByLinkSelected = uiState.isSharedByMe,
+                        isSharedByLinkSelected = uiState.filesWithPublicLink,
                         tagsCount = uiState.tagsCount,
                         typeCount = uiState.typeCount,
                         ownerCount = uiState.ownerCount,

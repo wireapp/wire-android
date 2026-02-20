@@ -31,7 +31,7 @@ data class SearchUiState(
     val showFilterByTags: Boolean = false,
     val showFilterByOwner: Boolean = false,
 
-    val isSharedByMe: Boolean = false,
+    val filesWithPublicLink: Boolean = false,
 
     val isSearchActive: Boolean = true,
 ) {
@@ -40,5 +40,5 @@ data class SearchUiState(
     val ownerCount: Int get() = availableOwners.count { it.selected }
 
     val hasAnyFilter: Boolean
-        get() = tagsCount > 0 || typeCount > 0 || ownerCount > 0 || isSharedByMe
+        get() = tagsCount > 0 || typeCount > 0 || ownerCount > 0 || filesWithPublicLink
 }

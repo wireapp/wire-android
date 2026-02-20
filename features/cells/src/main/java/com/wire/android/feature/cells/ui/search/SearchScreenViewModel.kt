@@ -29,7 +29,6 @@ import com.wire.android.feature.cells.ui.navArgs
 import com.wire.android.feature.cells.ui.search.filter.data.FilterOwnerUi
 import com.wire.android.feature.cells.ui.search.filter.data.FilterTagUi
 import com.wire.android.feature.cells.ui.search.filter.data.FilterTypeUi
-import com.wire.android.feature.cells.ui.search.SearchUiState
 import com.wire.android.model.ImageAsset
 import com.wire.kalium.cells.data.MIMEType
 import com.wire.kalium.cells.domain.model.Node
@@ -69,7 +68,7 @@ class SearchScreenViewModel @Inject constructor(
         val tagIds: List<String>,
         val ownerIds: List<String>,
         val mimeTypes: List<MIMEType>,
-        val sharedByMe: Boolean,
+        val filesWithPublicLink: Boolean?,
     )
 
     private val navArgs: SearchNavArgs = savedStateHandle.navArgs()
@@ -89,7 +88,7 @@ class SearchScreenViewModel @Inject constructor(
                 tagIds = state.availableTags.filter { it.selected }.map { it.id },
                 ownerIds = state.availableOwners.filter { it.selected }.map { it.id },
                 mimeTypes = state.availableTypes.filter { it.selected }.map { it.mimeType },
-                sharedByMe = state.isSharedByMe
+                filesWithPublicLink = state.filesWithPublicLink
             )
         }.distinctUntilChanged()
 
@@ -102,6 +101,7 @@ class SearchScreenViewModel @Inject constructor(
                 tags = params.tagIds,
                 owners = params.ownerIds,
                 mimeTypes = params.mimeTypes,
+                hasPublicLink = params.filesWithPublicLink
             ).map { pagingData ->
                 pagingData.map { node ->
                     if (uiState.value.availableOwners.isEmpty()) {
@@ -240,7 +240,7 @@ class SearchScreenViewModel @Inject constructor(
 
 
     fun onSharedByMeClicked() {
-        _uiState.update { it.copy(isSharedByMe = !it.isSharedByMe) }
+        _uiState.update { it.copy(filesWithPublicLink = !it.filesWithPublicLink ) }
     }
 
     private fun applySelectedOwners(selectedIds: Set<String>) {
@@ -267,6 +267,6 @@ class SearchScreenViewModel @Inject constructor(
         onRemoveAllTags()
         onRemoveOwners()
         onRemoveTypeFilter()
-        it.copy(isSharedByMe = false)
+        it.copy(filesWithPublicLink = false)
     }
 }

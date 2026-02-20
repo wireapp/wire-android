@@ -65,12 +65,55 @@ class TestServiceHelper(
         }
     }
 
+//    fun getSelfDeletingMessageTimeout(userAlias: String, conversationName: String): Duration {
+//        val user = usersManager.findUserByNameOrNameAlias(userAlias)
+//
+//        // Only team users support enforced self-deleting messages
+//        user.teamId?.let {
+//            val settings = BackendClient.loadBackend(user.backendName.orEmpty()).getSelfDeletingMessagesSettings(user)
+//
+//            if (settings.getString("status") == "enabled") {
+//                val timeoutInSeconds = settings
+//                    .getJSONObject("config")
+//                    .getInt("enforcedTimeoutSeconds")
+//
+//                if (timeoutInSeconds != 0) {
+//                    // Timeout value is enforced in team settings
+//                    return Duration.ofSeconds(timeoutInSeconds.toLong())
+//                }
+//            } else {
+//                // Timeout is disabled
+//                return Duration.ZERO
+//            }
+//        }
+//
+//        // Personal user or team user without set enforced self-deleting message setting
+//
+//        val resolvedConversationName = usersManager.replaceAliasesOccurrences(
+//            conversationName,
+//            ClientUserManager.FindBy.NAME_ALIAS
+//        )
+//
+//      //  val messageTimerMillis = toConvoObjPersonal(user, resolvedConversationName).messageTimerInMilliseconds
+//        val messageTimerMillis = toConvoObj(user, resolvedConversationName).messageTimerInMilliseconds
+//        if (messageTimerMillis > 0) {
+//            return Duration.ofMillis(messageTimerMillis.toLong())
+//        }
+//
+//        // Otherwise check for local/client-side self-deleting message timeout
+//        return Duration.ofSeconds(Long.MAX_VALUE)
+//    }
+
+
+
     fun getSelfDeletingMessageTimeout(userAlias: String, conversationName: String): Duration {
         val user = usersManager.findUserByNameOrNameAlias(userAlias)
 
         // Only team users support enforced self-deleting messages
         user.teamId?.let {
-            val settings = BackendClient.loadBackend(user.backendName.orEmpty()).getSelfDeletingMessagesSettings(user)
+            val settings = BackendClient
+                .loadBackend(user.backendName.orEmpty())
+                .getSelfDeletingMessagesSettings(user)
 
             if (settings.getString("status") == "enabled") {
                 val timeoutInSeconds = settings
@@ -87,21 +130,60 @@ class TestServiceHelper(
             }
         }
 
-        // Personal user or team user without set enforced self-deleting message setting
-
+        // Personal user or team user without enforced setting
         val resolvedConversationName = usersManager.replaceAliasesOccurrences(
             conversationName,
             ClientUserManager.FindBy.NAME_ALIAS
         )
 
-        val messageTimerMillis = toConvoObjPersonal(user, resolvedConversationName).messageTimerInMilliseconds
-        if (messageTimerMillis > 0) {
-            return Duration.ofMillis(messageTimerMillis.toLong())
+        val conversationMessageTimerMillis = getConversationMessageTimer(user, resolvedConversationName)
+        if (conversationMessageTimerMillis > 0) {
+            return Duration.ofMillis(conversationMessageTimerMillis.toLong())
         }
 
-        // Otherwise check for local/client-side self-deleting message timeout
-        return Duration.ofSeconds(Long.MAX_VALUE)
+        return getLocalSelfDeletingMessageTimeout(userAlias, resolvedConversationName)
     }
+
+    /**
+     * Java equivalent of getConversationMessageTimer(user, conversationName),
+     * but implemented safely for Kotlin:
+     * - If conversationName points to a USER => personal convo lookup
+     * - Otherwise => group convo lookup
+     */
+    private fun getConversationMessageTimer(user: ClientUser, conversationName: String): Int {
+        val isPersonalConversationName = runCatching {
+            // If this succeeds, conversationName is a user name/alias (1:1 style like "user4Name")
+            usersManager.findUserByNameOrNameAlias(conversationName)
+        }.isSuccess
+
+        val conversation = if (isPersonalConversationName) {
+            // Personal first, fallback to group just in case
+            runCatching { toConvoObjPersonal(user, conversationName) }
+                .recoverCatching { toConvoObj(user, conversationName) }
+                .getOrThrow()
+        } else {
+            // Group first, fallback to personal just in case
+            runCatching { toConvoObj(user, conversationName) }
+                .recoverCatching { toConvoObjPersonal(user, conversationName) }
+                .getOrThrow()
+        }
+
+        return conversation.messageTimerInMilliseconds
+    }
+
+    /**
+     * Java equivalent of getLocalSelfDeletingMessageTimeout(...).
+     *
+     * CRITICAL:
+     * - Do NOT use Long.MAX_VALUE (it can overflow to -1 in your HTTP layer)
+     * - Do NOT use Duration.ZERO if your sendFile treats 0 as "expire immediately"
+     *
+     * This value is "effectively never" for tests AND safe even if converted to Int milliseconds.
+     */
+    private fun getLocalSelfDeletingMessageTimeout(userAlias: String, conversationName: String): Duration {
+        return Duration.ofMillis(Int.MAX_VALUE.toLong()) // ~24.8 days, safe int millis
+    }
+
 
     fun contactSendsLocalAudioPersonalMLSConversation(
         context: Context,
@@ -141,9 +223,9 @@ class TestServiceHelper(
         dstConvoName: String
     ) {
         val audio = getRawResourceAsFile(context, R.raw.test, fileName)
-        val conversation = toConvoObj(senderAlias, dstConvoName) // ✅ calls alias overload
+        val conversation = toConvoObj(toClientUser(senderAlias), dstConvoName)
 
-        if (audio?.exists() != true) {
+            if (audio?.exists() != true) {
             throw Exception("Audio file not found")
         }
 
@@ -278,9 +360,6 @@ class TestServiceHelper(
         val backend = BackendClient.loadBackend(owner.backendName.orEmpty())
         return backend.getPersonalConversationByName(owner, convoName)
     }
-
-    fun toConvoObj(ownerAlias: String, convoName: String): Conversation =
-        toConvoObj(toClientUser(ownerAlias), convoName)
 
     fun toConvoObj(owner: ClientUser, convoName: String): Conversation {
         val convoName = usersManager.replaceAliasesOccurrences(convoName, ClientUserManager.FindBy.NAME_ALIAS)

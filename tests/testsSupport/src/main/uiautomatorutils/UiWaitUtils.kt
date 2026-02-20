@@ -229,69 +229,69 @@ object UiWaitUtils {
     }
 
 
-//    fun assertToastDisplayed(text: String, trigger: () -> Unit, timeoutMs: Long = 5_000L) {
-//        var toastDisplayed = false
-//        val startTimeMs = System.currentTimeMillis()
-//
-//        val uiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation
-//
-//        uiAutomation.setOnAccessibilityEventListener { event ->
-//            if (event.eventType == AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED) {
-//                val className = event.className?.toString().orEmpty()
-//                val eventText = event.text?.joinToString(" ").orEmpty()
-//
-//                if (className.contains("android.widget.Toast") && eventText.contains(text, ignoreCase = true)) {
-//                    toastDisplayed = true
-//                }
-//            }
-//        }
-//
-//        try {
-//            // IMPORTANT: trigger AFTER listener is set
-//            trigger()
-//
-//            while (!toastDisplayed && System.currentTimeMillis() - startTimeMs < timeoutMs) {
-//                Thread.sleep(50)
-//            }
-//
-//            assertTrue("Toast with text '$text' not found within ${timeoutMs}ms", toastDisplayed)
-//        } finally {
-//            uiAutomation.setOnAccessibilityEventListener(null)
-//        }
+    fun assertToastDisplayed(text: String, trigger: () -> Unit, timeoutMs: Long = 5_000L) {
+        var toastDisplayed = false
+        val startTimeMs = System.currentTimeMillis()
 
-    fun assertToastDisplayed(
-        text: String,
-        timeoutMs: Long = 5_000L,
-        trigger: () -> Unit
-    ) {
-        var found = false
-        val deadline = System.currentTimeMillis() + timeoutMs
         val uiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation
 
         uiAutomation.setOnAccessibilityEventListener { event ->
-            if (event.eventType == AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED &&
-                event.className?.toString() == "android.widget.Toast" &&
-                event.text.joinToString(" ").contains(text)
-            ) {
-                found = true
+            if (event.eventType == AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED) {
+                val className = event.className?.toString().orEmpty()
+                val eventText = event.text?.joinToString(" ").orEmpty()
+
+                if (className.contains("android.widget.Toast") && eventText.contains(text, ignoreCase = true)) {
+                    toastDisplayed = true
+                }
             }
         }
 
         try {
-            // Trigger action AFTER listener is active
+            // IMPORTANT: trigger AFTER listener is set
             trigger()
 
-            while (!found && System.currentTimeMillis() < deadline) {
-                SystemClock.sleep(50)
+            while (!toastDisplayed && System.currentTimeMillis() - startTimeMs < timeoutMs) {
+                Thread.sleep(50)
             }
 
-            assertTrue(
-                "Toast with text '$text' was not displayed",
-                found
-            )
+            assertTrue("Toast with text '$text' not found within ${timeoutMs}ms", toastDisplayed)
         } finally {
             uiAutomation.setOnAccessibilityEventListener(null)
         }
-    }
 
-}
+//        fun assertToastDisplayed(
+//            text: String,
+//            timeoutMs: Long = 5_000L,
+//            trigger: () -> Unit
+//        ) {
+//            var found = false
+//            val deadline = System.currentTimeMillis() + timeoutMs
+//            val uiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation
+//
+//            uiAutomation.setOnAccessibilityEventListener { event ->
+//                if (event.eventType == AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED &&
+//                    event.className?.toString() == "android.widget.Toast" &&
+//                    event.text.joinToString(" ").contains(text)
+//                ) {
+//                    found = true
+//                }
+//            }
+//
+//            try {
+//                // Trigger action AFTER listener is active
+//                trigger()
+//
+//                while (!found && System.currentTimeMillis() < deadline) {
+//                    SystemClock.sleep(50)
+//                }
+//
+//                assertTrue(
+//                    "Toast with text '$text' was not displayed",
+//                    found
+//                )
+//            } finally {
+//                uiAutomation.setOnAccessibilityEventListener(null)
+//            }
+        }
+
+    }

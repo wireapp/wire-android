@@ -23,13 +23,14 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
+import com.ramcosta.composedestinations.generated.cells.navArgs
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.toUiModel
-import com.wire.android.feature.cells.ui.navArgs
 import com.wire.android.feature.cells.ui.search.filter.data.FilterOwnerUi
 import com.wire.android.feature.cells.ui.search.filter.data.FilterTagUi
 import com.wire.android.feature.cells.ui.search.filter.data.FilterTypeUi
 import com.wire.android.model.ImageAsset
+import com.wire.kalium.cells.data.FileFilters
 import com.wire.kalium.cells.data.MIMEType
 import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
@@ -48,7 +49,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -73,6 +73,8 @@ class SearchScreenViewModel @Inject constructor(
 
     private val navArgs: SearchNavArgs = savedStateHandle.navArgs()
 
+//    private val navArgs: SearchNavArgs = SearchScreenDestination.argsFrom(savedStateHandle)
+
     private val _uiState = MutableStateFlow(SearchUiState())
     val uiState: StateFlow<SearchUiState> = _uiState.asStateFlow()
 
@@ -92,16 +94,17 @@ class SearchScreenViewModel @Inject constructor(
             )
         }.distinctUntilChanged()
 
-
     val cellNodesFlow: Flow<PagingData<CellNodeUi>> =
         searchParamsFlow.flatMapLatest { params ->
             getCellFilesPaged(
                 conversationId = navArgs.conversationId,
                 query = params.query,
-                tags = params.tagIds,
-                owners = params.ownerIds,
-                mimeTypes = params.mimeTypes,
-                hasPublicLink = params.filesWithPublicLink
+                fileFilters = FileFilters(
+                    tags = params.tagIds,
+                    owners = params.ownerIds,
+                    mimeTypes = params.mimeTypes,
+                    hasPublicLink = params.filesWithPublicLink
+                ),
             ).map { pagingData ->
                 pagingData.map { node ->
                     if (uiState.value.availableOwners.isEmpty()) {
@@ -240,7 +243,7 @@ class SearchScreenViewModel @Inject constructor(
 
 
     fun onSharedByMeClicked() {
-        _uiState.update { it.copy(filesWithPublicLink = !it.filesWithPublicLink ) }
+        _uiState.update { it.copy(filesWithPublicLink = !it.filesWithPublicLink) }
     }
 
     private fun applySelectedOwners(selectedIds: Set<String>) {

@@ -48,10 +48,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.wire.android.feature.cells.R
-import com.wire.android.feature.cells.domain.model.AttachmentFileType
-import com.wire.android.feature.cells.ui.create.FileTypeBottomSheetDialog
-import com.wire.android.feature.cells.ui.create.file.CreateFileScreenNavArgs
 import com.ramcosta.composedestinations.generated.cells.destinations.AddRemoveTagsScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesWithSlideInTransitionScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.CreateFileScreenDestination
@@ -60,7 +56,12 @@ import com.ramcosta.composedestinations.generated.cells.destinations.MoveToFolde
 import com.ramcosta.composedestinations.generated.cells.destinations.PublicLinkScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.RecycleBinScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.RenameNodeScreenDestination
+import com.ramcosta.composedestinations.generated.cells.destinations.SearchScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.VersionHistoryScreenDestination
+import com.wire.android.feature.cells.R
+import com.wire.android.feature.cells.domain.model.AttachmentFileType
+import com.wire.android.feature.cells.ui.create.FileTypeBottomSheetDialog
+import com.wire.android.feature.cells.ui.create.file.CreateFileScreenNavArgs
 import com.wire.android.feature.cells.ui.dialog.CellsNewActionBottomSheet
 import com.wire.android.feature.cells.ui.dialog.CellsOptionsBottomSheet
 import com.wire.android.feature.cells.ui.model.CellNodeUi

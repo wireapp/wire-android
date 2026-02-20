@@ -41,23 +41,23 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
+import com.ramcosta.composedestinations.generated.cells.destinations.AddRemoveTagsScreenDestination
+import com.ramcosta.composedestinations.generated.cells.destinations.MoveToFolderScreenDestination
+import com.ramcosta.composedestinations.generated.cells.destinations.PublicLinkScreenDestination
+import com.ramcosta.composedestinations.generated.cells.destinations.RenameNodeScreenDestination
+import com.ramcosta.composedestinations.generated.cells.destinations.VersionHistoryScreenDestination
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.CellScreenContent
 import com.wire.android.feature.cells.ui.CellViewModel
 import com.wire.android.feature.cells.ui.LocalSharedTransitionScope
-import com.wire.android.feature.cells.ui.destinations.AddRemoveTagsScreenDestination
-import com.wire.android.feature.cells.ui.destinations.MoveToFolderScreenDestination
-import com.wire.android.feature.cells.ui.destinations.PublicLinkScreenDestination
-import com.wire.android.feature.cells.ui.destinations.RenameNodeScreenDestination
-import com.wire.android.feature.cells.ui.destinations.VersionHistoryScreenDestination
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.search.filter.FilterChipsRow
+import com.wire.android.feature.cells.ui.search.filter.bottomsheet.FilterByTypeBottomSheet
 import com.wire.android.feature.cells.ui.search.filter.bottomsheet.owner.FilterByOwnerBottomSheet
 import com.wire.android.feature.cells.ui.search.filter.bottomsheet.tags.FilterByTagsBottomSheet
-import com.wire.android.feature.cells.ui.search.filter.bottomsheet.FilterByTypeBottomSheet
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.WireNavigator
-import com.wire.android.navigation.annotation.features.cells.WireDestination
+import com.wire.android.navigation.annotation.features.cells.WireCellsDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
@@ -67,9 +67,9 @@ import kotlinx.coroutines.launch
 const val sharedElementSearchInputKey = "search_bar"
 
 @OptIn(ExperimentalSharedTransitionApi::class, ExperimentalMaterial3Api::class)
-@WireDestination(
+@WireCellsDestination(
     style = PopUpNavigationAnimation::class,
-    navArgsDelegate = SearchNavArgs::class,
+    navArgs = SearchNavArgs::class,
 )
 @Composable
 fun SearchScreen(

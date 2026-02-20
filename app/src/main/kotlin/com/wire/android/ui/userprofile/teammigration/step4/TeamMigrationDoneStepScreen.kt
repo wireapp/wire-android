@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.userprofile.teammigration.step4
 
+import com.wire.android.navigation.annotation.app.WirePersonalToTeamMigrationDestination
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -32,15 +33,13 @@ import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.style.AuthSlideNavigationAnimation
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace.x32
-import com.wire.android.ui.destinations.HomeScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.HomeScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.ui.userprofile.teammigration.PersonalToTeamMigrationNavGraph
 import com.wire.android.ui.userprofile.teammigration.TeamMigrationViewModel
 import com.wire.android.ui.userprofile.teammigration.common.BottomLineButtons
 import com.wire.android.ui.userprofile.teammigration.common.BulletList
@@ -48,8 +47,7 @@ import com.wire.android.ui.userprofile.teammigration.common.TeamMigrationContain
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.ui.PreviewMultipleThemes
 
-@PersonalToTeamMigrationNavGraph
-@WireDestination(
+@WirePersonalToTeamMigrationDestination(
     style = AuthSlideNavigationAnimation::class
 )
 @Composable

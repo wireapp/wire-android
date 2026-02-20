@@ -34,13 +34,13 @@ import com.wire.android.feature.cells.ui.CellFilesNavArgs
 import com.wire.android.feature.cells.ui.CellScreenContent
 import com.wire.android.feature.cells.ui.CellViewModel
 import com.wire.android.feature.cells.ui.common.Breadcrumbs
-import com.wire.android.feature.cells.ui.destinations.ConversationFilesWithSlideInTransitionScreenDestination
-import com.wire.android.feature.cells.ui.destinations.MoveToFolderScreenDestination
-import com.wire.android.feature.cells.ui.destinations.PublicLinkScreenDestination
+import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesWithSlideInTransitionScreenDestination
+import com.ramcosta.composedestinations.generated.cells.destinations.MoveToFolderScreenDestination
+import com.ramcosta.composedestinations.generated.cells.destinations.PublicLinkScreenDestination
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.WireNavigator
-import com.wire.android.navigation.annotation.features.cells.WireDestination
+import com.wire.android.navigation.annotation.features.cells.WireCellsDestination
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
@@ -48,8 +48,8 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.WireTopAppBarTitle
 import com.wire.android.ui.theme.wireTypography
 
-@WireDestination(
-    navArgsDelegate = CellFilesNavArgs::class,
+@WireCellsDestination(
+    navArgs = CellFilesNavArgs::class,
 )
 @Composable
 fun RecycleBinScreen(

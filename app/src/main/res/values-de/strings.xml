@@ -100,7 +100,7 @@
     <string name="content_description_conversation_mention_someone">Jemanden erwähnen</string>
     <string name="content_description_conversation_back_btn">Zurück zur Unterhaltungsliste</string>
     <string name="content_description_conversation_open_details_label">Unterhaltungsdetails öffnen</string>
-    <string name="content_description_new_conversation">Nach Personen suchen oder eine neue Unterhaltung erstellen</string>
+    <string name="content_description_new_conversation">Neu. Neue Unterhaltung beginnen</string>
     <string name="content_description_send_button">Senden</string>
     <string name="content_description_timed_message_button">Selbstlöschende Nachrichten, Taste</string>
     <string name="content_description_menu_button">Hauptnavigation</string>
@@ -485,7 +485,7 @@
     <string name="channel_history_label">Gesprächsverlauf</string>
     <string name="channel_history_description">Wählen Sie einen Zeitraum. Wenn Teilnehmer diesem Channel beitreten, können sie den Verlauf für diese Zeitspanne verfolgen.</string>
     <string name="channel_history_freemium_upgrade_title">Ältere Nachrichten anzeigen?</string>
-    <string name="channel_history_freemium_upgrade_description">Upgraden Sie auf eine kostenpflichtige Version, um Channel-Mitgliedern den gesamten Gesprächsverlauf zu bieten.</string>
+    <string name="channel_history_freemium_upgrade_description">Um älteren Nachrichten für Channel-Mitglieder anzuzeigen, muss Ihr Team konfiguriert werden. Bitte wenden Sie sich an Ihren Team-Admin.</string>
     <string name="channel_history_freemium_upgrade_now">Jetzt upgraden</string>
     <string name="channel_history_off">Aus</string>
     <string name="channel_history_unlimited">Unbegrenzt</string>
@@ -897,7 +897,6 @@
     <string name="label_conversation_pictures_empty">Bislang hat niemand Bilder in dieser Unterhaltung geteilt 🥲</string>
     <string name="label_conversation_files_empty">Bislang hat niemand Dateien in dieser Unterhaltung geteilt 🙀</string>
     <!-- Search Contact-->
-    <string name="label_selected">Ausgewählt</string>
     <string name="label_contacts">Kontakte</string>
     <string name="label_new_group">Neue Gruppe</string>
     <string name="label_new_channel">Neuer Channel</string>
@@ -1194,11 +1193,8 @@ Bei Gruppenunterhaltungen kann der Gruppen-Admin diese Einstellung überschreibe
     <string name="team_app_lock_enabled">Die App-Sperre ist jetzt verbindlich. Wire wird nach einer bestimmten Zeit der Inaktivität gesperrt. Um die App zu entsperren, müssen Sie ein Kennwort eingeben oder eine biometrische Authentifizierung verwenden.</string>
     <string name="team_app_lock_disabled">Die App-Sperre ist nicht mehr verbindlich. Wire wird nicht mehr nach einer bestimmten Zeit der Inaktivität gesperrt.</string>
     <string name="settings_forgot_lock_screen_title">Kennwort der App-Sperre vergessen?</string>
-    <string name="settings_forgot_lock_screen_description">Sie können auf die gespeicherten Daten auf diesem Gerät nur mit dem Kennwort für die App-Sperre zugreifen. Wenn Sie Ihr Kennwort vergessen haben, können Sie dieses Gerät entfernen.</string>
-    <string name="settings_forgot_lock_screen_warning">Wenn Sie Ihr Gerät entfernen, verlieren Sie dauerhaft alle lokalen Daten und Nachrichten für alle Benutzerkonten auf diesem Gerät.</string>
-    <string name="settings_forgot_lock_screen_reset_device">Gerät entfernen</string>
-    <string name="settings_forgot_lock_screen_reset_device_description">Geben Sie Ihr Passwort für das Benutzerkonto %s ein, um die Löschung aller Daten für alle Konten auf diesem Gerät zu bestätigen. Nachdem Sie Ihr Gerät entfernt haben, können Sie sich mit Ihren Zugangsdaten anmelden.</string>
-    <string name="settings_forgot_lock_screen_reset_device_without_password_description">Bestätigen Sie die Löschung aller Daten für alle Konten auf diesem Gerät. Nachdem Sie Ihr Gerät entfernt haben, können Sie sich mit Ihren Zugangsdaten anmelden.</string>
+    <string name="settings_forgot_lock_screen_description">Sie können auf die auf diesem Gerät gespeicherten Daten kann nur mit Ihrem Kennwort zugreifen.</string>
+    <string name="settings_forgot_lock_screen_warning">Wenn Sie Ihr Kennwort vergessen haben, können Sie sich abmelden und beim nächsten Anmelden ein neues festlegen. Ihre Daten bleiben auf diesem Gerät gespeichert, sofern Sie sie nicht löschen.</string>
     <string name="settings_forgot_lock_screen_please_wait_label">Bitte warten…</string>
     <!--Devices -->
     <string name="devices_title">Ihre Geräte</string>

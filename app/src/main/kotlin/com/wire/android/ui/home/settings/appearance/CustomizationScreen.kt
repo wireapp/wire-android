@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.home.settings.appearance
 
+import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -34,7 +35,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -43,7 +43,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.selectableBackground
@@ -58,8 +57,9 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.sectionWithElements
 import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.android.util.ui.UIText
 
-@WireDestination
+@WireRootDestination
 @Composable
 fun CustomizationScreen(
     navigator: Navigator,
@@ -84,7 +84,6 @@ fun CustomizationScreenContent(
     modifier: Modifier = Modifier,
     lazyListState: LazyListState = rememberLazyListState()
 ) {
-    val context = LocalContext.current
     WireScaffold(
         modifier = modifier,
         topBar = {
@@ -102,7 +101,7 @@ fun CustomizationScreenContent(
                 .fillMaxSize()
         ) {
             sectionWithElements(
-                header = context.getString(R.string.settings_appearance_theme_label),
+                header = UIText.StringResource(R.string.settings_appearance_theme_label),
                 items = buildList {
                     add(ThemeData(option = ThemeOption.SYSTEM, selectedOption = state.selectedThemeOption))
                     add(ThemeData(option = ThemeOption.LIGHT, selectedOption = state.selectedThemeOption))
@@ -141,12 +140,12 @@ fun CustomizationOptionsContent(
 }
 
 private fun LazyListScope.sectionWithElements(
-    header: String,
+    header: UIText,
     items: List<ThemeData>,
     onItemClicked: (ThemeOption) -> Unit
 ) {
     sectionWithElements(
-        header = header.uppercase(),
+        header = header,
         items = items.associateBy { it.option }
     ) { themeItem ->
         ThemeOptionItem(

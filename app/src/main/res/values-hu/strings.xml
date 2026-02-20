@@ -107,7 +107,6 @@
     <string name="content_description_conversation_mention_someone">Valaki megemlítése</string>
     <string name="content_description_conversation_back_btn">Vissza a beszélgetések listájához</string>
     <string name="content_description_conversation_open_details_label">beszélgetés részleteinek megnyitása</string>
-    <string name="content_description_new_conversation">Személyek keresése vagy új beszélgetés létrehozása</string>
     <string name="content_description_back_button">Vissza gomb</string>
     <string name="content_description_send_button">Küldés</string>
     <string name="content_description_timed_message_button">Önmegsemmisítő üzenetek gomb</string>
@@ -834,7 +833,6 @@
     <string name="label_conversation_files">Fájlok</string>
     <string name="label_conversation_files_empty">Ebben a beszégetésben még senki nem osztott meg fájlt 🙀</string>
     <!-- Search Contact-->
-    <string name="label_selected">Kiválasztva</string>
     <string name="label_contacts">Névjegyek</string>
     <string name="label_new_group">Új csoport</string>
     <string name="label_new_channel">Új csatorna</string>
@@ -1118,11 +1116,6 @@ Ez a beállítás az összes beszélgetésre érvényes ezen az eszközön.</str
     <string name="team_app_lock_enabled">Az alkalmazászár mostantól kötelező. A Wire egy bizonyos tétlenség után zárolja magát. Az alkalmazás feloldásához be kell írnia a jelkódot, vagy biometrikus azonosítást kell használnia.</string>
     <string name="team_app_lock_disabled">Az alkalmazászár többé nem kötelező. A Wire a jövőben nem zárolja magát bizonyos tétlenség után.</string>
     <string name="settings_forgot_lock_screen_title">Elfelejtette az alkalmazászár jelkódját?</string>
-    <string name="settings_forgot_lock_screen_description">Az ezen az eszközön tárolt adatokhoz csak az alkalmazászár jelkódjával tud hozzáférni. Ha elfelejtette a jelkódot, eltávolíthatja ezt az eszközt.</string>
-    <string name="settings_forgot_lock_screen_warning">Ha eltávolítja ezt az eszközt, végérvényesen elveszíti minden fiók ezen az eszközön helyben tárolt összes adatát és üzenetét.</string>
-    <string name="settings_forgot_lock_screen_reset_device">Eszköz eltávolítása</string>
-    <string name="settings_forgot_lock_screen_reset_device_description">Adja meg a(z) %s fiók jelszavát, hogy jóváhagyja minden fiók ezen az eszközön tárolt összes adatának törlését. Az eszköz eltávolítása után a felhasználói azonosítóival jelentkezhet be.</string>
-    <string name="settings_forgot_lock_screen_reset_device_without_password_description">Jóváhagyja minden fiók ezen az eszközön tárolt összes adatának törlését. Az eszköz eltávolítása után a felhasználói azonosítóival jelentkezhet be.</string>
     <string name="settings_forgot_lock_screen_please_wait_label">Kérem, várjon…</string>
     <!--Devices -->
     <string name="devices_title">Saját eszközei</string>

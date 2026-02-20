@@ -22,7 +22,7 @@ import androidx.compose.foundation.text.input.clearText
 import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.wire.android.feature.cells.ui.navArgs
+import com.ramcosta.composedestinations.generated.cells.destinations.AddRemoveTagsScreenDestination
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
 import com.wire.kalium.cells.domain.usecase.RemoveNodeTagsUseCase
@@ -46,7 +46,7 @@ class AddRemoveTagsViewModel @Inject constructor(
     private val removeNodeTagsUseCase: RemoveNodeTagsUseCase,
 ) : ActionsViewModel<AddRemoveTagsViewModelAction>() {
 
-    private val navArgs: AddRemoveTagsNavArgs = savedStateHandle.navArgs()
+    private val navArgs: AddRemoveTagsNavArgs = AddRemoveTagsScreenDestination.argsFrom(savedStateHandle)
     private val initialTags: Set<String> = navArgs.tags.toSet()
     private val disallowedChars = setOf(",", ";", "/", "\\", "\"", "\'", "<", ">")
 
@@ -58,7 +58,7 @@ class AddRemoveTagsViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             getAllTagsUseCase().onSuccess { tags ->
-                _state.update { it.copy(allTags = tags) }
+                _state.update { it.copy(allTags = tags.sortedBy { tag -> tag.lowercase() }) }
             }
             snapshotFlow { tagsTextState.text.toString() }
                 .debounce(TYPING_DEBOUNCE_TIME)
@@ -124,7 +124,7 @@ data class TagsViewState(
     val tagsUpdated: Boolean = false,
     val addedTags: Set<String> = emptySet(),
     val suggestedTags: Set<String> = emptySet(),
-    val allTags: Set<String> = emptySet(),
+    val allTags: List<String> = emptyList(),
 )
 
 sealed interface AddRemoveTagsViewModelAction {

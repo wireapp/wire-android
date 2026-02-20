@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.userprofile.teammigration.step3
 
+import com.wire.android.navigation.annotation.app.WirePersonalToTeamMigrationDestination
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -41,7 +42,6 @@ import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.style.AuthSlideNavigationAnimation
 import com.wire.android.ui.common.WireCheckbox
 import com.wire.android.ui.common.WireDialog
@@ -49,11 +49,10 @@ import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.destinations.TeamMigrationDoneStepScreenDestination
-import com.wire.android.ui.destinations.TeamMigrationTeamPlanStepScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.TeamMigrationDoneStepScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.TeamMigrationTeamPlanStepScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.ui.userprofile.teammigration.PersonalToTeamMigrationNavGraph
 import com.wire.android.ui.userprofile.teammigration.TeamMigrationState
 import com.wire.android.ui.userprofile.teammigration.TeamMigrationViewModel
 import com.wire.android.ui.userprofile.teammigration.common.BottomLineButtons
@@ -63,8 +62,7 @@ import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.feature.user.migration.MigrateFromPersonalToTeamFailure
 
-@PersonalToTeamMigrationNavGraph
-@WireDestination(
+@WirePersonalToTeamMigrationDestination(
     style = AuthSlideNavigationAnimation::class
 )
 @Composable

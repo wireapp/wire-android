@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.common.rowitem
 
+import androidx.annotation.StringRes
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -44,6 +45,19 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.PreviewMultipleThemes
+
+@Composable
+fun SectionHeader(
+    @StringRes sRestId: Int,
+    modifier: Modifier = Modifier,
+    padding: PaddingValues = PaddingValues(horizontal = dimensions().spacing16x, vertical = dimensions().spacing8x),
+) {
+    SectionHeader(
+        name = stringResource(id = sRestId),
+        modifier = modifier.padding(padding),
+        padding = padding
+    )
+}
 
 @Composable
 fun SectionHeader(

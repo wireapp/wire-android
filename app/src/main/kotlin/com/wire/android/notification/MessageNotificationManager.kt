@@ -40,6 +40,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.notification.LocalNotification
 import com.wire.kalium.logic.data.notification.LocalNotificationUpdateMessageAction
+import kotlinx.coroutines.delay
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -52,13 +53,15 @@ class MessageNotificationManager
     private val notificationManager: NotificationManager,
     private val lockCodeTimeManager: LockCodeTimeManager
 ) {
-
-    fun handleNotification(newNotifications: List<LocalNotification>, userId: QualifiedID, userName: String) {
+    suspend fun handleNotification(newNotifications: List<LocalNotification>, userId: QualifiedID, userName: String) {
         if (newNotifications.isEmpty()) return
 
         addNotifications(newNotifications, userId, userName)
         updateNotifications(newNotifications, userId)
         removeSeenNotifications(newNotifications, userId)
+
+        // This delay is required to let notification manager update activeNotifications list
+        delay(NOTIFICATION_UPDATE_DELAY)
 
         appLogger.i("$TAG: handled notifications: newNotifications size ${newNotifications.size}; ")
     }
@@ -456,6 +459,7 @@ class MessageNotificationManager
     companion object {
         private const val TAG = "MessageNotificationManager"
         private const val MESSAGE_ID_EXTRA = "message_id"
+        private const val NOTIFICATION_UPDATE_DELAY = 100L
 
         /**
          * Update notification by adding [replyText] to the end of messages list with "You" as sender.

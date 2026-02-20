@@ -44,17 +44,16 @@ open class WireModalSheetState<T : Any>(
     private val scope: CoroutineScope,
     private val keyboardController: SoftwareKeyboardController? = null,
     private val onDismissAction: () -> Unit = {},
-    positionalThreshold: () -> Float = { with(density) { 56.dp.toPx() } },
-    velocityThreshold: () -> Float = { with(density) { 125.dp.toPx() } },
     initialValue: WireSheetValue<T> = WireSheetValue.Hidden,
     skipPartiallyExpanded: Boolean = true,
 ) {
     val sheetState: SheetState = SheetState(
         skipPartiallyExpanded = skipPartiallyExpanded,
         initialValue = initialValue.originalValue,
-        positionalThreshold = positionalThreshold,
-        velocityThreshold = velocityThreshold,
         confirmValueChange = { true },
+        skipHiddenState = false,
+        positionalThreshold = { with(density) { 56.dp.toPx() } },
+        velocityThreshold = { with(density) { 125.dp.toPx() } }
     )
 
     var currentValue: WireSheetValue<T> by mutableStateOf(initialValue)

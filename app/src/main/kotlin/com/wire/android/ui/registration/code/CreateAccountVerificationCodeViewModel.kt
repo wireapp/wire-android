@@ -28,11 +28,12 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig
 import com.wire.android.analytics.RegistrationAnalyticsManagerUseCase
 import com.wire.android.di.ClientScopeProvider
+import com.wire.android.di.DefaultWebSocketEnabledByDefault
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.ui.authentication.create.common.CreateAccountDataNavArgs
 import com.wire.android.ui.common.textfield.textAsFlow
-import com.wire.android.ui.navArgs
+import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.WillNeverOccurError
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
@@ -56,7 +57,8 @@ class CreateAccountVerificationCodeViewModel @Inject constructor(
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
     private val registrationAnalyticsManager: RegistrationAnalyticsManagerUseCase,
     private val clientScopeProviderFactory: ClientScopeProvider.Factory,
-    defaultServerConfig: ServerConfig.Links
+    defaultServerConfig: ServerConfig.Links,
+    @DefaultWebSocketEnabledByDefault private val defaultWebSocketEnabledByDefault: Boolean,
 ) : ViewModel() {
 
     val createAccountNavArgs: CreateAccountDataNavArgs = savedStateHandle.navArgs()
@@ -164,6 +166,7 @@ class CreateAccountVerificationCodeViewModel @Inject constructor(
                 ssoId = registerResult.ssoID,
                 serverConfigId = registerResult.serverConfigId,
                 proxyCredentials = registerResult.proxyCredentials,
+                isPersistentWebSocketEnabled = defaultWebSocketEnabledByDefault,
                 replace = false
             ).let {
                 when (it) {

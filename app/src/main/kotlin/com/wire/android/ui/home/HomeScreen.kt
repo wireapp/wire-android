@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.home
 
+import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -63,21 +64,19 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.ramcosta.composedestinations.DestinationsNavHost
-import com.ramcosta.composedestinations.animations.defaults.RootNavGraphDefaultAnimations
-import com.ramcosta.composedestinations.animations.rememberAnimatedNavHostEngine
 import com.ramcosta.composedestinations.navigation.dependency
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.R
 import com.wire.android.appLogger
-import com.wire.android.navigation.AdjustDestinationStylesForTablets
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.navigation.HomeDestination.FabOptions
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.handleNavigation
-import com.wire.android.ui.NavGraphs
+import com.wire.android.navigation.rememberWireNavHostEngine
+import com.ramcosta.composedestinations.generated.app.navgraphs.HomeGraph
+import com.ramcosta.composedestinations.generated.app.navgraphs.WireRootGraph
 import com.wire.android.ui.analytics.AnalyticsUsageViewModel
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.HandleActions
@@ -87,11 +86,11 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
-import com.wire.android.ui.destinations.ConversationFoldersScreenDestination
-import com.wire.android.ui.destinations.ConversationScreenDestination
-import com.wire.android.ui.destinations.NewConversationSearchPeopleScreenDestination
-import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
-import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.ConversationFoldersScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.NewConversationSearchPeopleScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.OtherUserProfileScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.SelfUserProfileScreenDestination
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.ui.home.conversations.details.GroupConversationActionType
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsNavBackArgs
@@ -102,7 +101,7 @@ import com.wire.android.ui.home.drawer.HomeDrawerViewModel
 import com.wire.android.util.permission.rememberShowNotificationsPermissionFlow
 import kotlinx.coroutines.launch
 
-@WireDestination
+@WireRootDestination
 @Composable
 fun HomeScreen(
     navigator: Navigator,
@@ -266,7 +265,7 @@ fun HomeContent(
     val context = LocalContext.current
 
     with(homeStateHolder) {
-        fun openHomeDestination(item: HomeDestination) {
+        fun openWireHomeDestination(item: HomeDestination) {
             item.direction.handleNavigation(
                 context = context,
                 handleOtherDirection = { direction ->
@@ -298,7 +297,7 @@ fun HomeContent(
                         HomeDrawer(
                             currentRoute = currentNavigationItem.direction.route,
                             homeDrawerState = homeDrawerState,
-                            navigateToHomeItem = ::openHomeDestination,
+                            navigateToHomeItem = ::openWireHomeDestination,
                             onCloseDrawer = ::closeDrawer
                         )
                     }
@@ -365,13 +364,10 @@ fun HomeContent(
                          */
                         val lifecycleState by LocalLifecycleOwner.current.lifecycle.currentStateFlow.collectAsState()
                         if (lifecycleState != Lifecycle.State.DESTROYED) {
-                            val navHostEngine = rememberAnimatedNavHostEngine(
-                                rootDefaultAnimations = RootNavGraphDefaultAnimations.ACCOMPANIST_FADING
-                            )
-
-                            AdjustDestinationStylesForTablets()
+                            val navHostEngine = rememberWireNavHostEngine()
                             DestinationsNavHost(
-                                navGraph = NavGraphs.home,
+                                navGraph = WireRootGraph,
+                                start = HomeGraph,
                                 engine = navHostEngine,
                                 navController = navController,
                                 dependenciesContainerBuilder = {

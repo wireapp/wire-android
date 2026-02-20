@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -77,15 +76,12 @@ fun NetworkSettingsScreenContent(
                 .fillMaxSize()
                 .padding(internalPadding)
         ) {
-            val switchState = remember(isWebSocketEnabled, isEnforcedByMDM, isWebSocketEnforcedByDefault) {
-                when {
-                    isEnforcedByMDM -> SwitchState.TextOnly(true)
-                    isWebSocketEnforcedByDefault -> SwitchState.TextOnly(true)
-                    else -> SwitchState.Enabled(
-                        value = isWebSocketEnabled,
-                        onCheckedChange = setWebSocketState
-                    )
-                }
+            val switchState = when {
+                isEnforcedByMDM -> SwitchState.TextOnly(true)
+                else -> SwitchState.Enabled(
+                    value = isWebSocketEnabled,
+                    onCheckedChange = setWebSocketState
+                )
             }
 
             val subtitle = if (isEnforcedByMDM) {

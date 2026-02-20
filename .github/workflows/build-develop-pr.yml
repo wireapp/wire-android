@@ -18,9 +18,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # Temporary path: for this branch, build and publish internal without quality checks
-  build-internal-temp:
-    if: github.event_name == 'pull_request' && github.head_ref == 'mo/investigate/wm-crashes-after-koltin-2.3'
+  # Temporary path for this branch: build and publish internal without quality checks
+  build-validation:
     uses: ./.github/workflows/build-unified.yml
     with:
       concurrency-group-suffix: pr-internal-temp
@@ -42,30 +41,6 @@ jobs:
                 "package-name": "com.wire.internal",
                 "track": "${{ vars.INTERNAL_APP_TRACK }}",
                 "status": "completed"
-              }
-            ]
-          }
-        ]
-      enable-deployment: true
-    secrets: inherit
-
-  # Default path for develop PRs and merge groups
-  build-validation:
-    if: github.event_name == 'merge_group' || github.head_ref != 'mo/investigate/wm-crashes-after-koltin-2.3'
-    uses: ./.github/workflows/build-unified.yml
-    with:
-      concurrency-group-suffix: pr
-      build-config: |
-        [
-          {
-            "flavor": "Dev",
-            "variant": "Debug",
-            "keystore-type": "debug",
-            "build-type": "apk",
-            "generate-version-file": false,
-            "deployment-targets": [
-              {
-                "type": "s3"
               }
             ]
           }

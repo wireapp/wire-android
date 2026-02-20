@@ -16,6 +16,11 @@ on:
         description: "Suffix for the concurrency group"
         required: true
         type: string
+      skip-quality-checks:
+        description: "Skip lint/style/tests quality checks"
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -28,6 +33,7 @@ concurrency:
 jobs:
   # Inline simple quality check jobs for better check names
   lint:
+    if: inputs.skip-quality-checks != true
     runs-on: buildjet-8vcpu-ubuntu-2204
     # Override JVM args from gradle.properties which sets 10GB heap
     steps:
@@ -57,6 +63,7 @@ jobs:
           rm -f ~/.gradle/caches/modules-2/gc.properties
 
   style:
+    if: inputs.skip-quality-checks != true
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -84,22 +91,53 @@ jobs:
 
   # Keep complex workflows as reusable but call them directly
   ui-tests:
+    if: inputs.skip-quality-checks != true
     name: "UI Tests"
     uses: ./.github/workflows/gradle-run-ui-tests.yml
     with:
       artifact-suffix: ${{ inputs.concurrency-group-suffix }}
 
   unit-tests:
+    if: inputs.skip-quality-checks != true
     name: "Unit Tests"
     uses: ./.github/workflows/gradle-run-unit-tests.yml
     with:
       artifact-suffix: ${{ inputs.concurrency-group-suffix }}
     secrets: inherit
 
+  quality-gates:
+    name: "Quality Gates"
+    needs: [lint, style, ui-tests, unit-tests]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Evaluate quality checks
+        run: |
+          echo "skip-quality-checks=${{ inputs.skip-quality-checks }}"
+          echo "lint=${{ needs.lint.result }}"
+          echo "style=${{ needs.style.result }}"
+          echo "ui-tests=${{ needs.ui-tests.result }}"
+          echo "unit-tests=${{ needs.unit-tests.result }}"
+
+          if [[ "${{ inputs.skip-quality-checks }}" == "true" ]]; then
+            echo "Quality checks explicitly skipped."
+            exit 0
+          fi
+
+          if [[ "${{ needs.lint.result }}" != "success" || \
+                "${{ needs.style.result }}" != "success" || \
+                "${{ needs.ui-tests.result }}" != "success" || \
+                "${{ needs.unit-tests.result }}" != "success" ]]; then
+            echo "One or more quality checks did not pass."
+            exit 1
+          fi
+
+          echo "All quality checks passed."
+
   # Build matrix job - only runs if all quality checks pass
   build:
     name: "Build ${{ matrix.flavor }}-${{ matrix.variant }}"
-    needs: [lint, style, ui-tests, unit-tests]
+    needs: [quality-gates]
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false  # Continue building other flavors even if one fails

@@ -34,9 +34,6 @@ jobs:
             "generate-version-file": false,
             "deployment-targets": [
               {
-                "type": "s3"
-              },
-              {
                 "type": "google-play",
                 "package-name": "com.wire.internal",
                 "track": "${{ vars.INTERNAL_APP_TRACK }}",

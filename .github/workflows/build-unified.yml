@@ -105,39 +105,11 @@ jobs:
       artifact-suffix: ${{ inputs.concurrency-group-suffix }}
     secrets: inherit
 
-  quality-gates:
-    name: "Quality Gates"
-    needs: [lint, style, ui-tests, unit-tests]
-    if: always()
-    runs-on: ubuntu-latest
-    steps:
-      - name: Evaluate quality checks
-        run: |
-          echo "skip-quality-checks=${{ inputs.skip-quality-checks }}"
-          echo "lint=${{ needs.lint.result }}"
-          echo "style=${{ needs.style.result }}"
-          echo "ui-tests=${{ needs.ui-tests.result }}"
-          echo "unit-tests=${{ needs.unit-tests.result }}"
-
-          if [[ "${{ inputs.skip-quality-checks }}" == "true" ]]; then
-            echo "Quality checks explicitly skipped."
-            exit 0
-          fi
-
-          if [[ "${{ needs.lint.result }}" != "success" || \
-                "${{ needs.style.result }}" != "success" || \
-                "${{ needs.ui-tests.result }}" != "success" || \
-                "${{ needs.unit-tests.result }}" != "success" ]]; then
-            echo "One or more quality checks did not pass."
-            exit 1
-          fi
-
-          echo "All quality checks passed."
-
-  # Build matrix job - only runs if all quality checks pass
+  # Build matrix job - runs when quality checks pass or are explicitly skipped
   build:
     name: "Build ${{ matrix.flavor }}-${{ matrix.variant }}"
-    needs: [quality-gates]
+    needs: [lint, style, ui-tests, unit-tests]
+    if: always() && (inputs.skip-quality-checks == true || (needs.lint.result == 'success' && needs.style.result == 'success' && needs.ui-tests.result == 'success' && needs.unit-tests.result == 'success'))
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false  # Continue building other flavors even if one fails
@@ -145,10 +117,14 @@ jobs:
         include: ${{ fromJson(inputs.build-config) }}
     
     steps:
-      - name: Quality gates passed - starting build
+      - name: Quality gates evaluated - starting build
         run: |
           echo "## Build Starting" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Quality gates passed successfully" >> $GITHUB_STEP_SUMMARY
+          if [[ "${{ inputs.skip-quality-checks }}" == "true" ]]; then
+            echo "⚠️ Quality gates were skipped by configuration" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ Quality gates passed successfully" >> $GITHUB_STEP_SUMMARY
+          fi
           echo "🚀 Building ${{ matrix.flavor }}${{ matrix.variant }}..." >> $GITHUB_STEP_SUMMARY
           
       - name: Checkout

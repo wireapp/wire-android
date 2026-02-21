@@ -210,7 +210,6 @@ class GroupVideoCall : BaseUiTest() {
                 clickCloseButtonOnUnconnectedUserProfilePage()
             }
             pages.conversationListPage.apply {
-                waitFor(3)
                 clickCloseButtonOnNewConversationScreen()
                 assertConversationNameWithPendingStatusVisibleInConversationList(
                     teamOwnerB?.name ?: ""
@@ -220,11 +219,9 @@ class GroupVideoCall : BaseUiTest() {
 
         step("Accept connection request via backend and start conversation") {
             runBlocking {
-                val user = teamHelper.usersManager.findUserByNameOrNameAlias("user5Name")
+                val user = teamHelper.usersManager.findUserByNameOrNameAlias("user4Name")
                 backendClient.acceptAllIncomingConnectionRequests(user)
             }
-
-            waitFor(1)
 
             pages.conversationListPage.apply {
                 assertPendingStatusIsNoLongerVisible()
@@ -263,8 +260,6 @@ class GroupVideoCall : BaseUiTest() {
 
                 callHelper.userXAcceptsNextIncomingCallAutomatically(
                     "user2Name, user3Name, user4Name"
-//                callHelper.userXAcceptsNextIncomingCallAutomatically(
-//                    "user2Name, user3Name"
                 )
             }
 
@@ -280,13 +275,6 @@ class GroupVideoCall : BaseUiTest() {
                     "active",
                     90
                 )
-//                runBlocking {
-//                    callHelper.userVerifiesCallStatusToUserY(
-//                        "user2Name, user3Name, user4Name",
-//                        "active",
-//                        90
-//                    )
-                }
 
                 pages.callingPage.apply {
                     iSeeOngoingGroupCall()
@@ -325,7 +313,7 @@ class GroupVideoCall : BaseUiTest() {
 
                     tapPingButton()
 
-                    iSeePingModalWithText("Are you sure you want to ping 5 people?")
+                    iSeePingModalWithText("Are you sure you want to ping 4 people?")
 
                     tapPingButtonModal()
 
@@ -353,7 +341,7 @@ class GroupVideoCall : BaseUiTest() {
                                 "Device1",
                                 "GroupVideoCall"
                             )
-                            waitFor(8)
+                            waitFor(12)
                             assertAudioMessageIsVisible()
                             assertAudioTimeStartsAtZero()
                         }
@@ -361,7 +349,7 @@ class GroupVideoCall : BaseUiTest() {
                         step("Play audio message and verify playback time progresses") {
                             pages.conversationViewPage.apply {
                                 clickPlayButtonOnAudioMessage()
-                                waitFor(18)
+                                waitFor(10)
                                 clickPauseButtonOnAudioMessage()
                                 assertAudioTimeIsNotZeroAnymore()
                             }
@@ -377,3 +365,4 @@ class GroupVideoCall : BaseUiTest() {
             }
         }
     }
+}

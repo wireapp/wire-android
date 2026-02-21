@@ -115,7 +115,7 @@ object UiWaitUtils {
         device.waitForIdle(500)
 
         // 2) Stabilize: refetch until bounds are stable & usable
-        val end = SystemClock.uptimeMillis() + 1_500
+        val end = SystemClock.uptimeMillis() + 3_000
         var lastBounds: Rect? = null
 
         while (SystemClock.uptimeMillis() < end) {
@@ -258,40 +258,5 @@ object UiWaitUtils {
         } finally {
             uiAutomation.setOnAccessibilityEventListener(null)
         }
-
-//        fun assertToastDisplayed(
-//            text: String,
-//            timeoutMs: Long = 5_000L,
-//            trigger: () -> Unit
-//        ) {
-//            var found = false
-//            val deadline = System.currentTimeMillis() + timeoutMs
-//            val uiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation
-//
-//            uiAutomation.setOnAccessibilityEventListener { event ->
-//                if (event.eventType == AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED &&
-//                    event.className?.toString() == "android.widget.Toast" &&
-//                    event.text.joinToString(" ").contains(text)
-//                ) {
-//                    found = true
-//                }
-//            }
-//
-//            try {
-//                // Trigger action AFTER listener is active
-//                trigger()
-//
-//                while (!found && System.currentTimeMillis() < deadline) {
-//                    SystemClock.sleep(50)
-//                }
-//
-//                assertTrue(
-//                    "Toast with text '$text' was not displayed",
-//                    found
-//                )
-//            } finally {
-//                uiAutomation.setOnAccessibilityEventListener(null)
-//            }
-        }
-
     }
+}

@@ -195,7 +195,6 @@ class FileSharingBetweenTeams : BaseUiTest() {
                     "Device1",
                     "user4Name"
                 )
-                waitFor(5)
                 assertAudioMessageIsVisible()
                 assertAudioTimeStartsAtZero()
             }
@@ -204,7 +203,7 @@ class FileSharingBetweenTeams : BaseUiTest() {
         step("Play audio message and verify playback time progresses") {
             pages.conversationViewPage.apply {
                 clickPlayButtonOnAudioMessage()
-                waitFor(18)
+                waitFor(10)
                 clickPauseButtonOnAudioMessage()
                 assertAudioTimeIsNotZeroAnymore()
             }

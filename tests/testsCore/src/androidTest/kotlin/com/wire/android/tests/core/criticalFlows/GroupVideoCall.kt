@@ -341,7 +341,6 @@ class GroupVideoCall : BaseUiTest() {
                                 "Device1",
                                 "GroupVideoCall"
                             )
-                            waitFor(12)
                             assertAudioMessageIsVisible()
                             assertAudioTimeStartsAtZero()
                         }

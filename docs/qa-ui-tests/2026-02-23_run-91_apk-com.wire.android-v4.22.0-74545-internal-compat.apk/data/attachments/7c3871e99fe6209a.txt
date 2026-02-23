@@ -1,0 +1,397 @@
+--------- beginning of main
+02-24 00:26:40.194 25192 25205 E TestRunner: failed: givenGroupConversation_whenMessagesAreExchangedAndSelfDeletingMessageIsSent_thenMessageIsVisibleAndExpires(com.wire.android.tests.core.criticalFlows.GroupMessaging)
+02-24 00:26:40.195 25192 25205 E TestRunner: ----- begin exception -----
+02-24 00:26:40.195 25192 25205 E TestRunner: java.lang.AssertionError: Element not found with selector: text='Enter your email to start!'
+02-24 00:26:40.195 25192 25205 E TestRunner: 	at uiautomatorutils.UiWaitUtils.waitElement(UiWaitUtils.kt:94)
+02-24 00:26:40.195 25192 25205 E TestRunner: 	at uiautomatorutils.UiWaitUtils.waitElement$default(UiWaitUtils.kt:85)
+02-24 00:26:40.195 25192 25205 E TestRunner: 	at com.wire.android.tests.core.pages.RegistrationPage.assertEmailWelcomePage(RegistrationPage.kt:66)
+02-24 00:26:40.195 25192 25205 E TestRunner: 	at com.wire.android.tests.core.criticalFlows.GroupMessaging.givenGroupConversation_whenMessagesAreExchangedAndSelfDeletingMessageIsSent_thenMessageIsVisibleAndExpires$lambda$1(GroupMessaging.kt:104)
+02-24 00:26:40.195 25192 25205 E TestRunner: 	at com.wire.android.tests.core.criticalFlows.GroupMessaging$$ExternalSyntheticLambda7.invoke(D8$$SyntheticClass:0)
+02-24 00:26:40.195 25192 25205 E TestRunner: 	at com.wire.android.tests.core.BaseUiTest.step$lambda$0(BaseUiTest.kt:54)
+02-24 00:26:40.195 25192 25205 E TestRunner: 	at com.wire.android.tests.core.BaseUiTest$$ExternalSyntheticLambda1.invoke(D8$$SyntheticClass:0)
+02-24 00:26:40.195 25192 25205 E TestRunner: 	at io.qameta.allure.kotlin.Allure.step(Allure.kt:60)
+02-24 00:26:40.195 25192 25205 E TestRunner: 	at com.wire.android.tests.core.BaseUiTest.step(BaseUiTest.kt:54)
+02-24 00:26:40.195 25192 25205 E TestRunner: 	at com.wire.android.tests.core.criticalFlows.GroupMessaging.givenGroupConversation_whenMessagesAreExchangedAndSelfDeletingMessageIsSent_thenMessageIsVisibleAndExpires(GroupMessaging.kt:102)
+02-24 00:26:40.195 25192 25205 E TestRunner: 	at java.lang.reflect.Method.invoke(Native Method)
+02-24 00:26:40.195 25192 25205 E TestRunner: 	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+02-24 00:26:40.195 25192 25205 E TestRunner: 	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+02-24 00:26:40.195 25192 25205 E TestRunner: 	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+02-24 00:26:40.195 25192 25205 E TestRunner: 	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+02-24 00:26:40.195 25192 25205 E TestRunner: 	at androidx.test.internal.runner.junit4.statement.RunBefores.evaluate(RunBefores.java:80)
+02-24 00:26:40.195 25192 25205 E TestRunner: 	at androidx.test.internal.runner.junit4.statement.RunAfters.evaluate(RunAfters.java:61)
+02-24 00:26:40.195 25192 25205 E TestRunner: 	at com.wire.android.tests.support.suite.AllureFailureScreenshotRule$apply$1.evaluate(AllureFailureScreenshotRule.kt:44)
+02-24 00:26:40.195 25192 25205 E TestRunner: 	at com.wire.android.tests.support.suite.AllureLabelsRule$apply$1.evaluate(AllureLabelsRule.kt:70)
+02-24 00:26:40.195 25192 25205 E TestRunner: 	at org.junit.rules.TestWatcher$1.evaluate(TestWatcher.java:61)
+02-24 00:26:40.195 25192 25205 E TestRunner: 	at com.wire.android.tests.support.suite.AllureLogcatRule$apply$1.evaluate(AllureLogcatRule.kt:41)
+02-24 00:26:40.195 25192 25205 E TestRunner: 	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+02-24 00:26:40.195 25192 25205 E TestRunner: 	at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+02-24 00:26:40.195 25192 25205 E TestRunner: 	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+02-24 00:26:40.195 25192 25205 E TestRunner: 	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+02-24 00:26:40.195 25192 25205 E TestRunner: 	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+02-24 00:26:40.195 25192 25205 E TestRunner: 	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+02-24 00:26:40.195 25192 25205 E TestRunner: 	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+02-24 00:26:40.195 25192 25205 E TestRunner: 	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+02-24 00:26:40.195 25192 25205 E TestRunner: 	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+02-24 00:26:40.195 25192 25205 E TestRunner: 	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+02-24 00:26:40.195 25192 25205 E TestRunner: 	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+02-24 00:26:40.195 25192 25205 E TestRunner: 	at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+02-24 00:26:40.195 25192 25205 E TestRunner: 	at androidx.test.ext.junit.runners.AndroidJUnit4.run(AndroidJUnit4.java:162)
+02-24 00:26:40.195 25192 25205 E TestRunner: 	at org.junit.runners.Suite.runChild(Suite.java:128)
+02-24 00:26:40.195 25192 25205 E TestRunner: 	at org.junit.runners.Suite.runChild(Suite.java:27)
+02-24 00:26:40.195 25192 25205 E TestRunner: 	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+02-24 00:26:40.195 25192 25205 E TestRunner: 	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+02-24 00:26:40.195 25192 25205 E TestRunner: 	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+02-24 00:26:40.195 25192 25205 E TestRunner: 	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+02-24 00:26:40.195 25192 25205 E TestRunner: 	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+02-24 00:26:40.195 25192 25205 E TestRunner: 	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+02-24 00:26:40.195 25192 25205 E TestRunner: 	at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+02-24 00:26:40.195 25192 25205 E TestRunner: 	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+02-24 00:26:40.195 25192 25205 E TestRunner: 	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+02-24 00:26:40.195 25192 25205 E TestRunner: 	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:68)
+02-24 00:26:40.195 25192 25205 E TestRunner: 	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:59)
+02-24 00:26:40.195 25192 25205 E TestRunner: 	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:467)
+02-24 00:26:40.195 25192 25205 E TestRunner: 	at com.wire.android.tests.support.suite.TaggedTestRunner.onStart(TaggedTestRunner.kt:51)
+02-24 00:26:40.195 25192 25205 E TestRunner: 	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2278)
+02-24 00:26:40.195 25192 25205 E TestRunner: ----- end exception -----
+02-24 00:26:40.199 25192 25205 I TestRunner: finished: givenGroupConversation_whenMessagesAreExchangedAndSelfDeletingMessageIsSent_thenMessageIsVisibleAndExpires(com.wire.android.tests.core.criticalFlows.GroupMessaging)
+02-24 00:26:40.253 25192 25205 I TestRunner: started: givenSSOTeamWithOkta_whenSettingUpNewDeviceAndRestoringBackup_thenMessageIsRestored(com.wire.android.tests.core.criticalFlows.SSODeviceBackup)
+02-24 00:26:40.282 25192 25205 D UiDevice: Executing shell command: pm clear com.wire.internal
+02-24 00:26:40.451 25192 25205 D UiDevice: Executing shell command: settings put secure show_ime_with_hard_keyboard 0
+02-24 00:26:40.502 25192 25205 D UiDevice: Executing shell command: settings put global window_animation_scale 0
+02-24 00:26:40.540 25192 25205 D UiDevice: Executing shell command: settings put global transition_animation_scale 0
+02-24 00:26:40.570 25192 25205 D UiDevice: Executing shell command: settings put global animator_duration_scale .5
+02-24 00:26:40.618 25192 25205 D UiDevice: Pressing home button.
+02-24 00:26:41.139 25192 25205 D UiDevice: Waiting 20000ms for SearchCondition[hasObject=BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E']].
+02-24 00:26:41.140 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:41.978 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:42.128 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:42.285 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:42.622 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:42.766 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:42.917 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:43.065 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:43.221 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:43.366 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:43.510 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:43.639 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:43.790 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:43.944 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:44.092 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:44.246 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:44.395 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:44.718 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:44.872 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:45.016 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:45.174 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:45.331 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:45.457 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:45.615 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:45.769 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:45.923 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:46.071 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:46.226 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:46.378 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:46.523 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:46.876 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:47.031 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:47.176 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:47.325 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:47.470 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:47.624 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:47.767 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:47.915 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:48.061 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:48.212 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:48.367 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:48.519 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:48.669 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:49.029 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:49.183 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:49.331 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:49.484 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:49.628 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:49.780 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:49.932 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:50.084 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:50.233 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:50.380 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:50.529 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:50.675 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:50.997 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:51.145 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:51.293 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:51.441 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:51.590 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:51.747 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:51.900 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:52.050 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:52.202 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:52.353 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:52.504 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:52.652 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:52.799 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:53.113 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:53.267 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:53.417 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:53.572 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:53.720 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:53.868 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:54.014 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:54.174 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:54.327 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:54.479 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:54.632 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:54.780 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:54.931 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:55.273 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:55.425 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:55.578 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:55.722 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:55.871 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:56.026 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:56.179 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:56.333 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:56.485 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:56.638 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:56.783 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:56.930 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:57.082 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:57.387 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:57.539 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:57.688 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:57.843 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:57.993 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:58.141 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:58.292 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:58.445 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:58.591 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:58.743 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:58.899 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:59.050 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:59.201 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:59.548 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:59.703 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:26:59.850 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:27:00.002 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:27:00.149 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:27:00.303 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:27:00.452 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:27:00.603 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:27:00.753 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:27:00.903 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:27:01.052 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:27:01.205 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 00:27:01.456 25192 25205 D UiDevice: Waiting 20000ms for SearchCondition[hasObject=BySelector [PKG='\Qcom.wire.internal\E']].
+02-24 00:27:01.456 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:01.575 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:01.700 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:01.824 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:01.948 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:02.075 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:02.208 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:02.352 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:02.485 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:02.611 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:02.736 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:02.861 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:02.988 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:03.113 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:03.238 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:03.461 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:03.583 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:03.705 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:03.825 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:03.943 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:04.067 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:04.188 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:04.312 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:04.434 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:04.556 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:04.678 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:04.804 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:04.929 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:05.058 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:05.184 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:05.310 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:05.591 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:05.719 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:05.846 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:05.966 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:06.090 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:06.214 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:06.340 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:06.488 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:06.634 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:06.758 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:06.901 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:07.049 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:07.199 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:07.351 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:07.664 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:07.813 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:07.962 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:08.114 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:08.271 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:08.427 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:08.577 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:08.728 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:08.885 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:09.025 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:09.153 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:09.285 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:09.432 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:09.766 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:09.918 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:10.071 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:10.226 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:10.376 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:10.524 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:10.673 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:10.827 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:10.972 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:11.126 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:11.275 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:11.422 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:11.566 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:11.874 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:12.023 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:12.172 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:12.321 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:12.473 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:12.619 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:12.745 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:12.867 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:12.994 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:13.149 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:13.302 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:13.450 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:13.601 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:13.917 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:14.073 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:14.225 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:14.376 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:14.533 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:14.684 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:14.833 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:14.985 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:15.140 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:15.292 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:15.445 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:15.596 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:15.750 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:16.087 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:16.238 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:16.388 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:16.541 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:16.687 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:16.833 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:16.985 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:17.118 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:17.270 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:17.423 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:17.568 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:17.718 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:17.869 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:18.208 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:18.359 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:18.509 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:18.656 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:18.809 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:18.962 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:19.112 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:19.260 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:19.411 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:19.566 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:19.720 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:19.872 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:20.192 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:20.344 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:20.493 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:20.645 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:20.795 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:20.953 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:21.110 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:21.262 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:21.413 25192 25205 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 00:27:21.459 25192 25205 I System.out: Could not access BuildConfig field 'BACKENDCONNECTION_STAGING_SOCKSPROXY': No field BACKENDCONNECTION_STAGING_SOCKSPROXY in class Lcom/wire/android/testSupport/BuildConfig; (declaration of 'com.wire.android.testSupport.BuildConfig' appears in /data/app/~~dVRBnq7TDDVcYt7jd5ramg==/com.wire.android.tests.testsCore.test-fnLo_QQPfcTkO_45pC-Asw==/base.apk!classes2.dex)
+02-24 00:27:21.461 25192 25205 I System.out: Could not access BuildConfig field 'BACKENDCONNECTION_STAGING_SOCKSPROXY': No field BACKENDCONNECTION_STAGING_SOCKSPROXY in class Lcom/wire/android/testSupport/BuildConfig; (declaration of 'com.wire.android.testSupport.BuildConfig' appears in /data/app/~~dVRBnq7TDDVcYt7jd5ramg==/com.wire.android.tests.testsCore.test-fnLo_QQPfcTkO_45pC-Asw==/base.apk!classes2.dex)
+02-24 00:27:21.462 25192 25205 I System.out: Could not access BuildConfig field 'BACKENDCONNECTION_STAGING_SOCKSPROXY': No field BACKENDCONNECTION_STAGING_SOCKSPROXY in class Lcom/wire/android/testSupport/BuildConfig; (declaration of 'com.wire.android.testSupport.BuildConfig' appears in /data/app/~~dVRBnq7TDDVcYt7jd5ramg==/com.wire.android.tests.testsCore.test-fnLo_QQPfcTkO_45pC-Asw==/base.apk!classes2.dex)
+02-24 00:27:21.596 25192 25205 I ClientUserManager: 00:27:21 INFO [646] (ClientUse) Cannot find user by: user1Name 
+02-24 00:27:21.597 25192 25205 I System.out: Could not access BuildConfig field 'BACKENDCONNECTION_STAGING_SOCKSPROXY': No field BACKENDCONNECTION_STAGING_SOCKSPROXY in class Lcom/wire/android/testSupport/BuildConfig; (declaration of 'com.wire.android.testSupport.BuildConfig' appears in /data/app/~~dVRBnq7TDDVcYt7jd5ramg==/com.wire.android.tests.testsCore.test-fnLo_QQPfcTkO_45pC-Asw==/base.apk!classes2.dex)
+02-24 00:27:21.598 25192 25205 I ClientUserManager: 00:27:21 INFO [646] (ClientUse) Cannot find user by: user1Name 
+02-24 00:27:21.600 25192 25205 I ClientUserManager: 00:27:21 INFO [646] (ClientUse) Cannot find user by: user1Name 
+02-24 00:27:21.600 25192 25205 I Hello   : 00:27:21 INFO [646] (ClientUse) Hello, my name is Darius Erdman and my email is erdmanpmiagqfllw@wire.engineering and password is MD5Cgea$ and emailPassword is N#WQ`'&5O80Qinnnnn 
+02-24 00:27:23.353 25192 25205 I System.out: Could not access BuildConfig field 'BACKENDCONNECTION_STAGING_SOCKSPROXY': No field BACKENDCONNECTION_STAGING_SOCKSPROXY in class Lcom/wire/android/testSupport/BuildConfig; (declaration of 'com.wire.android.testSupport.BuildConfig' appears in /data/app/~~dVRBnq7TDDVcYt7jd5ramg==/com.wire.android.tests.testsCore.test-fnLo_QQPfcTkO_45pC-Asw==/base.apk!classes2.dex)
+02-24 00:27:23.463 25192 25205 I System.out: Could not access BuildConfig field 'BACKENDCONNECTION_STAGING_SOCKSPROXY': No field BACKENDCONNECTION_STAGING_SOCKSPROXY in class Lcom/wire/android/testSupport/BuildConfig; (declaration of 'com.wire.android.testSupport.BuildConfig' appears in /data/app/~~dVRBnq7TDDVcYt7jd5ramg==/com.wire.android.tests.testsCore.test-fnLo_QQPfcTkO_45pC-Asw==/base.apk!classes2.dex)
+02-24 00:27:27.122 25192 25205 I ClientUserManager: 00:27:27 INFO [646] (ClientUse) Cannot find user by: user2Name 
+02-24 00:27:27.126 25192 25205 I ClientUserManager: 00:27:27 INFO [646] (ClientUse) Cannot find user by: user1Name 
+02-24 00:27:27.962 25192 25205 I System.out: INFO [LogginUserId]: User id is 00u2nr25qnge6MLDx0h8
+02-24 00:27:27.966 25192 25205 I ClientUserManager: 00:27:27 INFO [646] (ClientUse) Cannot find user by: user2Name 
+02-24 00:27:27.968 25192 25205 I System.out: INFO [Test Log]: The sso code is wire-cc45ee3d-9358-469c-b9f0-1f117ced7740
+02-24 00:27:47.982 25192 25205 I System.out: Could not access BuildConfig field 'BACKENDCONNECTION_STAGING_SOCKSPROXY': No field BACKENDCONNECTION_STAGING_SOCKSPROXY in class Lcom/wire/android/testSupport/BuildConfig; (declaration of 'com.wire.android.testSupport.BuildConfig' appears in /data/app/~~dVRBnq7TDDVcYt7jd5ramg==/com.wire.android.tests.testsCore.test-fnLo_QQPfcTkO_45pC-Asw==/base.apk!classes2.dex)
+02-24 00:27:47.988 25192 25205 D UiDevice: Waiting 10000ms for SearchCondition[hasObject=BySelector [TEXT='\QEnter your email to start!\E']].
+02-24 00:27:47.988 25192 25205 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 00:27:48.337 25192 25205 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 00:27:48.502 25192 25205 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 00:27:48.655 25192 25205 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 00:27:48.797 25192 25205 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 00:27:48.957 25192 25205 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 00:27:49.115 25192 25205 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 00:27:49.269 25192 25205 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 00:27:49.431 25192 25205 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 00:27:49.583 25192 25205 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 00:27:49.739 25192 25205 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 00:27:49.897 25192 25205 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 00:27:50.057 25192 25205 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 00:27:50.387 25192 25205 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 00:27:50.539 25192 25205 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 00:27:50.700 25192 25205 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 00:27:50.857 25192 25205 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 00:27:51.019 25192 25205 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 00:27:51.175 25192 25205 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 00:27:51.341 25192 25205 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 00:27:51.498 25192 25205 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 00:27:51.657 25192 25205 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 00:27:51.813 25192 25205 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 00:27:51.973 25192 25205 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 00:27:52.134 25192 25205 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 00:27:52.454 25192 25205 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 00:27:52.620 25192 25205 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 00:27:52.773 25192 25205 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 00:27:52.936 25192 25205 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 00:27:53.098 25192 25205 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 00:27:53.258 25192 25205 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 00:27:53.416 25192 25205 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 00:27:53.580 25192 25205 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 00:27:53.736 25192 25205 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 00:27:53.900 25192 25205 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 00:27:54.058 25192 25205 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 00:27:54.216 25192 25205 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 00:27:54.563 25192 25205 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 00:27:54.720 25192 25205 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 00:27:54.877 25192 25205 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 00:27:55.040 25192 25205 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 00:27:55.194 25192 25205 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 00:27:55.355 25192 25205 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 00:27:55.516 25192 25205 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 00:27:55.677 25192 25205 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 00:27:55.839 25192 25205 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 00:27:55.995 25192 25205 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 00:27:56.159 25192 25205 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 00:27:56.314 25192 25205 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 00:27:56.666 25192 25205 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 00:27:56.822 25192 25205 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 00:27:56.975 25192 25205 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 00:27:57.119 25192 25205 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 00:27:57.274 25192 25205 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 00:27:57.438 25192 25205 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 00:27:57.597 25192 25205 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 00:27:57.759 25192 25205 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 00:27:57.917 25192 25205 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 00:27:58.078 25192 25205 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 00:27:58.271 25192 25205 I TeamClient: 00:27:58 INFO [646] (TeamsExte) Accepted 
+02-24 00:27:58.271 25192 25205 D UiDevice: Executing shell command: ls /sdcard/Download
+02-24 00:27:58.399 25192 25205 I System.out: No files found containing 'Wire'
+02-24 00:28:19.257 25192 25205 I System.out: INFO [Delete user]: Delete user response is 
+02-24 00:28:19.257 25192 25205 I AllureFailureScreenshotRule: Taking failure screenshot for givenSSOTeamWithOkta_whenSettingUpNewDeviceAndRestoringBackup_thenMessageIsRestored(com.wire.android.tests.core.criticalFlows.SSODeviceBackup)
+02-24 00:28:19.259 25192 25205 D UiDevice: Taking screenshot (scale=1,000000, quality=80) and storing at /data/user/0/com.wire.android.tests.testsCore.test/cache/screenshot2361043540029018616.tmp.

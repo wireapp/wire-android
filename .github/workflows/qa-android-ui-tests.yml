@@ -345,6 +345,7 @@ jobs:
           # - But we MUST NOT echo/print these keys or any full S3 paths.
           APK_ENV_FILE="${RUNNER_TEMP}/apk_env_full.txt"
           APK_OUT_FILE="${RUNNER_TEMP}/apk_out_safe.txt"
+          export APK_ENV_FILE APK_OUT_FILE   # <-- THIS WAS MISSING (fix)
           rm -f "${APK_ENV_FILE}" "${APK_OUT_FILE}"
 
           python3 - <<'PY'
@@ -464,7 +465,6 @@ jobs:
           new_name = new_key.split("/")[-1]
           old_name = old_key.split("/")[-1] if old_key else ""
 
-          # Full env file (includes S3 keys) - DO NOT PRINT THIS FILE
           with open(out_env, "w", encoding="utf-8") as f:
               f.write(f"NEW_S3_KEY={new_key}\n")
               f.write(f"OLD_S3_KEY={old_key or ''}\n")
@@ -473,7 +473,6 @@ jobs:
               f.write(f"REAL_BUILD_NUMBER={build_label(new_name)}\n")
               f.write(f"OLD_BUILD_NUMBER={build_label(old_name) if old_name else ''}\n")
 
-          # Safe outputs only (no S3 keys)
           with open(out_safe, "w", encoding="utf-8") as f:
               f.write(f"NEW_APK_NAME={new_name}\n")
               f.write(f"OLD_APK_NAME={old_name}\n")

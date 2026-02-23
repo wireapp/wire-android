@@ -667,7 +667,10 @@ jobs:
             NUM_SHARDS="1"
           fi
 
-          GRADLE_USER_HOME_BASE="${RUNNER_TEMP}/gradle-${GITHUB_RUN_ID}"
+          # FIX 1/2 (Gradle double-download):
+          # Use ONE shared Gradle cache across all shards/devices to avoid downloading Gradle distribution per device.
+          # Wrapper + dependency caches are stored here:
+          GRADLE_USER_HOME_BASE="${RUNNER_TEMP}/gradle"
           echo "GRADLE_USER_HOME_BASE=${GRADLE_USER_HOME_BASE}" >> "$GITHUB_ENV"
           mkdir -p "${GRADLE_USER_HOME_BASE}"
 
@@ -681,8 +684,10 @@ jobs:
             (
               set -euo pipefail
               export ANDROID_SERIAL="${SERIAL}"
-              export GRADLE_USER_HOME="${GRADLE_USER_HOME_BASE}/${SERIAL}"
-              mkdir -p "${GRADLE_USER_HOME}"
+
+              # FIX 1/2 continued:
+              # Do NOT set GRADLE_USER_HOME to a per-device folder, otherwise each device downloads its own gradle distribution.
+              export GRADLE_USER_HOME="${GRADLE_USER_HOME_BASE}"
 
               # IMPORTANT:
               # If NUM_SHARDS=1 (single testcase), shardIndex must be 0.
@@ -707,7 +712,7 @@ jobs:
 
                 # Run Gradle (capture exit code without breaking on set -e)
                 set +e
-                ./gradlew "${GRADLE_ARGS[@]}" \
+                ./gradlew "--gradle-user-home" "${GRADLE_USER_HOME_BASE}" "${GRADLE_ARGS[@]}" \
                   "-Pandroid.testInstrumentationRunnerArguments.numShards=${NUM_SHARDS}" \
                   "-Pandroid.testInstrumentationRunnerArguments.shardIndex=${THIS_SHARD_INDEX}"
                 rc=$?
@@ -784,8 +789,10 @@ jobs:
       - name: Merge Allure results (add device label)
         if: always()
         env:
-          OUT_DIR: ${{ env.RUNNER_TEMP }}/allure-results
-          MERGED_DIR: ${{ env.RUNNER_TEMP }}/allure-results-merged
+          # FIX 2/2 (Permission denied at /allure-results-merged):
+          # Use Actions context runner.temp (not env.RUNNER_TEMP) so it doesn't expand to empty and become "/allure-results-merged".
+          OUT_DIR: ${{ runner.temp }}/allure-results
+          MERGED_DIR: ${{ runner.temp }}/allure-results-merged
           REAL_BUILD_NUMBER: ${{ env.REAL_BUILD_NUMBER }}
           NEW_APK_NAME: ${{ env.NEW_APK_NAME }}
           INPUT_TAGS: ${{ inputs.TAGS }}
@@ -927,8 +934,9 @@ jobs:
       - name: Generate Allure HTML report
         if: always()
         env:
-          MERGED_DIR: ${{ env.RUNNER_TEMP }}/allure-results-merged
-          REPORT_DIR: ${{ env.RUNNER_TEMP }}/allure-report
+          # FIX 2/2 continued: same issue here
+          MERGED_DIR: ${{ runner.temp }}/allure-results-merged
+          REPORT_DIR: ${{ runner.temp }}/allure-report
         run: |
           set -euo pipefail
           if [[ ! -d "${MERGED_DIR}" ]]; then
@@ -978,7 +986,8 @@ jobs:
       - name: Publish Allure report to Pages branch
         if: always()
         env:
-          REPORT_DIR: ${{ env.RUNNER_TEMP }}/allure-report
+          # FIX 2/2 continued: same issue here
+          REPORT_DIR: ${{ runner.temp }}/allure-report
           PAGES_DIR: gh-pages/docs/qa-ui-tests
           KEEP_DAYS: "90"
           INPUT_TAGS: ${{ inputs.TAGS }}

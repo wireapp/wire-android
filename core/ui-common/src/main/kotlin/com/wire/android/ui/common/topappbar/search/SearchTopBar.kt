@@ -78,16 +78,6 @@ fun SearchTopBar(
 ) {
     val interactionSource = remember { MutableInteractionSource() }
 
-//    LaunchedEffect(isSearchActive) {
-//        if (isSearchActive) {
-//            focusRequester.requestFocus()
-//        } else {
-//            focusManager.clearFocus(force = true)
-//            // Optional: if you want to clear when leaving active mode
-//            // searchQueryTextState.clearText()
-//        }
-//    }
-
     fun setActive(isActive: Boolean) {
         if (isActive) {
             focusRequester.requestFocus()
@@ -131,7 +121,7 @@ fun SearchTopBar(
                         }
                     } else {
                         IconButton(
-                            onClick = { onCloseSearchClicked?.invoke() },
+                            onClick = { onCloseSearchClicked?.invoke() ?: setActive(false) },
                             modifier = Modifier.size(dimensions().buttonCircleMinSize)
                         ) {
                             Icon(

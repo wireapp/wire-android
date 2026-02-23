@@ -25,12 +25,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
@@ -38,7 +37,6 @@ import com.wire.android.ui.home.conversations.details.options.ArrowType
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsItem
 import com.wire.android.ui.home.settings.SwitchState
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.util.isWebsocketEnabledByDefault
 
 @WireRootDestination
 @Composable
@@ -50,6 +48,7 @@ fun NetworkSettingsScreen(
         onBackPressed = navigator::navigateBack,
         isWebSocketEnabled = networkSettingsViewModel.networkSettingsState.isPersistentWebSocketConnectionEnabled,
         isEnforcedByMDM = networkSettingsViewModel.networkSettingsState.isEnforcedByMDM,
+        isWebSocketEnforcedByDefault = networkSettingsViewModel.networkSettingsState.isWebSocketEnforcedByDefault,
         setWebSocketState = { networkSettingsViewModel.setWebSocketState(it) },
     )
 }
@@ -59,6 +58,7 @@ fun NetworkSettingsScreenContent(
     onBackPressed: () -> Unit,
     isWebSocketEnabled: Boolean,
     isEnforcedByMDM: Boolean,
+    isWebSocketEnforcedByDefault: Boolean,
     setWebSocketState: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -67,7 +67,7 @@ fun NetworkSettingsScreenContent(
         topBar = {
             WireCenterAlignedTopAppBar(
                 onNavigationPressed = onBackPressed,
-                elevation = 0.dp,
+                elevation = dimensions().spacing0x,
                 title = stringResource(id = R.string.settings_network_settings_label)
             )
         }
@@ -77,11 +77,7 @@ fun NetworkSettingsScreenContent(
                 .fillMaxSize()
                 .padding(internalPadding)
         ) {
-            val appContext = LocalContext.current.applicationContext
-            val isWebSocketEnforcedByDefault = remember {
-                isWebsocketEnabledByDefault(appContext)
-            }
-            val switchState = remember(isWebSocketEnabled, isEnforcedByMDM) {
+            val switchState = remember(isWebSocketEnabled, isEnforcedByMDM, isWebSocketEnforcedByDefault) {
                 when {
                     isEnforcedByMDM -> SwitchState.TextOnly(true)
                     isWebSocketEnforcedByDefault -> SwitchState.TextOnly(true)
@@ -110,11 +106,48 @@ fun NetworkSettingsScreenContent(
 
 @Composable
 @MultipleThemePreviews
-fun PreviewNetworkSettingsScreen() = WireTheme {
+fun PreviewNetworkSettingsScreenWebSocketEnabled() = WireTheme {
     NetworkSettingsScreenContent(
         onBackPressed = {},
         isWebSocketEnabled = true,
         isEnforcedByMDM = false,
+        isWebSocketEnforcedByDefault = false,
+        setWebSocketState = {},
+    )
+}
+
+@Composable
+@MultipleThemePreviews
+fun PreviewNetworkSettingsScreenWebSocketDisabled() = WireTheme {
+    NetworkSettingsScreenContent(
+        onBackPressed = {},
+        isWebSocketEnabled = false,
+        isEnforcedByMDM = false,
+        isWebSocketEnforcedByDefault = false,
+        setWebSocketState = {},
+    )
+}
+
+@Composable
+@MultipleThemePreviews
+fun PreviewNetworkSettingsScreenEnforcedByMDM() = WireTheme {
+    NetworkSettingsScreenContent(
+        onBackPressed = {},
+        isWebSocketEnabled = true,
+        isEnforcedByMDM = true,
+        isWebSocketEnforcedByDefault = false,
+        setWebSocketState = {},
+    )
+}
+
+@Composable
+@MultipleThemePreviews
+fun PreviewNetworkSettingsScreenEnforcedByDefault() = WireTheme {
+    NetworkSettingsScreenContent(
+        onBackPressed = {},
+        isWebSocketEnabled = true,
+        isEnforcedByMDM = false,
+        isWebSocketEnforcedByDefault = true,
         setWebSocketState = {},
     )
 }

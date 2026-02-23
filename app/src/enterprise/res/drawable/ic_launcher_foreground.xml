@@ -1,0 +1,50 @@
+<!--
+  ~ Wire
+  ~ Copyright (C) 2024 Wire Swiss GmbH
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program. If not, see http://www.gnu.org/licenses/.
+  -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+        android:width="108dp"
+        android:height="108dp"
+        android:viewportWidth="512"
+        android:viewportHeight="512">
+    <!-- ENTERPRISE text -->
+    <group
+        android:scaleX="0.6"
+        android:scaleY="0.6"
+        android:translateX="195"
+        android:translateY="133">
+        <!-- E, N, T, E, I, S, E (solid letters) -->
+        <path
+            android:fillColor="#000000"
+            android:pathData="M0,0 H17 V5 H5 V15.5 H14 V20.5 H5 V31 H17 V36 H0 Z M21,0 H26 V36 H21 Z M36,0 H41 V36 H36 Z M21,36 H26 L41,0 H36 Z M45,0 H62 V5 H56.5 V36 H50.5 V5 H45 Z M66,0 H83 V5 H71 V15.5 H80 V20.5 H71 V31 H83 V36 H66 Z M155,0 H160 V36 H155 Z M164,0 H181 V5 H169 V15.5 H181 V36 H164 V31 H176 V20.5 H164 Z M185,0 H202 V5 H190 V15.5 H199 V20.5 H190 V31 H202 V36 H185 Z" />
+        <!-- R, P, R (letters with holes) -->
+        <path
+            android:fillColor="#000000"
+            android:fillType="evenOdd"
+            android:pathData="M87,0 H106 V17 H99 L106,36 H101 L94,18 H92 V36 H87 Z M92,5 V12 H101 V5 Z M110,0 H128 V18 H115 V36 H110 Z M115,5 V13 H123 V5 Z M132,0 H151 V17 H144 L151,36 H146 L139,18 H137 V36 H132 Z M137,5 V12 H146 V5 Z" />
+    </group>
+    <!-- Wire logo -->
+    <group
+            android:scaleX="0.65"
+            android:scaleY="0.65"
+            android:translateX="89.6"
+            android:translateY="89.6">
+        <path
+                android:fillColor="#000000"
+                android:fillType="evenOdd"
+                android:pathData="M256.84,348.61C271.08,359.55 288.54,365.42 306.45,365.42C351.4,365.42 388.74,327.69 388.74,282.85V154.11H369.4V282.76L369.4,282.77V282.77C369.49,296.45 365.09,309.68 357.01,320.62C336.7,347.98 298.42,354.09 270.64,334.81C282.57,320.11 289.14,301.75 289.05,282.75L289.05,179.13C288.74,161.79 274.34,147.3 256.97,147.01C239.15,146.71 223.99,161.29 223.7,179.13L223.7,282.76L223.7,282.76C223.8,301.65 230.49,320.25 242.55,334.81C232.06,342.02 219.62,345.97 206.85,345.97C172.32,345.97 143.43,317.35 143.34,282.75V154.11H124V282.95C124,328.52 161.36,365.52 206.85,365.52C224.96,365.52 242.51,359.56 256.84,348.61ZM256.37,165.79C263.78,165.79 269.71,171.81 269.71,179.15V282.76C269.71,296.83 265.03,310.49 256.38,321.57C247.79,310.49 243.03,296.82 243.03,282.76V179.15C243.03,171.73 249.04,165.79 256.37,165.79Z" />
+    </group>
+</vector>

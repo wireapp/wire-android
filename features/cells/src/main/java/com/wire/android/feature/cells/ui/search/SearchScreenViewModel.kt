@@ -23,7 +23,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
-import com.ramcosta.composedestinations.generated.cells.navArgs
+import com.ramcosta.composedestinations.generated.cells.destinations.SearchScreenDestination
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.toUiModel
 import com.wire.android.feature.cells.ui.search.filter.data.FilterOwnerUi
@@ -49,6 +49,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -71,9 +72,7 @@ class SearchScreenViewModel @Inject constructor(
         val filesWithPublicLink: Boolean?,
     )
 
-    private val navArgs: SearchNavArgs = savedStateHandle.navArgs()
-
-//    private val navArgs: SearchNavArgs = SearchScreenDestination.argsFrom(savedStateHandle)
+    private val navArgs: SearchNavArgs = SearchScreenDestination.argsFrom(savedStateHandle)
 
     private val _uiState = MutableStateFlow(SearchUiState())
     val uiState: StateFlow<SearchUiState> = _uiState.asStateFlow()
@@ -95,28 +94,28 @@ class SearchScreenViewModel @Inject constructor(
         }.distinctUntilChanged()
 
     val cellNodesFlow: Flow<PagingData<CellNodeUi>> =
-        searchParamsFlow.flatMapLatest { params ->
-            getCellFilesPaged(
-                conversationId = navArgs.conversationId,
-                query = params.query,
-                fileFilters = FileFilters(
-                    tags = params.tagIds,
-                    owners = params.ownerIds,
-                    mimeTypes = params.mimeTypes,
-                    hasPublicLink = params.filesWithPublicLink
-                ),
-            ).map { pagingData ->
-                pagingData.map { node ->
-                    if (uiState.value.availableOwners.isEmpty()) {
-                        loadOwners(node)
-                    }
-                    when (node) {
-                        is Node.Folder -> node.toUiModel()
-                        is Node.File -> node.toUiModel()
-                    }
-                }
-            }
-        }.cachedIn(viewModelScope)
+        searchParamsFlow.flatMapLatest<SearchParams, PagingData<CellNodeUi>> { params: SearchParams ->
+             getCellFilesPaged(
+                 conversationId = navArgs.conversationId,
+                 query = params.query,
+                 fileFilters = FileFilters(
+                     tags = params.tagIds,
+                     owners = params.ownerIds,
+                     mimeTypes = params.mimeTypes,
+                     hasPublicLink = params.filesWithPublicLink
+                 ),
+             ).map { pagingData: PagingData<Node> ->
+                 pagingData.map { node: Node ->
+                     if (uiState.value.availableOwners.isEmpty()) {
+                         loadOwners(node)
+                     }
+                     when (node) {
+                         is Node.Folder -> node.toUiModel()
+                         is Node.File -> node.toUiModel()
+                     }
+                 }
+             }
+         }.cachedIn(viewModelScope)
 
     init {
         loadTags()

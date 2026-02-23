@@ -90,7 +90,7 @@ jobs:
       resolvedCategory: ${{ steps.resolve_selector.outputs.category }}
 
     steps:
-      # Validate upgrade inputs for consistency.
+      # Upgrade runs require the old build number to be provided.
       - name: Validate upgrade inputs
         shell: bash
         run: |
@@ -100,7 +100,9 @@ jobs:
             exit 1
           fi
 
-      # Parse TAGS into a single selector (testCaseId or category).
+      # TAGS supports one selector:
+      # - @TC-1234 => testCaseId
+      # - @regression => category
       - name: Resolve selector from TAGS
         id: resolve_selector
         shell: bash
@@ -142,7 +144,7 @@ jobs:
           echo "testCaseId=$TESTCASE_ID" >> "$GITHUB_OUTPUT"
           echo "category=$CATEGORY" >> "$GITHUB_OUTPUT"
 
-      # Log resolved values for troubleshooting (safe: no secrets/paths).
+      # Safe visibility for troubleshooting.
       - name: Print resolved values
         shell: bash
         run: |
@@ -170,6 +172,10 @@ jobs:
       S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
       OP_VAULT: "Test Automation"
 
+      # Shared Gradle home on the runner to avoid downloading Gradle per device.
+      GRADLE_USER_HOME: ${{ runner.temp }}/gradle-home
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
       # Path to runner-local configuration file (not stored in this repository).
       # Contains:
       # - flavors.<name>.s3Folder
@@ -183,7 +189,7 @@ jobs:
 
     steps:
       # --------------------------------------------------------------------
-      # Checkout source and set up toolchain
+      # Checkout + toolchain setup
       # --------------------------------------------------------------------
       - name: Checkout (with submodules)
         uses: actions/checkout@v4
@@ -201,12 +207,15 @@ jobs:
       - name: Set up Android SDK (ANDROID_HOME + adb)
         uses: android-actions/setup-android@v3
 
-      # Ensure required CLI tools are available on the runner.
+      # Verify prerequisites exist on the runner.
       - name: Ensure required tools exist
         run: |
           set -euo pipefail
           command -v adb >/dev/null 2>&1 || { echo "ERROR: adb not found"; exit 1; }
           command -v python3 >/dev/null 2>&1 || { echo "ERROR: python3 not found on this runner"; exit 1; }
+
+          : "${GRADLE_USER_HOME:?GRADLE_USER_HOME not set}"
+          mkdir -p "${GRADLE_USER_HOME}"
 
           if command -v aws >/dev/null 2>&1; then
             aws --version
@@ -234,10 +243,15 @@ jobs:
 
           aws --version
 
+      # Download the Gradle distribution once before parallel shards start.
+      - name: Warm Gradle wrapper
+        run: |
+          set -euo pipefail
+          chmod +x ./gradlew
+          ./gradlew --version --no-daemon --no-configuration-cache
+
       # --------------------------------------------------------------------
-      # Resolve flavor configuration from runner-local file:
-      #   /etc/android-qa/flavors.json
-      # Loads S3 folder, application ID, and cleanup package list for the selected flavor.
+      # Read runner-local flavor configuration
       # --------------------------------------------------------------------
       - name: Resolve flavor + uninstall packages (runner config)
         id: resolve_flavor
@@ -253,9 +267,6 @@ jobs:
             exit 1
           fi
 
-          # IMPORTANT SECURITY NOTE:
-          # - We do NOT print S3 folder/path to logs.
-          # - We only export it to env for internal use.
           python3 - <<'PY'
           import json, os, sys
 
@@ -289,7 +300,6 @@ jobs:
               print(f"ERROR: Flavor '{flavor}' missing s3Folder/appId in {cfg_path}", file=sys.stderr)
               sys.exit(1)
 
-          # packagesToUninstall is optional, but we validate if present
           pkgs = []
           if packages is None:
               pkgs = []
@@ -303,15 +313,13 @@ jobs:
           with open(env_path, "a", encoding="utf-8") as f:
               f.write(f"S3_FOLDER={s3}\n")
               f.write(f"APP_ID={app}\n")
-              # Space-separated list is easiest to consume in bash
               f.write("PACKAGES_TO_UNINSTALL=" + " ".join(pkgs) + "\n")
           PY
 
-          # Safe debug: only show the flavor name (not the S3 folder/path).
           echo "Resolved runner config for flavor: '${{ inputs.flavor }}'"
 
       # --------------------------------------------------------------------
-      # Configure AWS access to download APKs from S3
+      # AWS credentials for S3 access
       # --------------------------------------------------------------------
       - name: Configure AWS credentials (for S3)
         uses: aws-actions/configure-aws-credentials@v4
@@ -321,7 +329,7 @@ jobs:
           aws-region: eu-west-1
 
       # --------------------------------------------------------------------
-      # Resolve and download new/old APKs for the run
+      # Resolve and download APK(s)
       # --------------------------------------------------------------------
       - name: Download APK(s) from S3
         id: download_apks
@@ -340,12 +348,9 @@ jobs:
             --query "Contents[?ends_with(Key, '.apk')].Key" \
             --output json > "${RUNNER_TEMP}/apk_keys.json"
 
-          # IMPORTANT SECURITY NOTE:
-          # - We MUST store NEW_S3_KEY/OLD_S3_KEY for aws s3 cp.
-          # - But we MUST NOT echo/print these keys or any full S3 paths.
           APK_ENV_FILE="${RUNNER_TEMP}/apk_env_full.txt"
           APK_OUT_FILE="${RUNNER_TEMP}/apk_out_safe.txt"
-          export APK_ENV_FILE APK_OUT_FILE   # <-- THIS WAS MISSING (fix)
+          export APK_ENV_FILE APK_OUT_FILE
           rm -f "${APK_ENV_FILE}" "${APK_OUT_FILE}"
 
           python3 - <<'PY'
@@ -480,12 +485,10 @@ jobs:
               f.write(f"OLD_BUILD_NUMBER={build_label(old_name) if old_name else ''}\n")
           PY
 
-          # Make Python outputs available NOW (same step) without printing them.
           set -a
           source "${APK_ENV_FILE}"
           set +a
 
-          # Persist for later steps (still without printing)
           cat "${APK_ENV_FILE}" >> "$GITHUB_ENV"
           cat "${APK_OUT_FILE}" >> "$GITHUB_OUTPUT"
 
@@ -505,7 +508,7 @@ jobs:
           fi
 
       # --------------------------------------------------------------------
-      # Pick target devices and set up sharding metadata
+      # Device selection and sharding metadata
       # --------------------------------------------------------------------
       - name: Detect target device(s)
         run: |
@@ -535,7 +538,7 @@ jobs:
           echo "Using ${DEVICE_COUNT} device(s)"
 
       # --------------------------------------------------------------------
-      # Install APKs and stage upgrade artifacts on devices
+      # APK install on devices
       # --------------------------------------------------------------------
       - name: Install APK(s) on device(s)
         run: |
@@ -554,9 +557,6 @@ jobs:
             INSTALL_FLAGS="-r -d"
           fi
 
-          # NOTE:
-          # PACKAGES_TO_UNINSTALL comes from /etc/android-qa/flavors.json on the runner (NOT from GitHub).
-          # It is only package ids, used to uninstall old apps to avoid conflicts.
           PACKAGES_TO_UNINSTALL="${PACKAGES_TO_UNINSTALL:-}"
           read -ra PACKAGES <<< "${PACKAGES_TO_UNINSTALL}"
 
@@ -567,7 +567,6 @@ jobs:
 
             INSTALLED="$(${ADB} shell pm list packages || true)"
 
-            # Uninstall known packages to avoid conflicts (safe; ignores if missing)
             for pkg in "${PACKAGES[@]}"; do
               if [[ -n "${pkg}" ]] && echo "${INSTALLED}" | grep -qx "package:${pkg}"; then
                 ${ADB} uninstall "${pkg}" || true
@@ -591,7 +590,7 @@ jobs:
           done
 
       # --------------------------------------------------------------------
-      # Fetch runtime secrets needed by tests
+      # Runtime secrets for test execution
       # --------------------------------------------------------------------
       - name: Install 1Password CLI
         uses: 1password/install-cli-action@v2
@@ -677,7 +676,7 @@ jobs:
           echo "OK: secrets.json created at ${SECRETS_JSON_PATH} and linked to $(pwd)/secrets.json"
 
       # --------------------------------------------------------------------
-      # Build the instrumentation test APK
+      # Build instrumentation APK once (shared for all shards)
       # --------------------------------------------------------------------
       - name: Build test APK (assemble)
         run: |
@@ -685,7 +684,10 @@ jobs:
           ./gradlew :tests:testsCore:assembleDebugAndroidTest --no-daemon --no-configuration-cache
 
       # --------------------------------------------------------------------
-      # Execute UI tests with per-device sharding + deflake retry per shard
+      # Test execution:
+      # - one shard per device (parallel)
+      # - if shard fails, rerun only failed tests (sequential on that device)
+      # - Allure results are collected per attempt so the final report uses the latest attempt
       # --------------------------------------------------------------------
       - name: Run UI tests (one shard per device)
         env:
@@ -696,8 +698,8 @@ jobs:
           set -euo pipefail
           : "${DEVICE_LIST:?DEVICE_LIST missing}"
           : "${DEVICE_COUNT:?DEVICE_COUNT missing}"
+          : "${APP_ID:?APP_ID missing}"
 
-          # Validate retry count (default 1 if missing)
           RETRY_COUNT="${RETRY_COUNT:-1}"
           if ! [[ "${RETRY_COUNT}" =~ ^[0-9]+$ ]]; then
             echo "ERROR: retryCount must be a non-negative integer. Got: '${RETRY_COUNT}'"
@@ -723,13 +725,12 @@ jobs:
 
           NUM_SHARDS="${DEVICE_COUNT}"
           if [[ -n "${RESOLVED_TESTCASE_ID}" ]]; then
-            # Keep sharding disabled for single testcase runs (but still allow running it on multiple devices).
             NUM_SHARDS="1"
           fi
 
-          GRADLE_USER_HOME_BASE="${RUNNER_TEMP}/gradle-${GITHUB_RUN_ID}"
-          echo "GRADLE_USER_HOME_BASE=${GRADLE_USER_HOME_BASE}" >> "$GITHUB_ENV"
-          mkdir -p "${GRADLE_USER_HOME_BASE}"
+          OUT_DIR="${RUNNER_TEMP}/allure-results"
+          mkdir -p "${OUT_DIR}"
+          echo "ALLURE_OUT_DIR=${OUT_DIR}" >> "$GITHUB_ENV"
 
           read -ra DEVICES <<< "${DEVICE_LIST}"
           echo "Sharding: numShards=${NUM_SHARDS}, deviceCount=${DEVICE_COUNT}, retryCount=${RETRY_COUNT}"
@@ -741,17 +742,24 @@ jobs:
             (
               set -euo pipefail
               export ANDROID_SERIAL="${SERIAL}"
-              export GRADLE_USER_HOME="${GRADLE_USER_HOME_BASE}/${SERIAL}"
-              mkdir -p "${GRADLE_USER_HOME}"
 
-              # IMPORTANT:
-              # If NUM_SHARDS=1 (single testcase), shardIndex must be 0.
               THIS_SHARD_INDEX="${shard_index}"
               if [[ "${NUM_SHARDS}" == "1" ]]; then
                 THIS_SHARD_INDEX="0"
               fi
 
               ALLURE_DEVICE_DIR="/sdcard/googletest/test_outputfiles/allure-results"
+              DEVICE_OUT_BASE="${OUT_DIR}/${SERIAL}"
+              mkdir -p "${DEVICE_OUT_BASE}"
+
+              adb -s "${SERIAL}" wait-for-device
+
+              # Pre-create the UTP output folder for this device so the device-info plugin can write files.
+              MODEL="$(adb -s "${SERIAL}" shell getprop ro.product.model | tr -d '\r')"
+              ANDROID_VER="$(adb -s "${SERIAL}" shell getprop ro.build.version.release | tr -d '\r')"
+              DEVICE_DIR_NAME="${MODEL} - ${ANDROID_VER}"
+              UTP_DIR="tests/testsCore/build/outputs/androidTest-results/connected/debug/${DEVICE_DIR_NAME}"
+              mkdir -p "${UTP_DIR}"
 
               max_attempts=$((RETRY_COUNT + 1))
               attempt=1
@@ -759,13 +767,15 @@ jobs:
               while (( attempt <= max_attempts )); do
                 echo "[${SERIAL}] shardIndex=${THIS_SHARD_INDEX}/${NUM_SHARDS} attempt=${attempt}/${max_attempts}"
 
-                # Deflake hygiene:
-                # - ensure device is ready
-                # - clear previous allure output to avoid mixing attempts (keeps report clean)
-                adb -s "${SERIAL}" wait-for-device
-                adb -s "${SERIAL}" shell "rm -rf '${ALLURE_DEVICE_DIR}' && mkdir -p '${ALLURE_DEVICE_DIR}'" >/dev/null 2>&1 || true
+                # Device prep:
+                # - clear Allure output only for attempt 1 of the full shard
+                # - clear app state only for attempt 1 (keeps retries closer to "rerun failed" semantics)
+                if (( attempt == 1 )); then
+                  adb -s "${SERIAL}" shell "rm -rf '${ALLURE_DEVICE_DIR}' && mkdir -p '${ALLURE_DEVICE_DIR}'" >/dev/null 2>&1 || true
+                  adb -s "${SERIAL}" shell "pm clear '${APP_ID}'" >/dev/null 2>&1 || true
+                fi
 
-                # Run Gradle (capture exit code without breaking on set -e)
+                # Full shard run
                 set +e
                 ./gradlew "${GRADLE_ARGS[@]}" \
                   "-Pandroid.testInstrumentationRunnerArguments.numShards=${NUM_SHARDS}" \
@@ -773,20 +783,123 @@ jobs:
                 rc=$?
                 set -e
 
+                # Collect Allure for this attempt (even on failure) before doing any rerun.
+                ATTEMPT_DIR="${DEVICE_OUT_BASE}/attempt-${attempt}"
+                mkdir -p "${ATTEMPT_DIR}"
+                adb -s "${SERIAL}" pull "${ALLURE_DEVICE_DIR}" "${ATTEMPT_DIR}" >/dev/null 2>&1 || true
+
                 if [[ "$rc" -eq 0 ]]; then
                   echo "[${SERIAL}] PASS (attempt ${attempt})"
                   exit 0
                 fi
 
+                # If no more attempts are allowed, stop.
                 if (( attempt == max_attempts )); then
                   echo "[${SERIAL}] FAIL after ${attempt} attempt(s)."
                   exit "$rc"
                 fi
 
-                echo "[${SERIAL}] shard failed (rc=${rc}) -> deflake retry in 10s..."
-                # Light cleanup before retry
-                adb -s "${SERIAL}" shell "am force-stop '${APP_ID}'" >/dev/null 2>&1 || true
-                sleep 10
+                # Attempt 2+: rerun only failed tests from attempt 1 (if we can detect them).
+                # If we cannot detect failures, we fall back to a full shard retry.
+                if (( attempt == 1 )); then
+                  FAILED_LIST="${DEVICE_OUT_BASE}/failed-tests.txt"
+                  rm -f "${FAILED_LIST}"
+
+                  python3 - <<'PY'
+                  import os, sys
+                  import xml.etree.ElementTree as ET
+                  from pathlib import Path
+
+                  serial = os.environ.get("ANDROID_SERIAL", "")
+                  model = os.environ.get("MODEL", "")
+                  ver = os.environ.get("ANDROID_VER", "")
+                  device_dir = f"{model} - {ver}".strip()
+                  base = Path("tests/testsCore/build/outputs/androidTest-results/connected/debug") / device_dir
+
+                  out = Path(os.environ["FAILED_LIST"])
+
+                  # Collect all XML files under the device output folder.
+                  xml_files = []
+                  if base.is_dir():
+                      xml_files = list(base.rglob("*.xml"))
+
+                  failed = []
+                  for xf in xml_files:
+                      try:
+                          tree = ET.parse(xf)
+                          root = tree.getroot()
+                      except Exception:
+                          continue
+                      # JUnit style: <testcase classname="..." name="..."><failure .../></testcase>
+                      for tc in root.iter("testcase"):
+                          classname = tc.attrib.get("classname") or ""
+                          name = tc.attrib.get("name") or ""
+                          if not classname or not name:
+                              continue
+                          has_failure = any(child.tag in ("failure", "error") for child in tc)
+                          if has_failure:
+                              failed.append(f"{classname}#{name}")
+
+                  # Write unique, stable order.
+                  uniq = []
+                  seen = set()
+                  for t in failed:
+                      if t not in seen:
+                          seen.add(t)
+                          uniq.append(t)
+
+                  out.parent.mkdir(parents=True, exist_ok=True)
+                  out.write_text("\n".join(uniq) + ("\n" if uniq else ""), encoding="utf-8")
+                  PY
+                  export FAILED_LIST
+
+                  if [[ -s "${FAILED_LIST}" ]]; then
+                    echo "[${SERIAL}] rerunning failed tests only ($(wc -l < "${FAILED_LIST}" | tr -d ' ') total)"
+
+                    # Clear device Allure output before rerun so attempt-2 contains only rerun data.
+                    adb -s "${SERIAL}" shell "rm -rf '${ALLURE_DEVICE_DIR}' && mkdir -p '${ALLURE_DEVICE_DIR}'" >/dev/null 2>&1 || true
+
+                    rerun_failed=0
+                    while IFS= read -r test_id; do
+                      [[ -n "${test_id}" ]] || continue
+                      echo "[${SERIAL}] rerun: ${test_id}"
+
+                      set +e
+                      ./gradlew "${GRADLE_ARGS[@]}" \
+                        "-Pandroid.testInstrumentationRunnerArguments.numShards=1" \
+                        "-Pandroid.testInstrumentationRunnerArguments.shardIndex=0" \
+                        "-Pandroid.testInstrumentationRunnerArguments.class=${test_id}"
+                      rrc=$?
+                      set -e
+
+                      if [[ "${rrc}" -ne 0 ]]; then
+                        rerun_failed=1
+                      fi
+                    done < "${FAILED_LIST}"
+
+                    # Collect Allure for rerun attempt (attempt 2) and decide outcome.
+                    attempt=2
+                    ATTEMPT_DIR="${DEVICE_OUT_BASE}/attempt-${attempt}"
+                    mkdir -p "${ATTEMPT_DIR}"
+                    adb -s "${SERIAL}" pull "${ALLURE_DEVICE_DIR}" "${ATTEMPT_DIR}" >/dev/null 2>&1 || true
+
+                    if [[ "${rerun_failed}" -eq 0 ]]; then
+                      echo "[${SERIAL}] PASS after rerun of failed tests"
+                      exit 0
+                    fi
+
+                    echo "[${SERIAL}] rerun still failing"
+                    exit 1
+                  else
+                    echo "[${SERIAL}] could not detect failed tests reliably; retrying full shard after short wait"
+                    adb -s "${SERIAL}" shell "am force-stop '${APP_ID}'" >/dev/null 2>&1 || true
+                    sleep 10
+                  fi
+                else
+                  # Additional attempts beyond 2 fall back to a full shard retry (rare).
+                  adb -s "${SERIAL}" shell "am force-stop '${APP_ID}'" >/dev/null 2>&1 || true
+                  sleep 10
+                fi
 
                 attempt=$((attempt + 1))
               done
@@ -804,12 +917,12 @@ jobs:
           done
 
           if [[ "$failed" -ne 0 ]]; then
-            echo "ERROR: One or more shards failed (even after retries)."
+            echo "ERROR: One or more shards failed."
             exit 1
           fi
 
       # --------------------------------------------------------------------
-      # Cleanup: remove runtime secrets before Allure/Pages
+      # Cleanup: remove runtime secrets before report steps
       # --------------------------------------------------------------------
       - name: Remove runtime secrets (before Allure/Pages)
         if: always()
@@ -821,31 +934,39 @@ jobs:
           fi
 
       # --------------------------------------------------------------------
-      # Collect Allure result files from devices
+      # Collect Allure results from devices (safety net)
+      # - Normally results are already pulled during the test step.
+      # - This only runs if the local results directory is missing.
       # --------------------------------------------------------------------
       - name: Pull Allure results from device(s)
         if: always()
         run: |
           set -euo pipefail
+          OUT_DIR="${RUNNER_TEMP}/allure-results"
+          if [[ -d "${OUT_DIR}" ]] && find "${OUT_DIR}" -maxdepth 3 -type f 2>/dev/null | grep -q .; then
+            echo "Allure results already collected during test execution."
+            exit 0
+          fi
+
           if [[ -z "${DEVICE_LIST:-}" ]]; then
             echo "No devices detected (skipping allure pull)"
             exit 0
           fi
 
-          OUT_DIR="${RUNNER_TEMP}/allure-results"
           mkdir -p "${OUT_DIR}"
-
           read -ra DEVICES <<< "${DEVICE_LIST}"
           idx=1
           for SERIAL in "${DEVICES[@]}"; do
             echo "Pulling allure-results from device ${idx}/${DEVICE_COUNT}..."
-            mkdir -p "${OUT_DIR}/${SERIAL}"
-            adb -s "${SERIAL}" pull "/sdcard/googletest/test_outputfiles/allure-results" "${OUT_DIR}/${SERIAL}" >/dev/null 2>&1 || true
+            mkdir -p "${OUT_DIR}/${SERIAL}/attempt-1"
+            adb -s "${SERIAL}" pull "/sdcard/googletest/test_outputfiles/allure-results" "${OUT_DIR}/${SERIAL}/attempt-1" >/dev/null 2>&1 || true
             idx=$((idx + 1))
           done
 
       # --------------------------------------------------------------------
-      # Merge Allure results and add device metadata
+      # Merge Allure results:
+      # - add device labels
+      # - if rerun was done, keep the latest attempt per test
       # --------------------------------------------------------------------
       - name: Merge Allure results (add device label)
         if: always()
@@ -858,7 +979,6 @@ jobs:
         run: |
           set -euo pipefail
 
-          # If earlier steps failed before pulling results, OUT_DIR may not exist.
           if [[ ! -d "${OUT_DIR}" ]]; then
             echo "No Allure results directory found (${OUT_DIR}). Skipping merge."
             mkdir -p "${MERGED_DIR}"
@@ -890,10 +1010,12 @@ jobs:
               except Exception:
                   return ""
 
-          device_dirs = [p for p in out_dir.iterdir() if p.is_dir()]
+          # Discover device serial folders.
+          serial_dirs = [p for p in out_dir.iterdir() if p.is_dir()]
+
           device_info = {}
-          for device_dir in device_dirs:
-              serial = device_dir.name
+          for serial_dir in serial_dirs:
+              serial = serial_dir.name
               model = get_prop(serial, "ro.product.model") or "unknown"
               sdk = get_prop(serial, "ro.build.version.release") or get_prop(serial, "ro.build.version.sdk") or "unknown"
               device_info[serial] = {"model": model, "sdk": sdk}
@@ -916,73 +1038,122 @@ jobs:
               data["parameters"] = params
               return data
 
-          for device_dir in device_dirs:
-              serial = device_dir.name
-              src_dir = device_dir / "allure-results"
-              if not src_dir.is_dir():
-                  src_dir = device_dir
-              if not src_dir.is_dir():
-                  continue
+          # Keep only the latest attempt per test:
+          # Use historyId when available (stable across attempts), else fall back to fullName/name.
+          latest_by_key = {}  # key -> (attempt_index, serial, path, json_data)
 
-              label = device_label(serial)
-              for item in src_dir.iterdir():
+          # Copy non-result files (attachments) as-is; duplicates are harmless.
+          def copy_misc_files(src: Path):
+              for item in src.iterdir():
                   if item.is_dir():
+                      continue
+                  if item.name.endswith("-result.json"):
                       continue
                   if item.name in ("executor.json", "environment.properties"):
                       continue
-                  if item.name.endswith("-result.json"):
+                  dst = merged_dir / item.name
+                  if not dst.exists():
                       try:
-                          data = json.loads(item.read_text(encoding="utf-8"))
+                          shutil.copy2(item, dst)
                       except Exception:
+                          pass
+
+          def read_result_json(p: Path):
+              try:
+                  return json.loads(p.read_text(encoding="utf-8"))
+              except Exception:
+                  return None
+
+          # Iterate attempts in ascending order so later attempts overwrite.
+          for serial_dir in sorted(serial_dirs, key=lambda p: p.name):
+              serial = serial_dir.name
+              attempts = sorted([a for a in serial_dir.iterdir() if a.is_dir() and a.name.startswith("attempt-")],
+                                key=lambda p: int(p.name.split("-", 1)[1]) if "-" in p.name else 0)
+
+              if not attempts:
+                  attempts = [serial_dir]
+
+              for attempt_dir in attempts:
+                  attempt_name = attempt_dir.name
+                  try:
+                      attempt_index = int(attempt_name.split("-", 1)[1]) if attempt_name.startswith("attempt-") else 1
+                  except Exception:
+                      attempt_index = 1
+
+                  src_dir = attempt_dir / "allure-results"
+                  if not src_dir.is_dir():
+                      src_dir = attempt_dir
+                  if not src_dir.is_dir():
+                      continue
+
+                  copy_misc_files(src_dir)
+
+                  label = device_label(serial)
+
+                  for item in src_dir.iterdir():
+                      if item.is_dir():
                           continue
+                      if not item.name.endswith("-result.json"):
+                          continue
+
+                      data = read_result_json(item)
+                      if not isinstance(data, dict):
+                          continue
+
                       data = add_label(data, "device", label)
                       data = add_label(data, "host", label)
                       data = add_parameter(data, "device", label)
-                      (merged_dir / item.name).write_text(
-                          json.dumps(data, ensure_ascii=True),
-                          encoding="utf-8",
-                      )
-                  else:
-                      shutil.copy2(item, merged_dir / item.name)
 
+                      key = (data.get("historyId") or data.get("fullName") or data.get("name") or item.name)
+                      prev = latest_by_key.get(key)
+                      if prev is None or attempt_index >= prev[0]:
+                          latest_by_key[key] = (attempt_index, serial, item.name, data)
+
+          # Write final chosen results.
+          for _, (_, _, filename, data) in latest_by_key.items():
+              (merged_dir / filename).write_text(json.dumps(data, ensure_ascii=True), encoding="utf-8")
+
+          # environment.properties for report metadata
           env_lines = []
           if device_info:
               devices = ", ".join(device_label(serial) for serial in sorted(device_info.keys()))
               env_lines.append(f"devices={devices}")
 
-          apk_version = os.environ.get("REAL_BUILD_NUMBER", "").strip()
-          apk_name = os.environ.get("NEW_APK_NAME", "").strip()
+          apk_version = (os.environ.get("REAL_BUILD_NUMBER") or "").strip()
+          apk_name = (os.environ.get("NEW_APK_NAME") or "").strip()
           if apk_version:
               env_lines.append(f"apk={apk_version}")
           elif apk_name:
               env_lines.append(f"apk={apk_name}")
 
-          run_number = os.environ.get("GITHUB_RUN_NUMBER", "").strip()
+          run_number = (os.environ.get("GITHUB_RUN_NUMBER") or "").strip()
           if run_number:
               env_lines.append(f"run={run_number}")
 
           run_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
           env_lines.append(f"date={run_date}")
 
-          tags_input = os.environ.get("INPUT_TAGS", "").strip()
+          tags_input = (os.environ.get("INPUT_TAGS") or "").strip()
           if tags_input:
               env_lines.append(f"input_tags={tags_input}")
 
           if env_lines:
-              (merged_dir / "environment.properties").write_text(
-                  "\n".join(env_lines) + "\n", encoding="utf-8"
-              )
+              (merged_dir / "environment.properties").write_text("\n".join(env_lines) + "\n", encoding="utf-8")
 
+          # executor.json for the report header
           run_id = os.environ.get("GITHUB_RUN_ID", "")
           repo = os.environ.get("GITHUB_REPOSITORY", "")
           server = os.environ.get("GITHUB_SERVER_URL", "https://github.com")
           run_url = f"{server}/{repo}/actions/runs/{run_id}" if repo and run_id else ""
-          build_name = run_number
+
+          build_name = run_number or ""
           if run_number and apk_version:
               build_name = f"{run_number} / {apk_version}"
+
           report_name = "Android UI Tests"
           if apk_version:
               report_name = f"Android UI Tests ({apk_version})"
+
           executor = {
               "name": "GitHub Actions",
               "type": "github",
@@ -991,14 +1162,11 @@ jobs:
               "buildUrl": run_url,
               "reportName": report_name,
           }
-          (merged_dir / "executor.json").write_text(
-              json.dumps(executor, ensure_ascii=True),
-              encoding="utf-8",
-          )
+          (merged_dir / "executor.json").write_text(json.dumps(executor, ensure_ascii=True), encoding="utf-8")
           PY
 
       # --------------------------------------------------------------------
-      # Generate the HTML report from merged results
+      # Generate Allure HTML report
       # --------------------------------------------------------------------
       - name: Generate Allure HTML report
         if: always()
@@ -1077,7 +1245,7 @@ jobs:
             RUN_FOLDER="${RUN_FOLDER}_apk-${SAFE_APK}"
           fi
 
-          rm -rf "${PAGES_DIR}/${RUN_FOLDER}"
+          rm -rf "${PAGES_DIR:?}/${RUN_FOLDER}"
           mkdir -p "${PAGES_DIR}/${RUN_FOLDER}"
           cp -a "${REPORT_DIR}/." "${PAGES_DIR}/${RUN_FOLDER}/"
 
@@ -1140,7 +1308,5 @@ jobs:
           rm -rf "${RUNNER_TEMP}/allure-results" || true
           rm -rf "${RUNNER_TEMP}/allure-results-merged" || true
           rm -rf "${RUNNER_TEMP}/allure-report" || true
-
-          rm -rf "${GRADLE_USER_HOME_BASE:-}" || true
 
           git clean -ffdx -e .gradle -e .kotlin

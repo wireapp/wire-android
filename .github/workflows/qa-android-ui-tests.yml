@@ -151,7 +151,7 @@ jobs:
           echo "resolvedTestCaseId=${{ steps.resolve_selector.outputs.testCaseId }}"
           echo "resolvedCategory=${{ steps.resolve_selector.outputs.category }}"
 
-  # Run ndroid UI tests on self-hosted QA runners and publishes the generated Allure report to gh-pages.
+  # Run Android UI tests on self-hosted QA runners, then publish Allure HTML report to gh-pages.
   run-android-ui-tests:
     name: Run Android UI tests
     runs-on:
@@ -170,9 +170,11 @@ jobs:
       S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
       OP_VAULT: "Test Automation"
 
-
       # Path to runner-local configuration file (not stored in this repository).
-      # Contains flavor → S3 folder mapping, appId, and packagesToUninstall.
+      # Contains:
+      # - flavors.<name>.s3Folder
+      # - flavors.<name>.appId
+      # - packagesToUninstall
       FLAVORS_CONFIG_PATH: "/etc/android-qa/flavors.json"
 
     defaults:
@@ -339,13 +341,19 @@ jobs:
             --output json > "${RUNNER_TEMP}/apk_keys.json"
 
           # IMPORTANT SECURITY NOTE:
-          # - We MUST store NEW_S3_KEY/OLD_S3_KEY in env to download the APKs.
-          # - But we MUST NOT print/echo these keys or any full S3 paths in logs.
-          #   (Do NOT add debug prints like: echo "$NEW_S3_KEY")
+          # - We MUST store NEW_S3_KEY/OLD_S3_KEY for aws s3 cp.
+          # - But we MUST NOT echo/print these keys or any full S3 paths.
+          APK_ENV_FILE="${RUNNER_TEMP}/apk_env_full.txt"
+          APK_OUT_FILE="${RUNNER_TEMP}/apk_out_safe.txt"
+          rm -f "${APK_ENV_FILE}" "${APK_OUT_FILE}"
+
           python3 - <<'PY'
           import json, os, re, sys
 
           keys_path = os.path.join(os.environ["RUNNER_TEMP"], "apk_keys.json")
+          out_env = os.environ["APK_ENV_FILE"]
+          out_safe = os.environ["APK_OUT_FILE"]
+
           try:
               data = json.load(open(keys_path, "r", encoding="utf-8"))
           except Exception:
@@ -456,32 +464,33 @@ jobs:
           new_name = new_key.split("/")[-1]
           old_name = old_key.split("/")[-1] if old_key else ""
 
-          env_path = os.environ["GITHUB_ENV"]
-          out_path = os.environ["GITHUB_OUTPUT"]
+          # Full env file (includes S3 keys) - DO NOT PRINT THIS FILE
+          with open(out_env, "w", encoding="utf-8") as f:
+              f.write(f"NEW_S3_KEY={new_key}\n")
+              f.write(f"OLD_S3_KEY={old_key or ''}\n")
+              f.write(f"NEW_APK_NAME={new_name}\n")
+              f.write(f"OLD_APK_NAME={old_name}\n")
+              f.write(f"REAL_BUILD_NUMBER={build_label(new_name)}\n")
+              f.write(f"OLD_BUILD_NUMBER={build_label(old_name) if old_name else ''}\n")
 
-          def write(path, lines):
-              with open(path, "a", encoding="utf-8") as f:
-                  for line in lines:
-                      f.write(line + "\n")
-
-          # Keys are required for aws s3 cp; store them in env but NEVER print them.
-          write(env_path, [
-              f"NEW_S3_KEY={new_key}",
-              f"OLD_S3_KEY={old_key or ''}",
-              f"NEW_APK_NAME={new_name}",
-              f"OLD_APK_NAME={old_name}",
-              f"REAL_BUILD_NUMBER={build_label(new_name)}",
-              f"OLD_BUILD_NUMBER={build_label(old_name) if old_name else ''}",
-          ])
-
-          # Outputs: safe (names/labels only)
-          write(out_path, [
-              f"NEW_APK_NAME={new_name}",
-              f"OLD_APK_NAME={old_name}",
-              f"REAL_BUILD_NUMBER={build_label(new_name)}",
-              f"OLD_BUILD_NUMBER={build_label(old_name) if old_name else ''}",
-          ])
+          # Safe outputs only (no S3 keys)
+          with open(out_safe, "w", encoding="utf-8") as f:
+              f.write(f"NEW_APK_NAME={new_name}\n")
+              f.write(f"OLD_APK_NAME={old_name}\n")
+              f.write(f"REAL_BUILD_NUMBER={build_label(new_name)}\n")
+              f.write(f"OLD_BUILD_NUMBER={build_label(old_name) if old_name else ''}\n")
           PY
+
+          # Make Python outputs available NOW (same step) without printing them.
+          set -a
+          source "${APK_ENV_FILE}"
+          set +a
+
+          # Persist for later steps (still without printing)
+          cat "${APK_ENV_FILE}" >> "$GITHUB_ENV"
+          cat "${APK_OUT_FILE}" >> "$GITHUB_OUTPUT"
+
+          : "${NEW_S3_KEY:?ERROR: NEW_S3_KEY not resolved from S3}"
 
           NEW_APK_PATH="${RUNNER_TEMP}/Wire.apk"
           echo "NEW_APK_PATH=${NEW_APK_PATH}" >> "$GITHUB_ENV"
@@ -489,6 +498,7 @@ jobs:
           test -s "${NEW_APK_PATH}"
 
           if [[ "${IS_UPGRADE}" == "true" ]]; then
+            : "${OLD_S3_KEY:?ERROR: OLD_S3_KEY not resolved for upgrade}"
             OLD_APK_PATH="${RUNNER_TEMP}/Wire.old.apk"
             echo "OLD_APK_PATH=${OLD_APK_PATH}" >> "$GITHUB_ENV"
             aws s3 cp "s3://${S3_BUCKET}/${OLD_S3_KEY}" "${OLD_APK_PATH}" --only-show-errors
@@ -848,6 +858,14 @@ jobs:
           INPUT_TAGS: ${{ inputs.TAGS }}
         run: |
           set -euo pipefail
+
+          # If earlier steps failed before pulling results, OUT_DIR may not exist.
+          if [[ ! -d "${OUT_DIR}" ]]; then
+            echo "No Allure results directory found (${OUT_DIR}). Skipping merge."
+            mkdir -p "${MERGED_DIR}"
+            exit 0
+          fi
+
           python3 - <<'PY'
           import json
           import os

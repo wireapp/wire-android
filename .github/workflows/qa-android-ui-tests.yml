@@ -80,7 +80,7 @@ permissions:
   contents: read
 
 jobs:
-  # Validate user inputs and derive selectors and flavor metadata.
+  # Validate user inputs and derive selectors (safe).
   validate-and-resolve-inputs:
     name: Validate + resolve selectors
     runs-on: ubuntu-latest
@@ -88,8 +88,6 @@ jobs:
     outputs:
       resolvedTestCaseId: ${{ steps.resolve_selector.outputs.testCaseId }}
       resolvedCategory: ${{ steps.resolve_selector.outputs.category }}
-      s3Folder: ${{ steps.resolve_flavor.outputs.s3Folder }}
-      appId: ${{ steps.resolve_flavor.outputs.appId }}
 
     steps:
       # Validate upgrade inputs for consistency.
@@ -144,68 +142,7 @@ jobs:
           echo "testCaseId=$TESTCASE_ID" >> "$GITHUB_OUTPUT"
           echo "category=$CATEGORY" >> "$GITHUB_OUTPUT"
 
-      # Map flavor to S3 path and Android package id.
-      - name: Resolve flavor -> S3_FOLDER + APP_ID
-        id: resolve_flavor
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          FLAVOR="$(echo "${{ inputs.flavor }}" | xargs)"
-          S3_FOLDER=""
-          APP_ID=""
-
-          case "$FLAVOR" in
-            "staging compat")
-              S3_FOLDER="artifacts/megazord/android/reloaded/staging/compat/"
-              APP_ID="com.waz.zclient.dev"
-              ;;
-            "internal beta")
-              S3_FOLDER="artifacts/megazord/android/reloaded/beta/release/"
-              APP_ID="com.wire.android.internal"
-              ;;
-            "internal release candidate")
-              S3_FOLDER="artifacts/megazord/android/reloaded/internal/compat/"
-              APP_ID="com.wire.internal"
-              ;;
-            "experimental")
-              S3_FOLDER="artifacts/megazord/android/reloaded/staging/compat/"
-              APP_ID="com.waz.zclient.dev"
-              ;;
-            "column-1")
-              S3_FOLDER="android/custom/bund/column1/prod/compatrelease/"
-              APP_ID="com.wire.android.bund"
-              ;;
-            "column-2")
-              S3_FOLDER="android/custom/bund/column2/prod/compatrelease/"
-              APP_ID="com.wire.android.bund.column2"
-              ;;
-            "column-3")
-              S3_FOLDER="android/custom/bund/column3/prod/compatrelease/"
-              APP_ID="com.wire.android.bund.column3"
-              ;;
-            "debug")
-              S3_FOLDER="artifacts/megazord/android/reloaded/dev/debug/"
-              APP_ID="com.waz.zclient.dev.debug"
-              ;;
-            "fdroid")
-              S3_FOLDER="artifacts/megazord/android/reloaded/fdroid/compatrelease/"
-              APP_ID="com.wire"
-              ;;
-            "production")
-              S3_FOLDER="artifacts/megazord/android/reloaded/prod/compatrelease/"
-              APP_ID="com.wire"
-              ;;
-            *)
-              echo "ERROR: Unknown flavor: '$FLAVOR'"
-              exit 1
-              ;;
-          esac
-
-          echo "s3Folder=$S3_FOLDER" >> "$GITHUB_OUTPUT"
-          echo "appId=$APP_ID" >> "$GITHUB_OUTPUT"
-
-      # Log resolved values for troubleshooting.
+      # Log resolved values for troubleshooting (safe: no secrets/paths).
       - name: Print resolved values
         shell: bash
         run: |
@@ -214,7 +151,7 @@ jobs:
           echo "resolvedTestCaseId=${{ steps.resolve_selector.outputs.testCaseId }}"
           echo "resolvedCategory=${{ steps.resolve_selector.outputs.category }}"
 
-  # Run UI tests on self-hosted Android devices and publish Allure report.
+  # Run ndroid UI tests on self-hosted QA runners and publishes the generated Allure report to gh-pages.
   run-android-ui-tests:
     name: Run Android UI tests
     runs-on:
@@ -232,15 +169,20 @@ jobs:
       AWS_REGION: eu-west-1
       S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
       OP_VAULT: "Test Automation"
-      S3_FOLDER: ${{ needs.validate-and-resolve-inputs.outputs.s3Folder }}
-      APP_ID: ${{ needs.validate-and-resolve-inputs.outputs.appId }}
+
+
+      # Path to runner-local configuration file (not stored in this repository).
+      # Contains flavor → S3 folder mapping, appId, and packagesToUninstall.
+      FLAVORS_CONFIG_PATH: "/etc/android-qa/flavors.json"
 
     defaults:
       run:
         shell: bash
 
     steps:
-      # Checkout source and set up toolchain.
+      # --------------------------------------------------------------------
+      # Checkout source and set up toolchain
+      # --------------------------------------------------------------------
       - name: Checkout (with submodules)
         uses: actions/checkout@v4
         with:
@@ -290,7 +232,85 @@ jobs:
 
           aws --version
 
-      # Configure AWS access to download APKs from S3.
+      # --------------------------------------------------------------------
+      # Resolve flavor configuration from runner-local file:
+      #   /etc/android-qa/flavors.json
+      # Loads S3 folder, application ID, and cleanup package list for the selected flavor.
+      # --------------------------------------------------------------------
+      - name: Resolve flavor + uninstall packages (runner config)
+        id: resolve_flavor
+        env:
+          FLAVOR_INPUT: ${{ inputs.flavor }}
+        run: |
+          set -euo pipefail
+          : "${FLAVORS_CONFIG_PATH:?FLAVORS_CONFIG_PATH not set}"
+
+          if [[ ! -f "${FLAVORS_CONFIG_PATH}" ]]; then
+            echo "ERROR: Missing flavors config on runner: ${FLAVORS_CONFIG_PATH}"
+            echo "Hint: create it on the runner (NOT in GitHub)."
+            exit 1
+          fi
+
+          # IMPORTANT SECURITY NOTE:
+          # - We do NOT print S3 folder/path to logs.
+          # - We only export it to env for internal use.
+          python3 - <<'PY'
+          import json, os, sys
+
+          flavor = (os.environ.get("FLAVOR_INPUT") or "").strip()
+          cfg_path = os.environ.get("FLAVORS_CONFIG_PATH") or "/etc/android-qa/flavors.json"
+
+          try:
+              cfg = json.load(open(cfg_path, "r", encoding="utf-8"))
+          except Exception as e:
+              print(f"ERROR: Failed to read {cfg_path}: {e}", file=sys.stderr)
+              sys.exit(1)
+
+          flavors = cfg.get("flavors")
+          packages = cfg.get("packagesToUninstall")
+
+          if not isinstance(flavors, dict) or not flavors:
+              print(f"ERROR: 'flavors' object missing/empty in {cfg_path}", file=sys.stderr)
+              print("ERROR: Expected schema: { flavors: {...}, packagesToUninstall: [...] }", file=sys.stderr)
+              sys.exit(1)
+
+          if flavor not in flavors:
+              print(f"ERROR: Flavor '{flavor}' not found in {cfg_path}", file=sys.stderr)
+              print("ERROR: Ask DevOps/QA to add it to the runner config.", file=sys.stderr)
+              sys.exit(1)
+
+          entry = flavors.get(flavor) or {}
+          s3 = (entry.get("s3Folder") or "").strip()
+          app = (entry.get("appId") or "").strip()
+
+          if not s3 or not app:
+              print(f"ERROR: Flavor '{flavor}' missing s3Folder/appId in {cfg_path}", file=sys.stderr)
+              sys.exit(1)
+
+          # packagesToUninstall is optional, but we validate if present
+          pkgs = []
+          if packages is None:
+              pkgs = []
+          elif isinstance(packages, list) and all(isinstance(x, str) for x in packages):
+              pkgs = [x.strip() for x in packages if x.strip()]
+          else:
+              print(f"ERROR: 'packagesToUninstall' must be an array of strings in {cfg_path}", file=sys.stderr)
+              sys.exit(1)
+
+          env_path = os.environ["GITHUB_ENV"]
+          with open(env_path, "a", encoding="utf-8") as f:
+              f.write(f"S3_FOLDER={s3}\n")
+              f.write(f"APP_ID={app}\n")
+              # Space-separated list is easiest to consume in bash
+              f.write("PACKAGES_TO_UNINSTALL=" + " ".join(pkgs) + "\n")
+          PY
+
+          # Safe debug: only show the flavor name (not the S3 folder/path).
+          echo "Resolved runner config for flavor: '${{ inputs.flavor }}'"
+
+      # --------------------------------------------------------------------
+      # Configure AWS access to download APKs from S3
+      # --------------------------------------------------------------------
       - name: Configure AWS credentials (for S3)
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -298,17 +318,19 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-west-1
 
-      # Resolve and download new/old APKs for the run.
+      # --------------------------------------------------------------------
+      # Resolve and download new/old APKs for the run
+      # --------------------------------------------------------------------
       - name: Download APK(s) from S3
         id: download_apks
         env:
           APP_BUILD_NUMBER: ${{ inputs.appBuildNumber }}
           IS_UPGRADE: ${{ inputs.isUpgrade }}
-          OLD_BUILD_NUMBER: ${{ inputs.oldBuildNumber }}
+          OLD_BUILD_NUMBER_INPUT: ${{ inputs.oldBuildNumber }}
         run: |
           set -euo pipefail
           : "${S3_BUCKET:?ERROR: Missing secret AWS_S3_BUCKET}"
-          : "${S3_FOLDER:?ERROR: S3_FOLDER missing}"
+          : "${S3_FOLDER:?ERROR: S3_FOLDER missing (from runner config)}"
 
           aws s3api list-objects-v2 \
             --bucket "${S3_BUCKET}" \
@@ -316,133 +338,150 @@ jobs:
             --query "Contents[?ends_with(Key, '.apk')].Key" \
             --output json > "${RUNNER_TEMP}/apk_keys.json"
 
-          python3 - <<'PY' > "${RUNNER_TEMP}/apk_env.txt"
+          # IMPORTANT SECURITY NOTE:
+          # - We MUST store NEW_S3_KEY/OLD_S3_KEY in env to download the APKs.
+          # - But we MUST NOT print/echo these keys or any full S3 paths in logs.
+          #   (Do NOT add debug prints like: echo "$NEW_S3_KEY")
+          python3 - <<'PY'
           import json, os, re, sys
 
           keys_path = os.path.join(os.environ["RUNNER_TEMP"], "apk_keys.json")
           try:
-            data = json.load(open(keys_path, "r", encoding="utf-8"))
+              data = json.load(open(keys_path, "r", encoding="utf-8"))
           except Exception:
-            data = []
+              data = []
           if not isinstance(data, list):
-            data = []
+              data = []
 
           apks = [k for k in data if isinstance(k, str) and k.lower().endswith(".apk")]
           if not apks:
-            print("ERROR: No .apk files found in this prefix.", file=sys.stderr)
-            sys.exit(1)
+              print("ERROR: No .apk files found in this prefix.", file=sys.stderr)
+              sys.exit(1)
 
           app_build = (os.environ.get("APP_BUILD_NUMBER") or "").strip()
           is_upgrade = (os.environ.get("IS_UPGRADE", "false").strip().lower() == "true")
-          old_input = (os.environ.get("OLD_BUILD_NUMBER") or "").strip()
+          old_input = (os.environ.get("OLD_BUILD_NUMBER_INPUT") or "").strip()
 
           def parse_version(fname: str):
-            m = re.search(r"-v(\d+)\.(\d+)\.(\d+)-(\d+)", fname)
-            if m:
-              return (int(m.group(1)), int(m.group(2)), int(m.group(3)), int(m.group(4)))
-            m = re.search(r"-v(\d+)\.(\d+)\.(\d+)-fdroid", fname)
-            if m:
-              return (int(m.group(1)), int(m.group(2)), int(m.group(3)), 0)
-            m = re.search(r"-v(\d+)\.(\d+)\.(\d+)", fname)
-            if m:
-              return (int(m.group(1)), int(m.group(2)), int(m.group(3)), 0)
-            return None
+              m = re.search(r"-v(\d+)\.(\d+)\.(\d+)-(\d+)", fname)
+              if m:
+                  return (int(m.group(1)), int(m.group(2)), int(m.group(3)), int(m.group(4)))
+              m = re.search(r"-v(\d+)\.(\d+)\.(\d+)-fdroid", fname)
+              if m:
+                  return (int(m.group(1)), int(m.group(2)), int(m.group(3)), 0)
+              m = re.search(r"-v(\d+)\.(\d+)\.(\d+)", fname)
+              if m:
+                  return (int(m.group(1)), int(m.group(2)), int(m.group(3)), 0)
+              return None
 
           def build_label(fname: str):
-            m = re.search(r"-v(\d+\.\d+\.\d+-\d+)", fname)
-            if m: return m.group(1)
-            m = re.search(r"-v(\d+\.\d+\.\d+)-fdroid", fname)
-            if m: return m.group(1)
-            m = re.search(r"-v(\d+\.\d+\.\d+)", fname)
-            if m: return m.group(1)
-            return ""
+              m = re.search(r"-v(\d+\.\d+\.\d+-\d+)", fname)
+              if m: return m.group(1)
+              m = re.search(r"-v(\d+\.\d+\.\d+)-fdroid", fname)
+              if m: return m.group(1)
+              m = re.search(r"-v(\d+\.\d+\.\d+)", fname)
+              if m: return m.group(1)
+              return ""
 
           def pick_by_substring(substr: str):
-            if not substr:
+              if not substr:
+                  return None
+              for k in apks:
+                  if substr in k.split("/")[-1]:
+                      return k
               return None
-            for k in apks:
-              if substr in k.split("/")[-1]:
-                return k
-            return None
 
           def pick_by_filename(filename: str):
-            if not filename:
+              if not filename:
+                  return None
+              for k in apks:
+                  if k.split("/")[-1] == filename:
+                      return k
               return None
-            for k in apks:
-              if k.split("/")[-1] == filename:
-                return k
-            return None
 
           parsed = []
           for k in apks:
-            pv = parse_version(k.split("/")[-1])
-            if pv is not None:
-              parsed.append((pv, k))
+              pv = parse_version(k.split("/")[-1])
+              if pv is not None:
+                  parsed.append((pv, k))
           parsed.sort(key=lambda x: x[0])
 
           latest_key = parsed[-1][1] if parsed else apks[-1]
           second_latest_key = parsed[-2][1] if len(parsed) >= 2 else None
 
           def normalize_direct(s: str):
-            s = s.strip()
-            if s.startswith("s3://"):
-              parts = s.split("/", 3)
-              return parts[3] if len(parts) >= 4 else ""
-            return s.lstrip("/")
+              s = s.strip()
+              if s.startswith("s3://"):
+                  parts = s.split("/", 3)
+                  return parts[3] if len(parts) >= 4 else ""
+              return s.lstrip("/")
 
           new_key = None
           old_key = None
 
           if app_build.lower().endswith(".apk"):
-            direct = normalize_direct(app_build)
-            if "/" in direct:
-              new_key = direct
-            else:
-              new_key = pick_by_filename(direct) or pick_by_substring(direct)
-
-            if is_upgrade:
-              if old_input.lower().endswith(".apk"):
-                od = normalize_direct(old_input)
-                old_key = (od if "/" in od else (pick_by_filename(od) or pick_by_substring(od)))
+              direct = normalize_direct(app_build)
+              if "/" in direct:
+                  new_key = direct
               else:
-                old_key = pick_by_substring(old_input) if old_input else second_latest_key
+                  new_key = pick_by_filename(direct) or pick_by_substring(direct)
+
+              if is_upgrade:
+                  if old_input.lower().endswith(".apk"):
+                      od = normalize_direct(old_input)
+                      old_key = (od if "/" in od else (pick_by_filename(od) or pick_by_substring(od)))
+                  else:
+                      old_key = pick_by_substring(old_input) if old_input else second_latest_key
 
           elif app_build == "latest":
-            new_key = latest_key
-            if is_upgrade:
-              old_key = pick_by_substring(old_input) if old_input else second_latest_key
+              new_key = latest_key
+              if is_upgrade:
+                  old_key = pick_by_substring(old_input) if old_input else second_latest_key
 
           else:
-            new_key = pick_by_substring(app_build)
-            if is_upgrade:
-              if not old_input:
-                print("ERROR: isUpgrade=true but oldBuildNumber is empty.", file=sys.stderr)
-                sys.exit(1)
-              old_key = pick_by_substring(old_input)
+              new_key = pick_by_substring(app_build)
+              if is_upgrade:
+                  if not old_input:
+                      print("ERROR: isUpgrade=true but oldBuildNumber is empty.", file=sys.stderr)
+                      sys.exit(1)
+                  old_key = pick_by_substring(old_input)
 
           if not new_key:
-            print(f"ERROR: Could not resolve NEW apk for appBuildNumber='{app_build}'", file=sys.stderr)
-            sys.exit(1)
+              print(f"ERROR: Could not resolve NEW apk for appBuildNumber='{app_build}'", file=sys.stderr)
+              sys.exit(1)
           if is_upgrade and not old_key:
-            print("ERROR: Upgrade requested but OLD apk could not be resolved.", file=sys.stderr)
-            sys.exit(1)
+              print("ERROR: Upgrade requested but OLD apk could not be resolved.", file=sys.stderr)
+              sys.exit(1)
 
           new_name = new_key.split("/")[-1]
           old_name = old_key.split("/")[-1] if old_key else ""
 
-          print(f"NEW_S3_KEY={new_key}")
-          print(f"OLD_S3_KEY={old_key or ''}")
-          print(f"NEW_APK_NAME={new_name}")
-          print(f"OLD_APK_NAME={old_name}")
-          print(f"REAL_BUILD_NUMBER={build_label(new_name)}")
-          print(f"OLD_BUILD_NUMBER={build_label(old_name) if old_name else ''}")
-          PY
+          env_path = os.environ["GITHUB_ENV"]
+          out_path = os.environ["GITHUB_OUTPUT"]
 
-          set -a
-          source "${RUNNER_TEMP}/apk_env.txt"
-          set +a
-          cat "${RUNNER_TEMP}/apk_env.txt" >> "$GITHUB_ENV"
-          cat "${RUNNER_TEMP}/apk_env.txt" >> "$GITHUB_OUTPUT"
+          def write(path, lines):
+              with open(path, "a", encoding="utf-8") as f:
+                  for line in lines:
+                      f.write(line + "\n")
+
+          # Keys are required for aws s3 cp; store them in env but NEVER print them.
+          write(env_path, [
+              f"NEW_S3_KEY={new_key}",
+              f"OLD_S3_KEY={old_key or ''}",
+              f"NEW_APK_NAME={new_name}",
+              f"OLD_APK_NAME={old_name}",
+              f"REAL_BUILD_NUMBER={build_label(new_name)}",
+              f"OLD_BUILD_NUMBER={build_label(old_name) if old_name else ''}",
+          ])
+
+          # Outputs: safe (names/labels only)
+          write(out_path, [
+              f"NEW_APK_NAME={new_name}",
+              f"OLD_APK_NAME={old_name}",
+              f"REAL_BUILD_NUMBER={build_label(new_name)}",
+              f"OLD_BUILD_NUMBER={build_label(old_name) if old_name else ''}",
+          ])
+          PY
 
           NEW_APK_PATH="${RUNNER_TEMP}/Wire.apk"
           echo "NEW_APK_PATH=${NEW_APK_PATH}" >> "$GITHUB_ENV"
@@ -456,7 +495,9 @@ jobs:
             test -s "${OLD_APK_PATH}"
           fi
 
-      # Pick target devices and set up sharding metadata.
+      # --------------------------------------------------------------------
+      # Pick target devices and set up sharding metadata
+      # --------------------------------------------------------------------
       - name: Detect target device(s)
         run: |
           set -euo pipefail
@@ -484,7 +525,9 @@ jobs:
           echo "DEVICE_COUNT=${DEVICE_COUNT}" >> "$GITHUB_ENV"
           echo "Using ${DEVICE_COUNT} device(s)"
 
-      # Install APKs and stage upgrade artifacts on devices.
+      # --------------------------------------------------------------------
+      # Install APKs and stage upgrade artifacts on devices
+      # --------------------------------------------------------------------
       - name: Install APK(s) on device(s)
         run: |
           set -euo pipefail
@@ -502,16 +545,11 @@ jobs:
             INSTALL_FLAGS="-r -d"
           fi
 
-          PACKAGES=(
-            "com.wire"
-            "com.waz.zclient.dev"
-            "com.wire.internal"
-            "com.wire.android.internal"
-            "com.wire.android.bund"
-            "com.wire.android.bund.column2"
-            "com.wire.android.bund.column3"
-            "com.waz.zclient.dev.debug"
-          )
+          # NOTE:
+          # PACKAGES_TO_UNINSTALL comes from /etc/android-qa/flavors.json on the runner (NOT from GitHub).
+          # It is only package ids, used to uninstall old apps to avoid conflicts.
+          PACKAGES_TO_UNINSTALL="${PACKAGES_TO_UNINSTALL:-}"
+          read -ra PACKAGES <<< "${PACKAGES_TO_UNINSTALL}"
 
           read -ra DEVICES <<< "${DEVICE_LIST}"
           for SERIAL in "${DEVICES[@]}"; do
@@ -519,8 +557,10 @@ jobs:
             ${ADB} wait-for-device
 
             INSTALLED="$(${ADB} shell pm list packages || true)"
+
+            # Uninstall known packages to avoid conflicts (safe; ignores if missing)
             for pkg in "${PACKAGES[@]}"; do
-              if echo "${INSTALLED}" | grep -qx "package:${pkg}"; then
+              if [[ -n "${pkg}" ]] && echo "${INSTALLED}" | grep -qx "package:${pkg}"; then
                 ${ADB} uninstall "${pkg}" || true
               fi
             done
@@ -541,7 +581,9 @@ jobs:
             fi
           done
 
-      # Fetch runtime secrets needed by tests.
+      # --------------------------------------------------------------------
+      # Fetch runtime secrets needed by tests
+      # --------------------------------------------------------------------
       - name: Install 1Password CLI
         uses: 1password/install-cli-action@v2
 
@@ -561,7 +603,7 @@ jobs:
 
           : "${RUNNER_TEMP:?RUNNER_TEMP not set}"
           SECRETS_JSON_PATH="${RUNNER_TEMP}/secrets.json"
-          export SECRETS_JSON_PATH   # <<< FIX: make it visible to python in this same step
+          export SECRETS_JSON_PATH
           echo "SECRETS_JSON_PATH=${SECRETS_JSON_PATH}" >> "$GITHUB_ENV"
 
           python3 - <<'PY'
@@ -625,13 +667,17 @@ jobs:
 
           echo "OK: secrets.json created at ${SECRETS_JSON_PATH} and linked to $(pwd)/secrets.json"
 
-      # Build the instrumentation test APK.
+      # --------------------------------------------------------------------
+      # Build the instrumentation test APK
+      # --------------------------------------------------------------------
       - name: Build test APK (assemble)
         run: |
           set -euo pipefail
           ./gradlew :tests:testsCore:assembleDebugAndroidTest --no-daemon --no-configuration-cache
 
-      # Execute UI tests with per-device sharding + deflake retry per shard.
+      # --------------------------------------------------------------------
+      # Execute UI tests with per-device sharding + deflake retry per shard
+      # --------------------------------------------------------------------
       - name: Run UI tests (one shard per device)
         env:
           RESOLVED_TESTCASE_ID: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTestCaseId }}
@@ -706,7 +752,7 @@ jobs:
 
                 # Deflake hygiene:
                 # - ensure device is ready
-                # - clear previous allure output to avoid mixing attempts
+                # - clear previous allure output to avoid mixing attempts (keeps report clean)
                 adb -s "${SERIAL}" wait-for-device
                 adb -s "${SERIAL}" shell "rm -rf '${ALLURE_DEVICE_DIR}' && mkdir -p '${ALLURE_DEVICE_DIR}'" >/dev/null 2>&1 || true
 
@@ -753,7 +799,9 @@ jobs:
             exit 1
           fi
 
+      # --------------------------------------------------------------------
       # Cleanup: remove runtime secrets before Allure/Pages
+      # --------------------------------------------------------------------
       - name: Remove runtime secrets (before Allure/Pages)
         if: always()
         run: |
@@ -763,7 +811,9 @@ jobs:
             rm -f "${SECRETS_JSON_PATH}" || true
           fi
 
-      # Collect Allure result files from devices.
+      # --------------------------------------------------------------------
+      # Collect Allure result files from devices
+      # --------------------------------------------------------------------
       - name: Pull Allure results from device(s)
         if: always()
         run: |
@@ -785,7 +835,9 @@ jobs:
             idx=$((idx + 1))
           done
 
-      # Merge Allure results and add device metadata.
+      # --------------------------------------------------------------------
+      # Merge Allure results and add device metadata
+      # --------------------------------------------------------------------
       - name: Merge Allure results (add device label)
         if: always()
         env:
@@ -928,7 +980,9 @@ jobs:
           )
           PY
 
-      # Generate the HTML report from merged results.
+      # --------------------------------------------------------------------
+      # Generate the HTML report from merged results
+      # --------------------------------------------------------------------
       - name: Generate Allure HTML report
         if: always()
         env:
@@ -970,7 +1024,9 @@ jobs:
           "${RUNNER_TEMP}/allure-${ALLURE_VERSION}/bin/allure" \
             generate "${MERGED_DIR}" -o "${REPORT_DIR}" --clean
 
-      # Publish the report to the GitHub Pages branch.
+      # --------------------------------------------------------------------
+      # Publish the report to the GitHub Pages branch
+      # --------------------------------------------------------------------
       - name: Checkout GitHub Pages branch
         if: always()
         uses: actions/checkout@v4
@@ -1055,7 +1111,9 @@ jobs:
           BASE_URL="https://${ORG}.github.io/${REPO}"
           echo "Allure report (run ${GITHUB_RUN_NUMBER}): ${BASE_URL}/qa-ui-tests/${RUN_FOLDER}/" >> "$GITHUB_STEP_SUMMARY"
 
-      # Cleanup runtime secrets and build artifacts.
+      # --------------------------------------------------------------------
+      # Cleanup runtime secrets and build artifacts
+      # --------------------------------------------------------------------
       - name: Cleanup (remove secrets + build outputs)
         if: always()
         run: |

@@ -28,7 +28,7 @@ public object NomadHookRegistrar {
      * Registers Nomad's persisted-message hook into CoreLogic during app startup.
      */
     public fun register(coreLogic: Lazy<CoreLogic>) {
-        coreLogic.get().registerMessageHook(
+        coreLogic.get().registerPersistenceEventHook(
             NomadRemoteBackupChangeLogHookNotifier(
                 userStorageProvider = PlatformUserStorageProvider()
             )

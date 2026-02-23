@@ -47,7 +47,6 @@ fun NetworkSettingsScreen(
         onBackPressed = navigator::navigateBack,
         isWebSocketEnabled = networkSettingsViewModel.networkSettingsState.isPersistentWebSocketConnectionEnabled,
         isEnforcedByMDM = networkSettingsViewModel.networkSettingsState.isEnforcedByMDM,
-        isWebSocketEnforcedByDefault = networkSettingsViewModel.networkSettingsState.isWebSocketEnforcedByDefault,
         setWebSocketState = { networkSettingsViewModel.setWebSocketState(it) },
     )
 }
@@ -57,7 +56,6 @@ fun NetworkSettingsScreenContent(
     onBackPressed: () -> Unit,
     isWebSocketEnabled: Boolean,
     isEnforcedByMDM: Boolean,
-    isWebSocketEnforcedByDefault: Boolean,
     setWebSocketState: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -107,7 +105,6 @@ fun PreviewNetworkSettingsScreenWebSocketEnabled() = WireTheme {
         onBackPressed = {},
         isWebSocketEnabled = true,
         isEnforcedByMDM = false,
-        isWebSocketEnforcedByDefault = false,
         setWebSocketState = {},
     )
 }
@@ -119,7 +116,6 @@ fun PreviewNetworkSettingsScreenWebSocketDisabled() = WireTheme {
         onBackPressed = {},
         isWebSocketEnabled = false,
         isEnforcedByMDM = false,
-        isWebSocketEnforcedByDefault = false,
         setWebSocketState = {},
     )
 }
@@ -131,7 +127,6 @@ fun PreviewNetworkSettingsScreenEnforcedByMDM() = WireTheme {
         onBackPressed = {},
         isWebSocketEnabled = true,
         isEnforcedByMDM = true,
-        isWebSocketEnforcedByDefault = false,
         setWebSocketState = {},
     )
 }
@@ -143,7 +138,6 @@ fun PreviewNetworkSettingsScreenEnforcedByDefault() = WireTheme {
         onBackPressed = {},
         isWebSocketEnabled = true,
         isEnforcedByMDM = false,
-        isWebSocketEnforcedByDefault = true,
         setWebSocketState = {},
     )
 }

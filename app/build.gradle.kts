@@ -49,7 +49,7 @@ repositories {
     google()
 }
 
-val nonFreeFlavors = setOf("prod", "internal", "staging", "beta", "dev")
+val nonFreeFlavors = setOf("prod", "internal", "staging", "beta", "dev", "enterprise")
 val fossFlavors = setOf("fdroid")
 val internalFlavors = setOf("internal", "staging", "beta", "dev")
 val allFlavors = nonFreeFlavors + fossFlavors
@@ -198,6 +198,8 @@ dependencies {
     implementationWithCoverage(projects.features.sketch)
     implementationWithCoverage(projects.features.meetings)
     implementationWithCoverage(projects.features.sync)
+
+    enterpriseImplementation(projects.core.nomad)
 
     // Anonymous Analytics
     val flavors = getFlavorsSettings()

@@ -23,6 +23,9 @@ includeBuild("kalium") {
         substitute(module("com.wire.kalium:kalium-data")).using(project(":core:data"))
         substitute(module("com.wire.kalium:kalium-common")).using(project(":core:common"))
         substitute(module("com.wire.kalium:kalium-cells")).using(project(":domain:cells"))
+        substitute(module("com.wire.kalium:kalium-nomaddevice")).using(project(":domain:nomaddevice"))
+        substitute(module("com.wire.kalium:kalium-userstorage")).using(project(":domain:userstorage"))
+        substitute(module("com.wire.kalium:kalium-hooks")).using(project(":domain:messaging:hooks"))
         // test modules
         substitute(module("com.wire.kalium:kalium-mocks")).using(project(":test:mocks"))
         substitute(module("com.wire.kalium:kalium-network")).using(project(":data:network"))

@@ -128,19 +128,20 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
     fun onConversationClicked(conversationItem: ConversationItem) {
         viewModelScope.launch {
             with(conversationItem) {
+                val selfDeletingTimer = observeSelfDeletionSettingsForConversation(
+                    conversationId = conversationId,
+                    considerSelfUserSettings = true
+                ).first().also { timer ->
+                    if (timer !is SelfDeletionTimer.Disabled) {
+                        val logMap = timer.toLogString(
+                            "User timer update for conversationId=${conversationId.toLogString()} on ImportMediaScreen"
+                        )
+                        appLogger.d("$SELF_DELETION_LOG_TAG: $logMap")
+                    }
+                }
                 importMediaState = importMediaState.copy(
                     selectedConversationItem = listOf(this.conversationId),
-                    selfDeletingTimer = observeSelfDeletionSettingsForConversation(
-                        conversationId = conversationId,
-                        considerSelfUserSettings = true
-                    ).first().also { timer ->
-                        if (timer !is SelfDeletionTimer.Disabled) {
-                            val logMap = timer.toLogString(
-                                "User timer update for conversationId=${conversationId.toLogString()} on ImportMediaScreen"
-                            )
-                            appLogger.d("$SELF_DELETION_LOG_TAG: $logMap")
-                        }
-                    }
+                    selfDeletingTimer = selfDeletingTimer
                 )
             }
         }

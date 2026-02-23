@@ -128,12 +128,11 @@ class DebugDataOptionsViewModelImpl
 
     private fun setDefaultProtocol() {
         viewModelScope.launch {
-            state = state.copy(
-                defaultProtocol = when (getDefaultProtocolUseCase()) {
-                    SupportedProtocol.PROTEUS -> "Proteus"
-                    SupportedProtocol.MLS -> "MLS"
-                }
-            )
+            val defaultProtocol = when (getDefaultProtocolUseCase()) {
+                SupportedProtocol.PROTEUS -> "Proteus"
+                SupportedProtocol.MLS -> "MLS"
+            }
+            state = state.copy(defaultProtocol = defaultProtocol)
         }
     }
 

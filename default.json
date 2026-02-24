@@ -71,7 +71,7 @@
             "analytics_app_key": "8ffae535f1836ed5f58fd5c8a11c00eca07c5438",
             "analytics_server_url": "https://wire.count.ly/",
             "enable_new_registration": true,
-            "use_async_flush_logging": true,
+            "use_async_flush_logging": true
         },
         "internal": {
             "application_id": "com.wire.internal",
@@ -86,7 +86,18 @@
             "use_strict_mls_filter": false,
             "use_async_flush_logging": true,
             "conversation_feeder_enabled": true,
-            "db_invalidation_control_enabled": false,
+            "db_invalidation_control_enabled": false
+        },
+        "enterprise": {
+                "application_id": "com.wire.team",
+            "developer_features_enabled": false,
+            "logging_enabled": false,
+            "application_is_private_build": false,
+            "development_api_enabled": false,
+            "analytics_enabled": true,
+            "analytics_app_key": "4483f7a58ae3e70b3780319c4ccb5c88a037be49",
+            "analytics_server_url": "https://wire.count.ly/",
+            "enable_new_registration": true
         },
         "fdroid": {
             "application_id": "com.wire",

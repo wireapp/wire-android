@@ -1,0 +1,629 @@
+--------- beginning of main
+02-24 07:41:57.301 31345 31345 I .testsCore.tes: Late-enabling -Xcheck:jni
+02-24 07:41:57.342 31345 31345 I .testsCore.tes: Using CollectorTypeCC GC.
+02-24 07:41:57.343 31345 31345 W .testsCore.tes: Mismatch between instruction set variant of device (ISA: Arm64 Feature string: -a53,crc,lse,fp16,dotprod,-sve) and features returned by the hardware (ISA: Arm64 Feature string: -a53,crc,lse,fp16,-dotprod,-sve)
+02-24 07:41:57.364 31345 31345 D ProcessState: Binder ioctl to enable oneway spam detection failed: Invalid argument
+02-24 07:41:57.399 31345 31345 D CompatibilityChangeReporter: Compat change id reported: 171979766; UID 10906; state: ENABLED
+02-24 07:41:57.942 31345 31345 D nativeloader: Configuring clns-4 for other apk /data/app/~~aW3kr4ZdEtNbhjdraLU8XA==/com.wire.android.tests.testsCore.test-9Mb7Fw3LcLBsqvhW-OTgjw==/base.apk. target_sdk_version=36, uses_libraries=, library_path=/data/app/~~aW3kr4ZdEtNbhjdraLU8XA==/com.wire.android.tests.testsCore.test-9Mb7Fw3LcLBsqvhW-OTgjw==/lib/arm64:/data/app/~~aW3kr4ZdEtNbhjdraLU8XA==/com.wire.android.tests.testsCore.test-9Mb7Fw3LcLBsqvhW-OTgjw==/base.apk!/lib/arm64-v8a, permitted_path=/data:/mnt/expand:/data/user/0/com.wire.android.tests.testsCore.test
+02-24 07:41:57.959 31345 31345 V GraphicsEnvironment: ANGLE Developer option for 'com.wire.android.tests.testsCore.test' set to: 'default'
+02-24 07:41:57.960 31345 31345 V GraphicsEnvironment: ANGLE GameManagerService for com.wire.android.tests.testsCore.test: false
+02-24 07:41:57.960 31345 31345 V GraphicsEnvironment: Neither updatable production driver nor prerelease driver is supported.
+02-24 07:41:57.972 31345 31345 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+02-24 07:41:57.973 31345 31345 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+02-24 07:41:57.973 31345 31345 I AndroidJUnitRunner: newApplication android.app.Application
+02-24 07:41:58.005 31345 31345 I TaggedTestRunner: onCreate called. testCaseId=null, category=null, tagKey=null, tagValue=null
+02-24 07:41:58.142 31345 31345 I AndroidJUnitRunner: onCreate Bundle[{shardIndex=0, filter=com.wire.android.tests.support.suite.TaggedFilter, numShards=2, listener=io.qameta.allure.kotlin.junit4.AllureJunit4,io.qameta.allure.android.listeners.ExternalStoragePermissionsListener}]
+02-24 07:41:58.143 31345 31345 D AndroidJUnitRunner: Use the raw file system for managing file I/O.
+02-24 07:41:58.157 31345 31345 V TestEventClient: No service name argument was given (testDiscoveryService, testRunEventService or orchestratorService)
+02-24 07:41:58.197 31345 31358 I TaggedTestRunner: Cleared Allure results dir on device, exitCode=0
+02-24 07:41:58.197 31345 31358 D AndroidJUnitRunner: onStart is called.
+02-24 07:41:58.222 31345 31358 D TestRequestBuilder: Using class path scanning to discover tests
+02-24 07:41:58.223 31345 31358 I TestRequestBuilder: Scanning classpath to find tests in paths [/data/app/~~aW3kr4ZdEtNbhjdraLU8XA==/com.wire.android.tests.testsCore.test-9Mb7Fw3LcLBsqvhW-OTgjw==/base.apk]
+02-24 07:41:58.226 31345 31358 W .testsCore.tes: Opening an oat file without a class loader. Are you using the deprecated DexFile APIs?
+02-24 07:41:59.109 31345 31358 W ScanningTestLoader: Could not load class: androidx.compose.ui.graphics.layer.view.PlaceholderHardwareCanvas
+02-24 07:41:59.109 31345 31358 W ScanningTestLoader: java.lang.ClassNotFoundException: androidx.compose.ui.graphics.layer.view.PlaceholderHardwareCanvas
+02-24 07:41:59.109 31345 31358 W ScanningTestLoader: 	at java.lang.Class.classForName(Native Method)
+02-24 07:41:59.109 31345 31358 W ScanningTestLoader: 	at java.lang.Class.forName(Class.java:591)
+02-24 07:41:59.109 31345 31358 W ScanningTestLoader: 	at androidx.test.internal.runner.ScanningTestLoader.doCreateRunner(ScanningTestLoader.java:45)
+02-24 07:41:59.109 31345 31358 W ScanningTestLoader: 	at androidx.test.internal.runner.TestLoader.getRunnersFor(TestLoader.java:64)
+02-24 07:41:59.109 31345 31358 W ScanningTestLoader: 	at androidx.test.internal.runner.TestRequestBuilder.build(TestRequestBuilder.java:842)
+02-24 07:41:59.109 31345 31358 W ScanningTestLoader: 	at androidx.test.runner.AndroidJUnitRunner.buildRequest(AndroidJUnitRunner.java:672)
+02-24 07:41:59.109 31345 31358 W ScanningTestLoader: 	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:453)
+02-24 07:41:59.109 31345 31358 W ScanningTestLoader: 	at com.wire.android.tests.support.suite.TaggedTestRunner.onStart(TaggedTestRunner.kt:51)
+02-24 07:41:59.109 31345 31358 W ScanningTestLoader: 	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2278)
+02-24 07:41:59.109 31345 31358 W ScanningTestLoader: Caused by: java.lang.ClassNotFoundException: androidx.compose.ui.graphics.layer.view.PlaceholderHardwareCanvas
+02-24 07:41:59.109 31345 31358 W ScanningTestLoader: 	at java.lang.VMClassLoader.findLoadedClass(Native Method)
+02-24 07:41:59.109 31345 31358 W ScanningTestLoader: 	at java.lang.ClassLoader.findLoadedClass(ClassLoader.java:1281)
+02-24 07:41:59.109 31345 31358 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:626)
+02-24 07:41:59.109 31345 31358 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:578)
+02-24 07:41:59.109 31345 31358 W ScanningTestLoader: 	... 9 more
+02-24 07:41:59.109 31345 31358 W ScanningTestLoader: Caused by: java.lang.NoClassDefFoundError: Failed resolution of: Landroid/view/HardwareCanvas;
+02-24 07:41:59.109 31345 31358 W ScanningTestLoader: 	... 9 more
+02-24 07:41:59.109 31345 31358 W ScanningTestLoader: Caused by: java.lang.ClassNotFoundException: Didn't find class "android.view.HardwareCanvas" on path: DexPathList[[zip file "/data/app/~~aW3kr4ZdEtNbhjdraLU8XA==/com.wire.android.tests.testsCore.test-9Mb7Fw3LcLBsqvhW-OTgjw==/base.apk"],nativeLibraryDirectories=[/data/app/~~aW3kr4ZdEtNbhjdraLU8XA==/com.wire.android.tests.testsCore.test-9Mb7Fw3LcLBsqvhW-OTgjw==/lib/arm64, /data/app/~~aW3kr4ZdEtNbhjdraLU8XA==/com.wire.android.tests.testsCore.test-9Mb7Fw3LcLBsqvhW-OTgjw==/base.apk!/lib/arm64-v8a, /system/lib64, /system_ext/lib64, /product/lib64]]
+02-24 07:41:59.109 31345 31358 W ScanningTestLoader: 	at dalvik.system.BaseDexClassLoader.findClass(BaseDexClassLoader.java:259)
+02-24 07:41:59.109 31345 31358 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:642)
+02-24 07:41:59.109 31345 31358 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:578)
+02-24 07:41:59.109 31345 31358 W ScanningTestLoader: 	... 9 more
+02-24 07:41:59.757 31345 31358 W ScanningTestLoader: Could not load class: androidx.test.uiautomator.UiAutomatorInstrumentationTestRunner
+02-24 07:41:59.757 31345 31358 W ScanningTestLoader: java.lang.ClassNotFoundException: androidx.test.uiautomator.UiAutomatorInstrumentationTestRunner
+02-24 07:41:59.757 31345 31358 W ScanningTestLoader: 	at java.lang.Class.classForName(Native Method)
+02-24 07:41:59.757 31345 31358 W ScanningTestLoader: 	at java.lang.Class.forName(Class.java:591)
+02-24 07:41:59.757 31345 31358 W ScanningTestLoader: 	at androidx.test.internal.runner.ScanningTestLoader.doCreateRunner(ScanningTestLoader.java:45)
+02-24 07:41:59.757 31345 31358 W ScanningTestLoader: 	at androidx.test.internal.runner.TestLoader.getRunnersFor(TestLoader.java:64)
+02-24 07:41:59.757 31345 31358 W ScanningTestLoader: 	at androidx.test.internal.runner.TestRequestBuilder.build(TestRequestBuilder.java:842)
+02-24 07:41:59.757 31345 31358 W ScanningTestLoader: 	at androidx.test.runner.AndroidJUnitRunner.buildRequest(AndroidJUnitRunner.java:672)
+02-24 07:41:59.757 31345 31358 W ScanningTestLoader: 	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:453)
+02-24 07:41:59.757 31345 31358 W ScanningTestLoader: 	at com.wire.android.tests.support.suite.TaggedTestRunner.onStart(TaggedTestRunner.kt:51)
+02-24 07:41:59.757 31345 31358 W ScanningTestLoader: 	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2278)
+02-24 07:41:59.757 31345 31358 W ScanningTestLoader: Caused by: java.lang.ClassNotFoundException: androidx.test.uiautomator.UiAutomatorInstrumentationTestRunner
+02-24 07:41:59.757 31345 31358 W ScanningTestLoader: 	at java.lang.VMClassLoader.findLoadedClass(Native Method)
+02-24 07:41:59.757 31345 31358 W ScanningTestLoader: 	at java.lang.ClassLoader.findLoadedClass(ClassLoader.java:1281)
+02-24 07:41:59.757 31345 31358 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:626)
+02-24 07:41:59.757 31345 31358 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:578)
+02-24 07:41:59.757 31345 31358 W ScanningTestLoader: 	... 9 more
+02-24 07:41:59.757 31345 31358 W ScanningTestLoader: Caused by: java.lang.NoClassDefFoundError: Failed resolution of: Landroid/test/InstrumentationTestRunner;
+02-24 07:41:59.757 31345 31358 W ScanningTestLoader: 	... 9 more
+02-24 07:41:59.757 31345 31358 W ScanningTestLoader: Caused by: java.lang.ClassNotFoundException: Didn't find class "android.test.InstrumentationTestRunner" on path: DexPathList[[zip file "/data/app/~~aW3kr4ZdEtNbhjdraLU8XA==/com.wire.android.tests.testsCore.test-9Mb7Fw3LcLBsqvhW-OTgjw==/base.apk"],nativeLibraryDirectories=[/data/app/~~aW3kr4ZdEtNbhjdraLU8XA==/com.wire.android.tests.testsCore.test-9Mb7Fw3LcLBsqvhW-OTgjw==/lib/arm64, /data/app/~~aW3kr4ZdEtNbhjdraLU8XA==/com.wire.android.tests.testsCore.test-9Mb7Fw3LcLBsqvhW-OTgjw==/base.apk!/lib/arm64-v8a, /system/lib64, /system_ext/lib64, /product/lib64]]
+02-24 07:41:59.757 31345 31358 W ScanningTestLoader: 	at dalvik.system.BaseDexClassLoader.findClass(BaseDexClassLoader.java:259)
+02-24 07:41:59.757 31345 31358 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:642)
+02-24 07:41:59.757 31345 31358 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:578)
+02-24 07:41:59.757 31345 31358 W ScanningTestLoader: 	... 9 more
+02-24 07:41:59.758 31345 31358 W ScanningTestLoader: Could not load class: androidx.test.uiautomator.UiAutomatorTestCase
+02-24 07:41:59.758 31345 31358 W ScanningTestLoader: java.lang.ClassNotFoundException: androidx.test.uiautomator.UiAutomatorTestCase
+02-24 07:41:59.758 31345 31358 W ScanningTestLoader: 	at java.lang.Class.classForName(Native Method)
+02-24 07:41:59.758 31345 31358 W ScanningTestLoader: 	at java.lang.Class.forName(Class.java:591)
+02-24 07:41:59.758 31345 31358 W ScanningTestLoader: 	at androidx.test.internal.runner.ScanningTestLoader.doCreateRunner(ScanningTestLoader.java:45)
+02-24 07:41:59.758 31345 31358 W ScanningTestLoader: 	at androidx.test.internal.runner.TestLoader.getRunnersFor(TestLoader.java:64)
+02-24 07:41:59.758 31345 31358 W ScanningTestLoader: 	at androidx.test.internal.runner.TestRequestBuilder.build(TestRequestBuilder.java:842)
+02-24 07:41:59.758 31345 31358 W ScanningTestLoader: 	at androidx.test.runner.AndroidJUnitRunner.buildRequest(AndroidJUnitRunner.java:672)
+02-24 07:41:59.758 31345 31358 W ScanningTestLoader: 	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:453)
+02-24 07:41:59.758 31345 31358 W ScanningTestLoader: 	at com.wire.android.tests.support.suite.TaggedTestRunner.onStart(TaggedTestRunner.kt:51)
+02-24 07:41:59.758 31345 31358 W ScanningTestLoader: 	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2278)
+02-24 07:41:59.758 31345 31358 W ScanningTestLoader: Caused by: java.lang.ClassNotFoundException: androidx.test.uiautomator.UiAutomatorTestCase
+02-24 07:41:59.758 31345 31358 W ScanningTestLoader: 	at java.lang.VMClassLoader.findLoadedClass(Native Method)
+02-24 07:41:59.758 31345 31358 W ScanningTestLoader: 	at java.lang.ClassLoader.findLoadedClass(ClassLoader.java:1281)
+02-24 07:41:59.758 31345 31358 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:626)
+02-24 07:41:59.758 31345 31358 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:578)
+02-24 07:41:59.758 31345 31358 W ScanningTestLoader: 	... 9 more
+02-24 07:41:59.758 31345 31358 W ScanningTestLoader: Caused by: java.lang.NoClassDefFoundError: Failed resolution of: Landroid/test/InstrumentationTestCase;
+02-24 07:41:59.758 31345 31358 W ScanningTestLoader: 	... 9 more
+02-24 07:41:59.758 31345 31358 W ScanningTestLoader: Caused by: java.lang.ClassNotFoundException: Didn't find class "android.test.InstrumentationTestCase" on path: DexPathList[[zip file "/data/app/~~aW3kr4ZdEtNbhjdraLU8XA==/com.wire.android.tests.testsCore.test-9Mb7Fw3LcLBsqvhW-OTgjw==/base.apk"],nativeLibraryDirectories=[/data/app/~~aW3kr4ZdEtNbhjdraLU8XA==/com.wire.android.tests.testsCore.test-9Mb7Fw3LcLBsqvhW-OTgjw==/lib/arm64, /data/app/~~aW3kr4ZdEtNbhjdraLU8XA==/com.wire.android.tests.testsCore.test-9Mb7Fw3LcLBsqvhW-OTgjw==/base.apk!/lib/arm64-v8a, /system/lib64, /system_ext/lib64, /product/lib64]]
+02-24 07:41:59.758 31345 31358 W ScanningTestLoader: 	at dalvik.system.BaseDexClassLoader.findClass(BaseDexClassLoader.java:259)
+02-24 07:41:59.758 31345 31358 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:642)
+02-24 07:41:59.758 31345 31358 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:578)
+02-24 07:41:59.758 31345 31358 W ScanningTestLoader: 	... 9 more
+02-24 07:41:59.774 31345 31358 W ScanningTestLoader: Could not load class: androidx.transition.FragmentTransitionSupport
+02-24 07:41:59.774 31345 31358 W ScanningTestLoader: java.lang.ClassNotFoundException: androidx.transition.FragmentTransitionSupport
+02-24 07:41:59.774 31345 31358 W ScanningTestLoader: 	at java.lang.Class.classForName(Native Method)
+02-24 07:41:59.774 31345 31358 W ScanningTestLoader: 	at java.lang.Class.forName(Class.java:591)
+02-24 07:41:59.774 31345 31358 W ScanningTestLoader: 	at androidx.test.internal.runner.ScanningTestLoader.doCreateRunner(ScanningTestLoader.java:45)
+02-24 07:41:59.774 31345 31358 W ScanningTestLoader: 	at androidx.test.internal.runner.TestLoader.getRunnersFor(TestLoader.java:64)
+02-24 07:41:59.774 31345 31358 W ScanningTestLoader: 	at androidx.test.internal.runner.TestRequestBuilder.build(TestRequestBuilder.java:842)
+02-24 07:41:59.774 31345 31358 W ScanningTestLoader: 	at androidx.test.runner.AndroidJUnitRunner.buildRequest(AndroidJUnitRunner.java:672)
+02-24 07:41:59.774 31345 31358 W ScanningTestLoader: 	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:453)
+02-24 07:41:59.774 31345 31358 W ScanningTestLoader: 	at com.wire.android.tests.support.suite.TaggedTestRunner.onStart(TaggedTestRunner.kt:51)
+02-24 07:41:59.774 31345 31358 W ScanningTestLoader: 	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2278)
+02-24 07:41:59.774 31345 31358 W ScanningTestLoader: Caused by: java.lang.ClassNotFoundException: androidx.transition.FragmentTransitionSupport
+02-24 07:41:59.774 31345 31358 W ScanningTestLoader: 	at java.lang.VMClassLoader.findLoadedClass(Native Method)
+02-24 07:41:59.774 31345 31358 W ScanningTestLoader: 	at java.lang.ClassLoader.findLoadedClass(ClassLoader.java:1281)
+02-24 07:41:59.774 31345 31358 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:626)
+02-24 07:41:59.774 31345 31358 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:578)
+02-24 07:41:59.774 31345 31358 W ScanningTestLoader: 	... 9 more
+02-24 07:41:59.774 31345 31358 W ScanningTestLoader: Caused by: java.lang.NoClassDefFoundError: Failed resolution of: Landroidx/fragment/app/FragmentTransitionImpl;
+02-24 07:41:59.774 31345 31358 W ScanningTestLoader: 	... 9 more
+02-24 07:41:59.774 31345 31358 W ScanningTestLoader: Caused by: java.lang.ClassNotFoundException: Didn't find class "androidx.fragment.app.FragmentTransitionImpl" on path: DexPathList[[zip file "/data/app/~~aW3kr4ZdEtNbhjdraLU8XA==/com.wire.android.tests.testsCore.test-9Mb7Fw3LcLBsqvhW-OTgjw==/base.apk"],nativeLibraryDirectories=[/data/app/~~aW3kr4ZdEtNbhjdraLU8XA==/com.wire.android.tests.testsCore.test-9Mb7Fw3LcLBsqvhW-OTgjw==/lib/arm64, /data/app/~~aW3kr4ZdEtNbhjdraLU8XA==/com.wire.android.tests.testsCore.test-9Mb7Fw3LcLBsqvhW-OTgjw==/base.apk!/lib/arm64-v8a, /system/lib64, /system_ext/lib64, /product/lib64]]
+02-24 07:41:59.774 31345 31358 W ScanningTestLoader: 	at dalvik.system.BaseDexClassLoader.findClass(BaseDexClassLoader.java:259)
+02-24 07:41:59.774 31345 31358 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:642)
+02-24 07:41:59.774 31345 31358 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:578)
+02-24 07:41:59.774 31345 31358 W ScanningTestLoader: 	... 9 more
+02-24 07:41:59.815 31345 31358 W ScanningTestLoader: Could not load class: androidx.window.embedding.ActivityStackConsumer
+02-24 07:41:59.815 31345 31358 W ScanningTestLoader: java.lang.ClassNotFoundException: androidx.window.embedding.ActivityStackConsumer
+02-24 07:41:59.815 31345 31358 W ScanningTestLoader: 	at java.lang.Class.classForName(Native Method)
+02-24 07:41:59.815 31345 31358 W ScanningTestLoader: 	at java.lang.Class.forName(Class.java:591)
+02-24 07:41:59.815 31345 31358 W ScanningTestLoader: 	at androidx.test.internal.runner.ScanningTestLoader.doCreateRunner(ScanningTestLoader.java:45)
+02-24 07:41:59.815 31345 31358 W ScanningTestLoader: 	at androidx.test.internal.runner.TestLoader.getRunnersFor(TestLoader.java:64)
+02-24 07:41:59.815 31345 31358 W ScanningTestLoader: 	at androidx.test.internal.runner.TestRequestBuilder.build(TestRequestBuilder.java:842)
+02-24 07:41:59.815 31345 31358 W ScanningTestLoader: 	at androidx.test.runner.AndroidJUnitRunner.buildRequest(AndroidJUnitRunner.java:672)
+02-24 07:41:59.815 31345 31358 W ScanningTestLoader: 	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:453)
+02-24 07:41:59.815 31345 31358 W ScanningTestLoader: 	at com.wire.android.tests.support.suite.TaggedTestRunner.onStart(TaggedTestRunner.kt:51)
+02-24 07:41:59.815 31345 31358 W ScanningTestLoader: 	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2278)
+02-24 07:41:59.815 31345 31358 W ScanningTestLoader: Caused by: java.lang.ClassNotFoundException: androidx.window.embedding.ActivityStackConsumer
+02-24 07:41:59.815 31345 31358 W ScanningTestLoader: 	at java.lang.VMClassLoader.findLoadedClass(Native Method)
+02-24 07:41:59.815 31345 31358 W ScanningTestLoader: 	at java.lang.ClassLoader.findLoadedClass(ClassLoader.java:1281)
+02-24 07:41:59.815 31345 31358 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:626)
+02-24 07:41:59.815 31345 31358 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:578)
+02-24 07:41:59.815 31345 31358 W ScanningTestLoader: 	... 9 more
+02-24 07:41:59.815 31345 31358 W ScanningTestLoader: Caused by: java.lang.NoClassDefFoundError: Failed resolution of: Landroidx/window/reflection/Consumer2;
+02-24 07:41:59.815 31345 31358 W ScanningTestLoader: 	... 9 more
+02-24 07:41:59.815 31345 31358 W ScanningTestLoader: Caused by: java.lang.ClassNotFoundException: androidx.window.reflection.Consumer2
+02-24 07:41:59.815 31345 31358 W ScanningTestLoader: 	at java.lang.VMClassLoader.findLoadedClass(Native Method)
+02-24 07:41:59.815 31345 31358 W ScanningTestLoader: 	at java.lang.ClassLoader.findLoadedClass(ClassLoader.java:1281)
+02-24 07:41:59.815 31345 31358 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:626)
+02-24 07:41:59.815 31345 31358 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:578)
+02-24 07:41:59.815 31345 31358 W ScanningTestLoader: 	... 9 more
+02-24 07:41:59.815 31345 31358 W ScanningTestLoader: Caused by: java.lang.NoClassDefFoundError: Failed resolution of: Landroidx/window/extensions/core/util/function/Consumer;
+02-24 07:41:59.815 31345 31358 W ScanningTestLoader: 	... 9 more
+02-24 07:41:59.815 31345 31358 W ScanningTestLoader: Caused by: java.lang.ClassNotFoundException: Didn't find class "androidx.window.extensions.core.util.function.Consumer" on path: DexPathList[[zip file "/data/app/~~aW3kr4ZdEtNbhjdraLU8XA==/com.wire.android.tests.testsCore.test-9Mb7Fw3LcLBsqvhW-OTgjw==/base.apk"],nativeLibraryDirectories=[/data/app/~~aW3kr4ZdEtNbhjdraLU8XA==/com.wire.android.tests.testsCore.test-9Mb7Fw3LcLBsqvhW-OTgjw==/lib/arm64, /data/app/~~aW3kr4ZdEtNbhjdraLU8XA==/com.wire.android.tests.testsCore.test-9Mb7Fw3LcLBsqvhW-OTgjw==/base.apk!/lib/arm64-v8a, /system/lib64, /system_ext/lib64, /product/lib64]]
+02-24 07:41:59.815 31345 31358 W ScanningTestLoader: 	at dalvik.system.BaseDexClassLoader.findClass(BaseDexClassLoader.java:259)
+02-24 07:41:59.815 31345 31358 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:642)
+02-24 07:41:59.815 31345 31358 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:578)
+02-24 07:41:59.815 31345 31358 W ScanningTestLoader: 	... 9 more
+02-24 07:41:59.820 31345 31358 W ScanningTestLoader: Could not load class: androidx.window.embedding.OverlayControllerActivityStackConsumer
+02-24 07:41:59.820 31345 31358 W ScanningTestLoader: java.lang.ClassNotFoundException: androidx.window.embedding.OverlayControllerActivityStackConsumer
+02-24 07:41:59.820 31345 31358 W ScanningTestLoader: 	at java.lang.Class.classForName(Native Method)
+02-24 07:41:59.820 31345 31358 W ScanningTestLoader: 	at java.lang.Class.forName(Class.java:591)
+02-24 07:41:59.820 31345 31358 W ScanningTestLoader: 	at androidx.test.internal.runner.ScanningTestLoader.doCreateRunner(ScanningTestLoader.java:45)
+02-24 07:41:59.820 31345 31358 W ScanningTestLoader: 	at androidx.test.internal.runner.TestLoader.getRunnersFor(TestLoader.java:64)
+02-24 07:41:59.820 31345 31358 W ScanningTestLoader: 	at androidx.test.internal.runner.TestRequestBuilder.build(TestRequestBuilder.java:842)
+02-24 07:41:59.820 31345 31358 W ScanningTestLoader: 	at androidx.test.runner.AndroidJUnitRunner.buildRequest(AndroidJUnitRunner.java:672)
+02-24 07:41:59.820 31345 31358 W ScanningTestLoader: 	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:453)
+02-24 07:41:59.820 31345 31358 W ScanningTestLoader: 	at com.wire.android.tests.support.suite.TaggedTestRunner.onStart(TaggedTestRunner.kt:51)
+02-24 07:41:59.820 31345 31358 W ScanningTestLoader: 	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2278)
+02-24 07:41:59.820 31345 31358 W ScanningTestLoader: Caused by: java.lang.ClassNotFoundException: androidx.window.embedding.OverlayControllerActivityStackConsumer
+02-24 07:41:59.820 31345 31358 W ScanningTestLoader: 	at java.lang.VMClassLoader.findLoadedClass(Native Method)
+02-24 07:41:59.820 31345 31358 W ScanningTestLoader: 	at java.lang.ClassLoader.findLoadedClass(ClassLoader.java:1281)
+02-24 07:41:59.820 31345 31358 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:626)
+02-24 07:41:59.820 31345 31358 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:578)
+02-24 07:41:59.820 31345 31358 W ScanningTestLoader: 	... 9 more
+02-24 07:41:59.820 31345 31358 W ScanningTestLoader: Caused by: java.lang.NoClassDefFoundError: Failed resolution of: Landroidx/window/extensions/core/util/function/Consumer;
+02-24 07:41:59.820 31345 31358 W ScanningTestLoader: 	... 9 more
+02-24 07:41:59.820 31345 31358 W ScanningTestLoader: Caused by: java.lang.ClassNotFoundException: Didn't find class "androidx.window.extensions.core.util.function.Consumer" on path: DexPathList[[zip file "/data/app/~~aW3kr4ZdEtNbhjdraLU8XA==/com.wire.android.tests.testsCore.test-9Mb7Fw3LcLBsqvhW-OTgjw==/base.apk"],nativeLibraryDirectories=[/data/app/~~aW3kr4ZdEtNbhjdraLU8XA==/com.wire.android.tests.testsCore.test-9Mb7Fw3LcLBsqvhW-OTgjw==/lib/arm64, /data/app/~~aW3kr4ZdEtNbhjdraLU8XA==/com.wire.android.tests.testsCore.test-9Mb7Fw3LcLBsqvhW-OTgjw==/base.apk!/lib/arm64-v8a, /system/lib64, /system_ext/lib64, /product/lib64]]
+02-24 07:41:59.820 31345 31358 W ScanningTestLoader: 	at dalvik.system.BaseDexClassLoader.findClass(BaseDexClassLoader.java:259)
+02-24 07:41:59.820 31345 31358 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:642)
+02-24 07:41:59.820 31345 31358 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:578)
+02-24 07:41:59.820 31345 31358 W ScanningTestLoader: 	... 9 more
+02-24 07:41:59.831 31345 31358 W ScanningTestLoader: Could not load class: androidx.window.layout.adapter.extensions.MulticastConsumerApi2
+02-24 07:41:59.831 31345 31358 W ScanningTestLoader: java.lang.ClassNotFoundException: androidx.window.layout.adapter.extensions.MulticastConsumerApi2
+02-24 07:41:59.831 31345 31358 W ScanningTestLoader: 	at java.lang.Class.classForName(Native Method)
+02-24 07:41:59.831 31345 31358 W ScanningTestLoader: 	at java.lang.Class.forName(Class.java:591)
+02-24 07:41:59.831 31345 31358 W ScanningTestLoader: 	at androidx.test.internal.runner.ScanningTestLoader.doCreateRunner(ScanningTestLoader.java:45)
+02-24 07:41:59.831 31345 31358 W ScanningTestLoader: 	at androidx.test.internal.runner.TestLoader.getRunnersFor(TestLoader.java:64)
+02-24 07:41:59.831 31345 31358 W ScanningTestLoader: 	at androidx.test.internal.runner.TestRequestBuilder.build(TestRequestBuilder.java:842)
+02-24 07:41:59.831 31345 31358 W ScanningTestLoader: 	at androidx.test.runner.AndroidJUnitRunner.buildRequest(AndroidJUnitRunner.java:672)
+02-24 07:41:59.831 31345 31358 W ScanningTestLoader: 	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:453)
+02-24 07:41:59.831 31345 31358 W ScanningTestLoader: 	at com.wire.android.tests.support.suite.TaggedTestRunner.onStart(TaggedTestRunner.kt:51)
+02-24 07:41:59.831 31345 31358 W ScanningTestLoader: 	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2278)
+02-24 07:41:59.831 31345 31358 W ScanningTestLoader: Caused by: java.lang.ClassNotFoundException: androidx.window.layout.adapter.extensions.MulticastConsumerApi2
+02-24 07:41:59.831 31345 31358 W ScanningTestLoader: 	at java.lang.VMClassLoader.findLoadedClass(Native Method)
+02-24 07:41:59.831 31345 31358 W ScanningTestLoader: 	at java.lang.ClassLoader.findLoadedClass(ClassLoader.java:1281)
+02-24 07:41:59.831 31345 31358 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:626)
+02-24 07:41:59.831 31345 31358 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:578)
+02-24 07:41:59.831 31345 31358 W ScanningTestLoader: 	... 9 more
+02-24 07:41:59.831 31345 31358 W ScanningTestLoader: Caused by: java.lang.NoClassDefFoundError: Failed resolution of: Landroidx/window/extensions/core/util/function/Consumer;
+02-24 07:41:59.831 31345 31358 W ScanningTestLoader: 	... 9 more
+02-24 07:41:59.831 31345 31358 W ScanningTestLoader: Caused by: java.lang.ClassNotFoundException: Didn't find class "androidx.window.extensions.core.util.function.Consumer" on path: DexPathList[[zip file "/data/app/~~aW3kr4ZdEtNbhjdraLU8XA==/com.wire.android.tests.testsCore.test-9Mb7Fw3LcLBsqvhW-OTgjw==/base.apk"],nativeLibraryDirectories=[/data/app/~~aW3kr4ZdEtNbhjdraLU8XA==/com.wire.android.tests.testsCore.test-9Mb7Fw3LcLBsqvhW-OTgjw==/lib/arm64, /data/app/~~aW3kr4ZdEtNbhjdraLU8XA==/com.wire.android.tests.testsCore.test-9Mb7Fw3LcLBsqvhW-OTgjw==/base.apk!/lib/arm64-v8a, /system/lib64, /system_ext/lib64, /product/lib64]]
+02-24 07:41:59.831 31345 31358 W ScanningTestLoader: 	at dalvik.system.BaseDexClassLoader.findClass(BaseDexClassLoader.java:259)
+02-24 07:41:59.831 31345 31358 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:642)
+02-24 07:41:59.831 31345 31358 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:578)
+02-24 07:41:59.831 31345 31358 W ScanningTestLoader: 	... 9 more
+02-24 07:41:59.832 31345 31358 W ScanningTestLoader: Could not load class: androidx.window.layout.adapter.sidecar.DistinctElementSidecarCallback
+02-24 07:41:59.832 31345 31358 W ScanningTestLoader: java.lang.ClassNotFoundException: androidx.window.layout.adapter.sidecar.DistinctElementSidecarCallback
+02-24 07:41:59.832 31345 31358 W ScanningTestLoader: 	at java.lang.Class.classForName(Native Method)
+02-24 07:41:59.832 31345 31358 W ScanningTestLoader: 	at java.lang.Class.forName(Class.java:591)
+02-24 07:41:59.832 31345 31358 W ScanningTestLoader: 	at androidx.test.internal.runner.ScanningTestLoader.doCreateRunner(ScanningTestLoader.java:45)
+02-24 07:41:59.832 31345 31358 W ScanningTestLoader: 	at androidx.test.internal.runner.TestLoader.getRunnersFor(TestLoader.java:64)
+02-24 07:41:59.832 31345 31358 W ScanningTestLoader: 	at androidx.test.internal.runner.TestRequestBuilder.build(TestRequestBuilder.java:842)
+02-24 07:41:59.832 31345 31358 W ScanningTestLoader: 	at androidx.test.runner.AndroidJUnitRunner.buildRequest(AndroidJUnitRunner.java:672)
+02-24 07:41:59.832 31345 31358 W ScanningTestLoader: 	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:453)
+02-24 07:41:59.832 31345 31358 W ScanningTestLoader: 	at com.wire.android.tests.support.suite.TaggedTestRunner.onStart(TaggedTestRunner.kt:51)
+02-24 07:41:59.832 31345 31358 W ScanningTestLoader: 	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2278)
+02-24 07:41:59.832 31345 31358 W ScanningTestLoader: Caused by: java.lang.ClassNotFoundException: androidx.window.layout.adapter.sidecar.DistinctElementSidecarCallback
+02-24 07:41:59.832 31345 31358 W ScanningTestLoader: 	at java.lang.VMClassLoader.findLoadedClass(Native Method)
+02-24 07:41:59.832 31345 31358 W ScanningTestLoader: 	at java.lang.ClassLoader.findLoadedClass(ClassLoader.java:1281)
+02-24 07:41:59.832 31345 31358 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:626)
+02-24 07:41:59.832 31345 31358 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:578)
+02-24 07:41:59.832 31345 31358 W ScanningTestLoader: 	... 9 more
+02-24 07:41:59.832 31345 31358 W ScanningTestLoader: Caused by: java.lang.NoClassDefFoundError: Failed resolution of: Landroidx/window/sidecar/SidecarInterface$SidecarCallback;
+02-24 07:41:59.832 31345 31358 W ScanningTestLoader: 	... 9 more
+02-24 07:41:59.832 31345 31358 W ScanningTestLoader: Caused by: java.lang.ClassNotFoundException: Didn't find class "androidx.window.sidecar.SidecarInterface$SidecarCallback" on path: DexPathList[[zip file "/data/app/~~aW3kr4ZdEtNbhjdraLU8XA==/com.wire.android.tests.testsCore.test-9Mb7Fw3LcLBsqvhW-OTgjw==/base.apk"],nativeLibraryDirectories=[/data/app/~~aW3kr4ZdEtNbhjdraLU8XA==/com.wire.android.tests.testsCore.test-9Mb7Fw3LcLBsqvhW-OTgjw==/lib/arm64, /data/app/~~aW3kr4ZdEtNbhjdraLU8XA==/com.wire.android.tests.testsCore.test-9Mb7Fw3LcLBsqvhW-OTgjw==/base.apk!/lib/arm64-v8a, /system/lib64, /system_ext/lib64, /product/lib64]]
+02-24 07:41:59.832 31345 31358 W ScanningTestLoader: 	at dalvik.system.BaseDexClassLoader.findClass(BaseDexClassLoader.java:259)
+02-24 07:41:59.832 31345 31358 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:642)
+02-24 07:41:59.832 31345 31358 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:578)
+02-24 07:41:59.832 31345 31358 W ScanningTestLoader: 	... 9 more
+02-24 07:41:59.842 31345 31358 W ScanningTestLoader: Could not load class: androidx.window.reflection.Consumer2
+02-24 07:41:59.842 31345 31358 W ScanningTestLoader: java.lang.NoClassDefFoundError: Failed resolution of: Landroidx/window/extensions/core/util/function/Consumer;
+02-24 07:41:59.842 31345 31358 W ScanningTestLoader: 	at java.lang.Class.classForName(Native Method)
+02-24 07:41:59.842 31345 31358 W ScanningTestLoader: 	at java.lang.Class.forName(Class.java:591)
+02-24 07:41:59.842 31345 31358 W ScanningTestLoader: 	at androidx.test.internal.runner.ScanningTestLoader.doCreateRunner(ScanningTestLoader.java:45)
+02-24 07:41:59.842 31345 31358 W ScanningTestLoader: 	at androidx.test.internal.runner.TestLoader.getRunnersFor(TestLoader.java:64)
+02-24 07:41:59.842 31345 31358 W ScanningTestLoader: 	at androidx.test.internal.runner.TestRequestBuilder.build(TestRequestBuilder.java:842)
+02-24 07:41:59.842 31345 31358 W ScanningTestLoader: 	at androidx.test.runner.AndroidJUnitRunner.buildRequest(AndroidJUnitRunner.java:672)
+02-24 07:41:59.842 31345 31358 W ScanningTestLoader: 	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:453)
+02-24 07:41:59.842 31345 31358 W ScanningTestLoader: 	at com.wire.android.tests.support.suite.TaggedTestRunner.onStart(TaggedTestRunner.kt:51)
+02-24 07:41:59.842 31345 31358 W ScanningTestLoader: 	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2278)
+02-24 07:41:59.842 31345 31358 W ScanningTestLoader: Caused by: java.lang.ClassNotFoundException: Didn't find class "androidx.window.extensions.core.util.function.Consumer" on path: DexPathList[[zip file "/data/app/~~aW3kr4ZdEtNbhjdraLU8XA==/com.wire.android.tests.testsCore.test-9Mb7Fw3LcLBsqvhW-OTgjw==/base.apk"],nativeLibraryDirectories=[/data/app/~~aW3kr4ZdEtNbhjdraLU8XA==/com.wire.android.tests.testsCore.test-9Mb7Fw3LcLBsqvhW-OTgjw==/lib/arm64, /data/app/~~aW3kr4ZdEtNbhjdraLU8XA==/com.wire.android.tests.testsCore.test-9Mb7Fw3LcLBsqvhW-OTgjw==/base.apk!/lib/arm64-v8a, /system/lib64, /system_ext/lib64, /product/lib64]]
+02-24 07:41:59.842 31345 31358 W ScanningTestLoader: 	at dalvik.system.BaseDexClassLoader.findClass(BaseDexClassLoader.java:259)
+02-24 07:41:59.842 31345 31358 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:642)
+02-24 07:41:59.842 31345 31358 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:578)
+02-24 07:41:59.842 31345 31358 W ScanningTestLoader: 	... 9 more
+02-24 07:41:59.843 31345 31358 W ScanningTestLoader: Could not load class: androidx.window.reflection.JFunction2
+02-24 07:41:59.843 31345 31358 W ScanningTestLoader: java.lang.ClassNotFoundException: androidx.window.reflection.JFunction2
+02-24 07:41:59.843 31345 31358 W ScanningTestLoader: 	at java.lang.Class.classForName(Native Method)
+02-24 07:41:59.843 31345 31358 W ScanningTestLoader: 	at java.lang.Class.forName(Class.java:591)
+02-24 07:41:59.843 31345 31358 W ScanningTestLoader: 	at androidx.test.internal.runner.ScanningTestLoader.doCreateRunner(ScanningTestLoader.java:45)
+02-24 07:41:59.843 31345 31358 W ScanningTestLoader: 	at androidx.test.internal.runner.TestLoader.getRunnersFor(TestLoader.java:64)
+02-24 07:41:59.843 31345 31358 W ScanningTestLoader: 	at androidx.test.internal.runner.TestRequestBuilder.build(TestRequestBuilder.java:842)
+02-24 07:41:59.843 31345 31358 W ScanningTestLoader: 	at androidx.test.runner.AndroidJUnitRunner.buildRequest(AndroidJUnitRunner.java:672)
+02-24 07:41:59.843 31345 31358 W ScanningTestLoader: 	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:453)
+02-24 07:41:59.843 31345 31358 W ScanningTestLoader: 	at com.wire.android.tests.support.suite.TaggedTestRunner.onStart(TaggedTestRunner.kt:51)
+02-24 07:41:59.843 31345 31358 W ScanningTestLoader: 	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2278)
+02-24 07:41:59.843 31345 31358 W ScanningTestLoader: Caused by: java.lang.ClassNotFoundException: androidx.window.reflection.JFunction2
+02-24 07:41:59.843 31345 31358 W ScanningTestLoader: 	at java.lang.VMClassLoader.findLoadedClass(Native Method)
+02-24 07:41:59.843 31345 31358 W ScanningTestLoader: 	at java.lang.ClassLoader.findLoadedClass(ClassLoader.java:1281)
+02-24 07:41:59.843 31345 31358 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:626)
+02-24 07:41:59.843 31345 31358 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:578)
+02-24 07:41:59.843 31345 31358 W ScanningTestLoader: 	... 9 more
+02-24 07:41:59.843 31345 31358 W ScanningTestLoader: Caused by: java.lang.NoClassDefFoundError: Failed resolution of: Landroidx/window/extensions/core/util/function/Function;
+02-24 07:41:59.843 31345 31358 W ScanningTestLoader: 	... 9 more
+02-24 07:41:59.843 31345 31358 W ScanningTestLoader: Caused by: java.lang.ClassNotFoundException: Didn't find class "androidx.window.extensions.core.util.function.Function" on path: DexPathList[[zip file "/data/app/~~aW3kr4ZdEtNbhjdraLU8XA==/com.wire.android.tests.testsCore.test-9Mb7Fw3LcLBsqvhW-OTgjw==/base.apk"],nativeLibraryDirectories=[/data/app/~~aW3kr4ZdEtNbhjdraLU8XA==/com.wire.android.tests.testsCore.test-9Mb7Fw3LcLBsqvhW-OTgjw==/lib/arm64, /data/app/~~aW3kr4ZdEtNbhjdraLU8XA==/com.wire.android.tests.testsCore.test-9Mb7Fw3LcLBsqvhW-OTgjw==/base.apk!/lib/arm64-v8a, /system/lib64, /system_ext/lib64, /product/lib64]]
+02-24 07:41:59.843 31345 31358 W ScanningTestLoader: 	at dalvik.system.BaseDexClassLoader.findClass(BaseDexClassLoader.java:259)
+02-24 07:41:59.843 31345 31358 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:642)
+02-24 07:41:59.843 31345 31358 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:578)
+02-24 07:41:59.843 31345 31358 W ScanningTestLoader: 	... 9 more
+02-24 07:41:59.844 31345 31358 W ScanningTestLoader: Could not load class: androidx.window.reflection.Predicate2
+02-24 07:41:59.844 31345 31358 W ScanningTestLoader: java.lang.ClassNotFoundException: androidx.window.reflection.Predicate2
+02-24 07:41:59.844 31345 31358 W ScanningTestLoader: 	at java.lang.Class.classForName(Native Method)
+02-24 07:41:59.844 31345 31358 W ScanningTestLoader: 	at java.lang.Class.forName(Class.java:591)
+02-24 07:41:59.844 31345 31358 W ScanningTestLoader: 	at androidx.test.internal.runner.ScanningTestLoader.doCreateRunner(ScanningTestLoader.java:45)
+02-24 07:41:59.844 31345 31358 W ScanningTestLoader: 	at androidx.test.internal.runner.TestLoader.getRunnersFor(TestLoader.java:64)
+02-24 07:41:59.844 31345 31358 W ScanningTestLoader: 	at androidx.test.internal.runner.TestRequestBuilder.build(TestRequestBuilder.java:842)
+02-24 07:41:59.844 31345 31358 W ScanningTestLoader: 	at androidx.test.runner.AndroidJUnitRunner.buildRequest(AndroidJUnitRunner.java:672)
+02-24 07:41:59.844 31345 31358 W ScanningTestLoader: 	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:453)
+02-24 07:41:59.844 31345 31358 W ScanningTestLoader: 	at com.wire.android.tests.support.suite.TaggedTestRunner.onStart(TaggedTestRunner.kt:51)
+02-24 07:41:59.844 31345 31358 W ScanningTestLoader: 	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2278)
+02-24 07:41:59.844 31345 31358 W ScanningTestLoader: Caused by: java.lang.ClassNotFoundException: androidx.window.reflection.Predicate2
+02-24 07:41:59.844 31345 31358 W ScanningTestLoader: 	at java.lang.VMClassLoader.findLoadedClass(Native Method)
+02-24 07:41:59.844 31345 31358 W ScanningTestLoader: 	at java.lang.ClassLoader.findLoadedClass(ClassLoader.java:1281)
+02-24 07:41:59.844 31345 31358 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:626)
+02-24 07:41:59.844 31345 31358 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:578)
+02-24 07:41:59.844 31345 31358 W ScanningTestLoader: 	... 9 more
+02-24 07:41:59.844 31345 31358 W ScanningTestLoader: Caused by: java.lang.NoClassDefFoundError: Failed resolution of: Landroidx/window/extensions/core/util/function/Predicate;
+02-24 07:41:59.844 31345 31358 W ScanningTestLoader: 	... 9 more
+02-24 07:41:59.844 31345 31358 W ScanningTestLoader: Caused by: java.lang.ClassNotFoundException: Didn't find class "androidx.window.extensions.core.util.function.Predicate" on path: DexPathList[[zip file "/data/app/~~aW3kr4ZdEtNbhjdraLU8XA==/com.wire.android.tests.testsCore.test-9Mb7Fw3LcLBsqvhW-OTgjw==/base.apk"],nativeLibraryDirectories=[/data/app/~~aW3kr4ZdEtNbhjdraLU8XA==/com.wire.android.tests.testsCore.test-9Mb7Fw3LcLBsqvhW-OTgjw==/lib/arm64, /data/app/~~aW3kr4ZdEtNbhjdraLU8XA==/com.wire.android.tests.testsCore.test-9Mb7Fw3LcLBsqvhW-OTgjw==/base.apk!/lib/arm64-v8a, /system/lib64, /system_ext/lib64, /product/lib64]]
+02-24 07:41:59.844 31345 31358 W ScanningTestLoader: 	at dalvik.system.BaseDexClassLoader.findClass(BaseDexClassLoader.java:259)
+02-24 07:41:59.844 31345 31358 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:642)
+02-24 07:41:59.844 31345 31358 W ScanningTestLoader: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:578)
+02-24 07:41:59.844 31345 31358 W ScanningTestLoader: 	... 9 more
+02-24 07:42:00.807 31345 31358 I TestRunner: run started: 5 tests
+02-24 07:42:00.857 31345 31358 I TestRunner: started: givenUserInAnotherTeam_whenFileIsSent_thenRecipientCanReceivePlayAndDownloadIt(com.wire.android.tests.core.criticalFlows.FileSharingBetweenTeams)
+02-24 07:42:00.908 31345 31358 I UiDevice: Creating a new instance, old instance exists: false
+02-24 07:42:00.910 31345 31358 D UiDevice: Setting accessibility service flags: 65618
+02-24 07:42:00.913 31345 31358 D UiDevice: Executing shell command: pm clear com.wire.internal
+02-24 07:42:00.973 31345 31358 D UiDevice: Executing shell command: settings put secure show_ime_with_hard_keyboard 0
+02-24 07:42:01.007 31345 31358 D UiDevice: Executing shell command: settings put global window_animation_scale 0
+02-24 07:42:01.044 31345 31358 D UiDevice: Executing shell command: settings put global transition_animation_scale 0
+02-24 07:42:01.083 31345 31358 D UiDevice: Executing shell command: settings put global animator_duration_scale .5
+02-24 07:42:01.459 31345 31358 D UiDevice: Pressing home button.
+02-24 07:42:02.531 31345 31358 W InteractionController: Timed out waiting 1000ms for command and events.
+02-24 07:42:02.559 31345 31358 D UiDevice: Waiting 20000ms for SearchCondition[hasObject=BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E']].
+02-24 07:42:02.560 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:02.860 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:03.012 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:03.343 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:03.386 31345 31413 D ProfileInstaller: Installing profile for com.wire.android.tests.testsCore.test
+02-24 07:42:03.494 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:03.650 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:03.806 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:03.966 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:04.123 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:04.277 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:04.432 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:04.590 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:04.750 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:04.909 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:05.066 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:05.410 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:05.568 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:05.722 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:05.873 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:06.028 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:06.180 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:06.328 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:06.487 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:06.646 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:06.805 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:06.961 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:07.114 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:07.439 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:07.590 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:07.599 31345 31350 I .testsCore.tes: Background concurrent copying GC freed 31MB AllocSpace bytes, 1(44KB) LOS objects, 80% free, 5811KB/29MB, paused 122us,27us total 126.187ms
+02-24 07:42:07.610 31345 31352 W System  : A resource failed to call close. 
+02-24 07:42:07.736 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:07.891 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:08.044 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:08.194 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:08.354 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:08.506 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:08.666 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:08.823 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:08.977 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:09.132 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:09.474 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:09.630 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:09.786 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:09.944 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:10.091 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:10.247 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:10.404 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:10.556 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:10.703 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:10.856 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:11.001 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:11.128 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:11.252 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:11.605 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:11.760 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:11.910 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:12.059 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:12.208 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:12.364 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:12.520 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:12.673 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:12.829 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:12.983 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:13.133 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:13.280 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:13.594 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:13.751 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:13.905 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:14.053 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:14.210 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:14.368 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:14.524 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:14.671 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:14.822 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:14.968 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:15.124 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:15.278 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:15.431 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:15.769 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:15.927 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:16.079 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:16.226 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:16.385 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:16.531 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:16.685 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:16.833 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:16.971 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:17.125 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:17.278 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:17.431 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:17.582 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:17.926 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:18.085 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:18.235 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:18.393 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:18.548 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:18.706 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:18.863 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:19.017 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:19.171 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:19.325 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:19.483 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:19.638 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:19.943 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:20.096 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:20.251 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:20.408 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:20.565 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:20.718 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:20.869 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:21.024 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:21.174 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:21.332 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:21.492 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:21.647 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:22.001 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:22.150 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:22.303 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:22.454 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:22.612 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+02-24 07:42:22.704 31345 31358 D UiDevice: Waiting 20000ms for SearchCondition[hasObject=BySelector [PKG='\Qcom.wire.internal\E']].
+02-24 07:42:22.704 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:22.827 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:22.952 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:23.079 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:23.206 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:23.347 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:23.491 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:23.632 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:23.779 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:23.995 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:24.123 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:24.254 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:24.382 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:24.512 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:24.641 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:24.770 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:24.895 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:25.018 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:25.141 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:25.260 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:25.381 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:25.500 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:25.624 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:25.748 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:25.872 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:26.135 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:26.254 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:26.379 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:26.502 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:26.625 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:26.749 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:26.875 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:26.997 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:27.124 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:27.249 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:27.369 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:27.493 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:27.622 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:27.767 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:27.914 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:28.161 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:28.305 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:28.455 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:28.605 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:28.754 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:28.904 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:29.055 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:29.207 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:29.356 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:29.509 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:29.664 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:29.815 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:29.967 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:30.310 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:30.462 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:30.608 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:30.756 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:30.916 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:31.058 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:31.189 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:31.315 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:31.463 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:31.610 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:31.757 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:31.909 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:32.064 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:32.409 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:32.556 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:32.707 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:32.856 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:33.007 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:33.163 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:33.314 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:33.469 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:33.622 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:33.770 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:33.924 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:34.075 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:34.358 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:34.514 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:34.664 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:34.811 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:34.957 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:35.110 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:35.261 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:35.404 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:35.527 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:35.653 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:35.809 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:35.959 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:36.110 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:36.431 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:36.583 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:36.729 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:36.882 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:37.033 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:37.190 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:37.344 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:37.495 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:37.642 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:37.786 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:37.942 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:38.088 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:38.242 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:38.583 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:38.728 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:38.862 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:39.011 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:39.156 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:39.304 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:39.457 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:39.606 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:39.760 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:39.911 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:40.058 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:40.204 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:40.358 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:40.656 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:40.806 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:40.959 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:41.110 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:41.427 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:41.769 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:41.917 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:42.069 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:42.222 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:42.375 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:42.649 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:42.796 31345 31358 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 07:42:42.857 31345 31358 I System.out: Could not access BuildConfig field 'BACKENDCONNECTION_STAGING_SOCKSPROXY': No field BACKENDCONNECTION_STAGING_SOCKSPROXY in class Lcom/wire/android/testSupport/BuildConfig; (declaration of 'com.wire.android.testSupport.BuildConfig' appears in /data/app/~~aW3kr4ZdEtNbhjdraLU8XA==/com.wire.android.tests.testsCore.test-9Mb7Fw3LcLBsqvhW-OTgjw==/base.apk!classes2.dex)
+02-24 07:42:42.867 31345 31358 I System.out: Could not access BuildConfig field 'BACKENDCONNECTION_STAGING_SOCKSPROXY': No field BACKENDCONNECTION_STAGING_SOCKSPROXY in class Lcom/wire/android/testSupport/BuildConfig; (declaration of 'com.wire.android.testSupport.BuildConfig' appears in /data/app/~~aW3kr4ZdEtNbhjdraLU8XA==/com.wire.android.tests.testsCore.test-9Mb7Fw3LcLBsqvhW-OTgjw==/base.apk!classes2.dex)
+02-24 07:42:42.869 31345 31358 I System.out: Could not access BuildConfig field 'BACKENDCONNECTION_STAGING_SOCKSPROXY': No field BACKENDCONNECTION_STAGING_SOCKSPROXY in class Lcom/wire/android/testSupport/BuildConfig; (declaration of 'com.wire.android.testSupport.BuildConfig' appears in /data/app/~~aW3kr4ZdEtNbhjdraLU8XA==/com.wire.android.tests.testsCore.test-9Mb7Fw3LcLBsqvhW-OTgjw==/base.apk!classes2.dex)
+02-24 07:42:43.871 31345 31358 I ClientUserManager: 07:42:43 INFO [646] (ClientUse) Cannot find user by: user1Name 
+02-24 07:42:43.872 31345 31358 I Hello   : 07:42:43 INFO [646] (ClientUse) Hello, my name is Claudie Weber and my email is webercvoccaytfw@wire.engineering and password is Lc6@Is7w and emailPassword is +FIGT+CL(#<Winnnnn 
+02-24 07:42:44.821 31345 31350 I .testsCore.tes: Background young concurrent copying GC freed 21MB AllocSpace bytes, 7(172KB) LOS objects, 73% free, 8178KB/29MB, paused 208us,41us total 117.792ms
+02-24 07:42:46.004 31345 31358 I ClientUserManager: 07:42:46 INFO [646] (ClientUse) Cannot find user by: user3Name 
+02-24 07:42:46.006 31345 31358 I Hello   : 07:42:46 INFO [646] (ClientUse) Hello, my name is Sana White and my email is whiteqmixsgfmhf@wire.engineering and password is #wAB1#nr and emailPassword is (rw^!187,G+}innnnn 
+02-24 07:42:47.544 31345 31358 I ClientUserManager: 07:42:47 INFO [646] (ClientUse) Cannot find user by: user3Name 
+02-24 07:42:47.598 31345 31358 I ClientUserManager: 07:42:47 INFO [646] (ClientUse) Cannot find user by: user4Name 
+02-24 07:42:49.392 31345 31358 I ClientUserManager: 07:42:49 INFO [646] (ClientUse) Cannot find user by: user1Name 
+02-24 07:42:49.442 31345 31358 I ClientUserManager: 07:42:49 INFO [646] (ClientUse) Cannot find user by: user2Name 
+02-24 07:42:51.234 31345 31358 I System.out: Could not access BuildConfig field 'BACKENDCONNECTION_STAGING_SOCKSPROXY': No field BACKENDCONNECTION_STAGING_SOCKSPROXY in class Lcom/wire/android/testSupport/BuildConfig; (declaration of 'com.wire.android.testSupport.BuildConfig' appears in /data/app/~~aW3kr4ZdEtNbhjdraLU8XA==/com.wire.android.tests.testsCore.test-9Mb7Fw3LcLBsqvhW-OTgjw==/base.apk!classes2.dex)
+02-24 07:42:51.243 31345 31358 D UiDevice: Waiting 10000ms for SearchCondition[hasObject=BySelector [TEXT='\QEnter your email to start!\E']].
+02-24 07:42:51.243 31345 31358 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 07:42:51.552 31345 31358 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 07:42:51.719 31345 31358 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 07:42:51.877 31345 31358 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 07:42:52.034 31345 31358 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 07:42:52.197 31345 31358 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 07:42:52.357 31345 31358 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 07:42:52.519 31345 31358 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 07:42:52.677 31345 31358 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 07:42:52.840 31345 31358 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 07:42:52.999 31345 31358 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 07:42:53.159 31345 31358 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 07:42:53.319 31345 31358 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 07:42:53.654 31345 31358 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 07:42:53.823 31345 31358 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 07:42:53.986 31345 31358 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 07:42:54.150 31345 31358 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 07:42:54.313 31345 31358 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 07:42:54.479 31345 31358 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 07:42:54.630 31345 31358 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 07:42:54.786 31345 31358 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 07:42:54.943 31345 31358 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 07:42:55.103 31345 31358 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 07:42:55.265 31345 31358 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 07:42:55.423 31345 31358 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 07:42:55.747 31345 31358 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 07:42:55.905 31345 31358 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 07:42:56.051 31345 31358 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 07:42:56.205 31345 31358 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 07:42:56.369 31345 31358 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 07:42:56.529 31345 31358 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 07:42:56.689 31345 31358 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 07:42:56.848 31345 31358 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 07:42:57.007 31345 31358 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 07:42:57.167 31345 31358 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 07:42:57.323 31345 31358 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 07:42:57.466 31345 31358 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 07:42:57.811 31345 31358 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 07:42:57.965 31345 31358 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 07:42:58.125 31345 31358 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 07:42:58.280 31345 31358 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 07:42:58.435 31345 31358 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 07:42:58.594 31345 31358 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 07:42:58.745 31345 31358 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 07:42:58.900 31345 31358 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 07:42:59.054 31345 31358 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 07:42:59.216 31345 31358 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 07:42:59.374 31345 31358 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 07:42:59.533 31345 31358 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 07:42:59.901 31345 31358 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 07:43:00.051 31345 31358 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 07:43:00.209 31345 31358 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 07:43:00.369 31345 31358 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 07:43:00.531 31345 31358 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 07:43:00.691 31345 31358 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 07:43:00.858 31345 31358 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 07:43:01.011 31345 31358 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 07:43:01.177 31345 31358 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 07:43:01.337 31345 31358 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 07:43:01.553 31345 31358 I TeamClient: 07:43:01 INFO [646] (TeamsExte) Accepted 
+02-24 07:43:01.797 31345 31358 I TeamClient: 07:43:01 INFO [646] (TeamsExte) Accepted 
+02-24 07:43:01.798 31345 31358 D UiDevice: Executing shell command: ls /sdcard/Download
+02-24 07:43:02.011 31345 31358 I System.out: No files found containing 'File'
+02-24 07:43:02.014 31345 31358 I AllureFailureScreenshotRule: Taking failure screenshot for givenUserInAnotherTeam_whenFileIsSent_thenRecipientCanReceivePlayAndDownloadIt(com.wire.android.tests.core.criticalFlows.FileSharingBetweenTeams)
+02-24 07:43:02.017 31345 31358 D UiDevice: Taking screenshot (scale=1,000000, quality=80) and storing at /data/user/0/com.wire.android.tests.testsCore.test/cache/screenshot8637342879307482604.tmp.

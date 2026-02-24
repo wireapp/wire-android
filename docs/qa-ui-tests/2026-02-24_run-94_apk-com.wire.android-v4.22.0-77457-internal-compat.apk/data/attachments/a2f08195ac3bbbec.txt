@@ -1,0 +1,542 @@
+--------- beginning of main
+02-24 08:02:37.446  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:37.446  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:37.447  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:37.548  5388  5402 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 08:02:37.548  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:37.549  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:37.549  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:37.650  5388  5402 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 08:02:37.651  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:37.651  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:37.652  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:37.753  5388  5402 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 08:02:37.753  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:37.753  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:37.754  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:37.856  5388  5402 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 08:02:37.857  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:37.857  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:37.857  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:37.960  5388  5402 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 08:02:37.961  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:37.961  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:37.961  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:38.064  5388  5402 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 08:02:38.064  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:38.065  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:38.065  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:38.168  5388  5402 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 08:02:38.168  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:38.168  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:38.168  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:38.269  5388  5402 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 08:02:38.270  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:38.270  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:38.270  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:38.372  5388  5402 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 08:02:38.372  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:38.372  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:38.373  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:38.474  5388  5402 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 08:02:38.475  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:38.475  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:38.475  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:38.577  5388  5402 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 08:02:38.577  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:38.577  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:38.577  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:38.679  5388  5402 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 08:02:38.679  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:38.679  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:38.679  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:38.781  5388  5402 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 08:02:38.781  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:38.781  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:38.781  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:38.884  5388  5402 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 08:02:38.885  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:38.885  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:38.885  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:38.986  5388  5402 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 08:02:38.987  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:38.987  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:38.987  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:39.089  5388  5402 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 08:02:39.090  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:39.090  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:39.090  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:39.193  5388  5402 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 08:02:39.194  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:39.194  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:39.194  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:39.295  5388  5402 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 08:02:39.296  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:39.296  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:39.296  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:39.398  5388  5402 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 08:02:39.398  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:39.398  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:39.398  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:39.500  5388  5402 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 08:02:39.500  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:39.500  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:39.500  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:39.602  5388  5402 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 08:02:39.602  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:39.603  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:39.603  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:39.706  5388  5402 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 08:02:39.706  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:39.706  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:39.706  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:39.709  5388  5402 I System.out: Could not access BuildConfig field 'BACKENDCONNECTION_STAGING_SOCKSPROXY': No field BACKENDCONNECTION_STAGING_SOCKSPROXY in class Lcom/wire/android/testSupport/BuildConfig; (declaration of 'com.wire.android.testSupport.BuildConfig' appears in /data/app/~~SHYu8bloVa6pJpzsPdvVPA==/com.wire.android.tests.testsCore.test-Sjempaw5V76V3hcAMHcTmg==/base.apk!classes2.dex)
+02-24 08:02:39.720  5388  5402 I NetworkBackendClient: 08:02:39 INFO [688] (BackendCl) user is Hello, my name is Mauro Haag and my email is haagrnxwtlfxpb@wire.engineering and password is !96u!Zrp and emailPassword is _NG:@a+p=dS( 
+02-24 08:02:40.042  5388  5402 I NetworkBackendClient: 08:02:40 INFO [688] (BackendCl) code is 221423 
+02-24 08:02:40.045  5388  5402 I NetworkBackendClient: 08:02:40 INFO [688] (BackendCl) JsonBody is {"email":"haagrnxwtlfxpb@wire.engineering","code":"221423","dryrun":false} 
+02-24 08:02:40.166  5388  5402 I NetworkBackendClient: 08:02:40 INFO [688] (BackendCl) JsonBody response is {"email":"haagrnxwtlfxpb@wire.engineering","code":"221423","dryrun":false} 
+02-24 08:02:40.172  5388  5402 I System.out: Could not access BuildConfig field 'BACKENDCONNECTION_STAGING_SOCKSPROXY': No field BACKENDCONNECTION_STAGING_SOCKSPROXY in class Lcom/wire/android/testSupport/BuildConfig; (declaration of 'com.wire.android.testSupport.BuildConfig' appears in /data/app/~~SHYu8bloVa6pJpzsPdvVPA==/com.wire.android.tests.testsCore.test-Sjempaw5V76V3hcAMHcTmg==/base.apk!classes2.dex)
+02-24 08:02:40.175  5388  5402 D UiDevice: Waiting 10000ms for SearchCondition[hasObject=BySelector [TEXT='\QEnter your email to start!\E']].
+02-24 08:02:40.175  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:40.175  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:40.176  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:40.176  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:40.277  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:40.278  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:40.278  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:40.278  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:40.381  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:40.381  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:40.381  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:40.381  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:40.483  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:40.483  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:40.484  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:40.484  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:40.585  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:40.585  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:40.586  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:40.586  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:40.688  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:40.688  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:40.688  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:40.688  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:40.790  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:40.790  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:40.791  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:40.791  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:40.894  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:40.894  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:40.895  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:40.895  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:40.996  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:40.997  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:40.997  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:40.997  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:41.100  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:41.100  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:41.101  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:41.101  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:41.202  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:41.203  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:41.203  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:41.203  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:41.306  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:41.307  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:41.307  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:41.307  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:41.409  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:41.409  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:41.409  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:41.410  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:41.511  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:41.512  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:41.512  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:41.512  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:41.614  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:41.614  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:41.614  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:41.614  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:41.716  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:41.717  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:41.717  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:41.717  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:41.819  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:41.820  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:41.820  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:41.820  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:41.921  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:41.922  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:41.922  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:41.922  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:42.025  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:42.025  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:42.026  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:42.026  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:42.128  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:42.128  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:42.128  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:42.128  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:42.232  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:42.232  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:42.232  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:42.233  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:42.334  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:42.334  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:42.334  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:42.334  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:42.436  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:42.437  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:42.437  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:42.437  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:42.539  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:42.539  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:42.540  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:42.540  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:42.642  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:42.642  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:42.642  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:42.643  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:42.744  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:42.744  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:42.744  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:42.744  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:42.845  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:42.846  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:42.846  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:42.846  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:42.947  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:42.947  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:42.948  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:42.948  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:43.051  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:43.051  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:43.051  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:43.052  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:43.153  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:43.154  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:43.154  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:43.154  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:43.257  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:43.258  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:43.258  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:43.258  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:43.359  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:43.360  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:43.360  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:43.360  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:43.461  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:43.461  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:43.461  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:43.461  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:43.562  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:43.562  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:43.562  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:43.563  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:43.664  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:43.664  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:43.664  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:43.664  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:43.768  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:43.768  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:43.768  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:43.769  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:43.869  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:43.870  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:43.870  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:43.870  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:43.971  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:43.971  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:43.972  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:43.972  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:44.073  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:44.073  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:44.074  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:44.074  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:44.175  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:44.176  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:44.176  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:44.176  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:44.278  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:44.279  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:44.279  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:44.279  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:44.381  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:44.382  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:44.382  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:44.382  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:44.483  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:44.483  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:44.484  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:44.484  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:44.585  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:44.585  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:44.585  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:44.586  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:44.687  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:44.688  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:44.688  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:44.688  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:44.792  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:44.792  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:44.793  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:44.793  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:44.894  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:44.895  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:44.895  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:44.895  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:44.997  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:44.998  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:44.998  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:44.998  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:45.099  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:45.100  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:45.100  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:45.100  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:45.202  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:45.203  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:45.203  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:45.203  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:45.306  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:45.306  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:45.306  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:45.307  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:45.409  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:45.409  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:45.409  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:45.410  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:45.511  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:45.511  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:45.511  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:45.512  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:45.613  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:45.613  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:45.613  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:45.613  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:45.715  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:45.716  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:45.716  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:45.716  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:45.818  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:45.818  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:45.818  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:45.818  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:45.920  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:45.921  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:45.921  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:45.921  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:46.022  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:46.023  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:46.023  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:46.023  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:46.124  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:46.125  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:46.125  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:46.125  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:46.228  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:46.229  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:46.229  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:46.229  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:46.332  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:46.333  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:46.333  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:46.333  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:46.434  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:46.435  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:46.435  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:46.435  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:46.537  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:46.537  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:46.537  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:46.538  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:46.639  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:46.640  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:46.640  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:46.640  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:46.741  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:46.742  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:46.742  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:46.742  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:46.845  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:46.845  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:46.846  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:46.846  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:46.948  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:46.949  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:46.949  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:46.949  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:47.051  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:47.051  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:47.051  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:47.052  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:47.153  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:47.153  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:47.154  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:47.154  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:47.256  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:47.256  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:47.256  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:47.256  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:47.358  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:47.358  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:47.359  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:47.359  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:47.460  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:47.461  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:47.461  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:47.461  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:47.562  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:47.563  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:47.563  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:47.563  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:47.667  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:47.667  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:47.668  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:47.668  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:47.771  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:47.772  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:47.772  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:47.772  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:47.874  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:47.874  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:47.874  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:47.875  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:47.976  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:47.976  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:47.977  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:47.977  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:48.078  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:48.079  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:48.079  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:48.079  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:48.180  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:48.180  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:48.181  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:48.181  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:48.282  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:48.283  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:48.283  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:48.283  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:48.384  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:48.385  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:48.385  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:48.385  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:48.486  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:48.487  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:48.487  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:48.487  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:48.588  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:48.589  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:48.589  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:48.589  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:48.691  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:48.691  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:48.691  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:48.691  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:48.792  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:48.793  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:48.793  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:48.793  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:48.894  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:48.895  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:48.895  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:48.895  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:48.997  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:48.997  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:48.998  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:48.998  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:49.099  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:49.099  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:49.099  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:49.100  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:49.201  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:49.201  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:49.201  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:49.202  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:49.304  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:49.304  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:49.305  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:49.305  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:49.406  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:49.406  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:49.406  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:49.406  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:49.508  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:49.508  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:49.508  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:49.509  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:49.610  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:49.610  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:49.610  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:49.611  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:49.712  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:49.713  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:49.713  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:49.713  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:49.814  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:49.815  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:49.815  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:49.815  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:49.916  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:49.917  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:49.917  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:49.917  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:50.018  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:50.019  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:50.019  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:50.019  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:50.121  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:50.121  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:50.122  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:50.122  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:50.223  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:02:50.224  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:50.224  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:50.224  5388  5402 W UiDevice: Active window root not found.
+02-24 08:02:50.442  5388  5402 I AllureFailureScreenshotRule: Taking failure screenshot for givenTeamUserAcceptsAnonymousDataSharing_whenConsentIsGiven_thenAnalyticsIdentifierIsVisibleInDebugSettings(com.wire.android.tests.core.tests.GdprTest)
+02-24 08:02:50.446  5388  5402 D UiDevice: Taking screenshot (scale=1,000000, quality=80) and storing at /data/user/0/com.wire.android.tests.testsCore.test/cache/screenshot1108876501302260550.tmp.
+02-24 08:02:50.446  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:02:50.450  5388  5402 E UiAutomation: Error while taking screenshot of display 0
+02-24 08:02:50.450  5388  5402 E UiAutomation: android.os.DeadObjectException
+02-24 08:02:50.450  5388  5402 E UiAutomation: 	at android.os.BinderProxy.transactNative(Native Method)
+02-24 08:02:50.450  5388  5402 E UiAutomation: 	at android.os.BinderProxy.transact(BinderProxy.java:655)
+02-24 08:02:50.450  5388  5402 E UiAutomation: 	at android.app.IUiAutomationConnection$Stub$Proxy.takeScreenshot(IUiAutomationConnection.java:625)
+02-24 08:02:50.450  5388  5402 E UiAutomation: 	at android.app.UiAutomation.takeScreenshot(UiAutomation.java:1276)
+02-24 08:02:50.450  5388  5402 E UiAutomation: 	at androidx.test.uiautomator.UiDevice.takeScreenshot(UiDevice.java:1356)
+02-24 08:02:50.450  5388  5402 E UiAutomation: 	at io.qameta.allure.android.AllureScreenshotKt.takeScreenshot(AllureScreenshot.kt:40)
+02-24 08:02:50.450  5388  5402 E UiAutomation: 	at io.qameta.allure.android.AllureScreenshotKt.allureScreenshot(AllureScreenshot.kt:31)
+02-24 08:02:50.450  5388  5402 E UiAutomation: 	at com.wire.android.tests.support.suite.AllureFailureScreenshotRule$apply$1.evaluate(AllureFailureScreenshotRule.kt:58)
+02-24 08:02:50.450  5388  5402 E UiAutomation: 	at com.wire.android.tests.support.suite.AllureLabelsRule$apply$1.evaluate(AllureLabelsRule.kt:70)
+02-24 08:02:50.450  5388  5402 E UiAutomation: 	at org.junit.rules.TestWatcher$1.evaluate(TestWatcher.java:61)
+02-24 08:02:50.450  5388  5402 E UiAutomation: 	at com.wire.android.tests.support.suite.AllureLogcatRule$apply$1.evaluate(AllureLogcatRule.kt:41)
+02-24 08:02:50.450  5388  5402 E UiAutomation: 	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+02-24 08:02:50.450  5388  5402 E UiAutomation: 	at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+02-24 08:02:50.450  5388  5402 E UiAutomation: 	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+02-24 08:02:50.450  5388  5402 E UiAutomation: 	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+02-24 08:02:50.450  5388  5402 E UiAutomation: 	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+02-24 08:02:50.450  5388  5402 E UiAutomation: 	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+02-24 08:02:50.450  5388  5402 E UiAutomation: 	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+02-24 08:02:50.450  5388  5402 E UiAutomation: 	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+02-24 08:02:50.450  5388  5402 E UiAutomation: 	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+02-24 08:02:50.450  5388  5402 E UiAutomation: 	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+02-24 08:02:50.450  5388  5402 E UiAutomation: 	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+02-24 08:02:50.450  5388  5402 E UiAutomation: 	at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+02-24 08:02:50.450  5388  5402 E UiAutomation: 	at androidx.test.ext.junit.runners.AndroidJUnit4.run(AndroidJUnit4.java:162)
+02-24 08:02:50.450  5388  5402 E UiAutomation: 	at org.junit.runners.Suite.runChild(Suite.java:128)
+02-24 08:02:50.450  5388  5402 E UiAutomation: 	at org.junit.runners.Suite.runChild(Suite.java:27)
+02-24 08:02:50.450  5388  5402 E UiAutomation: 	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+02-24 08:02:50.450  5388  5402 E UiAutomation: 	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+02-24 08:02:50.450  5388  5402 E UiAutomation: 	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+02-24 08:02:50.450  5388  5402 E UiAutomation: 	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+02-24 08:02:50.450  5388  5402 E UiAutomation: 	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+02-24 08:02:50.450  5388  5402 E UiAutomation: 	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+02-24 08:02:50.450  5388  5402 E UiAutomation: 	at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+02-24 08:02:50.450  5388  5402 E UiAutomation: 	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+02-24 08:02:50.450  5388  5402 E UiAutomation: 	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+02-24 08:02:50.450  5388  5402 E UiAutomation: 	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:68)
+02-24 08:02:50.450  5388  5402 E UiAutomation: 	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:59)
+02-24 08:02:50.450  5388  5402 E UiAutomation: 	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:467)
+02-24 08:02:50.450  5388  5402 E UiAutomation: 	at com.wire.android.tests.support.suite.TaggedTestRunner.onStart(TaggedTestRunner.kt:51)
+02-24 08:02:50.450  5388  5402 E UiAutomation: 	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2607)
+02-24 08:02:50.450  5388  5402 W UiDevice: Failed to take screenshot.
+02-24 08:02:50.450  5388  5402 E AllureScreenshot: Failed to take the screenshot

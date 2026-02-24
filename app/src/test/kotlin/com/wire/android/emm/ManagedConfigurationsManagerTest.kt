@@ -1,3 +1,20 @@
+/*
+ * Wire
+ * Copyright (C) 2025 Wire Swiss GmbH
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://www.gnu.org/licenses/.
+ */
 package com.wire.android.emm
 
 import android.app.Application
@@ -21,6 +38,8 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(application = Application::class)
 class ManagedConfigurationsManagerTest {
+
+    // region Unified Format Tests (Backward Compatibility)
 
     @Test
     fun `given a server config is valid, then parse it to a corresponding ManagedServerConfig`() =
@@ -160,9 +179,112 @@ class ManagedConfigurationsManagerTest {
         assertEquals(false, manager.persistentWebSocketEnforcedByMDM.value)
     }
 
+    // endregion
+
+    // region Context-Mapped Format Tests (Multi-App Support)
+
+    @Test
+    fun `given context-mapped server config with matching user ID, then return correct config`() =
+        runTest {
+            val (_, manager) = Arrangement()
+                .withUserIdKey("0")
+                .withRestrictions(mapOf(ManagedConfigurationsKeys.DEFAULT_SERVER_URLS.asKey() to contextMappedServerConfigJson))
+                .arrange()
+
+            val result = manager.refreshServerConfig()
+            assertInstanceOf<ServerConfigResult.Success>(result)
+
+            val serverConfig = manager.currentServerConfig
+            assertEquals("Secure Server", serverConfig.title)
+            assertEquals("https://secure-account.wire.link", serverConfig.accounts)
+        }
+
+    @Test
+    fun `given context-mapped server config with non-matching user ID, then fallback to default`() =
+        runTest {
+            val (_, manager) = Arrangement()
+                .withUserIdKey("99") // User ID not in config
+                .withRestrictions(mapOf(ManagedConfigurationsKeys.DEFAULT_SERVER_URLS.asKey() to contextMappedServerConfigJson))
+                .arrange()
+
+            val result = manager.refreshServerConfig()
+            assertInstanceOf<ServerConfigResult.Success>(result)
+
+            val serverConfig = manager.currentServerConfig
+            assertEquals("General Server", serverConfig.title)
+            assertEquals("https://general-account.wire.link", serverConfig.accounts)
+        }
+
+    @Test
+    fun `given context-mapped server config without default and non-matching user ID, then return empty`() =
+        runTest {
+            val (_, manager) = Arrangement()
+                .withUserIdKey("99")
+                .withRestrictions(mapOf(ManagedConfigurationsKeys.DEFAULT_SERVER_URLS.asKey() to contextMappedServerConfigNoDefaultJson))
+                .arrange()
+
+            val result = manager.refreshServerConfig()
+            assertInstanceOf<ServerConfigResult.Empty>(result)
+
+            val serverConfig = manager.currentServerConfig
+            assertEquals(ServerConfigProvider().getDefaultServerConfig(), serverConfig)
+        }
+
+    @Test
+    fun `given context-mapped SSO config with matching user ID, then return correct SSO code`() =
+        runTest {
+            val (_, manager) = Arrangement()
+                .withUserIdKey("0")
+                .withRestrictions(mapOf(ManagedConfigurationsKeys.SSO_CODE.asKey() to contextMappedSSOConfigJson))
+                .arrange()
+
+            val result = manager.refreshSSOCodeConfig()
+            assertInstanceOf<SSOCodeConfigResult.Success>(result)
+
+            val ssoCode = manager.currentSSOCodeConfig
+            assertEquals("00000000-0000-0000-0000-000000000000", ssoCode)
+        }
+
+    @Test
+    fun `given context-mapped SSO config with non-matching user ID, then fallback to default`() =
+        runTest {
+            val (_, manager) = Arrangement()
+                .withUserIdKey("99")
+                .withRestrictions(mapOf(ManagedConfigurationsKeys.SSO_CODE.asKey() to contextMappedSSOConfigJson))
+                .arrange()
+
+            val result = manager.refreshSSOCodeConfig()
+            assertInstanceOf<SSOCodeConfigResult.Success>(result)
+
+            val ssoCode = manager.currentSSOCodeConfig
+            assertEquals("fd994b20-b9af-11ec-ae36-00163e9b33ca", ssoCode)
+        }
+
+    @Test
+    fun `given context-mapped SSO config without default and non-matching user ID, then return empty`() =
+        runTest {
+            val (_, manager) = Arrangement()
+                .withUserIdKey("99")
+                .withRestrictions(mapOf(ManagedConfigurationsKeys.SSO_CODE.asKey() to contextMappedSSOConfigNoDefaultJson))
+                .arrange()
+
+            val result = manager.refreshSSOCodeConfig()
+            assertInstanceOf<SSOCodeConfigResult.Empty>(result)
+
+            val ssoCode = manager.currentSSOCodeConfig
+            assertEquals(String.EMPTY, ssoCode)
+        }
+
+    // endregion
+
     private class Arrangement {
 
         private val context: Context = ApplicationProvider.getApplicationContext()
+        private var userIdKey: String = "0"
+
+        fun withUserIdKey(userIdKey: String) = apply {
+            this.userIdKey = userIdKey
+        }
 
         fun withRestrictions(restrictions: Map<String, String>) = apply {
             val restrictionsManager =
@@ -190,12 +312,21 @@ class ManagedConfigurationsManagerTest {
             )
         }
 
-        fun arrange() = this to ManagedConfigurationsManagerImpl(
-            context = context,
-            serverConfigProvider = ServerConfigProvider(),
-            dispatchers = TestDispatcherProvider(),
-            globalDataStore = GlobalDataStore(context)
-        )
+        fun arrange(): Pair<Arrangement, ManagedConfigurationsManager> {
+            val userContextProvider = object : AndroidUserContextProvider {
+                override fun getCurrentAndroidUserId(): Int = userIdKey.toIntOrNull() ?: 0
+                override fun getCurrentUserIdKey(): String = userIdKey
+            }
+            val configParser = ManagedConfigParserImpl(userContextProvider)
+
+            return this to ManagedConfigurationsManagerImpl(
+                context = context,
+                serverConfigProvider = ServerConfigProvider(),
+                dispatchers = TestDispatcherProvider(),
+                globalDataStore = GlobalDataStore(context),
+                configParser = configParser
+            )
+        }
     }
 
     companion object {
@@ -236,6 +367,68 @@ class ManagedConfigurationsManagerTest {
         val invalidSSOCodeConfigJson = """
             {
               "sso_code": "invalid-sso-code"
+            }
+        """.trimIndent()
+
+        val contextMappedServerConfigJson = """
+            {
+              "0": {
+                "title": "Secure Server",
+                "endpoints": {
+                  "accountsURL": "https://secure-account.wire.link",
+                  "backendURL": "https://secure-api.wire.link",
+                  "backendWSURL": "https://secure-ws.wire.link",
+                  "blackListURL": "https://secure-blacklist.wire.link",
+                  "teamsURL": "https://secure-teams.wire.link",
+                  "websiteURL": "https://secure.wire.com"
+                }
+              },
+              "default": {
+                "title": "General Server",
+                "endpoints": {
+                  "accountsURL": "https://general-account.wire.link",
+                  "backendURL": "https://general-api.wire.link",
+                  "backendWSURL": "https://general-ws.wire.link",
+                  "blackListURL": "https://general-blacklist.wire.link",
+                  "teamsURL": "https://general-teams.wire.link",
+                  "websiteURL": "https://general.wire.com"
+                }
+              }
+            }
+        """.trimIndent()
+
+        val contextMappedServerConfigNoDefaultJson = """
+            {
+              "0": {
+                "title": "Secure Server",
+                "endpoints": {
+                  "accountsURL": "https://secure-account.wire.link",
+                  "backendURL": "https://secure-api.wire.link",
+                  "backendWSURL": "https://secure-ws.wire.link",
+                  "blackListURL": "https://secure-blacklist.wire.link",
+                  "teamsURL": "https://secure-teams.wire.link",
+                  "websiteURL": "https://secure.wire.com"
+                }
+              }
+            }
+        """.trimIndent()
+
+        val contextMappedSSOConfigJson = """
+            {
+              "0": {
+                "sso_code": "00000000-0000-0000-0000-000000000000"
+              },
+              "default": {
+                "sso_code": "fd994b20-b9af-11ec-ae36-00163e9b33ca"
+              }
+            }
+        """.trimIndent()
+
+        val contextMappedSSOConfigNoDefaultJson = """
+            {
+              "0": {
+                "sso_code": "00000000-0000-0000-0000-000000000000"
+              }
             }
         """.trimIndent()
     }

@@ -95,6 +95,7 @@ internal fun CellScreenContent(
     isAllFiles: Boolean = false,
     isSearchResult: Boolean = false,
     isFiltering: Boolean = false,
+    isPullToRefreshEnabled: Boolean = true,
     lazyListState: LazyListState = rememberLazyListState(),
     retryEditNodeError: (String) -> Unit = {},
     showVersionHistoryScreen: (String, String) -> Unit = { _, _ -> },
@@ -113,7 +114,7 @@ internal fun CellScreenContent(
     val downloadFile by downloadFileState.collectAsState()
 
     when {
-        pagingListItems.isLoading() -> LoadingScreen()
+        pagingListItems.isLoading() -> LoadingScreen(modifier = modifier)
         pagingListItems.isError() -> {
             val error = (pagingListItems.loadState.refresh as? LoadState.Error)?.error
             ErrorScreen(
@@ -134,6 +135,7 @@ internal fun CellScreenContent(
         else ->
             CellFilesScreen(
                 modifier = modifier,
+                isPullToRefreshEnabled = isPullToRefreshEnabled,
                 lazyListState = lazyListState,
                 cellNodes = pagingListItems,
                 onItemClick = { sendIntent(CellViewIntent.OnItemClick(it)) },

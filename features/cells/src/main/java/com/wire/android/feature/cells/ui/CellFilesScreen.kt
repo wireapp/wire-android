@@ -38,7 +38,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.wire.android.feature.cells.ui.model.CellNodeUi
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.paging.LoadState
@@ -46,6 +45,7 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import com.wire.android.feature.cells.R
+import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.util.PreviewMultipleThemes
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.colorsScheme
@@ -64,51 +64,78 @@ internal fun CellFilesScreen(
     onRefresh: () -> Unit,
     onItemClick: (CellNodeUi) -> Unit,
     modifier: Modifier = Modifier,
+    isPullToRefreshEnabled: Boolean = true,
     lazyListState: LazyListState = rememberLazyListState(),
     onItemMenuClick: (CellNodeUi) -> Unit
 ) {
-    PullToRefreshBox(
-        modifier = modifier,
-        isRefreshing = isRefreshing.value,
-        onRefresh = onRefresh,
-    ) {
-        LazyColumn(
-            state = lazyListState,
-            modifier = Modifier.fillMaxWidth(),
-            contentPadding = PaddingValues(bottom = dimensions().spacing80x)
+    if (isPullToRefreshEnabled) {
+        PullToRefreshBox(
+            modifier = modifier,
+            isRefreshing = isRefreshing.value,
+            onRefresh = onRefresh,
         ) {
-            items(
-                count = cellNodes.itemCount,
-                key = cellNodes.itemKey { it.uuid },
-                contentType = cellNodes.itemContentType { it }
-            ) { index ->
+            ContentList(
+                cellNodes = cellNodes,
+                lazyListState = lazyListState,
+                onItemClick = onItemClick,
+                onItemMenuClick = onItemMenuClick
+            )
+        }
+    } else {
+        ContentList(
+            modifier = modifier,
+            cellNodes = cellNodes,
+            lazyListState = lazyListState,
+            onItemClick = onItemClick,
+            onItemMenuClick = onItemMenuClick
+        )
+    }
+}
 
-                cellNodes[index]?.let { item ->
-                    CellListItem(
-                        modifier = Modifier
-                            .animateItem()
-                            .background(color = colorsScheme().surface)
-                            .clickable { onItemClick(item) },
-                        cell = item,
-                        onMenuClick = { onItemMenuClick(item) }
-                    )
-                    WireDivider(modifier = Modifier.fillMaxWidth())
-                }
+@Composable
+private fun ContentList(
+    cellNodes: LazyPagingItems<CellNodeUi>,
+    lazyListState: LazyListState,
+    onItemClick: (CellNodeUi) -> Unit,
+    onItemMenuClick: (CellNodeUi) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    LazyColumn(
+        modifier = modifier.fillMaxWidth(),
+        state = lazyListState,
+        contentPadding = PaddingValues(bottom = dimensions().spacing80x)
+    ) {
+        items(
+            count = cellNodes.itemCount,
+            key = cellNodes.itemKey { it.uuid },
+            contentType = cellNodes.itemContentType { it }
+        ) { index ->
+
+            cellNodes[index]?.let { item ->
+                CellListItem(
+                    modifier = Modifier
+                        .animateItem()
+                        .background(color = colorsScheme().surface)
+                        .clickable { onItemClick(item) },
+                    cell = item,
+                    onMenuClick = { onItemMenuClick(item) }
+                )
+                WireDivider(modifier = Modifier.fillMaxWidth())
+            }
+        }
+
+        when (cellNodes.loadState.append) {
+            is LoadState.Error -> item(contentType = "error") {
+                ErrorFooter(
+                    onRetry = { cellNodes.retry() }
+                )
             }
 
-            when (cellNodes.loadState.append) {
-                is LoadState.Error -> item(contentType = "error") {
-                    ErrorFooter(
-                        onRetry = { cellNodes.retry() }
-                    )
-                }
-
-                is LoadState.Loading -> item(contentType = "progress") {
-                    ProgressFooter()
-                }
-
-                is LoadState.NotLoading -> {}
+            is LoadState.Loading -> item(contentType = "progress") {
+                ProgressFooter()
             }
+
+            is LoadState.NotLoading -> {}
         }
     }
 }

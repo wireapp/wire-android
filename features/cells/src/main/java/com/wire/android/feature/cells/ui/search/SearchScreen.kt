@@ -76,8 +76,9 @@ const val sharedElementSearchInputKey = "search_bar"
 fun SearchScreen(
     navigator: WireNavigator,
     animatedVisibilityScope: AnimatedVisibilityScope,
+    modifier: Modifier = Modifier,
     searchScreenViewModel: SearchScreenViewModel = hiltViewModel(),
-    cellViewModel: CellViewModel = hiltViewModel(),
+    cellViewModel: CellViewModel = hiltViewModel()
 ) {
     val scope = rememberCoroutineScope()
     val focusRequester = remember { FocusRequester() }
@@ -117,6 +118,7 @@ fun SearchScreen(
 
     with(sharedScope) {
         WireScaffold(
+            modifier = modifier,
             topBar = {
                 Column {
                     SearchTopBar(
@@ -179,6 +181,7 @@ fun SearchScreen(
 
             CellScreenContent(
                 lazyListState = lazyListState,
+                isPullToRefreshEnabled = false,
                 modifier = Modifier.padding(innerPadding),
                 actionsFlow = cellViewModel.actions,
                 pagingListItems = lazyItems,

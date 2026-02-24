@@ -1,0 +1,47 @@
+--------- beginning of main
+02-24 10:32:05.745 16168 16182 I TestRunner: finished: givenUserJoinsNewTeam_whenMessagingAndMentionedInGroup_thenReceivesMessagesAndMentions(com.wire.android.tests.core.criticalFlows.NewMemberMessaging)
+02-24 10:32:05.779 16168 16182 I TestRunner: started: givenNoAccount_whenCreatingAndDeletingPersonalAccount_thenAccountIsRemoved(com.wire.android.tests.core.criticalFlows.PersonalAccountLifeCycle)
+02-24 10:32:05.800 16168 16182 D UiDevice: Executing shell command: pm clear com.wire.internal
+02-24 10:32:05.897 16168 16182 D UiDevice: Executing shell command: settings put secure show_ime_with_hard_keyboard 0
+02-24 10:32:05.931 16168 16182 D UiDevice: Executing shell command: settings put global window_animation_scale 0
+02-24 10:32:05.950 16168 16182 D UiDevice: Executing shell command: settings put global transition_animation_scale 0
+02-24 10:32:05.968 16168 16182 D UiDevice: Executing shell command: settings put global animator_duration_scale .5
+02-24 10:32:05.987 16168 16182 D UiDevice: Pressing home button.
+02-24 10:32:06.240 16168 16182 D UiDevice: Waiting 20000ms for SearchCondition[hasObject=BySelector [PKG='\Qcom.sec.android.app.launcher\E']].
+02-24 10:32:06.240 16168 16182 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.sec.android.app.launcher\E'].
+02-24 10:32:07.691 16168 16182 D UiDevice: Waiting 20000ms for SearchCondition[hasObject=BySelector [PKG='\Qcom.wire.internal\E']].
+02-24 10:32:07.692 16168 16182 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 10:32:08.212 16168 16182 W UiDevice: Active window root not found.
+02-24 10:32:08.214 16168 16182 W UiDevice: Skipping null root node for window: AccessibilityWindowInfo[title=null, displayId=0, id=1604, taskId=-1, type=TYPE_SYSTEM, layer=4, region=SkRegion((279,2268,801,2340)), bounds=Rect(279, 2268 - 801, 2340), focused=false, active=false, pictureInPicture=false, transitionTime=1645426454, hasParent=false, isAnchored=false, hasChildren=false]
+02-24 10:32:08.217 16168 16182 W UiDevice: Skipping null root node for window: AccessibilityWindowInfo[title=One UI Home, displayId=0, id=1602, taskId=463, type=TYPE_APPLICATION, layer=0, region=SkRegion((0,0,1080,2340)), bounds=Rect(0, 0 - 1080, 2340), focused=true, active=true, pictureInPicture=false, transitionTime=1645425873, hasParent=false, isAnchored=false, hasChildren=false]
+02-24 10:32:08.327 16168 16182 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 10:32:08.328 16168 16182 W UiDevice: Active window root not found.
+02-24 10:32:08.329 16168 16182 W UiDevice: Skipping null root node for window: AccessibilityWindowInfo[title=null, displayId=0, id=1604, taskId=-1, type=TYPE_SYSTEM, layer=4, region=SkRegion((279,2268,801,2340)), bounds=Rect(279, 2268 - 801, 2340), focused=false, active=false, pictureInPicture=false, transitionTime=1645426454, hasParent=false, isAnchored=false, hasChildren=false]
+02-24 10:32:08.331 16168 16182 W UiDevice: Skipping null root node for window: AccessibilityWindowInfo[title=One UI Home, displayId=0, id=1602, taskId=463, type=TYPE_APPLICATION, layer=0, region=SkRegion((0,0,1080,2340)), bounds=Rect(0, 0 - 1080, 2340), focused=true, active=true, pictureInPicture=false, transitionTime=1645425873, hasParent=false, isAnchored=false, hasChildren=false]
+02-24 10:32:08.432 16168 16182 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 10:32:08.433 16168 16182 W UiDevice: Active window root not found.
+02-24 10:32:08.434 16168 16182 W UiDevice: Skipping null root node for window: AccessibilityWindowInfo[title=null, displayId=0, id=1604, taskId=-1, type=TYPE_SYSTEM, layer=4, region=SkRegion((279,2268,801,2340)), bounds=Rect(279, 2268 - 801, 2340), focused=false, active=false, pictureInPicture=false, transitionTime=1645426454, hasParent=false, isAnchored=false, hasChildren=false]
+02-24 10:32:08.436 16168 16182 W UiDevice: Skipping null root node for window: AccessibilityWindowInfo[title=One UI Home, displayId=0, id=1602, taskId=463, type=TYPE_APPLICATION, layer=0, region=SkRegion((0,0,1080,2340)), bounds=Rect(0, 0 - 1080, 2340), focused=true, active=true, pictureInPicture=false, transitionTime=1645425873, hasParent=false, isAnchored=false, hasChildren=false]
+02-24 10:32:08.537 16168 16182 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 10:32:09.035 16168 16182 I System.out: Could not access BuildConfig field 'BACKENDCONNECTION_STAGING_SOCKSPROXY': No field BACKENDCONNECTION_STAGING_SOCKSPROXY in class Lcom/wire/android/testSupport/BuildConfig; (declaration of 'com.wire.android.testSupport.BuildConfig' appears in /data/app/~~Pakh0B0nVKkyIW0G9dsSwg==/com.wire.android.tests.testsCore.test-Y_UDyUyOyhfZmMYAHBWr6g==/base.apk!classes2.dex)
+02-24 10:32:09.035 16168 16182 I System.out: Could not access BuildConfig field 'BACKENDCONNECTION_STAGING_SOCKSPROXY': No field BACKENDCONNECTION_STAGING_SOCKSPROXY in class Lcom/wire/android/testSupport/BuildConfig; (declaration of 'com.wire.android.testSupport.BuildConfig' appears in /data/app/~~Pakh0B0nVKkyIW0G9dsSwg==/com.wire.android.tests.testsCore.test-Y_UDyUyOyhfZmMYAHBWr6g==/base.apk!classes2.dex)
+02-24 10:32:09.035 16168 16182 I System.out: Could not access BuildConfig field 'BACKENDCONNECTION_STAGING_SOCKSPROXY': No field BACKENDCONNECTION_STAGING_SOCKSPROXY in class Lcom/wire/android/testSupport/BuildConfig; (declaration of 'com.wire.android.testSupport.BuildConfig' appears in /data/app/~~Pakh0B0nVKkyIW0G9dsSwg==/com.wire.android.tests.testsCore.test-Y_UDyUyOyhfZmMYAHBWr6g==/base.apk!classes2.dex)
+02-24 10:32:09.091 16168 16182 I ClientUserManager: 10:32:09 INFO [687] (ClientUse) Cannot find user by: user1Name 
+02-24 10:32:09.091 16168 16182 I Hello   : 10:32:09 INFO [687] (ClientUse) Hello, my name is Bob Rosenbaum and my email is rosenbaumbdxagphuap@wire.engineering and password is 797Hjkp! and emailPassword is -f7*ga^6Sl71innnnn 
+02-24 10:32:10.616 16168 16182 I ClientUserManager: 10:32:10 INFO [687] (ClientUse) Cannot find user by: user1Name 
+02-24 10:32:10.617 16168 16182 I System.out: Could not access BuildConfig field 'BACKENDCONNECTION_STAGING_SOCKSPROXY': No field BACKENDCONNECTION_STAGING_SOCKSPROXY in class Lcom/wire/android/testSupport/BuildConfig; (declaration of 'com.wire.android.testSupport.BuildConfig' appears in /data/app/~~Pakh0B0nVKkyIW0G9dsSwg==/com.wire.android.tests.testsCore.test-Y_UDyUyOyhfZmMYAHBWr6g==/base.apk!classes2.dex)
+02-24 10:32:10.619 16168 16182 I ClientUserManager: 10:32:10 INFO [687] (ClientUse) Cannot find user by: user1Name 
+02-24 10:32:10.680 16168 16182 I ClientUserManager: 10:32:10 INFO [687] (ClientUse) Cannot find user by: user1Name 
+02-24 10:32:10.681 16168 16182 I System.out: Could not access BuildConfig field 'BACKENDCONNECTION_STAGING_SOCKSPROXY': No field BACKENDCONNECTION_STAGING_SOCKSPROXY in class Lcom/wire/android/testSupport/BuildConfig; (declaration of 'com.wire.android.testSupport.BuildConfig' appears in /data/app/~~Pakh0B0nVKkyIW0G9dsSwg==/com.wire.android.tests.testsCore.test-Y_UDyUyOyhfZmMYAHBWr6g==/base.apk!classes2.dex)
+02-24 10:32:10.682 16168 16182 I TestService: 10:32:10 INFO [687] (TestServi) GET: http://192.168.2.18:8080/api/v1/ 
+02-24 10:34:10.701 16168 16182 E TestService: 10:34:10 SEVE [687] (TestServi) timeout (-1):  
+02-24 10:39:10.710 16168 16182 I ClientUserManager: 10:39:10 INFO [687] (ClientUse) Cannot find user by: user1Name 
+02-24 10:39:10.714 16168 16182 I System.out: Could not access BuildConfig field 'BACKENDCONNECTION_STAGING_SOCKSPROXY': No field BACKENDCONNECTION_STAGING_SOCKSPROXY in class Lcom/wire/android/testSupport/BuildConfig; (declaration of 'com.wire.android.testSupport.BuildConfig' appears in /data/app/~~Pakh0B0nVKkyIW0G9dsSwg==/com.wire.android.tests.testsCore.test-Y_UDyUyOyhfZmMYAHBWr6g==/base.apk!classes2.dex)
+02-24 10:39:10.717 16168 16182 I TestService: 10:39:10 INFO [687] (TestServi) GET: http://192.168.2.18:8080/api/v1/ 
+02-24 10:41:10.788 16168 16182 E TestService: 10:41:10 SEVE [687] (TestServi) timeout (-1):  
+02-24 10:41:11.140 16168 16182 I TeamClient: 10:41:11 INFO [687] (TeamsExte) Accepted 
+02-24 10:41:11.294 16168 16173 W .testsCore.test: Reducing the number of considered missed Gc histogram windows from 109 to 100
+02-24 10:41:11.542 16168 16182 I Inbucket: 10:41:11 INFO [687] (InbucketC) Url is :  https://inbucket.wire.engineering//api/v1/mailbox/wizaitsiathxlp@wire.engineering/latest 
+02-24 10:41:46.831 16168 16173 I .testsCore.test: Background concurrent copying GC freed 3344KB AllocSpace bytes, 195(4252KB) LOS objects, 49% free, 8318KB/16MB, paused 44us,22us total 100.052ms
+02-24 10:41:50.660 16168 16182 I AllureFailureScreenshotRule: Taking failure screenshot for givenNoAccount_whenCreatingAndDeletingPersonalAccount_thenAccountIsRemoved(com.wire.android.tests.core.criticalFlows.PersonalAccountLifeCycle)
+02-24 10:41:50.664 16168 16182 D UiDevice: Taking screenshot (scale=1,000000, quality=80) and storing at /data/user/0/com.wire.android.tests.testsCore.test/cache/screenshot5749079995923092360.tmp.

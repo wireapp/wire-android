@@ -154,7 +154,7 @@ fun SearchScreen(
                     with(searchScreenViewModel.uiState.collectAsState().value) {
                         SortRowWithMenu(
                             sortingCriteria = sortingCriteria,
-                            isSearchResult = isSearchActive,
+                            isSearchResult = searchState.text.isNotEmpty() || uiState.hasAnyFilter,
                             onSortByClicked = {
                                 searchScreenViewModel.setSortBy(it)
                             },

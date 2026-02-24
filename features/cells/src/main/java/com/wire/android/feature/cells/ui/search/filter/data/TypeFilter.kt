@@ -42,7 +42,7 @@ fun MIMEType.toFilterTypeUi(): FilterTypeUi =
             mimeType = this
         )
 
-        MIMEType.IMAGES -> FilterTypeUi(
+        MIMEType.IMAGE -> FilterTypeUi(
             id = name,
             label = R.string.filter_images_type,
             iconRes = R.drawable.ic_file_type_image,
@@ -63,17 +63,31 @@ fun MIMEType.toFilterTypeUi(): FilterTypeUi =
             mimeType = this
         )
 
-        MIMEType.VIDEOS -> FilterTypeUi(
+        MIMEType.VIDEO -> FilterTypeUi(
             id = name,
             label = R.string.filter_videos_type,
             iconRes = R.drawable.ic_file_type_video,
             mimeType = this
         )
 
-        MIMEType.AUDIOS -> FilterTypeUi(
+        MIMEType.AUDIO -> FilterTypeUi(
             id = name,
             label = R.string.filter_audio_type,
             iconRes = R.drawable.ic_file_type_audio,
+            mimeType = this
+        )
+
+        MIMEType.ARCHIVE -> FilterTypeUi(
+            id = name,
+            label = R.string.filter_archives_type,
+            iconRes = R.drawable.ic_file_type_archive,
+            mimeType = this
+        )
+
+        MIMEType.TEXT -> FilterTypeUi(
+            id = name,
+            label = R.string.filter_text_files_type,
+            iconRes = R.drawable.ic_file_type_text,
             mimeType = this
         )
     }

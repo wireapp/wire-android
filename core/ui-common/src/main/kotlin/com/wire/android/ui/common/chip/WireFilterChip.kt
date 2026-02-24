@@ -135,6 +135,6 @@ fun PreviewSelectedFilterChip() {
 @Composable
 fun PreviewDisabledFilterChip() {
     WireTheme {
-        WireFilterChip(label = "Disabled items", isSelected = true, isEnabled = false)
+        WireFilterChip(label = "Disabled items", isSelected = false, isEnabled = false)
     }
 }

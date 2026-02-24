@@ -32,7 +32,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -55,13 +54,13 @@ import com.wire.android.feature.cells.ui.search.filter.FilterChipsRow
 import com.wire.android.feature.cells.ui.search.filter.bottomsheet.FilterByTypeBottomSheet
 import com.wire.android.feature.cells.ui.search.filter.bottomsheet.owner.FilterByOwnerBottomSheet
 import com.wire.android.feature.cells.ui.search.filter.bottomsheet.tags.FilterByTagsBottomSheet
+import com.wire.android.feature.cells.ui.search.sort.SortRowWithMenu
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.WireNavigator
 import com.wire.android.navigation.annotation.features.cells.WireCellsDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 const val sharedElementSearchInputKey = "search_bar"
@@ -106,14 +105,6 @@ fun SearchScreen(
     }
 
     val sharedScope = LocalSharedTransitionScope.current
-    var playScrollHint by remember { mutableStateOf(true) }
-
-    LaunchedEffect(Unit) {
-        delay(1500)
-        playScrollHint = true
-        delay(2000)
-        playScrollHint = false
-    }
 
     val searchState = remember { TextFieldState() }
 
@@ -122,9 +113,7 @@ fun SearchScreen(
             .collect { searchScreenViewModel.onSearchQueryChanged(it) }
     }
 
-
     with(sharedScope) {
-
         WireScaffold(
             topBar = {
                 Column {
@@ -142,12 +131,7 @@ fun SearchScreen(
                         focusManager = focusManager
                     )
                     FilterChipsRow(
-                        shouldPlayHint = playScrollHint,
-                        isSharedByLinkSelected = uiState.filesWithPublicLink,
-                        tagsCount = uiState.tagsCount,
-                        typeCount = uiState.typeCount,
-                        ownerCount = uiState.ownerCount,
-                        hasAnyFilter = uiState.hasAnyFilter,
+                        state = uiState.chipsState,
                         onFilterByTagsClicked = {
                             openSheet { searchScreenViewModel.onFilterByTagsClicked() }
                         },
@@ -164,6 +148,19 @@ fun SearchScreen(
                             searchScreenViewModel.onRemoveAllFilters()
                         }
                     )
+
+                    with(searchScreenViewModel.uiState.collectAsState().value) {
+                        SortRowWithMenu(
+                            sortingCriteria = sortingCriteria,
+                            isSearchResult = isSearchActive,
+                            onSortByClicked = {
+                                searchScreenViewModel.setSortBy(it)
+                            },
+                            onOrderClicked = {
+                                searchScreenViewModel.setSorting(it)
+                            }
+                        )
+                    }
                 }
             }
         ) { innerPadding ->
@@ -230,7 +227,7 @@ fun SearchScreen(
                 )
             }
 
-            if (uiState.showFilterByTags) {
+            if (uiState.showFilterByTagsBottomSheet) {
                 FilterByTagsBottomSheet(
                     items = searchScreenViewModel.uiState.collectAsState().value.availableTags,
                     sheetState = filterTagsSheetState,
@@ -253,7 +250,7 @@ fun SearchScreen(
                 )
             }
 
-            if (uiState.showFilterByType) {
+            if (uiState.showFilterByTypeBottomSheet) {
                 FilterByTypeBottomSheet(
                     items = searchScreenViewModel.uiState.collectAsState().value.availableTypes,
                     sheetState = filterTypeSheetState,
@@ -277,7 +274,7 @@ fun SearchScreen(
                 )
             }
 
-            if (uiState.showFilterByOwner) {
+            if (uiState.showFilterByOwnerBottomSheet) {
                 FilterByOwnerBottomSheet(
                     items = searchScreenViewModel.uiState.collectAsState().value.availableOwners,
                     sheetState = filterOwnerSheetState,

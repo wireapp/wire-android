@@ -29,9 +29,12 @@ import com.wire.android.feature.cells.ui.model.toUiModel
 import com.wire.android.feature.cells.ui.search.filter.data.FilterOwnerUi
 import com.wire.android.feature.cells.ui.search.filter.data.FilterTagUi
 import com.wire.android.feature.cells.ui.search.filter.data.FilterTypeUi
+import com.wire.android.feature.cells.ui.search.sort.SortBy
+import com.wire.android.feature.cells.ui.search.sort.SortingCriteria
 import com.wire.android.model.ImageAsset
 import com.wire.kalium.cells.data.FileFilters
 import com.wire.kalium.cells.data.MIMEType
+import com.wire.kalium.cells.data.SortingSpec
 import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
@@ -70,6 +73,7 @@ class SearchScreenViewModel @Inject constructor(
         val ownerIds: List<String>,
         val mimeTypes: List<MIMEType>,
         val filesWithPublicLink: Boolean?,
+        val sortingCriteria: SortingCriteria
     )
 
     private val navArgs: SearchNavArgs = SearchScreenDestination.argsFrom(savedStateHandle)
@@ -82,40 +86,45 @@ class SearchScreenViewModel @Inject constructor(
     private val searchParamsFlow: Flow<SearchParams> =
         combine(
             queryFlow,
-            uiState
+            uiState,
         ) { query, state ->
             SearchParams(
                 query = query,
                 tagIds = state.availableTags.filter { it.selected }.map { it.id },
                 ownerIds = state.availableOwners.filter { it.selected }.map { it.id },
                 mimeTypes = state.availableTypes.filter { it.selected }.map { it.mimeType },
-                filesWithPublicLink = state.filesWithPublicLink
+                filesWithPublicLink = state.filesWithPublicLink,
+                sortingCriteria = state.sortingCriteria
             )
         }.distinctUntilChanged()
 
     val cellNodesFlow: Flow<PagingData<CellNodeUi>> =
         searchParamsFlow.flatMapLatest<SearchParams, PagingData<CellNodeUi>> { params: SearchParams ->
-             getCellFilesPaged(
-                 conversationId = navArgs.conversationId,
-                 query = params.query,
-                 fileFilters = FileFilters(
-                     tags = params.tagIds,
-                     owners = params.ownerIds,
-                     mimeTypes = params.mimeTypes,
-                     hasPublicLink = params.filesWithPublicLink
-                 ),
-             ).map { pagingData: PagingData<Node> ->
-                 pagingData.map { node: Node ->
-                     if (uiState.value.availableOwners.isEmpty()) {
-                         loadOwners(node)
-                     }
-                     when (node) {
-                         is Node.Folder -> node.toUiModel()
-                         is Node.File -> node.toUiModel()
-                     }
-                 }
-             }
-         }.cachedIn(viewModelScope)
+            getCellFilesPaged(
+                conversationId = navArgs.conversationId,
+                query = params.query,
+                fileFilters = FileFilters(
+                    tags = params.tagIds,
+                    owners = params.ownerIds,
+                    mimeTypes = params.mimeTypes,
+                    hasPublicLink = params.filesWithPublicLink,
+                ),
+                sortingSpec = SortingSpec(
+                    criteria = params.sortingCriteria.toKaliumCriteria(),
+                    descending = params.sortingCriteria.isDescending
+                )
+            ).map { pagingData: PagingData<Node> ->
+                pagingData.map { node: Node ->
+                    if (uiState.value.availableOwners.isEmpty()) {
+                        loadOwners(node)
+                    }
+                    when (node) {
+                        is Node.Folder -> node.toUiModel()
+                        is Node.File -> node.toUiModel()
+                    }
+                }
+            }
+        }.cachedIn(viewModelScope)
 
     init {
         loadTags()
@@ -173,27 +182,27 @@ class SearchScreenViewModel @Inject constructor(
     }
 
     fun onFilterByTypeClicked() {
-        _uiState.update { it.copy(showFilterByType = true) }
+        _uiState.update { it.copy(showFilterByTypeBottomSheet = true) }
     }
 
     fun onCloseTypeSheet() {
-        _uiState.update { it.copy(showFilterByType = false) }
+        _uiState.update { it.copy(showFilterByTypeBottomSheet = false) }
     }
 
     fun onFilterByTagsClicked() {
-        _uiState.update { it.copy(showFilterByTags = true) }
+        _uiState.update { it.copy(showFilterByTagsBottomSheet = true) }
     }
 
     fun onCloseTagsSheet() {
-        _uiState.update { it.copy(showFilterByTags = false) }
+        _uiState.update { it.copy(showFilterByTagsBottomSheet = false) }
     }
 
     fun onFilterByOwnerClicked() {
-        _uiState.update { it.copy(showFilterByOwner = true) }
+        _uiState.update { it.copy(showFilterByOwnerBottomSheet = true) }
     }
 
     fun onCloseOwnerSheet() {
-        _uiState.update { it.copy(showFilterByOwner = false) }
+        _uiState.update { it.copy(showFilterByOwnerBottomSheet = false) }
     }
 
     fun onSetSearchActive(active: Boolean) {
@@ -271,4 +280,36 @@ class SearchScreenViewModel @Inject constructor(
         onRemoveTypeFilter()
         it.copy(filesWithPublicLink = false)
     }
+
+    fun setSortBy(by: SortBy) {
+        _uiState.update { current ->
+            val currentCriteria = current.sortingCriteria
+            if (currentCriteria.by == by) current
+            else current.copy(sortingCriteria = defaultCriteriaFor(by))
+        }
+    }
+
+    fun setSorting(criteria: SortingCriteria) {
+        _uiState.update { current ->
+            current.copy(sortingCriteria = criteria)
+        }
+    }
 }
+
+fun defaultCriteriaFor(by: SortBy): SortingCriteria = when (by) {
+    SortBy.Modified -> SortingCriteria.Modified.NewestFirst
+    SortBy.Name -> SortingCriteria.Name.AtoZ
+    SortBy.Size -> SortingCriteria.Size.SmallestFirst
+}
+
+fun SortingCriteria.toKaliumCriteria(): com.wire.kalium.cells.data.SortingCriteria =
+    when (by) {
+        SortBy.Modified ->
+            com.wire.kalium.cells.data.SortingCriteria.MODIFICATION_TIME
+
+        SortBy.Name ->
+            com.wire.kalium.cells.data.SortingCriteria.NAME_CASE_INSENSITIVE
+
+        SortBy.Size ->
+            com.wire.kalium.cells.data.SortingCriteria.SIZE
+    }

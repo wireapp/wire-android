@@ -216,12 +216,12 @@
     <string name="button_remove_all_label">Remove all</string>
     <string name="button_remove_filter">Remove filter</string>
     <string name="search_shared_drive_text_input_hint">Search Shared Drive</string>
-    <string name="search_owners_text_input_hint">Search owner</string>
+    <string name="search_owners_text_input_hint">Search Created by</string>
     <string name="filter_chip_tags">Tags</string>
-    <string name="filter_chip_type">Type</string>
-    <string name="filter_chip_owner">Owner</string>
-    <string name="filter_chip_link_sharing">Link Sharing</string>
-    <string name="filter_chip_remove_all_filters">Remove all filters</string>
+    <string name="filter_chip_type">File type</string>
+    <string name="filter_chip_owner">Created by</string>
+    <string name="filter_chip_link_sharing">Shared via link</string>
+    <string name="filter_chip_remove_all_filters">Clear all</string>
     <string name="filter_pdf_type">PDFs</string>
     <string name="filter_documents_type">Documents</string>
     <string name="filter_images_type">Images</string>
@@ -229,5 +229,17 @@
     <string name="filter_presentations_type">Presentations</string>
     <string name="filter_videos_type">Videos</string>
     <string name="filter_audio_type">Audio files</string>
-    <string name="filter_other_type">Other</string>
+    <string name="filter_archives_type">Archives</string>
+    <string name="filter_text_files_type">Text files</string>
+    <string name="results_in_shared_drive_label">Results in Shared Drive</string>
+    <string name="sort_by">Sort by</string>
+    <string name="sort_by_modified">Modified</string>
+    <string name="sort_by_name">Name</string>
+    <string name="sort_by_size">Size</string>
+    <string name="sort_modified_newest_first">Newest first</string>
+    <string name="sort_modified_oldest_first">Oldest first</string>
+    <string name="sort_name_a_to_z">A to Z</string>
+    <string name="sort_name_z_to_a">Z to A</string>
+    <string name="sort_size_smallest_first">Smallest first</string>
+    <string name="sort_size_largest_first">Largest first</string>
 </resources>

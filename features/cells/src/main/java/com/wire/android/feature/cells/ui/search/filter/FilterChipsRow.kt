@@ -27,7 +27,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -38,20 +37,11 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.theme.WireTheme
-import kotlinx.coroutines.delay
-
-private const val DELAY_300 = 300L
-private const val DELAY_150 = 150L
 
 @Composable
 fun FilterChipsRow(
-    isSharedByLinkSelected: Boolean,
-    tagsCount: Int,
-    typeCount: Int,
-    ownerCount: Int,
-    hasAnyFilter: Boolean,
+    state: FilterChipsUiState,
     modifier: Modifier = Modifier,
-    shouldPlayHint: Boolean = false,
     onFilterByTagsClicked: () -> Unit = { },
     onFilterByTypeClicked: () -> Unit = { },
     onFilterByOwnerClicked: () -> Unit = { },
@@ -60,21 +50,13 @@ fun FilterChipsRow(
 ) {
     val scrollState = rememberScrollState()
 
-    LaunchedEffect(shouldPlayHint) {
-        if (shouldPlayHint && scrollState.maxValue > 0) {
-            delay(DELAY_300)
-            scrollState.animateScrollTo(80)
-            delay(DELAY_150)
-            scrollState.animateScrollTo(0)
-        }
-    }
-
     @Composable
-    fun DropdownChip(labelRes: Int, count: Int, onClick: () -> Unit) {
+    fun DropdownChip(labelRes: Int, count: Int, isEnabled: Boolean, onClick: () -> Unit) {
         WireFilterChip(
             label = stringResource(labelRes),
             count = count.takeIf { it > 0 },
             isSelected = count > 0,
+            isEnabled = isEnabled,
             trailingIconResource = R.drawable.ic_dropdown_chevron,
             onClick = { onClick() }
         )
@@ -88,26 +70,29 @@ fun FilterChipsRow(
             .padding(horizontal = dimensions().spacing12x),
         horizontalArrangement = Arrangement.spacedBy(dimensions().spacing8x)
     ) {
-        DropdownChip(R.string.filter_chip_tags, tagsCount, onFilterByTagsClicked)
-        DropdownChip(R.string.filter_chip_type, typeCount, onFilterByTypeClicked)
-        DropdownChip(R.string.filter_chip_owner, ownerCount, onFilterByOwnerClicked)
-
-        WireFilterChip(
-            label = stringResource(R.string.filter_chip_link_sharing),
-            isSelected = isSharedByLinkSelected,
-            onClick = {
-                onFilterBySharedByLinkClicked()
-            }
-        )
-        if (hasAnyFilter) {
-            Text(
-                modifier = Modifier
-                    .align(alignment = Alignment.CenterVertically)
-                    .clickable { onRemoveAllFiltersClicked() },
-                text = stringResource(R.string.filter_chip_remove_all_filters),
-                style = typography().button02,
-                color = colorsScheme().primary,
+        with(state) {
+            DropdownChip(R.string.filter_chip_tags, state.tagsCount, tagsChipEnabled, onFilterByTagsClicked)
+            DropdownChip(R.string.filter_chip_type, typeCount, typeChipEnabled, onFilterByTypeClicked)
+            DropdownChip(R.string.filter_chip_owner, ownerCount, ownerChipEnabled, onFilterByOwnerClicked)
+            WireFilterChip(
+                label = stringResource(R.string.filter_chip_link_sharing),
+                isSelected = isSharedByLinkSelected,
+                isEnabled = publicLinkChipEnabled,
+                onClick = {
+                    onFilterBySharedByLinkClicked()
+                }
             )
+
+            if (hasAnyFilter) {
+                Text(
+                    modifier = Modifier
+                        .align(alignment = Alignment.CenterVertically)
+                        .clickable { onRemoveAllFiltersClicked() },
+                    text = stringResource(R.string.filter_chip_remove_all_filters),
+                    style = typography().button02,
+                    color = colorsScheme().primary,
+                )
+            }
         }
     }
 }
@@ -117,11 +102,17 @@ fun FilterChipsRow(
 fun PreviewFilterChipsRow() {
     WireTheme {
         FilterChipsRow(
-            isSharedByLinkSelected = true,
-            tagsCount = 2,
-            typeCount = 1,
-            ownerCount = 0,
-            hasAnyFilter = true,
+            state = FilterChipsUiState(
+                tagsCount = 2,
+                typeCount = 1,
+                ownerCount = 0,
+                isSharedByLinkSelected = true,
+                hasAnyFilter = true,
+                tagsChipEnabled = false,
+                typeChipEnabled = false,
+                ownerChipEnabled = true,
+                publicLinkChipEnabled = false,
+            )
         )
     }
 }

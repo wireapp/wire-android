@@ -28,6 +28,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -62,6 +64,7 @@ internal fun CellFilesScreen(
     onRefresh: () -> Unit,
     onItemClick: (CellNodeUi) -> Unit,
     modifier: Modifier = Modifier,
+    lazyListState: LazyListState = rememberLazyListState(),
     onItemMenuClick: (CellNodeUi) -> Unit
 ) {
     PullToRefreshBox(
@@ -70,6 +73,7 @@ internal fun CellFilesScreen(
         onRefresh = onRefresh,
     ) {
         LazyColumn(
+            state = lazyListState,
             modifier = Modifier.fillMaxWidth(),
             contentPadding = PaddingValues(bottom = dimensions().spacing80x)
         ) {

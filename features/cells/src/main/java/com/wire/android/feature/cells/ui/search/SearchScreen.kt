@@ -21,6 +21,7 @@ import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SheetState
@@ -61,6 +62,7 @@ import com.wire.android.navigation.annotation.features.cells.WireCellsDestinatio
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 const val sharedElementSearchInputKey = "search_bar"
@@ -164,68 +166,78 @@ fun SearchScreen(
                 }
             }
         ) { innerPadding ->
-            with(searchScreenViewModel.cellNodesFlow.collectAsLazyPagingItems()) {
-                CellScreenContent(
-                    modifier = Modifier.padding(innerPadding),
-                    actionsFlow = cellViewModel.actions,
-                    pagingListItems = this,
-                    sendIntent = { cellViewModel.sendIntent(it) },
-                    downloadFileState = cellViewModel.downloadFileSheet,
-                    menuState = cellViewModel.menu,
-                    isSearchResult = true,
-                    isRestoreInProgress = cellViewModel.isRestoreInProgress.collectAsState().value,
-                    isDeleteInProgress = cellViewModel.isDeleteInProgress.collectAsState().value,
-                    openFolder = { _, _, _ -> },
-                    showPublicLinkScreen = { publicLinkScreenData ->
-                        navigator.navigate(
-                            NavigationCommand(
-                                PublicLinkScreenDestination(
-                                    assetId = publicLinkScreenData.assetId,
-                                    fileName = publicLinkScreenData.fileName,
-                                    publicLinkId = publicLinkScreenData.linkId,
-                                    isFolder = publicLinkScreenData.isFolder
-                                )
-                            )
-                        )
-                    },
-                    showMoveToFolderScreen = { currentPath, nodePath, uuid ->
-                        navigator.navigate(
-                            NavigationCommand(
-                                MoveToFolderScreenDestination(
-                                    currentPath = currentPath,
-                                    nodeToMovePath = nodePath,
-                                    uuid = uuid
-                                )
-                            )
-                        )
-                    },
-                    showRenameScreen = { cellNodeUi ->
-                        navigator.navigate(
-                            NavigationCommand(
-                                RenameNodeScreenDestination(
-                                    uuid = cellNodeUi.uuid,
-                                    currentPath = cellNodeUi.remotePath,
-                                    isFolder = cellNodeUi is CellNodeUi.Folder,
-                                    nodeName = cellNodeUi.name,
-                                )
-                            )
-                        )
-                    },
-                    showAddRemoveTagsScreen = { node ->
-                        navigator.navigate(
-                            NavigationCommand(
-                                AddRemoveTagsScreenDestination(node.uuid, node.tags.toCollection(ArrayList()))
-                            )
-                        )
-                    },
-                    showVersionHistoryScreen = { uuid, fileName ->
-                        navigator.navigate(NavigationCommand(VersionHistoryScreenDestination(uuid, fileName)))
-                    },
-                    retryEditNodeError = { cellViewModel.editNode(it) },
-                    isRefreshing = remember { mutableStateOf(false) },
-                    onRefresh = { }
-                )
+            val lazyListState = rememberLazyListState()
+            val lazyItems = searchScreenViewModel.cellNodesFlow.collectAsLazyPagingItems()
+
+            LaunchedEffect(uiState.sortingCriteria) {
+                lazyItems.refresh()
+                // wait for refresh to complete
+                snapshotFlow { lazyItems.loadState.refresh }
+                    .first { it is androidx.paging.LoadState.NotLoading }
+                lazyListState.animateScrollToItem(0)
             }
+
+            CellScreenContent(
+                lazyListState = lazyListState,
+                modifier = Modifier.padding(innerPadding),
+                actionsFlow = cellViewModel.actions,
+                pagingListItems = lazyItems,
+                sendIntent = { cellViewModel.sendIntent(it) },
+                downloadFileState = cellViewModel.downloadFileSheet,
+                menuState = cellViewModel.menu,
+                isSearchResult = true,
+                isRestoreInProgress = cellViewModel.isRestoreInProgress.collectAsState().value,
+                isDeleteInProgress = cellViewModel.isDeleteInProgress.collectAsState().value,
+                openFolder = { _, _, _ -> },
+                showPublicLinkScreen = { publicLinkScreenData ->
+                    navigator.navigate(
+                        NavigationCommand(
+                            PublicLinkScreenDestination(
+                                assetId = publicLinkScreenData.assetId,
+                                fileName = publicLinkScreenData.fileName,
+                                publicLinkId = publicLinkScreenData.linkId,
+                                isFolder = publicLinkScreenData.isFolder
+                            )
+                        )
+                    )
+                },
+                showMoveToFolderScreen = { currentPath, nodePath, uuid ->
+                    navigator.navigate(
+                        NavigationCommand(
+                            MoveToFolderScreenDestination(
+                                currentPath = currentPath,
+                                nodeToMovePath = nodePath,
+                                uuid = uuid
+                            )
+                        )
+                    )
+                },
+                showRenameScreen = { cellNodeUi ->
+                    navigator.navigate(
+                        NavigationCommand(
+                            RenameNodeScreenDestination(
+                                uuid = cellNodeUi.uuid,
+                                currentPath = cellNodeUi.remotePath,
+                                isFolder = cellNodeUi is CellNodeUi.Folder,
+                                nodeName = cellNodeUi.name,
+                            )
+                        )
+                    )
+                },
+                showAddRemoveTagsScreen = { node ->
+                    navigator.navigate(
+                        NavigationCommand(
+                            AddRemoveTagsScreenDestination(node.uuid, node.tags.toCollection(ArrayList()))
+                        )
+                    )
+                },
+                showVersionHistoryScreen = { uuid, fileName ->
+                    navigator.navigate(NavigationCommand(VersionHistoryScreenDestination(uuid, fileName)))
+                },
+                retryEditNodeError = { cellViewModel.editNode(it) },
+                isRefreshing = remember { mutableStateOf(false) },
+                onRefresh = { }
+            )
 
             if (uiState.showFilterByTagsBottomSheet) {
                 FilterByTagsBottomSheet(

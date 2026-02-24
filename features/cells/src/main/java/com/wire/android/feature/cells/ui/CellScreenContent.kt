@@ -27,6 +27,8 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -93,6 +95,7 @@ internal fun CellScreenContent(
     isAllFiles: Boolean = false,
     isSearchResult: Boolean = false,
     isFiltering: Boolean = false,
+    lazyListState: LazyListState = rememberLazyListState(),
     retryEditNodeError: (String) -> Unit = {},
     showVersionHistoryScreen: (String, String) -> Unit = { _, _ -> },
 ) {
@@ -131,6 +134,7 @@ internal fun CellScreenContent(
         else ->
             CellFilesScreen(
                 modifier = modifier,
+                lazyListState = lazyListState,
                 cellNodes = pagingListItems,
                 onItemClick = { sendIntent(CellViewIntent.OnItemClick(it)) },
                 onItemMenuClick = { sendIntent(CellViewIntent.OnItemMenuClick(it)) },

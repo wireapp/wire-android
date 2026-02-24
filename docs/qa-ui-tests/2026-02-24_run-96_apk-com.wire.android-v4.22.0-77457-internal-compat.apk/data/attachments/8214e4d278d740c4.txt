@@ -1,0 +1,189 @@
+--------- beginning of main
+02-24 08:01:42.412  5388  5402 I TestRunner: started: givenUserEnablesAppLock_whenAppIsBackgroundedForOneMinute_thenAppRequiresUnlockOnReturn(com.wire.android.tests.core.tests.ApplockTest)
+02-24 08:01:42.437  5388  5402 D UiDevice: Executing shell command: pm clear com.wire.internal
+02-24 08:01:42.602  5388  5402 D UiDevice: Executing shell command: settings put secure show_ime_with_hard_keyboard 0
+02-24 08:01:42.647  5388  5402 D UiDevice: Executing shell command: settings put global window_animation_scale 0
+02-24 08:01:42.669  5388  5402 D UiDevice: Executing shell command: settings put global transition_animation_scale 0
+02-24 08:01:42.688  5388  5402 D UiDevice: Executing shell command: settings put global animator_duration_scale .5
+02-24 08:01:42.707  5388  5402 D UiDevice: Pressing home button.
+02-24 08:01:42.945  5388  5402 D UiDevice: Waiting 20000ms for SearchCondition[hasObject=BySelector [PKG='\Qcom.sec.android.app.launcher\E']].
+02-24 08:01:42.945  5388  5402 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.sec.android.app.launcher\E'].
+02-24 08:01:43.898  5388  5402 D UiDevice: Waiting 20000ms for SearchCondition[hasObject=BySelector [PKG='\Qcom.wire.internal\E']].
+02-24 08:01:43.898  5388  5402 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 08:01:44.443  5388  5402 W UiDevice: Active window root not found.
+02-24 08:01:44.445  5388  5402 W UiDevice: Skipping null root node for window: AccessibilityWindowInfo[title=null, displayId=0, id=1579, taskId=-1, type=TYPE_SYSTEM, layer=4, region=SkRegion((279,2268,801,2340)), bounds=Rect(279, 2268 - 801, 2340), focused=false, active=false, pictureInPicture=false, transitionTime=1636402967, hasParent=false, isAnchored=false, hasChildren=false]
+02-24 08:01:44.448  5388  5402 W UiDevice: Skipping null root node for window: AccessibilityWindowInfo[title=One UI Home, displayId=0, id=1581, taskId=463, type=TYPE_APPLICATION, layer=0, region=SkRegion((0,0,1080,2340)), bounds=Rect(0, 0 - 1080, 2340), focused=true, active=true, pictureInPicture=false, transitionTime=1636402583, hasParent=false, isAnchored=false, hasChildren=false]
+02-24 08:01:44.557  5388  5402 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 08:01:44.558  5388  5402 W UiDevice: Active window root not found.
+02-24 08:01:44.559  5388  5402 W UiDevice: Skipping null root node for window: AccessibilityWindowInfo[title=null, displayId=0, id=1579, taskId=-1, type=TYPE_SYSTEM, layer=4, region=SkRegion((279,2268,801,2340)), bounds=Rect(279, 2268 - 801, 2340), focused=false, active=false, pictureInPicture=false, transitionTime=1636402967, hasParent=false, isAnchored=false, hasChildren=false]
+02-24 08:01:44.560  5388  5402 W UiDevice: Skipping null root node for window: AccessibilityWindowInfo[title=One UI Home, displayId=0, id=1581, taskId=463, type=TYPE_APPLICATION, layer=0, region=SkRegion((0,0,1080,2340)), bounds=Rect(0, 0 - 1080, 2340), focused=true, active=true, pictureInPicture=false, transitionTime=1636402583, hasParent=false, isAnchored=false, hasChildren=false]
+02-24 08:01:44.661  5388  5402 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 08:01:44.662  5388  5402 W UiDevice: Active window root not found.
+02-24 08:01:44.662  5388  5402 W UiDevice: Skipping null root node for window: AccessibilityWindowInfo[title=null, displayId=0, id=1579, taskId=-1, type=TYPE_SYSTEM, layer=4, region=SkRegion((279,2268,801,2340)), bounds=Rect(279, 2268 - 801, 2340), focused=false, active=false, pictureInPicture=false, transitionTime=1636402967, hasParent=false, isAnchored=false, hasChildren=false]
+02-24 08:01:44.664  5388  5402 W UiDevice: Skipping null root node for window: AccessibilityWindowInfo[title=One UI Home, displayId=0, id=1581, taskId=463, type=TYPE_APPLICATION, layer=0, region=SkRegion((0,0,1080,2340)), bounds=Rect(0, 0 - 1080, 2340), focused=true, active=true, pictureInPicture=false, transitionTime=1636402583, hasParent=false, isAnchored=false, hasChildren=false]
+02-24 08:01:44.764  5388  5402 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-24 08:01:45.382  5388  5402 I System.out: Could not access BuildConfig field 'BACKENDCONNECTION_STAGING_SOCKSPROXY': No field BACKENDCONNECTION_STAGING_SOCKSPROXY in class Lcom/wire/android/testSupport/BuildConfig; (declaration of 'com.wire.android.testSupport.BuildConfig' appears in /data/app/~~SHYu8bloVa6pJpzsPdvVPA==/com.wire.android.tests.testsCore.test-Sjempaw5V76V3hcAMHcTmg==/base.apk!classes2.dex)
+02-24 08:01:45.384  5388  5402 I System.out: Could not access BuildConfig field 'BACKENDCONNECTION_STAGING_SOCKSPROXY': No field BACKENDCONNECTION_STAGING_SOCKSPROXY in class Lcom/wire/android/testSupport/BuildConfig; (declaration of 'com.wire.android.testSupport.BuildConfig' appears in /data/app/~~SHYu8bloVa6pJpzsPdvVPA==/com.wire.android.tests.testsCore.test-Sjempaw5V76V3hcAMHcTmg==/base.apk!classes2.dex)
+02-24 08:01:45.386  5388  5402 I System.out: Could not access BuildConfig field 'BACKENDCONNECTION_STAGING_SOCKSPROXY': No field BACKENDCONNECTION_STAGING_SOCKSPROXY in class Lcom/wire/android/testSupport/BuildConfig; (declaration of 'com.wire.android.testSupport.BuildConfig' appears in /data/app/~~SHYu8bloVa6pJpzsPdvVPA==/com.wire.android.tests.testsCore.test-Sjempaw5V76V3hcAMHcTmg==/base.apk!classes2.dex)
+02-24 08:01:45.454  5388  5402 I ClientUserManager: 08:01:45 INFO [688] (ClientUse) Cannot find user by: user1Name 
+02-24 08:01:45.454  5388  5402 I Hello   : 08:01:45 INFO [688] (ClientUse) Hello, my name is Alexis Miller and my email is millerfocegoqzqm@wire.engineering and password is io#@@8Fq and emailPassword is qnXjM*>}5mM*innnnn 
+02-24 08:01:46.929  5388  5402 I ClientUserManager: 08:01:46 INFO [688] (ClientUse) Cannot find user by: user1Name 
+02-24 08:01:46.993  5388  5402 I ClientUserManager: 08:01:46 INFO [688] (ClientUse) Cannot find user by: user2Name 
+02-24 08:01:46.996  5388  5402 I ClientUserManager: 08:01:46 INFO [688] (ClientUse) Cannot find user by: user3Name 
+02-24 08:01:46.999  5388  5402 I ClientUserManager: 08:01:46 INFO [688] (ClientUse) Cannot find user by: user4Name 
+02-24 08:01:47.002  5388  5402 I ClientUserManager: 08:01:47 INFO [688] (ClientUse) Cannot find user by: user5Name 
+02-24 08:01:48.676  5388  5402 I System.out: Could not access BuildConfig field 'BACKENDCONNECTION_STAGING_SOCKSPROXY': No field BACKENDCONNECTION_STAGING_SOCKSPROXY in class Lcom/wire/android/testSupport/BuildConfig; (declaration of 'com.wire.android.testSupport.BuildConfig' appears in /data/app/~~SHYu8bloVa6pJpzsPdvVPA==/com.wire.android.tests.testsCore.test-Sjempaw5V76V3hcAMHcTmg==/base.apk!classes2.dex)
+02-24 08:01:48.680  5388  5402 D UiDevice: Waiting 10000ms for SearchCondition[hasObject=BySelector [TEXT='\QEnter your email to start!\E']].
+02-24 08:01:48.680  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:01:49.294  5388  5402 W QueryController: Could not detect idle state.
+02-24 08:01:49.295  5388  5402 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:01:49.422  5388  5402 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-24 08:01:49.490  5388  5402 D UiDevice: Waiting 10000ms for SearchCondition[hasObject=BySelector [TEXT='\QProceed\E']].
+02-24 08:01:49.490  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QProceed\E'].
+02-24 08:01:49.625  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QProceed\E'].
+02-24 08:01:49.734  5388  5402 D UiDevice: Searching for node with selector: BySelector [TEXT='\QProceed\E'].
+02-24 08:01:50.840  5388  5402 W QueryController: Could not detect idle state.
+02-24 08:01:50.841  5388  5402 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QProceed\E'].
+02-24 08:01:51.555  5388  5402 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QProceed\E'].
+02-24 08:01:51.568  5388  5402 D UiObject2: Clicking on (756, 1560).
+02-24 08:01:51.568  5388  5402 W UiObject2: Clicking on non-clickable object: android.view.accessibility.AccessibilityNodeInfo@b9d6; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(670, 1534 - 843, 1587); boundsInWindow: Rect(670, 1534 - 843, 1587); packageName: com.wire.internal; className: android.widget.TextView; text: Proceed; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; containerTitle: null; viewIdResName: null; uniqueId: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; granularScrollingSupported: false; importantForAccessibility: true; visible: true; actions: [AccessibilityAction: ACTION_NEXT_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SET_SELECTION - null]; isTextSelectable: false
+02-24 08:01:51.601  5388  5402 W GestureController: Gestures took longer than expected (33ms >> 8ms), device might be in a busy state.
+02-24 08:01:52.159  5388  5402 I QueryController: Matched selector: UiSelector[RESOURCE_ID=userIdentifierInput] <<==>> [android.view.accessibility.AccessibilityNodeInfo@a637; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(72, 1764 - 1008, 1908); boundsInWindow: Rect(72, 1764 - 1008, 1908); packageName: com.wire.internal; className: android.widget.EditText; text: ; error: null; maxTextLength: 8000; stateDescription: null; contentDescription: null; tooltipText: null; containerTitle: null; viewIdResName: userIdentifierInput; uniqueId: null; checkable: false; checked: false; focusable: true; focused: false; selected: false; clickable: true; longClickable: true; contextClickable: false; enabled: true; password: false; scrollable: false; granularScrollingSupported: false; importantForAccessibility: true; visible: true; actions: [AccessibilityAction: ACTION_FOCUS - null, AccessibilityAction: ACTION_NEXT_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_CLICK - null, AccessibilityAction: ACTION_LONG_CLICK - null, AccessibilityAction: ACTION_SET_TEXT - null, AccessibilityAction: ACTION_IME_ENTER - null, AccessibilityAction: ACTION_SET_SELECTION - null]; isTextSelectable: false]
+02-24 08:01:52.161  5388  5402 D UiObject: Clicking on (540, 1836).
+02-24 08:01:53.162  5388  5402 I QueryController: Matched selector: UiSelector[RESOURCE_ID=userIdentifierInput] <<==>> [android.view.accessibility.AccessibilityNodeInfo@a637; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(72, 882 - 1008, 1026); boundsInWindow: Rect(72, 882 - 1008, 1026); packageName: com.wire.internal; className: android.widget.EditText; text: ; error: null; maxTextLength: 8000; stateDescription: null; contentDescription: null; tooltipText: null; containerTitle: null; viewIdResName: userIdentifierInput; uniqueId: null; checkable: false; checked: false; focusable: true; focused: true; selected: false; clickable: true; longClickable: true; contextClickable: false; enabled: true; password: false; scrollable: false; granularScrollingSupported: false; importantForAccessibility: true; visible: true; actions: [AccessibilityAction: ACTION_CLEAR_FOCUS - null, AccessibilityAction: ACTION_NEXT_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_CLICK - null, AccessibilityAction: ACTION_LONG_CLICK - null, AccessibilityAction: ACTION_SET_TEXT - null, AccessibilityAction: ACTION_IME_ENTER - null, AccessibilityAction: ACTION_SET_SELECTION - null]; isTextSelectable: false]
+02-24 08:01:53.162  5388  5402 D UiObject: Setting text to 'millerfocegoqzqm@wire.engineering'.
+02-24 08:01:53.167  5388  5402 D UiDevice: Waiting 10000ms for SearchCondition[hasObject=BySelector [RES='\QloginButton\E']].
+02-24 08:01:53.167  5388  5402 D UiDevice: Searching for node with selector: BySelector [RES='\QloginButton\E'].
+02-24 08:01:53.810  5388  5402 D UiDevice: Retrieving node with selector: BySelector [RES='\QloginButton\E'].
+02-24 08:01:53.955  5388  5402 D UiDevice: Retrieving node with selector: BySelector [RES='\QloginButton\E'].
+02-24 08:01:53.988  5388  5402 D UiObject2: Clicking on (540, 1122).
+02-24 08:01:54.016  5388  5402 W GestureController: Gestures took longer than expected (28ms >> 8ms), device might be in a busy state.
+02-24 08:01:54.017  5388  5402 D UiDevice: Waiting 10000ms for SearchCondition[hasObject=BySelector [RES='\QPasswordInput\E']].
+02-24 08:01:54.017  5388  5402 D UiDevice: Searching for node with selector: BySelector [RES='\QPasswordInput\E'].
+02-24 08:01:54.825  5388  5402 D UiDevice: Retrieving node with selector: BySelector [RES='\QPasswordInput\E'].
+02-24 08:01:54.950  5388  5402 D UiDevice: Retrieving node with selector: BySelector [RES='\QPasswordInput\E'].
+02-24 08:01:54.995  5388  5402 D UiObject2: Clicking on (540, 1581).
+02-24 08:01:55.035  5388  5402 W GestureController: Gestures took longer than expected (39ms >> 8ms), device might be in a busy state.
+02-24 08:01:55.846  5388  5402 D UiObject2: Setting text to 'io#@@8Fq'.
+02-24 08:01:55.854  5388  5402 D UiDevice: Waiting 10000ms for SearchCondition[hasObject=BySelector [RES='\QloginButton\E']].
+02-24 08:01:55.854  5388  5402 D UiDevice: Searching for node with selector: BySelector [RES='\QloginButton\E'].
+02-24 08:01:56.465  5388  5402 W QueryController: Could not detect idle state.
+02-24 08:01:56.466  5388  5402 D UiDevice: Retrieving node with selector: BySelector [RES='\QloginButton\E'].
+02-24 08:01:56.601  5388  5402 D UiDevice: Retrieving node with selector: BySelector [RES='\QloginButton\E'].
+02-24 08:01:56.601  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:01:56.601  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:01:56.601  5388  5402 W UiDevice: Active window root not found.
+02-24 08:01:56.601  5388  5402 D UiDevice: Node not found with selector: BySelector [RES='\QloginButton\E'].
+02-24 08:01:56.702  5388  5402 D UiDevice: Retrieving node with selector: BySelector [RES='\QloginButton\E'].
+02-24 08:01:56.702  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:01:56.702  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:01:56.703  5388  5402 W UiDevice: Active window root not found.
+02-24 08:01:56.703  5388  5402 D UiDevice: Node not found with selector: BySelector [RES='\QloginButton\E'].
+02-24 08:01:56.804  5388  5402 D UiDevice: Retrieving node with selector: BySelector [RES='\QloginButton\E'].
+02-24 08:01:56.804  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:01:56.805  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:01:56.805  5388  5402 W UiDevice: Active window root not found.
+02-24 08:01:56.805  5388  5402 D UiDevice: Node not found with selector: BySelector [RES='\QloginButton\E'].
+02-24 08:01:56.906  5388  5402 D UiDevice: Retrieving node with selector: BySelector [RES='\QloginButton\E'].
+02-24 08:01:56.906  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:01:56.906  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:01:56.907  5388  5402 W UiDevice: Active window root not found.
+02-24 08:01:56.907  5388  5402 D UiDevice: Node not found with selector: BySelector [RES='\QloginButton\E'].
+02-24 08:01:57.008  5388  5402 D UiDevice: Retrieving node with selector: BySelector [RES='\QloginButton\E'].
+02-24 08:01:57.008  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:01:57.008  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:01:57.008  5388  5402 W UiDevice: Active window root not found.
+02-24 08:01:57.009  5388  5402 D UiDevice: Node not found with selector: BySelector [RES='\QloginButton\E'].
+02-24 08:01:57.109  5388  5402 D UiDevice: Retrieving node with selector: BySelector [RES='\QloginButton\E'].
+02-24 08:01:57.110  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:01:57.110  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:01:57.110  5388  5402 W UiDevice: Active window root not found.
+02-24 08:01:57.110  5388  5402 D UiDevice: Node not found with selector: BySelector [RES='\QloginButton\E'].
+02-24 08:01:57.213  5388  5402 D UiDevice: Retrieving node with selector: BySelector [RES='\QloginButton\E'].
+02-24 08:01:57.214  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:01:57.214  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:01:57.214  5388  5402 W UiDevice: Active window root not found.
+02-24 08:01:57.214  5388  5402 D UiDevice: Node not found with selector: BySelector [RES='\QloginButton\E'].
+02-24 08:01:57.315  5388  5402 D UiDevice: Retrieving node with selector: BySelector [RES='\QloginButton\E'].
+02-24 08:01:57.316  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:01:57.316  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:01:57.316  5388  5402 W UiDevice: Active window root not found.
+02-24 08:01:57.317  5388  5402 D UiDevice: Node not found with selector: BySelector [RES='\QloginButton\E'].
+02-24 08:01:57.418  5388  5402 D UiDevice: Retrieving node with selector: BySelector [RES='\QloginButton\E'].
+02-24 08:01:57.418  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:01:57.419  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:01:57.419  5388  5402 W UiDevice: Active window root not found.
+02-24 08:01:57.419  5388  5402 D UiDevice: Node not found with selector: BySelector [RES='\QloginButton\E'].
+02-24 08:01:57.520  5388  5402 D UiDevice: Retrieving node with selector: BySelector [RES='\QloginButton\E'].
+02-24 08:01:57.521  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:01:57.521  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:01:57.521  5388  5402 W UiDevice: Active window root not found.
+02-24 08:01:57.522  5388  5402 D UiDevice: Node not found with selector: BySelector [RES='\QloginButton\E'].
+02-24 08:01:57.625  5388  5402 D UiDevice: Retrieving node with selector: BySelector [RES='\QloginButton\E'].
+02-24 08:01:57.625  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:01:57.626  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:01:57.626  5388  5402 W UiDevice: Active window root not found.
+02-24 08:01:57.626  5388  5402 D UiDevice: Node not found with selector: BySelector [RES='\QloginButton\E'].
+02-24 08:01:57.729  5388  5402 D UiDevice: Retrieving node with selector: BySelector [RES='\QloginButton\E'].
+02-24 08:01:57.730  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:01:57.730  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:01:57.730  5388  5402 W UiDevice: Active window root not found.
+02-24 08:01:57.730  5388  5402 D UiDevice: Node not found with selector: BySelector [RES='\QloginButton\E'].
+02-24 08:01:57.832  5388  5402 D UiDevice: Retrieving node with selector: BySelector [RES='\QloginButton\E'].
+02-24 08:01:57.832  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:01:57.832  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:01:57.832  5388  5402 W UiDevice: Active window root not found.
+02-24 08:01:57.833  5388  5402 D UiDevice: Node not found with selector: BySelector [RES='\QloginButton\E'].
+02-24 08:01:57.934  5388  5402 D UiDevice: Retrieving node with selector: BySelector [RES='\QloginButton\E'].
+02-24 08:01:57.935  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:01:57.935  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:01:57.935  5388  5402 W UiDevice: Active window root not found.
+02-24 08:01:57.936  5388  5402 D UiDevice: Node not found with selector: BySelector [RES='\QloginButton\E'].
+02-24 08:01:58.157  5388  5402 I TeamClient: 08:01:58 INFO [688] (TeamsExte) Accepted 
+02-24 08:01:58.157  5388  5402 I AllureFailureScreenshotRule: Taking failure screenshot for givenUserEnablesAppLock_whenAppIsBackgroundedForOneMinute_thenAppRequiresUnlockOnReturn(com.wire.android.tests.core.tests.ApplockTest)
+02-24 08:01:58.160  5388  5402 D UiDevice: Taking screenshot (scale=1,000000, quality=80) and storing at /data/user/0/com.wire.android.tests.testsCore.test/cache/screenshot9087416929465797501.tmp.
+02-24 08:01:58.161  5388  5402 W UiDevice: Cannot verify accessibility service flags. Multi-window support (searching non-active windows) may be disabled.
+02-24 08:01:58.169  5388  5402 E UiAutomation: Error while taking screenshot of display 0
+02-24 08:01:58.169  5388  5402 E UiAutomation: android.os.DeadObjectException
+02-24 08:01:58.169  5388  5402 E UiAutomation: 	at android.os.BinderProxy.transactNative(Native Method)
+02-24 08:01:58.169  5388  5402 E UiAutomation: 	at android.os.BinderProxy.transact(BinderProxy.java:655)
+02-24 08:01:58.169  5388  5402 E UiAutomation: 	at android.app.IUiAutomationConnection$Stub$Proxy.takeScreenshot(IUiAutomationConnection.java:625)
+02-24 08:01:58.169  5388  5402 E UiAutomation: 	at android.app.UiAutomation.takeScreenshot(UiAutomation.java:1276)
+02-24 08:01:58.169  5388  5402 E UiAutomation: 	at androidx.test.uiautomator.UiDevice.takeScreenshot(UiDevice.java:1356)
+02-24 08:01:58.169  5388  5402 E UiAutomation: 	at io.qameta.allure.android.AllureScreenshotKt.takeScreenshot(AllureScreenshot.kt:40)
+02-24 08:01:58.169  5388  5402 E UiAutomation: 	at io.qameta.allure.android.AllureScreenshotKt.allureScreenshot(AllureScreenshot.kt:31)
+02-24 08:01:58.169  5388  5402 E UiAutomation: 	at com.wire.android.tests.support.suite.AllureFailureScreenshotRule$apply$1.evaluate(AllureFailureScreenshotRule.kt:58)
+02-24 08:01:58.169  5388  5402 E UiAutomation: 	at com.wire.android.tests.support.suite.AllureLabelsRule$apply$1.evaluate(AllureLabelsRule.kt:70)
+02-24 08:01:58.169  5388  5402 E UiAutomation: 	at org.junit.rules.TestWatcher$1.evaluate(TestWatcher.java:61)
+02-24 08:01:58.169  5388  5402 E UiAutomation: 	at com.wire.android.tests.support.suite.AllureLogcatRule$apply$1.evaluate(AllureLogcatRule.kt:41)
+02-24 08:01:58.169  5388  5402 E UiAutomation: 	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+02-24 08:01:58.169  5388  5402 E UiAutomation: 	at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+02-24 08:01:58.169  5388  5402 E UiAutomation: 	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+02-24 08:01:58.169  5388  5402 E UiAutomation: 	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+02-24 08:01:58.169  5388  5402 E UiAutomation: 	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+02-24 08:01:58.169  5388  5402 E UiAutomation: 	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+02-24 08:01:58.169  5388  5402 E UiAutomation: 	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+02-24 08:01:58.169  5388  5402 E UiAutomation: 	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+02-24 08:01:58.169  5388  5402 E UiAutomation: 	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+02-24 08:01:58.169  5388  5402 E UiAutomation: 	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+02-24 08:01:58.169  5388  5402 E UiAutomation: 	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+02-24 08:01:58.169  5388  5402 E UiAutomation: 	at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+02-24 08:01:58.169  5388  5402 E UiAutomation: 	at androidx.test.ext.junit.runners.AndroidJUnit4.run(AndroidJUnit4.java:162)
+02-24 08:01:58.169  5388  5402 E UiAutomation: 	at org.junit.runners.Suite.runChild(Suite.java:128)
+02-24 08:01:58.169  5388  5402 E UiAutomation: 	at org.junit.runners.Suite.runChild(Suite.java:27)
+02-24 08:01:58.169  5388  5402 E UiAutomation: 	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+02-24 08:01:58.169  5388  5402 E UiAutomation: 	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+02-24 08:01:58.169  5388  5402 E UiAutomation: 	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+02-24 08:01:58.169  5388  5402 E UiAutomation: 	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+02-24 08:01:58.169  5388  5402 E UiAutomation: 	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+02-24 08:01:58.169  5388  5402 E UiAutomation: 	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+02-24 08:01:58.169  5388  5402 E UiAutomation: 	at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+02-24 08:01:58.169  5388  5402 E UiAutomation: 	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+02-24 08:01:58.169  5388  5402 E UiAutomation: 	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+02-24 08:01:58.169  5388  5402 E UiAutomation: 	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:68)
+02-24 08:01:58.169  5388  5402 E UiAutomation: 	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:59)
+02-24 08:01:58.169  5388  5402 E UiAutomation: 	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:467)
+02-24 08:01:58.169  5388  5402 E UiAutomation: 	at com.wire.android.tests.support.suite.TaggedTestRunner.onStart(TaggedTestRunner.kt:51)
+02-24 08:01:58.169  5388  5402 E UiAutomation: 	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2607)
+02-24 08:01:58.169  5388  5402 W UiDevice: Failed to take screenshot.
+02-24 08:01:58.169  5388  5402 E AllureScreenshot: Failed to take the screenshot

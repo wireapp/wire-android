@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.home.appLock.unlock
 
+import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -52,7 +53,6 @@ import com.ramcosta.composedestinations.utils.destination
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireTertiaryButton
@@ -61,8 +61,8 @@ import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.textfield.DefaultPassword
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
-import com.wire.android.ui.destinations.AppUnlockWithBiometricsScreenDestination
-import com.wire.android.ui.destinations.ForgotLockCodeScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.AppUnlockWithBiometricsScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.ForgotLockCodeScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -70,7 +70,7 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 import java.util.Locale
 
-@WireDestination
+@WireRootDestination
 @Composable
 fun EnterLockCodeScreen(
     navigator: Navigator,

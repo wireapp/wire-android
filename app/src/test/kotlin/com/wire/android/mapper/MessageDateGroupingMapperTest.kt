@@ -114,6 +114,22 @@ class MessageDateGroupingMapperTest {
         )
     }
 
+    @Test
+    fun `given messages on different calendar days within less than 24h then should display divider`() {
+        val shouldDisplayDivider = "2024-01-20T23:50:00.000Z"
+            .shouldDisplayDatesDifferenceDivider("2024-01-21T00:10:00.000Z")
+
+        assertEquals(true, shouldDisplayDivider)
+    }
+
+    @Test
+    fun `given messages on same calendar day then should not display divider`() {
+        val shouldDisplayDivider = "2024-01-20T07:00:00.000Z"
+            .shouldDisplayDatesDifferenceDivider("2024-01-20T21:00:00.000Z")
+
+        assertEquals(false, shouldDisplayDivider)
+    }
+
     private fun getDummyCalendar(): Calendar = Calendar.getInstance().apply {
         set(Calendar.SECOND, 0)
         set(Calendar.MINUTE, 0)

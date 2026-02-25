@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-import com.android.build.gradle.LibraryExtension
+import com.android.build.api.dsl.LibraryExtension
 import com.wire.android.gradle.configureAndroidKotlinTests
 import com.wire.android.gradle.configureCompose
 import com.wire.android.gradle.configureKotlinAndroid
@@ -23,22 +23,18 @@ import com.wire.android.gradle.crowdin.AddEntryToCrowdinTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
-import org.gradle.kotlin.dsl.getByType
-import org.jetbrains.kotlin.gradle.dsl.KotlinBaseExtension
 
 class AndroidLibraryConventionPlugin : Plugin<Project> {
     override fun apply(target: Project): Unit = with(target) {
         with(pluginManager) {
             apply("com.android.library")
-            apply("org.jetbrains.kotlin.android")
         }
 
         extensions.configure<LibraryExtension> {
             namespace = "com.wire.android.feature.${target.name.replace("-", "_")}"
 
             // TODO: Handle flavors. Currently implemented in `variants.gradle.kts` script
-            configureKotlinAndroid(this, extensions.getByType<KotlinBaseExtension>())
-            defaultConfig.targetSdk = AndroidSdk.target
+            configureKotlinAndroid(this)
 
             configureCompose(this)
 
@@ -57,7 +53,7 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
             }
 
             val crowdinTask = tasks.register("addEntryToCrowdinFile", AddEntryToCrowdinTask::class.java) {
-                resDirPath = sourceSets.getByName("main").res.srcDirs.first().path
+                resDirPath = project.file("src/main/res").path
             }
 
             afterEvaluate {

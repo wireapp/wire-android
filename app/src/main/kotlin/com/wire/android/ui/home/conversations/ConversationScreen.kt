@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.home.conversations
 
+import com.wire.android.navigation.annotation.app.WireRootDestination
 import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
@@ -91,7 +92,7 @@ import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
 import com.wire.android.feature.analytics.model.AnalyticsEvent
-import com.wire.android.feature.sketch.destinations.DrawingCanvasScreenDestination
+import com.ramcosta.composedestinations.generated.sketch.destinations.DrawingCanvasScreenDestination
 import com.wire.android.feature.sketch.model.DrawingCanvasNavArgs
 import com.wire.android.feature.sketch.model.DrawingCanvasNavBackArgs
 import com.wire.android.mapper.MessageDateTimeGroup
@@ -100,7 +101,6 @@ import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.ui.calling.getOutgoingCallIntent
 import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
 import com.wire.android.ui.common.HandleActions
@@ -128,13 +128,13 @@ import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.snackbar.SwipeableSnackbar
 import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.common.visbility.rememberVisibilityState
-import com.wire.android.ui.destinations.ConversationScreenDestination
-import com.wire.android.ui.destinations.GroupConversationDetailsScreenDestination
-import com.wire.android.ui.destinations.ImagesPreviewScreenDestination
-import com.wire.android.ui.destinations.MediaGalleryScreenDestination
-import com.wire.android.ui.destinations.MessageDetailsScreenDestination
-import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
-import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.GroupConversationDetailsScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.ImagesPreviewScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.MediaGalleryScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.MessageDetailsScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.OtherUserProfileScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.SelfUserProfileScreenDestination
 import com.wire.android.ui.emoji.EmojiPickerBottomSheet
 import com.wire.android.ui.home.conversations.AuthorHeaderHelper.rememberShouldHaveSmallBottomPadding
 import com.wire.android.ui.home.conversations.AuthorHeaderHelper.rememberShouldShowHeader
@@ -230,8 +230,8 @@ private const val MAX_GROUP_SIZE_FOR_PING = 3
 
 // TODO: !! this screen definitely needs a refactor and some cleanup !!
 @Suppress("ComplexMethod")
-@WireDestination(
-    navArgsDelegate = ConversationNavArgs::class
+@WireRootDestination(
+    navArgs = ConversationNavArgs::class
 )
 @Composable
 fun ConversationScreen(

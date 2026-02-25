@@ -107,7 +107,6 @@
     <string name="content_description_conversation_mention_someone">Valaki megemlítése</string>
     <string name="content_description_conversation_back_btn">Vissza a beszélgetések listájához</string>
     <string name="content_description_conversation_open_details_label">beszélgetés részleteinek megnyitása</string>
-    <string name="content_description_new_conversation">Személyek keresése vagy új beszélgetés létrehozása</string>
     <string name="content_description_back_button">Vissza gomb</string>
     <string name="content_description_send_button">Küldés</string>
     <string name="content_description_timed_message_button">Önmegsemmisítő üzenetek gomb</string>
@@ -833,7 +832,6 @@
     <string name="label_conversation_pictures_empty">Ebben a beszélgetésben még senki nem osztott meg képet 🥲</string>
     <string name="label_conversation_files_empty">Ebben a beszégetésben még senki nem osztott meg fájlt 🙀</string>
     <!-- Search Contact-->
-    <string name="label_selected">Kiválasztva</string>
     <string name="label_contacts">Névjegyek</string>
     <string name="label_new_group">Új csoport</string>
     <string name="label_new_channel">Új csatorna</string>

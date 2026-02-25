@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.userprofile.teammigration.step1
 
+import com.wire.android.navigation.annotation.app.WirePersonalToTeamMigrationDestination
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -44,22 +45,20 @@ import androidx.compose.ui.text.withStyle
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.style.AuthPopUpNavigationAnimation
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.destinations.TeamMigrationTeamNameStepScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.TeamMigrationTeamNameStepScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.ui.userprofile.teammigration.PersonalToTeamMigrationNavGraph
 import com.wire.android.ui.userprofile.teammigration.TeamMigrationViewModel
 import com.wire.android.ui.userprofile.teammigration.common.BottomLineButtons
 import com.wire.android.ui.userprofile.teammigration.common.TeamMigrationContainer
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.ui.PreviewMultipleThemes
 
-@PersonalToTeamMigrationNavGraph(start = true)
-@WireDestination(
+@WirePersonalToTeamMigrationDestination(
+    start = true,
     style = AuthPopUpNavigationAnimation::class
 )
 @Composable

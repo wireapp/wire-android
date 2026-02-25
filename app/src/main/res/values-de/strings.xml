@@ -100,7 +100,7 @@
     <string name="content_description_conversation_mention_someone">Jemanden erwähnen</string>
     <string name="content_description_conversation_back_btn">Zurück zur Unterhaltungsliste</string>
     <string name="content_description_conversation_open_details_label">Unterhaltungsdetails öffnen</string>
-    <string name="content_description_new_conversation">Nach Personen suchen oder eine neue Unterhaltung erstellen</string>
+    <string name="content_description_new_conversation">Neu. Neue Unterhaltung beginnen</string>
     <string name="content_description_send_button">Senden</string>
     <string name="content_description_timed_message_button">Selbstlöschende Nachrichten, Taste</string>
     <string name="content_description_menu_button">Hauptnavigation</string>
@@ -485,6 +485,7 @@
     <string name="channel_history_label">Gesprächsverlauf</string>
     <string name="channel_history_description">Wählen Sie einen Zeitraum. Wenn Teilnehmer diesem Channel beitreten, können sie den Verlauf für diese Zeitspanne verfolgen.</string>
     <string name="channel_history_freemium_upgrade_title">Ältere Nachrichten anzeigen?</string>
+    <string name="channel_history_freemium_upgrade_description">Um älteren Nachrichten für Channel-Mitglieder anzuzeigen, muss Ihr Team konfiguriert werden. Bitte wenden Sie sich an Ihren Team-Admin.</string>
     <string name="channel_history_freemium_upgrade_now">Jetzt upgraden</string>
     <string name="channel_history_off">Aus</string>
     <string name="channel_history_unlimited">Unbegrenzt</string>
@@ -896,7 +897,7 @@
     <string name="label_conversation_pictures_empty">Bislang hat niemand Bilder in dieser Unterhaltung geteilt 🥲</string>
     <string name="label_conversation_files_empty">Bislang hat niemand Dateien in dieser Unterhaltung geteilt 🙀</string>
     <!-- Search Contact-->
-    <string name="label_selected">Ausgewählt</string>
+    <string name="label_selected">Ausgewählt (%1$d)</string>
     <string name="label_contacts">Kontakte</string>
     <string name="label_new_group">Neue Gruppe</string>
     <string name="label_new_channel">Neuer Channel</string>
@@ -1132,7 +1133,7 @@
     <string name="settings_privacy_settings_label">Datenschutzeinstellungen</string>
     <string name="settings_network_settings_label">Netzwerkeinstellungen</string>
     <string name="settings_manage_devices_label">Geräte verwalten</string>
-    <string name="settings_keep_connection_to_websocket">Verbindung zu Websocket behalten</string>
+    <string name="settings_keep_connection_to_websocket">Verbindung zu WebSocket behalten</string>
     <string name="settings_keep_connection_to_websocket_description">Verbessern Sie den Empfang von Benachrichtigungen, indem Sie eine ständige Verbindung zum Server Ihrer Organisation aufrechterhalten. Es ersetzt Benachrichtigungsdienste, wenn Google-Dienste auf Ihrem Gerät nicht verfügbar sind.</string>
     <string name="settings_service_is_running">Dienst wird ausgeführt</string>
     <!--Settings, Appearance -->
@@ -1193,6 +1194,8 @@ Bei Gruppenunterhaltungen kann der Gruppen-Admin diese Einstellung überschreibe
     <string name="team_app_lock_enabled">Die App-Sperre ist jetzt verbindlich. Wire wird nach einer bestimmten Zeit der Inaktivität gesperrt. Um die App zu entsperren, müssen Sie ein Kennwort eingeben oder eine biometrische Authentifizierung verwenden.</string>
     <string name="team_app_lock_disabled">Die App-Sperre ist nicht mehr verbindlich. Wire wird nicht mehr nach einer bestimmten Zeit der Inaktivität gesperrt.</string>
     <string name="settings_forgot_lock_screen_title">Kennwort der App-Sperre vergessen?</string>
+    <string name="settings_forgot_lock_screen_description">Sie können auf die auf diesem Gerät gespeicherten Daten kann nur mit Ihrem Kennwort zugreifen.</string>
+    <string name="settings_forgot_lock_screen_warning">Wenn Sie Ihr Kennwort vergessen haben, können Sie sich abmelden und beim nächsten Anmelden ein neues festlegen. Ihre Daten bleiben auf diesem Gerät gespeichert, sofern Sie sie nicht löschen.</string>
     <string name="settings_forgot_lock_screen_please_wait_label">Bitte warten…</string>
     <!--Devices -->
     <string name="devices_title">Ihre Geräte</string>
@@ -1730,6 +1733,9 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="press_enter_to_send_text">Wenn diese Option aktiviert ist, können Sie Nachrichten mit der Eingabetaste auf Ihrer Tastatur senden.</string>
     <string name="customization_options_header_title">Optionen</string>
     <!-- enterprise configurations -->
+    <string name="restriction_keep_websocket_title">WebSocket-Verbindung behalten</string>
+    <string name="restriction_keep_websocket_description">Dauerhafte WebSocket-Verbindung für alle Benutzer erzwingen</string>
+    <string name="settings_keep_websocket_enforced_by_organization">Diese Einstellung wird von Ihrer Organisation verwaltet.</string>
     <!--    channel not available dialog-->
     <string name="channel_not_available_dialog_title">Channels sind für Team-Mitglieder verfügbar.</string>
     <string name="channel_not_available_dialog_description">Erstellen Sie ein Team und arbeiten Sie kostenlos zusammen!</string>

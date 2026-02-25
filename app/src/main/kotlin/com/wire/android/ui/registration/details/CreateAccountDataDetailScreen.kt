@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.registration.details
 
+import com.wire.android.navigation.annotation.app.WireCreateAccountDestination
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -56,10 +57,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireDestination
 import com.wire.android.navigation.style.AuthPopUpNavigationAnimation
 import com.wire.android.ui.authentication.create.common.CreateAccountDataNavArgs
-import com.wire.android.ui.authentication.create.common.CreateAccountNavGraph
 import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import com.wire.android.ui.common.WireCheckbox
@@ -76,7 +75,7 @@ import com.wire.android.ui.common.textfield.DefaultPassword
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
-import com.wire.android.ui.destinations.CreateAccountVerificationCodeScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.CreateAccountVerificationCodeScreenDestination
 import com.wire.android.ui.newauthentication.login.NewAuthContainer
 import com.wire.android.ui.newauthentication.login.NewAuthHeader
 import com.wire.android.ui.theme.WireTheme
@@ -89,9 +88,8 @@ import com.wire.android.util.isHostValidForAnalytics
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.configuration.server.ServerConfig
 
-@CreateAccountNavGraph
-@WireDestination(
-    navArgsDelegate = CreateAccountDataNavArgs::class,
+@WireCreateAccountDestination(
+    navArgs = CreateAccountDataNavArgs::class,
     style = AuthPopUpNavigationAnimation::class
 )
 @Composable

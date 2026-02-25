@@ -21,11 +21,16 @@ import android.content.Context
 import android.content.RestrictionsManager
 import com.wire.android.appLogger
 import com.wire.android.config.ServerConfigProvider
+import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.util.EMPTY
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.configuration.server.ServerConfig
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.Json
 import java.util.concurrent.atomic.AtomicReference
 
 interface ManagedConfigurationsManager {
@@ -66,15 +71,29 @@ interface ManagedConfigurationsManager {
      * empty if no config found or cleared, or failure with reason.
      */
     suspend fun refreshSSOCodeConfig(): SSOCodeConfigResult
+
+    /**
+     * Whether persistent WebSocket connection is enforced by MDM.
+     * When true, the persistent WebSocket service should always be started
+     * and users should not be able to change this setting.
+     */
+    val persistentWebSocketEnforcedByMDM: StateFlow<Boolean>
+
+    /**
+     * Refresh the persistent WebSocket configuration from managed restrictions.
+     * This should be called when the app starts or when broadcast receiver triggers.
+     */
+    suspend fun refreshPersistentWebSocketConfig(): Boolean
 }
 
 internal class ManagedConfigurationsManagerImpl(
     private val context: Context,
     private val dispatchers: DispatcherProvider,
     private val serverConfigProvider: ServerConfigProvider,
+    private val globalDataStore: GlobalDataStore,
+    private val configParser: ManagedConfigParser,
 ) : ManagedConfigurationsManager {
 
-    private val json: Json = Json { ignoreUnknownKeys = true }
     private val logger = appLogger.withTextTag(TAG)
     private val restrictionsManager: RestrictionsManager by lazy {
         context.getSystemService(Context.RESTRICTIONS_SERVICE) as RestrictionsManager
@@ -82,12 +101,18 @@ internal class ManagedConfigurationsManagerImpl(
 
     private val _currentServerConfig = AtomicReference<ServerConfig.Links?>(null)
     private val _currentSSOCodeConfig = AtomicReference(String.EMPTY)
+    private val _persistentWebSocketEnforcedByMDM by lazy {
+        MutableStateFlow(runBlocking { globalDataStore.isPersistentWebSocketEnforcedByMDM().first() })
+    }
 
     override val currentServerConfig: ServerConfig.Links
         get() = _currentServerConfig.get() ?: serverConfigProvider.getDefaultServerConfig()
 
     override val currentSSOCodeConfig: String
         get() = _currentSSOCodeConfig.get()
+
+    override val persistentWebSocketEnforcedByMDM: StateFlow<Boolean>
+        get() = _persistentWebSocketEnforcedByMDM.asStateFlow()
 
     override suspend fun refreshServerConfig(): ServerConfigResult = withContext(dispatchers.io()) {
         val managedServerConfig = getServerConfig()
@@ -118,6 +143,24 @@ internal class ManagedConfigurationsManagerImpl(
             managedSSOCodeConfig
         }
 
+    override suspend fun refreshPersistentWebSocketConfig(): Boolean {
+        return withContext(dispatchers.io()) {
+            val restrictions = restrictionsManager.applicationRestrictions
+            val isEnforced = if (restrictions == null || restrictions.isEmpty) {
+                false
+            } else {
+                restrictions.getBoolean(
+                    ManagedConfigurationsKeys.KEEP_WEBSOCKET_CONNECTION.asKey(),
+                    false
+                )
+            }
+            _persistentWebSocketEnforcedByMDM.value = isEnforced
+            globalDataStore.setPersistentWebSocketEnforcedByMDM(isEnforced)
+            logger.i("Persistent WebSocket enforced by MDM refreshed to: $isEnforced")
+            isEnforced
+        }
+    }
+
     private suspend fun getSSOCodeConfig(): SSOCodeConfigResult =
         withContext(dispatchers.io()) {
             val restrictions = restrictionsManager.applicationRestrictions
@@ -126,14 +169,21 @@ internal class ManagedConfigurationsManagerImpl(
                 return@withContext SSOCodeConfigResult.Empty
             }
 
+            val rawJson = restrictions.getString(ManagedConfigurationsKeys.SSO_CODE.asKey())
+            if (rawJson.isNullOrBlank()) {
+                logger.i("No SSO code restriction found")
+                return@withContext SSOCodeConfigResult.Empty
+            }
+
             return@withContext try {
-                val ssoCode = getJsonRestrictionByKey<ManagedSSOCodeConfig>(
-                    ManagedConfigurationsKeys.SSO_CODE.asKey()
-                )
+                val ssoCode = configParser.parseSSOCodeConfig(rawJson)
 
                 if (ssoCode?.isValid == true) {
                     logger.i("Managed SSO code found: $ssoCode")
                     SSOCodeConfigResult.Success(ssoCode)
+                } else if (ssoCode == null) {
+                    logger.w("No SSO code config resolved for current user context")
+                    SSOCodeConfigResult.Empty
                 } else {
                     logger.w("Managed SSO code is not valid: $ssoCode")
                     SSOCodeConfigResult.Failure("Managed SSO code is not a valid config. Check the format.")
@@ -151,13 +201,20 @@ internal class ManagedConfigurationsManagerImpl(
             return@withContext ServerConfigResult.Empty
         }
 
+        val rawJson = restrictions.getString(ManagedConfigurationsKeys.DEFAULT_SERVER_URLS.asKey())
+        if (rawJson.isNullOrBlank()) {
+            logger.i("No server config restriction found")
+            return@withContext ServerConfigResult.Empty
+        }
+
         return@withContext try {
-            val managedServerConfig = getJsonRestrictionByKey<ManagedServerConfig>(
-                ManagedConfigurationsKeys.DEFAULT_SERVER_URLS.asKey()
-            )
+            val managedServerConfig = configParser.parseServerConfig(rawJson)
             if (managedServerConfig?.endpoints?.isValid == true) {
                 logger.i("Managed server config found: $managedServerConfig")
                 ServerConfigResult.Success(managedServerConfig)
+            } else if (managedServerConfig == null) {
+                logger.w("No server config resolved for current user context")
+                ServerConfigResult.Empty
             } else {
                 logger.w("Managed server config is not valid: $managedServerConfig")
                 ServerConfigResult.Failure("Managed server config is not a valid config. Check the URLs and format.")
@@ -167,16 +224,6 @@ internal class ManagedConfigurationsManagerImpl(
             ServerConfigResult.Failure(e.reason)
         }
     }
-
-    @Suppress("TooGenericExceptionCaught")
-    private inline fun <reified T> getJsonRestrictionByKey(key: String): T? =
-        restrictionsManager.applicationRestrictions.getString(key)?.let {
-            try {
-                json.decodeFromString<T>(it)
-            } catch (e: Exception) {
-                throw InvalidManagedConfig("Failed to parse managed config for key $key: ${e.message}")
-            }
-        }
 
     companion object {
         private const val TAG = "ManagedConfigurationsManager"

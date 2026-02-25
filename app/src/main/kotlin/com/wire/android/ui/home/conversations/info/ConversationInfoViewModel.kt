@@ -29,7 +29,7 @@ import com.wire.android.appLogger
 import com.wire.android.di.CurrentAccount
 import com.wire.android.model.ImageAsset
 import com.wire.android.ui.home.conversations.ConversationNavArgs
-import com.wire.android.ui.navArgs
+import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.toUIText
 import com.wire.kalium.common.error.StorageFailure
@@ -110,6 +110,8 @@ class ConversationInfoViewModel @Inject constructor(
         }
 
         val detailsData = getConversationDetailsData(conversationDetails)
+        val wireCellEnabled = isWireCellFeatureEnabled()
+
         conversationInfoViewState = conversationInfoViewState.copy(
             conversationName = getConversationName(conversationDetails, isConversationUnavailable),
             conversationAvatar = getConversationAvatar(conversationDetails),
@@ -121,7 +123,7 @@ class ConversationInfoViewModel @Inject constructor(
             proteusVerificationStatus = conversationDetails.conversation.proteusVerificationStatus,
             legalHoldStatus = conversationDetails.conversation.legalHoldStatus,
             accentId = getAccentId(conversationDetails),
-            isWireCellEnabled = isWireCellFeatureEnabled() && (conversationDetails as? ConversationDetails.Group)?.wireCell != null,
+            isWireCellEnabled = wireCellEnabled && (conversationDetails as? ConversationDetails.Group)?.wireCell != null,
         )
     }
 

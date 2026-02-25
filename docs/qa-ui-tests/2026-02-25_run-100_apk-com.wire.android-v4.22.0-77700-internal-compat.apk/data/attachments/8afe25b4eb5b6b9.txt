@@ -1,0 +1,105 @@
+--------- beginning of main
+02-25 12:17:33.851  4964  4980 E TestRunner: failed: givenUserJoinsNewTeam_whenMessagingAndMentionedInGroup_thenReceivesMessagesAndMentions(com.wire.android.tests.core.criticalFlows.NewMemberMessaging)
+02-25 12:17:33.852  4964  4980 E TestRunner: ----- begin exception -----
+02-25 12:17:33.852  4964  4980 E TestRunner: java.lang.RuntimeException: Wait and retry failed
+02-25 12:17:33.852  4964  4980 E TestRunner: 	at service.TestServiceHelper.addDevice(TestServiceHelper.kt:308)
+02-25 12:17:33.852  4964  4980 E TestRunner: 	at com.wire.android.tests.core.criticalFlows.NewMemberMessaging.givenUserJoinsNewTeam_whenMessagingAndMentionedInGroup_thenReceivesMessagesAndMentions$lambda$0(NewMemberMessaging.kt:105)
+02-25 12:17:33.852  4964  4980 E TestRunner: 	at com.wire.android.tests.core.criticalFlows.NewMemberMessaging$$ExternalSyntheticLambda0.invoke(D8$$SyntheticClass:0)
+02-25 12:17:33.852  4964  4980 E TestRunner: 	at com.wire.android.tests.core.BaseUiTest.step$lambda$0(BaseUiTest.kt:54)
+02-25 12:17:33.852  4964  4980 E TestRunner: 	at com.wire.android.tests.core.BaseUiTest$$ExternalSyntheticLambda1.invoke(D8$$SyntheticClass:0)
+02-25 12:17:33.852  4964  4980 E TestRunner: 	at io.qameta.allure.kotlin.Allure.step(Allure.kt:60)
+02-25 12:17:33.852  4964  4980 E TestRunner: 	at com.wire.android.tests.core.BaseUiTest.step(BaseUiTest.kt:54)
+02-25 12:17:33.852  4964  4980 E TestRunner: 	at com.wire.android.tests.core.criticalFlows.NewMemberMessaging.givenUserJoinsNewTeam_whenMessagingAndMentionedInGroup_thenReceivesMessagesAndMentions(NewMemberMessaging.kt:75)
+02-25 12:17:33.852  4964  4980 E TestRunner: 	at java.lang.reflect.Method.invoke(Native Method)
+02-25 12:17:33.852  4964  4980 E TestRunner: 	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+02-25 12:17:33.852  4964  4980 E TestRunner: 	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+02-25 12:17:33.852  4964  4980 E TestRunner: 	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+02-25 12:17:33.852  4964  4980 E TestRunner: 	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+02-25 12:17:33.852  4964  4980 E TestRunner: 	at androidx.test.internal.runner.junit4.statement.RunBefores.evaluate(RunBefores.java:80)
+02-25 12:17:33.852  4964  4980 E TestRunner: 	at androidx.test.internal.runner.junit4.statement.RunAfters.evaluate(RunAfters.java:61)
+02-25 12:17:33.852  4964  4980 E TestRunner: 	at com.wire.android.tests.support.suite.AllureFailureScreenshotRule$apply$1.evaluate(AllureFailureScreenshotRule.kt:44)
+02-25 12:17:33.852  4964  4980 E TestRunner: 	at com.wire.android.tests.support.suite.AllureLabelsRule$apply$1.evaluate(AllureLabelsRule.kt:70)
+02-25 12:17:33.852  4964  4980 E TestRunner: 	at org.junit.rules.TestWatcher$1.evaluate(TestWatcher.java:61)
+02-25 12:17:33.852  4964  4980 E TestRunner: 	at com.wire.android.tests.support.suite.AllureLogcatRule$apply$1.evaluate(AllureLogcatRule.kt:41)
+02-25 12:17:33.852  4964  4980 E TestRunner: 	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+02-25 12:17:33.852  4964  4980 E TestRunner: 	at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+02-25 12:17:33.852  4964  4980 E TestRunner: 	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+02-25 12:17:33.852  4964  4980 E TestRunner: 	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+02-25 12:17:33.852  4964  4980 E TestRunner: 	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+02-25 12:17:33.852  4964  4980 E TestRunner: 	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+02-25 12:17:33.852  4964  4980 E TestRunner: 	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+02-25 12:17:33.852  4964  4980 E TestRunner: 	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+02-25 12:17:33.852  4964  4980 E TestRunner: 	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+02-25 12:17:33.852  4964  4980 E TestRunner: 	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+02-25 12:17:33.852  4964  4980 E TestRunner: 	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+02-25 12:17:33.852  4964  4980 E TestRunner: 	at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+02-25 12:17:33.852  4964  4980 E TestRunner: 	at androidx.test.ext.junit.runners.AndroidJUnit4.run(AndroidJUnit4.java:162)
+02-25 12:17:33.852  4964  4980 E TestRunner: 	at org.junit.runners.Suite.runChild(Suite.java:128)
+02-25 12:17:33.852  4964  4980 E TestRunner: 	at org.junit.runners.Suite.runChild(Suite.java:27)
+02-25 12:17:33.852  4964  4980 E TestRunner: 	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+02-25 12:17:33.852  4964  4980 E TestRunner: 	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+02-25 12:17:33.852  4964  4980 E TestRunner: 	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+02-25 12:17:33.852  4964  4980 E TestRunner: 	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+02-25 12:17:33.852  4964  4980 E TestRunner: 	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+02-25 12:17:33.852  4964  4980 E TestRunner: 	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+02-25 12:17:33.852  4964  4980 E TestRunner: 	at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+02-25 12:17:33.852  4964  4980 E TestRunner: 	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+02-25 12:17:33.852  4964  4980 E TestRunner: 	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+02-25 12:17:33.852  4964  4980 E TestRunner: 	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:68)
+02-25 12:17:33.852  4964  4980 E TestRunner: 	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:59)
+02-25 12:17:33.852  4964  4980 E TestRunner: 	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:467)
+02-25 12:17:33.852  4964  4980 E TestRunner: 	at com.wire.android.tests.support.suite.TaggedTestRunner.onStart(TaggedTestRunner.kt:51)
+02-25 12:17:33.852  4964  4980 E TestRunner: 	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2607)
+02-25 12:17:33.852  4964  4980 E TestRunner: ----- end exception -----
+02-25 12:17:33.857  4964  4980 I TestRunner: finished: givenUserJoinsNewTeam_whenMessagingAndMentionedInGroup_thenReceivesMessagesAndMentions(com.wire.android.tests.core.criticalFlows.NewMemberMessaging)
+02-25 12:17:33.896  4964  4980 I TestRunner: started: givenNoAccount_whenCreatingAndDeletingPersonalAccount_thenAccountIsRemoved(com.wire.android.tests.core.criticalFlows.PersonalAccountLifeCycle)
+02-25 12:17:33.912  4964  4980 D UiDevice: Executing shell command: pm clear com.wire.internal
+02-25 12:17:34.032  4964  4980 D UiDevice: Executing shell command: settings put secure show_ime_with_hard_keyboard 0
+02-25 12:17:34.068  4964  4980 D UiDevice: Executing shell command: settings put global window_animation_scale 0
+02-25 12:17:34.095  4964  4980 D UiDevice: Executing shell command: settings put global transition_animation_scale 0
+02-25 12:17:34.116  4964  4980 D UiDevice: Executing shell command: settings put global animator_duration_scale .5
+02-25 12:17:34.172  4964  4980 D UiDevice: Pressing home button.
+02-25 12:17:34.295  4964  4980 D UiDevice: Waiting 20000ms for SearchCondition[hasObject=BySelector [PKG='\Qcom.sec.android.app.launcher\E']].
+02-25 12:17:34.295  4964  4980 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.sec.android.app.launcher\E'].
+02-25 12:17:35.389  4964  4980 D UiDevice: Waiting 20000ms for SearchCondition[hasObject=BySelector [PKG='\Qcom.wire.internal\E']].
+02-25 12:17:35.389  4964  4980 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-25 12:17:35.930  4964  4980 W UiDevice: Active window root not found.
+02-25 12:17:35.931  4964  4980 W UiDevice: Skipping null root node for window: AccessibilityWindowInfo[title=null, displayId=0, id=1708, taskId=-1, type=TYPE_SYSTEM, layer=4, region=SkRegion((279,2268,801,2340)), bounds=Rect(279, 2268 - 801, 2340), focused=false, active=false, pictureInPicture=false, transitionTime=1738154448, hasParent=false, isAnchored=false, hasChildren=false]
+02-25 12:17:35.934  4964  4980 W UiDevice: Skipping null root node for window: AccessibilityWindowInfo[title=One UI Home, displayId=0, id=1706, taskId=463, type=TYPE_APPLICATION, layer=0, region=SkRegion((0,0,1080,2340)), bounds=Rect(0, 0 - 1080, 2340), focused=true, active=true, pictureInPicture=false, transitionTime=1738154066, hasParent=false, isAnchored=false, hasChildren=false]
+02-25 12:17:36.042  4964  4980 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-25 12:17:36.043  4964  4980 W UiDevice: Active window root not found.
+02-25 12:17:36.044  4964  4980 W UiDevice: Skipping null root node for window: AccessibilityWindowInfo[title=null, displayId=0, id=1708, taskId=-1, type=TYPE_SYSTEM, layer=4, region=SkRegion((279,2268,801,2340)), bounds=Rect(279, 2268 - 801, 2340), focused=false, active=false, pictureInPicture=false, transitionTime=1738154448, hasParent=false, isAnchored=false, hasChildren=false]
+02-25 12:17:36.045  4964  4980 W UiDevice: Skipping null root node for window: AccessibilityWindowInfo[title=One UI Home, displayId=0, id=1706, taskId=463, type=TYPE_APPLICATION, layer=0, region=SkRegion((0,0,1080,2340)), bounds=Rect(0, 0 - 1080, 2340), focused=true, active=true, pictureInPicture=false, transitionTime=1738154066, hasParent=false, isAnchored=false, hasChildren=false]
+02-25 12:17:36.146  4964  4980 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-25 12:17:36.147  4964  4980 W UiDevice: Active window root not found.
+02-25 12:17:36.147  4964  4980 W UiDevice: Skipping null root node for window: AccessibilityWindowInfo[title=null, displayId=0, id=1708, taskId=-1, type=TYPE_SYSTEM, layer=4, region=SkRegion((279,2268,801,2340)), bounds=Rect(279, 2268 - 801, 2340), focused=false, active=false, pictureInPicture=false, transitionTime=1738154448, hasParent=false, isAnchored=false, hasChildren=false]
+02-25 12:17:36.149  4964  4980 W UiDevice: Skipping null root node for window: AccessibilityWindowInfo[title=One UI Home, displayId=0, id=1706, taskId=463, type=TYPE_APPLICATION, layer=0, region=SkRegion((0,0,1080,2340)), bounds=Rect(0, 0 - 1080, 2340), focused=true, active=true, pictureInPicture=false, transitionTime=1738154066, hasParent=false, isAnchored=false, hasChildren=false]
+02-25 12:17:36.250  4964  4980 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-25 12:17:36.251  4964  4980 W UiDevice: Active window root not found.
+02-25 12:17:36.252  4964  4980 W UiDevice: Skipping null root node for window: AccessibilityWindowInfo[title=null, displayId=0, id=1708, taskId=-1, type=TYPE_SYSTEM, layer=4, region=SkRegion((279,2268,801,2340)), bounds=Rect(279, 2268 - 801, 2340), focused=false, active=false, pictureInPicture=false, transitionTime=1738154448, hasParent=false, isAnchored=false, hasChildren=false]
+02-25 12:17:36.254  4964  4980 W UiDevice: Skipping null root node for window: AccessibilityWindowInfo[title=One UI Home, displayId=0, id=1706, taskId=463, type=TYPE_APPLICATION, layer=0, region=SkRegion((0,0,1080,2340)), bounds=Rect(0, 0 - 1080, 2340), focused=true, active=true, pictureInPicture=false, transitionTime=1738154066, hasParent=false, isAnchored=false, hasChildren=false]
+02-25 12:17:36.355  4964  4980 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+02-25 12:17:36.929  4964  4980 I System.out: Could not access BuildConfig field 'BACKENDCONNECTION_STAGING_SOCKSPROXY': No field BACKENDCONNECTION_STAGING_SOCKSPROXY in class Lcom/wire/android/testSupport/BuildConfig; (declaration of 'com.wire.android.testSupport.BuildConfig' appears in /data/app/~~v8D8aVnG78fnp0weWyl5xQ==/com.wire.android.tests.testsCore.test-BJjoZimKSW63MrlCCh6CLA==/base.apk!classes2.dex)
+02-25 12:17:36.931  4964  4980 I System.out: Could not access BuildConfig field 'BACKENDCONNECTION_STAGING_SOCKSPROXY': No field BACKENDCONNECTION_STAGING_SOCKSPROXY in class Lcom/wire/android/testSupport/BuildConfig; (declaration of 'com.wire.android.testSupport.BuildConfig' appears in /data/app/~~v8D8aVnG78fnp0weWyl5xQ==/com.wire.android.tests.testsCore.test-BJjoZimKSW63MrlCCh6CLA==/base.apk!classes2.dex)
+02-25 12:17:36.932  4964  4980 I System.out: Could not access BuildConfig field 'BACKENDCONNECTION_STAGING_SOCKSPROXY': No field BACKENDCONNECTION_STAGING_SOCKSPROXY in class Lcom/wire/android/testSupport/BuildConfig; (declaration of 'com.wire.android.testSupport.BuildConfig' appears in /data/app/~~v8D8aVnG78fnp0weWyl5xQ==/com.wire.android.tests.testsCore.test-BJjoZimKSW63MrlCCh6CLA==/base.apk!classes2.dex)
+02-25 12:17:37.004  4964  4980 I ClientUserManager: 12:17:37 INFO [718] (ClientUse) Cannot find user by: user1Name 
+02-25 12:17:37.004  4964  4980 I Hello   : 12:17:37 INFO [718] (ClientUse) Hello, my name is Hilton Bahringer and my email is bahringerhaqfyiecjt@wire.engineering and password is h3AI!2nw and emailPassword is H[~o>'+;i5O{innnnn 
+02-25 12:17:38.768  4964  4980 I ClientUserManager: 12:17:38 INFO [718] (ClientUse) Cannot find user by: user1Name 
+02-25 12:17:38.769  4964  4980 I System.out: Could not access BuildConfig field 'BACKENDCONNECTION_STAGING_SOCKSPROXY': No field BACKENDCONNECTION_STAGING_SOCKSPROXY in class Lcom/wire/android/testSupport/BuildConfig; (declaration of 'com.wire.android.testSupport.BuildConfig' appears in /data/app/~~v8D8aVnG78fnp0weWyl5xQ==/com.wire.android.tests.testsCore.test-BJjoZimKSW63MrlCCh6CLA==/base.apk!classes2.dex)
+02-25 12:17:38.771  4964  4980 I ClientUserManager: 12:17:38 INFO [718] (ClientUse) Cannot find user by: user1Name 
+02-25 12:17:38.830  4964  4980 I ClientUserManager: 12:17:38 INFO [718] (ClientUse) Cannot find user by: user1Name 
+02-25 12:17:38.832  4964  4980 I System.out: Could not access BuildConfig field 'BACKENDCONNECTION_STAGING_SOCKSPROXY': No field BACKENDCONNECTION_STAGING_SOCKSPROXY in class Lcom/wire/android/testSupport/BuildConfig; (declaration of 'com.wire.android.testSupport.BuildConfig' appears in /data/app/~~v8D8aVnG78fnp0weWyl5xQ==/com.wire.android.tests.testsCore.test-BJjoZimKSW63MrlCCh6CLA==/base.apk!classes2.dex)
+02-25 12:17:38.833  4964  4980 I TestService: 12:17:38 INFO [718] (TestServi) GET: http://192.168.2.18:8080/api/v1/ 
+02-25 12:17:38.845  4964  4980 I TestService: 12:17:38 INFO [718] (TestServi) PUT: http://192.168.2.18:8080/api/v1/instance 
+02-25 12:17:38.847  4964  4980 I TestService: 12:17:38 INFO [718] (TestServi)  >>> Request: {"email":"bahringerhaqfyiecjt@wire.engineering","password":"h3AI!2nw","deviceName":"Device1","name":"TestService","customBackend":{"name":"STAGING","rest":"https:\/\/staging-nginz-https.zinfra.io\/","ws":"wss:\/\/staging-nginz-ssl.zinfra.io"},"federationDomain":"staging.zinfra.io","developmentApiEnabled":true} 
+02-25 12:17:43.265  4964  4980 E TestService: 12:17:43 SEVE [718] (TestServi) http://192.168.2.18:8080/api/v1/instance (500): {"code":500,"message":"There was an error processing your request. It has been logged (ID 7b33cca32f0eb2c5)."} 
+02-25 12:22:43.273  4964  4980 I ClientUserManager: 12:22:43 INFO [718] (ClientUse) Cannot find user by: user1Name 
+02-25 12:22:43.278  4964  4980 I System.out: Could not access BuildConfig field 'BACKENDCONNECTION_STAGING_SOCKSPROXY': No field BACKENDCONNECTION_STAGING_SOCKSPROXY in class Lcom/wire/android/testSupport/BuildConfig; (declaration of 'com.wire.android.testSupport.BuildConfig' appears in /data/app/~~v8D8aVnG78fnp0weWyl5xQ==/com.wire.android.tests.testsCore.test-BJjoZimKSW63MrlCCh6CLA==/base.apk!classes2.dex)
+02-25 12:22:43.280  4964  4980 I TestService: 12:22:43 INFO [718] (TestServi) GET: http://192.168.2.18:8080/api/v1/ 
+02-25 12:22:43.335  4964  4980 I TestService: 12:22:43 INFO [718] (TestServi) PUT: http://192.168.2.18:8080/api/v1/instance 
+02-25 12:22:43.337  4964  4980 I TestService: 12:22:43 INFO [718] (TestServi)  >>> Request: {"email":"bahringerhaqfyiecjt@wire.engineering","password":"h3AI!2nw","deviceName":"Device1","name":"TestService","customBackend":{"name":"STAGING","rest":"https:\/\/staging-nginz-https.zinfra.io\/","ws":"wss:\/\/staging-nginz-ssl.zinfra.io"},"federationDomain":"staging.zinfra.io","developmentApiEnabled":true} 
+02-25 12:22:47.913  4964  4980 E TestService: 12:22:47 SEVE [718] (TestServi) http://192.168.2.18:8080/api/v1/instance (500): {"code":500,"message":"There was an error processing your request. It has been logged (ID c4bc6cbfff9e1034)."} 
+02-25 12:22:48.252  4964  4980 I TeamClient: 12:22:48 INFO [718] (TeamsExte) Accepted 
+02-25 12:22:48.675  4964  4980 I Inbucket: 12:22:48 INFO [718] (InbucketC) Url is :  https://inbucket.wire.engineering//api/v1/mailbox/kingwxajziblgg@wire.engineering/latest 
+02-25 12:23:27.662  4964  4980 I AllureFailureScreenshotRule: Taking failure screenshot for givenNoAccount_whenCreatingAndDeletingPersonalAccount_thenAccountIsRemoved(com.wire.android.tests.core.criticalFlows.PersonalAccountLifeCycle)
+02-25 12:23:27.666  4964  4980 D UiDevice: Taking screenshot (scale=1,000000, quality=80) and storing at /data/user/0/com.wire.android.tests.testsCore.test/cache/screenshot6334177350785734042.tmp.

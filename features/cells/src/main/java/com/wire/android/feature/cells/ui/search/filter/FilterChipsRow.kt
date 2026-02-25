@@ -27,7 +27,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -38,10 +37,6 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.theme.WireTheme
-import kotlinx.coroutines.delay
-
-private const val DELAY_300 = 300L
-private const val DELAY_150 = 150L
 
 @Composable
 fun FilterChipsRow(
@@ -51,7 +46,6 @@ fun FilterChipsRow(
     ownerCount: Int,
     hasAnyFilter: Boolean,
     modifier: Modifier = Modifier,
-    shouldPlayHint: Boolean = false,
     onFilterByTagsClicked: () -> Unit = { },
     onFilterByTypeClicked: () -> Unit = { },
     onFilterByOwnerClicked: () -> Unit = { },
@@ -59,15 +53,6 @@ fun FilterChipsRow(
     onFilterBySharedByLinkClicked: () -> Unit = { }
 ) {
     val scrollState = rememberScrollState()
-
-    LaunchedEffect(shouldPlayHint) {
-        if (shouldPlayHint && scrollState.maxValue > 0) {
-            delay(DELAY_300)
-            scrollState.animateScrollTo(80)
-            delay(DELAY_150)
-            scrollState.animateScrollTo(0)
-        }
-    }
 
     @Composable
     fun DropdownChip(labelRes: Int, count: Int, onClick: () -> Unit) {

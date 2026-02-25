@@ -55,6 +55,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 // TODO: to cover it with  unit test in upcoming PR
+@Suppress("TooManyFunctions")
 @HiltViewModel
 class SearchScreenViewModel @Inject constructor(
     val savedStateHandle: SavedStateHandle,
@@ -156,7 +157,9 @@ class SearchScreenViewModel @Inject constructor(
                         )
                     )
                 }
-            } else null
+            } else {
+                null
+            }
             _uiState.update { state ->
                 val existingOwners = state.availableOwners.toMutableList()
                 if (existingOwners.none { it.id == id }) {
@@ -239,7 +242,6 @@ class SearchScreenViewModel @Inject constructor(
             state.copy(availableTypes = state.availableTypes.map { it.copy(selected = false) })
         }
     }
-
 
     fun onSharedByMeClicked() {
         _uiState.update { it.copy(filesWithPublicLink = !it.filesWithPublicLink) }

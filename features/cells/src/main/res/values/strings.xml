@@ -216,10 +216,10 @@
     <string name="button_remove_all_label">Remove all</string>
     <string name="button_remove_filter">Remove filter</string>
     <string name="search_shared_drive_text_input_hint">Search Shared Drive</string>
-    <string name="search_owners_text_input_hint">Search owner</string>
+    <string name="search_owners_text_input_hint">Search Created by</string>
     <string name="filter_chip_tags">Tags</string>
-    <string name="filter_chip_type">Type</string>
-    <string name="filter_chip_owner">Owner</string>
+    <string name="filter_chip_type">File type</string>
+    <string name="filter_chip_owner">Created by</string>
     <string name="filter_chip_link_sharing">Link Sharing</string>
     <string name="filter_chip_remove_all_filters">Remove all filters</string>
     <string name="filter_pdf_type">PDFs</string>

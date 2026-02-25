@@ -194,7 +194,13 @@ private fun FilterRow(
 @Composable
 fun PreviewFilterByTypeBottomSheet() {
     val sampleItems = listOf(
-        FilterTypeUi(id = "1", label = R.string.filter_images_type, iconRes = android.R.drawable.ic_menu_gallery, selected = true, mimeType = MIMEType.IMAGES),
+        FilterTypeUi(
+            id = "1",
+            label = R.string.filter_images_type,
+            iconRes = android.R.drawable.ic_menu_gallery,
+            selected = true,
+            mimeType = MIMEType.IMAGES
+        ),
         FilterTypeUi(
             id = "2",
             label = R.string.filter_videos_type,
@@ -209,9 +215,27 @@ fun PreviewFilterByTypeBottomSheet() {
             selected = true,
             mimeType = MIMEType.DOCUMENT
         ),
-        FilterTypeUi(id = "4", label = R.string.filter_audio_type, iconRes = android.R.drawable.ic_media_play, selected = false, mimeType = MIMEType.AUDIOS),
-        FilterTypeUi(id = "6", label = R.string.filter_spreadsheets_type, iconRes = android.R.drawable.ic_menu_edit, selected = false, mimeType = MIMEType.EXCEL),
-        FilterTypeUi(id = "7", label = R.string.filter_pdf_type, iconRes = android.R.drawable.ic_menu_view, selected = false, mimeType = MIMEType.PDF),
+        FilterTypeUi(
+            id = "4",
+            label = R.string.filter_audio_type,
+            iconRes = android.R.drawable.ic_media_play,
+            selected = false,
+            mimeType = MIMEType.AUDIOS
+        ),
+        FilterTypeUi(
+            id = "6",
+            label = R.string.filter_spreadsheets_type,
+            iconRes = android.R.drawable.ic_menu_edit,
+            selected = false,
+            mimeType = MIMEType.EXCEL
+        ),
+        FilterTypeUi(
+            id = "7",
+            label = R.string.filter_pdf_type,
+            iconRes = android.R.drawable.ic_menu_view,
+            selected = false,
+            mimeType = MIMEType.PDF
+        ),
     )
     WireTheme {
         FilterByTypeBottomSheet(

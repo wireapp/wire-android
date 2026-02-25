@@ -114,7 +114,6 @@ fun CountBadge(
     }
 }
 
-
 @MultipleThemePreviews
 @Composable
 fun PreviewFilterChip() {

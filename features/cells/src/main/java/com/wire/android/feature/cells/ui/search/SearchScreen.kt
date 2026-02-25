@@ -32,7 +32,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -49,7 +48,6 @@ import com.ramcosta.composedestinations.generated.cells.destinations.VersionHist
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.CellScreenContent
 import com.wire.android.feature.cells.ui.CellViewModel
-import com.wire.android.feature.cells.ui.LocalSharedTransitionScope
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.search.filter.FilterChipsRow
 import com.wire.android.feature.cells.ui.search.filter.bottomsheet.FilterByTypeBottomSheet
@@ -59,12 +57,11 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.WireNavigator
 import com.wire.android.navigation.annotation.features.cells.WireCellsDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
+import com.wire.android.navigation.transition.LocalSharedTransitionScope
+import com.wire.android.navigation.transition.SHARED_ELEMENT_SEARCH_INPUT_KEY
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-
-const val sharedElementSearchInputKey = "search_bar"
 
 @OptIn(ExperimentalSharedTransitionApi::class, ExperimentalMaterial3Api::class)
 @WireCellsDestination(
@@ -75,6 +72,7 @@ const val sharedElementSearchInputKey = "search_bar"
 fun SearchScreen(
     navigator: WireNavigator,
     animatedVisibilityScope: AnimatedVisibilityScope,
+    modifier: Modifier = Modifier,
     searchScreenViewModel: SearchScreenViewModel = hiltViewModel(),
     cellViewModel: CellViewModel = hiltViewModel(),
 ) {
@@ -106,14 +104,6 @@ fun SearchScreen(
     }
 
     val sharedScope = LocalSharedTransitionScope.current
-    var playScrollHint by remember { mutableStateOf(true) }
-
-    LaunchedEffect(Unit) {
-        delay(1500)
-        playScrollHint = true
-        delay(2000)
-        playScrollHint = false
-    }
 
     val searchState = remember { TextFieldState() }
 
@@ -122,15 +112,15 @@ fun SearchScreen(
             .collect { searchScreenViewModel.onSearchQueryChanged(it) }
     }
 
-
     with(sharedScope) {
 
         WireScaffold(
+            modifier = modifier,
             topBar = {
                 Column {
                     SearchTopBar(
                         modifier = Modifier.sharedElement(
-                            sharedContentState = rememberSharedContentState(key = sharedElementSearchInputKey),
+                            sharedContentState = rememberSharedContentState(key = SHARED_ELEMENT_SEARCH_INPUT_KEY),
                             animatedVisibilityScope = animatedVisibilityScope
                         ),
                         isSearchActive = uiState.isSearchActive,
@@ -142,7 +132,6 @@ fun SearchScreen(
                         focusManager = focusManager
                     )
                     FilterChipsRow(
-                        shouldPlayHint = playScrollHint,
                         isSharedByLinkSelected = uiState.filesWithPublicLink,
                         tagsCount = uiState.tagsCount,
                         typeCount = uiState.typeCount,

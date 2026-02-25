@@ -63,13 +63,6 @@ on:
         default: ""
         type: string
 
-      # deflake retries per shard
-      retryCount:
-        description: "Deflake: Default 1."
-        required: true
-        default: 1
-        type: number
-
       androidDeviceId:
         description: "androidDeviceId. Target a specific device. Leave empty for auto."
         required: false
@@ -90,7 +83,6 @@ jobs:
       resolvedCategory: ${{ steps.resolve_selector.outputs.category }}
 
     steps:
-      # Validate upgrade inputs for consistency.
       - name: Validate upgrade inputs
         shell: bash
         run: |
@@ -100,7 +92,6 @@ jobs:
             exit 1
           fi
 
-      # Parse TAGS into a single selector (testCaseId or category).
       - name: Resolve selector from TAGS
         id: resolve_selector
         shell: bash
@@ -142,7 +133,6 @@ jobs:
           echo "testCaseId=$TESTCASE_ID" >> "$GITHUB_OUTPUT"
           echo "category=$CATEGORY" >> "$GITHUB_OUTPUT"
 
-      # Log resolved values for troubleshooting.
       - name: Print resolved values
         shell: bash
         run: |
@@ -151,7 +141,6 @@ jobs:
           echo "resolvedTestCaseId=${{ steps.resolve_selector.outputs.testCaseId }}"
           echo "resolvedCategory=${{ steps.resolve_selector.outputs.category }}"
 
-  # Run UI tests on self-hosted Android devices and publish Allure report.
   run-android-ui-tests:
     name: Run Android UI tests
     runs-on:
@@ -169,12 +158,6 @@ jobs:
       AWS_REGION: eu-west-1
       S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
       OP_VAULT: "Test Automation"
-
-      # Runner-local config file (not stored in this repository).
-      # Contains:
-      # - flavors.<name>.s3Folder
-      # - flavors.<name>.appId
-      # - packagesToUninstall
       FLAVORS_CONFIG_PATH: "/etc/android-qa/flavors.json"
 
     defaults:
@@ -182,7 +165,6 @@ jobs:
         shell: bash
 
     steps:
-      # Checkout source and set up toolchain.
       - name: Checkout (with submodules)
         uses: actions/checkout@v4
         with:
@@ -199,7 +181,6 @@ jobs:
       - name: Set up Android SDK (ANDROID_HOME + adb)
         uses: android-actions/setup-android@v3
 
-      # Ensure required CLI tools are available on the runner.
       - name: Ensure required tools exist
         run: |
           set -euo pipefail
@@ -232,8 +213,6 @@ jobs:
 
           aws --version
 
-      # Resolve flavor configuration from runner-local file.
-      # This replaces the inline flavor mapping and packages list inside the workflow.
       - name: Resolve flavor (runner config)
         id: resolve_flavor
         env:
@@ -292,7 +271,6 @@ jobs:
 
           echo "Resolved flavor from runner config: '${{ inputs.flavor }}'"
 
-      # Configure AWS access to download APKs from S3.
       - name: Configure AWS credentials (for S3)
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -300,7 +278,6 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-west-1
 
-      # Resolve and download new/old APKs for the run.
       - name: Download APK(s) from S3
         id: download_apks
         env:
@@ -458,8 +435,9 @@ jobs:
             test -s "${OLD_APK_PATH}"
           fi
 
-      # Pick target devices and set up sharding metadata.
       - name: Detect target device(s)
+        env:
+          RESOLVED_TESTCASE_ID: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTestCaseId }}
         run: |
           set -euo pipefail
 
@@ -476,6 +454,9 @@ jobs:
               exit 1
             fi
             DEVICE_LIST="$TARGET"
+          elif [[ -n "${RESOLVED_TESTCASE_ID}" ]]; then
+            DEVICE_LIST="$(printf '%s\n' "$DEVICE_LINES" | head -n 1)"
+            echo "Single-testcase mode (${RESOLVED_TESTCASE_ID}): selected device ${DEVICE_LIST}"
           else
             DEVICE_LIST="$(printf '%s\n' "$DEVICE_LINES" | xargs)"
           fi
@@ -486,7 +467,6 @@ jobs:
           echo "DEVICE_COUNT=${DEVICE_COUNT}" >> "$GITHUB_ENV"
           echo "Using ${DEVICE_COUNT} device(s)"
 
-      # Install APKs and stage upgrade artifacts on devices.
       - name: Install APK(s) on device(s)
         run: |
           set -euo pipefail
@@ -504,7 +484,6 @@ jobs:
             INSTALL_FLAGS="-r -d"
           fi
 
-          # Package cleanup list comes from /etc/android-qa/flavors.json (runner config)
           PACKAGES_TO_UNINSTALL="${PACKAGES_TO_UNINSTALL:-}"
           read -ra PACKAGES <<< "${PACKAGES_TO_UNINSTALL}"
 
@@ -536,7 +515,6 @@ jobs:
             fi
           done
 
-      # Fetch runtime secrets needed by tests.
       - name: Install 1Password CLI
         uses: 1password/install-cli-action@v2
 
@@ -618,64 +596,90 @@ jobs:
           mkdir -p .git/info
           grep -qxF "secrets.json" .git/info/exclude 2>/dev/null || echo "secrets.json" >> .git/info/exclude
 
-          echo "OK: secrets.json created at ${SECRETS_JSON_PATH} and linked to $(pwd)/secrets.json"
-
-      # Build the instrumentation test APK.
-      - name: Build test APK (assemble)
+      - name: Build test APK (assemble once)
         run: |
           set -euo pipefail
           ./gradlew :tests:testsCore:assembleDebugAndroidTest --no-daemon --no-configuration-cache
 
-      # Execute UI tests with per-device sharding + deflake retry per shard.
-      - name: Run UI tests (one shard per device)
+      - name: Resolve test APK path
+        run: |
+          set -euo pipefail
+          TEST_APK_PATH="$(ls -1 tests/testsCore/build/outputs/apk/androidTest/debug/*.apk | head -n 1 || true)"
+          if [[ -z "${TEST_APK_PATH}" || ! -f "${TEST_APK_PATH}" ]]; then
+            echo "ERROR: Could not find built androidTest APK under tests/testsCore/build/outputs/apk/androidTest/debug/"
+            exit 1
+          fi
+          echo "TEST_APK_PATH=${TEST_APK_PATH}" >> "$GITHUB_ENV"
+
+      - name: Resolve AndroidX Test Services APKs (for Allure TestStorage)
+        run: |
+          set -euo pipefail
+
+          roots=()
+          [[ -n "${GRADLE_USER_HOME:-}" && -d "${GRADLE_USER_HOME}" ]] && roots+=("${GRADLE_USER_HOME}")
+          [[ -d "${HOME}/.gradle" ]] && roots+=("${HOME}/.gradle")
+
+          if [[ ${#roots[@]} -eq 0 ]]; then
+            echo "ERROR: Could not find any Gradle cache directory (no GRADLE_USER_HOME and no ~/.gradle)."
+            exit 1
+          fi
+
+          find_newest() {
+            local pattern="$1"; shift
+            local newest=""
+            local candidates=()
+
+            for r in "$@"; do
+              while IFS= read -r -d '' f; do
+                candidates+=("$f")
+              done < <(find "$r" -type f -name "$pattern" -print0 2>/dev/null || true)
+            done
+
+            if [[ ${#candidates[@]} -gt 0 ]]; then
+              newest="$(ls -t "${candidates[@]}" 2>/dev/null | head -n 1 || true)"
+            fi
+
+            echo "$newest"
+          }
+
+          TEST_SERVICES_APK="$(find_newest "*test-services*.apk" "${roots[@]}")"
+          ORCHESTRATOR_APK="$(find_newest "*orchestrator*.apk" "${roots[@]}")"
+
+          if [[ -z "${TEST_SERVICES_APK}" || ! -f "${TEST_SERVICES_APK}" ]]; then
+            echo "ERROR: Could not locate AndroidX Test Services APK in Gradle cache."
+            echo "This APK is required for Allure TestStorage (content://androidx.test.services.storage...)."
+            exit 1
+          fi
+
+          echo "TEST_SERVICES_APK_PATH=${TEST_SERVICES_APK}" >> "$GITHUB_ENV"
+          if [[ -n "${ORCHESTRATOR_APK}" && -f "${ORCHESTRATOR_APK}" ]]; then
+            echo "ORCHESTRATOR_APK_PATH=${ORCHESTRATOR_APK}" >> "$GITHUB_ENV"
+          fi
+
+      # ✅ NO RERUN / NO TIMEOUT: single run per device, streamed output
+      - name: Run UI tests (one shard per device, adb instrumentation)
         env:
           RESOLVED_TESTCASE_ID: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTestCaseId }}
           RESOLVED_CATEGORY: ${{ needs.validate-and-resolve-inputs.outputs.resolvedCategory }}
-          RETRY_COUNT: ${{ inputs.retryCount }}
         run: |
           set -euo pipefail
           : "${DEVICE_LIST:?DEVICE_LIST missing}"
           : "${DEVICE_COUNT:?DEVICE_COUNT missing}"
-
-          # Validate retry count (default 1 if missing)
-          RETRY_COUNT="${RETRY_COUNT:-1}"
-          if ! [[ "${RETRY_COUNT}" =~ ^[0-9]+$ ]]; then
-            echo "ERROR: retryCount must be a non-negative integer. Got: '${RETRY_COUNT}'"
-            exit 1
-          fi
-
-          GRADLE_ARGS=(
-            ":tests:testsCore:connectedDebugAndroidTest"
-            "--no-daemon"
-            "--no-configuration-cache"
-          )
-
-          if [[ -n "${RESOLVED_TESTCASE_ID}" ]]; then
-            GRADLE_ARGS+=("-Pandroid.testInstrumentationRunnerArguments.testCaseId=${RESOLVED_TESTCASE_ID}")
-          fi
-          if [[ -n "${RESOLVED_CATEGORY}" ]]; then
-            GRADLE_ARGS+=("-Pandroid.testInstrumentationRunnerArguments.category=${RESOLVED_CATEGORY}")
-          fi
-          if [[ "${{ inputs.isUpgrade }}" == "true" ]]; then
-            GRADLE_ARGS+=("-Pandroid.testInstrumentationRunnerArguments.newApkPath=${NEW_APK_DEVICE_PATH}")
-            GRADLE_ARGS+=("-Pandroid.testInstrumentationRunnerArguments.oldApkPath=${OLD_APK_DEVICE_PATH}")
-          fi
+          : "${APP_ID:?APP_ID missing}"
+          : "${TEST_APK_PATH:?TEST_APK_PATH missing}"
+          : "${RUNNER_TEMP:?RUNNER_TEMP not set}"
+          : "${TEST_SERVICES_APK_PATH:?TEST_SERVICES_APK_PATH missing}"
 
           NUM_SHARDS="${DEVICE_COUNT}"
           if [[ -n "${RESOLVED_TESTCASE_ID}" ]]; then
-            # Keep sharding disabled for single testcase runs (but still allow running it on multiple devices).
             NUM_SHARDS="1"
           fi
 
-          # FIX 1/2 (Gradle double-download):
-          # Use ONE shared Gradle cache across all shards/devices to avoid downloading Gradle distribution per device.
-          # Wrapper + dependency caches are stored here:
-          GRADLE_USER_HOME_BASE="${RUNNER_TEMP}/gradle"
-          echo "GRADLE_USER_HOME_BASE=${GRADLE_USER_HOME_BASE}" >> "$GITHUB_ENV"
-          mkdir -p "${GRADLE_USER_HOME_BASE}"
-
           read -ra DEVICES <<< "${DEVICE_LIST}"
-          echo "Sharding: numShards=${NUM_SHARDS}, deviceCount=${DEVICE_COUNT}, retryCount=${RETRY_COUNT}"
+          echo "Sharding: numShards=${NUM_SHARDS}, deviceCount=${DEVICE_COUNT}"
+
+          LOG_DIR="${RUNNER_TEMP}/instrumentation-logs"
+          mkdir -p "${LOG_DIR}"
 
           pids=()
           shard_index=0
@@ -683,58 +687,86 @@ jobs:
           for SERIAL in "${DEVICES[@]}"; do
             (
               set -euo pipefail
-              export ANDROID_SERIAL="${SERIAL}"
+              ADB="adb -s ${SERIAL}"
 
-              # FIX 1/2 continued:
-              # Do NOT set GRADLE_USER_HOME to a per-device folder, otherwise each device downloads its own gradle distribution.
-              export GRADLE_USER_HOME="${GRADLE_USER_HOME_BASE}"
+              ${ADB} wait-for-device
+              ${ADB} install -r -t "${TEST_APK_PATH}" >/dev/null
 
-              # IMPORTANT:
-              # If NUM_SHARDS=1 (single testcase), shardIndex must be 0.
+              # Avoid "Broken pipe" + keep pipefail safe: no tr|grep -q pipelines
+              pkgs="$(${ADB} shell pm list packages 2>/dev/null | tr -d '\r' || true)"
+              if ! grep -Fxq "package:androidx.test.services" <<< "${pkgs}"; then
+                echo "[${SERIAL}] Installing androidx.test.services APK (required for Allure TestStorage)..."
+                ${ADB} install -r -t "${TEST_SERVICES_APK_PATH}" >/dev/null
+              fi
+
+              if [[ -n "${ORCHESTRATOR_APK_PATH:-}" ]]; then
+                pkgs2="$(${ADB} shell pm list packages 2>/dev/null | tr -d '\r' || true)"
+                if ! grep -Fxq "package:androidx.test.orchestrator" <<< "${pkgs2}"; then
+                  echo "[${SERIAL}] Installing androidx.test.orchestrator APK (optional)..."
+                  ${ADB} install -r -t "${ORCHESTRATOR_APK_PATH}" >/dev/null || true
+                fi
+              fi
+
+              instr_list="$(${ADB} shell pm list instrumentation 2>/dev/null | tr -d '\r' || true)"
+              INSTRUMENTATION="$(printf '%s\n' "${instr_list}" | grep -m1 'TaggedTestRunner' | sed -E 's/^instrumentation:([^ ]+).*/\1/' || true)"
+              if [[ -z "${INSTRUMENTATION}" ]]; then
+                INSTRUMENTATION="$(printf '%s\n' "${instr_list}" | grep -m1 "target=${APP_ID}" | sed -E 's/^instrumentation:([^ ]+).*/\1/' || true)"
+              fi
+              if [[ -z "${INSTRUMENTATION}" ]]; then
+                echo "[${SERIAL}] ERROR: Could not resolve instrumentation. Installed instrumentations:"
+                printf '%s\n' "${instr_list}" | sed -u "s/^/[${SERIAL}] /"
+                exit 1
+              fi
+
               THIS_SHARD_INDEX="${shard_index}"
               if [[ "${NUM_SHARDS}" == "1" ]]; then
                 THIS_SHARD_INDEX="0"
               fi
 
+              echo "[${SERIAL}] shardIndex=${THIS_SHARD_INDEX}/${NUM_SHARDS}"
+
               ALLURE_DEVICE_DIR="/sdcard/googletest/test_outputfiles/allure-results"
+              ${ADB} shell "rm -rf '${ALLURE_DEVICE_DIR}' && mkdir -p '${ALLURE_DEVICE_DIR}'" >/dev/null 2>&1 || true
 
-              max_attempts=$((RETRY_COUNT + 1))
-              attempt=1
+              args=()
+              args+=(-e numShards "${NUM_SHARDS}")
+              args+=(-e shardIndex "${THIS_SHARD_INDEX}")
 
-              while (( attempt <= max_attempts )); do
-                echo "[${SERIAL}] shardIndex=${THIS_SHARD_INDEX}/${NUM_SHARDS} attempt=${attempt}/${max_attempts}"
+              if [[ -n "${RESOLVED_TESTCASE_ID}" ]]; then
+                args+=(-e testCaseId "${RESOLVED_TESTCASE_ID}")
+              fi
+              if [[ -n "${RESOLVED_CATEGORY}" ]]; then
+                args+=(-e category "${RESOLVED_CATEGORY}")
+              fi
 
-                # Deflake hygiene:
-                # - ensure device is ready
-                # - clear previous allure output to avoid mixing attempts
-                adb -s "${SERIAL}" wait-for-device
-                adb -s "${SERIAL}" shell "rm -rf '${ALLURE_DEVICE_DIR}' && mkdir -p '${ALLURE_DEVICE_DIR}'" >/dev/null 2>&1 || true
+              args+=(-e filter "com.wire.android.tests.support.suite.TaggedFilter")
 
-                # Run Gradle (capture exit code without breaking on set -e)
-                set +e
-                ./gradlew "--gradle-user-home" "${GRADLE_USER_HOME_BASE}" "${GRADLE_ARGS[@]}" \
-                  "-Pandroid.testInstrumentationRunnerArguments.numShards=${NUM_SHARDS}" \
-                  "-Pandroid.testInstrumentationRunnerArguments.shardIndex=${THIS_SHARD_INDEX}"
-                rc=$?
-                set -e
+              if [[ "${{ inputs.isUpgrade }}" == "true" ]]; then
+                args+=(-e newApkPath "${NEW_APK_DEVICE_PATH}")
+                args+=(-e oldApkPath "${OLD_APK_DEVICE_PATH}")
+              fi
 
-                if [[ "$rc" -eq 0 ]]; then
-                  echo "[${SERIAL}] PASS (attempt ${attempt})"
-                  exit 0
-                fi
+              LOG_FILE="${LOG_DIR}/instrument-${SERIAL}.log"
 
-                if (( attempt == max_attempts )); then
-                  echo "[${SERIAL}] FAIL after ${attempt} attempt(s)."
-                  exit "$rc"
-                fi
+              set +e
+              ${ADB} shell am instrument -w -r "${args[@]}" "${INSTRUMENTATION}" 2>&1 \
+                | sed -u "s/^/[${SERIAL}] /" | tee "${LOG_FILE}"
+              rc=${PIPESTATUS[0]}
+              set -e
 
-                echo "[${SERIAL}] shard failed (rc=${rc}) -> deflake retry in 10s..."
-                # Light cleanup before retry
-                adb -s "${SERIAL}" shell "am force-stop '${APP_ID}'" >/dev/null 2>&1 || true
-                sleep 10
+              if [[ "${rc}" -ne 0 ]]; then
+                echo "[${SERIAL}] instrumentation command failed (rc=${rc})"
+                exit 1
+              fi
 
-                attempt=$((attempt + 1))
-              done
+              # Treat as failure if typical markers appear
+              if grep -qE 'FAILURES!!!|INSTRUMENTATION_FAILED|INSTRUMENTATION_RESULT: shortMsg=Process crashed|INSTRUMENTATION_STATUS_CODE: -1|INSTRUMENTATION_CODE: -1' "${LOG_FILE}"; then
+                echo "[${SERIAL}] FAIL"
+                exit 1
+              fi
+
+              echo "[${SERIAL}] PASS"
+              exit 0
             ) &
             pids+=("$!")
 
@@ -749,11 +781,10 @@ jobs:
           done
 
           if [[ "$failed" -ne 0 ]]; then
-            echo "ERROR: One or more shards failed (even after retries)."
+            echo "ERROR: One or more shards failed."
             exit 1
           fi
 
-      # Cleanup: remove runtime secrets before Allure/Pages
       - name: Remove runtime secrets (before Allure/Pages)
         if: always()
         run: |
@@ -763,7 +794,6 @@ jobs:
             rm -f "${SECRETS_JSON_PATH}" || true
           fi
 
-      # Collect Allure result files from devices.
       - name: Pull Allure results from device(s)
         if: always()
         run: |
@@ -773,7 +803,8 @@ jobs:
             exit 0
           fi
 
-          OUT_DIR="${RUNNER_TEMP}/allure-results"
+          # ✅ TEMP ROOT FIX: pull into the SAME root used by merge/generate/publish
+          OUT_DIR="${{ runner.temp }}/allure-results"
           mkdir -p "${OUT_DIR}"
 
           read -ra DEVICES <<< "${DEVICE_LIST}"
@@ -785,12 +816,9 @@ jobs:
             idx=$((idx + 1))
           done
 
-      # Merge Allure results and add device metadata.
       - name: Merge Allure results (add device label)
         if: always()
         env:
-          # FIX 2/2 (Permission denied at /allure-results-merged):
-          # Use Actions context runner.temp (not env.RUNNER_TEMP) so it doesn't expand to empty and become "/allure-results-merged".
           OUT_DIR: ${{ runner.temp }}/allure-results
           MERGED_DIR: ${{ runner.temp }}/allure-results-merged
           REAL_BUILD_NUMBER: ${{ env.REAL_BUILD_NUMBER }}
@@ -930,11 +958,9 @@ jobs:
           )
           PY
 
-      # Generate the HTML report from merged results.
       - name: Generate Allure HTML report
         if: always()
         env:
-          # FIX 2/2 continued: same issue here
           MERGED_DIR: ${{ runner.temp }}/allure-results-merged
           REPORT_DIR: ${{ runner.temp }}/allure-report
         run: |
@@ -973,7 +999,6 @@ jobs:
           "${RUNNER_TEMP}/allure-${ALLURE_VERSION}/bin/allure" \
             generate "${MERGED_DIR}" -o "${REPORT_DIR}" --clean
 
-      # Publish the report to the GitHub Pages branch.
       - name: Checkout GitHub Pages branch
         if: always()
         uses: actions/checkout@v4
@@ -986,7 +1011,6 @@ jobs:
       - name: Publish Allure report to Pages branch
         if: always()
         env:
-          # FIX 2/2 continued: same issue here
           REPORT_DIR: ${{ runner.temp }}/allure-report
           PAGES_DIR: gh-pages/docs/qa-ui-tests
           KEEP_DAYS: "90"
@@ -1059,17 +1083,17 @@ jobs:
           BASE_URL="https://${ORG}.github.io/${REPO}"
           echo "Allure report (run ${GITHUB_RUN_NUMBER}): ${BASE_URL}/qa-ui-tests/${RUN_FOLDER}/" >> "$GITHUB_STEP_SUMMARY"
 
-      # Cleanup runtime secrets and build artifacts.
       - name: Cleanup (remove secrets + build outputs)
         if: always()
         run: |
           set -euo pipefail
           rm -f "secrets.json" "${RUNNER_TEMP}/secrets.json" || true
           rm -f "${RUNNER_TEMP}/Wire.apk" "${RUNNER_TEMP}/Wire.old.apk" || true
-          rm -rf "${RUNNER_TEMP}/allure-results" || true
-          rm -rf "${RUNNER_TEMP}/allure-results-merged" || true
-          rm -rf "${RUNNER_TEMP}/allure-report" || true
 
-          rm -rf "${GRADLE_USER_HOME_BASE:-}" || true
+          # ✅ TEMP ROOT FIX: cleanup same root used by merge/generate/publish
+          rm -rf "${{ runner.temp }}/allure-results" || true
+          rm -rf "${{ runner.temp }}/allure-results-merged" || true
+          rm -rf "${{ runner.temp }}/allure-report" || true
 
+          rm -rf "${RUNNER_TEMP}/instrumentation-logs" || true
           git clean -ffdx -e .gradle -e .kotlin

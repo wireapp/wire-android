@@ -1,0 +1,16 @@
+New
+- Persistent WebSocket enforcement via MDM
+- Option to set a new app lock passcode
+- Drive: Tags are sorted alphabetically
+
+Improvements
+- Conversation list title and profile picture alignment
+- Accessibility: Screen reader support
+- Handling of unread messages indicator
+- Connection reliability
+- ID Shield: Always show Get Certificate button
+
+Fixes
+- Missing notifications and date indicators
+- Several calling issues
+- Navigation issue after leaving or deleting a group

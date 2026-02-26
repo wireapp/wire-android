@@ -1,0 +1,17 @@
+Neu
+- WebSocket-Durchsetzung über MDM
+- Festlegen eines neuen Passworts für die App-Sperre
+- Drive: Tags werden alphabetisch sortiert
+
+Verbessert
+- Ausrichtung von Titel und Profilbild
+- Barrierefreiheit: Unterstützung für Screenreader
+- Anzeige für ungelesene Nachrichten
+- Verbindungszuverlässigkeit
+- ID-Shield: Schaltfläche Zertifikat erhalten immer anzeigen
+
+Behoben
+- Fehlende Benachrichtigungen und Datumsanzeigen
+- Mehrere Anrufprobleme
+- Navigationsproblem nach Verlassen oder Löschen einer Gruppe
+

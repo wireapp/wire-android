@@ -38,15 +38,16 @@ import com.wire.android.feature.cells.util.FileHelper
 import com.wire.android.feature.cells.util.FileNameResolver
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.common.DEFAULT_SEARCH_QUERY_DEBOUNCE
+import com.wire.kalium.cells.data.FileFilters
 import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
-import com.wire.kalium.cells.domain.usecase.download.DownloadCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
 import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
 import com.wire.kalium.cells.domain.usecase.IsAtLeastOneCellAvailableUseCase
 import com.wire.kalium.cells.domain.usecase.RestoreNodeFromRecycleBinUseCase
+import com.wire.kalium.cells.domain.usecase.download.DownloadCellFileUseCase
 import com.wire.kalium.common.functional.fold
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
@@ -80,6 +81,7 @@ import okio.Path.Companion.toPath
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.seconds
 
+// TODO: to cleanup this viewModel as search has been moved to a separate screen in upcoming PRs
 @Suppress("TooManyFunctions", "LongParameterList")
 @HiltViewModel
 class CellViewModel @Inject constructor(
@@ -183,8 +185,10 @@ class CellViewModel @Inject constructor(
                 getCellFilesPaged(
                     conversationId = navArgs.conversationId,
                     query = query,
-                    onlyDeleted = navArgs.isRecycleBin ?: false,
-                    tags = currentTags.toList(),
+                    fileFilters = FileFilters(
+                        tags = currentTags.toList(),
+                        onlyDeleted = navArgs.isRecycleBin ?: false,
+                    ),
                 ).cachedIn(viewModelScope),
                 removedItemsFlow,
                 downloadDataFlow

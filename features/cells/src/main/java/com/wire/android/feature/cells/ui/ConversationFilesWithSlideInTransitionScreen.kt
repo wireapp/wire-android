@@ -18,6 +18,7 @@
 package com.wire.android.feature.cells.ui
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -25,7 +26,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.wire.android.feature.cells.R
-import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesWithSlideInTransitionScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.RecycleBinScreenDestination
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
@@ -42,6 +42,7 @@ import com.wire.android.ui.common.search.rememberSearchbarState
 fun ConversationFilesWithSlideInTransitionScreen(
     navigator: WireNavigator,
     cellFilesNavArgs: CellFilesNavArgs,
+    animatedVisibilityScope: AnimatedVisibilityScope,
     viewModel: CellViewModel = hiltViewModel(),
 ) {
     val conversationSearchBarState = rememberSearchbarState()
@@ -69,6 +70,7 @@ fun ConversationFilesWithSlideInTransitionScreen(
     }
 
     ConversationFilesScreenContent(
+        animatedVisibilityScope = animatedVisibilityScope,
         navigator = navigator,
         currentNodeUuid = viewModel.currentNodeUuid(),
         conversationSearchBarState = conversationSearchBarState,
@@ -83,10 +85,6 @@ fun ConversationFilesWithSlideInTransitionScreen(
         isDeleteInProgress = viewModel.isDeleteInProgress.collectAsState().value,
         isRefreshing = viewModel.isPullToRefresh.collectAsState(),
         breadcrumbs = cellFilesNavArgs.breadcrumbs,
-        onBreadcrumbsFolderClick = {
-            val stepsBack = viewModel.breadcrumbs()?.size!! - it - 1
-            navigator.navigateBackAndRemoveAllConsecutiveXTimes(ConversationFilesWithSlideInTransitionScreenDestination.route, stepsBack)
-        },
         sendIntent = viewModel::sendIntent,
         onRefresh = viewModel::onPullToRefresh,
         retryEditNodeError = viewModel::editNode

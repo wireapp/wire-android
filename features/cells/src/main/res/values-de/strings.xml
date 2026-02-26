@@ -184,7 +184,6 @@
     <string name="versions_list_not_loaded_description_error">Beim Laden der Versionsliste ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.</string>
     <string name="snackbar_download_cell_version_show_label">Anzeigen</string>
     <string name="snackbar_download_cell_version_downloading_label">Herunterladen…</string>
-    <string name="search_text_input_hint_for_files_folders_in_conversation">Dateien oder Ordner suchen</string>
     <string name="cells_create_file">Datei erstellen</string>
     <string name="create_file_error">Datei kann nicht erstellt werden. Bitte versuchen Sie es erneut</string>
     <string name="cell_file_name">Dateiname</string>

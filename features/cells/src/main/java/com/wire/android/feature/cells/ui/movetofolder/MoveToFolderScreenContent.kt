@@ -124,6 +124,8 @@ fun PreviewMoveToFolderItem() {
                 uuid = "243567990900989897",
                 name = "some folder.pdf",
                 userName = "User",
+                ownerUserId = "userId",
+                userHandle = "userHandle",
                 conversationName = "Conversation",
                 modifiedTime = null,
                 size = 1234,

@@ -19,18 +19,14 @@ package com.wire.android.feature.cells.ui
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
@@ -41,6 +37,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -49,11 +46,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.wire.android.feature.cells.R
-import com.wire.android.feature.cells.domain.model.AttachmentFileType
-import com.wire.android.feature.cells.ui.common.Breadcrumbs
-import com.wire.android.feature.cells.ui.create.FileTypeBottomSheetDialog
-import com.wire.android.feature.cells.ui.create.file.CreateFileScreenNavArgs
 import com.ramcosta.composedestinations.generated.cells.destinations.AddRemoveTagsScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesWithSlideInTransitionScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.CreateFileScreenDestination
@@ -62,7 +54,12 @@ import com.ramcosta.composedestinations.generated.cells.destinations.MoveToFolde
 import com.ramcosta.composedestinations.generated.cells.destinations.PublicLinkScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.RecycleBinScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.RenameNodeScreenDestination
+import com.ramcosta.composedestinations.generated.cells.destinations.SearchScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.VersionHistoryScreenDestination
+import com.wire.android.feature.cells.R
+import com.wire.android.feature.cells.domain.model.AttachmentFileType
+import com.wire.android.feature.cells.ui.create.FileTypeBottomSheetDialog
+import com.wire.android.feature.cells.ui.create.file.CreateFileScreenNavArgs
 import com.wire.android.feature.cells.ui.dialog.CellsNewActionBottomSheet
 import com.wire.android.feature.cells.ui.dialog.CellsOptionsBottomSheet
 import com.wire.android.feature.cells.ui.model.CellNodeUi
@@ -72,13 +69,15 @@ import com.wire.android.navigation.PreviewNavigator
 import com.wire.android.navigation.WireNavigator
 import com.wire.android.navigation.annotation.features.cells.WireCellsDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
-import com.wire.android.ui.common.CollapsingTopBarScaffold
+import com.wire.android.navigation.transition.LocalSharedTransitionScope
+import com.wire.android.navigation.transition.SHARED_ELEMENT_SEARCH_INPUT_KEY
 import com.wire.android.ui.common.MoreOptionIcon
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.bottomsheet.show
 import com.wire.android.ui.common.button.FloatingActionButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.MultipleThemePreviews
+import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.search.SearchBarState
 import com.wire.android.ui.common.search.rememberSearchbarState
 import com.wire.android.ui.common.topappbar.NavigationIconType
@@ -104,6 +103,7 @@ import kotlinx.coroutines.flow.flowOf
 @Composable
 fun ConversationFilesScreen(
     navigator: WireNavigator,
+    animatedVisibilityScope: AnimatedVisibilityScope,
     viewModel: CellViewModel = hiltViewModel(),
 ) {
     val conversationSearchBarState = rememberSearchbarState(viewModel.isSearchByDefaultActive)
@@ -117,6 +117,7 @@ fun ConversationFilesScreen(
     }
 
     ConversationFilesScreenContent(
+        animatedVisibilityScope = animatedVisibilityScope,
         navigator = navigator,
         currentNodeUuid = viewModel.currentNodeUuid(),
         conversationSearchBarState = conversationSearchBarState,
@@ -140,8 +141,10 @@ fun ConversationFilesScreen(
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun ConversationFilesScreenContent(
+    animatedVisibilityScope: AnimatedVisibilityScope,
     navigator: WireNavigator,
     currentNodeUuid: String?,
     conversationSearchBarState: SearchBarState,
@@ -155,7 +158,6 @@ fun ConversationFilesScreenContent(
     onRefresh: () -> Unit,
     retryEditNodeError: (String) -> Unit,
     modifier: Modifier = Modifier,
-    onBreadcrumbsFolderClick: (index: Int) -> Unit = {},
     isDeleteInProgress: Boolean = false,
     screenTitle: String? = null,
     isRecycleBin: Boolean = false,
@@ -220,55 +222,51 @@ fun ConversationFilesScreenContent(
         },
     )
 
-    CollapsingTopBarScaffold(
+    WireScaffold(
         modifier = modifier,
-        topBarHeader = {
-            AnimatedVisibility(
-                modifier = Modifier.background(MaterialTheme.colorScheme.background),
-                visible = !conversationSearchBarState.isSearchActive,
-                enter = fadeIn() + expandVertically(),
-                exit = shrinkVertically() + fadeOut(),
-            ) {
-                Column {
-                    WireCenterAlignedTopAppBar(
-                        onNavigationPressed = { navigator.navigateBack() },
-                        title = screenTitle ?: stringResource(R.string.conversation_files_title),
-                        navigationIconType = NavigationIconType.Back(),
-                        elevation = dimensions().spacing0x,
-                        actions = {
-                            if (!isRecycleBin) {
-                                MoreOptionIcon(
-                                    contentDescription = R.string.content_description_conversation_files_more_button,
-                                    onButtonClicked = { optionsBottomSheetState.show() }
+        topBar = {
+            Column {
+                WireCenterAlignedTopAppBar(
+                    onNavigationPressed = { navigator.navigateBack() },
+                    title = screenTitle ?: stringResource(R.string.conversation_files_title),
+                    navigationIconType = NavigationIconType.Back(),
+                    elevation = dimensions().spacing0x,
+                    actions = {
+                        if (!isRecycleBin) {
+                            MoreOptionIcon(
+                                contentDescription = R.string.content_description_conversation_files_more_button,
+                                onButtonClicked = { optionsBottomSheetState.show() }
+                            )
+                        }
+                    }
+                )
+
+                val sharedScope = LocalSharedTransitionScope.current
+                val focusRequester = remember { FocusRequester() }
+
+                with(sharedScope) {
+                    SearchTopBar(
+                        modifier = Modifier
+                            .sharedElement(
+                                sharedContentState = rememberSharedContentState(key = SHARED_ELEMENT_SEARCH_INPUT_KEY),
+                                animatedVisibilityScope = animatedVisibilityScope
+                            ),
+                        isSearchActive = conversationSearchBarState.isSearchActive,
+                        searchBarHint = stringResource(R.string.search_shared_drive_text_input_hint),
+                        searchQueryTextState = conversationSearchBarState.searchQueryTextState,
+                        onActiveChanged = conversationSearchBarState::searchActiveChanged,
+                        onTap = {
+                            currentNodeUuid?.let {
+                                navigator.navigate(
+                                    NavigationCommand(
+                                        SearchScreenDestination(conversationId = it)
+                                    )
                                 )
                             }
-                        }
+                        },
+                        focusRequester = focusRequester,
                     )
-                    breadcrumbs?.let {
-                        Breadcrumbs(
-                            modifier = Modifier
-                                .height(dimensions().spacing32x)
-                                .fillMaxWidth(),
-                            isRecycleBin = isRecycleBin,
-                            pathSegments = it,
-                            onBreadcrumbsFolderClick = onBreadcrumbsFolderClick
-                        )
-                    }
                 }
-            }
-        },
-        topBarCollapsing = {
-            AnimatedVisibility(
-                visible = conversationSearchBarState.isSearchVisible,
-                enter = fadeIn() + slideInVertically(),
-                exit = fadeOut() + slideOutVertically()
-            ) {
-                SearchTopBar(
-                    isSearchActive = conversationSearchBarState.isSearchActive,
-                    searchBarHint = stringResource(R.string.search_text_input_hint_for_files_folders_in_conversation),
-                    searchQueryTextState = conversationSearchBarState.searchQueryTextState,
-                    onActiveChanged = conversationSearchBarState::searchActiveChanged,
-                )
             }
         },
         floatingActionButton = {
@@ -299,8 +297,8 @@ fun ConversationFilesScreenContent(
                 }
             }
         },
-    ) {
-        Box {
+    ) { innerPadding ->
+        Box(modifier = Modifier.padding(innerPadding)) {
             CellScreenContent(
                 actionsFlow = actions,
                 pagingListItems = pagingListItems,
@@ -308,7 +306,6 @@ fun ConversationFilesScreenContent(
                 downloadFileState = downloadFileSheet,
                 menuState = menu,
                 isSearchResult = isSearchResult,
-                isAllFiles = false,
                 isRestoreInProgress = isRestoreInProgress,
                 isDeleteInProgress = isDeleteInProgress,
                 isRecycleBin = isRecycleBin,
@@ -380,58 +377,67 @@ fun ConversationFilesScreenContent(
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 @MultipleThemePreviews
 fun PreviewConversationFilesScreen() {
     WireTheme {
-        ConversationFilesScreenContent(
-            navigator = PreviewNavigator,
-            currentNodeUuid = "conversationId",
-            conversationSearchBarState = rememberSearchbarState(),
-            isSearchResult = false,
-            actions = flowOf(),
-            pagingListItems = MutableStateFlow(
-                PagingData.from(
-                    listOf(
-                        CellNodeUi.File(
-                            uuid = "file1",
-                            name = "File 1",
-                            downloadProgress = 0.5f,
-                            assetType = AttachmentFileType.IMAGE,
-                            size = 123456,
-                            localPath = null,
-                            mimeType = "image/png",
-                            publicLinkId = "link1",
-                            userName = "User A",
-                            conversationName = "Conversation A",
-                            modifiedTime = "2023-10-01T12:00:00Z",
-                            remotePath = "/path/to/file1.png",
-                            contentHash = null,
-                            contentUrl = null,
-                            previewUrl = null
-                        ),
-                        CellNodeUi.Folder(
-                            uuid = "folder1",
-                            name = "Folder 1",
-                            remotePath = "/path/to/folder1",
-                            userName = "User B",
-                            conversationName = "Conversation B",
-                            modifiedTime = "2023-10-01T12:00:00Z",
-                            size = 123456,
+        SharedTransitionLayout {
+            AnimatedVisibility(visible = true) {
+                ConversationFilesScreenContent(
+                    animatedVisibilityScope = this,
+                    navigator = PreviewNavigator,
+                    currentNodeUuid = "conversationId",
+                    conversationSearchBarState = rememberSearchbarState(),
+                    isSearchResult = false,
+                    actions = flowOf(),
+                    pagingListItems = MutableStateFlow(
+                        PagingData.from(
+                            listOf(
+                                CellNodeUi.File(
+                                    uuid = "file1",
+                                    name = "File 1",
+                                    downloadProgress = 0.5f,
+                                    assetType = AttachmentFileType.IMAGE,
+                                    size = 123456,
+                                    localPath = null,
+                                    mimeType = "image/png",
+                                    publicLinkId = "link1",
+                                    userName = "User A",
+                                    userHandle = "userHandle",
+                                    ownerUserId = "userA",
+                                    conversationName = "Conversation A",
+                                    modifiedTime = "2023-10-01T12:00:00Z",
+                                    remotePath = "/path/to/file1.png",
+                                    contentHash = null,
+                                    contentUrl = null,
+                                    previewUrl = null
+                                ),
+                                CellNodeUi.Folder(
+                                    uuid = "folder1",
+                                    name = "Folder 1",
+                                    remotePath = "/path/to/folder1",
+                                    userName = "User B",
+                                    userHandle = "userHandle",
+                                    ownerUserId = "userB",
+                                    conversationName = "Conversation B",
+                                    modifiedTime = "2023-10-01T12:00:00Z",
+                                    size = 123456,
+                                )
+                            )
                         )
-                    )
+                    ).collectAsLazyPagingItems(),
+                    downloadFileSheet = MutableStateFlow(null),
+                    menu = MutableSharedFlow(replay = 0),
+                    sendIntent = {},
+                    screenTitle = "Android",
+                    isRecycleBin = false,
+                    breadcrumbs = arrayOf("Engineering", "Android"),
+                    isRefreshing = remember { mutableStateOf(false) },
+                    onRefresh = {},
+                    retryEditNodeError = {},
                 )
-            ).collectAsLazyPagingItems(),
-            downloadFileSheet = MutableStateFlow(null),
-            menu = MutableSharedFlow(replay = 0),
-            sendIntent = {},
-            onBreadcrumbsFolderClick = {},
-            screenTitle = "Android",
-            isRecycleBin = false,
-            breadcrumbs = arrayOf("Engineering", "Android"),
-            isRefreshing = remember { mutableStateOf(false) },
-            onRefresh = {},
-            retryEditNodeError = {},
-        )
+            }
+        }
     }
 }

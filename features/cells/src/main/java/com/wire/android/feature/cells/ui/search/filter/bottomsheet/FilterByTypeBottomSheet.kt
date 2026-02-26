@@ -19,14 +19,12 @@ package com.wire.android.feature.cells.ui.search.filter.bottomsheet
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -50,9 +48,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.search.filter.data.FilterTypeUi
-import com.wire.android.ui.common.button.WireButtonState
-import com.wire.android.ui.common.button.WirePrimaryButton
-import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.common.typography
@@ -118,35 +113,15 @@ fun FilterByTypeBottomSheet(
                     HorizontalDivider()
                 }
             }
-
-            Spacer(Modifier.height(dimensions().spacing12x))
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = dimensions().spacing16x),
-                horizontalArrangement = Arrangement.spacedBy(dimensions().spacing12x)
-            ) {
-                WireSecondaryButton(
-                    text = stringResource(R.string.button_remove_filter),
-                    onClick = {
-                        itemsState = itemsState.map { it.copy(selected = false) }
-                        onRemoveFilter()
-                    },
-                    modifier = Modifier.weight(1f),
-                    contentPadding = PaddingValues(vertical = dimensions().spacing14x)
-                )
-
-                WirePrimaryButton(
-                    text = stringResource(R.string.save_label),
-                    onClick = { onSave(itemsState) },
-                    modifier = Modifier.weight(1f),
-                    state = if (hasChanges) WireButtonState.Default else WireButtonState.Disabled,
-                    contentPadding = PaddingValues(vertical = dimensions().spacing14x)
-                )
-            }
-
-            Spacer(Modifier.height(dimensions().spacing8x))
+            FooterButtons(
+                modifier = Modifier.padding(horizontal = dimensions().spacing16x),
+                onRemoveAll = {
+                    itemsState = itemsState.map { it.copy(selected = false) }
+                    onRemoveFilter()
+                },
+                onSave = { onSave(itemsState) },
+                hasChanges = hasChanges
+            )
         }
     }
 }

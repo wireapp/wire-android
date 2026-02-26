@@ -20,8 +20,6 @@ package com.wire.android.feature.cells.ui.search.filter.bottomsheet.tags
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -46,11 +44,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.wire.android.feature.cells.R
+import com.wire.android.feature.cells.ui.search.filter.bottomsheet.FooterButtons
 import com.wire.android.feature.cells.ui.search.filter.data.FilterTagUi
 import com.wire.android.ui.common.SearchBarInput
-import com.wire.android.ui.common.button.WireButtonState
-import com.wire.android.ui.common.button.WirePrimaryButton
-import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.chip.WireFilterChip
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.MultipleThemePreviews
@@ -145,30 +141,14 @@ fun FilterByTagsBottomSheet(
                 Spacer(Modifier.height(dimensions().spacing12x))
             }
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = dimensions().spacing12x),
-                horizontalArrangement = Arrangement.spacedBy(dimensions().spacing12x)
-            ) {
-                WireSecondaryButton(
-                    text = stringResource(R.string.button_remove_all_label),
-                    onClick = {
-                        state.removeAll()
-                        onRemoveAll()
-                    },
-                    modifier = Modifier.weight(1f),
-                    contentPadding = PaddingValues(vertical = dimensions().spacing14x)
-                )
-
-                WirePrimaryButton(
-                    text = stringResource(R.string.save_label),
-                    onClick = { onSave(state.selectedTags()) },
-                    modifier = Modifier.weight(1f),
-                    state = if (state.hasChanges) WireButtonState.Default else WireButtonState.Disabled,
-                    contentPadding = PaddingValues(vertical = dimensions().spacing14x)
-                )
-            }
+            FooterButtons(
+                onRemoveAll = {
+                    state.removeAll()
+                    onRemoveAll()
+                },
+                onSave = { onSave(state.selectedTags()) },
+                hasChanges = state.hasChanges
+            )
         }
     }
 }

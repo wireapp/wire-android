@@ -36,6 +36,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -61,6 +62,7 @@ import com.wire.android.navigation.transition.LocalSharedTransitionScope
 import com.wire.android.navigation.transition.SHARED_ELEMENT_SEARCH_INPUT_KEY
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalSharedTransitionApi::class, ExperimentalMaterial3Api::class)
@@ -79,27 +81,28 @@ fun SearchScreen(
     val scope = rememberCoroutineScope()
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
-    cellViewModel.isSearchByDefaultActive
 
     val uiState by searchScreenViewModel.uiState.collectAsStateWithLifecycle()
 
     val filterTypeSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val filterTagsSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val filterOwnerSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val keyboardController = LocalSoftwareKeyboardController.current
+
 
     fun closeSheet(sheetState: SheetState, onCloseFlag: () -> Unit) {
         scope.launch {
             sheetState.hide()
             onCloseFlag()
-            searchScreenViewModel.onSetSearchActive(true)
         }
     }
 
     fun openSheet(onOpenFlag: () -> Unit = { }) {
         scope.launch {
-            focusManager.clearFocus()
+            focusManager.clearFocus(force = true)
+            keyboardController?.hide()
+            delay(300)
             onOpenFlag()
-            searchScreenViewModel.onSetSearchActive(false)
         }
     }
 
@@ -221,7 +224,7 @@ fun SearchScreen(
 
             if (uiState.showFilterByTags) {
                 FilterByTagsBottomSheet(
-                    items = searchScreenViewModel.uiState.collectAsState().value.availableTags,
+                    items = uiState.availableTags,
                     sheetState = filterTagsSheetState,
                     onDismiss = {
                         closeSheet(
@@ -244,7 +247,7 @@ fun SearchScreen(
 
             if (uiState.showFilterByType) {
                 FilterByTypeBottomSheet(
-                    items = searchScreenViewModel.uiState.collectAsState().value.availableTypes,
+                    items = uiState.availableTypes,
                     sheetState = filterTypeSheetState,
                     onDismiss = {
                         closeSheet(
@@ -268,7 +271,7 @@ fun SearchScreen(
 
             if (uiState.showFilterByOwner) {
                 FilterByOwnerBottomSheet(
-                    items = searchScreenViewModel.uiState.collectAsState().value.availableOwners,
+                    items = uiState.availableOwners,
                     sheetState = filterOwnerSheetState,
                     onDismiss = {
                         closeSheet(
@@ -279,7 +282,6 @@ fun SearchScreen(
                     onSave = { selectedItems ->
 
                         searchScreenViewModel.onSaveOwners(selectedItems)
-
                         closeSheet(
                             sheetState = filterOwnerSheetState,
                             onCloseFlag = { searchScreenViewModel.onCloseOwnerSheet() }

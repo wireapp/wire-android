@@ -24,7 +24,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -69,7 +69,7 @@ fun FilterByTypeBottomSheet(
     onRemoveFilter: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var itemsState by remember { mutableStateOf(items) }
+    var itemsState by remember(items) { mutableStateOf(items) }
 
     val hasChanges = itemsState.any { tag ->
         val initial = items.first { it.id == tag.id }
@@ -84,7 +84,7 @@ fun FilterByTypeBottomSheet(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(dimensions().spacing700x)
+                .fillMaxHeight(0.8f)
                 .padding(bottom = dimensions().spacing16x)
         ) {
             Text(
@@ -160,7 +160,7 @@ private fun FilterRow(
 ) {
     Row(
         modifier = Modifier
-            .fillMaxSize()
+            .fillMaxWidth()
             .clickable { onCheckedChange(!checked) }
             .padding(
                 horizontal = dimensions().spacing16x,

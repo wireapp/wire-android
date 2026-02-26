@@ -22,16 +22,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.absoluteOffset
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.navigationBars
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.input.TextFieldState
@@ -54,7 +47,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.search.filter.data.FilterOwnerUi
 import com.wire.android.model.UserAvatarData
@@ -84,15 +76,12 @@ fun FilterByOwnerBottomSheet(
 
     val scope = rememberCoroutineScope()
     val state = rememberOwnersFilterSheetState(items)
-    LaunchedEffect(sheetState) { sheetState.show() }
 
     val searchState = remember { TextFieldState() }
     LaunchedEffect(searchState) {
         snapshotFlow { searchState.text.toString() }
             .collect(state::onQueryChange)
     }
-
-    LaunchedEffect(sheetState) { sheetState.show() }
 
     fun dismiss() {
         scope.launch { sheetState.hide() }
@@ -103,16 +92,11 @@ fun FilterByOwnerBottomSheet(
         onDismissRequest = ::dismiss,
         sheetState = sheetState,
         modifier = modifier
-            .absoluteOffset(y = 1.dp)
-            .statusBarsPadding(),
-        contentWindowInsets = { WindowInsets.navigationBars },
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .heightIn(max = dimensions().spacing700x)
-                .navigationBarsPadding()
-                .imePadding()
+                .fillMaxHeight(0.8f),
         ) {
             Text(
                 text = stringResource(R.string.bottom_sheet_title_filter_by_owner),
@@ -197,7 +181,7 @@ private fun OwnerRow(
 ) {
     Row(
         modifier = Modifier
-            .fillMaxSize()
+            .fillMaxWidth()
             .clickable { onToggle() }
             .padding(
                 start = dimensions().spacing12x,

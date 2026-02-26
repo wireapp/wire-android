@@ -229,5 +229,6 @@
     <string name="filter_presentations_type">Presentations</string>
     <string name="filter_videos_type">Videos</string>
     <string name="filter_audio_type">Audio files</string>
-    <string name="filter_other_type">Other</string>
+    <string name="filter_archives_type">Archives</string>
+    <string name="filter_text_files_type">Text files</string>
 </resources>

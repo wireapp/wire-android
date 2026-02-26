@@ -174,14 +174,14 @@ fun PreviewFilterByTypeBottomSheet() {
             label = R.string.filter_images_type,
             iconRes = android.R.drawable.ic_menu_gallery,
             selected = true,
-            mimeType = MIMEType.IMAGES
+            mimeType = MIMEType.IMAGE
         ),
         FilterTypeUi(
             id = "2",
             label = R.string.filter_videos_type,
             iconRes = android.R.drawable.ic_menu_slideshow,
             selected = false,
-            mimeType = MIMEType.VIDEOS
+            mimeType = MIMEType.VIDEO
         ),
         FilterTypeUi(
             id = "3",
@@ -195,7 +195,7 @@ fun PreviewFilterByTypeBottomSheet() {
             label = R.string.filter_audio_type,
             iconRes = android.R.drawable.ic_media_play,
             selected = false,
-            mimeType = MIMEType.AUDIOS
+            mimeType = MIMEType.AUDIO
         ),
         FilterTypeUi(
             id = "6",

@@ -115,10 +115,7 @@ class GdprTest : BaseUiTest() {
             pages.settingsPage.apply {
                 clickDebugSettingsButton()
                 assertAnalyticsInitializedIsSetToTrue()
-                waitFor(5)
                 assertAnalyticsTrackingIdentifierIsDispayed()
-                waitFor(5)
-
             }
         }
     }

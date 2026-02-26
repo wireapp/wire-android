@@ -18,6 +18,7 @@
 package com.wire.android.tests.core.pages
 
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import org.junit.Assert
 import uiautomatorutils.UiSelectorParams
@@ -116,7 +117,14 @@ data class ConversationListPage(private val device: UiDevice) {
     }
 
     fun clickGroupConversation(conversationName: String): ConversationListPage {
-        val conversation = UiWaitUtils.waitElement(UiSelectorParams(text = conversationName))
+        val conversation = device.wait(
+            androidx.test.uiautomator.Until.findObject(By.text(conversationName)),
+            10_000
+        )
+        if (conversation == null) {
+            throw AssertionError("Group conversation '$conversationName' was not found.")
+        }
+
         conversation.click()
         return this
     }

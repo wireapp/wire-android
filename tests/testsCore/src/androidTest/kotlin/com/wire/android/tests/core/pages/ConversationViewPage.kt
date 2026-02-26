@@ -29,6 +29,7 @@ import org.junit.Assert
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 import uiautomatorutils.UiWaitUtils.findElementOrNull
+import java.util.regex.Pattern
 import kotlin.test.DefaultAsserter.assertTrue
 import kotlin.test.assertEquals
 
@@ -235,11 +236,14 @@ data class ConversationViewPage(private val device: UiDevice) {
     }
 
     fun assertFileSavedToastContain(partialText: String): ConversationViewPage {
-        val toast = UiWaitUtils.waitElement(UiSelectorParams(textContains = partialText))
+        val uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+
+        // Toasts are short-lived; wait for regex match by presence.
+        val toast = uiDevice.wait(Until.findObject(By.text(Pattern.compile(partialText))), 3000)
 
         Assert.assertTrue(
-            "Toast message containing '$partialText' is not displayed.",
-            !toast.visibleBounds.isEmpty
+            "Toast message matching regex '$partialText' is not displayed.",
+            toast != null
         )
 
         return this

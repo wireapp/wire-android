@@ -228,7 +228,7 @@ fun SearchScreen(
                 )
             }
 
-            if (uiState.showFilterByTags) {
+            if (uiState.showFilterByTagsBottomSheet) {
                 FilterByTagsBottomSheet(
                     items = uiState.availableTags,
                     sheetState = filterTagsSheetState,
@@ -251,7 +251,7 @@ fun SearchScreen(
                 )
             }
 
-            if (uiState.showFilterByType) {
+            if (uiState.showFilterByTypeBottomSheet) {
                 FilterByTypeBottomSheet(
                     items = uiState.availableTypes,
                     sheetState = filterTypeSheetState,
@@ -275,7 +275,7 @@ fun SearchScreen(
                 )
             }
 
-            if (uiState.showFilterByOwner) {
+            if (uiState.showFilterByOwnerBottomSheet) {
                 FilterByOwnerBottomSheet(
                     items = uiState.availableOwners,
                     sheetState = filterOwnerSheetState,

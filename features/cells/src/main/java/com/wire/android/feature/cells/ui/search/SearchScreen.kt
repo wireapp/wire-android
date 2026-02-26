@@ -20,6 +20,9 @@ package com.wire.android.feature.cells.ui.search
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -65,7 +68,7 @@ import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalSharedTransitionApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalSharedTransitionApi::class, ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @WireCellsDestination(
     style = PopUpNavigationAnimation::class,
     navArgs = SearchNavArgs::class,
@@ -88,6 +91,7 @@ fun SearchScreen(
     val filterTagsSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val filterOwnerSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val keyboardController = LocalSoftwareKeyboardController.current
+    val isImeVisible = WindowInsets.isImeVisible
 
 
     fun closeSheet(sheetState: SheetState, onCloseFlag: () -> Unit) {
@@ -100,8 +104,10 @@ fun SearchScreen(
     fun openSheet(onOpenFlag: () -> Unit = { }) {
         scope.launch {
             focusManager.clearFocus(force = true)
-            keyboardController?.hide()
-            delay(300)
+            if (isImeVisible) {
+                keyboardController?.hide()
+                delay(300)
+            }
             onOpenFlag()
         }
     }

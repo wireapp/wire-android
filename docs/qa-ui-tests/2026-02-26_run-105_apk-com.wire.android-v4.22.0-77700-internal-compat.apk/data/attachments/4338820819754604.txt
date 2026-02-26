@@ -1,0 +1,501 @@
+--------- beginning of main
+02-26 14:34:39.794 29252 29296 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+02-26 14:34:39.852 29252 29296 D UiDevice: Waiting 10000ms for SearchCondition[hasObject=BySelector [TEXT='\QProceed\E']].
+02-26 14:34:39.852 29252 29296 D UiDevice: Searching for node with selector: BySelector [TEXT='\QProceed\E'].
+02-26 14:34:39.992 29252 29296 D UiDevice: Searching for node with selector: BySelector [TEXT='\QProceed\E'].
+02-26 14:34:40.102 29252 29296 D UiDevice: Searching for node with selector: BySelector [TEXT='\QProceed\E'].
+02-26 14:34:40.210 29252 29296 D UiDevice: Searching for node with selector: BySelector [TEXT='\QProceed\E'].
+02-26 14:34:41.372 29252 29296 W QueryController: Could not detect idle state.
+02-26 14:34:41.372 29252 29296 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QProceed\E'].
+02-26 14:34:42.085 29252 29296 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QProceed\E'].
+02-26 14:34:42.097 29252 29296 D UiObject2: Clicking on (756, 1560).
+02-26 14:34:42.097 29252 29296 W UiObject2: Clicking on non-clickable object: android.view.accessibility.AccessibilityNodeInfo@bbdb; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(670, 1534 - 843, 1587); boundsInWindow: Rect(670, 1534 - 843, 1587); packageName: com.wire.internal; className: android.widget.TextView; text: Proceed; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; containerTitle: null; viewIdResName: null; uniqueId: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; granularScrollingSupported: false; importantForAccessibility: true; visible: true; actions: [AccessibilityAction: ACTION_NEXT_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SET_SELECTION - null]; isTextSelectable: false
+02-26 14:34:42.132 29252 29296 W GestureController: Gestures took longer than expected (35ms >> 8ms), device might be in a busy state.
+02-26 14:34:42.678 29252 29296 I QueryController: Matched selector: UiSelector[RESOURCE_ID=userIdentifierInput] <<==>> [android.view.accessibility.AccessibilityNodeInfo@a8b8; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(72, 1764 - 1008, 1908); boundsInWindow: Rect(72, 1764 - 1008, 1908); packageName: com.wire.internal; className: android.widget.EditText; text: ; error: null; maxTextLength: 8000; stateDescription: null; contentDescription: null; tooltipText: null; containerTitle: null; viewIdResName: userIdentifierInput; uniqueId: null; checkable: false; checked: false; focusable: true; focused: false; selected: false; clickable: true; longClickable: true; contextClickable: false; enabled: true; password: false; scrollable: false; granularScrollingSupported: false; importantForAccessibility: true; visible: true; actions: [AccessibilityAction: ACTION_FOCUS - null, AccessibilityAction: ACTION_NEXT_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_CLICK - null, AccessibilityAction: ACTION_LONG_CLICK - null, AccessibilityAction: ACTION_SET_TEXT - null, AccessibilityAction: ACTION_IME_ENTER - null, AccessibilityAction: ACTION_SET_SELECTION - null]; isTextSelectable: false]
+02-26 14:34:42.679 29252 29296 D UiObject: Clicking on (540, 1836).
+02-26 14:34:43.693 29252 29296 I QueryController: Matched selector: UiSelector[RESOURCE_ID=userIdentifierInput] <<==>> [android.view.accessibility.AccessibilityNodeInfo@a8b8; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(72, 882 - 1008, 1026); boundsInWindow: Rect(72, 882 - 1008, 1026); packageName: com.wire.internal; className: android.widget.EditText; text: ; error: null; maxTextLength: 8000; stateDescription: null; contentDescription: null; tooltipText: null; containerTitle: null; viewIdResName: userIdentifierInput; uniqueId: null; checkable: false; checked: false; focusable: true; focused: true; selected: false; clickable: true; longClickable: true; contextClickable: false; enabled: true; password: false; scrollable: false; granularScrollingSupported: false; importantForAccessibility: true; visible: true; actions: [AccessibilityAction: ACTION_CLEAR_FOCUS - null, AccessibilityAction: ACTION_NEXT_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_CLICK - null, AccessibilityAction: ACTION_LONG_CLICK - null, AccessibilityAction: ACTION_SET_TEXT - null, AccessibilityAction: ACTION_IME_ENTER - null, AccessibilityAction: ACTION_SET_SELECTION - null]; isTextSelectable: false]
+02-26 14:34:43.693 29252 29296 D UiObject: Setting text to 'wire-1a468682-e556-4e01-97d1-6fa4219a9c46'.
+02-26 14:34:43.698 29252 29296 D UiDevice: Waiting 10000ms for SearchCondition[hasObject=BySelector [RES='\QloginButton\E']].
+02-26 14:34:43.698 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\QloginButton\E'].
+02-26 14:34:44.296 29252 29296 D UiDevice: Retrieving node with selector: BySelector [RES='\QloginButton\E'].
+02-26 14:34:44.418 29252 29296 D UiDevice: Retrieving node with selector: BySelector [RES='\QloginButton\E'].
+02-26 14:34:44.449 29252 29296 D UiObject2: Clicking on (540, 1122).
+02-26 14:34:44.492 29252 29296 W GestureController: Gestures took longer than expected (42ms >> 8ms), device might be in a busy state.
+02-26 14:34:44.494 29252 29296 D UiDevice: Waiting 20000ms for SearchCondition[hasObject=BySelector [RES='\Qokta-signin-submit\E']].
+02-26 14:34:44.494 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\Qokta-signin-submit\E'].
+02-26 14:34:46.544 29252 29296 D UiDevice: Waiting 10000ms for SearchCondition[hasObject=BySelector [RES='\Qokta-signin-username\E']].
+02-26 14:34:46.544 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\Qokta-signin-username\E'].
+02-26 14:34:47.132 29252 29296 D UiDevice: Retrieving node with selector: BySelector [RES='\Qokta-signin-username\E'].
+02-26 14:34:47.258 29252 29296 D UiDevice: Retrieving node with selector: BySelector [RES='\Qokta-signin-username\E'].
+02-26 14:34:47.288 29252 29296 D UiObject2: Setting text to 'kunzebgmbkldplh@wire.engineering'.
+02-26 14:34:47.295 29252 29296 D UiDevice: Waiting 10000ms for SearchCondition[hasObject=BySelector [RES='\Qokta-signin-password\E']].
+02-26 14:34:47.295 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\Qokta-signin-password\E'].
+02-26 14:34:47.808 29252 29296 D UiDevice: Retrieving node with selector: BySelector [RES='\Qokta-signin-password\E'].
+02-26 14:34:47.940 29252 29296 D UiDevice: Retrieving node with selector: BySelector [RES='\Qokta-signin-password\E'].
+02-26 14:34:47.972 29252 29296 D UiObject2: Setting text to 'SSOh$PdMgK7'.
+02-26 14:34:47.976 29252 29296 D UiDevice: Waiting 10000ms for SearchCondition[hasObject=BySelector [RES='\Qokta-signin-submit\E']].
+02-26 14:34:47.976 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\Qokta-signin-submit\E'].
+02-26 14:34:47.997 29252 29296 D UiDevice: Retrieving node with selector: BySelector [RES='\Qokta-signin-submit\E'].
+02-26 14:34:48.122 29252 29296 D UiDevice: Retrieving node with selector: BySelector [RES='\Qokta-signin-submit\E'].
+02-26 14:34:48.150 29252 29296 D UiObject2: Clicking on (540, 2068).
+02-26 14:34:48.192 29252 29296 W GestureController: Gestures took longer than expected (40ms >> 8ms), device might be in a busy state.
+02-26 14:34:53.195 29252 29296 D UiObject: Waiting 0ms for UiSelector[RESOURCE_ID=loginButton].
+02-26 14:34:53.223 29252 29296 D UiObject: Waiting 0ms for UiSelector[TEXT=Setting up Wire, CLASS=android.widget.TextView].
+02-26 14:34:53.838 29252 29296 D UiDevice: Waiting 10000ms for SearchCondition[hasObject=BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E']].
+02-26 14:34:53.838 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-26 14:34:54.043 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-26 14:34:54.176 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-26 14:34:54.313 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-26 14:34:54.441 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-26 14:34:54.575 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-26 14:34:54.707 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-26 14:34:54.840 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-26 14:34:54.967 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-26 14:34:55.103 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-26 14:34:55.240 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-26 14:34:55.426 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-26 14:34:56.003 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-26 14:34:56.134 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-26 14:34:56.264 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-26 14:34:56.397 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-26 14:34:56.527 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-26 14:34:56.660 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-26 14:34:56.793 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-26 14:34:56.927 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-26 14:34:57.062 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-26 14:34:57.192 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-26 14:34:57.323 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-26 14:34:57.511 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-26 14:34:58.074 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-26 14:34:58.207 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-26 14:34:58.339 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-26 14:34:58.471 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-26 14:34:58.604 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-26 14:34:58.736 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-26 14:34:58.866 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-26 14:34:58.998 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-26 14:34:59.131 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-26 14:34:59.263 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-26 14:34:59.398 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-26 14:34:59.598 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-26 14:35:00.151 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-26 14:35:00.796 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-26 14:35:00.929 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-26 14:35:01.059 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-26 14:35:01.191 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-26 14:35:01.325 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-26 14:35:01.456 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-26 14:35:01.668 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-26 14:35:02.218 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-26 14:35:02.351 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-26 14:35:02.484 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-26 14:35:02.616 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-26 14:35:02.750 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-26 14:35:02.880 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-26 14:35:03.009 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-26 14:35:03.142 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-26 14:35:03.277 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-26 14:35:03.408 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-26 14:35:03.536 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-26 14:35:03.760 29252 29296 D UiDevice: Searching for node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+02-26 14:35:04.326 29252 29296 I TeamClient: 14:35:04 INFO [717] (TeamsExte) Accepted 
+02-26 14:35:04.326 29252 29296 D UiDevice: Executing shell command: ls /sdcard/Download
+02-26 14:35:04.386 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/WBX-abbott26334515wireeng-2025-05-12_14-25-55.zip
+02-26 14:35:04.413 29252 29296 I System.out: Deleted: WBX-abbott26334515wireeng-2025-05-12_14-25-55.zip. Output: 
+02-26 14:35:04.413 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/WBX-abbott83123169wireeng-2025-04-15_11-45-27.zip
+02-26 14:35:04.438 29252 29296 I System.out: Deleted: WBX-abbott83123169wireeng-2025-04-15_11-45-27.zip. Output: 
+02-26 14:35:04.438 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/WBX-blick98883368wireengi-2025-04-22_12-29-51.zip
+02-26 14:35:04.462 29252 29296 I System.out: Deleted: WBX-blick98883368wireengi-2025-04-22_12-29-51.zip. Output: 
+02-26 14:35:04.462 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/WBX-boyer97943778wireengi-2025-03-31_15-34-21.zip
+02-26 14:35:04.487 29252 29296 I System.out: Deleted: WBX-boyer97943778wireengi-2025-03-31_15-34-21.zip. Output: 
+02-26 14:35:04.487 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/WBX-cole24137334wireengin-2025-04-22_12-04-45.zip
+02-26 14:35:04.511 29252 29296 I System.out: Deleted: WBX-cole24137334wireengin-2025-04-22_12-04-45.zip. Output: 
+02-26 14:35:04.511 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/WBX-gottlieb60350114wiree-2025-05-12_14-35-05.zip
+02-26 14:35:04.534 29252 29296 I System.out: Deleted: WBX-gottlieb60350114wiree-2025-05-12_14-35-05.zip. Output: 
+02-26 14:35:04.534 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/WBX-kub00607277wireengine-2025-04-22_16-11-53.zip
+02-26 14:35:04.574 29252 29296 I System.out: Deleted: WBX-kub00607277wireengine-2025-04-22_16-11-53.zip. Output: 
+02-26 14:35:04.574 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/WBX-kulas35556152wireengi-2025-05-27_11-23-54.zip
+02-26 14:35:04.595 29252 29296 I System.out: Deleted: WBX-kulas35556152wireengi-2025-05-27_11-23-54.zip. Output: 
+02-26 14:35:04.596 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/WBX-murphy55293672wireeng-2025-03-31_16-38-40.zip
+02-26 14:35:04.626 29252 29296 I System.out: Deleted: WBX-murphy55293672wireeng-2025-03-31_16-38-40.zip. Output: 
+02-26 14:35:04.627 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/WBX-reinger56566913wireen-2025-04-29_14-02-47.zip
+02-26 14:35:04.660 29252 29296 I System.out: Deleted: WBX-reinger56566913wireen-2025-04-29_14-02-47.zip. Output: 
+02-26 14:35:04.660 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/WBX-watsica92829133wireen-2025-04-07_16-48-09.zip
+02-26 14:35:04.701 29252 29296 I System.out: Deleted: WBX-watsica92829133wireen-2025-04-07_16-48-09.zip. Output: 
+02-26 14:35:04.701 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/WBX-yost80444708wireengin-2025-04-25_16-34-23.zip
+02-26 14:35:04.728 29252 29296 I System.out: Deleted: WBX-yost80444708wireengin-2025-04-25_16-34-23.zip. Output: 
+02-26 14:35:04.729 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-abernathy84621508-2025-12-30_05-33-53.wbu
+02-26 14:35:04.762 29252 29296 I System.out: Deleted: Wire-abernathy84621508-2025-12-30_05-33-53.wbu. Output: 
+02-26 14:35:04.762 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-ankunding03624707-2025-12-02_01-55-44.wbu
+02-26 14:35:04.794 29252 29296 I System.out: Deleted: Wire-ankunding03624707-2025-12-02_01-55-44.wbu. Output: 
+02-26 14:35:04.795 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-bartoletti51709581-2025-10-07_23-55-49.wbu
+02-26 14:35:04.836 29252 29296 I System.out: Deleted: Wire-bartoletti51709581-2025-10-07_23-55-49.wbu. Output: 
+02-26 14:35:04.836 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-bechtelar38882036-2025-12-11_01-34-49.wbu
+02-26 14:35:04.858 29252 29296 I System.out: Deleted: Wire-bechtelar38882036-2025-12-11_01-34-49.wbu. Output: 
+02-26 14:35:04.859 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-becker85907221-2025-08-10_01-41-22.wbu
+02-26 14:35:04.890 29252 29296 I System.out: Deleted: Wire-becker85907221-2025-08-10_01-41-22.wbu. Output: 
+02-26 14:35:04.890 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-beer37477450-2026-02-02_23-56-52.wbu
+02-26 14:35:04.923 29252 29296 I System.out: Deleted: Wire-beer37477450-2026-02-02_23-56-52.wbu. Output: 
+02-26 14:35:04.924 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-blanda70151260wireeng-2025-06-03_13-19-31.wbu
+02-26 14:35:04.960 29252 29296 I System.out: Deleted: Wire-blanda70151260wireeng-2025-06-03_13-19-31.wbu. Output: 
+02-26 14:35:04.961 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-bogisich77439064-2025-12-30_05-54-12.wbu
+02-26 14:35:04.995 29252 29296 I System.out: Deleted: Wire-bogisich77439064-2025-12-30_05-54-12.wbu. Output: 
+02-26 14:35:04.995 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-brown26358077-2025-12-26_23-59-25.wbu
+02-26 14:35:05.017 29252 29296 I System.out: Deleted: Wire-brown26358077-2025-12-26_23-59-25.wbu. Output: 
+02-26 14:35:05.018 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-casper27227527-2026-01-03_23-52-22.wbu
+02-26 14:35:05.050 29252 29296 I System.out: Deleted: Wire-casper27227527-2026-01-03_23-52-22.wbu. Output: 
+02-26 14:35:05.050 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-casper86851896-2025-09-02_23-59-39.wbu
+02-26 14:35:05.083 29252 29296 I System.out: Deleted: Wire-casper86851896-2025-09-02_23-59-39.wbu. Output: 
+02-26 14:35:05.084 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-cole91872973-2026-02-03_23-54-38.wbu
+02-26 14:35:05.130 29252 29296 I System.out: Deleted: Wire-cole91872973-2026-02-03_23-54-38.wbu. Output: 
+02-26 14:35:05.131 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-collins58538657-2025-09-29_23-57-25.wbu
+02-26 14:35:05.160 29252 29296 I System.out: Deleted: Wire-collins58538657-2025-09-29_23-57-25.wbu. Output: 
+02-26 14:35:05.161 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-conn37653874-2025-12-20_00-00-00.wbu
+02-26 14:35:05.200 29252 29296 I System.out: Deleted: Wire-conn37653874-2025-12-20_00-00-00.wbu. Output: 
+02-26 14:35:05.200 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-conn71065696wireengin-2025-06-16_09-53-52.wbu
+02-26 14:35:05.233 29252 29296 I System.out: Deleted: Wire-conn71065696wireengin-2025-06-16_09-53-52.wbu. Output: 
+02-26 14:35:05.234 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-considine06507043-2025-09-19_23-57-35.wbu
+02-26 14:35:05.273 29252 29296 I System.out: Deleted: Wire-considine06507043-2025-09-19_23-57-35.wbu. Output: 
+02-26 14:35:05.273 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-considine24138282-2025-10-26_01-34-25.wbu
+02-26 14:35:05.315 29252 29296 I System.out: Deleted: Wire-considine24138282-2025-10-26_01-34-25.wbu. Output: 
+02-26 14:35:05.316 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-crist84774858-2025-08-18_01-38-06.wbu
+02-26 14:35:05.351 29252 29296 I System.out: Deleted: Wire-crist84774858-2025-08-18_01-38-06.wbu. Output: 
+02-26 14:35:05.352 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-cronin22937905-2025-09-29_23-54-32.wbu
+02-26 14:35:05.385 29252 29296 I System.out: Deleted: Wire-cronin22937905-2025-09-29_23-54-32.wbu. Output: 
+02-26 14:35:05.386 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-daniel39623467-2026-02-05_03-24-51.wbu
+02-26 14:35:05.418 29252 29296 I System.out: Deleted: Wire-daniel39623467-2026-02-05_03-24-51.wbu. Output: 
+02-26 14:35:05.419 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-dare94971741-2025-11-06_23-56-51.wbu
+02-26 14:35:05.451 29252 29296 I System.out: Deleted: Wire-dare94971741-2025-11-06_23-56-51.wbu. Output: 
+02-26 14:35:05.451 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-deckow74459899-2025-08-13_16-04-06.wbu
+02-26 14:35:05.482 29252 29296 I System.out: Deleted: Wire-deckow74459899-2025-08-13_16-04-06.wbu. Output: 
+02-26 14:35:05.482 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-donnelly06920293-2025-12-15_01-40-33.wbu
+02-26 14:35:05.515 29252 29296 I System.out: Deleted: Wire-donnelly06920293-2025-12-15_01-40-33.wbu. Output: 
+02-26 14:35:05.515 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-durgan12078035-2026-02-02_04-41-18.wbu
+02-26 14:35:05.539 29252 29296 I System.out: Deleted: Wire-durgan12078035-2026-02-02_04-41-18.wbu. Output: 
+02-26 14:35:05.539 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-erdman38413793-2025-10-05_00-04-26.wbu
+02-26 14:35:05.571 29252 29296 I System.out: Deleted: Wire-erdman38413793-2025-10-05_00-04-26.wbu. Output: 
+02-26 14:35:05.572 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-feest02339808-2025-12-11_01-32-05.wbu
+02-26 14:35:05.613 29252 29296 I System.out: Deleted: Wire-feest02339808-2025-12-11_01-32-05.wbu. Output: 
+02-26 14:35:05.613 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-feest44571787-2025-07-13_01-38-43.wbu
+02-26 14:35:05.638 29252 29296 I System.out: Deleted: Wire-feest44571787-2025-07-13_01-38-43.wbu. Output: 
+02-26 14:35:05.638 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-ferry64160734-2025-09-19_23-54-57.wbu
+02-26 14:35:05.659 29252 29296 I System.out: Deleted: Wire-ferry64160734-2025-09-19_23-54-57.wbu. Output: 
+02-26 14:35:05.660 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-frami81485062-2025-09-06_23-59-08.wbu
+02-26 14:35:05.680 29252 29296 I System.out: Deleted: Wire-frami81485062-2025-09-06_23-59-08.wbu. Output: 
+02-26 14:35:05.680 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-friesen06098472-2025-10-07_23-58-41.wbu
+02-26 14:35:05.705 29252 29296 I System.out: Deleted: Wire-friesen06098472-2025-10-07_23-58-41.wbu. Output: 
+02-26 14:35:05.706 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-gorczany92885224wiree-2025-07-15_19-28-31.wbu
+02-26 14:35:05.730 29252 29296 I System.out: Deleted: Wire-gorczany92885224wiree-2025-07-15_19-28-31.wbu. Output: 
+02-26 14:35:05.730 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-graham54238184-2025-08-14_01-39-35.wbu
+02-26 14:35:05.755 29252 29296 I System.out: Deleted: Wire-graham54238184-2025-08-14_01-39-35.wbu. Output: 
+02-26 14:35:05.755 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-green93085722-2025-10-10_14-47-52.wbu
+02-26 14:35:05.779 29252 29296 I System.out: Deleted: Wire-green93085722-2025-10-10_14-47-52.wbu. Output: 
+02-26 14:35:05.779 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-gutkowski00650399-2025-07-18_11-31-10.wbu
+02-26 14:35:05.816 29252 29296 I System.out: Deleted: Wire-gutkowski00650399-2025-07-18_11-31-10.wbu. Output: 
+02-26 14:35:05.816 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-gutkowski68200063-2025-07-15_00-02-06.wbu
+02-26 14:35:05.840 29252 29296 I System.out: Deleted: Wire-gutkowski68200063-2025-07-15_00-02-06.wbu. Output: 
+02-26 14:35:05.840 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-gutmann00864488-2025-08-30_23-57-49.wbu
+02-26 14:35:05.871 29252 29296 I System.out: Deleted: Wire-gutmann00864488-2025-08-30_23-57-49.wbu. Output: 
+02-26 14:35:05.872 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-haag09768941-2025-06-10_18-05-12.wbu
+02-26 14:35:05.891 29252 29296 I System.out: Deleted: Wire-haag09768941-2025-06-10_18-05-12.wbu. Output: 
+02-26 14:35:05.891 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-hahn97407043-2026-02-03_03-29-25.wbu
+02-26 14:35:05.910 29252 29296 I System.out: Deleted: Wire-hahn97407043-2026-02-03_03-29-25.wbu. Output: 
+02-26 14:35:05.910 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-halvorson66228297-2025-09-11_01-39-32.wbu
+02-26 14:35:05.938 29252 29296 I System.out: Deleted: Wire-halvorson66228297-2025-09-11_01-39-32.wbu. Output: 
+02-26 14:35:05.938 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-harber97440810-2025-11-06_00-19-58.wbu
+02-26 14:35:05.975 29252 29296 I System.out: Deleted: Wire-harber97440810-2025-11-06_00-19-58.wbu. Output: 
+02-26 14:35:05.975 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-heathcote94939499-2026-01-25_01-38-24.wbu
+02-26 14:35:05.999 29252 29296 I System.out: Deleted: Wire-heathcote94939499-2026-01-25_01-38-24.wbu. Output: 
+02-26 14:35:06.000 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-heller41416989-2026-01-25_01-32-59.wbu
+02-26 14:35:06.026 29252 29296 I System.out: Deleted: Wire-heller41416989-2026-01-25_01-32-59.wbu. Output: 
+02-26 14:35:06.026 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-hilpert74547895-2025-09-11_01-42-13.wbu
+02-26 14:35:06.061 29252 29296 I System.out: Deleted: Wire-hilpert74547895-2025-09-11_01-42-13.wbu. Output: 
+02-26 14:35:06.062 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-hirthe76262651-2025-09-20_23-57-28.wbu
+02-26 14:35:06.092 29252 29296 I System.out: Deleted: Wire-hirthe76262651-2025-09-20_23-57-28.wbu. Output: 
+02-26 14:35:06.092 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-homenick38152871-2025-10-10_14-24-32.wbu
+02-26 14:35:06.121 29252 29296 I System.out: Deleted: Wire-homenick38152871-2025-10-10_14-24-32.wbu. Output: 
+02-26 14:35:06.122 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-howe48723920-2026-01-02_05-29-00.wbu
+02-26 14:35:06.152 29252 29296 I System.out: Deleted: Wire-howe48723920-2026-01-02_05-29-00.wbu. Output: 
+02-26 14:35:06.153 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-hudson36919942-2025-06-10_18-18-57.wbu
+02-26 14:35:06.191 29252 29296 I System.out: Deleted: Wire-hudson36919942-2025-06-10_18-18-57.wbu. Output: 
+02-26 14:35:06.191 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-hudson95632158-2025-07-18_11-33-47.wbu
+02-26 14:35:06.215 29252 29296 I System.out: Deleted: Wire-hudson95632158-2025-07-18_11-33-47.wbu. Output: 
+02-26 14:35:06.215 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-huel12179863-2025-07-13_01-36-09.wbu
+02-26 14:35:06.249 29252 29296 I System.out: Deleted: Wire-huel12179863-2025-07-13_01-36-09.wbu. Output: 
+02-26 14:35:06.249 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-jakubowski75684421-2025-06-16_01-32-49.wbu
+02-26 14:35:06.280 29252 29296 I System.out: Deleted: Wire-jakubowski75684421-2025-06-16_01-32-49.wbu. Output: 
+02-26 14:35:06.281 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-johns92263533-2025-09-24_00-23-05.wbu
+02-26 14:35:06.314 29252 29296 I System.out: Deleted: Wire-johns92263533-2025-09-24_00-23-05.wbu. Output: 
+02-26 14:35:06.314 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-johnston09417220-2026-01-13_23-56-06.wbu
+02-26 14:35:06.346 29252 29296 I System.out: Deleted: Wire-johnston09417220-2026-01-13_23-56-06.wbu. Output: 
+02-26 14:35:06.346 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-kautzer29129966-2025-09-21_00-00-06.wbu
+02-26 14:35:06.366 29252 29296 I System.out: Deleted: Wire-kautzer29129966-2025-09-21_00-00-06.wbu. Output: 
+02-26 14:35:06.367 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-kautzer79482142-2026-01-08_04-28-38.wbu
+02-26 14:35:06.410 29252 29296 I System.out: Deleted: Wire-kautzer79482142-2026-01-08_04-28-38.wbu. Output: 
+02-26 14:35:06.411 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-keebler96365534-2025-09-18_23-58-47.wbu
+02-26 14:35:06.433 29252 29296 I System.out: Deleted: Wire-keebler96365534-2025-09-18_23-58-47.wbu. Output: 
+02-26 14:35:06.433 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-king57422882-2025-10-08_02-05-51.wbu
+02-26 14:35:06.475 29252 29296 I System.out: Deleted: Wire-king57422882-2025-10-08_02-05-51.wbu. Output: 
+02-26 14:35:06.475 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-king90803424-2025-09-26_01-38-27.wbu
+02-26 14:35:06.498 29252 29296 I System.out: Deleted: Wire-king90803424-2025-09-26_01-38-27.wbu. Output: 
+02-26 14:35:06.499 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-king92312985-2025-12-15_23-57-19.wbu
+02-26 14:35:06.530 29252 29296 I System.out: Deleted: Wire-king92312985-2025-12-15_23-57-19.wbu. Output: 
+02-26 14:35:06.530 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-klein15446267-2025-08-09_01-36-36.wbu
+02-26 14:35:06.550 29252 29296 I System.out: Deleted: Wire-klein15446267-2025-08-09_01-36-36.wbu. Output: 
+02-26 14:35:06.550 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-kling32237784-2025-06-16_02-02-26.wbu
+02-26 14:35:06.579 29252 29296 I System.out: Deleted: Wire-kling32237784-2025-06-16_02-02-26.wbu. Output: 
+02-26 14:35:06.580 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-koelpin62489104-2026-01-20_00-18-25.wbu
+02-26 14:35:06.611 29252 29296 I System.out: Deleted: Wire-koelpin62489104-2026-01-20_00-18-25.wbu. Output: 
+02-26 14:35:06.611 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-koelpin68733286-2026-02-02_23-54-01.wbu
+02-26 14:35:06.648 29252 29296 I System.out: Deleted: Wire-koelpin68733286-2026-02-02_23-54-01.wbu. Output: 
+02-26 14:35:06.648 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-kohler43122869wireeng-2025-06-10_16-07-41.wbu
+02-26 14:35:06.688 29252 29296 I System.out: Deleted: Wire-kohler43122869wireeng-2025-06-10_16-07-41.wbu. Output: 
+02-26 14:35:06.689 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-krajcik05269049-2025-12-09_02-22-48.wbu
+02-26 14:35:06.728 29252 29296 I System.out: Deleted: Wire-krajcik05269049-2025-12-09_02-22-48.wbu. Output: 
+02-26 14:35:06.729 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-kris29789059-2025-06-23_01-35-39.wbu
+02-26 14:35:06.764 29252 29296 I System.out: Deleted: Wire-kris29789059-2025-06-23_01-35-39.wbu. Output: 
+02-26 14:35:06.764 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-kris96851215-2025-06-13_01-57-41.wbu
+02-26 14:35:06.800 29252 29296 I System.out: Deleted: Wire-kris96851215-2025-06-13_01-57-41.wbu. Output: 
+02-26 14:35:06.801 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-kub71330378-2025-06-16_17-21-48.wbu
+02-26 14:35:06.849 29252 29296 I System.out: Deleted: Wire-kub71330378-2025-06-16_17-21-48.wbu. Output: 
+02-26 14:35:06.850 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-kuhic82298761-2026-01-19_01-39-12.wbu
+02-26 14:35:06.873 29252 29296 I System.out: Deleted: Wire-kuhic82298761-2026-01-19_01-39-12.wbu. Output: 
+02-26 14:35:06.873 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-lakin55319838-2025-11-15_23-58-07.wbu
+02-26 14:35:06.904 29252 29296 I System.out: Deleted: Wire-lakin55319838-2025-11-15_23-58-07.wbu. Output: 
+02-26 14:35:06.905 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-langworth64789522-2025-12-09_02-19-44.wbu
+02-26 14:35:06.939 29252 29296 I System.out: Deleted: Wire-langworth64789522-2025-12-09_02-19-44.wbu. Output: 
+02-26 14:35:06.939 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-langworth70019560-2025-12-22_05-32-32.wbu
+02-26 14:35:06.971 29252 29296 I System.out: Deleted: Wire-langworth70019560-2025-12-22_05-32-32.wbu. Output: 
+02-26 14:35:06.971 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-legros16440122-2025-08-28_23-58-11.wbu
+02-26 14:35:07.003 29252 29296 I System.out: Deleted: Wire-legros16440122-2025-08-28_23-58-11.wbu. Output: 
+02-26 14:35:07.003 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-lehner26799603-2025-08-12_00-01-57.wbu
+02-26 14:35:07.034 29252 29296 I System.out: Deleted: Wire-lehner26799603-2025-08-12_00-01-57.wbu. Output: 
+02-26 14:35:07.035 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-lindgren55989736-2025-06-13_01-37-38.wbu
+02-26 14:35:07.067 29252 29296 I System.out: Deleted: Wire-lindgren55989736-2025-06-13_01-37-38.wbu. Output: 
+02-26 14:35:07.067 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-lubowitz13697716-2026-01-02_00-15-00.wbu
+02-26 14:35:07.100 29252 29296 I System.out: Deleted: Wire-lubowitz13697716-2026-01-02_00-15-00.wbu. Output: 
+02-26 14:35:07.100 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-lueilwitz15910942-2025-06-12_01-56-32.wbu
+02-26 14:35:07.130 29252 29296 I System.out: Deleted: Wire-lueilwitz15910942-2025-06-12_01-56-32.wbu. Output: 
+02-26 14:35:07.131 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-lueilwitz83893037-2025-06-28_23-57-52.wbu
+02-26 14:35:07.150 29252 29296 I System.out: Deleted: Wire-lueilwitz83893037-2025-06-28_23-57-52.wbu. Output: 
+02-26 14:35:07.151 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-lynch22234743-2025-07-17_18-09-02.wbu
+02-26 14:35:07.195 29252 29296 I System.out: Deleted: Wire-lynch22234743-2025-07-17_18-09-02.wbu. Output: 
+02-26 14:35:07.195 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-lynch62733283wireengi-2025-07-08_17-29-56.wbu
+02-26 14:35:07.224 29252 29296 I System.out: Deleted: Wire-lynch62733283wireengi-2025-07-08_17-29-56.wbu. Output: 
+02-26 14:35:07.225 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-mante86843188-2025-08-11_23-59-24.wbu
+02-26 14:35:07.276 29252 29296 I System.out: Deleted: Wire-mante86843188-2025-08-11_23-59-24.wbu. Output: 
+02-26 14:35:07.277 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-mayer35964677-2025-06-16_15-41-24.wbu
+02-26 14:35:07.312 29252 29296 I System.out: Deleted: Wire-mayer35964677-2025-06-16_15-41-24.wbu. Output: 
+02-26 14:35:07.312 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-mayer97309979-2025-11-15_00-17-19.wbu
+02-26 14:35:07.346 29252 29296 I System.out: Deleted: Wire-mayer97309979-2025-11-15_00-17-19.wbu. Output: 
+02-26 14:35:07.346 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-mcclure44755984-2025-12-26_01-30-47.wbu
+02-26 14:35:07.378 29252 29296 I System.out: Deleted: Wire-mcclure44755984-2025-12-26_01-30-47.wbu. Output: 
+02-26 14:35:07.378 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-mclaughlin96707388-2025-10-23_23-56-11.wbu
+02-26 14:35:07.414 29252 29296 I System.out: Deleted: Wire-mclaughlin96707388-2025-10-23_23-56-11.wbu. Output: 
+02-26 14:35:07.415 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-metz85374200-2025-07-12_23-57-16.wbu
+02-26 14:35:07.449 29252 29296 I System.out: Deleted: Wire-metz85374200-2025-07-12_23-57-16.wbu. Output: 
+02-26 14:35:07.449 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-miller63237411-2025-11-18_01-32-04.wbu
+02-26 14:35:07.482 29252 29296 I System.out: Deleted: Wire-miller63237411-2025-11-18_01-32-04.wbu. Output: 
+02-26 14:35:07.483 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-morissette35070368-2025-09-13_23-57-22.wbu
+02-26 14:35:07.507 29252 29296 I System.out: Deleted: Wire-morissette35070368-2025-09-13_23-57-22.wbu. Output: 
+02-26 14:35:07.507 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-mraz53082342wireengin-2025-07-14_18-27-57.wbu
+02-26 14:35:07.539 29252 29296 I System.out: Deleted: Wire-mraz53082342wireengin-2025-07-14_18-27-57.wbu. Output: 
+02-26 14:35:07.539 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-mueller20620503-2026-01-10_23-57-15.wbu
+02-26 14:35:07.573 29252 29296 I System.out: Deleted: Wire-mueller20620503-2026-01-10_23-57-15.wbu. Output: 
+02-26 14:35:07.573 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-muller79132831-2025-10-26_01-31-35.wbu
+02-26 14:35:07.600 29252 29296 I System.out: Deleted: Wire-muller79132831-2025-10-26_01-31-35.wbu. Output: 
+02-26 14:35:07.600 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-murazik03622751-2025-06-13_14-25-12.wbu
+02-26 14:35:07.621 29252 29296 I System.out: Deleted: Wire-murazik03622751-2025-06-13_14-25-12.wbu. Output: 
+02-26 14:35:07.621 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-murazik86333708-2025-10-31_11-43-23.wbu
+02-26 14:35:07.636 29252 29296 I System.out: Deleted: Wire-murazik86333708-2025-10-31_11-43-23.wbu. Output: 
+02-26 14:35:07.636 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-nader36042626-2025-10-31_11-46-06.wbu
+02-26 14:35:07.673 29252 29296 I System.out: Deleted: Wire-nader36042626-2025-10-31_11-46-06.wbu. Output: 
+02-26 14:35:07.673 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-nienow84134129-2025-11-06_23-54-01.wbu
+02-26 14:35:07.697 29252 29296 I System.out: Deleted: Wire-nienow84134129-2025-11-06_23-54-01.wbu. Output: 
+02-26 14:35:07.697 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-oberbrunner72085115-2025-12-08_17-49-55.wbu
+02-26 14:35:07.728 29252 29296 I System.out: Deleted: Wire-oberbrunner72085115-2025-12-08_17-49-55.wbu. Output: 
+02-26 14:35:07.728 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-okuneva61533591-2026-01-06_00-15-57.wbu
+02-26 14:35:07.760 29252 29296 I System.out: Deleted: Wire-okuneva61533591-2026-01-06_00-15-57.wbu. Output: 
+02-26 14:35:07.760 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-osinski45274477-2025-09-26_23-58-53.wbu
+02-26 14:35:07.793 29252 29296 I System.out: Deleted: Wire-osinski45274477-2025-09-26_23-58-53.wbu. Output: 
+02-26 14:35:07.793 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-parisian26448485-2025-12-14_23-54-29.wbu
+02-26 14:35:07.825 29252 29296 I System.out: Deleted: Wire-parisian26448485-2025-12-14_23-54-29.wbu. Output: 
+02-26 14:35:07.825 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-parker20788928-2025-07-12_23-54-39.wbu
+02-26 14:35:07.856 29252 29296 I System.out: Deleted: Wire-parker20788928-2025-07-12_23-54-39.wbu. Output: 
+02-26 14:35:07.856 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-pouros09868624-2025-11-27_01-32-54.wbu
+02-26 14:35:07.888 29252 29296 I System.out: Deleted: Wire-pouros09868624-2025-11-27_01-32-54.wbu. Output: 
+02-26 14:35:07.888 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-prohaska20992804-2025-10-31_11-40-34.wbu
+02-26 14:35:07.912 29252 29296 I System.out: Deleted: Wire-prohaska20992804-2025-10-31_11-40-34.wbu. Output: 
+02-26 14:35:07.913 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-rath99975365-2025-06-10_23-58-09.wbu
+02-26 14:35:07.945 29252 29296 I System.out: Deleted: Wire-rath99975365-2025-06-10_23-58-09.wbu. Output: 
+02-26 14:35:07.946 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-rau04703843-2025-07-29_04-27-11.wbu
+02-26 14:35:07.977 29252 29296 I System.out: Deleted: Wire-rau04703843-2025-07-29_04-27-11.wbu. Output: 
+02-26 14:35:07.978 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-reilly29356145-2025-12-10_11-10-47.wbu
+02-26 14:35:08.009 29252 29296 I System.out: Deleted: Wire-reilly29356145-2025-12-10_11-10-47.wbu. Output: 
+02-26 14:35:08.009 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-rippin74746634-2025-10-14_02-01-47.wbu
+02-26 14:35:08.040 29252 29296 I System.out: Deleted: Wire-rippin74746634-2025-10-14_02-01-47.wbu. Output: 
+02-26 14:35:08.040 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-ritchie75380434-2025-12-10_11-07-50.wbu
+02-26 14:35:08.083 29252 29296 I System.out: Deleted: Wire-ritchie75380434-2025-12-10_11-07-50.wbu. Output: 
+02-26 14:35:08.083 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-rosenbaum14368479-2025-12-10_11-13-34.wbu
+02-26 14:35:08.120 29252 29296 I System.out: Deleted: Wire-rosenbaum14368479-2025-12-10_11-13-34.wbu. Output: 
+02-26 14:35:08.121 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-ruecker40790400-2026-01-09_23-57-28.wbu
+02-26 14:35:08.156 29252 29296 I System.out: Deleted: Wire-ruecker40790400-2026-01-09_23-57-28.wbu. Output: 
+02-26 14:35:08.157 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-runte68311100-2025-12-26_01-57-35.wbu
+02-26 14:35:08.188 29252 29296 I System.out: Deleted: Wire-runte68311100-2025-12-26_01-57-35.wbu. Output: 
+02-26 14:35:08.188 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-ryan14987349-2025-07-05_01-54-31.wbu
+02-26 14:35:08.220 29252 29296 I System.out: Deleted: Wire-ryan14987349-2025-07-05_01-54-31.wbu. Output: 
+02-26 14:35:08.220 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-sawayn84385391-2025-12-05_18-19-00.wbu
+02-26 14:35:08.250 29252 29296 I System.out: Deleted: Wire-sawayn84385391-2025-12-05_18-19-00.wbu. Output: 
+02-26 14:35:08.250 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-schamberger63438844-2025-08-31_00-00-28.wbu
+02-26 14:35:08.270 29252 29296 I System.out: Deleted: Wire-schamberger63438844-2025-08-31_00-00-28.wbu. Output: 
+02-26 14:35:08.271 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-schiller40973618wiree-2025-07-17_19-17-27.wbu
+02-26 14:35:08.298 29252 29296 I System.out: Deleted: Wire-schiller40973618wiree-2025-07-17_19-17-27.wbu. Output: 
+02-26 14:35:08.299 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-schiller67667154-2026-01-19_03-26-20.wbu
+02-26 14:35:08.328 29252 29296 I System.out: Deleted: Wire-schiller67667154-2026-01-19_03-26-20.wbu. Output: 
+02-26 14:35:08.329 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-schimmel74482172-2025-10-11_01-39-10.wbu
+02-26 14:35:08.363 29252 29296 I System.out: Deleted: Wire-schimmel74482172-2025-10-11_01-39-10.wbu. Output: 
+02-26 14:35:08.363 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-schmitt46286489-2025-09-16_01-36-13.wbu
+02-26 14:35:08.401 29252 29296 I System.out: Deleted: Wire-schmitt46286489-2025-09-16_01-36-13.wbu. Output: 
+02-26 14:35:08.401 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-schneider34445927-2025-10-11_01-41-46.wbu
+02-26 14:35:08.435 29252 29296 I System.out: Deleted: Wire-schneider34445927-2025-10-11_01-41-46.wbu. Output: 
+02-26 14:35:08.435 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-schulist75798023-2025-08-28_23-55-27.wbu
+02-26 14:35:08.467 29252 29296 I System.out: Deleted: Wire-schulist75798023-2025-08-28_23-55-27.wbu. Output: 
+02-26 14:35:08.467 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-schumm50337780-2025-12-09_02-25-49.wbu
+02-26 14:35:08.499 29252 29296 I System.out: Deleted: Wire-schumm50337780-2025-12-09_02-25-49.wbu. Output: 
+02-26 14:35:08.499 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-schumm85940147-2025-08-07_00-02-18.wbu
+02-26 14:35:08.547 29252 29296 I System.out: Deleted: Wire-schumm85940147-2025-08-07_00-02-18.wbu. Output: 
+02-26 14:35:08.548 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-schuppe09943242-2025-08-26_01-58-07.wbu
+02-26 14:35:08.578 29252 29296 I System.out: Deleted: Wire-schuppe09943242-2025-08-26_01-58-07.wbu. Output: 
+02-26 14:35:08.578 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-shields71973455-2025-06-07_01-56-46.wbu
+02-26 14:35:08.611 29252 29296 I System.out: Deleted: Wire-shields71973455-2025-06-07_01-56-46.wbu. Output: 
+02-26 14:35:08.611 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-sipes05312879-2025-12-18_23-52-17.wbu
+02-26 14:35:08.642 29252 29296 I System.out: Deleted: Wire-sipes05312879-2025-12-18_23-52-17.wbu. Output: 
+02-26 14:35:08.643 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-smith82930375wireengi-2025-07-09_14-48-34.wbu
+02-26 14:35:08.664 29252 29296 I System.out: Deleted: Wire-smith82930375wireengi-2025-07-09_14-48-34.wbu. Output: 
+02-26 14:35:08.665 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-smith84069517-2026-01-29_00-00-33.wbu
+02-26 14:35:08.703 29252 29296 I System.out: Deleted: Wire-smith84069517-2026-01-29_00-00-33.wbu. Output: 
+02-26 14:35:08.703 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-stehr10155845-2026-01-16_00-18-04.wbu
+02-26 14:35:08.739 29252 29296 I System.out: Deleted: Wire-stehr10155845-2026-01-16_00-18-04.wbu. Output: 
+02-26 14:35:08.739 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-stoltenberg92800062-2025-08-10_01-38-45.wbu
+02-26 14:35:08.770 29252 29296 I System.out: Deleted: Wire-stoltenberg92800062-2025-08-10_01-38-45.wbu. Output: 
+02-26 14:35:08.771 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-stracke47071304-2026-01-08_12-28-41.wbu
+02-26 14:35:08.803 29252 29296 I System.out: Deleted: Wire-stracke47071304-2026-01-08_12-28-41.wbu. Output: 
+02-26 14:35:08.804 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-swift51011736-2026-01-11_00-00-02.wbu
+02-26 14:35:08.835 29252 29296 I System.out: Deleted: Wire-swift51011736-2026-01-11_00-00-02.wbu. Output: 
+02-26 14:35:08.835 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-torphy05814852-2025-08-31_02-00-56.wbu
+02-26 14:35:08.866 29252 29296 I System.out: Deleted: Wire-torphy05814852-2025-08-31_02-00-56.wbu. Output: 
+02-26 14:35:08.866 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-tromp00190906wireengi-2025-06-17_12-11-32.wbu
+02-26 14:35:08.886 29252 29296 I System.out: Deleted: Wire-tromp00190906wireengi-2025-06-17_12-11-32.wbu. Output: 
+02-26 14:35:08.886 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-turcotte23776798-2025-07-09_23-59-28.wbu
+02-26 14:35:08.927 29252 29296 I System.out: Deleted: Wire-turcotte23776798-2025-07-09_23-59-28.wbu. Output: 
+02-26 14:35:08.928 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-vandervort78908502-2025-09-11_01-36-41.wbu
+02-26 14:35:08.955 29252 29296 I System.out: Deleted: Wire-vandervort78908502-2025-09-11_01-36-41.wbu. Output: 
+02-26 14:35:08.955 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-von91618423-2025-11-19_23-56-17.wbu
+02-26 14:35:08.986 29252 29296 I System.out: Deleted: Wire-von91618423-2025-11-19_23-56-17.wbu. Output: 
+02-26 14:35:08.986 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-walker02018445-2025-06-29_23-53-11.wbu
+02-26 14:35:09.005 29252 29296 I System.out: Deleted: Wire-walker02018445-2025-06-29_23-53-11.wbu. Output: 
+02-26 14:35:09.006 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-walsh91210658-2025-09-26_23-56-06.wbu
+02-26 14:35:09.048 29252 29296 I System.out: Deleted: Wire-walsh91210658-2025-09-26_23-56-06.wbu. Output: 
+02-26 14:35:09.048 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-welch10824973-2025-07-31_02-09-09.wbu
+02-26 14:35:09.074 29252 29296 I System.out: Deleted: Wire-welch10824973-2025-07-31_02-09-09.wbu. Output: 
+02-26 14:35:09.075 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-west05869770-2025-09-27_00-01-34.wbu
+02-26 14:35:09.095 29252 29296 I System.out: Deleted: Wire-west05869770-2025-09-27_00-01-34.wbu. Output: 
+02-26 14:35:09.095 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-wiegand99479425-2026-01-09_23-54-38.wbu
+02-26 14:35:09.122 29252 29296 I System.out: Deleted: Wire-wiegand99479425-2026-01-09_23-54-38.wbu. Output: 
+02-26 14:35:09.123 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-wilderman01782673-2026-01-25_01-35-47.wbu
+02-26 14:35:09.154 29252 29296 I System.out: Deleted: Wire-wilderman01782673-2026-01-25_01-35-47.wbu. Output: 
+02-26 14:35:09.155 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-wilderman24868128-2026-01-07_00-16-16.wbu
+02-26 14:35:09.187 29252 29296 I System.out: Deleted: Wire-wilderman24868128-2026-01-07_00-16-16.wbu. Output: 
+02-26 14:35:09.188 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-wilkinson62925958-2025-09-21_23-57-12.wbu
+02-26 14:35:09.222 29252 29296 I System.out: Deleted: Wire-wilkinson62925958-2025-09-21_23-57-12.wbu. Output: 
+02-26 14:35:09.222 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-willms07507604-2025-07-30_01-39-31.wbu
+02-26 14:35:09.255 29252 29296 I System.out: Deleted: Wire-willms07507604-2025-07-30_01-39-31.wbu. Output: 
+02-26 14:35:09.255 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-windler84631727-2026-01-01_05-32-33.wbu
+02-26 14:35:09.289 29252 29296 I System.out: Deleted: Wire-windler84631727-2026-01-01_05-32-33.wbu. Output: 
+02-26 14:35:09.290 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-witting54948261-2025-12-16_01-33-11.wbu
+02-26 14:35:09.335 29252 29296 I System.out: Deleted: Wire-witting54948261-2025-12-16_01-33-11.wbu. Output: 
+02-26 14:35:09.335 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-wunsch22215275wireeng-2025-07-10_10-35-34.wbu
+02-26 14:35:09.355 29252 29296 I System.out: Deleted: Wire-wunsch22215275wireeng-2025-07-10_10-35-34.wbu. Output: 
+02-26 14:35:09.355 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-yost11133129-2025-12-30_05-31-16.wbu
+02-26 14:35:09.370 29252 29296 I System.out: Deleted: Wire-yost11133129-2025-12-30_05-31-16.wbu. Output: 
+02-26 14:35:09.370 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-zemlak58673175wireeng-2025-07-17_16-00-11.wbu
+02-26 14:35:09.401 29252 29296 I System.out: Deleted: Wire-zemlak58673175wireeng-2025-07-17_16-00-11.wbu. Output: 
+02-26 14:35:09.402 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-ziemann51192043-2026-02-03_23-57-26.wbu
+02-26 14:35:09.437 29252 29296 I System.out: Deleted: Wire-ziemann51192043-2026-02-03_23-57-26.wbu. Output: 
+02-26 14:35:09.437 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-zieme18011308-2025-12-01_00-15-24.wbu
+02-26 14:35:09.465 29252 29296 I System.out: Deleted: Wire-zieme18011308-2025-12-01_00-15-24.wbu. Output: 
+02-26 14:35:09.465 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/Wire-zieme87414113-2025-12-12_11-18-13.wbu
+02-26 14:35:09.503 29252 29296 I System.out: Deleted: Wire-zieme87414113-2025-12-12_11-18-13.wbu. Output: 
+02-26 14:35:09.503 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/wire-certificate-abbott94345662-2025-07-19-04-13-05.txt
+02-26 14:35:09.535 29252 29296 I System.out: Deleted: wire-certificate-abbott94345662-2025-07-19-04-13-05.txt. Output: 
+02-26 14:35:09.535 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/wire-certificate-ankunding30893556-2025-08-12-03-33-48.txt
+02-26 14:35:09.569 29252 29296 I System.out: Deleted: wire-certificate-ankunding30893556-2025-08-12-03-33-48.txt. Output: 
+02-26 14:35:09.570 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/wire-certificate-aufderhar96106238-2025-09-01-03-29-52.txt
+02-26 14:35:09.602 29252 29296 I System.out: Deleted: wire-certificate-aufderhar96106238-2025-09-01-03-29-52.txt. Output: 
+02-26 14:35:09.602 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/wire-certificate-bernier49146190-2025-05-18-03-32-00.txt
+02-26 14:35:09.634 29252 29296 I System.out: Deleted: wire-certificate-bernier49146190-2025-05-18-03-32-00.txt. Output: 
+02-26 14:35:09.635 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/wire-certificate-bins53815810-2025-10-13-04-00-01.txt
+02-26 14:35:09.667 29252 29296 I System.out: Deleted: wire-certificate-bins53815810-2025-10-13-04-00-01.txt. Output: 
+02-26 14:35:09.668 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/wire-certificate-boehm44054592-2025-05-24-03-33-19.txt
+02-26 14:35:09.689 29252 29296 I System.out: Deleted: wire-certificate-boehm44054592-2025-05-24-03-33-19.txt. Output: 
+02-26 14:35:09.690 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/wire-certificate-cole43163131-2025-12-27-04-25-42.txt
+02-26 14:35:09.724 29252 29296 I System.out: Deleted: wire-certificate-cole43163131-2025-12-27-04-25-42.txt. Output: 
+02-26 14:35:09.724 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/wire-certificate-dach19722086-2025-06-27-04-25-41.txt
+02-26 14:35:09.752 29252 29296 I System.out: Deleted: wire-certificate-dach19722086-2025-06-27-04-25-41.txt. Output: 
+02-26 14:35:09.752 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/wire-certificate-denesik63576606-2025-05-20-02-42-02.txt
+02-26 14:35:09.787 29252 29296 I System.out: Deleted: wire-certificate-denesik63576606-2025-05-20-02-42-02.txt. Output: 
+02-26 14:35:09.788 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/wire-certificate-denesik81155688-2025-05-09-03-29-35.txt
+02-26 14:35:09.822 29252 29296 I System.out: Deleted: wire-certificate-denesik81155688-2025-05-09-03-29-35.txt. Output: 
+02-26 14:35:09.822 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/wire-certificate-dubuque94984499-2025-05-22-03-36-44.txt
+02-26 14:35:09.851 29252 29296 I System.out: Deleted: wire-certificate-dubuque94984499-2025-05-22-03-36-44.txt. Output: 
+02-26 14:35:09.852 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/wire-certificate-gorczany37252345-2025-06-28-02-27-12.txt
+02-26 14:35:09.887 29252 29296 I System.out: Deleted: wire-certificate-gorczany37252345-2025-06-28-02-27-12.txt. Output: 
+02-26 14:35:09.887 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/wire-certificate-gulgowski49537867-2025-04-22-02-42-10.txt
+02-26 14:35:09.922 29252 29296 I System.out: Deleted: wire-certificate-gulgowski49537867-2025-04-22-02-42-10.txt. Output: 
+02-26 14:35:09.922 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/wire-certificate-hills17251533-2025-05-13-02-29-40.txt
+02-26 14:35:09.958 29252 29296 I System.out: Deleted: wire-certificate-hills17251533-2025-05-13-02-29-40.txt. Output: 
+02-26 14:35:09.958 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/wire-certificate-hoeger49251784-2025-06-04-02-28-07.txt
+02-26 14:35:09.987 29252 29296 I System.out: Deleted: wire-certificate-hoeger49251784-2025-06-04-02-28-07.txt. Output: 
+02-26 14:35:09.988 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/wire-certificate-keebler11970380-2025-04-17-02-27-51.txt
+02-26 14:35:10.019 29252 29296 I System.out: Deleted: wire-certificate-keebler11970380-2025-04-17-02-27-51.txt. Output: 
+02-26 14:35:10.019 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/wire-certificate-klocko02289383-2026-01-14-03-36-18.txt
+02-26 14:35:10.049 29252 29296 I System.out: Deleted: wire-certificate-klocko02289383-2026-01-14-03-36-18.txt. Output: 
+02-26 14:35:10.050 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/wire-certificate-lockman14524601-2025-12-14-03-52-21.txt
+02-26 14:35:10.083 29252 29296 I System.out: Deleted: wire-certificate-lockman14524601-2025-12-14-03-52-21.txt. Output: 
+02-26 14:35:10.083 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/wire-certificate-maggio87806180-2025-12-22-03-32-12.txt
+02-26 14:35:10.114 29252 29296 I System.out: Deleted: wire-certificate-maggio87806180-2025-12-22-03-32-12.txt. Output: 
+02-26 14:35:10.115 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/wire-certificate-marvin21049621-2025-08-28-02-46-01.txt
+02-26 14:35:10.160 29252 29296 I System.out: Deleted: wire-certificate-marvin21049621-2025-08-28-02-46-01.txt. Output: 
+02-26 14:35:10.160 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/wire-certificate-nitzsche15974524-2025-10-29-03-59-27.txt
+02-26 14:35:10.185 29252 29296 I System.out: Deleted: wire-certificate-nitzsche15974524-2025-10-29-03-59-27.txt. Output: 
+02-26 14:35:10.186 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/wire-certificate-price47777550-2025-08-10-03-34-16.txt
+02-26 14:35:10.219 29252 29296 I System.out: Deleted: wire-certificate-price47777550-2025-08-10-03-34-16.txt. Output: 
+02-26 14:35:10.219 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/wire-certificate-ratke30307474-2025-07-13-03-29-01.txt
+02-26 14:35:10.239 29252 29296 I System.out: Deleted: wire-certificate-ratke30307474-2025-07-13-03-29-01.txt. Output: 
+02-26 14:35:10.239 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/wire-certificate-renner11182084-2025-11-14-03-53-56.txt
+02-26 14:35:10.281 29252 29296 I System.out: Deleted: wire-certificate-renner11182084-2025-11-14-03-53-56.txt. Output: 
+02-26 14:35:10.282 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/wire-certificate-roberts54573832-2025-05-18-02-44-36.txt
+02-26 14:35:10.305 29252 29296 I System.out: Deleted: wire-certificate-roberts54573832-2025-05-18-02-44-36.txt. Output: 
+02-26 14:35:10.305 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/wire-certificate-sawayn14261085-2026-01-06-03-29-10.txt
+02-26 14:35:10.338 29252 29296 I System.out: Deleted: wire-certificate-sawayn14261085-2026-01-06-03-29-10.txt. Output: 
+02-26 14:35:10.338 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/wire-certificate-schmeler31242962-2026-01-26-04-35-11.txt
+02-26 14:35:10.370 29252 29296 I System.out: Deleted: wire-certificate-schmeler31242962-2026-01-26-04-35-11.txt. Output: 
+02-26 14:35:10.370 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/wire-certificate-schmidt50582660-2025-06-26-02-38-24.txt
+02-26 14:35:10.408 29252 29296 I System.out: Deleted: wire-certificate-schmidt50582660-2025-06-26-02-38-24.txt. Output: 
+02-26 14:35:10.409 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/wire-certificate-schoen18184682-2026-01-25-03-39-15.txt
+02-26 14:35:10.448 29252 29296 I System.out: Deleted: wire-certificate-schoen18184682-2026-01-25-03-39-15.txt. Output: 
+02-26 14:35:10.448 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/wire-certificate-shields53112001-2025-06-03-03-35-49.txt
+02-26 14:35:10.483 29252 29296 I System.out: Deleted: wire-certificate-shields53112001-2025-06-03-03-35-49.txt. Output: 
+02-26 14:35:10.483 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/wire-certificate-stroman23622354-2025-04-30-03-31-35.txt
+02-26 14:35:10.503 29252 29296 I System.out: Deleted: wire-certificate-stroman23622354-2025-04-30-03-31-35.txt. Output: 
+02-26 14:35:10.504 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/wire-certificate-weissnat08174123-2025-09-23-04-43-52.txt
+02-26 14:35:10.531 29252 29296 I System.out: Deleted: wire-certificate-weissnat08174123-2025-09-23-04-43-52.txt. Output: 
+02-26 14:35:10.531 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/wire-certificate-white87731225-2025-10-08-03-53-56.txt
+02-26 14:35:10.584 29252 29296 I System.out: Deleted: wire-certificate-white87731225-2025-10-08-03-53-56.txt. Output: 
+02-26 14:35:10.584 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/wire-certificate-witting33746800-2025-10-11-03-53-53.txt
+02-26 14:35:10.608 29252 29296 I System.out: Deleted: wire-certificate-witting33746800-2025-10-11-03-53-53.txt. Output: 
+02-26 14:35:10.608 29252 29296 D UiDevice: Executing shell command: rm -f /sdcard/Download/wire-certificate-witting80621405-2025-05-06-02-28-35.txt
+02-26 14:35:10.641 29252 29296 I System.out: Deleted: wire-certificate-witting80621405-2025-05-06-02-28-35.txt. Output: 
+02-26 14:35:56.508 29252 29296 I System.out: INFO [Delete user]: Delete user response is 
+02-26 14:35:56.509 29252 29296 I AllureFailureScreenshotRule: Taking failure screenshot for givenSSOTeamWithOkta_whenSettingUpNewDeviceAndRestoringBackup_thenMessageIsRestored(com.wire.android.tests.core.criticalFlows.SSODeviceBackup)
+02-26 14:35:56.514 29252 29296 D UiDevice: Taking screenshot (scale=1,000000, quality=80) and storing at /data/user/0/com.wire.android.tests.testsCore.test/cache/screenshot7919123294574132934.tmp.

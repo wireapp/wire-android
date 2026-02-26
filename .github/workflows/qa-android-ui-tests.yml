@@ -83,6 +83,9 @@ jobs:
       resolvedCategory: ${{ steps.resolve_selector.outputs.category }}
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       # Validate upgrade inputs before runner work starts.
       - name: Validate upgrade inputs
         shell: bash

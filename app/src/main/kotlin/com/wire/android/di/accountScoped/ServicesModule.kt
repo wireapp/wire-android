@@ -24,6 +24,7 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.service.GetServiceByIdUseCase
 import com.wire.kalium.logic.feature.service.ObserveAllServicesUseCase
 import com.wire.kalium.logic.feature.service.ObserveIsServiceMemberUseCase
+import com.wire.kalium.logic.feature.service.ObserveServicesNotInConversationUseCase
 import com.wire.kalium.logic.feature.service.SearchServicesByNameUseCase
 import com.wire.kalium.logic.feature.service.ServiceScope
 import dagger.Module
@@ -57,6 +58,11 @@ class ServicesModule {
     @Provides
     fun provideObserveAllServicesUseCase(serviceScope: ServiceScope): ObserveAllServicesUseCase =
         serviceScope.observeAllServices
+
+    @ViewModelScoped
+    @Provides
+    fun provideObserveServicesNotInConversationUseCase(serviceScope: ServiceScope): ObserveServicesNotInConversationUseCase =
+        serviceScope.ObserveServicesNotInConversation
 
     @ViewModelScoped
     @Provides

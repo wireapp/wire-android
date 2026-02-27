@@ -26,6 +26,7 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.ramcosta.composedestinations.generated.app.destinations.OtherUserProfileScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.ServiceDetailsScreenDestination
+import com.wire.android.appLogger
 import com.wire.android.ui.home.conversations.search.AddMembersSearchNavArgs
 import com.wire.android.ui.home.conversations.search.SearchPeopleScreenType
 import com.wire.android.ui.home.conversations.search.SearchUsersAndAppsScreen
@@ -69,7 +70,7 @@ fun AddMembersSearchScreen(
         isAppsTabVisible = isAppsTabVisible,
         isUserAllowedToCreateChannels = false,
         shouldShowChannelPromotion = false,
-        isConversationAppsEnabled = navArgs.isConversationAppsEnabled,
+        isConversationAppsEnabled = true, // navArgs.isConversationAppsEnabled,
     )
 }
 

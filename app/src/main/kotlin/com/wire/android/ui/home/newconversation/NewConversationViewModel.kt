@@ -115,7 +115,7 @@ class NewConversationViewModel @Inject constructor(
      */
     private fun computeAppsAllowedStatus(isMLS: Boolean, appsAllowed: Boolean) = if (FeatureVisibilityFlags.AppsBasedOnProtocol) {
         // current logic: based on protocol (apps disabled for MLS)
-        !isMLS
+        isMLS
     } else {
         // new logic: based on feature flags
         appsAllowed

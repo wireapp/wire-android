@@ -198,7 +198,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
         isMLSConversation: Boolean
     ) = if (FeatureVisibilityFlags.AppsBasedOnProtocol) {
         // current logic: based on protocol
-        canSelfPerformAdminTasks && isSelfInTeamThatOwnsConversation && !isMLSConversation
+        canSelfPerformAdminTasks && isSelfInTeamThatOwnsConversation // && !isMLSConversation
     } else {
         // new logic: based on permissions
         canSelfPerformAdminTasks && isSelfInTeamThatOwnsConversation
@@ -213,7 +213,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
         isMLSConversation: Boolean
     ) = if (FeatureVisibilityFlags.AppsBasedOnProtocol) {
         // current logic: based on protocol (apps disabled for MLS)
-        groupDetails.conversation.isServicesAllowed() && !isMLSConversation
+        groupDetails.conversation.isServicesAllowed() // && !isMLSConversation
     } else {
         // new logic: based on feature flags
         groupDetails.conversation.isServicesAllowed()

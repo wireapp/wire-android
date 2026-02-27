@@ -20,6 +20,9 @@ package com.wire.android.feature.cells.ui.search
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.input.TextFieldState
@@ -37,6 +40,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -62,12 +66,13 @@ import com.wire.android.navigation.annotation.features.cells.WireCellsDestinatio
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 const val sharedElementSearchInputKey = "search_bar"
 
-@OptIn(ExperimentalSharedTransitionApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalSharedTransitionApi::class, ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @WireCellsDestination(
     style = PopUpNavigationAnimation::class,
     navArgs = SearchNavArgs::class,
@@ -83,27 +88,31 @@ fun SearchScreen(
     val scope = rememberCoroutineScope()
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
-    cellViewModel.isSearchByDefaultActive
 
     val uiState by searchScreenViewModel.uiState.collectAsStateWithLifecycle()
 
-    val filterTypeSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val filterTypeSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true,)
     val filterTagsSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val filterOwnerSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val isImeVisible = WindowInsets.isImeVisible
+
 
     fun closeSheet(sheetState: SheetState, onCloseFlag: () -> Unit) {
         scope.launch {
             sheetState.hide()
             onCloseFlag()
-            searchScreenViewModel.onSetSearchActive(true)
         }
     }
 
     fun openSheet(onOpenFlag: () -> Unit = { }) {
         scope.launch {
-            focusManager.clearFocus()
+            focusManager.clearFocus(force = true)
+            if (isImeVisible) {
+                keyboardController?.hide()
+                delay(300)
+            }
             onOpenFlag()
-            searchScreenViewModel.onSetSearchActive(false)
         }
     }
 
@@ -241,76 +250,77 @@ fun SearchScreen(
                 isRefreshing = remember { mutableStateOf(false) },
                 onRefresh = { }
             )
-
-            if (uiState.showFilterByTagsBottomSheet) {
-                FilterByTagsBottomSheet(
-                    items = searchScreenViewModel.uiState.collectAsState().value.availableTags,
-                    sheetState = filterTagsSheetState,
-                    onDismiss = {
-                        closeSheet(
-                            sheetState = filterTagsSheetState,
-                            onCloseFlag = { searchScreenViewModel.onCloseTagsSheet() }
-                        )
-                    },
-                    onSave = { selectedItems ->
-                        searchScreenViewModel.onSaveTags(selectedItems)
-                        closeSheet(
-                            sheetState = filterTagsSheetState,
-                            onCloseFlag = { searchScreenViewModel.onCloseTagsSheet() }
-                        )
-                    },
-                    onRemoveAll = {
-                        searchScreenViewModel.onRemoveAllTags()
-                    }
-                )
-            }
-
-            if (uiState.showFilterByTypeBottomSheet) {
-                FilterByTypeBottomSheet(
-                    items = searchScreenViewModel.uiState.collectAsState().value.availableTypes,
-                    sheetState = filterTypeSheetState,
-                    onDismiss = {
-                        closeSheet(
-                            sheetState = filterTypeSheetState,
-                            onCloseFlag = { searchScreenViewModel.onCloseTypeSheet() }
-                        )
-                    },
-                    onSave = { selectedItems ->
-
-                        searchScreenViewModel.onSaveTypes(selectedItems)
-                        closeSheet(
-                            sheetState = filterTypeSheetState,
-                            onCloseFlag = { searchScreenViewModel.onCloseTypeSheet() }
-                        )
-                    },
-                    onRemoveFilter = {
-                        searchScreenViewModel.onRemoveTypeFilter()
-                    }
-                )
-            }
-
-            if (uiState.showFilterByOwnerBottomSheet) {
-                FilterByOwnerBottomSheet(
-                    items = searchScreenViewModel.uiState.collectAsState().value.availableOwners,
-                    sheetState = filterOwnerSheetState,
-                    onDismiss = {
-                        closeSheet(
-                            sheetState = filterOwnerSheetState,
-                            onCloseFlag = { searchScreenViewModel.onCloseOwnerSheet() }
-                        )
-                    },
-                    onSave = { selectedItems ->
-
-                        searchScreenViewModel.onSaveOwners(selectedItems)
-
-                        closeSheet(
-                            sheetState = filterOwnerSheetState,
-                            onCloseFlag = { searchScreenViewModel.onCloseOwnerSheet() }
-                        )
-                    },
-                    onRemoveAll = { searchScreenViewModel.onRemoveOwners() }
-                )
-            }
         }
+    }
+
+    if (uiState.showFilterByTagsBottomSheet) {
+        FilterByTagsBottomSheet(
+            items = uiState.availableTags,
+            sheetState = filterTagsSheetState,
+            onDismiss = {
+                closeSheet(
+                    sheetState = filterTagsSheetState,
+                    onCloseFlag = { searchScreenViewModel.onCloseTagsSheet() }
+                )
+            },
+            onSave = { selectedItems ->
+                searchScreenViewModel.onSaveTags(selectedItems)
+                closeSheet(
+                    sheetState = filterTagsSheetState,
+                    onCloseFlag = { searchScreenViewModel.onCloseTagsSheet() }
+                )
+            },
+            onRemoveAll = {
+                searchScreenViewModel.onRemoveAllTags()
+            }
+        )
+    }
+
+    if (uiState.showFilterByTypeBottomSheet) {
+        FilterByTypeBottomSheet(
+            items = uiState.availableTypes,
+            sheetState = filterTypeSheetState,
+            onDismiss = {
+                closeSheet(
+                    sheetState = filterTypeSheetState,
+                    onCloseFlag = { searchScreenViewModel.onCloseTypeSheet() }
+                )
+            },
+            onSave = { selectedItems ->
+
+                searchScreenViewModel.onSaveTypes(selectedItems)
+                closeSheet(
+                    sheetState = filterTypeSheetState,
+                    onCloseFlag = { searchScreenViewModel.onCloseTypeSheet() }
+                )
+            },
+            onRemoveFilter = {
+                searchScreenViewModel.onRemoveTypeFilter()
+            }
+        )
+    }
+    LaunchedEffect(Unit) {
+        filterOwnerSheetState.hide()
+    }
+
+    if (uiState.showFilterByOwnerBottomSheet) {
+        FilterByOwnerBottomSheet(
+            items = uiState.availableOwners,
+            sheetState = filterOwnerSheetState,
+            onDismiss = {
+                closeSheet(
+                    sheetState = filterOwnerSheetState,
+                    onCloseFlag = { searchScreenViewModel.onCloseOwnerSheet() }
+                )
+            },
+            onSave = { selectedItems ->
+                searchScreenViewModel.onSaveOwners(selectedItems)
+                closeSheet(
+                    sheetState = filterOwnerSheetState,
+                    onCloseFlag = { searchScreenViewModel.onCloseOwnerSheet() }
+                )
+            },
+            onRemoveAll = { searchScreenViewModel.onRemoveOwners() }
+        )
     }
 }

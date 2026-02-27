@@ -28,12 +28,15 @@ import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallClient
 import com.wire.kalium.logic.data.call.CallQuality
+import com.wire.kalium.logic.data.call.CallQualityData
+import com.wire.kalium.logic.data.call.CallResolutionQuality
 import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.call.VideoState
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.call.usecase.ObserveCallQualityDataUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveLastActiveCallWithSortedParticipantsUseCase
 import com.wire.kalium.logic.feature.call.usecase.RequestVideoStreamsUseCase
 import com.wire.kalium.logic.feature.call.usecase.video.SetVideoSendStateUseCase
@@ -42,6 +45,8 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -190,8 +195,8 @@ class OngoingCallViewModelTest {
     fun givenParticipantsList_WhenRequestingVideoStreamForFullScreenParticipant_ThenRequestItInHighQuality() =
         runTest {
             val expectedClients = listOf(
-                CallClient(participant1.id.toString(), participant1.clientId, false, CallQuality.LOW),
-                CallClient(participant3.id.toString(), participant3.clientId, false, CallQuality.HIGH)
+                CallClient(participant1.id.toString(), participant1.clientId, false, CallResolutionQuality.LOW),
+                CallClient(participant3.id.toString(), participant3.clientId, false, CallResolutionQuality.HIGH)
             )
 
             val (arrangement, ongoingCallViewModel) = Arrangement()
@@ -216,8 +221,8 @@ class OngoingCallViewModelTest {
     fun givenParticipantsList_WhenRequestingVideoStreamForAllParticipant_ThenRequestItInLowQuality() =
         runTest {
             val expectedClients = listOf(
-                CallClient(participant1.id.toString(), participant1.clientId, false, CallQuality.LOW),
-                CallClient(participant3.id.toString(), participant3.clientId, false, CallQuality.LOW)
+                CallClient(participant1.id.toString(), participant1.clientId, false, CallResolutionQuality.LOW),
+                CallClient(participant3.id.toString(), participant3.clientId, false, CallResolutionQuality.LOW)
             )
 
             val (arrangement, ongoingCallViewModel) = Arrangement()
@@ -262,6 +267,25 @@ class OngoingCallViewModelTest {
         assertEquals(OngoingCallState.FlowState.CallClosed, ongoingCallViewModel.state.flowState)
     }
 
+    @Test
+    fun givenCallQualityChanges_WhenObservingQualityState_ThenStateIsUpdated() = runTest {
+        val initialQuality = CallQualityData(CallQuality.NORMAL, 100, 0, 0)
+        val callQualityFlow = MutableStateFlow(initialQuality)
+        val (_, ongoingCallViewModel) = Arrangement()
+            .withLastActiveCall(provideCall())
+            .withShouldShowDoubleTapToastReturning(false)
+            .withSetVideoSendState()
+            .withCallQualityDataFlow(callQualityFlow)
+            .arrange()
+        advanceUntilIdle()
+        assertEquals(initialQuality, ongoingCallViewModel.state.callQualityData)
+
+        val changedQuality = CallQualityData(CallQuality.POOR, 300, 10, 15)
+        callQualityFlow.value = changedQuality
+        advanceUntilIdle()
+        assertEquals(changedQuality, ongoingCallViewModel.state.callQualityData)
+    }
+
     private class Arrangement {
 
         @MockK
@@ -274,6 +298,9 @@ class OngoingCallViewModelTest {
         lateinit var setVideoSendState: SetVideoSendStateUseCase
 
         @MockK
+        lateinit var observeCallQualityData: ObserveCallQualityDataUseCase
+
+        @MockK
         lateinit var globalDataStore: GlobalDataStore
 
         private val ongoingCallViewModel by lazy {
@@ -284,6 +311,7 @@ class OngoingCallViewModelTest {
                 currentUserId = currentUserId,
                 setVideoSendState = setVideoSendState,
                 globalDataStore = globalDataStore,
+                observeCallQualityData = observeCallQualityData
             )
         }
 
@@ -321,6 +349,10 @@ class OngoingCallViewModelTest {
                     shouldShow
                 )
             } returns Unit
+        }
+
+        fun withCallQualityDataFlow(callQualityDataFlow: Flow<CallQualityData>) = apply {
+            coEvery { observeCallQualityData(any()) } returns callQualityDataFlow
         }
     }
 

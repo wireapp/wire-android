@@ -1,0 +1,26 @@
+<!--
+  ~ Wire
+  ~ Copyright (C) 2026 Wire Swiss GmbH
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program. If not, see http://www.gnu.org/licenses/.
+  -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="11dp"
+    android:height="8dp"
+    android:viewportWidth="11"
+    android:viewportHeight="8">
+  <path
+      android:pathData="M1.025,3.362L0,2.3C0.74,1.558 1.584,0.99 2.533,0.594C3.482,0.198 4.471,0 5.5,0C6.529,0 7.518,0.198 8.467,0.594C9.416,0.99 10.26,1.558 11,2.3L9.975,3.362C9.372,2.763 8.684,2.302 7.912,1.981C7.14,1.66 6.336,1.5 5.5,1.5C4.664,1.5 3.86,1.66 3.088,1.981C2.316,2.302 1.628,2.763 1.025,3.362ZM3.064,5.475L2.05,4.425C2.525,3.967 3.058,3.615 3.649,3.369C4.24,3.123 4.857,3 5.5,3C6.143,3 6.76,3.123 7.351,3.369C7.942,3.615 8.475,3.967 8.95,4.425L7.936,5.475C7.599,5.158 7.223,4.917 6.809,4.75C6.395,4.583 5.958,4.5 5.5,4.5C5.042,4.5 4.605,4.583 4.191,4.75C3.777,4.917 3.401,5.158 3.064,5.475ZM5.5,8C5.235,8 5.007,7.902 4.819,7.706C4.63,7.51 4.535,7.275 4.535,7C4.535,6.725 4.63,6.49 4.819,6.294C5.007,6.098 5.235,6 5.5,6C5.765,6 5.993,6.098 6.181,6.294C6.37,6.49 6.465,6.725 6.465,7C6.465,7.275 6.37,7.51 6.181,7.706C5.993,7.902 5.765,8 5.5,8Z"
+      android:fillColor="#000000"/>
+</vector>

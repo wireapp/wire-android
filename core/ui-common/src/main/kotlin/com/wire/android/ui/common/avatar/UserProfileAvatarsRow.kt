@@ -18,8 +18,6 @@
 package com.wire.android.ui.common.avatar
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
@@ -29,6 +27,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
+import com.wire.android.ui.common.OverlapDirection
+import com.wire.android.ui.common.OverlappingCirclesRow
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.WireTheme
@@ -43,24 +43,27 @@ fun UserProfileAvatarsRow(
     borderWidth: Dp = dimensions().spacing1x,
     borderColor: Color = colorsScheme().surfaceVariant,
 ) {
-    Row(
+    OverlappingCirclesRow(
+        overlapSize = overlapSize,
+        overlapCutoutSize = dimensions().spacing0x,
+        overlapDirection = OverlapDirection.EndOnTop,
         modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(-overlapSize)
-    ) {
-        avatars.forEach { avatarData ->
-            UserProfileAvatar(
-                avatarData = avatarData,
-                size = avatarSize,
-                avatarBorderWidth = borderWidth,
-                avatarBorderColor = borderColor,
-                modifier = Modifier
-                    .clip(CircleShape)
-                    .background(borderColor),
-                padding = dimensions().spacing0x,
-                type = UserProfileAvatarType.WithoutIndicators,
-            )
+        items = avatars.map { avatarData ->
+            {
+                UserProfileAvatar(
+                    avatarData = avatarData,
+                    size = avatarSize,
+                    avatarBorderWidth = borderWidth,
+                    avatarBorderColor = borderColor,
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .background(borderColor),
+                    padding = dimensions().spacing0x,
+                    type = UserProfileAvatarType.WithoutIndicators,
+                )
+            }
         }
-    }
+    )
 }
 
 private val mockAvatars = listOf(

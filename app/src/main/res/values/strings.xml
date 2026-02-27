@@ -161,6 +161,8 @@
     <string name="content_description_calling_turn_speaker_off">Turn speaker off</string>
     <string name="content_description_calling_in_call_reactions_show">Show in call reactions panel</string>
     <string name="content_description_calling_in_call_reactions_hide">Hide in call reactions panel</string>
+    <string name="content_description_call_open_calling_details">Open calling details</string>
+    <string name="content_description_call_low_network_quality">Low network quality</string>
     <string name="content_description_reply_to_messge">Reply to the message</string>
     <string name="content_description_reply_cancel">Cancel message reply</string>
     <string name="content_description_ping_message">Ping message</string>

@@ -30,7 +30,7 @@ import com.wire.android.appLogger
 import com.wire.android.di.CurrentAccount
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.analytics.model.AnalyticsEvent
-import com.wire.android.ui.navArgs
+import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getTempWritableAttachmentUri
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
@@ -59,7 +59,7 @@ class SelfQRCodeViewModel @Inject constructor(
     var selfQRCodeState by mutableStateOf(
         SelfQRCodeState(
             selfUserId,
-            handle = selfQrCodeNavArgs.handle,
+            handle = selfQrCodeNavArgs.userHandle,
             isTeamMember = selfQrCodeNavArgs.isTeamMember
         )
     )

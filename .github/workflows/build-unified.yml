@@ -245,6 +245,20 @@ jobs:
           path: app/build/outputs/
           retention-days: 7
 
+      - name: Generate SBOM
+        if: github.actor != 'dependabot[bot]'
+        continue-on-error: true
+        run: ./gradlew generateSbom
+
+      - name: Upload SBOM artifact
+        if: github.actor != 'dependabot[bot]'
+        continue-on-error: true
+        uses: actions/upload-artifact@v6
+        with:
+          name: sbom-${{ matrix.flavor }}-${{ matrix.variant }}
+          path: build/reports/cyclonedx/
+          retention-days: 30
+
       - name: Build summary
         run: |
           echo "## Build Summary" >> $GITHUB_STEP_SUMMARY

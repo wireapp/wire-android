@@ -51,7 +51,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.feature.cells.R
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.navigation.WireNavigator
-import com.wire.android.navigation.annotation.features.cells.WireDestination
+import com.wire.android.navigation.annotation.features.cells.WireCellsDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.button.WireButtonState.Default
@@ -70,8 +70,8 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import kotlinx.coroutines.launch
 
-@WireDestination(
-    navArgsDelegate = AddRemoveTagsNavArgs::class,
+@WireCellsDestination(
+    navArgs = AddRemoveTagsNavArgs::class,
     style = PopUpNavigationAnimation::class,
 )
 @Composable

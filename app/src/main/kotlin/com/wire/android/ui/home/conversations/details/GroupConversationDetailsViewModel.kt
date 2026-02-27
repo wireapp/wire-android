@@ -154,6 +154,9 @@ class GroupConversationDetailsViewModel @Inject constructor(
 
                 _isFetchingInitialData.value = false
 
+                val mlsEnabled = isMLSEnabled()
+                val wireCellFeatureEnabled = isWireCellsEnabled()
+
                 updateState(
                     groupOptionsState.value.copy(
                         groupName = groupDetails.conversation.name.orEmpty(),
@@ -170,8 +173,12 @@ class GroupConversationDetailsViewModel @Inject constructor(
                         isUpdatingAppsAllowed = isUpdatingAppsAllowedForConversation,
                         isUpdatingReadReceiptAllowed = canSelfPerformAdminTasks && groupDetails.conversation.isTeamGroup(),
                         isUpdatingSelfDeletingAllowed = canSelfPerformAdminTasks,
-                        mlsEnabled = isMLSEnabled(),
-                        isReadReceiptAllowed = groupDetails.conversation.receiptMode == Conversation.ReceiptMode.ENABLED,
+                        mlsEnabled = mlsEnabled,
+                        isReadReceiptAllowed = if (groupOptionsState.value.loadingReadReceiptOption) {
+                            groupOptionsState.value.isReadReceiptAllowed
+                        } else {
+                            groupDetails.conversation.receiptMode == Conversation.ReceiptMode.ENABLED
+                        },
                         selfDeletionTimer = selfDeletionTimer,
                         isChannel = isChannel,
                         isSelfTeamAdmin = isSelfTeamAdmin,
@@ -179,7 +186,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
                         channelAccessType = channelAccessType,
                         loadingWireCellState = false,
                         isWireCellEnabled = groupDetails.wireCell != null,
-                        isWireCellFeatureEnabled = isWireCellsEnabled(),
+                        isWireCellFeatureEnabled = wireCellFeatureEnabled,
                         isSelfPartOfATeam = selfTeam != null,
                         canSelfAddParticipants = canSelfAddParticipants
                     )

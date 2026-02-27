@@ -20,5 +20,6 @@ package com.wire.android.ui.home.settings.appsettings.networkSettings
 
 data class NetworkSettingsState(
     val isPersistentWebSocketConnectionEnabled: Boolean = false,
-    val isEnforcedByMDM: Boolean = false
+    val isEnforcedByMDM: Boolean = false,
+    val isWebSocketEnforcedByDefault: Boolean = false
 )

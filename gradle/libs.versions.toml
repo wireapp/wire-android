@@ -87,6 +87,7 @@ openIdAppAuth = "0.11.1"
 
 # Other Tools
 aboutLibraries = "13.0.0"
+cyclonedx = "3.1.0"
 leakCanary = "2.14"
 ksp = "2.3.4"
 
@@ -129,6 +130,7 @@ aboutLibraries = { id = "com.mikepenz.aboutlibraries.plugin", version.ref = "abo
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 screenshot = { id = "com.android.compose.screenshot", version.ref = "screenshot"}
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+cyclonedx = { id = "org.cyclonedx.bom", version.ref = "cyclonedx" }
 
 # Home-made convention plugins defined in build-logic
 wire-android-application = { id = "com.wire.android.application" }

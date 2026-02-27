@@ -5,13 +5,13 @@ Neu
 
 Verbessert
 - Ausrichtung von Titel und Profilbild
-- Barrierefreiheit: Unterstützung für Screenreader
+- Unterstützung für Screenreader
 - Anzeige für ungelesene Nachrichten
-- Verbindungszuverlässigkeit
+
+Verbindungszuverlässigkeit
 - ID-Shield: Schaltfläche Zertifikat erhalten immer anzeigen
 
 Behoben
 - Fehlende Benachrichtigungen und Datumsanzeigen
-- Mehrere Anrufprobleme
+- Anrufprobleme
 - Navigationsproblem nach Verlassen oder Löschen einer Gruppe
-

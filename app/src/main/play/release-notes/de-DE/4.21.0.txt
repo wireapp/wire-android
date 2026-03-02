@@ -14,4 +14,4 @@ Verbindungszuverlässigkeit
 Behoben
 - Fehlende Benachrichtigungen und Datumsanzeigen
 - Anrufprobleme
-- Navigationsproblem nach Verlassen oder Löschen einer Gruppe
+- Navigationsproblem nach Verlassen/Löschen einer Gruppe

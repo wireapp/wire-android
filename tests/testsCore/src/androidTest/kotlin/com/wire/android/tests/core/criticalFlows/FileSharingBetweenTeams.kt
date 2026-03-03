@@ -243,6 +243,7 @@ class FileSharingBetweenTeams : BaseUiTest() {
 
         step("Download image file and verify success toast") {
             pages.conversationViewPage.apply {
+                waitForPreviousFileSavedToastToDisappear()
                 clickSaveButtonOnDownloadModal()
                 assertFileSavedToastContain(
                     "The file ImageFile( ?\\([0-9]+\\))?\\.jpg was saved successfully to the Downloads folder"
@@ -270,6 +271,7 @@ class FileSharingBetweenTeams : BaseUiTest() {
 
         step("Download text file and verify success toast") {
             pages.conversationViewPage.apply {
+                waitForPreviousFileSavedToastToDisappear()
                 clickSaveButtonOnDownloadModal()
                 assertFileSavedToastContain(
                     "The file TextFile( ?\\([0-9]+\\))?\\.txt was saved successfully to the Downloads folder"
@@ -308,6 +310,7 @@ class FileSharingBetweenTeams : BaseUiTest() {
 
         step("Save video file and verify success toast") {
             pages.conversationViewPage.apply {
+                waitForPreviousFileSavedToastToDisappear()
                 clickSaveButtonOnDownloadModal()
                 assertFileSavedToastContain(
                     "The file VideoFile( ?\\([0-9]+\\))?\\.mp4 was saved successfully to the Downloads folder"

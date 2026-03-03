@@ -139,7 +139,7 @@ class SearchScreenViewModel @Inject constructor(
 
     init {
         loadTags()
-        if (screenType == DriveScreenType.DRIVE) {
+        if (screenType == DriveSearchScreenType.DRIVE) {
             loadConversations()
         }
     }

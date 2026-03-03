@@ -137,8 +137,8 @@ fun SearchScreen(
                         ),
                         isSearchActive = uiState.isSearchActive,
                         searchBarHint = when (searchScreenViewModel.screenType) {
-                            DriveScreenType.SHARED_DRIVE -> stringResource(R.string.search_shared_drive_text_input_hint)
-                            DriveScreenType.DRIVE -> stringResource(R.string.search_drive_text_input_hint)
+                            DriveSearchScreenType.SHARED_DRIVE -> stringResource(R.string.search_shared_drive_text_input_hint)
+                            DriveSearchScreenType.DRIVE -> stringResource(R.string.search_drive_text_input_hint)
                         },
                         searchQueryTextState = searchState,
                         onCloseSearchClicked = { navigator.navigateBack() },

@@ -45,7 +45,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.wire.android.feature.cells.R
-import com.wire.android.feature.cells.ui.search.DriveScreenType
+import com.wire.android.feature.cells.ui.search.DriveSearchScreenType
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.MultipleThemePreviews
@@ -58,7 +58,7 @@ fun SortRowWithMenu(
     onSortByClicked: (SortBy) -> Unit,
     onOrderClicked: (SortingCriteria) -> Unit,
     modifier: Modifier = Modifier,
-    screenType: DriveScreenType = DriveScreenType.SHARED_DRIVE,
+    screenType: DriveSearchScreenType = DriveSearchScreenType.SHARED_DRIVE,
     isSearchResult: Boolean = false
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -76,8 +76,8 @@ fun SortRowWithMenu(
                         .padding(start = dimensions().spacing16x, end = dimensions().spacing16x)
                         .align(Alignment.CenterVertically),
                     text = when (screenType) {
-                        DriveScreenType.SHARED_DRIVE -> stringResource(R.string.results_in_shared_drive_label)
-                        DriveScreenType.DRIVE -> stringResource(R.string.results_in_drive_label)
+                        DriveSearchScreenType.SHARED_DRIVE -> stringResource(R.string.results_in_shared_drive_label)
+                        DriveSearchScreenType.DRIVE -> stringResource(R.string.results_in_drive_label)
                     },
                     style = typography().subline01,
                     color = colorsScheme().secondaryText

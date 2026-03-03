@@ -19,5 +19,5 @@ package com.wire.android.feature.cells.ui.search
 
 data class SearchNavArgs(
     val conversationId: String? = null,
-    val screenType: DriveScreenType = DriveScreenType.SHARED_DRIVE,
+    val screenType: DriveSearchScreenType = DriveSearchScreenType.SHARED_DRIVE,
 )

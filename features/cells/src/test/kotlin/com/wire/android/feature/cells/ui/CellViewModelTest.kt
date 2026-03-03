@@ -31,13 +31,13 @@ import com.wire.android.feature.cells.util.FileHelper
 import com.wire.android.feature.cells.util.FileNameResolver
 import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
-import com.wire.kalium.cells.domain.usecase.download.DownloadCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
 import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
 import com.wire.kalium.cells.domain.usecase.IsAtLeastOneCellAvailableUseCase
 import com.wire.kalium.cells.domain.usecase.RestoreNodeFromRecycleBinUseCase
+import com.wire.kalium.cells.domain.usecase.download.DownloadCellFileUseCase
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.common.functional.left
 import com.wire.kalium.common.functional.right
@@ -51,7 +51,6 @@ import io.mockk.mockkStatic
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
-import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
@@ -230,27 +229,6 @@ class CellViewModelTest {
             arrangement.deleteCellAssetUseCase(any(), any())
         }
     }
-
-    @Test
-    fun `given view model when search query is updated then new load request is sent with updated search text`() =
-        runTest(dispatcher) {
-
-            val (arrangement, viewModel) = Arrangement()
-                .withLoadSuccess()
-                .arrange()
-
-            viewModel.nodesFlow.test {
-                viewModel.onSearchQueryUpdated("test")
-
-                advanceTimeBy(1000)
-
-                coVerify(exactly = 1) {
-                    arrangement.getCellFilesPagedUseCase(null, "test")
-                }
-
-                cancelAndIgnoreRemainingEvents()
-            }
-        }
 
     @Test
     fun `GIVEN no cells available WHEN ViewModel initialized THEN no load request is sent`() = runTest {

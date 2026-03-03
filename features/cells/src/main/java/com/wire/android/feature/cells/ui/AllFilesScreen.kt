@@ -17,20 +17,31 @@
  */
 package com.wire.android.feature.cells.ui
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.wire.android.feature.cells.domain.model.CellsFilter
 import com.ramcosta.composedestinations.generated.cells.destinations.AddRemoveTagsScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.PublicLinkScreenDestination
-import com.wire.android.feature.cells.ui.filter.FilterBottomSheet
+import com.ramcosta.composedestinations.generated.cells.destinations.SearchScreenDestination
+import com.wire.android.feature.cells.R
+import com.wire.android.feature.cells.domain.model.CellsFilter
+import com.wire.android.feature.cells.ui.search.DriveScreenType
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.WireNavigator
+import com.wire.android.navigation.transition.LocalSharedTransitionScope
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
+import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.search.SearchBarState
+import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import kotlinx.coroutines.delay
 
 /**
@@ -43,9 +54,13 @@ fun AllFilesScreen(
     searchBarState: SearchBarState,
     updateFilters: (Set<CellsFilter>) -> Unit,
     filterBottomSheetState: WireModalSheetState<Unit>,
-    viewModel: CellViewModel = hiltViewModel(),
+    animatedVisibilityScope: AnimatedVisibilityScope,
+    modifier: Modifier = Modifier,
+    viewModel: CellViewModel = hiltViewModel()
 ) {
     val pagingListItems = viewModel.nodesFlow.collectAsLazyPagingItems()
+    val sharedScope = LocalSharedTransitionScope.current
+    val focusRequester = remember { FocusRequester() }
 
     LaunchedEffect(searchBarState.searchQueryTextState.text) {
         if (searchBarState.searchQueryTextState.text.isNotEmpty()) {
@@ -62,68 +77,62 @@ fun AllFilesScreen(
     }
 
     searchBarState.searchVisibleChanged(isSearchVisible)
-    CellScreenContent(
-        actionsFlow = viewModel.actions,
-        pagingListItems = pagingListItems,
-        sendIntent = { viewModel.sendIntent(it) },
-        openFolder = { path, _, _ ->
-            navigator.navigate(NavigationCommand(ConversationFilesScreenDestination(path)))
-        },
-        downloadFileState = viewModel.downloadFileSheet,
-        menuState = viewModel.menu,
-        isAllFiles = true,
-        isRestoreInProgress = viewModel.isRestoreInProgress.collectAsState().value,
-        isDeleteInProgress = viewModel.isDeleteInProgress.collectAsState().value,
-        isRecycleBin = viewModel.isRecycleBin(),
-        isSearchResult = viewModel.hasSearchQuery(),
-        isFiltering = viewModel.selectedTags.collectAsState().value.isNotEmpty(),
-        showPublicLinkScreen = { publicLinkScreenData ->
-            navigator.navigate(
-                NavigationCommand(
-                    PublicLinkScreenDestination(
-                        assetId = publicLinkScreenData.assetId,
-                        fileName = publicLinkScreenData.fileName,
-                        publicLinkId = publicLinkScreenData.linkId,
-                        isFolder = publicLinkScreenData.isFolder
-                    )
-                )
-            )
-        },
-        showMoveToFolderScreen = { _, _, _ -> },
-        showRenameScreen = {},
-        showAddRemoveTagsScreen = { node ->
-            navigator.navigate(
-                NavigationCommand(
-                    AddRemoveTagsScreenDestination(node.uuid, node.tags.toCollection(ArrayList()))
-                )
-            )
-        },
-        isRefreshing = viewModel.isPullToRefresh.collectAsState(),
-        onRefresh = { viewModel.onPullToRefresh() }
-    )
 
-    FilterBottomSheet(
-        selectableTags = viewModel.sortedTags.collectAsState().value,
-        selectedTags = viewModel.selectedTags.collectAsState().value,
-        onApply = {
-            filterBottomSheetState.hide()
-            viewModel.updateSelectedTags(it)
-            if (it.isEmpty()) {
-                updateFilters(setOf())
-            } else {
-                updateFilters(setOf(CellsFilter.Tags))
+    WireScaffold(
+        modifier = modifier,
+        topBar = {
+            Column {
+                SearchTopBar(
+                    modifier = Modifier,
+                    isSearchActive = false,
+                    searchBarHint = stringResource(R.string.search_label),
+                    searchQueryTextState = TextFieldState(),
+                    onTap = {
+                        navigator.navigate(
+                            NavigationCommand(SearchScreenDestination(screenType = DriveScreenType.DRIVE))
+                        )
+                    },
+                    focusRequester = focusRequester,
+                )
             }
         },
-        onClearAll = {
-            viewModel.updateSelectedTags(emptySet())
-            updateFilters(setOf())
-        },
-        sheetState = filterBottomSheetState,
-        onDismiss = {
-            filterBottomSheetState.hide()
-        },
-        onShow = {
-            viewModel.loadTags()
-        }
-    )
+    ) {
+        CellScreenContent(
+            actionsFlow = viewModel.actions,
+            pagingListItems = pagingListItems,
+            sendIntent = { viewModel.sendIntent(it) },
+            openFolder = { _, _, _ -> },
+            downloadFileState = viewModel.downloadFileSheet,
+            menuState = viewModel.menu,
+            isAllFiles = true,
+            isRestoreInProgress = viewModel.isRestoreInProgress.collectAsState().value,
+            isDeleteInProgress = viewModel.isDeleteInProgress.collectAsState().value,
+            isRecycleBin = viewModel.isRecycleBin(),
+            isSearchResult = viewModel.hasSearchQuery(),
+            isFiltering = viewModel.selectedTags.collectAsState().value.isNotEmpty(),
+            showPublicLinkScreen = { publicLinkScreenData ->
+                navigator.navigate(
+                    NavigationCommand(
+                        PublicLinkScreenDestination(
+                            assetId = publicLinkScreenData.assetId,
+                            fileName = publicLinkScreenData.fileName,
+                            publicLinkId = publicLinkScreenData.linkId,
+                            isFolder = publicLinkScreenData.isFolder
+                        )
+                    )
+                )
+            },
+            showMoveToFolderScreen = { _, _, _ -> },
+            showRenameScreen = {},
+            showAddRemoveTagsScreen = { node ->
+                navigator.navigate(
+                    NavigationCommand(
+                        AddRemoveTagsScreenDestination(node.uuid, node.tags.toCollection(ArrayList()))
+                    )
+                )
+            },
+            isRefreshing = viewModel.isPullToRefresh.collectAsState(),
+            onRefresh = { viewModel.onPullToRefresh() }
+        )
+    }
 }

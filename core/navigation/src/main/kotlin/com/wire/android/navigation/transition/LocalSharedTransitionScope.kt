@@ -15,9 +15,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.feature.cells.ui.search
+package com.wire.android.navigation.transition
 
-data class SearchNavArgs(
-    val conversationId: String? = null,
-    val screenType: DriveScreenType = DriveScreenType.SHARED_DRIVE,
-)
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.runtime.staticCompositionLocalOf
+
+@OptIn(ExperimentalSharedTransitionApi::class)
+val LocalSharedTransitionScope =
+    staticCompositionLocalOf<SharedTransitionScope> {
+        error("SharedTransitionScope not provided. Wrap NavHost in SharedTransitionLayout.")
+    }
+
+const val SHARED_ELEMENT_SEARCH_INPUT_KEY = "search_bar"
+const val SHARED_ELEMENT_TOP_APP_BAR_KEY = "topAppBar"
+

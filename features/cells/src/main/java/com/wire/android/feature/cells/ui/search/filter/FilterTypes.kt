@@ -15,9 +15,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.feature.cells.ui.search
+package com.wire.android.feature.cells.ui.search.filter
 
-data class SearchNavArgs(
-    val conversationId: String? = null,
-    val screenType: DriveScreenType = DriveScreenType.SHARED_DRIVE,
-)
+import androidx.annotation.StringRes
+import com.wire.android.feature.cells.R
+
+enum class FilterTypes(
+    @StringRes val labelRes: Int
+) {
+    TAGS(R.string.filter_chip_tags),
+    TYPE(R.string.filter_chip_type),
+    OWNER(R.string.filter_chip_owner),
+    CONVERSATION(R.string.filter_chip_conversation),
+    LINK(R.string.filter_chip_link_sharing)
+}

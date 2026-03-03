@@ -53,10 +53,10 @@ import com.ramcosta.composedestinations.generated.cells.destinations.VersionHist
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.CellScreenContent
 import com.wire.android.feature.cells.ui.CellViewModel
-import com.wire.android.feature.cells.ui.LocalSharedTransitionScope
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.search.filter.FilterChipsRow
 import com.wire.android.feature.cells.ui.search.filter.bottomsheet.FilterByTypeBottomSheet
+import com.wire.android.feature.cells.ui.search.filter.bottomsheet.conversation.FilterByConversationBottomSheet
 import com.wire.android.feature.cells.ui.search.filter.bottomsheet.owner.FilterByOwnerBottomSheet
 import com.wire.android.feature.cells.ui.search.filter.bottomsheet.tags.FilterByTagsBottomSheet
 import com.wire.android.feature.cells.ui.search.sort.SortRowWithMenu
@@ -64,13 +64,13 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.WireNavigator
 import com.wire.android.navigation.annotation.features.cells.WireCellsDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
+import com.wire.android.navigation.transition.LocalSharedTransitionScope
+import com.wire.android.navigation.transition.SHARED_ELEMENT_SEARCH_INPUT_KEY
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-
-const val sharedElementSearchInputKey = "search_bar"
 
 @OptIn(ExperimentalSharedTransitionApi::class, ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @WireCellsDestination(
@@ -91,12 +91,12 @@ fun SearchScreen(
 
     val uiState by searchScreenViewModel.uiState.collectAsStateWithLifecycle()
 
-    val filterTypeSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true,)
+    val filterTypeSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val filterTagsSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val filterOwnerSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val filterConversationSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val keyboardController = LocalSoftwareKeyboardController.current
     val isImeVisible = WindowInsets.isImeVisible
-
 
     fun closeSheet(sheetState: SheetState, onCloseFlag: () -> Unit) {
         scope.launch {
@@ -132,19 +132,22 @@ fun SearchScreen(
                 Column {
                     SearchTopBar(
                         modifier = Modifier.sharedElement(
-                            sharedContentState = rememberSharedContentState(key = sharedElementSearchInputKey),
+                            sharedContentState = rememberSharedContentState(key = SHARED_ELEMENT_SEARCH_INPUT_KEY),
                             animatedVisibilityScope = animatedVisibilityScope
                         ),
                         isSearchActive = uiState.isSearchActive,
-                        searchBarHint = stringResource(R.string.search_shared_drive_text_input_hint),
+                        searchBarHint = when (searchScreenViewModel.screenType) {
+                            DriveScreenType.SHARED_DRIVE -> stringResource(R.string.search_shared_drive_text_input_hint)
+                            DriveScreenType.DRIVE -> stringResource(R.string.search_drive_text_input_hint)
+                        },
                         searchQueryTextState = searchState,
                         onCloseSearchClicked = { navigator.navigateBack() },
-                        onActiveChanged = { },
                         focusRequester = focusRequester,
                         focusManager = focusManager
                     )
                     FilterChipsRow(
                         state = uiState.chipsState,
+                        screenType = searchScreenViewModel.screenType,
                         onFilterByTagsClicked = {
                             openSheet { searchScreenViewModel.onFilterByTagsClicked() }
                         },
@@ -157,6 +160,9 @@ fun SearchScreen(
                         onFilterBySharedByLinkClicked = {
                             searchScreenViewModel.onSharedByMeClicked()
                         },
+                        onFilterByConversationClicked = {
+                            openSheet { searchScreenViewModel.onFilterByConversationClicked() }
+                        },
                         onRemoveAllFiltersClicked = {
                             searchScreenViewModel.onRemoveAllFilters()
                         }
@@ -164,6 +170,7 @@ fun SearchScreen(
 
                     with(searchScreenViewModel.uiState.collectAsState().value) {
                         SortRowWithMenu(
+                            screenType = searchScreenViewModel.screenType,
                             sortingCriteria = sortingCriteria,
                             isSearchResult = searchState.text.isNotEmpty() || uiState.hasAnyFilter,
                             onSortByClicked = {
@@ -321,6 +328,29 @@ fun SearchScreen(
                 )
             },
             onRemoveAll = { searchScreenViewModel.onRemoveOwners() }
+        )
+    }
+
+    if (uiState.showFilterByConversationBottomSheet) {
+        FilterByConversationBottomSheet(
+            sheetState = filterConversationSheetState,
+            conversations = uiState.availableConversations,
+            onDismiss = {
+                closeSheet(
+                    sheetState = filterConversationSheetState,
+                    onCloseFlag = { searchScreenViewModel.onCloseConversationSheet() }
+                )
+            },
+            onRemoveAll = {
+                searchScreenViewModel.onRemoveConversations()
+            },
+            onSave = { selectedItems ->
+                searchScreenViewModel.onSaveConversations(selectedItems)
+                closeSheet(
+                    sheetState = filterConversationSheetState,
+                    onCloseFlag = { searchScreenViewModel.onCloseConversationSheet() }
+                )
+            }
         )
     }
 }

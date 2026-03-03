@@ -104,12 +104,6 @@
     <string name="rename_folder_renamed">Ordner wurde umbenannt</string>
     <string name="rename_failure">Umbenennen nicht möglich</string>
     <string name="rename_invalid_name">Nicht mit einem . beginnen und kein / \\ \" verwenden</string>
-    <string name="filter_label">Filter</string>
-    <string name="tags_label">Tags</string>
-    <string name="select_tags_label">Tags auswählen</string>
-    <string name="no_tags_created_yet_label">Noch keine Tags erstellt.</string>
-    <string name="clear_all_label">Alle entfernen</string>
-    <string name="apply_label">Anwenden</string>
     <string name="add_or_remove_tags_title">Tags hinzufügen oder entfernen</string>
     <string name="tags_description">Alle Mitglieder Ihres Teams können diese Tags sehen und verwenden.</string>
     <string name="added_tags_label">Hinzugefügte Tags</string>

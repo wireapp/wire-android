@@ -17,7 +17,24 @@
  */
 package com.wire.android.feature.cells.ui.search
 
-data class SearchNavArgs(
-    val conversationId: String? = null,
-    val screenType: DriveScreenType = DriveScreenType.SHARED_DRIVE,
-)
+import com.wire.android.feature.cells.ui.search.filter.FilterTypes
+
+enum class DriveScreenType(val filters: List<FilterTypes>) {
+    SHARED_DRIVE(
+        listOf(
+            FilterTypes.TAGS,
+            FilterTypes.TYPE,
+            FilterTypes.OWNER,
+            FilterTypes.LINK
+        )
+    ),
+    DRIVE(
+        listOf(
+            FilterTypes.TAGS,
+            FilterTypes.TYPE,
+            FilterTypes.OWNER,
+            FilterTypes.CONVERSATION,
+            FilterTypes.LINK
+        )
+    )
+}

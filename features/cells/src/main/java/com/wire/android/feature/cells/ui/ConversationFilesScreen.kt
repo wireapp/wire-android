@@ -22,7 +22,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
-import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
@@ -37,7 +36,6 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.ColorFilter
@@ -65,13 +63,15 @@ import com.wire.android.feature.cells.ui.create.file.CreateFileScreenNavArgs
 import com.wire.android.feature.cells.ui.dialog.CellsNewActionBottomSheet
 import com.wire.android.feature.cells.ui.dialog.CellsOptionsBottomSheet
 import com.wire.android.feature.cells.ui.model.CellNodeUi
-import com.wire.android.feature.cells.ui.search.sharedElementSearchInputKey
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.PreviewNavigator
 import com.wire.android.navigation.WireNavigator
 import com.wire.android.navigation.annotation.features.cells.WireCellsDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
+import com.wire.android.navigation.transition.LocalSharedTransitionScope
+import com.wire.android.navigation.transition.SHARED_ELEMENT_SEARCH_INPUT_KEY
+import com.wire.android.navigation.transition.SHARED_ELEMENT_TOP_APP_BAR_KEY
 import com.wire.android.ui.common.MoreOptionIcon
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.bottomsheet.show
@@ -91,12 +91,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flowOf
-
-@OptIn(ExperimentalSharedTransitionApi::class)
-val LocalSharedTransitionScope =
-    staticCompositionLocalOf<SharedTransitionScope> {
-        error("SharedTransitionScope not provided. Wrap NavHost in SharedTransitionLayout.")
-    }
 
 /**
  * Show files in one conversation.
@@ -238,7 +232,7 @@ fun ConversationFilesScreenContent(
                 Column {
                     WireCenterAlignedTopAppBar(
                         modifier = Modifier.sharedElement(
-                            sharedContentState = rememberSharedContentState(key = "topAppBar"),
+                            sharedContentState = rememberSharedContentState(key = SHARED_ELEMENT_TOP_APP_BAR_KEY),
                             animatedVisibilityScope = animatedVisibilityScope
                         ),
                         onNavigationPressed = { navigator.navigateBack() },
@@ -258,19 +252,17 @@ fun ConversationFilesScreenContent(
                     SearchTopBar(
                         modifier = Modifier
                             .sharedElement(
-                                sharedContentState = rememberSharedContentState(key = sharedElementSearchInputKey),
+                                sharedContentState = rememberSharedContentState(key = SHARED_ELEMENT_SEARCH_INPUT_KEY),
                                 animatedVisibilityScope = animatedVisibilityScope
                             ),
                         isSearchActive = conversationSearchBarState.isSearchActive,
-                        searchBarHint = stringResource(R.string.search_shared_drive_text_input_hint),
+                        searchBarHint = stringResource(R.string.search_label),
                         searchQueryTextState = conversationSearchBarState.searchQueryTextState,
                         onActiveChanged = conversationSearchBarState::searchActiveChanged,
                         onTap = {
                             currentNodeUuid?.let {
                                 navigator.navigate(
-                                    NavigationCommand(
-                                        SearchScreenDestination(conversationId = it)
-                                    )
+                                    NavigationCommand(SearchScreenDestination(conversationId = it))
                                 )
                             }
                         },

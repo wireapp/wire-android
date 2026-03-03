@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.feature.cells.ui.search.filter.bottomsheet.owner
+package com.wire.android.feature.cells.ui.search.filter.bottomsheet.conversation
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -29,12 +29,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.input.TextFieldState
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -49,34 +49,35 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import com.wire.android.feature.cells.R
-import com.wire.android.feature.cells.ui.search.filter.data.FilterOwnerUi
-import com.wire.android.model.UserAvatarData
+import com.wire.android.feature.cells.ui.search.filter.data.FilterConversationUi
 import com.wire.android.ui.common.SearchBarInput
-import com.wire.android.ui.common.avatar.UserProfileAvatar
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.common.typography
+import com.wire.android.ui.home.conversationslist.common.ChannelConversationAvatar
+import com.wire.android.ui.home.conversationslist.common.RegularGroupConversationAvatar
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.kalium.logic.data.id.ConversationId
 import kotlinx.coroutines.launch
 import com.wire.android.ui.common.R as CommonR
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FilterByOwnerBottomSheet(
+fun FilterByConversationBottomSheet(
     sheetState: SheetState,
-    items: List<FilterOwnerUi>,
+    conversations: List<FilterConversationUi>,
     onDismiss: () -> Unit,
-    onSave: (List<FilterOwnerUi>) -> Unit,
     onRemoveAll: () -> Unit,
+    onSave: (List<FilterConversationUi>) -> Unit,
     modifier: Modifier = Modifier,
 ) {
 
+    val state = rememberConversationFilterSheetState(conversations)
     val scope = rememberCoroutineScope()
-    val state = rememberOwnersFilterSheetState(items)
 
     val searchState = remember { TextFieldState() }
     LaunchedEffect(searchState) {
@@ -100,7 +101,7 @@ fun FilterByOwnerBottomSheet(
                 .fillMaxHeight(0.8f)
         ) {
             Text(
-                text = stringResource(R.string.bottom_sheet_title_filter_by_owner),
+                text = stringResource(R.string.bottom_sheet_title_filter_by_conversation),
                 style = typography().title02,
                 modifier = Modifier.padding(
                     horizontal = dimensions().spacing16x,
@@ -110,7 +111,7 @@ fun FilterByOwnerBottomSheet(
 
             SearchBarInput(
                 modifier = Modifier.padding(start = dimensions().spacing16x, end = dimensions().spacing16x),
-                placeholderText = stringResource(R.string.search_owners_text_input_hint),
+                placeholderText = stringResource(R.string.search_conversations_text_input_hint),
                 textState = searchState,
                 leadingIcon = {
                     Icon(
@@ -132,12 +133,11 @@ fun FilterByOwnerBottomSheet(
                 contentPadding = PaddingValues(top = dimensions().spacing8x, bottom = dimensions().spacing8x)
             ) {
                 items(
-                    items = state.filteredOwners,
-                    key = { it.id }
-                ) { owner ->
-                    OwnerRow(
-                        owner = owner,
-                        onToggle = { state.toggleOwner(owner.id) },
+                    items = state.filteredConversations,
+                ) { item ->
+                    ConversationRow(
+                        item = item,
+                        onClick = { state.selectConversation(item.id.toString()) }
                     )
                     HorizontalDivider()
                 }
@@ -165,7 +165,7 @@ fun FilterByOwnerBottomSheet(
 
                 WirePrimaryButton(
                     text = stringResource(R.string.save_label),
-                    onClick = { onSave(state.selectedOwners()) },
+                    onClick = { onSave(state.selectedConversation()) },
                     modifier = Modifier.weight(1f),
                     state = if (state.hasChanges) WireButtonState.Default else WireButtonState.Disabled,
                     contentPadding = PaddingValues(vertical = dimensions().spacing14x)
@@ -176,14 +176,14 @@ fun FilterByOwnerBottomSheet(
 }
 
 @Composable
-private fun OwnerRow(
-    owner: FilterOwnerUi,
-    onToggle: () -> Unit,
+private fun ConversationRow(
+    item: FilterConversationUi,
+    onClick: () -> Unit,
 ) {
     Row(
         modifier = Modifier
             .fillMaxSize()
-            .clickable { onToggle() }
+            .clickable { onClick() }
             .padding(
                 start = dimensions().spacing12x,
                 end = dimensions().spacing12x,
@@ -192,29 +192,33 @@ private fun OwnerRow(
             ),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        UserProfileAvatar(avatarData = UserAvatarData(owner.userAvatarAsset))
+        if (item.isChannel) {
+            ChannelConversationAvatar(
+                conversationId = item.id,
+                isPrivateChannel = item.isPrivateChannel,
+            )
+        } else {
+            RegularGroupConversationAvatar(
+                conversationId = item.id,
+                cornerRadius = dimensions().groupAvatarConversationTopBarCornerRadius,
+            )
+        }
 
         Column(
             modifier = Modifier.weight(1f)
         ) {
             Text(
-                text = owner.displayName,
+                text = item.name,
                 style = typography().body01,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 color = MaterialTheme.wireColorScheme.onSurface
             )
-            Text(
-                text = owner.handle,
-                style = typography().label04,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                color = MaterialTheme.wireColorScheme.secondaryText
-            )
         }
-        Checkbox(
-            checked = owner.selected,
-            onCheckedChange = { onToggle() }
+
+        RadioButton(
+            selected = item.selected,
+            onClick = onClick
         )
     }
 }
@@ -222,33 +226,18 @@ private fun OwnerRow(
 @OptIn(ExperimentalMaterial3Api::class)
 @MultipleThemePreviews
 @Composable
-fun PreviewFilterByOwnerBottomSheet() {
+fun PreviewFilterByConversationBottomSheet() {
     WireTheme {
-        FilterByOwnerBottomSheet(
+        FilterByConversationBottomSheet(
             sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-            items = listOf(
-                FilterOwnerUi(
-                    id = "1",
-                    displayName = "John Doe",
-                    handle = "@johndoe",
-                    selected = true
-                ),
-                FilterOwnerUi(
-                    id = "2",
-                    displayName = "Jane Smith with very long name that should be truncated",
-                    handle = "@janesmith",
-                    selected = false
-                ),
-                FilterOwnerUi(
-                    id = "3",
-                    displayName = "Alice Johnson",
-                    handle = "@alicejohnson",
-                    selected = false
-                )
+            conversations = listOf(
+                FilterConversationUi(id = ConversationId("1", "d"), name = "Conversation 1", selected = false),
+                FilterConversationUi(id = ConversationId("2", "d"), name = "Conversation 2", selected = true),
+                FilterConversationUi(id = ConversationId("3", "d"), name = "Conversation 3", selected = false),
             ),
             onDismiss = {},
-            onSave = {},
-            onRemoveAll = {}
+            onRemoveAll = {},
+            onSave = {}
         )
     }
 }

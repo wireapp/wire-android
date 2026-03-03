@@ -26,6 +26,7 @@ import androidx.paging.map
 import com.ramcosta.composedestinations.generated.cells.destinations.SearchScreenDestination
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.toUiModel
+import com.wire.android.feature.cells.ui.search.filter.data.FilterConversationUi
 import com.wire.android.feature.cells.ui.search.filter.data.FilterOwnerUi
 import com.wire.android.feature.cells.ui.search.filter.data.FilterTagUi
 import com.wire.android.feature.cells.ui.search.filter.data.FilterTypeUi
@@ -37,8 +38,12 @@ import com.wire.kalium.cells.data.MIMEType
 import com.wire.kalium.cells.data.SortingSpec
 import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
+import com.wire.kalium.cells.domain.usecase.GetConversationsUseCaseResult
+import com.wire.kalium.cells.domain.usecase.GetGroupConversationsWithCellEnabledUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
 import com.wire.kalium.common.functional.onSuccess
+import com.wire.kalium.logic.data.conversation.ConversationDetails
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.toQualifiedID
 import com.wire.kalium.logic.data.user.UserAssetId
@@ -65,6 +70,7 @@ class SearchScreenViewModel @Inject constructor(
     private val getAllTagsUseCase: GetAllTagsUseCase,
     private val getUserInfo: GetUserInfoUseCase,
     private val getCellFilesPaged: GetPaginatedFilesFlowUseCase,
+    private val getGroupConversationsWithCellEnabled: GetGroupConversationsWithCellEnabledUseCase,
 ) : ViewModel() {
 
     private data class SearchParams(
@@ -77,6 +83,8 @@ class SearchScreenViewModel @Inject constructor(
     )
 
     private val navArgs: SearchNavArgs = SearchScreenDestination.argsFrom(savedStateHandle)
+
+    val screenType = navArgs.screenType
 
     private val _uiState = MutableStateFlow(SearchUiState())
     val uiState: StateFlow<SearchUiState> = _uiState.asStateFlow()
@@ -128,6 +136,7 @@ class SearchScreenViewModel @Inject constructor(
 
     init {
         loadTags()
+        loadConversations()
     }
 
     internal fun loadTags() = viewModelScope.launch {
@@ -140,6 +149,24 @@ class SearchScreenViewModel @Inject constructor(
                             name = tag,
                         )
                     }
+                )
+            }
+        }
+    }
+
+    internal fun loadConversations() = viewModelScope.launch {
+        val result = getGroupConversationsWithCellEnabled()
+        if (result is GetConversationsUseCaseResult.Success) {
+            _uiState.update {
+                it.copy(
+                    availableConversations = result.conversations.map { conversation ->
+                        FilterConversationUi(
+                            id = conversation.id,
+                            name = conversation.name,
+                            isChannel = conversation.isChannel,
+                            isPrivateChannel = conversation.channelAccess == ConversationDetails.Group.Channel.ChannelAccess.PRIVATE,
+                        )
+                    }.sortedBy { it.name.uppercase() }
                 )
             }
         }
@@ -205,8 +232,33 @@ class SearchScreenViewModel @Inject constructor(
         _uiState.update { it.copy(showFilterByOwnerBottomSheet = false) }
     }
 
-    fun onSetSearchActive(active: Boolean) {
-        _uiState.update { it.copy(isSearchActive = active) }
+    private fun applySelectedConversations(selectedId: String?) {
+        _uiState.update { state ->
+            state.copy(
+                availableConversations = state.availableConversations.map { conversation ->
+                    conversation.copy(selected = conversation.id.toString() == selectedId)
+                }
+            )
+        }
+    }
+
+    fun onSaveConversations(selectedConversations: List<FilterConversationUi>) {
+        val selectedId = selectedConversations.firstOrNull { it.selected }?.id?.toString()
+        applySelectedConversations(selectedId)
+    }
+
+    fun onFilterByConversationClicked() {
+        _uiState.update { it.copy(showFilterByConversationBottomSheet = true) }
+    }
+
+    fun onCloseConversationSheet() {
+        _uiState.update { it.copy(showFilterByConversationBottomSheet = false) }
+    }
+
+    fun onRemoveConversations() {
+        _uiState.update { state ->
+            state.copy(availableConversations = state.availableConversations.map { it.copy(selected = false) })
+        }
     }
 
     private fun applySelectedTags(selectedIds: Set<String>) {

@@ -128,15 +128,6 @@ class CellViewModel @Inject constructor(
     private val _selectedTags = MutableStateFlow<Set<String>>(emptySet())
     val selectedTags: StateFlow<Set<String>> = _selectedTags.asStateFlow()
 
-    private val _tags = MutableStateFlow<Set<String>>(emptySet())
-    val sortedTags: StateFlow<List<String>> = _tags.asStateFlow()
-        .map { it.sortedBy { tag -> tag.lowercase() } }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS),
-            initialValue = emptyList()
-        )
-
     // Used to navigate to the root of the recycle bin after restoring a parent folder.
     private val _navigateToRecycleBinRoot = MutableStateFlow(false)
     val navigateToRecycleBinRoot: StateFlow<Boolean> get() = _navigateToRecycleBinRoot
@@ -152,7 +143,6 @@ class CellViewModel @Inject constructor(
     private var isCollaboraEnabled: Boolean = false
 
     init {
-        loadTags()
         loadWireCellConfig()
     }
 
@@ -518,12 +508,6 @@ class CellViewModel @Inject constructor(
             progressMap[uuid] = block()
             progressMap.toImmutableMap()
         }
-    }
-
-    internal fun loadTags() = viewModelScope.launch {
-        getAllTagsUseCase().onSuccess { updated -> _tags.update { updated } }
-        // apply delay to avoid too frequent requests
-        delay(30.seconds)
     }
 
     private fun loadWireCellConfig() = viewModelScope.launch {

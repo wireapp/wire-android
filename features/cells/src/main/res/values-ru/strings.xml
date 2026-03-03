@@ -111,12 +111,6 @@
     <string name="rename_invalid_name">Не начинайте с . и не используйте / \\ \"</string>
     <string name="rename_file_already_exist">Файл с таким названием уже существует</string>
     <string name="rename_folder_already_exist">Папка с этим именем уже существует</string>
-    <string name="filter_label">Фильтр</string>
-    <string name="tags_label">Теги</string>
-    <string name="select_tags_label">выбрать теги</string>
-    <string name="no_tags_created_yet_label">Теги еще не созданы.</string>
-    <string name="clear_all_label">Очистить все</string>
-    <string name="apply_label">Применить</string>
     <string name="add_or_remove_tags_title">Добавить или удалить теги</string>
     <string name="tags_description">Все члены вашей команды могут видеть и использовать эти теги.</string>
     <string name="added_tags_label">Теги добавлены</string>

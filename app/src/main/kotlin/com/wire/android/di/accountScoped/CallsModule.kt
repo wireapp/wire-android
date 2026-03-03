@@ -213,4 +213,9 @@ class CallsModule {
     @Provides
     fun provideObserveInCallReactionsUseCase(callsScope: CallsScope) =
         callsScope.observeInCallReactions
+
+    @ViewModelScoped
+    @Provides
+    fun provideObserveCallQualityDataUseCase(callsScope: CallsScope) =
+        callsScope.observeCallQualityData
 }

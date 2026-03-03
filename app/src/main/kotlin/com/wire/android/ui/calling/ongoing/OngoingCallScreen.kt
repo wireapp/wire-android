@@ -103,6 +103,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.PreviewMultipleThemesForLandscape
 import com.wire.android.util.ui.PreviewMultipleThemesForPortrait
 import com.wire.android.util.ui.PreviewMultipleThemesForSquare
+import com.wire.kalium.logic.data.call.CallQuality
 import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
@@ -211,6 +212,7 @@ fun OngoingCallScreen(
         participants = sharedCallingViewModel.participantsState,
         inPictureInPictureMode = inPictureInPictureMode,
         recentReactions = sharedCallingViewModel.recentReactions,
+        callQuality = ongoingCallViewModel.state.callQualityData.quality
     )
     ObserveRotation(sharedCallingViewModel::setUIRotation)
 
@@ -324,6 +326,7 @@ private fun OngoingCallContent(
     participants: PersistentList<UICallParticipant>,
     recentReactions: Map<UserId, String>,
     inPictureInPictureMode: Boolean,
+    callQuality: CallQuality,
     initialShowInCallReactionsPanel: Boolean = false, // for preview purposes
 ) {
     var shouldOpenFullScreen by remember { mutableStateOf(false) }
@@ -345,7 +348,8 @@ private fun OngoingCallContent(
                     onCollapse = onCollapse,
                     protocolInfo = callState.protocolInfo,
                     mlsVerificationStatus = callState.mlsVerificationStatus,
-                    proteusVerificationStatus = callState.proteusVerificationStatus
+                    proteusVerificationStatus = callState.proteusVerificationStatus,
+                    callQuality = callQuality
                 )
             }
         }
@@ -507,6 +511,7 @@ private fun OngoingCallTopBar(
     protocolInfo: Conversation.ProtocolInfo?,
     mlsVerificationStatus: Conversation.VerificationStatus?,
     proteusVerificationStatus: Conversation.VerificationStatus?,
+    callQuality: CallQuality,
     onCollapse: () -> Unit
 ) {
     Column {
@@ -534,7 +539,9 @@ private fun OngoingCallTopBar(
             },
             navigationIconType = NavigationIconType.Collapse,
             elevation = 0.dp,
-            actions = {}
+            actions = {
+                CallDetailsButton(callQuality = callQuality)
+            }
         )
         if (isCbrEnabled) {
             Text(
@@ -644,6 +651,7 @@ fun PreviewOngoingCallContent(participants: PersistentList<UICallParticipant>, i
         selectedParticipantForFullScreen = SelectedParticipant(),
         recentReactions = emptyMap(),
         initialShowInCallReactionsPanel = inCallReactionsPanelVisible,
+        callQuality = CallQuality.NORMAL
     )
 }
 
@@ -685,7 +693,13 @@ fun PreviewOngoingCallScreenConnecting() = WireTheme {
 @PreviewMultipleThemes
 @Composable
 fun PreviewOngoingCallTopBar() = WireTheme {
-    OngoingCallTopBar("Default", true, null, null, null) { }
+    OngoingCallTopBar("Default", true, null, null, null, CallQuality.NORMAL) { }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewOngoingCallTopBarWithPoorQuality() = WireTheme {
+    OngoingCallTopBar("Default", true, null, null, null, CallQuality.POOR) { }
 }
 
 fun buildPreviewParticipantsList(count: Int = 10) = buildList {

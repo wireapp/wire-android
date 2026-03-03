@@ -43,7 +43,6 @@ import com.wire.kalium.cells.domain.usecase.GetGroupConversationsWithCellEnabled
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
 import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.conversation.ConversationDetails
-import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.toQualifiedID
 import com.wire.kalium.logic.data.user.UserAssetId
@@ -79,7 +78,8 @@ class SearchScreenViewModel @Inject constructor(
         val ownerIds: List<String>,
         val mimeTypes: List<MIMEType>,
         val filesWithPublicLink: Boolean?,
-        val sortingCriteria: SortingCriteria
+        val sortingCriteria: SortingCriteria,
+        val conversationId: String?,
     )
 
     private val navArgs: SearchNavArgs = SearchScreenDestination.argsFrom(savedStateHandle)
@@ -96,20 +96,23 @@ class SearchScreenViewModel @Inject constructor(
             queryFlow,
             uiState,
         ) { query, state ->
+            val selectedConversationId = state.availableConversations.firstOrNull { it.selected }?.id?.toString()
             SearchParams(
                 query = query,
                 tagIds = state.availableTags.filter { it.selected }.map { it.id },
                 ownerIds = state.availableOwners.filter { it.selected }.map { it.id },
                 mimeTypes = state.availableTypes.filter { it.selected }.map { it.mimeType },
                 filesWithPublicLink = state.filesWithPublicLink,
-                sortingCriteria = state.sortingCriteria
+                sortingCriteria = state.sortingCriteria,
+                conversationId = selectedConversationId ?: navArgs.conversationId,
             )
-        }.distinctUntilChanged()
+        }
+            .distinctUntilChanged()
 
     val cellNodesFlow: Flow<PagingData<CellNodeUi>> =
         searchParamsFlow.flatMapLatest<SearchParams, PagingData<CellNodeUi>> { params: SearchParams ->
             getCellFilesPaged(
-                conversationId = navArgs.conversationId,
+                conversationId = params.conversationId,
                 query = params.query,
                 fileFilters = FileFilters(
                     tags = params.tagIds,
@@ -136,7 +139,9 @@ class SearchScreenViewModel @Inject constructor(
 
     init {
         loadTags()
-        loadConversations()
+        if (screenType == DriveScreenType.DRIVE) {
+            loadConversations()
+        }
     }
 
     internal fun loadTags() = viewModelScope.launch {

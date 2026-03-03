@@ -1899,8 +1899,6 @@
     <string name="enable_wire_cell_switch_description">Разрешить участникам управлять своими документами и медиа файлами в общем диске. Это действие не может быть отменено.</string>
     <string name="failed_attachment_retry_upload">Повторить загрузку</string>
     <string name="failed_attachment_remove">Удалить</string>
-    <string name="content_description_apply_filter">Применить фильтр</string>
-    <string name="content_description_filter_files">Фильтр файлов</string>
     <string name="profile_deeplink_feature_unavailable_title_alert">Эта функция недоступна. Пожалуйста, свяжитесь со своим администратором.</string>
     <string name="conversation_options_shared_drive_label">Общий диск</string>
     <string name="conversation_options_shared_drive_description">Постоянно для этой беседы.</string>

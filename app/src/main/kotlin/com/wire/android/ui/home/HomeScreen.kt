@@ -317,7 +317,6 @@ fun HomeContent(
                             HomeTopBar(
                                 title = currentTitle.asString(),
                                 currentConversationFilter = currentConversationFilter,
-                                currentCellsFilters = currentCellsFilters,
                                 navigationItem = currentNavigationItem,
                                 userAvatarData = homeState.userAvatarData,
                                 elevation = dimensions().spacing0x, // CollapsingTopBarScaffold manages applied elevation
@@ -328,9 +327,6 @@ fun HomeContent(
                                 onOpenConversationFilter = {
                                     homeStateHolder.conversationsFilterBottomSheetState.show(Unit)
                                 },
-                                onOpenFilesFilter = {
-                                    homeStateHolder.cellsFilterBottomSheetState.show(Unit)
-                                }
                             )
                         }
                     },

@@ -17,7 +17,6 @@
  */
 package com.wire.android.feature.cells.ui
 
-import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Composable
@@ -33,12 +32,9 @@ import com.ramcosta.composedestinations.generated.cells.destinations.AddRemoveTa
 import com.ramcosta.composedestinations.generated.cells.destinations.PublicLinkScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.SearchScreenDestination
 import com.wire.android.feature.cells.R
-import com.wire.android.feature.cells.domain.model.CellsFilter
 import com.wire.android.feature.cells.ui.search.DriveScreenType
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.WireNavigator
-import com.wire.android.navigation.transition.LocalSharedTransitionScope
-import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.search.SearchBarState
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
@@ -52,14 +48,10 @@ import kotlinx.coroutines.delay
 fun AllFilesScreen(
     navigator: WireNavigator,
     searchBarState: SearchBarState,
-    updateFilters: (Set<CellsFilter>) -> Unit,
-    filterBottomSheetState: WireModalSheetState<Unit>,
-    animatedVisibilityScope: AnimatedVisibilityScope,
     modifier: Modifier = Modifier,
     viewModel: CellViewModel = hiltViewModel()
 ) {
     val pagingListItems = viewModel.nodesFlow.collectAsLazyPagingItems()
-    val sharedScope = LocalSharedTransitionScope.current
     val focusRequester = remember { FocusRequester() }
 
     LaunchedEffect(searchBarState.searchQueryTextState.text) {

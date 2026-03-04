@@ -38,15 +38,13 @@ import com.wire.kalium.cells.data.MIMEType
 import com.wire.kalium.cells.data.SortingSpec
 import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
-import com.wire.kalium.cells.domain.usecase.GetOwnersUseCase
-import com.wire.kalium.cells.domain.usecase.GetOwnersUseCaseResult
 import com.wire.kalium.cells.domain.usecase.GetConversationsUseCaseResult
 import com.wire.kalium.cells.domain.usecase.GetGroupConversationsWithCellEnabledUseCase
+import com.wire.kalium.cells.domain.usecase.GetOwnersUseCase
+import com.wire.kalium.cells.domain.usecase.GetOwnersUseCaseResult
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
 import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.conversation.ConversationDetails
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
-import com.wire.kalium.logic.data.id.toQualifiedID
 import com.wire.kalium.logic.data.user.UserAssetId
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
@@ -71,7 +69,7 @@ class SearchScreenViewModel @Inject constructor(
     private val getCellFilesPaged: GetPaginatedFilesFlowUseCase,
     private val getOwners: GetOwnersUseCase,
     private val getGroupConversationsWithCellEnabled: GetGroupConversationsWithCellEnabledUseCase,
-    ) : ViewModel() {
+) : ViewModel() {
 
     private data class SearchParams(
         val query: String,
@@ -157,6 +155,7 @@ class SearchScreenViewModel @Inject constructor(
             }
         }
     }
+
     internal fun loadConversations() = viewModelScope.launch {
         val result = getGroupConversationsWithCellEnabled()
         if (result is GetConversationsUseCaseResult.Success) {
@@ -325,8 +324,11 @@ class SearchScreenViewModel @Inject constructor(
     fun setSortBy(by: SortBy) {
         _uiState.update { current ->
             val currentCriteria = current.sortingCriteria
-            if (currentCriteria.by == by) current
-            else current.copy(sortingCriteria = defaultCriteriaFor(by))
+            if (currentCriteria.by == by) {
+                current
+            } else {
+                current.copy(sortingCriteria = defaultCriteriaFor(by))
+            }
         }
     }
 

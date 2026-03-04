@@ -41,7 +41,6 @@ import com.wire.android.ui.common.DEFAULT_SEARCH_QUERY_DEBOUNCE
 import com.wire.kalium.cells.data.FileFilters
 import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
-import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
 import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
@@ -58,7 +57,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -70,16 +68,13 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import okio.Path
 import okio.Path.Companion.toOkioPath
 import okio.Path.Companion.toPath
 import javax.inject.Inject
-import kotlin.time.Duration.Companion.seconds
 
 // TODO: to cleanup this viewModel as search has been moved to a separate screen in upcoming PRs
 @Suppress("TooManyFunctions", "LongParameterList")
@@ -87,7 +82,6 @@ import kotlin.time.Duration.Companion.seconds
 class CellViewModel @Inject constructor(
     val savedStateHandle: SavedStateHandle,
     private val getCellFilesPaged: GetPaginatedFilesFlowUseCase,
-    private val getAllTagsUseCase: GetAllTagsUseCase,
     private val deleteCellAsset: DeleteCellAssetUseCase,
     private val restoreNodeFromRecycleBinUseCase: RestoreNodeFromRecycleBinUseCase,
     private val download: DownloadCellFileUseCase,

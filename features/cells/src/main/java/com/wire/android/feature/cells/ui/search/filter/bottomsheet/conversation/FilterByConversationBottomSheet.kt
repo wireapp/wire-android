@@ -33,11 +33,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.RadioButton
-import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -51,6 +48,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.search.filter.data.FilterConversationUi
 import com.wire.android.ui.common.SearchBarInput
+import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
+import com.wire.android.ui.common.bottomsheet.WireModalSheetState
+import com.wire.android.ui.common.bottomsheet.WireSheetValue
+import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
@@ -68,7 +69,7 @@ import com.wire.android.ui.common.R as CommonR
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FilterByConversationBottomSheet(
-    sheetState: SheetState,
+    sheetState: WireModalSheetState<Unit>,
     conversations: List<FilterConversationUi>,
     onDismiss: () -> Unit,
     onRemoveAll: () -> Unit,
@@ -90,7 +91,7 @@ fun FilterByConversationBottomSheet(
             .invokeOnCompletion { onDismiss() }
     }
 
-    ModalBottomSheet(
+    WireModalSheetLayout(
         onDismissRequest = ::dismiss,
         sheetState = sheetState,
         modifier = modifier,
@@ -229,7 +230,7 @@ private fun ConversationRow(
 fun PreviewFilterByConversationBottomSheet() {
     WireTheme {
         FilterByConversationBottomSheet(
-            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+            sheetState = rememberWireModalSheetState<Unit>(WireSheetValue.Expanded(Unit)),
             conversations = listOf(
                 FilterConversationUi(id = ConversationId("1", "d"), name = "Conversation 1", selected = false),
                 FilterConversationUi(id = ConversationId("2", "d"), name = "Conversation 2", selected = true),

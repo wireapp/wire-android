@@ -65,7 +65,6 @@ import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalSharedTransitionApi::class, ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @WireCellsDestination(
@@ -86,7 +85,7 @@ fun SearchScreen(
     val filterTypeSheetState = rememberWireModalSheetState<Unit>(WireSheetValue.Hidden)
     val filterTagsSheetState = rememberWireModalSheetState<Unit>(WireSheetValue.Hidden)
     val filterOwnerSheetState = rememberWireModalSheetState<Unit>(WireSheetValue.Hidden)
-    val filterConversationSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val filterConversationSheetState = rememberWireModalSheetState<Unit>(WireSheetValue.Hidden)
 
     val isImeVisible = WindowInsets.isImeVisible
 
@@ -134,7 +133,7 @@ fun SearchScreen(
                             searchScreenViewModel.onSharedByMeClicked()
                         },
                         onFilterByConversationClicked = {
-                            openSheet { searchScreenViewModel.onFilterByConversationClicked() }
+                            filterConversationSheetState.show(Unit, isImeVisible)
                         },
                         onRemoveAllFiltersClicked = {
                             searchScreenViewModel.onRemoveAllFilters()
@@ -275,26 +274,19 @@ fun SearchScreen(
         },
         onRemoveAll = { searchScreenViewModel.onRemoveOwners() }
     )
-    if (uiState.showFilterByConversationBottomSheet) {
-        FilterByConversationBottomSheet(
-            sheetState = filterConversationSheetState,
-            conversations = uiState.availableConversations,
-            onDismiss = {
-                closeSheet(
-                    sheetState = filterConversationSheetState,
-                    onCloseFlag = { searchScreenViewModel.onCloseConversationSheet() }
-                )
-            },
-            onRemoveAll = {
-                searchScreenViewModel.onRemoveConversations()
-            },
-            onSave = { selectedItems ->
-                searchScreenViewModel.onSaveConversations(selectedItems)
-                closeSheet(
-                    sheetState = filterConversationSheetState,
-                    onCloseFlag = { searchScreenViewModel.onCloseConversationSheet() }
-                )
-            }
-        )
-    }
+
+    FilterByConversationBottomSheet(
+        sheetState = filterConversationSheetState,
+        conversations = uiState.availableConversations,
+        onDismiss = {
+            filterConversationSheetState.hide()
+        },
+        onRemoveAll = {
+            searchScreenViewModel.onRemoveConversations()
+        },
+        onSave = { selectedItems ->
+            searchScreenViewModel.onSaveConversations(selectedItems)
+            filterConversationSheetState.hide()
+        }
+    )
 }

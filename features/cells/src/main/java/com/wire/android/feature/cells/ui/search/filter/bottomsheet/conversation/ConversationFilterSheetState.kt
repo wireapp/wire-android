@@ -17,7 +17,11 @@
  */
 package com.wire.android.feature.cells.ui.search.filter.bottomsheet.conversation
 
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import com.wire.android.feature.cells.ui.search.filter.data.FilterConversationUi
 
 class ConversationFilterSheetState(
@@ -34,12 +38,14 @@ class ConversationFilterSheetState(
     val hasChanges: Boolean
         get() = conversations.any { o -> initialById[o.id]?.selected != o.selected }
 
-
     val filteredConversations: List<FilterConversationUi>
         get() {
             val q = query.trim()
-            return if (q.isBlank()) conversations
-            else conversations.filter { it.name.contains(q, ignoreCase = true) }
+            return if (q.isBlank()) {
+                conversations
+            } else {
+                conversations.filter { it.name.contains(q, ignoreCase = true) }
+            }
         }
 
     fun onQueryChange(text: String) {

@@ -27,9 +27,9 @@ import com.wire.kalium.cells.domain.usecase.AddAttachmentDraftUseCase
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
 import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
 import com.wire.kalium.cells.domain.usecase.GetCellFileUseCase
+import com.wire.kalium.cells.domain.usecase.GetCellGroupConversationsUseCase
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
 import com.wire.kalium.cells.domain.usecase.GetFoldersUseCase
-import com.wire.kalium.cells.domain.usecase.GetGroupConversationsWithCellEnabledUseCase
 import com.wire.kalium.cells.domain.usecase.GetMessageAttachmentUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedNodesUseCase
@@ -251,6 +251,6 @@ class CellsModule {
 
     @ViewModelScoped
     @Provides
-    fun provideGetGroupConversationsWithCellEnabledUseCase(cellsScope: CellsScope): GetGroupConversationsWithCellEnabledUseCase =
-        cellsScope.getGroupConversationsWithCellEnabledUseCase
+    fun provideGetCellGroupConversationsUseCase(cellsScope: CellsScope): GetCellGroupConversationsUseCase =
+        cellsScope.getCellGroupConversationsUseCase
 }

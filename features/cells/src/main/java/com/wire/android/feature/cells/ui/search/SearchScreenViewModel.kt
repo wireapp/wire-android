@@ -38,8 +38,8 @@ import com.wire.kalium.cells.data.MIMEType
 import com.wire.kalium.cells.data.SortingSpec
 import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
+import com.wire.kalium.cells.domain.usecase.GetCellGroupConversationsUseCase
 import com.wire.kalium.cells.domain.usecase.GetConversationsUseCaseResult
-import com.wire.kalium.cells.domain.usecase.GetGroupConversationsWithCellEnabledUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
 import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.conversation.ConversationDetails
@@ -69,7 +69,7 @@ class SearchScreenViewModel @Inject constructor(
     private val getAllTagsUseCase: GetAllTagsUseCase,
     private val getUserInfo: GetUserInfoUseCase,
     private val getCellFilesPaged: GetPaginatedFilesFlowUseCase,
-    private val getGroupConversationsWithCellEnabled: GetGroupConversationsWithCellEnabledUseCase,
+    private val getCellGroupConversations: GetCellGroupConversationsUseCase,
 ) : ViewModel() {
 
     private data class SearchParams(
@@ -160,7 +160,7 @@ class SearchScreenViewModel @Inject constructor(
     }
 
     internal fun loadConversations() = viewModelScope.launch {
-        val result = getGroupConversationsWithCellEnabled()
+        val result = getCellGroupConversations()
         if (result is GetConversationsUseCaseResult.Success) {
             _uiState.update {
                 it.copy(

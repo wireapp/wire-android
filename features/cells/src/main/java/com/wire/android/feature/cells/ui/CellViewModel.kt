@@ -59,6 +59,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -67,7 +68,7 @@ import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import okio.Path
@@ -135,7 +136,49 @@ class CellViewModel @Inject constructor(
 
     init {
         loadWireCellConfig()
+        refreshNodes()
     }
+
+    private val sharedNodesFlow = refreshTrigger.flatMapLatest {
+        combine(
+            getCellFilesPaged(
+                conversationId = navArgs.conversationId,
+                fileFilters = FileFilters(
+                    onlyDeleted = navArgs.isRecycleBin ?: false,
+                ),
+            ).cachedIn(viewModelScope),
+            removedItemsFlow,
+            downloadDataFlow
+        ) { pagingData, removedItems, downloadData ->
+            var emittedRefreshDone = false
+
+            pagingData
+                .filter { node: Node -> node.uuid !in removedItems }
+                .map { node ->
+                    if (!emittedRefreshDone) {
+                        emittedRefreshDone = true
+
+                        if (_isPullToRefresh.value) {
+                            _isPullToRefresh.value = false
+                        }
+
+                        _pagingRefreshDone.tryEmit(Unit)
+                    }
+
+                    when (node) {
+                        is Node.Folder -> node.toUiModel().copy(
+                            downloadProgress = downloadData[node.uuid]?.progress
+                        )
+
+                        is Node.File -> node.toUiModel().copy(
+                            downloadProgress = downloadData[node.uuid]?.progress,
+                            localPath = downloadData[node.uuid]?.localPath?.toString()
+                        )
+                    }
+                }
+        }
+    }
+        .shareIn(viewModelScope, started = SharingStarted.Eagerly, replay = 1)
 
     internal val nodesFlow = flow {
         val cellAvailable = isCellAvailable().fold({ false }, { it })
@@ -144,48 +187,7 @@ class CellViewModel @Inject constructor(
             return@flow
         }
 
-        val combinedFlow = refreshTrigger.onStart { emit(Unit) }
-            .flatMapLatest {
-                combine(
-                    getCellFilesPaged(
-                        conversationId = navArgs.conversationId,
-                        fileFilters = FileFilters(
-                            onlyDeleted = navArgs.isRecycleBin ?: false,
-                        ),
-                    ).cachedIn(viewModelScope),
-                    removedItemsFlow,
-                    downloadDataFlow
-                ) { pagingData, removedItems, downloadData ->
-                    var emittedRefreshDone = false
-
-                    pagingData
-                        .filter { node: Node -> node.uuid !in removedItems }
-                        .map { node ->
-                            if (!emittedRefreshDone) {
-                                emittedRefreshDone = true
-
-                                if (_isPullToRefresh.value) {
-                                    _isPullToRefresh.value = false
-                                }
-
-                                _pagingRefreshDone.tryEmit(Unit)
-                            }
-
-                            when (node) {
-                                is Node.Folder -> node.toUiModel().copy(
-                                    downloadProgress = downloadData[node.uuid]?.progress
-                                )
-
-                                is Node.File -> node.toUiModel().copy(
-                                    downloadProgress = downloadData[node.uuid]?.progress,
-                                    localPath = downloadData[node.uuid]?.localPath?.toString()
-                                )
-                            }
-                        }
-                }
-            }
-
-        emitAll(combinedFlow)
+        emitAll(sharedNodesFlow)
     }
 
     fun onPullToRefresh() {

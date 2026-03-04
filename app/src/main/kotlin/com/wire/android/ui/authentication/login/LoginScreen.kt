@@ -107,6 +107,7 @@ fun LoginScreen(
         },
         loginEmailViewModel = loginEmailViewModel,
         ssoLoginResult = loginNavArgs.ssoLoginResult,
+        ssoCodeAutoLogin = loginNavArgs.ssoCodeAutoLogin
     )
 }
 
@@ -117,6 +118,7 @@ private fun LoginContent(
     onRemoveDeviceNeeded: () -> Unit,
     loginEmailViewModel: LoginEmailViewModel,
     ssoLoginResult: DeepLinkResult.SSOLogin?,
+    ssoCodeAutoLogin: SSOCodeAutoLogin?,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         /*
@@ -153,11 +155,17 @@ private fun MainLoginContent(
     onRemoveDeviceNeeded: () -> Unit,
     loginEmailViewModel: LoginEmailViewModel,
     ssoLoginResult: DeepLinkResult.SSOLogin?,
+    ssoCodeAutoLogin: SSOCodeAutoLogin?,
 ) {
 
     val scope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
-    val initialPageIndex = if (ssoLoginResult == null) LoginTabItem.EMAIL.ordinal else LoginTabItem.SSO.ordinal
+    // Show SSO tab if we have either ssoLoginResult or ssoCodeAutoLogin
+    val initialPageIndex = if (ssoLoginResult != null || ssoCodeAutoLogin != null) {
+        LoginTabItem.SSO.ordinal
+    } else {
+        LoginTabItem.EMAIL.ordinal
+    }
     val pagerState = rememberPagerState(
         initialPage = initialPageIndex,
         pageCount = { LoginTabItem.values().size }

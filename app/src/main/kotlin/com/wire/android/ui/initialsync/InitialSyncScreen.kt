@@ -20,12 +20,17 @@ package com.wire.android.ui.initialsync
 
 import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.SettingUpWireScreenContent
 import com.ramcosta.composedestinations.generated.app.destinations.HomeScreenDestination
+import com.wire.android.ui.LocalActivity
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @WireRootDestination
 @Composable
@@ -33,9 +38,22 @@ fun InitialSyncScreen(
     navigator: Navigator,
     viewModel: InitialSyncViewModel = hiltViewModel()
 ) {
+    val activity = LocalActivity.current
+
     SettingUpWireScreenContent()
 
     if (viewModel.isSyncCompleted) {
         navigator.navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
+
+        // If started with SSO intent, move app to background after sync completes
+        if (viewModel.shouldMoveToBackground) {
+            LaunchedEffect(Unit) {
+                delay(250) // Small delay to let navigation complete
+                activity.moveTaskToBack(false)
+            }
+        }
     }
+
+
+
 }

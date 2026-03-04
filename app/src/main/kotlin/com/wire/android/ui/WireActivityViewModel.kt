@@ -57,6 +57,8 @@ import com.wire.android.util.deeplink.LoginType
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.android.emm.ManagedConfigurationsManager
+import com.wire.android.util.lifecycle.AutomatedLoginManager
+import com.wire.android.util.lifecycle.IntentsProcessor
 import com.wire.android.workmanager.worker.cancelPeriodicPersistentWebsocketCheckWorker
 import com.wire.android.workmanager.worker.enqueuePeriodicPersistentWebsocketCheckWorker
 import com.wire.kalium.logic.CoreLogic
@@ -117,6 +119,7 @@ class WireActivityViewModel @Inject constructor(
     private val doesValidSessionExist: Lazy<DoesValidSessionExistUseCase>,
     private val getServerConfigUseCase: Lazy<GetServerConfigUseCase>,
     private val deepLinkProcessor: Lazy<DeepLinkProcessor>,
+    private val intentsProcessor: Lazy<IntentsProcessor>,
     private val observeSessions: Lazy<ObserveSessionsUseCase>,
     private val accountSwitch: Lazy<AccountSwitchUseCase>,
     private val servicesManager: Lazy<ServicesManager>,
@@ -135,6 +138,7 @@ class WireActivityViewModel @Inject constructor(
     private val observeSelfUserFactory: ObserveSelfUserUseCaseProvider.Factory,
     private val monitorSyncWorkUseCase: MonitorSyncWorkUseCase,
     private val managedConfigurationsManager: ManagedConfigurationsManager,
+    private val automatedLoginManager: AutomatedLoginManager,
 ) : ActionsViewModel<WireActivityViewAction>() {
 
     var globalAppState: GlobalAppState by mutableStateOf(GlobalAppState())
@@ -339,6 +343,16 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
+    // Returns whether an intent was handled, or if there was nothing to do
+    fun handleIntentsThatAreNotDeepLinks(intent: Intent?): Boolean {
+        val result = intentsProcessor.get().invoke(intent)
+        if (result != null) {
+            onAutomaticLoginParameters(result.backendConfig, result.ssoCode)
+            return true
+        }
+        return false
+    }
+
     @Suppress("ComplexMethod")
     fun handleDeepLink(intent: Intent?) {
         viewModelScope.launch(dispatchers.io()) {
@@ -365,6 +379,22 @@ class WireActivityViewModel @Inject constructor(
                     sendAction(OnUnknownDeepLink)
                     appLogger.e("unknown deeplink result $result")
                 }
+            }
+        }
+    }
+
+    private fun onAutomaticLoginParameters(backendConfigUrl: String?, ssoCode: String?) {
+        viewModelScope.launch(dispatchers.io()) {
+            // Load backend config
+            val serverLinks = backendConfigUrl?.let { loadServerConfig(it) }
+
+            val backendConfigLoadFailed = backendConfigUrl != null && serverLinks == null
+            val nothingProvided = backendConfigUrl == null && ssoCode == null
+            if (backendConfigLoadFailed || nothingProvided) {
+                sendAction(OnUnknownDeepLink)
+            } else {
+                automatedLoginManager.pendingMoveToBackgroundAfterSync = true
+                sendAction(OnAutomaticLogin(serverLinks, ssoCode))
             }
         }
     }
@@ -661,6 +691,7 @@ internal data object OnShowImportMediaScreen : WireActivityViewAction
 internal data object OnAuthorizationNeeded : WireActivityViewAction
 internal data object OnUnknownDeepLink : WireActivityViewAction
 internal data class OnMigrationLogin(val result: DeepLinkResult.MigrationLogin) : WireActivityViewAction
+internal data class OnAutomaticLogin(val serverLinks: ServerConfig.Links?, val ssoCode: String?) : WireActivityViewAction
 internal data class OnOpenUserProfile(val result: DeepLinkResult.OpenOtherUserProfile) : WireActivityViewAction
 internal data class OnSSOLogin(val result: DeepLinkResult.SSOLogin) : WireActivityViewAction
 internal data class ShowToast(val messageResId: Int) : WireActivityViewAction

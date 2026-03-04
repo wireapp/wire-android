@@ -385,7 +385,7 @@ class WireActivity : AppCompatActivity() {
                     .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
                     .collectLatest { (intent, savedInstanceState) ->
                         currentKeyboardController?.hide()
-                        handleDeepLink(currentNavigator, intent, savedInstanceState)
+                        handleDeepLinkOrIntent(currentNavigator, intent, savedInstanceState)
                     }
             }
         }
@@ -730,7 +730,7 @@ class WireActivity : AppCompatActivity() {
     /*
      * This method is responsible for handling deep links from given intent
      */
-    private fun handleDeepLink(
+    private suspend fun handleDeepLinkOrIntent(
         navigator: Navigator,
         intent: Intent?,
         savedInstanceState: Bundle? = null
@@ -742,19 +742,23 @@ class WireActivity : AppCompatActivity() {
         }
         val originalIntent = savedInstanceState.getOriginalIntent()
         if (intent == null
-            || intent.action == Intent.ACTION_MAIN // This is the case when the app is opened from launcher so no deep link to handle
+            || intent.action == Intent.ACTION_MAIN // The app is opened from launcher so no deep link to handle, only start intents if any
             || intent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY != 0
             || originalIntent == intent // This is the case when the activity is recreated and already handled
             || intent.getBooleanExtra(HANDLED_DEEPLINK_FLAG, false)
         ) {
-            if (navigator.isEmptyWelcomeStartDestination()) {
-                // no deep link to handle so if "welcome empty start" screen then switch "start" screen to login by navigating to it
-                navigator.navigate(NavigationCommand(NewLoginScreenDestination(), BackStackMode.CLEAR_WHOLE))
+            val handled = viewModel.handleIntentsThatAreNotDeepLinks(intent)
+            if (!handled && navigator.isEmptyWelcomeStartDestination()) {
+                // nothing to handle so if "welcome empty start" screen then switch "start" screen to login by navigating to it
+                navigate(NavigationCommand(NewLoginScreenDestination(), BackStackMode.CLEAR_WHOLE))
             }
             return
         } else {
-            viewModel.handleDeepLink(intent)
-            intent.putExtra(HANDLED_DEEPLINK_FLAG, true)
+            val handled = viewModel.handleIntentsThatAreNotDeepLinks(intent)
+            if (!handled) {
+                viewModel.handleDeepLink(intent)
+                intent.putExtra(HANDLED_DEEPLINK_FLAG, true)
+            }
         }
     }
 

@@ -22,7 +22,7 @@ package com.wire.android.ui
 
 import android.content.Intent
 import androidx.work.WorkManager
-import androidx.work.impl.OperationImpl
+import androidx.work.Operation
 import app.cash.turbine.test
 import com.wire.android.BuildConfig
 import com.wire.android.assertions.shouldBeEqualTo
@@ -51,6 +51,9 @@ import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
+import com.wire.android.util.lifecycle.AutomatedLoginManager
+import com.wire.android.util.lifecycle.AutomatedLoginViaSSO
+import com.wire.android.util.lifecycle.IntentsProcessor
 import com.wire.android.util.newServerConfig
 import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.CoreLogic
@@ -770,6 +773,19 @@ class WireActivityViewModelTest {
         }
 
     @Test
+    fun `given valid automated_login intent, when handling intents, then automated login manager pending flag is set`() = runTest {
+        val ssoCode = "wire-b6261497-5b7d-4a57-8f4d-3a94e936b2c0"
+        val (arrangement, viewModel) = Arrangement()
+            .withAutomatedLoginIntent(ssoCode = ssoCode)
+            .arrange()
+
+        viewModel.handleIntentsThatAreNotDeepLinks(mockedIntent())
+        advanceUntilIdle()
+
+        assertTrue(arrangement.automatedLoginManager.pendingMoveToBackgroundAfterSync)
+    }
+
+    @Test
     fun `given no valid session, when checking number of sessions, then return true`() = runTest {
         // given
         val (_, viewModel) = Arrangement()
@@ -818,6 +834,7 @@ class WireActivityViewModelTest {
 
         val managedConfigurationsManager: ManagedConfigurationsManager = mockk(relaxed = true)
         private val persistentWebSocketEnforcedByMDMFlow = MutableStateFlow(false)
+        val automatedLoginManager = AutomatedLoginManager()
 
         init {
             // Tests setup
@@ -829,6 +846,7 @@ class WireActivityViewModelTest {
             coEvery { currentSessionFlow() } returns flowOf()
             coEvery { getServerConfigUseCase(any()) } returns GetServerConfigResult.Success(newServerConfig(1).links)
             coEvery { deepLinkProcessor(any(), any()) } returns DeepLinkResult.Unknown
+            every { intentsProcessor(any()) } returns null
             coEvery { observeSessionsUseCase.invoke() } returns flowOf(GetAllSessionsResult.Failure.NoSessionFound)
             every { observeSyncStateUseCaseProviderFactory.create(any()).observeSyncState } returns observeSyncStateUseCase
             every { observeSyncStateUseCase() } returns emptyFlow()
@@ -843,8 +861,8 @@ class WireActivityViewModelTest {
                 observeIfE2EIRequiredDuringLoginUseCaseProviderFactory.create(any()).observeIfE2EIIsRequiredDuringLogin()
             } returns
                     flowOf(false)
-            every { workManager.cancelAllWorkByTag(any()) } returns OperationImpl()
-            every { workManager.enqueueUniquePeriodicWork(any(), any(), any()) } returns OperationImpl()
+            every { workManager.cancelAllWorkByTag(any()) } returns mockk<Operation>()
+            every { workManager.enqueueUniquePeriodicWork(any(), any(), any()) } returns mockk<Operation>()
             val observeSelfUserUseCase = mockk<ObserveSelfUserUseCase>()
             every { observeSelfUserFactory.create(any()).observeSelfUser } returns observeSelfUserUseCase
             coEvery { observeSelfUserUseCase() } returns flowOf(SELF_USER)
@@ -862,6 +880,9 @@ class WireActivityViewModelTest {
 
         @MockK
         lateinit var deepLinkProcessor: DeepLinkProcessor
+
+        @MockK
+        lateinit var intentsProcessor: IntentsProcessor
 
         @MockK
         lateinit var observeSessionsUseCase: ObserveSessionsUseCase
@@ -928,6 +949,7 @@ class WireActivityViewModelTest {
                 doesValidSessionExist = { doesValidSessionExist },
                 getServerConfigUseCase = { getServerConfigUseCase },
                 deepLinkProcessor = { deepLinkProcessor },
+                intentsProcessor = { intentsProcessor },
                 observeSessions = { observeSessionsUseCase },
                 accountSwitch = { switchAccount },
                 servicesManager = { servicesManager },
@@ -944,6 +966,7 @@ class WireActivityViewModelTest {
                 observeSelfUserFactory = observeSelfUserFactory,
                 monitorSyncWorkUseCase = monitorSyncWorkUseCase,
                 managedConfigurationsManager = managedConfigurationsManager,
+                automatedLoginManager = automatedLoginManager,
             )
         }
 
@@ -1071,6 +1094,10 @@ class WireActivityViewModelTest {
             val useCase = mockk<IsProfileQRCodeEnabledUseCase>()
             coEvery { isProfileQRCodeEnabledFactory.create(any()).isProfileQRCodeEnabled } returns useCase
             coEvery { useCase() } returns isEnabled
+        }
+
+        fun withAutomatedLoginIntent(ssoCode: String): Arrangement = apply {
+            every { intentsProcessor(any()) } returns AutomatedLoginViaSSO(ssoCode = ssoCode)
         }
 
         fun arrange() = this to viewModel

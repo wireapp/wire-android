@@ -38,6 +38,8 @@ import com.wire.kalium.cells.data.MIMEType
 import com.wire.kalium.cells.data.SortingSpec
 import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
+import com.wire.kalium.cells.domain.usecase.GetOwnersUseCase
+import com.wire.kalium.cells.domain.usecase.GetOwnersUseCaseResult
 import com.wire.kalium.cells.domain.usecase.GetConversationsUseCaseResult
 import com.wire.kalium.cells.domain.usecase.GetGroupConversationsWithCellEnabledUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
@@ -46,8 +48,6 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.toQualifiedID
 import com.wire.kalium.logic.data.user.UserAssetId
-import com.wire.kalium.logic.feature.user.GetUserInfoResult
-import com.wire.kalium.logic.feature.user.GetUserInfoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -62,15 +62,16 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 // TODO: to cover it with  unit test in upcoming PR
+// TODO add search debounce to avoid triggering search on every keystroke
+@Suppress("TooManyFunctions")
 @HiltViewModel
 class SearchScreenViewModel @Inject constructor(
     val savedStateHandle: SavedStateHandle,
-    private val qualifiedIdMapper: QualifiedIdMapper,
     private val getAllTagsUseCase: GetAllTagsUseCase,
-    private val getUserInfo: GetUserInfoUseCase,
     private val getCellFilesPaged: GetPaginatedFilesFlowUseCase,
+    private val getOwners: GetOwnersUseCase,
     private val getGroupConversationsWithCellEnabled: GetGroupConversationsWithCellEnabledUseCase,
-) : ViewModel() {
+    ) : ViewModel() {
 
     private data class SearchParams(
         val query: String,
@@ -126,9 +127,6 @@ class SearchScreenViewModel @Inject constructor(
                 )
             ).map { pagingData: PagingData<Node> ->
                 pagingData.map { node: Node ->
-                    if (uiState.value.availableOwners.isEmpty()) {
-                        loadOwners(node)
-                    }
                     when (node) {
                         is Node.Folder -> node.toUiModel()
                         is Node.File -> node.toUiModel()
@@ -139,6 +137,7 @@ class SearchScreenViewModel @Inject constructor(
 
     init {
         loadTags()
+        loadOwners()
         if (screenType == DriveScreenType.DRIVE) {
             loadConversations()
         }
@@ -158,7 +157,6 @@ class SearchScreenViewModel @Inject constructor(
             }
         }
     }
-
     internal fun loadConversations() = viewModelScope.launch {
         val result = getGroupConversationsWithCellEnabled()
         if (result is GetConversationsUseCaseResult.Success) {
@@ -181,60 +179,47 @@ class SearchScreenViewModel @Inject constructor(
         queryFlow.value = query
     }
 
-    fun loadOwners(node: Node) = viewModelScope.launch {
-        val id = node.ownerUserId
-        val name = node.userName
-        val handle = node.userHandle
-        if (id != null && name != null && handle != null) {
-            val userInfo = getUserInfo(id.toQualifiedID(qualifiedIdMapper))
+    fun loadOwners(conversationId: String? = navArgs.conversationId) {
+        viewModelScope.launch {
+            when (val result = getOwners(conversationId = conversationId)) {
+                is GetOwnersUseCaseResult.Success -> {
+                    val ownersUi = result.owners.mapNotNull { owner ->
+                        val name = owner.name?.takeIf { it.isNotBlank() }
+                        val handle = owner.handle?.takeIf { it.isNotBlank() }
+                        if (name == null || handle == null) return@mapNotNull null
 
-            val userAvatarAsset = if (userInfo is GetUserInfoResult.Success) {
-                userInfo.otherUser.completePicture?.let {
-                    ImageAsset.UserAvatarAsset(
-                        UserAssetId(
-                            it.value,
-                            it.domain,
+                        val picture = owner.completePicture ?: owner.previewPicture
+                        val avatarAsset = picture?.let { pic ->
+                            ImageAsset.UserAvatarAsset(
+                                UserAssetId(
+                                    value = pic.value,
+                                    domain = pic.domain
+                                )
+                            )
+                        }
+
+                        FilterOwnerUi(
+                            id = owner.id.value,
+                            displayName = name,
+                            handle = handle,
+                            userAvatarAsset = avatarAsset,
+                            selected = false
                         )
-                    )
+                    }
+                        .sortedBy { it.displayName.uppercase() }
+
+                    _uiState.update { state ->
+                        state.copy(
+                            availableOwners = ownersUi
+                        )
+                    }
                 }
-            } else null
-            _uiState.update { state ->
-                val existingOwners = state.availableOwners.toMutableList()
-                if (existingOwners.none { it.id == id }) {
-                    existingOwners += FilterOwnerUi(
-                        id = id,
-                        displayName = name,
-                        handle = handle,
-                        userAvatarAsset = userAvatarAsset
-                    )
+
+                is GetOwnersUseCaseResult.Failure -> {
+                    // no need to show error, just keep the owners list empty
                 }
-                state.copy(availableOwners = existingOwners.sortedBy { it.displayName.uppercase() })
             }
         }
-    }
-
-    fun onFilterByTypeClicked() {
-        _uiState.update { it.copy(showFilterByTypeBottomSheet = true) }
-    }
-
-    fun onCloseTypeSheet() {
-        _uiState.update { it.copy(showFilterByTypeBottomSheet = false) }
-    }
-
-    fun onFilterByTagsClicked() {
-        _uiState.update { it.copy(showFilterByTagsBottomSheet = true) }
-    }
-
-    fun onCloseTagsSheet() {
-        _uiState.update { it.copy(showFilterByTagsBottomSheet = false) }
-    }
-
-    fun onFilterByOwnerClicked() {
-        _uiState.update { it.copy(showFilterByOwnerBottomSheet = true) }
-    }
-
-    fun onCloseOwnerSheet() {
-        _uiState.update { it.copy(showFilterByOwnerBottomSheet = false) }
     }
 
     private fun applySelectedConversations(selectedId: String?) {
@@ -305,7 +290,6 @@ class SearchScreenViewModel @Inject constructor(
             state.copy(availableTypes = state.availableTypes.map { it.copy(selected = false) })
         }
     }
-
 
     fun onSharedByMeClicked() {
         _uiState.update { it.copy(filesWithPublicLink = !it.filesWithPublicLink) }

@@ -18,12 +18,10 @@
 package com.wire.android.feature.cells.ui.search.filter.bottomsheet.owner
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -34,10 +32,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -49,13 +44,15 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import com.wire.android.feature.cells.R
+import com.wire.android.feature.cells.ui.search.filter.bottomsheet.FooterButtons
 import com.wire.android.feature.cells.ui.search.filter.data.FilterOwnerUi
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.SearchBarInput
 import com.wire.android.ui.common.avatar.UserProfileAvatar
-import com.wire.android.ui.common.button.WireButtonState
-import com.wire.android.ui.common.button.WirePrimaryButton
-import com.wire.android.ui.common.button.WireSecondaryButton
+import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
+import com.wire.android.ui.common.bottomsheet.WireModalSheetState
+import com.wire.android.ui.common.bottomsheet.WireSheetValue
+import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.common.typography
@@ -67,12 +64,12 @@ import com.wire.android.ui.common.R as CommonR
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FilterByOwnerBottomSheet(
-    sheetState: SheetState,
+    sheetState: WireModalSheetState<Unit>,
     items: List<FilterOwnerUi>,
     onDismiss: () -> Unit,
     onSave: (List<FilterOwnerUi>) -> Unit,
     onRemoveAll: () -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
 
     val scope = rememberCoroutineScope()
@@ -89,7 +86,7 @@ fun FilterByOwnerBottomSheet(
             .invokeOnCompletion { onDismiss() }
     }
 
-    ModalBottomSheet(
+    WireModalSheetLayout(
         onDismissRequest = ::dismiss,
         sheetState = sheetState,
         modifier = modifier,
@@ -97,7 +94,7 @@ fun FilterByOwnerBottomSheet(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(0.8f)
+                .fillMaxHeight(0.8f),
         ) {
             Text(
                 text = stringResource(R.string.bottom_sheet_title_filter_by_owner),
@@ -143,34 +140,15 @@ fun FilterByOwnerBottomSheet(
                 }
             }
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        start = dimensions().spacing16x,
-                        end = dimensions().spacing16x,
-                        bottom = dimensions().spacing12x
-                    ),
-                horizontalArrangement = Arrangement.spacedBy(dimensions().spacing12x)
-            ) {
-                WireSecondaryButton(
-                    text = stringResource(R.string.button_remove_all_label),
-                    onClick = {
-                        state.removeAll()
-                        onRemoveAll()
-                    },
-                    modifier = Modifier.weight(1f),
-                    contentPadding = PaddingValues(vertical = dimensions().spacing14x)
-                )
-
-                WirePrimaryButton(
-                    text = stringResource(R.string.save_label),
-                    onClick = { onSave(state.selectedOwners()) },
-                    modifier = Modifier.weight(1f),
-                    state = if (state.hasChanges) WireButtonState.Default else WireButtonState.Disabled,
-                    contentPadding = PaddingValues(vertical = dimensions().spacing14x)
-                )
-            }
+            FooterButtons(
+                modifier = Modifier.padding(horizontal = dimensions().spacing16x),
+                onRemoveAll = {
+                    state.removeAll()
+                    onRemoveAll()
+                },
+                onSave = { onSave(state.selectedOwners()) },
+                hasChanges = state.hasChanges
+            )
         }
     }
 }
@@ -182,7 +160,7 @@ private fun OwnerRow(
 ) {
     Row(
         modifier = Modifier
-            .fillMaxSize()
+            .fillMaxWidth()
             .clickable { onToggle() }
             .padding(
                 start = dimensions().spacing12x,
@@ -225,7 +203,7 @@ private fun OwnerRow(
 fun PreviewFilterByOwnerBottomSheet() {
     WireTheme {
         FilterByOwnerBottomSheet(
-            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+            sheetState = rememberWireModalSheetState<Unit>(WireSheetValue.Expanded(Unit)),
             items = listOf(
                 FilterOwnerUi(
                     id = "1",

@@ -20,7 +20,6 @@
 
 package com.wire.android.ui.sharing
 
-import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -51,7 +50,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -59,6 +57,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
+import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.NewLoginScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.WelcomeScreenDestination
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset
@@ -68,6 +69,7 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.annotation.app.WireRootDestination
 import com.wire.android.ui.common.avatar.UserProfileAvatar
 import com.wire.android.ui.common.bottomsheet.WireMenuModalSheetContent
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
@@ -84,9 +86,6 @@ import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
-import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.NewLoginScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.WelcomeScreenDestination
 import com.wire.android.ui.home.FeatureFlagState
 import com.wire.android.ui.home.conversations.AssetTooLargeDialog
 import com.wire.android.ui.home.conversations.ConversationNavArgs
@@ -527,7 +526,6 @@ fun ImportMediaTopBarContent(
             thickness = 1.dp,
             modifier = Modifier.padding(top = dimensions().spacing12x)
         )
-        val focusRequester = remember { FocusRequester() }
         SearchTopBar(
             isSearchActive = searchBarState.isSearchActive,
             searchBarHint = stringResource(
@@ -536,7 +534,6 @@ fun ImportMediaTopBarContent(
             ),
             searchQueryTextState = searchQueryTextState,
             onActiveChanged = searchBarState::searchActiveChanged,
-            focusRequester = focusRequester,
         )
     }
 }

@@ -43,10 +43,13 @@ class OwnersFilterSheetState(
     val filteredOwners: List<FilterOwnerUi>
         get() {
             val q = query.trim()
-            return if (q.isBlank()) owners
-            else owners.filter {
-                it.displayName.contains(q, ignoreCase = true) ||
-                        it.handle.contains(q, ignoreCase = true)
+            return if (q.isBlank()) {
+                owners
+            } else {
+                owners.filter {
+                    it.displayName.contains(q, ignoreCase = true) ||
+                            it.handle.contains(q, ignoreCase = true)
+                }
             }
         }
 

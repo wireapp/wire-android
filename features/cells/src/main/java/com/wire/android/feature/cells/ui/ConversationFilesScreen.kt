@@ -37,7 +37,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -166,7 +165,6 @@ fun ConversationFilesScreenContent(
     breadcrumbs: Array<String>? = emptyArray(),
 ) {
     val sharedScope = LocalSharedTransitionScope.current
-    val focusRequester = remember { FocusRequester() }
 
     val newActionBottomSheetState = rememberWireModalSheetState<Unit>()
     val fileTypeBottomSheetState = rememberWireModalSheetState<Unit>()
@@ -266,7 +264,6 @@ fun ConversationFilesScreenContent(
                                 )
                             }
                         },
-                        focusRequester = focusRequester,
                     )
                 }
             },
@@ -379,7 +376,6 @@ fun ConversationFilesScreenContent(
     }
 }
 
-
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 @MultipleThemePreviews
@@ -440,11 +436,7 @@ fun PreviewConversationFilesScreen() {
                     onRefresh = {},
                     retryEditNodeError = {},
                 )
-
             }
-
-
         }
-
     }
 }

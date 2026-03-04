@@ -19,14 +19,12 @@ package com.wire.android.feature.cells.ui.search.filter.bottomsheet
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -35,10 +33,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -50,9 +45,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.search.filter.data.FilterTypeUi
-import com.wire.android.ui.common.button.WireButtonState
-import com.wire.android.ui.common.button.WirePrimaryButton
-import com.wire.android.ui.common.button.WireSecondaryButton
+import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
+import com.wire.android.ui.common.bottomsheet.WireModalSheetState
+import com.wire.android.ui.common.bottomsheet.WireSheetValue
+import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.common.typography
@@ -62,21 +58,21 @@ import com.wire.kalium.cells.data.MIMEType
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FilterByTypeBottomSheet(
-    sheetState: SheetState,
+    sheetState: WireModalSheetState<Unit>,
     items: List<FilterTypeUi>,
     onDismiss: () -> Unit,
     onSave: (List<FilterTypeUi>) -> Unit,
     onRemoveFilter: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var itemsState by remember { mutableStateOf(items) }
+    var itemsState by remember(items) { mutableStateOf(items) }
 
     val hasChanges = itemsState.any { tag ->
         val initial = items.first { it.id == tag.id }
         tag.selected != initial.selected
     }
 
-    ModalBottomSheet(
+    WireModalSheetLayout(
         modifier = modifier,
         onDismissRequest = onDismiss,
         sheetState = sheetState,
@@ -84,7 +80,7 @@ fun FilterByTypeBottomSheet(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(dimensions().spacing700x)
+                .fillMaxHeight(0.8f)
                 .padding(bottom = dimensions().spacing16x)
         ) {
             Text(
@@ -118,35 +114,15 @@ fun FilterByTypeBottomSheet(
                     HorizontalDivider()
                 }
             }
-
-            Spacer(Modifier.height(dimensions().spacing12x))
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = dimensions().spacing16x),
-                horizontalArrangement = Arrangement.spacedBy(dimensions().spacing12x)
-            ) {
-                WireSecondaryButton(
-                    text = stringResource(R.string.button_remove_filter),
-                    onClick = {
-                        itemsState = itemsState.map { it.copy(selected = false) }
-                        onRemoveFilter()
-                    },
-                    modifier = Modifier.weight(1f),
-                    contentPadding = PaddingValues(vertical = dimensions().spacing14x)
-                )
-
-                WirePrimaryButton(
-                    text = stringResource(R.string.save_label),
-                    onClick = { onSave(itemsState) },
-                    modifier = Modifier.weight(1f),
-                    state = if (hasChanges) WireButtonState.Default else WireButtonState.Disabled,
-                    contentPadding = PaddingValues(vertical = dimensions().spacing14x)
-                )
-            }
-
-            Spacer(Modifier.height(dimensions().spacing8x))
+            FooterButtons(
+                modifier = Modifier.padding(horizontal = dimensions().spacing16x),
+                onRemoveAll = {
+                    itemsState = itemsState.map { it.copy(selected = false) }
+                    onRemoveFilter()
+                },
+                onSave = { onSave(itemsState) },
+                hasChanges = hasChanges
+            )
         }
     }
 }
@@ -160,7 +136,7 @@ private fun FilterRow(
 ) {
     Row(
         modifier = Modifier
-            .fillMaxSize()
+            .fillMaxWidth()
             .clickable { onCheckedChange(!checked) }
             .padding(
                 horizontal = dimensions().spacing16x,
@@ -194,7 +170,13 @@ private fun FilterRow(
 @Composable
 fun PreviewFilterByTypeBottomSheet() {
     val sampleItems = listOf(
-        FilterTypeUi(id = "1", label = R.string.filter_images_type, iconRes = android.R.drawable.ic_menu_gallery, selected = true, mimeType = MIMEType.IMAGE),
+        FilterTypeUi(
+            id = "1",
+            label = R.string.filter_images_type,
+            iconRes = android.R.drawable.ic_menu_gallery,
+            selected = true,
+            mimeType = MIMEType.IMAGE
+        ),
         FilterTypeUi(
             id = "2",
             label = R.string.filter_videos_type,
@@ -209,17 +191,35 @@ fun PreviewFilterByTypeBottomSheet() {
             selected = true,
             mimeType = MIMEType.DOCUMENT
         ),
-        FilterTypeUi(id = "4", label = R.string.filter_audio_type, iconRes = android.R.drawable.ic_media_play, selected = false, mimeType = MIMEType.AUDIO),
-        FilterTypeUi(id = "6", label = R.string.filter_spreadsheets_type, iconRes = android.R.drawable.ic_menu_edit, selected = false, mimeType = MIMEType.EXCEL),
-        FilterTypeUi(id = "7", label = R.string.filter_pdf_type, iconRes = android.R.drawable.ic_menu_view, selected = false, mimeType = MIMEType.PDF),
+        FilterTypeUi(
+            id = "4",
+            label = R.string.filter_audio_type,
+            iconRes = android.R.drawable.ic_media_play,
+            selected = false,
+            mimeType = MIMEType.AUDIO
+        ),
+        FilterTypeUi(
+            id = "6",
+            label = R.string.filter_spreadsheets_type,
+            iconRes = android.R.drawable.ic_menu_edit,
+            selected = false,
+            mimeType = MIMEType.EXCEL
+        ),
+        FilterTypeUi(
+            id = "7",
+            label = R.string.filter_pdf_type,
+            iconRes = android.R.drawable.ic_menu_view,
+            selected = false,
+            mimeType = MIMEType.PDF
+        ),
     )
     WireTheme {
         FilterByTypeBottomSheet(
+            sheetState = rememberWireModalSheetState<Unit>(WireSheetValue.Expanded(Unit)),
             items = sampleItems,
             onDismiss = {},
             onSave = {},
             onRemoveFilter = {},
-            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
         )
     }
 }

@@ -176,8 +176,8 @@ class CellViewModel @Inject constructor(
                     conversationId = navArgs.conversationId,
                     query = query,
                     fileFilters = FileFilters(
-                        tags = currentTags.toList(),
                         onlyDeleted = navArgs.isRecycleBin ?: false,
+                        tags = currentTags.toList(),
                     ),
                 ).cachedIn(viewModelScope),
                 removedItemsFlow,

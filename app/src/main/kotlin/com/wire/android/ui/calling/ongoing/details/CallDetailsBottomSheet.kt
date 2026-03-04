@@ -54,7 +54,6 @@ fun CallDetailsBottomSheet(
                     )
 
                     CallDetailsSheetState.Quality -> CallNetworkQualitySheetContent(
-                        callQualityData = callQualityData,
                         onBackPressed = {
                             sheetState.show(CallDetailsSheetState.Details)
                         }
@@ -69,7 +68,6 @@ fun CallDetailsBottomSheet(
 enum class CallDetailsSheetState {
     Details, Quality
 }
-
 
 @Composable
 private fun CallDetailsBottomSheetPreview(callDetailsSheetState: CallDetailsSheetState) = WireTheme {

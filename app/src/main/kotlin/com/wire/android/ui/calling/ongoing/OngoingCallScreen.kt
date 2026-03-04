@@ -132,13 +132,9 @@ fun OngoingCallScreen(
         creationCallback = { factory -> factory.create(conversationId = conversationId) }
     )
 ) {
-    val permissionPermanentlyDeniedDialogState =
-        rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
-
+    val permissionPermanentlyDeniedDialogState = rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
     val inCallReactionsState = rememberInCallReactionsState()
-    
     val callDetailsBottomSheetState = rememberWireModalSheetState<CallDetailsSheetState>()
-
     val activity = LocalActivity.current
     val isPiPAvailableOnThisDevice = activity.packageManager.hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE)
     val shouldUsePiPMode = BuildConfig.PICTURE_IN_PICTURE_ENABLED && isPiPAvailableOnThisDevice

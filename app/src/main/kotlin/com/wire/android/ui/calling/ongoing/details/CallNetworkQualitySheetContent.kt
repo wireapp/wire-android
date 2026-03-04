@@ -19,11 +19,9 @@ package com.wire.android.ui.calling.ongoing.details
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
-import com.wire.kalium.logic.data.call.CallQualityData
 
 @Composable
 fun CallNetworkQualitySheetContent(
-    callQualityData: CallQualityData,
     onBackPressed: () -> Unit,
 ) {
     BackHandler(onBack = onBackPressed)

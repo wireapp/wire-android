@@ -116,18 +116,10 @@ private fun NetworkQualityItem(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(dimensions().spacing12x)
             ) {
-                AnimatedContent(
-                    targetState = callQuality,
-                    transitionSpec = {
-                        val direction = if (targetState.ordinal > initialState.ordinal) 1 else -1
-                        val enterTransition = slideInVertically { height -> direction * height } + fadeIn()
-                        val exitTransition = slideOutVertically { height -> -direction * height } + fadeOut()
-                        enterTransition togetherWith exitTransition
-                    },
+                NetworkQualityIndicator(
+                    callQuality = callQuality,
                     modifier = Modifier.weight(1f, fill = true)
-                ) { callQuality ->
-                    NetworkQualityIndicator(callQuality)
-                }
+                )
                 Icon(
                     painter = painterResource(id = R.drawable.ic_arrow_right),
                     contentDescription = "",
@@ -143,28 +135,39 @@ private fun NetworkQualityItem(
 @Composable
 private fun NetworkQualityIndicator(
     callQuality: CallQuality,
+    modifier: Modifier = Modifier,
     textAlign: TextAlign = TextAlign.End,
 ) {
-    CompositionLocalProvider(LocalWireAccent provides Accent.Blue) { // primary color used for medium quality should be always blue
-        Text(
-            textAlign = textAlign,
-            style = typography().body03,
-            color = when (callQuality) {
-                CallQuality.UNKNOWN -> colorsScheme().secondaryText // shouldn't be visible, but just in case
-                CallQuality.NORMAL -> colorsScheme().positive
-                CallQuality.MEDIUM -> colorsScheme().primary
-                else -> colorsScheme().warning
-            },
-            text = when (callQuality) {
-                CallQuality.UNKNOWN -> ""
-                CallQuality.NORMAL -> "Good"
-                CallQuality.MEDIUM -> "Fair"
-                else -> "Poor"
-            },
-        )
+    AnimatedContent(
+        targetState = callQuality,
+        transitionSpec = {
+            val direction = if (targetState.ordinal > initialState.ordinal) 1 else -1
+            val enterTransition = slideInVertically { height -> direction * height } + fadeIn()
+            val exitTransition = slideOutVertically { height -> -direction * height } + fadeOut()
+            enterTransition togetherWith exitTransition
+        },
+        modifier = modifier
+    ) { callQuality ->
+        CompositionLocalProvider(LocalWireAccent provides Accent.Blue) { // primary color used for medium quality should be always blue
+            Text(
+                textAlign = textAlign,
+                style = typography().body03,
+                color = when (callQuality) {
+                    CallQuality.UNKNOWN -> colorsScheme().secondaryText // shouldn't be visible, but just in case
+                    CallQuality.NORMAL -> colorsScheme().positive
+                    CallQuality.MEDIUM -> colorsScheme().primary
+                    else -> colorsScheme().warning
+                },
+                text = when (callQuality) {
+                    CallQuality.UNKNOWN -> ""
+                    CallQuality.NORMAL -> "Good"
+                    CallQuality.MEDIUM -> "Fair"
+                    else -> "Poor"
+                },
+            )
+        }
     }
 }
-
 
 @Composable
 private fun TurnOffOtherVideosItem() {

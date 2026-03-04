@@ -82,8 +82,8 @@ class GroupVideoCall : BaseUiTest() {
 
     @After
     fun tearDown() {
-        // runCatching { teamOwnerA?.deleteTeam(backendClient) }
-        // runCatching { teamOwnerB?.deleteTeam(backendClient) }
+        runCatching { teamOwnerA?.deleteTeam(backendClient) }
+        runCatching { teamOwnerB?.deleteTeam(backendClient) }
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")

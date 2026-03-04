@@ -38,8 +38,8 @@ import com.wire.kalium.cells.data.MIMEType
 import com.wire.kalium.cells.data.SortingSpec
 import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
+import com.wire.kalium.cells.domain.usecase.GetCellGroupConversationsUseCase
 import com.wire.kalium.cells.domain.usecase.GetConversationsUseCaseResult
-import com.wire.kalium.cells.domain.usecase.GetGroupConversationsWithCellEnabledUseCase
 import com.wire.kalium.cells.domain.usecase.GetOwnersUseCase
 import com.wire.kalium.cells.domain.usecase.GetOwnersUseCaseResult
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
@@ -68,7 +68,7 @@ class SearchScreenViewModel @Inject constructor(
     private val getAllTagsUseCase: GetAllTagsUseCase,
     private val getCellFilesPaged: GetPaginatedFilesFlowUseCase,
     private val getOwners: GetOwnersUseCase,
-    private val getGroupConversationsWithCellEnabled: GetGroupConversationsWithCellEnabledUseCase,
+    private val getCellGroupConversations: GetCellGroupConversationsUseCase,
 ) : ViewModel() {
 
     private data class SearchParams(
@@ -157,7 +157,7 @@ class SearchScreenViewModel @Inject constructor(
     }
 
     internal fun loadConversations() = viewModelScope.launch {
-        val result = getGroupConversationsWithCellEnabled()
+        val result = getCellGroupConversations()
         if (result is GetConversationsUseCaseResult.Success) {
             _uiState.update {
                 it.copy(
@@ -234,14 +234,6 @@ class SearchScreenViewModel @Inject constructor(
     fun onSaveConversations(selectedConversations: List<FilterConversationUi>) {
         val selectedId = selectedConversations.firstOrNull { it.selected }?.id?.toString()
         applySelectedConversations(selectedId)
-    }
-
-    fun onFilterByConversationClicked() {
-        _uiState.update { it.copy(showFilterByConversationBottomSheet = true) }
-    }
-
-    fun onCloseConversationSheet() {
-        _uiState.update { it.copy(showFilterByConversationBottomSheet = false) }
     }
 
     fun onRemoveConversations() {

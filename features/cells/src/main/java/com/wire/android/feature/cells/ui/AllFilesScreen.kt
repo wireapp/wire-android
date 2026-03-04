@@ -84,7 +84,6 @@ fun AllFilesScreen(
                             NavigationCommand(SearchScreenDestination(screenType = DriveScreenType.DRIVE))
                         )
                     },
-                    focusRequester = focusRequester,
                 )
             }
         },

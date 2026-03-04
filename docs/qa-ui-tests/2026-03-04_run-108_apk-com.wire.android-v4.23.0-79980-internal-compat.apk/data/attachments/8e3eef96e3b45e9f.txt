@@ -1,0 +1,41 @@
+--------- beginning of main
+03-04 15:30:58.217 17018 17032 I TestRunner: started: givenNoAccount_whenCreatingAndDeletingPersonalAccount_thenAccountIsRemoved(com.wire.android.tests.core.criticalFlows.PersonalAccountLifeCycle)
+03-04 15:30:58.225 17018 17032 D UiDevice: Executing shell command: pm clear com.wire.internal
+03-04 15:30:58.343 17018 17032 D UiDevice: Executing shell command: settings put secure show_ime_with_hard_keyboard 0
+03-04 15:30:58.376 17018 17032 D UiDevice: Executing shell command: settings put global window_animation_scale 0
+03-04 15:30:58.428 17018 17032 D UiDevice: Executing shell command: settings put global transition_animation_scale 0
+03-04 15:30:58.460 17018 17032 D UiDevice: Executing shell command: settings put global animator_duration_scale .5
+03-04 15:30:58.935 17018 17032 D UiDevice: Pressing home button.
+03-04 15:30:59.965 17018 17032 W InteractionController: Timed out waiting 1000ms for command and events.
+03-04 15:30:59.975 17018 17032 D UiDevice: Waiting 20000ms for SearchCondition[hasObject=BySelector [PKG='\Qcom.sec.android.app.launcher\E']].
+03-04 15:30:59.975 17018 17032 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.sec.android.app.launcher\E'].
+03-04 15:31:00.044 17018 17032 D UiDevice: Waiting 20000ms for SearchCondition[hasObject=BySelector [PKG='\Qcom.wire.internal\E']].
+03-04 15:31:00.044 17018 17032 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+03-04 15:31:00.614 17018 17032 W UiDevice: Active window root not found.
+03-04 15:31:00.617 17018 17032 W UiDevice: Skipping null root node for window: AccessibilityWindowInfo[title=null, displayId=0, id=2164, taskId=-1, type=TYPE_SYSTEM, layer=4, region=SkRegion((279,2268,801,2340)), bounds=Rect(279, 2268 - 801, 2340), focused=false, active=false, pictureInPicture=false, transitionTime=2354559683, hasParent=false, isAnchored=false, hasChildren=false]
+03-04 15:31:00.631 17018 17032 W UiDevice: Skipping null root node for window: AccessibilityWindowInfo[title=One UI Home, displayId=0, id=2157, taskId=463, type=TYPE_APPLICATION, layer=0, region=SkRegion((0,0,1080,2340)), bounds=Rect(0, 0 - 1080, 2340), focused=true, active=true, pictureInPicture=false, transitionTime=2354559692, hasParent=false, isAnchored=false, hasChildren=false]
+03-04 15:31:00.740 17018 17032 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+03-04 15:31:01.388 17018 17032 I System.out: Could not access BuildConfig field 'BACKENDCONNECTION_STAGING_SOCKSPROXY': No field BACKENDCONNECTION_STAGING_SOCKSPROXY in class Lcom/wire/android/testSupport/BuildConfig; (declaration of 'com.wire.android.testSupport.BuildConfig' appears in /data/app/~~3blOB82DEJkQObvwM3080g==/com.wire.android.tests.testsCore.test-w7kVonRcFQP6xyiLxIXk4Q==/base.apk!classes2.dex)
+03-04 15:31:01.388 17018 17032 I System.out: Could not access BuildConfig field 'BACKENDCONNECTION_STAGING_SOCKSPROXY': No field BACKENDCONNECTION_STAGING_SOCKSPROXY in class Lcom/wire/android/testSupport/BuildConfig; (declaration of 'com.wire.android.testSupport.BuildConfig' appears in /data/app/~~3blOB82DEJkQObvwM3080g==/com.wire.android.tests.testsCore.test-w7kVonRcFQP6xyiLxIXk4Q==/base.apk!classes2.dex)
+03-04 15:31:01.388 17018 17032 I System.out: Could not access BuildConfig field 'BACKENDCONNECTION_STAGING_SOCKSPROXY': No field BACKENDCONNECTION_STAGING_SOCKSPROXY in class Lcom/wire/android/testSupport/BuildConfig; (declaration of 'com.wire.android.testSupport.BuildConfig' appears in /data/app/~~3blOB82DEJkQObvwM3080g==/com.wire.android.tests.testsCore.test-w7kVonRcFQP6xyiLxIXk4Q==/base.apk!classes2.dex)
+03-04 15:31:01.438 17018 17032 I ClientUserManager: 15:31:01 INFO [748] (ClientUse) Cannot find user by: user1Name 
+03-04 15:31:01.438 17018 17032 I Hello   : 15:31:01 INFO [748] (ClientUse) Hello, my name is Milton Bartoletti and my email is bartolettiafjhrttvcg@wire.engineering and password is B$n7!#oe and emailPassword is Xk0G/`Kv~*w7innnnn 
+03-04 15:31:02.940 17018 17032 I ClientUserManager: 15:31:02 INFO [748] (ClientUse) Cannot find user by: user1Name 
+03-04 15:31:02.941 17018 17032 I System.out: Could not access BuildConfig field 'BACKENDCONNECTION_STAGING_SOCKSPROXY': No field BACKENDCONNECTION_STAGING_SOCKSPROXY in class Lcom/wire/android/testSupport/BuildConfig; (declaration of 'com.wire.android.testSupport.BuildConfig' appears in /data/app/~~3blOB82DEJkQObvwM3080g==/com.wire.android.tests.testsCore.test-w7kVonRcFQP6xyiLxIXk4Q==/base.apk!classes2.dex)
+03-04 15:31:02.943 17018 17032 I ClientUserManager: 15:31:02 INFO [748] (ClientUse) Cannot find user by: user1Name 
+03-04 15:31:02.992 17018 17032 I ClientUserManager: 15:31:02 INFO [748] (ClientUse) Cannot find user by: user1Name 
+03-04 15:31:02.994 17018 17032 I System.out: Could not access BuildConfig field 'BACKENDCONNECTION_STAGING_SOCKSPROXY': No field BACKENDCONNECTION_STAGING_SOCKSPROXY in class Lcom/wire/android/testSupport/BuildConfig; (declaration of 'com.wire.android.testSupport.BuildConfig' appears in /data/app/~~3blOB82DEJkQObvwM3080g==/com.wire.android.tests.testsCore.test-w7kVonRcFQP6xyiLxIXk4Q==/base.apk!classes2.dex)
+03-04 15:31:02.995 17018 17032 I TestService: 15:31:02 INFO [748] (TestServi) GET: http://192.168.2.18:8080/api/v1/ 
+03-04 15:31:03.010 17018 17032 I TestService: 15:31:03 INFO [748] (TestServi) PUT: http://192.168.2.18:8080/api/v1/instance 
+03-04 15:31:03.011 17018 17032 I TestService: 15:31:03 INFO [748] (TestServi)  >>> Request: {"email":"bartolettiafjhrttvcg@wire.engineering","password":"B$n7!#oe","deviceName":"Device1","name":"TestService","customBackend":{"name":"STAGING","rest":"https:\/\/staging-nginz-https.zinfra.io\/","ws":"wss:\/\/staging-nginz-ssl.zinfra.io"},"federationDomain":"staging.zinfra.io","developmentApiEnabled":true} 
+03-04 15:31:08.876 17018 17032 E TestService: 15:31:08 SEVE [748] (TestServi) http://192.168.2.18:8080/api/v1/instance (500): {"code":500,"message":"There was an error processing your request. It has been logged (ID 299e94ed0f194f14)."} 
+03-04 15:36:08.883 17018 17032 I ClientUserManager: 15:36:08 INFO [748] (ClientUse) Cannot find user by: user1Name 
+03-04 15:36:08.886 17018 17032 I System.out: Could not access BuildConfig field 'BACKENDCONNECTION_STAGING_SOCKSPROXY': No field BACKENDCONNECTION_STAGING_SOCKSPROXY in class Lcom/wire/android/testSupport/BuildConfig; (declaration of 'com.wire.android.testSupport.BuildConfig' appears in /data/app/~~3blOB82DEJkQObvwM3080g==/com.wire.android.tests.testsCore.test-w7kVonRcFQP6xyiLxIXk4Q==/base.apk!classes2.dex)
+03-04 15:36:08.889 17018 17032 I TestService: 15:36:08 INFO [748] (TestServi) GET: http://192.168.2.18:8080/api/v1/ 
+03-04 15:36:08.939 17018 17032 I TestService: 15:36:08 INFO [748] (TestServi) PUT: http://192.168.2.18:8080/api/v1/instance 
+03-04 15:36:08.941 17018 17032 I TestService: 15:36:08 INFO [748] (TestServi)  >>> Request: {"email":"bartolettiafjhrttvcg@wire.engineering","password":"B$n7!#oe","deviceName":"Device1","name":"TestService","customBackend":{"name":"STAGING","rest":"https:\/\/staging-nginz-https.zinfra.io\/","ws":"wss:\/\/staging-nginz-ssl.zinfra.io"},"federationDomain":"staging.zinfra.io","developmentApiEnabled":true} 
+03-04 15:36:13.457 17018 17032 E TestService: 15:36:13 SEVE [748] (TestServi) http://192.168.2.18:8080/api/v1/instance (500): {"code":500,"message":"There was an error processing your request. It has been logged (ID 60b83b5873a75a5e)."} 
+03-04 15:36:13.789 17018 17032 I TeamClient: 15:36:13 INFO [748] (TeamsExte) Accepted 
+03-04 15:36:14.188 17018 17032 I Inbucket: 15:36:14 INFO [748] (InbucketC) Url is :  https://inbucket.wire.engineering//api/v1/mailbox/dickinsonwquegtedoi@wire.engineering/latest 
+03-04 15:36:52.858 17018 17032 I AllureFailureScreenshotRule: Taking failure screenshot for givenNoAccount_whenCreatingAndDeletingPersonalAccount_thenAccountIsRemoved(com.wire.android.tests.core.criticalFlows.PersonalAccountLifeCycle)
+03-04 15:36:52.863 17018 17032 D UiDevice: Taking screenshot (scale=1,000000, quality=80) and storing at /data/user/0/com.wire.android.tests.testsCore.test/cache/screenshot2111204053705532035.tmp.

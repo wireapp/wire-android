@@ -17,8 +17,17 @@
  */
 package com.wire.android.ui.calling.ongoing
 
+import com.wire.kalium.logic.data.call.CallQuality
+import com.wire.kalium.logic.data.call.CallQualityData
+
 data class OngoingCallState(
-    val flowState: FlowState = FlowState.Default
+    val flowState: FlowState = FlowState.Default,
+    val callQualityData: CallQualityData = CallQualityData(
+        quality = CallQuality.UNKNOWN,
+        roundTripTimeInMilliseconds = -1,
+        upstreamPacketLossPercentage = -1,
+        downstreamPacketLossPercentage = -1,
+    ),
 ) {
     sealed interface FlowState {
         object Default : FlowState

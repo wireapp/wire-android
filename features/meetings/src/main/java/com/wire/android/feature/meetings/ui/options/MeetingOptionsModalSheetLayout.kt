@@ -18,7 +18,7 @@
 package com.wire.android.feature.meetings.ui.options
 
 import android.annotation.SuppressLint
-import androidx.compose.material.Icon
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier

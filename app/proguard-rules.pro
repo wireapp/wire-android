@@ -75,3 +75,8 @@
 -keepnames class com.wire.kalium.logic.sync.periodic.UserConfigSyncWorker
 -keepnames class com.wire.kalium.logic.sync.periodic.UpdateApiVersionsWorker
 -keepnames class com.wire.kalium.logic.sync.receiver.asset.AudioNormalizedLoudnessWorker
+
+# WorkManager reflection
+# InputMerger is created reflectively via getDeclaredConstructor() and may lose a visible no-arg ctor after shrinking.
+-keep class androidx.work.OverwritingInputMerger { <init>(); *; }
+-keep class androidx.work.ArrayCreatingInputMerger { <init>(); *; }

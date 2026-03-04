@@ -22,13 +22,35 @@ ensure_required_tools() {
   : "${RUNNER_TEMP:?RUNNER_TEMP not set}"
 
   echo "aws CLI not found. Installing AWS CLI v2 locally..."
+  local aws_cli_version="2.34.1"
+  local aws_cli_url="https://awscli.amazonaws.com/awscli-exe-linux-x86_64-${aws_cli_version}.zip"
+  # Update this checksum when bumping aws_cli_version.
+  local aws_cli_sha256="9307175fafe63cba37299f19bb82101662cea7cfa3d41797c460dc9ed560322d"
   local aws_root="${RUNNER_TEMP}/awscli"
   local zip_path="${RUNNER_TEMP}/awscliv2.zip"
 
   rm -rf "${aws_root}" "${zip_path}" "${RUNNER_TEMP}/aws"
   mkdir -p "${aws_root}"
 
-  curl -fsSL -o "${zip_path}" "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip"
+  curl -fsSL -o "${zip_path}" "${aws_cli_url}"
+
+  local actual_sha256
+  if command -v sha256sum >/dev/null 2>&1; then
+    actual_sha256="$(sha256sum "${zip_path}" | awk '{print $1}')"
+  elif command -v shasum >/dev/null 2>&1; then
+    actual_sha256="$(shasum -a 256 "${zip_path}" | awk '{print $1}')"
+  else
+    echo "ERROR: no SHA256 tool found (need sha256sum or shasum)" >&2
+    rm -f "${zip_path}"
+    exit 1
+  fi
+
+  if [[ "${actual_sha256}" != "${aws_cli_sha256}" ]]; then
+    echo "ERROR: AWS CLI checksum verification failed" >&2
+    rm -f "${zip_path}"
+    exit 1
+  fi
+
   unzip -oq "${zip_path}" -d "${RUNNER_TEMP}"
   rm -f "${zip_path}"
 

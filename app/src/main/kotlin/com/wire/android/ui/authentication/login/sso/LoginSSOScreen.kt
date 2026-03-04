@@ -90,6 +90,19 @@ fun LoginSSOScreen(
             }
         }
     }
+
+    // Handle SSO code auto-login from intent parameter
+    LaunchedEffect(ssoCodeAutoLogin) {
+        ssoCodeAutoLogin?.let {
+            // Pre-fill the SSO code
+            loginSSOViewModel.ssoTextState.setTextAndPlaceCursorAtEnd(it.ssoCode)
+
+            // Auto-initiate login if flag is set
+            if (it.autoInitiateLogin) {
+                loginSSOViewModel.login()
+            }
+        }
+    }
     LoginSSOContent(
         scrollState = scrollState,
         ssoCodeTextState = loginSSOViewModel.ssoTextState,

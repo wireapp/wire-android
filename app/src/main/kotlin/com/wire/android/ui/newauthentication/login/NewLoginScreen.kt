@@ -159,6 +159,19 @@ fun NewLoginScreen(
             }
         }
     }
+
+    // Handle SSO code auto-login from intent parameter
+    LaunchedEffect(navArgs.ssoCodeAutoLogin) {
+        navArgs.ssoCodeAutoLogin?.let {
+            // Pre-fill the SSO code in the user identifier field
+            viewModel.userIdentifierTextState.setTextAndPlaceCursorAtEnd(it.ssoCode)
+
+            // Auto-initiate login if flag is set
+            if (it.autoInitiateLogin) {
+                viewModel.onLoginStarted()
+            }
+        }
+    }
     (viewModel.state.flowState as? NewLoginFlowState.CustomConfigDialog)?.let { customServerDialogState ->
         CustomServerDetailsDialog(
             serverLinks = customServerDialogState.serverLinks,

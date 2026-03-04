@@ -335,6 +335,7 @@ class SearchScreenViewModel @Inject constructor(
         onRemoveAllTags()
         onRemoveOwners()
         onRemoveTypeFilter()
+        onRemoveConversations()
         it.copy(filesWithPublicLink = false)
     }
 

@@ -63,8 +63,7 @@ import com.wire.android.ui.common.bottomsheet.WireSheetValue
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.first
 
 @OptIn(ExperimentalSharedTransitionApi::class, ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @WireCellsDestination(
@@ -223,48 +222,46 @@ fun SearchScreen(
         }
     }
 
-            FilterByTagsBottomSheet(
-                items = uiState.availableTags,
-                sheetState = filterTagsSheetState,
-                onDismiss = {
-                    filterTagsSheetState.hide()
-                },
-                onSave = { selectedItems ->
-                    searchScreenViewModel.onSaveTags(selectedItems)
-                    filterTagsSheetState.hide()
-                },
-                onRemoveAll = {
-                    searchScreenViewModel.onRemoveAllTags()
-                }
-            )
-
-            FilterByTypeBottomSheet(
-                items = uiState.availableTypes,
-                sheetState = filterTypeSheetState,
-                onDismiss = {
-                    filterTypeSheetState.hide()
-                },
-                onSave = { selectedItems ->
-                    searchScreenViewModel.onSaveTypes(selectedItems)
-                    filterTypeSheetState.hide()
-                },
-                onRemoveFilter = {
-                    searchScreenViewModel.onRemoveTypeFilter()
-                }
-            )
-
-            FilterByOwnerBottomSheet(
-                items = uiState.availableOwners,
-                sheetState = filterOwnerSheetState,
-                onDismiss = {
-                    filterOwnerSheetState.hide()
-                },
-                onSave = { selectedItems ->
-                    searchScreenViewModel.onSaveOwners(selectedItems)
-                    filterOwnerSheetState.hide()
-                },
-                onRemoveAll = { searchScreenViewModel.onRemoveOwners() }
-            )
+    FilterByTagsBottomSheet(
+        items = uiState.availableTags,
+        sheetState = filterTagsSheetState,
+        onDismiss = {
+            filterTagsSheetState.hide()
+        },
+        onSave = { selectedItems ->
+            searchScreenViewModel.onSaveTags(selectedItems)
+            filterTagsSheetState.hide()
+        },
+        onRemoveAll = {
+            searchScreenViewModel.onRemoveAllTags()
         }
-    }
+    )
+
+    FilterByTypeBottomSheet(
+        items = uiState.availableTypes,
+        sheetState = filterTypeSheetState,
+        onDismiss = {
+            filterTypeSheetState.hide()
+        },
+        onSave = { selectedItems ->
+            searchScreenViewModel.onSaveTypes(selectedItems)
+            filterTypeSheetState.hide()
+        },
+        onRemoveFilter = {
+            searchScreenViewModel.onRemoveTypeFilter()
+        }
+    )
+
+    FilterByOwnerBottomSheet(
+        items = uiState.availableOwners,
+        sheetState = filterOwnerSheetState,
+        onDismiss = {
+            filterOwnerSheetState.hide()
+        },
+        onSave = { selectedItems ->
+            searchScreenViewModel.onSaveOwners(selectedItems)
+            filterOwnerSheetState.hide()
+        },
+        onRemoveAll = { searchScreenViewModel.onRemoveOwners() }
+    )
 }

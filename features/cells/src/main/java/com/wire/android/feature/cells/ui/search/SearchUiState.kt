@@ -29,10 +29,6 @@ data class SearchUiState(
     val availableOwners: List<FilterOwnerUi> = emptyList(),
     val availableTypes: List<FilterTypeUi> = TypeFilter.typeItems,
 
-    val showFilterByTypeBottomSheet: Boolean = false,
-    val showFilterByTagsBottomSheet: Boolean = false,
-    val showFilterByOwnerBottomSheet: Boolean = false,
-
     val filesWithPublicLink: Boolean = false,
 
     val isSearchActive: Boolean = true,

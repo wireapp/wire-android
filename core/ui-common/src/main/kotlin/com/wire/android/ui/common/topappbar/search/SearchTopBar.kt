@@ -65,7 +65,6 @@ fun SearchTopBar(
     isSearchActive: Boolean,
     searchBarHint: String,
     searchQueryTextState: TextFieldState,
-    focusRequester: FocusRequester,
     modifier: Modifier = Modifier,
     isLoading: Boolean = false,
     backIconContentDescription: String? = null,
@@ -74,9 +73,10 @@ fun SearchTopBar(
     onActiveChanged: (isActive: Boolean) -> Unit = {},
     bottomContent: @Composable ColumnScope.() -> Unit = {},
     onTap: (() -> Unit)? = null,
-    focusManager: FocusManager = LocalFocusManager.current,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
+    val focusManager: FocusManager = LocalFocusManager.current
+    val focusRequester = remember { FocusRequester() }
 
     fun setActive(isActive: Boolean) {
         if (isActive) {
@@ -168,7 +168,6 @@ fun PreviewSearchTopBarActive() {
             searchBarHint = "Search",
             searchQueryTextState = rememberTextFieldState(),
             onActiveChanged = {},
-            focusRequester = remember { FocusRequester() }
         )
     }
 }
@@ -182,7 +181,6 @@ fun PreviewSearchTopBarInactive() {
             searchBarHint = "Search",
             searchQueryTextState = rememberTextFieldState(),
             onActiveChanged = {},
-            focusRequester = remember { FocusRequester() }
         )
     }
 }

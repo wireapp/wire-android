@@ -19,11 +19,9 @@
 package com.wire.android.navigation
 
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -52,8 +50,8 @@ import com.ramcosta.composedestinations.navigation.navGraph
 import com.ramcosta.composedestinations.scope.resultBackNavigator
 import com.ramcosta.composedestinations.scope.resultRecipient
 import com.ramcosta.composedestinations.spec.Direction
-import com.wire.android.feature.cells.ui.LocalSharedTransitionScope
 import com.wire.android.feature.sketch.model.DrawingCanvasNavBackArgs
+import com.wire.android.navigation.transition.LocalSharedTransitionScope
 import com.wire.android.ui.authentication.login.email.LoginEmailViewModel
 import com.wire.android.ui.authentication.login.sso.SSOUrlConfigHolder
 import com.wire.android.ui.authentication.login.sso.SSOUrlConfigHolderImpl
@@ -139,7 +137,8 @@ fun MainNavHost(
                         dependency(holder)
                     }
 
-                    // 👇 To tie TeamMigrationViewModel to PersonalToTeamMigrationNavGraph, making it shared between all screens that belong to it
+                    // 👇 To tie TeamMigrationViewModel to PersonalToTeamMigrationNavGraph,
+                    // making it shared between all screens that belong to it
                     navGraph(PersonalToTeamMigrationGraph) {
                         val parentEntry = remember(navBackStackEntry) {
                             navController.getBackStackEntry(PersonalToTeamMigrationGraph.route)

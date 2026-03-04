@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2026 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,22 +15,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.calling.ongoing
+package com.wire.android.navigation.transition
 
-import com.wire.kalium.logic.data.call.CallQuality
-import com.wire.kalium.logic.data.call.CallQualityData
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.runtime.staticCompositionLocalOf
 
-data class OngoingCallState(
-    val flowState: FlowState = FlowState.Default,
-    val callQualityData: CallQualityData = CallQualityData(
-        quality = CallQuality.UNKNOWN,
-        roundTripTimeInMilliseconds = -1,
-        upstreamPacketLossPercentage = -1,
-        downstreamPacketLossPercentage = -1,
-    ),
-) {
-    sealed interface FlowState {
-        object Default : FlowState
-        object CallClosed : FlowState
+@OptIn(ExperimentalSharedTransitionApi::class)
+val LocalSharedTransitionScope =
+    staticCompositionLocalOf<SharedTransitionScope> {
+        error("SharedTransitionScope not provided. Wrap NavHost in SharedTransitionLayout.")
     }
-}
+
+const val SHARED_ELEMENT_SEARCH_INPUT_KEY = "search_bar"

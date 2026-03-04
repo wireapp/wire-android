@@ -88,7 +88,8 @@ class TeamMigrationViewModel @Inject constructor(
 
     private fun setTeamUrl() {
         viewModelScope.launch {
-            teamMigrationState = teamMigrationState.copy(teamUrl = getTeamUrl())
+            val teamUrl = getTeamUrl()
+            teamMigrationState = teamMigrationState.copy(teamUrl = teamUrl)
         }
     }
 

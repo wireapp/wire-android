@@ -92,7 +92,8 @@ fun MainNavHost(
                     // 👇 To make LoginTypeSelector available to all destinations as a non-navigation parameter if provided
                     if (loginTypeSelector != null) dependency(loginTypeSelector)
 
-                    // 👇 To tie NewConversationViewModel to nested NewConversationNavGraph, making it shared between all screens that belong to it
+                    // 👇 To tie NewConversationViewModel to nested NewConversationNavGraph,
+                    // making it shared between all screens that belong to it
                     navGraph(NewConversationGraph) {
                         val parentEntry = remember(navBackStackEntry) {
                             navController.getBackStackEntry(NewConversationGraph.route)

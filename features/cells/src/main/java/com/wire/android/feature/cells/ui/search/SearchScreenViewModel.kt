@@ -263,8 +263,11 @@ class SearchScreenViewModel @Inject constructor(
     fun setSortBy(by: SortBy) {
         _uiState.update { current ->
             val currentCriteria = current.sortingCriteria
-            if (currentCriteria.by == by) current
-            else current.copy(sortingCriteria = defaultCriteriaFor(by))
+            if (currentCriteria.by == by) {
+                current
+            } else {
+                current.copy(sortingCriteria = defaultCriteriaFor(by))
+            }
         }
     }
 

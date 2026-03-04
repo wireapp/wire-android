@@ -155,5 +155,6 @@ private val backendConfigs = listOf(
     "Foma" to "https://nginz-https.foma.wire.link/deeplink.json",
     "Imai" to "https://nginz-https.imai.wire.link/deeplink.json",
     "Fulu" to "https://nginz-https.fulu.wire.link/deeplink.json",
+    "Mira" to "https://nginz-https.mira.wire.link/deeplink.json",
     "Custom" to "",
 )

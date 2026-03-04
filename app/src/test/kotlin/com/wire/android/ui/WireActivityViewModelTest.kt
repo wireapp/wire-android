@@ -782,6 +782,19 @@ class WireActivityViewModelTest {
             .withAutomatedLoginIntent(ssoCode = ssoCode)
             .arrange()
 
+        viewModel.handleIntentsThatAreNotDeepLinks(mockedIntent())
+        advanceUntilIdle()
+
+        assertTrue(arrangement.automatedLoginManager.pendingMoveToBackgroundAfterSync)
+    }
+
+    @Test
+    fun `given valid automated_login intent, when handling intents, then automated login manager pending flag is set`() = runTest {
+        val ssoCode = "wire-b6261497-5b7d-4a57-8f4d-3a94e936b2c0"
+        val (arrangement, viewModel) = Arrangement()
+            .withAutomatedLoginIntent(ssoCode = ssoCode)
+            .arrange()
+
         val handled = viewModel.handleIntentsThatAreNotDeepLinks(mockedIntent())
         advanceUntilIdle()
 
@@ -1004,6 +1017,7 @@ class WireActivityViewModelTest {
                 managedConfigurationsManager = managedConfigurationsManager,
                 automatedLoginManager = automatedLoginManager,
                 nomadProfilesFeatureConfig = nomadProfilesFeatureConfig,
+                automatedLoginManager = automatedLoginManager,
             )
         }
 
@@ -1139,6 +1153,10 @@ class WireActivityViewModelTest {
 
         fun withNomadProfilesEnabled(enabled: Boolean): Arrangement = apply {
             every { nomadProfilesFeatureConfig.isEnabled() } returns enabled
+        }
+
+        fun withAutomatedLoginIntent(ssoCode: String): Arrangement = apply {
+            every { intentsProcessor(any()) } returns AutomatedLoginViaSSO(ssoCode = ssoCode)
         }
 
         fun arrange() = this to viewModel

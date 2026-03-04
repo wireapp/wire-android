@@ -234,6 +234,7 @@ private fun MainLoginContent(
                         onSuccess,
                         onRemoveDeviceNeeded,
                         ssoLoginResult,
+                        ssoCodeAutoLogin
                     )
                 }
             }
@@ -265,7 +266,7 @@ private fun PreviewLoginScreen() = WireTheme {
             onRemoveDeviceNeeded = {},
             loginEmailViewModel = hiltViewModel(),
             ssoLoginResult = null,
-            ssoCodeAutoLogin = null
+            ssoCodeAutoLogin = null,
         )
     }
 }

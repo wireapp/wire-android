@@ -730,7 +730,7 @@ class WireActivity : AppCompatActivity() {
     /*
      * This method is responsible for handling deep links from given intent
      */
-    private fun handleDeepLinkOrIntent(
+    private suspend fun handleDeepLinkOrIntent(
         navigator: Navigator,
         intent: Intent?,
         savedInstanceState: Bundle? = null

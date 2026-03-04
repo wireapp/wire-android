@@ -60,6 +60,9 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.lifecycle.AutomatedLoginManager
 import com.wire.android.util.lifecycle.IntentsProcessor
 import com.wire.android.util.ui.UIText
+import com.wire.android.emm.ManagedConfigurationsManager
+import com.wire.android.util.lifecycle.AutomatedLoginManager
+import com.wire.android.util.lifecycle.IntentsProcessor
 import com.wire.android.workmanager.worker.cancelPeriodicPersistentWebsocketCheckWorker
 import com.wire.android.workmanager.worker.enqueuePeriodicPersistentWebsocketCheckWorker
 import com.wire.kalium.logic.CoreLogic
@@ -141,6 +144,7 @@ class WireActivityViewModel @Inject constructor(
     private val managedConfigurationsManager: ManagedConfigurationsManager,
     private val automatedLoginManager: AutomatedLoginManager,
     private val nomadProfilesFeatureConfig: NomadProfilesFeatureConfig,
+    private val automatedLoginManager: AutomatedLoginManager,
 ) : ActionsViewModel<WireActivityViewAction>() {
 
     var globalAppState: GlobalAppState by mutableStateOf(GlobalAppState())
@@ -345,6 +349,16 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
+    // Returns whether an intent was handled, or if there was nothing to do
+    fun handleIntentsThatAreNotDeepLinks(intent: Intent?): Boolean {
+        val result = intentsProcessor.get().invoke(intent)
+        if (result != null) {
+            onAutomaticLoginParameters(result.backendConfig, result.ssoCode)
+            return true
+        }
+        return false
+    }
+
     @Suppress("ComplexMethod")
     fun handleDeepLink(intent: Intent?) {
         viewModelScope.launch(dispatchers.io()) {
@@ -385,6 +399,22 @@ class WireActivityViewModel @Inject constructor(
             return true
         }
         return false
+    }
+
+    private fun onAutomaticLoginParameters(backendConfigUrl: String?, ssoCode: String?) {
+        viewModelScope.launch(dispatchers.io()) {
+            // Load backend config
+            val serverLinks = backendConfigUrl?.let { loadServerConfig(it) }
+
+            val backendConfigLoadFailed = backendConfigUrl != null && serverLinks == null
+            val nothingProvided = backendConfigUrl == null && ssoCode == null
+            if (backendConfigLoadFailed || nothingProvided) {
+                sendAction(OnUnknownDeepLink)
+            } else {
+                automatedLoginManager.pendingMoveToBackgroundAfterSync = true
+                sendAction(OnAutomaticLogin(serverLinks, ssoCode))
+            }
+        }
     }
 
     private fun onAutomaticLoginParameters(backendConfigUrl: String?, ssoCode: String?) {

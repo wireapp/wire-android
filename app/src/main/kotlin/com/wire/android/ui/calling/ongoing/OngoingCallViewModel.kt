@@ -30,10 +30,11 @@ import com.wire.android.di.CurrentAccount
 import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.calling.ongoing.fullscreen.SelectedParticipant
 import com.wire.kalium.logic.data.call.CallClient
-import com.wire.kalium.logic.data.call.CallQuality
+import com.wire.kalium.logic.data.call.CallResolutionQuality
 import com.wire.kalium.logic.data.call.VideoState
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.call.usecase.ObserveCallQualityDataUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveLastActiveCallWithSortedParticipantsUseCase
 import com.wire.kalium.logic.feature.call.usecase.RequestVideoStreamsUseCase
 import com.wire.kalium.logic.feature.call.usecase.video.SetVideoSendStateUseCase
@@ -58,6 +59,7 @@ class OngoingCallViewModel @AssistedInject constructor(
     private val observeLastActiveCall: ObserveLastActiveCallWithSortedParticipantsUseCase,
     private val requestVideoStreams: RequestVideoStreamsUseCase,
     private val setVideoSendState: SetVideoSendStateUseCase,
+    private val observeCallQualityData: ObserveCallQualityDataUseCase,
 ) : ViewModel() {
     var shouldShowDoubleTapToast: Boolean by mutableStateOf(false)
         private set
@@ -70,6 +72,7 @@ class OngoingCallViewModel @AssistedInject constructor(
 
     init {
         observeCurrentCallFlowState()
+        observeCallQuality()
         showDoubleTapToast()
     }
 
@@ -108,6 +111,14 @@ class OngoingCallViewModel @AssistedInject constructor(
         }
     }
 
+    fun observeCallQuality() {
+        viewModelScope.launch {
+            observeCallQualityData(conversationId).collectLatest { callQualityData ->
+                state = state.copy(callQualityData = callQualityData)
+            }
+        }
+    }
+
     fun requestVideoStreams(participants: List<UICallParticipant>) {
         viewModelScope.launch {
             participants
@@ -129,11 +140,11 @@ class OngoingCallViewModel @AssistedInject constructor(
         }
     }
 
-    private fun mapQualityStream(uiParticipant: UICallParticipant): CallQuality {
+    private fun mapQualityStream(uiParticipant: UICallParticipant): CallResolutionQuality {
         return if (uiParticipant.clientId == selectedParticipant.clientId) {
-            CallQuality.HIGH
+            CallResolutionQuality.HIGH
         } else {
-            CallQuality.LOW
+            CallResolutionQuality.LOW
         }
     }
 

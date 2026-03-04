@@ -37,7 +37,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ContentAlpha
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -107,8 +106,6 @@ fun ParticipantTile(
     recentReaction: String? = null,
     onClearSelfUserVideoPreview: () -> Unit,
 ) {
-    val alpha =
-        if (participantTitleState.hasEstablishedAudio) ContentAlpha.high else ContentAlpha.medium
     Surface(
         modifier = modifier
             .thenIf(participantTitleState.isSpeaking, activeSpeakerBorderModifier),
@@ -148,7 +145,7 @@ fun ParticipantTile(
             if (shouldShowAvatar) {
                 AvatarTile(
                     modifier = Modifier
-                        .alpha(alpha)
+                        .alpha(if (participantTitleState.hasEstablishedAudio) 1f else 0.5f)
                         .padding(
                             top = activeSpeakerBorderPadding,
                             bottom = if (isOnPiPMode) activeSpeakerBorderPadding else 0.dp

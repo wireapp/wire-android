@@ -67,6 +67,7 @@ import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.navigation.transition.LocalSharedTransitionScope
 import com.wire.android.navigation.transition.SHARED_ELEMENT_SEARCH_INPUT_KEY
 import com.wire.android.ui.common.scaffold.WireScaffold
+import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
@@ -142,6 +143,7 @@ fun SearchScreen(
                         },
                         searchQueryTextState = searchState,
                         onCloseSearchClicked = { navigator.navigateBack() },
+                        textFieldState = WireTextFieldState.ReadOnly,
                         focusRequester = focusRequester,
                         focusManager = focusManager
                     )

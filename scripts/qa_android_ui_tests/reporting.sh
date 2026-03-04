@@ -69,10 +69,30 @@ HTML
   fi
 
   local allure_version="2.29.0"
+  # Update this checksum when bumping allure_version.
+  local allure_sha256="a217155db9670ab36ce7b0569b3fb0530a657c81bd7ce5bc974f0bba2a4d84fb"
   local allure_tgz="${RUNNER_TEMP}/allure-${allure_version}.tgz"
   curl -fsSL -o "${allure_tgz}" \
     "https://github.com/allure-framework/allure2/releases/download/${allure_version}/allure-${allure_version}.tgz"
+
+  if command -v sha256sum >/dev/null 2>&1; then
+    if ! echo "${allure_sha256}  ${allure_tgz}" | sha256sum -c - >/dev/null 2>&1; then
+      echo "ERROR: Allure checksum verification failed" >&2
+      rm -f "${allure_tgz}"
+      return 1
+    fi
+  else
+    local actual_sha256
+    actual_sha256="$(shasum -a 256 "${allure_tgz}" | awk '{print $1}')"
+    if [[ "${actual_sha256}" != "${allure_sha256}" ]]; then
+      echo "ERROR: Allure checksum verification failed" >&2
+      rm -f "${allure_tgz}"
+      return 1
+    fi
+  fi
+
   tar -xzf "${allure_tgz}" -C "${RUNNER_TEMP}"
+  rm -f "${allure_tgz}"
   "${RUNNER_TEMP}/allure-${allure_version}/bin/allure" \
     generate "${MERGED_DIR}" -o "${REPORT_DIR}" --clean
 }

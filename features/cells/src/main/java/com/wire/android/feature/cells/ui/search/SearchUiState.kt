@@ -31,11 +31,6 @@ data class SearchUiState(
     val availableConversations: List<FilterConversationUi> = emptyList(),
     val availableTypes: List<FilterTypeUi> = TypeFilter.typeItems,
 
-    val showFilterByTypeBottomSheet: Boolean = false,
-    val showFilterByTagsBottomSheet: Boolean = false,
-    val showFilterByOwnerBottomSheet: Boolean = false,
-    val showFilterByConversationBottomSheet: Boolean = false,
-
     val filesWithPublicLink: Boolean = false,
 
     val isSearchActive: Boolean = true,

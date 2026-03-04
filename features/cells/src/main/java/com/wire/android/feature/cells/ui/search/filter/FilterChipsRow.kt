@@ -111,21 +111,7 @@ fun FilterChipsRow(
                         onClick = { onFilterBySharedByLinkClicked() }
                     )
                 }
-
             }
-//            DropdownChip(R.string.filter_chip_tags, state.tagsCount, tagsChipEnabled, onFilterByTagsClicked)
-//            DropdownChip(R.string.filter_chip_type, typeCount, typeChipEnabled, onFilterByTypeClicked)
-//            DropdownChip(R.string.filter_chip_owner, ownerCount, ownerChipEnabled, onFilterByOwnerClicked)
-//            DropdownChip(R.string.filter_chip_conversation, ownerCount, ownerChipEnabled, onFilterByOwnerClicked)
-//            WireFilterChip(
-//                label = stringResource(R.string.filter_chip_link_sharing),
-//                isSelected = isSharedByLinkSelected,
-//                isEnabled = publicLinkChipEnabled,
-//                onClick = {
-//                    onFilterBySharedByLinkClicked()
-//                }
-//            )
-
             if (hasAnyFilter) {
                 Text(
                     modifier = Modifier

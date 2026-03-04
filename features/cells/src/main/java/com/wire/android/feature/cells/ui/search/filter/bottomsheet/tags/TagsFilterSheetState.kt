@@ -43,8 +43,12 @@ class TagsFilterSheetState(
     val filteredTags: List<FilterTagUi>
         get() {
             val q = query.trim()
-            val base = if (q.isBlank()) tags else tags.filter {
-                it.name.contains(q, ignoreCase = true)
+            val base = if (q.isBlank()) {
+                tags
+            } else {
+                tags.filter {
+                    it.name.contains(q, ignoreCase = true)
+                }
             }
             return base.sortedWith(
                 compareByDescending<FilterTagUi> { it.selected }

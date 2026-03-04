@@ -30,6 +30,7 @@ enum class SortDirection(val isDescending: Boolean) {
     Asc(false),
     Desc(true);
 
+    @Suppress("MagicNumber")
     val rotationAngle: Float get() = if (isDescending) 180f else 0f
 }
 

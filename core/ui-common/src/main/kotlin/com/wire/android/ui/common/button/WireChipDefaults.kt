@@ -19,7 +19,6 @@ package com.wire.android.ui.common.button
 
 import androidx.compose.material3.SelectableChipColors
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import com.wire.android.ui.common.colorsScheme
 
 @Composable

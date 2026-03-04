@@ -141,7 +141,6 @@ fun SearchUsersAndAppsScreen(
             }
         },
         topBarCollapsing = {
-            val focusRequester = remember { FocusRequester() }
             SearchTopBar(
                 isSearchActive = searchBarState.isSearchActive,
                 searchBarHint = searchBarTitle,
@@ -149,7 +148,6 @@ fun SearchUsersAndAppsScreen(
                 searchBarDescription = stringResource(R.string.content_description_add_participants_search_field),
                 searchQueryTextState = searchBarState.searchQueryTextState,
                 onActiveChanged = searchBarState::searchActiveChanged,
-                focusRequester = focusRequester,
             )
         },
         topBarFooter = {

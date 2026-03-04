@@ -31,10 +31,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -47,6 +44,10 @@ import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.search.filter.bottomsheet.FooterButtons
 import com.wire.android.feature.cells.ui.search.filter.data.FilterTagUi
 import com.wire.android.ui.common.SearchBarInput
+import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
+import com.wire.android.ui.common.bottomsheet.WireModalSheetState
+import com.wire.android.ui.common.bottomsheet.WireSheetValue
+import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.chip.WireFilterChip
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.MultipleThemePreviews
@@ -59,7 +60,7 @@ import com.wire.android.ui.common.R as CommonR
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FilterByTagsBottomSheet(
-    sheetState: SheetState,
+    sheetState: WireModalSheetState<Unit>,
     items: List<FilterTagUi>,
     onDismiss: () -> Unit,
     onSave: (List<FilterTagUi>) -> Unit,
@@ -81,7 +82,7 @@ fun FilterByTagsBottomSheet(
         scope.launch { sheetState.hide() }
             .invokeOnCompletion { onDismiss() }
     }
-    ModalBottomSheet(
+    WireModalSheetLayout(
         modifier = modifier,
         onDismissRequest = ::dismiss,
         sheetState = sheetState,
@@ -159,7 +160,7 @@ fun FilterByTagsBottomSheet(
 fun PreviewFilterByTagsBottomSheet() {
     WireTheme {
         FilterByTagsBottomSheet(
-            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+            sheetState = rememberWireModalSheetState<Unit>(WireSheetValue.Expanded(Unit)),
             items = listOf(
                 FilterTagUi("1", "Work", true),
                 FilterTagUi("2", "Personal", true),

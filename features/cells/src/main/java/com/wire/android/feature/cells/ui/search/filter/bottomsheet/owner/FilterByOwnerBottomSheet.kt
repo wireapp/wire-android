@@ -32,10 +32,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -52,6 +49,10 @@ import com.wire.android.feature.cells.ui.search.filter.data.FilterOwnerUi
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.SearchBarInput
 import com.wire.android.ui.common.avatar.UserProfileAvatar
+import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
+import com.wire.android.ui.common.bottomsheet.WireModalSheetState
+import com.wire.android.ui.common.bottomsheet.WireSheetValue
+import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.common.typography
@@ -63,12 +64,12 @@ import com.wire.android.ui.common.R as CommonR
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FilterByOwnerBottomSheet(
-    sheetState: SheetState,
+    sheetState: WireModalSheetState<Unit>,
     items: List<FilterOwnerUi>,
     onDismiss: () -> Unit,
     onSave: (List<FilterOwnerUi>) -> Unit,
     onRemoveAll: () -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
 
     val scope = rememberCoroutineScope()
@@ -85,7 +86,7 @@ fun FilterByOwnerBottomSheet(
             .invokeOnCompletion { onDismiss() }
     }
 
-    ModalBottomSheet(
+    WireModalSheetLayout(
         onDismissRequest = ::dismiss,
         sheetState = sheetState,
         modifier = modifier
@@ -202,7 +203,7 @@ private fun OwnerRow(
 fun PreviewFilterByOwnerBottomSheet() {
     WireTheme {
         FilterByOwnerBottomSheet(
-            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+            sheetState = rememberWireModalSheetState<Unit>(WireSheetValue.Expanded(Unit)),
             items = listOf(
                 FilterOwnerUi(
                     id = "1",

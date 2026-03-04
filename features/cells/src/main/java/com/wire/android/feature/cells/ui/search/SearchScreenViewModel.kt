@@ -179,34 +179,6 @@ class SearchScreenViewModel @Inject constructor(
         queryFlow.value = query
     }
 
-    fun onFilterByTypeClicked() {
-        _uiState.update { it.copy(showFilterByTypeBottomSheet = true) }
-    }
-
-    fun onCloseTypeSheet() {
-        _uiState.update { it.copy(showFilterByTypeBottomSheet = false) }
-    }
-
-    fun onFilterByTagsClicked() {
-        _uiState.update { it.copy(showFilterByTagsBottomSheet = true) }
-    }
-
-    fun onCloseTagsSheet() {
-        _uiState.update { it.copy(showFilterByTagsBottomSheet = false) }
-    }
-
-    fun onFilterByOwnerClicked() {
-        _uiState.update { it.copy(showFilterByOwnerBottomSheet = true) }
-    }
-
-    fun onCloseOwnerSheet() {
-        _uiState.update { it.copy(showFilterByOwnerBottomSheet = false) }
-    }
-
-    fun onSetSearchActive(active: Boolean) {
-        _uiState.update { it.copy(isSearchActive = active) }
-    }
-
     private fun applySelectedTags(selectedIds: Set<String>) {
         _uiState.update { state ->
             state.copy(

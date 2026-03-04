@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.home.conversations.search.messages
 
-import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -26,25 +25,24 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.wire.android.R
+import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesScreenDestination
+import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.annotation.app.WireRootDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
-import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
@@ -120,7 +118,6 @@ fun SearchConversationMessagesResultContent(
                         searchQueryTextState = searchQueryTextState,
                         onCloseSearchClicked = onCloseSearchClicked,
                         isLoading = state.isLoading,
-                        focusRequester = remember { FocusRequester() },
                     )
                 }
                 if (isCellsConversation) {

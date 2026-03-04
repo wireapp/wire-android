@@ -33,10 +33,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -48,6 +45,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.search.filter.data.FilterTypeUi
+import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
+import com.wire.android.ui.common.bottomsheet.WireModalSheetState
+import com.wire.android.ui.common.bottomsheet.WireSheetValue
+import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.common.typography
@@ -57,7 +58,7 @@ import com.wire.kalium.cells.data.MIMEType
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FilterByTypeBottomSheet(
-    sheetState: SheetState,
+    sheetState: WireModalSheetState<Unit>,
     items: List<FilterTypeUi>,
     onDismiss: () -> Unit,
     onSave: (List<FilterTypeUi>) -> Unit,
@@ -71,7 +72,7 @@ fun FilterByTypeBottomSheet(
         tag.selected != initial.selected
     }
 
-    ModalBottomSheet(
+    WireModalSheetLayout(
         modifier = modifier,
         onDismissRequest = onDismiss,
         sheetState = sheetState,
@@ -214,11 +215,11 @@ fun PreviewFilterByTypeBottomSheet() {
     )
     WireTheme {
         FilterByTypeBottomSheet(
+            sheetState = rememberWireModalSheetState<Unit>(WireSheetValue.Expanded(Unit)),
             items = sampleItems,
             onDismiss = {},
             onSave = {},
             onRemoveFilter = {},
-            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
         )
     }
 }

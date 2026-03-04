@@ -37,7 +37,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -242,7 +241,6 @@ fun ConversationFilesScreenContent(
                 )
 
                 val sharedScope = LocalSharedTransitionScope.current
-                val focusRequester = remember { FocusRequester() }
 
                 with(sharedScope) {
                     SearchTopBar(
@@ -264,7 +262,6 @@ fun ConversationFilesScreenContent(
                                 )
                             }
                         },
-                        focusRequester = focusRequester,
                     )
                 }
             }

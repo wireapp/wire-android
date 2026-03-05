@@ -60,7 +60,6 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 // TODO: to cover it with  unit test in upcoming PR
-// TODO add search debounce to avoid triggering search on every keystroke
 @Suppress("TooManyFunctions")
 @HiltViewModel
 class SearchScreenViewModel @Inject constructor(
@@ -105,8 +104,7 @@ class SearchScreenViewModel @Inject constructor(
                 sortingCriteria = state.sortingCriteria,
                 conversationId = selectedConversationId ?: navArgs.conversationId,
             )
-        }
-            .distinctUntilChanged()
+        }.distinctUntilChanged()
 
     val cellNodesFlow: Flow<PagingData<CellNodeUi>> =
         searchParamsFlow.flatMapLatest<SearchParams, PagingData<CellNodeUi>> { params: SearchParams ->
@@ -306,11 +304,13 @@ class SearchScreenViewModel @Inject constructor(
         }
     }
 
-    fun onRemoveAllFilters() = _uiState.update {
+    fun onRemoveAllFilters() {
         onRemoveAllTags()
         onRemoveOwners()
         onRemoveTypeFilter()
-        it.copy(filesWithPublicLink = false)
+        _uiState.update {
+            it.copy(filesWithPublicLink = false)
+        }
     }
 
     fun setSortBy(by: SortBy) {

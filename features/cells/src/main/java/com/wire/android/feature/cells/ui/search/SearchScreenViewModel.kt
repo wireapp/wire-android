@@ -29,9 +29,12 @@ import com.wire.android.feature.cells.ui.model.toUiModel
 import com.wire.android.feature.cells.ui.search.filter.data.FilterOwnerUi
 import com.wire.android.feature.cells.ui.search.filter.data.FilterTagUi
 import com.wire.android.feature.cells.ui.search.filter.data.FilterTypeUi
+import com.wire.android.feature.cells.ui.search.sort.SortBy
+import com.wire.android.feature.cells.ui.search.sort.SortingCriteria
 import com.wire.android.model.ImageAsset
 import com.wire.kalium.cells.data.FileFilters
 import com.wire.kalium.cells.data.MIMEType
+import com.wire.kalium.cells.data.SortingSpec
 import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
 import com.wire.kalium.cells.domain.usecase.GetOwnersUseCase
@@ -68,6 +71,7 @@ class SearchScreenViewModel @Inject constructor(
         val ownerIds: List<String>,
         val mimeTypes: List<MIMEType>,
         val filesWithPublicLink: Boolean?,
+        val sortingCriteria: SortingCriteria
     )
 
     private val navArgs: SearchNavArgs = SearchScreenDestination.argsFrom(savedStateHandle)
@@ -80,14 +84,15 @@ class SearchScreenViewModel @Inject constructor(
     private val searchParamsFlow: Flow<SearchParams> =
         combine(
             queryFlow,
-            uiState
+            uiState,
         ) { query, state ->
             SearchParams(
                 query = query,
                 tagIds = state.availableTags.filter { it.selected }.map { it.id },
                 ownerIds = state.availableOwners.filter { it.selected }.map { it.id },
                 mimeTypes = state.availableTypes.filter { it.selected }.map { it.mimeType },
-                filesWithPublicLink = state.filesWithPublicLink
+                filesWithPublicLink = state.filesWithPublicLink,
+                sortingCriteria = state.sortingCriteria
             )
         }.distinctUntilChanged()
 
@@ -100,8 +105,12 @@ class SearchScreenViewModel @Inject constructor(
                     tags = params.tagIds,
                     owners = params.ownerIds,
                     mimeTypes = params.mimeTypes,
-                    hasPublicLink = params.filesWithPublicLink
+                    hasPublicLink = params.filesWithPublicLink,
                 ),
+                sortingSpec = SortingSpec(
+                    criteria = params.sortingCriteria.toKaliumCriteria(),
+                    descending = params.sortingCriteria.isDescending
+                )
             ).map { pagingData: PagingData<Node> ->
                 pagingData.map { node: Node ->
                     when (node) {
@@ -243,10 +252,47 @@ class SearchScreenViewModel @Inject constructor(
         }
     }
 
-    fun onRemoveAllFilters() = _uiState.update {
+    fun onRemoveAllFilters() {
         onRemoveAllTags()
         onRemoveOwners()
         onRemoveTypeFilter()
-        it.copy(filesWithPublicLink = false)
+        _uiState.update {
+            it.copy(filesWithPublicLink = false)
+        }
+    }
+
+    fun setSortBy(by: SortBy) {
+        _uiState.update { current ->
+            val currentCriteria = current.sortingCriteria
+            if (currentCriteria.by == by) {
+                current
+            } else {
+                current.copy(sortingCriteria = defaultCriteriaFor(by))
+            }
+        }
+    }
+
+    fun setSorting(criteria: SortingCriteria) {
+        _uiState.update { current ->
+            current.copy(sortingCriteria = criteria)
+        }
     }
 }
+
+fun defaultCriteriaFor(by: SortBy): SortingCriteria = when (by) {
+    SortBy.Modified -> SortingCriteria.Modified.NewestFirst
+    SortBy.Name -> SortingCriteria.Name.AtoZ
+    SortBy.Size -> SortingCriteria.Size.SmallestFirst
+}
+
+fun SortingCriteria.toKaliumCriteria(): com.wire.kalium.cells.data.SortingCriteria =
+    when (by) {
+        SortBy.Modified ->
+            com.wire.kalium.cells.data.SortingCriteria.MODIFICATION_TIME
+
+        SortBy.Name ->
+            com.wire.kalium.cells.data.SortingCriteria.NAME_CASE_INSENSITIVE
+
+        SortBy.Size ->
+            com.wire.kalium.cells.data.SortingCriteria.SIZE
+    }

@@ -40,11 +40,7 @@ import com.wire.android.ui.theme.WireTheme
 
 @Composable
 fun FilterChipsRow(
-    isSharedByLinkSelected: Boolean,
-    tagsCount: Int,
-    typeCount: Int,
-    ownerCount: Int,
-    hasAnyFilter: Boolean,
+    state: FilterChipsUiState,
     modifier: Modifier = Modifier,
     onFilterByTagsClicked: () -> Unit = { },
     onFilterByTypeClicked: () -> Unit = { },
@@ -55,11 +51,12 @@ fun FilterChipsRow(
     val scrollState = rememberScrollState()
 
     @Composable
-    fun DropdownChip(labelRes: Int, count: Int, onClick: () -> Unit) {
+    fun DropdownChip(labelRes: Int, count: Int, isEnabled: Boolean, onClick: () -> Unit) {
         WireFilterChip(
             label = stringResource(labelRes),
             count = count.takeIf { it > 0 },
             isSelected = count > 0,
+            isEnabled = isEnabled,
             trailingIconResource = R.drawable.ic_dropdown_chevron,
             onClick = { onClick() }
         )
@@ -73,26 +70,29 @@ fun FilterChipsRow(
             .padding(horizontal = dimensions().spacing12x),
         horizontalArrangement = Arrangement.spacedBy(dimensions().spacing8x)
     ) {
-        DropdownChip(R.string.filter_chip_tags, tagsCount, onFilterByTagsClicked)
-        DropdownChip(R.string.filter_chip_type, typeCount, onFilterByTypeClicked)
-        DropdownChip(R.string.filter_chip_owner, ownerCount, onFilterByOwnerClicked)
-
-        WireFilterChip(
-            label = stringResource(R.string.filter_chip_link_sharing),
-            isSelected = isSharedByLinkSelected,
-            onClick = {
-                onFilterBySharedByLinkClicked()
-            }
-        )
-        if (hasAnyFilter) {
-            Text(
-                modifier = Modifier
-                    .align(alignment = Alignment.CenterVertically)
-                    .clickable { onRemoveAllFiltersClicked() },
-                text = stringResource(R.string.filter_chip_remove_all_filters),
-                style = typography().button02,
-                color = colorsScheme().primary,
+        with(state) {
+            DropdownChip(R.string.filter_chip_tags, tagsCount, tagsChipEnabled, onFilterByTagsClicked)
+            DropdownChip(R.string.filter_chip_type, typeCount, typeChipEnabled, onFilterByTypeClicked)
+            DropdownChip(R.string.filter_chip_owner, ownerCount, ownerChipEnabled, onFilterByOwnerClicked)
+            WireFilterChip(
+                label = stringResource(R.string.filter_chip_link_sharing),
+                isSelected = isSharedByLinkSelected,
+                isEnabled = publicLinkChipEnabled,
+                onClick = {
+                    onFilterBySharedByLinkClicked()
+                }
             )
+
+            if (hasAnyFilter) {
+                Text(
+                    modifier = Modifier
+                        .align(alignment = Alignment.CenterVertically)
+                        .clickable { onRemoveAllFiltersClicked() },
+                    text = stringResource(R.string.filter_chip_remove_all_filters),
+                    style = typography().button02,
+                    color = colorsScheme().primary,
+                )
+            }
         }
     }
 }
@@ -102,11 +102,17 @@ fun FilterChipsRow(
 fun PreviewFilterChipsRow() {
     WireTheme {
         FilterChipsRow(
-            isSharedByLinkSelected = true,
-            tagsCount = 2,
-            typeCount = 1,
-            ownerCount = 0,
-            hasAnyFilter = true,
+            state = FilterChipsUiState(
+                tagsCount = 2,
+                typeCount = 1,
+                ownerCount = 0,
+                isSharedByLinkSelected = true,
+                hasAnyFilter = true,
+                tagsChipEnabled = false,
+                typeChipEnabled = false,
+                ownerChipEnabled = true,
+                publicLinkChipEnabled = false,
+            )
         )
     }
 }

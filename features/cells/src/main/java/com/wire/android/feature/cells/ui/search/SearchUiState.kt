@@ -17,10 +17,12 @@
  */
 package com.wire.android.feature.cells.ui.search
 
+import com.wire.android.feature.cells.ui.search.filter.FilterChipsUiState
 import com.wire.android.feature.cells.ui.search.filter.data.FilterOwnerUi
 import com.wire.android.feature.cells.ui.search.filter.data.FilterTagUi
 import com.wire.android.feature.cells.ui.search.filter.data.FilterTypeUi
 import com.wire.android.feature.cells.ui.search.filter.data.TypeFilter
+import com.wire.android.feature.cells.ui.search.sort.SortingCriteria
 
 data class SearchUiState(
     val availableTags: List<FilterTagUi> = emptyList(),
@@ -30,6 +32,8 @@ data class SearchUiState(
     val filesWithPublicLink: Boolean = false,
 
     val isSearchActive: Boolean = true,
+
+    val sortingCriteria: SortingCriteria = SortingCriteria.Modified.NewestFirst,
 ) {
     val tagsCount: Int get() = availableTags.count { it.selected }
     val typeCount: Int get() = availableTypes.count { it.selected }
@@ -37,4 +41,27 @@ data class SearchUiState(
 
     val hasAnyFilter: Boolean
         get() = tagsCount > 0 || typeCount > 0 || ownerCount > 0 || filesWithPublicLink
+
+    private val hasTags get() = tagsCount > 0
+    private val hasType get() = typeCount > 0
+    private val hasOwner get() = ownerCount > 0
+    private val hasPublicLink get() = filesWithPublicLink
+
+    private val tagsChipEnabled: Boolean get() = !hasType && !hasOwner && !hasPublicLink
+    private val typeChipEnabled: Boolean get() = !hasTags && !hasOwner && !hasPublicLink
+    private val ownerChipEnabled: Boolean get() = !hasTags && !hasType && !hasPublicLink
+    private val publicLinkChipEnabled: Boolean get() = !hasTags && !hasType && !hasOwner
+
+    val chipsState: FilterChipsUiState
+        get() = FilterChipsUiState(
+            tagsCount = tagsCount,
+            typeCount = typeCount,
+            ownerCount = ownerCount,
+            isSharedByLinkSelected = filesWithPublicLink,
+            hasAnyFilter = hasAnyFilter,
+            tagsChipEnabled = tagsChipEnabled,
+            typeChipEnabled = typeChipEnabled,
+            ownerChipEnabled = ownerChipEnabled,
+            publicLinkChipEnabled = publicLinkChipEnabled,
+        )
 }

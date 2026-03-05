@@ -164,6 +164,8 @@ fun ConversationFilesScreenContent(
     isRestoreInProgress: Boolean = false,
     breadcrumbs: Array<String>? = emptyArray(),
 ) {
+    val sharedScope = LocalSharedTransitionScope.current
+
     val newActionBottomSheetState = rememberWireModalSheetState<Unit>()
     val fileTypeBottomSheetState = rememberWireModalSheetState<Unit>()
     val optionsBottomSheetState = rememberWireModalSheetState<Unit>()
@@ -221,29 +223,30 @@ fun ConversationFilesScreenContent(
             fileTypeBottomSheetState.hide()
         },
     )
-
-    WireScaffold(
-        modifier = modifier,
-        topBar = {
-            Column {
-                WireCenterAlignedTopAppBar(
-                    onNavigationPressed = { navigator.navigateBack() },
-                    title = screenTitle ?: stringResource(R.string.conversation_files_title),
-                    navigationIconType = NavigationIconType.Back(),
-                    elevation = dimensions().spacing0x,
-                    actions = {
-                        if (!isRecycleBin) {
-                            MoreOptionIcon(
-                                contentDescription = R.string.content_description_conversation_files_more_button,
-                                onButtonClicked = { optionsBottomSheetState.show() }
-                            )
+    with(sharedScope) {
+        WireScaffold(
+            modifier = modifier,
+            topBar = {
+                Column {
+                    WireCenterAlignedTopAppBar(
+                        modifier = Modifier.sharedElement(
+                            sharedContentState = rememberSharedContentState(key = "topAppBar"),
+                            animatedVisibilityScope = animatedVisibilityScope
+                        ),
+                        onNavigationPressed = { navigator.navigateBack() },
+                        title = screenTitle ?: stringResource(R.string.conversation_files_title),
+                        navigationIconType = NavigationIconType.Back(),
+                        elevation = dimensions().spacing0x,
+                        actions = {
+                            if (!isRecycleBin) {
+                                MoreOptionIcon(
+                                    contentDescription = R.string.content_description_conversation_files_more_button,
+                                    onButtonClicked = { optionsBottomSheetState.show() }
+                                )
+                            }
                         }
-                    }
-                )
+                    )
 
-                val sharedScope = LocalSharedTransitionScope.current
-
-                with(sharedScope) {
                     SearchTopBar(
                         modifier = Modifier
                             .sharedElement(
@@ -254,7 +257,6 @@ fun ConversationFilesScreenContent(
                         searchBarHint = stringResource(R.string.search_shared_drive_text_input_hint),
                         searchQueryTextState = conversationSearchBarState.searchQueryTextState,
                         onActiveChanged = conversationSearchBarState::searchActiveChanged,
-                        textFieldState = WireTextFieldState.ReadOnly,
                         onTap = {
                             currentNodeUuid?.let {
                                 navigator.navigate(
@@ -266,112 +268,112 @@ fun ConversationFilesScreenContent(
                         },
                     )
                 }
-            }
-        },
-        floatingActionButton = {
-            if (isFabVisible) {
-                AnimatedVisibility(
-                    visible = true,
-                    enter = fadeIn(),
-                    exit = fadeOut(),
-                ) {
-                    FloatingActionButton(
-                        text = stringResource(R.string.cells_new_label),
-                        icon = {
-                            Image(
-                                painter = painterResource(id = com.wire.android.ui.common.R.drawable.ic_plus),
-                                contentDescription = stringResource(R.string.cells_new_label_content_description),
-                                contentScale = ContentScale.FillBounds,
-                                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary),
-                                modifier = Modifier
-                                    .padding(
-                                        start = dimensions().spacing4x,
-                                        top = dimensions().spacing2x
-                                    )
-                                    .size(dimensions().fabIconSize)
-                            )
-                        },
-                        onClick = { newActionBottomSheetState.show() }
-                    )
+            },
+            floatingActionButton = {
+                if (isFabVisible) {
+                    AnimatedVisibility(
+                        visible = true,
+                        enter = fadeIn(),
+                        exit = fadeOut(),
+                    ) {
+                        FloatingActionButton(
+                            text = stringResource(R.string.cells_new_label),
+                            icon = {
+                                Image(
+                                    painter = painterResource(id = com.wire.android.ui.common.R.drawable.ic_plus),
+                                    contentDescription = stringResource(R.string.cells_new_label_content_description),
+                                    contentScale = ContentScale.FillBounds,
+                                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary),
+                                    modifier = Modifier
+                                        .padding(
+                                            start = dimensions().spacing4x,
+                                            top = dimensions().spacing2x
+                                        )
+                                        .size(dimensions().fabIconSize)
+                                )
+                            },
+                            onClick = { newActionBottomSheetState.show() }
+                        )
+                    }
                 }
+            },
+        ) { innerPadding ->
+            Box(modifier = Modifier.padding(innerPadding)) {
+                CellScreenContent(
+                    actionsFlow = actions,
+                    pagingListItems = pagingListItems,
+                    sendIntent = sendIntent,
+                    downloadFileState = downloadFileSheet,
+                    menuState = menu,
+                    isSearchResult = isSearchResult,
+                    isRestoreInProgress = isRestoreInProgress,
+                    isDeleteInProgress = isDeleteInProgress,
+                    isRecycleBin = isRecycleBin,
+                    openFolder = { path, title, parentFolderUuid ->
+                        navigator.navigate(
+                            NavigationCommand(
+                                ConversationFilesWithSlideInTransitionScreenDestination(
+                                    conversationId = path,
+                                    screenTitle = title,
+                                    isRecycleBin = isRecycleBin,
+                                    parentFolderUuid = parentFolderUuid,
+                                    breadcrumbs = (breadcrumbs ?: emptyArray()) + title
+                                ),
+                                BackStackMode.NONE,
+                                launchSingleTop = false
+                            )
+                        )
+                    },
+                    showPublicLinkScreen = { publicLinkScreenData ->
+                        navigator.navigate(
+                            NavigationCommand(
+                                PublicLinkScreenDestination(
+                                    assetId = publicLinkScreenData.assetId,
+                                    fileName = publicLinkScreenData.fileName,
+                                    publicLinkId = publicLinkScreenData.linkId,
+                                    isFolder = publicLinkScreenData.isFolder
+                                )
+                            )
+                        )
+                    },
+                    showMoveToFolderScreen = { currentPath, nodePath, uuid ->
+                        navigator.navigate(
+                            NavigationCommand(
+                                MoveToFolderScreenDestination(
+                                    currentPath = currentPath,
+                                    nodeToMovePath = nodePath,
+                                    uuid = uuid
+                                )
+                            )
+                        )
+                    },
+                    showRenameScreen = { cellNodeUi ->
+                        navigator.navigate(
+                            NavigationCommand(
+                                RenameNodeScreenDestination(
+                                    uuid = cellNodeUi.uuid,
+                                    currentPath = cellNodeUi.remotePath,
+                                    isFolder = cellNodeUi is CellNodeUi.Folder,
+                                    nodeName = cellNodeUi.name,
+                                )
+                            )
+                        )
+                    },
+                    showAddRemoveTagsScreen = { node ->
+                        navigator.navigate(
+                            NavigationCommand(
+                                AddRemoveTagsScreenDestination(node.uuid, node.tags.toCollection(ArrayList()))
+                            )
+                        )
+                    },
+                    showVersionHistoryScreen = { uuid, fileName ->
+                        navigator.navigate(NavigationCommand(VersionHistoryScreenDestination(uuid, fileName)))
+                    },
+                    retryEditNodeError = { retryEditNodeError(it) },
+                    isRefreshing = isRefreshing,
+                    onRefresh = onRefresh
+                )
             }
-        },
-    ) { innerPadding ->
-        Box(modifier = Modifier.padding(innerPadding)) {
-            CellScreenContent(
-                actionsFlow = actions,
-                pagingListItems = pagingListItems,
-                sendIntent = sendIntent,
-                downloadFileState = downloadFileSheet,
-                menuState = menu,
-                isSearchResult = isSearchResult,
-                isRestoreInProgress = isRestoreInProgress,
-                isDeleteInProgress = isDeleteInProgress,
-                isRecycleBin = isRecycleBin,
-                openFolder = { path, title, parentFolderUuid ->
-                    navigator.navigate(
-                        NavigationCommand(
-                            ConversationFilesWithSlideInTransitionScreenDestination(
-                                conversationId = path,
-                                screenTitle = title,
-                                isRecycleBin = isRecycleBin,
-                                parentFolderUuid = parentFolderUuid,
-                                breadcrumbs = (breadcrumbs ?: emptyArray()) + title
-                            ),
-                            BackStackMode.NONE,
-                            launchSingleTop = false
-                        )
-                    )
-                },
-                showPublicLinkScreen = { publicLinkScreenData ->
-                    navigator.navigate(
-                        NavigationCommand(
-                            PublicLinkScreenDestination(
-                                assetId = publicLinkScreenData.assetId,
-                                fileName = publicLinkScreenData.fileName,
-                                publicLinkId = publicLinkScreenData.linkId,
-                                isFolder = publicLinkScreenData.isFolder
-                            )
-                        )
-                    )
-                },
-                showMoveToFolderScreen = { currentPath, nodePath, uuid ->
-                    navigator.navigate(
-                        NavigationCommand(
-                            MoveToFolderScreenDestination(
-                                currentPath = currentPath,
-                                nodeToMovePath = nodePath,
-                                uuid = uuid
-                            )
-                        )
-                    )
-                },
-                showRenameScreen = { cellNodeUi ->
-                    navigator.navigate(
-                        NavigationCommand(
-                            RenameNodeScreenDestination(
-                                uuid = cellNodeUi.uuid,
-                                currentPath = cellNodeUi.remotePath,
-                                isFolder = cellNodeUi is CellNodeUi.Folder,
-                                nodeName = cellNodeUi.name,
-                            )
-                        )
-                    )
-                },
-                showAddRemoveTagsScreen = { node ->
-                    navigator.navigate(
-                        NavigationCommand(
-                            AddRemoveTagsScreenDestination(node.uuid, node.tags.toCollection(ArrayList()))
-                        )
-                    )
-                },
-                showVersionHistoryScreen = { uuid, fileName ->
-                    navigator.navigate(NavigationCommand(VersionHistoryScreenDestination(uuid, fileName)))
-                },
-                retryEditNodeError = { retryEditNodeError(it) },
-                isRefreshing = isRefreshing,
-                onRefresh = onRefresh
-            )
         }
     }
 }

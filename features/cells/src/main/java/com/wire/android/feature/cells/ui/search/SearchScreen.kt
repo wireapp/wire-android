@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
@@ -51,6 +52,7 @@ import com.wire.android.feature.cells.ui.search.filter.FilterChipsRow
 import com.wire.android.feature.cells.ui.search.filter.bottomsheet.FilterByTypeBottomSheet
 import com.wire.android.feature.cells.ui.search.filter.bottomsheet.owner.FilterByOwnerBottomSheet
 import com.wire.android.feature.cells.ui.search.filter.bottomsheet.tags.FilterByTagsBottomSheet
+import com.wire.android.feature.cells.ui.search.sort.SortRowWithMenu
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.WireNavigator
 import com.wire.android.navigation.annotation.features.cells.WireCellsDestination
@@ -61,6 +63,7 @@ import com.wire.android.ui.common.bottomsheet.WireSheetValue
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
+import kotlinx.coroutines.flow.first
 
 @OptIn(ExperimentalSharedTransitionApi::class, ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @WireCellsDestination(
@@ -111,11 +114,7 @@ fun SearchScreen(
                         onActiveChanged = { },
                     )
                     FilterChipsRow(
-                        isSharedByLinkSelected = uiState.filesWithPublicLink,
-                        tagsCount = uiState.tagsCount,
-                        typeCount = uiState.typeCount,
-                        ownerCount = uiState.ownerCount,
-                        hasAnyFilter = uiState.hasAnyFilter,
+                        state = uiState.chipsState,
                         onFilterByTagsClicked = {
                             filterTagsSheetState.show(Unit, isImeVisible)
                         },
@@ -132,114 +131,138 @@ fun SearchScreen(
                             searchScreenViewModel.onRemoveAllFilters()
                         }
                     )
+
+                    with(uiState) {
+                        SortRowWithMenu(
+                            sortingCriteria = sortingCriteria,
+                            isSearchResult = searchState.text.isNotEmpty() || hasAnyFilter,
+                            onSortByClicked = {
+                                searchScreenViewModel.setSortBy(it)
+                            },
+                            onOrderClicked = {
+                                searchScreenViewModel.setSorting(it)
+                            }
+                        )
+                    }
                 }
             }
         ) { innerPadding ->
-            with(searchScreenViewModel.cellNodesFlow.collectAsLazyPagingItems()) {
-                CellScreenContent(
-                    modifier = Modifier.padding(innerPadding),
-                    actionsFlow = cellViewModel.actions,
-                    pagingListItems = this,
-                    sendIntent = { cellViewModel.sendIntent(it) },
-                    downloadFileState = cellViewModel.downloadFileSheet,
-                    menuState = cellViewModel.menu,
-                    isSearchResult = true,
-                    isRestoreInProgress = cellViewModel.isRestoreInProgress.collectAsState().value,
-                    isDeleteInProgress = cellViewModel.isDeleteInProgress.collectAsState().value,
-                    openFolder = { _, _, _ -> },
-                    showPublicLinkScreen = { publicLinkScreenData ->
-                        navigator.navigate(
-                            NavigationCommand(
-                                PublicLinkScreenDestination(
-                                    assetId = publicLinkScreenData.assetId,
-                                    fileName = publicLinkScreenData.fileName,
-                                    publicLinkId = publicLinkScreenData.linkId,
-                                    isFolder = publicLinkScreenData.isFolder
-                                )
-                            )
-                        )
-                    },
-                    showMoveToFolderScreen = { currentPath, nodePath, uuid ->
-                        navigator.navigate(
-                            NavigationCommand(
-                                MoveToFolderScreenDestination(
-                                    currentPath = currentPath,
-                                    nodeToMovePath = nodePath,
-                                    uuid = uuid
-                                )
-                            )
-                        )
-                    },
-                    showRenameScreen = { cellNodeUi ->
-                        navigator.navigate(
-                            NavigationCommand(
-                                RenameNodeScreenDestination(
-                                    uuid = cellNodeUi.uuid,
-                                    currentPath = cellNodeUi.remotePath,
-                                    isFolder = cellNodeUi is CellNodeUi.Folder,
-                                    nodeName = cellNodeUi.name,
-                                )
-                            )
-                        )
-                    },
-                    showAddRemoveTagsScreen = { node ->
-                        navigator.navigate(
-                            NavigationCommand(
-                                AddRemoveTagsScreenDestination(node.uuid, node.tags.toCollection(ArrayList()))
-                            )
-                        )
-                    },
-                    showVersionHistoryScreen = { uuid, fileName ->
-                        navigator.navigate(NavigationCommand(VersionHistoryScreenDestination(uuid, fileName)))
-                    },
-                    retryEditNodeError = { cellViewModel.editNode(it) },
-                    isRefreshing = remember { mutableStateOf(false) },
-                    onRefresh = { }
-                )
+            val lazyListState = rememberLazyListState()
+            val lazyItems = searchScreenViewModel.cellNodesFlow.collectAsLazyPagingItems()
+
+            LaunchedEffect(uiState.sortingCriteria) {
+                lazyItems.refresh()
+                // wait for refresh to complete
+                snapshotFlow { lazyItems.loadState.refresh }
+                    .first { it is androidx.paging.LoadState.NotLoading }
+                lazyListState.animateScrollToItem(0)
             }
 
-            FilterByTagsBottomSheet(
-                items = uiState.availableTags,
-                sheetState = filterTagsSheetState,
-                onDismiss = {
-                    filterTagsSheetState.hide()
+            CellScreenContent(
+                lazyListState = lazyListState,
+                isPullToRefreshEnabled = false,
+                modifier = Modifier.padding(innerPadding),
+                actionsFlow = cellViewModel.actions,
+                pagingListItems = lazyItems,
+                sendIntent = { cellViewModel.sendIntent(it) },
+                downloadFileState = cellViewModel.downloadFileSheet,
+                menuState = cellViewModel.menu,
+                isSearchResult = true,
+                isRestoreInProgress = cellViewModel.isRestoreInProgress.collectAsState().value,
+                isDeleteInProgress = cellViewModel.isDeleteInProgress.collectAsState().value,
+                openFolder = { _, _, _ -> },
+                showPublicLinkScreen = { publicLinkScreenData ->
+                    navigator.navigate(
+                        NavigationCommand(
+                            PublicLinkScreenDestination(
+                                assetId = publicLinkScreenData.assetId,
+                                fileName = publicLinkScreenData.fileName,
+                                publicLinkId = publicLinkScreenData.linkId,
+                                isFolder = publicLinkScreenData.isFolder
+                            )
+                        )
+                    )
                 },
-                onSave = { selectedItems ->
-                    searchScreenViewModel.onSaveTags(selectedItems)
-                    filterTagsSheetState.hide()
+                showMoveToFolderScreen = { currentPath, nodePath, uuid ->
+                    navigator.navigate(
+                        NavigationCommand(
+                            MoveToFolderScreenDestination(
+                                currentPath = currentPath,
+                                nodeToMovePath = nodePath,
+                                uuid = uuid
+                            )
+                        )
+                    )
                 },
-                onRemoveAll = {
-                    searchScreenViewModel.onRemoveAllTags()
-                }
-            )
-
-            FilterByTypeBottomSheet(
-                items = uiState.availableTypes,
-                sheetState = filterTypeSheetState,
-                onDismiss = {
-                    filterTypeSheetState.hide()
+                showRenameScreen = { cellNodeUi ->
+                    navigator.navigate(
+                        NavigationCommand(
+                            RenameNodeScreenDestination(
+                                uuid = cellNodeUi.uuid,
+                                currentPath = cellNodeUi.remotePath,
+                                isFolder = cellNodeUi is CellNodeUi.Folder,
+                                nodeName = cellNodeUi.name,
+                            )
+                        )
+                    )
                 },
-                onSave = { selectedItems ->
-                    searchScreenViewModel.onSaveTypes(selectedItems)
-                    filterTypeSheetState.hide()
+                showAddRemoveTagsScreen = { node ->
+                    navigator.navigate(
+                        NavigationCommand(
+                            AddRemoveTagsScreenDestination(node.uuid, node.tags.toCollection(ArrayList()))
+                        )
+                    )
                 },
-                onRemoveFilter = {
-                    searchScreenViewModel.onRemoveTypeFilter()
-                }
-            )
-
-            FilterByOwnerBottomSheet(
-                items = uiState.availableOwners,
-                sheetState = filterOwnerSheetState,
-                onDismiss = {
-                    filterOwnerSheetState.hide()
+                showVersionHistoryScreen = { uuid, fileName ->
+                    navigator.navigate(NavigationCommand(VersionHistoryScreenDestination(uuid, fileName)))
                 },
-                onSave = { selectedItems ->
-                    searchScreenViewModel.onSaveOwners(selectedItems)
-                    filterOwnerSheetState.hide()
-                },
-                onRemoveAll = { searchScreenViewModel.onRemoveOwners() }
+                retryEditNodeError = { cellViewModel.editNode(it) },
+                isRefreshing = remember { mutableStateOf(false) },
+                onRefresh = { }
             )
         }
     }
+
+    FilterByTagsBottomSheet(
+        items = uiState.availableTags,
+        sheetState = filterTagsSheetState,
+        onDismiss = {
+            filterTagsSheetState.hide()
+        },
+        onSave = { selectedItems ->
+            searchScreenViewModel.onSaveTags(selectedItems)
+            filterTagsSheetState.hide()
+        },
+        onRemoveAll = {
+            searchScreenViewModel.onRemoveAllTags()
+        }
+    )
+
+    FilterByTypeBottomSheet(
+        items = uiState.availableTypes,
+        sheetState = filterTypeSheetState,
+        onDismiss = {
+            filterTypeSheetState.hide()
+        },
+        onSave = { selectedItems ->
+            searchScreenViewModel.onSaveTypes(selectedItems)
+            filterTypeSheetState.hide()
+        },
+        onRemoveFilter = {
+            searchScreenViewModel.onRemoveTypeFilter()
+        }
+    )
+
+    FilterByOwnerBottomSheet(
+        items = uiState.availableOwners,
+        sheetState = filterOwnerSheetState,
+        onDismiss = {
+            filterOwnerSheetState.hide()
+        },
+        onSave = { selectedItems ->
+            searchScreenViewModel.onSaveOwners(selectedItems)
+            filterOwnerSheetState.hide()
+        },
+        onRemoveAll = { searchScreenViewModel.onRemoveOwners() }
+    )
 }

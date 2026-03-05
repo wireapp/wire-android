@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.calling.ongoing
+package com.wire.android.ui.calling.ongoing.details
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandIn
@@ -47,10 +47,14 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.call.CallQuality
 
 @Composable
-fun CallDetailsButton(callQuality: CallQuality, modifier: Modifier = Modifier) {
+fun CallDetailsButton(
+    callQuality: CallQuality,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
     IconButton(
         modifier = modifier,
-        onClick = { /* TODO */ },
+        onClick = onClick,
         content = {
             OverlappingCirclesRow(
                 overlapSize = dimensions().spacing4x,
@@ -102,11 +106,11 @@ private fun InfoItem() {
 @PreviewMultipleThemes
 @Composable
 fun CallDetailsButtonPreview() = WireTheme {
-    CallDetailsButton(callQuality = CallQuality.NORMAL)
+    CallDetailsButton(callQuality = CallQuality.NORMAL, onClick = {})
 }
 
 @PreviewMultipleThemes
 @Composable
 fun CallDetailsButtonWithLowNetworkPreview() = WireTheme {
-    CallDetailsButton(callQuality = CallQuality.POOR)
+    CallDetailsButton(callQuality = CallQuality.POOR, onClick = {})
 }

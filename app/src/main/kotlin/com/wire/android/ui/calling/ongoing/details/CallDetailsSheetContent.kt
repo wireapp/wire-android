@@ -42,6 +42,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import com.wire.android.R
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
@@ -90,7 +91,7 @@ private fun EncryptedCallItem() {
             .padding(dimensions().spacing16x)
     ) {
         Text(
-            text = "Calls are always end-to-end encrypted",
+            text = stringResource(R.string.calling_details_security_banner_label),
             style = typography().body02,
             color = colorsScheme().onPositiveVariant,
             modifier = Modifier.weight(1f, fill = true)
@@ -110,7 +111,7 @@ private fun NetworkQualityItem(
     onOpenNetworkQuality: () -> Unit
 ) {
     MenuBottomSheetItem(
-        title = "Network quality",
+        title = stringResource(R.string.calling_details_network_quality_title),
         trailing = {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -160,9 +161,9 @@ private fun NetworkQualityIndicator(
                 },
                 text = when (callQuality) {
                     CallQuality.UNKNOWN -> ""
-                    CallQuality.NORMAL -> "Good"
-                    CallQuality.MEDIUM -> "Fair"
-                    else -> "Poor"
+                    CallQuality.NORMAL -> stringResource(R.string.calling_details_network_quality_good)
+                    CallQuality.MEDIUM -> stringResource(R.string.calling_details_network_quality_fair)
+                    else -> stringResource(R.string.calling_details_network_quality_poor)
                 },
             )
         }
@@ -183,7 +184,7 @@ private fun TurnOffOtherVideosItem() {
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(
-                text = "Turn off other videos",
+                text = stringResource(R.string.calling_details_turn_off_other_videos_title),
                 style = typography().body01,
                 color = colorsScheme().onSurface,
                 modifier = Modifier.weight(1f, fill = true)
@@ -197,7 +198,7 @@ private fun TurnOffOtherVideosItem() {
             )
         }
         Text(
-            text = "This improves the audio quality when your network conditions are poor.",
+            text = stringResource(R.string.calling_details_turn_off_other_videos_description),
             style = typography().label04,
             color = colorsScheme().secondaryText,
             textAlign = TextAlign.Start,

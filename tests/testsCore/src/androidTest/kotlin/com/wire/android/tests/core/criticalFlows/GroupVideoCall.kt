@@ -165,20 +165,29 @@ class GroupVideoCall : BaseUiTest() {
             }
         }
 
-        step("Login as team owner in Android app") {
+        step("Verify welcome screen before login") {
             pages.registrationPage.apply {
                 assertEmailWelcomePage()
             }
+        }
+
+        step("Open staging deep link login flow") {
             pages.loginPage.apply {
                 clickStagingDeepLink()
                 clickProceedButtonOnDeeplinkOverlay()
             }
+        }
+
+        step("Login as WeLikeCalls team owner") {
             pages.loginPage.apply {
                 enterTeamOwnerLoggingEmail(teamOwnerA?.email ?: "")
                 clickLoginButton()
                 enterTeamOwnerLoggingPassword(teamOwnerA?.password ?: "")
                 clickLoginButton()
             }
+        }
+
+        step("Complete post-login permission and privacy prompts") {
             pages.registrationPage.apply {
                 waitUntilLoginFlowIsCompleted()
                 clickAllowNotificationButton()
@@ -193,39 +202,71 @@ class GroupVideoCall : BaseUiTest() {
             }
         }
 
-        step("Search for team owner from another team") {
+        step("Open people search to find owner from another team") {
             pages.searchPage.apply {
                 tapSearchPeopleField()
+            }
+        }
+
+        step("Search TeamOwnerB by unique username") {
+            pages.searchPage.apply {
                 typeUniqueUserNameInSearchField(teamHelper, "user4Name")
+            }
+        }
+
+        step("Verify TeamOwnerB appears in search results and open profile") {
+            pages.searchPage.apply {
                 assertUsernameInSearchResultIs(teamOwnerB?.name ?: "")
                 tapUsernameInSearchResult(teamOwnerB?.name ?: "")
             }
         }
 
-        step("Send connection request to existing team owner") {
+        step("Verify unconnected profile belongs to TeamOwnerB") {
             pages.unconnectedUserProfilePage.apply {
                 assertUserNameInUnconnectedUserProfilePage(teamOwnerB?.name ?: "")
+            }
+        }
+
+        step("Send connection request to TeamOwnerB and verify confirmation toast") {
+            pages.unconnectedUserProfilePage.apply {
                 clickConnectionRequestButton()
                 waitUntilToastIsDisplayed("Connection request sent")
+            }
+        }
+
+        step("Close unconnected profile and return to conversation list") {
+            pages.unconnectedUserProfilePage.apply {
                 clickCloseButtonOnUnconnectedUserProfilePage()
             }
             pages.conversationListPage.apply {
                 clickCloseButtonOnNewConversationScreen()
+            }
+        }
+
+        step("Verify pending conversation is visible for TeamOwnerB") {
+            pages.conversationListPage.apply {
                 assertConversationNameWithPendingStatusVisibleInConversationList(
                     teamOwnerB?.name ?: ""
                 )
             }
         }
 
-        step("Accept connection request via backend and start conversation") {
+        step("Accept TeamOwnerB connection request via backend") {
             runBlocking {
                 val user = teamHelper.usersManager.findUserByNameOrNameAlias("user4Name")
                 backendClient.acceptAllIncomingConnectionRequests(user)
             }
+        }
 
+        step("Verify pending status is removed and GroupVideoCall remains visible") {
             pages.conversationListPage.apply {
                 assertPendingStatusIsNoLongerVisible()
                 assertGroupConversationVisible("GroupVideoCall")
+            }
+        }
+
+        step("Verify TeamOwnerB conversation is visible and open GroupVideoCall") {
+            pages.conversationListPage.apply {
                 assertConversationIsVisibleWithTeamOwner(teamOwnerB?.name ?: "")
                 tapConversationNameInConversationList("GroupVideoCall")
             }
@@ -237,130 +278,158 @@ class GroupVideoCall : BaseUiTest() {
             }
         }
 
-        step("Add TeamOwnerB to participants list") {
+        step("Open participants tab and start add participant flow") {
             pages.groupConversationDetailsPage.apply {
                 tapOnParticipantsTab()
                 tapAddParticipantsButton()
-                assertUsernameInSuggestionsListIs(teamOwnerB?.name ?: "")
-                selectUserInSuggestionList(teamOwnerB?.name ?: "")
-                tapContinueButton()
-                assertUsernameIsAddedToParticipantsList(teamOwnerB?.name ?: "")
-                tapCloseButtonOnGroupConversationDetailsPage()
-                iSeeSystemMessage("You added ${teamOwnerB?.name ?: ""} to the conversation")
             }
         }
 
+        step("Select TeamOwnerB from participant suggestions") {
+            pages.groupConversationDetailsPage.apply {
+                assertUsernameInSuggestionsListIs(teamOwnerB?.name ?: "")
+                selectUserInSuggestionList(teamOwnerB?.name ?: "")
+                tapContinueButton()
+            }
+        }
 
-        step("Start call instances and auto-accept incoming call") {
+        step("Verify TeamOwnerB is added to participants list") {
+            pages.groupConversationDetailsPage.apply {
+                assertUsernameIsAddedToParticipantsList(teamOwnerB?.name ?: "")
+                tapCloseButtonOnGroupConversationDetailsPage()
+            }
+        }
+
+        step("Verify system message confirms TeamOwnerB was added") {
+            iSeeSystemMessage("You added ${teamOwnerB?.name ?: ""} to the conversation")
+        }
+
+        step("Start browser call instances for user2Name, user3Name, and user4Name") {
             runBlocking {
                 callHelper.userXStartsInstance(
                     "user2Name, user3Name, user4Name",
                     "Chrome"
                 )
+            }
+        }
 
+        step("Enable auto-accept for the next incoming call on user2Name, user3Name, and user4Name") {
+            runBlocking {
                 callHelper.userXAcceptsNextIncomingCallAutomatically(
                     "user2Name, user3Name, user4Name"
                 )
             }
+        }
 
+        step("Start group call from GroupVideoCall conversation") {
             pages.conversationViewPage.apply {
                 iTapStartCallButton()
             }
         }
 
-        step("Verify group call is active and participants joined") {
+        step("Verify group call is active for all participants via backend") {
             runBlocking {
                 callHelper.userVerifiesCallStatusToUserY(
                     "user2Name, user3Name, user4Name",
                     "active",
                     90
                 )
-
-                pages.callingPage.apply {
-                    iSeeOngoingGroupCall()
-                }
-
-                callHelper.iSeeParticipantsInGroupCall("user2Name, user3Name, user4Name")
             }
+        }
 
-            step("Turn camera on") {
-                pages.callingPage.apply {
-                    iTurnCameraOn()
-                }
+        step("Verify ongoing group call UI and participant list") {
+            pages.callingPage.apply {
+                iSeeOngoingGroupCall()
             }
+            callHelper.iSeeParticipantsInGroupCall("user2Name, user3Name, user4Name")
+        }
 
-            step("Switch video on for participants and verify audio/video") {
-                waitFor(2)
+        step("Turn camera on for local participant") {
+            pages.callingPage.apply {
+                iTurnCameraOn()
+            }
+        }
 
-                runBlocking {
-                    val callParticipantsSwitchVideoOn =
-                        teamHelper.usersManager.splitAliases("user2Name, user3Name, user4Name")
-                    callingManager.switchVideoOn(callParticipantsSwitchVideoOn)
+        step("Switch video on for participants") {
+            waitFor(2)
+            runBlocking {
+                val callParticipantsSwitchVideoOn =
+                    teamHelper.usersManager.splitAliases("user2Name, user3Name, user4Name")
+                callingManager.switchVideoOn(callParticipantsSwitchVideoOn)
+            }
+        }
 
-                    val assertCallParticipantsReceiveAudioVideo =
-                        teamHelper.usersManager.splitAliases("user2Name, user3Name, user4Name")
-                    callingManager.verifyReceiveAudioAndVideo(assertCallParticipantsReceiveAudioVideo)
+        step("Verify participants receive audio/video in group call") {
+            runBlocking {
+                val assertCallParticipantsReceiveAudioVideo =
+                    teamHelper.usersManager.splitAliases("user2Name, user3Name, user4Name")
+                callingManager.verifyReceiveAudioAndVideo(assertCallParticipantsReceiveAudioVideo)
+                callHelper.iSeeParticipantsInGroupVideoCall("user2Name, user3Name, user4Name")
+            }
+        }
 
+        step("Minimise ongoing call to continue conversation actions") {
+            pages.callingPage.apply {
+                iMinimiseOngoingCall()
+            }
+        }
 
-                    callHelper.iSeeParticipantsInGroupVideoCall("user2Name, user3Name, user4Name")
-                }
+        step("Ping all call participants from conversation") {
+            pages.conversationViewPage.apply {
+                tapMessageInInputField()
+                tapPingButton()
+                iSeePingModalWithText("Are you sure you want to ping 4 people?")
+                tapPingButtonModal()
+                iSeeSystemMessage("You pinged")
+                closeKeyboardIfOpened()
+            }
+        }
 
-                pages.callingPage.apply {
-                    iMinimiseOngoingCall()
-                }
-                pages.conversationViewPage.apply {
-                    tapMessageInInputField()
+        step("Verify audio recording is blocked during ongoing call") {
+            pages.conversationViewPage.apply {
+                assertToastDisplayed("You can't record an audio message during a call.", trigger = {
+                    iTapFileSharingButton()
+                    tapSharingOption("Audio")
+                    iTapFileSharingButton()
+                })
+            }
+        }
 
-                    tapPingButton()
+        step("Receive and assert audio file message in conversation") {
+//            waitFor(2)
+            pages.conversationViewPage.apply {
+                testServiceHelper.contactSendsLocalAudioConversation(
+                    context,
+                    "AudioFile",
+                    "user3Name",
+                    "Device1",
+                    "GroupVideoCall"
+                )
+                assertAudioMessageIsVisible()
+                assertAudioTimeStartsAtZero()
+            }
+        }
 
-                    iSeePingModalWithText("Are you sure you want to ping 4 people?")
+        step("Play audio message and verify playback time progresses") {
+            pages.conversationViewPage.apply {
+                clickPlayButtonOnAudioMessage()
+                waitFor(10)
+                clickPauseButtonOnAudioMessage()
+                assertAudioTimeIsNotZeroAnymore()
+            }
+        }
 
-                    tapPingButtonModal()
+        step("Restore ongoing group call and verify participants remain connected") {
+            pages.callingPage.apply {
+                iRestoreOngoingCall()
+            }
+            callHelper.iSeeParticipantsInGroupCall("user2Name, user3Name, user4Name")
+        }
 
-                    iSeeSystemMessage("You pinged")
-
-                    closeKeyboardIfOpened()
-
-
-                    assertToastDisplayed("You can't record an audio message during a call.", trigger = {
-                        iTapFileSharingButton()
-                        tapSharingOption("Audio")
-                        iTapFileSharingButton()
-
-                    })
-
-
-                    waitFor(2)
-
-                    step("Receive and assert audio file message in conversation") {
-                        pages.conversationViewPage.apply {
-                            testServiceHelper.contactSendsLocalAudioConversation(
-                                context,
-                                "AudioFile",
-                                "user3Name",
-                                "Device1",
-                                "GroupVideoCall"
-                            )
-                            assertAudioMessageIsVisible()
-                            assertAudioTimeStartsAtZero()
-                        }
-
-                        step("Play audio message and verify playback time progresses") {
-                            pages.conversationViewPage.apply {
-                                clickPlayButtonOnAudioMessage()
-                                waitFor(10)
-                                clickPauseButtonOnAudioMessage()
-                                assertAudioTimeIsNotZeroAnymore()
-                            }
-                            pages.callingPage.apply {
-                                iRestoreOngoingCall()
-                                callHelper.iSeeParticipantsInGroupCall("user2Name, user3Name, user4Name")
-                                iTapOnHangUpButton()
-                                iDoNotSeeOngoingGroupCall()
-                            }
-                        }
-                    }
-                }
+        step("Hang up group call and verify call is ended") {
+            pages.callingPage.apply {
+                iTapOnHangUpButton()
+                iDoNotSeeOngoingGroupCall()
             }
         }
     }

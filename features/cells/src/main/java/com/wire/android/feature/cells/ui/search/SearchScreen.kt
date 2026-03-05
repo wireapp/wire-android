@@ -132,10 +132,10 @@ fun SearchScreen(
                         }
                     )
 
-                    with(searchScreenViewModel.uiState.collectAsState().value) {
+                    with(uiState) {
                         SortRowWithMenu(
                             sortingCriteria = sortingCriteria,
-                            isSearchResult = searchState.text.isNotEmpty() || uiState.hasAnyFilter,
+                            isSearchResult = searchState.text.isNotEmpty() || hasAnyFilter,
                             onSortByClicked = {
                                 searchScreenViewModel.setSortBy(it)
                             },

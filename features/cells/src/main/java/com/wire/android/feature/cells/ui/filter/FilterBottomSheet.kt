@@ -60,6 +60,7 @@ import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
 
+// TODO: To be removed in upcoming PRs  when filter feature is fully implemented
 @Composable
 fun FilterBottomSheet(
     selectableTags: List<String>,
@@ -177,7 +178,7 @@ private fun SheetContent(
                                     label = tag,
                                     isSelected = isSelected,
                                     modifier = Modifier.padding(end = dimensions().spacing16x),
-                                    onSelectChip = { label ->
+                                    onClick = { label ->
                                         selectedChips = if (isSelected) {
                                             selectedChips - label
                                         } else {

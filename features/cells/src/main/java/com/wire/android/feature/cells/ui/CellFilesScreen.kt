@@ -61,9 +61,11 @@ internal fun CellFilesScreen(
     isRefreshing: State<Boolean>,
     onRefresh: () -> Unit,
     onItemClick: (CellNodeUi) -> Unit,
-    onItemMenuClick: (CellNodeUi) -> Unit,
+    modifier: Modifier = Modifier,
+    onItemMenuClick: (CellNodeUi) -> Unit
 ) {
     PullToRefreshBox(
+        modifier = modifier,
         isRefreshing = isRefreshing.value,
         onRefresh = onRefresh,
     ) {

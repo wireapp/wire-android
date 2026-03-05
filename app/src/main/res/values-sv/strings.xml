@@ -642,4 +642,5 @@
     <!-- enterprise configurations -->
     <!--    channel not available dialog-->
     <!-- Apps-->
+    <string name="label_conversation_files">Filer</string>
 </resources>

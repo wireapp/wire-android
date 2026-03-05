@@ -199,7 +199,6 @@
     <string name="snackbar_download_cell_version_saved_to_downloads_folder_label">saved to Downloads</string>
     <string name="snackbar_download_cell_version_show_label">Show</string>
     <string name="snackbar_download_cell_version_downloading_label">Downloading…</string>
-    <string name="search_text_input_hint_for_files_folders_in_conversation">Search files or folders</string>
     <string name="cells_create_file">Create File</string>
     <string name="create_file_error">Unable to create file. Please try again</string>
     <string name="cell_file_name">File Name</string>
@@ -210,4 +209,26 @@
     <string name="create_file_screen_title">Create %1$s file</string>
     <string name="empty_screen_learn_more_conversation">Learn more about Shared Drive</string>
     <string name="empty_screen_learn_more">Learn more</string>
+    <string name="bottom_sheet_title_search_tags">Search tags</string>
+    <string name="bottom_sheet_title_filter_by_owner">Filter by owner</string>
+    <string name="bottom_sheet_title_filter_by_type">Filter by type</string>
+    <string name="bottom_sheet_title_filter_by_tags">Filter by tags</string>
+    <string name="button_remove_all_label">Remove all</string>
+    <string name="button_remove_filter">Remove filter</string>
+    <string name="search_shared_drive_text_input_hint">Search Shared Drive</string>
+    <string name="search_owners_text_input_hint">Search Created by</string>
+    <string name="filter_chip_tags">Tags</string>
+    <string name="filter_chip_type">File type</string>
+    <string name="filter_chip_owner">Created by</string>
+    <string name="filter_chip_link_sharing">Link Sharing</string>
+    <string name="filter_chip_remove_all_filters">Remove all filters</string>
+    <string name="filter_pdf_type">PDFs</string>
+    <string name="filter_documents_type">Documents</string>
+    <string name="filter_images_type">Images</string>
+    <string name="filter_spreadsheets_type">Spreadsheets</string>
+    <string name="filter_presentations_type">Presentations</string>
+    <string name="filter_videos_type">Videos</string>
+    <string name="filter_audio_type">Audio files</string>
+    <string name="filter_archives_type">Archives</string>
+    <string name="filter_text_files_type">Text files</string>
 </resources>

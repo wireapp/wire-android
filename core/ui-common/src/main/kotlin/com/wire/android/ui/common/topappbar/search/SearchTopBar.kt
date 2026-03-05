@@ -46,16 +46,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import com.wire.android.ui.common.R
 import com.wire.android.ui.common.SearchBarInput
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.PreviewMultipleThemes
@@ -71,46 +72,46 @@ fun SearchTopBar(
     searchBarDescription: String? = null,
     onCloseSearchClicked: (() -> Unit)? = null,
     onActiveChanged: (isActive: Boolean) -> Unit = {},
-    bottomContent: @Composable ColumnScope.() -> Unit = {}
+    bottomContent: @Composable ColumnScope.() -> Unit = {},
+    textFieldState: WireTextFieldState = WireTextFieldState.Default,
+    onTap: (() -> Unit)? = null,
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val focusManager: FocusManager = LocalFocusManager.current
+    val focusRequester = remember { FocusRequester() }
+
+    fun setActive(isActive: Boolean) {
+        if (isActive) {
+            focusRequester.requestFocus()
+        } else {
+            focusManager.clearFocus()
+            searchQueryTextState.clearText()
+        }
+    }
+
+    LaunchedEffect(isSearchActive) {
+        setActive(isSearchActive)
+    }
+
+    val placeholderAlignment by animateHorizontalAlignmentAsState(
+        targetAlignment = if (isSearchActive) Alignment.CenterStart else Alignment.Center
+    )
+
     Column(
         modifier = modifier
             .wrapContentHeight()
             .fillMaxWidth()
             .background(MaterialTheme.wireColorScheme.background)
     ) {
-        val interactionSource = remember { MutableInteractionSource() }
-        val focusRequester = remember { FocusRequester() }
-        val keyboardController = LocalSoftwareKeyboardController.current
-        val focusManager = LocalFocusManager.current
-
-        fun setActive(isActive: Boolean) {
-            if (isActive) {
-                focusRequester.requestFocus()
-                keyboardController?.show()
-            } else {
-                focusManager.clearFocus()
-                keyboardController?.hide()
-                searchQueryTextState.clearText()
-            }
-        }
-
-        LaunchedEffect(isSearchActive) {
-            setActive(isSearchActive)
-        }
-
-        val placeholderAlignment by animateHorizontalAlignmentAsState(
-            targetAlignment = if (isSearchActive) Alignment.CenterStart else Alignment.Center
-        )
-
         SearchBarInput(
             placeholderText = searchBarHint,
             semanticDescription = searchBarDescription,
             textState = searchQueryTextState,
             isLoading = isLoading,
+            textFieldState = textFieldState,
             leadingIcon = {
-                AnimatedContent(!isSearchActive, label = "") { isVisible ->
-                    if (isVisible) {
+                AnimatedContent(!isSearchActive, label = "") { showSearchIcon ->
+                    if (showSearchIcon) {
                         Box(
                             contentAlignment = Alignment.Center,
                             modifier = Modifier.size(dimensions().buttonCircleMinSize)
@@ -135,13 +136,16 @@ fun SearchTopBar(
                     }
                 }
             },
-            placeholderTextStyle = LocalTextStyle.current.copy(textAlign = if (!isSearchActive) TextAlign.Center else TextAlign.Start),
+            placeholderTextStyle = LocalTextStyle.current.copy(
+                textAlign = if (!isSearchActive) TextAlign.Center else TextAlign.Start
+            ),
             placeholderAlignment = placeholderAlignment,
             textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Start),
             interactionSource = interactionSource,
+            onTap = onTap,
             modifier = Modifier
                 .padding(dimensions().spacing8x)
-                .focusable(true)
+                .focusable(enabled = isSearchActive)
                 .focusRequester(focusRequester)
                 .onFocusEvent { onActiveChanged(it.isFocused) }
         )

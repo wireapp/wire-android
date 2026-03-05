@@ -88,8 +88,9 @@ internal fun CellScreenContent(
     onRefresh: () -> Unit,
     isRestoreInProgress: Boolean,
     isDeleteInProgress: Boolean,
-    isAllFiles: Boolean,
-    isRecycleBin: Boolean,
+    modifier: Modifier = Modifier,
+    isRecycleBin: Boolean = false,
+    isAllFiles: Boolean = false,
     isSearchResult: Boolean = false,
     isFiltering: Boolean = false,
     retryEditNodeError: (String) -> Unit = {},
@@ -113,12 +114,14 @@ internal fun CellScreenContent(
         pagingListItems.isError() -> {
             val error = (pagingListItems.loadState.refresh as? LoadState.Error)?.error
             ErrorScreen(
+                modifier = modifier,
                 isConnectionError = (error as? FileListLoadError)?.isConnectionError ?: false,
                 onRetry = { pagingListItems.retry() }
             )
         }
 
         pagingListItems.itemCount == 0 -> EmptyScreen(
+            modifier = modifier,
             isSearchResult = isSearchResult,
             isAllFiles = isAllFiles,
             isRecycleBin = isRecycleBin,
@@ -127,6 +130,7 @@ internal fun CellScreenContent(
 
         else ->
             CellFilesScreen(
+                modifier = modifier,
                 cellNodes = pagingListItems,
                 onItemClick = { sendIntent(CellViewIntent.OnItemClick(it)) },
                 onItemMenuClick = { sendIntent(CellViewIntent.OnItemMenuClick(it)) },
@@ -257,13 +261,14 @@ internal fun CellScreenContent(
 
 @Composable
 private fun EmptyScreen(
+    modifier: Modifier = Modifier,
     isSearchResult: Boolean = false,
     isAllFiles: Boolean = true,
     isRecycleBin: Boolean = false,
     isFiltering: Boolean = false,
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .padding(dimensions().spacing16x),
         horizontalAlignment = Alignment.CenterHorizontally,

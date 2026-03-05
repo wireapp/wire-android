@@ -12,7 +12,7 @@ ktx-dateTime = "0.6.1"
 ktx-immutableCollections = "0.3.8"
 ktx-serialization = "1.8.1"
 koin = "3.5.3"
-datafaker = "2.4.2"
+datafaker = "1.9.0"
 
 # Android Core / Architecture
 detekt = "1.23.8"
@@ -221,8 +221,6 @@ hilt-work = { module = "androidx.hilt:hilt-work", version.ref = "hilt-work" }
 
 # Compose BOM
 compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
-compose-material-core = { module = "androidx.compose.material:material" }
-compose-material-ripple = { module = "androidx.compose.material:material-ripple" }
 compose-material3 = { module = "androidx.compose.material3:material3", version.ref = "material3" }
 compose-runtime-liveData = { module = "androidx.compose.runtime:runtime-livedata" }
 compose-ui = { module = "androidx.compose.ui:ui" }

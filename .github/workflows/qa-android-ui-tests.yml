@@ -1,5 +1,12 @@
 name: QA Android UI Tests
 
+# Concurrency lock:
+# - If androidDeviceId is set, we lock per-device so only one run can use that specific phone at a time (other devices can run in parallel).
+# - If androidDeviceId is empty ("auto"), we lock the shared device pool so only one auto-run uses the farm at a time (other auto-runs queue).
+concurrency:
+  group: qa-android-ui-tests-office-${{ inputs.androidDeviceId || 'auto' }}
+  cancel-in-progress: false
+
 on:
   workflow_dispatch:
     inputs:
@@ -44,32 +51,10 @@ on:
           - production
         default: internal release candidate
 
-      buildType:
-        description: "Build type"
-        required: true
-        type: choice
-        options:
-          - release
-          - debug
-          - compat
-        default: release
-
       TAGS:
         description: "Tags: '@regression' OR '@TC-8143'."
         required: false
         default: ""
-        type: string
-
-      branch:
-        description: "Branch"
-        required: true
-        default: "develop"
-        type: string
-
-      backendType:
-        description: "Backend."
-        required: true
-        default: "staging"
         type: string
 
       testinyRunName:
@@ -84,145 +69,216 @@ on:
         default: ""
         type: string
 
-      callingServiceEnv:
-        description: "Calling service environment."
-        required: true
-        type: choice
-        options:
-          - dev
-          - custom
-          - master
-          - avs
-          - qa
-          - edge
-          - staging
-          - prod
-        default: dev
-
-      callingServiceUrl:
-        description: "Calling service URL."
-        required: true
-        default: "loadbalanced"
-        type: string
-
-      deflakeCount:
-        description: "Rerun only failed tests."
-        required: true
-        default: 1
-        type: number
+permissions:
+  contents: read
 
 jobs:
+  # Validate user inputs and derive selectors.
   validate-and-resolve-inputs:
-    name: Validate + resolve selectors (no execution)
+    name: Validate + resolve selectors
     runs-on: ubuntu-latest
 
     outputs:
-      resolvedTestCaseId: ${{ steps.resolve.outputs.testCaseId }}
-      resolvedCategory: ${{ steps.resolve.outputs.category }}
-      resolvedTagKey: ${{ steps.resolve.outputs.tagKey }}
-      resolvedTagValue: ${{ steps.resolve.outputs.tagValue }}
+      resolvedTestCaseId: ${{ steps.resolve_selector.outputs.testCaseId }}
+      resolvedCategory: ${{ steps.resolve_selector.outputs.category }}
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Validate upgrade inputs before runner work starts.
       - name: Validate upgrade inputs
         shell: bash
-        run: |
-          set -euo pipefail
-          if [[ "${{ inputs.isUpgrade }}" == "true" && -z "${{ inputs.oldBuildNumber }}" ]]; then
-            echo "ERROR: oldBuildNumber is REQUIRED when isUpgrade=true"
-            exit 1
-          fi
+        env:
+          IS_UPGRADE: ${{ inputs.isUpgrade }}
+          OLD_BUILD_NUMBER: ${{ inputs.oldBuildNumber }}
+        run: bash scripts/qa_android_ui_tests/validation.sh validate-upgrade-inputs
 
+      # Resolve TAGS into CI selectors and expose them as job outputs.
       - name: Resolve selector from TAGS
-        id: resolve
+        id: resolve_selector
         shell: bash
-        run: |
-          set -euo pipefail
+        env:
+          TAGS_RAW: ${{ inputs.TAGS }}
+        run: bash scripts/qa_android_ui_tests/validation.sh resolve-selector-from-tags
 
-          # We only use TAGS in this UI (no extra selector inputs)
-          TESTCASE_ID=""
-          CATEGORY=""
-          TAG_KEY=""
-          TAG_VALUE=""
-
-          TAGS_RAW="${{ inputs.TAGS }}"
-
-          trim() { echo "$1" | xargs; }
-
-          # If TAGS is provided, derive selector
-          if [[ -n "$(trim "${TAGS_RAW}")" ]]; then
-            # TAGS can be comma-separated; use first non-empty token
-            sel=""
-            IFS=',' read -ra parts <<< "${TAGS_RAW}"
-            for p in "${parts[@]}"; do
-              t="$(trim "$p")"
-              if [[ -n "$t" ]]; then
-                sel="$t"
-                break
-              fi
-            done
-
-            # Strip leading @ if present
-            sel="${sel#@}"
-            sel="$(trim "$sel")"
-
-            # @TC-8143 -> testCaseId
-            if [[ "$sel" =~ ^TC-[0-9]+$ ]]; then
-              TESTCASE_ID="$sel"
-
-            # @key:value -> tagKey/tagValue (kept for future parity)
-            elif [[ "$sel" == *:* ]]; then
-              k="$(trim "${sel%%:*}")"
-              v="$(trim "${sel#*:}")"
-              if [[ -z "$k" || -z "$v" ]]; then
-                echo "ERROR: Invalid TAGS format '${TAGS_RAW}'. Expected '@key:value' e.g. @criticalFlow:groupCallChat"
-                exit 1
-              fi
-              TAG_KEY="$k"
-              TAG_VALUE="$v"
-
-            # @regression -> category
-            else
-              CATEGORY="$sel"
-            fi
-          fi
-
-          # Safety: prevent partial key/value
-          if [[ -n "$TAG_KEY" && -z "$TAG_VALUE" ]]; then
-            echo "ERROR: tagKey provided but tagValue is empty."
-            exit 1
-          fi
-          if [[ -z "$TAG_KEY" && -n "$TAG_VALUE" ]]; then
-            echo "ERROR: tagValue provided but tagKey is empty."
-            exit 1
-          fi
-
-          echo "testCaseId=$TESTCASE_ID" >> "$GITHUB_OUTPUT"
-          echo "category=$CATEGORY" >> "$GITHUB_OUTPUT"
-          echo "tagKey=$TAG_KEY" >> "$GITHUB_OUTPUT"
-          echo "tagValue=$TAG_VALUE" >> "$GITHUB_OUTPUT"
-
-      - name: Print final resolved inputs (for reviewers)
+      # Print resolved values for traceability in workflow logs.
+      - name: Print resolved values
         shell: bash
-        run: |
-          set -euo pipefail
-          echo "=== RAW INPUTS ==="
-          echo "appBuildNumber=${{ inputs.appBuildNumber }}"
-          echo "isUpgrade=${{ inputs.isUpgrade }}"
-          echo "oldBuildNumber=${{ inputs.oldBuildNumber }}"
-          echo "enforceAppInstall=${{ inputs.enforceAppInstall }}"
-          echo "flavor=${{ inputs.flavor }}"
-          echo "buildType=${{ inputs.buildType }}"
-          echo "TAGS=${{ inputs.TAGS }}"
-          echo "branch=${{ inputs.branch }}"
-          echo "backendType=${{ inputs.backendType }}"
-          echo "testinyRunName=${{ inputs.testinyRunName }}"
-          echo "androidDeviceId=${{ inputs.androidDeviceId }}"
-          echo "callingServiceEnv=${{ inputs.callingServiceEnv }}"
-          echo "callingServiceUrl=${{ inputs.callingServiceUrl }}"
-          echo "deflakeCount=${{ inputs.deflakeCount }}"
-          echo ""
-          echo "=== RESOLVED SELECTORS ==="
-          echo "testCaseId=${{ steps.resolve.outputs.testCaseId }}"
-          echo "category=${{ steps.resolve.outputs.category }}"
-          echo "tagKey=${{ steps.resolve.outputs.tagKey }}"
-          echo "tagValue=${{ steps.resolve.outputs.tagValue }}"
+        env:
+          FLAVOR_INPUT: ${{ inputs.flavor }}
+          RESOLVED_TESTCASE_ID: ${{ steps.resolve_selector.outputs.testCaseId }}
+          RESOLVED_CATEGORY: ${{ steps.resolve_selector.outputs.category }}
+        run: bash scripts/qa_android_ui_tests/validation.sh print-resolved-values
+
+  run-android-ui-tests:
+    name: Run Android UI tests
+    runs-on:
+      - self-hosted
+      - Linux
+      - X64
+      - office
+      - android-qa
+
+    needs: validate-and-resolve-inputs
+    permissions:
+      contents: write
+
+    env:
+      AWS_REGION: eu-west-1
+      S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+      OP_VAULT: "Test Automation"
+      FLAVORS_CONFIG_PATH: "/etc/android-qa/flavors.json"
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout (with submodules)
+        uses: actions/checkout@v4
+        with:
+          clean: true
+          submodules: recursive
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: gradle
+
+      - name: Set up Android SDK (ANDROID_HOME + adb)
+        uses: android-actions/setup-android@v3
+
+      # Verify required CLIs on the runner before setup continues.
+      - name: Ensure required tools exist
+        run: bash scripts/qa_android_ui_tests/execution_setup.sh ensure-required-tools
+
+      # Flavor resolution is runner-driven (from /etc/android-qa/flavors.json), not hardcoded in repo.
+      # This bash subcommand exports S3_FOLDER, APP_ID, and PACKAGES_TO_UNINSTALL for downstream steps.
+      - name: Resolve flavor (runner config)
+        id: resolve_flavor
+        env:
+          FLAVOR_INPUT: ${{ inputs.flavor }}
+        run: bash scripts/qa_android_ui_tests/execution_setup.sh resolve-flavor
+
+      - name: Configure AWS credentials (for S3)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-1
+
+      # Download app APK(s) from S3 and export resolved build metadata.
+      - name: Download APK(s) from S3
+        id: download_apks
+        env:
+          APP_BUILD_NUMBER: ${{ inputs.appBuildNumber }}
+          IS_UPGRADE: ${{ inputs.isUpgrade }}
+          OLD_BUILD_NUMBER: ${{ inputs.oldBuildNumber }}
+        run: bash scripts/qa_android_ui_tests/execution_setup.sh download-apks
+
+      # Select device(s): use input device when provided, otherwise auto-pick.
+      - name: Detect target device(s)
+        env:
+          TARGET_DEVICE_ID: ${{ inputs.androidDeviceId }}
+          RESOLVED_TESTCASE_ID: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTestCaseId }}
+        run: bash scripts/qa_android_ui_tests/execution_setup.sh detect-target-devices
+
+      # Install app/test prerequisites on each selected device.
+      - name: Install APK(s) on device(s)
+        env:
+          ENFORCE_APP_INSTALL: ${{ inputs.enforceAppInstall }}
+          IS_UPGRADE: ${{ inputs.isUpgrade }}
+        run: bash scripts/qa_android_ui_tests/execution_setup.sh install-apks-on-devices
+
+      - name: Install 1Password CLI
+        uses: 1password/install-cli-action@v2
+
+      # Fetch runtime secrets only for this run.
+      - name: Fetch secrets.json (runtime only)
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+        run: bash scripts/qa_android_ui_tests/execution_setup.sh fetch-runtime-secrets
+
+      # Build androidTest APK once and reuse it across selected devices.
+      - name: Build test APK (assemble once)
+        run: bash scripts/qa_android_ui_tests/execution_setup.sh build-test-apk
+
+      # Resolve the built androidTest APK path for execution steps.
+      - name: Resolve test APK path
+        run: bash scripts/qa_android_ui_tests/execution_setup.sh resolve-test-apk-path
+
+      # Resolve AndroidX Test Services APKs required for TestStorage/Allure.
+      - name: Resolve AndroidX Test Services APKs (for Allure TestStorage)
+        run: bash scripts/qa_android_ui_tests/execution_setup.sh resolve-test-services-apks
+
+      # Run instrumentation on selected devices and stream per-device logs.
+      - name: Run UI tests (one shard per device, adb instrumentation)
+        env:
+          RESOLVED_TESTCASE_ID: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTestCaseId }}
+          RESOLVED_CATEGORY: ${{ needs.validate-and-resolve-inputs.outputs.resolvedCategory }}
+          IS_UPGRADE: ${{ inputs.isUpgrade }}
+        run: bash scripts/qa_android_ui_tests/run_ui_tests.sh
+
+      # Remove runtime secrets before report generation and publish steps.
+      - name: Remove runtime secrets (before Allure/Pages)
+        if: always()
+        run: bash scripts/qa_android_ui_tests/reporting.sh remove-runtime-secrets
+
+      # Pull raw allure-results from each device even when tests fail.
+      - name: Pull Allure results from device(s)
+        if: always()
+        env:
+          OUT_DIR: ${{ runner.temp }}/allure-results
+        run: bash scripts/qa_android_ui_tests/reporting.sh pull-allure-results
+
+      # Merge per-device results and attach run metadata labels.
+      - name: Merge Allure results (add device label)
+        if: always()
+        env:
+          OUT_DIR: ${{ runner.temp }}/allure-results
+          MERGED_DIR: ${{ runner.temp }}/allure-results-merged
+          REAL_BUILD_NUMBER: ${{ env.REAL_BUILD_NUMBER }}
+          NEW_APK_NAME: ${{ env.NEW_APK_NAME }}
+          INPUT_TAGS: ${{ inputs.TAGS }}
+        run: bash scripts/qa_android_ui_tests/reporting.sh merge-allure-results
+
+      # Generate static Allure HTML from merged results.
+      - name: Generate Allure HTML report
+        if: always()
+        env:
+          MERGED_DIR: ${{ runner.temp }}/allure-results-merged
+          REPORT_DIR: ${{ runner.temp }}/allure-report
+        run: bash scripts/qa_android_ui_tests/reporting.sh generate-allure-report
+
+      - name: Checkout GitHub Pages branch
+        if: always()
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: gh-pages
+          fetch-depth: 1
+          persist-credentials: true
+
+      # Publish report snapshots and apply retention cleanup.
+      - name: Publish Allure report to Pages branch
+        if: always()
+        env:
+          REPORT_DIR: ${{ runner.temp }}/allure-report
+          PAGES_DIR: gh-pages/docs/qa-ui-tests
+          KEEP_DAYS: "90"
+          INPUT_TAGS: ${{ inputs.TAGS }}
+          APK_VERSION: ${{ env.REAL_BUILD_NUMBER }}
+          APK_NAME: ${{ env.NEW_APK_NAME }}
+        run: bash scripts/qa_android_ui_tests/reporting.sh publish-allure-report
+
+      # Clean temporary artifacts on the runner, even after failures.
+      - name: Cleanup (remove secrets + build outputs)
+        if: always()
+        env:
+          ALLURE_RESULTS_DIR: ${{ runner.temp }}/allure-results
+          ALLURE_RESULTS_MERGED_DIR: ${{ runner.temp }}/allure-results-merged
+          ALLURE_REPORT_DIR: ${{ runner.temp }}/allure-report
+        run: bash scripts/qa_android_ui_tests/reporting.sh cleanup-workspace

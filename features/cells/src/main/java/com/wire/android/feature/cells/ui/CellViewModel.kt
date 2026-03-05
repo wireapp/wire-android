@@ -38,6 +38,7 @@ import com.wire.android.feature.cells.util.FileHelper
 import com.wire.android.feature.cells.util.FileNameResolver
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.common.DEFAULT_SEARCH_QUERY_DEBOUNCE
+import com.wire.kalium.cells.data.FileFilters
 import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
 import com.wire.kalium.cells.domain.usecase.download.DownloadCellFileUseCase
@@ -183,8 +184,10 @@ class CellViewModel @Inject constructor(
                 getCellFilesPaged(
                     conversationId = navArgs.conversationId,
                     query = query,
-                    onlyDeleted = navArgs.isRecycleBin ?: false,
-                    tags = currentTags.toList(),
+                    fileFilters = FileFilters(
+                        onlyDeleted = navArgs.isRecycleBin ?: false,
+                        tags = currentTags.toList(),
+                    ),
                 ).cachedIn(viewModelScope),
                 removedItemsFlow,
                 downloadDataFlow

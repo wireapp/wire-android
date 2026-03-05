@@ -32,6 +32,7 @@ import com.wire.android.feature.cells.ui.search.filter.data.FilterTagUi
 import com.wire.android.feature.cells.ui.search.filter.data.FilterTypeUi
 import com.wire.android.feature.cells.ui.search.sort.SortBy
 import com.wire.android.feature.cells.ui.search.sort.SortingCriteria
+import com.wire.android.feature.cells.ui.search.sort.toKaliumCriteria
 import com.wire.android.model.ImageAsset
 import com.wire.kalium.cells.data.FileFilters
 import com.wire.kalium.cells.data.MIMEType
@@ -52,6 +53,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
@@ -59,8 +61,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-// TODO: to cover it with  unit test in upcoming PR
-// TODO add search debounce to avoid triggering search on every keystroke
+private const val SEARCH_DEBOUNCE_MILLIS = 200L
 @Suppress("TooManyFunctions")
 @HiltViewModel
 class SearchScreenViewModel @Inject constructor(
@@ -90,9 +91,13 @@ class SearchScreenViewModel @Inject constructor(
 
     private val queryFlow = MutableStateFlow("")
 
+    private val debouncedQueryFlow: Flow<String> = queryFlow
+        .debounce(SEARCH_DEBOUNCE_MILLIS)
+        .distinctUntilChanged()
+
     private val searchParamsFlow: Flow<SearchParams> =
         combine(
-            queryFlow,
+            debouncedQueryFlow,
             uiState,
         ) { query, state ->
             val selectedConversationId = state.availableConversations.firstOrNull { it.selected }?.id?.toString()
@@ -204,8 +209,7 @@ class SearchScreenViewModel @Inject constructor(
                             userAvatarAsset = avatarAsset,
                             selected = false
                         )
-                    }
-                        .sortedBy { it.displayName.uppercase() }
+                    }.sortedBy { it.displayName.uppercase() }
 
                     _uiState.update { state ->
                         state.copy(
@@ -214,9 +218,7 @@ class SearchScreenViewModel @Inject constructor(
                     }
                 }
 
-                is GetOwnersUseCaseResult.Failure -> {
-                    // no need to show error, just keep the owners list empty
-                }
+                is GetOwnersUseCaseResult.Failure -> {}
             }
         }
     }
@@ -337,15 +339,3 @@ fun defaultCriteriaFor(by: SortBy): SortingCriteria = when (by) {
     SortBy.Name -> SortingCriteria.Name.AtoZ
     SortBy.Size -> SortingCriteria.Size.SmallestFirst
 }
-
-fun SortingCriteria.toKaliumCriteria(): com.wire.kalium.cells.data.SortingCriteria =
-    when (by) {
-        SortBy.Modified ->
-            com.wire.kalium.cells.data.SortingCriteria.MODIFICATION_TIME
-
-        SortBy.Name ->
-            com.wire.kalium.cells.data.SortingCriteria.NAME_CASE_INSENSITIVE
-
-        SortBy.Size ->
-            com.wire.kalium.cells.data.SortingCriteria.SIZE
-    }

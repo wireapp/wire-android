@@ -24,6 +24,7 @@ import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
+import com.ramcosta.composedestinations.generated.cells.navArgs
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.feature.cells.ui.model.toUiModel
@@ -31,7 +32,6 @@ import com.wire.android.feature.cells.util.FileHelper
 import com.wire.android.feature.cells.util.FileNameResolver
 import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
-import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
 import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
@@ -237,7 +237,7 @@ class CellViewModelTest {
             .arrange()
 
         viewModel.nodesFlow.test {
-            coVerify(exactly = 0) { arrangement.getCellFilesPagedUseCase(any(), any()) }
+            coVerify(exactly = 0) { arrangement.getCellFilesPagedUseCase(any(), any(), any(), any()) }
             cancelAndConsumeRemainingEvents()
         }
     }
@@ -249,9 +249,6 @@ class CellViewModelTest {
 
         @MockK
         lateinit var getCellFilesPagedUseCase: GetPaginatedFilesFlowUseCase
-
-        @MockK
-        lateinit var getAllTagsUseCase: GetAllTagsUseCase
 
         @MockK
         lateinit var deleteCellAssetUseCase: DeleteCellAssetUseCase
@@ -294,15 +291,16 @@ class CellViewModelTest {
                 conversationId = conversationId
             )
 
+            every { savedStateHandle.get<String>(any()) } returns conversationId
+            every { savedStateHandle.get<String>("conversationId") } returns conversationId
+
             every { kaliumFileSystem.providePersistentAssetPath(any()) } returns localFilePath
 
             every { kaliumFileSystem.exists(any()) } returns false
 
-            coEvery { getAllTagsUseCase.invoke() } returns emptySet<String>().right()
-
             coEvery { isCellAvailableUseCase.invoke() } returns true.right()
 
-            coEvery { getCellFilesPagedUseCase.invoke(any(), any()) } returns flowOf(
+            coEvery { getCellFilesPagedUseCase.invoke(any(), any(), any(), any()) } returns flowOf(
                 PagingData.from(
                     data = listOf(
                         testFiles[0]
@@ -359,7 +357,6 @@ class CellViewModelTest {
                 savedStateHandle = savedStateHandle,
                 getCellFilesPaged = getCellFilesPagedUseCase,
                 deleteCellAsset = deleteCellAssetUseCase,
-                getAllTagsUseCase = getAllTagsUseCase,
                 restoreNodeFromRecycleBinUseCase = restoreNodeFromRecycleBinUseCase,
                 download = downloadCellFileUseCase,
                 isCellAvailable = isCellAvailableUseCase,

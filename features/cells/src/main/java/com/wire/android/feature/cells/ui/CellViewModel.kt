@@ -64,10 +64,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -96,7 +96,7 @@ class CellViewModel @Inject constructor(
     private val navArgs: CellFilesNavArgs = ConversationFilesScreenDestination.argsFrom(savedStateHandle)
     private val searchNavArgs: SearchNavArgs? = try {
         SearchScreenDestination.argsFrom(savedStateHandle)
-    } catch (e: RuntimeException) {
+    } catch (_: RuntimeException) {
         // Not coming from Search screen, ignore
         null
     }
@@ -132,62 +132,78 @@ class CellViewModel @Inject constructor(
 
     private val refreshTrigger = MutableSharedFlow<Unit>(replay = 1, extraBufferCapacity = 1)
 
+    private val cellAvailableFlow = MutableStateFlow(false)
+
     private var isCollaboraEnabled: Boolean = false
 
     init {
         loadWireCellConfig()
-        refreshNodes()
+        checkCellAvailabilityAndRefresh()
     }
 
-    private val sharedNodesFlow = refreshTrigger.flatMapLatest {
-        combine(
-            getCellFilesPaged(
-                conversationId = navArgs.conversationId,
-                fileFilters = FileFilters(
-                    onlyDeleted = navArgs.isRecycleBin ?: false,
-                ),
-            ).cachedIn(viewModelScope),
-            removedItemsFlow,
-            downloadDataFlow
-        ) { pagingData, removedItems, downloadData ->
-            var emittedRefreshDone = false
+    private fun checkCellAvailabilityAndRefresh() = viewModelScope.launch {
+        val cellAvailable = isCellAvailable().fold({ false }, { it })
+        cellAvailableFlow.value = cellAvailable
 
-            pagingData
-                .filter { node: Node -> node.uuid !in removedItems }
-                .map { node ->
-                    if (!emittedRefreshDone) {
-                        emittedRefreshDone = true
+        if (cellAvailable) {
+            refreshNodes()
+        }
+    }
 
-                        if (_isPullToRefresh.value) {
-                            _isPullToRefresh.value = false
+    private val sharedNodesFlow = cellAvailableFlow.flatMapLatest { cellAvailable ->
+        if (!cellAvailable) {
+            return@flatMapLatest flow {
+                emit(emptyData)
+            }
+        }
+
+        refreshTrigger.flatMapLatest {
+            combine(
+                getCellFilesPaged(
+                    conversationId = navArgs.conversationId,
+                    fileFilters = FileFilters(
+                        onlyDeleted = navArgs.isRecycleBin ?: false,
+                    ),
+                ).cachedIn(viewModelScope),
+                removedItemsFlow,
+                downloadDataFlow
+            ) { pagingData, removedItems, downloadData ->
+                var emittedRefreshDone = false
+
+                pagingData
+                    .filter { node: Node -> node.uuid !in removedItems }
+                    .map { node ->
+                        if (!emittedRefreshDone) {
+                            emittedRefreshDone = true
+
+                            if (_isPullToRefresh.value) {
+                                _isPullToRefresh.value = false
+                            }
+
+                            _pagingRefreshDone.tryEmit(Unit)
                         }
 
-                        _pagingRefreshDone.tryEmit(Unit)
-                    }
+                        when (node) {
+                            is Node.Folder -> node.toUiModel().copy(
+                                downloadProgress = downloadData[node.uuid]?.progress
+                            )
 
-                    when (node) {
-                        is Node.Folder -> node.toUiModel().copy(
-                            downloadProgress = downloadData[node.uuid]?.progress
-                        )
-
-                        is Node.File -> node.toUiModel().copy(
-                            downloadProgress = downloadData[node.uuid]?.progress,
-                            localPath = downloadData[node.uuid]?.localPath?.toString()
-                        )
+                            is Node.File -> node.toUiModel().copy(
+                                downloadProgress = downloadData[node.uuid]?.progress,
+                                localPath = downloadData[node.uuid]?.localPath?.toString()
+                            )
+                        }
                     }
-                }
+            }
         }
-    }
-        .shareIn(viewModelScope, started = SharingStarted.Eagerly, replay = 1)
+    }.shareIn(viewModelScope, started = SharingStarted.Eagerly, replay = 1)
 
-    internal val nodesFlow = flow {
-        val cellAvailable = isCellAvailable().fold({ false }, { it })
+    internal val nodesFlow = cellAvailableFlow.flatMapLatest { cellAvailable ->
         if (!cellAvailable || searchNavArgs != null) {
-            emit(emptyData)
-            return@flow
+            flowOf(emptyData)
+        } else {
+            sharedNodesFlow
         }
-
-        emitAll(sharedNodesFlow)
     }
 
     fun onPullToRefresh() {

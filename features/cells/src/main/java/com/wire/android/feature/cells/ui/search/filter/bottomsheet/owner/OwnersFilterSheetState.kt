@@ -35,7 +35,9 @@ class OwnersFilterSheetState(
         private set
 
     val hasChanges: Boolean
-        get() = owners.any { o -> initialById[o.id]?.selected != o.selected }
+        get() = owners.any { owner ->
+            initialById[owner.id]?.selected != owner.selected
+        }
 
     fun filteredOwners(query: String): List<FilterOwnerUi> {
         val q = query.trim()

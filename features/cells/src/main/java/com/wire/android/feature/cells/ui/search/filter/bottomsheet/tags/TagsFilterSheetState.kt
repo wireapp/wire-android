@@ -35,7 +35,7 @@ class TagsFilterSheetState(
         private set
 
     val hasChanges: Boolean
-        get() = tags.any { t -> initialById[t.id]?.selected != t.selected }
+        get() = tags.any { tag -> initialById[tag.id]?.selected != tag.selected }
 
     fun filteredTags(query: String): List<FilterTagUi> {
         val q = query.trim()

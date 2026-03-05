@@ -32,11 +32,10 @@ class ConversationFilterSheetState(
     var conversations by mutableStateOf(initialItems)
         private set
 
-    var query by mutableStateOf("")
-        private set
-
     val hasChanges: Boolean
-        get() = conversations.any { o -> initialById[o.id]?.selected != o.selected }
+        get() = conversations.any { conversation ->
+            initialById[conversation.id]?.selected != conversation.selected
+        }
 
     fun filteredConversations(query: String): List<FilterConversationUi> {
         val q = query.trim()

@@ -41,42 +41,61 @@ class IntentsProcessorTest {
     }
 
     @Test
-    fun `given valid JSON with both backendConfig and ssoCode, returns AutomatedLoginViaSSO`() {
+    fun `given valid JSON with backendConfig, ssoCode and nomadProfilesHost, returns AutomatedLoginViaSSO`() {
         val (arrangement, intentsProcessor) = Arrangement()
-            .withAutomatedLoginExtra("""{"backendConfig":"$FAKE_BACKEND_CONFIG","ssoCode":"$FAKE_SSO_CODE"}""")
+            .withAutomatedLoginExtra("""{"backendConfig":"$FAKE_BACKEND_CONFIG","ssoCode":"$FAKE_SSO_CODE","nomadProfilesHost":"$FAKE_NOMAD_PROFILES_HOST","sigNomadProfilesHost":"skip"}""")
             .arrange()
         assertEquals(
-            AutomatedLoginViaSSO(backendConfig = FAKE_BACKEND_CONFIG, ssoCode = FAKE_SSO_CODE),
+            AutomatedLoginViaSSO(backendConfig = FAKE_BACKEND_CONFIG, ssoCode = FAKE_SSO_CODE, nomadProfilesHost = FAKE_NOMAD_PROFILES_HOST),
             intentsProcessor(arrangement.intent)
         )
     }
 
     @Test
-    fun `given valid JSON with only ssoCode, returns AutomatedLoginViaSSO`() {
+    fun `given valid JSON with ssoCode and nomadProfilesHost, returns AutomatedLoginViaSSO`() {
         val (arrangement, intentsProcessor) = Arrangement()
-            .withAutomatedLoginExtra("""{"ssoCode":"$FAKE_SSO_CODE"}""")
+            .withAutomatedLoginExtra("""{"ssoCode":"$FAKE_SSO_CODE","nomadProfilesHost":"$FAKE_NOMAD_PROFILES_HOST","sigNomadProfilesHost":"skip"}""")
             .arrange()
         assertEquals(
-            AutomatedLoginViaSSO(ssoCode = FAKE_SSO_CODE),
+            AutomatedLoginViaSSO(ssoCode = FAKE_SSO_CODE, nomadProfilesHost = FAKE_NOMAD_PROFILES_HOST),
             intentsProcessor(arrangement.intent)
         )
     }
 
     @Test
-    fun `given valid JSON with only backendConfig using HTTPS, returns AutomatedLoginViaSSO`() {
+    fun `given valid JSON with only backendConfig and nomadProfilesHost, returns AutomatedLoginViaSSO`() {
         val (arrangement, intentsProcessor) = Arrangement()
-            .withAutomatedLoginExtra("""{"backendConfig":"$FAKE_BACKEND_CONFIG"}""")
+            .withAutomatedLoginExtra("""{"backendConfig":"$FAKE_BACKEND_CONFIG","nomadProfilesHost":"$FAKE_NOMAD_PROFILES_HOST","sigNomadProfilesHost":"skip"}""")
             .arrange()
         assertEquals(
-            AutomatedLoginViaSSO(backendConfig = FAKE_BACKEND_CONFIG),
+            AutomatedLoginViaSSO(backendConfig = FAKE_BACKEND_CONFIG, nomadProfilesHost = FAKE_NOMAD_PROFILES_HOST),
             intentsProcessor(arrangement.intent)
         )
     }
 
     @Test
-    fun `given JSON with both fields null, returns null`() {
+    fun `given valid JSON with only nomadProfilesHost, returns AutomatedLoginViaSSO`() {
+        val (arrangement, intentsProcessor) = Arrangement()
+            .withAutomatedLoginExtra("""{"nomadProfilesHost":"$FAKE_NOMAD_PROFILES_HOST","sigNomadProfilesHost":"skip"}""")
+            .arrange()
+        assertEquals(
+            AutomatedLoginViaSSO(nomadProfilesHost = FAKE_NOMAD_PROFILES_HOST),
+            intentsProcessor(arrangement.intent)
+        )
+    }
+
+    @Test
+    fun `given JSON with all fields null, returns null`() {
         val (arrangement, intentsProcessor) = Arrangement()
             .withAutomatedLoginExtra("""{}""")
+            .arrange()
+        assertNull(intentsProcessor(arrangement.intent))
+    }
+
+    @Test
+    fun `given JSON without nomadProfilesHost, returns null`() {
+        val (arrangement, intentsProcessor) = Arrangement()
+            .withAutomatedLoginExtra("""{"backendConfig":"$FAKE_BACKEND_CONFIG","ssoCode":"$FAKE_SSO_CODE"}""")
             .arrange()
         assertNull(intentsProcessor(arrangement.intent))
     }
@@ -92,7 +111,7 @@ class IntentsProcessorTest {
     @Test
     fun `given backendConfig with HTTP instead of HTTPS, returns null`() {
         val (arrangement, intentsProcessor) = Arrangement()
-            .withAutomatedLoginExtra("""{"backendConfig":"http://insecure.wire.com/deeplink.json"}""")
+            .withAutomatedLoginExtra("""{"backendConfig":"http://insecure.wire.com/deeplink.json","nomadProfilesHost":"$FAKE_NOMAD_PROFILES_HOST","sigNomadProfilesHost":"skip"}""")
             .arrange()
         assertNull(intentsProcessor(arrangement.intent))
     }
@@ -100,7 +119,7 @@ class IntentsProcessorTest {
     @Test
     fun `given backendConfig with empty host, returns null`() {
         val (arrangement, intentsProcessor) = Arrangement()
-            .withAutomatedLoginExtra("""{"backendConfig":"https:///path"}""")
+            .withAutomatedLoginExtra("""{"backendConfig":"https:///path","nomadProfilesHost":"$FAKE_NOMAD_PROFILES_HOST","sigNomadProfilesHost":"skip"}""")
             .arrange()
         assertNull(intentsProcessor(arrangement.intent))
     }
@@ -108,7 +127,31 @@ class IntentsProcessorTest {
     @Test
     fun `given backendConfig with malformed URI, returns null`() {
         val (arrangement, intentsProcessor) = Arrangement()
-            .withAutomatedLoginExtra("""{"backendConfig":"not a url"}""")
+            .withAutomatedLoginExtra("""{"backendConfig":"not a url","nomadProfilesHost":"$FAKE_NOMAD_PROFILES_HOST","sigNomadProfilesHost":"skip"}""")
+            .arrange()
+        assertNull(intentsProcessor(arrangement.intent))
+    }
+
+    @Test
+    fun `given nomadProfilesHost with HTTP instead of HTTPS, returns null`() {
+        val (arrangement, intentsProcessor) = Arrangement()
+            .withAutomatedLoginExtra("""{"nomadProfilesHost":"http://insecure.nomad.example.com","sigNomadProfilesHost":"skip"}""")
+            .arrange()
+        assertNull(intentsProcessor(arrangement.intent))
+    }
+
+    @Test
+    fun `given nomadProfilesHost with empty host, returns null`() {
+        val (arrangement, intentsProcessor) = Arrangement()
+            .withAutomatedLoginExtra("""{"nomadProfilesHost":"https:///path","sigNomadProfilesHost":"skip"}""")
+            .arrange()
+        assertNull(intentsProcessor(arrangement.intent))
+    }
+
+    @Test
+    fun `given nomadProfilesHost with malformed URI, returns null`() {
+        val (arrangement, intentsProcessor) = Arrangement()
+            .withAutomatedLoginExtra("""{"nomadProfilesHost":"not a url","sigNomadProfilesHost":"skip"}""")
             .arrange()
         assertNull(intentsProcessor(arrangement.intent))
     }
@@ -130,5 +173,6 @@ class IntentsProcessorTest {
     private companion object {
         const val FAKE_BACKEND_CONFIG = "https://example.com/deeplink.json"
         const val FAKE_SSO_CODE = "wire-87080ee2-7855-47e2-a60a-4b3def45bbd4"
+        const val FAKE_NOMAD_PROFILES_HOST = "https://nomad.example.com"
     }
 }

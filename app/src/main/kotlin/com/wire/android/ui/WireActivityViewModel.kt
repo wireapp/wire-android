@@ -353,7 +353,10 @@ class WireActivityViewModel @Inject constructor(
     fun handleIntentsThatAreNotDeepLinks(intent: Intent?): Boolean {
         val result = intentsProcessor.get().invoke(intent)
         if (result != null) {
-            onAutomaticLoginParameters(result.backendConfig, result.ssoCode)
+            onAutomaticLoginParameters(
+                result.backendConfig,
+                result.ssoCode,
+                result.nomadProfilesHost)
             return true
         }
         return false
@@ -417,7 +420,7 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
-    private fun onAutomaticLoginParameters(backendConfigUrl: String?, ssoCode: String?) {
+    private fun onAutomaticLoginParameters(backendConfigUrl: String?, ssoCode: String?, nomadProfilesUrl: String?) {
         viewModelScope.launch(dispatchers.io()) {
             // Load backend config
             val serverLinks = backendConfigUrl?.let { loadServerConfig(it) }

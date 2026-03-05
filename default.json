@@ -38,7 +38,8 @@
             "use_async_flush_logging": true,
             "conversation_feeder_enabled": true,
             "db_invalidation_control_enabled": true,
-            "nomad_profiles_enabled": true
+            "nomad_profiles_enabled": true,
+            "enforce_configuration_signature": false
         },
         "staging": {
             "application_id": "com.waz.zclient.dev",
@@ -165,5 +166,11 @@
     "is_bubble_ui_enabled": true,
     "collabora_integration": true,
     "db_invalidation_control_enabled": false,
+    "nomad_profiles_available": true,
+    "configuration_signature_keys": [
+        "MCowBQYDK2VwAyEAFbodixhcegKs4NkpPjjzJYHAxKLlye04SuZ2JNJ9RCc=",
+        "MCowBQYDK2VwAyEAkAH9FXpKfjp1PX0HeVo5JeYi6h/zDUNwkURIuEZ+7FY="
+    ],
+    "enforce_configuration_signature": true,
     "nomad_profiles_enabled": false
 }

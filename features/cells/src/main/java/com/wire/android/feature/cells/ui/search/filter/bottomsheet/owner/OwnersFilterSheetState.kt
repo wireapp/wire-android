@@ -34,27 +34,19 @@ class OwnersFilterSheetState(
     var owners by mutableStateOf(initialItems)
         private set
 
-    var query by mutableStateOf("")
-        private set
-
     val hasChanges: Boolean
         get() = owners.any { o -> initialById[o.id]?.selected != o.selected }
 
-    val filteredOwners: List<FilterOwnerUi>
-        get() {
-            val q = query.trim()
-            return if (q.isBlank()) {
-                owners
-            } else {
-                owners.filter {
-                    it.displayName.contains(q, ignoreCase = true) ||
-                            it.handle.contains(q, ignoreCase = true)
-                }
+    fun filteredOwners(query: String): List<FilterOwnerUi> {
+        val q = query.trim()
+        return if (q.isBlank()) {
+            owners
+        } else {
+            owners.filter {
+                it.displayName.contains(q, ignoreCase = true) ||
+                        it.handle.contains(q, ignoreCase = true)
             }
         }
-
-    fun onQueryChange(text: String) {
-        query = text
     }
 
     fun toggleOwner(id: String) {

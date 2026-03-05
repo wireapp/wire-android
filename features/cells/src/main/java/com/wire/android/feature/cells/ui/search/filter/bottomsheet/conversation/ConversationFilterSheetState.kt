@@ -38,18 +38,13 @@ class ConversationFilterSheetState(
     val hasChanges: Boolean
         get() = conversations.any { o -> initialById[o.id]?.selected != o.selected }
 
-    val filteredConversations: List<FilterConversationUi>
-        get() {
-            val q = query.trim()
-            return if (q.isBlank()) {
-                conversations
-            } else {
-                conversations.filter { it.name.contains(q, ignoreCase = true) }
-            }
+    fun filteredConversations(query: String): List<FilterConversationUi> {
+        val q = query.trim()
+        return if (q.isBlank()) {
+            conversations
+        } else {
+            conversations.filter { it.name.contains(q, ignoreCase = true) }
         }
-
-    fun onQueryChange(text: String) {
-        query = text
     }
 
     fun selectConversation(id: String) {

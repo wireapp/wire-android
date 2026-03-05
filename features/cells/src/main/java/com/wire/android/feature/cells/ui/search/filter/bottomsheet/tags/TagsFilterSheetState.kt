@@ -34,34 +34,22 @@ class TagsFilterSheetState(
     var tags by mutableStateOf(initialItems)
         private set
 
-    var query by mutableStateOf("")
-        private set
-
     val hasChanges: Boolean
         get() = tags.any { t -> initialById[t.id]?.selected != t.selected }
 
-    val filteredTags: List<FilterTagUi>
-        get() {
-            val q = query.trim()
-            val base = if (q.isBlank()) {
-                tags
-            } else {
-                tags.filter {
-                    it.name.contains(q, ignoreCase = true)
-                }
+    fun filteredTags(query: String): List<FilterTagUi> {
+        val q = query.trim()
+        val base = if (q.isBlank()) {
+            tags
+        } else {
+            tags.filter {
+                it.name.contains(q, ignoreCase = true)
             }
-            return base.sortedWith(
-                compareByDescending<FilterTagUi> { it.selected }
-                    .thenBy { it.name.lowercase() }
-            )
         }
-
-    fun updateItems(newItems: List<FilterTagUi>) {
-        tags = newItems
-    }
-
-    fun onQueryChange(text: String) {
-        query = text
+        return base.sortedWith(
+            compareByDescending<FilterTagUi> { it.selected }
+                .thenBy { it.name.lowercase() }
+        )
     }
 
     fun toggle(id: String) {

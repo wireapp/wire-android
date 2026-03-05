@@ -33,10 +33,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -73,9 +73,10 @@ fun FilterByTagsBottomSheet(
     val state = rememberTagsFilterSheetState(items)
 
     val searchState = remember { TextFieldState() }
-    LaunchedEffect(searchState) {
-        snapshotFlow { searchState.text.toString() }
-            .collect(state::onQueryChange)
+    val filteredTags by remember(state, searchState) {
+        derivedStateOf {
+            state.filteredTags(searchState.text.toString())
+        }
     }
 
     fun dismiss() {
@@ -130,7 +131,7 @@ fun FilterByTagsBottomSheet(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(dimensions().spacing8x),
                 ) {
-                    state.filteredTags.forEach { tag ->
+                    filteredTags.forEach { tag ->
                         WireFilterChip(
                             label = tag.name,
                             isSelected = tag.selected,

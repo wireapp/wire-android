@@ -67,3 +67,16 @@
 # Keep *_Impl classes (including constructors) to avoid startup crash
 # when R8 strips default constructors.
 -keep class **_Impl extends androidx.room.RoomDatabase { *; }
+
+# WrapperWorkerFactory resolves inner workers by class name from input data.
+# Keep names stable so existing enqueued work remains resolvable after minification.
+# See docs/minification-workmanager-compat.md
+-keepnames class com.wire.kalium.logic.sync.PendingMessagesSenderWorker
+-keepnames class com.wire.kalium.logic.sync.periodic.UserConfigSyncWorker
+-keepnames class com.wire.kalium.logic.sync.periodic.UpdateApiVersionsWorker
+-keepnames class com.wire.kalium.logic.sync.receiver.asset.AudioNormalizedLoudnessWorker
+
+# WorkManager reflection
+# InputMerger is created reflectively via getDeclaredConstructor() and may lose a visible no-arg ctor after shrinking.
+-keep class androidx.work.OverwritingInputMerger { <init>(); *; }
+-keep class androidx.work.ArrayCreatingInputMerger { <init>(); *; }

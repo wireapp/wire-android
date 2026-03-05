@@ -253,12 +253,7 @@ dependencies {
     androidTestImplementation(composeBom)
 
     implementation(libs.compose.ui)
-    // we still cannot get rid of material2 because swipeable is still missing - https://issuetracker.google.com/issues/229839039
-    // https://developer.android.com/jetpack/compose/designsystems/material2-material3#components-and
-    implementation(libs.compose.material.core)
     implementation(libs.compose.material3)
-    // the only libraries with material2 packages that can be used with material3 are icons and ripple
-    implementation(libs.compose.material.ripple)
     implementation(libs.compose.ui.preview)
     implementation(libs.compose.activity)
     implementation(libs.compose.constraintLayout)

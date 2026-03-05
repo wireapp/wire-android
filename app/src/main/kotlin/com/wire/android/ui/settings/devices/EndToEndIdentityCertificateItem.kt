@@ -35,6 +35,7 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.settings.devices.button.GetE2eiCertificateButton
 import com.wire.android.ui.settings.devices.button.ShowE2eiCertificateButton
+import com.wire.android.ui.settings.devices.button.UpdateE2eiCertificateButton
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -119,11 +120,19 @@ fun EndToEndIdentityCertificateItem(
                     }
                 }
                 if (isCurrentDevice) {
-                    GetE2eiCertificateButton(
-                        enabled = true,
-                        isLoading = isLoadingCertificate,
-                        onGetCertificateClicked = enrollE2eiCertificate
-                    )
+                    if (mlsClientIdentity.e2eiStatus == MLSClientE2EIStatus.NOT_ACTIVATED) {
+                        GetE2eiCertificateButton(
+                            enabled = true,
+                            isLoading = isLoadingCertificate,
+                            onGetCertificateClicked = enrollE2eiCertificate
+                        )
+                    } else {
+                        UpdateE2eiCertificateButton(
+                            enabled = true,
+                            isLoading = isLoadingCertificate,
+                            onUpdateCertificateClicked = enrollE2eiCertificate
+                        )
+                    }
                 }
                 ShowE2eiCertificateButton(
                     enabled = true,

@@ -52,6 +52,7 @@ import com.wire.kalium.logger.KaliumLogger
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
+import com.wire.kalium.nomaddevice.createNomadCryptoStateChangeHookNotifier
 import dagger.Lazy
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
@@ -141,6 +142,16 @@ class WireApplication : BaseApp() {
             launch { observeRecentlyEndedCall() }
 
             launch { observeCallBackgroundState() }
+
+            launch {
+                val hook = createNomadCryptoStateChangeHookNotifier(
+                    scope = globalAppScope,
+                    backupForUser = {
+                        coreLogic.get().getSessionScope(it).backup.backupAndUploadCryptoState.invoke()
+                    }
+                )
+                coreLogic.get().registerCryptoStateChangeHook(hook)
+            }
         }
     }
 

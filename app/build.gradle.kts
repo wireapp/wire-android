@@ -184,6 +184,8 @@ dependencies {
     implementation("com.wire.kalium:kalium-logic")
     implementation("com.wire.kalium:kalium-util")
     implementation("com.wire.kalium:kalium-cells")
+    implementation("com.wire.kalium:kalium-nomaddevice")
+    implementation("com.wire.kalium:kalium-hooks")
     androidTestImplementation("com.wire.kalium:kalium-mocks")
     androidTestImplementation("com.wire.kalium:kalium-network")
 

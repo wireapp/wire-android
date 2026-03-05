@@ -28,6 +28,7 @@ import androidx.paging.cachedIn
 import androidx.paging.insertSeparators
 import androidx.paging.map
 import com.wire.android.BuildConfig
+import com.wire.android.util.AppPerformanceTracker
 import com.wire.android.di.CurrentAccount
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.mapper.toConversationItem
@@ -74,6 +75,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 
 @Suppress("TooManyFunctions")
@@ -195,7 +197,13 @@ class ConversationListViewModelImpl @AssistedInject constructor(
 
     init {
         observeSelfUserLegalHoldState()
-        if (!usePagination) {
+        if (usePagination) {
+            viewModelScope.launch {
+                conversationsPaginatedFlow.take(1).collect {
+                    AppPerformanceTracker.logConversationsReady()
+                }
+            }
+        } else {
             observeNonPaginatedSearchConversationList()
         }
     }
@@ -247,6 +255,7 @@ class ConversationListViewModelImpl @AssistedInject constructor(
                 }
                 .flowOn(dispatcher.io())
                 .collect {
+                    AppPerformanceTracker.logConversationsReady()
                     conversationListState = ConversationListState.NotPaginated(
                         isLoading = false,
                         conversations = it,

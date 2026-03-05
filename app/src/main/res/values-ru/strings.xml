@@ -154,6 +154,8 @@
     <string name="content_description_calling_turn_speaker_off">Выключить динамик</string>
     <string name="content_description_calling_in_call_reactions_show">Показать в панели реакций вызова</string>
     <string name="content_description_calling_in_call_reactions_hide">Скрыть в панели реакций вызова</string>
+    <string name="content_description_call_open_calling_details">Открыть информацию о вызове</string>
+    <string name="content_description_call_low_network_quality">Низкое качество сети</string>
     <string name="content_description_reply_to_messge">Ответить на сообщение</string>
     <string name="content_description_reply_cancel">Отменить ответ на сообщение</string>
     <string name="content_description_ping_message">Пинг</string>
@@ -1205,7 +1207,7 @@
     <string name="disable_guests_dialog_title">Не разрешать гостей?</string>
     <string name="disable_guests_dialog_description">Гости, выбранные на предыдущем этапе, не смогут войти в беседу, если не разрешить гостевой доступ.</string>
     <string name="disable_guests_dialog_button">Не разрешать гостей</string>
-    <string name="enable_guests_dialog_button">Разрешить гостям</string>
+    <string name="enable_guests_dialog_button">Разрешить гостей</string>
     <!--block user dialog -->
     <string name="block_user_dialog_title">Заблокировать пользователя?</string>
     <string name="block_user_dialog_body">%1$s не сможет с вами связаться или добавить в групповые беседы. Уведомлений об этом не будет.</string>

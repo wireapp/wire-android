@@ -32,7 +32,6 @@ import user.utils.ClientUser
 import com.wire.android.tests.core.BaseUiTest
 import com.wire.android.tests.support.tags.Category
 import com.wire.android.tests.support.tags.TestCaseId
-import uiautomatorutils.UiWaitUtils.WaitUtils.waitFor
 
 /*
 This test works on the following conditions:

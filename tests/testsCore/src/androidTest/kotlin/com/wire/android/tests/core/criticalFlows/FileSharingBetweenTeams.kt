@@ -219,7 +219,8 @@ class FileSharingBetweenTeams : BaseUiTest() {
                 assertFileActionModalIsVisible()
                 tapSaveButtonOnModal()
                 assertFileSavedToastContain(
-                    "The file AudioFile( ?\\([0-9]+\\))?\\.mp3 was saved successfully to the Downloads folder"                )
+                    "The file AudioFile( ?\\([0-9]+\\))?\\.mp3 was saved successfully to the Downloads folder"
+                )
             }
         }
 

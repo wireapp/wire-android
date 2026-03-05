@@ -164,10 +164,7 @@ class FileSharingBetweenTeams : BaseUiTest() {
                 assertConnectionRequestNotificationTextIsDisplayed()
                 assertAcceptButtonIsDisplayed()
                 assertIgnoreButtonIsDisplayed()
-
-
                 clickAcceptButton()
-
             }
         }
 

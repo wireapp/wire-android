@@ -75,8 +75,6 @@ data class ConversationViewPage(private val device: UiDevice) {
 
     private val pingButtonOnModal = UiSelectorParams(text = "Ping")
 
-    private val pingAlert = UiSelectorParams(text = "Send a ping")
-
     private fun selfDeleteOption(label: String): UiSelectorParams {
         return UiSelectorParams(text = label, className = "android.widget.TextView")
     }
@@ -480,7 +478,7 @@ data class ConversationViewPage(private val device: UiDevice) {
     }
 
     fun tapPingButton(): ConversationViewPage {
-     UiWaitUtils.waitElement(pingButton).click()
+        UiWaitUtils.waitElement(pingButton).click()
         return this
     }
 
@@ -500,5 +498,4 @@ data class ConversationViewPage(private val device: UiDevice) {
 
         return this
     }
-
 }

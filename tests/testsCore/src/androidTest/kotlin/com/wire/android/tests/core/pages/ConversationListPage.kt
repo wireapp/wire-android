@@ -17,16 +17,13 @@
  */
 package com.wire.android.tests.core.pages
 
-import android.os.SystemClock
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiSelector
-import androidx.test.uiautomator.Until
 import org.junit.Assert
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 import uiautomatorutils.UiWaitUtils.findElementOrNull
-import uiautomatorutils.UiWaitUtils.toBySelector
 import kotlin.test.DefaultAsserter.assertTrue
 
 data class ConversationListPage(private val device: UiDevice) {
@@ -48,10 +45,6 @@ data class ConversationListPage(private val device: UiDevice) {
         UiSelectorParams(text = conversationName)
     }
     private val startNewConversation = UiSelectorParams(description = "New. Start a new conversation")
-    private val backArrowButtonInsideSearchField = UiSelectorParams(
-        className = "android.view.View",
-        description = "Go back to add participants view"
-    )
 
     private val userConversationNamePendingLabelSelector =
         UiSelector().description("pending approval of connection request")
@@ -169,6 +162,7 @@ data class ConversationListPage(private val device: UiDevice) {
         return this
     }
 
+    @Suppress("ThrowsCount")
     fun assertConversationNameWithPendingStatusVisibleInConversationList(userName: String): ConversationListPage {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
@@ -207,7 +201,6 @@ data class ConversationListPage(private val device: UiDevice) {
 
         return this
     }
-
 
     fun tapConversationNameInConversationList(userName: String): ConversationListPage {
         val userName = UiWaitUtils.waitElement(UiSelectorParams(text = userName))

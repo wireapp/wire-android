@@ -17,10 +17,7 @@
  */
 package com.wire.android.tests.core.pages
 
-import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
-import androidx.test.uiautomator.Until
 import org.junit.Assert
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
@@ -82,5 +79,4 @@ data class UnconnectedUserProfilePage(private val device: UiDevice) {
         UiWaitUtils.waitElement(connectionRequestButton).click()
         return this
     }
-
 }

@@ -32,7 +32,6 @@ import com.wire.android.tests.core.pages.AllPages
 import com.wire.android.tests.support.UiAutomatorSetup
 import com.wire.android.tests.support.tags.Category
 import com.wire.android.tests.support.tags.TestCaseId
-import deleteDownloadedFilesContaining
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
@@ -62,7 +61,6 @@ class GroupVideoCall : BaseUiTest() {
     private var teamOwnerA: ClientUser? = null
     private var teamOwnerB: ClientUser? = null
     private lateinit var callingManager: CallingManager
-
 
     @Before
     fun setUp() {

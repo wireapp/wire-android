@@ -20,8 +20,6 @@ package uiautomatorutils
 import android.graphics.Rect
 import android.os.SystemClock
 import android.view.accessibility.AccessibilityEvent
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.BySelector
@@ -30,21 +28,8 @@ import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiObject2
 import androidx.test.uiautomator.UiSelector
 import androidx.test.uiautomator.Until
-import org.hamcrest.CoreMatchers.containsString
 import java.io.IOException
-
-
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import org.hamcrest.Matchers.containsString
-
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.withText
 import junit.framework.TestCase.assertTrue
-import java.io.File
-
 
 private const val TIMEOUT_IN_MILLISECONDS = 10000L
 
@@ -228,7 +213,7 @@ object UiWaitUtils {
         )
     }
 
-
+    @Suppress("MagicNumber")
     fun assertToastDisplayed(text: String, trigger: () -> Unit, timeoutMs: Long = 5_000L) {
         var toastDisplayed = false
         val startTimeMs = System.currentTimeMillis()

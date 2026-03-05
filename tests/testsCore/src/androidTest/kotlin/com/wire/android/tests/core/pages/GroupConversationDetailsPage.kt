@@ -17,9 +17,7 @@
  */
 package com.wire.android.tests.core.pages
 
-import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
-import androidx.test.uiautomator.type
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 
@@ -57,7 +55,6 @@ data class GroupConversationDetailsPage(private val device: UiDevice) {
 
     fun tapAddParticipantsButton() {
         UiWaitUtils.waitElement(addParticipantsButton).click()
-
     }
 
     fun assertUsernameInSuggestionsListIs(expectedHandle: String): GroupConversationDetailsPage {

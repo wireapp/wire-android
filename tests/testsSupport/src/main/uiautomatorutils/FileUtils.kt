@@ -41,7 +41,7 @@ fun deleteDownloadedFilesContaining(keyword: String, dir: String = DOWNLOAD_DIR)
     }
 }
 
-@Suppress("MagicNumber")
+@Suppress("MagicNumber", "ThrowsCount", "TooGenericExceptionCaught")
 object QrCodeTestUtils {
     fun createQrImageInDeviceDownloadsFolder(text: String): File {
         val size = 500

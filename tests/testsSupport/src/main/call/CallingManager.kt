@@ -462,12 +462,15 @@ class CallingManager(private val usersManager: ClientUserManager) {
             }
 
             for (flowBefore in flowsBefore) {
-                assertPositiveFlowChange(user, flowBefore, audioRecv = true, videoRecv = true
+                assertPositiveFlowChange(
+                    user,
+                    flowBefore,
+                    audioRecv = true,
+                    videoRecv = true
                 )
             }
         }
     }
-
 
     suspend fun verifyNotSendOrReceiveVideo(userNames: List<String>) {
         userNames.forEach { name ->

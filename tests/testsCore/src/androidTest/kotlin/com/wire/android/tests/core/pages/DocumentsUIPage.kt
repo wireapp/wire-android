@@ -52,8 +52,9 @@ data class DocumentsUIPage(private val device: UiDevice) {
                 UiWaitUtils.waitElement(selector, timeoutMillis = 1500).click()
                 return true
             } catch (_: StaleObjectException) {
-
+                // Retry with a fresh node.
             } catch (_: AssertionError) {
+                // Selector not present in current picker pane.
             }
         }
         return false

@@ -65,47 +65,6 @@ class TestServiceHelper(
         }
     }
 
-//    fun getSelfDeletingMessageTimeout(userAlias: String, conversationName: String): Duration {
-//        val user = usersManager.findUserByNameOrNameAlias(userAlias)
-//
-//        // Only team users support enforced self-deleting messages
-//        user.teamId?.let {
-//            val settings = BackendClient.loadBackend(user.backendName.orEmpty()).getSelfDeletingMessagesSettings(user)
-//
-//            if (settings.getString("status") == "enabled") {
-//                val timeoutInSeconds = settings
-//                    .getJSONObject("config")
-//                    .getInt("enforcedTimeoutSeconds")
-//
-//                if (timeoutInSeconds != 0) {
-//                    // Timeout value is enforced in team settings
-//                    return Duration.ofSeconds(timeoutInSeconds.toLong())
-//                }
-//            } else {
-//                // Timeout is disabled
-//                return Duration.ZERO
-//            }
-//        }
-//
-//        // Personal user or team user without set enforced self-deleting message setting
-//
-//        val resolvedConversationName = usersManager.replaceAliasesOccurrences(
-//            conversationName,
-//            ClientUserManager.FindBy.NAME_ALIAS
-//        )
-//
-//      //  val messageTimerMillis = toConvoObjPersonal(user, resolvedConversationName).messageTimerInMilliseconds
-//        val messageTimerMillis = toConvoObj(user, resolvedConversationName).messageTimerInMilliseconds
-//        if (messageTimerMillis > 0) {
-//            return Duration.ofMillis(messageTimerMillis.toLong())
-//        }
-//
-//        // Otherwise check for local/client-side self-deleting message timeout
-//        return Duration.ofSeconds(Long.MAX_VALUE)
-//    }
-
-
-
     fun getSelfDeletingMessageTimeout(userAlias: String, conversationName: String): Duration {
         val user = usersManager.findUserByNameOrNameAlias(userAlias)
 
@@ -180,10 +139,10 @@ class TestServiceHelper(
      *
      * This value is "effectively never" for tests AND safe even if converted to Int milliseconds.
      */
+    @Suppress("UnusedParameter")
     private fun getLocalSelfDeletingMessageTimeout(userAlias: String, conversationName: String): Duration {
         return Duration.ofMillis(Int.MAX_VALUE.toLong()) // ~24.8 days, safe int millis
     }
-
 
     fun contactSendsLocalAudioPersonalMLSConversation(
         context: Context,

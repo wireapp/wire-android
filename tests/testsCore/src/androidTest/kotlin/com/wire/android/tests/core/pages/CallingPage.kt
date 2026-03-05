@@ -17,11 +17,9 @@
  */
 package com.wire.android.tests.core.pages
 
-import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
-import uiautomatorutils.UiWaitUtils.waitUntilElementGone
 
 data class CallingPage(private val device: UiDevice) {
     private val hangUpCallButton = UiSelectorParams(description = "Hang up call")
@@ -32,9 +30,7 @@ data class CallingPage(private val device: UiDevice) {
 
     private val turnCameraOnButton = UiSelectorParams(description = "Turn camera on")
 
-
     fun iSeeOngoingGroupCall(): CallingPage {
-
         try {
             UiWaitUtils.waitElement(hangUpCallButton)
         } catch (e: AssertionError) {

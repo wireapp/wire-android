@@ -110,8 +110,7 @@ class SearchScreenViewModel @Inject constructor(
                 sortingCriteria = state.sortingCriteria,
                 conversationId = selectedConversationId ?: navArgs.conversationId,
             )
-        }
-            .distinctUntilChanged()
+        }.distinctUntilChanged()
 
     val cellNodesFlow: Flow<PagingData<CellNodeUi>> =
         searchParamsFlow.flatMapLatest<SearchParams, PagingData<CellNodeUi>> { params: SearchParams ->

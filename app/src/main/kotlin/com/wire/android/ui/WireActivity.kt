@@ -117,6 +117,7 @@ import com.wire.android.ui.theme.ThemeOption
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.userprofile.self.dialog.LogoutOptionsDialog
 import com.wire.android.ui.userprofile.self.dialog.LogoutOptionsDialogState
+import com.wire.android.util.AppPerformanceTracker
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.LocalSyncStateObserver
 import com.wire.android.util.ShakeDetector
@@ -208,6 +209,11 @@ class WireActivity : AppCompatActivity() {
                 InitialAppState.ENROLL_E2EI -> E2EIEnrollmentScreenDestination()
                 InitialAppState.LOGGED_IN -> HomeScreenDestination()
             }
+
+            if (viewModel.initialAppState() != InitialAppState.LOGGED_IN) {
+                AppPerformanceTracker.cancelAppStartTracking()
+            }
+
             appLogger.i("$TAG composable content")
             setComposableContent(startDestination)
 

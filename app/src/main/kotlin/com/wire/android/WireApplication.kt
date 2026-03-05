@@ -39,6 +39,7 @@ import com.wire.android.feature.analytics.globalAnalyticsManager
 import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.feature.analytics.model.AnalyticsSettings
 import com.wire.android.util.AppNameUtil
+import com.wire.android.util.AppPerformanceTracker
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.DataDogLogger
 import com.wire.android.util.logging.LogFileWriter
@@ -115,6 +116,7 @@ class WireApplication : BaseApp() {
 
     override fun onCreate() {
         super.onCreate()
+        AppPerformanceTracker.markAppStart()
 
         enableStrictMode()
 

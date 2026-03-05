@@ -27,6 +27,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.util.AppPerformanceTracker
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.ui.common.visbility.VisibilityState
@@ -216,6 +217,7 @@ class ConversationMessagesViewModel @Inject constructor(
             messages = paginatedMessagesFlow,
             firstUnreadEventIndex = max(lastReadIndex - 1, 0)
         )
+        AppPerformanceTracker.logConversationMessagesReady()
 
         handleSelectedSearchedMessageHighlighting()
     }

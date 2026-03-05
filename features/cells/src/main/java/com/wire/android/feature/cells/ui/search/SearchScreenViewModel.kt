@@ -182,6 +182,10 @@ class SearchScreenViewModel @Inject constructor(
         queryFlow.value = query
     }
 
+    fun onSetSearchActive(active: Boolean) {
+        _uiState.update { it.copy(isSearchActive = active) }
+    }
+
     fun loadOwners(conversationId: String? = navArgs.conversationId) {
         viewModelScope.launch {
             when (val result = getOwners(conversationId = conversationId)) {

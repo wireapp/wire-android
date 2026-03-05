@@ -71,7 +71,7 @@ fun FilterChipsRow(
         horizontalArrangement = Arrangement.spacedBy(dimensions().spacing8x)
     ) {
         with(state) {
-            DropdownChip(R.string.filter_chip_tags, state.tagsCount, tagsChipEnabled, onFilterByTagsClicked)
+            DropdownChip(R.string.filter_chip_tags, tagsCount, tagsChipEnabled, onFilterByTagsClicked)
             DropdownChip(R.string.filter_chip_type, typeCount, typeChipEnabled, onFilterByTypeClicked)
             DropdownChip(R.string.filter_chip_owner, ownerCount, ownerChipEnabled, onFilterByOwnerClicked)
             WireFilterChip(

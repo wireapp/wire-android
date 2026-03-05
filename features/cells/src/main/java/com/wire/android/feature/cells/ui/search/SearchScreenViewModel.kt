@@ -56,7 +56,6 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 // TODO: to cover it with  unit test in upcoming PR
-// TODO add search debounce to avoid triggering search on every keystroke
 @Suppress("TooManyFunctions")
 @HiltViewModel
 class SearchScreenViewModel @Inject constructor(

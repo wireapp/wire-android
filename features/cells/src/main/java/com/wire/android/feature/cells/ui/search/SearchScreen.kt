@@ -76,7 +76,7 @@ fun SearchScreen(
     animatedVisibilityScope: AnimatedVisibilityScope,
     modifier: Modifier = Modifier,
     searchScreenViewModel: SearchScreenViewModel = hiltViewModel(),
-    cellViewModel: CellViewModel = hiltViewModel()
+    cellViewModel: CellViewModel = hiltViewModel(),
 ) {
 
     val uiState by searchScreenViewModel.uiState.collectAsStateWithLifecycle()
@@ -97,6 +97,7 @@ fun SearchScreen(
     }
 
     with(sharedScope) {
+
         WireScaffold(
             modifier = modifier,
             topBar = {

@@ -43,6 +43,7 @@ import service.TestServiceHelper
 import uiautomatorutils.KeyboardUtils.closeKeyboardIfOpened
 import uiautomatorutils.PermissionUtils.grantRuntimePermsForForegroundApp
 import uiautomatorutils.UiWaitUtils.WaitUtils.waitFor
+import uiautomatorutils.UiWaitUtils.assertToastDisplayed
 import uiautomatorutils.UiWaitUtils.iSeeSystemMessage
 import uiautomatorutils.UiWaitUtils.waitUntilToastIsDisplayed
 import user.usermanager.ClientUserManager
@@ -353,7 +354,6 @@ class GroupVideoCall : BaseUiTest() {
         }
 
         step("And users <Member1>, <Member2>, and <TeamOwnerB> switch video on") {
-            waitFor(2)
             runBlocking {
                 val callParticipantsSwitchVideoOn =
                     teamHelper.usersManager.splitAliases("user2Name, user3Name, user4Name")
@@ -402,14 +402,14 @@ class GroupVideoCall : BaseUiTest() {
 
         step("And I attempt to start audio recording during ongoing call") {
             pages.conversationViewPage.apply {
-                iTapFileSharingButton()
-                tapSharingOption("Audio")
-                iTapFileSharingButton()
+                // `assertToastDisplayed` starts an accessibility-event listener before running `trigger`.
+                // We must perform the tap/share actions inside `trigger`; otherwise the transient toast can appear and disappear before observation starts.
+                assertToastDisplayed("You can't record an audio message during a call.", trigger = {
+                    iTapFileSharingButton()
+                    tapSharingOption("Audio")
+                    iTapFileSharingButton()
+                })
             }
-        }
-
-        step("Then I see toast message \"You can't record an audio message during a call.\"") {
-            waitUntilToastIsDisplayed("You can't record an audio message during a call.")
         }
 
         step("And <Member2> sends audio file message via device Device1 to GroupVideoCall conversation") {

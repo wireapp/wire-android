@@ -119,7 +119,6 @@ fun NewLoginScreen(
 
             is NewLoginAction.SSO -> {
                 currentKeyboardController?.hide()
-//                ssoUrlConfigHolder.set(newLoginAction.config)
                 CustomTabsHelper.launchUrl(context, newLoginAction.url)
             }
 
@@ -148,7 +147,6 @@ fun NewLoginScreen(
         if (navArgs.ssoLoginResult != null) {
             viewModel.handleSSOResult(
                 navArgs.ssoLoginResult,
-//                ssoUrlConfigHolder.get()
             )
         }
     }

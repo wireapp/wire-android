@@ -92,19 +92,6 @@ fun MainNavHost(
                 dependency(hiltViewModel<LoginEmailViewModel>(loginPasswordEntry))
             }
 
-            navGraph(LoginGraph) {
-            }
-
-            navGraph(NewLoginGraph) {
-            }
-
-            // Some flows navigate directly to screen destinations instead of the nav graph route.
-            // Provide the dependency at destination scope as a safe fallback.
-            destination(LoginScreenDestination) {
-            }
-            destination(NewLoginScreenDestination) {
-            }
-
             // 👇 To tie TeamMigrationViewModel to PersonalToTeamMigrationNavGraph, making it shared between all screens that belong to it
             navGraph(PersonalToTeamMigrationGraph) {
                 val parentEntry = remember(navBackStackEntry) {

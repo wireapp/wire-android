@@ -95,7 +95,6 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 fun NewLoginScreen(
     navigator: Navigator,
     navArgs: LoginNavArgs,
-//    ssoUrlConfigHolder: SSOUrlConfigHolder,
     viewModel: NewLoginViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current

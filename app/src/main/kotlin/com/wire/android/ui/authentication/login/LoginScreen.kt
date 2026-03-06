@@ -86,7 +86,6 @@ import kotlinx.coroutines.launch
 fun LoginScreen(
     navigator: Navigator,
     loginNavArgs: LoginNavArgs,
-//    ssoUrlConfigHolder: SSOUrlConfigHolder,
     loginEmailViewModel: LoginEmailViewModel = hiltViewModel()
 ) {
 
@@ -119,7 +118,6 @@ private fun LoginContent(
     onRemoveDeviceNeeded: () -> Unit,
     loginEmailViewModel: LoginEmailViewModel,
     ssoLoginResult: DeepLinkResult.SSOLogin?,
-//    ssoUrlConfigHolder: SSOUrlConfigHolder,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         /*
@@ -157,7 +155,6 @@ private fun MainLoginContent(
     onRemoveDeviceNeeded: () -> Unit,
     loginEmailViewModel: LoginEmailViewModel,
     ssoLoginResult: DeepLinkResult.SSOLogin?,
-//    ssoUrlConfigHolder: SSOUrlConfigHolder,
 ) {
 
     val scope = rememberCoroutineScope()

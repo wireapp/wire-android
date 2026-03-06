@@ -43,6 +43,7 @@ import com.wire.android.tests.core.BaseUiTest
 import com.wire.android.tests.support.tags.Category
 import com.wire.android.tests.support.tags.TestCaseId
 import uiautomatorutils.UiWaitUtils.waitUntilToastIsDisplayed
+import uiautomatorutils.KeyboardUtils.closeKeyboardIfOpened
 
 @RunWith(AndroidJUnit4::class)
 class PersonalAccountLifeCycle : BaseUiTest() {
@@ -66,8 +67,8 @@ class PersonalAccountLifeCycle : BaseUiTest() {
 
     @After
     fun tearDown() {
-        // teamOwner?.deleteTeam(backendClient)
-        // personalUser?.deleteUser(backendClient)
+        teamOwner?.deleteTeam(backendClient)
+        personalUser?.deleteUser(backendClient)
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
@@ -112,12 +113,13 @@ class PersonalAccountLifeCycle : BaseUiTest() {
             pages.registrationPage.apply {
                 enterFirstName(personalUser?.name.orEmpty())
                 enterPassword(personalUser?.password.orEmpty())
+                closeKeyboardIfOpened()
                 enterConfirmPassword(personalUser?.password.orEmpty())
-
                 clickShowPasswordEyeIcon()
+                closeKeyboardIfOpened()
                 verifyConfirmPasswordIsCorrect(personalUser?.password.orEmpty())
                 clickHidePasswordEyeIcon()
-
+                closeKeyboardIfOpened()
                 checkIAgreeToShareAnonymousUsageData()
                 clickContinueButton()
 
@@ -125,6 +127,7 @@ class PersonalAccountLifeCycle : BaseUiTest() {
                 clickContinueButton()
             }
         }
+
         step("Fetch OTP to complete 2FA verification and complete registration") {
             val otp = runBlocking {
                 InbucketClient.getVerificationCode(
@@ -160,7 +163,8 @@ class PersonalAccountLifeCycle : BaseUiTest() {
             }
 
             pages.unconnectedUserProfilePage.clickConnectionRequestButton()
-            waitUntilToastIsDisplayed("Connection request sent")
+            pages.connectedUserProfilePage.assertToastMessageIsDisplayed("Connection request sent")
+
             pages.unconnectedUserProfilePage.clickCloseButtonOnUnconnectedUserProfilePage()
             pages.conversationListPage.clickCloseButtonOnNewConversationScreen()
             pages.conversationListPage
@@ -208,7 +212,7 @@ class PersonalAccountLifeCycle : BaseUiTest() {
                 clickShowMoreOptions()
                 clickBlockOption()
                 clickBlockButtonAlert()
-                waitUntilToastIsDisplayed("${teamOwner?.name ?: ""} blocked")
+                assertToastMessageIsDisplayed("${teamOwner?.name ?: ""} blocked")
                 assertBlockedLabelVisible()
                 assertUnblockUserButtonVisible()
                 tapCloseButtonOnConnectedUserProfilePage()

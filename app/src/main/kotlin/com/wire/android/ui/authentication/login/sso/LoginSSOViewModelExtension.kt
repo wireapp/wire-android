@@ -101,26 +101,28 @@ class LoginSSOViewModelExtension(
                 return
             }
         }
-        authScope.ssoLoginScope.getLoginSession(cookie).let { ssoLoginResult ->
-            when (ssoLoginResult) {
-                is SSOLoginSessionResult.Failure -> onSSOLoginFailure(ssoLoginResult)
-                is SSOLoginSessionResult.Success -> {
-                    addAuthenticatedUser(
-                        authTokens = ssoLoginResult.accountTokens,
-                        ssoId = ssoLoginResult.ssoId,
-                        serverConfigId = serverConfigId,
-                        proxyCredentials = ssoLoginResult.proxyCredentials,
-                        managedBy = ssoLoginResult.managedBy,
-                        isPersistentWebSocketEnabled = defaultWebSocketEnabledByDefault,
-                        replace = false
-                    ).let { authenticatedUserResult ->
-                        when (authenticatedUserResult) {
-                            is AddAuthenticatedUserUseCase.Result.Failure -> onAddAuthenticatedUserFailure(authenticatedUserResult)
-                            is AddAuthenticatedUserUseCase.Result.Success -> onSuccess(authenticatedUserResult.userId)
-                        }
-                    }
-                }
+
+        val ssoLoginSuccess = when (val ssoLoginResult = authScope.ssoLoginScope.getLoginSession(cookie)) {
+            is SSOLoginSessionResult.Failure -> {
+                onSSOLoginFailure(ssoLoginResult)
+                return
             }
+            is SSOLoginSessionResult.Success -> ssoLoginResult
+        }
+
+        val authenticatedUserResult = addAuthenticatedUser(
+            authTokens = ssoLoginSuccess.accountTokens,
+            ssoId = ssoLoginSuccess.ssoId,
+            serverConfigId = serverConfigId,
+            proxyCredentials = ssoLoginSuccess.proxyCredentials,
+            managedBy = ssoLoginSuccess.managedBy,
+            isPersistentWebSocketEnabled = defaultWebSocketEnabledByDefault,
+            replace = false
+        )
+
+        when (authenticatedUserResult) {
+            is AddAuthenticatedUserUseCase.Result.Failure -> onAddAuthenticatedUserFailure(authenticatedUserResult)
+            is AddAuthenticatedUserUseCase.Result.Success -> onSuccess(authenticatedUserResult.userId)
         }
     }
 }

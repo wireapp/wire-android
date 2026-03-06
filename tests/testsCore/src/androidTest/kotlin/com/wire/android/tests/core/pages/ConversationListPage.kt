@@ -63,6 +63,13 @@ data class ConversationListPage(private val device: UiDevice) {
     }
 
     fun clickSettingsButtonOnMenuEntry(): ConversationListPage {
+        val settingsMenuEntry = UiWaitUtils.findElementOrNull(settingsButton)
+        if (settingsMenuEntry != null && !settingsMenuEntry.visibleBounds.isEmpty && settingsMenuEntry.isEnabled) {
+            settingsMenuEntry.click()
+            return this
+        }
+
+        UiWaitUtils.waitElement(mainMenuButton).click()
         UiWaitUtils.waitElement(settingsButton).click()
         return this
     }

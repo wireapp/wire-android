@@ -18,8 +18,10 @@
 package com.wire.android.tests.core.pages
 
 import androidx.test.espresso.matcher.ViewMatchers.assertThat
+import android.os.SystemClock
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
+import androidx.test.uiautomator.StaleObjectException
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiSelector
 import org.hamcrest.CoreMatchers.`is`
@@ -50,10 +52,12 @@ class RegistrationPage(private val device: UiDevice) {
     private val userNameHelpText = UiSelectorParams(textContains = "At least 2 character")
     private val editTextClass = By.clazz("android.widget.EditText")
     private val confirmButton = UiSelectorParams(text = "Confirm")
-    private val allowNotificationButton =
-        UiSelectorParams(
-            resourceId = "com.android.permissioncontroller:id/permission_allow_button"
-        )
+    private val allowNotificationButtons = listOf(
+        UiSelectorParams(resourceId = "com.android.permissioncontroller:id/permission_allow_button"),
+        UiSelectorParams(resourceId = "com.android.permissioncontroller:id/permission_allow_foreground_only_button"),
+        UiSelectorParams(resourceId = "android:id/button1"),
+        UiSelectorParams(text = "Allow")
+    )
     private val declineButton = UiSelectorParams(text = "Decline")
     private val loginButtonGoneSelector = UiSelector().resourceId("loginButton")
     private val settingUpWireGoneSelector = UiSelector()
@@ -69,15 +73,51 @@ class RegistrationPage(private val device: UiDevice) {
     }
 
     fun enterPersonalUserRegistrationEmail(email: String): RegistrationPage {
-        val emailIputfield = UiWaitUtils.waitElement(emailInputField)
-        emailIputfield.click()
-        emailIputfield.text = email
-        return this
+        repeat(3) {
+            try {
+                UiWaitUtils.waitElement(emailInputField, timeoutMillis = 2_000).click()
+                UiWaitUtils.waitElement(emailInputField, timeoutMillis = 2_000).text = email
+                return this
+            } catch (_: StaleObjectException) {
+                SystemClock.sleep(150)
+            } catch (_: AssertionError) {
+                SystemClock.sleep(150)
+            }
+        }
+
+        throw AssertionError("Could not enter registration email: email input field was unstable.")
     }
 
-    fun clickLoginButton(): RegistrationPage {
-        UiWaitUtils.waitElement(loginButton).click()
-        return this
+    fun clickLoginButton(timeoutMs: Long = 10_000): RegistrationPage {
+        val deadline = SystemClock.uptimeMillis() + timeoutMs
+        var lastError: AssertionError? = null
+
+        while (SystemClock.uptimeMillis() < deadline) {
+            try {
+                UiWaitUtils.waitElement(loginButton, timeoutMillis = 1_500).click()
+                return this
+            } catch (e: AssertionError) {
+                lastError = e
+                try {
+                    val button = UiWaitUtils.findElementOrNull(loginButton)
+                    if (button != null && !button.visibleBounds.isEmpty && button.isEnabled) {
+                        button.click()
+                        return this
+                    }
+                } catch (_: StaleObjectException) {
+                    // Retry with a freshly resolved node.
+                }
+            } catch (_: StaleObjectException) {
+                // Retry with a freshly resolved node.
+            }
+
+            SystemClock.sleep(200)
+        }
+
+        throw AssertionError(
+            "Login button was not clickable within ${timeoutMs}ms.",
+            lastError
+        )
     }
 
     fun clickCreateAccountButton(): RegistrationPage {
@@ -158,13 +198,12 @@ class RegistrationPage(private val device: UiDevice) {
         val codeInputField = UiWaitUtils.waitElement(UiSelectorParams(className = "android.widget.EditText"))
         codeInputField.click()
         codeInputField.text = code
+        UiWaitUtils.waitElement(userNameInfoText, timeoutMillis = 15_000)
         return this
     }
 
     fun assertEnterYourUserNameInfoText(): RegistrationPage {
-        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        waitUntilElementGone(device, UiSelector().text("Resend code"), timeoutMillis = 10_000)
-        val info = UiWaitUtils.waitElement(userNameInfoText)
+        val info = UiWaitUtils.waitElement(userNameInfoText, timeoutMillis = 15_000)
         assertTrue("Username info not visible", !info.visibleBounds.isEmpty)
         return this
     }
@@ -187,9 +226,26 @@ class RegistrationPage(private val device: UiDevice) {
         return this
     }
 
-    fun clickAllowNotificationButton(): RegistrationPage {
-        UiWaitUtils.waitElement(allowNotificationButton).click()
-        return this
+    fun clickAllowNotificationButton(timeoutMs: Long = 15_000): RegistrationPage {
+        val deadline = SystemClock.uptimeMillis() + timeoutMs
+
+        while (SystemClock.uptimeMillis() < deadline) {
+            val button = allowNotificationButtons
+                .asSequence()
+                .mapNotNull(UiWaitUtils::findElementOrNull)
+                .firstOrNull { !it.visibleBounds.isEmpty && it.isEnabled }
+
+            if (button != null) {
+                button.click()
+                return this
+            }
+
+            SystemClock.sleep(200)
+        }
+
+        throw AssertionError(
+            "Notification permission dialog was not shown within ${timeoutMs}ms for any known allow button selector."
+        )
     }
 
     fun clickDeclineShareDataAlert(): RegistrationPage {

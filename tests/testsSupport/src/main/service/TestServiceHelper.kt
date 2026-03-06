@@ -491,6 +491,22 @@ class TestServiceHelper(
         sendMessageInternal(clientUser, conversation, msg, deviceName, isSelfDeleting)
     }
 
+    fun userSendMessageToPersonalConversation(
+        senderAlias: String,
+        msg: String,
+        deviceName: String,
+        dstConvoName: String,
+        isSelfDeleting: Boolean
+    ) {
+        userSendMessageToConversationObj(
+            senderAlias = senderAlias,
+            msg = msg,
+            deviceName = deviceName,
+            dstConvoName = dstConvoName,
+            isSelfDeleting = isSelfDeleting
+        )
+    }
+
     fun userXSharesLocationTo(
         senderAlias: String,
         convoName: String,

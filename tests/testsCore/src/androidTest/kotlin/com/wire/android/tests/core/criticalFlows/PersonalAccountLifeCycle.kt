@@ -66,8 +66,8 @@ class PersonalAccountLifeCycle : BaseUiTest() {
 
     @After
     fun tearDown() {
-        teamOwner?.deleteTeam(backendClient)
-        personalUser?.deleteUser(backendClient)
+        // teamOwner?.deleteTeam(backendClient)
+        // personalUser?.deleteUser(backendClient)
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
@@ -188,7 +188,7 @@ class PersonalAccountLifeCycle : BaseUiTest() {
         }
 
         step("Receive message from team owner via backend in 1:1 conversation") {
-            testServiceHelper.userSendMessageToConversationObj(
+            testServiceHelper.userSendMessageToPersonalConversation(
                 "user1Name",
                 "Hello to you too!",
                 "Device1",

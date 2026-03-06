@@ -234,7 +234,6 @@ private fun MainLoginContent(
                         onSuccess,
                         onRemoveDeviceNeeded,
                         ssoLoginResult,
-//                        ssoUrlConfigHolder
                     )
                 }
             }

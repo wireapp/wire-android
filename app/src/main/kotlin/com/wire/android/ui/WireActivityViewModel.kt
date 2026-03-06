@@ -49,6 +49,7 @@ import com.wire.android.ui.common.dialogs.CustomServerNoNetworkDialogState
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
 import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.ThemeOption
+import com.wire.android.util.AppPerformanceTracker
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.deeplink.DeepLinkProcessor
@@ -353,11 +354,15 @@ class WireActivityViewModel @Inject constructor(
                     result.key,
                     result.domain
                 ) { conversationId ->
+                    AppPerformanceTracker.markNotificationOpen()
                     sendAction(OpenConversation(DeepLinkResult.OpenConversation(conversationId, result.switchedAccount)))
                 }
 
                 is DeepLinkResult.MigrationLogin -> sendAction(OnMigrationLogin(result))
-                is DeepLinkResult.OpenConversation -> sendAction(OpenConversation(result))
+                is DeepLinkResult.OpenConversation -> {
+                    AppPerformanceTracker.markNotificationOpen()
+                    sendAction(OpenConversation(result))
+                }
                 is DeepLinkResult.OpenOtherUserProfile -> onOpenUserProfileDeepLink(result)
 
                 DeepLinkResult.SharingIntent -> sendAction(OnShowImportMediaScreen)

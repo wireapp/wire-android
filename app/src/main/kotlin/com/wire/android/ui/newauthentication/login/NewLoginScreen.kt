@@ -20,7 +20,6 @@
 
 package com.wire.android.ui.newauthentication.login
 
-import com.wire.android.navigation.annotation.app.WireNewLoginDestination
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -48,10 +47,19 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ramcosta.composedestinations.generated.app.destinations.E2EIEnrollmentScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.HomeScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.InitialSyncScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.LoginScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.NewLoginPasswordScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.NewLoginScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.RemoveDeviceScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.WelcomeScreenDestination
 import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.annotation.app.WireNewLoginDestination
 import com.wire.android.navigation.style.AuthPopUpNavigationAnimation
 import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.authentication.login.LoginErrorDialog
@@ -59,7 +67,6 @@ import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.LoginPasswordPath
 import com.wire.android.ui.authentication.login.PreFilledUserIdentifierType
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
-import com.wire.android.ui.authentication.login.sso.SSOUrlConfigHolder
 import com.wire.android.ui.authentication.login.toLoginDialogErrorData
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.button.WireButtonState
@@ -74,14 +81,6 @@ import com.wire.android.ui.common.textfield.WireAutoFillType
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.typography
-import com.ramcosta.composedestinations.generated.app.destinations.E2EIEnrollmentScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.HomeScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.InitialSyncScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.LoginScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.NewLoginPasswordScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.NewLoginScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.RemoveDeviceScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.WelcomeScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -96,7 +95,7 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 fun NewLoginScreen(
     navigator: Navigator,
     navArgs: LoginNavArgs,
-    ssoUrlConfigHolder: SSOUrlConfigHolder,
+//    ssoUrlConfigHolder: SSOUrlConfigHolder,
     viewModel: NewLoginViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
@@ -121,7 +120,7 @@ fun NewLoginScreen(
 
             is NewLoginAction.SSO -> {
                 currentKeyboardController?.hide()
-                ssoUrlConfigHolder.set(newLoginAction.config)
+//                ssoUrlConfigHolder.set(newLoginAction.config)
                 CustomTabsHelper.launchUrl(context, newLoginAction.url)
             }
 
@@ -148,7 +147,10 @@ fun NewLoginScreen(
 
     LaunchedEffect(navArgs.ssoLoginResult) {
         if (navArgs.ssoLoginResult != null) {
-            viewModel.handleSSOResult(navArgs.ssoLoginResult, ssoUrlConfigHolder.get())
+            viewModel.handleSSOResult(
+                navArgs.ssoLoginResult,
+//                ssoUrlConfigHolder.get()
+            )
         }
     }
     (viewModel.state.flowState as? NewLoginFlowState.CustomConfigDialog)?.let { customServerDialogState ->

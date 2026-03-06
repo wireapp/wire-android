@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.authentication.login.sso
 
+import com.wire.android.appLogger
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.user.UserId
@@ -52,13 +53,13 @@ class LoginSSOViewModelExtension(
         ssoCode: String,
         onAuthScopeFailure: (AutoVersionAuthScopeUseCase.Result.Failure) -> Unit,
         onSSOInitiateFailure: (SSOInitiateLoginResult.Failure) -> Unit,
-        onSuccess: suspend (redirectUrl: String, serverConfig: ServerConfig.Links) -> Unit,
+        onSuccess: suspend (redirectUrl: String) -> Unit,
     ) {
         withAuthenticationScope(serverConfig, onAuthScopeFailure) { authScope ->
             authScope.ssoLoginScope.initiate(SSOInitiateLoginUseCase.Param.WithRedirect(ssoCode)).let { result ->
                 when (result) {
                     is SSOInitiateLoginResult.Failure -> onSSOInitiateFailure(result)
-                    is SSOInitiateLoginResult.Success -> onSuccess(result.requestUrl, serverConfig)
+                    is SSOInitiateLoginResult.Success -> onSuccess(result.requestUrl)
                 }
             }
         }
@@ -84,34 +85,44 @@ class LoginSSOViewModelExtension(
     suspend fun establishSSOSession(
         cookie: String,
         serverConfigId: String,
-        serverConfig: ServerConfig.Links,
         onAuthScopeFailure: (AutoVersionAuthScopeUseCase.Result.Failure) -> Unit,
         onSSOLoginFailure: (SSOLoginSessionResult.Failure) -> Unit,
         onAddAuthenticatedUserFailure: (AddAuthenticatedUserUseCase.Result.Failure) -> Unit,
         onSuccess: suspend (UserId) -> Unit,
     ) {
-        withAuthenticationScope(serverConfig, onAuthScopeFailure) { authScope ->
-            authScope.ssoLoginScope.getLoginSession(cookie).let { ssoLoginResult ->
-                when (ssoLoginResult) {
-                    is SSOLoginSessionResult.Failure -> onSSOLoginFailure(ssoLoginResult)
-                    is SSOLoginSessionResult.Success -> {
-                        addAuthenticatedUser(
-                            authTokens = ssoLoginResult.accountTokens,
-                            ssoId = ssoLoginResult.ssoId,
-                            serverConfigId = serverConfigId,
-                            proxyCredentials = ssoLoginResult.proxyCredentials,
-                            managedBy = ssoLoginResult.managedBy,
-                            isPersistentWebSocketEnabled = defaultWebSocketEnabledByDefault,
-                            replace = false
-                        ).let { authenticatedUserResult ->
-                            when (authenticatedUserResult) {
-                                is AddAuthenticatedUserUseCase.Result.Failure -> onAddAuthenticatedUserFailure(authenticatedUserResult)
-                                is AddAuthenticatedUserUseCase.Result.Success -> onSuccess(authenticatedUserResult.userId)
-                            }
-                        }
-                    }
-                }
+        val authScope = when (val result = coreLogic.authenticationScopeForConfigId(serverConfigId)) {
+            is AutoVersionAuthScopeUseCase.Result.Success -> {
+                appLogger.i("SSO: Resolved auth scope from serverConfigId=$serverConfigId")
+                result.authenticationScope
             }
+            is AutoVersionAuthScopeUseCase.Result.Failure -> {
+                appLogger.e("SSO: Failed to resolve auth scope for serverConfigId=$serverConfigId")
+                onAuthScopeFailure(result)
+                return
+            }
+        }
+
+        val ssoLoginSuccess = when (val ssoLoginResult = authScope.ssoLoginScope.getLoginSession(cookie)) {
+            is SSOLoginSessionResult.Failure -> {
+                onSSOLoginFailure(ssoLoginResult)
+                return
+            }
+            is SSOLoginSessionResult.Success -> ssoLoginResult
+        }
+
+        val authenticatedUserResult = addAuthenticatedUser(
+            authTokens = ssoLoginSuccess.accountTokens,
+            ssoId = ssoLoginSuccess.ssoId,
+            serverConfigId = serverConfigId,
+            proxyCredentials = ssoLoginSuccess.proxyCredentials,
+            managedBy = ssoLoginSuccess.managedBy,
+            isPersistentWebSocketEnabled = defaultWebSocketEnabledByDefault,
+            replace = false
+        )
+
+        when (authenticatedUserResult) {
+            is AddAuthenticatedUserUseCase.Result.Failure -> onAddAuthenticatedUserFailure(authenticatedUserResult)
+            is AddAuthenticatedUserUseCase.Result.Success -> onSuccess(authenticatedUserResult.userId)
         }
     }
 }

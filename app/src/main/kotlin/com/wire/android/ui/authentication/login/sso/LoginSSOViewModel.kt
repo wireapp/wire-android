@@ -156,7 +156,7 @@ class LoginSSOViewModel(
                                 ssoCode = defaultSSOCode,
                                 onAuthScopeFailure = { updateSSOFlowState(it.toLoginError()) },
                                 onSSOInitiateFailure = { updateSSOFlowState(it.toLoginSSOError()) },
-                                onSuccess = { requestUrl, _ -> openWebUrl(requestUrl, state.serverLinks) }
+                                onSuccess = { requestUrl -> openWebUrl(requestUrl, state.serverLinks) }
                             )
                         }
                     }
@@ -208,7 +208,7 @@ class LoginSSOViewModel(
                 ssoCode = ssoTextState.text.toString(),
                 onAuthScopeFailure = { updateSSOFlowState(it.toLoginError()) },
                 onSSOInitiateFailure = { updateSSOFlowState(it.toLoginSSOError()) },
-                onSuccess = { requestUrl, _ -> openWebUrl(requestUrl, serverConfig) }
+                onSuccess = { requestUrl -> openWebUrl(requestUrl, serverConfig) }
             )
         }
     }
@@ -218,14 +218,12 @@ class LoginSSOViewModel(
     fun establishSSOSession(
         cookie: String,
         serverConfigId: String,
-        serverConfig: ServerConfig.Links? = null,
     ) {
         updateSSOFlowState(LoginState.Loading)
         viewModelScope.launch {
             ssoExtension.establishSSOSession(
                 cookie = cookie,
                 serverConfigId = serverConfigId,
-                serverConfig = serverConfig ?: this@LoginSSOViewModel.serverConfig,
                 onAuthScopeFailure = { updateSSOFlowState(it.toLoginError()) },
                 onSSOLoginFailure = { updateSSOFlowState(it.toLoginError()) },
                 onAddAuthenticatedUserFailure = { updateSSOFlowState(it.toLoginError()) },
@@ -247,10 +245,15 @@ class LoginSSOViewModel(
         }
     }
 
-    fun handleSSOResult(ssoLoginResult: DeepLinkResult.SSOLogin?, serverConfig: ServerConfig.Links? = null) {
+    fun handleSSOResult(
+        ssoLoginResult: DeepLinkResult.SSOLogin?,
+    ) {
         when (ssoLoginResult) {
             is DeepLinkResult.SSOLogin.Success -> {
-                establishSSOSession(ssoLoginResult.cookie, ssoLoginResult.serverConfigId, serverConfig)
+                establishSSOSession(
+                    ssoLoginResult.cookie,
+                    ssoLoginResult.serverConfigId,
+                )
             }
 
             is DeepLinkResult.SSOLogin.Failure ->

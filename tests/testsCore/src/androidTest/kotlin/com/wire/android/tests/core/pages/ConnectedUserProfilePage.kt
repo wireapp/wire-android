@@ -17,7 +17,10 @@
  */
 package com.wire.android.tests.core.pages
 
+import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.Until
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 import kotlin.test.DefaultAsserter.assertTrue
@@ -50,6 +53,21 @@ data class ConnectedUserProfilePage(private val device: UiDevice) {
             "Start Conversation button is not visible",
             !button.visibleBounds.isEmpty
         )
+        return this
+    }
+
+    fun assertToastMessageIsDisplayed(
+        expectedMessage: String,
+        timeoutMillis: Long = 5_000
+    ): ConnectedUserProfilePage {
+        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        val selector = By.text(expectedMessage)
+        val toast = device.wait(Until.findObject(selector), timeoutMillis)
+
+        if (toast == null || toast.visibleBounds.isEmpty) {
+            throw AssertionError("Toast message '$expectedMessage' was not displayed within ${timeoutMillis}ms.")
+        }
+
         return this
     }
 

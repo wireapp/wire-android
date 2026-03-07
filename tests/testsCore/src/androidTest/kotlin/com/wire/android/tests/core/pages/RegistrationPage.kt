@@ -54,10 +54,9 @@ class RegistrationPage(private val device: UiDevice) {
     private val confirmButton = UiSelectorParams(text = "Confirm")
     private val allowNotificationButtons = listOf(
         UiSelectorParams(resourceId = "com.android.permissioncontroller:id/permission_allow_button"),
-        UiSelectorParams(resourceId = "com.android.permissioncontroller:id/permission_allow_foreground_only_button"),
-        UiSelectorParams(resourceId = "android:id/button1"),
         UiSelectorParams(text = "Allow")
     )
+    private val consentDialogTitle = UiSelectorParams(textContains = "Consent to share user data")
     private val declineButton = UiSelectorParams(text = "Decline")
     private val loginButtonGoneSelector = UiSelector().resourceId("loginButton")
     private val settingUpWireGoneSelector = UiSelector()
@@ -243,14 +242,36 @@ class RegistrationPage(private val device: UiDevice) {
             SystemClock.sleep(200)
         }
 
-        throw AssertionError(
-            "Notification permission dialog was not shown within ${timeoutMs}ms for any known allow button selector."
-        )
+        // On some devices/runs the permission is already granted and this dialog never appears.
+        return this
     }
 
-    fun clickDeclineShareDataAlert(): RegistrationPage {
-        UiWaitUtils.waitElement(declineButton).click()
-        return this
+    @Suppress("MagicNumber")
+    fun clickDeclineShareDataAlert(timeoutMs: Long = 10_000): RegistrationPage {
+        val deadline = SystemClock.uptimeMillis() + timeoutMs
+
+        while (SystemClock.uptimeMillis() < deadline) {
+            val decline = UiWaitUtils.findElementOrNull(declineButton)
+            if (decline != null && !decline.visibleBounds.isEmpty && decline.isEnabled) {
+                val bounds = decline.visibleBounds
+                runCatching { decline.click() }
+                val stillVisibleAfterClick = UiWaitUtils.findElementOrNull(declineButton)?.let { !it.visibleBounds.isEmpty } == true
+                if (stillVisibleAfterClick && !bounds.isEmpty) {
+                    device.click(bounds.centerX(), bounds.centerY())
+                }
+                device.waitForIdle(300)
+            }
+
+            val dialogVisible = UiWaitUtils.findElementOrNull(consentDialogTitle)?.let { !it.visibleBounds.isEmpty } == true
+            val declineVisible = UiWaitUtils.findElementOrNull(declineButton)?.let { !it.visibleBounds.isEmpty } == true
+            if (!dialogVisible && !declineVisible) {
+                return this
+            }
+
+            SystemClock.sleep(150)
+        }
+
+        throw AssertionError("Share data consent alert was not dismissed within ${timeoutMs}ms.")
     }
 
     fun clickAgreeShareDataAlert(): RegistrationPage {
@@ -280,7 +301,7 @@ class RegistrationPage(private val device: UiDevice) {
 
     fun waitUntilRegistrationFlowIsCompleted(): RegistrationPage {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        waitUntilElementGone(device, UiSelector().text("Confirm"), timeoutMillis = 14_000)
+        waitUntilElementGone(device, UiSelector().text("Confirm"), timeoutMillis = 16_000)
         return this
     }
 

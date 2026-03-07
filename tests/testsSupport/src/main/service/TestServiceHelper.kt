@@ -65,14 +65,22 @@ class TestServiceHelper(
         }
     }
 
+    private fun backendFor(user: ClientUser): BackendClient {
+        val backendName = user.backendName
+        return if (backendName.isNullOrBlank()) {
+            BackendClient.getDefault()
+                ?: throw IllegalStateException("No default backend configured for user '${user.name}'.")
+        } else {
+            BackendClient.loadBackend(backendName)
+        }
+    }
+
     fun getSelfDeletingMessageTimeout(userAlias: String, conversationName: String): Duration {
         val user = usersManager.findUserByNameOrNameAlias(userAlias)
 
         // Only team users support enforced self-deleting messages
         user.teamId?.let {
-            val settings = BackendClient
-                .loadBackend(user.backendName.orEmpty())
-                .getSelfDeletingMessagesSettings(user)
+            val settings = backendFor(user).getSelfDeletingMessagesSettings(user)
 
             if (settings.getString("status") == "enabled") {
                 val timeoutInSeconds = settings
@@ -103,12 +111,7 @@ class TestServiceHelper(
         return getLocalSelfDeletingMessageTimeout(userAlias, resolvedConversationName)
     }
 
-    /**
-     * Java equivalent of getConversationMessageTimer(user, conversationName),
-     * but implemented safely for Kotlin:
-     * - If conversationName points to a USER => personal convo lookup
-     * - Otherwise => group convo lookup
-     */
+
     private fun getConversationMessageTimer(user: ClientUser, conversationName: String): Int {
         val isPersonalConversationName = runCatching {
             // If this succeeds, conversationName is a user name/alias (1:1 style like "user4Name")
@@ -130,16 +133,6 @@ class TestServiceHelper(
         return conversation.messageTimerInMilliseconds
     }
 
-    /**
-     * Java equivalent of getLocalSelfDeletingMessageTimeout(...).
-     *
-     * CRITICAL:
-     * - Do NOT use Long.MAX_VALUE (it can overflow to -1 in your HTTP layer)
-     * - Do NOT use Duration.ZERO if your sendFile treats 0 as "expire immediately"
-     *
-     * This value is "effectively never" for tests AND safe even if converted to Int milliseconds.
-     */
-    @Suppress("UnusedParameter")
     private fun getLocalSelfDeletingMessageTimeout(userAlias: String, conversationName: String): Duration {
         return Duration.ofMillis(Int.MAX_VALUE.toLong()) // ~24.8 days, safe int millis
     }
@@ -213,7 +206,7 @@ class TestServiceHelper(
             .splitAliases(contactsToAddNameAliases)
             .map { toClientUser(it) }
 
-        BackendClient.loadBackend(userAs.backendName.orEmpty()).addUsersToGroupConversation(
+        backendFor(userAs).addUsersToGroupConversation(
             asUser = userAs,
             contacts = contactsToAdd,
             conversation = toConvoObj(userAs, chatName)
@@ -315,21 +308,22 @@ class TestServiceHelper(
     }
 
     fun toConvoObjPersonal(owner: ClientUser, convoName: String): Conversation {
-        val convoName = usersManager.replaceAliasesOccurrences(convoName, ClientUserManager.FindBy.NAME_ALIAS)
-        val backend = BackendClient.loadBackend(owner.backendName.orEmpty())
-        return backend.getPersonalConversationByName(owner, convoName)
+        val seekName = usersManager.findUserByNameOrNameAlias(convoName).name
+            ?: throw NoSuchElementException("User '$convoName' does not have a resolvable display name.")
+        val backend = backendFor(owner)
+        return backend.getPersonalConversationByName(owner, seekName)
     }
 
     fun toConvoObj(owner: ClientUser, convoName: String): Conversation {
         val convoName = usersManager.replaceAliasesOccurrences(convoName, ClientUserManager.FindBy.NAME_ALIAS)
-        val backend = BackendClient.loadBackend(owner.backendName.orEmpty())
+        val backend = backendFor(owner)
         return backend.getConversationByName(owner, convoName)
     }
 
     suspend fun usersSetUniqueUsername(userNameAliases: String) {
         usersManager.splitAliases(userNameAliases).forEach { userNameAlias ->
             val user = toClientUser(userNameAlias)
-            val backend = BackendClient.loadBackend(user.backendName.orEmpty())
+            val backend = backendFor(user)
             backend.updateUniqueUsername(
                 user,
                 user.uniqueUsername.orEmpty()
@@ -339,7 +333,7 @@ class TestServiceHelper(
 
     fun connectionRequestIsSentTo(userFromNameAlias: String, usersToNameAliases: String) {
         val userFrom = toClientUser(userFromNameAlias)
-        val backend = BackendClient.loadBackend(userFrom.backendName.orEmpty())
+        val backend = backendFor(userFrom)
         val usersTo = usersManager
             .splitAliases(usersToNameAliases)
             .map(this::toClientUser)
@@ -355,11 +349,11 @@ class TestServiceHelper(
         verificationCode: String? = null,
         deviceName: String? = null,
     ) {
-        val developmentApiEnabled =
-            BackendClient.loadBackend(toClientUser(ownerAlias).backendName.orEmpty()).isDevelopmentApiEnabled(toClientUser(ownerAlias))
+        val owner = toClientUser(ownerAlias)
+        val developmentApiEnabled = backendFor(owner).isDevelopmentApiEnabled(owner)
         try {
             testServiceClient.login(
-                toClientUser(ownerAlias),
+                owner,
                 verificationCode,
                 deviceName,
                 developmentApiEnabled
@@ -368,7 +362,7 @@ class TestServiceHelper(
             try {
                 TimeUnit.SECONDS.sleep(300)
                 testServiceClient.login(
-                    toClientUser(ownerAlias),
+                    owner,
                     verificationCode,
                     deviceName,
                     developmentApiEnabled
@@ -393,21 +387,17 @@ class TestServiceHelper(
                 .map(this::toClientUser)
         }
 
-        val backend = if (chatOwner.backendName.isNullOrEmpty()) {
-            BackendClient.getDefault()
-        } else {
-            BackendClient.loadBackend(chatOwner.backendName.orEmpty())
-        }
+        val backend = backendFor(chatOwner)
 
         runBlocking {
-            val dstTeam = backend?.getTeamByName(chatOwner, teamName)
-            backend?.createTeamConversation(chatOwner, participants, chatName, dstTeam!!)
+            val dstTeam = backend.getTeamByName(chatOwner, teamName)
+            backend.createTeamConversation(chatOwner, participants, chatName, dstTeam)
         }
     }
 
     fun isSendReadReceiptEnabled(userNameAlias: String): Boolean {
         val user = toClientUser(userNameAlias)
-        val backend = BackendClient.loadBackend(user.backendName.orEmpty())
+        val backend = backendFor(user)
         val json = runBlocking {
             backend.getPropertyValues(user)
         }
@@ -444,7 +434,7 @@ class TestServiceHelper(
     fun syncUserIdsForUsersCreatedThroughIdP(ownerNameAlias: String, user: ClientUser) {
         user.getUserIdThroughOwner = Callable {
             val asUser = toClientUser(ownerNameAlias)
-            val backend = BackendClient.loadBackend(asUser.backendName.orEmpty())
+            val backend = backendFor(asUser)
             val teamMembers = backend.getTeamMembers(asUser)
 
             for (member in teamMembers) {
@@ -476,10 +466,16 @@ class TestServiceHelper(
     ) {
         val clientUser = toClientUser(senderAlias)
         val conversation = toConvoObj(clientUser, dstConvoName)
-        sendMessageInternal(clientUser, conversation, msg, deviceName, isSelfDeleting)
+        sendMessageInternal(
+            clientUser = clientUser,
+            conversation = conversation,
+            msg = msg,
+            deviceName = deviceName,
+            timeout = resolveMessageTimeout(senderAlias, dstConvoName, isSelfDeleting)
+        )
     }
 
-    fun userSendMessageToConversationObj(
+    fun userSendMessageToPersonalMlsConversation(
         senderAlias: String,
         msg: String,
         deviceName: String,
@@ -488,23 +484,27 @@ class TestServiceHelper(
     ) {
         val clientUser = toClientUser(senderAlias)
         val conversation = toConvoObjPersonal(clientUser, dstConvoName)
-        sendMessageInternal(clientUser, conversation, msg, deviceName, isSelfDeleting)
-    }
-
-    fun userSendMessageToPersonalConversation(
-        senderAlias: String,
-        msg: String,
-        deviceName: String,
-        dstConvoName: String,
-        isSelfDeleting: Boolean
-    ) {
-        userSendMessageToConversationObj(
-            senderAlias = senderAlias,
+        sendMessageInternal(
+            clientUser = clientUser,
+            conversation = conversation,
             msg = msg,
             deviceName = deviceName,
-            dstConvoName = dstConvoName,
-            isSelfDeleting = isSelfDeleting
+            timeout = resolveMessageTimeout(senderAlias, dstConvoName, isSelfDeleting)
         )
+    }
+
+    private fun resolveMessageTimeout(
+        senderAlias: String,
+        dstConvoName: String,
+        isSelfDeleting: Boolean
+    ): Duration {
+        return if (isSelfDeleting) {
+            Duration.ofSeconds(1000)
+        } else {
+            getSelfDeletingMessageTimeout(senderAlias, dstConvoName).let { timeout ->
+                if (timeout == Duration.ofMillis(Int.MAX_VALUE.toLong())) Duration.ZERO else timeout
+            }
+        }
     }
 
     fun userXSharesLocationTo(
@@ -535,7 +535,7 @@ class TestServiceHelper(
         conversation: Conversation,
         msg: String,
         deviceName: String,
-        isSelfDeleting: Boolean
+        timeout: Duration
     ) {
         val convoId = conversation.qualifiedID.id
         val convoDomain = conversation.qualifiedID.domain
@@ -546,17 +546,24 @@ class TestServiceHelper(
             else -> false
         }
 
-        testServiceClient.sendText(
-            SendTextParams(
-                owner = clientUser,
-                deviceName = deviceName,
-                convoDomain = convoDomain,
-                convoId = convoId,
-                timeout = if (isSelfDeleting) Duration.ofSeconds(1000) else Duration.ZERO,
-                expectsReadConfirmation = expReadConfirm,
-                text = msg,
-                legalHoldStatus = LegalHoldStatus.DISABLED.code,
+        try {
+            testServiceClient.sendText(
+                SendTextParams(
+                    owner = clientUser,
+                    deviceName = deviceName,
+                    convoDomain = convoDomain,
+                    convoId = convoId,
+                    timeout = timeout,
+                    expectsReadConfirmation = expReadConfirm,
+                    text = msg,
+                    legalHoldStatus = LegalHoldStatus.DISABLED.code,
+                )
             )
-        )
+        } catch (e: Throwable) {
+            throw AssertionError(
+                "Failed to send message '$msg' to conversationId='$convoId' for user='${clientUser.name}' on device '$deviceName'.",
+                e
+            )
+        }
     }
 }

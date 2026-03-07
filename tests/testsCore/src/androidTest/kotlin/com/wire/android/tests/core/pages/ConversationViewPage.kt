@@ -17,6 +17,7 @@
  */
 package com.wire.android.tests.core.pages
 
+import android.os.SystemClock
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
@@ -55,6 +56,7 @@ data class ConversationViewPage(private val device: UiDevice) {
     private val saveButton = UiSelectorParams(text = "Save")
 
     private val openButton = UiSelectorParams(text = "Open")
+    private val cancelButton = UiSelectorParams(text = "Cancel")
 
     private val downloadButtonOnVideoFile = UiSelectorParams(text = "Tap to download")
     private val videoDurationLocator = UiSelectorParams(text = "00:03")
@@ -75,6 +77,12 @@ data class ConversationViewPage(private val device: UiDevice) {
     private val pingButton = UiSelectorParams(description = "Ping")
 
     private val pingButtonOnModal = UiSelectorParams(text = "Ping")
+
+    private val mlsUpgradeMessageSelectors = listOf(
+        UiSelectorParams(textContains = "This conversation now uses the new Messaging"),
+        UiSelectorParams(textContains = "Layer Security (MLS) protocol"),
+        UiSelectorParams(textContains = "latest version of Wire on your devices")
+    )
 
     private fun selfDeleteOption(label: String): UiSelectorParams {
         return UiSelectorParams(text = label, className = "android.widget.TextView")
@@ -180,10 +188,24 @@ data class ConversationViewPage(private val device: UiDevice) {
         return this
     }
 
-    fun assertFileActionModalIsVisible(): ConversationViewPage {
-        val modalText = UiWaitUtils.waitElement(modalTextLocator)
-        assertTrue("The file action modal is not visible.", !modalText.visibleBounds.isEmpty)
-        return this
+    fun assertFileActionModalIsVisible(timeoutMs: Long = 8_000): ConversationViewPage {
+        val modalAnchors = listOf(modalTextLocator, saveButtonLocator, openButton, cancelButton)
+        val deadline = SystemClock.uptimeMillis() + timeoutMs
+
+        while (SystemClock.uptimeMillis() < deadline) {
+            val isVisible = modalAnchors
+                .asSequence()
+                .mapNotNull(UiWaitUtils::findElementOrNull)
+                .any { runCatching { !it.visibleBounds.isEmpty }.getOrDefault(false) }
+
+            if (isVisible) {
+                return this
+            }
+
+            SystemClock.sleep(150)
+        }
+
+        throw AssertionError("The file action modal was not visible within ${timeoutMs}ms.")
     }
 
     fun tapSaveButtonOnModal(): ConversationViewPage {
@@ -231,8 +253,20 @@ data class ConversationViewPage(private val device: UiDevice) {
         return this
     }
 
-    fun clickSaveButtonOnDownloadModal(): ConversationViewPage {
-        UiWaitUtils.waitElement(saveButton).click()
+    fun clickSaveButtonOnDownloadModal(timeoutMs: Long = 8_000): ConversationViewPage {
+        val save = UiWaitUtils.waitElement(saveButton, timeoutMillis = timeoutMs)
+        val bounds = runCatching { save.visibleBounds }.getOrNull()
+
+        runCatching { save.click() }
+        device.waitForIdle(300)
+
+        val stillVisible = UiWaitUtils.findElementOrNull(saveButton)
+            ?.let { runCatching { !it.visibleBounds.isEmpty }.getOrDefault(false) } == true
+
+        if (stillVisible && bounds != null && !bounds.isEmpty) {
+            device.click(bounds.centerX(), bounds.centerY())
+        }
+
         return this
     }
 
@@ -274,7 +308,7 @@ data class ConversationViewPage(private val device: UiDevice) {
 
             // Perform fling (fast scroll) to the bottom
             val success = scrollable.flingToEnd(10)
-            println("✅ Scrolled to bottom: $success")
+            println(" Scrolled to bottom: $success")
         } catch (e: Exception) {
             println("Failed to scroll: ${e.message}")
         }
@@ -416,6 +450,32 @@ data class ConversationViewPage(private val device: UiDevice) {
         }
 
         return this
+    }
+
+    fun waitUntilConversationTurnsMls(
+        timeoutMs: Long = 20_000,
+        settleAfterDetectedMs: Long = 0
+    ): ConversationViewPage {
+        val deadline = SystemClock.uptimeMillis() + timeoutMs
+
+        while (SystemClock.uptimeMillis() < deadline) {
+            val mlsMarker = mlsUpgradeMessageSelectors
+                .asSequence()
+                .mapNotNull(UiWaitUtils::findElementOrNull)
+                .firstOrNull { !it.visibleBounds.isEmpty }
+
+            if (mlsMarker != null) {
+                // MLS banner can appear slightly before the conversation is fully ready for a first outbound message.
+                if (settleAfterDetectedMs > 0) {
+                    SystemClock.sleep(settleAfterDetectedMs)
+                }
+                return this
+            }
+
+            SystemClock.sleep(200)
+        }
+
+        throw AssertionError("MLS upgrade system message was not visible within ${timeoutMs}ms.")
     }
 
     fun click1On1ConversationDetails(userName: String): ConversationViewPage {

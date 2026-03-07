@@ -67,8 +67,8 @@ class PersonalAccountLifeCycle : BaseUiTest() {
 
     @After
     fun tearDown() {
-        teamOwner?.deleteTeam(backendClient)
-        personalUser?.deleteUser(backendClient)
+         teamOwner?.deleteTeam(backendClient)
+         personalUser?.deleteUser(backendClient)
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
@@ -182,7 +182,12 @@ class PersonalAccountLifeCycle : BaseUiTest() {
                 tapConversationNameInConversationList(teamOwner?.name ?: "")
             }
         }
-
+        step("Wait until personal 1:1 conversation is upgraded to MLS") {
+            pages.conversationViewPage.waitUntilConversationTurnsMls(
+                timeoutMs = 20_000,
+                settleAfterDetectedMs = 5_000
+            )
+        }
         step("Send message to team owner in 1:1 conversation") {
             pages.conversationViewPage.apply {
                 typeMessageInInputField("Hello Team Owner")
@@ -192,7 +197,7 @@ class PersonalAccountLifeCycle : BaseUiTest() {
         }
 
         step("Receive message from team owner via backend in 1:1 conversation") {
-            testServiceHelper.userSendMessageToPersonalConversation(
+            testServiceHelper.userSendMessageToPersonalMlsConversation(
                 "user1Name",
                 "Hello to you too!",
                 "Device1",
@@ -200,6 +205,7 @@ class PersonalAccountLifeCycle : BaseUiTest() {
                 false
             )
 
+            closeKeyboardIfOpened()
             pages.conversationViewPage.apply {
                 assertReceivedMessageIsVisibleInCurrentConversation("Hello to you too!")
             }

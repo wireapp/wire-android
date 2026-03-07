@@ -17,8 +17,10 @@
  */
 package com.wire.android.tests.core.pages
 
+import android.os.SystemClock
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
+import androidx.test.uiautomator.StaleObjectException
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiSelector
 import org.junit.Assert
@@ -63,16 +65,39 @@ data class ConversationListPage(private val device: UiDevice) {
         return this
     }
 
-    fun clickSettingsButtonOnMenuEntry(): ConversationListPage {
-        val settingsMenuEntry = UiWaitUtils.findElementOrNull(settingsButton)
-        if (settingsMenuEntry != null && !settingsMenuEntry.visibleBounds.isEmpty && settingsMenuEntry.isEnabled) {
-            settingsMenuEntry.click()
-            return this
+    fun clickSettingsButtonOnMenuEntry(timeoutMs: Long = 10_000): ConversationListPage {
+        val deadline = SystemClock.uptimeMillis() + timeoutMs
+        var lastMenuClickAt = 0L
+
+        while (SystemClock.uptimeMillis() < deadline) {
+            if (tryClickIfVisible(settingsButton)) {
+                return this
+            }
+
+            val now = SystemClock.uptimeMillis()
+            if (now - lastMenuClickAt >= 600 && tryClickIfVisible(mainMenuButton)) {
+                lastMenuClickAt = now
+                device.waitForIdle(300)
+            }
+
+            SystemClock.sleep(120)
         }
 
-        UiWaitUtils.waitElement(mainMenuButton).click()
-        UiWaitUtils.waitElement(settingsButton).click()
-        return this
+        throw AssertionError("Settings menu entry was not found within ${timeoutMs}ms.")
+    }
+
+    private fun tryClickIfVisible(selector: UiSelectorParams): Boolean {
+        val element = UiWaitUtils.findElementOrNull(selector) ?: return false
+        return try {
+            if (!element.visibleBounds.isEmpty && element.isEnabled) {
+                element.click()
+                true
+            } else {
+                false
+            }
+        } catch (_: StaleObjectException) {
+            false
+        }
     }
 
     fun clickConversationsButtonOnMenuEntry(): ConversationListPage {

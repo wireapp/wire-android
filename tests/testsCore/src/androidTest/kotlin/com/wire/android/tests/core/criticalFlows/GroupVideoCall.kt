@@ -433,7 +433,7 @@ class GroupVideoCall : BaseUiTest() {
                 assertAudioTimeStartsAtZero()
             }
         }
-
+        waitFor(1)
         step("And I play audio message") {
             pages.conversationViewPage.apply {
                 clickPlayButtonOnAudioMessage()

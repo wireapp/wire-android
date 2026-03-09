@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.authentication.login
 
-import com.wire.android.navigation.annotation.app.WireLoginDestination
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.togetherWith
@@ -46,18 +45,21 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ramcosta.composedestinations.generated.app.destinations.E2EIEnrollmentScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.HomeScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.InitialSyncScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.RemoveDeviceScreenDestination
 import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.annotation.app.WireLoginDestination
 import com.wire.android.navigation.style.TransitionAnimationType
 import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.authentication.login.email.LoginEmailScreen
 import com.wire.android.ui.authentication.login.email.LoginEmailVerificationCodeScreen
 import com.wire.android.ui.authentication.login.email.LoginEmailViewModel
 import com.wire.android.ui.authentication.login.sso.LoginSSOScreen
-import com.wire.android.ui.authentication.login.sso.SSOUrlConfigHolder
-import com.wire.android.ui.authentication.login.sso.SSOUrlConfigHolderPreview
 import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
 import com.wire.android.ui.common.calculateCurrentTab
@@ -68,10 +70,6 @@ import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
-import com.ramcosta.composedestinations.generated.app.destinations.E2EIEnrollmentScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.HomeScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.InitialSyncScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.RemoveDeviceScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -88,7 +86,6 @@ import kotlinx.coroutines.launch
 fun LoginScreen(
     navigator: Navigator,
     loginNavArgs: LoginNavArgs,
-    ssoUrlConfigHolder: SSOUrlConfigHolder,
     loginEmailViewModel: LoginEmailViewModel = hiltViewModel()
 ) {
 
@@ -110,7 +107,7 @@ fun LoginScreen(
         },
         loginEmailViewModel = loginEmailViewModel,
         ssoLoginResult = loginNavArgs.ssoLoginResult,
-        ssoUrlConfigHolder = ssoUrlConfigHolder,
+//        ssoUrlConfigHolder = ssoUrlConfigHolder,
     )
 }
 
@@ -121,7 +118,6 @@ private fun LoginContent(
     onRemoveDeviceNeeded: () -> Unit,
     loginEmailViewModel: LoginEmailViewModel,
     ssoLoginResult: DeepLinkResult.SSOLogin?,
-    ssoUrlConfigHolder: SSOUrlConfigHolder,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         /*
@@ -144,7 +140,7 @@ private fun LoginContent(
                     onRemoveDeviceNeeded = onRemoveDeviceNeeded,
                     loginEmailViewModel = loginEmailViewModel,
                     ssoLoginResult = ssoLoginResult,
-                    ssoUrlConfigHolder = ssoUrlConfigHolder
+//                    ssoUrlConfigHolder = ssoUrlConfigHolder
                 )
             }
         }
@@ -159,7 +155,6 @@ private fun MainLoginContent(
     onRemoveDeviceNeeded: () -> Unit,
     loginEmailViewModel: LoginEmailViewModel,
     ssoLoginResult: DeepLinkResult.SSOLogin?,
-    ssoUrlConfigHolder: SSOUrlConfigHolder,
 ) {
 
     val scope = rememberCoroutineScope()
@@ -228,7 +223,12 @@ private fun MainLoginContent(
             ) { pageIndex ->
                 when (LoginTabItem.values()[pageIndex]) {
                     LoginTabItem.EMAIL -> LoginEmailScreen(onSuccess, onRemoveDeviceNeeded, loginEmailViewModel, scrollState)
-                    LoginTabItem.SSO -> LoginSSOScreen(onSuccess, onRemoveDeviceNeeded, ssoLoginResult, ssoUrlConfigHolder)
+                    LoginTabItem.SSO -> LoginSSOScreen(
+                        onSuccess,
+                        onRemoveDeviceNeeded,
+                        ssoLoginResult,
+//                        ssoUrlConfigHolder
+                    )
                 }
             }
             if (!pagerState.isScrollInProgress && focusedTabIndex != pagerState.currentPage) {
@@ -245,6 +245,7 @@ private fun MainLoginContent(
 enum class LoginTabItem(@StringRes val titleResId: Int) : TabItem {
     EMAIL(R.string.login_tab_email),
     SSO(R.string.login_tab_sso);
+
     override val title: UIText = UIText.StringResource(titleResId)
 }
 
@@ -258,7 +259,7 @@ private fun PreviewLoginScreen() = WireTheme {
             onRemoveDeviceNeeded = {},
             loginEmailViewModel = hiltViewModel(),
             ssoLoginResult = null,
-            ssoUrlConfigHolder = SSOUrlConfigHolderPreview,
+//            ssoUrlConfigHolder = SSOUrlConfigHolderPreview,
         )
     }
 }

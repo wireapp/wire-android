@@ -26,6 +26,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.appLogger
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.ClientScopeProvider
@@ -42,7 +43,6 @@ import com.wire.android.ui.authentication.login.sso.SSOUrlConfig
 import com.wire.android.ui.authentication.login.sso.ssoCodeWithPrefix
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.common.textfield.textAsFlow
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.EMPTY
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -286,29 +286,26 @@ class NewLoginViewModel(
                 ssoCode = ssoCode,
                 onAuthScopeFailure = { updateLoginFlowState(it.toLoginError()) },
                 onSSOInitiateFailure = { updateLoginFlowState(it.toLoginError()) },
-                onSuccess = { requestUrl, serverConfig ->
+                onSuccess = { requestUrl ->
                     withContext(dispatchers.main()) {
                         updateLoginFlowState(NewLoginFlowState.Default)
-                        sendAction(NewLoginAction.SSO(requestUrl, SSOUrlConfig(serverConfig, userIdentifierTextState.text.toString())))
+                        sendAction(NewLoginAction.SSO(requestUrl, SSOUrlConfig(userIdentifierTextState.text.toString())))
                         updateLoginFlowState(NewLoginFlowState.Default)
                     }
                 }
             )
         }
 
-    fun handleSSOResult(ssoLoginResult: DeepLinkResult.SSOLogin, config: SSOUrlConfig?) {
+    fun handleSSOResult(
+        ssoLoginResult: DeepLinkResult.SSOLogin,
+    ) {
         updateLoginFlowState(NewLoginFlowState.Loading)
-        if (config != null) {
-            serverConfig = config.serverConfig
-            userIdentifierTextState.setTextAndPlaceCursorAtEnd(config.userIdentifier)
-        }
         when (ssoLoginResult) {
             is DeepLinkResult.SSOLogin.Success -> {
                 viewModelScope.launch(dispatchers.io()) {
                     ssoExtension.establishSSOSession(
                         cookie = ssoLoginResult.cookie,
                         serverConfigId = ssoLoginResult.serverConfigId,
-                        serverConfig = config?.serverConfig ?: serverConfig,
                         onAuthScopeFailure = { updateLoginFlowState(it.toLoginError()) },
                         onSSOLoginFailure = { updateLoginFlowState(it.toLoginError()) },
                         onAddAuthenticatedUserFailure = { updateLoginFlowState(it.toLoginError()) },

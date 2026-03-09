@@ -35,7 +35,6 @@ import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.session.DeleteSessionUseCase
 import io.mockk.MockKAnnotations
-import io.mockk.any
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.coVerifyOrder
@@ -45,12 +44,17 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
-import io.mockk.withArg
+import java.lang.reflect.InvocationTargetException
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import kotlin.coroutines.Continuation
+import kotlin.coroutines.intrinsics.COROUTINE_SUSPENDED
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 @ExtendWith(CoroutineTestExtension::class)
 class NomadLogoutReceiverTest {
@@ -62,7 +66,7 @@ class NomadLogoutReceiverTest {
             .withCurrentSession(CurrentSessionResult.Success(AccountInfo.Valid(userId)))
             .arrange()
 
-        arrangement.receiver.receive(arrangement.context, Intent().setAction(NomadLogoutReceiver.ACTION_LOGOUT))
+        arrangement.invokeReceive(Intent().setAction(NomadLogoutReceiver.ACTION_LOGOUT))
 
         verify(exactly = 1) { arrangement.coreLogic.getSessionScope(userId) }
         coVerifyOrder {
@@ -73,12 +77,13 @@ class NomadLogoutReceiverTest {
         }
         verify(exactly = 1) {
             arrangement.context.startActivity(
-                withArg { startedIntent ->
+                match { startedIntent ->
                     assertEquals(WireActivity::class.java.name, startedIntent.component?.className)
                     assertEquals(
                         Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK,
                         startedIntent.flags and (Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
                     )
+                    true
                 }
             )
         }
@@ -90,7 +95,7 @@ class NomadLogoutReceiverTest {
             .withNomadProfilesEnabled(false)
             .arrange()
 
-        arrangement.receiver.receive(arrangement.context, Intent().setAction(NomadLogoutReceiver.ACTION_LOGOUT))
+        arrangement.invokeReceive(Intent().setAction(NomadLogoutReceiver.ACTION_LOGOUT))
         advanceUntilIdle()
 
         coVerify(exactly = 0) {
@@ -111,7 +116,7 @@ class NomadLogoutReceiverTest {
             .withCurrentSession(CurrentSessionResult.Failure.SessionNotFound)
             .arrange()
 
-        arrangement.receiver.receive(arrangement.context, Intent().setAction(NomadLogoutReceiver.ACTION_LOGOUT))
+        arrangement.invokeReceive(Intent().setAction(NomadLogoutReceiver.ACTION_LOGOUT))
         advanceUntilIdle()
 
         coVerify(exactly = 1) { arrangement.currentSession() }
@@ -180,6 +185,42 @@ class NomadLogoutReceiverTest {
 
         fun withNomadProfilesEnabled(enabled: Boolean) = apply {
             every { nomadProfilesFeatureConfig.isEnabled() } returns enabled
+        }
+
+        suspend fun invokeReceive(intent: Intent) {
+            suspendCoroutine { continuation ->
+                val method = NomadLogoutReceiver::class.java.getDeclaredMethod(
+                    "receive",
+                    Context::class.java,
+                    Intent::class.java,
+                    Continuation::class.java
+                ).apply {
+                    isAccessible = true
+                }
+
+                try {
+                    val result = method.invoke(
+                        receiver,
+                        context,
+                        intent,
+                        object : Continuation<Unit> {
+                            override val context = continuation.context
+
+                            override fun resumeWith(result: Result<Unit>) {
+                                result
+                                    .onSuccess { continuation.resume(Unit) }
+                                    .onFailure(continuation::resumeWithException)
+                            }
+                        }
+                    )
+
+                    if (result !== COROUTINE_SUSPENDED) {
+                        continuation.resume(Unit)
+                    }
+                } catch (e: InvocationTargetException) {
+                    continuation.resumeWithException(e.targetException)
+                }
+            }
         }
     }
 }

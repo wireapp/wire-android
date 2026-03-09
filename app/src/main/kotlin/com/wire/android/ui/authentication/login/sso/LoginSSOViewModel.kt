@@ -26,11 +26,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.config.DefaultServerConfig
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.di.DefaultWebSocketEnabledByDefault
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.authentication.login.LoginViewModel
 import com.wire.android.ui.authentication.login.toLoginError
@@ -74,6 +76,7 @@ class LoginSSOViewModel(
     coreLogic,
     serverConfig
 ) {
+    private val loginNavArgs: LoginNavArgs = savedStateHandle.navArgs()
 
     @Inject
     constructor(
@@ -224,6 +227,7 @@ class LoginSSOViewModel(
             ssoExtension.establishSSOSession(
                 cookie = cookie,
                 serverConfigId = serverConfigId,
+                nomadServiceUrl = loginNavArgs.ssoCodeAutoLogin?.nomadServiceUrl,
                 onAuthScopeFailure = { updateSSOFlowState(it.toLoginError()) },
                 onSSOLoginFailure = { updateSSOFlowState(it.toLoginError()) },
                 onAddAuthenticatedUserFailure = { updateSSOFlowState(it.toLoginError()) },

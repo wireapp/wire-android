@@ -90,7 +90,6 @@ import com.wire.kalium.logic.feature.user.screenshotCensoring.ObserveScreenshotC
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import io.mockk.MockKAnnotations
-import io.mockk.any
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -776,7 +775,7 @@ class WireActivityViewModelTest {
         }
 
     @Test
-    fun `given valid automated_login intent, when handling intents, then automated login manager pending flag is set`() = runTest {
+    fun `given valid automated_login intent, when handling intents, then handler returns true and pending flag is set`() = runTest {
         val ssoCode = "wire-b6261497-5b7d-4a57-8f4d-3a94e936b2c0"
         val (arrangement, viewModel) = Arrangement()
             .withAutomatedLoginIntent(ssoCode = ssoCode)
@@ -800,6 +799,23 @@ class WireActivityViewModelTest {
 
         assertTrue(handled)
         assertTrue(arrangement.automatedLoginManager.pendingMoveToBackgroundAfterSync)
+    }
+
+    @Test
+    fun `given valid automated login intent with nomad url, when handling intents, then automatic login action contains nomad service url`() = runTest {
+        val ssoCode = "wire-b6261497-5b7d-4a57-8f4d-3a94e936b2c0"
+        val nomadServiceUrl = "https://nomad.example.com/service"
+        val (_, viewModel) = Arrangement()
+            .withAutomatedLoginIntent(ssoCode = ssoCode, nomadServiceUrl = nomadServiceUrl)
+            .arrange()
+
+        viewModel.actions.test {
+            val handled = viewModel.handleIntentsThatAreNotDeepLinks(mockedIntent())
+            advanceUntilIdle()
+
+            assertTrue(handled)
+            assertEquals(OnAutomaticLogin(serverLinks = null, ssoCode = ssoCode, nomadServiceUrl = nomadServiceUrl), expectMostRecentItem())
+        }
     }
 
     @Test
@@ -1017,7 +1033,6 @@ class WireActivityViewModelTest {
                 managedConfigurationsManager = managedConfigurationsManager,
                 automatedLoginManager = automatedLoginManager,
                 nomadProfilesFeatureConfig = nomadProfilesFeatureConfig,
-                automatedLoginManager = automatedLoginManager,
             )
         }
 
@@ -1147,16 +1162,14 @@ class WireActivityViewModelTest {
             coEvery { useCase() } returns isEnabled
         }
 
-        fun withAutomatedLoginIntent(ssoCode: String): Arrangement = apply {
-            every { intentsProcessor(any()) } returns AutomatedLoginViaSSO(ssoCode = ssoCode)
+        fun withAutomatedLoginIntent(ssoCode: String, nomadServiceUrl: String? = null): Arrangement = apply {
+            every {
+                intentsProcessor(any())
+            } returns AutomatedLoginViaSSO(ssoCode = ssoCode, nomadProfilesHost = nomadServiceUrl)
         }
 
         fun withNomadProfilesEnabled(enabled: Boolean): Arrangement = apply {
             every { nomadProfilesFeatureConfig.isEnabled() } returns enabled
-        }
-
-        fun withAutomatedLoginIntent(ssoCode: String): Arrangement = apply {
-            every { intentsProcessor(any()) } returns AutomatedLoginViaSSO(ssoCode = ssoCode)
         }
 
         fun arrange() = this to viewModel

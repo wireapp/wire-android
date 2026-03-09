@@ -306,6 +306,7 @@ class NewLoginViewModel(
                     ssoExtension.establishSSOSession(
                         cookie = ssoLoginResult.cookie,
                         serverConfigId = ssoLoginResult.serverConfigId,
+                        nomadServiceUrl = loginNavArgs.ssoCodeAutoLogin?.nomadServiceUrl,
                         onAuthScopeFailure = { updateLoginFlowState(it.toLoginError()) },
                         onSSOLoginFailure = { updateLoginFlowState(it.toLoginError()) },
                         onAddAuthenticatedUserFailure = { updateLoginFlowState(it.toLoginError()) },

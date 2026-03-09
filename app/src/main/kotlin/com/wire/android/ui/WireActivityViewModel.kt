@@ -36,7 +36,6 @@ import com.wire.android.di.ObserveIfE2EIRequiredDuringLoginUseCaseProvider
 import com.wire.android.di.ObserveScreenshotCensoringConfigUseCaseProvider
 import com.wire.android.di.ObserveSelfUserUseCaseProvider
 import com.wire.android.di.ObserveSyncStateUseCaseProvider
-import com.wire.android.emm.ManagedConfigurationsManager
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountActions
 import com.wire.android.feature.SwitchAccountParam
@@ -61,8 +60,6 @@ import com.wire.android.util.lifecycle.AutomatedLoginManager
 import com.wire.android.util.lifecycle.IntentsProcessor
 import com.wire.android.util.ui.UIText
 import com.wire.android.emm.ManagedConfigurationsManager
-import com.wire.android.util.lifecycle.AutomatedLoginManager
-import com.wire.android.util.lifecycle.IntentsProcessor
 import com.wire.android.workmanager.worker.cancelPeriodicPersistentWebsocketCheckWorker
 import com.wire.android.workmanager.worker.enqueuePeriodicPersistentWebsocketCheckWorker
 import com.wire.kalium.logic.CoreLogic
@@ -144,7 +141,6 @@ class WireActivityViewModel @Inject constructor(
     private val managedConfigurationsManager: ManagedConfigurationsManager,
     private val automatedLoginManager: AutomatedLoginManager,
     private val nomadProfilesFeatureConfig: NomadProfilesFeatureConfig,
-    private val automatedLoginManager: AutomatedLoginManager,
 ) : ActionsViewModel<WireActivityViewAction>() {
 
     var globalAppState: GlobalAppState by mutableStateOf(GlobalAppState())
@@ -385,13 +381,13 @@ class WireActivityViewModel @Inject constructor(
         if (!nomadProfilesFeatureConfig.isEnabled()) return false
         val result = intentsProcessor.get().invoke(intent)
         if (result != null) {
-            onAutomaticLoginParameters(result.backendConfig, result.ssoCode)
+            onAutomaticLoginParameters(result.backendConfig, result.ssoCode, result.nomadProfilesHost)
             return true
         }
         return false
     }
 
-    private fun onAutomaticLoginParameters(backendConfigUrl: String?, ssoCode: String?) {
+    private fun onAutomaticLoginParameters(backendConfigUrl: String?, ssoCode: String?, nomadServiceUrl: String?) {
         viewModelScope.launch(dispatchers.io()) {
             // Load backend config
             val serverLinks = backendConfigUrl?.let { loadServerConfig(it) }
@@ -402,7 +398,7 @@ class WireActivityViewModel @Inject constructor(
                 sendAction(OnUnknownDeepLink)
             } else {
                 automatedLoginManager.pendingMoveToBackgroundAfterSync = true
-                sendAction(OnAutomaticLogin(serverLinks, ssoCode))
+                sendAction(OnAutomaticLogin(serverLinks, ssoCode, nomadServiceUrl))
             }
         }
     }
@@ -699,7 +695,11 @@ internal data object OnShowImportMediaScreen : WireActivityViewAction
 internal data object OnAuthorizationNeeded : WireActivityViewAction
 internal data object OnUnknownDeepLink : WireActivityViewAction
 internal data class OnMigrationLogin(val result: DeepLinkResult.MigrationLogin) : WireActivityViewAction
-internal data class OnAutomaticLogin(val serverLinks: ServerConfig.Links?, val ssoCode: String?) : WireActivityViewAction
+internal data class OnAutomaticLogin(
+    val serverLinks: ServerConfig.Links?,
+    val ssoCode: String?,
+    val nomadServiceUrl: String?,
+) : WireActivityViewAction
 internal data class OnOpenUserProfile(val result: DeepLinkResult.OpenOtherUserProfile) : WireActivityViewAction
 internal data class OnSSOLogin(val result: DeepLinkResult.SSOLogin) : WireActivityViewAction
 internal data class ShowToast(val messageResId: Int) : WireActivityViewAction

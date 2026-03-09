@@ -168,7 +168,13 @@ private fun onAutomaticLogin(
     // Auto-apply backend config AND navigate with SSO code pre-filled
     val serverLinks = action.serverLinks
     val ssoCode = action.ssoCode
-    val ssoCodeAutoLogin = ssoCode?.let { SSOCodeAutoLogin(ssoCode = it, autoInitiateLogin = true) }
+    val ssoCodeAutoLogin = ssoCode?.let {
+        SSOCodeAutoLogin(
+            ssoCode = it,
+            autoInitiateLogin = true,
+            nomadServiceUrl = action.nomadServiceUrl
+        )
+    }
 
     coroutineScope.launch {
         val useNewLogin = loginTypeSelector.canUseNewLogin(serverLinks)

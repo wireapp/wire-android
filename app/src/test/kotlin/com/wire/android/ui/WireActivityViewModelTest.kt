@@ -27,6 +27,7 @@ import app.cash.turbine.test
 import com.wire.android.BuildConfig
 import com.wire.android.assertions.shouldBeEqualTo
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.NomadProfilesFeatureConfig
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.datastore.GlobalDataStore
@@ -89,11 +90,13 @@ import com.wire.kalium.logic.feature.user.screenshotCensoring.ObserveScreenshotC
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import io.mockk.MockKAnnotations
+import io.mockk.any
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -779,10 +782,39 @@ class WireActivityViewModelTest {
             .withAutomatedLoginIntent(ssoCode = ssoCode)
             .arrange()
 
-        viewModel.handleIntentsThatAreNotDeepLinks(mockedIntent())
+        val handled = viewModel.handleIntentsThatAreNotDeepLinks(mockedIntent())
         advanceUntilIdle()
 
+        assertTrue(handled)
         assertTrue(arrangement.automatedLoginManager.pendingMoveToBackgroundAfterSync)
+    }
+
+    @Test
+    fun `given nomad profiles disabled, when handling non deep link intents, then intent is ignored`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withNomadProfilesEnabled(false)
+            .withAutomatedLoginIntent(ssoCode = "wire-b6261497-5b7d-4a57-8f4d-3a94e936b2c0")
+            .arrange()
+
+        val handled = viewModel.handleIntentsThatAreNotDeepLinks(mockedIntent())
+        advanceUntilIdle()
+
+        assertEquals(false, handled)
+        assertEquals(false, arrangement.automatedLoginManager.pendingMoveToBackgroundAfterSync)
+        verify(exactly = 0) { arrangement.intentsProcessor(any()) }
+    }
+
+    @Test
+    fun `given nomad profiles disabled, when handling sharing intent, then import media screen is still shown`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withNomadProfilesEnabled(false)
+            .withDeepLinkResult(DeepLinkResult.SharingIntent)
+            .arrange()
+
+        viewModel.actions.test {
+            viewModel.handleDeepLink(mockedIntent())
+            assertEquals(OnShowImportMediaScreen, expectMostRecentItem())
+        }
     }
 
     @Test
@@ -867,6 +899,7 @@ class WireActivityViewModelTest {
             every { observeSelfUserFactory.create(any()).observeSelfUser } returns observeSelfUserUseCase
             coEvery { observeSelfUserUseCase() } returns flowOf(SELF_USER)
             every { managedConfigurationsManager.persistentWebSocketEnforcedByMDM } returns persistentWebSocketEnforcedByMDMFlow
+            every { nomadProfilesFeatureConfig.isEnabled() } returns true
         }
 
         @MockK
@@ -941,6 +974,9 @@ class WireActivityViewModelTest {
         @MockK
         lateinit var monitorSyncWorkUseCase: MonitorSyncWorkUseCase
 
+        @MockK
+        lateinit var nomadProfilesFeatureConfig: NomadProfilesFeatureConfig
+
         private val viewModel by lazy {
             WireActivityViewModel(
                 coreLogic = { coreLogic },
@@ -967,6 +1003,7 @@ class WireActivityViewModelTest {
                 monitorSyncWorkUseCase = monitorSyncWorkUseCase,
                 managedConfigurationsManager = managedConfigurationsManager,
                 automatedLoginManager = automatedLoginManager,
+                nomadProfilesFeatureConfig = nomadProfilesFeatureConfig,
             )
         }
 
@@ -1098,6 +1135,10 @@ class WireActivityViewModelTest {
 
         fun withAutomatedLoginIntent(ssoCode: String): Arrangement = apply {
             every { intentsProcessor(any()) } returns AutomatedLoginViaSSO(ssoCode = ssoCode)
+        }
+
+        fun withNomadProfilesEnabled(enabled: Boolean): Arrangement = apply {
+            every { nomadProfilesFeatureConfig.isEnabled() } returns enabled
         }
 
         fun arrange() = this to viewModel

@@ -19,8 +19,8 @@ package com.wire.android.notification.broadcastreceivers
 
 import android.content.Context
 import android.content.Intent
-import com.wire.android.BuildConfig
 import com.wire.android.appLogger
+import com.wire.android.config.NomadProfilesFeatureConfig
 import com.wire.android.di.ApplicationScope
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.feature.AccountSwitchUseCase
@@ -58,8 +58,11 @@ class LogoutReceiver : CoroutineReceiver() {
     @ApplicationScope
     lateinit var coroutineScope: CoroutineScope
 
+    @Inject
+    lateinit var nomadProfilesFeatureConfig: NomadProfilesFeatureConfig
+
     override suspend fun receive(context: Context, intent: Intent) {
-        if (!BuildConfig.NOMAD_PROFILES_ENABLED) return
+        if (!nomadProfilesFeatureConfig.isEnabled()) return
         if (intent.action != ACTION_LOGOUT) return
 
         appLogger.i("$TAG Received logout broadcast")

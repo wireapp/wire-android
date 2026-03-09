@@ -28,6 +28,7 @@ import androidx.work.WorkManager
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.config.NomadProfilesFeatureConfig
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.IsProfileQRCodeEnabledUseCaseProvider
 import com.wire.android.di.KaliumCoreLogic
@@ -139,6 +140,7 @@ class WireActivityViewModel @Inject constructor(
     private val monitorSyncWorkUseCase: MonitorSyncWorkUseCase,
     private val managedConfigurationsManager: ManagedConfigurationsManager,
     private val automatedLoginManager: AutomatedLoginManager,
+    private val nomadProfilesFeatureConfig: NomadProfilesFeatureConfig,
 ) : ActionsViewModel<WireActivityViewAction>() {
 
     var globalAppState: GlobalAppState by mutableStateOf(GlobalAppState())
@@ -343,9 +345,10 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
+    @Suppress("ReturnCount")
     // Returns whether an intent was handled, or if there was nothing to do
     fun handleIntentsThatAreNotDeepLinks(intent: Intent?): Boolean {
-        if (!BuildConfig.NOMAD_PROFILES_ENABLED) return false
+        if (!nomadProfilesFeatureConfig.isEnabled()) return false
         val result = intentsProcessor.get().invoke(intent)
         if (result != null) {
             onAutomaticLoginParameters(result.backendConfig, result.ssoCode)

@@ -20,6 +20,7 @@ package com.wire.android.notification.broadcastreceivers
 import android.content.Context
 import android.content.Intent
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.NomadProfilesFeatureConfig
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountParam
 import com.wire.android.feature.SwitchAccountResult
@@ -43,14 +44,14 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
-import io.mockk.verify
 import io.mockk.withArg
+import io.mockk.verify
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import kotlin.test.assertEquals
 
 @ExtendWith(CoroutineTestExtension::class)
 class LogoutReceiverTest {
@@ -82,13 +83,36 @@ class LogoutReceiverTest {
             arrangement.accountSwitch(SwitchAccountParam.TryToSwitchToNextAccount)
         }
         verify(exactly = 1) {
-            arrangement.context.startActivity(withArg { startedIntent ->
-                assertEquals(WireActivity::class.java.name, startedIntent.component?.className)
-                assertEquals(
-                    Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK,
-                    startedIntent.flags and (Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                )
-            })
+            arrangement.context.startActivity(
+                withArg { startedIntent ->
+                    assertEquals(WireActivity::class.java.name, startedIntent.component?.className)
+                    assertEquals(
+                        Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK,
+                        startedIntent.flags and (Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                    )
+                }
+            )
+        }
+    }
+
+    @Test
+    fun `when nomad profiles are disabled then logout broadcast is ignored`() = runTest {
+        val arrangement = Arrangement(this)
+            .withNomadProfilesEnabled(false)
+            .arrange()
+
+        arrangement.receiver.receive(arrangement.context, Intent().setAction(LogoutReceiver.ACTION_LOGOUT))
+        advanceUntilIdle()
+
+        coVerify(exactly = 0) {
+            arrangement.currentSession()
+            arrangement.logoutUseCase(any(), any())
+            arrangement.deleteSession(any())
+            arrangement.accountSwitch(any())
+        }
+        verify(exactly = 0) {
+            arrangement.coreLogic.getSessionScope(any())
+            arrangement.context.startActivity(any())
         }
     }
 
@@ -133,6 +157,9 @@ class LogoutReceiverTest {
         @MockK
         lateinit var logoutUseCase: LogoutUseCase
 
+        @MockK
+        lateinit var nomadProfilesFeatureConfig: NomadProfilesFeatureConfig
+
         val context = mockk<Context>(relaxed = true)
         val receiver = LogoutReceiver()
 
@@ -148,6 +175,7 @@ class LogoutReceiverTest {
             coEvery { deleteSession(any()) } returns DeleteSessionUseCase.Result.Success
             coEvery { accountSwitch(any()) } returns SwitchAccountResult.NoOtherAccountToSwitch
             every { coreLogic.getSessionScope(any()) } returns userSessionScope
+            every { nomadProfilesFeatureConfig.isEnabled() } returns true
         }
 
         fun arrange(): Arrangement {
@@ -156,11 +184,16 @@ class LogoutReceiverTest {
             receiver.deleteSession = deleteSession
             receiver.accountSwitch = accountSwitch
             receiver.coroutineScope = coroutineScope
+            receiver.nomadProfilesFeatureConfig = nomadProfilesFeatureConfig
             return this
         }
 
         fun withCurrentSession(result: CurrentSessionResult) = apply {
             coEvery { currentSession() } returns result
+        }
+
+        fun withNomadProfilesEnabled(enabled: Boolean) = apply {
+            every { nomadProfilesFeatureConfig.isEnabled() } returns enabled
         }
     }
 }

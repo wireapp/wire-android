@@ -158,7 +158,6 @@ kover-gradlePlugin = { module = "org.jetbrains.kotlinx:kover-gradle-plugin", ver
 ktx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "ktx-serialization" }
 ktx-dateTime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "ktx-dateTime" }
 ktx-immutableCollections = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "ktx-immutableCollections" }
-androidx-compose-animation = { group = "androidx.compose.animation", name = "animation" }
 
 ksp-symbol-processing-api = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "ksp" }
 ksp-symbol-processing-plugin = { module = "com.google.devtools.ksp:symbol-processing-gradle-plugin", version.ref = "ksp" }

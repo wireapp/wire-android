@@ -23,6 +23,7 @@ import androidx.test.espresso.matcher.ViewMatchers.assertThat
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.UiScrollable
 import androidx.test.uiautomator.UiSelector
 import androidx.test.uiautomator.Until
 import backendUtils.team.TeamHelper
@@ -191,10 +192,23 @@ data class SettingsPage(private val device: UiDevice) {
         return this
     }
 
+    fun scrollTextIntoView(text: String): SettingsPage {
+        val scrollable = UiScrollable(UiSelector().scrollable(true))
+        scrollable.setAsVerticalList()
+        scrollable.setMaxSearchSwipes(20)
+        val found = scrollable.scrollIntoView(UiSelector().textContains(text))
+        assertTrue("Text '$text' was not found in scrollable view", found)
+        return this
+    }
+
     fun assertAnalyticsTrackingIdentifierIsDispayed(): SettingsPage {
+        scrollTextIntoView("Analytics Tracking Identifier")
+
         val container = device.findObject(
             UiSelector().className("android.view.View").childSelector(analyticsTrackingLabel)
         )
+        assertTrue("'Analytics Tracking Identifier' row is not visible", container.exists())
+
         val identifierView = container.getFromParent(
             UiSelector().className("android.widget.TextView").instance(1)
         )

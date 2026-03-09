@@ -28,11 +28,13 @@ import androidx.test.uiautomator.UiObject2
 import androidx.test.uiautomator.UiSelector
 import androidx.test.uiautomator.Until
 import java.io.IOException
+import java.util.regex.Pattern
 private const val TIMEOUT_IN_MILLISECONDS = 10000L
 
 data class UiSelectorParams(
     val text: String? = null,
     val textContains: String? = null,
+    val textMatches: String? = null,
     val resourceId: String? = null,
     val className: String? = null,
     val description: String? = null,
@@ -52,6 +54,7 @@ object UiWaitUtils {
     private fun buildSelector(params: UiSelectorParams): BySelector {
         var selector: BySelector? = when {
             params.text != null -> By.text(params.text)
+            params.textMatches != null -> By.text(Pattern.compile(params.textMatches))
             params.textContains != null -> By.textContains(params.textContains)
             else -> null
         }
@@ -133,6 +136,7 @@ object UiWaitUtils {
     private fun describe(params: UiSelectorParams) = listOfNotNull(
         params.text?.let { "text='$it'" },
         params.textContains?.let { "textContains='$it'" },
+        params.textMatches?.let { "textMatches='$it'" },
         params.resourceId?.let { "resourceId='$it'" },
         params.className?.let { "className='$it'" },
         params.description?.let { "description='$it'" }

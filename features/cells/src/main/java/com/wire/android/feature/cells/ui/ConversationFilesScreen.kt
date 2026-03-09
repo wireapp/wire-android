@@ -80,6 +80,7 @@ import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.search.SearchBarState
 import com.wire.android.ui.common.search.rememberSearchbarState
+import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.SearchTopBar

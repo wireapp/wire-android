@@ -32,7 +32,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesScreenDestination
+import com.ramcosta.composedestinations.generated.cells.destinations.SearchScreenDestination
 import com.wire.android.R
+import com.wire.android.feature.cells.ui.search.SearchNavArgs
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
@@ -81,10 +83,8 @@ fun SearchConversationMessagesScreen(
         onSearchFilesButtonClick = {
             navigator.navigate(
                 NavigationCommand(
-                    ConversationFilesScreenDestination(
-                        conversationId = searchConversationMessagesViewModel.conversationId.toString(),
-                        breadcrumbs = arrayOf(searchConversationMessagesViewModel.groupName),
-                        isSearchByDefaultActive = true
+                    SearchScreenDestination(
+                        SearchNavArgs(conversationId = searchConversationMessagesViewModel.conversationId.toString())
                     )
                 )
             )

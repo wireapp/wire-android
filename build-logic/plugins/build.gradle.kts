@@ -75,5 +75,9 @@ gradlePlugin {
             id = libs.plugins.wire.android.navigation.get().pluginId
             implementationClass = "AndroidNavigationConventionPlugin"
         }
+        register("kmpLibraryConventionPlugin") {
+            id = libs.plugins.wire.kmp.library.get().pluginId
+            implementationClass = "KmpLibraryConventionPlugin"
+        }
     }
 }

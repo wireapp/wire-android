@@ -311,12 +311,14 @@ class SearchScreenViewModel @Inject constructor(
         }
     }
 
-    fun onRemoveAllFilters() = _uiState.update {
+    fun onRemoveAllFilters() {
         onRemoveAllTags()
         onRemoveOwners()
         onRemoveTypeFilter()
         onRemoveConversations()
-        it.copy(filesWithPublicLink = false)
+        _uiState.update {
+            it.copy(filesWithPublicLink = false)
+        }
     }
 
     fun setSortBy(by: SortBy) {

@@ -77,7 +77,7 @@ fun SearchScreen(
     animatedVisibilityScope: AnimatedVisibilityScope,
     modifier: Modifier = Modifier,
     searchScreenViewModel: SearchScreenViewModel = hiltViewModel(),
-    cellViewModel: CellViewModel = hiltViewModel()
+    cellViewModel: CellViewModel = hiltViewModel(),
 ) {
 
     val uiState by searchScreenViewModel.uiState.collectAsStateWithLifecycle()
@@ -99,6 +99,7 @@ fun SearchScreen(
     }
 
     with(sharedScope) {
+
         WireScaffold(
             modifier = modifier,
             topBar = {
@@ -148,11 +149,11 @@ fun SearchScreen(
                         }
                     )
 
-                    with(searchScreenViewModel.uiState.collectAsState().value) {
+                    with(uiState) {
                         SortRowWithMenu(
                             screenType = searchScreenViewModel.screenType,
                             sortingCriteria = sortingCriteria,
-                            isSearchResult = searchState.text.isNotEmpty() || uiState.hasAnyFilter,
+                            isSearchResult = searchState.text.isNotEmpty() || hasAnyFilter,
                             onSortByClicked = {
                                 searchScreenViewModel.setSortBy(it)
                             },

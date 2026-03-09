@@ -59,6 +59,7 @@ fun SearchBarInput(
     placeholderAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     textStyle: TextStyle = LocalTextStyle.current,
+    textFieldState: WireTextFieldState = WireTextFieldState.Default,
     isLoading: Boolean = false,
     semanticDescription: String? = null,
     textFieldState: WireTextFieldState = WireTextFieldState.Default,
@@ -68,6 +69,7 @@ fun SearchBarInput(
     WireTextField(
         modifier = modifier,
         textState = textState,
+        state = textFieldState,
         leadingIcon = {
             leadingIcon()
         },

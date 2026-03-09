@@ -95,7 +95,8 @@ fun MainNavHost(
                         dependency(hiltViewModel<LoginEmailViewModel>(loginPasswordEntry))
                     }
 
-                    // 👇 To tie TeamMigrationViewModel to PersonalToTeamMigrationNavGraph, making it shared between all screens that belong to it
+                    // 👇 To tie TeamMigrationViewModel to PersonalToTeamMigrationNavGraph,
+                    // making it shared between all screens that belong to it
                     navGraph(PersonalToTeamMigrationGraph) {
                         val parentEntry = remember(navBackStackEntry) {
                             navController.getBackStackEntry(PersonalToTeamMigrationGraph.route)

@@ -345,6 +345,7 @@ class WireActivityViewModel @Inject constructor(
 
     // Returns whether an intent was handled, or if there was nothing to do
     fun handleIntentsThatAreNotDeepLinks(intent: Intent?): Boolean {
+        if (!BuildConfig.NOMAD_PROFILES_ENABLED) return false
         val result = intentsProcessor.get().invoke(intent)
         if (result != null) {
             onAutomaticLoginParameters(result.backendConfig, result.ssoCode)

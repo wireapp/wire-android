@@ -349,19 +349,6 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
-    // Returns whether an intent was handled, or if there was nothing to do
-    fun handleIntentsThatAreNotDeepLinks(intent: Intent?): Boolean {
-        val result = intentsProcessor.get().invoke(intent)
-        if (result != null) {
-            onAutomaticLoginParameters(
-                result.backendConfig,
-                result.ssoCode,
-                result.nomadProfilesHost)
-            return true
-        }
-        return false
-    }
-
     @Suppress("ComplexMethod")
     fun handleDeepLink(intent: Intent?) {
         viewModelScope.launch(dispatchers.io()) {
@@ -405,22 +392,6 @@ class WireActivityViewModel @Inject constructor(
     }
 
     private fun onAutomaticLoginParameters(backendConfigUrl: String?, ssoCode: String?) {
-        viewModelScope.launch(dispatchers.io()) {
-            // Load backend config
-            val serverLinks = backendConfigUrl?.let { loadServerConfig(it) }
-
-            val backendConfigLoadFailed = backendConfigUrl != null && serverLinks == null
-            val nothingProvided = backendConfigUrl == null && ssoCode == null
-            if (backendConfigLoadFailed || nothingProvided) {
-                sendAction(OnUnknownDeepLink)
-            } else {
-                automatedLoginManager.pendingMoveToBackgroundAfterSync = true
-                sendAction(OnAutomaticLogin(serverLinks, ssoCode))
-            }
-        }
-    }
-
-    private fun onAutomaticLoginParameters(backendConfigUrl: String?, ssoCode: String?, nomadProfilesUrl: String?) {
         viewModelScope.launch(dispatchers.io()) {
             // Load backend config
             val serverLinks = backendConfigUrl?.let { loadServerConfig(it) }

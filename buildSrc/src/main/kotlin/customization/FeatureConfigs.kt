@@ -147,11 +147,9 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
 
     DB_INVALIDATION_CONTROL_ENABLED("db_invalidation_control_enabled", ConfigType.BOOLEAN),
 
-    NOMAD_PROFILES_AVAILABLE("nomad_profiles_available", ConfigType.BOOLEAN),
-
     CONFIGURATION_SIGNATURE_KEYS("configuration_signature_keys", ConfigType.ListOfStrings),
 
-    ENFORCE_CONFIGURATION_SIGNATURE("enforce_configuration_signature", ConfigType.BOOLEAN)
+    ENFORCE_CONFIGURATION_SIGNATURE("enforce_configuration_signature", ConfigType.BOOLEAN),
 
     NOMAD_PROFILES_ENABLED("nomad_profiles_enabled", ConfigType.BOOLEAN)
 }

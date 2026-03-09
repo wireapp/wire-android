@@ -18,6 +18,7 @@
 package com.wire.android.util.lifecycle
 
 import android.content.Intent
+import com.wire.android.config.NomadProfilesFeatureConfig
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -82,6 +83,27 @@ class IntentsProcessorTest {
             AutomatedLoginViaSSO(nomadProfilesHost = FAKE_NOMAD_PROFILES_HOST),
             intentsProcessor(arrangement.intent)
         )
+    }
+
+    @Test
+    fun `given nomad profiles feature disabled, strips nomadProfilesHost from result`() {
+        val (arrangement, intentsProcessor) = Arrangement()
+            .withNomadProfilesFeatureEnabled(false)
+            .withAutomatedLoginExtra("""{"backendConfig":"$FAKE_BACKEND_CONFIG","ssoCode":"$FAKE_SSO_CODE","nomadProfilesHost":"$FAKE_NOMAD_PROFILES_HOST","sigNomadProfilesHost":"skip"}""")
+            .arrange()
+        assertEquals(
+            AutomatedLoginViaSSO(backendConfig = FAKE_BACKEND_CONFIG, ssoCode = FAKE_SSO_CODE),
+            intentsProcessor(arrangement.intent)
+        )
+    }
+
+    @Test
+    fun `given only nomadProfilesHost and feature disabled, returns null`() {
+        val (arrangement, intentsProcessor) = Arrangement()
+            .withNomadProfilesFeatureEnabled(false)
+            .withAutomatedLoginExtra("""{"nomadProfilesHost":"$FAKE_NOMAD_PROFILES_HOST","sigNomadProfilesHost":"skip"}""")
+            .arrange()
+        assertNull(intentsProcessor(arrangement.intent))
     }
 
     @Test
@@ -158,15 +180,21 @@ class IntentsProcessorTest {
 
     class Arrangement {
         internal val intent: Intent = mockk()
+        private val nomadProfilesFeatureConfig = mockk<NomadProfilesFeatureConfig>()
 
         init {
             every { intent.getStringExtra(any()) } returns null
+            every { nomadProfilesFeatureConfig.isEnabled() } returns true
         }
 
-        fun arrange() = this to IntentsProcessor()
+        fun arrange() = this to IntentsProcessor(nomadProfilesFeatureConfig)
 
         fun withAutomatedLoginExtra(json: String?) = apply {
             every { intent.getStringExtra("automated_login") } returns json
+        }
+
+        fun withNomadProfilesFeatureEnabled(enabled: Boolean) = apply {
+            every { nomadProfilesFeatureConfig.isEnabled() } returns enabled
         }
     }
 

@@ -166,7 +166,6 @@
     "is_bubble_ui_enabled": true,
     "collabora_integration": true,
     "db_invalidation_control_enabled": false,
-    "nomad_profiles_available": true,
     "configuration_signature_keys": [
         "MCowBQYDK2VwAyEAFbodixhcegKs4NkpPjjzJYHAxKLlye04SuZ2JNJ9RCc=",
         "MCowBQYDK2VwAyEAkAH9FXpKfjp1PX0HeVo5JeYi6h/zDUNwkURIuEZ+7FY="

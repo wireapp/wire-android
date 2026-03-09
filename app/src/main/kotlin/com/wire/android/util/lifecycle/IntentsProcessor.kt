@@ -21,6 +21,7 @@ import android.content.Intent
 import com.ionspin.kotlin.crypto.LibsodiumInitializer
 import com.ionspin.kotlin.crypto.signature.Signature
 import com.wire.android.BuildConfig
+import com.wire.android.config.NomadProfilesFeatureConfig
 import java.net.URI
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -37,7 +38,9 @@ data class AutomatedLoginViaSSO(
 }
 
 @Singleton
-class IntentsProcessor @Inject constructor() {
+class IntentsProcessor @Inject constructor(
+    private val nomadProfilesFeatureConfig: NomadProfilesFeatureConfig
+) {
 
     companion object {
         private const val AUTOMATED_LOGIN = "automated_login"
@@ -61,7 +64,7 @@ class IntentsProcessor @Inject constructor() {
         return AutomatedLoginViaSSO(
             parsed.backendConfig,
             parsed.ssoCode,
-            if (BuildConfig.NOMAD_PROFILES_AVAILABLE) parsed.nomadProfilesHost else null
+            if (nomadProfilesFeatureConfig.isEnabled()) parsed.nomadProfilesHost else null
         )
             .takeIf { !it.isEmpty }
             ?.takeIf {

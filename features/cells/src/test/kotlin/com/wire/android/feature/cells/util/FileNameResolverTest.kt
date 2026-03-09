@@ -21,13 +21,14 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Test
 import java.io.File
+import kotlin.io.path.createTempDirectory
 
 class FileNameResolverTest {
 
     @Test
     fun given_file_does_not_existWhen_getUniqueFile_calledThen_returns_original_file_name() {
         // Given
-        val tempDir = createTempDir()
+        val tempDir = createTempDirectory().toFile()
         val fileName = "document.txt"
 
         // When
@@ -43,7 +44,7 @@ class FileNameResolverTest {
     @Test
     fun given_file_existsWhen_getUniqueFile_calledThen_returns_file_name_with_1_suffix() {
         // Given
-        val tempDir = createTempDir()
+        val tempDir = createTempDirectory().toFile()
         File(tempDir, "image.png").createNewFile()
 
         // When
@@ -59,7 +60,7 @@ class FileNameResolverTest {
     @Test
     fun given_multiple_conflicting_files_existWhen_getUniqueFile_calledThen_returns_file_name_with_next_available_index() {
         // Given
-        val tempDir = createTempDir()
+        val tempDir = createTempDirectory().toFile()
         File(tempDir, "file.txt").createNewFile()
         File(tempDir, "file(1).txt").createNewFile()
         File(tempDir, "file(2).txt").createNewFile()
@@ -77,7 +78,7 @@ class FileNameResolverTest {
     @Test
     fun given_file_without_extension_existsWhen_getUniqueFile_calledThen_returns_file_name_with_1_suffix() {
         // Given
-        val tempDir = createTempDir()
+        val tempDir = createTempDirectory().toFile()
         File(tempDir, "LICENSE").createNewFile()
 
         // When

@@ -21,8 +21,9 @@ import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.wire.android.config.NavigationTestExtension
-import com.wire.android.feature.cells.ui.navArgs
+import com.ramcosta.composedestinations.generated.cells.destinations.PublicLinkPasswordScreenDestination
 import com.wire.kalium.cells.domain.model.PublicLink
+import io.mockk.mockkObject
 import com.wire.kalium.cells.domain.usecase.publiclink.CreatePublicLinkPasswordUseCase
 import com.wire.kalium.cells.domain.usecase.publiclink.GetPublicLinkPasswordUseCase
 import com.wire.kalium.cells.domain.usecase.publiclink.UpdatePublicLinkPasswordUseCase
@@ -379,14 +380,15 @@ class PublicLinkPasswordScreenViewModelTest {
 
             MockKAnnotations.init(this, relaxUnitFun = true)
 
-            every { savedStateHandle.navArgs<PublicLinkPasswordNavArgs>() } returns PublicLinkPasswordNavArgs(
+            mockkObject(PublicLinkPasswordScreenDestination)
+            every { PublicLinkPasswordScreenDestination.argsFrom(savedStateHandle) } returns PublicLinkPasswordNavArgs(
                 linkUuid = testLink.uuid,
                 passwordEnabled = false,
             )
         }
 
         fun withPasswordEnabled(enabled: Boolean) = apply {
-            every { savedStateHandle.navArgs<PublicLinkPasswordNavArgs>() } returns PublicLinkPasswordNavArgs(
+            every { PublicLinkPasswordScreenDestination.argsFrom(savedStateHandle) } returns PublicLinkPasswordNavArgs(
                 linkUuid = testLink.uuid,
                 passwordEnabled = enabled,
             )

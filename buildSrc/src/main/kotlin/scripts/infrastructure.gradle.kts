@@ -28,17 +28,16 @@ tasks.register("clean", Delete::class) {
 
 tasks.register("runUnitTests") {
     description = "Runs all Unit Tests."
-    dependsOn(":app:test${Default.BUILD_VARIANT}UnitTest")
-    // kalium have only 2 build type debug or release
-    val buildType =
-        if (Default.resolvedBuildType() == BuildTypes.DEBUG) Default.resolvedBuildType().uppercaseFirstChar()
-        else BuildTypes.RELEASE.uppercaseFirstChar()
+    // AGP only creates unit test tasks for the debug build type, regardless of BUILD_TYPE.
+    // The flavor is still respected so callers can target e.g. testProdDebugUnitTest.
+    val appTestVariant = "${Default.resolvedBuildFlavor().uppercaseFirstChar()}Debug"
+    dependsOn(":app:test${appTestVariant}UnitTest")
 
-    // valid submodules path to run unit tests
+    // core/ and features/ are Android library modules — they only have testDebugUnitTest
     val validSubprojects = setOf("core", "features")
     rootProject.subprojects {
         if (validSubprojects.contains(parent?.name)) {
-            dependsOn(":${parent?.name}:$name:test${buildType}UnitTest")
+            dependsOn(":${parent?.name}:$name:testDebugUnitTest")
         }
     }
 }

@@ -22,7 +22,7 @@ package com.wire.android.ui
 
 import android.content.Intent
 import androidx.work.WorkManager
-import androidx.work.impl.OperationImpl
+import androidx.work.Operation
 import app.cash.turbine.test
 import com.wire.android.BuildConfig
 import com.wire.android.assertions.shouldBeEqualTo
@@ -843,8 +843,8 @@ class WireActivityViewModelTest {
                 observeIfE2EIRequiredDuringLoginUseCaseProviderFactory.create(any()).observeIfE2EIIsRequiredDuringLogin()
             } returns
                     flowOf(false)
-            every { workManager.cancelAllWorkByTag(any()) } returns OperationImpl()
-            every { workManager.enqueueUniquePeriodicWork(any(), any(), any()) } returns OperationImpl()
+            every { workManager.cancelAllWorkByTag(any()) } returns mockk<Operation>(relaxed = true)
+            every { workManager.enqueueUniquePeriodicWork(any(), any(), any()) } returns mockk<Operation>(relaxed = true)
             val observeSelfUserUseCase = mockk<ObserveSelfUserUseCase>()
             every { observeSelfUserFactory.create(any()).observeSelfUser } returns observeSelfUserUseCase
             coEvery { observeSelfUserUseCase() } returns flowOf(SELF_USER)

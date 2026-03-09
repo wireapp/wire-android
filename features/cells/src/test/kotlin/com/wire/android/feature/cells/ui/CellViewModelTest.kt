@@ -47,6 +47,8 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesScreenDestination
+import io.mockk.mockkObject
 import io.mockk.mockkStatic
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flowOf
@@ -312,7 +314,8 @@ class CellViewModelTest {
 
             MockKAnnotations.init(this, relaxUnitFun = true)
 
-            every { savedStateHandle.navArgs<CellFilesNavArgs>() } returns CellFilesNavArgs(
+            mockkObject(ConversationFilesScreenDestination)
+            every { ConversationFilesScreenDestination.argsFrom(savedStateHandle) } returns CellFilesNavArgs(
                 conversationId = conversationId
             )
 

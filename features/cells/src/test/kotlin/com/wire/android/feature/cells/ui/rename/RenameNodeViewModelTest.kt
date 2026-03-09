@@ -20,8 +20,9 @@ package com.wire.android.feature.cells.ui.rename
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.wire.android.feature.cells.ui.common.FileNameError
-import com.wire.android.feature.cells.ui.navArgs
+import com.ramcosta.composedestinations.generated.cells.destinations.RenameNodeScreenDestination
 import com.wire.kalium.cells.domain.usecase.RenameNodeFailure
+import io.mockk.mockkObject
 import com.wire.kalium.cells.domain.usecase.RenameNodeUseCase
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.common.functional.Either
@@ -184,11 +185,12 @@ class RenameNodeViewModelTest {
 
             MockKAnnotations.init(this, relaxUnitFun = true)
 
-            every { savedStateHandle.navArgs<RenameNodeNavArgs>() } returns RenameNodeNavArgs(
+            mockkObject(RenameNodeScreenDestination)
+            every { RenameNodeScreenDestination.argsFrom(savedStateHandle) } returns RenameNodeNavArgs(
                 uuid = UUID,
                 currentPath = CURRENT_PATH,
                 nodeName = NODE_NAME,
-                isFolder = true
+                isFolder = false
             )
             every { savedStateHandle.get<String>("uuid") } returns UUID
             every { savedStateHandle.get<String>("currentPath") } returns CURRENT_PATH
@@ -207,7 +209,12 @@ class RenameNodeViewModelTest {
             coEvery { renameNodeUseCase(any(), any(), any()) } returns result
         }
         fun withNodeNameReturning(name: String) = apply {
-            every { savedStateHandle.get<String>("nodeName") } returns name
+            every { RenameNodeScreenDestination.argsFrom(savedStateHandle) } returns RenameNodeNavArgs(
+                uuid = UUID,
+                currentPath = CURRENT_PATH,
+                nodeName = name,
+                isFolder = false
+            )
         }
 
         fun arrange() = this to viewModel

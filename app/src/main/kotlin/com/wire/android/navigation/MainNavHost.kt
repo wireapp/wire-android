@@ -65,7 +65,7 @@ fun MainNavHost(
     SharedTransitionLayout(modifier = modifier) {
         CompositionLocalProvider(LocalSharedTransitionScope provides this) {
             DestinationsNavHost(
-                modifier = modifier,
+                modifier = Modifier,
                 navGraph = WireRootGraph,
                 defaultTransitions = WireRootGraph.defaultTransitions,
                 engine = navHostEngine,
@@ -75,8 +75,8 @@ fun MainNavHost(
                     // 👇 To make Navigator available to all destinations as a non-navigation parameter
                     dependency(navigator)
 
-            // 👇 To make LoginTypeSelector available to all destinations as a non-navigation parameter if provided
-            if (loginTypeSelector != null) dependency(loginTypeSelector)
+                    // 👇 To make LoginTypeSelector available to all destinations as a non-navigation parameter if provided
+                    if (loginTypeSelector != null) dependency(loginTypeSelector)
 
                     // 👇 To tie NewConversationViewModel to nested NewConversationNavGraph,
                     // making it shared between all screens that belong to it
@@ -95,31 +95,33 @@ fun MainNavHost(
                         dependency(hiltViewModel<LoginEmailViewModel>(loginPasswordEntry))
                     }
 
-            // 👇 To tie TeamMigrationViewModel to PersonalToTeamMigrationNavGraph, making it shared between all screens that belong to it
-            navGraph(PersonalToTeamMigrationGraph) {
-                val parentEntry = remember(navBackStackEntry) {
-                    navController.getBackStackEntry(PersonalToTeamMigrationGraph.route)
+                    // 👇 To tie TeamMigrationViewModel to PersonalToTeamMigrationNavGraph, making it shared between all screens that belong to it
+                    navGraph(PersonalToTeamMigrationGraph) {
+                        val parentEntry = remember(navBackStackEntry) {
+                            navController.getBackStackEntry(PersonalToTeamMigrationGraph.route)
+                        }
+                        dependency(hiltViewModel<TeamMigrationViewModel>(parentEntry))
+                    }
+                },
+                manualComposableCallsBuilder = {
+                    /**
+                     * Keep manual composable calls for cross-module result wiring until we refactor
+                     * those destinations to rely on generated dependencies directly.
+                     */
+                    composable(ConversationScreenDestination) {
+                        ConversationScreen(
+                            navigator = navigator,
+                            groupDetailsScreenResultRecipient = resultRecipient(groupConversationDetailsNavBackArgsNavType),
+                            mediaGalleryScreenResultRecipient = resultRecipient(mediaGalleryNavBackArgsNavType),
+                            imagePreviewScreenResultRecipient = resultRecipient(imagesPreviewNavBackArgsNavType),
+                            drawingCanvasScreenResultRecipient = resultRecipient<DrawingCanvasScreenDestination, DrawingCanvasNavBackArgs>(
+                                drawingCanvasNavBackArgsNavType
+                            ),
+                            resultNavigator = resultBackNavigator(groupConversationDetailsNavBackArgsNavType),
+                        )
+                    }
                 }
-                dependency(hiltViewModel<TeamMigrationViewModel>(parentEntry))
-            }
-        },
-        manualComposableCallsBuilder = {
-            /**
-             * Keep manual composable calls for cross-module result wiring until we refactor
-             * those destinations to rely on generated dependencies directly.
-             */
-            composable(ConversationScreenDestination) {
-                ConversationScreen(
-                    navigator = navigator,
-                    groupDetailsScreenResultRecipient = resultRecipient(groupConversationDetailsNavBackArgsNavType),
-                    mediaGalleryScreenResultRecipient = resultRecipient(mediaGalleryNavBackArgsNavType),
-                    imagePreviewScreenResultRecipient = resultRecipient(imagesPreviewNavBackArgsNavType),
-                    drawingCanvasScreenResultRecipient = resultRecipient<DrawingCanvasScreenDestination, DrawingCanvasNavBackArgs>(
-                        drawingCanvasNavBackArgsNavType
-                    ),
-                    resultNavigator = resultBackNavigator(groupConversationDetailsNavBackArgsNavType),
-                )
-            }
+            )
         }
-    )
+    }
 }

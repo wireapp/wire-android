@@ -36,6 +36,7 @@ import com.wire.android.di.ObserveIfE2EIRequiredDuringLoginUseCaseProvider
 import com.wire.android.di.ObserveScreenshotCensoringConfigUseCaseProvider
 import com.wire.android.di.ObserveSelfUserUseCaseProvider
 import com.wire.android.di.ObserveSyncStateUseCaseProvider
+import com.wire.android.emm.ManagedConfigurationsManager
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountActions
 import com.wire.android.feature.SwitchAccountParam
@@ -56,10 +57,9 @@ import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.deeplink.LoginType
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.android.util.ui.UIText
-import com.wire.android.emm.ManagedConfigurationsManager
 import com.wire.android.util.lifecycle.AutomatedLoginManager
 import com.wire.android.util.lifecycle.IntentsProcessor
+import com.wire.android.util.ui.UIText
 import com.wire.android.workmanager.worker.cancelPeriodicPersistentWebsocketCheckWorker
 import com.wire.android.workmanager.worker.enqueuePeriodicPersistentWebsocketCheckWorker
 import com.wire.kalium.logic.CoreLogic
@@ -95,12 +95,12 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
@@ -345,18 +345,6 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
-    @Suppress("ReturnCount")
-    // Returns whether an intent was handled, or if there was nothing to do
-    fun handleIntentsThatAreNotDeepLinks(intent: Intent?): Boolean {
-        if (!nomadProfilesFeatureConfig.isEnabled()) return false
-        val result = intentsProcessor.get().invoke(intent)
-        if (result != null) {
-            onAutomaticLoginParameters(result.backendConfig, result.ssoCode)
-            return true
-        }
-        return false
-    }
-
     @Suppress("ComplexMethod")
     fun handleDeepLink(intent: Intent?) {
         viewModelScope.launch(dispatchers.io()) {
@@ -385,6 +373,18 @@ class WireActivityViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    // Returns whether an intent was handled, or if there was nothing to do
+    @Suppress("ReturnCount")
+    fun handleIntentsThatAreNotDeepLinks(intent: Intent?): Boolean {
+        if (!nomadProfilesFeatureConfig.isEnabled()) return false
+        val result = intentsProcessor.get().invoke(intent)
+        if (result != null) {
+            onAutomaticLoginParameters(result.backendConfig, result.ssoCode)
+            return true
+        }
+        return false
     }
 
     private fun onAutomaticLoginParameters(backendConfigUrl: String?, ssoCode: String?) {

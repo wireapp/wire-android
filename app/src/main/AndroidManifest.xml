@@ -319,7 +319,7 @@
                 android:name=".notification.broadcastreceivers.StopAudioMessageReceiver"
                 android:exported="false" />
         <receiver
-            android:name=".notification.broadcastreceivers.LogoutReceiver"
+            android:name=".notification.broadcastreceivers.NomadLogoutReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="com.wire.ACTION_LOGOUT" />

@@ -44,9 +44,8 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
-import io.mockk.withArg
 import io.mockk.verify
-import kotlinx.coroutines.CoroutineScope
+import io.mockk.withArg
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -54,26 +53,16 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(CoroutineTestExtension::class)
-class LogoutReceiverTest {
+class NomadLogoutReceiverTest {
 
     @Test
-    fun `when logout broadcast received then work is handed off before logout sequence runs`() = runTest {
+    fun `when logout broadcast received then logout sequence runs within receiver`() = runTest {
         val userId = UserId("user", "domain")
-        val arrangement = Arrangement(this)
+        val arrangement = Arrangement()
             .withCurrentSession(CurrentSessionResult.Success(AccountInfo.Valid(userId)))
             .arrange()
 
-        arrangement.receiver.receive(arrangement.context, Intent().setAction(LogoutReceiver.ACTION_LOGOUT))
-
-        coVerify(exactly = 0) {
-            arrangement.currentSession()
-            arrangement.logoutUseCase(any(), any())
-            arrangement.deleteSession(any())
-            arrangement.accountSwitch(any())
-        }
-        verify(exactly = 0) { arrangement.context.startActivity(any()) }
-
-        advanceUntilIdle()
+        arrangement.receiver.receive(arrangement.context, Intent().setAction(NomadLogoutReceiver.ACTION_LOGOUT))
 
         verify(exactly = 1) { arrangement.coreLogic.getSessionScope(userId) }
         coVerifyOrder {
@@ -97,11 +86,11 @@ class LogoutReceiverTest {
 
     @Test
     fun `when nomad profiles are disabled then logout broadcast is ignored`() = runTest {
-        val arrangement = Arrangement(this)
+        val arrangement = Arrangement()
             .withNomadProfilesEnabled(false)
             .arrange()
 
-        arrangement.receiver.receive(arrangement.context, Intent().setAction(LogoutReceiver.ACTION_LOGOUT))
+        arrangement.receiver.receive(arrangement.context, Intent().setAction(NomadLogoutReceiver.ACTION_LOGOUT))
         advanceUntilIdle()
 
         coVerify(exactly = 0) {
@@ -118,11 +107,11 @@ class LogoutReceiverTest {
 
     @Test
     fun `when no current session exists then receiver does not continue logout flow`() = runTest {
-        val arrangement = Arrangement(this)
+        val arrangement = Arrangement()
             .withCurrentSession(CurrentSessionResult.Failure.SessionNotFound)
             .arrange()
 
-        arrangement.receiver.receive(arrangement.context, Intent().setAction(LogoutReceiver.ACTION_LOGOUT))
+        arrangement.receiver.receive(arrangement.context, Intent().setAction(NomadLogoutReceiver.ACTION_LOGOUT))
         advanceUntilIdle()
 
         coVerify(exactly = 1) { arrangement.currentSession() }
@@ -135,9 +124,7 @@ class LogoutReceiverTest {
         verify(exactly = 0) { arrangement.context.startActivity(any()) }
     }
 
-    private class Arrangement(
-        private val coroutineScope: CoroutineScope
-    ) {
+    private class Arrangement {
 
         @MockK
         lateinit var coreLogic: CoreLogic
@@ -161,7 +148,7 @@ class LogoutReceiverTest {
         lateinit var nomadProfilesFeatureConfig: NomadProfilesFeatureConfig
 
         val context = mockk<Context>(relaxed = true)
-        val receiver = LogoutReceiver()
+        val receiver = NomadLogoutReceiver()
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
@@ -183,7 +170,6 @@ class LogoutReceiverTest {
             receiver.currentSession = currentSession
             receiver.deleteSession = deleteSession
             receiver.accountSwitch = accountSwitch
-            receiver.coroutineScope = coroutineScope
             receiver.nomadProfilesFeatureConfig = nomadProfilesFeatureConfig
             return this
         }

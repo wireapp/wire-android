@@ -21,7 +21,6 @@ import android.content.Context
 import android.content.Intent
 import com.wire.android.appLogger
 import com.wire.android.config.NomadProfilesFeatureConfig
-import com.wire.android.di.ApplicationScope
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountParam
@@ -32,14 +31,13 @@ import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.session.DeleteSessionUseCase
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class LogoutReceiver : CoroutineReceiver() {
+class NomadLogoutReceiver : CoroutineReceiver() {
 
     @Inject
     @KaliumCoreLogic
@@ -55,10 +53,6 @@ class LogoutReceiver : CoroutineReceiver() {
     lateinit var accountSwitch: AccountSwitchUseCase
 
     @Inject
-    @ApplicationScope
-    lateinit var coroutineScope: CoroutineScope
-
-    @Inject
     lateinit var nomadProfilesFeatureConfig: NomadProfilesFeatureConfig
 
     override suspend fun receive(context: Context, intent: Intent) {
@@ -67,9 +61,13 @@ class LogoutReceiver : CoroutineReceiver() {
 
         appLogger.i("$TAG Received logout broadcast")
 
-        val appContext = context.applicationContext
-        coroutineScope.launch {
-            performLogout(appContext)
+        @Suppress("TooGenericExceptionCaught")
+        try {
+            performLogout(context.applicationContext)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (t: Exception) {
+            appLogger.e("$TAG Logout failed", t)
         }
     }
 

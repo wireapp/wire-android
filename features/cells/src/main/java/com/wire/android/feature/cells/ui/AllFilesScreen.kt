@@ -18,7 +18,7 @@
 package com.wire.android.feature.cells.ui
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -78,7 +78,7 @@ fun AllFilesScreen(
                     modifier = Modifier,
                     isSearchActive = false,
                     searchBarHint = stringResource(R.string.search_label),
-                    searchQueryTextState = TextFieldState(),
+                    searchQueryTextState = rememberTextFieldState(),
                     onTap = {
                         navigator.navigate(
                             NavigationCommand(SearchScreenDestination(screenType = DriveScreenType.DRIVE))

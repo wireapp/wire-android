@@ -1131,6 +1131,14 @@
     <string name="calling_confirm_start_call_title_dialog">Start a call</string>
     <string name="calling_confirm_start_call_description_dialog">Are you sure you want to call %1$s people?</string>
     <string name="calling_confirm_start_call_action_dialog">Call</string>
+    <string name="calling_details_security_banner_label">Calls are always end-to-end encrypted</string>
+    <string name="calling_details_network_quality_title">Network quality</string>
+    <string name="calling_details_network_quality_good">Good</string>
+    <string name="calling_details_network_quality_fair">Fair</string>
+    <string name="calling_details_network_quality_poor">Poor</string>
+    <string name="calling_details_turn_off_other_videos_title">Turn off other videos</string>
+    <string name="calling_details_turn_off_other_videos_description">This improves the audio quality when your network conditions are poor.</string>
+
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Return to call</string>
     <string name="connectivity_status_bar_return_to_incoming_call">%1$s is calling…</string>

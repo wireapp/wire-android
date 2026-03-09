@@ -29,13 +29,9 @@ import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.LoginScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.NewLoginPasswordScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.NewLoginScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.NewLoginVerificationCodeScreenDestination
-import com.ramcosta.composedestinations.generated.app.navgraphs.LoginGraph
 import com.ramcosta.composedestinations.generated.app.navgraphs.NewConversationGraph
-import com.ramcosta.composedestinations.generated.app.navgraphs.NewLoginGraph
 import com.ramcosta.composedestinations.generated.app.navgraphs.PersonalToTeamMigrationGraph
 import com.ramcosta.composedestinations.generated.app.navgraphs.WireRootGraph
 import com.ramcosta.composedestinations.generated.app.navtype.groupConversationDetailsNavBackArgsNavType
@@ -53,8 +49,6 @@ import com.ramcosta.composedestinations.spec.Direction
 import com.wire.android.feature.sketch.model.DrawingCanvasNavBackArgs
 import com.wire.android.navigation.transition.LocalSharedTransitionScope
 import com.wire.android.ui.authentication.login.email.LoginEmailViewModel
-import com.wire.android.ui.authentication.login.sso.SSOUrlConfigHolder
-import com.wire.android.ui.authentication.login.sso.SSOUrlConfigHolderImpl
 import com.wire.android.ui.home.conversations.ConversationScreen
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
 import com.wire.android.ui.userprofile.teammigration.TeamMigrationViewModel
@@ -71,7 +65,7 @@ fun MainNavHost(
     SharedTransitionLayout(modifier = modifier) {
         CompositionLocalProvider(LocalSharedTransitionScope provides this) {
             DestinationsNavHost(
-                modifier = modifier,
+                modifier = Modifier,
                 navGraph = WireRootGraph,
                 defaultTransitions = WireRootGraph.defaultTransitions,
                 engine = navHostEngine,
@@ -80,14 +74,6 @@ fun MainNavHost(
                 dependenciesContainerBuilder = {
                     // 👇 To make Navigator available to all destinations as a non-navigation parameter
                     dependency(navigator)
-
-                    // Always provide a default SSO holder at root scope so destinations can resolve it
-                    // even when navigated directly without going through the expected nested graph route.
-                    val rootEntry = remember(navBackStackEntry) {
-                        navController.getBackStackEntry(WireRootGraph.route)
-                    }
-                    val rootSSOHolder: SSOUrlConfigHolder = SSOUrlConfigHolderImpl(rootEntry.savedStateHandle)
-                    dependency(rootSSOHolder)
 
                     // 👇 To make LoginTypeSelector available to all destinations as a non-navigation parameter if provided
                     if (loginTypeSelector != null) dependency(loginTypeSelector)
@@ -107,35 +93,6 @@ fun MainNavHost(
                             navController.getBackStackEntry(NewLoginPasswordScreenDestination.route)
                         }
                         dependency(hiltViewModel<LoginEmailViewModel>(loginPasswordEntry))
-                    }
-
-                    // 👇 To tie SSOUrlConfigHolder to nested LoginNavGraph, making it shared between all screens that belong to it
-                    navGraph(LoginGraph) {
-                        val parentEntry = remember(navBackStackEntry) {
-                            navController.getBackStackEntry(LoginGraph.route)
-                        }
-                        val holder: SSOUrlConfigHolder = SSOUrlConfigHolderImpl(parentEntry.savedStateHandle)
-                        dependency(holder)
-                    }
-
-                    // 👇 To tie SSOUrlConfigHolder to nested NewLoginNavGraph, making it shared between all screens that belong to it
-                    navGraph(NewLoginGraph) {
-                        val parentEntry = remember(navBackStackEntry) {
-                            navController.getBackStackEntry(NewLoginGraph.route)
-                        }
-                        val holder: SSOUrlConfigHolder = SSOUrlConfigHolderImpl(parentEntry.savedStateHandle)
-                        dependency(holder)
-                    }
-
-                    // Some flows navigate directly to screen destinations instead of the nav graph route.
-                    // Provide the dependency at destination scope as a safe fallback.
-                    destination(LoginScreenDestination) {
-                        val holder: SSOUrlConfigHolder = SSOUrlConfigHolderImpl(navBackStackEntry.savedStateHandle)
-                        dependency(holder)
-                    }
-                    destination(NewLoginScreenDestination) {
-                        val holder: SSOUrlConfigHolder = SSOUrlConfigHolderImpl(navBackStackEntry.savedStateHandle)
-                        dependency(holder)
                     }
 
                     // 👇 To tie TeamMigrationViewModel to PersonalToTeamMigrationNavGraph,

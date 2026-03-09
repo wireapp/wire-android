@@ -39,7 +39,7 @@ import com.wire.kalium.cells.data.SortingSpec
 import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
 import com.wire.kalium.cells.domain.usecase.GetCellGroupConversationsUseCase
-import com.wire.kalium.cells.domain.usecase.GetConversationsUseCaseResult
+import com.wire.kalium.cells.domain.usecase.GetCellGroupConversationsUseCaseResult
 import com.wire.kalium.cells.domain.usecase.GetOwnersUseCase
 import com.wire.kalium.cells.domain.usecase.GetOwnersUseCaseResult
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
@@ -156,7 +156,7 @@ class SearchScreenViewModel @Inject constructor(
 
     internal fun loadConversations() = viewModelScope.launch {
         val result = getCellGroupConversations()
-        if (result is GetConversationsUseCaseResult.Success) {
+        if (result is GetCellGroupConversationsUseCaseResult.Success) {
             _uiState.update {
                 it.copy(
                     availableConversations = result.conversations.map { conversation ->

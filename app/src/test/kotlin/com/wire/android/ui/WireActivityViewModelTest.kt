@@ -110,7 +110,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
-@Suppress("MaxLineLength")
+@Suppress("MaxLineLength", "LargeClass")
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
 class WireActivityViewModelTest {

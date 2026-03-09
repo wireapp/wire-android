@@ -141,6 +141,7 @@ private fun LoginContent(
                     onRemoveDeviceNeeded = onRemoveDeviceNeeded,
                     loginEmailViewModel = loginEmailViewModel,
                     ssoLoginResult = ssoLoginResult,
+                    ssoCodeAutoLogin = ssoCodeAutoLogin
                 )
             }
         }
@@ -233,6 +234,7 @@ private fun MainLoginContent(
                         onSuccess,
                         onRemoveDeviceNeeded,
                         ssoLoginResult,
+//                        ssoUrlConfigHolder
                     )
                 }
             }
@@ -264,6 +266,7 @@ private fun PreviewLoginScreen() = WireTheme {
             onRemoveDeviceNeeded = {},
             loginEmailViewModel = hiltViewModel(),
             ssoLoginResult = null,
+            ssoCodeAutoLogin = null
         )
     }
 }

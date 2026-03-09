@@ -87,6 +87,7 @@ class RegistrationPage(private val device: UiDevice) {
         throw AssertionError("Could not enter registration email: email input field was unstable.")
     }
 
+    @Suppress("NestedBlockDepth")
     fun clickLoginButton(timeoutMs: Long = 10_000): RegistrationPage {
         val deadline = SystemClock.uptimeMillis() + timeoutMs
         var lastError: AssertionError? = null

@@ -108,9 +108,8 @@ class TestServiceHelper(
             return Duration.ofMillis(conversationMessageTimerMillis.toLong())
         }
 
-        return getLocalSelfDeletingMessageTimeout(userAlias, resolvedConversationName)
+        return Duration.ofMillis(Int.MAX_VALUE.toLong()) // ~24.8 days, safe int millis
     }
-
 
     private fun getConversationMessageTimer(user: ClientUser, conversationName: String): Int {
         val isPersonalConversationName = runCatching {
@@ -131,10 +130,6 @@ class TestServiceHelper(
         }
 
         return conversation.messageTimerInMilliseconds
-    }
-
-    private fun getLocalSelfDeletingMessageTimeout(userAlias: String, conversationName: String): Duration {
-        return Duration.ofMillis(Int.MAX_VALUE.toLong()) // ~24.8 days, safe int millis
     }
 
     fun contactSendsLocalAudioPersonalMLSConversation(

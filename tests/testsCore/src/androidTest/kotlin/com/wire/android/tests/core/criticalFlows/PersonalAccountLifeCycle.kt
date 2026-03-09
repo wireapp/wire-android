@@ -42,7 +42,6 @@ import kotlin.getValue
 import com.wire.android.tests.core.BaseUiTest
 import com.wire.android.tests.support.tags.Category
 import com.wire.android.tests.support.tags.TestCaseId
-import uiautomatorutils.UiWaitUtils.waitUntilToastIsDisplayed
 import uiautomatorutils.KeyboardUtils.closeKeyboardIfOpened
 
 @RunWith(AndroidJUnit4::class)
@@ -182,6 +181,8 @@ class PersonalAccountLifeCycle : BaseUiTest() {
                 tapConversationNameInConversationList(teamOwner?.name ?: "")
             }
         }
+        // Wait for the personal 1:1 conversation to fully settle in MLS before sending.
+        // The 5s settle window specifically reduces intermittent test-service send flakes right after MLS transition.
         step("Wait until personal 1:1 conversation is upgraded to MLS") {
             pages.conversationViewPage.waitUntilConversationTurnsMls(
                 timeoutMs = 20_000,

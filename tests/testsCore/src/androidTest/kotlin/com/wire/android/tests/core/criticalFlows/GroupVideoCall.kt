@@ -442,7 +442,7 @@ class GroupVideoCall : BaseUiTest() {
 
         step("And I pause audio message after 10 seconds") {
             pages.conversationViewPage.apply {
-                waitFor(10)
+                waitFor(10) // wait to allow an audio file to play
                 clickPauseButtonOnAudioMessage()
             }
         }

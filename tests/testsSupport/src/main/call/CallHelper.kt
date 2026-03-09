@@ -119,8 +119,7 @@ class CallHelper {
                     UiWaitUtils.waitElement(
                         UiSelectorParams(
                             text = participant
-                            // If your UiSelectorParams supports it, you can make it stricter:
-                            // className = "android.widget.TextView"
+
                         )
                     )
                 } catch (e: AssertionError) {

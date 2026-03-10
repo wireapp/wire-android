@@ -8,6 +8,12 @@ kotlin {
         namespace = "com.wire.wireone"
     }
 
+    @OptIn(org.jetbrains.kotlin.gradle.ExperimentalWasmDsl::class)
+    wasmJs {
+        browser()
+        binaries.executable()
+    }
+
     sourceSets {
         val commonMain by getting {
             dependencies {
@@ -26,4 +32,16 @@ kotlin {
             isStatic = false
         }
     }
+}
+
+tasks.register("wireoneWebRun") {
+    group = "wireone"
+    description = "Run WireOne Web (Wasm) development server."
+    dependsOn("wasmJsBrowserDevelopmentRun")
+}
+
+tasks.register("wireoneWebBuild") {
+    group = "wireone"
+    description = "Build WireOne Web (Wasm) browser distribution."
+    dependsOn("wasmJsBrowserDistribution")
 }

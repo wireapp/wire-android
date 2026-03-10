@@ -1127,6 +1127,13 @@
     <string name="calling_confirm_start_call_title_dialog">Начать звонок</string>
     <string name="calling_confirm_start_call_description_dialog">Вы действительно хотите позвонить %1$s пользователям?</string>
     <string name="calling_confirm_start_call_action_dialog">Позвонить</string>
+    <string name="calling_details_security_banner_label">Звонки всегда зашифрованы сквозным шифрованием</string>
+    <string name="calling_details_network_quality_title">Качество сети</string>
+    <string name="calling_details_network_quality_good">Хорошее</string>
+    <string name="calling_details_network_quality_fair">Приемлемое</string>
+    <string name="calling_details_network_quality_poor">Плохое</string>
+    <string name="calling_details_turn_off_other_videos_title">Отключить другие видео</string>
+    <string name="calling_details_turn_off_other_videos_description">Это улучшит качество звука при плохом качестве сети.</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Вернуться к вызову</string>
     <string name="connectivity_status_bar_return_to_incoming_call">%1$s вызывает…</string>

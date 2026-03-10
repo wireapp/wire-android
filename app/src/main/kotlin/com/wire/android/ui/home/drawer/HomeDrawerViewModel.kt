@@ -100,7 +100,6 @@ class HomeDrawerViewModel @Inject constructor(
                             )
                         )
                     }
-                    add(DrawerUiItem.RegularItem(destination = HomeDestination.Support))
                 }
             }.collect {
                 drawerState = drawerState.copy(items = it)

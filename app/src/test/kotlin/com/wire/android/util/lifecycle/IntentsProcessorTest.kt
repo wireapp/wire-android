@@ -21,13 +21,13 @@ import android.content.Intent
 import com.wire.android.config.NomadProfilesFeatureConfig
 import io.mockk.every
 import io.mockk.mockk
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Test
 import java.nio.charset.StandardCharsets
 import java.security.KeyPairGenerator
 import java.security.Signature
 import java.util.Base64
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNull
-import org.junit.jupiter.api.Test
 
 class IntentsProcessorTest {
 
@@ -48,10 +48,21 @@ class IntentsProcessorTest {
     @Test
     fun `given valid JSON with backendConfig, ssoCode and nomadProfilesHost, returns AutomatedLoginViaSSO`() {
         val (arrangement, intentsProcessor) = Arrangement()
-            .withAutomatedLoginExtra("""{"backendConfig":"$FAKE_BACKEND_CONFIG","ssoCode":"$FAKE_SSO_CODE","nomadProfilesHost":"$FAKE_NOMAD_PROFILES_HOST","sigNomadProfilesHost":"${IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN}"}""")
+            .withAutomatedLoginExtra(
+                automatedLoginJson(
+                    "backendConfig" to FAKE_BACKEND_CONFIG,
+                    "ssoCode" to FAKE_SSO_CODE,
+                    "nomadProfilesHost" to FAKE_NOMAD_PROFILES_HOST,
+                    "sigNomadProfilesHost" to IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN
+                )
+            )
             .arrange()
         assertEquals(
-            AutomatedLoginViaSSO(backendConfig = FAKE_BACKEND_CONFIG, ssoCode = FAKE_SSO_CODE, nomadProfilesHost = FAKE_NOMAD_PROFILES_HOST),
+            AutomatedLoginViaSSO(
+                backendConfig = FAKE_BACKEND_CONFIG,
+                ssoCode = FAKE_SSO_CODE,
+                nomadProfilesHost = FAKE_NOMAD_PROFILES_HOST
+            ),
             intentsProcessor(arrangement.intent)
         )
     }
@@ -59,10 +70,19 @@ class IntentsProcessorTest {
     @Test
     fun `given valid JSON with ssoCode and nomadProfilesHost, returns AutomatedLoginViaSSO`() {
         val (arrangement, intentsProcessor) = Arrangement()
-            .withAutomatedLoginExtra("""{"ssoCode":"$FAKE_SSO_CODE","nomadProfilesHost":"$FAKE_NOMAD_PROFILES_HOST","sigNomadProfilesHost":"${IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN}"}""")
+            .withAutomatedLoginExtra(
+                automatedLoginJson(
+                    "ssoCode" to FAKE_SSO_CODE,
+                    "nomadProfilesHost" to FAKE_NOMAD_PROFILES_HOST,
+                    "sigNomadProfilesHost" to IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN
+                )
+            )
             .arrange()
         assertEquals(
-            AutomatedLoginViaSSO(ssoCode = FAKE_SSO_CODE, nomadProfilesHost = FAKE_NOMAD_PROFILES_HOST),
+            AutomatedLoginViaSSO(
+                ssoCode = FAKE_SSO_CODE,
+                nomadProfilesHost = FAKE_NOMAD_PROFILES_HOST
+            ),
             intentsProcessor(arrangement.intent)
         )
     }
@@ -70,10 +90,19 @@ class IntentsProcessorTest {
     @Test
     fun `given valid JSON with only backendConfig and nomadProfilesHost, returns AutomatedLoginViaSSO`() {
         val (arrangement, intentsProcessor) = Arrangement()
-            .withAutomatedLoginExtra("""{"backendConfig":"$FAKE_BACKEND_CONFIG","nomadProfilesHost":"$FAKE_NOMAD_PROFILES_HOST","sigNomadProfilesHost":"${IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN}"}""")
+            .withAutomatedLoginExtra(
+                automatedLoginJson(
+                    "backendConfig" to FAKE_BACKEND_CONFIG,
+                    "nomadProfilesHost" to FAKE_NOMAD_PROFILES_HOST,
+                    "sigNomadProfilesHost" to IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN
+                )
+            )
             .arrange()
         assertEquals(
-            AutomatedLoginViaSSO(backendConfig = FAKE_BACKEND_CONFIG, nomadProfilesHost = FAKE_NOMAD_PROFILES_HOST),
+            AutomatedLoginViaSSO(
+                backendConfig = FAKE_BACKEND_CONFIG,
+                nomadProfilesHost = FAKE_NOMAD_PROFILES_HOST
+            ),
             intentsProcessor(arrangement.intent)
         )
     }
@@ -81,7 +110,12 @@ class IntentsProcessorTest {
     @Test
     fun `given valid JSON with only nomadProfilesHost, returns AutomatedLoginViaSSO`() {
         val (arrangement, intentsProcessor) = Arrangement()
-            .withAutomatedLoginExtra("""{"nomadProfilesHost":"$FAKE_NOMAD_PROFILES_HOST","sigNomadProfilesHost":"${IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN}"}""")
+            .withAutomatedLoginExtra(
+                automatedLoginJson(
+                    "nomadProfilesHost" to FAKE_NOMAD_PROFILES_HOST,
+                    "sigNomadProfilesHost" to IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN
+                )
+            )
             .arrange()
         assertEquals(
             AutomatedLoginViaSSO(nomadProfilesHost = FAKE_NOMAD_PROFILES_HOST),
@@ -95,7 +129,10 @@ class IntentsProcessorTest {
         val (arrangement, intentsProcessor) = Arrangement()
             .withConfigurationSignatureKey(signedValue.publicKeyDerBase64)
             .withAutomatedLoginExtra(
-                """{"nomadProfilesHost":"$FAKE_NOMAD_PROFILES_HOST","sigNomadProfilesHost":"${signedValue.signatureBase64}"}"""
+                automatedLoginJson(
+                    "nomadProfilesHost" to FAKE_NOMAD_PROFILES_HOST,
+                    "sigNomadProfilesHost" to signedValue.signatureBase64
+                )
             )
             .arrange()
         assertEquals(
@@ -116,7 +153,10 @@ class IntentsProcessorTest {
         val (arrangement, intentsProcessor) = Arrangement()
             .withConfigurationSignatureKey(signedValue.publicKeyDerBase64)
             .withAutomatedLoginExtra(
-                """{"nomadProfilesHost":"$FAKE_NOMAD_PROFILES_HOST","sigNomadProfilesHost":"$invalidSignature"}"""
+                automatedLoginJson(
+                    "nomadProfilesHost" to FAKE_NOMAD_PROFILES_HOST,
+                    "sigNomadProfilesHost" to invalidSignature
+                )
             )
             .arrange()
         assertNull(intentsProcessor(arrangement.intent))
@@ -129,7 +169,10 @@ class IntentsProcessorTest {
         val (arrangement, intentsProcessor) = Arrangement()
             .withConfigurationSignatureKey(invalidLengthKey)
             .withAutomatedLoginExtra(
-                """{"nomadProfilesHost":"$FAKE_NOMAD_PROFILES_HOST","sigNomadProfilesHost":"${signedValue.signatureBase64}"}"""
+                automatedLoginJson(
+                    "nomadProfilesHost" to FAKE_NOMAD_PROFILES_HOST,
+                    "sigNomadProfilesHost" to signedValue.signatureBase64
+                )
             )
             .arrange()
         assertNull(intentsProcessor(arrangement.intent))
@@ -147,7 +190,10 @@ class IntentsProcessorTest {
         val (arrangement, intentsProcessor) = Arrangement()
             .withConfigurationSignatureKey(invalidHeaderKey)
             .withAutomatedLoginExtra(
-                """{"nomadProfilesHost":"$FAKE_NOMAD_PROFILES_HOST","sigNomadProfilesHost":"${signedValue.signatureBase64}"}"""
+                automatedLoginJson(
+                    "nomadProfilesHost" to FAKE_NOMAD_PROFILES_HOST,
+                    "sigNomadProfilesHost" to signedValue.signatureBase64
+                )
             )
             .arrange()
         assertNull(intentsProcessor(arrangement.intent))
@@ -157,7 +203,14 @@ class IntentsProcessorTest {
     fun `given nomad profiles feature disabled, skips the whole intent`() {
         val (arrangement, intentsProcessor) = Arrangement()
             .withNomadProfilesFeatureEnabled(false)
-            .withAutomatedLoginExtra("""{"backendConfig":"$FAKE_BACKEND_CONFIG","ssoCode":"$FAKE_SSO_CODE","nomadProfilesHost":"$FAKE_NOMAD_PROFILES_HOST","sigNomadProfilesHost":"${IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN}"}""")
+            .withAutomatedLoginExtra(
+                automatedLoginJson(
+                    "backendConfig" to FAKE_BACKEND_CONFIG,
+                    "ssoCode" to FAKE_SSO_CODE,
+                    "nomadProfilesHost" to FAKE_NOMAD_PROFILES_HOST,
+                    "sigNomadProfilesHost" to IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN
+                )
+            )
             .arrange()
         assertNull(intentsProcessor(arrangement.intent))
     }
@@ -166,7 +219,13 @@ class IntentsProcessorTest {
     fun `given invalid nomadProfilesHost and feature disabled, skips the whole intent`() {
         val (arrangement, intentsProcessor) = Arrangement()
             .withNomadProfilesFeatureEnabled(false)
-            .withAutomatedLoginExtra("""{"backendConfig":"$FAKE_BACKEND_CONFIG","ssoCode":"$FAKE_SSO_CODE","nomadProfilesHost":"not a url"}""")
+            .withAutomatedLoginExtra(
+                automatedLoginJson(
+                    "backendConfig" to FAKE_BACKEND_CONFIG,
+                    "ssoCode" to FAKE_SSO_CODE,
+                    "nomadProfilesHost" to "not a url"
+                )
+            )
             .arrange()
         assertNull(intentsProcessor(arrangement.intent))
     }
@@ -175,7 +234,12 @@ class IntentsProcessorTest {
     fun `given only nomadProfilesHost and feature disabled, returns null`() {
         val (arrangement, intentsProcessor) = Arrangement()
             .withNomadProfilesFeatureEnabled(false)
-            .withAutomatedLoginExtra("""{"nomadProfilesHost":"$FAKE_NOMAD_PROFILES_HOST","sigNomadProfilesHost":"${IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN}"}""")
+            .withAutomatedLoginExtra(
+                automatedLoginJson(
+                    "nomadProfilesHost" to FAKE_NOMAD_PROFILES_HOST,
+                    "sigNomadProfilesHost" to IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN
+                )
+            )
             .arrange()
         assertNull(intentsProcessor(arrangement.intent))
     }
@@ -183,7 +247,7 @@ class IntentsProcessorTest {
     @Test
     fun `given JSON with all fields null, returns null`() {
         val (arrangement, intentsProcessor) = Arrangement()
-            .withAutomatedLoginExtra("""{}""")
+            .withAutomatedLoginExtra(automatedLoginJson())
             .arrange()
         assertNull(intentsProcessor(arrangement.intent))
     }
@@ -191,7 +255,12 @@ class IntentsProcessorTest {
     @Test
     fun `given JSON without nomadProfilesHost, returns null`() {
         val (arrangement, intentsProcessor) = Arrangement()
-            .withAutomatedLoginExtra("""{"backendConfig":"$FAKE_BACKEND_CONFIG","ssoCode":"$FAKE_SSO_CODE"}""")
+            .withAutomatedLoginExtra(
+                automatedLoginJson(
+                    "backendConfig" to FAKE_BACKEND_CONFIG,
+                    "ssoCode" to FAKE_SSO_CODE
+                )
+            )
             .arrange()
         assertNull(intentsProcessor(arrangement.intent))
     }
@@ -207,7 +276,13 @@ class IntentsProcessorTest {
     @Test
     fun `given backendConfig with HTTP instead of HTTPS, returns null`() {
         val (arrangement, intentsProcessor) = Arrangement()
-            .withAutomatedLoginExtra("""{"backendConfig":"http://insecure.wire.com/deeplink.json","nomadProfilesHost":"$FAKE_NOMAD_PROFILES_HOST","sigNomadProfilesHost":"${IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN}"}""")
+            .withAutomatedLoginExtra(
+                automatedLoginJson(
+                    "backendConfig" to "http://insecure.wire.com/deeplink.json",
+                    "nomadProfilesHost" to FAKE_NOMAD_PROFILES_HOST,
+                    "sigNomadProfilesHost" to IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN
+                )
+            )
             .arrange()
         assertNull(intentsProcessor(arrangement.intent))
     }
@@ -215,7 +290,13 @@ class IntentsProcessorTest {
     @Test
     fun `given backendConfig with empty host, returns null`() {
         val (arrangement, intentsProcessor) = Arrangement()
-            .withAutomatedLoginExtra("""{"backendConfig":"https:///path","nomadProfilesHost":"$FAKE_NOMAD_PROFILES_HOST","sigNomadProfilesHost":"${IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN}"}""")
+            .withAutomatedLoginExtra(
+                automatedLoginJson(
+                    "backendConfig" to "https:///path",
+                    "nomadProfilesHost" to FAKE_NOMAD_PROFILES_HOST,
+                    "sigNomadProfilesHost" to IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN
+                )
+            )
             .arrange()
         assertNull(intentsProcessor(arrangement.intent))
     }
@@ -223,7 +304,13 @@ class IntentsProcessorTest {
     @Test
     fun `given backendConfig with malformed URI, returns null`() {
         val (arrangement, intentsProcessor) = Arrangement()
-            .withAutomatedLoginExtra("""{"backendConfig":"not a url","nomadProfilesHost":"$FAKE_NOMAD_PROFILES_HOST","sigNomadProfilesHost":"${IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN}"}""")
+            .withAutomatedLoginExtra(
+                automatedLoginJson(
+                    "backendConfig" to "not a url",
+                    "nomadProfilesHost" to FAKE_NOMAD_PROFILES_HOST,
+                    "sigNomadProfilesHost" to IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN
+                )
+            )
             .arrange()
         assertNull(intentsProcessor(arrangement.intent))
     }
@@ -231,7 +318,12 @@ class IntentsProcessorTest {
     @Test
     fun `given nomadProfilesHost with HTTP instead of HTTPS, returns null`() {
         val (arrangement, intentsProcessor) = Arrangement()
-            .withAutomatedLoginExtra("""{"nomadProfilesHost":"http://insecure.nomad.example.com","sigNomadProfilesHost":"${IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN}"}""")
+            .withAutomatedLoginExtra(
+                automatedLoginJson(
+                    "nomadProfilesHost" to "http://insecure.nomad.example.com",
+                    "sigNomadProfilesHost" to IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN
+                )
+            )
             .arrange()
         assertNull(intentsProcessor(arrangement.intent))
     }
@@ -239,7 +331,12 @@ class IntentsProcessorTest {
     @Test
     fun `given nomadProfilesHost with empty host, returns null`() {
         val (arrangement, intentsProcessor) = Arrangement()
-            .withAutomatedLoginExtra("""{"nomadProfilesHost":"https:///path","sigNomadProfilesHost":"${IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN}"}""")
+            .withAutomatedLoginExtra(
+                automatedLoginJson(
+                    "nomadProfilesHost" to "https:///path",
+                    "sigNomadProfilesHost" to IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN
+                )
+            )
             .arrange()
         assertNull(intentsProcessor(arrangement.intent))
     }
@@ -247,7 +344,12 @@ class IntentsProcessorTest {
     @Test
     fun `given nomadProfilesHost with malformed URI, returns null`() {
         val (arrangement, intentsProcessor) = Arrangement()
-            .withAutomatedLoginExtra("""{"nomadProfilesHost":"not a url","sigNomadProfilesHost":"${IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN}"}""")
+            .withAutomatedLoginExtra(
+                automatedLoginJson(
+                    "nomadProfilesHost" to "not a url",
+                    "sigNomadProfilesHost" to IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN
+                )
+            )
             .arrange()
         assertNull(intentsProcessor(arrangement.intent))
     }
@@ -257,11 +359,27 @@ class IntentsProcessorTest {
         val (arrangement, intentsProcessor) = Arrangement()
             .withConfigurationSignatureEnforced(true)
             .withAutomatedLoginExtra(
-                """{"nomadProfilesHost":"$FAKE_NOMAD_PROFILES_HOST","sigNomadProfilesHost":"${IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN}"}"""
+                automatedLoginJson(
+                    "nomadProfilesHost" to FAKE_NOMAD_PROFILES_HOST,
+                    "sigNomadProfilesHost" to IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN
+                )
             )
             .arrange()
         assertNull(intentsProcessor(arrangement.intent))
     }
+
+    private fun automatedLoginJson(vararg entries: Pair<String, String>): String =
+        if (entries.isEmpty()) {
+            "{}"
+        } else {
+            buildString {
+                append("{\n")
+                entries.joinTo(this, separator = ",\n") { (key, value) ->
+                    """"$key":"$value""""
+                }
+                append("\n}")
+            }
+        }
 
     class Arrangement {
         internal val intent: Intent = mockk()
@@ -275,18 +393,18 @@ class IntentsProcessorTest {
         }
 
         fun arrange() = this to (
-            configurationSignatureKeys?.let { configuredKeys ->
-                IntentsProcessor(
+                configurationSignatureKeys?.let { configuredKeys ->
+                    IntentsProcessor(
+                        nomadProfilesFeatureConfig = nomadProfilesFeatureConfig,
+                        configurationSignatureKeys = configuredKeys,
+                        isConfigurationSignatureEnforced = isConfigurationSignatureEnforced
+                    )
+                } ?: IntentsProcessor(
                     nomadProfilesFeatureConfig = nomadProfilesFeatureConfig,
-                    configurationSignatureKeys = configuredKeys,
+                    configurationSignatureKeys = emptyList(),
                     isConfigurationSignatureEnforced = isConfigurationSignatureEnforced
                 )
-            } ?: IntentsProcessor(
-                nomadProfilesFeatureConfig = nomadProfilesFeatureConfig,
-                configurationSignatureKeys = emptyList(),
-                isConfigurationSignatureEnforced = isConfigurationSignatureEnforced
-            )
-        )
+                )
 
         fun withAutomatedLoginExtra(json: String?) = apply {
             every { intent.getStringExtra("automated_login") } returns json

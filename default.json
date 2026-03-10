@@ -37,7 +37,8 @@
             "meetings_enabled": true,
             "use_async_flush_logging": true,
             "conversation_feeder_enabled": true,
-            "db_invalidation_control_enabled": true
+            "db_invalidation_control_enabled": true,
+            "nomad_profiles_enabled": true
         },
         "staging": {
             "application_id": "com.waz.zclient.dev",
@@ -163,5 +164,6 @@
     "background_notification_stay_alive_seconds": 3,
     "is_bubble_ui_enabled": true,
     "collabora_integration": true,
-    "db_invalidation_control_enabled": false
+    "db_invalidation_control_enabled": false,
+    "nomad_profiles_enabled": false
 }

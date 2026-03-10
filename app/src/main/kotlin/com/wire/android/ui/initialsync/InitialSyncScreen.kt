@@ -42,13 +42,14 @@ fun InitialSyncScreen(
     viewModel: InitialSyncViewModel = hiltViewModel()
 ) {
     val activity = LocalActivity.current
+    val syncCompletionState = viewModel.syncCompletionState
 
     SettingUpWireScreenContent()
 
-    LaunchedEffect(viewModel.isSyncCompleted, viewModel.shouldMoveToBackground) {
-        if (!viewModel.isSyncCompleted) return@LaunchedEffect
+    LaunchedEffect(syncCompletionState) {
+        syncCompletionState ?: return@LaunchedEffect
 
-        if (viewModel.shouldMoveToBackground) {
+        if (syncCompletionState.shouldMoveToBackground) {
             activity.lifecycleScope.launch {
                 navigator.navController.currentBackStackEntryFlow
                     .map { it.destination.route?.getBaseRoute() }

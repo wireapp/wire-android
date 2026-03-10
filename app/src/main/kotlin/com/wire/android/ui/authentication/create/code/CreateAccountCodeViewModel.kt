@@ -145,7 +145,7 @@ class CreateAccountCodeViewModel @Inject constructor(
             )
     }
 
-    @Suppress("ComplexMethod")
+    @Suppress("ComplexMethod", "LongMethod")
     private fun onCodeContinue() {
         codeState = codeState.copy(loading = true)
         viewModelScope.launch {

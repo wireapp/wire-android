@@ -218,6 +218,8 @@ android {
                         configs.name,
                         "new java.util.HashMap<String, java.util.List<String>>() {{\n$mapString\n}}"
                     )
+                }
+
                 ConfigType.ListOfStrings -> {
                     val list = flavorMap[flavor.name]?.get(configs.value) as? List<*>
                     val listString = list?.joinToString { "\"$it\"" } ?: ""

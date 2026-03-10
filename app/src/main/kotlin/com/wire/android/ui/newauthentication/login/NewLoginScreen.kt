@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -68,6 +69,7 @@ import com.wire.android.ui.authentication.login.LoginPasswordPath
 import com.wire.android.ui.authentication.login.PreFilledUserIdentifierType
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import com.wire.android.ui.authentication.login.toLoginDialogErrorData
+import com.ramcosta.composedestinations.spec.Direction
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
@@ -119,18 +121,11 @@ fun NewLoginScreen(
 
             is NewLoginAction.SSO -> {
                 currentKeyboardController?.hide()
-//                ssoUrlConfigHolder.set(newLoginAction.config)
                 CustomTabsHelper.launchUrl(context, newLoginAction.url)
             }
 
             is NewLoginAction.Success -> {
-                val destination = when (newLoginAction.nextStep) {
-                    NewLoginAction.Success.NextStep.None -> HomeScreenDestination
-                    NewLoginAction.Success.NextStep.E2EIEnrollment -> E2EIEnrollmentScreenDestination
-                    NewLoginAction.Success.NextStep.InitialSync -> InitialSyncScreenDestination
-                    NewLoginAction.Success.NextStep.TooManyDevices -> RemoveDeviceScreenDestination
-                }
-                navigator.navigate(NavigationCommand(destination, BackStackMode.CLEAR_WHOLE))
+                navigator.navigate(NavigationCommand(newLoginAction.nextStep.toDestination(), BackStackMode.CLEAR_WHOLE))
             }
 
             is NewLoginAction.EnterpriseLoginNotSupported -> {
@@ -148,8 +143,20 @@ fun NewLoginScreen(
         if (navArgs.ssoLoginResult != null) {
             viewModel.handleSSOResult(
                 navArgs.ssoLoginResult,
-//                ssoUrlConfigHolder.get()
             )
+        }
+    }
+
+    // Handle SSO code auto-login from intent parameter
+    LaunchedEffect(navArgs.ssoCodeAutoLogin) {
+        navArgs.ssoCodeAutoLogin?.let {
+            // Pre-fill the SSO code in the user identifier field
+            viewModel.userIdentifierTextState.setTextAndPlaceCursorAtEnd(it.ssoCode)
+
+            // Auto-initiate login if flag is set
+            if (it.autoInitiateLogin) {
+                viewModel.onLoginStarted()
+            }
         }
     }
     (viewModel.state.flowState as? NewLoginFlowState.CustomConfigDialog)?.let { customServerDialogState ->
@@ -176,6 +183,13 @@ fun NewLoginScreen(
     )
 
     HandleActions(viewModel.actions, handleNewLoginAction)
+}
+
+private fun NewLoginAction.Success.NextStep.toDestination(): Direction = when (this) {
+    NewLoginAction.Success.NextStep.None -> HomeScreenDestination
+    NewLoginAction.Success.NextStep.E2EIEnrollment -> E2EIEnrollmentScreenDestination
+    NewLoginAction.Success.NextStep.InitialSync -> InitialSyncScreenDestination
+    NewLoginAction.Success.NextStep.TooManyDevices -> RemoveDeviceScreenDestination
 }
 
 @OptIn(ExperimentalComposeUiApi::class)

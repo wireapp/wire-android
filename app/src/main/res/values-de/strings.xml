@@ -133,6 +133,8 @@
     <string name="content_description_calling_turn_camera_off">Kamera ausschalten</string>
     <string name="content_description_calling_turn_speaker_on">Lautsprecher einschalten</string>
     <string name="content_description_calling_turn_speaker_off">Lautsprecher ausschalten</string>
+    <string name="content_description_call_open_calling_details">Anrufdetails öffnen</string>
+    <string name="content_description_call_low_network_quality">Geringe Netzwerkqualität</string>
     <string name="content_description_reply_to_messge">Auf die Nachricht antworten</string>
     <string name="content_description_copy">Kopieren</string>
     <string name="content_description_edit">Bearbeiten</string>
@@ -1036,6 +1038,13 @@
     <string name="calling_confirm_start_call_title_dialog">Anruf starten</string>
     <string name="calling_confirm_start_call_description_dialog">Sind Sie sicher, dass Sie %1$s Personen anrufen möchten?</string>
     <string name="calling_confirm_start_call_action_dialog">Anrufen</string>
+    <string name="calling_details_security_banner_label">Anrufe sind immer Ende-zu-Ende verschlüsselt</string>
+    <string name="calling_details_network_quality_title">Netzwerkqualität</string>
+    <string name="calling_details_network_quality_good">Gut</string>
+    <string name="calling_details_network_quality_fair">Befriedigend</string>
+    <string name="calling_details_network_quality_poor">Schlecht</string>
+    <string name="calling_details_turn_off_other_videos_title">Andere Videos ausschalten</string>
+    <string name="calling_details_turn_off_other_videos_description">Dies verbessert die Audioqualität, wenn Ihre Netzwerkbedingungen schlecht sind.</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Zurück zum Anruf</string>
     <string name="connectivity_status_bar_return_to_incoming_call">%1$s ruft an…</string>

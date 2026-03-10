@@ -48,6 +48,7 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.auth.login.ProxyCredentials
 import com.wire.kalium.logic.data.auth.verification.VerifiableAction
 import com.wire.kalium.logic.data.logout.LogoutReason
+import com.wire.kalium.logic.data.session.StoreSessionParam
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
@@ -203,12 +204,14 @@ class LoginEmailViewModel @Inject constructor(
 
             val storedUserId = withContext(dispatchers.io()) {
                 addAuthenticatedUser(
-                    authTokens = loginResult.authData,
-                    ssoId = loginResult.ssoID,
-                    managedBy = loginResult.managedBy,
-                    serverConfigId = loginResult.serverConfigId,
-                    proxyCredentials = loginResult.proxyCredentials,
-                    isPersistentWebSocketEnabled = defaultWebSocketEnabledByDefault,
+                    StoreSessionParam(
+                        accountTokens = loginResult.authData,
+                        ssoId = loginResult.ssoID,
+                        managedBy = loginResult.managedBy,
+                        serverConfigId = loginResult.serverConfigId,
+                        proxyCredentials = loginResult.proxyCredentials,
+                        isPersistentWebSocketEnabled = defaultWebSocketEnabledByDefault,
+                    ),
                     replace = false
                 )
             }.let {

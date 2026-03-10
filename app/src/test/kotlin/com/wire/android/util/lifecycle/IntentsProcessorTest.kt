@@ -18,8 +18,13 @@
 package com.wire.android.util.lifecycle
 
 import android.content.Intent
+import com.wire.android.config.NomadProfilesFeatureConfig
 import io.mockk.every
 import io.mockk.mockk
+import java.nio.charset.StandardCharsets
+import java.security.KeyPairGenerator
+import java.security.Signature
+import java.util.Base64
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
@@ -41,42 +46,152 @@ class IntentsProcessorTest {
     }
 
     @Test
-    fun `given valid JSON with both backendConfig and ssoCode, returns AutomatedLoginViaSSO`() {
+    fun `given valid JSON with backendConfig, ssoCode and nomadProfilesHost, returns AutomatedLoginViaSSO`() {
         val (arrangement, intentsProcessor) = Arrangement()
-            .withAutomatedLoginExtra("""{"backendConfig":"$FAKE_BACKEND_CONFIG","ssoCode":"$FAKE_SSO_CODE"}""")
+            .withAutomatedLoginExtra("""{"backendConfig":"$FAKE_BACKEND_CONFIG","ssoCode":"$FAKE_SSO_CODE","nomadProfilesHost":"$FAKE_NOMAD_PROFILES_HOST","sigNomadProfilesHost":"${IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN}"}""")
             .arrange()
         assertEquals(
-            AutomatedLoginViaSSO(backendConfig = FAKE_BACKEND_CONFIG, ssoCode = FAKE_SSO_CODE),
+            AutomatedLoginViaSSO(backendConfig = FAKE_BACKEND_CONFIG, ssoCode = FAKE_SSO_CODE, nomadProfilesHost = FAKE_NOMAD_PROFILES_HOST),
             intentsProcessor(arrangement.intent)
         )
     }
 
     @Test
-    fun `given valid JSON with only ssoCode, returns AutomatedLoginViaSSO`() {
+    fun `given valid JSON with ssoCode and nomadProfilesHost, returns AutomatedLoginViaSSO`() {
         val (arrangement, intentsProcessor) = Arrangement()
-            .withAutomatedLoginExtra("""{"ssoCode":"$FAKE_SSO_CODE"}""")
+            .withAutomatedLoginExtra("""{"ssoCode":"$FAKE_SSO_CODE","nomadProfilesHost":"$FAKE_NOMAD_PROFILES_HOST","sigNomadProfilesHost":"${IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN}"}""")
             .arrange()
         assertEquals(
-            AutomatedLoginViaSSO(ssoCode = FAKE_SSO_CODE),
+            AutomatedLoginViaSSO(ssoCode = FAKE_SSO_CODE, nomadProfilesHost = FAKE_NOMAD_PROFILES_HOST),
             intentsProcessor(arrangement.intent)
         )
     }
 
     @Test
-    fun `given valid JSON with only backendConfig using HTTPS, returns AutomatedLoginViaSSO`() {
+    fun `given valid JSON with only backendConfig and nomadProfilesHost, returns AutomatedLoginViaSSO`() {
         val (arrangement, intentsProcessor) = Arrangement()
-            .withAutomatedLoginExtra("""{"backendConfig":"$FAKE_BACKEND_CONFIG"}""")
+            .withAutomatedLoginExtra("""{"backendConfig":"$FAKE_BACKEND_CONFIG","nomadProfilesHost":"$FAKE_NOMAD_PROFILES_HOST","sigNomadProfilesHost":"${IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN}"}""")
             .arrange()
         assertEquals(
-            AutomatedLoginViaSSO(backendConfig = FAKE_BACKEND_CONFIG),
+            AutomatedLoginViaSSO(backendConfig = FAKE_BACKEND_CONFIG, nomadProfilesHost = FAKE_NOMAD_PROFILES_HOST),
             intentsProcessor(arrangement.intent)
         )
     }
 
     @Test
-    fun `given JSON with both fields null, returns null`() {
+    fun `given valid JSON with only nomadProfilesHost, returns AutomatedLoginViaSSO`() {
+        val (arrangement, intentsProcessor) = Arrangement()
+            .withAutomatedLoginExtra("""{"nomadProfilesHost":"$FAKE_NOMAD_PROFILES_HOST","sigNomadProfilesHost":"${IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN}"}""")
+            .arrange()
+        assertEquals(
+            AutomatedLoginViaSSO(nomadProfilesHost = FAKE_NOMAD_PROFILES_HOST),
+            intentsProcessor(arrangement.intent)
+        )
+    }
+
+    @Test
+    fun `given real Ed25519 signature, verifies nomadProfilesHost with configured key`() {
+        val signedValue = SignedValue.sign(FAKE_NOMAD_PROFILES_HOST)
+        val (arrangement, intentsProcessor) = Arrangement()
+            .withConfigurationSignatureKey(signedValue.publicKeyDerBase64)
+            .withAutomatedLoginExtra(
+                """{"nomadProfilesHost":"$FAKE_NOMAD_PROFILES_HOST","sigNomadProfilesHost":"${signedValue.signatureBase64}"}"""
+            )
+            .arrange()
+        assertEquals(
+            AutomatedLoginViaSSO(nomadProfilesHost = FAKE_NOMAD_PROFILES_HOST),
+            intentsProcessor(arrangement.intent)
+        )
+    }
+
+    @Test
+    fun `given invalid Ed25519 signature, returns null`() {
+        val signedValue = SignedValue.sign(FAKE_NOMAD_PROFILES_HOST)
+        val invalidSignature = Base64.getEncoder()
+            .encodeToString(
+                Base64.getDecoder().decode(signedValue.signatureBase64).apply {
+                    this[lastIndex] = (this[lastIndex].toInt() xor 0x01).toByte()
+                }
+            )
+        val (arrangement, intentsProcessor) = Arrangement()
+            .withConfigurationSignatureKey(signedValue.publicKeyDerBase64)
+            .withAutomatedLoginExtra(
+                """{"nomadProfilesHost":"$FAKE_NOMAD_PROFILES_HOST","sigNomadProfilesHost":"$invalidSignature"}"""
+            )
+            .arrange()
+        assertNull(intentsProcessor(arrangement.intent))
+    }
+
+    @Test
+    fun `given configured key with invalid raw key length, returns null`() {
+        val signedValue = SignedValue.sign(FAKE_NOMAD_PROFILES_HOST)
+        val invalidLengthKey = Base64.getEncoder().encodeToString(ByteArray(12 + 31))
+        val (arrangement, intentsProcessor) = Arrangement()
+            .withConfigurationSignatureKey(invalidLengthKey)
+            .withAutomatedLoginExtra(
+                """{"nomadProfilesHost":"$FAKE_NOMAD_PROFILES_HOST","sigNomadProfilesHost":"${signedValue.signatureBase64}"}"""
+            )
+            .arrange()
+        assertNull(intentsProcessor(arrangement.intent))
+    }
+
+    @Test
+    fun `given configured key with invalid der header, returns null`() {
+        val signedValue = SignedValue.sign(FAKE_NOMAD_PROFILES_HOST)
+        val invalidHeaderKey = Base64.getEncoder()
+            .encodeToString(
+                Base64.getDecoder().decode(signedValue.publicKeyDerBase64).apply {
+                    this[0] = (this[0].toInt() xor 0x01).toByte()
+                }
+            )
+        val (arrangement, intentsProcessor) = Arrangement()
+            .withConfigurationSignatureKey(invalidHeaderKey)
+            .withAutomatedLoginExtra(
+                """{"nomadProfilesHost":"$FAKE_NOMAD_PROFILES_HOST","sigNomadProfilesHost":"${signedValue.signatureBase64}"}"""
+            )
+            .arrange()
+        assertNull(intentsProcessor(arrangement.intent))
+    }
+
+    @Test
+    fun `given nomad profiles feature disabled, skips the whole intent`() {
+        val (arrangement, intentsProcessor) = Arrangement()
+            .withNomadProfilesFeatureEnabled(false)
+            .withAutomatedLoginExtra("""{"backendConfig":"$FAKE_BACKEND_CONFIG","ssoCode":"$FAKE_SSO_CODE","nomadProfilesHost":"$FAKE_NOMAD_PROFILES_HOST","sigNomadProfilesHost":"${IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN}"}""")
+            .arrange()
+        assertNull(intentsProcessor(arrangement.intent))
+    }
+
+    @Test
+    fun `given invalid nomadProfilesHost and feature disabled, skips the whole intent`() {
+        val (arrangement, intentsProcessor) = Arrangement()
+            .withNomadProfilesFeatureEnabled(false)
+            .withAutomatedLoginExtra("""{"backendConfig":"$FAKE_BACKEND_CONFIG","ssoCode":"$FAKE_SSO_CODE","nomadProfilesHost":"not a url"}""")
+            .arrange()
+        assertNull(intentsProcessor(arrangement.intent))
+    }
+
+    @Test
+    fun `given only nomadProfilesHost and feature disabled, returns null`() {
+        val (arrangement, intentsProcessor) = Arrangement()
+            .withNomadProfilesFeatureEnabled(false)
+            .withAutomatedLoginExtra("""{"nomadProfilesHost":"$FAKE_NOMAD_PROFILES_HOST","sigNomadProfilesHost":"${IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN}"}""")
+            .arrange()
+        assertNull(intentsProcessor(arrangement.intent))
+    }
+
+    @Test
+    fun `given JSON with all fields null, returns null`() {
         val (arrangement, intentsProcessor) = Arrangement()
             .withAutomatedLoginExtra("""{}""")
+            .arrange()
+        assertNull(intentsProcessor(arrangement.intent))
+    }
+
+    @Test
+    fun `given JSON without nomadProfilesHost, returns null`() {
+        val (arrangement, intentsProcessor) = Arrangement()
+            .withAutomatedLoginExtra("""{"backendConfig":"$FAKE_BACKEND_CONFIG","ssoCode":"$FAKE_SSO_CODE"}""")
             .arrange()
         assertNull(intentsProcessor(arrangement.intent))
     }
@@ -92,7 +207,7 @@ class IntentsProcessorTest {
     @Test
     fun `given backendConfig with HTTP instead of HTTPS, returns null`() {
         val (arrangement, intentsProcessor) = Arrangement()
-            .withAutomatedLoginExtra("""{"backendConfig":"http://insecure.wire.com/deeplink.json"}""")
+            .withAutomatedLoginExtra("""{"backendConfig":"http://insecure.wire.com/deeplink.json","nomadProfilesHost":"$FAKE_NOMAD_PROFILES_HOST","sigNomadProfilesHost":"${IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN}"}""")
             .arrange()
         assertNull(intentsProcessor(arrangement.intent))
     }
@@ -100,7 +215,7 @@ class IntentsProcessorTest {
     @Test
     fun `given backendConfig with empty host, returns null`() {
         val (arrangement, intentsProcessor) = Arrangement()
-            .withAutomatedLoginExtra("""{"backendConfig":"https:///path"}""")
+            .withAutomatedLoginExtra("""{"backendConfig":"https:///path","nomadProfilesHost":"$FAKE_NOMAD_PROFILES_HOST","sigNomadProfilesHost":"${IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN}"}""")
             .arrange()
         assertNull(intentsProcessor(arrangement.intent))
     }
@@ -108,27 +223,111 @@ class IntentsProcessorTest {
     @Test
     fun `given backendConfig with malformed URI, returns null`() {
         val (arrangement, intentsProcessor) = Arrangement()
-            .withAutomatedLoginExtra("""{"backendConfig":"not a url"}""")
+            .withAutomatedLoginExtra("""{"backendConfig":"not a url","nomadProfilesHost":"$FAKE_NOMAD_PROFILES_HOST","sigNomadProfilesHost":"${IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN}"}""")
+            .arrange()
+        assertNull(intentsProcessor(arrangement.intent))
+    }
+
+    @Test
+    fun `given nomadProfilesHost with HTTP instead of HTTPS, returns null`() {
+        val (arrangement, intentsProcessor) = Arrangement()
+            .withAutomatedLoginExtra("""{"nomadProfilesHost":"http://insecure.nomad.example.com","sigNomadProfilesHost":"${IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN}"}""")
+            .arrange()
+        assertNull(intentsProcessor(arrangement.intent))
+    }
+
+    @Test
+    fun `given nomadProfilesHost with empty host, returns null`() {
+        val (arrangement, intentsProcessor) = Arrangement()
+            .withAutomatedLoginExtra("""{"nomadProfilesHost":"https:///path","sigNomadProfilesHost":"${IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN}"}""")
+            .arrange()
+        assertNull(intentsProcessor(arrangement.intent))
+    }
+
+    @Test
+    fun `given nomadProfilesHost with malformed URI, returns null`() {
+        val (arrangement, intentsProcessor) = Arrangement()
+            .withAutomatedLoginExtra("""{"nomadProfilesHost":"not a url","sigNomadProfilesHost":"${IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN}"}""")
+            .arrange()
+        assertNull(intentsProcessor(arrangement.intent))
+    }
+
+    @Test
+    fun `given skip token when signature enforcement is enabled, returns null`() {
+        val (arrangement, intentsProcessor) = Arrangement()
+            .withConfigurationSignatureEnforced(true)
+            .withAutomatedLoginExtra(
+                """{"nomadProfilesHost":"$FAKE_NOMAD_PROFILES_HOST","sigNomadProfilesHost":"${IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN}"}"""
+            )
             .arrange()
         assertNull(intentsProcessor(arrangement.intent))
     }
 
     class Arrangement {
         internal val intent: Intent = mockk()
+        private val nomadProfilesFeatureConfig = mockk<NomadProfilesFeatureConfig>()
+        private var configurationSignatureKeys: List<String>? = null
+        private var isConfigurationSignatureEnforced = false
 
         init {
             every { intent.getStringExtra(any()) } returns null
+            every { nomadProfilesFeatureConfig.isEnabled() } returns true
         }
 
-        fun arrange() = this to IntentsProcessor()
+        fun arrange() = this to (
+            configurationSignatureKeys?.let { configuredKeys ->
+                IntentsProcessor(
+                    nomadProfilesFeatureConfig = nomadProfilesFeatureConfig,
+                    configurationSignatureKeys = configuredKeys,
+                    isConfigurationSignatureEnforced = isConfigurationSignatureEnforced
+                )
+            } ?: IntentsProcessor(
+                nomadProfilesFeatureConfig = nomadProfilesFeatureConfig,
+                configurationSignatureKeys = emptyList(),
+                isConfigurationSignatureEnforced = isConfigurationSignatureEnforced
+            )
+        )
 
         fun withAutomatedLoginExtra(json: String?) = apply {
             every { intent.getStringExtra("automated_login") } returns json
+        }
+
+        fun withNomadProfilesFeatureEnabled(enabled: Boolean) = apply {
+            every { nomadProfilesFeatureConfig.isEnabled() } returns enabled
+        }
+
+        fun withConfigurationSignatureKey(vararg key: String) = apply {
+            configurationSignatureKeys = key.toList()
+        }
+
+        fun withConfigurationSignatureEnforced(isEnforced: Boolean) = apply {
+            isConfigurationSignatureEnforced = isEnforced
+        }
+    }
+
+    private data class SignedValue(
+        val publicKeyDerBase64: String,
+        val signatureBase64: String
+    ) {
+        companion object {
+            fun sign(value: String): SignedValue {
+                val keyPair = KeyPairGenerator.getInstance("Ed25519").generateKeyPair()
+                val signature = Signature.getInstance("Ed25519").run {
+                    initSign(keyPair.private)
+                    update(value.toByteArray(StandardCharsets.UTF_8))
+                    sign()
+                }
+                return SignedValue(
+                    publicKeyDerBase64 = Base64.getEncoder().encodeToString(keyPair.public.encoded),
+                    signatureBase64 = Base64.getEncoder().encodeToString(signature)
+                )
+            }
         }
     }
 
     private companion object {
         const val FAKE_BACKEND_CONFIG = "https://example.com/deeplink.json"
         const val FAKE_SSO_CODE = "wire-87080ee2-7855-47e2-a60a-4b3def45bbd4"
+        const val FAKE_NOMAD_PROFILES_HOST = "https://nomad.example.com"
     }
 }

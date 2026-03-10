@@ -9,7 +9,8 @@
             "analytics_enabled": true,
             "analytics_app_key": "4483f7a58ae3e70b3780319c4ccb5c88a037be49",
             "analytics_server_url": "https://wire.count.ly/",
-            "enable_new_registration": true
+            "enable_new_registration": true,
+            "enforce_configuration_signature": true
         },
         "dev": {
             "application_id": "com.waz.zclient.dev",
@@ -38,7 +39,8 @@
             "use_async_flush_logging": true,
             "conversation_feeder_enabled": true,
             "db_invalidation_control_enabled": true,
-            "nomad_profiles_enabled": true
+            "nomad_profiles_enabled": true,
+            "enforce_configuration_signature": false
         },
         "staging": {
             "application_id": "com.waz.zclient.dev",
@@ -60,7 +62,8 @@
             "analytics_enabled": true,
             "analytics_app_key": "8ffae535f1836ed5f58fd5c8a11c00eca07c5438",
             "analytics_server_url": "https://wire.count.ly/",
-            "enable_new_registration": true
+            "enable_new_registration": true,
+            "enforce_configuration_signature": true
         },
         "beta": {
             "application_id": "com.wire.android.internal",
@@ -72,6 +75,7 @@
             "analytics_app_key": "8ffae535f1836ed5f58fd5c8a11c00eca07c5438",
             "analytics_server_url": "https://wire.count.ly/",
             "enable_new_registration": true,
+            "enforce_configuration_signature": true,
             "use_async_flush_logging": true,
         },
         "internal": {
@@ -84,6 +88,7 @@
             "analytics_app_key": "8ffae535f1836ed5f58fd5c8a11c00eca07c5438",
             "analytics_server_url": "https://wire.count.ly/",
             "enable_new_registration": true,
+            "enforce_configuration_signature": true,
             "use_strict_mls_filter": false,
             "use_async_flush_logging": true,
             "conversation_feeder_enabled": true,
@@ -98,7 +103,8 @@
             "analytics_enabled": false,
             "analytics_app_key": "",
             "analytics_server_url": "",
-            "enable_new_registration": true
+            "enable_new_registration": true,
+            "enforce_configuration_signature": true
         }
     },
     "application_name": "Wire",
@@ -165,5 +171,10 @@
     "is_bubble_ui_enabled": true,
     "collabora_integration": true,
     "db_invalidation_control_enabled": false,
+    "configuration_signature_keys": [
+        "MCowBQYDK2VwAyEAFbodixhcegKs4NkpPjjzJYHAxKLlye04SuZ2JNJ9RCc=",
+        "MCowBQYDK2VwAyEAkAH9FXpKfjp1PX0HeVo5JeYi6h/zDUNwkURIuEZ+7FY="
+    ],
+    "enforce_configuration_signature": true,
     "nomad_profiles_enabled": false
 }

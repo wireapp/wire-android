@@ -25,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.BuildConfig
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.di.DefaultWebSocketEnabledByDefault
@@ -33,12 +34,12 @@ import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
 import com.wire.android.ui.authentication.login.email.LoginEmailViewModel.Companion.RESEND_TIMER_DELAY
 import com.wire.android.ui.common.textfield.textAsFlow
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.ui.registration.code.CreateAccountCodeResult
 import com.wire.android.util.WillNeverOccurError
 import com.wire.android.util.ui.CountdownTimer
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
+import com.wire.kalium.logic.data.session.StoreSessionParam
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
@@ -182,11 +183,13 @@ class CreateAccountCodeViewModel @Inject constructor(
                 }
             }
             val storedUserId = addAuthenticatedUser(
-                authTokens = registerResult.authData,
-                ssoId = registerResult.ssoID,
-                serverConfigId = registerResult.serverConfigId,
-                proxyCredentials = registerResult.proxyCredentials,
-                isPersistentWebSocketEnabled = defaultWebSocketEnabledByDefault,
+                StoreSessionParam(
+                    accountTokens = registerResult.authData,
+                    ssoId = registerResult.ssoID,
+                    serverConfigId = registerResult.serverConfigId,
+                    proxyCredentials = registerResult.proxyCredentials,
+                    isPersistentWebSocketEnabled = defaultWebSocketEnabledByDefault,
+                ),
                 replace = false
             ).let {
                 when (it) {

@@ -139,7 +139,7 @@ class InitialSyncViewModelTest {
         }
 
         fun withAutomatedLoginPending(): Arrangement = apply {
-            automatedLoginManager.pendingMoveToBackgroundAfterSync = true
+            automatedLoginManager.markPendingMoveToBackgroundAfterSync()
         }
 
         fun arrange() = viewModel to this

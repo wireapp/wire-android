@@ -58,8 +58,12 @@ class IntentsProcessor internal constructor(
         internal const val SKIP_SIGNATURE_VERIFICATION_TOKEN = "skip"
         private const val ED25519_DER_PUBLIC_KEY_HEADER_LENGTH = 12
         private const val ED25519_PUBLIC_KEY_LENGTH = 32
+        private val ED25519_DER_PUBLIC_KEY_HEADER = byteArrayOf(
+            0x30, 0x2A, 0x30, 0x05, 0x06, 0x03, 0x2B, 0x65, 0x70, 0x03, 0x21, 0x00
+        )
     }
 
+    @Suppress("ReturnCount")
     operator fun invoke(intent: Intent?): AutomatedLoginViaSSO? {
         @Serializable
         data class Parameters(
@@ -118,6 +122,8 @@ class IntentsProcessor internal constructor(
             runCatching {
                 // DER-encoded Ed25519 public key: 12 bytes ASN.1 header + 32 bytes raw key
                 val decodedKey = Base64.decode(b64DerKey.replace("\\s".toRegex(), ""))
+                require(decodedKey.size == ED25519_DER_PUBLIC_KEY_HEADER_LENGTH + ED25519_PUBLIC_KEY_LENGTH)
+                require(decodedKey.take(ED25519_DER_PUBLIC_KEY_HEADER_LENGTH).toByteArray().contentEquals(ED25519_DER_PUBLIC_KEY_HEADER))
                 val rawKey = decodedKey
                     .drop(ED25519_DER_PUBLIC_KEY_HEADER_LENGTH)
                     .toByteArray()

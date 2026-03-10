@@ -66,8 +66,7 @@ class InitialSyncViewModel @Inject constructor(
                     userDataStoreProvider.getOrCreate(userId).setInitialSyncCompleted()
                 }
             }?.let {
-                if (automatedLoginManager.pendingMoveToBackgroundAfterSync) {
-                    automatedLoginManager.pendingMoveToBackgroundAfterSync = false
+                if (automatedLoginManager.consumePendingMoveToBackgroundAfterSync()) {
                     shouldMoveToBackground = true
                 }
                 isSyncCompleted = true

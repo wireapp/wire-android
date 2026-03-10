@@ -397,7 +397,7 @@ class WireActivityViewModel @Inject constructor(
             if (backendConfigLoadFailed || nothingProvided) {
                 sendAction(OnUnknownDeepLink)
             } else {
-                automatedLoginManager.pendingMoveToBackgroundAfterSync = true
+                automatedLoginManager.markPendingMoveToBackgroundAfterSync()
                 sendAction(OnAutomaticLogin(serverLinks, ssoCode))
             }
         }

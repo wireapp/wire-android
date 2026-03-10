@@ -55,7 +55,7 @@ class NomadLogoutReceiver : CoroutineReceiver() {
     @Inject
     lateinit var nomadProfilesFeatureConfig: NomadProfilesFeatureConfig
 
-    override suspend fun receive(context: Context, intent: Intent) {
+    public override suspend fun receive(context: Context, intent: Intent) {
         if (!nomadProfilesFeatureConfig.isEnabled()) return
         if (intent.action != ACTION_LOGOUT) return
 

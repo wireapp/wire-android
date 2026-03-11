@@ -19,8 +19,8 @@ package com.wire.android.feature.cells.ui.publiclink
 
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
+import com.ramcosta.composedestinations.generated.cells.navArgs
 import com.wire.android.config.NavigationTestExtension
-import com.wire.android.feature.cells.ui.navArgs
 import com.wire.android.feature.cells.util.FileHelper
 import com.wire.kalium.cells.domain.model.PublicLink
 import com.wire.kalium.cells.domain.usecase.publiclink.CreatePublicLinkUseCase

@@ -36,6 +36,7 @@ import com.wire.android.framework.TestUser
 import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.LoginPasswordPath
 import com.wire.android.ui.authentication.login.LoginState
+import com.wire.android.ui.authentication.login.SSOCodeAutoLogin
 import com.wire.android.ui.common.dialogs.CustomServerDetailsDialogState
 import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.EMPTY
@@ -277,6 +278,7 @@ class LoginSSOViewModelTest {
             arrangement.ssoExtension.establishSSOSession(
                 eq(expectedCookie),
                 eq(SERVER_CONFIG.id),
+                any(),
                 capture(onAuthScopeFailureSlot),
                 capture(onSSOLoginFailureSlot),
                 capture(onAddAuthenticatedUserFailureSlot),
@@ -309,6 +311,7 @@ class LoginSSOViewModelTest {
                 arrangement.ssoExtension.establishSSOSession(
                     eq(expectedCookie),
                     eq(SERVER_CONFIG.id),
+                    any(),
                     capture(onAuthScopeFailureSlot),
                     capture(onSSOLoginFailureSlot),
                     capture(onAddAuthenticatedUserFailureSlot),
@@ -340,6 +343,7 @@ class LoginSSOViewModelTest {
             arrangement.ssoExtension.establishSSOSession(
                 eq(expectedCookie),
                 eq(SERVER_CONFIG.id),
+                any(),
                 capture(onAuthScopeFailureSlot),
                 capture(onSSOLoginFailureSlot),
                 capture(onAddAuthenticatedUserFailureSlot),
@@ -389,6 +393,7 @@ class LoginSSOViewModelTest {
                 arrangement.ssoExtension.establishSSOSession(
                     eq(expectedCookie),
                     eq(SERVER_CONFIG.id),
+                    any(),
                     capture(onAuthScopeFailureSlot),
                     capture(onSSOLoginFailureSlot),
                     capture(onAddAuthenticatedUserFailureSlot),
@@ -415,6 +420,7 @@ class LoginSSOViewModelTest {
                 arrangement.ssoExtension.establishSSOSession(
                     eq(expectedCookie),
                     eq(SERVER_CONFIG.id),
+                    any(),
                     capture(onAuthScopeFailureSlot),
                     capture(onSSOLoginFailureSlot),
                     capture(onAddAuthenticatedUserFailureSlot),
@@ -443,6 +449,7 @@ class LoginSSOViewModelTest {
                 arrangement.ssoExtension.establishSSOSession(
                     eq(expectedCookie),
                     eq(SERVER_CONFIG.id),
+                    any(),
                     capture(onAuthScopeFailureSlot),
                     capture(onSSOLoginFailureSlot),
                     capture(onAddAuthenticatedUserFailureSlot),
@@ -471,6 +478,7 @@ class LoginSSOViewModelTest {
             arrangement.ssoExtension.establishSSOSession(
                 eq(expectedCookie),
                 eq(customConfig.id),
+                any(),
                 capture(onAuthScopeFailureSlot),
                 capture(onSSOLoginFailureSlot),
                 capture(onAddAuthenticatedUserFailureSlot),
@@ -481,6 +489,35 @@ class LoginSSOViewModelTest {
 
         coVerify(exactly = 1) { arrangement.getOrRegisterClientUseCase(any()) }
         loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Success>()
+    }
+
+    @Test
+    fun `given automated nomad login, when establishSSOSession is called twice, then nomad url is consumed once`() = runTest {
+        val expectedCookie = "some-cookie"
+        val nomadServiceUrl = "https://nomad.example.com/service"
+        val (arrangement, loginViewModel) = Arrangement()
+            .withEstablishSSOSession(expectedCookie)
+            .withNomadAutoLogin(nomadServiceUrl)
+            .arrange()
+        val consumeNomadServiceUrlProviders = mutableListOf<() -> String?>()
+
+        loginViewModel.establishSSOSession(expectedCookie, SERVER_CONFIG.id)
+        loginViewModel.establishSSOSession(expectedCookie, SERVER_CONFIG.id)
+        advanceUntilIdle()
+
+        coVerify(exactly = 2) {
+            arrangement.ssoExtension.establishSSOSession(
+                eq(expectedCookie),
+                eq(SERVER_CONFIG.id),
+                capture(consumeNomadServiceUrlProviders),
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        }
+        assertEquals(nomadServiceUrl, consumeNomadServiceUrlProviders[0]())
+        assertEquals(null, consumeNomadServiceUrlProviders[1]())
     }
 
     @Test
@@ -769,6 +806,7 @@ class LoginSSOViewModelTest {
                     any(),
                     any(),
                     any(),
+                    any(),
                     any()
                 )
             } returns Unit
@@ -787,6 +825,16 @@ class LoginSSOViewModelTest {
 
         fun withValidateEmailReturning(result: Boolean) = apply {
             every { validateEmailUseCase(any()) } returns result
+        }
+
+        fun withNomadAutoLogin(nomadServiceUrl: String) = apply {
+            every { savedStateHandle.navArgs<LoginNavArgs>() } returns LoginNavArgs(
+                loginPasswordPath = LoginPasswordPath(SERVER_CONFIG.links),
+                ssoCodeAutoLogin = SSOCodeAutoLogin(
+                    ssoCode = "wire-sso-code",
+                    nomadServiceUrl = nomadServiceUrl
+                )
+            )
         }
 
         fun arrange() = this to LoginSSOViewModel(

@@ -811,6 +811,7 @@ class WireActivityViewModelTest {
                 OnAutomaticLogin(
                     serverLinks = serverLinks,
                     ssoCode = "wire-b6261497-5b7d-4a57-8f4d-3a94e936b2c0",
+                    nomadServiceUrl = "https://nomad.example.com",
                     useNewLogin = false
                 ),
                 expectMostRecentItem()

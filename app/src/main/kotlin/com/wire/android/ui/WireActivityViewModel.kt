@@ -383,13 +383,21 @@ class WireActivityViewModel @Inject constructor(
         if (!nomadProfilesFeatureConfig.isEnabled()) return false
         val result = intentsProcessor.get().invoke(intent)
         if (result != null) {
-            onAutomaticLoginParameters(result.backendConfig, result.ssoCode)
+            onAutomaticLoginParameters(
+                result.backendConfig,
+                result.ssoCode,
+                result.nomadProfilesHost,
+            )
             return true
         }
         return false
     }
 
-    private fun onAutomaticLoginParameters(backendConfigUrl: String?, ssoCode: String?) {
+    private fun onAutomaticLoginParameters(
+        backendConfigUrl: String?,
+        ssoCode: String?,
+        nomadServiceUrl: String?,
+    ) {
         viewModelScope.launch(dispatchers.io()) {
             // Load backend config
             val serverLinks = backendConfigUrl?.let { loadServerConfig(it) }
@@ -404,6 +412,7 @@ class WireActivityViewModel @Inject constructor(
                     OnAutomaticLogin(
                         serverLinks = serverLinks,
                         ssoCode = ssoCode,
+                        nomadServiceUrl = nomadServiceUrl,
                         useNewLogin = resolveUseNewLogin(LoginType.Default, serverLinks)
                     )
                 )
@@ -722,12 +731,15 @@ internal data class OnMigrationLogin(val result: DeepLinkResult.MigrationLogin) 
 internal data class OnAutomaticLogin(
     val serverLinks: ServerConfig.Links?,
     val ssoCode: String?,
+    val nomadServiceUrl: String?,
     val useNewLogin: Boolean,
 ) : WireActivityViewAction
+
 internal data class OnCustomBackendLogin(
     val serverLinks: ServerConfig.Links,
     val useNewLogin: Boolean,
 ) : WireActivityViewAction
+
 internal data class OnOpenUserProfile(val result: DeepLinkResult.OpenOtherUserProfile) : WireActivityViewAction
 internal data class OnSSOLogin(val result: DeepLinkResult.SSOLogin) : WireActivityViewAction
 internal data class ShowToast(val messageResId: Int) : WireActivityViewAction

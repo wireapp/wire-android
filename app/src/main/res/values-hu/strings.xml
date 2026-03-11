@@ -830,7 +830,6 @@
     <string name="label_conversation_media">Média</string>
     <string name="label_conversation_pictures">Képek</string>
     <string name="label_conversation_pictures_empty">Ebben a beszélgetésben még senki nem osztott meg képet 🥲</string>
-    <string name="label_conversation_files">Fájlok</string>
     <string name="label_conversation_files_empty">Ebben a beszégetésben még senki nem osztott meg fájlt 🙀</string>
     <!-- Search Contact-->
     <string name="label_contacts">Névjegyek</string>

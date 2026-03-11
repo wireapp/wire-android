@@ -43,6 +43,7 @@ import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
+import com.wire.android.ui.home.conversations.usecase.ObserveMessageForConversationUseCase
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.startFileShareIntent
@@ -111,6 +112,7 @@ class ConversationMessagesViewModel(
     private val dispatchers: DispatcherProvider,
     private val getMessageForConversation: GetMessagesForConversationUseCase,
     private val fetchOlderNomadMessages: FetchOlderNomadMessagesByConversationUseCase,
+    private val observeMessageForConversation: ObserveMessageForConversationUseCase,
     private val toggleReaction: ToggleReactionUseCase,
     private val resetSession: ResetSessionUseCase,
     private val audioMessagePlayer: ConversationAudioMessagePlayer,
@@ -128,6 +130,7 @@ class ConversationMessagesViewModel(
     val conversationId: QualifiedID = conversationEntryArgs.conversationId
     private val searchedMessageIdNavArgs: String? = conversationEntryArgs.searchedMessageId
     private val threadIdNavArgs: String? = conversationEntryArgs.threadContext?.threadId
+    val threadRootMessageId: String? = conversationEntryArgs.threadContext?.threadRootMessageId
     val isThreadMode: Boolean = conversationEntryArgs.threadContext != null
 
     private var isCellEnabledForConversation: Boolean = false
@@ -156,6 +159,7 @@ class ConversationMessagesViewModel(
         observeAudioPlayerState()
         observeAssetStatuses()
         observeNetworkAvailability()
+        observeThreadRootMessage()
     }
 
     private fun observeNetworkAvailability() {
@@ -163,6 +167,17 @@ class ConversationMessagesViewModel(
             networkStateObserver.observeNetworkState().collect { networkState ->
                 conversationViewState = conversationViewState.copy(
                     isNetworkAvailable = networkState is NetworkState.ConnectedWithInternet
+                )
+            }
+        }
+    }
+
+    private fun observeThreadRootMessage() {
+        val rootMessageId = threadRootMessageId ?: return
+        viewModelScope.launch {
+            observeMessageForConversation(conversationId, rootMessageId).collectLatest { message ->
+                conversationViewState = conversationViewState.copy(
+                    threadRootMessage = message as? UIMessage.Regular
                 )
             }
         }

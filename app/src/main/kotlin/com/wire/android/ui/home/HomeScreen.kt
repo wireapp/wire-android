@@ -75,7 +75,6 @@ import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.handleNavigation
 import com.wire.android.navigation.rememberWireNavHostEngine
 import com.ramcosta.composedestinations.generated.app.navgraphs.HomeGraph
-import com.ramcosta.composedestinations.generated.app.navgraphs.WireRootGraph
 import com.wire.android.ui.analytics.AnalyticsUsageViewModel
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.HandleActions
@@ -364,8 +363,8 @@ fun HomeContent(
                         if (lifecycleState != Lifecycle.State.DESTROYED) {
                             val navHostEngine = rememberWireNavHostEngine()
                             DestinationsNavHost(
-                                navGraph = WireRootGraph,
-                                start = HomeGraph,
+                                navGraph = HomeGraph,
+                                start = HomeGraph.defaultStartDirection,
                                 engine = navHostEngine,
                                 navController = navController,
                                 dependenciesContainerBuilder = {

@@ -62,6 +62,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 private const val SEARCH_DEBOUNCE_MILLIS = 200L
+
 @Suppress("TooManyFunctions")
 @HiltViewModel
 class SearchScreenViewModel @Inject constructor(

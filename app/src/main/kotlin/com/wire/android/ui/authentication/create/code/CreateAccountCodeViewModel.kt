@@ -39,6 +39,7 @@ import com.wire.android.util.WillNeverOccurError
 import com.wire.android.util.ui.CountdownTimer
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
+import com.wire.kalium.logic.data.session.StoreSessionParam
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
@@ -144,7 +145,7 @@ class CreateAccountCodeViewModel @Inject constructor(
             )
     }
 
-    @Suppress("ComplexMethod")
+    @Suppress("ComplexMethod", "LongMethod")
     private fun onCodeContinue() {
         codeState = codeState.copy(loading = true)
         viewModelScope.launch {
@@ -182,11 +183,13 @@ class CreateAccountCodeViewModel @Inject constructor(
                 }
             }
             val storedUserId = addAuthenticatedUser(
-                authTokens = registerResult.authData,
-                ssoId = registerResult.ssoID,
-                serverConfigId = registerResult.serverConfigId,
-                proxyCredentials = registerResult.proxyCredentials,
-                isPersistentWebSocketEnabled = defaultWebSocketEnabledByDefault,
+                StoreSessionParam(
+                    accountTokens = registerResult.authData,
+                    ssoId = registerResult.ssoID,
+                    serverConfigId = registerResult.serverConfigId,
+                    proxyCredentials = registerResult.proxyCredentials,
+                    isPersistentWebSocketEnabled = defaultWebSocketEnabledByDefault,
+                ),
                 replace = false
             ).let {
                 when (it) {

@@ -77,6 +77,7 @@ class HomeDrawerViewModel @Inject constructor(
             ) { wireCellsEnabled, unreadArchiveConversationsCount, teamManagementUrl ->
                 buildList {
                     add(DrawerUiItem.RegularItem(destination = HomeDestination.Conversations))
+                    add(DrawerUiItem.RegularItem(destination = HomeDestination.Threads))
                     if (wireCellsEnabled) {
                         add(DrawerUiItem.RegularItem(destination = HomeDestination.Cells))
                     }

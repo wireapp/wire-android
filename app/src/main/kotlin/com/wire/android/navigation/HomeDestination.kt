@@ -25,6 +25,7 @@ import com.wire.android.R
 import com.ramcosta.composedestinations.generated.app.destinations.AllConversationsScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.ArchiveScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.GlobalCellsScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.GlobalThreadsScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.MeetingsScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.SettingsScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.VaultScreenDestination
@@ -48,6 +49,13 @@ sealed class HomeDestination(
         fab = FabOptions.NewConversation,
         filterAction = FilterActionOptions.FilterConversations,
         direction = AllConversationsScreenDestination
+    )
+
+    data object Threads : HomeDestination(
+        title = UIText.StringResource(R.string.threads_screen_title),
+        icon = R.drawable.ic_reply,
+        searchBar = SearchBarOptions(),
+        direction = GlobalThreadsScreenDestination
     )
 
     data object Settings : HomeDestination(
@@ -148,6 +156,6 @@ sealed class HomeDestination(
             values().find { it.direction.baseRoute == fullRoute.getBaseRoute() }
 
         fun values(): Array<HomeDestination> =
-            arrayOf(Conversations, Settings, Vault, Archive, Support, TeamManagement, WhatsNew, Cells, Meetings)
+            arrayOf(Conversations, Threads, Settings, Vault, Archive, Support, TeamManagement, WhatsNew, Cells, Meetings)
     }
 }

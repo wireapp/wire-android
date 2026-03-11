@@ -549,6 +549,10 @@
     <string name="label_message_status_deleted">Deleted</string>
     <string name="label_message_status_edited">Edited</string>
     <string name="conversations_screen_title">Conversations</string>
+    <string name="threads_screen_title">Threads</string>
+    <string name="threads_empty_title">No threads yet</string>
+    <string name="threads_empty_description">Start a thread from any message and it will show up here.</string>
+    <string name="threads_empty_search_description">Try a different conversation name or thread topic.</string>
     <string name="conversations_all_tab_title">All</string>
     <string name="conversations_calls_tab_title">Calls</string>
     <string name="conversations_mentions_tab_title">Mentions</string>
@@ -1081,6 +1085,8 @@
     <string name="notification_action_reply">Reply</string>
     <string name="label_reply_in_thread">Reply in thread</string>
     <string name="label_thread">Thread</string>
+    <string name="thread_root_fallback_label">Thread started</string>
+    <string name="threads_search_empty_title">No matching threads</string>
     <string name="notification_receiver_name">You</string>
     <string name="label_type_a_message">Type a message</string>
     <string name="notification_action_open_call">Open Call</string>

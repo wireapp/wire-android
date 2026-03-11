@@ -22,12 +22,12 @@ import com.ionspin.kotlin.crypto.LibsodiumInitializer
 import com.ionspin.kotlin.crypto.signature.Signature
 import com.wire.android.BuildConfig
 import com.wire.android.config.NomadProfilesFeatureConfig
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import java.net.URI
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.io.encoding.Base64
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
 
 data class AutomatedLoginViaSSO(
     val backendConfig: String? = null,
@@ -79,7 +79,11 @@ class IntentsProcessor internal constructor(
                 ?.let { Json.decodeFromString<Parameters>(it) }
         }.getOrNull() ?: return null
 
-        if (!nomadProfilesFeatureConfig.isEnabled() || parsed.nomadProfilesHost == null) {
+        if (!nomadProfilesFeatureConfig.isEnabled() || parsed.nomadProfilesHost.isNullOrEmpty()) {
+            return null
+        }
+
+        if (parsed.ssoCode.isNullOrEmpty() || parsed.backendConfig.isNullOrEmpty()) {
             return null
         }
 

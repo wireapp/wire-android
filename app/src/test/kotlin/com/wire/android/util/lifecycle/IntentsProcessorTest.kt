@@ -68,7 +68,7 @@ class IntentsProcessorTest {
     }
 
     @Test
-    fun `given valid JSON with ssoCode and nomadProfilesHost, returns AutomatedLoginViaSSO`() {
+    fun `given valid JSON with ssoCode and nomadProfilesHost but no backendConfig, returns null`() {
         val (arrangement, intentsProcessor) = Arrangement()
             .withAutomatedLoginExtra(
                 automatedLoginJson(
@@ -78,13 +78,7 @@ class IntentsProcessorTest {
                 )
             )
             .arrange()
-        assertEquals(
-            AutomatedLoginViaSSO(
-                ssoCode = FAKE_SSO_CODE,
-                nomadProfilesHost = FAKE_NOMAD_PROFILES_HOST
-            ),
-            intentsProcessor(arrangement.intent)
-        )
+        assertNull(intentsProcessor(arrangement.intent))
     }
 
     @Test

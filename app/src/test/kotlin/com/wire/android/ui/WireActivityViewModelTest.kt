@@ -108,6 +108,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertInstanceOf
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -777,7 +778,7 @@ class WireActivityViewModelTest {
         }
 
     @Test
-    fun `given valid automated_login intent, when handling intents, then automated login manager pending flag is set`() = runTest {
+    fun `given automated_login intent with only ssoCode, when handling intents, then intent is ignored`() = runTest {
         val ssoCode = "wire-b6261497-5b7d-4a57-8f4d-3a94e936b2c0"
         val (arrangement, viewModel) = Arrangement()
             .withAutomatedLoginIntent(ssoCode = ssoCode)
@@ -786,8 +787,8 @@ class WireActivityViewModelTest {
         val handled = viewModel.handleIntentsThatAreNotDeepLinks(mockedIntent())
         advanceUntilIdle()
 
-        assertTrue(handled)
-        assertTrue(arrangement.automatedLoginManager.pendingMoveToBackgroundAfterSync)
+        assertFalse(handled)
+        assertFalse(arrangement.automatedLoginManager.pendingMoveToBackgroundAfterSync)
     }
 
     @Test
@@ -815,6 +816,19 @@ class WireActivityViewModelTest {
                 expectMostRecentItem()
             )
         }
+    }
+
+    @Test
+    fun `given automated login intent with only backend config, when handling intents, then automated login manager pending flag is set`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withAutomatedLoginIntent(backendConfig = "url")
+            .arrange()
+
+        val handled = viewModel.handleIntentsThatAreNotDeepLinks(mockedIntent())
+        advanceUntilIdle()
+
+        assertTrue(handled)
+        assertTrue(arrangement.automatedLoginManager.pendingMoveToBackgroundAfterSync)
     }
 
     @Test
@@ -1193,13 +1207,17 @@ class WireActivityViewModelTest {
         }
 
         fun withAutomatedLoginIntent(
-            ssoCode: String,
+            ssoCode: String? = null,
             backendConfig: String? = null
         ): Arrangement = apply {
-            every { intentsProcessor(any()) } returns AutomatedLoginViaSSO(
-                ssoCode = ssoCode,
-                backendConfig = backendConfig
-            )
+            every { intentsProcessor(any()) } returns when {
+                ssoCode != null && backendConfig == null -> null
+                else -> AutomatedLoginViaSSO(
+                    ssoCode = ssoCode,
+                    backendConfig = backendConfig,
+                    nomadProfilesHost = "https://nomad.example.com"
+                )
+            }
         }
 
         fun withNomadProfilesEnabled(enabled: Boolean): Arrangement = apply {

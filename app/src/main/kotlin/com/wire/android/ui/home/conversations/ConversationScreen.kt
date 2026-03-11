@@ -555,8 +555,24 @@ internal fun ConversationScreenHost(
         },
         composerMessages = sendMessageViewModel.infoMessage,
         conversationMessages = conversationMessagesViewModel.infoMessage,
+        threadRootMessage = conversationMessagesViewModel.conversationViewState.threadRootMessage,
         threadSummaryByRootMessageId = conversationMessagesViewModel.conversationViewState.threadSummaryByRootMessageId,
         isThreadMode = isThreadMode,
+        onOpenThreadParentConversation = {
+            conversationMessagesViewModel.threadRootMessageId?.let { rootMessageId ->
+                navigator.navigate(
+                    NavigationCommand(
+                        ConversationScreenDestination(
+                            navArgs = ConversationNavArgs(
+                                conversationId = conversationMessagesViewModel.conversationId,
+                                searchedMessageId = rootMessageId,
+                            )
+                        ),
+                        BackStackMode.UPDATE_EXISTED,
+                    )
+                )
+            }
+        },
         shareAssetExternally = conversationMessagesViewModel::shareAsset,
         shareAssetViaWire = { messageId ->
             conversationMessagesViewModel.prepareAssetForWireShare(messageId) { path, assetName ->
@@ -802,8 +818,10 @@ private fun ConversationScreenContent(
     openDrawingCanvas: () -> Unit,
     onAttachmentClick: (AttachmentDraftUi) -> Unit,
     onAttachmentMenuClick: (AttachmentDraftUi) -> Unit,
+    threadRootMessage: UIMessage.Regular? = null,
     threadSummaryByRootMessageId: PersistentMap<String, ThreadSummaryUi> = persistentMapOf(),
     isThreadMode: Boolean = false,
+    onOpenThreadParentConversation: () -> Unit = {},
     onReplyInThreadClick: (UIMessage.Regular) -> Unit = {},
     onOpenThreadClick: (threadId: String, rootMessageId: String, rootMessageSelfDeletionDurationMillis: Long?) -> Unit = { _, _, _ -> },
     onVisibleRootMessagesChanged: (List<String>) -> Unit = {},
@@ -845,6 +863,16 @@ private fun ConversationScreenContent(
                     )
 
                     HorizontalDivider(color = colorsScheme().outline)
+
+                    if (isThreadMode) {
+                        ThreadContextHeader(
+                            conversationId = conversationInfoViewState.conversationId,
+                            conversationName = conversationInfoViewState.conversationName.asString(),
+                            rootMessage = threadRootMessage,
+                            onOpenParentConversation = onOpenThreadParentConversation,
+                        )
+                        HorizontalDivider(color = colorsScheme().outline)
+                    }
 
                     ConversationBanner(
                         bannerMessage = bannerMessage,

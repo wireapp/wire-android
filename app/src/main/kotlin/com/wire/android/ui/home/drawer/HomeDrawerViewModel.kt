@@ -79,6 +79,7 @@ class HomeDrawerViewModel(
 
                 buildList {
                     add(DrawerUiItem.RegularItem(destination = HomeDestination.Conversations))
+                    add(DrawerUiItem.RegularItem(destination = HomeDestination.Threads))
                     if (shouldShowCells) {
                         add(DrawerUiItem.RegularItem(destination = HomeDestination.Cells))
                     }

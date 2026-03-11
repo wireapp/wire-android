@@ -12,7 +12,7 @@ ktx-dateTime = "0.6.1"
 ktx-immutableCollections = "0.3.8"
 ktx-serialization = "1.8.1"
 koin = "3.5.3"
-datafaker = "2.4.2"
+datafaker = "1.9.0"
 
 # Android Core / Architecture
 detekt = "1.23.8"
@@ -39,7 +39,7 @@ androidx-lifecycle = "2.10.0"
 androidx-paging3 = "3.3.6"
 androidx-paging3Compose = "3.3.4"
 androidx-splashscreen = "1.2.0"
-androidx-workManager = "2.9.1"
+androidx-workManager = "2.11.1"
 androidx-browser = "1.8.0"
 androidx-biometric = "1.1.0"
 androidx-startup = "1.2.0"
@@ -158,7 +158,6 @@ kover-gradlePlugin = { module = "org.jetbrains.kotlinx:kover-gradle-plugin", ver
 ktx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "ktx-serialization" }
 ktx-dateTime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "ktx-dateTime" }
 ktx-immutableCollections = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "ktx-immutableCollections" }
-androidx-compose-animation = { group = "androidx.compose.animation", name = "animation" }
 
 ksp-symbol-processing-api = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "ksp" }
 ksp-symbol-processing-plugin = { module = "com.google.devtools.ksp:symbol-processing-gradle-plugin", version.ref = "ksp" }

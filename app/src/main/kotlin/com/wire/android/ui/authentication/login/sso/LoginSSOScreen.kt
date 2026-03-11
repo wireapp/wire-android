@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -64,7 +65,7 @@ fun LoginSSOScreen(
     onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit,
     onRemoveDeviceNeeded: () -> Unit,
     ssoLoginResult: DeepLinkResult.SSOLogin?,
-    ssoUrlConfigHolder: SSOUrlConfigHolder,
+    ssoCodeAutoLogin: com.wire.android.ui.authentication.login.SSOCodeAutoLogin?,
     loginSSOViewModel: LoginSSOViewModel = hiltViewModel(),
     scrollState: ScrollState = rememberScrollState()
 ) {
@@ -72,7 +73,22 @@ fun LoginSSOScreen(
     val context = LocalContext.current
 
     LaunchedEffect(ssoLoginResult) {
-        loginSSOViewModel.handleSSOResult(ssoLoginResult, ssoUrlConfigHolder.get()?.serverConfig)
+        loginSSOViewModel.handleSSOResult(
+            ssoLoginResult,
+        )
+    }
+
+    // Handle SSO code auto-login from intent parameter
+    LaunchedEffect(ssoCodeAutoLogin) {
+        ssoCodeAutoLogin?.let {
+            // Pre-fill the SSO code
+            loginSSOViewModel.ssoTextState.setTextAndPlaceCursorAtEnd(it.ssoCode)
+
+            // Auto-initiate login if flag is set
+            if (it.autoInitiateLogin) {
+                loginSSOViewModel.login()
+            }
+        }
     }
     LoginSSOContent(
         scrollState = scrollState,
@@ -85,12 +101,11 @@ fun LoginSSOScreen(
         },
         onLoginButtonClick = loginSSOViewModel::login,
         onCustomServerDialogDismiss = loginSSOViewModel::onCustomServerDialogDismiss,
-         onCustomServerDialogConfirm = loginSSOViewModel::onCustomServerDialogConfirm
+        onCustomServerDialogConfirm = loginSSOViewModel::onCustomServerDialogConfirm
     )
 
     LaunchedEffect(loginSSOViewModel) {
         loginSSOViewModel.openWebUrl.onEach { (url, serverConfig) ->
-            ssoUrlConfigHolder.set(SSOUrlConfig(serverConfig))
             CustomTabsHelper.launchUrl(context, url)
         }.launchIn(scope)
     }

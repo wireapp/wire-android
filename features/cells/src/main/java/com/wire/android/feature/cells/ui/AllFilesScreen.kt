@@ -19,18 +19,16 @@ package com.wire.android.feature.cells.ui
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.ramcosta.composedestinations.generated.cells.destinations.AddRemoveTagsScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.PublicLinkScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.SearchScreenDestination
+import com.ramcosta.composedestinations.generated.cells.destinations.SearchScreenDestination.invoke
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.search.DriveSearchScreenType
 import com.wire.android.navigation.NavigationCommand
@@ -49,7 +47,6 @@ fun AllFilesScreen(
     viewModel: CellViewModel = hiltViewModel()
 ) {
     val pagingListItems = viewModel.nodesFlow.collectAsLazyPagingItems()
-    val focusRequester = remember { FocusRequester() }
 
     WireScaffold(
         modifier = modifier,
@@ -59,7 +56,7 @@ fun AllFilesScreen(
                     modifier = Modifier,
                     isSearchActive = false,
                     searchBarHint = stringResource(R.string.search_label),
-                    searchQueryTextState = TextFieldState(),
+                    searchQueryTextState = rememberTextFieldState(),
                     onTap = {
                         navigator.navigate(
                             NavigationCommand(SearchScreenDestination(screenType = DriveSearchScreenType.DRIVE))

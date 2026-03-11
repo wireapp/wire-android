@@ -68,11 +68,6 @@
     <string name="rename_enter_folder_name">Bir klasör adı girin</string>
     <string name="rename_file_renamed">Dosya yeniden adlandırıldı</string>
     <string name="rename_folder_renamed">Klasör yeniden adlandırıldı</string>
-    <string name="filter_label">Filtre</string>
-    <string name="tags_label">Etiketler</string>
-    <string name="select_tags_label">etiketleri seç</string>
-    <string name="clear_all_label">Tümünü temizle</string>
-    <string name="apply_label">Uygula</string>
     <string name="added_tags_label">Eklenen etiketler</string>
     <string name="add_tag_label">Etiket ekle</string>
     <string name="enter_name_label">Etiket adı girin</string>

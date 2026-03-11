@@ -28,7 +28,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.ramcosta.composedestinations.generated.cells.destinations.AddRemoveTagsScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.PublicLinkScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.SearchScreenDestination.invoke
+import com.ramcosta.composedestinations.generated.cells.destinations.SearchScreenDestination
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.search.DriveSearchScreenType
 import com.wire.android.navigation.NavigationCommand

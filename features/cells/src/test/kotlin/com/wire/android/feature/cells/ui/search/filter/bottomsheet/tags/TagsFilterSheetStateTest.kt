@@ -230,4 +230,3 @@ class TagsFilterSheetStateTest {
         assertEquals("Zebra", filtered[3].name)
     }
 }
-

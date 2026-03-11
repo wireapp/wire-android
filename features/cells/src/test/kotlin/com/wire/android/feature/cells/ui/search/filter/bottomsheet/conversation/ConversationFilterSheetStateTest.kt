@@ -279,4 +279,3 @@ class ConversationFilterSheetStateTest {
         assertEquals(conv2Id, selected.first().id)
     }
 }
-

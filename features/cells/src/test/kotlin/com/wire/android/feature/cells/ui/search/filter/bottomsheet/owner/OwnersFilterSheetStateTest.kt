@@ -235,4 +235,3 @@ class OwnersFilterSheetStateTest {
         assertTrue(state.filteredOwners("test").isEmpty())
     }
 }
-

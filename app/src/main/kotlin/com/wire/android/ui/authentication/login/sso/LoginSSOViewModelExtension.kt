@@ -20,6 +20,7 @@ package com.wire.android.ui.authentication.login.sso
 import com.wire.android.appLogger
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
+import com.wire.kalium.logic.data.session.StoreSessionParam
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthenticationScope
@@ -111,12 +112,14 @@ class LoginSSOViewModelExtension(
         }
 
         val authenticatedUserResult = addAuthenticatedUser(
-            authTokens = ssoLoginSuccess.accountTokens,
-            ssoId = ssoLoginSuccess.ssoId,
-            serverConfigId = serverConfigId,
-            proxyCredentials = ssoLoginSuccess.proxyCredentials,
-            managedBy = ssoLoginSuccess.managedBy,
-            isPersistentWebSocketEnabled = defaultWebSocketEnabledByDefault,
+            StoreSessionParam(
+                accountTokens = ssoLoginSuccess.accountTokens,
+                ssoId = ssoLoginSuccess.ssoId,
+                serverConfigId = serverConfigId,
+                proxyCredentials = ssoLoginSuccess.proxyCredentials,
+                managedBy = ssoLoginSuccess.managedBy,
+                isPersistentWebSocketEnabled = defaultWebSocketEnabledByDefault,
+            ),
             replace = false
         )
 

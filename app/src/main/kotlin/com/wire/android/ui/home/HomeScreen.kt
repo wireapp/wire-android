@@ -68,7 +68,6 @@ import com.ramcosta.composedestinations.generated.app.destinations.NewConversati
 import com.ramcosta.composedestinations.generated.app.destinations.OtherUserProfileScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.SelfUserProfileScreenDestination
 import com.ramcosta.composedestinations.generated.app.navgraphs.HomeGraph
-import com.ramcosta.composedestinations.generated.app.navgraphs.WireRootGraph
 import com.ramcosta.composedestinations.navigation.dependency
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
@@ -360,8 +359,8 @@ fun HomeContent(
                         if (lifecycleState != Lifecycle.State.DESTROYED) {
                             val navHostEngine = rememberWireNavHostEngine()
                             DestinationsNavHost(
-                                navGraph = WireRootGraph,
-                                start = HomeGraph,
+                                navGraph = HomeGraph,
+                                start = HomeGraph.defaultStartDirection,
                                 engine = navHostEngine,
                                 navController = navController,
                                 dependenciesContainerBuilder = {

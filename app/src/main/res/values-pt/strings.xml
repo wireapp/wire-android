@@ -790,7 +790,6 @@ Uma mensagem excluída não pode ser restaurada.</string>
     <string name="label_conversation_media">Mídia</string>
     <string name="label_conversation_pictures">Imagens</string>
     <string name="label_conversation_pictures_empty">Ninguém compartilhou fotos nesta conversa ainda 🥲</string>
-    <string name="label_conversation_files">Arquivos</string>
     <string name="label_conversation_files_empty">Ninguém compartilhou arquivos nesta conversa ainda 🙀</string>
     <!-- Search Contact-->
     <string name="label_contacts">Contatos</string>

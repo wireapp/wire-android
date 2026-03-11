@@ -846,7 +846,6 @@
     <string name="label_conversation_media">මාධ්‍ය</string>
     <string name="label_conversation_pictures">ඡායාරූප</string>
     <string name="label_conversation_pictures_empty">කිසිවෙක් මෙම සංවාදයෙහි ඡායාරූප බෙදාගෙන නැත 🥲</string>
-    <string name="label_conversation_files">ගොනු</string>
     <string name="label_conversation_files_empty">කිසිවෙක් මෙම සංවාදයෙහි ගොනු බෙදාගෙන නැත 🙀</string>
     <!-- Search Contact-->
     <string name="label_contacts">සම්බන්ධතා</string>

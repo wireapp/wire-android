@@ -48,8 +48,8 @@ sealed interface SortingCriteria {
     ) : SortingCriteria {
         override val by: SortBy = SortBy.Modified
 
-        data object NewestFirst : Modified(R.string.sort_modified_newest_first, SortDirection.Asc)
-        data object OldestFirst : Modified(R.string.sort_modified_oldest_first, SortDirection.Desc)
+        data object NewestFirst : Modified(R.string.sort_modified_newest_first, SortDirection.Desc)
+        data object OldestFirst : Modified(R.string.sort_modified_oldest_first, SortDirection.Asc)
     }
 
     sealed class Name(

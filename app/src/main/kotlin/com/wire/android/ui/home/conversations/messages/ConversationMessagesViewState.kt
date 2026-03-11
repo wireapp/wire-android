@@ -37,6 +37,7 @@ data class ConversationMessagesViewState(
     val playingAudioMessage: PlayingAudioMessage = PlayingAudioMessage.None,
     val assetStatuses: PersistentMap<String, MessageAssetStatus> = persistentMapOf(),
     val threadSummaryByRootMessageId: PersistentMap<String, ThreadSummaryUi> = persistentMapOf(),
+    val threadRootMessage: UIMessage.Regular? = null,
     val searchedMessageId: String? = null
 )
 

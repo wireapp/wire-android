@@ -68,6 +68,8 @@ fun SearchTopBar(
     searchQueryTextState: TextFieldState,
     modifier: Modifier = Modifier,
     isLoading: Boolean = false,
+    shouldClearTextOnClearFocus: Boolean = true,
+    keepBackButtonVisible: Boolean = false,
     backIconContentDescription: String? = null,
     searchBarDescription: String? = null,
     onCloseSearchClicked: (() -> Unit)? = null,
@@ -84,8 +86,10 @@ fun SearchTopBar(
         if (isActive) {
             focusRequester.requestFocus()
         } else {
-            focusManager.clearFocus()
-            searchQueryTextState.clearText()
+            focusManager.clearFocus(true)
+            if (shouldClearTextOnClearFocus) {
+                searchQueryTextState.clearText()
+            }
         }
     }
 
@@ -110,7 +114,7 @@ fun SearchTopBar(
             isLoading = isLoading,
             textFieldState = textFieldState,
             leadingIcon = {
-                AnimatedContent(!isSearchActive, label = "") { showSearchIcon ->
+                AnimatedContent(!isSearchActive && !keepBackButtonVisible, label = "") { showSearchIcon ->
                     if (showSearchIcon) {
                         Box(
                             contentAlignment = Alignment.Center,
@@ -145,9 +149,11 @@ fun SearchTopBar(
             onTap = onTap,
             modifier = Modifier
                 .padding(dimensions().spacing8x)
-                .focusable(enabled = isSearchActive)
+                .focusable(enabled = true)
                 .focusRequester(focusRequester)
-                .onFocusEvent { onActiveChanged(it.isFocused) }
+                .onFocusEvent {
+                    onActiveChanged(it.isFocused)
+                }
         )
         bottomContent()
     }

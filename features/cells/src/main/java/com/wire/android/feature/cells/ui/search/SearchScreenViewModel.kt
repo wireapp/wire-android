@@ -26,21 +26,26 @@ import androidx.paging.map
 import com.ramcosta.composedestinations.generated.cells.destinations.SearchScreenDestination
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.toUiModel
+import com.wire.android.feature.cells.ui.search.filter.data.FilterConversationUi
 import com.wire.android.feature.cells.ui.search.filter.data.FilterOwnerUi
 import com.wire.android.feature.cells.ui.search.filter.data.FilterTagUi
 import com.wire.android.feature.cells.ui.search.filter.data.FilterTypeUi
 import com.wire.android.feature.cells.ui.search.sort.SortBy
 import com.wire.android.feature.cells.ui.search.sort.SortingCriteria
+import com.wire.android.feature.cells.ui.search.sort.toKaliumCriteria
 import com.wire.android.model.ImageAsset
 import com.wire.kalium.cells.data.FileFilters
 import com.wire.kalium.cells.data.MIMEType
 import com.wire.kalium.cells.data.SortingSpec
 import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
+import com.wire.kalium.cells.domain.usecase.GetCellGroupConversationsUseCase
+import com.wire.kalium.cells.domain.usecase.GetCellGroupConversationsUseCaseResult
 import com.wire.kalium.cells.domain.usecase.GetOwnersUseCase
 import com.wire.kalium.cells.domain.usecase.GetOwnersUseCaseResult
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
 import com.wire.kalium.common.functional.onSuccess
+import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.user.UserAssetId
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
@@ -48,6 +53,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
@@ -55,7 +61,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-// TODO: to cover it with  unit test in upcoming PR
+private const val SEARCH_DEBOUNCE_MILLIS = 200L
 @Suppress("TooManyFunctions")
 @HiltViewModel
 class SearchScreenViewModel @Inject constructor(
@@ -63,6 +69,7 @@ class SearchScreenViewModel @Inject constructor(
     private val getAllTagsUseCase: GetAllTagsUseCase,
     private val getCellFilesPaged: GetPaginatedFilesFlowUseCase,
     private val getOwners: GetOwnersUseCase,
+    private val getCellGroupConversations: GetCellGroupConversationsUseCase,
 ) : ViewModel() {
 
     private data class SearchParams(
@@ -71,35 +78,44 @@ class SearchScreenViewModel @Inject constructor(
         val ownerIds: List<String>,
         val mimeTypes: List<MIMEType>,
         val filesWithPublicLink: Boolean?,
-        val sortingCriteria: SortingCriteria
+        val sortingCriteria: SortingCriteria,
+        val conversationId: String?,
     )
 
     private val navArgs: SearchNavArgs = SearchScreenDestination.argsFrom(savedStateHandle)
+
+    val screenType = navArgs.screenType
 
     private val _uiState = MutableStateFlow(SearchUiState())
     val uiState: StateFlow<SearchUiState> = _uiState.asStateFlow()
 
     private val queryFlow = MutableStateFlow("")
 
+    private val debouncedQueryFlow: Flow<String> = queryFlow
+        .debounce(SEARCH_DEBOUNCE_MILLIS)
+        .distinctUntilChanged()
+
     private val searchParamsFlow: Flow<SearchParams> =
         combine(
-            queryFlow,
+            debouncedQueryFlow,
             uiState,
         ) { query, state ->
+            val selectedConversationId = state.availableConversations.firstOrNull { it.selected }?.id?.toString()
             SearchParams(
                 query = query,
                 tagIds = state.availableTags.filter { it.selected }.map { it.id },
                 ownerIds = state.availableOwners.filter { it.selected }.map { it.id },
                 mimeTypes = state.availableTypes.filter { it.selected }.map { it.mimeType },
                 filesWithPublicLink = state.filesWithPublicLink,
-                sortingCriteria = state.sortingCriteria
+                sortingCriteria = state.sortingCriteria,
+                conversationId = selectedConversationId ?: navArgs.conversationId,
             )
         }.distinctUntilChanged()
 
     val cellNodesFlow: Flow<PagingData<CellNodeUi>> =
         searchParamsFlow.flatMapLatest<SearchParams, PagingData<CellNodeUi>> { params: SearchParams ->
             getCellFilesPaged(
-                conversationId = navArgs.conversationId,
+                conversationId = params.conversationId,
                 query = params.query,
                 fileFilters = FileFilters(
                     tags = params.tagIds,
@@ -124,6 +140,9 @@ class SearchScreenViewModel @Inject constructor(
     init {
         loadTags()
         loadOwners()
+        if (screenType == DriveSearchScreenType.DRIVE) {
+            loadConversations()
+        }
     }
 
     internal fun loadTags() = viewModelScope.launch {
@@ -139,6 +158,32 @@ class SearchScreenViewModel @Inject constructor(
                 )
             }
         }
+    }
+
+    internal fun loadConversations() = viewModelScope.launch {
+        val result = getCellGroupConversations()
+        if (result is GetCellGroupConversationsUseCaseResult.Success) {
+            _uiState.update {
+                it.copy(
+                    availableConversations = result.conversations.map { conversation ->
+                        FilterConversationUi(
+                            id = conversation.id,
+                            name = conversation.name,
+                            isChannel = conversation.isChannel,
+                            isPrivateChannel = conversation.channelAccess == ConversationDetails.Group.Channel.ChannelAccess.PRIVATE,
+                        )
+                    }.sortedBy { it.name.uppercase() }
+                )
+            }
+        }
+    }
+
+    fun onSearchQueryChanged(query: String) {
+        queryFlow.value = query
+    }
+
+    fun onSetSearchActive(active: Boolean) {
+        _uiState.update { it.copy(isSearchActive = active) }
     }
 
     fun loadOwners(conversationId: String? = navArgs.conversationId) {
@@ -167,8 +212,7 @@ class SearchScreenViewModel @Inject constructor(
                             userAvatarAsset = avatarAsset,
                             selected = false
                         )
-                    }
-                        .sortedBy { it.displayName.uppercase() }
+                    }.sortedBy { it.displayName.uppercase() }
 
                     _uiState.update { state ->
                         state.copy(
@@ -177,15 +221,30 @@ class SearchScreenViewModel @Inject constructor(
                     }
                 }
 
-                is GetOwnersUseCaseResult.Failure -> {
-                    // no need to show error, just keep the owners list empty
-                }
+                is GetOwnersUseCaseResult.Failure -> {}
             }
         }
     }
 
-    fun onSearchQueryChanged(query: String) {
-        queryFlow.value = query
+    private fun applySelectedConversations(selectedId: String?) {
+        _uiState.update { state ->
+            state.copy(
+                availableConversations = state.availableConversations.map { conversation ->
+                    conversation.copy(selected = conversation.id.toString() == selectedId)
+                }
+            )
+        }
+    }
+
+    fun onSaveConversations(selectedConversations: List<FilterConversationUi>) {
+        val selectedId = selectedConversations.firstOrNull { it.selected }?.id?.toString()
+        applySelectedConversations(selectedId)
+    }
+
+    fun onRemoveConversations() {
+        _uiState.update { state ->
+            state.copy(availableConversations = state.availableConversations.map { it.copy(selected = false) })
+        }
     }
 
     private fun applySelectedTags(selectedIds: Set<String>) {
@@ -256,6 +315,7 @@ class SearchScreenViewModel @Inject constructor(
         onRemoveAllTags()
         onRemoveOwners()
         onRemoveTypeFilter()
+        onRemoveConversations()
         _uiState.update {
             it.copy(filesWithPublicLink = false)
         }
@@ -284,15 +344,3 @@ fun defaultCriteriaFor(by: SortBy): SortingCriteria = when (by) {
     SortBy.Name -> SortingCriteria.Name.AtoZ
     SortBy.Size -> SortingCriteria.Size.SmallestFirst
 }
-
-fun SortingCriteria.toKaliumCriteria(): com.wire.kalium.cells.data.SortingCriteria =
-    when (by) {
-        SortBy.Modified ->
-            com.wire.kalium.cells.data.SortingCriteria.MODIFICATION_TIME
-
-        SortBy.Name ->
-            com.wire.kalium.cells.data.SortingCriteria.NAME_CASE_INSENSITIVE
-
-        SortBy.Size ->
-            com.wire.kalium.cells.data.SortingCriteria.SIZE
-    }

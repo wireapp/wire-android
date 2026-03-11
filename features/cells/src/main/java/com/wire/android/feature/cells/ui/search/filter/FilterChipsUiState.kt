@@ -21,11 +21,12 @@ data class FilterChipsUiState(
     val tagsCount: Int,
     val typeCount: Int,
     val ownerCount: Int,
+    val conversationCount: Int,
     val isSharedByLinkSelected: Boolean,
     val hasAnyFilter: Boolean,
     val tagsChipEnabled: Boolean,
     val typeChipEnabled: Boolean,
     val ownerChipEnabled: Boolean,
+    val conversationChipEnabled: Boolean,
     val publicLinkChipEnabled: Boolean,
-    val shouldPlayHint: Boolean = false,
 )

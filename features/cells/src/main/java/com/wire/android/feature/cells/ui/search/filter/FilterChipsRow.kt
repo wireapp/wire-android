@@ -31,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.wire.android.feature.cells.R
+import com.wire.android.feature.cells.ui.search.DriveSearchScreenType
 import com.wire.android.ui.common.chip.WireFilterChip
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -41,11 +42,13 @@ import com.wire.android.ui.theme.WireTheme
 @Composable
 fun FilterChipsRow(
     state: FilterChipsUiState,
+    screenType: DriveSearchScreenType,
     modifier: Modifier = Modifier,
     onFilterByTagsClicked: () -> Unit = { },
     onFilterByTypeClicked: () -> Unit = { },
     onFilterByOwnerClicked: () -> Unit = { },
     onRemoveAllFiltersClicked: () -> Unit = { },
+    onFilterByConversationClicked: () -> Unit = { },
     onFilterBySharedByLinkClicked: () -> Unit = { }
 ) {
     val scrollState = rememberScrollState()
@@ -71,18 +74,44 @@ fun FilterChipsRow(
         horizontalArrangement = Arrangement.spacedBy(dimensions().spacing8x)
     ) {
         with(state) {
-            DropdownChip(R.string.filter_chip_tags, tagsCount, tagsChipEnabled, onFilterByTagsClicked)
-            DropdownChip(R.string.filter_chip_type, typeCount, typeChipEnabled, onFilterByTypeClicked)
-            DropdownChip(R.string.filter_chip_owner, ownerCount, ownerChipEnabled, onFilterByOwnerClicked)
-            WireFilterChip(
-                label = stringResource(R.string.filter_chip_link_sharing),
-                isSelected = isSharedByLinkSelected,
-                isEnabled = publicLinkChipEnabled,
-                onClick = {
-                    onFilterBySharedByLinkClicked()
-                }
-            )
+            screenType.filters.forEach { filter ->
+                when (filter) {
+                    FilterTypes.TAGS -> DropdownChip(
+                        filter.labelRes,
+                        state.tagsCount,
+                        state.tagsChipEnabled,
+                        onFilterByTagsClicked
+                    )
 
+                    FilterTypes.TYPE -> DropdownChip(
+                        filter.labelRes,
+                        state.typeCount,
+                        state.typeChipEnabled,
+                        onFilterByTypeClicked
+                    )
+
+                    FilterTypes.OWNER -> DropdownChip(
+                        filter.labelRes,
+                        state.ownerCount,
+                        state.ownerChipEnabled,
+                        onFilterByOwnerClicked
+                    )
+
+                    FilterTypes.CONVERSATION -> DropdownChip(
+                        filter.labelRes,
+                        state.conversationCount,
+                        state.conversationChipEnabled,
+                        onFilterByConversationClicked
+                    )
+
+                    FilterTypes.LINK -> WireFilterChip(
+                        label = stringResource(filter.labelRes),
+                        isSelected = state.isSharedByLinkSelected,
+                        isEnabled = state.publicLinkChipEnabled,
+                        onClick = { onFilterBySharedByLinkClicked() }
+                    )
+                }
+            }
             if (hasAnyFilter) {
                 Text(
                     modifier = Modifier
@@ -106,13 +135,16 @@ fun PreviewFilterChipsRow() {
                 tagsCount = 2,
                 typeCount = 1,
                 ownerCount = 0,
+                conversationCount = 1,
                 isSharedByLinkSelected = true,
                 hasAnyFilter = true,
                 tagsChipEnabled = false,
                 typeChipEnabled = false,
                 ownerChipEnabled = true,
+                conversationChipEnabled = false,
                 publicLinkChipEnabled = false,
-            )
+            ),
+            screenType = DriveSearchScreenType.SHARED_DRIVE,
         )
     }
 }

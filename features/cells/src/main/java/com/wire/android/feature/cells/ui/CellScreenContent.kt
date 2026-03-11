@@ -94,7 +94,6 @@ internal fun CellScreenContent(
     isRecycleBin: Boolean = false,
     isAllFiles: Boolean = false,
     isSearchResult: Boolean = false,
-    isFiltering: Boolean = false,
     isPullToRefreshEnabled: Boolean = true,
     lazyListState: LazyListState = rememberLazyListState(),
     retryEditNodeError: (String) -> Unit = {},
@@ -129,7 +128,6 @@ internal fun CellScreenContent(
             isSearchResult = isSearchResult,
             isAllFiles = isAllFiles,
             isRecycleBin = isRecycleBin,
-            isFiltering = isFiltering,
         )
 
         else ->
@@ -271,7 +269,6 @@ private fun EmptyScreen(
     isSearchResult: Boolean = false,
     isAllFiles: Boolean = true,
     isRecycleBin: Boolean = false,
-    isFiltering: Boolean = false,
 ) {
     Column(
         modifier = modifier
@@ -286,7 +283,7 @@ private fun EmptyScreen(
                 .weight(1f)
         )
         val emptyMessage = when {
-            isFiltering || isSearchResult -> stringResource(R.string.no_results_found_label)
+            isSearchResult -> stringResource(R.string.no_results_found_label)
             isAllFiles -> stringResource(R.string.file_list_empty_title)
             else -> stringResource(R.string.file_list_empty_title)
         }
@@ -298,7 +295,6 @@ private fun EmptyScreen(
         Spacer(modifier = Modifier.height(dimensions().spacing24x))
         Text(
             text = when {
-                isFiltering -> stringResource(R.string.filters_try_adjusting_your_filters_label)
                 isSearchResult -> stringResource(R.string.file_list_search_empty_message)
                 isAllFiles -> stringResource(R.string.file_list_empty_message)
                 isRecycleBin -> stringResource(R.string.empty_recycle_bin)
@@ -309,7 +305,7 @@ private fun EmptyScreen(
         )
         Spacer(modifier = Modifier.height(dimensions().spacing24x))
 
-        if (!isFiltering && !isRecycleBin && !isAllFiles) {
+        if (!isRecycleBin && !isAllFiles) {
             LearnMoreLink(
                 textRes = R.string.empty_screen_learn_more_conversation,
                 urlRes = R.string.empty_screen_learn_more_link_conversation,

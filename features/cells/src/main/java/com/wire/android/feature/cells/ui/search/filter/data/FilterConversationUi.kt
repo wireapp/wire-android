@@ -15,9 +15,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.feature.cells.ui.search
+package com.wire.android.feature.cells.ui.search.filter.data
 
-data class SearchNavArgs(
-    val conversationId: String? = null,
-    val screenType: DriveSearchScreenType = DriveSearchScreenType.SHARED_DRIVE,
+import com.wire.kalium.logic.data.id.ConversationId
+
+data class FilterConversationUi(
+    val id: ConversationId,
+    val name: String,
+    val isChannel: Boolean = false,
+    val isPrivateChannel: Boolean = false,
+    val selected: Boolean = false
 )

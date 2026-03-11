@@ -28,3 +28,4 @@ val LocalSharedTransitionScope =
     }
 
 const val SHARED_ELEMENT_SEARCH_INPUT_KEY = "search_bar"
+const val SHARED_ELEMENT_TOP_APP_BAR_KEY = "topAppBar"

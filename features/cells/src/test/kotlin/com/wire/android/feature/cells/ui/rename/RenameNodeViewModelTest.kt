@@ -19,8 +19,8 @@ package com.wire.android.feature.cells.ui.rename
 
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
+import com.ramcosta.composedestinations.generated.cells.navArgs
 import com.wire.android.feature.cells.ui.common.FileNameError
-import com.wire.android.feature.cells.ui.navArgs
 import com.wire.kalium.cells.domain.usecase.RenameNodeFailure
 import com.wire.kalium.cells.domain.usecase.RenameNodeUseCase
 import com.wire.kalium.common.error.CoreFailure

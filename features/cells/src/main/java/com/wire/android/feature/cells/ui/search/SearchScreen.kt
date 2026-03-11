@@ -50,6 +50,7 @@ import com.wire.android.feature.cells.ui.CellViewModel
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.search.filter.FilterChipsRow
 import com.wire.android.feature.cells.ui.search.filter.bottomsheet.FilterByTypeBottomSheet
+import com.wire.android.feature.cells.ui.search.filter.bottomsheet.conversation.FilterByConversationBottomSheet
 import com.wire.android.feature.cells.ui.search.filter.bottomsheet.owner.FilterByOwnerBottomSheet
 import com.wire.android.feature.cells.ui.search.filter.bottomsheet.tags.FilterByTagsBottomSheet
 import com.wire.android.feature.cells.ui.search.sort.SortRowWithMenu
@@ -84,6 +85,7 @@ fun SearchScreen(
     val filterTypeSheetState = rememberWireModalSheetState<Unit>(WireSheetValue.Hidden)
     val filterTagsSheetState = rememberWireModalSheetState<Unit>(WireSheetValue.Hidden)
     val filterOwnerSheetState = rememberWireModalSheetState<Unit>(WireSheetValue.Hidden)
+    val filterConversationSheetState = rememberWireModalSheetState<Unit>(WireSheetValue.Hidden)
 
     val isImeVisible = WindowInsets.isImeVisible
 
@@ -108,24 +110,39 @@ fun SearchScreen(
                             animatedVisibilityScope = animatedVisibilityScope
                         ),
                         isSearchActive = uiState.isSearchActive,
-                        searchBarHint = stringResource(R.string.search_shared_drive_text_input_hint),
+                        shouldClearTextOnClearFocus = false,
+                        keepBackButtonVisible = true,
+                        searchBarHint = when (searchScreenViewModel.screenType) {
+                            DriveSearchScreenType.SHARED_DRIVE -> stringResource(R.string.search_shared_drive_text_input_hint)
+                            DriveSearchScreenType.DRIVE -> stringResource(R.string.search_drive_text_input_hint)
+                        },
                         searchQueryTextState = searchState,
                         onCloseSearchClicked = { navigator.navigateBack() },
-                        onActiveChanged = { },
+                        onActiveChanged = {
+                            searchScreenViewModel.onSetSearchActive(it)
+                        },
                     )
                     FilterChipsRow(
                         state = uiState.chipsState,
+                        screenType = searchScreenViewModel.screenType,
                         onFilterByTagsClicked = {
+                            searchScreenViewModel.onSetSearchActive(false)
                             filterTagsSheetState.show(Unit, isImeVisible)
                         },
                         onFilterByTypeClicked = {
+                            searchScreenViewModel.onSetSearchActive(false)
                             filterTypeSheetState.show(Unit, isImeVisible)
                         },
                         onFilterByOwnerClicked = {
+                            searchScreenViewModel.onSetSearchActive(false)
                             filterOwnerSheetState.show(Unit, isImeVisible)
                         },
                         onFilterBySharedByLinkClicked = {
                             searchScreenViewModel.onSharedByMeClicked()
+                        },
+                        onFilterByConversationClicked = {
+                            searchScreenViewModel.onSetSearchActive(false)
+                            filterConversationSheetState.show(Unit, isImeVisible)
                         },
                         onRemoveAllFiltersClicked = {
                             searchScreenViewModel.onRemoveAllFilters()
@@ -134,6 +151,7 @@ fun SearchScreen(
 
                     with(uiState) {
                         SortRowWithMenu(
+                            screenType = searchScreenViewModel.screenType,
                             sortingCriteria = sortingCriteria,
                             isSearchResult = searchState.text.isNotEmpty() || hasAnyFilter,
                             onSortByClicked = {
@@ -264,5 +282,20 @@ fun SearchScreen(
             filterOwnerSheetState.hide()
         },
         onRemoveAll = { searchScreenViewModel.onRemoveOwners() }
+    )
+
+    FilterByConversationBottomSheet(
+        sheetState = filterConversationSheetState,
+        conversations = uiState.availableConversations,
+        onDismiss = {
+            filterConversationSheetState.hide()
+        },
+        onRemoveAll = {
+            searchScreenViewModel.onRemoveConversations()
+        },
+        onSave = { selectedItems ->
+            searchScreenViewModel.onSaveConversations(selectedItems)
+            filterConversationSheetState.hide()
+        }
     )
 }

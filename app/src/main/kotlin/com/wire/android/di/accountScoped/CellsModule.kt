@@ -27,6 +27,7 @@ import com.wire.kalium.cells.domain.usecase.AddAttachmentDraftUseCase
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
 import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
 import com.wire.kalium.cells.domain.usecase.GetCellFileUseCase
+import com.wire.kalium.cells.domain.usecase.GetCellGroupConversationsUseCase
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
 import com.wire.kalium.cells.domain.usecase.GetFoldersUseCase
 import com.wire.kalium.cells.domain.usecase.GetMessageAttachmentUseCase
@@ -252,4 +253,9 @@ class CellsModule {
     @ViewModelScoped
     @Provides
     fun provideGetCellsConfigUseCase(cellsScope: CellsScope): GetWireCellConfigurationUseCase = cellsScope.getCellConfig
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetCellGroupConversationsUseCase(cellsScope: CellsScope): GetCellGroupConversationsUseCase =
+        cellsScope.getCellGroupConversationsUseCase
 }

@@ -23,6 +23,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -241,28 +243,36 @@ private fun ThreadSummaryChip(
     val replyCount = visibleReplyCount.coerceAtMost(Int.MAX_VALUE.toLong()).toInt()
     Row(
         modifier = modifier
+            .fillMaxWidth()
             .background(
-                color = messageStyle.surface().copy(alpha = if (enabled) 0.35f else 0.2f),
+                color = messageStyle.surface().copy(alpha = if (enabled) 0.55f else 0.3f),
                 shape = RoundedCornerShape(dimensions().corner12x)
             )
             .clickable(enabled = enabled, onClick = onClick)
             .padding(
-                horizontal = dimensions().spacing8x,
-                vertical = dimensions().spacing4x
+                horizontal = dimensions().spacing12x,
+                vertical = dimensions().spacing8x
             ),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(
-            painter = painterResource(id = R.drawable.ic_unread_reply),
+            painter = painterResource(id = R.drawable.thread_icn),
             contentDescription = null,
             tint = messageStyle.highlighted(),
-            modifier = Modifier.size(dimensions().spacing14x),
+            modifier = Modifier.size(dimensions().spacing20x),
         )
-        HorizontalSpace.x4()
+        HorizontalSpace.x8()
         Text(
             text = pluralStringResource(R.plurals.unread_event_reply, replyCount, replyCount),
-            style = MaterialTheme.typography.labelSmall,
+            style = MaterialTheme.typography.titleSmall,
             color = if (enabled) messageStyle.highlighted() else messageStyle.onSurface(),
+        )
+        Spacer(modifier = Modifier.weight(1f))
+        Icon(
+            painter = painterResource(id = R.drawable.ic_dropdown_icon),
+            contentDescription = null,
+            tint = if (enabled) messageStyle.highlighted() else messageStyle.onSurface(),
+            modifier = Modifier.size(dimensions().spacing20x),
         )
     }
 }

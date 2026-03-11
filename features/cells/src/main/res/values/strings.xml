@@ -212,7 +212,7 @@
     <string name="button_remove_filter">Remove filter</string>
     <string name="search_shared_drive_text_input_hint">Search Shared Drive</string>
     <string name="search_drive_text_input_hint">Search Drive</string>
-    <string name="search_owners_text_input_hint">Search Created by</string>
+    <string name="search_owners_text_input_hint">Search created by</string>
     <string name="search_conversations_text_input_hint">Search conversation</string>
     <string name="filter_chip_tags">Tags</string>
     <string name="filter_chip_type">File type</string>

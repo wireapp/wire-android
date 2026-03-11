@@ -107,7 +107,7 @@ fun LoginScreen(
         },
         loginEmailViewModel = loginEmailViewModel,
         ssoLoginResult = loginNavArgs.ssoLoginResult,
-//        ssoUrlConfigHolder = ssoUrlConfigHolder,
+        ssoCodeAutoLogin = loginNavArgs.ssoCodeAutoLogin
     )
 }
 
@@ -118,6 +118,7 @@ private fun LoginContent(
     onRemoveDeviceNeeded: () -> Unit,
     loginEmailViewModel: LoginEmailViewModel,
     ssoLoginResult: DeepLinkResult.SSOLogin?,
+    ssoCodeAutoLogin: SSOCodeAutoLogin?,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         /*
@@ -140,7 +141,7 @@ private fun LoginContent(
                     onRemoveDeviceNeeded = onRemoveDeviceNeeded,
                     loginEmailViewModel = loginEmailViewModel,
                     ssoLoginResult = ssoLoginResult,
-//                    ssoUrlConfigHolder = ssoUrlConfigHolder
+                    ssoCodeAutoLogin = ssoCodeAutoLogin
                 )
             }
         }
@@ -155,11 +156,17 @@ private fun MainLoginContent(
     onRemoveDeviceNeeded: () -> Unit,
     loginEmailViewModel: LoginEmailViewModel,
     ssoLoginResult: DeepLinkResult.SSOLogin?,
+    ssoCodeAutoLogin: SSOCodeAutoLogin?,
 ) {
 
     val scope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
-    val initialPageIndex = if (ssoLoginResult == null) LoginTabItem.EMAIL.ordinal else LoginTabItem.SSO.ordinal
+    // Show SSO tab if we have either ssoLoginResult or ssoCodeAutoLogin
+    val initialPageIndex = if (ssoLoginResult != null || ssoCodeAutoLogin != null) {
+        LoginTabItem.SSO.ordinal
+    } else {
+        LoginTabItem.EMAIL.ordinal
+    }
     val pagerState = rememberPagerState(
         initialPage = initialPageIndex,
         pageCount = { LoginTabItem.values().size }
@@ -227,7 +234,7 @@ private fun MainLoginContent(
                         onSuccess,
                         onRemoveDeviceNeeded,
                         ssoLoginResult,
-//                        ssoUrlConfigHolder
+                        ssoCodeAutoLogin,
                     )
                 }
             }
@@ -259,7 +266,7 @@ private fun PreviewLoginScreen() = WireTheme {
             onRemoveDeviceNeeded = {},
             loginEmailViewModel = hiltViewModel(),
             ssoLoginResult = null,
-//            ssoUrlConfigHolder = SSOUrlConfigHolderPreview,
+            ssoCodeAutoLogin = null
         )
     }
 }

@@ -111,6 +111,8 @@ import java.io.InputStream
 import java.io.InputStreamReader
 import javax.inject.Inject
 
+private const val AUTOMATED_NOMAD_COOKIE_LABEL = "shared-device"
+
 @Suppress("LongParameterList", "TooManyFunctions")
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
@@ -413,6 +415,7 @@ class WireActivityViewModel @Inject constructor(
                         serverLinks = serverLinks,
                         ssoCode = ssoCode,
                         nomadServiceUrl = nomadServiceUrl,
+                        cookieLabel = AUTOMATED_NOMAD_COOKIE_LABEL,
                         useNewLogin = resolveUseNewLogin(LoginType.Default, serverLinks)
                     )
                 )
@@ -732,6 +735,7 @@ internal data class OnAutomaticLogin(
     val serverLinks: ServerConfig.Links?,
     val ssoCode: String?,
     val nomadServiceUrl: String?,
+    val cookieLabel: String? = null,
     val useNewLogin: Boolean,
 ) : WireActivityViewAction
 

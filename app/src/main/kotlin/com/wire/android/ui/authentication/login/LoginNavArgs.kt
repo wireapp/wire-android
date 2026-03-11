@@ -34,6 +34,7 @@ data class SSOCodeAutoLogin(
     val ssoCode: String,
     val autoInitiateLogin: Boolean = true,
     val nomadServiceUrl: String? = null,
+    val cookieLabel: String? = null,
 )
 
 @Serializable

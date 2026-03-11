@@ -68,7 +68,7 @@ class NewLoginViewModelTest {
         advanceUntilIdle()
 
         coVerify(exactly = 1) {
-            arrangement.loginSSOViewModelExtension.initiateSSO(any(), any(), any(), any(), any())
+            arrangement.loginSSOViewModelExtension.initiateSSO(any(), any(), any(), any(), any(), any())
         }
         coVerify(exactly = 0) {
             arrangement.authenticationScope.getLoginFlowForDomainUseCase(any())
@@ -87,7 +87,7 @@ class NewLoginViewModelTest {
         advanceUntilIdle()
 
         coVerify(exactly = 0) {
-            arrangement.loginSSOViewModelExtension.initiateSSO(any(), any(), any(), any(), any())
+            arrangement.loginSSOViewModelExtension.initiateSSO(any(), any(), any(), any(), any(), any())
         }
         coVerify(exactly = 1) {
             arrangement.authenticationScope.getLoginFlowForDomainUseCase(any())
@@ -107,7 +107,7 @@ class NewLoginViewModelTest {
             expectNoEvents()
 
             coVerify(exactly = 0) {
-                arrangement.loginSSOViewModelExtension.initiateSSO(any(), any(), any(), any(), any())
+                arrangement.loginSSOViewModelExtension.initiateSSO(any(), any(), any(), any(), any(), any())
             }
             coVerify(exactly = 0) {
                 arrangement.authenticationScope.getLoginFlowForDomainUseCase(any())
@@ -132,6 +132,30 @@ class NewLoginViewModelTest {
             advanceUntilIdle()
 
             assertEquals(NewLoginAction.SSO(redirectUrl, config), expectMostRecentItem())
+        }
+    }
+
+    @Test
+    fun `given automated nomad flow, when initiating SSO, then shared-device cookie label is passed`() = runTest(dispatchers.main()) {
+        val serverConfig = newServerConfig(1).links
+        val ssoCode = SSO_CODE_WITH_PREFIX
+        val (arrangement, viewModel) = Arrangement()
+            .withNomadAutoLogin("https://nomad.example.com/service")
+            .withInitiateSSOSuccess("https://redirect.url")
+            .arrange()
+
+        viewModel.initiateSSO(serverConfig, ssoCode)
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) {
+            arrangement.loginSSOViewModelExtension.initiateSSO(
+                eq(serverConfig),
+                eq(ssoCode),
+                eq("shared-device"),
+                any(),
+                any(),
+                any()
+            )
         }
     }
 
@@ -183,7 +207,7 @@ class NewLoginViewModelTest {
 
             expectNoEvents()
             coVerify(exactly = 1) {
-                arrangement.loginSSOViewModelExtension.initiateSSO(serverConfig, ssoCode, any(), any(), any())
+                arrangement.loginSSOViewModelExtension.initiateSSO(serverConfig, ssoCode, any(), any(), any(), any())
             }
         }
     }
@@ -203,7 +227,7 @@ class NewLoginViewModelTest {
                 assertEquals(serverConfig, it.customServerConfig)
             }
             coVerify(exactly = 0) {
-                arrangement.loginSSOViewModelExtension.initiateSSO(serverConfig, any(), any(), any(), any())
+                arrangement.loginSSOViewModelExtension.initiateSSO(serverConfig, any(), any(), any(), any(), any())
             }
         }
     }
@@ -388,7 +412,7 @@ class NewLoginViewModelTest {
         advanceUntilIdle()
 
         coVerify {
-            arrangement.loginSSOViewModelExtension.establishSSOSession(any(), any(), any(), any(), any(), any(), any())
+            arrangement.loginSSOViewModelExtension.establishSSOSession(any(), any(), any(), any(), any(), any(), any(), any())
         }
     }
 
@@ -414,6 +438,7 @@ class NewLoginViewModelTest {
                 eq("cookie"),
                 eq("server-config-id"),
                 capture(consumeNomadServiceUrlProviders),
+                any(),
                 any(),
                 any(),
                 any(),
@@ -505,7 +530,7 @@ class NewLoginViewModelTest {
 
             expectNoEvents()
             coVerify(exactly = 1) {
-                arrangement.loginSSOViewModelExtension.initiateSSO(any(), ssoCode, any(), any(), any())
+                arrangement.loginSSOViewModelExtension.initiateSSO(any(), ssoCode, any(), any(), any(), any())
             }
         }
     }
@@ -526,7 +551,7 @@ class NewLoginViewModelTest {
 
                 expectNoEvents()
                 coVerify(exactly = 1) {
-                    arrangement.loginSSOViewModelExtension.initiateSSO(any(), ssoCodeWithPrefix, any(), any(), any())
+                    arrangement.loginSSOViewModelExtension.initiateSSO(any(), ssoCodeWithPrefix, any(), any(), any(), any())
                 }
             }
         }
@@ -665,25 +690,25 @@ class NewLoginViewModelTest {
 
         fun withInitiateSSOAuthScopeFailure(failure: AutoVersionAuthScopeUseCase.Result.Failure) = apply {
             coEvery {
-                loginSSOViewModelExtension.initiateSSO(any(), any(), any(), any(), any())
+                loginSSOViewModelExtension.initiateSSO(any(), any(), any(), any(), any(), any())
             } coAnswers {
-                arg<(AutoVersionAuthScopeUseCase.Result.Failure) -> Unit>(2)(failure)
+                arg<(AutoVersionAuthScopeUseCase.Result.Failure) -> Unit>(3)(failure)
             }
         }
 
         fun withInitiateSSOFailure(failure: SSOInitiateLoginResult.Failure) = apply {
             coEvery {
-                loginSSOViewModelExtension.initiateSSO(any(), any(), any(), any(), any())
+                loginSSOViewModelExtension.initiateSSO(any(), any(), any(), any(), any(), any())
             } coAnswers {
-                arg<(SSOInitiateLoginResult.Failure) -> Unit>(3)(failure)
+                arg<(SSOInitiateLoginResult.Failure) -> Unit>(4)(failure)
             }
         }
 
         fun withInitiateSSOSuccess(url: String) = apply {
             coEvery {
-                loginSSOViewModelExtension.initiateSSO(any(), any(), any(), any(), any())
+                loginSSOViewModelExtension.initiateSSO(any(), any(), any(), any(), any(), any())
             } coAnswers {
-                arg<suspend (String) -> Unit>(4)(url)
+                arg<suspend (String) -> Unit>(5)(url)
             }
         }
 
@@ -713,33 +738,33 @@ class NewLoginViewModelTest {
 
         fun withEstablishSSOSessionAuthScopeFailure(failure: AutoVersionAuthScopeUseCase.Result.Failure) = apply {
             coEvery {
-                loginSSOViewModelExtension.establishSSOSession(any(), any(), any(), any(), any(), any(), any())
+                loginSSOViewModelExtension.establishSSOSession(any(), any(), any(), any(), any(), any(), any(), any())
             } coAnswers {
-                arg<(AutoVersionAuthScopeUseCase.Result.Failure) -> Unit>(3)(failure)
+                arg<(AutoVersionAuthScopeUseCase.Result.Failure) -> Unit>(4)(failure)
             }
         }
 
         fun withEstablishSSOSessionLoginFailure(failure: SSOLoginSessionResult.Failure) = apply {
             coEvery {
-                loginSSOViewModelExtension.establishSSOSession(any(), any(), any(), any(), any(), any(), any())
+                loginSSOViewModelExtension.establishSSOSession(any(), any(), any(), any(), any(), any(), any(), any())
             } coAnswers {
-                arg<(SSOLoginSessionResult.Failure) -> Unit>(4)(failure)
+                arg<(SSOLoginSessionResult.Failure) -> Unit>(5)(failure)
             }
         }
 
         fun withEstablishSSOSessionAddUserFailure(failure: AddAuthenticatedUserUseCase.Result.Failure) = apply {
             coEvery {
-                loginSSOViewModelExtension.establishSSOSession(any(), any(), any(), any(), any(), any(), any())
+                loginSSOViewModelExtension.establishSSOSession(any(), any(), any(), any(), any(), any(), any(), any())
             } coAnswers {
-                arg<(AddAuthenticatedUserUseCase.Result.Failure) -> Unit>(5)(failure)
+                arg<(AddAuthenticatedUserUseCase.Result.Failure) -> Unit>(6)(failure)
             }
         }
 
         fun withEstablishSSOSessionSuccess(userId: UserId) = apply {
             coEvery {
-                loginSSOViewModelExtension.establishSSOSession(any(), any(), any(), any(), any(), any(), any())
+                loginSSOViewModelExtension.establishSSOSession(any(), any(), any(), any(), any(), any(), any(), any())
             } coAnswers {
-                arg<suspend (UserId) -> Unit>(6)(userId)
+                arg<suspend (UserId) -> Unit>(7)(userId)
             }
         }
 
@@ -749,7 +774,8 @@ class NewLoginViewModelTest {
             } returns LoginNavArgs(
                 ssoCodeAutoLogin = SSOCodeAutoLogin(
                     ssoCode = "wire-sso-code",
-                    nomadServiceUrl = nomadServiceUrl
+                    nomadServiceUrl = nomadServiceUrl,
+                    cookieLabel = "shared-device"
                 )
             )
         }
@@ -1016,7 +1042,7 @@ class NewLoginViewModelTest {
 
             // Verify that initiateSSO was called (meaning the onSuccess lambda was executed)
             coVerify(exactly = 1) {
-                arrangement.loginSSOViewModelExtension.initiateSSO(serverConfig, defaultSSOCode, any(), any(), any())
+                arrangement.loginSSOViewModelExtension.initiateSSO(serverConfig, defaultSSOCode, any(), any(), any(), any())
             }
         }
 

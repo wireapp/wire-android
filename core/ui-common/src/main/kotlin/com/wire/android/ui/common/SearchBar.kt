@@ -62,7 +62,6 @@ fun SearchBarInput(
     textFieldState: WireTextFieldState = WireTextFieldState.Default,
     isLoading: Boolean = false,
     semanticDescription: String? = null,
-    textFieldState: WireTextFieldState = WireTextFieldState.Default,
     onTap: (() -> Unit)? = null
 ) {
 
@@ -73,7 +72,6 @@ fun SearchBarInput(
         leadingIcon = {
             leadingIcon()
         },
-        state = textFieldState,
         trailingIcon = {
             Box(
                 modifier = Modifier

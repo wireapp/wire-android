@@ -67,9 +67,9 @@ internal fun DebugToolsOptions(
     isAsyncNotificationsEnabled: Boolean,
     onEnableAsyncNotificationsChange: (Boolean) -> Unit,
 ) {
-    SectionHeader(stringResource(R.string.label_debug_tools_title))
     Column {
         if (BuildConfig.PRIVATE_BUILD) {
+            SectionHeader(stringResource(R.string.label_debug_tools_title))
             PrivateBuildDebugToolsOptions(
                 isEventProcessingEnabled = isEventProcessingEnabled,
                 onDisableEventProcessingChange = onDisableEventProcessingChange,
@@ -77,10 +77,10 @@ internal fun DebugToolsOptions(
                 onForceUpdateApiVersions = onForceUpdateApiVersions,
                 checkCrlRevocationList = checkCrlRevocationList,
                 isAsyncNotificationsEnabled = isAsyncNotificationsEnabled,
-                onEnableAsyncNotificationsChange = onEnableAsyncNotificationsChange
+                onEnableAsyncNotificationsChange = onEnableAsyncNotificationsChange,
+                onResendFCMToken = onResendFCMToken,
             )
         }
-        ProductionDebugToolsOptions(onResendFCMToken = onResendFCMToken)
     }
 }
 
@@ -93,6 +93,7 @@ private fun PrivateBuildDebugToolsOptions(
     checkCrlRevocationList: () -> Unit,
     isAsyncNotificationsEnabled: Boolean,
     onEnableAsyncNotificationsChange: (Boolean) -> Unit,
+    onResendFCMToken: () -> Unit,
 ) {
     Column {
         DisableEventProcessingSwitch(
@@ -103,14 +104,8 @@ private fun PrivateBuildDebugToolsOptions(
         CheckCrlRevocationButton(onClick = checkCrlRevocationList)
         ForceUpdateApiVersionsButton(onClick = onForceUpdateApiVersions)
         EnableAsyncNotifications(isAsyncNotificationsEnabled, onEnableAsyncNotificationsChange)
+        RegisterFCMPushTokenButton(onClick = onResendFCMToken)
     }
-}
-
-@Composable
-private fun ProductionDebugToolsOptions(
-    onResendFCMToken: () -> Unit,
-) {
-    RegisterFCMPushTokenButton(onClick = onResendFCMToken)
 }
 
 @Composable

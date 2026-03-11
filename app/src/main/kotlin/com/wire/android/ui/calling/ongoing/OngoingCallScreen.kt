@@ -71,6 +71,9 @@ import com.wire.android.ui.calling.controlbuttons.SpeakerButton
 import com.wire.android.ui.calling.model.CallState
 import com.wire.android.ui.calling.model.ConversationName
 import com.wire.android.ui.calling.model.UICallParticipant
+import com.wire.android.ui.calling.ongoing.details.CallDetailsBottomSheet
+import com.wire.android.ui.calling.ongoing.details.CallDetailsButton
+import com.wire.android.ui.calling.ongoing.details.CallDetailsSheetState
 import com.wire.android.ui.calling.ongoing.fullscreen.DoubleTapToast
 import com.wire.android.ui.calling.ongoing.fullscreen.FullScreenTile
 import com.wire.android.ui.calling.ongoing.fullscreen.SelectedParticipant
@@ -103,6 +106,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.PreviewMultipleThemesForLandscape
 import com.wire.android.util.ui.PreviewMultipleThemesForPortrait
 import com.wire.android.util.ui.PreviewMultipleThemesForSquare
+import com.wire.kalium.logic.data.call.CallQuality
 import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
@@ -128,11 +132,9 @@ fun OngoingCallScreen(
         creationCallback = { factory -> factory.create(conversationId = conversationId) }
     )
 ) {
-    val permissionPermanentlyDeniedDialogState =
-        rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
-
+    val permissionPermanentlyDeniedDialogState = rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
     val inCallReactionsState = rememberInCallReactionsState()
-
+    val callDetailsBottomSheetState = rememberWireModalSheetState<CallDetailsSheetState>()
     val activity = LocalActivity.current
     val isPiPAvailableOnThisDevice = activity.packageManager.hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE)
     val shouldUsePiPMode = BuildConfig.PICTURE_IN_PICTURE_ENABLED && isPiPAvailableOnThisDevice
@@ -211,6 +213,10 @@ fun OngoingCallScreen(
         participants = sharedCallingViewModel.participantsState,
         inPictureInPictureMode = inPictureInPictureMode,
         recentReactions = sharedCallingViewModel.recentReactions,
+        callQuality = ongoingCallViewModel.state.callQualityData.quality,
+        onOpenCallDetails = {
+            callDetailsBottomSheetState.show(CallDetailsSheetState.Details)
+        }
     )
     ObserveRotation(sharedCallingViewModel::setUIRotation)
 
@@ -257,6 +263,11 @@ fun OngoingCallScreen(
         startSendingVideoFeed = ongoingCallViewModel::startSendingVideoFeed,
         stopSendingVideoFeed = ongoingCallViewModel::stopSendingVideoFeed,
         clearVideoPreview = sharedCallingViewModel::clearVideoPreview,
+    )
+
+    CallDetailsBottomSheet(
+        sheetState = callDetailsBottomSheetState,
+        callQualityData = ongoingCallViewModel.state.callQualityData,
     )
 }
 
@@ -315,6 +326,7 @@ private fun OngoingCallContent(
     setVideoPreview: (view: View) -> Unit,
     clearVideoPreview: () -> Unit,
     onCollapse: () -> Unit,
+    onOpenCallDetails: () -> Unit,
     hideDoubleTapToast: () -> Unit,
     onCameraPermissionPermanentlyDenied: () -> Unit,
     onReactionClick: (String) -> Unit,
@@ -324,6 +336,7 @@ private fun OngoingCallContent(
     participants: PersistentList<UICallParticipant>,
     recentReactions: Map<UserId, String>,
     inPictureInPictureMode: Boolean,
+    callQuality: CallQuality,
     initialShowInCallReactionsPanel: Boolean = false, // for preview purposes
 ) {
     var shouldOpenFullScreen by remember { mutableStateOf(false) }
@@ -345,7 +358,9 @@ private fun OngoingCallContent(
                     onCollapse = onCollapse,
                     protocolInfo = callState.protocolInfo,
                     mlsVerificationStatus = callState.mlsVerificationStatus,
-                    proteusVerificationStatus = callState.proteusVerificationStatus
+                    proteusVerificationStatus = callState.proteusVerificationStatus,
+                    callQuality = callQuality,
+                    onOpenCallDetails = onOpenCallDetails
                 )
             }
         }
@@ -507,7 +522,9 @@ private fun OngoingCallTopBar(
     protocolInfo: Conversation.ProtocolInfo?,
     mlsVerificationStatus: Conversation.VerificationStatus?,
     proteusVerificationStatus: Conversation.VerificationStatus?,
-    onCollapse: () -> Unit
+    callQuality: CallQuality,
+    onCollapse: () -> Unit,
+    onOpenCallDetails: () -> Unit
 ) {
     Column {
         WireCenterAlignedTopAppBar(
@@ -534,7 +551,9 @@ private fun OngoingCallTopBar(
             },
             navigationIconType = NavigationIconType.Collapse,
             elevation = 0.dp,
-            actions = {}
+            actions = {
+                CallDetailsButton(callQuality = callQuality, onClick = onOpenCallDetails)
+            }
         )
         if (isCbrEnabled) {
             Text(
@@ -644,6 +663,8 @@ fun PreviewOngoingCallContent(participants: PersistentList<UICallParticipant>, i
         selectedParticipantForFullScreen = SelectedParticipant(),
         recentReactions = emptyMap(),
         initialShowInCallReactionsPanel = inCallReactionsPanelVisible,
+        callQuality = CallQuality.NORMAL,
+        onOpenCallDetails = {}
     )
 }
 
@@ -685,7 +706,13 @@ fun PreviewOngoingCallScreenConnecting() = WireTheme {
 @PreviewMultipleThemes
 @Composable
 fun PreviewOngoingCallTopBar() = WireTheme {
-    OngoingCallTopBar("Default", true, null, null, null) { }
+    OngoingCallTopBar("Default", true, null, null, null, CallQuality.NORMAL, {}, {})
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewOngoingCallTopBarWithPoorQuality() = WireTheme {
+    OngoingCallTopBar("Default", true, null, null, null, CallQuality.POOR, {}, {})
 }
 
 fun buildPreviewParticipantsList(count: Int = 10) = buildList {

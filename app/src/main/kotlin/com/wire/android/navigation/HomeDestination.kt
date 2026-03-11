@@ -99,8 +99,6 @@ sealed class HomeDestination(
     data object Cells : HomeDestination(
         title = UIText.StringResource(R.string.drive_screen_title),
         icon = R.drawable.ic_files,
-        searchBar = SearchBarOptions(R.string.drive_screen_search_hint),
-        filterAction = FilterActionOptions.FilterCells,
         direction = GlobalCellsScreenDestination
     )
 
@@ -140,10 +138,6 @@ sealed class HomeDestination(
         FilterConversations(
             icon = com.wire.android.ui.common.R.drawable.ic_filter,
             contentDescription = R.string.label_filter_conversations
-        ),
-        FilterCells(
-            icon = com.wire.android.ui.common.R.drawable.ic_filter,
-            contentDescription = R.string.content_description_filter_files
         ),
     }
 

@@ -12,7 +12,7 @@ ktx-dateTime = "0.6.1"
 ktx-immutableCollections = "0.3.8"
 ktx-serialization = "1.8.1"
 koin = "3.5.3"
-datafaker = "2.4.2"
+datafaker = "1.9.0"
 
 # Android Core / Architecture
 detekt = "1.23.8"
@@ -39,7 +39,7 @@ androidx-lifecycle = "2.10.0"
 androidx-paging3 = "3.3.6"
 androidx-paging3Compose = "3.3.4"
 androidx-splashscreen = "1.2.0"
-androidx-workManager = "2.9.1"
+androidx-workManager = "2.11.1"
 androidx-browser = "1.8.0"
 androidx-biometric = "1.1.0"
 androidx-startup = "1.2.0"
@@ -66,7 +66,7 @@ hilt-work = "1.3.0"
 # Android UI
 accompanist = "0.32.0"
 material = "1.12.0"
-material3 = "1.3.2"
+material3 = "1.4.0"
 coil = "3.3.0"
 commonmark = "0.25.1"
 
@@ -87,6 +87,7 @@ openIdAppAuth = "0.11.1"
 
 # Other Tools
 aboutLibraries = "13.0.0"
+cyclonedx = "3.1.0"
 leakCanary = "2.14"
 ksp = "2.3.4"
 
@@ -122,12 +123,14 @@ androidx-test-services = "1.6.0"
 # 3rd Party plugins
 android-library = { id = "com.android.library", version.ref = "android-gradlePlugin" }
 android-application = { id = "com.android.application", version.ref = "android-gradlePlugin" }
+kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 aboutLibraries = { id = "com.mikepenz.aboutlibraries.plugin", version.ref = "aboutLibraries" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 screenshot = { id = "com.android.compose.screenshot", version.ref = "screenshot"}
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+cyclonedx = { id = "org.cyclonedx.bom", version.ref = "cyclonedx" }
 
 # Home-made convention plugins defined in build-logic
 wire-android-application = { id = "com.wire.android.application" }
@@ -152,7 +155,6 @@ googleGms-gradlePlugin = { module = "com.google.gms:google-services", version.re
 googleGms-location = { module = "com.google.android.gms:play-services-location", version.ref = "gms-location" }
 aboutLibraries-gradlePlugin = { module = "com.mikepenz.aboutlibraries.plugin:aboutlibraries-plugin", version.ref = "aboutLibraries" }
 kover-gradlePlugin = { module = "org.jetbrains.kotlinx:kover-gradle-plugin", version.ref = "kover" }
-
 ktx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "ktx-serialization" }
 ktx-dateTime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "ktx-dateTime" }
 ktx-immutableCollections = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "ktx-immutableCollections" }
@@ -218,8 +220,6 @@ hilt-work = { module = "androidx.hilt:hilt-work", version.ref = "hilt-work" }
 
 # Compose BOM
 compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
-compose-material-core = { module = "androidx.compose.material:material" }
-compose-material-ripple = { module = "androidx.compose.material:material-ripple" }
 compose-material3 = { module = "androidx.compose.material3:material3", version.ref = "material3" }
 compose-runtime-liveData = { module = "androidx.compose.runtime:runtime-livedata" }
 compose-ui = { module = "androidx.compose.ui:ui" }
@@ -243,7 +243,7 @@ compose-edgetoedge-preview = { module = "de.drick.compose:edge-to-edge-preview",
 accompanist-placeholder = { module = "com.google.accompanist:accompanist-placeholder", version.ref = "accompanist" }
 
 # Image Loading
-coil-core = { module = "io.coil-kt.coil3:coil-core-android", version.ref = "coil" }
+coil-core = { module = "io.coil-kt.coil3:coil-core", version.ref = "coil" }
 coil-gif = { module = "io.coil-kt.coil3:coil-gif", version.ref = "coil" }
 coil-video = { module = "io.coil-kt.coil3:coil-video", version.ref = "coil" }
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }

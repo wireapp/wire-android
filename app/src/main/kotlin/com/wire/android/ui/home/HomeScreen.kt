@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.home
 
-import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -63,6 +62,12 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.ramcosta.composedestinations.DestinationsNavHost
+import com.ramcosta.composedestinations.generated.app.destinations.ConversationFoldersScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.NewConversationSearchPeopleScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.OtherUserProfileScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.SelfUserProfileScreenDestination
+import com.ramcosta.composedestinations.generated.app.navgraphs.HomeGraph
 import com.ramcosta.composedestinations.navigation.dependency
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
@@ -72,10 +77,9 @@ import com.wire.android.navigation.HomeDestination
 import com.wire.android.navigation.HomeDestination.FabOptions
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.annotation.app.WireRootDestination
 import com.wire.android.navigation.handleNavigation
 import com.wire.android.navigation.rememberWireNavHostEngine
-import com.ramcosta.composedestinations.generated.app.navgraphs.HomeGraph
-import com.ramcosta.composedestinations.generated.app.navgraphs.WireRootGraph
 import com.wire.android.ui.analytics.AnalyticsUsageViewModel
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.HandleActions
@@ -85,11 +89,6 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
-import com.ramcosta.composedestinations.generated.app.destinations.ConversationFoldersScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.NewConversationSearchPeopleScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.OtherUserProfileScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.SelfUserProfileScreenDestination
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.ui.home.conversations.details.GroupConversationActionType
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsNavBackArgs
@@ -316,7 +315,6 @@ fun HomeContent(
                             HomeTopBar(
                                 title = currentTitle.asString(),
                                 currentConversationFilter = currentConversationFilter,
-                                currentCellsFilters = currentCellsFilters,
                                 navigationItem = currentNavigationItem,
                                 userAvatarData = homeState.userAvatarData,
                                 elevation = dimensions().spacing0x, // CollapsingTopBarScaffold manages applied elevation
@@ -327,9 +325,6 @@ fun HomeContent(
                                 onOpenConversationFilter = {
                                     homeStateHolder.conversationsFilterBottomSheetState.show(Unit)
                                 },
-                                onOpenFilesFilter = {
-                                    homeStateHolder.cellsFilterBottomSheetState.show(Unit)
-                                }
                             )
                         }
                     },
@@ -364,8 +359,8 @@ fun HomeContent(
                         if (lifecycleState != Lifecycle.State.DESTROYED) {
                             val navHostEngine = rememberWireNavHostEngine()
                             DestinationsNavHost(
-                                navGraph = WireRootGraph,
-                                start = HomeGraph,
+                                navGraph = HomeGraph,
+                                start = HomeGraph.defaultStartDirection,
                                 engine = navHostEngine,
                                 navController = navController,
                                 dependenciesContainerBuilder = {

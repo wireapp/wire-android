@@ -109,6 +109,8 @@ class ConversationInfoViewModel @Inject constructor(
         }
 
         val detailsData = getConversationDetailsData(conversationDetails)
+        val wireCellEnabled = isWireCellFeatureEnabled()
+
         conversationInfoViewState = conversationInfoViewState.copy(
             conversationName = getConversationName(conversationDetails, isConversationUnavailable),
             conversationAvatar = getConversationAvatar(conversationDetails),
@@ -120,7 +122,7 @@ class ConversationInfoViewModel @Inject constructor(
             proteusVerificationStatus = conversationDetails.conversation.proteusVerificationStatus,
             legalHoldStatus = conversationDetails.conversation.legalHoldStatus,
             accentId = getAccentId(conversationDetails),
-            isWireCellEnabled = isWireCellFeatureEnabled() && (conversationDetails as? ConversationDetails.Group)?.wireCell != null,
+            isWireCellEnabled = wireCellEnabled && (conversationDetails as? ConversationDetails.Group)?.wireCell != null,
         )
     }
 

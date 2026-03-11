@@ -109,6 +109,7 @@
     <string name="content_description_conversation_mention_someone">Упомянуть кого-нибудь</string>
     <string name="content_description_conversation_back_btn">Вернуться к списку бесед</string>
     <string name="content_description_conversation_open_details_label">открыть информацию о беседе</string>
+    <string name="content_description_new_conversation">Новый. Начать новую беседу</string>
     <string name="content_description_new_meeting">Начните или запланируйте новую встречу Wire</string>
     <string name="content_description_back_button">Кнопка назад</string>
     <string name="content_description_send_button">Отправить</string>
@@ -116,6 +117,8 @@
     <string name="content_description_close_button">Кнопка закрытия</string>
     <string name="content_description_menu_button">Основное меню</string>
     <string name="content_description_drop_down_icon">Курсор вниз</string>
+    <string name="content_description_expand_text_icon">Развернуть поле ввода текста</string>
+    <string name="content_description_collapse_text_icon">Свернуть поле ввода текста</string>
     <string name="content_description_remove_devices_screen_device_item_icon">Элемент устройства</string>
     <string name="content_description_remove_devices_screen_remove_icon">Удалить устройство</string>
     <string name="content_description_avatar_preview">Предпросмотр изображения профиля</string>
@@ -151,6 +154,8 @@
     <string name="content_description_calling_turn_speaker_off">Выключить динамик</string>
     <string name="content_description_calling_in_call_reactions_show">Показать в панели реакций вызова</string>
     <string name="content_description_calling_in_call_reactions_hide">Скрыть в панели реакций вызова</string>
+    <string name="content_description_call_open_calling_details">Открыть информацию о вызове</string>
+    <string name="content_description_call_low_network_quality">Низкое качество сети</string>
     <string name="content_description_reply_to_messge">Ответить на сообщение</string>
     <string name="content_description_reply_cancel">Отменить ответ на сообщение</string>
     <string name="content_description_ping_message">Пинг</string>
@@ -1122,6 +1127,13 @@
     <string name="calling_confirm_start_call_title_dialog">Начать звонок</string>
     <string name="calling_confirm_start_call_description_dialog">Вы действительно хотите позвонить %1$s пользователям?</string>
     <string name="calling_confirm_start_call_action_dialog">Позвонить</string>
+    <string name="calling_details_security_banner_label">Звонки всегда зашифрованы сквозным шифрованием</string>
+    <string name="calling_details_network_quality_title">Качество сети</string>
+    <string name="calling_details_network_quality_good">Хорошее</string>
+    <string name="calling_details_network_quality_fair">Приемлемое</string>
+    <string name="calling_details_network_quality_poor">Плохое</string>
+    <string name="calling_details_turn_off_other_videos_title">Отключить другие видео</string>
+    <string name="calling_details_turn_off_other_videos_description">Это улучшит качество звука при плохом качестве сети.</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Вернуться к вызову</string>
     <string name="connectivity_status_bar_return_to_incoming_call">%1$s вызывает…</string>
@@ -1202,7 +1214,7 @@
     <string name="disable_guests_dialog_title">Не разрешать гостей?</string>
     <string name="disable_guests_dialog_description">Гости, выбранные на предыдущем этапе, не смогут войти в беседу, если не разрешить гостевой доступ.</string>
     <string name="disable_guests_dialog_button">Не разрешать гостей</string>
-    <string name="enable_guests_dialog_button">Разрешить гостям</string>
+    <string name="enable_guests_dialog_button">Разрешить гостей</string>
     <!--block user dialog -->
     <string name="block_user_dialog_title">Заблокировать пользователя?</string>
     <string name="block_user_dialog_body">%1$s не сможет с вами связаться или добавить в групповые беседы. Уведомлений об этом не будет.</string>
@@ -1883,6 +1895,9 @@
     <string name="restriction_sso_code_title">Настройка кода SSO</string>
     <string name="restriction_server_urls_description">Значение JSON с конфигурацией конечных точек сервера</string>
     <string name="restriction_sso_code_description">Значение JSON с настройкой кода SSO по умолчанию</string>
+    <string name="restriction_keep_websocket_title">Сохранять WebSocket соединение</string>
+    <string name="restriction_keep_websocket_description">Принудительное подключение к WebSocket для всех пользователей</string>
+    <string name="settings_keep_websocket_enforced_by_organization">Этот параметр управляется вашей организацией.</string>
     <!--    channel not available dialog-->
     <string name="channel_not_available_dialog_title">Каналы доступны для членов команды.</string>
     <string name="channel_not_available_dialog_description">Создайте команду и начните взаимодействовать бесплатно!</string>
@@ -1893,8 +1908,6 @@
     <string name="enable_wire_cell_switch_description">Разрешить участникам управлять своими документами и медиа файлами в общем диске. Это действие не может быть отменено.</string>
     <string name="failed_attachment_retry_upload">Повторить загрузку</string>
     <string name="failed_attachment_remove">Удалить</string>
-    <string name="content_description_apply_filter">Применить фильтр</string>
-    <string name="content_description_filter_files">Фильтр файлов</string>
     <string name="profile_deeplink_feature_unavailable_title_alert">Эта функция недоступна. Пожалуйста, свяжитесь со своим администратором.</string>
     <string name="conversation_options_shared_drive_label">Общий диск</string>
     <string name="conversation_options_shared_drive_description">Постоянно для этой беседы.</string>
@@ -1919,4 +1932,5 @@
     <string name="label_system_message_apps_access_enabled_by_other">%1$s ** приложений** включено для этой беседы</string>
     <string name="label_system_message_apps_access_disabled_by_other">%1$s ** приложений** отключено для этой беседы</string>
     <string name="label_system_message_apps_access_enabled_disclaimer">Добавленные приложения имеют доступ к содержимому этой беседы.</string>
+    <string name="more_information_about_this_server">Больше информации об этом бэкенде</string>
 </resources>

@@ -17,10 +17,10 @@
  */
 package com.wire.android.ui.home
 
-import com.ramcosta.composedestinations.annotation.NavGraph
-import com.wire.android.navigation.WireRootNavGraph
+import com.ramcosta.composedestinations.animations.defaults.DefaultFadingTransitions
+import com.ramcosta.composedestinations.annotation.NavHostGraph
 
-@NavGraph<WireRootNavGraph>
+@NavHostGraph(defaultTransitions = DefaultFadingTransitions::class)
 annotation class HomeNavGraph(
     val start: Boolean = false
 )

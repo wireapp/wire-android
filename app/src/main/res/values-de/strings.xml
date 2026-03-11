@@ -100,6 +100,7 @@
     <string name="content_description_conversation_mention_someone">Jemanden erwähnen</string>
     <string name="content_description_conversation_back_btn">Zurück zur Unterhaltungsliste</string>
     <string name="content_description_conversation_open_details_label">Unterhaltungsdetails öffnen</string>
+    <string name="content_description_new_conversation">Neu. Neue Unterhaltung beginnen</string>
     <string name="content_description_send_button">Senden</string>
     <string name="content_description_timed_message_button">Selbstlöschende Nachrichten, Taste</string>
     <string name="content_description_menu_button">Hauptnavigation</string>
@@ -132,6 +133,8 @@
     <string name="content_description_calling_turn_camera_off">Kamera ausschalten</string>
     <string name="content_description_calling_turn_speaker_on">Lautsprecher einschalten</string>
     <string name="content_description_calling_turn_speaker_off">Lautsprecher ausschalten</string>
+    <string name="content_description_call_open_calling_details">Anrufdetails öffnen</string>
+    <string name="content_description_call_low_network_quality">Geringe Netzwerkqualität</string>
     <string name="content_description_reply_to_messge">Auf die Nachricht antworten</string>
     <string name="content_description_copy">Kopieren</string>
     <string name="content_description_edit">Bearbeiten</string>
@@ -1035,6 +1038,13 @@
     <string name="calling_confirm_start_call_title_dialog">Anruf starten</string>
     <string name="calling_confirm_start_call_description_dialog">Sind Sie sicher, dass Sie %1$s Personen anrufen möchten?</string>
     <string name="calling_confirm_start_call_action_dialog">Anrufen</string>
+    <string name="calling_details_security_banner_label">Anrufe sind immer Ende-zu-Ende verschlüsselt</string>
+    <string name="calling_details_network_quality_title">Netzwerkqualität</string>
+    <string name="calling_details_network_quality_good">Gut</string>
+    <string name="calling_details_network_quality_fair">Befriedigend</string>
+    <string name="calling_details_network_quality_poor">Schlecht</string>
+    <string name="calling_details_turn_off_other_videos_title">Andere Videos ausschalten</string>
+    <string name="calling_details_turn_off_other_videos_description">Dies verbessert die Audioqualität, wenn Ihre Netzwerkbedingungen schlecht sind.</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Zurück zum Anruf</string>
     <string name="connectivity_status_bar_return_to_incoming_call">%1$s ruft an…</string>
@@ -1132,7 +1142,7 @@
     <string name="settings_privacy_settings_label">Datenschutzeinstellungen</string>
     <string name="settings_network_settings_label">Netzwerkeinstellungen</string>
     <string name="settings_manage_devices_label">Geräte verwalten</string>
-    <string name="settings_keep_connection_to_websocket">Verbindung zu Websocket behalten</string>
+    <string name="settings_keep_connection_to_websocket">Verbindung zu WebSocket behalten</string>
     <string name="settings_keep_connection_to_websocket_description">Verbessern Sie den Empfang von Benachrichtigungen, indem Sie eine ständige Verbindung zum Server Ihrer Organisation aufrechterhalten. Es ersetzt Benachrichtigungsdienste, wenn Google-Dienste auf Ihrem Gerät nicht verfügbar sind.</string>
     <string name="settings_service_is_running">Dienst wird ausgeführt</string>
     <!--Settings, Appearance -->
@@ -1732,6 +1742,9 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="press_enter_to_send_text">Wenn diese Option aktiviert ist, können Sie Nachrichten mit der Eingabetaste auf Ihrer Tastatur senden.</string>
     <string name="customization_options_header_title">Optionen</string>
     <!-- enterprise configurations -->
+    <string name="restriction_keep_websocket_title">WebSocket-Verbindung behalten</string>
+    <string name="restriction_keep_websocket_description">Dauerhafte WebSocket-Verbindung für alle Benutzer erzwingen</string>
+    <string name="settings_keep_websocket_enforced_by_organization">Diese Einstellung wird von Ihrer Organisation verwaltet.</string>
     <!--    channel not available dialog-->
     <string name="channel_not_available_dialog_title">Channels sind für Team-Mitglieder verfügbar.</string>
     <string name="channel_not_available_dialog_description">Erstellen Sie ein Team und arbeiten Sie kostenlos zusammen!</string>
@@ -1742,8 +1755,6 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="enable_wire_cell_switch_description">Ermöglichen Sie den Teilnehmern, ihre Dokumente und Mediendateien in Geteiltes Drive zu verwalten. Dieser Vorgang kann nicht rückgängig gemacht werden.</string>
     <string name="failed_attachment_retry_upload">Upload wiederholen</string>
     <string name="failed_attachment_remove">Entfernen</string>
-    <string name="content_description_apply_filter">Filter anwenden</string>
-    <string name="content_description_filter_files">Dateien filtern</string>
     <string name="conversation_options_shared_drive_label">Geteiltes Drive</string>
     <string name="conversation_options_shared_drive_description">Dauerhaft aktiv für diese Unterhaltung.</string>
     <plurals name="reply_multiple_files">

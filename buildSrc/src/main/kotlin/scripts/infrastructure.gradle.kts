@@ -22,7 +22,8 @@ import findVersion
 import uppercaseFirstChar
 import java.util.Properties
 
-tasks.register("clean", Delete::class) {
+pluginManager.apply("base")
+tasks.named<Delete>("clean") {
     delete(rootProject.layout.buildDirectory)
 }
 

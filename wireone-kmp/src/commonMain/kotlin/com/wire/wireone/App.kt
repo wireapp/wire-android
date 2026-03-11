@@ -8,8 +8,8 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -37,7 +37,7 @@ fun App() {
                     .padding(dimensions().spacing24x)
             ) {
                 Text(
-                    text = "WireOne iOS Preview",
+                    text = "WireOne Preview",
                     style = MaterialTheme.wireTypography.title01,
                     color = MaterialTheme.wireColorScheme.onBackground
                 )

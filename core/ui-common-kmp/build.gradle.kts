@@ -8,6 +8,11 @@ kotlin {
         namespace = "com.wire.android.ui.common"
     }
 
+    @OptIn(org.jetbrains.kotlin.gradle.ExperimentalWasmDsl::class)
+    wasmJs {
+        browser()
+    }
+
     sourceSets {
         val commonMain by getting {
             dependencies {

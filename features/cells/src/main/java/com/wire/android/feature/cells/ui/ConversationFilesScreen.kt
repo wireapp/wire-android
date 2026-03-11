@@ -17,7 +17,6 @@
  */
 package com.wire.android.feature.cells.ui
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
@@ -25,10 +24,10 @@ import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -78,8 +77,6 @@ import com.wire.android.ui.common.button.FloatingActionButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.common.scaffold.WireScaffold
-import com.wire.android.ui.common.search.SearchBarState
-import com.wire.android.ui.common.search.rememberSearchbarState
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
@@ -106,27 +103,16 @@ fun ConversationFilesScreen(
     animatedVisibilityScope: AnimatedVisibilityScope,
     viewModel: CellViewModel = hiltViewModel(),
 ) {
-    val conversationSearchBarState = rememberSearchbarState(viewModel.isSearchByDefaultActive)
-
-    LaunchedEffect(conversationSearchBarState.searchQueryTextState.text) {
-        viewModel.onSearchQueryUpdated(conversationSearchBarState.searchQueryTextState.text.toString())
-    }
-
-    BackHandler(conversationSearchBarState.isSearchActive) {
-        conversationSearchBarState.closeSearch()
-    }
-
     ConversationFilesScreenContent(
         animatedVisibilityScope = animatedVisibilityScope,
         navigator = navigator,
         currentNodeUuid = viewModel.currentNodeUuid(),
-        conversationSearchBarState = conversationSearchBarState,
         isRecycleBin = viewModel.isRecycleBin(),
         actions = viewModel.actions,
         pagingListItems = viewModel.nodesFlow.collectAsLazyPagingItems(),
         downloadFileSheet = viewModel.downloadFileSheet,
         menu = viewModel.menu,
-        isSearchResult = viewModel.hasSearchQuery(),
+        isSearchResult = false,
         isRestoreInProgress = viewModel.isRestoreInProgress.collectAsState().value,
         isDeleteInProgress = viewModel.isDeleteInProgress.collectAsState().value,
         isRefreshing = viewModel.isPullToRefresh.collectAsState(),
@@ -147,7 +133,6 @@ fun ConversationFilesScreenContent(
     animatedVisibilityScope: AnimatedVisibilityScope,
     navigator: WireNavigator,
     currentNodeUuid: String?,
-    conversationSearchBarState: SearchBarState,
     isSearchResult: Boolean,
     actions: Flow<CellViewAction>,
     pagingListItems: LazyPagingItems<CellNodeUi>,
@@ -253,10 +238,9 @@ fun ConversationFilesScreenContent(
                                 sharedContentState = rememberSharedContentState(key = SHARED_ELEMENT_SEARCH_INPUT_KEY),
                                 animatedVisibilityScope = animatedVisibilityScope
                             ),
-                        isSearchActive = conversationSearchBarState.isSearchActive,
+                        isSearchActive = false,
                         searchBarHint = stringResource(R.string.search_label),
-                        searchQueryTextState = conversationSearchBarState.searchQueryTextState,
-                        onActiveChanged = conversationSearchBarState::searchActiveChanged,
+                        searchQueryTextState = TextFieldState(),
                         onTap = {
                             currentNodeUuid?.let {
                                 navigator.navigate(
@@ -296,82 +280,81 @@ fun ConversationFilesScreenContent(
                 }
             },
         ) { innerPadding ->
-            Box(modifier = Modifier.padding(innerPadding)) {
-                CellScreenContent(
-                    actionsFlow = actions,
-                    pagingListItems = pagingListItems,
-                    sendIntent = sendIntent,
-                    downloadFileState = downloadFileSheet,
-                    menuState = menu,
-                    isSearchResult = isSearchResult,
-                    isRestoreInProgress = isRestoreInProgress,
-                    isDeleteInProgress = isDeleteInProgress,
-                    isRecycleBin = isRecycleBin,
-                    openFolder = { path, title, parentFolderUuid ->
-                        navigator.navigate(
-                            NavigationCommand(
-                                ConversationFilesWithSlideInTransitionScreenDestination(
-                                    conversationId = path,
-                                    screenTitle = title,
-                                    isRecycleBin = isRecycleBin,
-                                    parentFolderUuid = parentFolderUuid,
-                                    breadcrumbs = (breadcrumbs ?: emptyArray()) + title
-                                ),
-                                BackStackMode.NONE,
-                                launchSingleTop = false
+            CellScreenContent(
+                modifier = Modifier.padding(innerPadding),
+                actionsFlow = actions,
+                pagingListItems = pagingListItems,
+                sendIntent = sendIntent,
+                downloadFileState = downloadFileSheet,
+                menuState = menu,
+                isSearchResult = isSearchResult,
+                isRestoreInProgress = isRestoreInProgress,
+                isDeleteInProgress = isDeleteInProgress,
+                isRecycleBin = isRecycleBin,
+                openFolder = { path, title, parentFolderUuid ->
+                    navigator.navigate(
+                        NavigationCommand(
+                            ConversationFilesWithSlideInTransitionScreenDestination(
+                                conversationId = path,
+                                screenTitle = title,
+                                isRecycleBin = isRecycleBin,
+                                parentFolderUuid = parentFolderUuid,
+                                breadcrumbs = (breadcrumbs ?: emptyArray()) + title
+                            ),
+                            BackStackMode.NONE,
+                            launchSingleTop = false
+                        )
+                    )
+                },
+                showPublicLinkScreen = { publicLinkScreenData ->
+                    navigator.navigate(
+                        NavigationCommand(
+                            PublicLinkScreenDestination(
+                                assetId = publicLinkScreenData.assetId,
+                                fileName = publicLinkScreenData.fileName,
+                                publicLinkId = publicLinkScreenData.linkId,
+                                isFolder = publicLinkScreenData.isFolder
                             )
                         )
-                    },
-                    showPublicLinkScreen = { publicLinkScreenData ->
-                        navigator.navigate(
-                            NavigationCommand(
-                                PublicLinkScreenDestination(
-                                    assetId = publicLinkScreenData.assetId,
-                                    fileName = publicLinkScreenData.fileName,
-                                    publicLinkId = publicLinkScreenData.linkId,
-                                    isFolder = publicLinkScreenData.isFolder
-                                )
+                    )
+                },
+                showMoveToFolderScreen = { currentPath, nodePath, uuid ->
+                    navigator.navigate(
+                        NavigationCommand(
+                            MoveToFolderScreenDestination(
+                                currentPath = currentPath,
+                                nodeToMovePath = nodePath,
+                                uuid = uuid
                             )
                         )
-                    },
-                    showMoveToFolderScreen = { currentPath, nodePath, uuid ->
-                        navigator.navigate(
-                            NavigationCommand(
-                                MoveToFolderScreenDestination(
-                                    currentPath = currentPath,
-                                    nodeToMovePath = nodePath,
-                                    uuid = uuid
-                                )
+                    )
+                },
+                showRenameScreen = { cellNodeUi ->
+                    navigator.navigate(
+                        NavigationCommand(
+                            RenameNodeScreenDestination(
+                                uuid = cellNodeUi.uuid,
+                                currentPath = cellNodeUi.remotePath,
+                                isFolder = cellNodeUi is CellNodeUi.Folder,
+                                nodeName = cellNodeUi.name,
                             )
                         )
-                    },
-                    showRenameScreen = { cellNodeUi ->
-                        navigator.navigate(
-                            NavigationCommand(
-                                RenameNodeScreenDestination(
-                                    uuid = cellNodeUi.uuid,
-                                    currentPath = cellNodeUi.remotePath,
-                                    isFolder = cellNodeUi is CellNodeUi.Folder,
-                                    nodeName = cellNodeUi.name,
-                                )
-                            )
+                    )
+                },
+                showAddRemoveTagsScreen = { node ->
+                    navigator.navigate(
+                        NavigationCommand(
+                            AddRemoveTagsScreenDestination(node.uuid, node.tags.toCollection(ArrayList()))
                         )
-                    },
-                    showAddRemoveTagsScreen = { node ->
-                        navigator.navigate(
-                            NavigationCommand(
-                                AddRemoveTagsScreenDestination(node.uuid, node.tags.toCollection(ArrayList()))
-                            )
-                        )
-                    },
-                    showVersionHistoryScreen = { uuid, fileName ->
-                        navigator.navigate(NavigationCommand(VersionHistoryScreenDestination(uuid, fileName)))
-                    },
-                    retryEditNodeError = { retryEditNodeError(it) },
-                    isRefreshing = isRefreshing,
-                    onRefresh = onRefresh
-                )
-            }
+                    )
+                },
+                showVersionHistoryScreen = { uuid, fileName ->
+                    navigator.navigate(NavigationCommand(VersionHistoryScreenDestination(uuid, fileName)))
+                },
+                retryEditNodeError = { retryEditNodeError(it) },
+                isRefreshing = isRefreshing,
+                onRefresh = onRefresh
+            )
         }
     }
 }
@@ -387,7 +370,6 @@ fun PreviewConversationFilesScreen() {
                     animatedVisibilityScope = this,
                     navigator = PreviewNavigator,
                     currentNodeUuid = "conversationId",
-                    conversationSearchBarState = rememberSearchbarState(),
                     isSearchResult = false,
                     actions = flowOf(),
                     pagingListItems = MutableStateFlow(

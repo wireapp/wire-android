@@ -17,7 +17,6 @@
  */
 package com.wire.android.feature.cells.ui
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -25,14 +24,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.wire.android.feature.cells.R
 import com.ramcosta.composedestinations.generated.cells.destinations.RecycleBinScreenDestination
+import com.wire.android.feature.cells.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.WireNavigator
 import com.wire.android.navigation.annotation.features.cells.WireCellsDestination
 import com.wire.android.navigation.style.SlideNavigationAnimation
-import com.wire.android.ui.common.search.rememberSearchbarState
 
 @WireCellsDestination(
     style = SlideNavigationAnimation::class,
@@ -45,16 +43,6 @@ fun ConversationFilesWithSlideInTransitionScreen(
     animatedVisibilityScope: AnimatedVisibilityScope,
     viewModel: CellViewModel = hiltViewModel(),
 ) {
-    val conversationSearchBarState = rememberSearchbarState()
-
-    LaunchedEffect(conversationSearchBarState.searchQueryTextState.text) {
-        viewModel.onSearchQueryUpdated(conversationSearchBarState.searchQueryTextState.text.toString())
-    }
-
-    BackHandler(conversationSearchBarState.isSearchActive) {
-        conversationSearchBarState.closeSearch()
-    }
-
     LaunchedEffect(viewModel.navigateToRecycleBinRoot.collectAsState().value) {
         if (viewModel.navigateToRecycleBinRoot.value) {
             navigator.navigate(
@@ -73,7 +61,6 @@ fun ConversationFilesWithSlideInTransitionScreen(
         animatedVisibilityScope = animatedVisibilityScope,
         navigator = navigator,
         currentNodeUuid = viewModel.currentNodeUuid(),
-        conversationSearchBarState = conversationSearchBarState,
         isSearchResult = false,
         screenTitle = stringResource(R.string.conversation_files_title),
         isRecycleBin = viewModel.isRecycleBin(),

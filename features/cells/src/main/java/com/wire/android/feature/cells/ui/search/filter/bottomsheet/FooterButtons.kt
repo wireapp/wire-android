@@ -42,8 +42,8 @@ fun FooterButtons(
     modifier: Modifier = Modifier,
     hasChanges: Boolean = false
 ) {
-    Column {
-        Spacer(modifier.height(dimensions().spacing12x))
+    Column(modifier = modifier) {
+        Spacer(Modifier.height(dimensions().spacing12x))
         Row(
             modifier = Modifier
                 .fillMaxWidth()

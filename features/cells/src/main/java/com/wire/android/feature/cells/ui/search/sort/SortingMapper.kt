@@ -15,9 +15,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.feature.cells.ui.search
+package com.wire.android.feature.cells.ui.search.sort
 
-data class SearchNavArgs(
-    val conversationId: String? = null,
-    val screenType: DriveSearchScreenType = DriveSearchScreenType.SHARED_DRIVE,
-)
+fun SortingCriteria.toKaliumCriteria(): com.wire.kalium.cells.data.SortingCriteria =
+    when (by) {
+        SortBy.Modified ->
+            com.wire.kalium.cells.data.SortingCriteria.MODIFICATION_TIME
+
+        SortBy.Name ->
+            com.wire.kalium.cells.data.SortingCriteria.NAME_CASE_INSENSITIVE
+
+        SortBy.Size ->
+            com.wire.kalium.cells.data.SortingCriteria.SIZE
+    }

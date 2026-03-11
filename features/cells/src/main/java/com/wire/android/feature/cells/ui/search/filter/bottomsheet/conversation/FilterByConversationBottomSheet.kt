@@ -35,10 +35,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -78,9 +78,10 @@ fun FilterByConversationBottomSheet(
     val scope = rememberCoroutineScope()
 
     val searchState = remember { TextFieldState() }
-    LaunchedEffect(searchState) {
-        snapshotFlow { searchState.text.toString() }
-            .collect(state::onQueryChange)
+    val filteredConversations by remember(state, searchState) {
+        derivedStateOf {
+            state.filteredConversations(searchState.text.toString())
+        }
     }
 
     fun dismiss() {
@@ -131,7 +132,7 @@ fun FilterByConversationBottomSheet(
                 contentPadding = PaddingValues(top = dimensions().spacing8x, bottom = dimensions().spacing8x)
             ) {
                 items(
-                    items = state.filteredConversations,
+                    items = filteredConversations,
                 ) { item ->
                     ConversationRow(
                         item = item,

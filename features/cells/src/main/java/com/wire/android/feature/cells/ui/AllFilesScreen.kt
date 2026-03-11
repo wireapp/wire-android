@@ -18,27 +18,23 @@
 package com.wire.android.feature.cells.ui
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.ramcosta.composedestinations.generated.cells.destinations.AddRemoveTagsScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.PublicLinkScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.SearchScreenDestination
+import com.ramcosta.composedestinations.generated.cells.destinations.SearchScreenDestination.invoke
 import com.wire.android.feature.cells.R
-import com.wire.android.feature.cells.ui.search.DriveScreenType
+import com.wire.android.feature.cells.ui.search.DriveSearchScreenType
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.WireNavigator
 import com.wire.android.ui.common.scaffold.WireScaffold
-import com.wire.android.ui.common.search.SearchBarState
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
-import kotlinx.coroutines.delay
 
 /**
  * Show files in all conversations with a search bar.
@@ -47,28 +43,10 @@ import kotlinx.coroutines.delay
 @Composable
 fun AllFilesScreen(
     navigator: WireNavigator,
-    searchBarState: SearchBarState,
     modifier: Modifier = Modifier,
     viewModel: CellViewModel = hiltViewModel()
 ) {
     val pagingListItems = viewModel.nodesFlow.collectAsLazyPagingItems()
-    val focusRequester = remember { FocusRequester() }
-
-    LaunchedEffect(searchBarState.searchQueryTextState.text) {
-        if (searchBarState.searchQueryTextState.text.isNotEmpty()) {
-            delay(300)
-        }
-        viewModel.onSearchQueryUpdated(searchBarState.searchQueryTextState.text.toString())
-    }
-
-    val isSearchVisible = when {
-        pagingListItems.isLoading() -> false
-        pagingListItems.isError() -> false
-        pagingListItems.itemCount == 0 && !viewModel.hasSearchQuery() -> false
-        else -> true
-    }
-
-    searchBarState.searchVisibleChanged(isSearchVisible)
 
     WireScaffold(
         modifier = modifier,
@@ -81,14 +59,15 @@ fun AllFilesScreen(
                     searchQueryTextState = rememberTextFieldState(),
                     onTap = {
                         navigator.navigate(
-                            NavigationCommand(SearchScreenDestination(screenType = DriveScreenType.DRIVE))
+                            NavigationCommand(SearchScreenDestination(screenType = DriveSearchScreenType.DRIVE))
                         )
                     },
                 )
             }
         },
-    ) {
+    ) { innerPadding ->
         CellScreenContent(
+            modifier = Modifier.padding(innerPadding),
             actionsFlow = viewModel.actions,
             pagingListItems = pagingListItems,
             sendIntent = { viewModel.sendIntent(it) },
@@ -99,8 +78,7 @@ fun AllFilesScreen(
             isRestoreInProgress = viewModel.isRestoreInProgress.collectAsState().value,
             isDeleteInProgress = viewModel.isDeleteInProgress.collectAsState().value,
             isRecycleBin = viewModel.isRecycleBin(),
-            isSearchResult = viewModel.hasSearchQuery(),
-            isFiltering = viewModel.selectedTags.collectAsState().value.isNotEmpty(),
+            isSearchResult = false,
             showPublicLinkScreen = { publicLinkScreenData ->
                 navigator.navigate(
                     NavigationCommand(

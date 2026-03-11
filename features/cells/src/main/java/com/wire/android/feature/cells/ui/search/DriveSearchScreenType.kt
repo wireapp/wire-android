@@ -19,7 +19,7 @@ package com.wire.android.feature.cells.ui.search
 
 import com.wire.android.feature.cells.ui.search.filter.FilterTypes
 
-enum class DriveScreenType(val filters: List<FilterTypes>) {
+enum class DriveSearchScreenType(val filters: List<FilterTypes>) {
     SHARED_DRIVE(
         listOf(
             FilterTypes.TAGS,

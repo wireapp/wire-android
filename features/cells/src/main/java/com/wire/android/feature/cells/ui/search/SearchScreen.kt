@@ -110,30 +110,38 @@ fun SearchScreen(
                             animatedVisibilityScope = animatedVisibilityScope
                         ),
                         isSearchActive = uiState.isSearchActive,
+                        shouldClearTextOnClearFocus = false,
+                        keepBackButtonVisible = true,
                         searchBarHint = when (searchScreenViewModel.screenType) {
-                            DriveScreenType.SHARED_DRIVE -> stringResource(R.string.search_shared_drive_text_input_hint)
-                            DriveScreenType.DRIVE -> stringResource(R.string.search_drive_text_input_hint)
+                            DriveSearchScreenType.SHARED_DRIVE -> stringResource(R.string.search_shared_drive_text_input_hint)
+                            DriveSearchScreenType.DRIVE -> stringResource(R.string.search_drive_text_input_hint)
                         },
                         searchQueryTextState = searchState,
                         onCloseSearchClicked = { navigator.navigateBack() },
-                        onActiveChanged = { },
+                        onActiveChanged = {
+                            searchScreenViewModel.onSetSearchActive(it)
+                        },
                     )
                     FilterChipsRow(
                         state = uiState.chipsState,
                         screenType = searchScreenViewModel.screenType,
                         onFilterByTagsClicked = {
+                            searchScreenViewModel.onSetSearchActive(false)
                             filterTagsSheetState.show(Unit, isImeVisible)
                         },
                         onFilterByTypeClicked = {
+                            searchScreenViewModel.onSetSearchActive(false)
                             filterTypeSheetState.show(Unit, isImeVisible)
                         },
                         onFilterByOwnerClicked = {
+                            searchScreenViewModel.onSetSearchActive(false)
                             filterOwnerSheetState.show(Unit, isImeVisible)
                         },
                         onFilterBySharedByLinkClicked = {
                             searchScreenViewModel.onSharedByMeClicked()
                         },
                         onFilterByConversationClicked = {
+                            searchScreenViewModel.onSetSearchActive(false)
                             filterConversationSheetState.show(Unit, isImeVisible)
                         },
                         onRemoveAllFiltersClicked = {

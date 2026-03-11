@@ -256,6 +256,6 @@ class CellsModule {
 
     @ViewModelScoped
     @Provides
-    fun provideGetGroupConversationsWithCellEnabledUseCase(cellsScope: CellsScope): GetCellGroupConversationsUseCase =
+    fun provideGetCellGroupConversationsUseCase(cellsScope: CellsScope): GetCellGroupConversationsUseCase =
         cellsScope.getCellGroupConversationsUseCase
 }

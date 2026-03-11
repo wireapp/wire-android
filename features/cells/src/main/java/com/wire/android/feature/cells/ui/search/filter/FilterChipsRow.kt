@@ -31,7 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.wire.android.feature.cells.R
-import com.wire.android.feature.cells.ui.search.DriveScreenType
+import com.wire.android.feature.cells.ui.search.DriveSearchScreenType
 import com.wire.android.ui.common.chip.WireFilterChip
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -42,7 +42,7 @@ import com.wire.android.ui.theme.WireTheme
 @Composable
 fun FilterChipsRow(
     state: FilterChipsUiState,
-    screenType: DriveScreenType,
+    screenType: DriveSearchScreenType,
     modifier: Modifier = Modifier,
     onFilterByTagsClicked: () -> Unit = { },
     onFilterByTypeClicked: () -> Unit = { },
@@ -144,7 +144,7 @@ fun PreviewFilterChipsRow() {
                 conversationChipEnabled = false,
                 publicLinkChipEnabled = false,
             ),
-            screenType = DriveScreenType.SHARED_DRIVE,
+            screenType = DriveSearchScreenType.SHARED_DRIVE,
         )
     }
 }

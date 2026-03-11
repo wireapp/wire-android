@@ -69,6 +69,9 @@ fun Instant.cellFileTime(): String = DateAndTimeParsers.cellTimeFormat(this)
 fun Instant.uiReadReceiptDateTime(): String = DateAndTimeParsers.uiReadReceiptDateTime(this)
 
 @Stable
+fun Instant.uiMessageDateTime(): String = DateAndTimeParsers.uiMessageDateTime(this)
+
+@Stable
 fun Long.uiLinkExpirationDate(): String = DateAndTimeParsers.linkExpirationDate(this)
 
 @Stable
@@ -188,6 +191,8 @@ class DateAndTimeParsers private constructor() {
         fun fileDateTime(instant: Instant): String = fileDateTimeFormat.format(instant.toJavaInstant())
 
         fun uiReadReceiptDateTime(instant: Instant): String = readReceiptDateTimeFormat.format(instant.toJavaInstant())
+
+        fun uiMessageDateTime(instant: Instant): String = messageTimeFormatter.format(Date.from(instant.toJavaInstant()))
 
         fun toMediumOnlyDateTime(date: Date): String = mediumOnlyDateTimeFormat.format(date.toInstant())
 

@@ -86,6 +86,7 @@ class LoginSSOViewModelExtension(
     suspend fun establishSSOSession(
         cookie: String,
         serverConfigId: String,
+        consumeNomadServiceUrl: () -> String? = { null },
         onAuthScopeFailure: (AutoVersionAuthScopeUseCase.Result.Failure) -> Unit,
         onSSOLoginFailure: (SSOLoginSessionResult.Failure) -> Unit,
         onAddAuthenticatedUserFailure: (AddAuthenticatedUserUseCase.Result.Failure) -> Unit,
@@ -119,6 +120,7 @@ class LoginSSOViewModelExtension(
                 proxyCredentials = ssoLoginSuccess.proxyCredentials,
                 managedBy = ssoLoginSuccess.managedBy,
                 isPersistentWebSocketEnabled = defaultWebSocketEnabledByDefault,
+                nomadServiceUrl = consumeNomadServiceUrl(),
             ),
             replace = false
         )

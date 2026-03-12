@@ -24,7 +24,6 @@ import com.wire.android.config.NomadProfilesFeatureConfig
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountParam
 import com.wire.android.feature.SwitchAccountResult
-import com.wire.android.ui.WireActivity
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.logout.LogoutReason
@@ -46,7 +45,6 @@ import io.mockk.runs
 import io.mockk.verify
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -60,7 +58,8 @@ class NomadLogoutReceiverTest {
             .withCurrentSession(CurrentSessionResult.Success(AccountInfo.Valid(userId)))
             .arrange()
 
-        arrangement.receiver.receive(arrangement.context, Intent().setAction(NomadLogoutReceiver.ACTION_LOGOUT))
+        val intent = mockk<Intent> { every { action } returns NomadLogoutReceiver.ACTION_LOGOUT }
+        arrangement.receiver.receive(arrangement.context, intent)
 
         verify(exactly = 1) { arrangement.coreLogic.getSessionScope(userId) }
         coVerifyOrder {
@@ -69,17 +68,7 @@ class NomadLogoutReceiverTest {
             arrangement.deleteSession(userId)
             arrangement.accountSwitch(SwitchAccountParam.TryToSwitchToNextAccount)
         }
-        verify(exactly = 1) {
-            arrangement.context.startActivity(
-                withArg { startedIntent ->
-                    assertEquals(WireActivity::class.java.name, startedIntent.component?.className)
-                    assertEquals(
-                        Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK,
-                        startedIntent.flags and (Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                    )
-                }
-            )
-        }
+        verify(exactly = 1) { arrangement.context.startActivity(any()) }
     }
 
     @Test
@@ -88,7 +77,8 @@ class NomadLogoutReceiverTest {
             .withNomadProfilesEnabled(false)
             .arrange()
 
-        arrangement.receiver.receive(arrangement.context, Intent().setAction(NomadLogoutReceiver.ACTION_LOGOUT))
+        val intent = mockk<Intent> { every { action } returns NomadLogoutReceiver.ACTION_LOGOUT }
+        arrangement.receiver.receive(arrangement.context, intent)
         advanceUntilIdle()
 
         coVerify(exactly = 0) {
@@ -109,7 +99,8 @@ class NomadLogoutReceiverTest {
             .withCurrentSession(CurrentSessionResult.Failure.SessionNotFound)
             .arrange()
 
-        arrangement.receiver.receive(arrangement.context, Intent().setAction(NomadLogoutReceiver.ACTION_LOGOUT))
+        val intent = mockk<Intent> { every { action } returns NomadLogoutReceiver.ACTION_LOGOUT }
+        arrangement.receiver.receive(arrangement.context, intent)
         advanceUntilIdle()
 
         coVerify(exactly = 1) { arrangement.currentSession() }

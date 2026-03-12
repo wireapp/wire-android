@@ -552,7 +552,9 @@ private fun OngoingCallTopBar(
             navigationIconType = NavigationIconType.Collapse,
             elevation = 0.dp,
             actions = {
-                CallDetailsButton(callQuality = callQuality, onClick = onOpenCallDetails)
+                if (BuildConfig.CALL_QUALITY_MENU_ENABLED) {
+                    CallDetailsButton(callQuality = callQuality, onClick = onOpenCallDetails)
+                }
             }
         )
         if (isCbrEnabled) {

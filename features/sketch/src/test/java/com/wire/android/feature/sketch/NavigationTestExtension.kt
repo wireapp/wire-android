@@ -17,6 +17,7 @@
  */
 package com.wire.android.feature.sketch
 
+import com.ramcosta.composedestinations.generated.sketch.destinations.DrawingCanvasScreenDestination
 import io.mockk.mockkObject
 import io.mockk.mockkStatic
 import io.mockk.unmockkObject
@@ -43,11 +44,11 @@ import org.junit.jupiter.api.extension.ExtensionContext
 class NavigationTestExtension : BeforeEachCallback, AfterEachCallback {
     override fun beforeEach(context: ExtensionContext?) {
         mockkStatic("com.ramcosta.composedestinations.generated.sketch.NavArgsGettersKt")
-        sketchDestinations.forEach { mockkObject(it) }
+        mockkObject(DrawingCanvasScreenDestination)
     }
 
     override fun afterEach(context: ExtensionContext?) {
         unmockkStatic("com.ramcosta.composedestinations.generated.sketch.NavArgsGettersKt")
-        sketchDestinations.forEach { unmockkObject(it) }
+        unmockkObject(DrawingCanvasScreenDestination)
     }
 }

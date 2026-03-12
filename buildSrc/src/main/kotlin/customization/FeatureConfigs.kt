@@ -143,5 +143,9 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
 
     COLLABORA_INTEGRATION_ENABLED("collabora_integration", ConfigType.BOOLEAN),
 
-    DB_INVALIDATION_CONTROL_ENABLED("db_invalidation_control_enabled", ConfigType.BOOLEAN)
+    DB_INVALIDATION_CONTROL_ENABLED("db_invalidation_control_enabled", ConfigType.BOOLEAN),
+
+    NOMAD_PROFILES_ENABLED("nomad_profiles_enabled", ConfigType.BOOLEAN),
+
+    CALL_QUALITY_MENU_ENABLED("call_quality_menu_enabled", ConfigType.BOOLEAN)
 }

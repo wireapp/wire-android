@@ -21,7 +21,7 @@ package com.wire.android.ui.common.textfield
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -38,9 +38,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -83,7 +81,7 @@ internal fun WireTextFieldLayout(
     inputMinHeight: Dp = MaterialTheme.wireDimensions.textFieldMinHeight,
     shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.textFieldCornerSize),
     colors: WireTextFieldColors = wireTextFieldColors(),
-    onTap: ((Offset) -> Unit)? = null,
+    onTap: (() -> Unit)? = null,
     testTag: String = String.EMPTY
 ) {
     Column(modifier = modifier) {
@@ -158,20 +156,17 @@ private fun InnerTextLayout(
     placeholderAlignment: Alignment.Horizontal = Alignment.Start,
     inputMinHeight: Dp = dimensions().spacing48x,
     colors: WireTextFieldColors = wireTextFieldColors(),
-    onTap: ((Offset) -> Unit)? = null
+    onTap: (() -> Unit)? = null
 ) {
-    val modifier: Modifier = Modifier.apply {
-        if (onTap != null) {
-            pointerInput(Unit) {
-                detectTapGestures(onTap = onTap)
-            }
-        }
-    }
-
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
+        modifier = Modifier
             .heightIn(min = inputMinHeight)
+            .then(
+                onTap?.let {
+                    Modifier.clickable { onTap() }
+                } ?: Modifier
+            )
     ) {
         val trailingOrStateIcon: @Composable (() -> Unit)? = when {
             trailingIcon != null -> trailingIcon

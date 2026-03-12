@@ -19,11 +19,10 @@ package com.wire.android.feature.cells.ui.movetofolder
 
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
+import com.ramcosta.composedestinations.generated.cells.navArgs
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.feature.cells.ui.model.toUiModel
-import com.ramcosta.composedestinations.generated.cells.destinations.MoveToFolderScreenDestination
 import com.wire.kalium.cells.domain.model.Node
-import io.mockk.mockkObject
 import com.wire.kalium.cells.domain.usecase.GetFoldersUseCase
 import com.wire.kalium.cells.domain.usecase.MoveNodeUseCase
 import com.wire.kalium.common.error.CoreFailure
@@ -205,8 +204,7 @@ class MoveToFolderViewModelTest {
 
             MockKAnnotations.init(this, relaxUnitFun = true)
 
-            mockkObject(MoveToFolderScreenDestination)
-            every { MoveToFolderScreenDestination.argsFrom(savedStateHandle) } returns MoveToFolderNavArgs(
+            every { savedStateHandle.navArgs<MoveToFolderNavArgs>() } returns MoveToFolderNavArgs(
                 currentPath = CURRENT_PATH,
                 nodeToMovePath = NODE_TO_MOVE_PATH,
                 uuid = UUID,

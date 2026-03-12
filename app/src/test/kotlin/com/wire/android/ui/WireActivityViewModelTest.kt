@@ -27,6 +27,7 @@ import app.cash.turbine.test
 import com.wire.android.BuildConfig
 import com.wire.android.assertions.shouldBeEqualTo
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.NomadProfilesFeatureConfig
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.datastore.GlobalDataStore
@@ -51,6 +52,9 @@ import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
+import com.wire.android.util.lifecycle.AutomatedLoginManager
+import com.wire.android.util.lifecycle.AutomatedLoginViaSSO
+import com.wire.android.util.lifecycle.IntentsProcessor
 import com.wire.android.util.newServerConfig
 import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.CoreLogic
@@ -86,11 +90,13 @@ import com.wire.kalium.logic.feature.user.screenshotCensoring.ObserveScreenshotC
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import io.mockk.MockKAnnotations
+import io.mockk.any
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -107,7 +113,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
-@Suppress("MaxLineLength")
+@Suppress("MaxLineLength", "LargeClass")
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
 class WireActivityViewModelTest {
@@ -770,6 +776,48 @@ class WireActivityViewModelTest {
         }
 
     @Test
+    fun `given valid automated_login intent, when handling intents, then automated login manager pending flag is set`() = runTest {
+        val ssoCode = "wire-b6261497-5b7d-4a57-8f4d-3a94e936b2c0"
+        val (arrangement, viewModel) = Arrangement()
+            .withAutomatedLoginIntent(ssoCode = ssoCode)
+            .arrange()
+
+        val handled = viewModel.handleIntentsThatAreNotDeepLinks(mockedIntent())
+        advanceUntilIdle()
+
+        assertTrue(handled)
+        assertTrue(arrangement.automatedLoginManager.pendingMoveToBackgroundAfterSync)
+    }
+
+    @Test
+    fun `given nomad profiles disabled, when handling non deep link intents, then intent is ignored`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withNomadProfilesEnabled(false)
+            .withAutomatedLoginIntent(ssoCode = "wire-b6261497-5b7d-4a57-8f4d-3a94e936b2c0")
+            .arrange()
+
+        val handled = viewModel.handleIntentsThatAreNotDeepLinks(mockedIntent())
+        advanceUntilIdle()
+
+        assertEquals(false, handled)
+        assertEquals(false, arrangement.automatedLoginManager.pendingMoveToBackgroundAfterSync)
+        verify(exactly = 0) { arrangement.intentsProcessor(any()) }
+    }
+
+    @Test
+    fun `given nomad profiles disabled, when handling sharing intent, then import media screen is still shown`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withNomadProfilesEnabled(false)
+            .withDeepLinkResult(DeepLinkResult.SharingIntent)
+            .arrange()
+
+        viewModel.actions.test {
+            viewModel.handleDeepLink(mockedIntent())
+            assertEquals(OnShowImportMediaScreen, expectMostRecentItem())
+        }
+    }
+
+    @Test
     fun `given no valid session, when checking number of sessions, then return true`() = runTest {
         // given
         val (_, viewModel) = Arrangement()
@@ -818,6 +866,7 @@ class WireActivityViewModelTest {
 
         val managedConfigurationsManager: ManagedConfigurationsManager = mockk(relaxed = true)
         private val persistentWebSocketEnforcedByMDMFlow = MutableStateFlow(false)
+        val automatedLoginManager = AutomatedLoginManager()
 
         init {
             // Tests setup
@@ -829,6 +878,7 @@ class WireActivityViewModelTest {
             coEvery { currentSessionFlow() } returns flowOf()
             coEvery { getServerConfigUseCase(any()) } returns GetServerConfigResult.Success(newServerConfig(1).links)
             coEvery { deepLinkProcessor(any(), any()) } returns DeepLinkResult.Unknown
+            every { intentsProcessor(any()) } returns null
             coEvery { observeSessionsUseCase.invoke() } returns flowOf(GetAllSessionsResult.Failure.NoSessionFound)
             every { observeSyncStateUseCaseProviderFactory.create(any()).observeSyncState } returns observeSyncStateUseCase
             every { observeSyncStateUseCase() } returns emptyFlow()
@@ -843,12 +893,13 @@ class WireActivityViewModelTest {
                 observeIfE2EIRequiredDuringLoginUseCaseProviderFactory.create(any()).observeIfE2EIIsRequiredDuringLogin()
             } returns
                     flowOf(false)
-            every { workManager.cancelAllWorkByTag(any()) } returns mockk<Operation>(relaxed = true)
-            every { workManager.enqueueUniquePeriodicWork(any(), any(), any()) } returns mockk<Operation>(relaxed = true)
+            every { workManager.cancelAllWorkByTag(any()) } returns mockk<Operation>()
+            every { workManager.enqueueUniquePeriodicWork(any(), any(), any()) } returns mockk<Operation>()
             val observeSelfUserUseCase = mockk<ObserveSelfUserUseCase>()
             every { observeSelfUserFactory.create(any()).observeSelfUser } returns observeSelfUserUseCase
             coEvery { observeSelfUserUseCase() } returns flowOf(SELF_USER)
             every { managedConfigurationsManager.persistentWebSocketEnforcedByMDM } returns persistentWebSocketEnforcedByMDMFlow
+            every { nomadProfilesFeatureConfig.isEnabled() } returns true
         }
 
         @MockK
@@ -862,6 +913,9 @@ class WireActivityViewModelTest {
 
         @MockK
         lateinit var deepLinkProcessor: DeepLinkProcessor
+
+        @MockK
+        lateinit var intentsProcessor: IntentsProcessor
 
         @MockK
         lateinit var observeSessionsUseCase: ObserveSessionsUseCase
@@ -920,6 +974,9 @@ class WireActivityViewModelTest {
         @MockK
         lateinit var monitorSyncWorkUseCase: MonitorSyncWorkUseCase
 
+        @MockK
+        lateinit var nomadProfilesFeatureConfig: NomadProfilesFeatureConfig
+
         private val viewModel by lazy {
             WireActivityViewModel(
                 coreLogic = { coreLogic },
@@ -928,6 +985,7 @@ class WireActivityViewModelTest {
                 doesValidSessionExist = { doesValidSessionExist },
                 getServerConfigUseCase = { getServerConfigUseCase },
                 deepLinkProcessor = { deepLinkProcessor },
+                intentsProcessor = { intentsProcessor },
                 observeSessions = { observeSessionsUseCase },
                 accountSwitch = { switchAccount },
                 servicesManager = { servicesManager },
@@ -944,6 +1002,8 @@ class WireActivityViewModelTest {
                 observeSelfUserFactory = observeSelfUserFactory,
                 monitorSyncWorkUseCase = monitorSyncWorkUseCase,
                 managedConfigurationsManager = managedConfigurationsManager,
+                automatedLoginManager = automatedLoginManager,
+                nomadProfilesFeatureConfig = nomadProfilesFeatureConfig,
             )
         }
 
@@ -1071,6 +1131,14 @@ class WireActivityViewModelTest {
             val useCase = mockk<IsProfileQRCodeEnabledUseCase>()
             coEvery { isProfileQRCodeEnabledFactory.create(any()).isProfileQRCodeEnabled } returns useCase
             coEvery { useCase() } returns isEnabled
+        }
+
+        fun withAutomatedLoginIntent(ssoCode: String): Arrangement = apply {
+            every { intentsProcessor(any()) } returns AutomatedLoginViaSSO(ssoCode = ssoCode)
+        }
+
+        fun withNomadProfilesEnabled(enabled: Boolean): Arrangement = apply {
+            every { nomadProfilesFeatureConfig.isEnabled() } returns enabled
         }
 
         fun arrange() = this to viewModel

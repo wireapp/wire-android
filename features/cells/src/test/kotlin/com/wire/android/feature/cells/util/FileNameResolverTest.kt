@@ -22,7 +22,10 @@ import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Test
 import java.io.File
 import kotlin.io.path.createTempDirectory
+import kotlin.io.path.deleteRecursively
+import kotlin.io.path.ExperimentalPathApi
 
+@OptIn(ExperimentalPathApi::class)
 class FileNameResolverTest {
 
     @Test
@@ -38,7 +41,7 @@ class FileNameResolverTest {
         Assertions.assertEquals("document.txt", result.name)
         assertFalse(result.exists())
 
-        tempDir.deleteRecursively()
+        tempDir.toPath().deleteRecursively()
     }
 
     @Test
@@ -54,7 +57,7 @@ class FileNameResolverTest {
         Assertions.assertEquals("image(1).png", result.name)
         assertFalse(result.exists())
 
-        tempDir.deleteRecursively()
+        tempDir.toPath().deleteRecursively()
     }
 
     @Test
@@ -72,7 +75,7 @@ class FileNameResolverTest {
         Assertions.assertEquals("file(3).txt", result.name)
         assertFalse(result.exists())
 
-        tempDir.deleteRecursively()
+        tempDir.toPath().deleteRecursively()
     }
 
     @Test
@@ -88,6 +91,6 @@ class FileNameResolverTest {
         Assertions.assertEquals("LICENSE(1)", result.name)
         assertFalse(result.exists())
 
-        tempDir.deleteRecursively()
+        tempDir.toPath().deleteRecursively()
     }
 }

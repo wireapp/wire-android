@@ -171,6 +171,7 @@ data class WireDimensions(
     val spacing200x: Dp,
     val spacing270x: Dp,
     val spacing300x: Dp,
+    val spacing700x: Dp,
     // Corners
     val corner2x: Dp,
     val corner3x: Dp,
@@ -182,6 +183,7 @@ data class WireDimensions(
     val corner12x: Dp,
     val corner14x: Dp,
     val corner16x: Dp,
+    val corner36x: Dp,
     val corner100x: Dp,
     // Notifications
     val notificationBadgeHeight: Dp,
@@ -354,6 +356,7 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     spacing200x = 200.dp,
     spacing270x = 270.dp,
     spacing300x = 300.dp,
+    spacing700x = 700.dp,
     corner2x = 2.dp,
     corner3x = 3.dp,
     corner4x = 4.dp,
@@ -364,6 +367,7 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     corner12x = 12.dp,
     corner14x = 14.dp,
     corner16x = 16.dp,
+    corner36x = 36.dp,
     corner100x = 100.dp,
     notificationBadgeHeight = 18.dp,
     notificationBadgeRadius = 6.dp,

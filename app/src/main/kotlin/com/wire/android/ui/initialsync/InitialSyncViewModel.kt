@@ -28,6 +28,7 @@ import com.wire.android.appLogger
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.CurrentAccount
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.android.util.lifecycle.AutomatedLoginManager
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
@@ -44,9 +45,13 @@ class InitialSyncViewModel @Inject constructor(
     private val userDataStoreProvider: UserDataStoreProvider,
     @CurrentAccount private val userId: UserId,
     private val dispatchers: DispatcherProvider,
+    private val automatedLoginManager: AutomatedLoginManager,
 ) : ViewModel() {
 
     internal var isSyncCompleted: Boolean by mutableStateOf(false)
+        private set
+
+    internal var shouldMoveToBackground: Boolean by mutableStateOf(false)
         private set
 
     init {
@@ -61,6 +66,10 @@ class InitialSyncViewModel @Inject constructor(
                     userDataStoreProvider.getOrCreate(userId).setInitialSyncCompleted()
                 }
             }?.let {
+                if (automatedLoginManager.pendingMoveToBackgroundAfterSync) {
+                    automatedLoginManager.pendingMoveToBackgroundAfterSync = false
+                    shouldMoveToBackground = true
+                }
                 isSyncCompleted = true
             } ?: run {
                 appLogger.e("InitialSyncViewModel: SyncState is null")

@@ -812,6 +812,7 @@ class WireActivityViewModelTest {
                     serverLinks = serverLinks,
                     ssoCode = "wire-b6261497-5b7d-4a57-8f4d-3a94e936b2c0",
                     nomadServiceUrl = "https://nomad.example.com",
+                    cookieLabel = "shared-device",
                     useNewLogin = false
                 ),
                 expectMostRecentItem()
@@ -1209,7 +1210,7 @@ class WireActivityViewModelTest {
 
         fun withAutomatedLoginIntent(
             ssoCode: String? = null,
-            backendConfig: String? = null
+            backendConfig: String? = null,
         ): Arrangement = apply {
             every { intentsProcessor(any()) } returns when {
                 ssoCode != null && backendConfig == null -> null

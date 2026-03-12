@@ -78,6 +78,7 @@ class LoginSSOViewModel(
 ) {
     private val loginNavArgs: LoginNavArgs = savedStateHandle.navArgs()
     private var pendingNomadServiceUrl: String? = loginNavArgs.ssoCodeAutoLogin?.nomadServiceUrl
+    private var pendingCookieLabel: String? = loginNavArgs.ssoCodeAutoLogin?.cookieLabel
 
     @Inject
     constructor(
@@ -158,6 +159,7 @@ class LoginSSOViewModel(
                             ssoExtension.initiateSSO(
                                 serverConfig = state.serverLinks,
                                 ssoCode = defaultSSOCode,
+                                cookieLabel = pendingCookieLabel,
                                 onAuthScopeFailure = { updateSSOFlowState(it.toLoginError()) },
                                 onSSOInitiateFailure = { updateSSOFlowState(it.toLoginSSOError()) },
                                 onSuccess = { requestUrl -> openWebUrl(requestUrl, state.serverLinks) }
@@ -210,6 +212,7 @@ class LoginSSOViewModel(
             ssoExtension.initiateSSO(
                 serverConfig = serverConfig,
                 ssoCode = ssoTextState.text.toString(),
+                cookieLabel = pendingCookieLabel,
                 onAuthScopeFailure = { updateSSOFlowState(it.toLoginError()) },
                 onSSOInitiateFailure = { updateSSOFlowState(it.toLoginSSOError()) },
                 onSuccess = { requestUrl -> openWebUrl(requestUrl, serverConfig) }
@@ -229,6 +232,7 @@ class LoginSSOViewModel(
                 cookie = cookie,
                 serverConfigId = serverConfigId,
                 consumeNomadServiceUrl = ::consumePendingNomadServiceUrl,
+                consumeCookieLabel = ::consumePendingCookieLabel,
                 onAuthScopeFailure = { updateSSOFlowState(it.toLoginError()) },
                 onSSOLoginFailure = { updateSSOFlowState(it.toLoginError()) },
                 onAddAuthenticatedUserFailure = { updateSSOFlowState(it.toLoginError()) },
@@ -281,6 +285,10 @@ class LoginSSOViewModel(
 
     private fun consumePendingNomadServiceUrl(): String? = pendingNomadServiceUrl.also {
         pendingNomadServiceUrl = null
+    }
+
+    private fun consumePendingCookieLabel(): String? = pendingCookieLabel.also {
+        pendingCookieLabel = null
     }
 }
 

@@ -169,6 +169,7 @@ private fun onAutomaticLogin(
             ssoCode = it,
             autoInitiateLogin = true,
             nomadServiceUrl = action.nomadServiceUrl,
+            cookieLabel = action.cookieLabel,
         )
     }
     val destination = when (action.useNewLogin) {

@@ -206,7 +206,7 @@ private fun QualityValueIndicator(
     modifier: Modifier = Modifier,
 ) {
     AnimatedVisibility(
-        visible = qualityValueIndicator >= CallQualityIndicatorValue.FAIR,
+        visible = qualityValueIndicator >= CallQualityIndicatorValue.POOR,
         enter = fadeIn() + scaleIn() + expandIn(expandFrom = Alignment.Center),
         exit = fadeOut() + scaleOut() + shrinkOut(shrinkTowards = Alignment.Center),
     ) {

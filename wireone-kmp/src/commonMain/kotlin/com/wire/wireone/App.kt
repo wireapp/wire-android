@@ -28,6 +28,7 @@ import com.wire.android.ui.theme.wireTypography
 
 @Composable
 fun App() {
+    val statusLine = rememberKaliumStatusLine()
     WireTheme {
         Surface(color = MaterialTheme.wireColorScheme.background) {
             Column(
@@ -39,6 +40,12 @@ fun App() {
                 Text(
                     text = "WireOne Preview",
                     style = MaterialTheme.wireTypography.title01,
+                    color = MaterialTheme.wireColorScheme.onBackground
+                )
+                VerticalSpace.x8()
+                Text(
+                    text = statusLine,
+                    style = MaterialTheme.wireTypography.body02,
                     color = MaterialTheme.wireColorScheme.onBackground
                 )
                 VerticalSpace.x16()

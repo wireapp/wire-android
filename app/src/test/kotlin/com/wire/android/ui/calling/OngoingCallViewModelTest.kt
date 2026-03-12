@@ -27,7 +27,6 @@ import com.wire.android.ui.calling.ongoing.fullscreen.SelectedParticipant
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallClient
-import com.wire.kalium.logic.data.call.CallQuality
 import com.wire.kalium.logic.data.call.CallQualityData
 import com.wire.kalium.logic.data.call.CallResolutionQuality
 import com.wire.kalium.logic.data.call.CallStatus
@@ -269,7 +268,7 @@ class OngoingCallViewModelTest {
 
     @Test
     fun givenCallQualityChanges_WhenObservingQualityState_ThenStateIsUpdated() = runTest {
-        val initialQuality = CallQualityData(CallQuality.NORMAL, 100, 0, 0)
+        val initialQuality = CallQualityData(quality = CallQualityData.Quality.NORMAL, ping = 0)
         val callQualityFlow = MutableStateFlow(initialQuality)
         val (_, ongoingCallViewModel) = Arrangement()
             .withLastActiveCall(provideCall())
@@ -280,7 +279,7 @@ class OngoingCallViewModelTest {
         advanceUntilIdle()
         assertEquals(initialQuality, ongoingCallViewModel.state.callQualityData)
 
-        val changedQuality = CallQualityData(CallQuality.POOR, 300, 10, 15)
+        val changedQuality = CallQualityData(CallQualityData.Quality.POOR, ping = 300)
         callQualityFlow.value = changedQuality
         advanceUntilIdle()
         assertEquals(changedQuality, ongoingCallViewModel.state.callQualityData)

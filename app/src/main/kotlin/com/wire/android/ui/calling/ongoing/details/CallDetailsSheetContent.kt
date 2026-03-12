@@ -17,12 +17,6 @@
  */
 package com.wire.android.ui.calling.ongoing.details
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -34,7 +28,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,17 +44,15 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.divider.WireDivider
 import com.wire.android.ui.common.typography
-import com.wire.android.ui.theme.Accent
-import com.wire.android.ui.theme.LocalWireAccent
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.ui.PreviewMultipleThemes
-import com.wire.kalium.logic.data.call.CallQuality
+import com.wire.kalium.logic.data.call.CallQualityData
 import com.wire.android.ui.common.R as commonR
 
 @Composable
 fun CallDetailsSheetContent(
-    callQuality: CallQuality,
+    callQuality: CallQualityData.Quality,
     onOpenNetworkQuality: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -107,7 +98,7 @@ private fun EncryptedCallItem() {
 
 @Composable
 private fun NetworkQualityItem(
-    callQuality: CallQuality,
+    callQuality: CallQualityData.Quality,
     onOpenNetworkQuality: () -> Unit
 ) {
     MenuBottomSheetItem(
@@ -117,7 +108,7 @@ private fun NetworkQualityItem(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(dimensions().spacing12x)
             ) {
-                NetworkQualityIndicator(
+                CallQualityIndicator(
                     callQuality = callQuality,
                     modifier = Modifier.weight(1f, fill = true)
                 )
@@ -131,43 +122,6 @@ private fun NetworkQualityItem(
         },
         onItemClick = onOpenNetworkQuality
     )
-}
-
-@Composable
-private fun NetworkQualityIndicator(
-    callQuality: CallQuality,
-    modifier: Modifier = Modifier,
-    textAlign: TextAlign = TextAlign.End,
-) {
-    AnimatedContent(
-        targetState = callQuality,
-        transitionSpec = {
-            val direction = if (targetState.ordinal > initialState.ordinal) 1 else -1
-            val enterTransition = slideInVertically { height -> direction * height } + fadeIn()
-            val exitTransition = slideOutVertically { height -> -direction * height } + fadeOut()
-            enterTransition togetherWith exitTransition
-        },
-        modifier = modifier
-    ) { callQuality ->
-        CompositionLocalProvider(LocalWireAccent provides Accent.Blue) { // primary color used for medium quality should be always blue
-            Text(
-                textAlign = textAlign,
-                style = typography().body03,
-                color = when (callQuality) {
-                    CallQuality.UNKNOWN -> colorsScheme().secondaryText // shouldn't be visible, but just in case
-                    CallQuality.NORMAL -> colorsScheme().positive
-                    CallQuality.MEDIUM -> colorsScheme().primary
-                    else -> colorsScheme().warning
-                },
-                text = when (callQuality) {
-                    CallQuality.UNKNOWN -> ""
-                    CallQuality.NORMAL -> stringResource(R.string.calling_details_network_quality_good)
-                    CallQuality.MEDIUM -> stringResource(R.string.calling_details_network_quality_fair)
-                    else -> stringResource(R.string.calling_details_network_quality_poor)
-                },
-            )
-        }
-    }
 }
 
 @Composable
@@ -211,7 +165,7 @@ private fun TurnOffOtherVideosItem() {
 @Composable
 fun CallDetailsSheetContentPreview() = WireTheme {
     CallDetailsSheetContent(
-        callQuality = CallQuality.NORMAL,
+        callQuality = CallQualityData.Quality.NORMAL,
         onOpenNetworkQuality = {}
     )
 }

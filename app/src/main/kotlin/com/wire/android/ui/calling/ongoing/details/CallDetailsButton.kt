@@ -44,11 +44,11 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
-import com.wire.kalium.logic.data.call.CallQuality
+import com.wire.kalium.logic.data.call.CallQualityData
 
 @Composable
 fun CallDetailsButton(
-    callQuality: CallQuality,
+    callQuality: CallQualityData.Quality,
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
@@ -70,7 +70,7 @@ fun CallDetailsButton(
 }
 
 @Composable
-private fun LowNetworkItem(callQuality: CallQuality) {
+private fun LowNetworkItem(callQuality: CallQualityData.Quality) {
     AnimatedVisibility(
         visible = callQuality.isLowQuality,
         enter = fadeIn() + scaleIn() + expandIn(expandFrom = Alignment.Center),
@@ -106,11 +106,11 @@ private fun InfoItem() {
 @PreviewMultipleThemes
 @Composable
 fun CallDetailsButtonPreview() = WireTheme {
-    CallDetailsButton(callQuality = CallQuality.NORMAL, onClick = {})
+    CallDetailsButton(callQuality = CallQualityData.Quality.NORMAL, onClick = {})
 }
 
 @PreviewMultipleThemes
 @Composable
 fun CallDetailsButtonWithLowNetworkPreview() = WireTheme {
-    CallDetailsButton(callQuality = CallQuality.POOR, onClick = {})
+    CallDetailsButton(callQuality = CallQualityData.Quality.POOR, onClick = {})
 }

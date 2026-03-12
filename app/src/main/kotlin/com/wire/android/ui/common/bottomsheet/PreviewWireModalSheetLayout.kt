@@ -22,11 +22,12 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.edit.ReactionOption
 import com.wire.android.ui.home.conversationslist.common.RegularGroupConversationAvatar
+import com.wire.android.ui.theme.WireTheme
 import com.wire.kalium.logic.data.id.ConversationId
 
 @MultipleThemePreviews
 @Composable
-fun PreviewMenuModalSheetContentWithoutHeader() {
+fun PreviewMenuModalSheetContentWithoutHeader() = WireTheme {
     WireMenuModalSheetContent(
         header = MenuModalSheetHeader.Gone,
         menuItems = listOf { ReactionOption(setOf(), {}) }
@@ -35,16 +36,16 @@ fun PreviewMenuModalSheetContentWithoutHeader() {
 
 @MultipleThemePreviews
 @Composable
-fun PreviewMenuModalSheetContentWithHeader() {
+fun PreviewMenuModalSheetContentWithHeader() = WireTheme {
     WireMenuModalSheetContent(
         header = MenuModalSheetHeader.Visible(
-            "Title",
-            {
+            title = "Title",
+            leadingIcon = {
                 RegularGroupConversationAvatar(
                     conversationId = ConversationId("value", "domain")
                 )
             },
-            dimensions().spacing8x
+            customVerticalPadding = dimensions().spacing8x
         ),
         menuItems = listOf { ReactionOption(setOf(), {}) }
     )

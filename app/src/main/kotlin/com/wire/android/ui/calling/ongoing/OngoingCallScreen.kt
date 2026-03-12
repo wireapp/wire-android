@@ -106,7 +106,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.PreviewMultipleThemesForLandscape
 import com.wire.android.util.ui.PreviewMultipleThemesForPortrait
 import com.wire.android.util.ui.PreviewMultipleThemesForSquare
-import com.wire.kalium.logic.data.call.CallQuality
+import com.wire.kalium.logic.data.call.CallQualityData
 import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
@@ -336,7 +336,7 @@ private fun OngoingCallContent(
     participants: PersistentList<UICallParticipant>,
     recentReactions: Map<UserId, String>,
     inPictureInPictureMode: Boolean,
-    callQuality: CallQuality,
+    callQuality: CallQualityData.Quality,
     initialShowInCallReactionsPanel: Boolean = false, // for preview purposes
 ) {
     var shouldOpenFullScreen by remember { mutableStateOf(false) }
@@ -522,7 +522,7 @@ private fun OngoingCallTopBar(
     protocolInfo: Conversation.ProtocolInfo?,
     mlsVerificationStatus: Conversation.VerificationStatus?,
     proteusVerificationStatus: Conversation.VerificationStatus?,
-    callQuality: CallQuality,
+    callQuality: CallQualityData.Quality,
     onCollapse: () -> Unit,
     onOpenCallDetails: () -> Unit
 ) {
@@ -665,7 +665,7 @@ fun PreviewOngoingCallContent(participants: PersistentList<UICallParticipant>, i
         selectedParticipantForFullScreen = SelectedParticipant(),
         recentReactions = emptyMap(),
         initialShowInCallReactionsPanel = inCallReactionsPanelVisible,
-        callQuality = CallQuality.NORMAL,
+        callQuality = CallQualityData.Quality.NORMAL,
         onOpenCallDetails = {}
     )
 }
@@ -708,13 +708,13 @@ fun PreviewOngoingCallScreenConnecting() = WireTheme {
 @PreviewMultipleThemes
 @Composable
 fun PreviewOngoingCallTopBar() = WireTheme {
-    OngoingCallTopBar("Default", true, null, null, null, CallQuality.NORMAL, {}, {})
+    OngoingCallTopBar("Default", true, null, null, null, CallQualityData.Quality.NORMAL, {}, {})
 }
 
 @PreviewMultipleThemes
 @Composable
 fun PreviewOngoingCallTopBarWithPoorQuality() = WireTheme {
-    OngoingCallTopBar("Default", true, null, null, null, CallQuality.POOR, {}, {})
+    OngoingCallTopBar("Default", true, null, null, null, CallQualityData.Quality.POOR, {}, {})
 }
 
 fun buildPreviewParticipantsList(count: Int = 10) = buildList {

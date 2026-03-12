@@ -20,8 +20,6 @@ package com.wire.android.feature.cells.ui.publiclink.settings.password
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
-import com.ramcosta.composedestinations.generated.cells.navArgs
-import com.wire.android.config.NavigationTestExtension
 import com.wire.kalium.cells.domain.model.PublicLink
 import com.wire.kalium.cells.domain.usecase.publiclink.CreatePublicLinkPasswordUseCase
 import com.wire.kalium.cells.domain.usecase.publiclink.GetPublicLinkPasswordUseCase
@@ -47,9 +45,7 @@ import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 
-@ExtendWith(NavigationTestExtension::class)
 class PublicLinkPasswordScreenViewModelTest {
 
     private companion object {
@@ -375,21 +371,18 @@ class PublicLinkPasswordScreenViewModelTest {
 
     private class Arrangement {
 
+        private val navArgsMap = mutableMapOf<String, Any?>(
+            "linkUuid" to testLink.uuid,
+            "passwordEnabled" to false,
+        )
+
         init {
-
             MockKAnnotations.init(this, relaxUnitFun = true)
-
-            every { savedStateHandle.navArgs<PublicLinkPasswordNavArgs>() } returns PublicLinkPasswordNavArgs(
-                linkUuid = testLink.uuid,
-                passwordEnabled = false,
-            )
+            every { savedStateHandle.get<Any?>(any()) } answers { navArgsMap[firstArg()] }
         }
 
         fun withPasswordEnabled(enabled: Boolean) = apply {
-            every { savedStateHandle.navArgs<PublicLinkPasswordNavArgs>() } returns PublicLinkPasswordNavArgs(
-                linkUuid = testLink.uuid,
-                passwordEnabled = enabled,
-            )
+            navArgsMap["passwordEnabled"] = enabled
         }
 
         fun withPasswordRemoveSuccess() = apply {

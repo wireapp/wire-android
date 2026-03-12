@@ -62,7 +62,7 @@ abstract class CoroutineReceiver : BroadcastReceiver() {
 
     private fun timeoutMessage() = "${this::class.java.simpleName} has been suspended for more than $MaxDuration"
 
-    protected abstract suspend fun receive(context: Context, intent: Intent)
+    abstract suspend fun receive(context: Context, intent: Intent)
 
     protected open fun onTimeout(context: Context, intent: Intent, exception: Exception) {
         appLogger.e(timeoutMessage(), exception)

@@ -119,4 +119,8 @@ internal fun CommonExtension.configureAndroidKotlinTests() {
     testOptions.animationsDisabled = true
     testOptions.unitTests.isReturnDefaultValues = true
     testOptions.unitTests.isIncludeAndroidResources = true
+    testOptions.unitTests.all { test ->
+        test.failOnNoDiscoveredTests.set(false)
+        test.jvmArgs("-Duser.timezone=UTC")
+    }
 }

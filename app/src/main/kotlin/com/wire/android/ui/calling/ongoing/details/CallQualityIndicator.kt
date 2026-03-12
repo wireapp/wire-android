@@ -30,7 +30,6 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import com.wire.android.R
@@ -49,7 +48,7 @@ internal fun CallQualityIndicator(
     val callQualityIndicatorValue by remember(callQuality) {
         derivedStateOf {
             when (callQuality) { // mapped to a simpler enum to reduce recompositions and make the animations smoother
-                CallQualityData.Quality.UNKNOWN -> CallQualityIndicatorValue.UNKNOWN
+                CallQualityData.Quality.UNKNOWN,
                 CallQualityData.Quality.NORMAL -> CallQualityIndicatorValue.GOOD
                 CallQualityData.Quality.MEDIUM -> CallQualityIndicatorValue.FAIR
                 CallQualityData.Quality.POOR,
@@ -72,23 +71,25 @@ internal fun CallQualityIndicator(
             Text(
                 textAlign = textAlign,
                 style = typography().body03,
-                color = when (callQualityIndicatorValue) {
-                    CallQualityIndicatorValue.UNKNOWN -> Color.Unspecified
-                    CallQualityIndicatorValue.GOOD -> colorsScheme().positive
-                    CallQualityIndicatorValue.FAIR -> colorsScheme().primary
-                    CallQualityIndicatorValue.POOR -> colorsScheme().error
-                },
-                text = when (callQualityIndicatorValue) {
-                    CallQualityIndicatorValue.UNKNOWN -> ""
-                    CallQualityIndicatorValue.GOOD -> stringResource(R.string.calling_details_network_quality_good)
-                    CallQualityIndicatorValue.FAIR -> stringResource(R.string.calling_details_network_quality_fair)
-                    CallQualityIndicatorValue.POOR -> stringResource(R.string.calling_details_network_quality_poor)
-                },
+                color = callQualityIndicatorValue.color,
+                text = callQualityIndicatorValue.text,
             )
         }
     }
 }
 
-private enum class CallQualityIndicatorValue {
-    UNKNOWN, GOOD, FAIR, POOR
+enum class CallQualityIndicatorValue {
+    GOOD, FAIR, POOR;
+
+    val color @Composable get() = when (this) {
+        GOOD -> colorsScheme().positive
+        FAIR -> colorsScheme().primary
+        POOR -> colorsScheme().warning
+    }
+
+    val text @Composable get() = when (this) {
+        GOOD -> stringResource(R.string.calling_details_network_quality_good)
+        FAIR -> stringResource(R.string.calling_details_network_quality_fair)
+        POOR -> stringResource(R.string.calling_details_network_quality_poor)
+    }
 }

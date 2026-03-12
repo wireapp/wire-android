@@ -146,9 +146,9 @@ private fun PacketLossValueItem(packetLoss: CallQualityData.PacketLoss) = Qualit
         else -> ""
     },
     indicator = when {
-        packetLoss.max > 10 -> QualityValueIndicator.BAD
-        packetLoss.max > 5 -> QualityValueIndicator.POOR
-        else -> QualityValueIndicator.NORMAL
+        packetLoss.max > 10 -> CallQualityIndicatorValue.POOR
+        packetLoss.max > 5 -> CallQualityIndicatorValue.FAIR
+        else -> CallQualityIndicatorValue.GOOD
     }
 )
 
@@ -160,9 +160,9 @@ private fun PingValueItem(ping: Int) = QualityValueItem(
         else -> ""
     },
     indicator = when {
-        ping > 150 -> QualityValueIndicator.BAD
-        ping > 50 -> QualityValueIndicator.POOR
-        else -> QualityValueIndicator.NORMAL
+        ping > 150 -> CallQualityIndicatorValue.POOR
+        ping >= 50 -> CallQualityIndicatorValue.FAIR
+        else -> CallQualityIndicatorValue.GOOD
     }
 )
 
@@ -174,14 +174,14 @@ private fun JitterValueItem(jitter: CallQualityData.Jitter) = QualityValueItem(
         else -> ""
     },
     indicator = when {
-        jitter.max > 200 -> QualityValueIndicator.BAD
-        jitter.max > 120 -> QualityValueIndicator.POOR
-        else -> QualityValueIndicator.NORMAL
+        jitter.max > 50 -> CallQualityIndicatorValue.POOR
+        jitter.max >= 10 -> CallQualityIndicatorValue.FAIR
+        else -> CallQualityIndicatorValue.GOOD
     }
 )
 
 @Composable
-private fun QualityValueItem(title: String, value: String, indicator: QualityValueIndicator = QualityValueIndicator.NORMAL) {
+private fun QualityValueItem(title: String, value: String, indicator: CallQualityIndicatorValue = CallQualityIndicatorValue.GOOD) {
     MenuBottomSheetItem(
         title = title,
         trailing = {
@@ -202,20 +202,16 @@ private fun QualityValueItem(title: String, value: String, indicator: QualityVal
 
 @Composable
 private fun QualityValueIndicator(
-    qualityValueIndicator: QualityValueIndicator,
+    qualityValueIndicator: CallQualityIndicatorValue,
     modifier: Modifier = Modifier,
 ) {
     AnimatedVisibility(
-        visible = qualityValueIndicator >= QualityValueIndicator.POOR,
+        visible = qualityValueIndicator >= CallQualityIndicatorValue.FAIR,
         enter = fadeIn() + scaleIn() + expandIn(expandFrom = Alignment.Center),
         exit = fadeOut() + scaleOut() + shrinkOut(shrinkTowards = Alignment.Center),
     ) {
         val indicatorColor by animateColorAsState(
-            targetValue = when (qualityValueIndicator) {
-                QualityValueIndicator.NORMAL -> colorsScheme().positive // shouldn't be visible, but just in case
-                QualityValueIndicator.POOR -> colorsScheme().warning
-                QualityValueIndicator.BAD -> colorsScheme().error
-            }
+            targetValue = qualityValueIndicator.color
         )
         Box(
             modifier = modifier
@@ -223,10 +219,6 @@ private fun QualityValueIndicator(
                 .drawBehind { drawCircle(color = indicatorColor, radius = size.minDimension / 2) }
         )
     }
-}
-
-private enum class QualityValueIndicator {
-    NORMAL, POOR, BAD
 }
 
 @PreviewMultipleThemes

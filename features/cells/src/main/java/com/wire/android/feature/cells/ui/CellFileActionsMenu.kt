@@ -44,6 +44,16 @@ class CellFileActionsMenu @Inject constructor(
                 }
             }
 
+            isAllFiles || isSearching -> {
+                buildList {
+                    if (cellNode is CellNodeUi.File && cellNode.localFileAvailable()) {
+                        add(NodeBottomSheetAction.SHARE)
+                    }
+                    add(NodeBottomSheetAction.PUBLIC_LINK)
+                    add(NodeBottomSheetAction.DOWNLOAD)
+                }
+            }
+
             isConversationFiles -> {
                 buildList {
                     if (cellNode is CellNodeUi.File && cellNode.localFileAvailable()) {
@@ -64,16 +74,6 @@ class CellFileActionsMenu @Inject constructor(
                     add(NodeBottomSheetAction.MOVE)
                     add(NodeBottomSheetAction.RENAME)
                     add(NodeBottomSheetAction.DELETE)
-                }
-            }
-
-            isAllFiles || isSearching -> {
-                buildList {
-                    if (cellNode is CellNodeUi.File && cellNode.localFileAvailable()) {
-                        add(NodeBottomSheetAction.SHARE)
-                    }
-                    add(NodeBottomSheetAction.PUBLIC_LINK)
-                    add(NodeBottomSheetAction.DOWNLOAD)
                 }
             }
 

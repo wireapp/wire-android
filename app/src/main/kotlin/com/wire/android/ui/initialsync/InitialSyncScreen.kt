@@ -27,7 +27,6 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireRootDestination
-import com.wire.android.navigation.baseRoute
 import com.wire.android.navigation.getBaseRoute
 import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.common.SettingUpWireScreenContent

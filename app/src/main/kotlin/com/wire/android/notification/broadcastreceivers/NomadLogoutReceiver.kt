@@ -24,8 +24,6 @@ import com.wire.android.config.NomadProfilesFeatureConfig
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountParam
-import com.wire.android.ui.WireActivity
-import com.wire.android.util.CurrentScreenManager
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
@@ -33,8 +31,6 @@ import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.session.DeleteSessionUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @AndroidEntryPoint

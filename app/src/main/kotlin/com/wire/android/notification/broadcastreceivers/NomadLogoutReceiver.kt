@@ -25,6 +25,7 @@ import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountParam
 import com.wire.android.ui.WireActivity
+import com.wire.android.util.CurrentScreenManager
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
@@ -63,7 +64,7 @@ class NomadLogoutReceiver : CoroutineReceiver() {
 
         @Suppress("TooGenericExceptionCaught")
         try {
-            performLogout(context.applicationContext)
+            performLogout()
         } catch (e: CancellationException) {
             throw e
         } catch (t: Exception) {
@@ -71,7 +72,7 @@ class NomadLogoutReceiver : CoroutineReceiver() {
         }
     }
 
-    private suspend fun performLogout(context: Context) {
+    private suspend fun performLogout() {
         when (val session = currentSession()) {
             is CurrentSessionResult.Success -> {
                 val userId = session.accountInfo.userId
@@ -79,12 +80,6 @@ class NomadLogoutReceiver : CoroutineReceiver() {
                 coreLogic.getSessionScope(userId).logout(LogoutReason.SELF_HARD_LOGOUT, waitUntilCompletes = true)
                 deleteSession(userId)
                 accountSwitch(SwitchAccountParam.TryToSwitchToNextAccount)
-                val wireActivityIntent = Intent(context, WireActivity::class.java).apply {
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                }
-                withContext(Dispatchers.Main.immediate) {
-                    context.startActivity(wireActivityIntent)
-                }
             }
 
             is CurrentSessionResult.Failure.SessionNotFound ->

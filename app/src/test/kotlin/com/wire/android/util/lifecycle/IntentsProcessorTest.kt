@@ -82,7 +82,7 @@ class IntentsProcessorTest {
     }
 
     @Test
-    fun `given valid JSON with only backendConfig and nomadProfilesHost, returns AutomatedLoginViaSSO`() {
+    fun `given valid JSON with only backendConfig and nomadProfilesHost, returns null`() {
         val (arrangement, intentsProcessor) = Arrangement()
             .withAutomatedLoginExtra(
                 automatedLoginJson(
@@ -92,17 +92,11 @@ class IntentsProcessorTest {
                 )
             )
             .arrange()
-        assertEquals(
-            AutomatedLoginViaSSO(
-                backendConfig = FAKE_BACKEND_CONFIG,
-                nomadProfilesHost = FAKE_NOMAD_PROFILES_HOST
-            ),
-            intentsProcessor(arrangement.intent)
-        )
+        assertNull(intentsProcessor(arrangement.intent))
     }
 
     @Test
-    fun `given valid JSON with only nomadProfilesHost, returns AutomatedLoginViaSSO`() {
+    fun `given valid JSON with only nomadProfilesHost, returns null`() {
         val (arrangement, intentsProcessor) = Arrangement()
             .withAutomatedLoginExtra(
                 automatedLoginJson(
@@ -111,10 +105,7 @@ class IntentsProcessorTest {
                 )
             )
             .arrange()
-        assertEquals(
-            AutomatedLoginViaSSO(nomadProfilesHost = FAKE_NOMAD_PROFILES_HOST),
-            intentsProcessor(arrangement.intent)
-        )
+        assertNull(intentsProcessor(arrangement.intent))
     }
 
     @Test
@@ -124,13 +115,19 @@ class IntentsProcessorTest {
             .withConfigurationSignatureKey(signedValue.publicKeyDerBase64)
             .withAutomatedLoginExtra(
                 automatedLoginJson(
+                    "backendConfig" to FAKE_BACKEND_CONFIG,
+                    "ssoCode" to FAKE_SSO_CODE,
                     "nomadProfilesHost" to FAKE_NOMAD_PROFILES_HOST,
                     "sigNomadProfilesHost" to signedValue.signatureBase64
                 )
             )
             .arrange()
         assertEquals(
-            AutomatedLoginViaSSO(nomadProfilesHost = FAKE_NOMAD_PROFILES_HOST),
+            AutomatedLoginViaSSO(
+                backendConfig = FAKE_BACKEND_CONFIG,
+                ssoCode = FAKE_SSO_CODE,
+                nomadProfilesHost = FAKE_NOMAD_PROFILES_HOST
+            ),
             intentsProcessor(arrangement.intent)
         )
     }
@@ -387,18 +384,14 @@ class IntentsProcessorTest {
         }
 
         fun arrange() = this to (
-                configurationSignatureKeys?.let { configuredKeys ->
-                    IntentsProcessor(
-                        nomadProfilesFeatureConfig = nomadProfilesFeatureConfig,
-                        configurationSignatureKeys = configuredKeys,
-                        isConfigurationSignatureEnforced = isConfigurationSignatureEnforced
-                    )
-                } ?: IntentsProcessor(
-                    nomadProfilesFeatureConfig = nomadProfilesFeatureConfig,
-                    configurationSignatureKeys = emptyList(),
+            IntentsProcessor(
+                nomadProfilesFeatureConfig = nomadProfilesFeatureConfig,
+                nomadIntentSignatureValidator = NomadIntentSignatureValidator(
+                    configurationSignatureKeys = configurationSignatureKeys ?: emptyList(),
                     isConfigurationSignatureEnforced = isConfigurationSignatureEnforced
                 )
-                )
+            )
+        )
 
         fun withAutomatedLoginExtra(json: String?) = apply {
             every { intent.getStringExtra("automated_login") } returns json

@@ -150,5 +150,7 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
 
     ENFORCE_CONFIGURATION_SIGNATURE("enforce_configuration_signature", ConfigType.BOOLEAN),
 
-    NOMAD_PROFILES_ENABLED("nomad_profiles_enabled", ConfigType.BOOLEAN)
+    NOMAD_PROFILES_ENABLED("nomad_profiles_enabled", ConfigType.BOOLEAN),
+
+    CALL_QUALITY_MENU_ENABLED("call_quality_menu_enabled", ConfigType.BOOLEAN)
 }

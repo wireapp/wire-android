@@ -37,6 +37,7 @@ import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.WillNeverOccurError
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
+import com.wire.kalium.logic.data.session.StoreSessionParam
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
@@ -162,11 +163,13 @@ class CreateAccountVerificationCodeViewModel @Inject constructor(
                 }
             }
             val storedUserId = addAuthenticatedUser(
-                authTokens = registerResult.authData,
-                ssoId = registerResult.ssoID,
-                serverConfigId = registerResult.serverConfigId,
-                proxyCredentials = registerResult.proxyCredentials,
-                isPersistentWebSocketEnabled = defaultWebSocketEnabledByDefault,
+                StoreSessionParam(
+                    accountTokens = registerResult.authData,
+                    ssoId = registerResult.ssoID,
+                    serverConfigId = registerResult.serverConfigId,
+                    proxyCredentials = registerResult.proxyCredentials,
+                    isPersistentWebSocketEnabled = defaultWebSocketEnabledByDefault,
+                ),
                 replace = false
             ).let {
                 when (it) {

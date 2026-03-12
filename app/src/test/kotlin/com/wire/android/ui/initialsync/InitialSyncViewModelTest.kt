@@ -23,6 +23,7 @@ import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.datastore.UserDataStoreProvider
+import com.wire.android.util.lifecycle.AutomatedLoginManager
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
@@ -73,6 +74,36 @@ class InitialSyncViewModelTest {
         assertFalse(viewModel.isSyncCompleted)
     }
 
+    @Test
+    fun `given automated login pending, when sync completes, then shouldMoveToBackground is true and flag is cleared`() = runTest {
+        // given
+        val (viewModel, arrangement) = Arrangement()
+            .withAutomatedLoginPending()
+            .withSyncState(SyncState.Live)
+            .arrange()
+
+        advanceUntilIdle()
+
+        // then
+        assertTrue(viewModel.isSyncCompleted)
+        assertTrue(viewModel.shouldMoveToBackground)
+        assertFalse(arrangement.automatedLoginManager.pendingMoveToBackgroundAfterSync)
+    }
+
+    @Test
+    fun `given no automated login pending, when sync completes, then shouldMoveToBackground is false`() = runTest {
+        // given
+        val (viewModel, _) = Arrangement()
+            .withSyncState(SyncState.Live)
+            .arrange()
+
+        advanceUntilIdle()
+
+        // then
+        assertTrue(viewModel.isSyncCompleted)
+        assertFalse(viewModel.shouldMoveToBackground)
+    }
+
     private class Arrangement {
 
         @MockK
@@ -85,8 +116,10 @@ class InitialSyncViewModelTest {
         lateinit var userDataStore: UserDataStore
         val userId = UserId("id", "domain")
 
+        val automatedLoginManager = AutomatedLoginManager()
+
         val viewModel by lazy {
-            InitialSyncViewModel(observeSyncState, userDataStoreProvider, userId, TestDispatcherProvider())
+            InitialSyncViewModel(observeSyncState, userDataStoreProvider, userId, TestDispatcherProvider(), automatedLoginManager)
         }
 
         private val syncStateChannel = Channel<SyncState>(capacity = Channel.UNLIMITED)
@@ -96,13 +129,17 @@ class InitialSyncViewModelTest {
             MockKAnnotations.init(this, relaxUnitFun = true)
             // Default empty values
             mockUri()
-           coEvery { userDataStoreProvider.getOrCreate(any()) } returns userDataStore
+            coEvery { userDataStoreProvider.getOrCreate(any()) } returns userDataStore
         }
 
         suspend fun withSyncState(syncState: SyncState): Arrangement {
             every { observeSyncState.invoke() } returns syncStateChannel.consumeAsFlow()
             syncStateChannel.send(syncState)
             return this
+        }
+
+        fun withAutomatedLoginPending(): Arrangement = apply {
+            automatedLoginManager.pendingMoveToBackgroundAfterSync = true
         }
 
         fun arrange() = viewModel to this

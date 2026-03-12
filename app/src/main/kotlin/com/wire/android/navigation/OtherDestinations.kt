@@ -28,6 +28,7 @@ import com.wire.android.R
 import com.wire.android.util.EmailComposer
 import com.wire.android.util.getDeviceIdString
 import com.wire.android.util.getGitBuildId
+import com.wire.android.util.getMimeType
 import com.wire.android.util.getUrisOfFilesInDirectory
 import com.wire.android.util.logging.LogFileWriter
 import com.wire.android.util.multipleFileSharingIntent
@@ -119,7 +120,11 @@ object ReportBugDestination : IntentDirection {
                 context.getGitBuildId()
             )
         )
-        intent.type = "message/rfc822"
+        val mimeTypes = logsUris.mapNotNull { it.getMimeType(context) }.toSet()
+        if (mimeTypes.isNotEmpty()) {
+            intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes.toTypedArray())
+        }
+        intent.type = "*/*"
         return Intent.createChooser(intent, context.getString(R.string.send_feedback_choose_email))
     }
 

@@ -97,7 +97,6 @@ fun RecycleBinScreen(
                     sendIntent = { cellViewModel.sendIntent(it) },
                     downloadFileState = cellViewModel.downloadFileSheet,
                     menuState = cellViewModel.menu,
-                    isAllFiles = false,
                     isRecycleBin = true,
                     isRestoreInProgress = cellViewModel.isRestoreInProgress.collectAsState().value,
                     isDeleteInProgress = cellViewModel.isDeleteInProgress.collectAsState().value,

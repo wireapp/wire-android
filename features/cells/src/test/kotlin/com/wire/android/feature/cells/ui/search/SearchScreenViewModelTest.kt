@@ -22,9 +22,9 @@ import androidx.paging.PagingData
 import com.wire.android.feature.cells.ui.search.filter.data.FilterTagUi
 import com.wire.android.feature.cells.ui.search.sort.SortBy
 import com.wire.android.feature.cells.ui.search.sort.SortingCriteria
+import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
 import com.wire.kalium.cells.domain.usecase.GetCellGroupConversationsUseCase
-import com.wire.kalium.cells.domain.usecase.GetConversationsUseCaseResult
 import com.wire.kalium.cells.domain.usecase.GetOwnersUseCase
 import com.wire.kalium.cells.domain.usecase.GetOwnersUseCaseResult
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
@@ -37,7 +37,7 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
@@ -93,9 +93,8 @@ class SearchScreenViewModelTest {
         MockKAnnotations.init(this)
 
         coEvery { getAllTagsUseCase() } returns Either.Right(mockTags)
-        coEvery { getCellFilesPaged(any(), any(), any(), any()) } returns flowOf(PagingData.empty())
+        coEvery { getCellFilesPaged(any(), any(), any(), any()) } returns emptyFlow<PagingData<Node>>()
         coEvery { getOwners(any()) } returns GetOwnersUseCaseResult.Failure(CoreFailure.InvalidEventSenderID)
-        coEvery { getCellGroupConversations() } returns GetConversationsUseCaseResult.Success(emptyList())
     }
 
     @AfterEach

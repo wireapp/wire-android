@@ -19,6 +19,7 @@
 package scripts
 
 import findVersion
+import sun.jvmstat.monitor.MonitoredVmUtil.commandLine
 import uppercaseFirstChar
 import java.util.Properties
 
@@ -37,7 +38,8 @@ tasks.register("runUnitTests") {
     // core/ and features/ are Android library modules — they only have testDebugUnitTest
     val validSubprojects = setOf("core", "features")
     rootProject.subprojects {
-        if (validSubprojects.contains(parent?.name)) {
+        if (validSubprojects.contains(parent?.name) &&
+            !pluginManager.hasPlugin("com.android.kotlin.multiplatform.library")) {
             dependsOn(":${parent?.name}:$name:testDebugUnitTest")
         }
     }

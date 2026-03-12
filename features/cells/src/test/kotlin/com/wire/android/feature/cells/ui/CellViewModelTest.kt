@@ -24,7 +24,7 @@ import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
-import com.ramcosta.composedestinations.generated.cells.navArgs
+import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesScreenDestination
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.feature.cells.ui.model.toUiModel
@@ -47,7 +47,6 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesScreenDestination
 import io.mockk.mockkObject
 import io.mockk.mockkStatic
 import kotlinx.coroutines.Dispatchers

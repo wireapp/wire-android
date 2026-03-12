@@ -145,5 +145,7 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
 
     DB_INVALIDATION_CONTROL_ENABLED("db_invalidation_control_enabled", ConfigType.BOOLEAN),
 
-    NOMAD_PROFILES_ENABLED("nomad_profiles_enabled", ConfigType.BOOLEAN)
+    NOMAD_PROFILES_ENABLED("nomad_profiles_enabled", ConfigType.BOOLEAN),
+
+    CALL_QUALITY_MENU_ENABLED("call_quality_menu_enabled", ConfigType.BOOLEAN)
 }

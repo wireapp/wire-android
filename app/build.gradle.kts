@@ -159,6 +159,7 @@ android {
             kotlin.directories.add("src/androidTest/kotlin")
         }
         create("screenshotTest") {
+            java.directories.add("src/screenshotTest/kotlin")
             kotlin.directories.add("src/screenshotTest/kotlin")
             res.directories.add("src/main/res")
         }
@@ -305,6 +306,7 @@ dependencies {
 
     // screenshot testing
     screenshotTestImplementation(libs.compose.ui.tooling)
+    screenshotTestImplementation(libs.screenshot.validation.api)
 
     // Unit/Android tests dependencies
     testImplementation(libs.androidx.test.archCore)

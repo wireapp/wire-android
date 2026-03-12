@@ -190,7 +190,10 @@ fun CreatePasswordProtectedGuestLinkScreenContent(
                         textState = passwordTextState,
                         labelMandatoryIcon = true,
                         labelText = stringResource(
-                            R.string.conversation_options_create_password_protected_guest_link_button_placeholder_text
+                            R.string.conversation_options_create_password_protected_guest_link_password_label
+                        ),
+                        placeholderText = stringResource(
+                            id = R.string.conversation_options_create_password_protected_guest_link_button_placeholder_text
                         ),
                         descriptionText = stringResource(
                             R.string.conversation_options_create_password_protected_guest_link_password_description

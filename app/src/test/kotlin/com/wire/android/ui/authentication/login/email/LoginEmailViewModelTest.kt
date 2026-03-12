@@ -453,7 +453,7 @@ class LoginEmailViewModelTest {
         loginViewModel.userIdentifierTextState.setTextAndPlaceCursorAtEnd(email)
         loginViewModel.secondFactorVerificationCodeTextState.setTextAndPlaceCursorAtEnd(code)
         advanceUntilIdle()
-        coVerify(exactly = 0) { arrangement.addAuthenticatedUserUseCase(any(), any(), any(), any(), any()) }
+        coVerify(exactly = 0) { arrangement.addAuthenticatedUserUseCase(any(), any()) }
         coVerify(exactly = 0) { arrangement.getOrRegisterClientUseCase(any()) }
         assertEquals(LoginState.Error.DialogError.Request2FAWithHandle, loginViewModel.loginState.flowState)
     }
@@ -689,7 +689,7 @@ class LoginEmailViewModelTest {
         }
         coVerify(exactly = 1) { // verify that the second login job has been started
             arrangement.loginUseCase(any(), any(), any(), any(), any())
-            arrangement.addAuthenticatedUserUseCase(any(), any(), eq(authToken2), any(), any(), any(), any())
+            arrangement.addAuthenticatedUserUseCase(any(), any())
         }
     }
 
@@ -892,7 +892,7 @@ class LoginEmailViewModelTest {
 
         fun withAddAuthenticatedUserReturning(result: AddAuthenticatedUserUseCase.Result) = apply {
             coEvery {
-                addAuthenticatedUserUseCase(any(), any(), any(), any(), any(), any(), any())
+                addAuthenticatedUserUseCase(any(), any())
             } returns result
         }
 

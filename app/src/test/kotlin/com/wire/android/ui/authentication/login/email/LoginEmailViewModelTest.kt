@@ -53,6 +53,7 @@ import com.wire.kalium.logic.data.auth.verification.VerifiableAction
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.logout.LogoutReason
+import com.wire.kalium.logic.data.session.StoreSessionParam
 import com.wire.kalium.logic.data.user.SsoId
 import com.wire.kalium.logic.data.user.SsoManagedBy
 import com.wire.kalium.logic.data.user.UserId
@@ -689,7 +690,10 @@ class LoginEmailViewModelTest {
         }
         coVerify(exactly = 1) { // verify that the second login job has been started
             arrangement.loginUseCase(any(), any(), any(), any(), any())
-            arrangement.addAuthenticatedUserUseCase(any(), any())
+            arrangement.addAuthenticatedUserUseCase(
+                match<StoreSessionParam> { it.accountTokens == authToken2 },
+                any()
+            )
         }
     }
 

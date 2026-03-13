@@ -75,7 +75,6 @@ import com.wire.android.navigation.startDestination
 import com.wire.android.navigation.style.BackgroundStyle
 import com.wire.android.navigation.style.BackgroundType
 import com.wire.android.notification.broadcastreceivers.DynamicReceiversManager
-import com.wire.android.ui.authentication.login.LoginPasswordPath
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import com.wire.android.ui.calling.getIncomingCallIntent
 import com.wire.android.ui.calling.getOutgoingCallIntent
@@ -124,7 +123,6 @@ import com.wire.android.util.SwitchAccountObserver
 import com.wire.android.util.SyncStateObserver
 import com.wire.android.util.debug.FeatureVisibilityFlags
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
-import com.wire.android.util.deeplink.LoginType
 import com.wire.android.util.launchUpdateTheApp
 import dagger.Lazy
 import dagger.hilt.android.AndroidEntryPoint
@@ -592,32 +590,7 @@ class WireActivity : AppCompatActivity() {
                             navigate(NavigationCommand(NewLoginScreenDestination(), BackStackMode.CLEAR_WHOLE))
                         }
                     },
-                    onConfirm = { loginType ->
-                        viewModel.customBackendDialogProceedButtonClicked { serverLinks ->
-                            lifecycleScope.launch {
-                                val destination = when (loginType) {
-                                    LoginType.New -> NewLoginScreenDestination(loginPasswordPath = LoginPasswordPath(serverLinks))
-                                    LoginType.Old -> WelcomeScreenDestination(customServerConfig = serverLinks)
-                                    LoginType.Default -> when (loginTypeSelector.canUseNewLogin(serverLinks)) {
-                                        true -> NewLoginScreenDestination(loginPasswordPath = LoginPasswordPath(serverLinks))
-                                        false -> WelcomeScreenDestination(customServerConfig = serverLinks)
-                                    }
-                                }
-                                withContext(Dispatchers.Main) {
-                                    navigate(
-                                        NavigationCommand(
-                                            destination = destination,
-                                            // if "welcome empty start" screen then switch "start" screen to proper one
-                                            backStackMode = when (navigator.shouldReplaceWelcomeLoginStartDestination()) {
-                                                true -> BackStackMode.CLEAR_WHOLE
-                                                else -> BackStackMode.UPDATE_EXISTED
-                                            }
-                                        )
-                                    )
-                                }
-                            }
-                        }
-                    },
+                    onConfirm = viewModel::customBackendDialogProceedButtonClicked,
                     onTryAgain = viewModel::onCustomServerConfig
                 )
                 MaxAccountDialog(

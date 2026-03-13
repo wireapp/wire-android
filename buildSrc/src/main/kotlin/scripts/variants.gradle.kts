@@ -219,6 +219,17 @@ android {
                         "new java.util.HashMap<String, java.util.List<String>>() {{\n$mapString\n}}"
                     )
                 }
+
+                ConfigType.ListOfStrings -> {
+                    val list = flavorMap[flavor.name]?.get(configs.value) as? List<*>
+                    val listString = list?.joinToString { "\"$it\"" } ?: ""
+                    buildNonStringConfig(
+                        flavor,
+                        configs.configType.type,
+                        configs.name,
+                        "java.util.Arrays.asList($listString)"
+                    )
+                }
             }
         }
     }

@@ -27,7 +27,6 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireRootDestination
-import com.wire.android.navigation.baseRoute
 import com.wire.android.navigation.getBaseRoute
 import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.common.SettingUpWireScreenContent
@@ -42,13 +41,14 @@ fun InitialSyncScreen(
     viewModel: InitialSyncViewModel = hiltViewModel()
 ) {
     val activity = LocalActivity.current
+    val syncCompletionState = viewModel.syncCompletionState
 
     SettingUpWireScreenContent()
 
-    LaunchedEffect(viewModel.isSyncCompleted, viewModel.shouldMoveToBackground) {
-        if (!viewModel.isSyncCompleted) return@LaunchedEffect
+    LaunchedEffect(syncCompletionState) {
+        syncCompletionState ?: return@LaunchedEffect
 
-        if (viewModel.shouldMoveToBackground) {
+        if (syncCompletionState.shouldMoveToBackground) {
             activity.lifecycleScope.launch {
                 navigator.navController.currentBackStackEntryFlow
                     .map { it.destination.route?.getBaseRoute() }

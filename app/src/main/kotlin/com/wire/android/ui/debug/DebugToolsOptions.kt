@@ -25,6 +25,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.BuildConfig
@@ -38,6 +39,7 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.extension.isGoogleServicesAvailable
 
 @Preview
 @Composable
@@ -67,7 +69,6 @@ internal fun DebugToolsOptions(
     isAsyncNotificationsEnabled: Boolean,
     onEnableAsyncNotificationsChange: (Boolean) -> Unit,
 ) {
-    SectionHeader(stringResource(R.string.label_debug_tools_title))
     Column {
         if (BuildConfig.PRIVATE_BUILD) {
             PrivateBuildDebugToolsOptions(
@@ -77,10 +78,12 @@ internal fun DebugToolsOptions(
                 onForceUpdateApiVersions = onForceUpdateApiVersions,
                 checkCrlRevocationList = checkCrlRevocationList,
                 isAsyncNotificationsEnabled = isAsyncNotificationsEnabled,
-                onEnableAsyncNotificationsChange = onEnableAsyncNotificationsChange
+                onEnableAsyncNotificationsChange = onEnableAsyncNotificationsChange,
+                onResendFCMToken = onResendFCMToken,
             )
+        } else {
+            ProductionDebugToolsOptions(onResendFCMToken = onResendFCMToken)
         }
-        ProductionDebugToolsOptions(onResendFCMToken = onResendFCMToken)
     }
 }
 
@@ -93,8 +96,10 @@ private fun PrivateBuildDebugToolsOptions(
     checkCrlRevocationList: () -> Unit,
     isAsyncNotificationsEnabled: Boolean,
     onEnableAsyncNotificationsChange: (Boolean) -> Unit,
+    onResendFCMToken: () -> Unit,
 ) {
     Column {
+        SectionHeader(stringResource(R.string.label_debug_tools_title))
         DisableEventProcessingSwitch(
             isEnabled = isEventProcessingEnabled,
             onCheckedChange = onDisableEventProcessingChange
@@ -103,6 +108,7 @@ private fun PrivateBuildDebugToolsOptions(
         CheckCrlRevocationButton(onClick = checkCrlRevocationList)
         ForceUpdateApiVersionsButton(onClick = onForceUpdateApiVersions)
         EnableAsyncNotifications(isAsyncNotificationsEnabled, onEnableAsyncNotificationsChange)
+        RegisterFCMPushTokenButton(onClick = onResendFCMToken)
     }
 }
 
@@ -110,7 +116,12 @@ private fun PrivateBuildDebugToolsOptions(
 private fun ProductionDebugToolsOptions(
     onResendFCMToken: () -> Unit,
 ) {
-    RegisterFCMPushTokenButton(onClick = onResendFCMToken)
+    if (LocalContext.current.isGoogleServicesAvailable()) {
+        Column {
+            SectionHeader(stringResource(R.string.label_debug_tools_title))
+            RegisterFCMPushTokenButton(onClick = onResendFCMToken)
+        }
+    }
 }
 
 @Composable

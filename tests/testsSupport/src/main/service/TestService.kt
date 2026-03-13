@@ -249,7 +249,9 @@ class TestService(private val baseUri: String, private val testName: String) {
                 put("expectsReadConfirmation", true)
             }
             put("text", params.text)
-            put("buttons", params.buttons)
+            if (params.buttons.length() > 0) {
+                put("buttons", params.buttons)
+            }
             put("legalHoldStatus", params.legalHoldStatus)
         }
         val result = sendHttpRequest(connection, requestBody)
@@ -699,7 +701,9 @@ class TestService(private val baseUri: String, private val testName: String) {
     }
 
     private fun JSONObject.addButtonsIfPresent(buttons: JSONArray?) {
-        buttons?.let { put("buttons", it) }
+        if (buttons != null && buttons.length() > 0) {
+            put("buttons", buttons)
+        }
     }
 
     private fun JSONObject.addMessageTimerIfNeeded(messageTimer: Duration) {

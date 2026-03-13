@@ -19,6 +19,7 @@ package com.wire.android.tests.core.pages
 
 import android.content.Intent
 import android.net.Uri
+import android.os.SystemClock
 import androidx.test.espresso.matcher.ViewMatchers.assertThat
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
@@ -426,15 +427,19 @@ data class SettingsPage(private val device: UiDevice) {
         return this
     }
 
-    fun assertDeleteAccountConfirmationModalIsNoLongerVisible(): SettingsPage {
-        val modal = runCatching {
-            UiWaitUtils.waitElement(deleteAccountConfirmationModal)
-        }.getOrNull()
+    fun assertDeleteAccountConfirmationModalIsNoLongerVisible(timeoutMs: Long = 10_000): SettingsPage {
+        val deadline = SystemClock.uptimeMillis() + timeoutMs
 
-        if (modal != null && !modal.visibleBounds.isEmpty) {
-            throw AssertionError("Delete account confirmation modal is still visible (expected it to be gone)")
+        while (SystemClock.uptimeMillis() < deadline) {
+            val modal = UiWaitUtils.findElementOrNull(deleteAccountConfirmationModal)
+            val isVisible = modal != null && !modal.visibleBounds.isEmpty
+            if (!isVisible) {
+                return this
+            }
+            SystemClock.sleep(150)
         }
-        return this
+
+        throw AssertionError("Delete account confirmation modal is still visible (expected it to be gone)")
     }
 
     fun selectBackupFileInDocumentsUI(teamHelper: TeamHelper, userAlias: String): SettingsPage {

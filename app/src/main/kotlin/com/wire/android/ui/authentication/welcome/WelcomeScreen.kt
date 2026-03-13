@@ -82,6 +82,8 @@ import com.wire.android.ui.common.dialogs.FeatureDisabledWithProxyDialogContent
 import com.wire.android.ui.common.dialogs.FeatureDisabledWithProxyDialogState
 import com.wire.android.ui.common.dialogs.MaxAccountsReachedDialog
 import com.wire.android.ui.common.dialogs.MaxAccountsReachedDialogState
+import com.wire.android.ui.common.dialogs.NomadAccountBlocksLoginDialog
+import com.wire.android.ui.common.dialogs.NomadAccountBlocksLoginDialogState
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
@@ -116,6 +118,7 @@ fun WelcomeScreen(
     WelcomeContent(
         viewModel.state.isThereActiveSession,
         viewModel.state.maxAccountsReached,
+        viewModel.state.nomadAccountBlocksLogin,
         viewModel.state.links,
         navigator::navigateBack,
         navigator::navigate
@@ -127,6 +130,7 @@ fun WelcomeScreen(
 private fun WelcomeContent(
     isThereActiveSession: Boolean,
     maxAccountsReached: Boolean,
+    nomadAccountBlocksLogin: Boolean,
     state: ServerConfig.Links,
     navigateBack: () -> Unit,
     navigate: (NavigationCommand) -> Unit
@@ -157,6 +161,12 @@ private fun WelcomeContent(
             MaxAccountsReachedDialog(dialogState = maxAccountsReachedDialogState) { navigateBack() }
             if (maxAccountsReached) {
                 maxAccountsReachedDialogState.show(maxAccountsReachedDialogState.savedState ?: MaxAccountsReachedDialogState)
+            }
+
+            val nomadBlocksLoginDialogState = rememberVisibilityState<NomadAccountBlocksLoginDialogState>()
+            NomadAccountBlocksLoginDialog(dialogState = nomadBlocksLoginDialogState) { navigateBack() }
+            if (nomadAccountBlocksLogin) {
+                nomadBlocksLoginDialogState.show(nomadBlocksLoginDialogState.savedState ?: NomadAccountBlocksLoginDialogState)
             }
 
             Icon(
@@ -422,6 +432,7 @@ fun PreviewWelcomeScreen() {
         WelcomeContent(
             isThereActiveSession = false,
             maxAccountsReached = false,
+            nomadAccountBlocksLogin = false,
             state = ServerConfig.DEFAULT,
             navigateBack = {},
             navigate = {}

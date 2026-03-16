@@ -4,7 +4,7 @@ set -euo pipefail
 # Set up runner, device, and app prerequisites for qa-android-ui-tests workflow.
 
 usage() {
-  echo "Usage: $0 {ensure-required-tools|resolve-flavor|download-apks|detect-target-devices|install-apks-on-devices|fetch-runtime-secrets|build-test-apk|resolve-test-apk-path|resolve-test-services-apks}" >&2
+  echo "Usage: $0 {ensure-required-tools|resolve-flavor|download-apks|detect-target-devices|clear-allure-results-on-devices|install-apks-on-devices|fetch-runtime-secrets|build-test-apk|resolve-test-apk-path|resolve-test-services-apks}" >&2
   exit 2
 }
 
@@ -169,6 +169,17 @@ detect_target_devices() {
   echo "Using ${device_count} device(s)"
 }
 
+clear_allure_results_on_devices() {
+  : "${DEVICE_LIST:?DEVICE_LIST missing}"
+
+  read -ra DEVICES <<< "${DEVICE_LIST}"
+  for serial in "${DEVICES[@]}"; do
+    adb -s "${serial}" wait-for-device
+    # Clear stale device-side Allure files before the workflow reaches any later setup step that might fail.
+    adb -s "${serial}" shell "rm -rf '/sdcard/googletest/test_outputfiles/allure-results' && mkdir -p '/sdcard/googletest/test_outputfiles/allure-results'" >/dev/null 2>&1 || true
+  done
+}
+
 install_apks_on_devices() {
   : "${DEVICE_LIST:?DEVICE_LIST missing}"
   : "${APP_ID:?APP_ID missing}"
@@ -301,9 +312,19 @@ resolve_test_services_apks() {
   test_services_apk="$(find_newest "*test-services*.apk" "${roots[@]}")"
   orchestrator_apk="$(find_newest "*orchestrator*.apk" "${roots[@]}")"
 
+  # On a clean/self-hosted runner, assembleDebugAndroidTest may not have resolved androidTestUtil artifacts yet.
+  # Force Gradle to resolve that configuration once, then search the cache again.
+  if [[ -z "${test_services_apk}" || ! -f "${test_services_apk}" ]]; then
+    ./gradlew :tests:testsCore:dependencies --configuration androidTestUtil --no-daemon >/dev/null
+    test_services_apk="$(find_newest "*test-services*.apk" "${roots[@]}")"
+    orchestrator_apk="$(find_newest "*orchestrator*.apk" "${roots[@]}")"
+  fi
+
   if [[ -z "${test_services_apk}" || ! -f "${test_services_apk}" ]]; then
     echo "ERROR: Could not locate AndroidX Test Services APK in Gradle cache."
     echo "This APK is required for Allure TestStorage (content://androidx.test.services.storage...)."
+    printf 'Searched cache roots:\n' >&2
+    printf '  - %s\n' "${roots[@]}" >&2
     exit 1
   fi
 
@@ -325,6 +346,9 @@ case "${1:-}" in
     ;;
   detect-target-devices)
     detect_target_devices
+    ;;
+  clear-allure-results-on-devices)
+    clear_allure_results_on_devices
     ;;
   install-apks-on-devices)
     install_apks_on_devices

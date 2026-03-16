@@ -206,6 +206,10 @@ jobs:
           RESOLVED_TESTCASE_ID: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTestCaseId }}
         run: bash scripts/qa_android_ui_tests/execution_setup.sh detect-target-devices
 
+      # Clear stale device-side Allure files early so setup failures cannot publish old reports.
+      - name: Clear stale Allure results on device(s)
+        run: bash scripts/qa_android_ui_tests/execution_setup.sh clear-allure-results-on-devices
+
       # Install app/test prerequisites on each selected device.
       - name: Install APK(s) on device(s)
         env:

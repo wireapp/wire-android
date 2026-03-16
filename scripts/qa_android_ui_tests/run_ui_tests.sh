@@ -333,7 +333,9 @@ run_attempt_on_devices() {
   return "${failed}"
 }
 
-first_failed_file="${STATE_DIR}/attempt-0-failed.txt"
+# Keep the initial failed list in a separate file so attempt 0 bookkeeping
+# does not try to copy a file onto itself before reruns begin.
+first_failed_file="${STATE_DIR}/first-attempt-failed.txt"
 current_failed_file=""
 attempt=0
 overall_infra_failed=0

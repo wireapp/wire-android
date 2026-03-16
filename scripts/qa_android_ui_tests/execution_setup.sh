@@ -312,16 +312,45 @@ resolve_test_services_apks() {
   test_services_apk="$(find_newest "*test-services*.apk" "${roots[@]}")"
   orchestrator_apk="$(find_newest "*orchestrator*.apk" "${roots[@]}")"
 
-  # On a clean/self-hosted runner, assembleDebugAndroidTest may not have resolved androidTestUtil artifacts yet.
-  # Force Gradle to resolve that configuration once, then search the cache again.
+  read_version_from_catalog() {
+    local key="$1"
+    awk -F'"' -v wanted="${key}" '$1 ~ ("^" wanted " *= *$") { print $2; exit }' gradle/libs.versions.toml
+  }
+
+  download_from_google_maven() {
+    local group_path="$1"
+    local artifact="$2"
+    local version="$3"
+    local out_dir="${RUNNER_TEMP:-/tmp}/androidx-test-apks"
+    local out_path="${out_dir}/${artifact}-${version}.apk"
+
+    mkdir -p "${out_dir}"
+    curl -fsSL \
+      -o "${out_path}" \
+      "https://dl.google.com/dl/android/maven2/${group_path}/${artifact}/${version}/${artifact}-${version}.apk"
+    echo "${out_path}"
+  }
+
+  # On a clean/self-hosted runner, these APK artifacts may not exist in cache yet.
+  # If cache lookup misses, download them directly from the official Google Maven repository.
   if [[ -z "${test_services_apk}" || ! -f "${test_services_apk}" ]]; then
-    ./gradlew :tests:testsCore:dependencies --configuration androidTestUtil --no-daemon >/dev/null
-    test_services_apk="$(find_newest "*test-services*.apk" "${roots[@]}")"
-    orchestrator_apk="$(find_newest "*orchestrator*.apk" "${roots[@]}")"
+    local test_services_version
+    test_services_version="$(read_version_from_catalog "androidx-test-services")"
+    if [[ -n "${test_services_version}" ]]; then
+      test_services_apk="$(download_from_google_maven "androidx/test/services" "test-services" "${test_services_version}")"
+    fi
+  fi
+
+  if [[ -z "${orchestrator_apk}" || ! -f "${orchestrator_apk}" ]]; then
+    local orchestrator_version
+    orchestrator_version="$(read_version_from_catalog "androidx-test-orchestrator")"
+    if [[ -n "${orchestrator_version}" ]]; then
+      orchestrator_apk="$(download_from_google_maven "androidx/test" "orchestrator" "${orchestrator_version}")"
+    fi
   fi
 
   if [[ -z "${test_services_apk}" || ! -f "${test_services_apk}" ]]; then
-    echo "ERROR: Could not locate AndroidX Test Services APK in Gradle cache."
+    echo "ERROR: Could not locate or download AndroidX Test Services APK."
     echo "This APK is required for Allure TestStorage (content://androidx.test.services.storage...)."
     printf 'Searched cache roots:\n' >&2
     printf '  - %s\n' "${roots[@]}" >&2

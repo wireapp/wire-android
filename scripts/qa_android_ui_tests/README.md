@@ -18,7 +18,7 @@ Flavor resolution is runner-driven, not hardcoded in the repo.
 
 - `validation.sh`: input validation, TAG selector parsing, and resolved value logging.
 - `execution_setup.sh`: runner prep, flavor/APK resolution, device prep, secrets fetch, and test artifact setup.
-- `run_ui_tests.sh`: instrumentation execution/sharding across connected devices.
+- `run_ui_tests.sh`: instrumentation execution/sharding plus failed-test auto-reruns (deterministic multi-device sharding on retry attempts).
 - `reporting.sh`: Allure pull/merge/generate/publish plus cleanup subcommands.
 
 ## Python Helpers
@@ -27,3 +27,4 @@ Flavor resolution is runner-driven, not hardcoded in the repo.
 - `select_apks.py`: resolve NEW/OLD APK keys based on input/build selection rules.
 - `fetch_secrets_json.py`: build runtime `secrets.json` from 1Password vault items.
 - `merge_allure_results.py`: merge per-device Allure outputs and attach metadata.
+- `extract_failed_tests.py`: extract failed test IDs (`Class#method`) from one attempt's Allure result files.

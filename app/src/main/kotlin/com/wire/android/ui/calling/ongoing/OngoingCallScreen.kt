@@ -87,6 +87,7 @@ import com.wire.android.ui.calling.ongoing.participantsview.VerticalCallingPager
 import com.wire.android.ui.common.ConversationVerificationIcons
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversation
+import com.wire.android.ui.common.bottomsheet.WireSheetValue
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
@@ -269,6 +270,29 @@ fun OngoingCallScreen(
         sheetState = callDetailsBottomSheetState,
         callQualityData = ongoingCallViewModel.state.callQualityData,
     )
+    HandleQualityIntervals(
+        sheetValue = callDetailsBottomSheetState.currentValue,
+        setQualityInterval = ongoingCallViewModel::setQualityInterval
+    )
+}
+
+@Composable
+private fun HandleQualityIntervals(
+    sheetValue: WireSheetValue<CallDetailsSheetState>,
+    setQualityInterval: (OngoingCallViewModel.QualityInterval) -> Unit
+) {
+    val interval = when (sheetValue) { // calculate the quality interval based on the current call details sheet content
+        is WireSheetValue.Expanded if sheetValue.value == CallDetailsSheetState.Quality -> OngoingCallViewModel.QualityInterval.SHORT
+        else -> OngoingCallViewModel.QualityInterval.NORMAL
+    }
+    LaunchedEffect(interval) { // update the quality interval each time it needs to be changed
+        setQualityInterval(interval)
+    }
+    DisposableEffect(Unit) { // reset the quality interval to normal when this OngoingCallScreen composable is disposed
+        onDispose {
+            setQualityInterval(OngoingCallViewModel.QualityInterval.NORMAL)
+        }
+    }
 }
 
 @Composable

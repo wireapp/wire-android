@@ -38,6 +38,7 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.ObserveCallQualityDataUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveLastActiveCallWithSortedParticipantsUseCase
 import com.wire.kalium.logic.feature.call.usecase.RequestVideoStreamsUseCase
+import com.wire.kalium.logic.feature.call.usecase.SetCallQualityIntervalUseCase
 import com.wire.kalium.logic.feature.call.usecase.video.SetVideoSendStateUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -286,6 +287,22 @@ class OngoingCallViewModelTest {
         assertEquals(changedQuality, ongoingCallViewModel.state.callQualityData)
     }
 
+    @Test
+    fun givenCall_WhenChangingCallQualityInterval_ThenSetIntervalProperly() = runTest {
+        val (arrangement, ongoingCallViewModel) = Arrangement()
+            .withLastActiveCall(provideCall())
+            .withShouldShowDoubleTapToastReturning(false)
+            .withSetVideoSendState()
+            .arrange()
+        advanceUntilIdle()
+
+        ongoingCallViewModel.setQualityInterval(OngoingCallViewModel.QualityInterval.SHORT)
+
+        coVerify(exactly = 1) {
+            arrangement.setCallQualityInterval(OngoingCallViewModel.QualityInterval.SHORT.intervalInSeconds)
+        }
+    }
+
     private class Arrangement {
 
         @MockK
@@ -301,6 +318,9 @@ class OngoingCallViewModelTest {
         lateinit var observeCallQualityData: ObserveCallQualityDataUseCase
 
         @MockK
+        lateinit var setCallQualityInterval: SetCallQualityIntervalUseCase
+
+        @MockK
         lateinit var globalDataStore: GlobalDataStore
 
         private val ongoingCallViewModel by lazy {
@@ -311,7 +331,8 @@ class OngoingCallViewModelTest {
                 currentUserId = currentUserId,
                 setVideoSendState = setVideoSendState,
                 globalDataStore = globalDataStore,
-                observeCallQualityData = observeCallQualityData
+                observeCallQualityData = observeCallQualityData,
+                setCallQualityInterval = setCallQualityInterval
             )
         }
 

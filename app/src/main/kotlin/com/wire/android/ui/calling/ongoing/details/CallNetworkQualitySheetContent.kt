@@ -141,43 +141,28 @@ private fun ConnectionValueItem(connection: CallQualityData.Connection) = Qualit
 @Composable
 private fun PacketLossValueItem(packetLoss: CallQualityData.PacketLoss) = QualityValueItem(
     title = stringResource(R.string.calling_details_network_quality_packet_loss),
-    value = when {
-        packetLoss.max >= 0 -> "${packetLoss.max.coerceIn(0, 100)}%"
-        else -> ""
+    value = buildStringIfPositive(packetLoss.max) {
+        "${packetLoss.max.coerceIn(0, 100)}%"
     },
-    indicator = when {
-        packetLoss.max > 10 -> CallQualityIndicatorValue.POOR
-        packetLoss.max > 5 -> CallQualityIndicatorValue.FAIR
-        else -> CallQualityIndicatorValue.GOOD
-    }
+    indicator = calculateIndicatorValue(packetLoss.max, PACKET_LOSS_THRESHOLD_POOR, PACKET_LOSS_THRESHOLD_FAIR)
 )
 
 @Composable
 private fun PingValueItem(ping: Int) = QualityValueItem(
     title = stringResource(R.string.calling_details_network_quality_ping),
-    value = when {
-        ping >= 0 -> stringResource(R.string.calling_details_network_quality_value_milliseconds, ping)
-        else -> ""
+    value = buildStringIfPositive(ping) {
+        stringResource(R.string.calling_details_network_quality_value_milliseconds, it)
     },
-    indicator = when {
-        ping > 150 -> CallQualityIndicatorValue.POOR
-        ping >= 50 -> CallQualityIndicatorValue.FAIR
-        else -> CallQualityIndicatorValue.GOOD
-    }
+    indicator = calculateIndicatorValue(ping, PING_THRESHOLD_POOR, PING_THRESHOLD_FAIR)
 )
 
 @Composable
 private fun JitterValueItem(jitter: CallQualityData.Jitter) = QualityValueItem(
     title = stringResource(R.string.calling_details_network_quality_jitter),
-    value = when {
-        jitter.max >= 0 -> stringResource(R.string.calling_details_network_quality_value_milliseconds, jitter.max)
-        else -> ""
+    value = buildStringIfPositive(jitter.max) {
+        stringResource(R.string.calling_details_network_quality_value_milliseconds, it)
     },
-    indicator = when {
-        jitter.max > 50 -> CallQualityIndicatorValue.POOR
-        jitter.max >= 10 -> CallQualityIndicatorValue.FAIR
-        else -> CallQualityIndicatorValue.GOOD
-    }
+    indicator = calculateIndicatorValue(jitter.max, JITTER_THRESHOLD_POOR, JITTER_THRESHOLD_FAIR)
 )
 
 @Composable
@@ -220,6 +205,24 @@ private fun QualityValueIndicator(
         )
     }
 }
+
+// returns empty string if the value is not positive, otherwise builds a string using the provided builder function
+@Composable
+private fun buildStringIfPositive(value: Int, builder: @Composable (Int) -> String) = if (value > 0) builder(value) else ""
+
+// maps the value to GOOD, FAIR or POOR based on the provided thresholds
+private fun calculateIndicatorValue(value: Int, thresholdPoor: Int, thresholdFair: Int) = when {
+    value > thresholdPoor -> CallQualityIndicatorValue.POOR
+    value >= thresholdFair -> CallQualityIndicatorValue.FAIR
+    else -> CallQualityIndicatorValue.GOOD
+}
+
+private const val PACKET_LOSS_THRESHOLD_POOR = 10 // %
+private const val PACKET_LOSS_THRESHOLD_FAIR = 5 // %
+private const val PING_THRESHOLD_POOR = 150 // ms
+private const val PING_THRESHOLD_FAIR = 50 // ms
+private const val JITTER_THRESHOLD_POOR = 50 // ms
+private const val JITTER_THRESHOLD_FAIR = 10 // ms
 
 @PreviewMultipleThemes
 @Composable

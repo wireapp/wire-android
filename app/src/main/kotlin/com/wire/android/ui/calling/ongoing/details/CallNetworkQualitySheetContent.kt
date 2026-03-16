@@ -208,7 +208,7 @@ private fun QualityValueIndicator(
 
 // returns empty string if the value is negative as it means it's unavailable, otherwise builds a string using the provided builder
 @Composable
-private fun buildStringIfNonNegative(value: Int, builder: @Composable (Int) -> String) = if (value > 0) builder(value) else ""
+private fun buildStringIfNonNegative(value: Int, builder: @Composable (Int) -> String) = if (value >= 0) builder(value) else ""
 
 // maps the value to GOOD, FAIR or POOR based on the provided thresholds
 private fun calculateIndicatorValue(value: Int, thresholdPoor: Int, thresholdFair: Int) = when {

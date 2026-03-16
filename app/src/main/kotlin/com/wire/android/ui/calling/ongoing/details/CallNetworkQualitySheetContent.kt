@@ -141,7 +141,7 @@ private fun ConnectionValueItem(connection: CallQualityData.Connection) = Qualit
 @Composable
 private fun PacketLossValueItem(packetLoss: CallQualityData.PacketLoss) = QualityValueItem(
     title = stringResource(R.string.calling_details_network_quality_packet_loss),
-    value = buildStringIfPositive(packetLoss.max) {
+    value = buildStringIfNonNegative(packetLoss.max) {
         "${packetLoss.max.coerceIn(0, 100)}%"
     },
     indicator = calculateIndicatorValue(packetLoss.max, PACKET_LOSS_THRESHOLD_POOR, PACKET_LOSS_THRESHOLD_FAIR)
@@ -150,7 +150,7 @@ private fun PacketLossValueItem(packetLoss: CallQualityData.PacketLoss) = Qualit
 @Composable
 private fun PingValueItem(ping: Int) = QualityValueItem(
     title = stringResource(R.string.calling_details_network_quality_ping),
-    value = buildStringIfPositive(ping) {
+    value = buildStringIfNonNegative(ping) {
         stringResource(R.string.calling_details_network_quality_value_milliseconds, it)
     },
     indicator = calculateIndicatorValue(ping, PING_THRESHOLD_POOR, PING_THRESHOLD_FAIR)
@@ -159,7 +159,7 @@ private fun PingValueItem(ping: Int) = QualityValueItem(
 @Composable
 private fun JitterValueItem(jitter: CallQualityData.Jitter) = QualityValueItem(
     title = stringResource(R.string.calling_details_network_quality_jitter),
-    value = buildStringIfPositive(jitter.max) {
+    value = buildStringIfNonNegative(jitter.max) {
         stringResource(R.string.calling_details_network_quality_value_milliseconds, it)
     },
     indicator = calculateIndicatorValue(jitter.max, JITTER_THRESHOLD_POOR, JITTER_THRESHOLD_FAIR)
@@ -206,9 +206,9 @@ private fun QualityValueIndicator(
     }
 }
 
-// returns empty string if the value is not positive, otherwise builds a string using the provided builder function
+// returns empty string if the value is negative as it means it's unavailable, otherwise builds a string using the provided builder
 @Composable
-private fun buildStringIfPositive(value: Int, builder: @Composable (Int) -> String) = if (value > 0) builder(value) else ""
+private fun buildStringIfNonNegative(value: Int, builder: @Composable (Int) -> String) = if (value > 0) builder(value) else ""
 
 // maps the value to GOOD, FAIR or POOR based on the provided thresholds
 private fun calculateIndicatorValue(value: Int, thresholdPoor: Int, thresholdFair: Int) = when {

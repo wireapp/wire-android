@@ -1,0 +1,460 @@
+--------- beginning of main
+03-10 09:45:24.344 24798 24811 E TestRunner: failed: givenGroupConversation_whenMessagesAreExchangedAndSelfDeletingMessageIsSent_thenMessageIsVisibleAndExpires(com.wire.android.tests.core.criticalFlows.GroupMessaging)
+03-10 09:45:24.345 24798 24811 E TestRunner: ----- begin exception -----
+03-10 09:45:24.345 24798 24811 E TestRunner: java.lang.SecurityException: Injecting to another application requires INJECT_EVENTS permission
+03-10 09:45:24.345 24798 24811 E TestRunner: 	at android.os.Parcel.createExceptionOrNull(Parcel.java:2425)
+03-10 09:45:24.345 24798 24811 E TestRunner: 	at android.os.Parcel.createException(Parcel.java:2409)
+03-10 09:45:24.345 24798 24811 E TestRunner: 	at android.os.Parcel.readException(Parcel.java:2392)
+03-10 09:45:24.345 24798 24811 E TestRunner: 	at android.os.Parcel.readException(Parcel.java:2334)
+03-10 09:45:24.345 24798 24811 E TestRunner: 	at android.hardware.input.IInputManager$Stub$Proxy.injectInputEvent(IInputManager.java:1339)
+03-10 09:45:24.345 24798 24811 E TestRunner: 	at android.hardware.input.InputManager.injectInputEvent(InputManager.java:1091)
+03-10 09:45:24.345 24798 24811 E TestRunner: 	at android.app.Instrumentation.sendKeySync(Instrumentation.java:1103)
+03-10 09:45:24.345 24798 24811 E TestRunner: 	at androidx.test.uiautomator.UiDeviceExt.type(UiDeviceExt.kt:142)
+03-10 09:45:24.345 24798 24811 E TestRunner: 	at com.wire.android.tests.core.pages.ConversationViewPage.typeMessageInInputField(ConversationViewPage.kt:338)
+03-10 09:45:24.345 24798 24811 E TestRunner: 	at com.wire.android.tests.core.criticalFlows.GroupMessaging.givenGroupConversation_whenMessagesAreExchangedAndSelfDeletingMessageIsSent_thenMessageIsVisibleAndExpires$lambda$4(GroupMessaging.kt:142)
+03-10 09:45:24.345 24798 24811 E TestRunner: 	at com.wire.android.tests.core.criticalFlows.GroupMessaging$$ExternalSyntheticLambda10.invoke(D8$$SyntheticClass:0)
+03-10 09:45:24.345 24798 24811 E TestRunner: 	at com.wire.android.tests.core.BaseUiTest.step$lambda$0(BaseUiTest.kt:54)
+03-10 09:45:24.345 24798 24811 E TestRunner: 	at com.wire.android.tests.core.BaseUiTest$$ExternalSyntheticLambda1.invoke(D8$$SyntheticClass:0)
+03-10 09:45:24.345 24798 24811 E TestRunner: 	at io.qameta.allure.kotlin.Allure.step(Allure.kt:60)
+03-10 09:45:24.345 24798 24811 E TestRunner: 	at com.wire.android.tests.core.BaseUiTest.step(BaseUiTest.kt:54)
+03-10 09:45:24.345 24798 24811 E TestRunner: 	at com.wire.android.tests.core.criticalFlows.GroupMessaging.givenGroupConversation_whenMessagesAreExchangedAndSelfDeletingMessageIsSent_thenMessageIsVisibleAndExpires(GroupMessaging.kt:137)
+03-10 09:45:24.345 24798 24811 E TestRunner: 	at java.lang.reflect.Method.invoke(Native Method)
+03-10 09:45:24.345 24798 24811 E TestRunner: 	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+03-10 09:45:24.345 24798 24811 E TestRunner: 	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+03-10 09:45:24.345 24798 24811 E TestRunner: 	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+03-10 09:45:24.345 24798 24811 E TestRunner: 	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+03-10 09:45:24.345 24798 24811 E TestRunner: 	at androidx.test.internal.runner.junit4.statement.RunBefores.evaluate(RunBefores.java:80)
+03-10 09:45:24.345 24798 24811 E TestRunner: 	at androidx.test.internal.runner.junit4.statement.RunAfters.evaluate(RunAfters.java:61)
+03-10 09:45:24.345 24798 24811 E TestRunner: 	at com.wire.android.tests.support.suite.AllureFailureScreenshotRule$apply$1.evaluate(AllureFailureScreenshotRule.kt:44)
+03-10 09:45:24.345 24798 24811 E TestRunner: 	at com.wire.android.tests.support.suite.AllureLabelsRule$apply$1.evaluate(AllureLabelsRule.kt:70)
+03-10 09:45:24.345 24798 24811 E TestRunner: 	at org.junit.rules.TestWatcher$1.evaluate(TestWatcher.java:61)
+03-10 09:45:24.345 24798 24811 E TestRunner: 	at com.wire.android.tests.support.suite.AllureLogcatRule$apply$1.evaluate(AllureLogcatRule.kt:41)
+03-10 09:45:24.345 24798 24811 E TestRunner: 	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+03-10 09:45:24.345 24798 24811 E TestRunner: 	at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+03-10 09:45:24.345 24798 24811 E TestRunner: 	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+03-10 09:45:24.345 24798 24811 E TestRunner: 	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+03-10 09:45:24.345 24798 24811 E TestRunner: 	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+03-10 09:45:24.345 24798 24811 E TestRunner: 	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+03-10 09:45:24.345 24798 24811 E TestRunner: 	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+03-10 09:45:24.345 24798 24811 E TestRunner: 	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+03-10 09:45:24.345 24798 24811 E TestRunner: 	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+03-10 09:45:24.345 24798 24811 E TestRunner: 	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+03-10 09:45:24.345 24798 24811 E TestRunner: 	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+03-10 09:45:24.345 24798 24811 E TestRunner: 	at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+03-10 09:45:24.345 24798 24811 E TestRunner: 	at androidx.test.ext.junit.runners.AndroidJUnit4.run(AndroidJUnit4.java:162)
+03-10 09:45:24.345 24798 24811 E TestRunner: 	at org.junit.runners.Suite.runChild(Suite.java:128)
+03-10 09:45:24.345 24798 24811 E TestRunner: 	at org.junit.runners.Suite.runChild(Suite.java:27)
+03-10 09:45:24.345 24798 24811 E TestRunner: 	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+03-10 09:45:24.345 24798 24811 E TestRunner: 	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+03-10 09:45:24.345 24798 24811 E TestRunner: 	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+03-10 09:45:24.345 24798 24811 E TestRunner: 	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+03-10 09:45:24.345 24798 24811 E TestRunner: 	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+03-10 09:45:24.345 24798 24811 E TestRunner: 	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+03-10 09:45:24.346 24798 24811 E TestRunner: 	at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+03-10 09:45:24.346 24798 24811 E TestRunner: 	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+03-10 09:45:24.346 24798 24811 E TestRunner: 	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+03-10 09:45:24.346 24798 24811 E TestRunner: 	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:68)
+03-10 09:45:24.346 24798 24811 E TestRunner: 	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:59)
+03-10 09:45:24.346 24798 24811 E TestRunner: 	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:467)
+03-10 09:45:24.346 24798 24811 E TestRunner: 	at com.wire.android.tests.support.suite.TaggedTestRunner.onStart(TaggedTestRunner.kt:51)
+03-10 09:45:24.346 24798 24811 E TestRunner: 	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2278)
+03-10 09:45:24.346 24798 24811 E TestRunner: Caused by: android.os.RemoteException: Remote stack trace:
+03-10 09:45:24.346 24798 24811 E TestRunner: 	at com.android.server.input.InputManagerService.injectInputEventInternal(InputManagerService.java:887)
+03-10 09:45:24.346 24798 24811 E TestRunner: 	at com.android.server.input.InputManagerService.injectInputEvent(InputManagerService.java:829)
+03-10 09:45:24.346 24798 24811 E TestRunner: 	at android.hardware.input.IInputManager$Stub.onTransact(IInputManager.java:573)
+03-10 09:45:24.346 24798 24811 E TestRunner: 	at android.os.Binder.execTransactInternal(Binder.java:1179)
+03-10 09:45:24.346 24798 24811 E TestRunner: 	at android.os.Binder.execTransact(Binder.java:1143)
+03-10 09:45:24.346 24798 24811 E TestRunner: 
+03-10 09:45:24.346 24798 24811 E TestRunner: ----- end exception -----
+03-10 09:45:24.352 24798 24811 I TestRunner: finished: givenGroupConversation_whenMessagesAreExchangedAndSelfDeletingMessageIsSent_thenMessageIsVisibleAndExpires(com.wire.android.tests.core.criticalFlows.GroupMessaging)
+03-10 09:45:24.418 24798 24811 I TestRunner: started: givenSSOTeamWithOkta_whenSettingUpNewDeviceAndRestoringBackup_thenMessageIsRestored(com.wire.android.tests.core.criticalFlows.SSODeviceBackup)
+03-10 09:45:24.457 24798 24811 D UiDevice: Executing shell command: pm clear com.wire.internal
+03-10 09:45:24.626 24798 24811 D UiDevice: Executing shell command: settings put secure show_ime_with_hard_keyboard 0
+03-10 09:45:24.655 24798 24811 D UiDevice: Executing shell command: settings put global window_animation_scale 0
+03-10 09:45:24.702 24798 24811 D UiDevice: Executing shell command: settings put global transition_animation_scale 0
+03-10 09:45:24.743 24798 24811 D UiDevice: Executing shell command: settings put global animator_duration_scale .5
+03-10 09:45:25.341 24798 24811 D UiDevice: Pressing home button.
+03-10 09:45:26.381 24798 24811 W InteractionController: Timed out waiting 1000ms for command and events.
+03-10 09:45:26.393 24798 24811 D UiDevice: Waiting 20000ms for SearchCondition[hasObject=BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E']].
+03-10 09:45:26.393 24798 24811 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.google.android.apps.nexuslauncher\E'].
+03-10 09:45:26.450 24798 24811 D UiDevice: Waiting 20000ms for SearchCondition[hasObject=BySelector [PKG='\Qcom.wire.internal\E']].
+03-10 09:45:26.450 24798 24811 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+03-10 09:45:26.622 24798 24811 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+03-10 09:45:27.086 24798 24811 W UiDevice: Active window root not found.
+03-10 09:45:27.089 24798 24811 W UiDevice: Skipping null root node for window: AccessibilityWindowInfo[title=Pixel Launcher, displayId=0, id=1315, taskId=140, type=TYPE_APPLICATION, layer=0, region=SkRegion((0,0,1080,2220)), bounds=Rect(0, 0 - 1080, 2220), focused=true, active=true, pictureInPicture=false, hasParent=false, isAnchored=false, hasChildren=false]
+03-10 09:45:27.197 24798 24811 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+03-10 09:45:27.199 24798 24811 W UiDevice: Active window root not found.
+03-10 09:45:27.202 24798 24811 W UiDevice: Skipping null root node for window: AccessibilityWindowInfo[title=Pixel Launcher, displayId=0, id=1315, taskId=140, type=TYPE_APPLICATION, layer=0, region=SkRegion((0,0,1080,2220)), bounds=Rect(0, 0 - 1080, 2220), focused=true, active=true, pictureInPicture=false, hasParent=false, isAnchored=false, hasChildren=false]
+03-10 09:45:27.304 24798 24811 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+03-10 09:45:27.306 24798 24811 W UiDevice: Active window root not found.
+03-10 09:45:27.309 24798 24811 W UiDevice: Skipping null root node for window: AccessibilityWindowInfo[title=Pixel Launcher, displayId=0, id=1315, taskId=140, type=TYPE_APPLICATION, layer=0, region=SkRegion((0,0,1080,2220)), bounds=Rect(0, 0 - 1080, 2220), focused=true, active=true, pictureInPicture=false, hasParent=false, isAnchored=false, hasChildren=false]
+03-10 09:45:27.410 24798 24811 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+03-10 09:45:27.412 24798 24811 W UiDevice: Active window root not found.
+03-10 09:45:27.415 24798 24811 W UiDevice: Skipping null root node for window: AccessibilityWindowInfo[title=Pixel Launcher, displayId=0, id=1315, taskId=140, type=TYPE_APPLICATION, layer=0, region=SkRegion((0,0,1080,2220)), bounds=Rect(0, 0 - 1080, 2220), focused=true, active=true, pictureInPicture=false, hasParent=false, isAnchored=false, hasChildren=false]
+03-10 09:45:27.516 24798 24811 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+03-10 09:45:27.518 24798 24811 W UiDevice: Active window root not found.
+03-10 09:45:27.521 24798 24811 W UiDevice: Skipping null root node for window: AccessibilityWindowInfo[title=Pixel Launcher, displayId=0, id=1315, taskId=140, type=TYPE_APPLICATION, layer=0, region=SkRegion((0,0,1080,2220)), bounds=Rect(0, 0 - 1080, 2220), focused=true, active=true, pictureInPicture=false, hasParent=false, isAnchored=false, hasChildren=false]
+03-10 09:45:27.622 24798 24811 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+03-10 09:45:27.624 24798 24811 W UiDevice: Active window root not found.
+03-10 09:45:27.627 24798 24811 W UiDevice: Skipping null root node for window: AccessibilityWindowInfo[title=Pixel Launcher, displayId=0, id=1315, taskId=140, type=TYPE_APPLICATION, layer=0, region=SkRegion((0,0,1080,2220)), bounds=Rect(0, 0 - 1080, 2220), focused=true, active=true, pictureInPicture=false, hasParent=false, isAnchored=false, hasChildren=false]
+03-10 09:45:27.728 24798 24811 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+03-10 09:45:27.731 24798 24811 W UiDevice: Active window root not found.
+03-10 09:45:27.735 24798 24811 W UiDevice: Skipping null root node for window: AccessibilityWindowInfo[title=Pixel Launcher, displayId=0, id=1315, taskId=140, type=TYPE_APPLICATION, layer=0, region=SkRegion((0,0,1080,2220)), bounds=Rect(0, 0 - 1080, 2220), focused=true, active=true, pictureInPicture=false, hasParent=false, isAnchored=false, hasChildren=false]
+03-10 09:45:27.837 24798 24811 D UiDevice: Searching for node with selector: BySelector [PKG='\Qcom.wire.internal\E'].
+03-10 09:45:27.892 24798 24811 I System.out: Could not access BuildConfig field 'BACKENDCONNECTION_STAGING_SOCKSPROXY': No field BACKENDCONNECTION_STAGING_SOCKSPROXY in class Lcom/wire/android/testSupport/BuildConfig; (declaration of 'com.wire.android.testSupport.BuildConfig' appears in /data/app/~~jLOmASdllr0XGhqeW5249g==/com.wire.android.tests.testsCore.test-fcAFg47nPSuEfg_UcbEnRQ==/base.apk!classes2.dex)
+03-10 09:45:27.893 24798 24811 I System.out: Could not access BuildConfig field 'BACKENDCONNECTION_STAGING_SOCKSPROXY': No field BACKENDCONNECTION_STAGING_SOCKSPROXY in class Lcom/wire/android/testSupport/BuildConfig; (declaration of 'com.wire.android.testSupport.BuildConfig' appears in /data/app/~~jLOmASdllr0XGhqeW5249g==/com.wire.android.tests.testsCore.test-fcAFg47nPSuEfg_UcbEnRQ==/base.apk!classes2.dex)
+03-10 09:45:27.894 24798 24811 I System.out: Could not access BuildConfig field 'BACKENDCONNECTION_STAGING_SOCKSPROXY': No field BACKENDCONNECTION_STAGING_SOCKSPROXY in class Lcom/wire/android/testSupport/BuildConfig; (declaration of 'com.wire.android.testSupport.BuildConfig' appears in /data/app/~~jLOmASdllr0XGhqeW5249g==/com.wire.android.tests.testsCore.test-fcAFg47nPSuEfg_UcbEnRQ==/base.apk!classes2.dex)
+03-10 09:45:28.151 24798 24811 I ClientUserManager: 09:45:28 INFO [766] (ClientUse) Cannot find user by: user1Name 
+03-10 09:45:28.152 24798 24811 I System.out: Could not access BuildConfig field 'BACKENDCONNECTION_STAGING_SOCKSPROXY': No field BACKENDCONNECTION_STAGING_SOCKSPROXY in class Lcom/wire/android/testSupport/BuildConfig; (declaration of 'com.wire.android.testSupport.BuildConfig' appears in /data/app/~~jLOmASdllr0XGhqeW5249g==/com.wire.android.tests.testsCore.test-fcAFg47nPSuEfg_UcbEnRQ==/base.apk!classes2.dex)
+03-10 09:45:28.155 24798 24811 I ClientUserManager: 09:45:28 INFO [766] (ClientUse) Cannot find user by: user1Name 
+03-10 09:45:28.157 24798 24811 I ClientUserManager: 09:45:28 INFO [766] (ClientUse) Cannot find user by: user1Name 
+03-10 09:45:28.158 24798 24811 I Hello   : 09:45:28 INFO [766] (ClientUse) Hello, my name is Hung McCullough and my email is mcculloughtyzbnssmvu@wire.engineering and password is zL$4nQYf and emailPassword is @zi=#'t#XIHiinnnnn 
+03-10 09:45:29.884 24798 24811 I System.out: Could not access BuildConfig field 'BACKENDCONNECTION_STAGING_SOCKSPROXY': No field BACKENDCONNECTION_STAGING_SOCKSPROXY in class Lcom/wire/android/testSupport/BuildConfig; (declaration of 'com.wire.android.testSupport.BuildConfig' appears in /data/app/~~jLOmASdllr0XGhqeW5249g==/com.wire.android.tests.testsCore.test-fcAFg47nPSuEfg_UcbEnRQ==/base.apk!classes2.dex)
+03-10 09:45:29.982 24798 24811 I System.out: Could not access BuildConfig field 'BACKENDCONNECTION_STAGING_SOCKSPROXY': No field BACKENDCONNECTION_STAGING_SOCKSPROXY in class Lcom/wire/android/testSupport/BuildConfig; (declaration of 'com.wire.android.testSupport.BuildConfig' appears in /data/app/~~jLOmASdllr0XGhqeW5249g==/com.wire.android.tests.testsCore.test-fcAFg47nPSuEfg_UcbEnRQ==/base.apk!classes2.dex)
+03-10 09:45:31.943 24798 25211 I UiAutomatorPinger: 09:45:31 INFO [775] (UiAutomat) Pinging device (waking up screen) 
+03-10 09:45:31.944 24798 25211 I UiAutomatorPinger: 09:45:31 INFO [775] (UiAutomat) Device screen already on 
+03-10 09:45:35.097 24798 24811 I ClientUserManager: 09:45:35 INFO [766] (ClientUse) Cannot find user by: user2Name 
+03-10 09:45:35.100 24798 24811 I ClientUserManager: 09:45:35 INFO [766] (ClientUse) Cannot find user by: user1Name 
+03-10 09:45:36.887 24798 24811 I System.out: INFO [LogginUserId]: User id is 00u2odlqk91YSfAtd0h8
+03-10 09:45:36.888 24798 24811 I ClientUserManager: 09:45:36 INFO [766] (ClientUse) Cannot find user by: user2Name 
+03-10 09:45:36.889 24798 24811 I System.out: INFO [Test Log]: The sso code is wire-8b9c29e3-acf5-4562-99a2-25fb35482ec2
+03-10 09:45:56.901 24798 24811 I System.out: Could not access BuildConfig field 'BACKENDCONNECTION_STAGING_SOCKSPROXY': No field BACKENDCONNECTION_STAGING_SOCKSPROXY in class Lcom/wire/android/testSupport/BuildConfig; (declaration of 'com.wire.android.testSupport.BuildConfig' appears in /data/app/~~jLOmASdllr0XGhqeW5249g==/com.wire.android.tests.testsCore.test-fcAFg47nPSuEfg_UcbEnRQ==/base.apk!classes2.dex)
+03-10 09:45:56.906 24798 24811 D UiDevice: Waiting 10000ms for SearchCondition[hasObject=BySelector [TEXT='\QEnter your email to start!\E']].
+03-10 09:45:56.907 24798 24811 D UiDevice: Searching for node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+03-10 09:45:57.530 24798 24811 W QueryController: Could not detect idle state.
+03-10 09:45:57.531 24798 24811 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+03-10 09:45:57.686 24798 24811 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QEnter your email to start!\E'].
+03-10 09:45:57.756 24798 24811 D UiDevice: Waiting 10000ms for SearchCondition[hasObject=BySelector [TEXT='\QProceed\E']].
+03-10 09:45:57.757 24798 24811 D UiDevice: Searching for node with selector: BySelector [TEXT='\QProceed\E'].
+03-10 09:45:57.915 24798 24811 D UiDevice: Searching for node with selector: BySelector [TEXT='\QProceed\E'].
+03-10 09:45:58.053 24798 24811 D UiDevice: Searching for node with selector: BySelector [TEXT='\QProceed\E'].
+03-10 09:45:58.829 24798 24811 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QProceed\E'].
+03-10 09:45:58.984 24798 24811 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QProceed\E'].
+03-10 09:45:59.063 24798 24811 D UiObject2: Clicking on (760, 1433).
+03-10 09:45:59.063 24798 24811 W UiObject2: Clicking on non-clickable object: android.view.accessibility.AccessibilityNodeInfo@b5a4; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(681, 1409 - 840, 1457); packageName: com.wire.internal; className: android.widget.TextView; text: Proceed; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; viewIdResName: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: true; visible: true; actions: [AccessibilityAction: ACTION_NEXT_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SET_SELECTION - null]
+03-10 09:45:59.102 24798 24811 W GestureController: Gestures took longer than expected (38ms >> 16ms), device might be in a busy state.
+03-10 09:45:59.886 24798 24811 I QueryController: Matched selector: UiSelector[RESOURCE_ID=userIdentifierInput] <<==>> [android.view.accessibility.AccessibilityNodeInfo@aa03; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(66, 1692 - 1014, 1824); packageName: com.wire.internal; className: android.widget.EditText; text: ; error: null; maxTextLength: 8000; stateDescription: null; contentDescription: null; tooltipText: null; viewIdResName: userIdentifierInput; checkable: false; checked: false; focusable: true; focused: false; selected: false; clickable: true; longClickable: true; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: true; visible: true; actions: [AccessibilityAction: ACTION_FOCUS - null, AccessibilityAction: ACTION_NEXT_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_CLICK - null, AccessibilityAction: ACTION_LONG_CLICK - null, AccessibilityAction: ACTION_SET_TEXT - null, AccessibilityAction: ACTION_IME_ENTER - null, AccessibilityAction: ACTION_SET_SELECTION - null]]
+03-10 09:45:59.888 24798 24811 D UiObject: Clicking on (540, 1758).
+03-10 09:46:00.862 24798 24811 I QueryController: Matched selector: UiSelector[RESOURCE_ID=userIdentifierInput] <<==>> [android.view.accessibility.AccessibilityNodeInfo@aa03; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(66, 888 - 1014, 1020); packageName: com.wire.internal; className: android.widget.EditText; text: ; error: null; maxTextLength: 8000; stateDescription: null; contentDescription: null; tooltipText: null; viewIdResName: userIdentifierInput; checkable: false; checked: false; focusable: true; focused: true; selected: false; clickable: true; longClickable: true; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: true; visible: true; actions: [AccessibilityAction: ACTION_CLEAR_FOCUS - null, AccessibilityAction: ACTION_NEXT_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_CLICK - null, AccessibilityAction: ACTION_LONG_CLICK - null, AccessibilityAction: ACTION_SET_TEXT - null, AccessibilityAction: ACTION_IME_ENTER - null, AccessibilityAction: ACTION_PASTE - null, AccessibilityAction: ACTION_SET_SELECTION - null]]
+03-10 09:46:00.862 24798 24811 D UiObject: Setting text to 'wire-8b9c29e3-acf5-4562-99a2-25fb35482ec2'.
+03-10 09:46:00.869 24798 24811 D UiDevice: Waiting 10000ms for SearchCondition[hasObject=BySelector [RES='\QloginButton\E']].
+03-10 09:46:00.869 24798 24811 D UiDevice: Searching for node with selector: BySelector [RES='\QloginButton\E'].
+03-10 09:46:00.941 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\QloginButton\E'].
+03-10 09:46:01.070 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\QloginButton\E'].
+03-10 09:46:01.118 24798 24811 D UiObject2: Clicking on (540, 1108).
+03-10 09:46:01.152 24798 24811 W GestureController: Gestures took longer than expected (33ms >> 16ms), device might be in a busy state.
+03-10 09:46:01.153 24798 24811 D UiDevice: Waiting 20000ms for SearchCondition[hasObject=BySelector [RES='\Qokta-signin-submit\E']].
+03-10 09:46:01.153 24798 24811 D UiDevice: Searching for node with selector: BySelector [RES='\Qokta-signin-submit\E'].
+03-10 09:46:01.946 24798 25211 I UiAutomatorPinger: 09:46:01 INFO [775] (UiAutomat) Pinging device (waking up screen) 
+03-10 09:46:01.947 24798 25211 I UiAutomatorPinger: 09:46:01 INFO [775] (UiAutomat) Device screen already on 
+03-10 09:46:03.391 24798 24811 D UiDevice: Searching for node with selector: BySelector [RES='\Qokta-signin-submit\E'].
+03-10 09:46:05.137 24798 24811 D UiDevice: Searching for node with selector: BySelector [RES='\Qokta-signin-submit\E'].
+03-10 09:46:05.253 24798 24811 D UiDevice: Searching for node with selector: BySelector [RES='\Qokta-signin-submit\E'].
+03-10 09:46:06.299 24798 24811 D UiDevice: Waiting 10000ms for SearchCondition[hasObject=BySelector [RES='\Qokta-signin-username\E']].
+03-10 09:46:06.299 24798 24811 D UiDevice: Searching for node with selector: BySelector [RES='\Qokta-signin-username\E'].
+03-10 09:46:06.324 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\Qokta-signin-username\E'].
+03-10 09:46:06.468 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\Qokta-signin-username\E'].
+03-10 09:46:06.520 24798 24811 D UiObject2: Setting text to 'raynorpcycjbxvmz@wire.engineering'.
+03-10 09:46:06.523 24798 24811 D UiDevice: Waiting 10000ms for SearchCondition[hasObject=BySelector [RES='\Qokta-signin-password\E']].
+03-10 09:46:06.524 24798 24811 D UiDevice: Searching for node with selector: BySelector [RES='\Qokta-signin-password\E'].
+03-10 09:46:07.036 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\Qokta-signin-password\E'].
+03-10 09:46:07.180 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\Qokta-signin-password\E'].
+03-10 09:46:07.213 24798 24811 D UiObject2: Setting text to 'SSO!3aNcW9v'.
+03-10 09:46:07.218 24798 24811 D UiDevice: Waiting 10000ms for SearchCondition[hasObject=BySelector [RES='\Qokta-signin-submit\E']].
+03-10 09:46:07.218 24798 24811 D UiDevice: Searching for node with selector: BySelector [RES='\Qokta-signin-submit\E'].
+03-10 09:46:07.235 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\Qokta-signin-submit\E'].
+03-10 09:46:07.358 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\Qokta-signin-submit\E'].
+03-10 09:46:07.394 24798 24811 D UiObject2: Clicking on (540, 1908).
+03-10 09:46:07.435 24798 24811 W GestureController: Gestures took longer than expected (40ms >> 16ms), device might be in a busy state.
+03-10 09:46:12.439 24798 24811 D UiObject: Waiting 0ms for UiSelector[RESOURCE_ID=loginButton].
+03-10 09:46:12.554 24798 24811 D UiObject: Waiting 0ms for UiSelector[TEXT=Setting up Wire, CLASS=android.widget.TextView].
+03-10 09:46:12.562 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:12.614 24798 24811 D UiDevice: Node not found with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:12.615 24798 24811 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:12.645 24798 24811 D UiDevice: Node not found with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:12.849 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:12.892 24798 24811 D UiDevice: Node not found with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:12.893 24798 24811 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:12.920 24798 24811 D UiDevice: Node not found with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:13.124 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:13.165 24798 24811 D UiDevice: Node not found with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:13.166 24798 24811 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:13.196 24798 24811 D UiDevice: Node not found with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:13.401 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:13.444 24798 24811 D UiDevice: Node not found with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:13.446 24798 24811 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:13.472 24798 24811 D UiDevice: Node not found with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:13.680 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:13.724 24798 24811 D UiDevice: Node not found with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:13.725 24798 24811 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:13.762 24798 24811 D UiDevice: Node not found with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:13.968 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:14.010 24798 24811 D UiDevice: Node not found with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:14.011 24798 24811 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:14.040 24798 24811 D UiDevice: Node not found with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:14.249 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:14.295 24798 24811 D UiDevice: Node not found with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:14.296 24798 24811 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:14.320 24798 24811 D UiDevice: Node not found with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:14.524 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:14.608 24798 24811 D UiDevice: Node not found with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:14.609 24798 24811 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:14.639 24798 24811 D UiDevice: Node not found with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:14.843 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:14.886 24798 24811 D UiDevice: Node not found with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:14.887 24798 24811 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:14.919 24798 24811 D UiDevice: Node not found with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:15.124 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:15.168 24798 24811 D UiDevice: Node not found with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:15.169 24798 24811 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:15.200 24798 24811 D UiDevice: Node not found with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:15.405 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:15.447 24798 24811 D UiDevice: Node not found with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:15.448 24798 24811 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:15.477 24798 24811 D UiDevice: Node not found with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:15.683 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:15.723 24798 24811 D UiDevice: Node not found with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:15.723 24798 24811 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:15.755 24798 24811 D UiDevice: Node not found with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:15.958 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:16.002 24798 24811 D UiDevice: Node not found with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:16.002 24798 24811 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:16.037 24798 24811 D UiDevice: Node not found with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:16.246 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:16.289 24798 24811 D UiDevice: Node not found with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:16.290 24798 24811 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:16.317 24798 24811 D UiDevice: Node not found with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:16.521 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:16.565 24798 24811 D UiDevice: Node not found with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:16.566 24798 24811 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:16.664 24798 24811 D UiDevice: Node not found with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:16.867 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:16.910 24798 24811 D UiDevice: Node not found with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:16.911 24798 24811 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:16.939 24798 24811 D UiDevice: Node not found with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:17.145 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:17.188 24798 24811 D UiDevice: Node not found with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:17.189 24798 24811 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:17.219 24798 24811 D UiDevice: Node not found with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:17.324 24798 24803 I .testsCore.tes: Background concurrent copying GC freed 21MB AllocSpace bytes, 75(2376KB) LOS objects, 69% free, 10MB/34MB, paused 77us,45us total 141.353ms
+03-10 09:46:17.424 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:17.468 24798 24811 D UiDevice: Node not found with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:17.469 24798 24811 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:17.499 24798 24811 D UiDevice: Node not found with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:17.706 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:17.748 24798 24811 D UiDevice: Node not found with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:17.749 24798 24811 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:17.780 24798 24811 D UiDevice: Node not found with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:17.984 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:18.023 24798 24811 D UiDevice: Node not found with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:18.024 24798 24811 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:18.049 24798 24811 D UiDevice: Node not found with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:18.252 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:18.296 24798 24811 D UiDevice: Node not found with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:18.297 24798 24811 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:18.336 24798 24811 D UiDevice: Node not found with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:18.542 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:18.584 24798 24811 D UiDevice: Node not found with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:18.585 24798 24811 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:18.669 24798 24811 D UiDevice: Node not found with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:18.875 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:18.916 24798 24811 D UiDevice: Node not found with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:18.917 24798 24811 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:18.947 24798 24811 D UiDevice: Node not found with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:19.150 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:19.193 24798 24811 D UiDevice: Node not found with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:19.194 24798 24811 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:19.222 24798 24811 D UiDevice: Node not found with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:19.428 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:19.465 24798 24811 D UiDevice: Node not found with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:19.466 24798 24811 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:19.495 24798 24811 D UiDevice: Node not found with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:19.699 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:19.747 24798 24811 D UiDevice: Node not found with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:19.748 24798 24811 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:19.779 24798 24811 D UiDevice: Node not found with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:19.984 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:20.027 24798 24811 D UiDevice: Node not found with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:20.028 24798 24811 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:20.057 24798 24811 D UiDevice: Node not found with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:20.262 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:20.305 24798 24811 D UiDevice: Node not found with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:20.306 24798 24811 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:20.340 24798 24811 D UiDevice: Node not found with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:20.544 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:20.587 24798 24811 D UiDevice: Node not found with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:20.588 24798 24811 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:20.674 24798 24811 D UiDevice: Node not found with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:20.879 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:20.923 24798 24811 D UiDevice: Node not found with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:20.924 24798 24811 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:20.963 24798 24811 D UiDevice: Node not found with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:21.172 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:21.217 24798 24811 D UiDevice: Node not found with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:21.217 24798 24811 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:21.244 24798 24811 D UiDevice: Node not found with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:21.448 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:21.493 24798 24811 D UiDevice: Node not found with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:21.494 24798 24811 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:21.521 24798 24811 D UiDevice: Node not found with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:21.725 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:21.770 24798 24811 D UiDevice: Node not found with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:21.771 24798 24811 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:21.800 24798 24811 D UiDevice: Node not found with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:22.003 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:22.042 24798 24811 D UiDevice: Node not found with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:22.043 24798 24811 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:22.073 24798 24811 D UiDevice: Node not found with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:22.279 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:22.323 24798 24811 D UiDevice: Node not found with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:22.324 24798 24811 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:22.361 24798 24811 D UiDevice: Node not found with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:22.568 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:22.613 24798 24811 D UiDevice: Node not found with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:22.614 24798 24811 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:22.706 24798 24811 D UiDevice: Node not found with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:22.910 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:22.950 24798 24811 D UiDevice: Node not found with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:22.951 24798 24811 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:22.979 24798 24811 D UiDevice: Node not found with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:23.184 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:23.226 24798 24811 D UiDevice: Node not found with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:23.227 24798 24811 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:23.258 24798 24811 D UiDevice: Node not found with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:23.461 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:23.497 24798 24811 D UiDevice: Node not found with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:23.499 24798 24811 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:23.534 24798 24811 D UiDevice: Node not found with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:23.741 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:23.785 24798 24811 D UiDevice: Node not found with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:23.786 24798 24811 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:23.822 24798 24811 D UiDevice: Node not found with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:24.025 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:24.053 24798 24811 D UiDevice: Node not found with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:24.053 24798 24811 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:24.078 24798 24811 D UiDevice: Node not found with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:24.284 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:24.325 24798 24811 D UiDevice: Node not found with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:24.326 24798 24811 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:24.354 24798 24811 D UiDevice: Node not found with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:24.559 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:24.603 24798 24811 D UiDevice: Node not found with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:24.604 24798 24811 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:24.632 24798 24811 D UiDevice: Node not found with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:24.837 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:24.927 24798 24811 D UiDevice: Node not found with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:24.927 24798 24811 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:24.962 24798 24811 D UiDevice: Node not found with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:25.167 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:25.210 24798 24811 D UiDevice: Node not found with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:25.211 24798 24811 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:25.240 24798 24811 D UiDevice: Node not found with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:25.444 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:25.492 24798 24811 D UiDevice: Node not found with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:25.493 24798 24811 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:25.521 24798 24811 D UiDevice: Node not found with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:25.725 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:25.770 24798 24811 D UiDevice: Node not found with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:25.770 24798 24811 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:25.799 24798 24811 D UiDevice: Node not found with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:26.007 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:26.053 24798 24811 D UiDevice: Node not found with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:26.054 24798 24811 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:26.080 24798 24811 D UiDevice: Node not found with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:26.290 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:26.331 24798 24811 D UiDevice: Node not found with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:26.332 24798 24811 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:26.360 24798 24811 D UiDevice: Node not found with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:26.564 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:26.608 24798 24811 D UiDevice: Node not found with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:26.609 24798 24811 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:26.640 24798 24811 D UiDevice: Node not found with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:26.845 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:26.932 24798 24811 D UiDevice: Node not found with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:26.933 24798 24811 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:26.965 24798 24811 D UiDevice: Node not found with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:27.168 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:27.206 24798 24811 D UiDevice: Node not found with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:27.207 24798 24811 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:27.237 24798 24811 D UiDevice: Node not found with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:27.446 24798 24811 D UiDevice: Retrieving node with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:27.487 24798 24811 D UiDevice: Node not found with selector: BySelector [RES='\Qcom.android.permissioncontroller:id/permission_allow_button\E'].
+03-10 09:46:27.488 24798 24811 D UiDevice: Retrieving node with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:27.514 24798 24811 D UiDevice: Node not found with selector: BySelector [TEXT='\QAllow\E'].
+03-10 09:46:27.719 24798 24811 D UiDevice: Waiting 10000ms for SearchCondition[hasObject=BySelector [CLASS='\Qandroid.widget.EditText\E']].
+03-10 09:46:27.719 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:27.867 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:28.014 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:28.163 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:28.303 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:28.450 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:28.596 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:28.739 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:28.881 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:29.670 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:29.814 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:29.965 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:30.105 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:30.244 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:30.386 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:30.535 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:30.682 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:30.828 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:30.972 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:31.147 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:31.289 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:31.431 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:31.575 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:31.716 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:31.862 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:31.950 24798 25211 I UiAutomatorPinger: 09:46:31 INFO [775] (UiAutomat) Pinging device (waking up screen) 
+03-10 09:46:31.951 24798 25211 I UiAutomatorPinger: 09:46:31 INFO [775] (UiAutomat) Device screen already on 
+03-10 09:46:31.999 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:32.131 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:32.268 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:32.409 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:32.552 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:32.693 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:32.824 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:32.963 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:33.109 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:33.285 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:33.428 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:33.573 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:33.721 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:33.862 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:34.003 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:34.152 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:34.293 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:34.429 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:34.570 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:34.705 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:34.845 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:34.971 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:35.109 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:35.253 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:35.413 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:35.554 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:35.711 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:35.849 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:35.986 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:36.130 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:36.273 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:36.411 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:36.564 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:36.708 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:36.851 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:36.992 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:37.140 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:37.280 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:37.447 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:37.591 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:37.737 24798 24811 D UiDevice: Searching for node with selector: BySelector [CLASS='\Qandroid.widget.EditText\E'].
+03-10 09:46:37.919 24798 24811 I TeamClient: 09:46:37 INFO [766] (TeamsExte) Accepted 
+03-10 09:46:37.920 24798 24811 D UiDevice: Executing shell command: ls /sdcard/Download
+03-10 09:46:38.028 24798 24811 I System.out: No files found containing 'Wire'
+03-10 09:47:01.965 24798 25211 I UiAutomatorPinger: 09:47:01 INFO [775] (UiAutomat) Pinging device (waking up screen) 
+03-10 09:47:01.968 24798 25211 I UiAutomatorPinger: 09:47:01 INFO [775] (UiAutomat) Device screen already on 
+03-10 09:47:25.338 24798 24811 I System.out: INFO [Delete user]: Delete user response is 
+03-10 09:47:25.338 24798 24811 I AllureFailureScreenshotRule: Taking failure screenshot for givenSSOTeamWithOkta_whenSettingUpNewDeviceAndRestoringBackup_thenMessageIsRestored(com.wire.android.tests.core.criticalFlows.SSODeviceBackup)
+03-10 09:47:25.340 24798 24811 D UiDevice: Taking screenshot (scale=1,000000, quality=80) and storing at /data/user/0/com.wire.android.tests.testsCore.test/cache/screenshot2700441541848730624.tmp.

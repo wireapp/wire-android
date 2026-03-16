@@ -388,6 +388,26 @@ class NewLoginViewModelTest {
         advanceUntilIdle()
 
         coVerify {
+            arrangement.loginSSOViewModelExtension.establishSSOSession(any(), any(), any(), any(), any(), any())
+        }
+    }
+
+    @Test
+    fun `given SSO success, when handling SSO result, then establish session using deep link identifiers`() =
+        testEstablishSSOSessionWhenHandlingSSOResult()
+
+    private fun testEstablishSSOSessionWhenHandlingSSOResult() = runTest(dispatchers.main()) {
+        val ssoDeepLinkResult = DeepLinkResult.SSOLogin.Success("cookie", "server-config-id")
+        val failure = CoreFailure.Unknown(RuntimeException("Error!"))
+        val (arrangement, viewModel) = Arrangement()
+            .withEstablishSSOSessionSuccess(UserId("user-id", "domain"))
+            .withRegisterClientReturning(RegisterClientResult.Failure.Generic(failure))
+            .arrange()
+
+        viewModel.handleSSOResult(ssoDeepLinkResult)
+        advanceUntilIdle()
+
+        coVerify {
             arrangement.loginSSOViewModelExtension.establishSSOSession(any(), any(), any(), any(), any(), any(), any())
         }
     }

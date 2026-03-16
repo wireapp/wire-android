@@ -24,6 +24,23 @@ kotlin {
                 implementation(projects.core.uiCommonKmp)
             }
         }
+
+        val iosMain by creating {
+            dependsOn(commonMain)
+            dependencies {
+                implementation("com.wire.kalium:kalium-logic")
+            }
+        }
+
+        val iosX64Main by getting {
+            dependsOn(iosMain)
+        }
+        val iosArm64Main by getting {
+            dependsOn(iosMain)
+        }
+        val iosSimulatorArm64Main by getting {
+            dependsOn(iosMain)
+        }
     }
 
     targets.withType<org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget>().configureEach {
@@ -44,4 +61,11 @@ tasks.register("wireoneWebBuild") {
     group = "wireone"
     description = "Build WireOne Web (Wasm) browser distribution."
     dependsOn("wasmJsBrowserDistribution")
+}
+
+configurations.matching { config ->
+    config.name.contains("ios", ignoreCase = true)
+}.configureEach {
+    // TODO(KMP): remove after kalium datetime constraint is aligned with Compose MPP stack.
+    resolutionStrategy.force("org.jetbrains.kotlinx:kotlinx-datetime:0.6.1")
 }

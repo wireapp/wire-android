@@ -17,6 +17,7 @@
  */
 package com.wire.android.util.lifecycle
 
+import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -30,5 +31,15 @@ import javax.inject.Singleton
  */
 @Singleton
 class AutomatedLoginManager @Inject constructor() {
-    var pendingMoveToBackgroundAfterSync: Boolean = false
+    private val pendingMoveToBackgroundAfterSyncState = AtomicBoolean(false)
+
+    val pendingMoveToBackgroundAfterSync: Boolean
+        get() = pendingMoveToBackgroundAfterSyncState.get()
+
+    fun markPendingMoveToBackgroundAfterSync() {
+        pendingMoveToBackgroundAfterSyncState.set(true)
+    }
+
+    fun consumePendingMoveToBackgroundAfterSync(): Boolean =
+        pendingMoveToBackgroundAfterSyncState.getAndSet(false)
 }

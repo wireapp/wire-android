@@ -46,6 +46,7 @@ import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -316,6 +317,7 @@ class OngoingCallViewModelTest {
 
         init {
             MockKAnnotations.init(this)
+            coEvery { observeCallQualityData(any()) } returns emptyFlow()
         }
 
         fun arrange() = this to ongoingCallViewModel

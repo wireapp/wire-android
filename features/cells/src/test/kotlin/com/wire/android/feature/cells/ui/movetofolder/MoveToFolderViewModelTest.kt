@@ -19,8 +19,6 @@ package com.wire.android.feature.cells.ui.movetofolder
 
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
-import com.ramcosta.composedestinations.generated.cells.navArgs
-import com.wire.android.config.NavigationTestExtension
 import com.wire.android.feature.cells.ui.model.toUiModel
 import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.usecase.GetFoldersUseCase
@@ -41,9 +39,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 
-@ExtendWith(NavigationTestExtension::class)
 class MoveToFolderViewModelTest {
 
     private val dispatcher = StandardTestDispatcher()
@@ -200,16 +196,16 @@ class MoveToFolderViewModelTest {
         @MockK
         lateinit var moveNodeUseCase: MoveNodeUseCase
 
+        private val navArgsMap = mutableMapOf<String, Any?>(
+            "currentPath" to CURRENT_PATH,
+            "nodeToMovePath" to NODE_TO_MOVE_PATH,
+            "uuid" to UUID,
+            "breadcrumbs" to BREADCRUMBS,
+        )
+
         init {
-
             MockKAnnotations.init(this, relaxUnitFun = true)
-
-            every { savedStateHandle.navArgs<MoveToFolderNavArgs>() } returns MoveToFolderNavArgs(
-                currentPath = CURRENT_PATH,
-                nodeToMovePath = NODE_TO_MOVE_PATH,
-                uuid = UUID,
-                breadcrumbs = BREADCRUMBS
-            )
+            every { savedStateHandle.get<Any?>(any()) } answers { navArgsMap[firstArg()] }
         }
 
         private val viewModel by lazy {

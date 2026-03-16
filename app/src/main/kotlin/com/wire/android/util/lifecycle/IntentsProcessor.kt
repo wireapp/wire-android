@@ -18,41 +18,70 @@
 package com.wire.android.util.lifecycle
 
 import android.content.Intent
-import java.net.URI
+import com.wire.android.config.NomadProfilesFeatureConfig
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import java.net.URI
 import javax.inject.Inject
 import javax.inject.Singleton
 
 data class AutomatedLoginViaSSO(
     val backendConfig: String? = null,
-    val ssoCode: String? = null
+    val ssoCode: String? = null,
+    val nomadProfilesHost: String? = null
 ) {
-    val isEmpty = backendConfig == null && ssoCode == null
+    val isEmpty = backendConfig.isNullOrEmpty() && ssoCode.isNullOrEmpty() && nomadProfilesHost.isNullOrEmpty()
 }
 
 @Singleton
-class IntentsProcessor @Inject constructor() {
+class IntentsProcessor @Inject internal constructor(
+    private val nomadProfilesFeatureConfig: NomadProfilesFeatureConfig,
+    private val nomadIntentSignatureValidator: NomadIntentSignatureValidator
+) {
 
     companion object {
         private const val AUTOMATED_LOGIN = "automated_login"
+        internal const val SKIP_SIGNATURE_VERIFICATION_TOKEN = NomadIntentSignatureValidator.SKIP_SIGNATURE_VERIFICATION_TOKEN
     }
 
+    @Suppress("ReturnCount")
     operator fun invoke(intent: Intent?): AutomatedLoginViaSSO? {
         @Serializable
         data class Parameters(
             val backendConfig: String? = null,
-            val ssoCode: String? = null
+            val ssoCode: String? = null,
+            val nomadProfilesHost: String? = null,
+            val sigNomadProfilesHost: String? = null
         )
 
-        val automatedLoginParameter = intent?.getStringExtra(AUTOMATED_LOGIN) ?: return null
-        return runCatching {
-            val parsed = Json.decodeFromString<Parameters>(automatedLoginParameter)
-            AutomatedLoginViaSSO(parsed.backendConfig, parsed.ssoCode)
-        }.getOrNull()
-            ?.takeIf { !it.isEmpty }
-            ?.takeIf { params ->
-                params.backendConfig == null || isValidHttpsUrl(params.backendConfig)
+        val parsed = runCatching {
+            intent
+                ?.getStringExtra(AUTOMATED_LOGIN)
+                ?.let { Json.decodeFromString<Parameters>(it) }
+        }.getOrNull() ?: return null
+
+        if (!nomadProfilesFeatureConfig.isEnabled() || parsed.nomadProfilesHost.isNullOrEmpty()) {
+            return null
+        }
+
+        if (parsed.ssoCode.isNullOrEmpty() || parsed.backendConfig.isNullOrEmpty()) {
+            return null
+        }
+
+        return AutomatedLoginViaSSO(
+            parsed.backendConfig,
+            parsed.ssoCode,
+            parsed.nomadProfilesHost
+        )
+            .takeIf { !it.isEmpty }
+            ?.takeIf {
+                val validBackend = parsed.backendConfig == null || isValidHttpsUrl(parsed.backendConfig)
+                val validNomadProfileHost = isValidHttpsUrl(parsed.nomadProfilesHost)
+                val validSignature = nomadIntentSignatureValidator.isValid(
+                    parsed.nomadProfilesHost,
+                    parsed.sigNomadProfilesHost
+                )
+                validBackend && validNomadProfileHost && validSignature
             }
     }
 

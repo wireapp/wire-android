@@ -24,7 +24,7 @@ import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
-import com.ramcosta.composedestinations.generated.cells.navArgs
+import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesScreenDestination
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.feature.cells.ui.model.toUiModel
@@ -47,6 +47,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.mockkObject
 import io.mockk.mockkStatic
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flowOf
@@ -287,7 +288,8 @@ class CellViewModelTest {
 
             MockKAnnotations.init(this, relaxUnitFun = true)
 
-            every { savedStateHandle.navArgs<CellFilesNavArgs>() } returns CellFilesNavArgs(
+            mockkObject(ConversationFilesScreenDestination)
+            every { ConversationFilesScreenDestination.argsFrom(savedStateHandle) } returns CellFilesNavArgs(
                 conversationId = conversationId
             )
 

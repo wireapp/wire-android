@@ -200,10 +200,11 @@ class OngoingCallViewModel @AssistedInject constructor(
         }
     }
 
+    @Suppress("MagicNumber")
     enum class QualityInterval(val intervalInSeconds: Int) {
-        NORMAL(5), SHORT(1)
+        NORMAL(5),
+        SHORT(1)
     }
-
 
     companion object {
         const val DOUBLE_TAP_TOAST_DISPLAY_TIME = 7000L

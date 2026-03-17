@@ -68,8 +68,9 @@ class NotificationReplyReceiver : CoroutineReceiver() { // requires zero argumen
                             { updateNotification(context, conversationId, qualifiedUserId, replyText) }
                         )
                     conversations.updateConversationReadDateUseCase(
-                        qualifiedConversationId,
-                        Clock.System.now()
+                        conversationId = qualifiedConversationId,
+                        time = Clock.System.now(),
+                        invokeImmediately = true,
                     )
                 }
             }

@@ -81,7 +81,7 @@ class IntentsProcessor @Inject internal constructor(
                 val validNomadProfileHost = isValidHttpsUrl(parsed.nomadProfilesHost)
                 val validSignature = nomadIntentSignatureValidator.isValid(
                     parsed.nomadProfilesHost,
-                    parsed.sigNomadProfilesHost
+                    parsed.signatureNomadProfilesHost
                 )
                 validBackend && validNomadProfileHost && validSignature
             }

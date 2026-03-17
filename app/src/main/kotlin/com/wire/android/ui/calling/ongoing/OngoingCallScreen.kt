@@ -87,6 +87,7 @@ import com.wire.android.ui.calling.ongoing.participantsview.VerticalCallingPager
 import com.wire.android.ui.common.ConversationVerificationIcons
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversation
+import com.wire.android.ui.common.bottomsheet.WireSheetValue
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
@@ -106,7 +107,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.PreviewMultipleThemesForLandscape
 import com.wire.android.util.ui.PreviewMultipleThemesForPortrait
 import com.wire.android.util.ui.PreviewMultipleThemesForSquare
-import com.wire.kalium.logic.data.call.CallQuality
+import com.wire.kalium.logic.data.call.CallQualityData
 import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
@@ -269,6 +270,29 @@ fun OngoingCallScreen(
         sheetState = callDetailsBottomSheetState,
         callQualityData = ongoingCallViewModel.state.callQualityData,
     )
+    HandleQualityIntervals(
+        sheetValue = callDetailsBottomSheetState.currentValue,
+        setQualityInterval = ongoingCallViewModel::setQualityInterval
+    )
+}
+
+@Composable
+private fun HandleQualityIntervals(
+    sheetValue: WireSheetValue<CallDetailsSheetState>,
+    setQualityInterval: (OngoingCallViewModel.QualityInterval) -> Unit
+) {
+    val interval = when (sheetValue) { // calculate the quality interval based on the current call details sheet content
+        is WireSheetValue.Expanded if sheetValue.value == CallDetailsSheetState.Quality -> OngoingCallViewModel.QualityInterval.SHORT
+        else -> OngoingCallViewModel.QualityInterval.NORMAL
+    }
+    LaunchedEffect(interval) { // update the quality interval each time it needs to be changed
+        setQualityInterval(interval)
+    }
+    DisposableEffect(Unit) { // reset the quality interval to normal when this OngoingCallScreen composable is disposed
+        onDispose {
+            setQualityInterval(OngoingCallViewModel.QualityInterval.NORMAL)
+        }
+    }
 }
 
 @Composable
@@ -336,7 +360,7 @@ private fun OngoingCallContent(
     participants: PersistentList<UICallParticipant>,
     recentReactions: Map<UserId, String>,
     inPictureInPictureMode: Boolean,
-    callQuality: CallQuality,
+    callQuality: CallQualityData.Quality,
     initialShowInCallReactionsPanel: Boolean = false, // for preview purposes
 ) {
     var shouldOpenFullScreen by remember { mutableStateOf(false) }
@@ -522,7 +546,7 @@ private fun OngoingCallTopBar(
     protocolInfo: Conversation.ProtocolInfo?,
     mlsVerificationStatus: Conversation.VerificationStatus?,
     proteusVerificationStatus: Conversation.VerificationStatus?,
-    callQuality: CallQuality,
+    callQuality: CallQualityData.Quality,
     onCollapse: () -> Unit,
     onOpenCallDetails: () -> Unit
 ) {
@@ -665,7 +689,7 @@ fun PreviewOngoingCallContent(participants: PersistentList<UICallParticipant>, i
         selectedParticipantForFullScreen = SelectedParticipant(),
         recentReactions = emptyMap(),
         initialShowInCallReactionsPanel = inCallReactionsPanelVisible,
-        callQuality = CallQuality.NORMAL,
+        callQuality = CallQualityData.Quality.NORMAL,
         onOpenCallDetails = {}
     )
 }
@@ -708,13 +732,13 @@ fun PreviewOngoingCallScreenConnecting() = WireTheme {
 @PreviewMultipleThemes
 @Composable
 fun PreviewOngoingCallTopBar() = WireTheme {
-    OngoingCallTopBar("Default", true, null, null, null, CallQuality.NORMAL, {}, {})
+    OngoingCallTopBar("Default", true, null, null, null, CallQualityData.Quality.NORMAL, {}, {})
 }
 
 @PreviewMultipleThemes
 @Composable
 fun PreviewOngoingCallTopBarWithPoorQuality() = WireTheme {
-    OngoingCallTopBar("Default", true, null, null, null, CallQuality.POOR, {}, {})
+    OngoingCallTopBar("Default", true, null, null, null, CallQualityData.Quality.POOR, {}, {})
 }
 
 fun buildPreviewParticipantsList(count: Int = 10) = buildList {

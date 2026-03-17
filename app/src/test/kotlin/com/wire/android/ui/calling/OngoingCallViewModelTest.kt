@@ -27,7 +27,6 @@ import com.wire.android.ui.calling.ongoing.fullscreen.SelectedParticipant
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallClient
-import com.wire.kalium.logic.data.call.CallQuality
 import com.wire.kalium.logic.data.call.CallQualityData
 import com.wire.kalium.logic.data.call.CallResolutionQuality
 import com.wire.kalium.logic.data.call.CallStatus
@@ -39,6 +38,7 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.ObserveCallQualityDataUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveLastActiveCallWithSortedParticipantsUseCase
 import com.wire.kalium.logic.feature.call.usecase.RequestVideoStreamsUseCase
+import com.wire.kalium.logic.feature.call.usecase.SetCallQualityIntervalUseCase
 import com.wire.kalium.logic.feature.call.usecase.video.SetVideoSendStateUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -270,7 +270,7 @@ class OngoingCallViewModelTest {
 
     @Test
     fun givenCallQualityChanges_WhenObservingQualityState_ThenStateIsUpdated() = runTest {
-        val initialQuality = CallQualityData(CallQuality.NORMAL, 100, 0, 0)
+        val initialQuality = CallQualityData(quality = CallQualityData.Quality.NORMAL, ping = 0)
         val callQualityFlow = MutableStateFlow(initialQuality)
         val (_, ongoingCallViewModel) = Arrangement()
             .withLastActiveCall(provideCall())
@@ -281,10 +281,26 @@ class OngoingCallViewModelTest {
         advanceUntilIdle()
         assertEquals(initialQuality, ongoingCallViewModel.state.callQualityData)
 
-        val changedQuality = CallQualityData(CallQuality.POOR, 300, 10, 15)
+        val changedQuality = CallQualityData(CallQualityData.Quality.POOR, ping = 300)
         callQualityFlow.value = changedQuality
         advanceUntilIdle()
         assertEquals(changedQuality, ongoingCallViewModel.state.callQualityData)
+    }
+
+    @Test
+    fun givenCall_WhenChangingCallQualityInterval_ThenSetIntervalProperly() = runTest {
+        val (arrangement, ongoingCallViewModel) = Arrangement()
+            .withLastActiveCall(provideCall())
+            .withShouldShowDoubleTapToastReturning(false)
+            .withSetVideoSendState()
+            .arrange()
+        advanceUntilIdle()
+
+        ongoingCallViewModel.setQualityInterval(OngoingCallViewModel.QualityInterval.SHORT)
+
+        coVerify(exactly = 1) {
+            arrangement.setCallQualityInterval(OngoingCallViewModel.QualityInterval.SHORT.intervalInSeconds)
+        }
     }
 
     private class Arrangement {
@@ -302,6 +318,9 @@ class OngoingCallViewModelTest {
         lateinit var observeCallQualityData: ObserveCallQualityDataUseCase
 
         @MockK
+        lateinit var setCallQualityInterval: SetCallQualityIntervalUseCase
+
+        @MockK
         lateinit var globalDataStore: GlobalDataStore
 
         private val ongoingCallViewModel by lazy {
@@ -312,7 +331,8 @@ class OngoingCallViewModelTest {
                 currentUserId = currentUserId,
                 setVideoSendState = setVideoSendState,
                 globalDataStore = globalDataStore,
-                observeCallQualityData = observeCallQualityData
+                observeCallQualityData = observeCallQualityData,
+                setCallQualityInterval = setCallQualityInterval
             )
         }
 

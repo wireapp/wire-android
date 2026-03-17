@@ -109,6 +109,7 @@ class NewLoginViewModel(
     private val loginNavArgs: LoginNavArgs = savedStateHandle.navArgs()
     private val preFilledUserIdentifier: PreFilledUserIdentifierType = loginNavArgs.userHandle ?: PreFilledUserIdentifierType.None
     private var pendingNomadServiceUrl: String? = loginNavArgs.ssoCodeAutoLogin?.nomadServiceUrl
+    private var pendingCookieLabel: String? = loginNavArgs.ssoCodeAutoLogin?.cookieLabel
     var serverConfig: ServerConfig.Links by mutableStateOf(loginNavArgs.loginPasswordPath?.customServerConfig ?: defaultServerConfig)
         private set
 
@@ -285,6 +286,7 @@ class NewLoginViewModel(
             ssoExtension.initiateSSO(
                 serverConfig = serverConfig,
                 ssoCode = ssoCode,
+                cookieLabel = pendingCookieLabel,
                 onAuthScopeFailure = { updateLoginFlowState(it.toLoginError()) },
                 onSSOInitiateFailure = { updateLoginFlowState(it.toLoginError()) },
                 onSuccess = { requestUrl ->
@@ -308,6 +310,7 @@ class NewLoginViewModel(
                         cookie = ssoLoginResult.cookie,
                         serverConfigId = ssoLoginResult.serverConfigId,
                         consumeNomadServiceUrl = ::consumePendingNomadServiceUrl,
+                        consumeCookieLabel = ::consumePendingCookieLabel,
                         onAuthScopeFailure = { updateLoginFlowState(it.toLoginError()) },
                         onSSOLoginFailure = { updateLoginFlowState(it.toLoginError()) },
                         onAddAuthenticatedUserFailure = { updateLoginFlowState(it.toLoginError()) },
@@ -374,6 +377,10 @@ class NewLoginViewModel(
 
     private fun consumePendingNomadServiceUrl(): String? = pendingNomadServiceUrl.also {
         pendingNomadServiceUrl = null
+    }
+
+    private fun consumePendingCookieLabel(): String? = pendingCookieLabel.also {
+        pendingCookieLabel = null
     }
 }
 

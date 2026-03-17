@@ -79,6 +79,7 @@ import java.io.IOException
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class, SnapshotExtension::class, NavigationTestExtension::class)
+@Suppress("LargeClass")
 class LoginSSOViewModelTest {
 
     private val dispatcherProvider = TestDispatcherProvider()
@@ -120,6 +121,7 @@ class LoginSSOViewModelTest {
                     arrangement.ssoExtension.initiateSSO(
                         eq(SERVER_CONFIG.links),
                         eq(expectedSSOCode),
+                        any(),
                         capture(onAuthScopeFailureSlot),
                         capture(onSSOInitiateFailureSlot),
                         capture(onSuccessSlot)
@@ -156,6 +158,7 @@ class LoginSSOViewModelTest {
                 arrangement.ssoExtension.initiateSSO(
                     eq(SERVER_CONFIG.links),
                     eq(expectedSSOCode),
+                    any(),
                     capture(onAuthScopeFailureSlot),
                     capture(onSSOInitiateFailureSlot),
                     capture(onSuccessSlot)
@@ -165,6 +168,31 @@ class LoginSSOViewModelTest {
             onSSOInitiateFailureSlot.captured.invoke(SSOInitiateLoginResult.Failure.InvalidCodeFormat)
             loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.TextFieldError.InvalidValue>()
         }
+
+    @Test
+    fun `given automated nomad flow, when logging in with SSO code, then shared-device cookie label is passed`() = runTest {
+        val expectedSSOCode = "wire-fd994b20-b9af-11ec-ae36-00163e9b33ca"
+        val (arrangement, loginViewModel) = Arrangement()
+            .withValidateEmailReturning(false)
+            .withInitiateSSO(expectedSSOCode)
+            .withNomadAutoLogin("https://nomad.example.com/service")
+            .arrange()
+
+        loginViewModel.ssoTextState.setTextAndPlaceCursorAtEnd(expectedSSOCode)
+        loginViewModel.login()
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) {
+            arrangement.ssoExtension.initiateSSO(
+                eq(SERVER_CONFIG.links),
+                eq(expectedSSOCode),
+                eq("shared-device"),
+                any(),
+                any(),
+                any()
+            )
+        }
+    }
 
     @Test
     fun `given  sso code and button is clicked, when login returns InvalidCode error, then InvalidCodeError is passed`() = runTest {
@@ -185,6 +213,7 @@ class LoginSSOViewModelTest {
             arrangement.ssoExtension.initiateSSO(
                 eq(SERVER_CONFIG.links),
                 eq(expectedSSOCode),
+                any(),
                 capture(onAuthScopeFailureSlot),
                 capture(onSSOInitiateFailureSlot),
                 capture(onSuccessSlot)
@@ -215,6 +244,7 @@ class LoginSSOViewModelTest {
                 arrangement.ssoExtension.initiateSSO(
                     eq(SERVER_CONFIG.links),
                     eq(expectedSSOCode),
+                    any(),
                     capture(onAuthScopeFailureSlot),
                     capture(onSSOInitiateFailureSlot),
                     capture(onSuccessSlot)
@@ -248,6 +278,7 @@ class LoginSSOViewModelTest {
             arrangement.ssoExtension.initiateSSO(
                 eq(SERVER_CONFIG.links),
                 eq(expectedSSOCode),
+                any(),
                 capture(onAuthScopeFailureSlot),
                 capture(onSSOInitiateFailureSlot),
                 capture(onSuccessSlot)
@@ -278,6 +309,7 @@ class LoginSSOViewModelTest {
             arrangement.ssoExtension.establishSSOSession(
                 eq(expectedCookie),
                 eq(SERVER_CONFIG.id),
+                any(),
                 any(),
                 capture(onAuthScopeFailureSlot),
                 capture(onSSOLoginFailureSlot),
@@ -312,6 +344,7 @@ class LoginSSOViewModelTest {
                     eq(expectedCookie),
                     eq(SERVER_CONFIG.id),
                     any(),
+                    any(),
                     capture(onAuthScopeFailureSlot),
                     capture(onSSOLoginFailureSlot),
                     capture(onAddAuthenticatedUserFailureSlot),
@@ -343,6 +376,7 @@ class LoginSSOViewModelTest {
             arrangement.ssoExtension.establishSSOSession(
                 eq(expectedCookie),
                 eq(SERVER_CONFIG.id),
+                any(),
                 any(),
                 capture(onAuthScopeFailureSlot),
                 capture(onSSOLoginFailureSlot),
@@ -394,6 +428,7 @@ class LoginSSOViewModelTest {
                     eq(expectedCookie),
                     eq(SERVER_CONFIG.id),
                     any(),
+                    any(),
                     capture(onAuthScopeFailureSlot),
                     capture(onSSOLoginFailureSlot),
                     capture(onAddAuthenticatedUserFailureSlot),
@@ -420,6 +455,7 @@ class LoginSSOViewModelTest {
                 arrangement.ssoExtension.establishSSOSession(
                     eq(expectedCookie),
                     eq(SERVER_CONFIG.id),
+                    any(),
                     any(),
                     capture(onAuthScopeFailureSlot),
                     capture(onSSOLoginFailureSlot),
@@ -450,6 +486,7 @@ class LoginSSOViewModelTest {
                     eq(expectedCookie),
                     eq(SERVER_CONFIG.id),
                     any(),
+                    any(),
                     capture(onAuthScopeFailureSlot),
                     capture(onSSOLoginFailureSlot),
                     capture(onAddAuthenticatedUserFailureSlot),
@@ -478,6 +515,7 @@ class LoginSSOViewModelTest {
             arrangement.ssoExtension.establishSSOSession(
                 eq(expectedCookie),
                 eq(customConfig.id),
+                any(),
                 any(),
                 capture(onAuthScopeFailureSlot),
                 capture(onSSOLoginFailureSlot),
@@ -510,6 +548,36 @@ class LoginSSOViewModelTest {
                 eq(expectedCookie),
                 eq(SERVER_CONFIG.id),
                 capture(consumeNomadServiceUrlProviders),
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        }
+        assertEquals(nomadServiceUrl, consumeNomadServiceUrlProviders[0]())
+        assertEquals(null, consumeNomadServiceUrlProviders[1]())
+    }
+
+    @Test
+    fun `given automated nomad login, when establishSSOSession is called twice, then nomad url is consumed once`() = runTest {
+        val expectedCookie = "some-cookie"
+        val nomadServiceUrl = "https://nomad.example.com/service"
+        val (arrangement, loginViewModel) = Arrangement()
+            .withEstablishSSOSession(expectedCookie)
+            .withNomadAutoLogin(nomadServiceUrl)
+            .arrange()
+        val consumeNomadServiceUrlProviders = mutableListOf<() -> String?>()
+
+        loginViewModel.establishSSOSession(expectedCookie, SERVER_CONFIG.id)
+        loginViewModel.establishSSOSession(expectedCookie, SERVER_CONFIG.id)
+        advanceUntilIdle()
+
+        coVerify(exactly = 2) {
+            arrangement.ssoExtension.establishSSOSession(
+                eq(expectedCookie),
+                eq(SERVER_CONFIG.id),
+                capture(consumeNomadServiceUrlProviders),
+                any(),
                 any(),
                 any(),
                 any(),
@@ -590,6 +658,7 @@ class LoginSSOViewModelTest {
                     arrangement.ssoExtension.initiateSSO(
                         eq(customConfig.links),
                         eq(expectedSSOCode),
+                        any(),
                         capture(onAuthScopeFailureSlot),
                         capture(onSSOInitiateFailureSlot),
                         capture(onSuccessSlot)
@@ -663,6 +732,7 @@ class LoginSSOViewModelTest {
                 arrangement.ssoExtension.initiateSSO(
                     eq(customConfig.links),
                     eq(expectedSSOCode),
+                    any(),
                     capture(onAuthScopeFailureSlot),
                     capture(onSSOInitiateFailureSlot),
                     capture(onSuccessSlot)
@@ -699,6 +769,7 @@ class LoginSSOViewModelTest {
             arrangement.ssoExtension.initiateSSO(
                 eq(customConfig.links),
                 eq(expectedSSOCode),
+                any(),
                 capture(onAuthScopeFailureSlot),
                 capture(onSSOInitiateFailureSlot),
                 capture(onSuccessSlot)
@@ -793,6 +864,7 @@ class LoginSSOViewModelTest {
                     eq(ssoCode),
                     any(),
                     any(),
+                    any(),
                     any()
                 )
             } returns Unit
@@ -803,6 +875,7 @@ class LoginSSOViewModelTest {
                 ssoExtension.establishSSOSession(
                     eq(cookie),
                     eq(customConfig.id),
+                    any(),
                     any(),
                     any(),
                     any(),
@@ -832,7 +905,8 @@ class LoginSSOViewModelTest {
                 loginPasswordPath = LoginPasswordPath(SERVER_CONFIG.links),
                 ssoCodeAutoLogin = SSOCodeAutoLogin(
                     ssoCode = "wire-sso-code",
-                    nomadServiceUrl = nomadServiceUrl
+                    nomadServiceUrl = nomadServiceUrl,
+                    cookieLabel = "shared-device"
                 )
             )
         }

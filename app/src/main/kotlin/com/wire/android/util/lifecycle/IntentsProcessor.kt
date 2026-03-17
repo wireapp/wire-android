@@ -28,9 +28,11 @@ import javax.inject.Singleton
 data class AutomatedLoginViaSSO(
     val backendConfig: String? = null,
     val ssoCode: String? = null,
-    val nomadProfilesHost: String? = null
+    val nomadProfilesHost: String? = null,
 ) {
-    val isEmpty = backendConfig.isNullOrEmpty() && ssoCode.isNullOrEmpty() && nomadProfilesHost.isNullOrEmpty()
+    val isEmpty = backendConfig.isNullOrEmpty() &&
+        ssoCode.isNullOrEmpty() &&
+        nomadProfilesHost.isNullOrEmpty()
 }
 
 @Singleton
@@ -51,7 +53,7 @@ class IntentsProcessor @Inject internal constructor(
             val backendConfig: String? = null,
             val ssoCode: String? = null,
             val nomadProfilesHost: String? = null,
-            val sigNomadProfilesHost: String? = null
+            val signatureNomadProfilesHost: String? = null,
         )
 
         val parsed = runCatching {
@@ -71,7 +73,7 @@ class IntentsProcessor @Inject internal constructor(
         return AutomatedLoginViaSSO(
             parsed.backendConfig,
             parsed.ssoCode,
-            parsed.nomadProfilesHost
+            parsed.nomadProfilesHost,
         )
             .takeIf { !it.isEmpty }
             ?.takeIf {
@@ -79,7 +81,7 @@ class IntentsProcessor @Inject internal constructor(
                 val validNomadProfileHost = isValidHttpsUrl(parsed.nomadProfilesHost)
                 val validSignature = nomadIntentSignatureValidator.isValid(
                     parsed.nomadProfilesHost,
-                    parsed.sigNomadProfilesHost
+                    parsed.signatureNomadProfilesHost
                 )
                 validBackend && validNomadProfileHost && validSignature
             }

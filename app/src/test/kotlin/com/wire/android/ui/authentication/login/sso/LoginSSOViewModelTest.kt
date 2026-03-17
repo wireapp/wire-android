@@ -550,6 +550,35 @@ class LoginSSOViewModelTest {
                 any(),
                 any(),
                 any(),
+                any()
+            )
+        }
+        assertEquals(nomadServiceUrl, consumeNomadServiceUrlProviders[0]())
+        assertEquals(null, consumeNomadServiceUrlProviders[1]())
+    }
+
+    @Test
+    fun `given automated nomad login, when establishSSOSession is called twice, then nomad url is consumed once`() = runTest {
+        val expectedCookie = "some-cookie"
+        val nomadServiceUrl = "https://nomad.example.com/service"
+        val (arrangement, loginViewModel) = Arrangement()
+            .withEstablishSSOSession(expectedCookie)
+            .withNomadAutoLogin(nomadServiceUrl)
+            .arrange()
+        val consumeNomadServiceUrlProviders = mutableListOf<() -> String?>()
+
+        loginViewModel.establishSSOSession(expectedCookie, SERVER_CONFIG.id)
+        loginViewModel.establishSSOSession(expectedCookie, SERVER_CONFIG.id)
+        advanceUntilIdle()
+
+        coVerify(exactly = 2) {
+            arrangement.ssoExtension.establishSSOSession(
+                eq(expectedCookie),
+                eq(SERVER_CONFIG.id),
+                capture(consumeNomadServiceUrlProviders),
+                any(),
+                any(),
+                any(),
                 any(),
                 any()
             )

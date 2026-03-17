@@ -53,7 +53,7 @@ class IntentsProcessor @Inject internal constructor(
             val backendConfig: String? = null,
             val ssoCode: String? = null,
             val nomadProfilesHost: String? = null,
-            val sigNomadProfilesHost: String? = null,
+            val signatureNomadProfilesHost: String? = null,
         )
 
         val parsed = runCatching {

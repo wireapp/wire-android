@@ -25,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.BuildConfig
 import com.wire.android.analytics.RegistrationAnalyticsManagerUseCase
 import com.wire.android.di.ClientScopeProvider
@@ -33,7 +34,6 @@ import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.ui.authentication.create.common.CreateAccountDataNavArgs
 import com.wire.android.ui.common.textfield.textAsFlow
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.WillNeverOccurError
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig

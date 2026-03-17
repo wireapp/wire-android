@@ -185,6 +185,7 @@ dependencies {
     implementation("com.wire.kalium:kalium-logic")
     implementation("com.wire.kalium:kalium-util")
     implementation("com.wire.kalium:kalium-cells")
+    implementation(libs.libsodiumBindingsMP)
     androidTestImplementation("com.wire.kalium:kalium-mocks")
     androidTestImplementation("com.wire.kalium:kalium-network")
 
@@ -318,6 +319,7 @@ dependencies {
     testImplementation(libs.turbine)
     testImplementation(libs.okio.fakeFileSystem)
     testImplementation(libs.robolectric)
+    testRuntimeOnly(libs.libsodiumBindingsJvm)
     testRuntimeOnly(libs.junit5.vintage.engine)
     testRuntimeOnly(libs.junit5.engine)
     testImplementation(libs.androidx.paging.testing)

@@ -48,11 +48,14 @@ class InitialSyncViewModel @Inject constructor(
     private val automatedLoginManager: AutomatedLoginManager,
 ) : ViewModel() {
 
-    internal var isSyncCompleted: Boolean by mutableStateOf(false)
+    internal var syncCompletionState: SyncCompletionState? by mutableStateOf(null)
         private set
 
-    internal var shouldMoveToBackground: Boolean by mutableStateOf(false)
-        private set
+    internal val isSyncCompleted: Boolean
+        get() = syncCompletionState != null
+
+    internal val shouldMoveToBackground: Boolean
+        get() = syncCompletionState?.shouldMoveToBackground == true
 
     init {
         waitUntilSyncIsCompleted()
@@ -66,13 +69,15 @@ class InitialSyncViewModel @Inject constructor(
                     userDataStoreProvider.getOrCreate(userId).setInitialSyncCompleted()
                 }
             }?.let {
-                if (automatedLoginManager.pendingMoveToBackgroundAfterSync) {
-                    automatedLoginManager.pendingMoveToBackgroundAfterSync = false
-                    shouldMoveToBackground = true
-                }
-                isSyncCompleted = true
+                syncCompletionState = SyncCompletionState(
+                    shouldMoveToBackground = automatedLoginManager.consumePendingMoveToBackgroundAfterSync()
+                )
             } ?: run {
                 appLogger.e("InitialSyncViewModel: SyncState is null")
             }
         }
 }
+
+internal data class SyncCompletionState(
+    val shouldMoveToBackground: Boolean,
+)

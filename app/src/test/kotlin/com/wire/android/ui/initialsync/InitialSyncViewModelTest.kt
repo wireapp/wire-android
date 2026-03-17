@@ -36,6 +36,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -56,6 +57,7 @@ class InitialSyncViewModelTest {
 
         // then
         assertTrue(viewModel.isSyncCompleted)
+        assertEquals(SyncCompletionState(shouldMoveToBackground = false), viewModel.syncCompletionState)
     }
 
     @Test
@@ -72,6 +74,7 @@ class InitialSyncViewModelTest {
 
         // then
         assertFalse(viewModel.isSyncCompleted)
+        assertEquals(null, viewModel.syncCompletionState)
     }
 
     @Test
@@ -87,6 +90,7 @@ class InitialSyncViewModelTest {
         // then
         assertTrue(viewModel.isSyncCompleted)
         assertTrue(viewModel.shouldMoveToBackground)
+        assertEquals(SyncCompletionState(shouldMoveToBackground = true), viewModel.syncCompletionState)
         assertFalse(arrangement.automatedLoginManager.pendingMoveToBackgroundAfterSync)
     }
 
@@ -102,6 +106,7 @@ class InitialSyncViewModelTest {
         // then
         assertTrue(viewModel.isSyncCompleted)
         assertFalse(viewModel.shouldMoveToBackground)
+        assertEquals(SyncCompletionState(shouldMoveToBackground = false), viewModel.syncCompletionState)
     }
 
     private class Arrangement {
@@ -139,7 +144,7 @@ class InitialSyncViewModelTest {
         }
 
         fun withAutomatedLoginPending(): Arrangement = apply {
-            automatedLoginManager.pendingMoveToBackgroundAfterSync = true
+            automatedLoginManager.markPendingMoveToBackgroundAfterSync()
         }
 
         fun arrange() = viewModel to this

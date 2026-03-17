@@ -42,6 +42,7 @@ import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.framework.TestClient
 import com.wire.android.framework.TestUser
 import com.wire.android.framework.TestUser.SELF_USER
+import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.services.ServicesManager
 import com.wire.android.sync.MonitorSyncWorkUseCase
 import com.wire.android.ui.common.dialogs.CustomServerDetailsDialogState
@@ -53,6 +54,7 @@ import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
+import com.wire.android.util.deeplink.LoginType
 import com.wire.android.util.lifecycle.AutomatedLoginManager
 import com.wire.android.util.lifecycle.AutomatedLoginViaSSO
 import com.wire.android.util.lifecycle.IntentsProcessor
@@ -107,6 +109,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertInstanceOf
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -777,10 +780,51 @@ class WireActivityViewModelTest {
         }
 
     @Test
-    fun `given valid automated_login intent, when handling intents, then automated login manager pending flag is set`() = runTest {
+    fun `given automated_login intent with only ssoCode, when handling intents, then intent is ignored`() = runTest {
         val ssoCode = "wire-b6261497-5b7d-4a57-8f4d-3a94e936b2c0"
         val (arrangement, viewModel) = Arrangement()
             .withAutomatedLoginIntent(ssoCode = ssoCode)
+            .arrange()
+
+        val handled = viewModel.handleIntentsThatAreNotDeepLinks(mockedIntent())
+        advanceUntilIdle()
+
+        assertFalse(handled)
+        assertFalse(arrangement.automatedLoginManager.pendingMoveToBackgroundAfterSync)
+    }
+
+    @Test
+    fun `given automated login intent with backend config, when selector disables new login, then resolved action uses old login`() = runTest {
+        val serverLinks = newServerConfig(1).links
+        val (_, viewModel) = Arrangement()
+            .withCanUseNewLogin(false)
+            .withAutomatedLoginIntent(
+                ssoCode = "wire-b6261497-5b7d-4a57-8f4d-3a94e936b2c0",
+                backendConfig = "url"
+            )
+            .arrange()
+
+        viewModel.actions.test {
+            val handled = viewModel.handleIntentsThatAreNotDeepLinks(mockedIntent())
+            advanceUntilIdle()
+
+            assertTrue(handled)
+            assertEquals(
+                OnAutomaticLogin(
+                    serverLinks = serverLinks,
+                    ssoCode = "wire-b6261497-5b7d-4a57-8f4d-3a94e936b2c0",
+                    nomadServiceUrl = "https://nomad.example.com",
+                    useNewLogin = false
+                ),
+                expectMostRecentItem()
+            )
+        }
+    }
+
+    @Test
+    fun `given automated login intent with only backend config, when handling intents, then automated login manager pending flag is set`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withAutomatedLoginIntent(backendConfig = "url")
             .arrange()
 
         val handled = viewModel.handleIntentsThatAreNotDeepLinks(mockedIntent())
@@ -880,6 +924,32 @@ class WireActivityViewModelTest {
         viewModel.globalAppState.maxAccountDialog shouldBeEqualTo true
     }
 
+    @Test
+    fun `given custom backend dialog with default login type, when selector disables new login, then old login action is emitted`() = runTest {
+        val serverLinks = newServerConfig(1).links
+        val (_, viewModel) = Arrangement()
+            .withCanUseNewLogin(false)
+            .withObserveSessionsFlow(flowOf(GetAllSessionsResult.Failure.NoSessionFound))
+            .arrange()
+
+        viewModel.actions.test {
+            viewModel.onCustomServerConfig("url", LoginType.Default)
+            advanceUntilIdle()
+            viewModel.initValidSessionsFlowIfNeeded()
+
+            viewModel.customBackendDialogProceedButtonClicked(LoginType.Default)
+            advanceUntilIdle()
+
+            assertEquals(
+                OnCustomBackendLogin(
+                    serverLinks = serverLinks,
+                    useNewLogin = false
+                ),
+                expectMostRecentItem()
+            )
+        }
+    }
+
     private class Arrangement {
 
         val managedConfigurationsManager: ManagedConfigurationsManager = mockk(relaxed = true)
@@ -918,6 +988,7 @@ class WireActivityViewModelTest {
             coEvery { observeSelfUserUseCase() } returns flowOf(SELF_USER)
             every { managedConfigurationsManager.persistentWebSocketEnforcedByMDM } returns persistentWebSocketEnforcedByMDMFlow
             every { nomadProfilesFeatureConfig.isEnabled() } returns true
+            coEvery { loginTypeSelector.canUseNewLogin(any()) } returns true
         }
 
         @MockK
@@ -995,6 +1066,9 @@ class WireActivityViewModelTest {
         @MockK
         lateinit var nomadProfilesFeatureConfig: NomadProfilesFeatureConfig
 
+        @MockK
+        lateinit var loginTypeSelector: LoginTypeSelector
+
         private val viewModel by lazy {
             WireActivityViewModel(
                 coreLogic = { coreLogic },
@@ -1022,6 +1096,7 @@ class WireActivityViewModelTest {
                 managedConfigurationsManager = managedConfigurationsManager,
                 automatedLoginManager = automatedLoginManager,
                 nomadProfilesFeatureConfig = nomadProfilesFeatureConfig,
+                loginTypeSelector = loginTypeSelector,
             )
         }
 
@@ -1151,12 +1226,26 @@ class WireActivityViewModelTest {
             coEvery { useCase() } returns isEnabled
         }
 
-        fun withAutomatedLoginIntent(ssoCode: String): Arrangement = apply {
-            every { intentsProcessor(any()) } returns AutomatedLoginViaSSO(ssoCode = ssoCode)
+        fun withAutomatedLoginIntent(
+            ssoCode: String? = null,
+            backendConfig: String? = null
+        ): Arrangement = apply {
+            every { intentsProcessor(any()) } returns when {
+                ssoCode != null && backendConfig == null -> null
+                else -> AutomatedLoginViaSSO(
+                    ssoCode = ssoCode,
+                    backendConfig = backendConfig,
+                    nomadProfilesHost = "https://nomad.example.com"
+                )
+            }
         }
 
         fun withNomadProfilesEnabled(enabled: Boolean): Arrangement = apply {
             every { nomadProfilesFeatureConfig.isEnabled() } returns enabled
+        }
+
+        fun withCanUseNewLogin(canUseNewLogin: Boolean): Arrangement = apply {
+            coEvery { loginTypeSelector.canUseNewLogin(any()) } returns canUseNewLogin
         }
 
         fun arrange() = this to viewModel

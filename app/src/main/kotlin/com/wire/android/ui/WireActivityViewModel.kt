@@ -41,6 +41,7 @@ import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountActions
 import com.wire.android.feature.SwitchAccountParam
 import com.wire.android.feature.SwitchAccountResult
+import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.services.ServicesManager
 import com.wire.android.sync.MonitorSyncWorkUseCase
 import com.wire.android.ui.authentication.devices.model.displayName
@@ -141,6 +142,7 @@ class WireActivityViewModel @Inject constructor(
     private val managedConfigurationsManager: ManagedConfigurationsManager,
     private val automatedLoginManager: AutomatedLoginManager,
     private val nomadProfilesFeatureConfig: NomadProfilesFeatureConfig,
+    private val loginTypeSelector: LoginTypeSelector,
 ) : ActionsViewModel<WireActivityViewAction>() {
 
     var globalAppState: GlobalAppState by mutableStateOf(GlobalAppState())
@@ -388,14 +390,22 @@ class WireActivityViewModel @Inject constructor(
                     sendAction(ShowToast(R.string.nomad_login_blocked_message))
                     return@launch
                 }
-                onAutomaticLoginParameters(result.backendConfig, result.ssoCode)
+                onAutomaticLoginParameters(
+                result.backendConfig,
+                result.ssoCode,
+                result.nomadProfilesHost,
+            )
             }
             return true
         }
         return false
     }
 
-    private fun onAutomaticLoginParameters(backendConfigUrl: String?, ssoCode: String?) {
+    private fun onAutomaticLoginParameters(
+        backendConfigUrl: String?,
+        ssoCode: String?,
+        nomadServiceUrl: String?,
+    ) {
         viewModelScope.launch(dispatchers.io()) {
             // Load backend config
             val serverLinks = backendConfigUrl?.let { loadServerConfig(it) }
@@ -405,8 +415,15 @@ class WireActivityViewModel @Inject constructor(
             if (backendConfigLoadFailed || nothingProvided) {
                 sendAction(OnUnknownDeepLink)
             } else {
-                automatedLoginManager.pendingMoveToBackgroundAfterSync = true
-                sendAction(OnAutomaticLogin(serverLinks, ssoCode))
+                automatedLoginManager.markPendingMoveToBackgroundAfterSync()
+                sendAction(
+                    OnAutomaticLogin(
+                        serverLinks = serverLinks,
+                        ssoCode = ssoCode,
+                        nomadServiceUrl = nomadServiceUrl,
+                        useNewLogin = resolveUseNewLogin(LoginType.Default, serverLinks)
+                    )
+                )
             }
         }
     }
@@ -415,12 +432,19 @@ class WireActivityViewModel @Inject constructor(
         globalAppState = globalAppState.copy(customBackendDialog = null)
     }
 
-    fun customBackendDialogProceedButtonClicked(onProceed: (ServerConfig.Links) -> Unit) {
+    fun customBackendDialogProceedButtonClicked(loginType: LoginType) {
         val backendDialogState = globalAppState.customBackendDialog
         if (backendDialogState is CustomServerDetailsDialogState) {
             dismissCustomBackendDialog()
             if (checkNumberOfSessions()) {
-                onProceed(backendDialogState.serverLinks)
+                viewModelScope.launch(dispatchers.io()) {
+                    sendAction(
+                        OnCustomBackendLogin(
+                            serverLinks = backendDialogState.serverLinks,
+                            useNewLogin = resolveUseNewLogin(loginType, backendDialogState.serverLinks)
+                        )
+                    )
+                }
             }
         }
     }
@@ -494,6 +518,15 @@ class WireActivityViewModel @Inject constructor(
                 null
             }
         }
+
+    private suspend fun resolveUseNewLogin(
+        loginType: LoginType,
+        serverLinks: ServerConfig.Links? = null
+    ): Boolean = when (loginType) {
+        LoginType.New -> true
+        LoginType.Old -> false
+        LoginType.Default -> loginTypeSelector.canUseNewLogin(serverLinks)
+    }
 
     fun onCustomServerConfig(customServerUrl: String, loginType: LoginType) {
         viewModelScope.launch(dispatchers.io()) {
@@ -703,7 +736,18 @@ internal data object OnShowImportMediaScreen : WireActivityViewAction
 internal data object OnAuthorizationNeeded : WireActivityViewAction
 internal data object OnUnknownDeepLink : WireActivityViewAction
 internal data class OnMigrationLogin(val result: DeepLinkResult.MigrationLogin) : WireActivityViewAction
-internal data class OnAutomaticLogin(val serverLinks: ServerConfig.Links?, val ssoCode: String?) : WireActivityViewAction
+internal data class OnAutomaticLogin(
+    val serverLinks: ServerConfig.Links?,
+    val ssoCode: String?,
+    val nomadServiceUrl: String?,
+    val useNewLogin: Boolean,
+) : WireActivityViewAction
+
+internal data class OnCustomBackendLogin(
+    val serverLinks: ServerConfig.Links,
+    val useNewLogin: Boolean,
+) : WireActivityViewAction
+
 internal data class OnOpenUserProfile(val result: DeepLinkResult.OpenOtherUserProfile) : WireActivityViewAction
 internal data class OnSSOLogin(val result: DeepLinkResult.SSOLogin) : WireActivityViewAction
 internal data class ShowToast(val messageResId: Int) : WireActivityViewAction

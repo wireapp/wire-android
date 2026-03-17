@@ -25,6 +25,7 @@ import androidx.work.Operation
 import androidx.work.WorkManager
 import app.cash.turbine.test
 import com.wire.android.BuildConfig
+import com.wire.android.R
 import com.wire.android.assertions.shouldBeEqualTo
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NomadProfilesFeatureConfig
@@ -830,6 +831,23 @@ class WireActivityViewModelTest {
 
         assertTrue(handled)
         assertTrue(arrangement.automatedLoginManager.pendingMoveToBackgroundAfterSync)
+    }
+
+    @Test
+    fun `given existing session, when handling automated login intent, then login is blocked with toast`() = runTest {
+        val ssoCode = "wire-b6261497-5b7d-4a57-8f4d-3a94e936b2c0"
+        val (arrangement, viewModel) = Arrangement()
+            .withAutomatedLoginIntent(ssoCode = ssoCode)
+            .withObserveSessionsFlow(flowOf(GetAllSessionsResult.Success(listOf(TEST_ACCOUNT_INFO))))
+            .arrange()
+
+        viewModel.actions.test {
+            viewModel.handleIntentsThatAreNotDeepLinks(mockedIntent())
+            advanceUntilIdle()
+
+            assertEquals(ShowToast(R.string.nomad_login_blocked_message), expectMostRecentItem())
+            assertFalse(arrangement.automatedLoginManager.pendingMoveToBackgroundAfterSync)
+        }
     }
 
     @Test

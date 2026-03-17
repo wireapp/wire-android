@@ -401,4 +401,5 @@ private fun SSOLoginSessionResult.Failure.toLoginError() = when (this) {
 private fun AddAuthenticatedUserUseCase.Result.Failure.toLoginError() = when (this) {
     is AddAuthenticatedUserUseCase.Result.Failure.Generic -> NewLoginFlowState.Error.DialogError.GenericError(this.genericFailure)
     AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists -> NewLoginFlowState.Error.DialogError.UserAlreadyExists
+    AddAuthenticatedUserUseCase.Result.Failure.NomadSingleUserViolation -> NewLoginFlowState.Error.DialogError.UserAlreadyExists
 }

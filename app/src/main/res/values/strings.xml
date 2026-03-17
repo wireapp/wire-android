@@ -1332,6 +1332,10 @@ In group conversations, the group admin can overwrite this setting.</string>
         <item quantity="other">You can only be logged in with %1$d accounts at once. Log out from one to add another.</item>
     </plurals>
     <string name="max_account_reached_dialog_button_open_profile">Open Profile</string>
+    <!--nomad account blocks login dialog-->
+    <string name="nomad_login_blocked_message">Cannot login while another account is active</string>
+    <string name="nomad_account_blocks_login_title">Login Blocked</string>
+    <string name="nomad_account_blocks_login_message">A managed profile is currently logged in. Please log out first before adding another account.</string>
     <string name="cant_switch_account_in_call">You can\'t switch accounts while in a call</string>
     <string name="deeplink_authorization_needed">You must login to perform this action</string>
     <string name="custom_backend_dialog_title">Redirect to an on-premises backend?</string>

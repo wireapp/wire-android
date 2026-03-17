@@ -104,11 +104,13 @@ fun BuildMenuSheetItems(items: List<@Composable () -> Unit>) {
 @Composable
 fun MenuItemTitle(
     title: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    color: Color = LocalContentColor.current,
 ) {
     Text(
         text = title,
         style = MaterialTheme.wireTypography.body01,
+        color = color,
         modifier = modifier
     )
 }

@@ -37,6 +37,7 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.ObserveCallQualityDataUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveLastActiveCallWithSortedParticipantsUseCase
 import com.wire.kalium.logic.feature.call.usecase.RequestVideoStreamsUseCase
+import com.wire.kalium.logic.feature.call.usecase.SetCallQualityIntervalUseCase
 import com.wire.kalium.logic.feature.call.usecase.video.SetVideoSendStateUseCase
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -60,6 +61,7 @@ class OngoingCallViewModel @AssistedInject constructor(
     private val requestVideoStreams: RequestVideoStreamsUseCase,
     private val setVideoSendState: SetVideoSendStateUseCase,
     private val observeCallQualityData: ObserveCallQualityDataUseCase,
+    private val setCallQualityInterval: SetCallQualityIntervalUseCase,
 ) : ViewModel() {
     var shouldShowDoubleTapToast: Boolean by mutableStateOf(false)
         private set
@@ -190,6 +192,18 @@ class OngoingCallViewModel @AssistedInject constructor(
     fun onSelectedParticipant(selectedParticipant: SelectedParticipant) {
         appLogger.d("$TAG - Selected participant: ${selectedParticipant.toLogString()}")
         this.selectedParticipant = selectedParticipant
+    }
+
+    fun setQualityInterval(interval: QualityInterval) {
+        viewModelScope.launch {
+            setCallQualityInterval(interval.intervalInSeconds)
+        }
+    }
+
+    @Suppress("MagicNumber")
+    enum class QualityInterval(val intervalInSeconds: Int) {
+        NORMAL(5),
+        SHORT(1)
     }
 
     companion object {

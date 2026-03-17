@@ -32,7 +32,8 @@ data class LoginNavArgs(
 @Serializable
 data class SSOCodeAutoLogin(
     val ssoCode: String,
-    val autoInitiateLogin: Boolean = true
+    val autoInitiateLogin: Boolean = true,
+    val nomadServiceUrl: String? = null,
 )
 
 @Serializable

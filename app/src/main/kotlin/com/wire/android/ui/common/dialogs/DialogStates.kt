@@ -27,3 +27,4 @@ data class FeatureDisabledWithProxyDialogState(@StringRes val description: Int, 
 object CancelLoginDialogState
 object FileSharingRestrictedDialogState
 object MaxAccountsReachedDialogState
+object NomadAccountBlocksLoginDialogState

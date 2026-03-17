@@ -385,11 +385,19 @@ class WireActivityViewModel @Inject constructor(
         if (!nomadProfilesFeatureConfig.isEnabled()) return false
         val result = intentsProcessor.get().invoke(intent)
         if (result != null) {
-            onAutomaticLoginParameters(
+            viewModelScope.launch(dispatchers.io()) {
+                initValidSessionsFlowIfNeeded()
+                if (validSessions.value.filterIsInstance<AccountInfo.Valid>().isNotEmpty()) {
+                    appLogger.w("Nomad login blocked: another session already exists")
+                    sendAction(ShowToast(R.string.nomad_login_blocked_message))
+                    return@launch
+                }
+                onAutomaticLoginParameters(
                 result.backendConfig,
                 result.ssoCode,
                 result.nomadProfilesHost,
             )
+            }
             return true
         }
         return false

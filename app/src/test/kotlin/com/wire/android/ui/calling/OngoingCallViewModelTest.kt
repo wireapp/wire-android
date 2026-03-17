@@ -339,6 +339,7 @@ class OngoingCallViewModelTest {
         init {
             MockKAnnotations.init(this)
             coEvery { observeCallQualityData(any()) } returns emptyFlow()
+            coEvery { setCallQualityInterval(any()) } returns Unit
         }
 
         fun arrange() = this to ongoingCallViewModel

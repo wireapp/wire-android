@@ -106,4 +106,7 @@ class FakeKaliumFileSystem(
     override fun selfUserAvatarPath(): Path = providePersistentAssetPath("self_user_avatar.jpg")
 
     override suspend fun listDirectories(dir: Path): List<Path> = fakeFileSystem.list(dir)
+    override fun size(path: Path): Long? {
+        TODO("Not yet implemented")
+    }
 }

@@ -79,6 +79,7 @@ import java.io.IOException
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class, SnapshotExtension::class, NavigationTestExtension::class)
+@Suppress("LongMethod")
 class LoginSSOViewModelTest {
 
     private val dispatcherProvider = TestDispatcherProvider()

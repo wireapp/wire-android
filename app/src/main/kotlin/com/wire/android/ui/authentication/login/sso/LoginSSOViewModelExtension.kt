@@ -50,6 +50,7 @@ class LoginSSOViewModelExtension(
         }
     }
 
+    @Suppress("LongParameterList")
     suspend fun initiateSSO(
         serverConfig: ServerConfig.Links,
         ssoCode: String,

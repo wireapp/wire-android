@@ -18,7 +18,7 @@ Flavor resolution is runner-driven, not hardcoded in the repo.
 
 - `validation.sh`: input validation, TAG selector parsing, and resolved value logging.
 - `execution_setup.sh`: runner prep, flavor/APK resolution, device prep, secrets fetch, and test artifact setup.
-- `run_ui_tests.sh`: instrumentation execution/sharding plus failed-test auto-reruns (deterministic multi-device sharding on retry attempts).
+- `run_ui_tests.sh`: instrumentation execution/sharding plus failed-test auto-reruns (explicit per-device retry lists with even count balancing).
 - `reporting.sh`: Allure pull/merge/generate/publish plus cleanup subcommands.
 
 ## Python Helpers

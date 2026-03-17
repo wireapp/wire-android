@@ -59,7 +59,6 @@ mkdir -p "${LOG_DIR}" "${STATE_DIR}" "${ALLURE_RESULTS_ROOT}"
 
 read -ra DEVICES <<< "${DEVICE_LIST}"
 RETRY_DEVICES=("${DEVICES[@]}")
-RETRY_NUM_SHARDS="${#RETRY_DEVICES[@]}"
 
 BASE_NUM_SHARDS="${DEVICE_COUNT}"
 if [[ -n "${RESOLVED_TESTCASE_ID:-}" ]]; then
@@ -119,6 +118,74 @@ build_rerun_inline_parts() {
     echo "ERROR: Computed empty rerun inline parts."
     return 1
   fi
+}
+
+count_tests_in_list_file() {
+  local list_file="$1"
+  if [[ ! -s "${list_file}" ]]; then
+    echo "0"
+    return
+  fi
+
+  wc -l < "${list_file}" | tr -d ' '
+}
+
+rerun_list_file_for_device() {
+  local attempt="$1"
+  local serial="$2"
+  echo "${STATE_DIR}/attempt-${attempt}-rerun-${serial}.txt"
+}
+
+prepare_retry_assignments() {
+  local next_attempt="$1"
+  local failed_list_file="$2"
+  shift 2
+  local devices=("$@")
+
+  if [[ ${#devices[@]} -eq 0 ]]; then
+    echo "ERROR: No devices available for retry attempt ${next_attempt}."
+    return 1
+  fi
+
+  local serial=""
+  for serial in "${devices[@]}"; do
+    # Each retry device gets its own explicit list so the workflow owns
+    # balancing and Android sharding does not reshuffle the failed tests again.
+    : > "$(rerun_list_file_for_device "${next_attempt}" "${serial}")"
+  done
+
+  local device_index=0
+  local assigned_total=0
+  local test_id=""
+
+  # Distribute failed tests one by one across the selected devices. This keeps
+  # counts balanced without introducing runtime-based scheduling complexity.
+  while IFS= read -r test_id || [[ -n "${test_id}" ]]; do
+    test_id="${test_id%$'\r'}"
+    [[ -z "${test_id}" ]] && continue
+
+    printf '%s\n' "${test_id}" >> "$(rerun_list_file_for_device "${next_attempt}" "${devices[${device_index}]}")"
+    assigned_total=$((assigned_total + 1))
+    device_index=$(((device_index + 1) % ${#devices[@]}))
+  done < "${failed_list_file}"
+
+  if (( assigned_total == 0 )); then
+    echo "ERROR: Retry attempt ${next_attempt} has no failed tests to assign."
+    return 1
+  fi
+
+  echo "Retry assignment for attempt ${next_attempt}:"
+  for serial in "${devices[@]}"; do
+    local device_list_file
+    local assigned_count
+    device_list_file="$(rerun_list_file_for_device "${next_attempt}" "${serial}")"
+    assigned_count="$(count_tests_in_list_file "${device_list_file}")"
+    if (( assigned_count == 0 )); then
+      echo "ERROR: Retry planner assigned zero tests to device ${serial} in attempt ${next_attempt}."
+      return 1
+    fi
+    echo "  - ${serial}: ${assigned_count} test(s)"
+  done
 }
 
 device_reported_zero_tests() {
@@ -263,10 +330,23 @@ run_attempt_on_devices() {
           args+=(-e category "${RESOLVED_CATEGORY}")
         fi
       else
-        if [[ ${#RERUN_INLINE_PARTS[@]} -eq 0 ]]; then
-          echo "[${serial}] ERROR: RERUN_INLINE_PARTS is empty for retry attempt ${attempt}."
+        local retry_list_file
+        local retry_test_count
+        retry_list_file="$(rerun_list_file_for_device "${attempt}" "${serial}")"
+        retry_test_count="$(count_tests_in_list_file "${retry_list_file}")"
+        if (( retry_test_count == 0 )); then
+          echo "[${serial}] ERROR: Retry attempt ${attempt} has no assigned tests for this device."
           exit 1
         fi
+
+        if ! build_rerun_inline_parts "${retry_list_file}" "${INLINE_PART_MAX_CHARS}"; then
+          echo "[${serial}] ERROR: Failed to build inline rerun arguments for retry attempt ${attempt}."
+          exit 1
+        fi
+
+        # Retry attempts run one shard per device because the workflow already
+        # prepared a device-specific rerun list for balanced execution.
+        echo "[${serial}] attempt=${attempt} assignedRetryTests=${retry_test_count}, inlineParts=${#RERUN_INLINE_PARTS[@]}"
         args+=(-e enableRerunMode "true")
         args+=(-e rerunAttempt "${attempt}")
         args+=(-e rerunListInline "${RERUN_INLINE_PARTS[0]}")
@@ -346,7 +426,9 @@ while true; do
     attempt_num_shards="${BASE_NUM_SHARDS}"
     attempt_devices=("${DEVICES[@]}")
   else
-    attempt_num_shards="${RETRY_NUM_SHARDS}"
+    # Retry attempts already have explicit per-device assignments, so each
+    # device executes exactly one shard containing only its own test list.
+    attempt_num_shards="1"
     attempt_devices=("${RETRY_DEVICES[@]}")
   fi
 
@@ -385,10 +467,8 @@ while true; do
   fi
 
   next_attempt=$((attempt + 1))
-  rerun_list_local="${STATE_DIR}/attempt-${next_attempt}-rerun-list.txt"
-  cp "${attempt_failed_file}" "${rerun_list_local}"
-
-  # Limit retry shards to the number of failed tests so the same test is not retried on multiple devices.
+  # Limit retry devices to the number of failed tests so every selected device
+  # receives at least one explicit retry assignment.
   failed_count_num=$((10#${failed_count}))
   retry_device_count="${#DEVICES[@]}"
   if (( failed_count_num < retry_device_count )); then
@@ -398,12 +478,10 @@ while true; do
     retry_device_count=1
   fi
   RETRY_DEVICES=("${DEVICES[@]:0:${retry_device_count}}")
-  RETRY_NUM_SHARDS="${#RETRY_DEVICES[@]}"
-
-  if ! build_rerun_inline_parts "${rerun_list_local}" "${INLINE_PART_MAX_CHARS}"; then
+  if ! prepare_retry_assignments "${next_attempt}" "${attempt_failed_file}" "${RETRY_DEVICES[@]}"; then
     exit 1
   fi
-  echo "Prepared rerun attempt ${next_attempt}: tests=${failed_count}, devices=${RETRY_DEVICES[*]}, numShards=${RETRY_NUM_SHARDS}, inlineParts=${#RERUN_INLINE_PARTS[@]}."
+  echo "Prepared rerun attempt ${next_attempt}: tests=${failed_count}, devices=${RETRY_DEVICES[*]}, shardsPerDevice=1."
 
   attempt="${next_attempt}"
 done

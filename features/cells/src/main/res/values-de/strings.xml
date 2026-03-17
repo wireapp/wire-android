@@ -196,6 +196,7 @@
     <string name="button_remove_filter">Filter entfernen</string>
     <string name="search_shared_drive_text_input_hint">Geteiltes Drive durchsuchen</string>
     <string name="search_drive_text_input_hint">Drive durchsuchen</string>
+    <string name="search_owners_text_input_hint">Nach erstellt von suchen</string>
     <string name="search_conversations_text_input_hint">Unterhaltung suchen</string>
     <string name="filter_chip_tags">Tags</string>
     <string name="filter_chip_type">Dateityp</string>
@@ -206,7 +207,7 @@
     <string name="filter_pdf_type">PDFs</string>
     <string name="filter_documents_type">Dokumente</string>
     <string name="filter_images_type">Bilder</string>
-    <string name="filter_spreadsheets_type">Tabellen</string>
+    <string name="filter_spreadsheets_type">Kalkulationstabellen</string>
     <string name="filter_presentations_type">Präsentationen</string>
     <string name="filter_videos_type">Videos</string>
     <string name="filter_audio_type">Audiodateien</string>

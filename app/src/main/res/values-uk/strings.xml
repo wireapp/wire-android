@@ -177,6 +177,7 @@
     <!--Devices -->
     <!--unblock user dialog -->
     <!--max account reached dialog-->
+    <!--nomad account blocks login dialog-->
     <string name="label_share_logs">Поширити Логи</string>
     <string name="label_delete_logs">Видалити Всі логи</string>
     <string name="label_restart_slowsync_for_recovery">Перезапустити повільну синхронізацію</string>

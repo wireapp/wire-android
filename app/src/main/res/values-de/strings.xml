@@ -1224,6 +1224,7 @@ Bei Gruppenunterhaltungen kann der Gruppen-Admin diese Einstellung überschreibe
         <item quantity="other">Sie können nur mit %1$d Konten gleichzeitig angemeldet sein. Melden Sie sich von einem ab, um ein anderes hinzuzufügen.</item>
     </plurals>
     <string name="max_account_reached_dialog_button_open_profile">Profil öffnen</string>
+    <!--nomad account blocks login dialog-->
     <string name="cant_switch_account_in_call">Sie können während eines Anrufs nicht das Konto wechseln</string>
     <string name="custom_backend_dialog_title">Umleitung auf ein lokales Backend?</string>
     <string name="custom_backend_dialog_body">Wenn Sie fortfahren, wird Ihr Client an das folgende lokale Backend weitergeleitet:</string>

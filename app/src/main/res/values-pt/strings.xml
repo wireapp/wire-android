@@ -1078,6 +1078,7 @@ Em conversas de grupo, o administrador do grupo pode substituir essa configuraç
         <item quantity="other">Você só pode estar logado com %1$d contas de uma vez. Saia de uma para adicionar outra.</item>
     </plurals>
     <string name="max_account_reached_dialog_button_open_profile">Abrir Perfil</string>
+    <!--nomad account blocks login dialog-->
     <string name="cant_switch_account_in_call">Você não pode mudar de conta enquanto estiver em uma chamada</string>
     <string name="deeplink_authorization_needed">Você precisa estar logado para realizar esta ação</string>
     <string name="custom_backend_dialog_title">Redirecionar para um backend local?</string>

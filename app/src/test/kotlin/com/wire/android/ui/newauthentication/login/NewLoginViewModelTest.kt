@@ -412,7 +412,7 @@ class NewLoginViewModelTest {
         advanceUntilIdle()
 
         coVerify {
-            arrangement.loginSSOViewModelExtension.establishSSOSession(any(), any(), any(), any(), any(), any(), any())
+            arrangement.loginSSOViewModelExtension.establishSSOSession(any(), any(), any(), any(), any(), any(), any(), any())
         }
     }
 

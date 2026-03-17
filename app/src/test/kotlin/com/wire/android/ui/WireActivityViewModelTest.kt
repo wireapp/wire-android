@@ -838,7 +838,7 @@ class WireActivityViewModelTest {
     fun `given existing session, when handling automated login intent, then login is blocked with toast`() = runTest {
         val ssoCode = "wire-b6261497-5b7d-4a57-8f4d-3a94e936b2c0"
         val (arrangement, viewModel) = Arrangement()
-            .withAutomatedLoginIntent(ssoCode = ssoCode)
+            .withAutomatedLoginIntent(ssoCode = ssoCode, backendConfig = "url")
             .withObserveSessionsFlow(flowOf(GetAllSessionsResult.Success(listOf(TEST_ACCOUNT_INFO))))
             .arrange()
 

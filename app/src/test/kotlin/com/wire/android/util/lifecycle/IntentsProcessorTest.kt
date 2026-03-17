@@ -53,7 +53,7 @@ class IntentsProcessorTest {
                     "backendConfig" to FAKE_BACKEND_CONFIG,
                     "ssoCode" to FAKE_SSO_CODE,
                     "nomadProfilesHost" to FAKE_NOMAD_PROFILES_HOST,
-                    "sigNomadProfilesHost" to IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN
+                    "signatureNomadProfilesHost" to IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN
                 )
             )
             .arrange()
@@ -118,7 +118,7 @@ class IntentsProcessorTest {
                     "backendConfig" to FAKE_BACKEND_CONFIG,
                     "ssoCode" to FAKE_SSO_CODE,
                     "nomadProfilesHost" to FAKE_NOMAD_PROFILES_HOST,
-                    "sigNomadProfilesHost" to signedValue.signatureBase64
+                    "signatureNomadProfilesHost" to signedValue.signatureBase64
                 )
             )
             .arrange()
@@ -146,7 +146,7 @@ class IntentsProcessorTest {
             .withAutomatedLoginExtra(
                 automatedLoginJson(
                     "nomadProfilesHost" to FAKE_NOMAD_PROFILES_HOST,
-                    "sigNomadProfilesHost" to invalidSignature
+                    "signatureNomadProfilesHost" to invalidSignature
                 )
             )
             .arrange()

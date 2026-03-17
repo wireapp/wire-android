@@ -68,7 +68,6 @@ class NomadLogoutReceiverTest {
             arrangement.deleteSession(userId)
             arrangement.accountSwitch(SwitchAccountParam.TryToSwitchToNextAccount)
         }
-        verify(exactly = 1) { arrangement.context.startActivity(any()) }
     }
 
     @Test

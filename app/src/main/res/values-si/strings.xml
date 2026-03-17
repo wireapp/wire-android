@@ -1148,6 +1148,7 @@
         <item quantity="other">ඔබට ගිණුම් %1$d කට පමණක් එකවර පිවිසීමට හැකිය. තව ගිණුමක් එකතු කිරීමට එකකින් නික්මෙන්න.</item>
     </plurals>
     <string name="max_account_reached_dialog_button_open_profile">පැතිකඩ අරින්න</string>
+    <!--nomad account blocks login dialog-->
     <string name="cant_switch_account_in_call">ඇමතුමක් ඇත්නම් ගිණුම් අතර මාරු වීමට නොහැකිය</string>
     <string name="deeplink_authorization_needed">මෙම ක්‍රියාව සිදු කිරීමට ඔබ පුරනය විය යුතුය.</string>
     <string name="custom_backend_dialog_title">පරිශ්‍රයක සේවාදායකයකට හරවා යවන්නද?</string>

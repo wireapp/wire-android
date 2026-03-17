@@ -276,6 +276,7 @@
     <string name="url_learn_about_search" translatable="false">https://support.wire.com/hc/articles/203121850</string>
     <string name="url_legal_hold_learn_more" translatable="false">https://support.wire.com/hc/articles/360002018278</string>
     <string name="url_message_details_offline_backends_learn_more" translatable="false">https://support.wire.com/hc/articles/9357718008093</string>
+    <string name="url_mls_learn_more" translatable="false">https://support.wire.com/hc/en-us/articles/12434725011485-Messaging-Layer-Security-MLS</string>
     <string name="url_message_details_reactions_learn_more" translatable="false">https://support.wire.com/hc/articles/212053645</string>
     <string name="url_message_details_read_receipts_learn_more" translatable="false">https://support.wire.com/hc/articles/360000665277</string>
     <string name="url_self_client_fingerprint_learn_more" translatable="false">https://support.wire.com/hc/articles/207692235</string>
@@ -872,6 +873,10 @@
     <plurals name="label_system_message_conversation_failed_add_members_details_unknown">
         <item quantity="one">%1$s could not be added to the conversation.</item>
         <item quantity="other">%1$s could not be added to the conversation.</item>
+    </plurals>
+    <plurals name="label_system_message_conversation_failed_add_members_details_missing_key_packages">
+        <item quantity="one">%1$s could not be added to the conversation. They may not have an MLS-capable client.</item>
+        <item quantity="other">%1$s could not be added to the conversation. They may not have MLS-capable clients.</item>
     </plurals>
     <string name="label_system_message_conversation_degraded_mls">This conversation is no longer verified, as at least one participant started using a new device or has an invalid certificate.</string>
     <string name="label_system_message_conversation_degraded_proteus">This conversation is no longer verified, as at least one participant started using a new device or has an invalid certificate.</string>

@@ -303,9 +303,7 @@ class NewLoginViewModel(
             )
         }
 
-    fun handleSSOResult(
-        ssoLoginResult: DeepLinkResult.SSOLogin,
-    ) {
+    fun handleSSOResult(ssoLoginResult: DeepLinkResult.SSOLogin) {
         updateLoginFlowState(NewLoginFlowState.Loading)
         when (ssoLoginResult) {
             is DeepLinkResult.SSOLogin.Success -> {
@@ -325,7 +323,6 @@ class NewLoginViewModel(
                                 appLogger.i("$TAG Nomad not enabled, proceeding with regular login")
                                 registerClientAndUpdateState(storedUserId, setLastDeviceId = false)
                             } else {
-                                appLogger.i("$TAG Nomad enabled, attempting crypto state restore")
                                 when (
                                     withContext(dispatchers.io()) {
                                         coreLogic.getSessionScope(storedUserId).backup.restoreCryptoState()
@@ -340,11 +337,9 @@ class NewLoginViewModel(
                                             updateLoginFlowState(NewLoginFlowState.Default)
                                         }
                                     }
-
                                     is RestoreCryptoStateResult.NoBackupAvailable -> {
                                         registerClientAndUpdateState(storedUserId, setLastDeviceId = true)
                                     }
-
                                     is RestoreCryptoStateResult.Failure -> {
                                         appLogger.e("$TAG Failed to restore crypto state during SSO login")
                                         revertSSOSession(storedUserId)
@@ -362,7 +357,6 @@ class NewLoginViewModel(
                     )
                 }
             }
-
             is DeepLinkResult.SSOLogin.Failure -> {
                 updateLoginFlowState(NewLoginFlowState.Error.DialogError.SSOResultFailure(ssoLoginResult.ssoError))
             }

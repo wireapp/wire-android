@@ -50,6 +50,7 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthenticationScope
 import com.wire.kalium.logic.feature.auth.DomainLookupUseCase
+import com.wire.kalium.logic.feature.auth.IsNomadProfilesEnabledUseCase
 import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginResult
@@ -248,7 +249,8 @@ class LoginSSOViewModel(
                 onSuccess = { storedUserId ->
                     appLogger.i("$TAG SSO session established successfully for userId: $storedUserId, checking Nomad status")
                     val isNomadEnabled = withContext(dispatchers.io()) {
-                        coreLogic.getGlobalScope().doesValidNomadAccountExist()
+                        val result = coreLogic.getSessionScope(storedUserId).authenticationScope.isNomadProfilesEnabled()
+                        result is IsNomadProfilesEnabledUseCase.Result.Success && result.isEnabled
                     }
                     if (!isNomadEnabled) {
                         appLogger.i("$TAG Nomad not enabled, proceeding with regular login")
@@ -261,9 +263,11 @@ class LoginSSOViewModel(
                             is RestoreCryptoStateResult.Success -> {
                                 updateSSOFlowState(LoginState.Success(isInitialSyncCompleted(storedUserId), false))
                             }
+
                             is RestoreCryptoStateResult.NoBackupAvailable -> {
                                 registerClientAndUpdateState(storedUserId, setLastDeviceId = true)
                             }
+
                             is RestoreCryptoStateResult.Failure -> {
                                 appLogger.e("$TAG Failed to restore crypto state during SSO login")
                                 revertSSOSession(storedUserId)
@@ -309,10 +313,13 @@ class LoginSSOViewModel(
                     }
                     updateSSOFlowState(LoginState.Success(isInitialSyncCompleted(userId), false))
                 }
+
                 is RegisterClientResult.E2EICertificateRequired ->
                     updateSSOFlowState(LoginState.Success(isInitialSyncCompleted(userId), true))
+
                 is RegisterClientResult.Failure.TooManyClients ->
                     updateSSOFlowState(LoginState.Error.TooManyDevicesError)
+
                 is RegisterClientResult.Failure -> {
                     revertSSOSession(userId)
                     updateSSOFlowState(it.toLoginError())

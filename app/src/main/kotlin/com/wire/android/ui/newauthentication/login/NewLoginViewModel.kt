@@ -49,15 +49,16 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
+import com.wire.kalium.logic.data.logout.LogoutReason
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.EnterpriseLoginResult
+import com.wire.kalium.logic.feature.auth.IsNomadProfilesEnabledUseCase
 import com.wire.kalium.logic.feature.auth.LoginRedirectPath
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.auth.sso.FetchSSOSettingsUseCase
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginResult
 import com.wire.kalium.logic.feature.auth.sso.SSOLoginSessionResult
-import com.wire.kalium.logic.data.logout.LogoutReason
-import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.backup.RestoreCryptoStateResult
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -318,7 +319,8 @@ class NewLoginViewModel(
                         onSSOLoginFailure = { updateLoginFlowState(it.toLoginError()) },
                         onAddAuthenticatedUserFailure = { updateLoginFlowState(it.toLoginError()) },
                         onSuccess = { storedUserId ->
-                            val isNomadEnabled = coreLogic.getGlobalScope().doesValidNomadAccountExist()
+                            val result = coreLogic.getSessionScope(storedUserId).authenticationScope.isNomadProfilesEnabled()
+                            val isNomadEnabled = result is IsNomadProfilesEnabledUseCase.Result.Success && result.isEnabled
                             if (!isNomadEnabled) {
                                 appLogger.i("$TAG Nomad not enabled, proceeding with regular login")
                                 registerClientAndUpdateState(storedUserId, setLastDeviceId = false)
@@ -334,9 +336,11 @@ class NewLoginViewModel(
                                             updateLoginFlowState(NewLoginFlowState.Default)
                                         }
                                     }
+
                                     is RestoreCryptoStateResult.NoBackupAvailable -> {
                                         registerClientAndUpdateState(storedUserId, setLastDeviceId = true)
                                     }
+
                                     is RestoreCryptoStateResult.Failure -> {
                                         appLogger.e("$TAG Failed to restore crypto state during SSO login")
                                         revertSSOSession(storedUserId)
@@ -375,16 +379,20 @@ class NewLoginViewModel(
                         }
                         updateLoginFlowState(NewLoginFlowState.Default)
                     }
+
                     is RegisterClientResult.E2EICertificateRequired -> {
                         sendAction(NewLoginAction.Success(NewLoginAction.Success.NextStep.E2EIEnrollment))
                         updateLoginFlowState(NewLoginFlowState.Default)
                     }
+
                     is RegisterClientResult.Failure.TooManyClients -> {
                         sendAction(NewLoginAction.Success(NewLoginAction.Success.NextStep.TooManyDevices))
                         updateLoginFlowState(NewLoginFlowState.Default)
                     }
+
                     is RegisterClientResult.Failure.Generic ->
                         updateLoginFlowState(NewLoginFlowState.Error.DialogError.GenericError(result.genericFailure))
+
                     is RegisterClientResult.Failure.InvalidCredentials,
                     is RegisterClientResult.Failure.PasswordAuthRequired -> { // for SSO login these should not happen
                         val failure = CoreFailure.Unknown(IllegalStateException(result::class.simpleName ?: "Unknown"))

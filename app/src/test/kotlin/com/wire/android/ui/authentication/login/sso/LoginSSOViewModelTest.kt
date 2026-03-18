@@ -48,10 +48,13 @@ import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.CommonApiVersionType
 import com.wire.kalium.logic.configuration.server.ServerConfig
+import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthenticationScope
 import com.wire.kalium.logic.feature.auth.DomainLookupUseCase
+import com.wire.kalium.logic.feature.auth.IsNomadProfilesEnabledUseCase
+import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.auth.sso.FetchSSOSettingsUseCase
@@ -59,17 +62,14 @@ import com.wire.kalium.logic.feature.auth.sso.GetSSOLoginSessionUseCase
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginResult
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginUseCase
 import com.wire.kalium.logic.feature.auth.sso.SSOLoginSessionResult
-import com.wire.kalium.logic.feature.client.ClientScope
-import com.wire.kalium.logic.feature.client.GetOrRegisterClientUseCase
-import com.wire.kalium.logic.data.logout.LogoutReason
-import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.backup.RestoreCryptoStateResult
 import com.wire.kalium.logic.feature.backup.RestoreCryptoStateUseCase
 import com.wire.kalium.logic.feature.backup.SetLastDeviceIdResult
 import com.wire.kalium.logic.feature.backup.SetLastDeviceIdUseCase
+import com.wire.kalium.logic.feature.client.ClientScope
+import com.wire.kalium.logic.feature.client.GetOrRegisterClientUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.session.DeleteSessionUseCase
-import com.wire.kalium.logic.feature.session.DoesValidNomadAccountExistUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -914,7 +914,7 @@ class LoginSSOViewModelTest {
         lateinit var ssoExtension: LoginSSOViewModelExtension
 
         @MockK
-        lateinit var doesValidNomadAccountExistUseCase: DoesValidNomadAccountExistUseCase
+        lateinit var isNomadProfilesEnabledUseCase: IsNomadProfilesEnabledUseCase
 
         @MockK
         lateinit var restoreCryptoStateUseCase: RestoreCryptoStateUseCase
@@ -948,8 +948,8 @@ class LoginSSOViewModelTest {
             every { authenticationScope.ssoLoginScope.getLoginSession } returns getSSOLoginSessionUseCase
             every { coreLogic.versionedAuthenticationScope(any()) } returns autoVersionAuthScopeUseCase
             every { authenticationScope.ssoLoginScope.fetchSSOSettings } returns fetchSSOSettings
-            every { coreLogic.getGlobalScope().doesValidNomadAccountExist } returns doesValidNomadAccountExistUseCase
-            coEvery { doesValidNomadAccountExistUseCase() } returns false
+            every { coreLogic.getSessionScope(any()).authenticationScope.isNomadProfilesEnabled } returns isNomadProfilesEnabledUseCase
+            coEvery { isNomadProfilesEnabledUseCase() } returns IsNomadProfilesEnabledUseCase.Result.Success(false)
             every { coreLogic.getGlobalScope().deleteSession } returns deleteSessionUseCase
             every { coreLogic.getSessionScope(any()).logout } returns logoutUseCase
             withFetchSSOSettings()
@@ -1011,7 +1011,7 @@ class LoginSSOViewModelTest {
         }
 
         fun withNomadEnabled(enabled: Boolean) = apply {
-            coEvery { doesValidNomadAccountExistUseCase() } returns enabled
+            coEvery { isNomadProfilesEnabledUseCase() } returns IsNomadProfilesEnabledUseCase.Result.Success(enabled)
         }
 
         fun withRestoreCryptoStateReturning(result: RestoreCryptoStateResult) = apply {

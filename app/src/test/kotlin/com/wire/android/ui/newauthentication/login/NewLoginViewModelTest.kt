@@ -3,6 +3,7 @@ package com.wire.android.ui.newauthentication.login
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
+import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.SnapshotExtension
@@ -18,7 +19,6 @@ import com.wire.android.ui.authentication.login.PreFilledUserIdentifierType
 import com.wire.android.ui.authentication.login.SSOCodeAutoLogin
 import com.wire.android.ui.authentication.login.sso.LoginSSOViewModelExtension
 import com.wire.android.ui.authentication.login.sso.SSOUrlConfig
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.ui.newauthentication.login.ValidateEmailOrSSOCodeUseCase.Result.ValidEmail
 import com.wire.android.util.EMPTY
 import com.wire.android.util.deeplink.DeepLinkResult
@@ -27,25 +27,25 @@ import com.wire.android.util.newServerConfig
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
+import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthenticationScope
 import com.wire.kalium.logic.feature.auth.EnterpriseLoginResult
+import com.wire.kalium.logic.feature.auth.IsNomadProfilesEnabledUseCase
 import com.wire.kalium.logic.feature.auth.LoginRedirectPath
+import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.auth.sso.FetchSSOSettingsUseCase
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginResult
 import com.wire.kalium.logic.feature.auth.sso.SSOLoginSessionResult
 import com.wire.kalium.logic.feature.auth.sso.ValidateSSOCodeUseCase.Companion.SSO_CODE_WIRE_PREFIX
-import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.backup.RestoreCryptoStateResult
 import com.wire.kalium.logic.feature.backup.RestoreCryptoStateUseCase
 import com.wire.kalium.logic.feature.backup.SetLastDeviceIdResult
 import com.wire.kalium.logic.feature.backup.SetLastDeviceIdUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.session.DeleteSessionUseCase
-import com.wire.kalium.logic.feature.session.DoesValidNomadAccountExistUseCase
-import com.wire.kalium.logic.data.logout.LogoutReason
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -638,7 +638,7 @@ class NewLoginViewModelTest {
         val validateEmailOrSSOCodeUseCase: ValidateEmailOrSSOCodeUseCase = mockk()
 
         @MockK
-        lateinit var doesValidNomadAccountExistUseCase: DoesValidNomadAccountExistUseCase
+        lateinit var isNomadProfilesEnabledUseCase: IsNomadProfilesEnabledUseCase
 
         @MockK
         lateinit var restoreCryptoStateUseCase: RestoreCryptoStateUseCase
@@ -663,8 +663,8 @@ class NewLoginViewModelTest {
             every {
                 savedStateHandle.navArgs<LoginNavArgs>()
             } returns LoginNavArgs()
-            every { coreLogic.getGlobalScope().doesValidNomadAccountExist } returns doesValidNomadAccountExistUseCase
-            coEvery { doesValidNomadAccountExistUseCase() } returns false
+            every { coreLogic.getSessionScope(any()).authenticationScope.isNomadProfilesEnabled } returns isNomadProfilesEnabledUseCase
+            coEvery { isNomadProfilesEnabledUseCase() } returns IsNomadProfilesEnabledUseCase.Result.Success(false)
             every { coreLogic.getGlobalScope().deleteSession } returns deleteSessionUseCase
             every { coreLogic.getSessionScope(any()).logout } returns logoutUseCase
         }
@@ -853,7 +853,7 @@ class NewLoginViewModelTest {
         }
 
         fun withNomadEnabled(enabled: Boolean) = apply {
-            coEvery { doesValidNomadAccountExistUseCase() } returns enabled
+            coEvery { isNomadProfilesEnabledUseCase() } returns IsNomadProfilesEnabledUseCase.Result.Success(enabled)
         }
 
         fun withRestoreCryptoStateReturning(result: RestoreCryptoStateResult) = apply {

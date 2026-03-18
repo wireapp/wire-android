@@ -89,7 +89,7 @@ lint-compose = "1.4.2"
 openIdAppAuth = "0.11.1"
 
 # Other Tools
-aboutLibraries = "13.0.0"
+aboutLibraries = "14.0.0-b03"
 cyclonedx = "3.1.0"
 leakCanary = "2.14"
 ksp = "2.3.4"
@@ -129,7 +129,7 @@ android-application = { id = "com.android.application", version.ref = "android-g
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-aboutLibraries = { id = "com.mikepenz.aboutlibraries.plugin", version.ref = "aboutLibraries" }
+aboutLibraries = { id = "com.mikepenz.aboutlibraries.plugin.android", version.ref = "aboutLibraries" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 screenshot = { id = "com.android.compose.screenshot", version.ref = "screenshot"}
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }

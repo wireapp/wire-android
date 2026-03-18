@@ -18,7 +18,6 @@
 package com.wire.android.util.lifecycle
 
 import android.content.Intent
-import com.wire.android.config.NomadProfilesFeatureConfig
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -191,44 +190,36 @@ class IntentsProcessorTest {
     }
 
     @Test
-    fun `given nomad profiles feature disabled, skips the whole intent`() {
+    fun `given valid signed intent, returns AutomatedLoginViaSSO`() {
         val (arrangement, intentsProcessor) = Arrangement()
-            .withNomadProfilesFeatureEnabled(false)
             .withAutomatedLoginExtra(
                 automatedLoginJson(
                     "backendConfig" to FAKE_BACKEND_CONFIG,
                     "ssoCode" to FAKE_SSO_CODE,
                     "nomadProfilesHost" to FAKE_NOMAD_PROFILES_HOST,
-                    "sigNomadProfilesHost" to IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN
+                    "signatureNomadProfilesHost" to IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN
                 )
             )
             .arrange()
-        assertNull(intentsProcessor(arrangement.intent))
+        assertEquals(
+            AutomatedLoginViaSSO(
+                backendConfig = FAKE_BACKEND_CONFIG,
+                ssoCode = FAKE_SSO_CODE,
+                nomadProfilesHost = FAKE_NOMAD_PROFILES_HOST
+            ),
+            intentsProcessor(arrangement.intent)
+        )
     }
 
     @Test
-    fun `given invalid nomadProfilesHost and feature disabled, skips the whole intent`() {
+    fun `given invalid signature, returns null before processing the rest of the intent`() {
         val (arrangement, intentsProcessor) = Arrangement()
-            .withNomadProfilesFeatureEnabled(false)
             .withAutomatedLoginExtra(
                 automatedLoginJson(
                     "backendConfig" to FAKE_BACKEND_CONFIG,
                     "ssoCode" to FAKE_SSO_CODE,
-                    "nomadProfilesHost" to "not a url"
-                )
-            )
-            .arrange()
-        assertNull(intentsProcessor(arrangement.intent))
-    }
-
-    @Test
-    fun `given only nomadProfilesHost and feature disabled, returns null`() {
-        val (arrangement, intentsProcessor) = Arrangement()
-            .withNomadProfilesFeatureEnabled(false)
-            .withAutomatedLoginExtra(
-                automatedLoginJson(
                     "nomadProfilesHost" to FAKE_NOMAD_PROFILES_HOST,
-                    "sigNomadProfilesHost" to IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN
+                    "signatureNomadProfilesHost" to "invalid-signature"
                 )
             )
             .arrange()
@@ -374,18 +365,15 @@ class IntentsProcessorTest {
 
     class Arrangement {
         internal val intent: Intent = mockk()
-        private val nomadProfilesFeatureConfig = mockk<NomadProfilesFeatureConfig>()
         private var configurationSignatureKeys: List<String>? = null
         private var isConfigurationSignatureEnforced = false
 
         init {
             every { intent.getStringExtra(any()) } returns null
-            every { nomadProfilesFeatureConfig.isEnabled() } returns true
         }
 
         fun arrange() = this to (
             IntentsProcessor(
-                nomadProfilesFeatureConfig = nomadProfilesFeatureConfig,
                 nomadIntentSignatureValidator = NomadIntentSignatureValidator(
                     configurationSignatureKeys = configurationSignatureKeys ?: emptyList(),
                     isConfigurationSignatureEnforced = isConfigurationSignatureEnforced
@@ -395,10 +383,6 @@ class IntentsProcessorTest {
 
         fun withAutomatedLoginExtra(json: String?) = apply {
             every { intent.getStringExtra("automated_login") } returns json
-        }
-
-        fun withNomadProfilesFeatureEnabled(enabled: Boolean) = apply {
-            every { nomadProfilesFeatureConfig.isEnabled() } returns enabled
         }
 
         fun withConfigurationSignatureKey(vararg key: String) = apply {

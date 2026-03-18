@@ -18,7 +18,6 @@
 package com.wire.android.util.lifecycle
 
 import android.content.Intent
-import com.wire.android.config.NomadProfilesFeatureConfig
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import java.net.URI
@@ -37,7 +36,6 @@ data class AutomatedLoginViaSSO(
 
 @Singleton
 class IntentsProcessor @Inject internal constructor(
-    private val nomadProfilesFeatureConfig: NomadProfilesFeatureConfig,
     private val nomadIntentSignatureValidator: NomadIntentSignatureValidator
 ) {
 
@@ -62,7 +60,11 @@ class IntentsProcessor @Inject internal constructor(
                 ?.let { Json.decodeFromString<Parameters>(it) }
         }.getOrNull() ?: return null
 
-        if (!nomadProfilesFeatureConfig.isEnabled() || parsed.nomadProfilesHost.isNullOrEmpty()) {
+        if (parsed.nomadProfilesHost.isNullOrEmpty()) {
+            return null
+        }
+
+        if (!nomadIntentSignatureValidator.isValid(parsed.nomadProfilesHost, parsed.signatureNomadProfilesHost)) {
             return null
         }
 
@@ -79,11 +81,7 @@ class IntentsProcessor @Inject internal constructor(
             ?.takeIf {
                 val validBackend = parsed.backendConfig == null || isValidHttpsUrl(parsed.backendConfig)
                 val validNomadProfileHost = isValidHttpsUrl(parsed.nomadProfilesHost)
-                val validSignature = nomadIntentSignatureValidator.isValid(
-                    parsed.nomadProfilesHost,
-                    parsed.signatureNomadProfilesHost
-                )
-                validBackend && validNomadProfileHost && validSignature
+                validBackend && validNomadProfileHost
             }
     }
 

@@ -1331,6 +1331,9 @@
     </plurals>
     <string name="max_account_reached_dialog_button_open_profile">Открыть профиль</string>
     <!--nomad account blocks login dialog-->
+    <string name="nomad_login_blocked_message">Невозможно авторизоваться, пока активен другой аккаунт</string>
+    <string name="nomad_account_blocks_login_title">Вход заблокирован</string>
+    <string name="nomad_account_blocks_login_message">В данный момент в системе авторизован управляемый профиль. Перед добавлением другого аккаунта необходимо сначала осуществить выход.</string>
     <string name="cant_switch_account_in_call">Невозможно переключать аккаунты во время звонка</string>
     <string name="deeplink_authorization_needed">Для выполнения этого действия необходимо авторизоваться</string>
     <string name="custom_backend_dialog_title">Перенаправить на локальный бэкэнд?</string>

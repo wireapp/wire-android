@@ -20,7 +20,6 @@
 
 package com.wire.android.ui.newauthentication.login
 
-import com.wire.android.navigation.annotation.app.WireNewLoginDestination
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -29,6 +28,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -48,10 +48,19 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ramcosta.composedestinations.generated.app.destinations.E2EIEnrollmentScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.HomeScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.InitialSyncScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.LoginScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.NewLoginPasswordScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.NewLoginScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.RemoveDeviceScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.WelcomeScreenDestination
 import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.annotation.app.WireNewLoginDestination
 import com.wire.android.navigation.style.AuthPopUpNavigationAnimation
 import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.authentication.login.LoginErrorDialog
@@ -59,8 +68,8 @@ import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.LoginPasswordPath
 import com.wire.android.ui.authentication.login.PreFilledUserIdentifierType
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
-import com.wire.android.ui.authentication.login.sso.SSOUrlConfigHolder
 import com.wire.android.ui.authentication.login.toLoginDialogErrorData
+import com.ramcosta.composedestinations.spec.Direction
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
@@ -74,14 +83,6 @@ import com.wire.android.ui.common.textfield.WireAutoFillType
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.typography
-import com.ramcosta.composedestinations.generated.app.destinations.E2EIEnrollmentScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.HomeScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.InitialSyncScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.LoginScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.NewLoginPasswordScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.NewLoginScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.RemoveDeviceScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.WelcomeScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -96,7 +97,6 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 fun NewLoginScreen(
     navigator: Navigator,
     navArgs: LoginNavArgs,
-    ssoUrlConfigHolder: SSOUrlConfigHolder,
     viewModel: NewLoginViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
@@ -121,18 +121,11 @@ fun NewLoginScreen(
 
             is NewLoginAction.SSO -> {
                 currentKeyboardController?.hide()
-                ssoUrlConfigHolder.set(newLoginAction.config)
                 CustomTabsHelper.launchUrl(context, newLoginAction.url)
             }
 
             is NewLoginAction.Success -> {
-                val destination = when (newLoginAction.nextStep) {
-                    NewLoginAction.Success.NextStep.None -> HomeScreenDestination
-                    NewLoginAction.Success.NextStep.E2EIEnrollment -> E2EIEnrollmentScreenDestination
-                    NewLoginAction.Success.NextStep.InitialSync -> InitialSyncScreenDestination
-                    NewLoginAction.Success.NextStep.TooManyDevices -> RemoveDeviceScreenDestination
-                }
-                navigator.navigate(NavigationCommand(destination, BackStackMode.CLEAR_WHOLE))
+                navigator.navigate(NavigationCommand(newLoginAction.nextStep.toDestination(), BackStackMode.CLEAR_WHOLE))
             }
 
             is NewLoginAction.EnterpriseLoginNotSupported -> {
@@ -148,7 +141,22 @@ fun NewLoginScreen(
 
     LaunchedEffect(navArgs.ssoLoginResult) {
         if (navArgs.ssoLoginResult != null) {
-            viewModel.handleSSOResult(navArgs.ssoLoginResult, ssoUrlConfigHolder.get())
+            viewModel.handleSSOResult(
+                navArgs.ssoLoginResult,
+            )
+        }
+    }
+
+    // Handle SSO code auto-login from intent parameter
+    LaunchedEffect(navArgs.ssoCodeAutoLogin) {
+        navArgs.ssoCodeAutoLogin?.let {
+            // Pre-fill the SSO code in the user identifier field
+            viewModel.userIdentifierTextState.setTextAndPlaceCursorAtEnd(it.ssoCode)
+
+            // Auto-initiate login if flag is set
+            if (it.autoInitiateLogin) {
+                viewModel.onLoginStarted()
+            }
         }
     }
     (viewModel.state.flowState as? NewLoginFlowState.CustomConfigDialog)?.let { customServerDialogState ->
@@ -175,6 +183,13 @@ fun NewLoginScreen(
     )
 
     HandleActions(viewModel.actions, handleNewLoginAction)
+}
+
+private fun NewLoginAction.Success.NextStep.toDestination(): Direction = when (this) {
+    NewLoginAction.Success.NextStep.None -> HomeScreenDestination
+    NewLoginAction.Success.NextStep.E2EIEnrollment -> E2EIEnrollmentScreenDestination
+    NewLoginAction.Success.NextStep.InitialSync -> InitialSyncScreenDestination
+    NewLoginAction.Success.NextStep.TooManyDevices -> RemoveDeviceScreenDestination
 }
 
 @OptIn(ExperimentalComposeUiApi::class)

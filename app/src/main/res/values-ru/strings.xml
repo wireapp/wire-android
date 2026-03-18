@@ -1127,6 +1127,23 @@
     <string name="calling_confirm_start_call_title_dialog">Начать звонок</string>
     <string name="calling_confirm_start_call_description_dialog">Вы действительно хотите позвонить %1$s пользователям?</string>
     <string name="calling_confirm_start_call_action_dialog">Позвонить</string>
+    <string name="calling_details_security_banner_label">Звонки всегда зашифрованы сквозным шифрованием</string>
+    <string name="calling_details_network_quality_title">Качество сети</string>
+    <string name="calling_details_network_quality_good">Хорошее</string>
+    <string name="calling_details_network_quality_fair">Приемлемое</string>
+    <string name="calling_details_network_quality_poor">Плохое</string>
+    <string name="calling_details_turn_off_other_videos_title">Отключить другие видео</string>
+    <string name="calling_details_turn_off_other_videos_description">Это улучшит качество звука при плохом качестве сети.</string>
+    <string name="calling_details_network_quality_peer">Пир</string>
+    <string name="calling_details_network_quality_peer_user">Пользователь</string>
+    <string name="calling_details_network_quality_peer_server">Сервер</string>
+    <string name="calling_details_network_quality_connection">Подключение</string>
+    <string name="calling_details_network_quality_connection_relay">Релей</string>
+    <string name="calling_details_network_quality_packet_loss">Потеря пакетов</string>
+    <string name="calling_details_network_quality_ping">Пинг</string>
+    <string name="calling_details_network_quality_jitter">Джиттер</string>
+    <string name="calling_details_network_quality_value_milliseconds">%1$d мс</string>
+    <string name="calling_details_network_quality_learn_more">Подробнее о качестве</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Вернуться к вызову</string>
     <string name="connectivity_status_bar_return_to_incoming_call">%1$s вызывает…</string>
@@ -1313,6 +1330,7 @@
         <item quantity="other">Одновременно можно авторизоваться только в %1$d аккаунтах. Выйдите, чтобы добавить другой.</item>
     </plurals>
     <string name="max_account_reached_dialog_button_open_profile">Открыть профиль</string>
+    <!--nomad account blocks login dialog-->
     <string name="cant_switch_account_in_call">Невозможно переключать аккаунты во время звонка</string>
     <string name="deeplink_authorization_needed">Для выполнения этого действия необходимо авторизоваться</string>
     <string name="custom_backend_dialog_title">Перенаправить на локальный бэкэнд?</string>
@@ -1901,8 +1919,6 @@
     <string name="enable_wire_cell_switch_description">Разрешить участникам управлять своими документами и медиа файлами в общем диске. Это действие не может быть отменено.</string>
     <string name="failed_attachment_retry_upload">Повторить загрузку</string>
     <string name="failed_attachment_remove">Удалить</string>
-    <string name="content_description_apply_filter">Применить фильтр</string>
-    <string name="content_description_filter_files">Фильтр файлов</string>
     <string name="profile_deeplink_feature_unavailable_title_alert">Эта функция недоступна. Пожалуйста, свяжитесь со своим администратором.</string>
     <string name="conversation_options_shared_drive_label">Общий диск</string>
     <string name="conversation_options_shared_drive_description">Постоянно для этой беседы.</string>

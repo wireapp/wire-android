@@ -28,6 +28,7 @@ import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.authentication.login.PreFilledUserIdentifierType
+import com.wire.android.ui.authentication.login.SSOCodeAutoLogin
 import com.wire.android.ui.common.HandleActions
 import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.HomeScreenDestination
@@ -35,6 +36,8 @@ import com.ramcosta.composedestinations.generated.app.destinations.ImportMediaSc
 import com.ramcosta.composedestinations.generated.app.destinations.LoginScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.NewLoginScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.OtherUserProfileScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.WelcomeScreenDestination
+import com.wire.android.ui.authentication.login.LoginPasswordPath
 import kotlinx.coroutines.flow.Flow
 
 @Composable
@@ -45,6 +48,8 @@ internal fun HandleViewActions(actions: Flow<WireActivityViewAction>, navigator:
         when (action) {
             is OnAuthorizationNeeded -> onAuthorizationNeeded(context, navigator)
             is OnMigrationLogin -> onMigration(navigator, loginTypeSelector, action)
+            is OnAutomaticLogin -> onAutomaticLogin(navigator, action)
+            is OnCustomBackendLogin -> onCustomBackendLogin(navigator, action)
             is OnOpenUserProfile -> openUserProfile(action, navigator)
             is OnSSOLogin -> openSsoLogin(navigator, action)
             is OnShowImportMediaScreen -> openImportMediaScreen(navigator)
@@ -90,9 +95,16 @@ private fun openSsoLogin(navigator: Navigator, action: OnSSOLogin) {
         NavigationCommand(
             when (navigator.navController.currentBackStackEntry?.destination()?.baseRoute) {
                 // if SSO login started from new login screen then go back to the new login flow
-                NewLoginScreenDestination.baseRoute -> NewLoginScreenDestination(
-                    ssoLoginResult = action.result
-                )
+                NewLoginScreenDestination.baseRoute -> {
+                    val existingLoginPasswordPath = navigator.navController.currentBackStackEntry
+                        ?.savedStateHandle
+                        ?.let { NewLoginScreenDestination.argsFrom(it) }
+                        ?.loginPasswordPath
+                    NewLoginScreenDestination(
+                        ssoLoginResult = action.result,
+                        loginPasswordPath = existingLoginPasswordPath,
+                    )
+                }
 
                 else -> LoginScreenDestination(
                     ssoLoginResult = action.result
@@ -141,6 +153,67 @@ private fun onMigration(
                 true -> BackStackMode.CLEAR_WHOLE
                 false -> BackStackMode.UPDATE_EXISTED
             },
+        )
+    )
+}
+
+private fun onAutomaticLogin(
+    navigator: Navigator,
+    action: OnAutomaticLogin
+) {
+    // Auto-apply backend config AND navigate with SSO code pre-filled
+    val serverLinks = action.serverLinks
+    val ssoCode = action.ssoCode
+    val ssoCodeAutoLogin = ssoCode?.let {
+        SSOCodeAutoLogin(
+            ssoCode = it,
+            autoInitiateLogin = true,
+            nomadServiceUrl = action.nomadServiceUrl,
+            cookieLabel = action.cookieLabel,
+        )
+    }
+    val destination = when (action.useNewLogin) {
+        true -> {
+            NewLoginScreenDestination(
+                loginPasswordPath = LoginPasswordPath(serverLinks),
+                ssoCodeAutoLogin = ssoCodeAutoLogin
+            )
+        }
+        false -> {
+            LoginScreenDestination(
+                loginPasswordPath = LoginPasswordPath(serverLinks),
+                ssoCodeAutoLogin = ssoCodeAutoLogin
+            )
+        }
+    }
+
+    navigator.navigate(
+        NavigationCommand(
+            destination = destination,
+            backStackMode = when (navigator.shouldReplaceWelcomeLoginStartDestination()) {
+                true -> BackStackMode.CLEAR_WHOLE
+                else -> BackStackMode.UPDATE_EXISTED
+            }
+        )
+    )
+}
+
+private fun onCustomBackendLogin(
+    navigator: Navigator,
+    action: OnCustomBackendLogin
+) {
+    val destination = when (action.useNewLogin) {
+        true -> NewLoginScreenDestination(loginPasswordPath = LoginPasswordPath(action.serverLinks))
+        false -> WelcomeScreenDestination(customServerConfig = action.serverLinks)
+    }
+
+    navigator.navigate(
+        NavigationCommand(
+            destination = destination,
+            backStackMode = when (navigator.shouldReplaceWelcomeLoginStartDestination()) {
+                true -> BackStackMode.CLEAR_WHOLE
+                else -> BackStackMode.UPDATE_EXISTED
+            }
         )
     )
 }

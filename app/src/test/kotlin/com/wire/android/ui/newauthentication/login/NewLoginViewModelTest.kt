@@ -15,6 +15,7 @@ import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.LoginPasswordPath
 import com.wire.android.ui.authentication.login.LoginViewModelExtension
 import com.wire.android.ui.authentication.login.PreFilledUserIdentifierType
+import com.wire.android.ui.authentication.login.SSOCodeAutoLogin
 import com.wire.android.ui.authentication.login.sso.LoginSSOViewModelExtension
 import com.wire.android.ui.authentication.login.sso.SSOUrlConfig
 import com.ramcosta.composedestinations.generated.app.navArgs
@@ -67,7 +68,7 @@ class NewLoginViewModelTest {
         advanceUntilIdle()
 
         coVerify(exactly = 1) {
-            arrangement.loginSSOViewModelExtension.initiateSSO(any(), any(), any(), any(), any())
+            arrangement.loginSSOViewModelExtension.initiateSSO(any(), any(), any(), any(), any(), any())
         }
         coVerify(exactly = 0) {
             arrangement.authenticationScope.getLoginFlowForDomainUseCase(any())
@@ -86,7 +87,7 @@ class NewLoginViewModelTest {
         advanceUntilIdle()
 
         coVerify(exactly = 0) {
-            arrangement.loginSSOViewModelExtension.initiateSSO(any(), any(), any(), any(), any())
+            arrangement.loginSSOViewModelExtension.initiateSSO(any(), any(), any(), any(), any(), any())
         }
         coVerify(exactly = 1) {
             arrangement.authenticationScope.getLoginFlowForDomainUseCase(any())
@@ -106,7 +107,7 @@ class NewLoginViewModelTest {
             expectNoEvents()
 
             coVerify(exactly = 0) {
-                arrangement.loginSSOViewModelExtension.initiateSSO(any(), any(), any(), any(), any())
+                arrangement.loginSSOViewModelExtension.initiateSSO(any(), any(), any(), any(), any(), any())
             }
             coVerify(exactly = 0) {
                 arrangement.authenticationScope.getLoginFlowForDomainUseCase(any())
@@ -118,18 +119,43 @@ class NewLoginViewModelTest {
     @Test
     fun `given success, when initiating SSO, then call SSO action with url`() = runTest(dispatchers.main()) {
         val redirectUrl = "https://redirect.url"
-        val config = SSOUrlConfig(newServerConfig(1).links, SSO_CODE_WITH_PREFIX)
+        val serverConfig = newServerConfig(1).links
+        val config = SSOUrlConfig(SSO_CODE_WITH_PREFIX)
         val (arrangement, viewModel) = Arrangement()
             .withEmailOrSSOCodeValidatorReturning(ValidateEmailOrSSOCodeUseCase.Result.ValidSSOCode)
-            .withInitiateSSOSuccess(redirectUrl, config.serverConfig)
+            .withInitiateSSOSuccess(redirectUrl)
             .arrange()
         viewModel.userIdentifierTextState.setTextAndPlaceCursorAtEnd(config.userIdentifier)
 
         viewModel.actions.test {
-            viewModel.initiateSSO(config.serverConfig, config.userIdentifier)
+            viewModel.initiateSSO(serverConfig, config.userIdentifier)
             advanceUntilIdle()
 
             assertEquals(NewLoginAction.SSO(redirectUrl, config), expectMostRecentItem())
+        }
+    }
+
+    @Test
+    fun `given automated nomad flow, when initiating SSO, then shared-device cookie label is passed`() = runTest(dispatchers.main()) {
+        val serverConfig = newServerConfig(1).links
+        val ssoCode = SSO_CODE_WITH_PREFIX
+        val (arrangement, viewModel) = Arrangement()
+            .withNomadAutoLogin("https://nomad.example.com/service")
+            .withInitiateSSOSuccess("https://redirect.url")
+            .arrange()
+
+        viewModel.initiateSSO(serverConfig, ssoCode)
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) {
+            arrangement.loginSSOViewModelExtension.initiateSSO(
+                eq(serverConfig),
+                eq(ssoCode),
+                eq("shared-device"),
+                any(),
+                any(),
+                any()
+            )
         }
     }
 
@@ -181,7 +207,7 @@ class NewLoginViewModelTest {
 
             expectNoEvents()
             coVerify(exactly = 1) {
-                arrangement.loginSSOViewModelExtension.initiateSSO(serverConfig, ssoCode, any(), any(), any())
+                arrangement.loginSSOViewModelExtension.initiateSSO(serverConfig, ssoCode, any(), any(), any(), any())
             }
         }
     }
@@ -201,7 +227,7 @@ class NewLoginViewModelTest {
                 assertEquals(serverConfig, it.customServerConfig)
             }
             coVerify(exactly = 0) {
-                arrangement.loginSSOViewModelExtension.initiateSSO(serverConfig, any(), any(), any(), any())
+                arrangement.loginSSOViewModelExtension.initiateSSO(serverConfig, any(), any(), any(), any(), any())
             }
         }
     }
@@ -242,7 +268,6 @@ class NewLoginViewModelTest {
     @Test
     fun `given SSO session established, when handling SSO result, then register client`() = runTest(dispatchers.main()) {
         val ssoDeepLinkResult = DeepLinkResult.SSOLogin.Success("cookie", "server-config-id")
-        val config = SSOUrlConfig(newServerConfig(1).links, SSO_CODE_WITH_PREFIX)
         val userId = UserId("user-id", "domain")
         val (arrangement, viewModel) = Arrangement()
             .withEstablishSSOSessionSuccess(userId)
@@ -250,7 +275,7 @@ class NewLoginViewModelTest {
             .withIsInitialSyncCompletedReturning(true)
             .arrange()
 
-        viewModel.handleSSOResult(ssoDeepLinkResult, config)
+        viewModel.handleSSOResult(ssoDeepLinkResult)
         advanceUntilIdle()
 
         coVerify(exactly = 1) {
@@ -261,13 +286,12 @@ class NewLoginViewModelTest {
     @Test
     fun `given auth scope failure, when handling SSO result, then update error state`() = runTest(dispatchers.main()) {
         val ssoDeepLinkResult = DeepLinkResult.SSOLogin.Success("cookie", "server-config-id")
-        val config = SSOUrlConfig(newServerConfig(1).links, SSO_CODE_WITH_PREFIX)
         val (arrangement, viewModel) = Arrangement()
             .withEstablishSSOSessionAuthScopeFailure(AutoVersionAuthScopeUseCase.Result.Failure.UnknownServerVersion)
             .arrange()
 
         viewModel.actions.test {
-            viewModel.handleSSOResult(ssoDeepLinkResult, config)
+            viewModel.handleSSOResult(ssoDeepLinkResult)
             advanceUntilIdle()
 
             expectNoEvents()
@@ -278,13 +302,12 @@ class NewLoginViewModelTest {
     @Test
     fun `given SSO login failure, when handling SSO result, then update error state`() = runTest(dispatchers.main()) {
         val ssoDeepLinkResult = DeepLinkResult.SSOLogin.Success("cookie", "server-config-id")
-        val config = SSOUrlConfig(newServerConfig(1).links, SSO_CODE_WITH_PREFIX)
         val (arrangement, viewModel) = Arrangement()
             .withEstablishSSOSessionLoginFailure(SSOLoginSessionResult.Failure.InvalidCookie)
             .arrange()
 
         viewModel.actions.test {
-            viewModel.handleSSOResult(ssoDeepLinkResult, config)
+            viewModel.handleSSOResult(ssoDeepLinkResult)
             advanceUntilIdle()
 
             expectNoEvents()
@@ -295,13 +318,12 @@ class NewLoginViewModelTest {
     @Test
     fun `given add user failure, when handling SSO result, then update error state`() = runTest(dispatchers.main()) {
         val ssoDeepLinkResult = DeepLinkResult.SSOLogin.Success("cookie", "server-config-id")
-        val config = SSOUrlConfig(newServerConfig(1).links, SSO_CODE_WITH_PREFIX)
         val (arrangement, viewModel) = Arrangement()
             .withEstablishSSOSessionAddUserFailure(AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists)
             .arrange()
 
         viewModel.actions.test {
-            viewModel.handleSSOResult(ssoDeepLinkResult, config)
+            viewModel.handleSSOResult(ssoDeepLinkResult)
             advanceUntilIdle()
 
             expectNoEvents()
@@ -315,7 +337,6 @@ class NewLoginViewModelTest {
         isInitialSyncCompleted: Boolean = true,
     ) = runTest(dispatchers.main()) {
         val ssoDeepLinkResult = DeepLinkResult.SSOLogin.Success("cookie", "server-config-id")
-        val config = SSOUrlConfig(newServerConfig(1).links, SSO_CODE_WITH_PREFIX)
         val userId = UserId("user-id", "domain")
         val (arrangement, viewModel) = Arrangement()
             .withEstablishSSOSessionSuccess(userId)
@@ -324,7 +345,7 @@ class NewLoginViewModelTest {
             .arrange()
 
         viewModel.actions.test {
-            viewModel.handleSSOResult(ssoDeepLinkResult, config)
+            viewModel.handleSSOResult(ssoDeepLinkResult)
             advanceUntilIdle()
 
             assertEquals(NewLoginAction.Success(expectedNextStep), expectMostRecentItem())
@@ -364,7 +385,6 @@ class NewLoginViewModelTest {
     @Test
     fun `given register client other failure, when handling SSO result, then update error state`() = runTest(dispatchers.main()) {
         val ssoDeepLinkResult = DeepLinkResult.SSOLogin.Success("cookie", "server-config-id")
-        val config = SSOUrlConfig(newServerConfig(1).links, SSO_CODE_WITH_PREFIX)
         val failure = CoreFailure.Unknown(RuntimeException("Error!"))
         val (arrangement, viewModel) = Arrangement()
             .withEstablishSSOSessionSuccess(UserId("user-id", "domain"))
@@ -372,7 +392,7 @@ class NewLoginViewModelTest {
             .arrange()
 
         viewModel.actions.test {
-            viewModel.handleSSOResult(ssoDeepLinkResult, config)
+            viewModel.handleSSOResult(ssoDeepLinkResult)
             advanceUntilIdle()
 
             expectNoEvents()
@@ -380,37 +400,58 @@ class NewLoginViewModelTest {
         }
     }
 
-    private fun testCustomConfigWhenHandlingSSOResult(config: SSOUrlConfig?) = runTest(dispatchers.main()) {
+    private fun testEstablishSSOSessionWhenHandlingSSOResult() = runTest(dispatchers.main()) {
         val ssoDeepLinkResult = DeepLinkResult.SSOLogin.Success("cookie", "server-config-id")
-        val defaultConfig = newServerConfig(1).links
-        val expectedConfig = config?.serverConfig ?: defaultConfig
         val failure = CoreFailure.Unknown(RuntimeException("Error!"))
         val (arrangement, viewModel) = Arrangement()
-            .withNavArgsServerConfig(defaultConfig)
             .withEstablishSSOSessionSuccess(UserId("user-id", "domain"))
             .withRegisterClientReturning(RegisterClientResult.Failure.Generic(failure))
             .arrange()
 
-        viewModel.handleSSOResult(ssoDeepLinkResult, config)
+        viewModel.handleSSOResult(ssoDeepLinkResult)
         advanceUntilIdle()
 
         coVerify {
-            arrangement.loginSSOViewModelExtension.establishSSOSession(any(), any(), expectedConfig, any(), any(), any(), any())
+            arrangement.loginSSOViewModelExtension.establishSSOSession(any(), any(), any(), any(), any(), any(), any(), any())
         }
     }
 
     @Test
-    fun `given custom config passed, when handling SSO result, then use custom config`() =
-        testCustomConfigWhenHandlingSSOResult(SSOUrlConfig(newServerConfig(2).links, SSO_CODE_WITH_PREFIX))
+    fun `given SSO success, when handling SSO result, then establish session using deep link identifiers`() =
+        testEstablishSSOSessionWhenHandlingSSOResult()
 
     @Test
-    fun `given no custom config passed, when handling SSO result, then use default config`() =
-        testCustomConfigWhenHandlingSSOResult(null)
+    fun `given automated nomad login, when handling SSO result twice, then nomad url is consumed once`() = runTest(dispatchers.main()) {
+        val ssoDeepLinkResult = DeepLinkResult.SSOLogin.Success("cookie", "server-config-id")
+        val nomadServiceUrl = "https://nomad.example.com/service"
+        val (arrangement, viewModel) = Arrangement()
+            .withNomadAutoLogin(nomadServiceUrl)
+            .arrange()
+        val consumeNomadServiceUrlProviders = mutableListOf<() -> String?>()
+
+        viewModel.handleSSOResult(ssoDeepLinkResult)
+        viewModel.handleSSOResult(ssoDeepLinkResult)
+        advanceUntilIdle()
+
+        coVerify(exactly = 2) {
+            arrangement.loginSSOViewModelExtension.establishSSOSession(
+                eq("cookie"),
+                eq("server-config-id"),
+                capture(consumeNomadServiceUrlProviders),
+                any(),
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        }
+        assertEquals(nomadServiceUrl, consumeNomadServiceUrlProviders[0]())
+        assertEquals(null, consumeNomadServiceUrlProviders[1]())
+    }
 
     @Test
     fun `given SSO result failure, when handling SSO result, then update error state`() = runTest(dispatchers.main()) {
         val ssoDeepLinkResult = DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.NotFound)
-        val config = SSOUrlConfig(newServerConfig(2).links, SSO_CODE_WITH_PREFIX)
         val failure = CoreFailure.Unknown(RuntimeException("Error!"))
         val (arrangement, viewModel) = Arrangement()
             .withEstablishSSOSessionSuccess(UserId("user-id", "domain"))
@@ -418,7 +459,7 @@ class NewLoginViewModelTest {
             .arrange()
 
         viewModel.actions.test {
-            viewModel.handleSSOResult(ssoDeepLinkResult, config)
+            viewModel.handleSSOResult(ssoDeepLinkResult)
             advanceUntilIdle()
 
             expectNoEvents()
@@ -489,7 +530,7 @@ class NewLoginViewModelTest {
 
             expectNoEvents()
             coVerify(exactly = 1) {
-                arrangement.loginSSOViewModelExtension.initiateSSO(any(), ssoCode, any(), any(), any())
+                arrangement.loginSSOViewModelExtension.initiateSSO(any(), ssoCode, any(), any(), any(), any())
             }
         }
     }
@@ -510,7 +551,7 @@ class NewLoginViewModelTest {
 
                 expectNoEvents()
                 coVerify(exactly = 1) {
-                    arrangement.loginSSOViewModelExtension.initiateSSO(any(), ssoCodeWithPrefix, any(), any(), any())
+                    arrangement.loginSSOViewModelExtension.initiateSSO(any(), ssoCodeWithPrefix, any(), any(), any(), any())
                 }
             }
         }
@@ -649,25 +690,25 @@ class NewLoginViewModelTest {
 
         fun withInitiateSSOAuthScopeFailure(failure: AutoVersionAuthScopeUseCase.Result.Failure) = apply {
             coEvery {
-                loginSSOViewModelExtension.initiateSSO(any(), any(), any(), any(), any())
+                loginSSOViewModelExtension.initiateSSO(any(), any(), any(), any(), any(), any())
             } coAnswers {
-                arg<(AutoVersionAuthScopeUseCase.Result.Failure) -> Unit>(2)(failure)
+                arg<(AutoVersionAuthScopeUseCase.Result.Failure) -> Unit>(3)(failure)
             }
         }
 
         fun withInitiateSSOFailure(failure: SSOInitiateLoginResult.Failure) = apply {
             coEvery {
-                loginSSOViewModelExtension.initiateSSO(any(), any(), any(), any(), any())
+                loginSSOViewModelExtension.initiateSSO(any(), any(), any(), any(), any(), any())
             } coAnswers {
-                arg<(SSOInitiateLoginResult.Failure) -> Unit>(3)(failure)
+                arg<(SSOInitiateLoginResult.Failure) -> Unit>(4)(failure)
             }
         }
 
-        fun withInitiateSSOSuccess(url: String, serverConfig: ServerConfig.Links) = apply {
+        fun withInitiateSSOSuccess(url: String) = apply {
             coEvery {
-                loginSSOViewModelExtension.initiateSSO(any(), any(), any(), any(), any())
+                loginSSOViewModelExtension.initiateSSO(any(), any(), any(), any(), any(), any())
             } coAnswers {
-                arg<suspend (String, ServerConfig.Links) -> Unit>(4)(url, serverConfig)
+                arg<suspend (String) -> Unit>(5)(url)
             }
         }
 
@@ -697,34 +738,46 @@ class NewLoginViewModelTest {
 
         fun withEstablishSSOSessionAuthScopeFailure(failure: AutoVersionAuthScopeUseCase.Result.Failure) = apply {
             coEvery {
-                loginSSOViewModelExtension.establishSSOSession(any(), any(), any(), any(), any(), any(), any())
+                loginSSOViewModelExtension.establishSSOSession(any(), any(), any(), any(), any(), any(), any(), any())
             } coAnswers {
-                arg<(AutoVersionAuthScopeUseCase.Result.Failure) -> Unit>(3)(failure)
+                arg<(AutoVersionAuthScopeUseCase.Result.Failure) -> Unit>(4)(failure)
             }
         }
 
         fun withEstablishSSOSessionLoginFailure(failure: SSOLoginSessionResult.Failure) = apply {
             coEvery {
-                loginSSOViewModelExtension.establishSSOSession(any(), any(), any(), any(), any(), any(), any())
+                loginSSOViewModelExtension.establishSSOSession(any(), any(), any(), any(), any(), any(), any(), any())
             } coAnswers {
-                arg<(SSOLoginSessionResult.Failure) -> Unit>(4)(failure)
+                arg<(SSOLoginSessionResult.Failure) -> Unit>(5)(failure)
             }
         }
 
         fun withEstablishSSOSessionAddUserFailure(failure: AddAuthenticatedUserUseCase.Result.Failure) = apply {
             coEvery {
-                loginSSOViewModelExtension.establishSSOSession(any(), any(), any(), any(), any(), any(), any())
+                loginSSOViewModelExtension.establishSSOSession(any(), any(), any(), any(), any(), any(), any(), any())
             } coAnswers {
-                arg<(AddAuthenticatedUserUseCase.Result.Failure) -> Unit>(5)(failure)
+                arg<(AddAuthenticatedUserUseCase.Result.Failure) -> Unit>(6)(failure)
             }
         }
 
         fun withEstablishSSOSessionSuccess(userId: UserId) = apply {
             coEvery {
-                loginSSOViewModelExtension.establishSSOSession(any(), any(), any(), any(), any(), any(), any())
+                loginSSOViewModelExtension.establishSSOSession(any(), any(), any(), any(), any(), any(), any(), any())
             } coAnswers {
-                arg<suspend (UserId) -> Unit>(6)(userId)
+                arg<suspend (UserId) -> Unit>(7)(userId)
             }
+        }
+
+        fun withNomadAutoLogin(nomadServiceUrl: String) = apply {
+            every {
+                savedStateHandle.navArgs<LoginNavArgs>()
+            } returns LoginNavArgs(
+                ssoCodeAutoLogin = SSOCodeAutoLogin(
+                    ssoCode = "wire-sso-code",
+                    nomadServiceUrl = nomadServiceUrl,
+                    cookieLabel = "shared-device"
+                )
+            )
         }
 
         fun withEmptyUserIdentifierAndNoPreFilledIdentifier() = apply {
@@ -989,7 +1042,7 @@ class NewLoginViewModelTest {
 
             // Verify that initiateSSO was called (meaning the onSuccess lambda was executed)
             coVerify(exactly = 1) {
-                arrangement.loginSSOViewModelExtension.initiateSSO(serverConfig, defaultSSOCode, any(), any(), any())
+                arrangement.loginSSOViewModelExtension.initiateSSO(serverConfig, defaultSSOCode, any(), any(), any(), any())
             }
         }
 

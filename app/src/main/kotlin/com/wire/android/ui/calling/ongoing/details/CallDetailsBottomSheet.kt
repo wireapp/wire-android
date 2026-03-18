@@ -27,7 +27,6 @@ import com.wire.android.ui.common.bottomsheet.WireSheetValue
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
-import com.wire.kalium.logic.data.call.CallQuality
 import com.wire.kalium.logic.data.call.CallQualityData
 import kotlinx.serialization.Serializable
 
@@ -42,7 +41,13 @@ fun CallDetailsBottomSheet(
             AnimatedContent(
                 targetState = callDetailsSheetState,
                 transitionSpec = {
-                    TransitionAnimationType.SLIDE.enterTransition.togetherWith(TransitionAnimationType.SLIDE.exitTransition)
+                    when (this.targetState) {
+                        CallDetailsSheetState.Details -> // navigating back to details from quality
+                            TransitionAnimationType.SLIDE.popEnterTransition.togetherWith(TransitionAnimationType.SLIDE.popExitTransition)
+
+                        CallDetailsSheetState.Quality -> // navigating forward to quality from details
+                            TransitionAnimationType.SLIDE.enterTransition.togetherWith(TransitionAnimationType.SLIDE.exitTransition)
+                    }
                 },
             ) { callDetailsSheetState ->
                 when (callDetailsSheetState) {
@@ -54,6 +59,7 @@ fun CallDetailsBottomSheet(
                     )
 
                     CallDetailsSheetState.Quality -> CallNetworkQualitySheetContent(
+                        callQualityData = callQualityData,
                         onBackPressed = {
                             sheetState.show(CallDetailsSheetState.Details)
                         }
@@ -74,10 +80,18 @@ private fun CallDetailsBottomSheetPreview(callDetailsSheetState: CallDetailsShee
     CallDetailsBottomSheet(
         sheetState = rememberWireModalSheetState(WireSheetValue.Expanded(callDetailsSheetState)),
         callQualityData = CallQualityData(
-            quality = CallQuality.NORMAL,
-            roundTripTimeInMilliseconds = 100,
-            upstreamPacketLossPercentage = 0,
-            downstreamPacketLossPercentage = 0,
+            quality = CallQualityData.Quality.NORMAL,
+            peer = CallQualityData.Peer.USER,
+            connection = CallQualityData.Connection(
+                protocol = CallQualityData.Connection.Protocol.UDP,
+                candidate = CallQualityData.Connection.Candidate.RELAY,
+            ),
+            packetLoss = CallQualityData.PacketLoss(up = 5, down = 10),
+            ping = 51,
+            jitter = CallQualityData.Jitter(
+                audio = CallQualityData.AudioJitter(up = 10, down = 201),
+                video = CallQualityData.VideoJitter(up = 15, down = 25),
+            ),
         ),
     )
 }

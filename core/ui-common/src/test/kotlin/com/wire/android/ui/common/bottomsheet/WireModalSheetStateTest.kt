@@ -87,7 +87,7 @@ class WireModalSheetStateTest {
             string = "string",
             nullable = null,
             list = listOf("a", "b", "c"),
-            any = arrayOf(1, 2L, 3.0, 4f, true, false, 'c', "string")
+            any = arrayOf<Any>(1, 2L, 3.0, 4f, true, false, 'c', "string")
         )
         val sheetValue = WireSheetValue.Expanded(model)
         with(WireModalSheetState.saver<SerializableTestModel>(mockk(), mockk(), mockk(), mockk())) {

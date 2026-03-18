@@ -142,7 +142,7 @@ jobs:
           submodules: recursive
 
       - name: Set up Java 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: "17"
@@ -164,7 +164,7 @@ jobs:
         run: bash scripts/qa_android_ui_tests/execution_setup.sh resolve-flavor
 
       - name: Configure AWS credentials (for S3)
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

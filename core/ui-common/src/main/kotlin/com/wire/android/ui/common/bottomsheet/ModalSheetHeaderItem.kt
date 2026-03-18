@@ -19,6 +19,7 @@
 package com.wire.android.ui.common.bottomsheet
 
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -36,12 +37,11 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.divider.WireDivider
-import com.wire.android.ui.theme.wireTypography
+import com.wire.android.ui.common.typography
 
 @Composable
 fun ModalSheetHeaderItem(
     modifier: Modifier = Modifier,
-    titleStyle: TextStyle = MaterialTheme.wireTypography.title02,
     header: MenuModalSheetHeader = MenuModalSheetHeader.Gone,
 ) {
     when (header) {
@@ -54,19 +54,20 @@ fun ModalSheetHeaderItem(
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = modifier.padding(
-                        start = dimensions().modalBottomSheetHeaderHorizontalPadding,
-                        end = dimensions().modalBottomSheetHeaderHorizontalPadding,
-                        top = header.customVerticalPadding ?: dimensions().modalBottomSheetHeaderVerticalPadding,
-                        bottom = header.customVerticalPadding ?: dimensions().modalBottomSheetHeaderVerticalPadding
+                        vertical = header.customVerticalPadding ?: dimensions().modalBottomSheetHeaderVerticalPadding
                     )
                 ) {
-                    header.leadingIcon()
-                    Spacer(modifier = Modifier.width(dimensions().spacing8x))
+                    header.leadingIcon?.invoke(this) ?: Spacer(Modifier.width(dimensions().modalBottomSheetHeaderHorizontalPadding))
                     Text(
                         text = header.title,
-                        style = titleStyle,
-                        modifier = Modifier.semantics { heading() }
+                        style = header.customTitleStyle ?: typography().title02,
+                        modifier = Modifier
+                            .semantics { heading() }
+                            .apply {
+                                if (header.titleFillsRemainingSpace) weight(weight = 1f, fill = true)
+                            }
                     )
+                    header.trailingIcon?.invoke(this) ?: Spacer(Modifier.width(dimensions().modalBottomSheetHeaderHorizontalPadding))
                 }
                 if (header.includeDivider) {
                     WireDivider()
@@ -80,8 +81,11 @@ sealed class MenuModalSheetHeader {
 
     data class Visible(
         val title: String,
-        val leadingIcon: @Composable () -> Unit = {},
+        val leadingIcon: (@Composable RowScope.() -> Unit)? = null,
+        val trailingIcon: (@Composable RowScope.() -> Unit)? = null,
         val customVerticalPadding: Dp? = null,
+        val customTitleStyle: TextStyle? = null,
+        val titleFillsRemainingSpace: Boolean = true,
         val includeDivider: Boolean = true
     ) : MenuModalSheetHeader()
 

@@ -159,6 +159,7 @@ android {
             kotlin.directories.add("src/androidTest/kotlin")
         }
         create("screenshotTest") {
+            java.directories.add("src/screenshotTest/kotlin")
             kotlin.directories.add("src/screenshotTest/kotlin")
             res.directories.add("src/main/res")
         }
@@ -184,6 +185,7 @@ dependencies {
     implementation("com.wire.kalium:kalium-logic")
     implementation("com.wire.kalium:kalium-util")
     implementation("com.wire.kalium:kalium-cells")
+    implementation(libs.libsodiumBindingsMP)
     androidTestImplementation("com.wire.kalium:kalium-mocks")
     androidTestImplementation("com.wire.kalium:kalium-network")
 
@@ -304,6 +306,7 @@ dependencies {
 
     // screenshot testing
     screenshotTestImplementation(libs.compose.ui.tooling)
+    screenshotTestImplementation(libs.screenshot.validation.api)
 
     // Unit/Android tests dependencies
     testImplementation(libs.androidx.test.archCore)
@@ -316,6 +319,7 @@ dependencies {
     testImplementation(libs.turbine)
     testImplementation(libs.okio.fakeFileSystem)
     testImplementation(libs.robolectric)
+    testRuntimeOnly(libs.libsodiumBindingsJvm)
     testRuntimeOnly(libs.junit5.vintage.engine)
     testRuntimeOnly(libs.junit5.engine)
     testImplementation(libs.androidx.paging.testing)

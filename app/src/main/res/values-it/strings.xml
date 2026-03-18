@@ -856,6 +856,7 @@ Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
         <item quantity="other">Puoi essere connesso soltanto con %1$d profili per volta. Disconnettiti da uno per aggiungerne un altro.</item>
     </plurals>
     <string name="max_account_reached_dialog_button_open_profile">Apri il profilo</string>
+    <!--nomad account blocks login dialog-->
     <string name="cant_switch_account_in_call">Non puoi cambiare account durante una chiamata</string>
     <string name="custom_backend_dialog_title">Redirect verso un backend on-premises?</string>
     <string name="custom_backend_dialog_body">Se procedi, il tuo client sarà reindirizzato al seguente backend locale:</string>

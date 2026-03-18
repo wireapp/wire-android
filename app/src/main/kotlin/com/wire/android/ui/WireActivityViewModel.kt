@@ -28,6 +28,7 @@ import androidx.work.WorkManager
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.config.NomadProfilesFeatureConfig
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.IsProfileQRCodeEnabledUseCaseProvider
 import com.wire.android.di.KaliumCoreLogic
@@ -35,10 +36,12 @@ import com.wire.android.di.ObserveIfE2EIRequiredDuringLoginUseCaseProvider
 import com.wire.android.di.ObserveScreenshotCensoringConfigUseCaseProvider
 import com.wire.android.di.ObserveSelfUserUseCaseProvider
 import com.wire.android.di.ObserveSyncStateUseCaseProvider
+import com.wire.android.emm.ManagedConfigurationsManager
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountActions
 import com.wire.android.feature.SwitchAccountParam
 import com.wire.android.feature.SwitchAccountResult
+import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.services.ServicesManager
 import com.wire.android.sync.MonitorSyncWorkUseCase
 import com.wire.android.ui.authentication.devices.model.displayName
@@ -55,8 +58,9 @@ import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.deeplink.LoginType
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.android.util.lifecycle.AutomatedLoginManager
+import com.wire.android.util.lifecycle.IntentsProcessor
 import com.wire.android.util.ui.UIText
-import com.wire.android.emm.ManagedConfigurationsManager
 import com.wire.android.workmanager.worker.cancelPeriodicPersistentWebsocketCheckWorker
 import com.wire.android.workmanager.worker.enqueuePeriodicPersistentWebsocketCheckWorker
 import com.wire.kalium.logic.CoreLogic
@@ -92,12 +96,12 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
@@ -106,6 +110,8 @@ import kotlinx.coroutines.withContext
 import java.io.InputStream
 import java.io.InputStreamReader
 import javax.inject.Inject
+
+private const val AUTOMATED_NOMAD_COOKIE_LABEL = "shared-device"
 
 @Suppress("LongParameterList", "TooManyFunctions")
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -117,6 +123,7 @@ class WireActivityViewModel @Inject constructor(
     private val doesValidSessionExist: Lazy<DoesValidSessionExistUseCase>,
     private val getServerConfigUseCase: Lazy<GetServerConfigUseCase>,
     private val deepLinkProcessor: Lazy<DeepLinkProcessor>,
+    private val intentsProcessor: Lazy<IntentsProcessor>,
     private val observeSessions: Lazy<ObserveSessionsUseCase>,
     private val accountSwitch: Lazy<AccountSwitchUseCase>,
     private val servicesManager: Lazy<ServicesManager>,
@@ -135,6 +142,9 @@ class WireActivityViewModel @Inject constructor(
     private val observeSelfUserFactory: ObserveSelfUserUseCaseProvider.Factory,
     private val monitorSyncWorkUseCase: MonitorSyncWorkUseCase,
     private val managedConfigurationsManager: ManagedConfigurationsManager,
+    private val automatedLoginManager: AutomatedLoginManager,
+    private val nomadProfilesFeatureConfig: NomadProfilesFeatureConfig,
+    private val loginTypeSelector: LoginTypeSelector,
 ) : ActionsViewModel<WireActivityViewAction>() {
 
     var globalAppState: GlobalAppState by mutableStateOf(GlobalAppState())
@@ -369,16 +379,75 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
+    // Returns whether an intent was handled, or if there was nothing to do
+    @Suppress("ReturnCount")
+    fun handleIntentsThatAreNotDeepLinks(intent: Intent?): Boolean {
+        if (!nomadProfilesFeatureConfig.isEnabled()) return false
+        val result = intentsProcessor.get().invoke(intent)
+        if (result != null) {
+            viewModelScope.launch(dispatchers.io()) {
+                initValidSessionsFlowIfNeeded()
+                if (validSessions.value.filterIsInstance<AccountInfo.Valid>().isNotEmpty()) {
+                    appLogger.w("Nomad login blocked: another session already exists")
+                    sendAction(ShowToast(R.string.nomad_login_blocked_message))
+                    return@launch
+                }
+                onAutomaticLoginParameters(
+                result.backendConfig,
+                result.ssoCode,
+                result.nomadProfilesHost,
+            )
+            }
+            return true
+        }
+        return false
+    }
+
+    private fun onAutomaticLoginParameters(
+        backendConfigUrl: String?,
+        ssoCode: String?,
+        nomadServiceUrl: String?,
+    ) {
+        viewModelScope.launch(dispatchers.io()) {
+            // Load backend config
+            val serverLinks = backendConfigUrl?.let { loadServerConfig(it) }
+
+            val backendConfigLoadFailed = backendConfigUrl != null && serverLinks == null
+            val nothingProvided = backendConfigUrl == null && ssoCode == null
+            if (backendConfigLoadFailed || nothingProvided) {
+                sendAction(OnUnknownDeepLink)
+            } else {
+                automatedLoginManager.markPendingMoveToBackgroundAfterSync()
+                sendAction(
+                    OnAutomaticLogin(
+                        serverLinks = serverLinks,
+                        ssoCode = ssoCode,
+                        nomadServiceUrl = nomadServiceUrl,
+                        cookieLabel = AUTOMATED_NOMAD_COOKIE_LABEL,
+                        useNewLogin = resolveUseNewLogin(LoginType.Default, serverLinks)
+                    )
+                )
+            }
+        }
+    }
+
     fun dismissCustomBackendDialog() {
         globalAppState = globalAppState.copy(customBackendDialog = null)
     }
 
-    fun customBackendDialogProceedButtonClicked(onProceed: (ServerConfig.Links) -> Unit) {
+    fun customBackendDialogProceedButtonClicked(loginType: LoginType) {
         val backendDialogState = globalAppState.customBackendDialog
         if (backendDialogState is CustomServerDetailsDialogState) {
             dismissCustomBackendDialog()
             if (checkNumberOfSessions()) {
-                onProceed(backendDialogState.serverLinks)
+                viewModelScope.launch(dispatchers.io()) {
+                    sendAction(
+                        OnCustomBackendLogin(
+                            serverLinks = backendDialogState.serverLinks,
+                            useNewLogin = resolveUseNewLogin(loginType, backendDialogState.serverLinks)
+                        )
+                    )
+                }
             }
         }
     }
@@ -452,6 +521,15 @@ class WireActivityViewModel @Inject constructor(
                 null
             }
         }
+
+    private suspend fun resolveUseNewLogin(
+        loginType: LoginType,
+        serverLinks: ServerConfig.Links? = null
+    ): Boolean = when (loginType) {
+        LoginType.New -> true
+        LoginType.Old -> false
+        LoginType.Default -> loginTypeSelector.canUseNewLogin(serverLinks)
+    }
 
     fun onCustomServerConfig(customServerUrl: String, loginType: LoginType) {
         viewModelScope.launch(dispatchers.io()) {
@@ -661,6 +739,19 @@ internal data object OnShowImportMediaScreen : WireActivityViewAction
 internal data object OnAuthorizationNeeded : WireActivityViewAction
 internal data object OnUnknownDeepLink : WireActivityViewAction
 internal data class OnMigrationLogin(val result: DeepLinkResult.MigrationLogin) : WireActivityViewAction
+internal data class OnAutomaticLogin(
+    val serverLinks: ServerConfig.Links?,
+    val ssoCode: String?,
+    val nomadServiceUrl: String?,
+    val cookieLabel: String? = null,
+    val useNewLogin: Boolean,
+) : WireActivityViewAction
+
+internal data class OnCustomBackendLogin(
+    val serverLinks: ServerConfig.Links,
+    val useNewLogin: Boolean,
+) : WireActivityViewAction
+
 internal data class OnOpenUserProfile(val result: DeepLinkResult.OpenOtherUserProfile) : WireActivityViewAction
 internal data class OnSSOLogin(val result: DeepLinkResult.SSOLogin) : WireActivityViewAction
 internal data class ShowToast(val messageResId: Int) : WireActivityViewAction

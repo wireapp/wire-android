@@ -26,11 +26,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.config.DefaultServerConfig
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.di.DefaultWebSocketEnabledByDefault
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.authentication.login.LoginViewModel
 import com.wire.android.ui.authentication.login.toLoginError
@@ -74,6 +76,9 @@ class LoginSSOViewModel(
     coreLogic,
     serverConfig
 ) {
+    private val loginNavArgs: LoginNavArgs = savedStateHandle.navArgs()
+    private var pendingNomadServiceUrl: String? = loginNavArgs.ssoCodeAutoLogin?.nomadServiceUrl
+    private var pendingCookieLabel: String? = loginNavArgs.ssoCodeAutoLogin?.cookieLabel
 
     @Inject
     constructor(
@@ -154,9 +159,10 @@ class LoginSSOViewModel(
                             ssoExtension.initiateSSO(
                                 serverConfig = state.serverLinks,
                                 ssoCode = defaultSSOCode,
+                                cookieLabel = pendingCookieLabel,
                                 onAuthScopeFailure = { updateSSOFlowState(it.toLoginError()) },
                                 onSSOInitiateFailure = { updateSSOFlowState(it.toLoginSSOError()) },
-                                onSuccess = { requestUrl, _ -> openWebUrl(requestUrl, state.serverLinks) }
+                                onSuccess = { requestUrl -> openWebUrl(requestUrl, state.serverLinks) }
                             )
                         }
                     }
@@ -206,9 +212,10 @@ class LoginSSOViewModel(
             ssoExtension.initiateSSO(
                 serverConfig = serverConfig,
                 ssoCode = ssoTextState.text.toString(),
+                cookieLabel = pendingCookieLabel,
                 onAuthScopeFailure = { updateSSOFlowState(it.toLoginError()) },
                 onSSOInitiateFailure = { updateSSOFlowState(it.toLoginSSOError()) },
-                onSuccess = { requestUrl, _ -> openWebUrl(requestUrl, serverConfig) }
+                onSuccess = { requestUrl -> openWebUrl(requestUrl, serverConfig) }
             )
         }
     }
@@ -218,14 +225,14 @@ class LoginSSOViewModel(
     fun establishSSOSession(
         cookie: String,
         serverConfigId: String,
-        serverConfig: ServerConfig.Links? = null,
     ) {
         updateSSOFlowState(LoginState.Loading)
         viewModelScope.launch {
             ssoExtension.establishSSOSession(
                 cookie = cookie,
                 serverConfigId = serverConfigId,
-                serverConfig = serverConfig ?: this@LoginSSOViewModel.serverConfig,
+                consumeNomadServiceUrl = ::consumePendingNomadServiceUrl,
+                consumeCookieLabel = ::consumePendingCookieLabel,
                 onAuthScopeFailure = { updateSSOFlowState(it.toLoginError()) },
                 onSSOLoginFailure = { updateSSOFlowState(it.toLoginError()) },
                 onAddAuthenticatedUserFailure = { updateSSOFlowState(it.toLoginError()) },
@@ -247,10 +254,15 @@ class LoginSSOViewModel(
         }
     }
 
-    fun handleSSOResult(ssoLoginResult: DeepLinkResult.SSOLogin?, serverConfig: ServerConfig.Links? = null) {
+    fun handleSSOResult(
+        ssoLoginResult: DeepLinkResult.SSOLogin?,
+    ) {
         when (ssoLoginResult) {
             is DeepLinkResult.SSOLogin.Success -> {
-                establishSSOSession(ssoLoginResult.cookie, ssoLoginResult.serverConfigId, serverConfig)
+                establishSSOSession(
+                    ssoLoginResult.cookie,
+                    ssoLoginResult.serverConfigId,
+                )
             }
 
             is DeepLinkResult.SSOLogin.Failure ->
@@ -269,6 +281,14 @@ class LoginSSOViewModel(
 
     companion object {
         const val SSO_CODE_SAVED_STATE_KEY = "sso_code"
+    }
+
+    private fun consumePendingNomadServiceUrl(): String? = pendingNomadServiceUrl.also {
+        pendingNomadServiceUrl = null
+    }
+
+    private fun consumePendingCookieLabel(): String? = pendingCookieLabel.also {
+        pendingCookieLabel = null
     }
 }
 

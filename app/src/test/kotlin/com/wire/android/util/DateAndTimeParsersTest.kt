@@ -44,13 +44,13 @@ class DateAndTimeParsersTest {
         @Test
         fun `return a medium format date, when a valid date`() {
             val result = "2022-03-24T18:02:30.360Z".deviceDateTimeFormat()
-            assertEquals("March 24, 2022, 6:02 PM", result)
+            assertEquals("March 24, 2022, 6:02 PM", result?.replace('\u202f', ' '))
         }
 
         @Test
         fun `return a medium format, when formatMediumDateTime is called`() {
             val result = "2022-03-24T18:02:30.360Z".formatMediumDateTime()
-            assertEquals("Mar 24, 2022, 6:02:30 PM", result)
+            assertEquals("Mar 24, 2022, 6:02:30 PM", result?.replace('\u202f', ' '))
         }
     }
 

@@ -26,6 +26,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.appLogger
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.ClientScopeProvider
@@ -42,7 +43,6 @@ import com.wire.android.ui.authentication.login.sso.SSOUrlConfig
 import com.wire.android.ui.authentication.login.sso.ssoCodeWithPrefix
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.common.textfield.textAsFlow
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.EMPTY
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -108,6 +108,8 @@ class NewLoginViewModel(
 
     private val loginNavArgs: LoginNavArgs = savedStateHandle.navArgs()
     private val preFilledUserIdentifier: PreFilledUserIdentifierType = loginNavArgs.userHandle ?: PreFilledUserIdentifierType.None
+    private var pendingNomadServiceUrl: String? = loginNavArgs.ssoCodeAutoLogin?.nomadServiceUrl
+    private var pendingCookieLabel: String? = loginNavArgs.ssoCodeAutoLogin?.cookieLabel
     var serverConfig: ServerConfig.Links by mutableStateOf(loginNavArgs.loginPasswordPath?.customServerConfig ?: defaultServerConfig)
         private set
 
@@ -284,31 +286,31 @@ class NewLoginViewModel(
             ssoExtension.initiateSSO(
                 serverConfig = serverConfig,
                 ssoCode = ssoCode,
+                cookieLabel = pendingCookieLabel,
                 onAuthScopeFailure = { updateLoginFlowState(it.toLoginError()) },
                 onSSOInitiateFailure = { updateLoginFlowState(it.toLoginError()) },
-                onSuccess = { requestUrl, serverConfig ->
+                onSuccess = { requestUrl ->
                     withContext(dispatchers.main()) {
                         updateLoginFlowState(NewLoginFlowState.Default)
-                        sendAction(NewLoginAction.SSO(requestUrl, SSOUrlConfig(serverConfig, userIdentifierTextState.text.toString())))
+                        sendAction(NewLoginAction.SSO(requestUrl, SSOUrlConfig(userIdentifierTextState.text.toString())))
                         updateLoginFlowState(NewLoginFlowState.Default)
                     }
                 }
             )
         }
 
-    fun handleSSOResult(ssoLoginResult: DeepLinkResult.SSOLogin, config: SSOUrlConfig?) {
+    fun handleSSOResult(
+        ssoLoginResult: DeepLinkResult.SSOLogin,
+    ) {
         updateLoginFlowState(NewLoginFlowState.Loading)
-        if (config != null) {
-            serverConfig = config.serverConfig
-            userIdentifierTextState.setTextAndPlaceCursorAtEnd(config.userIdentifier)
-        }
         when (ssoLoginResult) {
             is DeepLinkResult.SSOLogin.Success -> {
                 viewModelScope.launch(dispatchers.io()) {
                     ssoExtension.establishSSOSession(
                         cookie = ssoLoginResult.cookie,
                         serverConfigId = ssoLoginResult.serverConfigId,
-                        serverConfig = config?.serverConfig ?: serverConfig,
+                        consumeNomadServiceUrl = ::consumePendingNomadServiceUrl,
+                        consumeCookieLabel = ::consumePendingCookieLabel,
                         onAuthScopeFailure = { updateLoginFlowState(it.toLoginError()) },
                         onSSOLoginFailure = { updateLoginFlowState(it.toLoginError()) },
                         onAddAuthenticatedUserFailure = { updateLoginFlowState(it.toLoginError()) },
@@ -372,6 +374,14 @@ class NewLoginViewModel(
             nextEnabled = newState !is NewLoginFlowState.Loading && currentUserLoginInput.isNotEmpty()
         )
     }
+
+    private fun consumePendingNomadServiceUrl(): String? = pendingNomadServiceUrl.also {
+        pendingNomadServiceUrl = null
+    }
+
+    private fun consumePendingCookieLabel(): String? = pendingCookieLabel.also {
+        pendingCookieLabel = null
+    }
 }
 
 private fun AutoVersionAuthScopeUseCase.Result.Failure.toLoginError() = when (this) {
@@ -398,4 +408,5 @@ private fun SSOLoginSessionResult.Failure.toLoginError() = when (this) {
 private fun AddAuthenticatedUserUseCase.Result.Failure.toLoginError() = when (this) {
     is AddAuthenticatedUserUseCase.Result.Failure.Generic -> NewLoginFlowState.Error.DialogError.GenericError(this.genericFailure)
     AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists -> NewLoginFlowState.Error.DialogError.UserAlreadyExists
+    AddAuthenticatedUserUseCase.Result.Failure.NomadSingleUserViolation -> NewLoginFlowState.Error.DialogError.UserAlreadyExists
 }

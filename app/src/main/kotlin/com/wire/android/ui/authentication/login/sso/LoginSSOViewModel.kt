@@ -65,7 +65,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
 class LoginSSOViewModel(
     private val savedStateHandle: SavedStateHandle,
@@ -257,9 +257,11 @@ class LoginSSOViewModel(
                         registerClientAndUpdateState(storedUserId, setLastDeviceId = false)
                     } else {
                         appLogger.i("$TAG Nomad enabled, attempting crypto state restore")
-                        when (withContext(dispatchers.io()) {
-                            coreLogic.getSessionScope(storedUserId).backup.restoreCryptoState.invoke()
-                        }) {
+                        when (
+                            withContext(dispatchers.io()) {
+                                coreLogic.getSessionScope(storedUserId).backup.restoreCryptoState()
+                            }
+                        ) {
                             is RestoreCryptoStateResult.Success -> {
                                 updateSSOFlowState(LoginState.Success(isInitialSyncCompleted(storedUserId), false))
                             }

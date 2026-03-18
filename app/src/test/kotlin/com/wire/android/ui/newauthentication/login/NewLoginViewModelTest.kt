@@ -663,7 +663,9 @@ class NewLoginViewModelTest {
             every {
                 savedStateHandle.navArgs<LoginNavArgs>()
             } returns LoginNavArgs()
-            every { coreLogic.getSessionScope(any()).authenticationScope.isNomadProfilesEnabled } returns isNomadProfilesEnabledUseCase
+            every {
+                coreLogic.getSessionScope(any()).authenticationScope.isNomadProfilesEnabled
+            } returns isNomadProfilesEnabledUseCase
             coEvery { isNomadProfilesEnabledUseCase() } returns IsNomadProfilesEnabledUseCase.Result.Success(false)
             every { coreLogic.getGlobalScope().deleteSession } returns deleteSessionUseCase
             every { coreLogic.getSessionScope(any()).logout } returns logoutUseCase

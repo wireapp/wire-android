@@ -773,9 +773,14 @@ class LoginSSOViewModelTest {
 
             coVerify(exactly = 1) {
                 arrangement.ssoExtension.establishSSOSession(
-                    eq(expectedCookie), eq(SERVER_CONFIG.id), any(), any(),
-                    capture(onAuthScopeFailureSlot), capture(onSSOLoginFailureSlot),
-                    capture(onAddAuthenticatedUserFailureSlot), capture(onSuccessEstablishSSOSessionSlot)
+                    eq(expectedCookie),
+                    eq(SERVER_CONFIG.id),
+                    any(),
+                    any(),
+                    capture(onAuthScopeFailureSlot),
+                    capture(onSSOLoginFailureSlot),
+                    capture(onAddAuthenticatedUserFailureSlot),
+                    capture(onSuccessEstablishSSOSessionSlot)
                 )
             }
             onSuccessEstablishSSOSessionSlot.captured.invoke(TestUser.USER_ID)
@@ -801,9 +806,14 @@ class LoginSSOViewModelTest {
 
             coVerify(exactly = 1) {
                 arrangement.ssoExtension.establishSSOSession(
-                    eq(expectedCookie), eq(SERVER_CONFIG.id), any(), any(),
-                    capture(onAuthScopeFailureSlot), capture(onSSOLoginFailureSlot),
-                    capture(onAddAuthenticatedUserFailureSlot), capture(onSuccessEstablishSSOSessionSlot)
+                    eq(expectedCookie),
+                    eq(SERVER_CONFIG.id),
+                    any(),
+                    any(),
+                    capture(onAuthScopeFailureSlot),
+                    capture(onSSOLoginFailureSlot),
+                    capture(onAddAuthenticatedUserFailureSlot),
+                    capture(onSuccessEstablishSSOSessionSlot)
                 )
             }
             onSuccessEstablishSSOSessionSlot.captured.invoke(TestUser.USER_ID)
@@ -831,9 +841,14 @@ class LoginSSOViewModelTest {
 
             coVerify(exactly = 1) {
                 arrangement.ssoExtension.establishSSOSession(
-                    eq(expectedCookie), eq(SERVER_CONFIG.id), any(), any(),
-                    capture(onAuthScopeFailureSlot), capture(onSSOLoginFailureSlot),
-                    capture(onAddAuthenticatedUserFailureSlot), capture(onSuccessEstablishSSOSessionSlot)
+                    eq(expectedCookie),
+                    eq(SERVER_CONFIG.id),
+                    any(),
+                    any(),
+                    capture(onAuthScopeFailureSlot),
+                    capture(onSSOLoginFailureSlot),
+                    capture(onAddAuthenticatedUserFailureSlot),
+                    capture(onSuccessEstablishSSOSessionSlot)
                 )
             }
             onSuccessEstablishSSOSessionSlot.captured.invoke(TestUser.USER_ID)
@@ -858,9 +873,14 @@ class LoginSSOViewModelTest {
 
             coVerify(exactly = 1) {
                 arrangement.ssoExtension.establishSSOSession(
-                    eq(expectedCookie), eq(SERVER_CONFIG.id), any(), any(),
-                    capture(onAuthScopeFailureSlot), capture(onSSOLoginFailureSlot),
-                    capture(onAddAuthenticatedUserFailureSlot), capture(onSuccessEstablishSSOSessionSlot)
+                    eq(expectedCookie),
+                    eq(SERVER_CONFIG.id),
+                    any(),
+                    any(),
+                    capture(onAuthScopeFailureSlot),
+                    capture(onSSOLoginFailureSlot),
+                    capture(onAddAuthenticatedUserFailureSlot),
+                    capture(onSuccessEstablishSSOSessionSlot)
                 )
             }
             onSuccessEstablishSSOSessionSlot.captured.invoke(TestUser.USER_ID)
@@ -948,7 +968,9 @@ class LoginSSOViewModelTest {
             every { authenticationScope.ssoLoginScope.getLoginSession } returns getSSOLoginSessionUseCase
             every { coreLogic.versionedAuthenticationScope(any()) } returns autoVersionAuthScopeUseCase
             every { authenticationScope.ssoLoginScope.fetchSSOSettings } returns fetchSSOSettings
-            every { coreLogic.getSessionScope(any()).authenticationScope.isNomadProfilesEnabled } returns isNomadProfilesEnabledUseCase
+            every {
+                coreLogic.getSessionScope(any()).authenticationScope.isNomadProfilesEnabled
+            } returns isNomadProfilesEnabledUseCase
             coEvery { isNomadProfilesEnabledUseCase() } returns IsNomadProfilesEnabledUseCase.Result.Success(false)
             every { coreLogic.getGlobalScope().deleteSession } returns deleteSessionUseCase
             every { coreLogic.getSessionScope(any()).logout } returns logoutUseCase

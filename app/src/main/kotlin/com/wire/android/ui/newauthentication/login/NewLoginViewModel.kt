@@ -326,7 +326,11 @@ class NewLoginViewModel(
                                 registerClientAndUpdateState(storedUserId, setLastDeviceId = false)
                             } else {
                                 appLogger.i("$TAG Nomad enabled, attempting crypto state restore")
-                                when (coreLogic.getSessionScope(storedUserId).backup.restoreCryptoState.invoke()) {
+                                when (
+                                    withContext(dispatchers.io()) {
+                                        coreLogic.getSessionScope(storedUserId).backup.restoreCryptoState()
+                                    }
+                                ) {
                                     is RestoreCryptoStateResult.Success -> {
                                         withContext(dispatchers.main()) {
                                             when (loginExtension.isInitialSyncCompleted(storedUserId)) {

@@ -1045,6 +1045,16 @@
     <string name="calling_details_network_quality_poor">Schlecht</string>
     <string name="calling_details_turn_off_other_videos_title">Andere Videos ausschalten</string>
     <string name="calling_details_turn_off_other_videos_description">Dies verbessert die Audioqualität, wenn Ihre Netzwerkbedingungen schlecht sind.</string>
+    <string name="calling_details_network_quality_peer">Peer</string>
+    <string name="calling_details_network_quality_peer_user">Benutzer</string>
+    <string name="calling_details_network_quality_peer_server">Server</string>
+    <string name="calling_details_network_quality_connection">Verbindung</string>
+    <string name="calling_details_network_quality_connection_relay">Relais</string>
+    <string name="calling_details_network_quality_packet_loss">Paketverlust</string>
+    <string name="calling_details_network_quality_ping">Ping</string>
+    <string name="calling_details_network_quality_jitter">Jitter</string>
+    <string name="calling_details_network_quality_value_milliseconds">%1$d ms</string>
+    <string name="calling_details_network_quality_learn_more">Erfahren Sie mehr über die Details</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Zurück zum Anruf</string>
     <string name="connectivity_status_bar_return_to_incoming_call">%1$s ruft an…</string>

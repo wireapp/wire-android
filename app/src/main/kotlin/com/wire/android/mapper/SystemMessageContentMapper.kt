@@ -274,6 +274,7 @@ class SystemMessageContentMapper @Inject constructor(
                     FailedToAdd.Type.Federation -> UIMessageContent.SystemMessage.MemberFailedToAdd.Type.Federation
                     FailedToAdd.Type.LegalHold -> UIMessageContent.SystemMessage.MemberFailedToAdd.Type.LegalHold
                     FailedToAdd.Type.Unknown -> UIMessageContent.SystemMessage.MemberFailedToAdd.Type.Unknown
+                    FailedToAdd.Type.MissingKeyPackages -> UIMessageContent.SystemMessage.MemberFailedToAdd.Type.MissingKeyPackages
                 }
             )
 

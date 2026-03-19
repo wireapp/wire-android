@@ -65,8 +65,9 @@ fun VerticalCallingPager(
     requestVideoStreams: (participants: List<UICallParticipant>) -> Unit,
     onDoubleTap: (selectedParticipant: SelectedParticipant) -> Unit,
     flipCamera: () -> Unit,
-    gridParams: CallingGridParams = CallingGridParams.fromScreenDimensions(width = contentWidth, height = contentHeight),
+    othersVideosDisabled: Boolean,
     modifier: Modifier = Modifier,
+    gridParams: CallingGridParams = CallingGridParams.fromScreenDimensions(width = contentWidth, height = contentHeight),
 ) {
     Column(
         modifier = modifier
@@ -107,14 +108,16 @@ fun VerticalCallingPager(
                         recentReactions = recentReactions,
                         isOnFrontCamera = isOnFrontCamera,
                         flipCamera = flipCamera,
+                        othersVideosDisabled = othersVideosDisabled,
                     )
 
                     LaunchedEffect(
                         participantsWithCameraOn, // Request video stream when someone turns camera on/off
                         participantsWithScreenShareOn, // Request video stream when someone starts sharing screen
-                        pagerState.currentPage // Request video stream when swiping to a different page on the grid
+                        pagerState.currentPage, // Request video stream when swiping to a different page on the grid
+                        othersVideosDisabled, // Request video stream when the current user enables/disables others' videos
                     ) {
-                        requestVideoStreams(participantsPages[pagerState.currentPage])
+                        requestVideoStreams(if (othersVideosDisabled) emptyList() else participantsPages[pagerState.currentPage])
                     }
                 }
             }
@@ -156,6 +159,7 @@ private fun PreviewVerticalCallingPager(participants: List<UICallParticipant>) {
         isInPictureInPictureMode = false,
         recentReactions = emptyMap(),
         isOnFrontCamera = false,
+        othersVideosDisabled = false,
     )
 }
 

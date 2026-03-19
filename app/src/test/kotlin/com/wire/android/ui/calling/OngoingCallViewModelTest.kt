@@ -16,6 +16,8 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
+@file:Suppress("UnusedFlow")
+
 package com.wire.android.ui.calling
 
 import app.cash.turbine.test
@@ -39,6 +41,7 @@ import com.wire.kalium.logic.data.call.CallClient
 import com.wire.kalium.logic.data.call.CallQualityData
 import com.wire.kalium.logic.data.call.CallResolutionQuality
 import com.wire.kalium.logic.data.call.CallStatus
+import com.wire.kalium.logic.data.call.CallingParticipantsOrderType
 import com.wire.kalium.logic.data.call.InCallReactionMessage
 import com.wire.kalium.logic.data.call.Participant
 import com.wire.kalium.logic.data.call.VideoState
@@ -77,8 +80,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
-@OptIn(ExperimentalCoroutinesApi::class)
-@ExtendWith(CoroutineTestExtension::class)
+@OptIn(ExperimentalCoroutinesApi::class)@ExtendWith(CoroutineTestExtension::class)
 class OngoingCallViewModelTest {
     private val dispatchers = TestDispatcherProvider()
 
@@ -256,7 +258,7 @@ class OngoingCallViewModelTest {
                 .withRequestVideoStreams(conversationId, expectedClients)
                 .arrange()
 
-            ongoingCallViewModel.onSelectedParticipant(SelectedParticipant())
+            ongoingCallViewModel.onSelectedParticipant(null)
             ongoingCallViewModel.requestVideoStreams(uiParticipants)
 
             coVerify(exactly = 1) {
@@ -466,10 +468,57 @@ class OngoingCallViewModelTest {
         ongoingCallViewModel.state.participants shouldBeEqualTo uiParticipants.toPersistentList()
     }
 
+    @Test
+    fun givenCall_WhenDisablingOthersVideos_ThenStateIsUpdated() = runTest(dispatchers.main()) {
+        val (_, ongoingCallViewModel) = Arrangement()
+            .withLastActiveCall(provideCall())
+            .withShouldShowDoubleTapToastReturning(false)
+            .withSetVideoSendState()
+            .arrange()
+        advanceUntilIdle()
+
+        ongoingCallViewModel.setOthersVideosDisabled(true)
+        advanceUntilIdle()
+        assertEquals(true, ongoingCallViewModel.state.othersVideosDisabled)
+
+        ongoingCallViewModel.setOthersVideosDisabled(false)
+        advanceUntilIdle()
+        assertEquals(false, ongoingCallViewModel.state.othersVideosDisabled)
+    }
+
+    @Test
+    fun givenCall_WhenDisablingOthersVideos_ThenParticipantsOrderIsUpdated() = runTest(dispatchers.main()) {
+        val participantsVideosFirst = listOf(participant3, participant1, participant2)
+        val participantsAlphabetically = listOf(participant1, participant2, participant3)
+        val (arrangement, ongoingCallViewModel) = Arrangement()
+            .withLastActiveCall(provideCall().copy(participants = participantsVideosFirst), CallingParticipantsOrderType.VIDEOS_FIRST)
+            .withLastActiveCall(provideCall().copy(participants = participantsAlphabetically), CallingParticipantsOrderType.ALPHABETICALLY)
+            .withShouldShowDoubleTapToastReturning(false)
+            .withSetVideoSendState()
+            .arrange()
+        advanceUntilIdle()
+
+        ongoingCallViewModel.setOthersVideosDisabled(false)
+        advanceUntilIdle()
+        val expectedVideosFirst = listOf(uiParticipant3, uiParticipant1, uiParticipant2)
+        assertEquals(expectedVideosFirst, ongoingCallViewModel.state.participants)
+        coVerify(exactly = 1) {
+            arrangement.observeLastActiveCall(any(), eq(CallingParticipantsOrderType.VIDEOS_FIRST))
+        }
+
+        ongoingCallViewModel.setOthersVideosDisabled(true)
+        advanceUntilIdle()
+        val expectedAlphabetically = listOf(uiParticipant1, uiParticipant2, uiParticipant3)
+        assertEquals(expectedAlphabetically, ongoingCallViewModel.state.participants)
+        coVerify(exactly = 1) {
+            arrangement.observeLastActiveCall(any(), eq(CallingParticipantsOrderType.ALPHABETICALLY))
+        }
+    }
+
     private inner class Arrangement {
 
         @MockK
-        private lateinit var observeLastActiveCall: ObserveLastActiveCallWithSortedParticipantsUseCase
+        lateinit var observeLastActiveCall: ObserveLastActiveCallWithSortedParticipantsUseCase
 
         @MockK
         lateinit var requestVideoStreams: RequestVideoStreamsUseCase
@@ -527,15 +576,15 @@ class OngoingCallViewModelTest {
         fun arrange() = this to ongoingCallViewModel
 
         fun withNoLastActiveCall() = apply {
-            coEvery { observeLastActiveCall(any()) } returns flowOf(null)
+            coEvery { observeLastActiveCall(any(), any()) } returns flowOf(null)
         }
 
-        fun withLastActiveCall(call: Call) = apply {
-            coEvery { observeLastActiveCall(any()) } returns flowOf(call)
+        fun withLastActiveCall(call: Call, orderType: CallingParticipantsOrderType? = null) = apply {
+            coEvery { observeLastActiveCall(any(), (orderType ?: any())) } returns flowOf(call)
         }
 
         fun withLastActiveCallFlow(callFlow: Flow<Call?>) = apply {
-            coEvery { observeLastActiveCall(any()) } returns callFlow
+            coEvery { observeLastActiveCall(any(), any()) } returns callFlow
         }
 
         fun withShouldShowDoubleTapToastReturning(shouldShow: Boolean) = apply {

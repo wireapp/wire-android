@@ -47,14 +47,12 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.id.ConversationId
-import kotlinx.collections.immutable.PersistentList
 import kotlinx.coroutines.delay
 
 @Composable
 fun FullScreenTile(
     callState: CallState,
-    participants: PersistentList<UICallParticipant>,
-    selectedParticipant: SelectedParticipant,
+    selectedParticipant: UICallParticipant,
     height: Dp,
     closeFullScreen: (offset: Offset) -> Unit,
     onBackButtonClicked: () -> Unit,
@@ -63,6 +61,7 @@ fun FullScreenTile(
     clearVideoPreview: () -> Unit,
     isOnFrontCamera: Boolean,
     flipCamera: () -> Unit,
+    othersVideosDisabled: Boolean,
     modifier: Modifier = Modifier,
     contentPadding: Dp = dimensions().spacing4x,
 ) {
@@ -72,9 +71,7 @@ fun FullScreenTile(
         onBackButtonClicked()
     }
 
-    participants.find {
-        it.id == selectedParticipant.userId && it.clientId == selectedParticipant.clientId
-    }?.let {
+    selectedParticipant.let {
         Box(modifier = modifier) {
             ParticipantTile(
                 modifier = Modifier
@@ -104,6 +101,7 @@ fun FullScreenTile(
                 onClearSelfUserVideoPreview = clearVideoPreview,
                 isOnFrontCamera = isOnFrontCamera,
                 flipCamera = flipCamera,
+                othersVideosDisabled = othersVideosDisabled,
             )
             LaunchedEffect(Unit) {
                 delay(200)
@@ -120,8 +118,8 @@ fun FullScreenTile(
             )
         }
 
-        LaunchedEffect(selectedParticipant.userId) {
-            requestVideoStreams(listOf(it))
+        LaunchedEffect(selectedParticipant.id, othersVideosDisabled) {
+            requestVideoStreams(if (othersVideosDisabled) emptyList() else listOf(it))
         }
     }
 }
@@ -129,24 +127,19 @@ fun FullScreenTile(
 @PreviewMultipleThemes
 @Composable
 fun PreviewFullScreenTile() = WireTheme {
-    val participants = buildPreviewParticipantsList(1)
     FullScreenTile(
         callState = CallState(
             conversationId = ConversationId("id", "domain"),
         ),
-        selectedParticipant = SelectedParticipant(
-            userId = participants.first().id,
-            clientId = participants.first().clientId,
-            isSelfUser = false,
-        ),
+        selectedParticipant = buildPreviewParticipantsList(1).first(),
         height = 800.dp,
         closeFullScreen = {},
         onBackButtonClicked = {},
         setVideoPreview = {},
         requestVideoStreams = {},
         clearVideoPreview = {},
-        participants = participants,
         isOnFrontCamera = false,
         flipCamera = {},
+        othersVideosDisabled = false,
     )
 }

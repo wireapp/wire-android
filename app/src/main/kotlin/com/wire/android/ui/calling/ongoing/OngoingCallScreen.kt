@@ -39,6 +39,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -128,10 +129,10 @@ fun OngoingCallScreen(
         creationCallback = { factory -> factory.create(conversationId = conversationId) }
     ),
     sharedCallingViewModel: SharedCallingViewModel =
-    hiltViewModel<SharedCallingViewModel, SharedCallingViewModel.Factory>(
-        key = "shared_$conversationId",
-        creationCallback = { factory -> factory.create(conversationId = conversationId) }
-    )
+        hiltViewModel<SharedCallingViewModel, SharedCallingViewModel.Factory>(
+            key = "shared_$conversationId",
+            creationCallback = { factory -> factory.create(conversationId = conversationId) }
+        )
 ) {
     val permissionPermanentlyDeniedDialogState = rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
     val inCallReactionsState = rememberInCallReactionsState()
@@ -217,7 +218,8 @@ fun OngoingCallScreen(
         callQuality = ongoingCallViewModel.state.callQualityData.quality,
         onOpenCallDetails = {
             callDetailsBottomSheetState.show(CallDetailsSheetState.Details)
-        }
+        },
+        othersVideosDisabled = ongoingCallViewModel.state.othersVideosDisabled,
     )
     ObserveRotation(sharedCallingViewModel::setUIRotation)
 
@@ -269,6 +271,8 @@ fun OngoingCallScreen(
     CallDetailsBottomSheet(
         sheetState = callDetailsBottomSheetState,
         callQualityData = ongoingCallViewModel.state.callQualityData,
+        othersVideosDisabled = ongoingCallViewModel.state.othersVideosDisabled,
+        setOthersVideosDisabled = ongoingCallViewModel::setOthersVideosDisabled,
     )
     HandleQualityIntervals(
         sheetValue = callDetailsBottomSheetState.currentValue,
@@ -355,16 +359,15 @@ private fun OngoingCallContent(
     onCameraPermissionPermanentlyDenied: () -> Unit,
     onReactionClick: (String) -> Unit,
     requestVideoStreams: (participants: List<UICallParticipant>) -> Unit,
-    onSelectedParticipant: (selectedParticipant: SelectedParticipant) -> Unit,
-    selectedParticipantForFullScreen: SelectedParticipant,
+    onSelectedParticipant: (selectedParticipant: SelectedParticipant?) -> Unit,
+    selectedParticipantForFullScreen: SelectedParticipant?,
     participants: PersistentList<UICallParticipant>,
     recentReactions: Map<UserId, String>,
     inPictureInPictureMode: Boolean,
     callQuality: CallQualityData.Quality,
+    othersVideosDisabled: Boolean,
     initialShowInCallReactionsPanel: Boolean = false, // for preview purposes
 ) {
-    var shouldOpenFullScreen by remember { mutableStateOf(false) }
-
     var showInCallReactionsPanel by remember { mutableStateOf(initialShowInCallReactionsPanel) }
     val emojiPickerState = rememberWireModalSheetState<Unit>(skipPartiallyExpanded = false)
     val isConnecting = participants.isEmpty()
@@ -427,39 +430,41 @@ private fun OngoingCallContent(
                                 enabled = !inPictureInPictureMode,
                             )
                     ) {
-
-                        // if there is only one in the call, do not allow full screen
-                        if (participants.size == 1) {
-                            shouldOpenFullScreen = false
+                        val uiCallParticipantToShowOnFullScreen by remember(participants, selectedParticipantForFullScreen) {
+                            derivedStateOf {
+                                participants
+                                    .takeIf { it.size > 1 } // if there is only one in the call, do not allow full screen
+                                    ?.find { participant -> participant.id == selectedParticipantForFullScreen?.userId }
+                            }
                         }
 
-                        // if we are on full screen, and that user left the call, then we leave the full screen
-                        if (participants.find { user -> user.id == selectedParticipantForFullScreen.userId } == null) {
-                            shouldOpenFullScreen = false
+                        LaunchedEffect(selectedParticipantForFullScreen, uiCallParticipantToShowOnFullScreen) {
+                            // if we have user for full screen selected, but that user left the call, then we leave the full screen
+                            if (selectedParticipantForFullScreen != null && uiCallParticipantToShowOnFullScreen == null) {
+                                onSelectedParticipant(null)
+                            }
                         }
 
-                        if (shouldOpenFullScreen) {
+                        uiCallParticipantToShowOnFullScreen?.let { uiCallParticipantToShowOnFullScreen ->
                             hideDoubleTapToast()
                             FullScreenTile(
                                 callState = callState,
-                                selectedParticipant = selectedParticipantForFullScreen,
-                                height = this@BoxWithConstraints.maxHeight - dimensions().spacing4x,
+                                selectedParticipant = uiCallParticipantToShowOnFullScreen,
+                                height = this@BoxWithConstraints.maxHeight,
                                 closeFullScreen = {
-                                    onSelectedParticipant(SelectedParticipant())
-                                    shouldOpenFullScreen = !shouldOpenFullScreen
+                                    onSelectedParticipant(null)
                                 },
                                 onBackButtonClicked = {
-                                    onSelectedParticipant(SelectedParticipant())
-                                    shouldOpenFullScreen = !shouldOpenFullScreen
+                                    onSelectedParticipant(null)
                                 },
                                 requestVideoStreams = requestVideoStreams,
                                 setVideoPreview = setVideoPreview,
                                 clearVideoPreview = clearVideoPreview,
-                                participants = participants,
                                 isOnFrontCamera = callState.isOnFrontCamera,
                                 flipCamera = flipCamera,
+                                othersVideosDisabled = othersVideosDisabled,
                             )
-                        } else {
+                        } ?: run {
                             VerticalCallingPager(
                                 participants = participants,
                                 isSelfUserCameraOn = callState.isCameraOn,
@@ -472,11 +477,9 @@ private fun OngoingCallContent(
                                 onSelfClearVideoPreview = clearVideoPreview,
                                 requestVideoStreams = requestVideoStreams,
                                 recentReactions = recentReactions,
-                                onDoubleTap = { selectedParticipant ->
-                                    onSelectedParticipant(selectedParticipant)
-                                    shouldOpenFullScreen = !shouldOpenFullScreen
-                                },
+                                onDoubleTap = onSelectedParticipant,
                                 flipCamera = flipCamera,
+                                othersVideosDisabled = othersVideosDisabled,
                             )
                             DoubleTapToast(
                                 modifier = Modifier.align(Alignment.TopCenter),
@@ -496,6 +499,7 @@ private fun OngoingCallContent(
                                 onSelfUserVideoPreviewCreated = setVideoPreview,
                                 onClearSelfUserVideoPreview = clearVideoPreview,
                                 flipCamera = flipCamera,
+                                othersVideosDisabled = othersVideosDisabled,
                             )
                         }
                     }
@@ -686,11 +690,12 @@ fun PreviewOngoingCallContent(participants: PersistentList<UICallParticipant>, i
         participants = participants,
         inPictureInPictureMode = false,
         onSelectedParticipant = {},
-        selectedParticipantForFullScreen = SelectedParticipant(),
+        selectedParticipantForFullScreen = null,
         recentReactions = emptyMap(),
         initialShowInCallReactionsPanel = inCallReactionsPanelVisible,
         callQuality = CallQualityData.Quality.NORMAL,
-        onOpenCallDetails = {}
+        onOpenCallDetails = {},
+        othersVideosDisabled = true,
     )
 }
 

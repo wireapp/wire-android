@@ -567,7 +567,7 @@ sealed interface UIMessageContent {
             val memberNames: List<UIText>,
             val type: Type,
         ) : SystemMessage {
-            enum class Type { Federation, LegalHold, Unknown; }
+            enum class Type { Federation, LegalHold, Unknown, MissingKeyPackages; }
         }
 
         @Serializable

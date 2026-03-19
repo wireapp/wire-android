@@ -449,14 +449,14 @@ class WireActivityViewModel @Inject constructor(
             return false
         }
 
-        when (val authScopeResult = coreLogic.get().versionedAuthenticationScope(serverLinks).invoke(null)) {
+        return when (val authScopeResult = coreLogic.get().versionedAuthenticationScope(serverLinks).invoke(null)) {
             is AutoVersionAuthScopeUseCase.Result.Failure -> {
                 appLogger.w("Nomad login ignored: failed to create auth scope for backend ${serverLinks.api}")
-                return false
+                false
             }
 
             is AutoVersionAuthScopeUseCase.Result.Success -> {
-                return when (val result = authScopeResult.authenticationScope.isNomadProfilesEnabled()) {
+                when (val result = authScopeResult.authenticationScope.isNomadProfilesEnabled()) {
                     is IsNomadProfilesEnabledUseCase.Result.Failure -> {
                         appLogger.w("Nomad login ignored: failed to fetch server Nomad settings")
                         false

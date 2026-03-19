@@ -158,7 +158,7 @@ fun OngoingCallScreen(
     }
 
     LaunchedEffect(Unit) {
-        sharedCallingViewModel.inCallReactions.collectLatest { reaction ->
+        ongoingCallViewModel.inCallReactions.collectLatest { reaction ->
             inCallReactionsState.runAnimation(reaction)
         }
     }
@@ -196,7 +196,7 @@ fun OngoingCallScreen(
     OngoingCallContent(
         callState = sharedCallingViewModel.callState,
         inCallReactionsState = inCallReactionsState,
-        shouldShowDoubleTapToast = ongoingCallViewModel.shouldShowDoubleTapToast,
+        shouldShowDoubleTapToast = ongoingCallViewModel.state.shouldShowDoubleTapToast,
         toggleSpeaker = sharedCallingViewModel::toggleSpeaker,
         toggleMute = sharedCallingViewModel::toggleMute,
         hangUpCall = sharedCallingViewModel::hangUpCall,
@@ -207,13 +207,13 @@ fun OngoingCallScreen(
         onCollapse = onCollapse,
         requestVideoStreams = ongoingCallViewModel::requestVideoStreams,
         onSelectedParticipant = ongoingCallViewModel::onSelectedParticipant,
-        selectedParticipantForFullScreen = ongoingCallViewModel.selectedParticipant,
+        selectedParticipantForFullScreen = ongoingCallViewModel.state.selectedParticipant,
         hideDoubleTapToast = ongoingCallViewModel::hideDoubleTapToast,
         onCameraPermissionPermanentlyDenied = onCameraPermissionPermanentlyDenied,
-        onReactionClick = sharedCallingViewModel::onReactionClick,
-        participants = sharedCallingViewModel.participantsState,
+        onReactionClick = ongoingCallViewModel::onReactionClick,
+        participants = ongoingCallViewModel.state.participants,
         inPictureInPictureMode = inPictureInPictureMode,
-        recentReactions = sharedCallingViewModel.recentReactions,
+        recentReactions = ongoingCallViewModel.recentReactions,
         callQuality = ongoingCallViewModel.state.callQualityData.quality,
         onOpenCallDetails = {
             callDetailsBottomSheetState.show(CallDetailsSheetState.Details)

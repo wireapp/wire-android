@@ -69,30 +69,21 @@ fun VerticalCallingPager(
     modifier: Modifier = Modifier,
     gridParams: CallingGridParams = CallingGridParams.fromScreenDimensions(width = contentWidth, height = contentHeight),
 ) {
-    Column(
+    Box(
         modifier = modifier
             .size(width = contentWidth, height = contentHeight)
     ) {
-        // if PiP is enabled and more than one participant is present,
-        // we need to remove the first participant(self user) from the list
-        val participantsWithoutPip =
-            if (BuildConfig.PICTURE_IN_PICTURE_ENABLED && participants.size > 1) {
-                participants.subList(1, participants.size)
-            } else {
-                participants
-            }
+        val participantsWithoutPip = rememberParticipantsWithoutPip(participants)
         val participantsPages = remember(participantsWithoutPip, gridParams.maxItemsPerPage) {
             participantsWithoutPip.chunked(gridParams.maxItemsPerPage)
         }
-
         val pagerState = rememberPagerState(pageCount = { participantsPages.size })
 
-        Box {
+        if (participants.isNotEmpty()) {
             VerticalPager(
                 state = pagerState,
                 modifier = Modifier.fillMaxSize()
             ) { pageIndex ->
-                if (participants.isNotEmpty()) {
                     val participantsWithCameraOn by rememberUpdatedState(participantsWithoutPip.count { it.isCameraOn })
                     val participantsWithScreenShareOn by rememberUpdatedState(participantsWithoutPip.count { it.isSharingScreen })
                     GroupCallGrid(
@@ -137,11 +128,22 @@ fun VerticalCallingPager(
                         spacing = dimensions().spacing6x,
                         indicatorShape = CircleShape
                     )
-                }
             }
         }
     }
 }
+
+@Composable
+private fun rememberParticipantsWithoutPip(participants: List<UICallParticipant>): List<UICallParticipant> =
+    remember(BuildConfig.PICTURE_IN_PICTURE_ENABLED, participants) {
+        // if PiP is enabled and more than one participant is present, we need to remove the first participant(self user) from the list
+        if (BuildConfig.PICTURE_IN_PICTURE_ENABLED && participants.size > 1) {
+            participants.subList(1, participants.size)
+        } else {
+            participants
+        }
+    }
+
 
 @Composable
 private fun PreviewVerticalCallingPager(participants: List<UICallParticipant>) {

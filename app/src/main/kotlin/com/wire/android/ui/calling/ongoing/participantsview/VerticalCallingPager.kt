@@ -143,7 +143,6 @@ private fun rememberParticipantsWithoutPip(participants: List<UICallParticipant>
         }
     }
 
-
 @Composable
 private fun PreviewVerticalCallingPager(participants: List<UICallParticipant>) {
     VerticalCallingPager(

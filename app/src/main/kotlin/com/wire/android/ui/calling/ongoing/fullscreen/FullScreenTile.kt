@@ -118,8 +118,8 @@ fun FullScreenTile(
             )
         }
 
-        LaunchedEffect(selectedParticipant.id, othersVideosDisabled) {
-            requestVideoStreams(if (othersVideosDisabled) emptyList() else listOf(it))
+        LaunchedEffect(selectedParticipant, othersVideosDisabled) {
+            requestVideoStreams(listOf(it))
         }
     }
 }

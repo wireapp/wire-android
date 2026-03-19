@@ -246,6 +246,25 @@ class OngoingCallViewModelTest {
     @Test
     fun givenParticipantsList_WhenRequestingVideoStreamForAllParticipant_ThenRequestItInLowQuality() =
         runTest(dispatchers.main()) {
+            val (arrangement, ongoingCallViewModel) = Arrangement()
+                .withLastActiveCall(provideCall().copy(participants = participants))
+                .withShouldShowDoubleTapToastReturning(false)
+                .withSetVideoSendState()
+                .withRequestVideoStreams(conversationId, emptyList())
+                .arrange()
+
+            ongoingCallViewModel.setOthersVideosDisabled(true)
+            ongoingCallViewModel.onSelectedParticipant(null)
+            ongoingCallViewModel.requestVideoStreams(uiParticipants)
+
+            coVerify(exactly = 1) {
+                arrangement.requestVideoStreams(conversationId, emptyList())
+            }
+        }
+
+    @Test
+    fun givenParticipantsListAndOthersVideosDisabled_WhenRequestingVideoStreamForAllParticipant_ThenRequestEmptyList() =
+        runTest(dispatchers.main()) {
             val expectedClients = listOf(
                 CallClient(uiParticipant1.id.toString(), uiParticipant1.clientId, false, CallResolutionQuality.LOW),
                 CallClient(uiParticipant3.id.toString(), uiParticipant3.clientId, false, CallResolutionQuality.LOW)

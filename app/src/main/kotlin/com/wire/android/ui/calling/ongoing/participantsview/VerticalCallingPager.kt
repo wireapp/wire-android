@@ -20,7 +20,6 @@ package com.wire.android.ui.calling.ongoing.participantsview
 
 import android.view.View
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -108,7 +107,7 @@ fun VerticalCallingPager(
                         pagerState.currentPage, // Request video stream when swiping to a different page on the grid
                         othersVideosDisabled, // Request video stream when the current user enables/disables others' videos
                     ) {
-                        requestVideoStreams(if (othersVideosDisabled) emptyList() else participantsPages[pagerState.currentPage])
+                        requestVideoStreams(participantsPages[pagerState.currentPage])
                     }
                 }
             }

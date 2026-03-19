@@ -221,7 +221,7 @@ class OngoingCallViewModel @AssistedInject constructor(
         viewModelScope.launch {
             participants
                 .filter {
-                    it.isCameraOn || it.isSharingScreen
+                    (it.isCameraOn || it.isSharingScreen) && !state.othersVideosDisabled
                 }
                 .also {
                     val clients: List<CallClient> = it.map { uiParticipant ->

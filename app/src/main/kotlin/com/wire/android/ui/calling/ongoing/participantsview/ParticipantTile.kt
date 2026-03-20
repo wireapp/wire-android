@@ -185,15 +185,13 @@ fun ParticipantTile(
             }
 
             // Layer 4: Reaction emoji (top-left)
-            if (BuildConfig.CALL_REACTIONS_ENABLED) {
-                ReactionEmoji(
-                    modifier = Modifier
-                        .align(Alignment.TopStart)
-                        .padding(dimensions().spacing12x),
-                    recentReaction = recentReaction,
-                    inCallReactionsEnabled = inCallReactionsEnabled
-                )
-            }
+            ReactionEmoji(
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(dimensions().spacing12x),
+                recentReaction = recentReaction,
+                inCallReactionsEnabled = inCallReactionsEnabled
+            )
 
             // Layer 5: Flip camera button (top-right)
             if (participantTitleState.isSelfUser && isSelfUserCameraOn) {

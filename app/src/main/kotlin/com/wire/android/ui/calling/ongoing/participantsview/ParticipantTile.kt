@@ -74,6 +74,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import com.waz.avs.CameraPreviewBuilder
 import com.waz.avs.VideoRenderer
+import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
@@ -105,6 +106,7 @@ fun ParticipantTile(
     shouldFillOthersVideoPreview: Boolean = true,
     isZoomingEnabled: Boolean = false,
     recentReaction: String? = null,
+    inCallReactionsEnabled: Boolean = BuildConfig.CALL_REACTIONS_ENABLED,
     onClearSelfUserVideoPreview: () -> Unit,
 ) {
     val alpha =
@@ -182,30 +184,13 @@ fun ParticipantTile(
             }
 
             // Layer 4: Reaction emoji (top-left)
-            AnimatedVisibility(
+            ReactionEmoji(
                 modifier = Modifier
                     .align(Alignment.TopStart)
                     .padding(dimensions().spacing12x),
-                visible = recentReaction != null,
-                enter = fadeIn(),
-                exit = fadeOut(),
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(dimensions().inCallReactionRecentReactionSize)
-                        .background(
-                            color = colorsScheme().emojiBackgroundColor,
-                            shape = RoundedCornerShape(dimensions().corner6x)
-                        ),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(
-                        text = recentReaction ?: "",
-                        textAlign = TextAlign.Center,
-                        style = typography().inCallReactionRecentEmoji,
-                    )
-                }
-            }
+                recentReaction = recentReaction,
+                inCallReactionsEnabled = inCallReactionsEnabled
+            )
 
             // Layer 5: Flip camera button (top-right)
             if (participantTitleState.isSelfUser && isSelfUserCameraOn) {
@@ -215,6 +200,36 @@ fun ParticipantTile(
                     flipCamera = flipCamera,
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun ReactionEmoji(
+    modifier: Modifier = Modifier,
+    recentReaction: String? = null,
+    inCallReactionsEnabled: Boolean = true,
+) {
+    AnimatedVisibility(
+        modifier = modifier,
+        visible = recentReaction != null && inCallReactionsEnabled,
+        enter = fadeIn(),
+        exit = fadeOut(),
+    ) {
+        Box(
+            modifier = Modifier
+                .size(dimensions().inCallReactionRecentReactionSize)
+                .background(
+                    color = colorsScheme().emojiBackgroundColor,
+                    shape = RoundedCornerShape(dimensions().corner6x)
+                ),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(
+                text = recentReaction ?: "",
+                textAlign = TextAlign.Center,
+                style = typography().inCallReactionRecentEmoji,
+            )
         }
     }
 }

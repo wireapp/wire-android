@@ -154,9 +154,11 @@ fun OngoingCallScreen(
         }
     }
 
-    LaunchedEffect(Unit) {
-        sharedCallingViewModel.inCallReactions.collectLatest { reaction ->
-            inCallReactionsState.runAnimation(reaction)
+    LaunchedEffect(BuildConfig.CALL_REACTIONS_ENABLED) {
+        if (BuildConfig.CALL_REACTIONS_ENABLED) {
+            sharedCallingViewModel.inCallReactions.collectLatest { reaction ->
+                inCallReactionsState.runAnimation(reaction)
+            }
         }
     }
 
@@ -324,11 +326,12 @@ private fun OngoingCallContent(
     participants: PersistentList<UICallParticipant>,
     recentReactions: Map<UserId, String>,
     inPictureInPictureMode: Boolean,
+    inCallReactionsEnabled: Boolean = BuildConfig.CALL_REACTIONS_ENABLED,
     initialShowInCallReactionsPanel: Boolean = false, // for preview purposes
 ) {
     var shouldOpenFullScreen by remember { mutableStateOf(false) }
 
-    var showInCallReactionsPanel by remember { mutableStateOf(initialShowInCallReactionsPanel) }
+    var showInCallReactionsPanel by remember { mutableStateOf(initialShowInCallReactionsPanel && inCallReactionsEnabled) }
     val emojiPickerState = rememberWireModalSheetState<Unit>(skipPartiallyExpanded = false)
     val isConnecting = participants.isEmpty()
 
@@ -385,7 +388,7 @@ private fun OngoingCallContent(
                             .fillMaxSize()
                             .drawInCallReactions(
                                 state = inCallReactionsState,
-                                enabled = !inPictureInPictureMode,
+                                enabled = !inPictureInPictureMode && inCallReactionsEnabled,
                             )
                     ) {
 
@@ -464,7 +467,7 @@ private fun OngoingCallContent(
             }
 
             if (!inPictureInPictureMode) {
-                if (showInCallReactionsPanel) {
+                if (showInCallReactionsPanel && inCallReactionsEnabled) {
                     InCallReactionsPanel(
                         onReactionClick = onReactionClick,
                         onMoreClick = { emojiPickerState.show(Unit) },
@@ -478,6 +481,7 @@ private fun OngoingCallContent(
                     isSpeakerOn = callState.isSpeakerOn,
                     isShowingCallReactions = showInCallReactionsPanel,
                     isConnecting = isConnecting,
+                    inCallReactionsEnabled = inCallReactionsEnabled,
                     toggleSpeaker = toggleSpeaker,
                     toggleMute = toggleMute,
                     onHangUpCall = hangUpCall,
@@ -560,6 +564,7 @@ private fun CallingControls(
     isSpeakerOn: Boolean,
     isShowingCallReactions: Boolean,
     isConnecting: Boolean,
+    inCallReactionsEnabled: Boolean,
     toggleSpeaker: () -> Unit,
     toggleMute: () -> Unit,
     onHangUpCall: () -> Unit,
@@ -593,11 +598,13 @@ private fun CallingControls(
                 onSpeakerButtonClicked = toggleSpeaker
             )
 
-            InCallReactionsButton(
-                isSelected = isShowingCallReactions,
-                isEnabled = !isConnecting,
-                onInCallReactionsClick = onCallReactionsClick
-            )
+            if (inCallReactionsEnabled) {
+                InCallReactionsButton(
+                    isSelected = isShowingCallReactions,
+                    isEnabled = !isConnecting,
+                    onInCallReactionsClick = onCallReactionsClick
+                )
+            }
 
             HangUpOngoingButton(
                 onHangUpButtonClicked = onHangUpCall
@@ -643,6 +650,7 @@ fun PreviewOngoingCallContent(participants: PersistentList<UICallParticipant>, i
         onSelectedParticipant = {},
         selectedParticipantForFullScreen = SelectedParticipant(),
         recentReactions = emptyMap(),
+        inCallReactionsEnabled = true,
         initialShowInCallReactionsPanel = inCallReactionsPanelVisible,
     )
 }

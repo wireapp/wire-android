@@ -25,6 +25,7 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
+import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.di.CurrentAccount
 import com.wire.android.mapper.UICallParticipantMapper
@@ -144,8 +145,11 @@ class SharedCallingViewModel @AssistedInject constructor(
             launch {
                 observeOnSpeaker(this)
             }
-            launch {
-                observeInCallReactions()
+
+            if (BuildConfig.CALL_REACTIONS_ENABLED) {
+                launch {
+                    observeInCallReactions()
+                }
             }
         }
     }

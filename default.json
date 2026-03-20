@@ -167,5 +167,6 @@
     "collabora_integration": true,
     "db_invalidation_control_enabled": false,
     "nomad_profiles_enabled": false,
-    "call_quality_menu_enabled": false
+    "call_quality_menu_enabled": false,
+    "call_reactions_enabled": true
 }

@@ -34,6 +34,7 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -1248,6 +1249,8 @@ fun MessageList(
     val prevItemCount = remember { mutableStateOf(lazyPagingMessages.itemCount) }
     val readLastMessageAtStartTriggered = remember { mutableStateOf(false) }
     val currentTime by currentTimeInMillisFlow.collectAsState(initial = System.currentTimeMillis())
+    val isPrependLoading = lazyPagingMessages.loadState.prepend is LoadState.Loading
+    val isPrependCompleted = lazyPagingMessages.loadState.prepend.endOfPaginationReached
 
     LaunchedEffect(lazyPagingMessages.itemCount) {
         if (lazyPagingMessages.itemCount > prevItemCount.value && selectedMessageId == null) {
@@ -1307,20 +1310,19 @@ fun MessageList(
                 items(
                     count = lazyPagingMessages.itemCount,
                     key = lazyPagingMessages.itemKey { it.header.messageId },
-                    contentType = lazyPagingMessages.itemContentType { it }
+                    contentType = lazyPagingMessages.itemContentType { message ->
+                        when (message) {
+                            is UIMessage.Regular -> "regular_message"
+                            is UIMessage.System -> "system_message"
+                        }
+                    }
                 ) { index ->
                     val message: UIMessage = lazyPagingMessages[index]
-                        ?: return@items Box(
-                            contentAlignment = Alignment.Center,
+                        ?: return@items Spacer(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(dimensions().spacing56x),
-                        ) {
-                            WireCircularProgressIndicator(
-                                progressColor = MaterialTheme.wireColorScheme.secondaryText,
-                                size = dimensions().spacing24x
-                            )
-                        }
+                                .height(dimensions().spacing56x)
+                        )
 
                     val showAuthor = if (!isBubbleUiEnabled || conversationDetailsData is ConversationDetailsData.Group) {
                         rememberShouldShowHeader(index, message, lazyPagingMessages)
@@ -1349,8 +1351,8 @@ fun MessageList(
                         }
                     }
 
-                    val swipeableConfiguration = remember(message) {
-                        if (message is UIMessage.Regular && message.isSwipeable) {
+                    val swipeableConfiguration = remember(message, lazyListState.isScrollInProgress) {
+                        if (!lazyListState.isScrollInProgress && message is UIMessage.Regular && message.isSwipeable) {
                             SwipeableMessageConfiguration.Swipeable(
                                 onSwipedRight = { onSwipedToReply(message) }.takeIf { message.isReplyable },
                                 onSwipedLeft = { onSwipedToReact(message) }.takeIf { message.isReactionAllowed },
@@ -1390,7 +1392,9 @@ fun MessageList(
                     }
                 }
                 // reverse layout, so prepend needs to be added after all messages to be displayed at the top of the list
-                if (showHistoryLoadingIndicator && lazyPagingMessages.itemCount > 0) {
+                if (lazyPagingMessages.itemCount > 0 &&
+                    (isPrependLoading || (showHistoryLoadingIndicator && isPrependCompleted))
+                ) {
                     item(
                         key = "prepend_loading_indicator",
                         contentType = "prepend_loading_indicator",
@@ -1401,30 +1405,34 @@ fun MessageList(
                                     .fillMaxWidth()
                                     .padding(dimensions().spacing16x),
                             ) {
-                                var allMessagesPrepended by remember { mutableStateOf(false) }
-                                LaunchedEffect(lazyPagingMessages.loadState) {
-                                    // When the list is being refreshed, the load state for prepend is cleared so the app doesn't know if
-                                    // the end of pagination is reached or not for prepend until the refresh is done, so we don't want to
-                                    // update the allMessagesPrepended state while refreshing and in that case keep the last updated state,
-                                    // otherwise the indicator will flicker while refreshing.
-                                    if (lazyPagingMessages.loadState.refresh is LoadState.NotLoading) {
-                                        allMessagesPrepended = lazyPagingMessages.loadState.prepend.endOfPaginationReached
-                                    }
+                                val (text, prefixIconResId) = when {
+                                    showHistoryLoadingIndicator && isPrependCompleted ->
+                                        stringResource(R.string.conversation_history_loaded) to null
+                                    showHistoryLoadingIndicator ->
+                                        stringResource(R.string.conversation_history_loading) to R.drawable.ic_undo
+                                    else -> "" to null
                                 }
 
-                                val (text, prefixIconResId) = when (allMessagesPrepended) {
-                                    true -> stringResource(R.string.conversation_history_loaded) to null
-                                    false -> stringResource(R.string.conversation_history_loading) to R.drawable.ic_undo
+                                if (showHistoryLoadingIndicator) {
+                                    PageLoadingIndicator(
+                                        text = text,
+                                        prefixIconResId = prefixIconResId,
+                                    )
+                                } else {
+                                    WireCircularProgressIndicator(
+                                        progressColor = MaterialTheme.wireColorScheme.secondaryText,
+                                        size = dimensions().spacing24x
+                                    )
                                 }
-                                PageLoadingIndicator(
-                                    text = text,
-                                    prefixIconResId = prefixIconResId,
-                                )
                             }
                         }
                     )
                 }
             }
+            ScrollDateOverlay(
+                lazyListState = lazyListState,
+                lazyPagingMessages = lazyPagingMessages
+            )
             JumpToPlayingAudioButton(
                 lazyListState = lazyListState,
                 lazyPagingMessages = lazyPagingMessages,
@@ -1433,6 +1441,54 @@ fun MessageList(
             JumpToLastMessageButton(lazyListState = lazyListState)
         }
     )
+}
+
+@Composable
+private fun BoxScope.ScrollDateOverlay(
+    lazyListState: LazyListState,
+    lazyPagingMessages: LazyPagingItems<UIMessage>,
+) {
+    val context = LocalContext.current
+    val dateLabel by remember(lazyListState, lazyPagingMessages) {
+        derivedStateOf {
+            if (!lazyListState.isScrollInProgress) return@derivedStateOf null
+
+            val maxVisibleIndex = lazyListState.layoutInfo.visibleItemsInfo.maxOfOrNull { it.index } ?: return@derivedStateOf null
+            val message = lazyPagingMessages[maxVisibleIndex] ?: return@derivedStateOf null
+            val messageDate = message.header.messageTime.utcISO.serverDate() ?: return@derivedStateOf null
+
+            DateUtils.formatDateTime(
+                context,
+                messageDate.time,
+                DateUtils.FORMAT_SHOW_WEEKDAY or DateUtils.FORMAT_SHOW_DATE
+            )
+        }
+    }
+
+    AnimatedVisibility(
+        visible = dateLabel != null,
+        modifier = Modifier
+            .align(Alignment.TopCenter)
+            .fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    color = MaterialTheme.wireColorScheme.surface.copy(alpha = 0.8f)
+                )
+                .padding(vertical = dimensions().spacing2x, horizontal = dimensions().spacing4x),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = dateLabel.orEmpty(),
+                style = MaterialTheme.wireTypography.title03,
+                color = MaterialTheme.wireColorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        } 
+    }
 }
 
 @Composable

@@ -73,16 +73,21 @@ internal fun SwipeableMessageBox(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
+    if (configuration is SwipeableMessageConfiguration.NotSwipeable) {
+        content()
+        return
+    }
+
     SwipeableBox(
         messageStyle = messageStyle,
         modifier = modifier,
-        onSwipeRight = (configuration as? SwipeableMessageConfiguration.Swipeable)?.onSwipedRight?.let {
+        onSwipeRight = (configuration as SwipeableMessageConfiguration.Swipeable).onSwipedRight?.let {
             SwipeAction(
                 icon = R.drawable.ic_reply,
                 action = it,
             )
         },
-        onSwipeLeft = (configuration as? SwipeableMessageConfiguration.Swipeable)?.onSwipedLeft?.let {
+        onSwipeLeft = configuration.onSwipedLeft?.let {
             SwipeAction(
                 icon = R.drawable.ic_react,
                 action = it,

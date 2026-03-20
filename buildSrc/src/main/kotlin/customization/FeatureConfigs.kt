@@ -152,5 +152,7 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
 
     NOMAD_PROFILES_ENABLED("nomad_profiles_enabled", ConfigType.BOOLEAN),
 
-    CALL_QUALITY_MENU_ENABLED("call_quality_menu_enabled", ConfigType.BOOLEAN)
+    CALL_QUALITY_MENU_ENABLED("call_quality_menu_enabled", ConfigType.BOOLEAN),
+
+    CALL_REACTIONS_ENABLED("call_reactions_enabled", ConfigType.BOOLEAN)
 }

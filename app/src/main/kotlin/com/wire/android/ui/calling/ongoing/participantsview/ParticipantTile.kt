@@ -73,6 +73,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import com.waz.avs.CameraPreviewBuilder
 import com.waz.avs.VideoRenderer
+import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
@@ -183,7 +184,7 @@ fun ParticipantTile(
                 modifier = Modifier
                     .align(Alignment.TopStart)
                     .padding(dimensions().spacing12x),
-                visible = recentReaction != null,
+                visible = recentReaction != null && BuildConfig.CALL_REACTIONS_ENABLED,
                 enter = fadeIn(),
                 exit = fadeOut(),
             ) {

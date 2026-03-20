@@ -33,13 +33,10 @@ fun InCallReactionsButton(
     WireCallControlButton(
         isEnabled = isEnabled,
         isSelected = isSelected,
-        iconResId = when (isSelected) {
-            true -> R.drawable.ic_incall_reactions
-            false -> R.drawable.ic_incall_reactions
-        },
+        iconResId = R.drawable.ic_incall_reactions,
         contentDescription = when (isSelected) {
-            true -> R.string.content_description_calling_unmute_call
-            false -> R.string.content_description_calling_mute_call
+            true -> R.string.content_description_calling_in_call_reactions_hide
+            false -> R.string.content_description_calling_in_call_reactions_show
         },
         onClick = onInCallReactionsClick,
         modifier = modifier

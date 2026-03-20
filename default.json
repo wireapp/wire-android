@@ -178,5 +178,6 @@
     ],
     "enforce_configuration_signature": true,
     "nomad_profiles_enabled": false,
-    "call_quality_menu_enabled": false
+    "call_quality_menu_enabled": false,
+    "call_reactions_enabled": false
 }

@@ -109,6 +109,7 @@ fun ParticipantTile(
     shouldFillOthersVideoPreview: Boolean = true,
     isZoomingEnabled: Boolean = false,
     recentReaction: String? = null,
+    inCallReactionsEnabled: Boolean = BuildConfig.CALL_REACTIONS_ENABLED,
 ) {
     Surface(
         modifier = modifier
@@ -184,29 +185,14 @@ fun ParticipantTile(
             }
 
             // Layer 4: Reaction emoji (top-left)
-            AnimatedVisibility(
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .padding(dimensions().spacing12x),
-                visible = recentReaction != null && BuildConfig.CALL_REACTIONS_ENABLED,
-                enter = fadeIn(),
-                exit = fadeOut(),
-            ) {
-                Box(
+            if (BuildConfig.CALL_REACTIONS_ENABLED) {
+                ReactionEmoji(
                     modifier = Modifier
-                        .size(dimensions().inCallReactionRecentReactionSize)
-                        .background(
-                            color = colorsScheme().emojiBackgroundColor,
-                            shape = RoundedCornerShape(dimensions().corner6x)
-                        ),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(
-                        text = recentReaction ?: "",
-                        textAlign = TextAlign.Center,
-                        style = typography().inCallReactionRecentEmoji,
-                    )
-                }
+                        .align(Alignment.TopStart)
+                        .padding(dimensions().spacing12x),
+                    recentReaction = recentReaction,
+                    inCallReactionsEnabled = inCallReactionsEnabled
+                )
             }
 
             // Layer 5: Flip camera button (top-right)
@@ -217,6 +203,36 @@ fun ParticipantTile(
                     flipCamera = flipCamera,
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun ReactionEmoji(
+    modifier: Modifier = Modifier,
+    recentReaction: String? = null,
+    inCallReactionsEnabled: Boolean = true,
+) {
+    AnimatedVisibility(
+        modifier = modifier,
+        visible = recentReaction != null && inCallReactionsEnabled,
+        enter = fadeIn(),
+        exit = fadeOut(),
+    ) {
+        Box(
+            modifier = Modifier
+                .size(dimensions().inCallReactionRecentReactionSize)
+                .background(
+                    color = colorsScheme().emojiBackgroundColor,
+                    shape = RoundedCornerShape(dimensions().corner6x)
+                ),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(
+                text = recentReaction ?: "",
+                textAlign = TextAlign.Center,
+                style = typography().inCallReactionRecentEmoji,
+            )
         }
     }
 }

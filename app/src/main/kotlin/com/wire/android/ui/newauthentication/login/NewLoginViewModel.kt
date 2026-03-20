@@ -49,13 +49,17 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
+import com.wire.kalium.logic.data.logout.LogoutReason
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.EnterpriseLoginResult
+import com.wire.kalium.logic.feature.auth.IsNomadProfilesEnabledUseCase
 import com.wire.kalium.logic.feature.auth.LoginRedirectPath
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.auth.sso.FetchSSOSettingsUseCase
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginResult
 import com.wire.kalium.logic.feature.auth.sso.SSOLoginSessionResult
+import com.wire.kalium.logic.feature.backup.RestoreCryptoStateResult
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
@@ -141,24 +145,24 @@ class NewLoginViewModel(
         // Fetch default SSO code for the server configuration
         if (userIdentifierTextState.text.isEmpty() && preFilledUserIdentifier is PreFilledUserIdentifierType.None) {
             viewModelScope.launch(dispatchers.io()) {
-                appLogger.d("NewLoginViewModel: Fetching default SSO code for server")
+                appLogger.d("$TAG Fetching default SSO code for server")
                 ssoExtension.fetchDefaultSSOCode(
                     serverConfig = serverConfig,
                     onAuthScopeFailure = { error ->
-                        appLogger.e("NewLoginViewModel: Failed to create auth scope for SSO settings: $error")
+                        appLogger.e("$TAG Failed to create auth scope for SSO settings: $error")
                     },
                     onFetchSSOSettingsFailure = { error ->
-                        appLogger.e("NewLoginViewModel: Failed to fetch SSO settings: $error")
+                        appLogger.e("$TAG Failed to fetch SSO settings: $error")
                     },
                     onSuccess = { defaultSSOCode ->
                         if (defaultSSOCode != null && userIdentifierTextState.text.isEmpty()) {
-                            appLogger.d("NewLoginViewModel: Successfully fetched default SSO code")
+                            appLogger.d("$TAG Successfully fetched default SSO code")
                             withContext(dispatchers.main()) {
                                 userIdentifierTextState.setTextAndPlaceCursorAtEnd(defaultSSOCode)
                                 savedStateHandle[USER_IDENTIFIER_SAVED_STATE_KEY] = defaultSSOCode
                             }
                         } else {
-                            appLogger.d("NewLoginViewModel: No default SSO code configured for this server")
+                            appLogger.d("$TAG No default SSO code configured for this server")
                         }
                     }
                 )
@@ -263,7 +267,7 @@ class NewLoginViewModel(
                 onAuthScopeFailure = { updateLoginFlowState(it.toLoginError()) },
                 onFetchSSOSettingsFailure = { updateLoginFlowState(it.toLoginError()) },
                 onSuccess = { defaultSSOCode ->
-                    appLogger.d("NewLoginViewModel: Successfully fetched default SSO code")
+                    appLogger.d("$TAG Successfully fetched default SSO code")
 
                     when {
                         defaultSSOCode != null -> {
@@ -299,9 +303,7 @@ class NewLoginViewModel(
             )
         }
 
-    fun handleSSOResult(
-        ssoLoginResult: DeepLinkResult.SSOLogin,
-    ) {
+    fun handleSSOResult(ssoLoginResult: DeepLinkResult.SSOLogin) {
         updateLoginFlowState(NewLoginFlowState.Loading)
         when (ssoLoginResult) {
             is DeepLinkResult.SSOLogin.Success -> {
@@ -315,34 +317,38 @@ class NewLoginViewModel(
                         onSSOLoginFailure = { updateLoginFlowState(it.toLoginError()) },
                         onAddAuthenticatedUserFailure = { updateLoginFlowState(it.toLoginError()) },
                         onSuccess = { storedUserId ->
-                            loginExtension.registerClient(storedUserId, null).let { result ->
-                                withContext(dispatchers.main()) {
-                                    when (result) {
-                                        is RegisterClientResult.Success -> {
+                            val result = coreLogic.getSessionScope(storedUserId).authenticationScope.isNomadProfilesEnabled()
+                            val isNomadEnabled = result is IsNomadProfilesEnabledUseCase.Result.Success && result.isEnabled
+                            if (!isNomadEnabled) {
+                                appLogger.i("$TAG Nomad not enabled, proceeding with regular login")
+                                registerClientAndUpdateState(storedUserId, setLastDeviceId = false)
+                            } else {
+                                when (
+                                    withContext(dispatchers.io()) {
+                                        coreLogic.getSessionScope(storedUserId).backup.restoreCryptoState()
+                                    }
+                                ) {
+                                    is RestoreCryptoStateResult.Success -> {
+                                        withContext(dispatchers.main()) {
                                             when (loginExtension.isInitialSyncCompleted(storedUserId)) {
                                                 true -> sendAction(NewLoginAction.Success(NewLoginAction.Success.NextStep.None))
                                                 false -> sendAction(NewLoginAction.Success(NewLoginAction.Success.NextStep.InitialSync))
                                             }
                                             updateLoginFlowState(NewLoginFlowState.Default)
                                         }
-
-                                        is RegisterClientResult.E2EICertificateRequired -> {
-                                            sendAction(NewLoginAction.Success(NewLoginAction.Success.NextStep.E2EIEnrollment))
-                                            updateLoginFlowState(NewLoginFlowState.Default)
-                                        }
-
-                                        is RegisterClientResult.Failure.TooManyClients -> {
-                                            sendAction(NewLoginAction.Success(NewLoginAction.Success.NextStep.TooManyDevices))
-                                            updateLoginFlowState(NewLoginFlowState.Default)
-                                        }
-
-                                        is RegisterClientResult.Failure.Generic ->
-                                            updateLoginFlowState(NewLoginFlowState.Error.DialogError.GenericError(result.genericFailure))
-
-                                        is RegisterClientResult.Failure.InvalidCredentials,
-                                        is RegisterClientResult.Failure.PasswordAuthRequired -> { // for SSO login these should not happen
-                                            val failure = CoreFailure.Unknown(IllegalStateException(result::class.simpleName ?: "Unknown"))
-                                            updateLoginFlowState(NewLoginFlowState.Error.DialogError.GenericError(failure))
+                                    }
+                                    is RestoreCryptoStateResult.NoBackupAvailable -> {
+                                        registerClientAndUpdateState(storedUserId, setLastDeviceId = true)
+                                    }
+                                    is RestoreCryptoStateResult.Failure -> {
+                                        appLogger.e("$TAG Failed to restore crypto state during SSO login")
+                                        revertSSOSession(storedUserId)
+                                        withContext(dispatchers.main()) {
+                                            updateLoginFlowState(
+                                                NewLoginFlowState.Error.DialogError.GenericError(
+                                                    CoreFailure.Unknown(Exception("Failed to restore crypto state"))
+                                                )
+                                            )
                                         }
                                     }
                                 }
@@ -351,11 +357,53 @@ class NewLoginViewModel(
                     )
                 }
             }
-
             is DeepLinkResult.SSOLogin.Failure -> {
                 updateLoginFlowState(NewLoginFlowState.Error.DialogError.SSOResultFailure(ssoLoginResult.ssoError))
             }
         }
+    }
+
+    private suspend fun registerClientAndUpdateState(userId: UserId, setLastDeviceId: Boolean = false) {
+        loginExtension.registerClient(userId, null).let { result ->
+            if (setLastDeviceId && result is RegisterClientResult.Success) {
+                coreLogic.getSessionScope(userId).backup.setLastDeviceId(result.client.id.value)
+            }
+            withContext(dispatchers.main()) {
+                when (result) {
+                    is RegisterClientResult.Success -> {
+                        when (loginExtension.isInitialSyncCompleted(userId)) {
+                            true -> sendAction(NewLoginAction.Success(NewLoginAction.Success.NextStep.None))
+                            false -> sendAction(NewLoginAction.Success(NewLoginAction.Success.NextStep.InitialSync))
+                        }
+                        updateLoginFlowState(NewLoginFlowState.Default)
+                    }
+
+                    is RegisterClientResult.E2EICertificateRequired -> {
+                        sendAction(NewLoginAction.Success(NewLoginAction.Success.NextStep.E2EIEnrollment))
+                        updateLoginFlowState(NewLoginFlowState.Default)
+                    }
+
+                    is RegisterClientResult.Failure.TooManyClients -> {
+                        sendAction(NewLoginAction.Success(NewLoginAction.Success.NextStep.TooManyDevices))
+                        updateLoginFlowState(NewLoginFlowState.Default)
+                    }
+
+                    is RegisterClientResult.Failure.Generic ->
+                        updateLoginFlowState(NewLoginFlowState.Error.DialogError.GenericError(result.genericFailure))
+
+                    is RegisterClientResult.Failure.InvalidCredentials,
+                    is RegisterClientResult.Failure.PasswordAuthRequired -> { // for SSO login these should not happen
+                        val failure = CoreFailure.Unknown(IllegalStateException(result::class.simpleName ?: "Unknown"))
+                        updateLoginFlowState(NewLoginFlowState.Error.DialogError.GenericError(failure))
+                    }
+                }
+            }
+        }
+    }
+
+    private suspend fun revertSSOSession(userId: UserId) {
+        coreLogic.getSessionScope(userId).logout(reason = LogoutReason.SELF_HARD_LOGOUT, waitUntilCompletes = true)
+        coreLogic.getGlobalScope().deleteSession(userId)
     }
 
     /**
@@ -381,6 +429,10 @@ class NewLoginViewModel(
 
     private fun consumePendingCookieLabel(): String? = pendingCookieLabel.also {
         pendingCookieLabel = null
+    }
+
+    companion object {
+        private const val TAG = "[NewLoginViewModel]"
     }
 }
 

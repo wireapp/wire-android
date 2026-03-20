@@ -25,8 +25,10 @@ import com.wire.android.ui.common.VisibilityState
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
+import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.common.visbility.VisibilityState
 import com.wire.android.ui.common.wireDialogPropertiesBuilder
+import com.wire.android.ui.theme.WireTheme
 
 @Composable
 fun NomadAccountBlocksLoginDialog(
@@ -47,6 +49,17 @@ fun NomadAccountBlocksLoginDialog(
                 dismissOnBackPress = false,
                 dismissOnClickOutside = false
             )
+        )
+    }
+}
+
+@Composable
+@MultipleThemePreviews
+fun PreviewNomadAccountBlocksLoginDialog() {
+    WireTheme {
+        NomadAccountBlocksLoginDialog(
+            dialogState = VisibilityState(true),
+            onActionButtonClicked = {}
         )
     }
 }

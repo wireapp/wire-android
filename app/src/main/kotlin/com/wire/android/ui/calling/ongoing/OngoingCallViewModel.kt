@@ -42,6 +42,7 @@ import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallClient
 import com.wire.kalium.logic.data.call.CallResolutionQuality
+import com.wire.kalium.logic.data.call.CallingParticipantsOrderType
 import com.wire.kalium.logic.data.call.VideoState
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -62,12 +63,14 @@ import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -103,9 +106,14 @@ class OngoingCallViewModel @AssistedInject constructor(
     val inCallReactions = _inCallReactions.receiveAsFlow().withDelayAfterFirst(InCallReactions.reactionsThrottleDelayMs)
     val recentReactions = recentInCallReactionMap()
 
+    private val orderTypeStateFlow = MutableStateFlow(state.currentOrderType())
+
     init {
         viewModelScope.launch {
-            val callSharedFlow = observeLastActiveCall(conversationId)
+            val callSharedFlow = orderTypeStateFlow
+                .flatMapLatest { orderType ->
+                    observeLastActiveCall(conversationId = conversationId, orderType = orderType)
+                }
                 .flowOn(dispatchers.default()).shareIn(this, started = SharingStarted.Lazily)
 
             observeCurrentCallFlowState(callSharedFlow)
@@ -214,25 +222,23 @@ class OngoingCallViewModel @AssistedInject constructor(
         viewModelScope.launch {
             participants
                 .filter {
-                    it.isCameraOn || it.isSharingScreen
+                    (it.isCameraOn || it.isSharingScreen) && !state.othersVideosDisabled
                 }
                 .also {
-                    if (it.isNotEmpty()) {
-                        val clients: List<CallClient> = it.map { uiParticipant ->
-                            CallClient(
-                                userId = uiParticipant.id.toString(),
-                                clientId = uiParticipant.clientId,
-                                quality = mapQualityStream(uiParticipant)
-                            )
-                        }
-                        requestVideoStreams(conversationId, clients)
+                    val clients: List<CallClient> = it.map { uiParticipant ->
+                        CallClient(
+                            userId = uiParticipant.id.toString(),
+                            clientId = uiParticipant.clientId,
+                            quality = mapQualityStream(uiParticipant)
+                        )
                     }
+                    requestVideoStreams(conversationId, clients)
                 }
         }
     }
 
     private fun mapQualityStream(uiParticipant: UICallParticipant): CallResolutionQuality {
-        return if (uiParticipant.clientId == state.selectedParticipant.clientId) {
+        return if (uiParticipant.clientId == state.selectedParticipant?.clientId) {
             CallResolutionQuality.HIGH
         } else {
             CallResolutionQuality.LOW
@@ -277,9 +283,14 @@ class OngoingCallViewModel @AssistedInject constructor(
         }
     }
 
-    fun onSelectedParticipant(selectedParticipant: SelectedParticipant) {
-        appLogger.d("$TAG - Selected participant: ${selectedParticipant.toLogString()}")
+    fun onSelectedParticipant(selectedParticipant: SelectedParticipant?) {
+        appLogger.d("$TAG - Selected participant: ${selectedParticipant?.toLogString()}")
         state = state.copy(selectedParticipant = selectedParticipant)
+    }
+
+    fun setOthersVideosDisabled(othersVideosDisabled: Boolean) {
+        state = state.copy(othersVideosDisabled = othersVideosDisabled)
+        orderTypeStateFlow.value = state.currentOrderType() // update order type based on current state to trigger participants reordering
     }
 
     fun setQualityInterval(interval: QualityInterval) {
@@ -308,3 +319,8 @@ class OngoingCallViewModel @AssistedInject constructor(
 }
 
 private fun List<UICallParticipant>.senderName(userId: QualifiedID) = firstOrNull { it.id.value == userId.value }?.name
+
+private fun OngoingCallState.currentOrderType(): CallingParticipantsOrderType = when (othersVideosDisabled) {
+    true -> CallingParticipantsOrderType.ALPHABETICALLY
+    false -> CallingParticipantsOrderType.VIDEOS_FIRST
+}

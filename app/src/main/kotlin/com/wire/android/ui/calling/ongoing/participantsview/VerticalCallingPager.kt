@@ -20,7 +20,6 @@ package com.wire.android.ui.calling.ongoing.participantsview
 
 import android.view.View
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -65,33 +64,25 @@ fun VerticalCallingPager(
     requestVideoStreams: (participants: List<UICallParticipant>) -> Unit,
     onDoubleTap: (selectedParticipant: SelectedParticipant) -> Unit,
     flipCamera: () -> Unit,
-    gridParams: CallingGridParams = CallingGridParams.fromScreenDimensions(width = contentWidth, height = contentHeight),
+    othersVideosDisabled: Boolean,
     modifier: Modifier = Modifier,
+    gridParams: CallingGridParams = CallingGridParams.fromScreenDimensions(width = contentWidth, height = contentHeight),
 ) {
-    Column(
+    Box(
         modifier = modifier
             .size(width = contentWidth, height = contentHeight)
     ) {
-        // if PiP is enabled and more than one participant is present,
-        // we need to remove the first participant(self user) from the list
-        val participantsWithoutPip =
-            if (BuildConfig.PICTURE_IN_PICTURE_ENABLED && participants.size > 1) {
-                participants.subList(1, participants.size)
-            } else {
-                participants
-            }
+        val participantsWithoutPip = rememberParticipantsWithoutPip(participants)
         val participantsPages = remember(participantsWithoutPip, gridParams.maxItemsPerPage) {
             participantsWithoutPip.chunked(gridParams.maxItemsPerPage)
         }
-
         val pagerState = rememberPagerState(pageCount = { participantsPages.size })
 
-        Box {
+        if (participants.isNotEmpty()) {
             VerticalPager(
                 state = pagerState,
                 modifier = Modifier.fillMaxSize()
             ) { pageIndex ->
-                if (participants.isNotEmpty()) {
                     val participantsWithCameraOn by rememberUpdatedState(participantsWithoutPip.count { it.isCameraOn })
                     val participantsWithScreenShareOn by rememberUpdatedState(participantsWithoutPip.count { it.isSharingScreen })
                     GroupCallGrid(
@@ -107,12 +98,14 @@ fun VerticalCallingPager(
                         recentReactions = recentReactions,
                         isOnFrontCamera = isOnFrontCamera,
                         flipCamera = flipCamera,
+                        othersVideosDisabled = othersVideosDisabled,
                     )
 
                     LaunchedEffect(
                         participantsWithCameraOn, // Request video stream when someone turns camera on/off
                         participantsWithScreenShareOn, // Request video stream when someone starts sharing screen
-                        pagerState.currentPage // Request video stream when swiping to a different page on the grid
+                        pagerState.currentPage, // Request video stream when swiping to a different page on the grid
+                        othersVideosDisabled, // Request video stream when the current user enables/disables others' videos
                     ) {
                         requestVideoStreams(participantsPages[pagerState.currentPage])
                     }
@@ -134,11 +127,21 @@ fun VerticalCallingPager(
                         spacing = dimensions().spacing6x,
                         indicatorShape = CircleShape
                     )
-                }
             }
         }
     }
 }
+
+@Composable
+private fun rememberParticipantsWithoutPip(participants: List<UICallParticipant>): List<UICallParticipant> =
+    remember(BuildConfig.PICTURE_IN_PICTURE_ENABLED, participants) {
+        // if PiP is enabled and more than one participant is present, we need to remove the first participant(self user) from the list
+        if (BuildConfig.PICTURE_IN_PICTURE_ENABLED && participants.size > 1) {
+            participants.subList(1, participants.size)
+        } else {
+            participants
+        }
+    }
 
 @Composable
 private fun PreviewVerticalCallingPager(participants: List<UICallParticipant>) {
@@ -156,6 +159,7 @@ private fun PreviewVerticalCallingPager(participants: List<UICallParticipant>) {
         isInPictureInPictureMode = false,
         recentReactions = emptyMap(),
         isOnFrontCamera = false,
+        othersVideosDisabled = false,
     )
 }
 

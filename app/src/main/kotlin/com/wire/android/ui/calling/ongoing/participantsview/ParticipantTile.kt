@@ -63,6 +63,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -97,15 +99,16 @@ fun ParticipantTile(
     isSelfUserMuted: Boolean,
     isSelfUserCameraOn: Boolean,
     onSelfUserVideoPreviewCreated: (view: View) -> Unit,
+    onClearSelfUserVideoPreview: () -> Unit,
     isOnFrontCamera: Boolean,
     flipCamera: () -> Unit,
+    othersVideosDisabled: Boolean,
     modifier: Modifier = Modifier,
     isOnPiPMode: Boolean = false,
     shouldFillSelfUserCameraPreview: Boolean = false,
     shouldFillOthersVideoPreview: Boolean = true,
     isZoomingEnabled: Boolean = false,
     recentReaction: String? = null,
-    onClearSelfUserVideoPreview: () -> Unit,
 ) {
     Surface(
         modifier = modifier
@@ -132,15 +135,16 @@ fun ParticipantTile(
                     isCameraOn = participantTitleState.isCameraOn,
                     isSharingScreen = participantTitleState.isSharingScreen,
                     shouldFill = shouldFillOthersVideoPreview,
-                    isZoomingEnabled = isZoomingEnabled
+                    isZoomingEnabled = isZoomingEnabled,
+                    othersVideosDisabled = othersVideosDisabled,
                 )
             }
 
             // Layer 2: Avatar centered (only show when video is off)
-            val shouldShowAvatar = if (participantTitleState.isSelfUser) {
-                !isSelfUserCameraOn
-            } else {
-                !participantTitleState.isCameraOn && !participantTitleState.isSharingScreen
+            val shouldShowAvatar = when {
+                participantTitleState.isSelfUser -> !isSelfUserCameraOn // for self user show avatar when self camera is off
+                othersVideosDisabled -> true // if others videos are disabled, show avatar because their videos will be off anyway
+                else -> !participantTitleState.isCameraOn && !participantTitleState.isSharingScreen // otherwise show avatar if no video
             }
 
             if (shouldShowAvatar) {
@@ -245,7 +249,7 @@ private fun BottomRow(
         content = {
             MicrophoneTile(
                 modifier = Modifier
-                    .padding(end = dimensions().spacing8x)
+                    .padding(end = dimensions().spacing6x)
                     .layoutId("muteIcon"),
                 isMuted = if (participantTitleState.isSelfUser) isSelfUserMuted else participantTitleState.isMuted,
                 hasEstablishedAudio = participantTitleState.hasEstablishedAudio
@@ -339,7 +343,8 @@ private fun OthersVideoRenderer(
     isCameraOn: Boolean,
     isSharingScreen: Boolean,
     shouldFill: Boolean,
-    isZoomingEnabled: Boolean
+    isZoomingEnabled: Boolean,
+    othersVideosDisabled: Boolean,
 ) {
     var size by remember { mutableStateOf(IntSize.Zero) }
     var zoom by remember { mutableStateOf(1f) }
@@ -348,7 +353,7 @@ private fun OthersVideoRenderer(
 
     val context = LocalContext.current
     val rendererFillColor = (darkColorsScheme().surfaceContainer.value shr 32).toLong()
-    if (isCameraOn || isSharingScreen) {
+    if ((isCameraOn || isSharingScreen) && !othersVideosDisabled) {
 
         val videoRenderer = remember {
             VideoRenderer(
@@ -490,33 +495,50 @@ private fun MicrophoneTile(
     }
 }
 
-private enum class PreviewTileShape(val width: Dp, val height: Dp) {
+enum class PreviewTileShape(val width: Dp, val height: Dp) {
     Regular(width = 175.dp, height = 140.dp),
     Tall(width = 140.dp, height = 175.dp),
     Wide(width = 175.dp, height = 80.dp),
 }
 
+enum class PreviewName(val userName: String) {
+    Short("user name"),
+    Long("Long name to be displayed in participant tile during a call")
+}
+
+data class PreviewParams(val name: PreviewName, val shape: PreviewTileShape)
+
+private class PreviewParamsProvider : PreviewParameterProvider<PreviewParams> {
+    private val valuesMap = PreviewName.entries.flatMap { previewName ->
+        PreviewTileShape.entries.map { previewTileShape ->
+            PreviewParams(previewName, previewTileShape)
+        }
+    }.associateBy { (nameEntry, shape) -> "${nameEntry.name} name - ${shape.name} shape" }
+    override val values = valuesMap.values.asSequence()
+    override fun getDisplayName(index: Int): String? = valuesMap.keys.elementAtOrNull(index)
+}
+
 @Composable
 private fun PreviewParticipantTile(
-    longName: Boolean = false,
+    params: PreviewParams,
     isMuted: Boolean = false,
+    othersVideosDisabled: Boolean = false,
     isSpeaking: Boolean = false,
     hasEstablishedAudio: Boolean = true,
-    shape: PreviewTileShape = PreviewTileShape.Wide,
     recentReaction: String? = null,
     isSelfUser: Boolean = false,
-    isSelfCameraOn: Boolean = false,
-) {
+    isCameraOn: Boolean = false,
+) = WireTheme {
     ParticipantTile(
-        modifier = Modifier.size(width = shape.width, height = shape.height),
+        modifier = Modifier.size(width = params.shape.width, height = params.shape.height),
         participantTitleState = UICallParticipant(
             id = QualifiedID("", ""),
             clientId = "client-id",
             isSelfUser = isSelfUser,
-            name = if (longName) "long user name to be displayed in participant tile during a call" else "user name",
-            isMuted = isMuted,
+            name = params.name.userName,
+            isMuted = !isSelfUser && isMuted,
             isSpeaking = isSpeaking,
-            isCameraOn = false,
+            isCameraOn = !isSelfUser && isCameraOn,
             isSharingScreen = false,
             avatar = null,
             membership = Membership.Admin,
@@ -525,113 +547,36 @@ private fun PreviewParticipantTile(
         ),
         onClearSelfUserVideoPreview = {},
         onSelfUserVideoPreviewCreated = {},
-        isSelfUserMuted = false,
-        isSelfUserCameraOn = isSelfCameraOn,
+        isSelfUserMuted = isSelfUser && isMuted,
+        isSelfUserCameraOn = isSelfUser && isCameraOn,
         recentReaction = recentReaction,
         isOnFrontCamera = false,
         flipCamera = { },
-    )
-}
-
-// ------ connecting ------
-
-@PreviewMultipleThemes
-@Composable
-fun PreviewParticipantConnecting() = WireTheme {
-    PreviewParticipantTile(shape = PreviewTileShape.Regular, hasEstablishedAudio = false)
-}
-
-@PreviewMultipleThemes
-@Composable
-fun PreviewParticipantLongNameConnecting() = WireTheme {
-    PreviewParticipantTile(
-        shape = PreviewTileShape.Regular,
-        hasEstablishedAudio = false,
-        longName = true
+        othersVideosDisabled = othersVideosDisabled,
     )
 }
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewParticipantTallLongNameConnecting() = WireTheme {
-    PreviewParticipantTile(shape = PreviewTileShape.Tall, hasEstablishedAudio = false)
-}
+fun PreviewParticipantConnecting(@PreviewParameter(PreviewParamsProvider::class) params: PreviewParams) =
+    PreviewParticipantTile(params = params, hasEstablishedAudio = false)
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewParticipantWideLongNameConnecting() = WireTheme {
-    PreviewParticipantTile(shape = PreviewTileShape.Wide, hasEstablishedAudio = false)
-}
-
-// ------ muted ------
+fun PreviewParticipantMuted(@PreviewParameter(PreviewParamsProvider::class) params: PreviewParams) =
+    PreviewParticipantTile(params = params, isMuted = true)
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewParticipantMuted() = WireTheme {
-    PreviewParticipantTile(shape = PreviewTileShape.Regular, isMuted = true)
-}
+fun PreviewParticipantTalking(@PreviewParameter(PreviewParamsProvider::class) params: PreviewParams) =
+    PreviewParticipantTile(params = params, isSpeaking = true)
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewParticipantLongNameMuted() = WireTheme {
-    PreviewParticipantTile(shape = PreviewTileShape.Regular, isMuted = true, longName = true)
-}
+fun PreviewParticipantTalkingReaction(@PreviewParameter(PreviewParamsProvider::class) params: PreviewParams) =
+    PreviewParticipantTile(params = params, isSpeaking = true, recentReaction = InCallReactions.defaultReactions[2])
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewParticipantTallLongNameMuted() = WireTheme {
-    PreviewParticipantTile(shape = PreviewTileShape.Tall, isMuted = true)
-}
-
-@PreviewMultipleThemes
-@Composable
-fun PreviewParticipantWideLongNameMuted() = WireTheme {
-    PreviewParticipantTile(shape = PreviewTileShape.Wide, isMuted = true)
-}
-
-// ------ talking ------
-
-@PreviewMultipleThemes
-@Composable
-fun PreviewParticipantTalking() = WireTheme {
-    PreviewParticipantTile(shape = PreviewTileShape.Regular, isSpeaking = true)
-}
-
-@PreviewMultipleThemes
-@Composable
-fun PreviewParticipantLongNameTalking() = WireTheme {
-    PreviewParticipantTile(shape = PreviewTileShape.Regular, isSpeaking = true, longName = true)
-}
-
-@PreviewMultipleThemes
-@Composable
-fun PreviewParticipantTallLongNameTalking() = WireTheme {
-    PreviewParticipantTile(shape = PreviewTileShape.Tall, isSpeaking = true)
-}
-
-@PreviewMultipleThemes
-@Composable
-fun PreviewParticipantWideLongNameTalking() = WireTheme {
-    PreviewParticipantTile(shape = PreviewTileShape.Wide, isSpeaking = true)
-}
-
-@PreviewMultipleThemes
-@Composable
-fun PreviewParticipantTalkingReaction() = WireTheme {
-    PreviewParticipantTile(
-        shape = PreviewTileShape.Regular,
-        isSpeaking = true,
-        recentReaction = InCallReactions.defaultReactions[2],
-    )
-}
-
-@PreviewMultipleThemes
-@Composable
-fun PreviewParticipantCameraButton() = WireTheme {
-    PreviewParticipantTile(
-        shape = PreviewTileShape.Regular,
-        recentReaction = InCallReactions.defaultReactions[2],
-        isSelfUser = true,
-        isSelfCameraOn = true,
-    )
-}
+fun PreviewParticipantCameraButton(@PreviewParameter(PreviewParamsProvider::class) params: PreviewParams) =
+    PreviewParticipantTile(params = params, recentReaction = InCallReactions.defaultReactions[2], isSelfUser = true, isCameraOn = true)

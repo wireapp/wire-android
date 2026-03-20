@@ -28,10 +28,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -54,6 +50,8 @@ import com.wire.android.ui.common.R as commonR
 fun CallDetailsSheetContent(
     callQuality: CallQualityData.Quality,
     onOpenNetworkQuality: () -> Unit,
+    othersVideosDisabled: Boolean,
+    onOthersVideosDisabledChanged: (othersVideosDisabled: Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -67,7 +65,10 @@ fun CallDetailsSheetContent(
             onOpenNetworkQuality = onOpenNetworkQuality
         )
         WireDivider()
-        TurnOffOtherVideosItem()
+        TurnOffOtherVideosItem(
+            othersVideosDisabled = othersVideosDisabled,
+            onOthersVideosDisabledChanged = onOthersVideosDisabledChanged,
+        )
     }
 }
 
@@ -125,7 +126,10 @@ private fun NetworkQualityItem(
 }
 
 @Composable
-private fun TurnOffOtherVideosItem() {
+private fun TurnOffOtherVideosItem(
+    othersVideosDisabled: Boolean,
+    onOthersVideosDisabledChanged: (othersVideosDisabled: Boolean) -> Unit,
+) {
     Column(
         verticalArrangement = Arrangement.spacedBy(dimensions().spacing8x),
         modifier = Modifier
@@ -143,12 +147,9 @@ private fun TurnOffOtherVideosItem() {
                 color = colorsScheme().onSurface,
                 modifier = Modifier.weight(1f, fill = true)
             )
-            var checked by remember { mutableStateOf(false) } // TODO: get this value from the view model
             WireSwitch(
-                checked = checked,
-                onCheckedChange = {
-                    checked = it // TODO: implement the logic of turning off other videos in the view model and call it here
-                },
+                checked = othersVideosDisabled,
+                onCheckedChange = onOthersVideosDisabledChanged,
             )
         }
         Text(
@@ -166,6 +167,8 @@ private fun TurnOffOtherVideosItem() {
 fun CallDetailsSheetContentPreview() = WireTheme {
     CallDetailsSheetContent(
         callQuality = CallQualityData.Quality.NORMAL,
-        onOpenNetworkQuality = {}
+        onOpenNetworkQuality = {},
+        othersVideosDisabled = true,
+        onOthersVideosDisabledChanged = {},
     )
 }

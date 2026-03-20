@@ -34,6 +34,8 @@ import kotlinx.serialization.Serializable
 fun CallDetailsBottomSheet(
     sheetState: WireModalSheetState<CallDetailsSheetState>,
     callQualityData: CallQualityData,
+    othersVideosDisabled: Boolean,
+    setOthersVideosDisabled: (othersVideosDisabled: Boolean) -> Unit,
 ) {
     WireModalSheetLayout(
         sheetState = sheetState,
@@ -56,6 +58,8 @@ fun CallDetailsBottomSheet(
                         onOpenNetworkQuality = {
                             sheetState.show(CallDetailsSheetState.Quality)
                         },
+                        othersVideosDisabled = othersVideosDisabled,
+                        onOthersVideosDisabledChanged = setOthersVideosDisabled,
                     )
 
                     CallDetailsSheetState.Quality -> CallNetworkQualitySheetContent(
@@ -93,6 +97,8 @@ private fun CallDetailsBottomSheetPreview(callDetailsSheetState: CallDetailsShee
                 video = CallQualityData.VideoJitter(up = 15, down = 25),
             ),
         ),
+        othersVideosDisabled = true,
+        setOthersVideosDisabled = {},
     )
 }
 

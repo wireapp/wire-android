@@ -163,5 +163,6 @@
     "background_notification_stay_alive_seconds": 3,
     "is_bubble_ui_enabled": true,
     "collabora_integration": true,
-    "db_invalidation_control_enabled": false
+    "db_invalidation_control_enabled": false,
+    "call_reactions_enabled": true
 }

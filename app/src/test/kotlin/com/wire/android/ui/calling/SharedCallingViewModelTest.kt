@@ -439,6 +439,7 @@ class SharedCallingViewModelTest {
 
         val reactionsFlow = MutableSharedFlow<InCallReactionMessage>()
         val callFlow = MutableSharedFlow<Call?>()
+        var callReactionsEnabled = true
 
         init {
             MockKAnnotations.init(this, relaxed = true)
@@ -470,11 +471,16 @@ class SharedCallingViewModelTest {
             observeInCallReactionsUseCase = observeInCallReactionsUseCase,
             sendInCallReactionUseCase = sendInCallReactionUseCase,
             getCurrentClientId = getCurrentClientId,
+            callReactionsEnabled = callReactionsEnabled,
             dispatchers = dispatchers,
         )
 
         fun withSendInCallReactionUseCaseReturning(result: MessageOperationResult) = apply {
             coEvery { sendInCallReactionUseCase(conversationId, any()) } returns result
+        }
+
+        fun withCallReactionsEnabled(enabled: Boolean) = apply {
+            callReactionsEnabled = enabled
         }
     }
 

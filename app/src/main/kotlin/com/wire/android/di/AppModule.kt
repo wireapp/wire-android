@@ -121,6 +121,10 @@ object AppModule {
     fun provideUseNewLoginForDefaultBackend(): Boolean = BuildConfig.USE_NEW_LOGIN_FOR_DEFAULT_BACKEND
 
     @Provides
+    @Named("callReactionsEnabled")
+    fun provideCallReactionsEnabled(): Boolean = BuildConfig.CALL_REACTIONS_ENABLED
+
+    @Provides
     @Singleton
     fun provideMessageSharedState(): MessageSharedState = MessageSharedState()
 }

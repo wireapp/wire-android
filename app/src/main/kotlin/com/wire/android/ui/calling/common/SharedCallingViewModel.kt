@@ -88,6 +88,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
+import javax.inject.Named
 
 @Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel(assistedFactory = SharedCallingViewModel.Factory::class)
@@ -112,7 +113,8 @@ class SharedCallingViewModel @AssistedInject constructor(
     private val getCurrentClientId: ObserveCurrentClientIdUseCase,
     private val uiCallParticipantMapper: UICallParticipantMapper,
     private val userTypeMapper: UserTypeMapper,
-    private val dispatchers: DispatcherProvider
+    @Named("callReactionsEnabled") val callReactionsEnabled: Boolean,
+    private val dispatchers: DispatcherProvider,
 ) : ActionsViewModel<SharedCallingViewActions>() {
 
     var callState by mutableStateOf(CallState(conversationId))
@@ -146,7 +148,7 @@ class SharedCallingViewModel @AssistedInject constructor(
                 observeOnSpeaker(this)
             }
 
-            if (BuildConfig.CALL_REACTIONS_ENABLED) {
+            if (callReactionsEnabled) {
                 launch {
                     observeInCallReactions()
                 }

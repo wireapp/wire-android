@@ -334,8 +334,9 @@ data class ConversationViewPage(private val device: UiDevice) {
     }
 
     fun typeMessageInInputField(message: String): ConversationViewPage {
-        UiWaitUtils.waitElement(messageInputField).click()
-        device.type(message)
+        val field = UiWaitUtils.waitElement(messageInputField)
+        field.click()
+        field.text = message
         return this
     }
 

@@ -18,7 +18,6 @@
 package com.wire.android.tests.core.pages
 
 import androidx.test.uiautomator.UiDevice
-import androidx.test.uiautomator.type
 import backendUtils.team.TeamHelper
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
@@ -63,8 +62,7 @@ data class SearchPage(private val device: UiDevice) {
         )
         val field = UiWaitUtils.waitElement(searchFieldSearchPeople)
         field.click()
-        val toType = uniqueUserName.uniqueUsername.orEmpty().replace(" ", "%s")
-        device.type(toType)
+        field.text = uniqueUserName.uniqueUsername.orEmpty()
         return this
     }
 
@@ -77,8 +75,9 @@ data class SearchPage(private val device: UiDevice) {
             alias,
             ClientUserManager.FindBy.NAME_ALIAS
         )
-         UiWaitUtils.waitElement(searchFieldSearchPeople).click()
-        device.type(userName)
+        val field = UiWaitUtils.waitElement(searchFieldSearchPeople)
+        field.click()
+        field.text = userName
         return this
     }
 }

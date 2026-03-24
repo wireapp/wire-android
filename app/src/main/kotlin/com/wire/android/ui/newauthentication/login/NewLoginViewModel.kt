@@ -64,7 +64,10 @@ import com.wire.kalium.logic.feature.client.RegisterClientResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.onEach
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -303,6 +306,18 @@ class NewLoginViewModel(
             )
         }
 
+    fun observeSSOResult(backStackSavedState: SavedStateHandle) {
+        viewModelScope.launch {
+            backStackSavedState
+                .getStateFlow<String?>(SSO_LOGIN_RESULT_KEY, null)
+                .filterNotNull()
+                .collect { json ->
+                    handleSSOResult(Json.decodeFromString(json))
+                    backStackSavedState.remove<String>(SSO_LOGIN_RESULT_KEY)
+                }
+        }
+    }
+
     fun handleSSOResult(ssoLoginResult: DeepLinkResult.SSOLogin) {
         updateLoginFlowState(NewLoginFlowState.Loading)
         when (ssoLoginResult) {
@@ -433,6 +448,7 @@ class NewLoginViewModel(
 
     companion object {
         private const val TAG = "[NewLoginViewModel]"
+        const val SSO_LOGIN_RESULT_KEY = "sso_login_result_json"
     }
 }
 

@@ -421,7 +421,7 @@ class IntentsProcessorTest {
 
     class Arrangement {
         internal val intent: Intent = mockk()
-        private var configurationSignatureKeys: List<String>? = null
+        private var configurationSignatureKeys: Map<String, String>? = null
         private var isConfigurationSignatureEnforced = false
 
         init {
@@ -431,7 +431,7 @@ class IntentsProcessorTest {
         fun arrange() = this to (
             IntentsProcessor(
                 nomadIntentSignatureValidator = NomadIntentSignatureValidator(
-                    configurationSignatureKeys = configurationSignatureKeys ?: emptyList(),
+                    configurationSignatureKeys = configurationSignatureKeys ?: emptyMap(),
                     isConfigurationSignatureEnforced = isConfigurationSignatureEnforced
                 )
             )
@@ -442,7 +442,7 @@ class IntentsProcessorTest {
         }
 
         fun withConfigurationSignatureKey(vararg key: String) = apply {
-            configurationSignatureKeys = key.toList()
+            configurationSignatureKeys = key.mapIndexed { index, value -> index.toString() to value }.toMap()
         }
 
         fun withConfigurationSignatureEnforced(isEnforced: Boolean) = apply {

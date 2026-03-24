@@ -163,7 +163,7 @@ class NomadIntentSignatureValidatorTest {
     }
 
     private class Arrangement {
-        private var configurationSignatureKeys: List<String> = emptyList()
+        private var configurationSignatureKeys: Map<String, String> = emptyMap()
         private var isConfigurationSignatureEnforced = false
 
         fun arrange() = NomadIntentSignatureValidator(
@@ -172,7 +172,7 @@ class NomadIntentSignatureValidatorTest {
         )
 
         fun withConfigurationSignatureKey(vararg key: String) = apply {
-            configurationSignatureKeys = key.toList()
+            configurationSignatureKeys = key.mapIndexed { index, value -> index.toString() to value }.toMap()
         }
 
         fun withConfigurationSignatureEnforced(isEnforced: Boolean) = apply {

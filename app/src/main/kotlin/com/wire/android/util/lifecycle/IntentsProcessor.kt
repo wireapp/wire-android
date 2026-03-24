@@ -28,11 +28,7 @@ data class AutomatedLoginViaSSO(
     val backendConfig: String? = null,
     val ssoCode: String? = null,
     val nomadProfilesHost: String? = null,
-) {
-    val isEmpty = backendConfig.isNullOrEmpty() &&
-        ssoCode.isNullOrEmpty() &&
-        nomadProfilesHost.isNullOrEmpty()
-}
+)
 
 @Singleton
 class IntentsProcessor @Inject internal constructor(
@@ -64,11 +60,15 @@ class IntentsProcessor @Inject internal constructor(
             return null
         }
 
-        if (!nomadIntentSignatureValidator.isValid(parsed.nomadProfilesHost, parsed.signatureNomadProfilesHost)) {
+        if (parsed.ssoCode.isNullOrEmpty() || parsed.backendConfig.isNullOrEmpty()) {
             return null
         }
 
-        if (parsed.ssoCode.isNullOrEmpty() || parsed.backendConfig.isNullOrEmpty()) {
+        val signedPayload = createSignedPayload(
+            backendConfig = parsed.backendConfig,
+            nomadProfilesHost = parsed.nomadProfilesHost
+        )
+        if (!nomadIntentSignatureValidator.isValid(signedPayload, parsed.signatureNomadProfilesHost)) {
             return null
         }
 
@@ -76,10 +76,8 @@ class IntentsProcessor @Inject internal constructor(
             parsed.backendConfig,
             parsed.ssoCode,
             parsed.nomadProfilesHost,
-        )
-            .takeIf { !it.isEmpty }
-            ?.takeIf {
-                val validBackend = parsed.backendConfig == null || isValidHttpsUrl(parsed.backendConfig)
+        ).takeIf {
+                val validBackend = isValidHttpsUrl(parsed.backendConfig)
                 val validNomadProfileHost = isValidHttpsUrl(parsed.nomadProfilesHost)
                 validBackend && validNomadProfileHost
             }
@@ -90,4 +88,9 @@ class IntentsProcessor @Inject internal constructor(
         val uri = runCatching { URI(url) }.getOrNull()
         return uri?.scheme?.lowercase() == "https" && !uri.host.isNullOrEmpty()
     }
+
+    private fun createSignedPayload(
+        backendConfig: String,
+        nomadProfilesHost: String
+    ): String = "wire=$backendConfig,nomad=$nomadProfilesHost"
 }

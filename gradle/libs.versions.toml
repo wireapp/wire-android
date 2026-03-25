@@ -22,6 +22,7 @@ gms-location = "21.3.0"
 android-gradlePlugin = "9.0.1"
 desugaring = "2.1.5"
 firebaseBOM = "34.7.0"
+kayan = "1.3.0-beta.1"
 fragment = "1.5.6"
 resaca = "3.0.0"
 bundlizer = "0.8.0"
@@ -162,6 +163,7 @@ hilt-gradlePlugin = { module = "com.google.dagger:hilt-android-gradle-plugin", v
 googleGms-gradlePlugin = { module = "com.google.gms:google-services", version.ref = "google-gms" }
 googleGms-location = { module = "com.google.android.gms:play-services-location", version.ref = "gms-location" }
 aboutLibraries-gradlePlugin = { module = "com.mikepenz.aboutlibraries.plugin:aboutlibraries-plugin", version.ref = "aboutLibraries" }
+kayan-gradlePlugin = { module = "io.github.mohamadjaara:kayan-gradle-plugin", version.ref = "kayan" }
 kover-gradlePlugin = { module = "org.jetbrains.kotlinx:kover-gradle-plugin", version.ref = "kover" }
 ktx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "ktx-serialization" }
 ktx-dateTime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "ktx-dateTime" }

@@ -24,6 +24,7 @@ import java.io.File
 import java.util.Properties
 
 object Customization {
+    private val customizationOptionCache = mutableMapOf<String, CustomizationOption>()
 
     /**
      * Where the custom properties git checkout coordinates are located.
@@ -97,13 +98,18 @@ object Customization {
     fun getBuildtimeConfiguration(
         rootDir: File
     ): BuildTimeConfiguration {
-        return if (isCustomizationEnabled()) {
-            val customFile = getCustomisationFileFromGitProperties(rootDir)
-            getBuildtimeConfiguration(rootDir, CustomizationOption.FromFile(customFile))
-        } else {
-            getBuildtimeConfiguration(rootDir, CustomizationOption.DefaultOnly)
-        }
+        return getBuildtimeConfiguration(rootDir, resolveCustomizationOption(rootDir))
     }
+
+    fun resolveCustomizationOption(rootDir: File): CustomizationOption =
+        customizationOptionCache.getOrPut(rootDir.absolutePath) {
+            if (isCustomizationEnabled()) {
+                val customFile = getCustomisationFileFromGitProperties(rootDir)
+                CustomizationOption.FromFile(customFile)
+            } else {
+                CustomizationOption.DefaultOnly
+            }
+        }
 
     /**
      * Basing all the work on the [rootDir], import configuration files
@@ -116,16 +122,14 @@ object Customization {
     ): BuildTimeConfiguration {
 
         val defaultConfigFile = File(rootDir, DEFAULT_JSON_FILE_NAME)
-        val defaultConfig = configurationFileImporter.loadConfigsFromFile(defaultConfigFile)
-
-        val normalizedFlavorSettings = when (customizationOption) {
-            is CustomizationOption.DefaultOnly -> defaultConfig
-
-            is CustomizationOption.FromFile -> getCustomBuildConfigs(
-                defaultConfig,
-                customizationOption.customJsonFile
-            )
+        val customConfigFile = when (customizationOption) {
+            is CustomizationOption.DefaultOnly -> null
+            is CustomizationOption.FromFile -> customizationOption.customJsonFile
         }
+        val normalizedFlavorSettings = configurationFileImporter.loadConfigsFromFiles(
+            baseConfigFile = defaultConfigFile,
+            customConfigFile = customConfigFile
+        )
 
         val resourcesOverrideDirectory = when(customizationOption){
             is CustomizationOption.DefaultOnly -> null
@@ -167,31 +171,6 @@ object Customization {
         ))
 
         return File(customCheckoutDir, "$customFolder/$clientFolder/$CUSTOM_JSON_FILE_NAME")
-    }
-
-    private fun getCustomBuildConfigs(
-        defaultConfig: NormalizedFlavorSettings,
-        customConfigFile: File
-    ): NormalizedFlavorSettings {
-        val customConfig = configurationFileImporter.loadConfigsFromFile(customConfigFile)
-
-        customConfig.flavorMap.keys.forEach { customFlavor ->
-            require(defaultConfig.flavorMap.containsKey(customFlavor)) {
-                """
-                |Flavor '$customFlavor' defined in $CUSTOM_JSON_FILE_NAME does not have a matching definition in $DEFAULT_JSON_FILE_NAME.
-                |Check for a typo in the name of '$customFlavor' in $CUSTOM_JSON_FILE_NAME, and make sure the default 
-                |flavors definition file also contains an entry for '$customFlavor'.
-                """.trimMargin()
-            }
-        }
-
-        val overwrittenFlavors = defaultConfig.flavorMap.map { (defaultFlavor, defaultSettings) ->
-            val customOverrides = customConfig.flavorMap[defaultFlavor] ?: emptyMap()
-            val overwrittenFlavor = defaultSettings.overwritingWith(defaultFlavor, customOverrides)
-            defaultFlavor to overwrittenFlavor
-        }.toMap()
-
-        return NormalizedFlavorSettings(overwrittenFlavors)
     }
 
     /**

@@ -34,6 +34,7 @@ dependencies {
     implementation("io.gitlab.arturbosch.detekt:detekt-gradle-plugin:${klibs.versions.detekt.get()}")
     implementation("org.jetbrains.kotlinx:kover-gradle-plugin:${libs.versions.kover.get()}")
     implementation(libs.android.junit5)
+    implementation(libs.kayan.gradlePlugin)
 
     testImplementation("junit:junit:${libs.versions.junit4.get()}")
     testImplementation(kotlin("test"))

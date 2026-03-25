@@ -20,7 +20,6 @@ package scripts
 
 import com.android.build.api.dsl.ApplicationProductFlavor
 import com.android.build.api.dsl.ProductFlavor
-import customization.ConfigType
 import customization.Customization.getBuildtimeConfiguration
 import customization.FeatureConfigs
 import customization.FeatureFlags
@@ -28,6 +27,7 @@ import customization.Features
 import customization.overrideResourcesForAllFlavors
 import flavor.FlavorDimensions
 import flavor.ProductFlavors
+import io.kayan.ConfigValueKind
 
 plugins { id("com.android.application") apply false }
 
@@ -145,12 +145,12 @@ android {
             requireNotNull(flavorSpecificMap) {
                 "Missing configs in json file for the flavor '$flavorName'"
             }
-            val flavorApplicationId = flavorSpecificMap[FeatureConfigs.APPLICATION_ID.value] as? String
+            val flavorApplicationId = flavorSpecificMap[FeatureConfigs.APPLICATION_ID.jsonKey] as? String
             requireNotNull(flavorApplicationId) {
                 "Missing application ID definition for the flavor '$flavorName'"
             }
             // prefer value from FeatureConfigs if defined, otherwise fallback to in-code flavor value.
-            val userId: String = (flavorSpecificMap[FeatureConfigs.USER_ID.value] as? String) ?: flavor.shareduserId
+            val userId: String = (flavorSpecificMap[FeatureConfigs.USER_ID.jsonKey] as? String) ?: flavor.shareduserId
             createAppFlavour(
                 flavorApplicationId = flavorApplicationId,
                 sharedUserId = userId,
@@ -180,73 +180,58 @@ android {
         }
 
         FeatureConfigs.values().forEach { configs ->
-            when (configs.configType) {
-                ConfigType.STRING -> {
-                    if (FeatureConfigs.GOOGLE_API_KEY.value == configs.value) {
-                        val apiKey:String? = flavorMap[flavor.name]?.get(configs.value)?.toString()
-                        flavor.manifestPlaceholders["GCP_API_KEY"] = apiKey ?: ""
-                    } else {
-                        buildStringConfig(
-                            flavor,
-                            configs.configType.type,
-                            configs.name,
-                            flavorMap[flavor.name]?.get(configs.value)?.toString()
-                        )
-                    }
-                }
-
-                ConfigType.INT,
-                ConfigType.BOOLEAN -> {
-                    buildNonStringConfig(
-                        flavor,
-                        configs.configType.type,
-                        configs.name,
-                        flavorMap[flavor.name]?.get(configs.value).toString()
-                    )
-                }
-
-                ConfigType.MapOfStringToListOfStrings -> {
-                    val map = flavorMap[flavor.name]?.get(configs.value) as? Map<*, *>
-                    val mapString = map?.map { (key, value) ->
-                        "\"$key\", java.util.Arrays.asList(${(value as? List<*>)?.joinToString { "\"$it\"" } ?: ""})".let {
-                            "put($it);"
-                        }
-                    }?.joinToString(",\n") ?: ""
-                    buildNonStringConfig(
-                        flavor,
-                        configs.configType.type,
-                        configs.name,
-                        "new java.util.HashMap<String, java.util.List<String>>() {{\n$mapString\n}}"
-                    )
-                }
-
-                ConfigType.ListOfStrings -> {
-                    val list = flavorMap[flavor.name]?.get(configs.value) as? List<*>
-                    val listString = list?.joinToString { "\"$it\"" } ?: ""
-                    buildNonStringConfig(
-                        flavor,
-                        configs.configType.type,
-                        configs.name,
-                        "java.util.Arrays.asList($listString)"
-                    )
-                }
+            val rawValue = flavorMap[flavor.name]?.get(configs.jsonKey)
+            if (configs == FeatureConfigs.GOOGLE_API_KEY) {
+                flavor.manifestPlaceholders["GCP_API_KEY"] = rawValue?.toString() ?: ""
+            } else {
+                buildConfigFromKayanKind(
+                    productFlavor = flavor,
+                    config = configs,
+                    value = rawValue
+                )
             }
         }
     }
 }
 
-fun buildStringConfig(productFlavour: ProductFlavor, type: String, name: String, value: String?) {
-    productFlavour.buildConfigField(
-        type,
-        name,
-        value?.let { """"$it"""" } ?: "null"
+fun buildConfigFromKayanKind(
+    productFlavor: ProductFlavor,
+    config: FeatureConfigs,
+    value: Any?
+) {
+    productFlavor.buildConfigField(
+        config.buildConfigType,
+        config.name,
+        renderBuildConfigValue(config.kind, value)
     )
 }
 
-fun buildNonStringConfig(productFlavour: ProductFlavor, type: String, name: String, value: String) {
-    productFlavour.buildConfigField(
-        type,
-        name,
-        value
-    )
+fun renderBuildConfigValue(kind: ConfigValueKind, value: Any?): String = when (kind) {
+    ConfigValueKind.STRING,
+    ConfigValueKind.ENUM -> value?.let { """"$it"""" } ?: "null"
+    ConfigValueKind.BOOLEAN,
+    ConfigValueKind.INT,
+    ConfigValueKind.LONG,
+    ConfigValueKind.DOUBLE -> value.toString()
+    ConfigValueKind.STRING_MAP -> {
+        val map = value as? Map<*, *>
+        val mapString = map?.entries?.joinToString(",\n") { (key, entryValue) ->
+            "put(\"$key\", \"$entryValue\");"
+        } ?: ""
+        "new java.util.HashMap<String, String>() {{\n$mapString\n}}"
+    }
+    ConfigValueKind.STRING_LIST_MAP -> {
+        val map = value as? Map<*, *>
+        val mapString = map?.entries?.joinToString(",\n") { (key, entryValue) ->
+            "\"$key\", java.util.Arrays.asList(${(entryValue as? List<*>)?.joinToString { "\"$it\"" } ?: ""})".let {
+                "put($it);"
+            }
+        } ?: ""
+        "new java.util.HashMap<String, java.util.List<String>>() {{\n$mapString\n}}"
+    }
+    ConfigValueKind.STRING_LIST -> {
+        val list = value as? List<*>
+        val listString = list?.joinToString { "\"$it\"" } ?: ""
+        "java.util.Arrays.asList($listString)"
+    }
 }

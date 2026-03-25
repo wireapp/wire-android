@@ -27,6 +27,9 @@ import kotlin.test.assertEquals
 
 @RunWith(JUnit4::class)
 class CustomizationTest {
+    private companion object {
+        const val FLAVORS_KEY = "flavors"
+    }
 
     @Suppress("VulnerableCodeUsages") // We don't write sensitive info, and this is patched in newer JDKs
     @get:Rule
@@ -39,20 +42,20 @@ class CustomizationTest {
         defaultFile.writeText(
             """
             {
-                "${ConfigurationFileImporter.KEY_FLAVORS}": {
+                "$FLAVORS_KEY": {
                     "dev": {}
                 },
-                "foo": "default" 
+                "${FeatureConfigs.APP_NAME.jsonKey}": "Wire"
             }
             """.trimIndent()
         )
         customFile.writeText(
             """
             {
-                "${ConfigurationFileImporter.KEY_FLAVORS}": {
+                "$FLAVORS_KEY": {
                     "dev": {}
                 },
-                "foo": "custom" 
+                "${FeatureConfigs.APP_NAME.jsonKey}": "Custom Wire"
             }
             """.trimIndent()
         )
@@ -62,7 +65,7 @@ class CustomizationTest {
             Customization.CustomizationOption.DefaultOnly
         )
 
-        assertEquals("default", result.flavorSettings.flavorMap["dev"]!!["foo"])
+        assertEquals("Wire", result.flavorSettings.flavorMap["dev"]!![FeatureConfigs.APP_NAME.jsonKey])
     }
 
     @Test
@@ -70,20 +73,20 @@ class CustomizationTest {
         defaultFile.writeText(
             """
             {
-                "${ConfigurationFileImporter.KEY_FLAVORS}": {
+                "$FLAVORS_KEY": {
                     "dev": {}
                 },
-                "foo": "default" 
+                "${FeatureConfigs.APP_NAME.jsonKey}": "Wire"
             }
             """.trimIndent()
         )
         customFile.writeText(
             """
             {
-                "${ConfigurationFileImporter.KEY_FLAVORS}": {
+                "$FLAVORS_KEY": {
                     "dev": {}
                 },
-                "foo": "custom" 
+                "${FeatureConfigs.APP_NAME.jsonKey}": "Custom Wire"
             }
             """.trimIndent()
         )
@@ -93,6 +96,6 @@ class CustomizationTest {
             Customization.CustomizationOption.FromFile(customFile)
         )
 
-        assertEquals("custom", result.flavorSettings.flavorMap["dev"]!!["foo"])
+        assertEquals("Custom Wire", result.flavorSettings.flavorMap["dev"]!![FeatureConfigs.APP_NAME.jsonKey])
     }
 }

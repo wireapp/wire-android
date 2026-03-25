@@ -1,6 +1,12 @@
+import customization.Customization
 import customization.ConfigurationFileImporter
 import customization.Customization.isCustomizationEnabled
+import customization.Customization.CustomizationOption
 import customization.NormalizedFlavorSettings
+import customization.serializedFeatureConfigsSchemaEntries
+import io.kayan.ConfigFormat
+import io.kayan.gradle.GenerateKayanConfigTask
+import org.gradle.kotlin.dsl.register
 
 /*
  * Wire
@@ -53,6 +59,18 @@ val nonFreeFlavors = setOf("prod", "internal", "staging", "beta", "dev")
 val fossFlavors = setOf("fdroid")
 val internalFlavors = setOf("internal", "staging", "beta", "dev")
 val allFlavors = nonFreeFlavors + fossFlavors
+val requiredKayanRuntimeConfigs = setOf(
+    customization.FeatureConfigs.DEFAULT_BACKEND_URL_ACCOUNTS,
+    customization.FeatureConfigs.DEFAULT_BACKEND_URL_BASE_API,
+    customization.FeatureConfigs.DEFAULT_BACKEND_URL_BASE_WEBSOCKET,
+    customization.FeatureConfigs.DEFAULT_BACKEND_URL_TEAM_MANAGEMENT,
+    customization.FeatureConfigs.DEFAULT_BACKEND_URL_BLACKLIST,
+    customization.FeatureConfigs.DEFAULT_BACKEND_URL_WEBSITE,
+    customization.FeatureConfigs.DEFAULT_BACKEND_TITLE
+)
+val kayanRuntimeConfigPackageName = "com.wire.android.generated"
+val kayanRuntimeConfigClassName = "WireRuntimeConfig"
+val kayanSchemaEntries = serializedFeatureConfigsSchemaEntries(requiredKayanRuntimeConfigs)
 
 private fun getFlavorsSettings(): NormalizedFlavorSettings =
     try {
@@ -62,6 +80,39 @@ private fun getFlavorsSettings(): NormalizedFlavorSettings =
     } catch (e: Exception) {
         error(">> Error reading current flavors, exception: ${e.localizedMessage}")
     }
+
+val kayanFlavorConfigTasks = allFlavors.associateWith { flavorName ->
+    val outputDir = layout.buildDirectory.dir("generated/kayan/kotlin/android/$flavorName")
+    tasks.register<GenerateKayanConfigTask>("generateKayan${flavorName.replaceFirstChar(Char::titlecase)}Config") {
+        group = "code generation"
+        description = "Generates a typed Kayan config object for Android flavor '$flavorName'."
+        packageName.set(kayanRuntimeConfigPackageName)
+        flavor.set(flavorName)
+        className.set(kayanRuntimeConfigClassName)
+        kotlinPluginApplied.set(true)
+        baseConfigFile.set(rootProject.layout.projectDirectory.file("default.json"))
+        when (val customizationOption = Customization.resolveCustomizationOption(rootProject.projectDir)) {
+            is CustomizationOption.DefaultOnly -> Unit
+            is CustomizationOption.FromFile -> customConfigFile.set(customizationOption.customJsonFile)
+        }
+        configFormat.set(ConfigFormat.JSON)
+        schemaEntries.set(kayanSchemaEntries)
+        this.outputDir.set(outputDir)
+        buildscript.configurations.findByName("classpath")?.let { classpath ->
+            buildscriptClasspath.from(classpath)
+        }
+    }
+}
+
+val generateKayanAndroidFlavorConfigs = tasks.register("generateKayanAndroidFlavorConfigs") {
+    group = "code generation"
+    description = "Generates typed Kayan config objects for configured Android flavors."
+    dependsOn(kayanFlavorConfigTasks.values)
+}
+
+tasks.named("preBuild").configure {
+    dependsOn(generateKayanAndroidFlavorConfigs)
+}
 
 android {
     defaultConfig {
@@ -143,6 +194,9 @@ android {
                     kotlin.directories.add("src/public/kotlin")
                     println("Adding external datadog logger sourceSets to '$flavor' flavor")
                 }
+                kotlin.directories.add(
+                    layout.buildDirectory.dir("generated/kayan/kotlin/android/$flavor").get().asFile.path
+                )
 
                 if (flavor in fossFlavors) {
                     kotlin.directories.add("src/foss/kotlin")

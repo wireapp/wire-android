@@ -156,5 +156,9 @@ the flavor over the generic one put in `main`.
 
 # Implementation details
 
+The JSON config resolution and override precedence are now powered by
+[Kayan](https://github.com/MohamadJaara/Kayan), while this repository still owns the
+external customization checkout flow and resource override copying.
+
 Take a look into the [customization files within buildSrc](buildSrc/src/main/kotlin/customization)
 for more details on how it works.

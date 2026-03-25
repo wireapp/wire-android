@@ -17,7 +17,7 @@
  */
 package com.wire.android.config
 
-import com.wire.android.BuildConfig
+import com.wire.android.generated.WireRuntimeConfig
 import com.wire.android.emm.ManagedServerConfig
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import javax.inject.Inject
@@ -43,13 +43,13 @@ class ServerConfigProvider @Inject constructor() {
             }
         } else {
             ServerConfig.Links(
-                api = BuildConfig.DEFAULT_BACKEND_URL_BASE_API,
-                accounts = BuildConfig.DEFAULT_BACKEND_URL_ACCOUNTS,
-                webSocket = BuildConfig.DEFAULT_BACKEND_URL_BASE_WEBSOCKET,
-                teams = BuildConfig.DEFAULT_BACKEND_URL_TEAM_MANAGEMENT,
-                blackList = BuildConfig.DEFAULT_BACKEND_URL_BLACKLIST,
-                website = BuildConfig.DEFAULT_BACKEND_URL_WEBSITE,
-                title = BuildConfig.DEFAULT_BACKEND_TITLE,
+                api = WireRuntimeConfig.DEFAULT_BACKEND_URL_BASE_API,
+                accounts = WireRuntimeConfig.DEFAULT_BACKEND_URL_ACCOUNTS,
+                webSocket = WireRuntimeConfig.DEFAULT_BACKEND_URL_BASE_WEBSOCKET,
+                teams = WireRuntimeConfig.DEFAULT_BACKEND_URL_TEAM_MANAGEMENT,
+                blackList = WireRuntimeConfig.DEFAULT_BACKEND_URL_BLACKLIST,
+                website = WireRuntimeConfig.DEFAULT_BACKEND_URL_WEBSITE,
+                title = WireRuntimeConfig.DEFAULT_BACKEND_TITLE,
                 isOnPremises = false,
                 apiProxy = null
             )

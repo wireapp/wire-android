@@ -29,6 +29,9 @@ import kotlin.test.assertTrue
 
 @RunWith(JUnit4::class)
 class ConfigurationFileImporterTest {
+    private companion object {
+        const val FLAVORS_KEY = "flavors"
+    }
 
     @Suppress("VulnerableCodeUsages") // We don't write sensitive info, and this is patched in newer JDKs
     @get:Rule
@@ -39,12 +42,12 @@ class ConfigurationFileImporterTest {
 
     @Test
     fun givenDefaultValuesAndFlavorSpecifics_whenImportingFile_shouldOverwriteDefaultWithFlavorSpecific() {
-        val keyName = "color"
-        val overwrittenValue = "yellow"
+        val keyName = FeatureConfigs.APP_NAME.jsonKey
+        val overwrittenValue = "Wire Banana"
         configFile.writeText(
             """
             {
-            "${ConfigurationFileImporter.KEY_FLAVORS}": {
+            "$FLAVORS_KEY": {
                     "strawberry": {},            
                     "apple": {},            
                     "banana": {
@@ -63,16 +66,16 @@ class ConfigurationFileImporterTest {
 
     @Test
     fun givenDefaultValuesAndFlavorSpecifics_whenImportingFile_shouldContainDefaultWhenNotOverwritten() {
-        val keyName = "color"
-        val defaultValue = "red"
+        val keyName = FeatureConfigs.APP_NAME.jsonKey
+        val defaultValue = "Wire"
         configFile.writeText(
             """
             {
-            "${ConfigurationFileImporter.KEY_FLAVORS}": {
+            "$FLAVORS_KEY": {
                     "strawberry": {},            
                     "apple": {},            
                     "banana": {
-                        "$keyName": "yellow"
+                        "$keyName": "Wire Banana"
                     }           
                 },
                 "$keyName": "$defaultValue"
@@ -91,14 +94,14 @@ class ConfigurationFileImporterTest {
         configFile.writeText(
             """
             {
-            "${ConfigurationFileImporter.KEY_FLAVORS}": {
+            "$FLAVORS_KEY": {
                     "strawberry": {},            
                     "apple": {},            
                     "banana": {
-                        "color": "yellow"
+                        "${FeatureConfigs.APP_NAME.jsonKey}": "Wire Banana"
                     }           
                 },
-                "color": "red"
+                "${FeatureConfigs.APP_NAME.jsonKey}": "Wire"
             }
             """.trimIndent()
         )

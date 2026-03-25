@@ -18,83 +18,52 @@
 
 package customization
 
-import groovy.json.JsonSlurper
+import io.kayan.ConfigSchema
+import io.kayan.ConfigValue
+import io.kayan.DefaultConfigResolver
 import java.io.File
 
 class ConfigurationFileImporter {
 
-    private val jsonReader = JsonSlurper()
+    private val resolver = DefaultConfigResolver()
+    private val schema = ConfigSchema(FeatureConfigs.entries.map { it.toConfigDefinition() })
 
     fun loadConfigsFromFile(file: File): NormalizedFlavorSettings {
-        val importedMap = jsonReader.parseText(file.readText())
-        require(importedMap is Map<*, *>) {
-            "Imported file '$file' isn't recognised as a JSON object"
-        }
-        importedMap as? Map<String, *> ?: throw IllegalArgumentException(
-            "Imported file '$file' could not be properly deserialized into a JSON object"
+        return loadConfigsFromFiles(baseConfigFile = file)
+    }
+
+    fun loadConfigsFromFiles(
+        baseConfigFile: File,
+        customConfigFile: File? = null
+    ): NormalizedFlavorSettings {
+        val resolvedConfig = resolver.resolve(
+            defaultConfigJson = baseConfigFile.readText(),
+            schema = schema,
+            customConfigJson = customConfigFile?.readText(),
+            defaultConfigSourceName = baseConfigFile.absolutePath,
+            customConfigSourceName = customConfigFile?.absolutePath ?: "custom config"
         )
-        return normalizeFlavorOverrides(importedMap)
-    }
 
-
-    /**
-     * Takes a Map with top-level configs and flavor-specific overrides,
-     * For example:
-     * ```json
-     * {
-     *     "color": "red",
-     *     "flavors": {
-     *         "apple": { },
-     *         "strawberry": { },
-     *         "cabbage": {
-     *             "color": "green"
-     *         }
-     *     }
-     * }
-     * ```
-     *
-     * Outputs a flat customisation map where flavors are on the top level
-     * and default values are duplicated inside them:
-     *
-     * ```json
-     * {
-     *     "apple": {
-     *         "color": "red"
-     *     },
-     *     "strawberry": {
-     *         "color": "red"
-     *     },
-     *     "cabbage": {
-     *         "color": "green"
-     *     }
-     * }
-     * ```
-     */
-    private fun normalizeFlavorOverrides(configs: Map<String, Any?>): NormalizedFlavorSettings {
-        val flavorSets = configs[KEY_FLAVORS]
-        requireNotNull(flavorSets) {
-            "Can't normalize map as it does not contain a flavor list"
-        }
-        require(flavorSets is Map<*, *>) {
-            "The 'flavors' map entry should contain another map of config overrides"
-        }
-        val topLevelConfigs = configs.filter { it.key != KEY_FLAVORS }
-
-        val normalizedMap = flavorSets.map { (flavorName, overrides) ->
-            require(flavorName is String) {
-                "The flavor $flavorName is not named using a valid String"
+        return NormalizedFlavorSettings(
+            resolvedConfig.flavors.mapValues { (_, flavorConfig) ->
+                flavorConfig.values.mapKeys { (definition, _) -> definition.jsonKey }
+                    .mapValues { (_, value) -> value.toRawValue() }
             }
-            require(overrides is Map<*, *>) {
-                "The entry '$flavorName' is not a valid map containing config overrides"
-            }
-            val overwrittenTopLevelConfigs = topLevelConfigs.overwritingWith(flavorName, overrides)
-            flavorName to overwrittenTopLevelConfigs
-        }.toMap()
-
-        return NormalizedFlavorSettings(normalizedMap)
+        )
     }
 
-    internal companion object {
-        const val KEY_FLAVORS = "flavors"
+    private fun ConfigValue?.toRawValue(): Any? = when (this) {
+        null -> null
+        is ConfigValue.StringValue -> value
+        is ConfigValue.BooleanValue -> value
+        is ConfigValue.IntValue -> value
+        is ConfigValue.LongValue -> value
+        is ConfigValue.DoubleValue -> value
+        is ConfigValue.StringMapValue -> value
+        is ConfigValue.StringListMapValue -> value
+        is ConfigValue.StringListValue -> value
+        is ConfigValue.EnumValue -> value
+        is ConfigValue.NullValue -> null
     }
+
 }

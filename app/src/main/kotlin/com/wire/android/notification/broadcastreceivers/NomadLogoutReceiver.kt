@@ -24,6 +24,7 @@ import com.wire.android.config.NomadProfilesFeatureConfig
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountParam
+import com.wire.android.util.SwitchAccountObserver
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
@@ -50,6 +51,9 @@ class NomadLogoutReceiver : CoroutineReceiver() {
     lateinit var accountSwitch: AccountSwitchUseCase
 
     @Inject
+    lateinit var switchAccountObserver: SwitchAccountObserver
+
+    @Inject
     lateinit var nomadProfilesFeatureConfig: NomadProfilesFeatureConfig
 
     public override suspend fun receive(context: Context, intent: Intent) {
@@ -74,8 +78,8 @@ class NomadLogoutReceiver : CoroutineReceiver() {
                 val userId = session.accountInfo.userId
                 appLogger.i("$TAG Logging out user: ${userId.toLogString()}")
                 coreLogic.getSessionScope(userId).logout(LogoutReason.SELF_HARD_LOGOUT, waitUntilCompletes = true)
-                deleteSession(userId)
-                accountSwitch(SwitchAccountParam.TryToSwitchToNextAccount)
+                coreLogic.getGlobalScope().deleteSession(userId)
+                accountSwitch(SwitchAccountParam.TryToSwitchToNextAccount).callAction(switchAccountObserver)
             }
 
             is CurrentSessionResult.Failure.SessionNotFound ->
@@ -88,6 +92,6 @@ class NomadLogoutReceiver : CoroutineReceiver() {
 
     companion object {
         const val ACTION_LOGOUT = "com.wire.ACTION_LOGOUT"
-        private const val TAG = "LogoutReceiver"
+        private const val TAG = "NomadLogoutReceiver"
     }
 }

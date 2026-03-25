@@ -24,6 +24,7 @@ import com.wire.android.config.NomadProfilesFeatureConfig
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountParam
 import com.wire.android.feature.SwitchAccountResult
+import com.wire.android.util.SwitchAccountObserver
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.logout.LogoutReason
@@ -68,6 +69,7 @@ class NomadLogoutReceiverTest {
             arrangement.deleteSession(userId)
             arrangement.accountSwitch(SwitchAccountParam.TryToSwitchToNextAccount)
         }
+        verify(exactly = 1) { arrangement.switchAccountObserver.noOtherAccountToSwitch() }
     }
 
     @Test
@@ -127,6 +129,9 @@ class NomadLogoutReceiverTest {
         lateinit var accountSwitch: AccountSwitchUseCase
 
         @MockK
+        lateinit var switchAccountObserver: SwitchAccountObserver
+
+        @MockK
         lateinit var userSessionScope: UserSessionScope
 
         @MockK
@@ -148,6 +153,7 @@ class NomadLogoutReceiverTest {
             every { userSessionScope.logout } returns logoutUseCase
             coEvery { logoutUseCase(any(), any()) } returns Unit
             coEvery { deleteSession(any()) } returns DeleteSessionUseCase.Result.Success
+            every { coreLogic.getGlobalScope().deleteSession } returns deleteSession
             coEvery { accountSwitch(any()) } returns SwitchAccountResult.NoOtherAccountToSwitch
             every { coreLogic.getSessionScope(any()) } returns userSessionScope
             every { nomadProfilesFeatureConfig.isEnabled() } returns true
@@ -158,6 +164,7 @@ class NomadLogoutReceiverTest {
             receiver.currentSession = currentSession
             receiver.deleteSession = deleteSession
             receiver.accountSwitch = accountSwitch
+            receiver.switchAccountObserver = switchAccountObserver
             receiver.nomadProfilesFeatureConfig = nomadProfilesFeatureConfig
             return this
         }

@@ -661,6 +661,9 @@ fun ConversationScreen(
             )
         },
         currentTimeInMillisFlow = conversationMessagesViewModel.currentTimeInMillisFlow,
+        onReachedOldestMessage = {
+            conversationMessagesViewModel.fetchOlderMessagesIfNeeded()
+        },
         onAttachmentClick = messageAttachmentsViewModel::onAttachmentClicked,
         onAttachmentMenuClick = messageAttachmentsViewModel::onAttachmentMenuClicked,
         isWireCellsEnabled = conversationInfoViewModel.conversationInfoViewState.isWireCellEnabled,
@@ -928,6 +931,7 @@ private fun ConversationScreen(
     onAttachmentClick: (AttachmentDraftUi) -> Unit,
     onAttachmentMenuClick: (AttachmentDraftUi) -> Unit,
     currentTimeInMillisFlow: Flow<Long> = flow { },
+    onReachedOldestMessage: () -> Unit = {},
     isWireCellsEnabled: Boolean = false,
 ) {
     val context = LocalContext.current
@@ -1025,6 +1029,7 @@ private fun ConversationScreen(
                         onLinkClick = onLinkClick,
                         onNavigateToReplyOriginalMessage = onNavigateToReplyOriginalMessage,
                         currentTimeInMillisFlow = currentTimeInMillisFlow,
+                        onReachedOldestMessage = onReachedOldestMessage,
                         openDrawingCanvas = openDrawingCanvas,
                         onAttachmentClick = onAttachmentClick,
                         onAttachmentMenuClick = onAttachmentMenuClick,
@@ -1113,6 +1118,7 @@ private fun ConversationScreenContent(
     onAttachmentClick: (AttachmentDraftUi) -> Unit,
     onAttachmentMenuClick: (AttachmentDraftUi) -> Unit,
     currentTimeInMillisFlow: Flow<Long> = flow {},
+    onReachedOldestMessage: () -> Unit = {},
     showHistoryLoadingIndicator: Boolean = false,
     isBubbleUiEnabled: Boolean = false,
     isWireCellsEnabled: Boolean = false,
@@ -1131,9 +1137,9 @@ private fun ConversationScreenContent(
         messageComposerStateHolder = messageComposerStateHolder,
         attachments = attachments,
         messageListContent = {
-            MessageList(
-                lazyPagingMessages = lazyPagingMessages,
-                lazyListState = lazyListState,
+    MessageList(
+        lazyPagingMessages = lazyPagingMessages,
+        lazyListState = lazyListState,
                 lastUnreadMessageInstant = lastUnreadMessageInstant,
                 playingAudioMessage = playingAudioMessage,
                 assetStatuses = assetStatuses,
@@ -1158,10 +1164,11 @@ private fun ConversationScreenContent(
                 conversationDetailsData = conversationDetailsData,
                 selectedMessageId = selectedMessageId,
                 interactionAvailability = messageComposerStateHolder.messageComposerViewState.value.interactionAvailability,
-                currentTimeInMillisFlow = currentTimeInMillisFlow,
-                showHistoryLoadingIndicator = showHistoryLoadingIndicator,
-                isBubbleUiEnabled = isBubbleUiEnabled,
-                isWireCellsEnabled = isWireCellsEnabled,
+        currentTimeInMillisFlow = currentTimeInMillisFlow,
+        onReachedOldestMessage = onReachedOldestMessage,
+        showHistoryLoadingIndicator = showHistoryLoadingIndicator,
+        isBubbleUiEnabled = isBubbleUiEnabled,
+        isWireCellsEnabled = isWireCellsEnabled,
             )
         },
         onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
@@ -1244,9 +1251,11 @@ fun MessageList(
     showHistoryLoadingIndicator: Boolean = false,
     isBubbleUiEnabled: Boolean = false,
     isWireCellsEnabled: Boolean = false,
+    onReachedOldestMessage: () -> Unit = {},
 ) {
     val prevItemCount = remember { mutableStateOf(lazyPagingMessages.itemCount) }
     val readLastMessageAtStartTriggered = remember { mutableStateOf(false) }
+    val oldestMessageTriggerArmed = remember { mutableStateOf(true) }
     val currentTime by currentTimeInMillisFlow.collectAsState(initial = System.currentTimeMillis())
 
     LaunchedEffect(lazyPagingMessages.itemCount) {
@@ -1279,6 +1288,18 @@ fun MessageList(
                 readLastMessageAtStartTriggered.value = true
             }
             updateLastReadMessage(lastVisibleMessage, lastUnreadMessageInstant, onUpdateConversationReadDate)
+        }
+    }
+
+    LaunchedEffect(lazyListState.isScrollInProgress, lazyPagingMessages.itemCount) {
+        if (!lazyListState.isScrollInProgress && lazyPagingMessages.itemCount > 0) {
+            val reachedOldest = !lazyListState.canScrollForward
+            if (reachedOldest && oldestMessageTriggerArmed.value) {
+                onReachedOldestMessage()
+                oldestMessageTriggerArmed.value = false
+            } else if (!reachedOldest) {
+                oldestMessageTriggerArmed.value = true
+            }
         }
     }
 

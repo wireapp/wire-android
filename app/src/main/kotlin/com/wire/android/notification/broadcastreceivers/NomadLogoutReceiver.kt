@@ -25,13 +25,16 @@ import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountParam
 import com.wire.android.util.SwitchAccountObserver
+import com.wire.android.util.lifecycle.AppBackgroundManager
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
-import com.wire.kalium.logic.feature.session.DeleteSessionUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -43,9 +46,6 @@ class NomadLogoutReceiver : CoroutineReceiver() {
 
     @Inject
     lateinit var currentSession: CurrentSessionUseCase
-
-    @Inject
-    lateinit var deleteSession: DeleteSessionUseCase
 
     @Inject
     lateinit var accountSwitch: AccountSwitchUseCase
@@ -65,6 +65,9 @@ class NomadLogoutReceiver : CoroutineReceiver() {
         @Suppress("TooGenericExceptionCaught")
         try {
             performLogout()
+            CoroutineScope(Dispatchers.Default).launch {
+                AppBackgroundManager.moveAppToBackground()
+            }
         } catch (e: CancellationException) {
             throw e
         } catch (t: Exception) {

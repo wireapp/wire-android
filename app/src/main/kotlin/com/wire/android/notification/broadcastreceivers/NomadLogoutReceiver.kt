@@ -24,13 +24,17 @@ import com.wire.android.config.NomadProfilesFeatureConfig
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountParam
+import com.wire.android.util.SwitchAccountObserver
+import com.wire.android.util.lifecycle.AppBackgroundManager
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
-import com.wire.kalium.logic.feature.session.DeleteSessionUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -44,10 +48,10 @@ class NomadLogoutReceiver : CoroutineReceiver() {
     lateinit var currentSession: CurrentSessionUseCase
 
     @Inject
-    lateinit var deleteSession: DeleteSessionUseCase
+    lateinit var accountSwitch: AccountSwitchUseCase
 
     @Inject
-    lateinit var accountSwitch: AccountSwitchUseCase
+    lateinit var switchAccountObserver: SwitchAccountObserver
 
     @Inject
     lateinit var nomadProfilesFeatureConfig: NomadProfilesFeatureConfig
@@ -61,6 +65,9 @@ class NomadLogoutReceiver : CoroutineReceiver() {
         @Suppress("TooGenericExceptionCaught")
         try {
             performLogout()
+            CoroutineScope(Dispatchers.Default).launch {
+                AppBackgroundManager.moveAppToBackground()
+            }
         } catch (e: CancellationException) {
             throw e
         } catch (t: Exception) {
@@ -74,8 +81,8 @@ class NomadLogoutReceiver : CoroutineReceiver() {
                 val userId = session.accountInfo.userId
                 appLogger.i("$TAG Logging out user: ${userId.toLogString()}")
                 coreLogic.getSessionScope(userId).logout(LogoutReason.SELF_HARD_LOGOUT, waitUntilCompletes = true)
-                deleteSession(userId)
-                accountSwitch(SwitchAccountParam.TryToSwitchToNextAccount)
+                coreLogic.getGlobalScope().deleteSession(userId)
+                accountSwitch(SwitchAccountParam.TryToSwitchToNextAccount).callAction(switchAccountObserver)
             }
 
             is CurrentSessionResult.Failure.SessionNotFound ->
@@ -88,6 +95,6 @@ class NomadLogoutReceiver : CoroutineReceiver() {
 
     companion object {
         const val ACTION_LOGOUT = "com.wire.ACTION_LOGOUT"
-        private const val TAG = "LogoutReceiver"
+        private const val TAG = "NomadLogoutReceiver"
     }
 }

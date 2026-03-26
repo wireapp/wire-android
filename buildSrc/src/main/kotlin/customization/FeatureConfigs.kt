@@ -19,6 +19,7 @@ package customization
 
 import io.kayan.ConfigDefinition
 import io.kayan.ConfigValueKind
+import io.kayan.gradle.KayanSchemaBuilder
 
 enum class FeatureConfigs(val jsonKey: String, val kind: ConfigValueKind) {
     /**
@@ -173,23 +174,22 @@ enum class FeatureConfigs(val jsonKey: String, val kind: ConfigValueKind) {
     )
 }
 
-fun serializedFeatureConfigsSchemaEntries(requiredConfigs: Set<FeatureConfigs> = emptySet()): List<String> =
-    FeatureConfigs.entries.map { config ->
+fun KayanSchemaBuilder.configureFeatureConfigsSchema(
+    requiredConfigs: Set<FeatureConfigs> = emptySet(),
+    configs: Iterable<FeatureConfigs> = FeatureConfigs.entries
+) {
+    configs.forEach { config ->
         val isRequired = config in requiredConfigs
-        """
-            {"jsonKey":"${config.jsonKey.jsonEscape()}","propertyName":"${config.name.jsonEscape()}","kind":"${config.kind.name}","required":$isRequired,"nullable":${!isRequired}}
-        """.trimIndent()
-    }
-
-private fun String.jsonEscape(): String = buildString {
-    this@jsonEscape.forEach { character ->
-        when (character) {
-            '\\' -> append("\\\\")
-            '"' -> append("\\\"")
-            '\n' -> append("\\n")
-            '\r' -> append("\\r")
-            '\t' -> append("\\t")
-            else -> append(character)
+        when (config.kind) {
+            ConfigValueKind.STRING -> string(config.jsonKey, config.name, required = isRequired)
+            ConfigValueKind.BOOLEAN -> boolean(config.jsonKey, config.name, required = isRequired)
+            ConfigValueKind.INT -> int(config.jsonKey, config.name, required = isRequired)
+            ConfigValueKind.LONG -> long(config.jsonKey, config.name, required = isRequired)
+            ConfigValueKind.DOUBLE -> double(config.jsonKey, config.name, required = isRequired)
+            ConfigValueKind.STRING_MAP -> stringMap(config.jsonKey, config.name, required = isRequired)
+            ConfigValueKind.STRING_LIST -> stringList(config.jsonKey, config.name, required = isRequired)
+            ConfigValueKind.STRING_LIST_MAP -> stringListMap(config.jsonKey, config.name, required = isRequired)
+            ConfigValueKind.ENUM -> error("FeatureConfigs does not currently define Kayan enum entries.")
         }
     }
 }

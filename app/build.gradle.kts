@@ -4,9 +4,8 @@ import customization.Customization.isCustomizationEnabled
 import customization.Customization.CustomizationOption
 import customization.GenerateWireColorSchemeProviderTask
 import customization.NormalizedFlavorSettings
-import customization.serializedFeatureConfigsSchemaEntries
-import io.kayan.ConfigFormat
-import io.kayan.gradle.GenerateKayanConfigTask
+import customization.configureFeatureConfigsSchema
+import io.kayan.gradle.ExperimentalKayanGenerationApi
 import org.gradle.kotlin.dsl.register
 
 /*
@@ -37,6 +36,7 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
     alias(libs.plugins.compose.compiler)
+    id("io.github.mohamadjaara.kayan")
 
     id(libs.plugins.aboutLibraries.get().pluginId)
 
@@ -71,7 +71,6 @@ val requiredKayanRuntimeConfigs = setOf(
 )
 val kayanRuntimeConfigPackageName = "com.wire.android.generated"
 val kayanRuntimeConfigClassName = "WireRuntimeConfig"
-val kayanSchemaEntries = serializedFeatureConfigsSchemaEntries(requiredKayanRuntimeConfigs)
 val generatedWireColorSchemeDirPrefix = "generated/wire-theme/kotlin/android"
 
 private fun getFlavorsSettings(): NormalizedFlavorSettings =
@@ -82,35 +81,6 @@ private fun getFlavorsSettings(): NormalizedFlavorSettings =
     } catch (e: Exception) {
         error(">> Error reading current flavors, exception: ${e.localizedMessage}")
     }
-
-val kayanFlavorConfigTasks = allFlavors.associateWith { flavorName ->
-    val outputDir = layout.buildDirectory.dir("generated/kayan/kotlin/android/$flavorName")
-    tasks.register<GenerateKayanConfigTask>("generateKayan${flavorName.replaceFirstChar(Char::titlecase)}Config") {
-        group = "code generation"
-        description = "Generates a typed Kayan config object for Android flavor '$flavorName'."
-        packageName.set(kayanRuntimeConfigPackageName)
-        flavor.set(flavorName)
-        className.set(kayanRuntimeConfigClassName)
-        kotlinPluginApplied.set(true)
-        baseConfigFile.set(rootProject.layout.projectDirectory.file("default.json"))
-        when (val customizationOption = Customization.resolveCustomizationOption(rootProject.projectDir)) {
-            is CustomizationOption.DefaultOnly -> Unit
-            is CustomizationOption.FromFile -> customConfigFile.set(customizationOption.customJsonFile)
-        }
-        configFormat.set(ConfigFormat.JSON)
-        schemaEntries.set(kayanSchemaEntries)
-        this.outputDir.set(outputDir)
-        buildscript.configurations.findByName("classpath")?.let { classpath ->
-            buildscriptClasspath.from(classpath)
-        }
-    }
-}
-
-val generateKayanAndroidFlavorConfigs = tasks.register("generateKayanAndroidFlavorConfigs") {
-    group = "code generation"
-    description = "Generates typed Kayan config objects for configured Android flavors."
-    dependsOn(kayanFlavorConfigTasks.values)
-}
 
 val wireColorSchemeProviderTasks = allFlavors.associateWith { flavorName ->
     tasks.register<GenerateWireColorSchemeProviderTask>(
@@ -147,7 +117,6 @@ val generateWireColorSchemeProviders = tasks.register("generateWireColorSchemePr
 }
 
 tasks.named("preBuild").configure {
-    dependsOn(generateKayanAndroidFlavorConfigs)
     dependsOn(generateWireColorSchemeProviders)
 }
 
@@ -232,9 +201,6 @@ android {
                     println("Adding external datadog logger sourceSets to '$flavor' flavor")
                 }
                 kotlin.directories.add(
-                    layout.buildDirectory.dir("generated/kayan/kotlin/android/$flavor").get().asFile.path
-                )
-                kotlin.directories.add(
                     layout.buildDirectory.dir("$generatedWireColorSchemeDirPrefix/$flavor").get().asFile.path
                 )
 
@@ -261,6 +227,26 @@ android {
 
     lint {
         checkReleaseBuilds = false
+    }
+}
+
+@OptIn(ExperimentalKayanGenerationApi::class)
+kayan {
+    packageName.set(kayanRuntimeConfigPackageName)
+    className.set(kayanRuntimeConfigClassName)
+    baseConfigFile.set(rootProject.layout.projectDirectory.file("default.json"))
+
+    when (val customizationOption = Customization.resolveCustomizationOption(rootProject.projectDir)) {
+        is CustomizationOption.DefaultOnly -> Unit
+        is CustomizationOption.FromFile -> customConfigFile.set(customizationOption.customJsonFile)
+    }
+
+    androidFlavorSourceSets {
+        flavors.set(allFlavors.toList())
+    }
+
+    schema {
+        configureFeatureConfigsSchema(requiredConfigs = requiredKayanRuntimeConfigs)
     }
 }
 

@@ -57,12 +57,16 @@ import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginResult
 import com.wire.kalium.logic.feature.auth.sso.SSOLoginSessionResult
 import com.wire.kalium.logic.feature.backup.RestoreCryptoStateResult
 import com.wire.kalium.logic.feature.client.RegisterClientResult
+import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import android.database.sqlite.SQLiteException
+import java.io.IOException
 import javax.inject.Inject
 
 @Suppress("LongParameterList", "TooManyFunctions")
@@ -257,29 +261,7 @@ class LoginSSOViewModel(
                         registerClientAndUpdateState(storedUserId, setLastDeviceId = false)
                     } else {
                         appLogger.i("$TAG Nomad enabled, attempting crypto state restore")
-                        when (
-                            withContext(dispatchers.io()) {
-                                coreLogic.getSessionScope(storedUserId).backup.restoreCryptoState()
-                            }
-                        ) {
-                            is RestoreCryptoStateResult.Success -> {
-                                updateSSOFlowState(LoginState.Success(isInitialSyncCompleted(storedUserId), false))
-                            }
-
-                            is RestoreCryptoStateResult.NoBackupAvailable -> {
-                                registerClientAndUpdateState(storedUserId, setLastDeviceId = true)
-                            }
-
-                            is RestoreCryptoStateResult.Failure -> {
-                                appLogger.e("$TAG Failed to restore crypto state during SSO login")
-                                revertSSOSession(storedUserId)
-                                updateSSOFlowState(
-                                    LoginState.Error.DialogError.GenericError(
-                                        CoreFailure.Unknown(Exception("Failed to restore crypto state"))
-                                    )
-                                )
-                            }
-                        }
+                        restoreCryptoStateAndContinue(storedUserId)
                     }
                 }
             )
@@ -330,9 +312,62 @@ class LoginSSOViewModel(
         }
     }
 
+    private suspend fun isSessionStillValid(userId: UserId): Boolean =
+        (coreLogic.getGlobalScope().doesValidSessionExist(userId) as? DoesValidSessionExistResult.Success)
+            ?.doesValidSessionExist == true
+
+    private suspend fun restoreCryptoStateAndContinue(storedUserId: UserId) {
+        val restoreResult = try {
+            withContext(dispatchers.io()) {
+                coreLogic.getSessionScope(storedUserId).backup.restoreCryptoState()
+            }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            when (e) {
+                is IllegalStateException, is IOException, is SQLiteException -> {
+                    if (isSessionStillValid(storedUserId)) throw e
+                    appLogger.w("$TAG Crypto restore interrupted by concurrent logout: ${e.message}")
+                    return
+                }
+                else -> throw e
+            }
+        }
+
+        when (restoreResult) {
+            is RestoreCryptoStateResult.Success -> {
+                updateSSOFlowState(LoginState.Success(isInitialSyncCompleted(storedUserId), false))
+            }
+            is RestoreCryptoStateResult.NoBackupAvailable -> {
+                registerClientAndUpdateState(storedUserId, setLastDeviceId = true)
+            }
+            is RestoreCryptoStateResult.Failure -> {
+                appLogger.e("$TAG Failed to restore crypto state during SSO login")
+                revertSSOSession(storedUserId)
+                updateSSOFlowState(
+                    LoginState.Error.DialogError.GenericError(
+                        CoreFailure.Unknown(Exception("Failed to restore crypto state"))
+                    )
+                )
+            }
+        }
+    }
+
     private suspend fun revertSSOSession(userId: UserId) {
-        coreLogic.getSessionScope(userId).logout(reason = LogoutReason.SELF_HARD_LOGOUT, waitUntilCompletes = true)
-        coreLogic.getGlobalScope().deleteSession(userId)
+        try {
+            coreLogic.getSessionScope(userId).logout(reason = LogoutReason.SELF_HARD_LOGOUT, waitUntilCompletes = true)
+            coreLogic.getGlobalScope().deleteSession(userId)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            when (e) {
+                is IllegalStateException, is IOException, is SQLiteException -> {
+                    if (isSessionStillValid(userId)) throw e
+                    appLogger.w("$TAG Failed to revert SSO session, may have been already logged out: ${e.message}")
+                }
+                else -> throw e
+            }
+        }
     }
 
     private fun openWebUrl(url: String, customServerConfig: ServerConfig.Links) {

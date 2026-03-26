@@ -2,6 +2,7 @@ import customization.Customization
 import customization.ConfigurationFileImporter
 import customization.Customization.isCustomizationEnabled
 import customization.Customization.CustomizationOption
+import customization.GenerateWireColorSchemeProviderTask
 import customization.NormalizedFlavorSettings
 import customization.serializedFeatureConfigsSchemaEntries
 import io.kayan.ConfigFormat
@@ -71,6 +72,7 @@ val requiredKayanRuntimeConfigs = setOf(
 val kayanRuntimeConfigPackageName = "com.wire.android.generated"
 val kayanRuntimeConfigClassName = "WireRuntimeConfig"
 val kayanSchemaEntries = serializedFeatureConfigsSchemaEntries(requiredKayanRuntimeConfigs)
+val generatedWireColorSchemeDirPrefix = "generated/wire-theme/kotlin/android"
 
 private fun getFlavorsSettings(): NormalizedFlavorSettings =
     try {
@@ -110,8 +112,43 @@ val generateKayanAndroidFlavorConfigs = tasks.register("generateKayanAndroidFlav
     dependsOn(kayanFlavorConfigTasks.values)
 }
 
+val wireColorSchemeProviderTasks = allFlavors.associateWith { flavorName ->
+    tasks.register<GenerateWireColorSchemeProviderTask>(
+        "generateWireColorScheme${flavorName.replaceFirstChar(Char::titlecase)}Provider"
+    ) {
+        group = "code generation"
+        description = "Generates the Wire color scheme provider for Android flavor '$flavorName'."
+        flavor.set(flavorName)
+        baseConfigFile.set(rootProject.layout.projectDirectory.file("default.json"))
+        outputDir.set(layout.buildDirectory.dir("$generatedWireColorSchemeDirPrefix/$flavorName"))
+
+        val repoThemeDir = rootProject.file("theme")
+        if (repoThemeDir.exists()) {
+            repoThemeDirectory.set(repoThemeDir)
+        }
+
+        when (val customizationOption = Customization.resolveCustomizationOption(rootProject.projectDir)) {
+            is CustomizationOption.DefaultOnly -> Unit
+            is CustomizationOption.FromFile -> {
+                customConfigFile.set(customizationOption.customJsonFile)
+                val customThemeDir = customizationOption.customJsonFile.parentFile.resolve("theme")
+                if (customThemeDir.exists()) {
+                    customThemeDirectory.set(customThemeDir)
+                }
+            }
+        }
+    }
+}
+
+val generateWireColorSchemeProviders = tasks.register("generateWireColorSchemeProviders") {
+    group = "code generation"
+    description = "Generates Wire color scheme providers for configured Android flavors."
+    dependsOn(wireColorSchemeProviderTasks.values)
+}
+
 tasks.named("preBuild").configure {
     dependsOn(generateKayanAndroidFlavorConfigs)
+    dependsOn(generateWireColorSchemeProviders)
 }
 
 android {
@@ -196,6 +233,9 @@ android {
                 }
                 kotlin.directories.add(
                     layout.buildDirectory.dir("generated/kayan/kotlin/android/$flavor").get().asFile.path
+                )
+                kotlin.directories.add(
+                    layout.buildDirectory.dir("$generatedWireColorSchemeDirPrefix/$flavor").get().asFile.path
                 )
 
                 if (flavor in fossFlavors) {

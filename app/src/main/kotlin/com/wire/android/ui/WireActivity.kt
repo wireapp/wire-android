@@ -62,6 +62,7 @@ import com.wire.android.config.CustomUiConfigurationProvider
 import com.wire.android.config.LocalCustomUiConfigurationProvider
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.emm.ManagedConfigurationsManager
+import com.wire.android.generated.GeneratedWireColorSchemeProvider
 import com.wire.android.feature.NavigationSwitchAccountActions
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.LoginTypeSelector
@@ -262,7 +263,10 @@ class WireActivity : AppCompatActivity() {
                 LocalSnackbarHostState provides snackbarHostState,
                 LocalActivity provides this
             ) {
-                WireTheme(accent = viewModel.globalAppState.userAccent) {
+                WireTheme(
+                    baseColorScheme = GeneratedWireColorSchemeProvider.currentTheme,
+                    accent = viewModel.globalAppState.userAccent
+                ) {
                     val navigator = rememberNavigator(
                         finish = this@WireActivity::finish,
                         isAllowedToNavigate = { navigationCommand ->

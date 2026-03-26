@@ -262,6 +262,8 @@ private val DarkRoles = AccentRoleMap(
 )
 
 fun WireColorScheme.withAccent(accent: Accent): WireColorScheme {
+    if (accent == Accent.Unknown) return this
+
     val swatch = accent.asSwatch().let { if (useDarkSystemBarIcons) it.light else it.dark }
     val roles = if (useDarkSystemBarIcons) LightRoles else DarkRoles
 

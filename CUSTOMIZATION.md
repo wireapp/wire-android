@@ -42,6 +42,40 @@ overwritten by the values in the `custom-reloaded.json`.
 Both files must have the same exact format, and the `custom-reloaded.json` will have the
 final say in which value will be bundled with the application.
 
+Wire color schemes can also be selected at compile time with `wire_color_scheme`.
+When this key is unset or set to `"default"`, the app uses the built-in Wire palette.
+When it is set to another value, the build looks for `theme/<value>.json` in either the repo root
+or the customization checkout root next to `custom-reloaded.json`.
+
+Example:
+
+`custom-reloaded.json`
+```json
+{
+    "flavors": {
+        "prod": {
+            "wire_color_scheme": "acme"
+        }
+    }
+}
+```
+
+`theme/acme.json`
+```json
+{
+    "light": {
+        "primary": "#0057B8",
+        "on_primary": "#FFFFFF"
+    },
+    "dark": {
+        "primary": "#76B8FF"
+    }
+}
+```
+
+Only flat `WireColorScheme` color properties are supported for now. Nested structures such as
+avatar color lists, accent maps, and bubble color groups are not yet customizable through this file.
+
 Consider that the same property (`"app_name"`) is defined in all possible places (_i.e._ both in
 `default` and `custom-reloaded` files, and both within a flavor and for all flavors).
 

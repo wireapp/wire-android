@@ -81,6 +81,7 @@ enum class FeatureConfigs(val jsonKey: String, val kind: ConfigValueKind) {
     URL_SUPPORT("url_support", ConfigValueKind.STRING),
     URL_RSS_RELEASE_NOTES("url_rss_release_notes", ConfigValueKind.STRING),
     CONVERSATION_FEEDER_ENABLED("conversation_feeder_enabled", ConfigValueKind.BOOLEAN),
+    WIRE_COLOR_SCHEME("wire_color_scheme", ConfigValueKind.STRING),
 
     /**
      * In runtime, will use these values to determine which backend to use.

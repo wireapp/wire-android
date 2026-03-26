@@ -14,6 +14,7 @@
         },
         "dev": {
             "application_id": "com.waz.zclient.dev",
+            "wire_color_scheme": "dev_red",
             "developer_features_enabled": true,
             "logging_enabled": true,
             "application_is_private_build": true,

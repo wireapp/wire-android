@@ -1,0 +1,38 @@
+{
+  "light": {
+    "primary": "#C20013",
+    "on_primary": "#FFFFFF",
+    "primary_variant": "#F9E6E8",
+    "on_primary_variant": "#C20013",
+    "inverse_primary": "#FF7770",
+    "primary_button_enabled": "#C20013",
+    "on_primary_button_enabled": "#FFFFFF",
+    "primary_button_selected": "#74000B",
+    "on_primary_button_selected": "#FFFFFF",
+    "secondary_button_selected": "#F9E6E8",
+    "on_secondary_button_selected": "#C20013",
+    "secondary_button_selected_outline": "#DA6671",
+    "tertiary_button_selected": "#F9E6E8",
+    "on_tertiary_button_selected": "#C20013",
+    "tertiary_button_selected_outline": "#DA6671",
+    "default_selected_item_in_loading_state": "#F3CCD0"
+  },
+  "dark": {
+    "primary": "#FF7770",
+    "on_primary": "#000000",
+    "primary_variant": "#66302D",
+    "on_primary_variant": "#FFADA9",
+    "inverse_primary": "#C20013",
+    "primary_button_enabled": "#FF7770",
+    "on_primary_button_enabled": "#000000",
+    "primary_button_selected": "#FF928D",
+    "on_primary_button_selected": "#000000",
+    "secondary_button_selected": "#66302D",
+    "on_secondary_button_selected": "#FFFFFF",
+    "secondary_button_selected_outline": "#CC5F5A",
+    "tertiary_button_selected": "#66302D",
+    "on_tertiary_button_selected": "#FF7770",
+    "tertiary_button_selected_outline": "#66302D",
+    "default_selected_item_in_loading_state": "#66302D"
+  }
+}

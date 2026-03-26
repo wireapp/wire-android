@@ -41,6 +41,7 @@ import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.BuildConfig.IS_BUBBLE_UI_ENABLED
 import com.wire.android.R
+import com.wire.android.generated.GeneratedWireColorSchemeProvider
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.R as commonR
@@ -119,7 +120,10 @@ fun ChangeUserColorContent(
 ) {
     val scrollState = rememberScrollState()
     with(state) {
-        WireTheme(accent = state.accent ?: Accent.Unknown) {
+        WireTheme(
+            baseColorScheme = GeneratedWireColorSchemeProvider.currentTheme,
+            accent = state.accent ?: Accent.Unknown
+        ) {
             WireScaffold(
                 modifier = modifier,
                 topBar = {

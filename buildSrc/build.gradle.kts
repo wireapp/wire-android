@@ -37,6 +37,7 @@ dependencies {
     implementation(libs.kayan.gradlePlugin)
 
     testImplementation("junit:junit:${libs.versions.junit4.get()}")
+    testImplementation(gradleTestKit())
     testImplementation(kotlin("test"))
     implementation(libs.grgit.core)
     implementation(libs.squareup.javapoet) // https://github.com/google/dagger/issues/3068

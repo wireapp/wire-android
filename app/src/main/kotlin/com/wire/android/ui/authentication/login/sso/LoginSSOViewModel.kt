@@ -354,6 +354,7 @@ class LoginSSOViewModel(
         }
     }
 
+    @Suppress("ThrowsCount", "TooGenericExceptionCaught")
     private suspend fun revertSSOSession(userId: UserId) {
         try {
             coreLogic.getSessionScope(userId).logout(reason = LogoutReason.SELF_HARD_LOGOUT, waitUntilCompletes = true)

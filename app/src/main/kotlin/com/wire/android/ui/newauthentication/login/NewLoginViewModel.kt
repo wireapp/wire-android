@@ -396,6 +396,7 @@ class NewLoginViewModel(
         (coreLogic.getGlobalScope().doesValidSessionExist(userId) as? DoesValidSessionExistResult.Success)
             ?.doesValidSessionExist == true
 
+    @Suppress("ThrowsCount", "TooGenericExceptionCaught")
     private suspend fun restoreCryptoStateAndContinue(storedUserId: UserId) {
         val restoreResult = try {
             withContext(dispatchers.io()) {

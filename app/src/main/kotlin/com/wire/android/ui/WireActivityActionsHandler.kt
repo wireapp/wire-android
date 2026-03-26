@@ -38,7 +38,10 @@ import com.ramcosta.composedestinations.generated.app.destinations.NewLoginScree
 import com.ramcosta.composedestinations.generated.app.destinations.OtherUserProfileScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.WelcomeScreenDestination
 import com.wire.android.ui.authentication.login.LoginPasswordPath
+import com.wire.android.ui.newauthentication.login.NewLoginViewModel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 @Composable
 internal fun HandleViewActions(actions: Flow<WireActivityViewAction>, navigator: Navigator, loginTypeSelector: LoginTypeSelector) {
@@ -91,28 +94,22 @@ private fun openImportMediaScreen(navigator: Navigator) {
 }
 
 private fun openSsoLogin(navigator: Navigator, action: OnSSOLogin) {
-    navigator.navigate(
-        NavigationCommand(
-            when (navigator.navController.currentBackStackEntry?.destination()?.baseRoute) {
-                // if SSO login started from new login screen then go back to the new login flow
-                NewLoginScreenDestination.baseRoute -> {
-                    val existingLoginPasswordPath = navigator.navController.currentBackStackEntry
-                        ?.savedStateHandle
-                        ?.let { NewLoginScreenDestination.argsFrom(it) }
-                        ?.loginPasswordPath
-                    NewLoginScreenDestination(
-                        ssoLoginResult = action.result,
-                        loginPasswordPath = existingLoginPasswordPath,
-                    )
-                }
+    when (navigator.navController.currentBackStackEntry?.destination()?.baseRoute) {
+        // if SSO login started from new login screen, deliver result via savedStateHandle
+        // to avoid recreating the ViewModel (which would happen with UPDATE_EXISTED + new nav args)
+        NewLoginScreenDestination.baseRoute -> {
+            navigator.navController.currentBackStackEntry
+                ?.savedStateHandle
+                ?.set(NewLoginViewModel.SSO_LOGIN_RESULT_KEY, Json.encodeToString(action.result))
+        }
 
-                else -> LoginScreenDestination(
-                    ssoLoginResult = action.result
-                )
-            },
-            BackStackMode.UPDATE_EXISTED,
+        else -> navigator.navigate(
+            NavigationCommand(
+                LoginScreenDestination(ssoLoginResult = action.result),
+                BackStackMode.UPDATE_EXISTED,
+            )
         )
-    )
+    }
 }
 
 private fun openUserProfile(action: OnOpenUserProfile, navigator: Navigator) {

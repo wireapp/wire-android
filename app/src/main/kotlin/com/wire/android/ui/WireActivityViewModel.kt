@@ -72,6 +72,8 @@ import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.appVersioning.ObserveIfAppUpdateRequiredUseCase
+import com.wire.kalium.logic.feature.auth.IsNomadProfilesEnabledUseCase
+import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.client.ClearNewClientsForUserUseCase
 import com.wire.kalium.logic.feature.client.NewClientResult
 import com.wire.kalium.logic.feature.client.ObserveNewClientsUseCase
@@ -232,8 +234,14 @@ class WireActivityViewModel @Inject constructor(
         viewModelScope.launch(dispatchers.io()) {
             observeCurrentAccountInfo
                 .collect {
-                    if (it is AccountInfo.Invalid) {
-                        handleInvalidSession(it.logoutReason)
+                    when (it) {
+                        is AccountInfo.Invalid -> handleInvalidSession(it.logoutReason)
+                        is AccountInfo.Valid -> withContext(dispatchers.main()) {
+                            globalAppState = globalAppState.copy(blockUserUI = null)
+                        }
+
+                        null -> {}
+                        // No account info, user is not logged in, do nothing
                     }
                 }
         }
@@ -382,21 +390,36 @@ class WireActivityViewModel @Inject constructor(
     // Returns whether an intent was handled, or if there was nothing to do
     @Suppress("ReturnCount")
     fun handleIntentsThatAreNotDeepLinks(intent: Intent?): Boolean {
-        if (!nomadProfilesFeatureConfig.isEnabled()) return false
         val result = intentsProcessor.get().invoke(intent)
         if (result != null) {
+            if (!nomadProfilesFeatureConfig.isEnabled()) {
+                appLogger.w("Nomad login ignored: local Nomad profiles flag is disabled")
+                return true
+            }
             viewModelScope.launch(dispatchers.io()) {
+                val serverLinks = result.backendConfig?.let { loadServerConfig(it) }
+                val backendConfigLoadFailed = result.backendConfig != null && serverLinks == null
+                if (backendConfigLoadFailed) {
+                    sendAction(OnUnknownDeepLink)
+                    return@launch
+                }
+
+                if (!isNomadProfilesFlowEnabled(serverLinks)) {
+                    return@launch
+                }
+
                 initValidSessionsFlowIfNeeded()
                 if (validSessions.value.filterIsInstance<AccountInfo.Valid>().isNotEmpty()) {
                     appLogger.w("Nomad login blocked: another session already exists")
                     sendAction(ShowToast(R.string.nomad_login_blocked_message))
                     return@launch
                 }
+
                 onAutomaticLoginParameters(
-                result.backendConfig,
-                result.ssoCode,
-                result.nomadProfilesHost,
-            )
+                    serverLinks = serverLinks,
+                    ssoCode = result.ssoCode,
+                    nomadServiceUrl = result.nomadProfilesHost,
+                )
             }
             return true
         }
@@ -404,17 +427,12 @@ class WireActivityViewModel @Inject constructor(
     }
 
     private fun onAutomaticLoginParameters(
-        backendConfigUrl: String?,
+        serverLinks: ServerConfig.Links?,
         ssoCode: String?,
         nomadServiceUrl: String?,
     ) {
         viewModelScope.launch(dispatchers.io()) {
-            // Load backend config
-            val serverLinks = backendConfigUrl?.let { loadServerConfig(it) }
-
-            val backendConfigLoadFailed = backendConfigUrl != null && serverLinks == null
-            val nothingProvided = backendConfigUrl == null && ssoCode == null
-            if (backendConfigLoadFailed || nothingProvided) {
+            if (ssoCode == null) {
                 sendAction(OnUnknownDeepLink)
             } else {
                 automatedLoginManager.markPendingMoveToBackgroundAfterSync()
@@ -427,6 +445,36 @@ class WireActivityViewModel @Inject constructor(
                         useNewLogin = resolveUseNewLogin(LoginType.Default, serverLinks)
                     )
                 )
+            }
+        }
+    }
+
+    private suspend fun isNomadProfilesFlowEnabled(serverLinks: ServerConfig.Links?): Boolean {
+        if (serverLinks == null) {
+            appLogger.w("Nomad login ignored: missing server links")
+            return false
+        }
+
+        return when (val authScopeResult = coreLogic.get().versionedAuthenticationScope(serverLinks).invoke(null)) {
+            is AutoVersionAuthScopeUseCase.Result.Failure -> {
+                appLogger.w("Nomad login ignored: failed to create auth scope for backend ${serverLinks.api}")
+                false
+            }
+
+            is AutoVersionAuthScopeUseCase.Result.Success -> {
+                when (val result = authScopeResult.authenticationScope.isNomadProfilesEnabled()) {
+                    is IsNomadProfilesEnabledUseCase.Result.Failure -> {
+                        appLogger.w("Nomad login ignored: failed to fetch server Nomad settings")
+                        false
+                    }
+
+                    is IsNomadProfilesEnabledUseCase.Result.Success -> {
+                        if (!result.isEnabled) {
+                            appLogger.w("Nomad login ignored: server does not support Nomad profiles")
+                        }
+                        result.isEnabled && nomadProfilesFeatureConfig.isEnabled()
+                    }
+                }
             }
         }
     }

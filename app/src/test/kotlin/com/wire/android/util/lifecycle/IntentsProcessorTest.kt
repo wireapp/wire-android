@@ -18,7 +18,6 @@
 package com.wire.android.util.lifecycle
 
 import android.content.Intent
-import com.wire.android.config.NomadProfilesFeatureConfig
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -109,8 +108,8 @@ class IntentsProcessorTest {
     }
 
     @Test
-    fun `given real Ed25519 signature, verifies nomadProfilesHost with configured key`() {
-        val signedValue = SignedValue.sign(FAKE_NOMAD_PROFILES_HOST)
+    fun `given real Ed25519 signature, verifies backendConfig and nomadProfilesHost with configured key`() {
+        val signedValue = SignedValue.sign(signedIntentPayload())
         val (arrangement, intentsProcessor) = Arrangement()
             .withConfigurationSignatureKey(signedValue.publicKeyDerBase64)
             .withAutomatedLoginExtra(
@@ -134,7 +133,7 @@ class IntentsProcessorTest {
 
     @Test
     fun `given invalid Ed25519 signature, returns null`() {
-        val signedValue = SignedValue.sign(FAKE_NOMAD_PROFILES_HOST)
+        val signedValue = SignedValue.sign(signedIntentPayload())
         val invalidSignature = Base64.getEncoder()
             .encodeToString(
                 Base64.getDecoder().decode(signedValue.signatureBase64).apply {
@@ -145,6 +144,8 @@ class IntentsProcessorTest {
             .withConfigurationSignatureKey(signedValue.publicKeyDerBase64)
             .withAutomatedLoginExtra(
                 automatedLoginJson(
+                    "backendConfig" to FAKE_BACKEND_CONFIG,
+                    "ssoCode" to FAKE_SSO_CODE,
                     "nomadProfilesHost" to FAKE_NOMAD_PROFILES_HOST,
                     "signatureNomadProfilesHost" to invalidSignature
                 )
@@ -155,14 +156,16 @@ class IntentsProcessorTest {
 
     @Test
     fun `given configured key with invalid raw key length, returns null`() {
-        val signedValue = SignedValue.sign(FAKE_NOMAD_PROFILES_HOST)
+        val signedValue = SignedValue.sign(signedIntentPayload())
         val invalidLengthKey = Base64.getEncoder().encodeToString(ByteArray(12 + 31))
         val (arrangement, intentsProcessor) = Arrangement()
             .withConfigurationSignatureKey(invalidLengthKey)
             .withAutomatedLoginExtra(
                 automatedLoginJson(
+                    "backendConfig" to FAKE_BACKEND_CONFIG,
+                    "ssoCode" to FAKE_SSO_CODE,
                     "nomadProfilesHost" to FAKE_NOMAD_PROFILES_HOST,
-                    "sigNomadProfilesHost" to signedValue.signatureBase64
+                    "signatureNomadProfilesHost" to signedValue.signatureBase64
                 )
             )
             .arrange()
@@ -171,7 +174,7 @@ class IntentsProcessorTest {
 
     @Test
     fun `given configured key with invalid der header, returns null`() {
-        val signedValue = SignedValue.sign(FAKE_NOMAD_PROFILES_HOST)
+        val signedValue = SignedValue.sign(signedIntentPayload())
         val invalidHeaderKey = Base64.getEncoder()
             .encodeToString(
                 Base64.getDecoder().decode(signedValue.publicKeyDerBase64).apply {
@@ -182,8 +185,10 @@ class IntentsProcessorTest {
             .withConfigurationSignatureKey(invalidHeaderKey)
             .withAutomatedLoginExtra(
                 automatedLoginJson(
+                    "backendConfig" to FAKE_BACKEND_CONFIG,
+                    "ssoCode" to FAKE_SSO_CODE,
                     "nomadProfilesHost" to FAKE_NOMAD_PROFILES_HOST,
-                    "sigNomadProfilesHost" to signedValue.signatureBase64
+                    "signatureNomadProfilesHost" to signedValue.signatureBase64
                 )
             )
             .arrange()
@@ -191,30 +196,36 @@ class IntentsProcessorTest {
     }
 
     @Test
-    fun `given nomad profiles feature disabled, skips the whole intent`() {
+    fun `given valid signed intent, returns AutomatedLoginViaSSO`() {
         val (arrangement, intentsProcessor) = Arrangement()
-            .withNomadProfilesFeatureEnabled(false)
             .withAutomatedLoginExtra(
                 automatedLoginJson(
                     "backendConfig" to FAKE_BACKEND_CONFIG,
                     "ssoCode" to FAKE_SSO_CODE,
                     "nomadProfilesHost" to FAKE_NOMAD_PROFILES_HOST,
-                    "sigNomadProfilesHost" to IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN
+                    "signatureNomadProfilesHost" to IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN
                 )
             )
             .arrange()
-        assertNull(intentsProcessor(arrangement.intent))
+        assertEquals(
+            AutomatedLoginViaSSO(
+                backendConfig = FAKE_BACKEND_CONFIG,
+                ssoCode = FAKE_SSO_CODE,
+                nomadProfilesHost = FAKE_NOMAD_PROFILES_HOST
+            ),
+            intentsProcessor(arrangement.intent)
+        )
     }
 
     @Test
-    fun `given invalid nomadProfilesHost and feature disabled, skips the whole intent`() {
+    fun `given invalid signature, returns null before processing the rest of the intent`() {
         val (arrangement, intentsProcessor) = Arrangement()
-            .withNomadProfilesFeatureEnabled(false)
             .withAutomatedLoginExtra(
                 automatedLoginJson(
                     "backendConfig" to FAKE_BACKEND_CONFIG,
                     "ssoCode" to FAKE_SSO_CODE,
-                    "nomadProfilesHost" to "not a url"
+                    "nomadProfilesHost" to FAKE_NOMAD_PROFILES_HOST,
+                    "signatureNomadProfilesHost" to "invalid-signature"
                 )
             )
             .arrange()
@@ -222,13 +233,33 @@ class IntentsProcessorTest {
     }
 
     @Test
-    fun `given only nomadProfilesHost and feature disabled, returns null`() {
+    fun `given backendConfig changed after signing, returns null`() {
+        val signedValue = SignedValue.sign(signedIntentPayload())
         val (arrangement, intentsProcessor) = Arrangement()
-            .withNomadProfilesFeatureEnabled(false)
+            .withConfigurationSignatureKey(signedValue.publicKeyDerBase64)
             .withAutomatedLoginExtra(
                 automatedLoginJson(
+                    "backendConfig" to "https://tampered.example.com/deeplink.json",
+                    "ssoCode" to FAKE_SSO_CODE,
                     "nomadProfilesHost" to FAKE_NOMAD_PROFILES_HOST,
-                    "sigNomadProfilesHost" to IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN
+                    "signatureNomadProfilesHost" to signedValue.signatureBase64
+                )
+            )
+            .arrange()
+        assertNull(intentsProcessor(arrangement.intent))
+    }
+
+    @Test
+    fun `given nomadProfilesHost changed after signing, returns null`() {
+        val signedValue = SignedValue.sign(signedIntentPayload())
+        val (arrangement, intentsProcessor) = Arrangement()
+            .withConfigurationSignatureKey(signedValue.publicKeyDerBase64)
+            .withAutomatedLoginExtra(
+                automatedLoginJson(
+                    "backendConfig" to FAKE_BACKEND_CONFIG,
+                    "ssoCode" to FAKE_SSO_CODE,
+                    "nomadProfilesHost" to "https://tampered.nomad.example.com",
+                    "signatureNomadProfilesHost" to signedValue.signatureBase64
                 )
             )
             .arrange()
@@ -270,8 +301,9 @@ class IntentsProcessorTest {
             .withAutomatedLoginExtra(
                 automatedLoginJson(
                     "backendConfig" to "http://insecure.wire.com/deeplink.json",
+                    "ssoCode" to FAKE_SSO_CODE,
                     "nomadProfilesHost" to FAKE_NOMAD_PROFILES_HOST,
-                    "sigNomadProfilesHost" to IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN
+                    "signatureNomadProfilesHost" to IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN
                 )
             )
             .arrange()
@@ -284,8 +316,9 @@ class IntentsProcessorTest {
             .withAutomatedLoginExtra(
                 automatedLoginJson(
                     "backendConfig" to "https:///path",
+                    "ssoCode" to FAKE_SSO_CODE,
                     "nomadProfilesHost" to FAKE_NOMAD_PROFILES_HOST,
-                    "sigNomadProfilesHost" to IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN
+                    "signatureNomadProfilesHost" to IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN
                 )
             )
             .arrange()
@@ -298,8 +331,9 @@ class IntentsProcessorTest {
             .withAutomatedLoginExtra(
                 automatedLoginJson(
                     "backendConfig" to "not a url",
+                    "ssoCode" to FAKE_SSO_CODE,
                     "nomadProfilesHost" to FAKE_NOMAD_PROFILES_HOST,
-                    "sigNomadProfilesHost" to IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN
+                    "signatureNomadProfilesHost" to IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN
                 )
             )
             .arrange()
@@ -311,8 +345,10 @@ class IntentsProcessorTest {
         val (arrangement, intentsProcessor) = Arrangement()
             .withAutomatedLoginExtra(
                 automatedLoginJson(
+                    "backendConfig" to FAKE_BACKEND_CONFIG,
+                    "ssoCode" to FAKE_SSO_CODE,
                     "nomadProfilesHost" to "http://insecure.nomad.example.com",
-                    "sigNomadProfilesHost" to IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN
+                    "signatureNomadProfilesHost" to IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN
                 )
             )
             .arrange()
@@ -324,8 +360,10 @@ class IntentsProcessorTest {
         val (arrangement, intentsProcessor) = Arrangement()
             .withAutomatedLoginExtra(
                 automatedLoginJson(
+                    "backendConfig" to FAKE_BACKEND_CONFIG,
+                    "ssoCode" to FAKE_SSO_CODE,
                     "nomadProfilesHost" to "https:///path",
-                    "sigNomadProfilesHost" to IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN
+                    "signatureNomadProfilesHost" to IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN
                 )
             )
             .arrange()
@@ -337,8 +375,10 @@ class IntentsProcessorTest {
         val (arrangement, intentsProcessor) = Arrangement()
             .withAutomatedLoginExtra(
                 automatedLoginJson(
+                    "backendConfig" to FAKE_BACKEND_CONFIG,
+                    "ssoCode" to FAKE_SSO_CODE,
                     "nomadProfilesHost" to "not a url",
-                    "sigNomadProfilesHost" to IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN
+                    "signatureNomadProfilesHost" to IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN
                 )
             )
             .arrange()
@@ -351,13 +391,20 @@ class IntentsProcessorTest {
             .withConfigurationSignatureEnforced(true)
             .withAutomatedLoginExtra(
                 automatedLoginJson(
+                    "backendConfig" to FAKE_BACKEND_CONFIG,
+                    "ssoCode" to FAKE_SSO_CODE,
                     "nomadProfilesHost" to FAKE_NOMAD_PROFILES_HOST,
-                    "sigNomadProfilesHost" to IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN
+                    "signatureNomadProfilesHost" to IntentsProcessor.SKIP_SIGNATURE_VERIFICATION_TOKEN
                 )
             )
             .arrange()
         assertNull(intentsProcessor(arrangement.intent))
     }
+
+    private fun signedIntentPayload(
+        backendConfig: String = FAKE_BACKEND_CONFIG,
+        nomadProfilesHost: String = FAKE_NOMAD_PROFILES_HOST
+    ): String = "wire=$backendConfig,nomad=$nomadProfilesHost"
 
     private fun automatedLoginJson(vararg entries: Pair<String, String>): String =
         if (entries.isEmpty()) {
@@ -374,20 +421,17 @@ class IntentsProcessorTest {
 
     class Arrangement {
         internal val intent: Intent = mockk()
-        private val nomadProfilesFeatureConfig = mockk<NomadProfilesFeatureConfig>()
-        private var configurationSignatureKeys: List<String>? = null
+        private var configurationSignatureKeys: Map<String, String>? = null
         private var isConfigurationSignatureEnforced = false
 
         init {
             every { intent.getStringExtra(any()) } returns null
-            every { nomadProfilesFeatureConfig.isEnabled() } returns true
         }
 
         fun arrange() = this to (
             IntentsProcessor(
-                nomadProfilesFeatureConfig = nomadProfilesFeatureConfig,
                 nomadIntentSignatureValidator = NomadIntentSignatureValidator(
-                    configurationSignatureKeys = configurationSignatureKeys ?: emptyList(),
+                    configurationSignatureKeys = configurationSignatureKeys ?: emptyMap(),
                     isConfigurationSignatureEnforced = isConfigurationSignatureEnforced
                 )
             )
@@ -397,12 +441,8 @@ class IntentsProcessorTest {
             every { intent.getStringExtra("automated_login") } returns json
         }
 
-        fun withNomadProfilesFeatureEnabled(enabled: Boolean) = apply {
-            every { nomadProfilesFeatureConfig.isEnabled() } returns enabled
-        }
-
         fun withConfigurationSignatureKey(vararg key: String) = apply {
-            configurationSignatureKeys = key.toList()
+            configurationSignatureKeys = key.mapIndexed { index, value -> index.toString() to value }.toMap()
         }
 
         fun withConfigurationSignatureEnforced(isEnforced: Boolean) = apply {

@@ -234,8 +234,14 @@ class WireActivityViewModel @Inject constructor(
         viewModelScope.launch(dispatchers.io()) {
             observeCurrentAccountInfo
                 .collect {
-                    if (it is AccountInfo.Invalid) {
-                        handleInvalidSession(it.logoutReason)
+                    when (it) {
+                        is AccountInfo.Invalid -> handleInvalidSession(it.logoutReason)
+                        is AccountInfo.Valid -> withContext(dispatchers.main()) {
+                            globalAppState = globalAppState.copy(blockUserUI = null)
+                        }
+
+                        null -> {}
+                        // No account info, user is not logged in, do nothing
                     }
                 }
         }

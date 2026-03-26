@@ -76,7 +76,7 @@ import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Named
 
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
 class NewLoginViewModel(
     private val validateEmailOrSSOCode: ValidateEmailOrSSOCodeUseCase,
@@ -347,6 +347,7 @@ class NewLoginViewModel(
                     )
                 }
             }
+
             is DeepLinkResult.SSOLogin.Failure -> {
                 updateLoginFlowState(NewLoginFlowState.Error.DialogError.SSOResultFailure(ssoLoginResult.ssoError))
             }
@@ -443,6 +444,7 @@ class NewLoginViewModel(
         }
     }
 
+    @Suppress("ThrowsCount", "TooGenericExceptionCaught")
     private suspend fun revertSSOSession(userId: UserId) {
         try {
             coreLogic.getSessionScope(userId).logout(reason = LogoutReason.SELF_HARD_LOGOUT, waitUntilCompletes = true)

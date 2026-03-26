@@ -20,6 +20,7 @@ package com.wire.android.ui.home.conversations.messages
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.paging.PagingData
+import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.media.audiomessage.AudioSpeed
@@ -31,7 +32,6 @@ import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.FileManager
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.data.asset.AttachmentType
@@ -51,6 +51,7 @@ import com.wire.kalium.logic.feature.conversation.ClearUsersTypingEventsUseCase
 import com.wire.kalium.logic.feature.conversation.GetConversationUnreadEventsCountUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
+import com.wire.kalium.logic.feature.message.FetchOlderNomadMessagesByConversationUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.GetSearchedConversationMessagePositionUseCase
 import com.wire.kalium.logic.feature.message.MessageOperationResult
@@ -82,6 +83,9 @@ class ConversationMessagesViewModelArrangement {
 
     @MockK
     lateinit var getMessagesForConversationUseCase: GetMessagesForConversationUseCase
+
+    @MockK
+    lateinit var fetchOlderNomadMessagesByConversationUseCase: FetchOlderNomadMessagesByConversationUseCase
 
     @MockK
     lateinit var getMessageById: GetMessageByIdUseCase
@@ -136,6 +140,7 @@ class ConversationMessagesViewModelArrangement {
             fileManager,
             TestDispatcherProvider(),
             getMessagesForConversationUseCase,
+            fetchOlderNomadMessagesByConversationUseCase,
             toggleReaction,
             resetSession,
             conversationAudioMessagePlayer,
@@ -155,6 +160,7 @@ class ConversationMessagesViewModelArrangement {
         coEvery { toggleReaction(any(), any(), any()) } returns ToggleReactionResult.Success
         coEvery { observeConversationDetails(any()) } returns flowOf()
         coEvery { getMessagesForConversationUseCase(any(), any()) } returns messagesChannel.consumeAsFlow()
+        coEvery { fetchOlderNomadMessagesByConversationUseCase(any(), any()) } returns Unit
         coEvery { getConversationUnreadEventsCount(any()) } returns GetConversationUnreadEventsCountUseCase.Result.Success(0L)
         coEvery { updateAssetMessageDownloadStatus(any(), any(), any()) } returns UpdateTransferStatusResult.Success
         coEvery { clearUsersTypingEvents() } returns Unit

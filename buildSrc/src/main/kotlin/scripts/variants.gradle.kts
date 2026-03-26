@@ -205,6 +205,21 @@ android {
                     )
                 }
 
+                ConfigType.MapOfStrings -> {
+                    val map = flavorMap[flavor.name]?.get(configs.value) as? Map<*, *>
+                    val mapString = map?.map { (key, value) ->
+                        "\"$key\", \"$value\"".let {
+                            "put($it);"
+                        }
+                    }?.joinToString("\n") ?: ""
+                    buildNonStringConfig(
+                        flavor,
+                        configs.configType.type,
+                        configs.name,
+                        "new java.util.HashMap<String, String>() {{\n$mapString\n}}"
+                    )
+                }
+
                 ConfigType.MapOfStringToListOfStrings -> {
                     val map = flavorMap[flavor.name]?.get(configs.value) as? Map<*, *>
                     val mapString = map?.map { (key, value) ->

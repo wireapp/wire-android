@@ -26,7 +26,7 @@ import kotlin.io.encoding.Base64
 
 @Singleton
 class NomadIntentSignatureValidator internal constructor(
-    private val configurationSignatureKeys: List<String>,
+    private val configurationSignatureKeys: Map<String, String>,
     private val isConfigurationSignatureEnforced: Boolean
 ) {
 
@@ -53,7 +53,7 @@ class NomadIntentSignatureValidator internal constructor(
             Base64.decode(signature).toUByteArray()
         }.getOrElse { return false }
         // Any of the available keys can verify this signature.
-        return configurationSignatureKeys.any { b64DerKey ->
+        return prioritizedConfigurationSignatureKeys().any { b64DerKey ->
             runCatching {
                 // DER-encoded Ed25519 public key: 12 bytes ASN.1 header + 32 bytes raw key.
                 val decodedKey = Base64.decode(b64DerKey.replace("\\s".toRegex(), ""))
@@ -76,8 +76,21 @@ class NomadIntentSignatureValidator internal constructor(
         }
     }
 
+    private fun prioritizedConfigurationSignatureKeys(): List<String> =
+        buildList {
+            configurationSignatureKeys[PRIMARY_KEY_INDEX]?.let(::add)
+            configurationSignatureKeys[SECONDARY_KEY_INDEX]?.let(::add)
+            configurationSignatureKeys
+                .filterKeys { it != PRIMARY_KEY_INDEX && it != SECONDARY_KEY_INDEX }
+                .toSortedMap()
+                .values
+                .forEach(::add)
+        }
+
     companion object {
         internal const val SKIP_SIGNATURE_VERIFICATION_TOKEN = "skip"
+        private const val PRIMARY_KEY_INDEX = "0"
+        private const val SECONDARY_KEY_INDEX = "1"
         private const val ED25519_DER_PUBLIC_KEY_HEADER_LENGTH = 12
         private const val ED25519_PUBLIC_KEY_LENGTH = 32
         private val ED25519_DER_PUBLIC_KEY_HEADER = byteArrayOf(
